@@ -17,7 +17,7 @@ public class ForLoopOnArray extends x10Test {
 	public const N: int = 3;
 
 	public def run(): boolean = {
-		var a: Array[double] = new Array[double]([0..10], ((i): point): double => i to double);
+		var a: Array[double] = Array.make[double]([0..10], ((i): point): double => i to double);
 
 		for (val (i): point in a) {
 			if (a(i) != i) return false;

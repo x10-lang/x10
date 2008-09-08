@@ -44,7 +44,7 @@ public class Atomic1 extends x10Test {
 		val n = f.force();
 		val o = g.force();
 		val p = h.force();
-		var t1;
+		var t1: int;
 		var t2: int;
 		atomic t1 = cnt;
 		atomic t2 = cnt_broken;

@@ -17,7 +17,7 @@ public class AtEach extends x10Test {
 
     public def run(): boolean = {
         val d: dist = Dist.makeUnique(place.places);
-        val disagree: Array[int] = new Array[int](d);
+        val disagree: Array[int] = Array.make[int](d);
         finish ateach (val p: point in d) {
             // remember if here and d[p] disagree
             // at any activity at any place

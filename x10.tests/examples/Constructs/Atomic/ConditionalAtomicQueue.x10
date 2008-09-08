@@ -23,7 +23,7 @@ public class ConditionalAtomicQueue extends x10Test {
 	private var head: int; // pointer to item to remove from the front
 
 	public def this(): ConditionalAtomicQueue = {
-		Q = new Array[T](siz);
+		Q = Array.make[T](siz);
 		nelems = 0;
 		tail = 0;
 		head = 0;
@@ -93,7 +93,7 @@ public class ConditionalAtomicQueue extends x10Test {
 				for (val p: point in D2) {
 					var t: Box[T];
 					when (!empty()) { t = remove(); }
-					val t1: T = (T)t;
+					val t1: T = t to T;
 					async(t1) { t1.consume(); } // consume the T
 					val m: int = (future(t1) t1.getval()).force();
 					received(m) += 1;

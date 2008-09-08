@@ -27,7 +27,8 @@ public class ArrayCopy1 extends x10Test {
 		// fetch the B[i] value
 		// Then compare it to the A[i] value
 		finish
-			ateach (val p in D) chk(A(p) == future(E(p)){B(p)}.force());
+			ateach (val p in D)
+                                chk(A(p) == (future(E(p)) B(p)).force());
 	}
 
 	/**
@@ -45,7 +46,7 @@ public class ArrayCopy1 extends x10Test {
 			ateach (val p in D) {
 				chk(D(p) == here);
 				async(E(p)) chk(E(p) == here);
-				A(p) = future(E(p)){B(p)}.force();
+				A(p) = (future(E(p)) B(p)).force();
 			}
 	}
 
@@ -63,8 +64,8 @@ public class ArrayCopy1 extends x10Test {
 			val D = dist2.getDist(dX, R);
 			val E = dist2.getDist(dY, R);
 			chk(D.region.equals(E.region) && D.region.equals(R));
-			val A = new Array[int](D);
-			val B = new Array[int](E,
+			val A = Array.make[int](D);
+			val B = Array.make[int](E,
 			 (var p(i,j,k,l): point): int => { var x: int = ((i*N+j)*N+k)*N+l; return x*x+1; });
 			arrayCopy(A, B);
 			arrayEqual(A, B);

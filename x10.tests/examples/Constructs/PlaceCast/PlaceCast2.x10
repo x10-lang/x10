@@ -12,7 +12,7 @@ public class PlaceCast2 extends x10Test {
 	public def run(): boolean = {
 		val d: dist = dist.factory.unique(place.places);
 		System.out.println("num places = " + place.places);
-		val disagree: Array[BoxedBoolean]{dist==d} = new Array[BoxedBoolean](d, ((p): point): BoxedBoolean => {
+		val disagree: Array[BoxedBoolean]{dist==d} = Array.make[BoxedBoolean](d, ((p): point): BoxedBoolean => {
 				System.out.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});

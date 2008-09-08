@@ -15,7 +15,7 @@ public class Array2v extends x10Test {
 	public def run(): boolean = {
 		var e: region{rank==1} = [0..9];
 		var r: region = [e, e, e];
-		 var d: dist = Dist.makeConstant(r, here);
+		var d: dist = Dist.makeConstant(r, here);
 		chk(d.equals(Dist.makeConstant([0..9, 0..9, 0..9], here)));
 		var ia: Array[int] = Array.make[int](d, (point)=>0);
 
