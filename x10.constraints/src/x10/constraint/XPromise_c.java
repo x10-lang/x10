@@ -336,14 +336,17 @@ public class XPromise_c implements XPromise, Serializable {
       
         if (value != null) {
         	XTerm t2 = value.term();
-        	  /** Does not work with coercions. Start undelete.
-           if (t1.isEQV()) {
-             return;
-           }
-           
-           if (t2.isEQV())
-        	   t2 = value.lookup().term();
-        	Stop undelete   */
+        	
+        	// /** Does not work with coercions. Start undelete.
+        	if (! XConstraint_c.DUMP_EQV) {
+        	    if (t1.isEQV()) {
+        	        return;
+        	    }
+
+        	    if (t2.isEQV())
+        	        t2 = value.lookup().term();
+        	}
+ //       	Stop undelete   */
             /*if (t1.equals(t2)) 
             	return;*/
             result.add(XTerms.makeEquals(t1, t2));
