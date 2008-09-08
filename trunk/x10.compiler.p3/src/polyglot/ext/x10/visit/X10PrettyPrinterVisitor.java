@@ -1576,13 +1576,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                }
 	              });
 	        }
-		
-		TypeExpander ret = new TypeExpander(n.returnType().type(), true, true, false);
-		typeArgs.add(ret);
 
-		w.write("new x10.core.fun.Fun_0_" + n.formals().size() + "<");
-		new Join(", ", typeArgs).expand(tr2);
-		w.write(">() {");
+		TypeExpander ret = new TypeExpander(n.returnType().type(), true, true, false);
+		if (!n.returnType().type().isVoid()) {
+		    typeArgs.add(ret);
+		    w.write("new x10.core.fun.Fun_0_" + n.formals().size());
+		}
+		else {		
+		    w.write("new x10.core.fun.VoidFun_0_" + n.formals().size());
+		}
+		
+		if (typeArgs.size() > 0) {
+		    w.write("<");
+		    new Join(", ", typeArgs).expand(tr2);
+		    w.write(">");
+		}
+		
+		w.write("() {");
 		w.write("public ");
 		ret.expand(tr2);
 		w.write(" apply(");
@@ -2278,10 +2288,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    ClosureType ct = (ClosureType) type;
 		    List<Type> args = ct.argumentTypes();
 		    Type ret = ct.returnType();
-		    w.write(X10_FUN_CLASS_PREFIX);
+		    if (ret.isVoid()) {
+		        w.write("x10.core.fun.VoidFun");
+		    }
+		    else {
+		        w.write("x10.core.fun.Fun");
+		    }
 		    w.write("_" + ct.typeParameters().size());
 		    w.write("_" + args.size());
-		    if (USE_JAVA_GENERICS && printTypeParams) {
+		    if (USE_JAVA_GENERICS && printTypeParams && args.size() + (ret.isVoid() ? 0 : 1) > 0) {
 		        w.write("<");
 		        String sep = "";
 		        for (Type a : args) {
@@ -2289,8 +2304,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		            sep = ",";
 		            printType(a, (printTypeParams ? PRINT_TYPE_PARAMS : 0) | BOX_PRIMITIVES);
 		        }
-		        w.write(sep);
-		        printType(ret, (printTypeParams ? PRINT_TYPE_PARAMS : 0) | BOX_PRIMITIVES);
+		        if (! ret.isVoid()) {
+		            w.write(sep);
+		            printType(ret, (printTypeParams ? PRINT_TYPE_PARAMS : 0) | BOX_PRIMITIVES);
+		        }
 		        w.write(">");
 		    }
 		    return;
