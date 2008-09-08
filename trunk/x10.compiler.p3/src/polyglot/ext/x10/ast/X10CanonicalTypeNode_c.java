@@ -114,7 +114,15 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    X10ClassDef def = ct.x10Def();
 	    if (ct.typeArguments().size() != def.typeParameters().size())
 		throw new SemanticException("Invalid type; parameterized class " + def.fullName() + " instantiated with incorrect number of arguments.", position());
-	
+
+	    for (int j = 0; j < ct.typeArguments().size(); j++) {
+	        Type actualType = ct.typeArguments().get(j);
+	        ParameterType correspondingParam = def.typeParameters().get(j);
+	        if (actualType.isVoid()) {
+                    throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with type " + actualType + ".", position());
+	        }
+	    }
+	    
 	    // A invariant parameter may not be instantiated on a covariant or contravariant parameter.
 	    // A contravariant parameter may not be instantiated on a covariant parameter.
 	    // A covariant parameter may not be instantiated on a contravariant parameter.
@@ -137,21 +145,21 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 				case INVARIANT:
 				    switch (actualVariance) {
 				    case CONTRAVARIANT:
-					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef);
+					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef + ".", position());
 				    case COVARIANT:
-					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef);
+					throw new SemanticException("Cannot instantiate invariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef + ".", position());
 				    }
 				    break;
 				case CONTRAVARIANT:
 				    switch (actualVariance) {
 				    case COVARIANT:
-					throw new SemanticException("Cannot instantiate contravariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef);
+					throw new SemanticException("Cannot instantiate contravariant parameter " + correspondingParam + " of " + def + " with covariant parameter " + pt + " of " + actualDef + ".", position());
 				    }
 				    break;
 				case COVARIANT:
 				    switch (actualVariance) {
 				    case CONTRAVARIANT:
-					throw new SemanticException("Cannot instantiate covariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef);
+					throw new SemanticException("Cannot instantiate covariant parameter " + correspondingParam + " of " + def + " with contravariant parameter " + pt + " of " + actualDef + ".", position());
 				    }
 				    break;
 				}
