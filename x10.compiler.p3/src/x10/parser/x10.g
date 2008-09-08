@@ -3050,6 +3050,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(l);
           $EndJava
         ./
+                                 | TypeDefDeclaration
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.add(TypeDefDeclaration);
+                    setResult(l);
+          $EndJava
+        ./
                                  | ;
         /.$BeginJava
                     setResult(Collections.EMPTY_LIST);
