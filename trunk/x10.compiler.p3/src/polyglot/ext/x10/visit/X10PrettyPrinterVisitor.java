@@ -981,9 +981,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String mangle = mangle(def.fullName());
 
         if (def.asType().isGloballyAccessible()) {
-            w.write("static ");
+            w.write("public static ");
         }
-        w.write("public class " + rttShortName(def) + " extends x10.types.RuntimeType<");
+        w.write("class " + rttShortName(def) + " extends x10.types.RuntimeType<");
         printType(def.asType(), BOX_PRIMITIVES);
         w.write("> {");
         w.newline();
@@ -2719,6 +2719,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                    }
 	                    w.write(")");
 	                }
+	                return;
+	            }
+	            else {
+	                // HACK: remove parameters so we can do a static method call
+	                pat = pat.replaceAll("<.*>", "");
+	                w.write("new ");
+	                w.write(pat);
+	                w.write(".RTT");
+	                w.write("(");
+	                for (int i = 0; i < ct.typeArguments().size(); i++) {
+	                    if (i != 0)
+	                        w.write(", ");
+	                    new RuntimeTypeExpander(ct.typeArguments().get(i)).expand(tr);
+	                }
+	                w.write(")");
 	                return;
 	            }
 	        }
