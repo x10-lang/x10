@@ -224,6 +224,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                List<Type> b = getBoundsFromConstraint(pt, c, dir);
 	                worklist.addAll(b);
 	            }
+	            if (def instanceof ClosureDef) {
+	                ClosureDef md = (ClosureDef) def;
+	                XConstraint c = Types.get(md.guard());
+	                List<Type> b = getBoundsFromConstraint(pt, c, dir);
+	                worklist.addAll(b);
+	            }
+	            if (def instanceof TypeDef) {
+	                TypeDef md = (TypeDef) def;
+	                XConstraint c = Types.get(md.guard());
+	                List<Type> b = getBoundsFromConstraint(pt, c, dir);
+	                worklist.addAll(b);
+	            }
 	            if (def instanceof X10ConstructorDef) {
 	                X10ConstructorDef cd = (X10ConstructorDef) def;
 	                XConstraint c = Types.get(cd.guard());
@@ -289,18 +301,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    final Position pos = def.position();
 
 	    X10ClassDef cd = new X10ClassDef_c(this, null);
-	    /*
-	     * {
-	        @Override
-	        public ClassType asType() {
-	            if (asType == null) {
-	                // Initialize asType to ClosureType so we don't return a X10ParsedClassType instead.
-	                asType = new ClosureType_c(xts, pos, this, (ClosureInstance) def.asInstance());
-	            }
-	            return asType;
-		}
-	    };
-*/
 	    
 	    cd.position(pos);
 	    cd.name(null);
@@ -317,21 +317,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    
 	    ClosureInstance ci = (ClosureInstance) def.asInstance();
 	    typeArgs.addAll(ci.formalTypes());
-	    typeArgs.add(ci.returnType());
-
-//	    for (int i = 0; i < numValueParams; i++) {
-//		ParameterType t = new ParameterType_c(this, pos, Name.make("Z" + (i+1)), Types.ref(cd));
-//		cd.addTypeParameter(t, TypeProperty.Variance.CONTRAVARIANT);
-//		typeArgs.add(t);
-//	    }
-//
-//	    ParameterType returnType = new ParameterType_c(this, pos, Name.make("U"), Types.ref(cd));
-//	    cd.addTypeParameter(returnType, TypeProperty.Variance.COVARIANT);
-//	    typeArgs.add(returnType);
 	    
+	    if (! ci.returnType().isVoid()) {
+	        typeArgs.add(ci.returnType());
+	    }
+
 	    // Instantiate the super type on the new parameters.
-	    X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams).asType();
-	    assert sup.x10Def().typeParameters().size() == typeArgs.size();
+	    X10ClassType sup = (X10ClassType) closureBaseInterfaceDef(numTypeParams, numValueParams, ci.returnType().isVoid()).asType();
+
+	    assert sup.x10Def().typeParameters().size() == typeArgs.size() : def + ", " + sup + ", " + typeArgs;
 	    sup = sup.typeArguments(typeArgs);
 	    
 	    cd.superType(Types.ref(Ref())); // Closures are ref types.
@@ -340,10 +334,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return cd;
 	}
 	
-	public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams) {
+	public X10ClassDef closureBaseInterfaceDef(final int numTypeParams, final int numValueParams, final boolean isVoid) {
 	    final X10TypeSystem xts = this;
 	    final Position pos = Position.COMPILER_GENERATED;
+	    
 	    String name = "Fun_" + numTypeParams + "_" + numValueParams;
+	   
+	    if (isVoid) {
+	        name = "Void" + name;
+	    }
 	    
 	    // Check if the class has already been defined.
 	    QName fullName = QName.make("x10.lang", name);
@@ -391,16 +390,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 argTypes.add(Types.ref(t));
                 cd.addTypeParameter(t, TypeProperty.Variance.CONTRAVARIANT);
             }
-
-            ParameterType returnType = new ParameterType_c(xts, pos, Name.make("U"), Types.ref(cd));
-            cd.addTypeParameter(returnType, TypeProperty.Variance.COVARIANT);
+            
+            Type rt = null;
+            
+            if (! isVoid) {
+                ParameterType returnType = new ParameterType_c(xts, pos, Name.make("U"), Types.ref(cd));
+                cd.addTypeParameter(returnType, TypeProperty.Variance.COVARIANT);
+                rt = returnType;
+            }
+            else {
+                rt = Void();
+            }
 
             // NOTE: don't call cd.asType() until after the type parameters are added.
             ClosureType ct = (ClosureType) cd.asType();
             xts.systemResolver().install(fullName, ct);
 	    
 	    X10MethodDef mi = methodDef(pos, Types.ref(ct), Flags.PUBLIC.Abstract(),
-	                                Types.ref(returnType), Name.make("apply"), typeParams, argTypes,
+	                                Types.ref(rt), Name.make("apply"), typeParams, argTypes,
 	                                dummyLocalDefs(argTypes), null, Collections.EMPTY_LIST, null);
 	    cd.addMethod(mi);
 	    
@@ -1207,13 +1214,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public ClosureType closureType(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
-	    X10ClassDef def = closureBaseInterfaceDef(typeParams.size(), argTypes.size());
+	    Type rt = Types.get(returnType);
+	    X10ClassDef def = closureBaseInterfaceDef(typeParams.size(), argTypes.size(), rt.isVoid());
 	    ClosureType ct = (ClosureType) def.asType();
 	    List<Type> typeArgs = new ArrayList<Type>();
 	    for (Ref<? extends Type> ref : argTypes) {
 	        typeArgs.add(Types.get(ref));
 	    }
-	    typeArgs.add(Types.get(returnType));
+	    if (! rt.isVoid())
+	        typeArgs.add(rt);
 	    return (ClosureType) ct.typeArguments(typeArgs);
 	}
 
@@ -1255,6 +1264,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	// The only primitive left.
 	Type VOID_;
 	public Type Void() { if (VOID_ == null) VOID_ = new Void(this); return VOID_; }
+	public boolean isVoid(Type t) { return t != null && t.equals((Object) Void()); } // do not use typeEquals
 
 	protected ClassType Boolean_;
 	public Type Boolean() { if (Boolean_ == null) Boolean_ = load("x10.lang.Boolean"); return Boolean_; }
@@ -1809,6 +1819,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (t1 == t2)
 			return true;
 		
+		if (t1.isVoid() && t2.isVoid())
+		    return true;
+		
+		if (t1.isVoid() || t2.isVoid())
+		    return false;
+		
 		// DO NOT check if env.entails(t1 == t2); it would be recursive
                 // Instead, iterate through the environment.
                 for (int i = 0; i < env.size(); i++) {
@@ -2127,6 +2143,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public boolean isImplicitCastValid(Type fromType, Type toType, boolean tryCoercionFunction) {
+	    if (fromType.isVoid() || toType.isVoid()) {
+	        return false;
+	    }
+	    
 	    if (isSubtype(fromType, toType)) {
 	        return true;
 	    }
