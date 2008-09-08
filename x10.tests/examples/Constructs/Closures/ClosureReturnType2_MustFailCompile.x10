@@ -19,7 +19,7 @@ public class ClosureReturnType2_MustFailCompile extends ClosureTest {
 
     public def run(): boolean = {
         
-        val f = ():int => {foo();};
+        val f = ():int => {foo();};  // inferred return type is void, not int
     }
 
     public static def main(var args: Rail[String]): void = {

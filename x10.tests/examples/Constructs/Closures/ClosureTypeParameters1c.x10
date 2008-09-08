@@ -21,11 +21,11 @@ import harness.x10Test;
 
 public class ClosureTypeParameters1c extends ClosureTest {
 
-    class V           {const name = "V";};
+    class V           {const name = "V";}
     class W extends V {const name = "W";}
-    class X extends V {const name = "X";};
-    class Y extends X {const name = "Y";};
-    class Z extends X {const name = "Z";};
+    class X extends V {const name = "X";}
+    class Y extends X {const name = "Y";}
+    class Z extends X {const name = "Z";}
 
     public def run(): boolean = {
         
