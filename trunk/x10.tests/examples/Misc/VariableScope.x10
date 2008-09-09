@@ -16,7 +16,7 @@ public class VariableScope extends x10Test {
 	public def run(): boolean = {
 
 		val N: int = 10;
-		var e: region = Region.makeRect(1, N); //(low, high)
+		var e: region = Region.makeRectangular(1, N); //(low, high)
 		var r: region = [e, e];
 		var d: dist = r->here;
 		var n: int = 0;
