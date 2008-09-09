@@ -57,6 +57,11 @@ public abstract class Region extends Value implements Iterable<Point> {
         rail = rank == 1 && rect && zeroBased;
         this.colMajor = colMajor;
     }
+    
+    /** Convert to a region. */
+    public Region region() {
+        return this;
+    }
 
     /**
      * Return the number of points in this region.
