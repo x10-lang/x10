@@ -17,7 +17,6 @@ import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.X10ClassType;
@@ -25,7 +24,6 @@ import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
@@ -34,7 +32,6 @@ import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
@@ -149,19 +146,23 @@ public class X10New_c extends New_c implements X10New {
 	                if (tn.type() instanceof UnknownType) {
 	                    throw new SemanticException();
 	                }
+	                
+	                Type t = tn.type();
+	                t = ts.expandMacros(t);
 
-	                if (tn.type().isClass()) {
-	                    ClassType ct = tn.type().toClass();
+                        if (! (t instanceof X10ClassType)) {
+                            throw new SemanticException("Cannot instantiate type " + t + ".");
+                        }
+                        
+                        X10ClassType ct = (X10ClassType) t;
 
-	                    if (ct.isMember() && ! ct.flags().isStatic()) {
-	                        New k = n.findQualifier(childtc, ct);
-	                        tn = k.objectType();
-	                        qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
-	                    }
-	                }
-	                else {
-	                    throw new SemanticException("Cannot instantiate type " + tn.type() + ".");
-	                }
+                        if (ct.isMember() && ! ct.flags().isStatic()) {
+                            New k = n.findQualifier(childtc, ct);
+                            tn = k.objectType();
+                            qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
+                        }
+                        
+                        ((Ref<Type>) tn.typeRef()).update(ct);
 	            }
 	            else {
 	                qualifier = (Expr) n.visitChild(n.qualifier(), childtc);
@@ -183,14 +184,23 @@ public class X10New_c extends New_c implements X10New {
 	                    }
 
 	                    Type t = ts.findMemberType(qualifier.type(), name, c.currentClassDef());
-
-	                    X10ClassType ct = (X10ClassType) t.toClass();
-
+	                    t = ts.expandMacros(t);
+	                    
+	                    if (! (t instanceof X10ClassType)) {
+	                        throw new SemanticException("Cannot instantiate type " + t + ".", n.position());
+	                    }
+	                    
+	                    X10ClassType ct = (X10ClassType) t;
+	                    
 	                    if (typeArguments.size() > 0) {
 	                        List<Type> typeArgs = new ArrayList<Type>(this.typeArguments.size());
 
 	                        for (TypeNode tan : this.typeArguments) {
 	                            typeArgs.add(tan.type());
+	                        }
+	                        
+	                        if (typeArguments.size() != ct.x10Def().typeParameters().size()) {
+	                            throw new SemanticException("Cannot instantiate type " + ct + "; incorrect number of type arguments.", n.position());
 	                        }
 
 	                        ct = ct.typeArguments(typeArgs);
