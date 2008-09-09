@@ -2739,19 +2739,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                return;
 	            }
 	            else {
-	                // HACK: remove parameters so we can do a static method call
-	                pat = pat.replaceAll("<.*>", "");
-	                w.write("new ");
-	                w.write(pat);
-	                w.write(".RTT");
-	                w.write("(");
-	                for (int i = 0; i < ct.typeArguments().size(); i++) {
-	                    if (i != 0)
-	                        w.write(", ");
-	                    new RuntimeTypeExpander(ct.typeArguments().get(i)).expand(tr);
+	                if (ct.isGloballyAccessible() && ct.typeArguments().size() == 0) {
 	                }
-	                w.write(")");
-	                return;
+	                else {
+	                    // HACK: remove parameters so we can do a static method call
+	                    pat = pat.replaceAll("<.*>", "");
+	                    w.write("new ");
+	                    w.write(pat);
+	                    w.write(".RTT");
+	                    w.write("(");
+	                    for (int i = 0; i < ct.typeArguments().size(); i++) {
+	                        if (i != 0)
+	                            w.write(", ");
+	                        new RuntimeTypeExpander(ct.typeArguments().get(i)).expand(tr);
+	                    }
+	                    w.write(")");
+	                    return;
+	                }
 	            }
 	        }
 
