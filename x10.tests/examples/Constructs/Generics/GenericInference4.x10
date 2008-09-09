@@ -13,7 +13,7 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class GenericsInference4 extends GenericTest {
+public class GenericInference4 extends GenericTest {
 
     class V           {const name = "V";};
     class W extends V {const name = "W";}
@@ -32,6 +32,6 @@ public class GenericsInference4 extends GenericTest {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new GenericsInference4().execute();
+        new GenericInference4().execute();
     }
 }

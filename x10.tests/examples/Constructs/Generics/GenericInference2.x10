@@ -13,26 +13,27 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class GenericsInference1_MustFailCompile extends GenericTest {
+public class GenericInference2 extends GenericTest {
 
     class V           {const name = "V";};
-    class W extends V {const name = "W";}
+    class W extends V {const name = "W";};
     class X extends V {const name = "X";};
     class Y extends X {const name = "Y";};
     class Z extends X {const name = "Z";};
 
-    def m[T](){T<:X} = T.name;
+    def m[T](t:T){T<:X} = T.name;
 
     public def run(): boolean = {
 
-        // must fail compile
-        val a = m();
-        check("a", a, "hi");
+        val y = m(new Y());
+        val z = m(new Z());
+        check("y", y, "Y");
+        check("z", z, "Z");
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new GenericsInference1_MustFailCompile().execute();
+        new GenericInference2().execute();
     }
 }
