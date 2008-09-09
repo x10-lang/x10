@@ -932,23 +932,33 @@ TODO: Supposrt lazy initialization of nextCache.
 	 *            
 	 */
 	public Closure interruptCheck() {
-		if (! cache.interrupted()) // fast path
+		if (! cache.interrupted()) {
+			// fast path
 			return null;
+		}
+		
 		Closure result = exceptionHandler();
-		if ( (  reporting)) 
-			/*System.out.println(this + " at " + pool.time() 
-					+ " interruptCheck: discovers a theft and returns " + result
-					+ " cache=" + cache.dump());*/
-			System.err.println(this + " at " + pool.time() 
-					+ " interruptCheck: discovers a theft on frame " + currentFrame()
-					+ " cache=" + cache.dump());
+		if (reporting) { 
+			interruptCheckReportSteal(result);
+		}
+		if (result == null) {
+			result = job;
+		}
+		return result;
+	}
+
+	private void interruptCheckReportSteal(Closure result) {
+		/*System.out.println(this + " at " + pool.time() 
+				+ " interruptCheck: discovers a theft and returns " + result
+				+ " cache=" + cache.dump());*/
+		System.err.println(this + " at " + pool.time() 
+				+ " interruptCheck: discovers a theft on frame " + currentFrame()
+				+ " cache=" + cache.dump());
 		/*if (result !=null) {
 			System.err.println("vj debug before: " + cache.dump());
 			popFrame();
 			System.err.println("vj debug after: " + cache.dump());
 		}*/
-		if (result == null) result = job;
-		return result;
 	}
 	
 	/**
