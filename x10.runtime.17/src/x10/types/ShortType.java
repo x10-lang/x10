@@ -10,6 +10,11 @@ public class ShortType extends RuntimeType<Short> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Short;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new short[length];
     }

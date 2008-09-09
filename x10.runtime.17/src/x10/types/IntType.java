@@ -10,6 +10,11 @@ public class IntType extends RuntimeType<Integer> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Integer;
+    }
+    
+    @Override
     public Object makeArray(int length) {
         return new int[length];
     }

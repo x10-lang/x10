@@ -10,6 +10,11 @@ public class DoubleType extends RuntimeType<Double> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Double;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new double[length];
     }
