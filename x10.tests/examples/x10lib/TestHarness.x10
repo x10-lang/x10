@@ -25,7 +25,7 @@ public class TestHarness {
 			return;
 		}
 		try {
-			var t: x10Test = (x10Test) Class.forName(args(0)).newInstance();
+			var t: x10Test = Class.forName(args(0)).newInstance() as x10Test;
 			t.execute();
 		} catch (var e: ClassNotFoundException) {
 			System.err.println("Test class "+args(0)+" not found: "+e);
