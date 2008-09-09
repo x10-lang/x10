@@ -10,6 +10,11 @@ public class LongType extends RuntimeType<Long> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Long;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new long[length];
     }

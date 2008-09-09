@@ -10,6 +10,11 @@ public class ByteType extends RuntimeType<Byte> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Byte;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new byte[length];
     }

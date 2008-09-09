@@ -10,6 +10,11 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Boolean;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new boolean[length];
     }
