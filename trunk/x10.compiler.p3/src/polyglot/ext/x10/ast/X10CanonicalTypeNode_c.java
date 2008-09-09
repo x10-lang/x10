@@ -16,6 +16,8 @@ import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
+import polyglot.types.CodeDef;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.LazyRef;
@@ -54,8 +56,19 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	if (t instanceof ParameterType) {
 	    ParameterType pt = (ParameterType) t;
 	    Def def = Types.get(pt.def());
-	    if (c.inStaticContext() && def instanceof ClassDef) {
-		throw new SemanticException("Cannot refer to type parameter " + pt.fullName() + " of " + def + " from a static context.", position());
+	    boolean inConstructor = false;
+	    if (c.currentCode() instanceof ConstructorDef) {
+	        ConstructorDef td = (ConstructorDef) c.currentCode();
+	        Type container = Types.get(td.container());
+	        if (container instanceof X10ClassType) {
+	            X10ClassType ct = (X10ClassType) container;
+	            if (ct.def() == def) {
+	                inConstructor = true;
+	            }
+	        }
+	    }
+	    if (c.inStaticContext() && def instanceof ClassDef && ! inConstructor) {
+	        throw new SemanticException("Cannot refer to type parameter " + pt.fullName() + " of " + def + " from a static context.", position());
 	    }
 	}
 	checkType(t);
