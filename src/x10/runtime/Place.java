@@ -29,6 +29,22 @@ public abstract class Place implements Comparable, AbstractMetrics {
     public int id() {
         return id;
     }
+    
+    public Place next() {
+        return next(1);
+    }
+    
+    public Place prev() {
+        return next(-1);
+    }
+    
+    public Place next(int i) {
+        return Runtime.place((id+i) % Runtime.MAX_PLACES);
+    }
+
+    public Place prev(int i) {
+        return next(-i);
+    }
 
     /**
      * Executor Service which provides the thread pool: starts with # threads =
