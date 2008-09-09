@@ -39,7 +39,10 @@ public abstract class Place implements Comparable, AbstractMetrics {
     }
     
     public Place next(int i) {
-        return Runtime.place((id+i) % Runtime.MAX_PLACES);
+        int n = Runtime.MAX_PLACES;
+        // -1 % n == -1, not n-1, so need to add n
+        int k = (id+i%n+n) % n;
+        return Runtime.place(k);
     }
 
     public Place prev(int i) {
