@@ -9,6 +9,7 @@
 package x10.constraint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -73,12 +74,7 @@ public class XTerms {
        with operator op and terms terms. Uses varargs.
      */
 	public static XTerm makeAtom(XName op, XTerm... terms) {
-	    return makeAtom(op, terms);
-	    /*	    assert op != null;
-	    assert terms != null;
-	    XFormula f = new XFormula_c(op, terms);
-	    f.markAsAtomicFormula();
-	    return f;*/
+	    return makeAtom(op, Arrays.asList(terms));
 	}
 
     /**
