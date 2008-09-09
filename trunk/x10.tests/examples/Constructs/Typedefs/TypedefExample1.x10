@@ -13,6 +13,9 @@ import harness.x10Test;
 
 public class TypedefExample1 extends TypedefTest {
 
+    static class Set[T] { }
+    static class Map[K,V] { }
+
     public def run(): boolean = {
         
         type StringSet = Set[String];
