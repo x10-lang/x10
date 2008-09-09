@@ -17,11 +17,11 @@ public class TypedefIterated02 extends TypedefTest {
 
     public def run(): boolean = {
         type X[T,U] = T;
-        type A[T] = X[T,String];
+        type A[T] = X[T,String]; // = T
         type B = int;
-        type C = A[B];
+        type C = A[B]; // = X[B,String] = B = int
         var c:C = 0;
-        type D = A[A[B]];
+        type D = A[A[B]]; // = X[A[B],String] = A[B] = X[B,String] = B = int
         var d:D = 0;
     }
 
