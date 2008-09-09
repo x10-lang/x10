@@ -900,7 +900,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		// Generate the run-time type.  We have to wrap in a class since n might be an interface
 		// and interfaces can't have static methods.
 		
-		if (def.isTopLevel() || def.isLocal())
+		if (def.isTopLevel())
 		    generateRTType(def);
 		
 		generateRTTMethods(def);
@@ -968,6 +968,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		n.print(n.body(), w, tr);
 		w.write("}");
 		w.newline(0);
+		
+		if (def.isLocal())
+                    generateRTType(def);
 	}
 	
 	private String mangle(QName name) {
@@ -1974,10 +1977,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    		// otherwise emit the hardwired code.
 	    		tr.print(n, array, w);
 	    		w.write(".set(");
-	    		new Join(", ", index).expand(tr);
-	    		if (index.size() > 0)
-	    			w.write(", ");
 	    		tr.print(n, n.right(), w);
+	    		if (index.size() > 0)
+	    		    w.write(", ");
+	    		new Join(", ", index).expand(tr);
 	    		w.write(")");
 	    	}
 	    }
@@ -1986,9 +1989,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        Name methodName = X10Binary_c.binaryMethodName(op);
 	        tr.print(n, array, w);
 	        w.write(".set(");
-	        new Join(", ", index).expand(tr);
-	        if (index.size() > 0)
-	            w.write(", ");
 	        tr.print(n, array, w);
 	        w.write(".apply(");
 	        new Join(", ", index).expand(tr);
@@ -2005,6 +2005,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            tr.print(n, n.right(), w);
 	            w.write(")");
 	        }
+	        if (index.size() > 0)
+	            w.write(", ");
+	        new Join(", ", index).expand(tr);
 	        w.write(")");
 	    }
 	    else {
@@ -2079,50 +2082,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(")");
 	    }
 	}
-
-//	public void visxit(SettableAssign_c a) {
-//	    Expr array = a.array();
-//	    List<Expr> index = a.index();
-//	    if (index.size() == 1) {
-//		String operator = a.operator().toString();
-//		Expr theIndex = index.get(0);
-//		X10TypeSystem ts = (X10TypeSystem) array.type().typeSystem();
-//		Template template;
-//		if (ts.isRail(array.type()) || ts.isValRail(array.type())) {
-//		    Type baseType = X10ArraysMixin.railBaseType(array.type());
-//		    template = new Template("rail_set", array, theIndex, a.right(), operator);		    
-//		}
-//		else {
-//			// Use general template
-//		    template = new Template("array_set", array, theIndex, a.right(), a.opString(a.operator()));
-//		}
-//
-//		template.expand();
-//		
-//		//new Template("array_set",
-//		//				 left.array(), left.index(), a.right(),
-//		//				 a.opString(a.operator())
-//		//			 ).expand();
-//	    }
-//	    else {
-//		String tmpl = QueryEngine.INSTANCE().needsHereCheck(a)
-//						  ? "array_set" : "array_set"; //"array_set_noplacecheck";
-//		assert index.size() > 1;
-//		Template template = new Template(tmpl,
-//											 array, new Join(",", index),
-//											 a.right(),
-//											 a.opString(a.operator())
-//										 );
-//		TypeNode elt_type = getParameterType((X10Type)a.type());
-//		if (elt_type != null)
-//			template = new Template("parametric", elt_type, template);
-//		template.expand();
-//		//new Template("array_set",
-//		//				 left.array(), new Join(",", index), a.right(),
-//		//				 a.opString(a.operator())
-//		//			 ).expand();
-//	}
-//	}
 	
 	String getPropertyInit(Type at, int index) {
 	    at = X10TypeMixin.baseType(at);
@@ -2677,7 +2636,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	String rttShortName(X10ClassDef cd) {
-	    if (cd.isMember())
+	    if (cd.isMember() || cd.isLocal())
 	        return cd.name() + "$RTT";
 	    else
 	        return "RTT";
@@ -2687,7 +2646,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (cd.isTopLevel())
 	        return cd.fullName() + "." + rttShortName(cd);
 	    if (cd.isLocal())
-	        return cd.fullName() + "." + rttShortName(cd);
+	        return rttShortName(cd);
 	    if (cd.isMember()) {
 	        X10ClassType container = (X10ClassType) Types.get(cd.container());
 	        return rttName(container.x10Def()) + "." + rttShortName(cd);
