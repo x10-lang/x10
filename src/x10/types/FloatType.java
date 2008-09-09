@@ -10,6 +10,11 @@ public class FloatType extends RuntimeType<Float> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Float;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new float[length];
     }

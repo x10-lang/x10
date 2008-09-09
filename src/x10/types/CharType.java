@@ -10,6 +10,11 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
+    public boolean instanceof$(Object o) {
+        return o instanceof java.lang.Character;
+    }
+
+    @Override
     public Object makeArray(int length) {
         return new char[length];
     }
