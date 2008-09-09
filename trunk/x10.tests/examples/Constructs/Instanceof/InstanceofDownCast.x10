@@ -26,22 +26,22 @@ public class InstanceofDownCast extends x10Test {
 		var upcast3: X10DepTypeClassOne = new X10DepTypeSubClassOne(2,3);
 
 		// instance of checked against an object
-		var res1: boolean = upcast1 instanceof X10DepTypeClassOne{p==1});
+		var res1: boolean = upcast1 instanceof X10DepTypeClassOne{p==1};
 		
-		var res2: boolean = upcast2 instanceof X10DepTypeClassOne{p==1});
-		var res3: boolean = upcast2 instanceof X10DepTypeSubClassOne{p==1&&a==2});
+		var res2: boolean = upcast2 instanceof X10DepTypeClassOne{p==1};
+		var res3: boolean = upcast2 instanceof X10DepTypeSubClassOne{p==1&&a==2};
 
-		var res4: boolean = upcast3 instanceof X10DepTypeClassOne{p==2});
-		var res5: boolean = upcast3 instanceof X10DepTypeSubClassOne{p==2&&a==3});
+		var res4: boolean = upcast3 instanceof X10DepTypeClassOne{p==2};
+		var res5: boolean = upcast3 instanceof X10DepTypeSubClassOne{p==2&&a==3};
 
 		// instance of checked against a method return
-		var res6: boolean = this.getX10DepTypeClassOne(1) instanceof X10DepTypeClassOne{p==1});
+		var res6: boolean = this.getX10DepTypeClassOne(1) instanceof X10DepTypeClassOne{p==1};
 		
-		var res7: boolean = this.getX10DepTypeSubClassOne(1,2) instanceof X10DepTypeClassOne{p==1});
-		var res8: boolean = this.getX10DepTypeSubClassOne(1,2) instanceof X10DepTypeSubClassOne{p==1&&a==2});
+		var res7: boolean = this.getX10DepTypeSubClassOne(1,2) instanceof X10DepTypeClassOne{p==1};
+		var res8: boolean = this.getX10DepTypeSubClassOne(1,2) instanceof X10DepTypeSubClassOne{p==1&&a==2};
 
-		var res9: boolean = this.getX10DepTypeSubClassOne_2(2,3) instanceof X10DepTypeClassOne{p==2});
-		var res10: boolean = this.getX10DepTypeSubClassOne_2(2,3) instanceof X10DepTypeSubClassOne{p==2&&a==3});
+		var res9: boolean = this.getX10DepTypeSubClassOne_2(2,3) instanceof X10DepTypeClassOne{p==2};
+		var res10: boolean = this.getX10DepTypeSubClassOne_2(2,3) instanceof X10DepTypeSubClassOne{p==2&&a==3};
 
 		
 		return (res1 && res2 && res3 && res4 && res5 && 
