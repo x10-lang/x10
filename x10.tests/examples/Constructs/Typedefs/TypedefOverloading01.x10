@@ -12,22 +12,26 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefOverloading1 extends TypedefTest {
+public class TypedefOverloading01 extends TypedefTest {
+
+    static class D(x: int, y: int) {
+        def this(a: int, b: int): D{x==a,y==b} {
+            property(a,b);
+        }
+    }
+
+    static type C(a: int) = D{x==a};
+    static type C(a: int, b: int) = C(a){self.y==b};
 
     public def run(): boolean = {
-        
-        type Int(x: Int) = Int{self==x};
-        type Int(lo: Int, hi: Int) = Int{lo <= self, self <= hi};
-
-        var x:Int = 1;
-        var y:Int(2) = 2;
-        var z:Int(0,5) = 3;
-
+        var x:D = new D(0,0);
+        var y:C(2) = new D(2,3);
+        var z:C(0,5) = new D(0,5);
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefOverloading1().execute();
+        new TypedefOverloading01().execute();
     }
 }
 

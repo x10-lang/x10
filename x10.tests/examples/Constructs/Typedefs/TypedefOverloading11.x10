@@ -19,20 +19,21 @@ import harness.x10Test;
 
 public class TypedefOverloading11 extends TypedefTest {
 
+        static class X {}
+        static class Y[T] {}
+        static class Z[T,U] {}
+
+        static class U {}
+        static class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
+        static class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
+
+        static type A = int;
+        static type A/*B*/(i:int) = String;
+        static type A/*C*/[T] = Z[T,int];
+        static type A/*D*/[T](i:int) = V{self.i==i};
+
     public def run(): boolean = {
         
-        class X {}
-        class Y[T] {}
-        class Z[T,U] {}
-
-        class U {}
-        class V(i:int) {def this(i:int):V{self.i==i} = property(i);}
-        class W(i:int,s:String) {def this(i:int,s:String):W{self.i==i&&self.s==s} = property(i,s);}
-
-        type A = int;
-        type A/*B*/(i:int) = String;
-        type A/*C*/[T] = Z[T,int];
-        type A/*D*/[T](i:int) = V{self.i==i};
         a1:A = 1;
         a2:A/*B*/(1) = "1";
         a3:A/*C*/[String] = new Z[String,int]();
