@@ -16,6 +16,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
@@ -171,7 +172,8 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	}
 
 	public String toString() {
-		return "type " + name + typeParameters + "" + formalTypes + " = " + type;
+            String s = "type " + X10Flags.toX10Flags(flags()).prettyPrint() + (container() == null ? "" : container() + ".") + signature() + (guard() != null ? guard() : "") + " = " + definedType();
+            return s;
 	}
 
 	public Name name() {
@@ -200,7 +202,8 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	}
 
 	public String signature() {
-	    return "type " + name + typeParameters + "" + formalTypes;
+	        return name + (typeParameters.isEmpty() ? "" : typeParameters.toString()) + (
+	                formalTypes.isEmpty() ? "" : "(" + CollectionUtil.listToString(formalTypes) + ")");
 	}
 
 	public List<Ref<? extends Type>> throwTypes() {
