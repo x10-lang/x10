@@ -1,6 +1,8 @@
 // (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
 
+//LIMITATION: x+y not supported in constraints
+
 import harness.x10Test;
 
 /**

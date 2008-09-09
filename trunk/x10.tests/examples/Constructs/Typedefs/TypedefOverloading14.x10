@@ -11,19 +11,19 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefOverloading13_MustFailCompile extends TypedefTest {
+public class TypedefOverloading14 extends TypedefTest {
 
-    interface A[T] {};
+    static class A(i:int) {def this() = property(0);}
 
     public def run(): boolean = {
 
-        type A = String;
+        type A = int;
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefOverloading13_MustFailCompile().execute();
+        new TypedefOverloading14().execute();
     }
 }
 

@@ -7,7 +7,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefConstraint2c_MustFailCompile extends TypedefTest {
+public class TypedefConstraint2c1_MustFailCompile extends TypedefTest {
 
     class X           {const name = "X";}
     class Y extends X {const name = "Y";}
@@ -19,14 +19,14 @@ public class TypedefConstraint2c_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
-        type C[T] = FOO[T]{Y<:T};
-        c1:C[Z] = new FOO[Z](); // inconsistent
-        //check("c1.name", c1.name, "Z");
+        type C[T] = FOO[T]{T<:Y};
+        c:C[X] = new FOO[X](); // X<:Y make C[X] inconsistent
+        //check("c.name", c.name, "X");
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefConstraint2c_MustFailCompile().execute();
+        new TypedefConstraint2c1_MustFailCompile().execute();
     }
 }

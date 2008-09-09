@@ -1,7 +1,11 @@
 // (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
+// LIMTATION:
+// <= constraints not yet supported
+// overloading of local typedefs not supported
 
 import harness.x10Test;
+
 
 /**
  * A compilation unit may have one or more type definitions or class

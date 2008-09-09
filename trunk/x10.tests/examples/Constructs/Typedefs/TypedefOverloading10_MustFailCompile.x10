@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class TypedefOverloading10_MustFailCompile extends TypedefTest {
 
-    interface A(s:String) {}
+    static interface A(s:String) {}
     static type A = String;
 
     public def run(): boolean = {

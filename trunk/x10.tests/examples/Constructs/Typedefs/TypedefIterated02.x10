@@ -23,6 +23,7 @@ public class TypedefIterated02 extends TypedefTest {
         var c:C = 0;
         type D = A[A[B]]; // = X[A[B],String] = A[B] = X[B,String] = B = int
         var d:D = 0;
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {
