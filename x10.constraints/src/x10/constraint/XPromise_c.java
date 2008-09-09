@@ -272,6 +272,8 @@ public class XPromise_c implements XPromise, Serializable {
         if (child != null) {
             while (child.value() != null)
                 child = child.value();
+            while (orphan.value() != null)
+                orphan = orphan.value();
 
             orphan.bind(child);
             return;
