@@ -17,14 +17,16 @@ import java.lang.annotation.*;
  * Notes:
  * -- the thread is always working on the current task which is also stored
  * at the bottom of its ready queue and is hence available to be stolen.
- * -- therefore the state of a task may simultaneouly be accessed by multiple
+ * -- therefore the state of a task may simultaneously be accessed by multiple
  * -- threads.
  * @author vj
  *
  */
-
 public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
+  
+  static final boolean ELISION = false;
+  
   @AllocateOnStack
   static class FibFrame extends Frame {
 	  public volatile int PC;
@@ -52,42 +54,56 @@ public class FibC  extends Closure {
   
   static int fib(Worker w, int n) throws StealAbort { // fast mode
     if (n < 2) return n;
-    FibFrame frame = new FibFrame(n);
-    frame.PC=LABEL_1; // continuation pointer
-    w.pushFrame(frame);
+    FibFrame frame;
+    if (ELISION) {
+    	frame = null;
+    } else {
+    	frame = new FibFrame(n);
+    	frame.PC=LABEL_1; // continuation pointer
+    	w.pushFrame(frame);
+    }
     
     // this thread will definitely execute fib(n-1), and
     // hence set the value in the frame.
     final int x = fib(w, n-1);
-    // Now need to figure out who is doing fib(n-2).
-    // If frame has been stolen, then this thread wont do fib(n-2).
-    // it should just return, and subsequent work will be done
-    // by others. 
-    w.abortOnSteal(x);
     
-    
+    if (!ELISION) {
+    	// Now need to figure out who is doing fib(n-2).
+    	// If frame has been stolen, then this thread wont do fib(n-2).
+    	// it should just return, and subsequent work will be done
+    	// by others. 
+    	w.abortOnSteal(x);
+    }
+        
     // Now we are back in the current frame, it has not been stolen. 
     // Execute the local code to the next spawn. 
     
-    // Now at the next spawn, exactly as before, set up the 
-    // continuation pointer. 
-    frame.x=x;
-    frame.PC=LABEL_2;
+    if (!ELISION) {
+    	// Now at the next spawn, exactly as before, set up the 
+    	// continuation pointer. 
+    	frame.x=x;
+    	frame.PC=LABEL_2;
+    }
     final int y=fib(w, n-2);
-    w.abortOnSteal(y);
+    if (!ELISION) {
+    	w.abortOnSteal(y);
+    }
   
     // Now there is nothing more to spawn -- so no need for the frame.
     // i.e. since the worker has made it so far, it is going to complete 
     // execution of this procedure.
-    
-    // pop the task -- it is guaranteed to be garbage.
-    w.popFrame();
+
+    if (!ELISION) {
+    	// pop the task -- it is guaranteed to be garbage.
+    	w.popFrame();
+    }
     
     // the sync is a no-op.
     // return the computed value.
     int result = x+y;
     return result;
   }
+  
   public static int realFib(int n) {
 	    if (n < 2) return n;
 	    int y=0,x=1;
@@ -144,7 +160,7 @@ public class FibC  extends Closure {
       System.out.println("Number of procs=" + procs + " nReps=" + nReps + " N=" + num);
       
     } catch (Exception e) {
-      System.out.println("Usage: FibC2 <threads> <numRepeatations>");
+      System.out.println("Usage: FibC2 <threads> <numRepeatations> <N>");
       return;
     }
     
@@ -167,6 +183,7 @@ public class FibC  extends Closure {
     	    	  }};
     		  g.submit(job);
     		  result = job.getInt();
+    		  // System.out.println("Completed: "+job.toString());
     	  }
     	  
     	  long t = System.nanoTime();
