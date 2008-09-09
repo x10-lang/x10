@@ -18,12 +18,12 @@ public class Array1Exploded extends x10Test {
 		var d: dist = Dist.makeConstant([1..10, 1..10], here);
 		var ia: Array[int] = Array.make[int](d);
 
-		for (val p: point[i,j] in [1..10, 1..10]) {
+		for (val p(i,j): point in [1..10, 1..10]) {
 			chk(ia(p) == 0);
 			ia(p) = i+j;
 		}
 
-		for (val p: point[i,j] in d) {
+		for (val p(i,j): point in d) {
 			var q1: point = [i, j];
 			chk(i == q1(0));
 			chk(j == q1(1));
