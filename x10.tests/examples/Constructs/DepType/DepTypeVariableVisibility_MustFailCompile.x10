@@ -5,6 +5,10 @@
  *  This file is part of X10 Test.
  *
  */
+//LIMITATION:
+// visibility checking not currently implemented.  And Nate, at
+// least, thinks it never should be.
+
 import harness.x10Test;;
 
 /**
