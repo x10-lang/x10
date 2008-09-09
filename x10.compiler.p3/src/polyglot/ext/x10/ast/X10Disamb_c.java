@@ -82,19 +82,29 @@ public class X10Disamb_c extends Disamb_c {
 	    		}
 
 	    		// Now try properties.
+	    		FieldInstance fi = null;
 	    		try {
-	    		    FieldInstance fi = ts.findField(t, ts.FieldMatcher(t, this.name.id()), c.currentClassDef());
-	    		    if (fi instanceof X10FieldInstance) {
-	    			X10FieldInstance xfi = (X10FieldInstance) fi;
-	    			if (xfi.isProperty()) {
-	    			    Field f = nf.Field(pos, makeMissingPropertyTarget(fi, t), this.name);
-	    			    f = f.fieldInstance(fi);
-	    			    f = (Field) f.type(fi.type());
-	    			    return f;
-	    			}
-	    		    }
+	    		     fi = ts.findField(t, ts.FieldMatcher(t, this.name.id()), c.currentClassDef());
 	    		}
 	    		catch (SemanticException e) {
+	    		}
+
+	    		if (fi instanceof X10FieldInstance) {
+	    		    X10FieldInstance xfi = (X10FieldInstance) fi;
+	    		    if (xfi.isProperty()) {
+	    		        Field f = nf.Field(pos, makeMissingPropertyTarget(fi, t), this.name);
+	    		        f = f.fieldInstance(fi);
+	    		        f = (Field) f.type(fi.type());
+	    		        return f;
+	    		    }
+	    		    else {
+	    		        if (vi == null) {
+	    		            throw new SemanticException("Field \"" + name + "\" is not a property of " + t + ".  Only properties may appear unqualified or prefixed with self in a dependent clause.");
+	    		        }
+	    		        else {
+	    		            // found it as a field of an enclosing class, not of self.
+	    		        }
+	    		    }
 	    		}
 
 	    		if (vi != null) {
