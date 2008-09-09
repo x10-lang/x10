@@ -743,6 +743,7 @@ if (false) {
                 result = c;
             }
             catch (XFailure z) {
+                throw z;
             }
         }
         //		XConstraint_c result = clone();
