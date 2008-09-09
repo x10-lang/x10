@@ -6,6 +6,7 @@ import java.util.Set;
 
 import polyglot.ext.x10.types.XTypeTranslator.XTypeLit_c;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import x10.constraint.Solver;
@@ -20,6 +21,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
+import x10.constraint.XPromise;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -46,6 +48,22 @@ public class SubtypeSolver implements Solver {
 
         public Type supertype() {
             return getType(right());
+        }
+        
+        public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
+            Type l = subtype();
+            Type r = supertype();
+            if (l instanceof X10ClassType && r instanceof X10ClassType) {
+                TypeSystem ts = l.typeSystem();
+                // Check that l descends from r.
+                // We cannot do a subtype test yet since more constraints may be needed to
+                // test this.  TODO: add a method to check consistency to be called after the constraint
+                // is constructed.
+                if (! ts.descendsFrom(l, r)) {
+                    throw new XFailure("Interning " + this + " makes constraint inconsistent.");
+                }
+            }
+            return super.internIntoConstraint(c, last);
         }
 
       public static Type subst(Type t, XTerm y, XRoot x) {
@@ -158,16 +176,27 @@ public class SubtypeSolver implements Solver {
     }
 
     public void addDerivedEqualitiesInvolving(XConstraint c, XTerm t) throws XFailure {
-        if (false && isSubtypeAtom(t)) {
-            XSubtype_c f = (XSubtype_c) t;
-            XTerm sub = f.left();
-            XTerm sup = f.right();
-            XTerm t2 = new XSubtype_c(sup, sub);
-            XConstraint c2 = new XConstraint_c();
-            c2.addTerm(t2);
-            if (c.entails(c2))
-                c.addBinding(sub, sup);
-        }
+        // DISABLE: causes infinite loop
+//        if (isSubtypeAtom(t)) {
+//            XSubtype_c f = (XSubtype_c) t;
+//            XTerm sub = f.left();
+//            XTerm sup = f.right();
+//            XTerm t2 = new XSubtype_c(sup, sub);
+//            if (entails(c.constraints(), t2)) {
+//                Type l = f.subtype();
+//                Type r = f.supertype();
+//                if (l != null && r != null) {
+//                    l = X10TypeMixin.baseType(l);
+//                    r = X10TypeMixin.baseType(r);
+//                    if (l instanceof X10ClassType && r instanceof X10ClassType) {
+//                        if (! ts.hasSameClassDef(l, r)) {
+//                            throw new XFailure("Cannot equate types " + l + " and " + r + ".");
+//                        }
+//                    }
+//                }
+//                c.addBinding(sub, sup);
+//            }
+//        }
     }
 
     public boolean entails(List<XTerm> atoms, XTerm t) {
