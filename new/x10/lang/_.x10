@@ -18,12 +18,22 @@ public class _ {
     public static type boolean(b:Boolean) = Boolean{self==b};
     public static type byte(b:Byte) = Byte{self==b};
     public static type short(b:Short) = Short{self==b};
-  //  public static type char(b:Char) = Char{self==b};
+    public static type char(b:Char) = Char{self==b};
     public static type int(b:Int) = Int{self==b};
     public static type long(b:Long) = Long{self==b};
     public static type float(b:Float) = Float{self==b};
     public static type double(b:Double) = Double{self==b};
     public static type string(s:String) = String{self==s};
+    
+    public static type Boolean(b:Boolean) = Boolean{self==b};
+    public static type Byte(b:Byte) = Byte{self==b};
+    public static type Short(b:Short) = Short{self==b};
+    public static type Char(b:Char) = Char{self==b};
+    public static type Int(b:Int) = Int{self==b};
+    public static type Long(b:Long) = Long{self==b};
+    public static type Float(b:Float) = Float{self==b};
+    public static type Double(b:Double) = Double{self==b};
+    public static type String(s:String) = String{self==s};
    
     public static type Nat = Int;
 
@@ -62,6 +72,6 @@ public class _ {
     public static type Dist(r:nat)   = Dist{rank==r};
     public static type Array[T](r:nat) = Array[T]{rank==r};
 
-    public static type ValArray[T] = Array[T];
+    public static type ValArray[T] = Array[T]{rect,zeroBased,rank==1};
     public static type ValRail[T](n:nat) = ValRail[T]{length==n};
 }
