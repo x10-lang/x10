@@ -13,6 +13,9 @@ public final value Double {
     public const MAX_VALUE: Double = java.lang.Double.MAX_VALUE;
     public const MIN_VALUE: Double = java.lang.Double.MIN_VALUE;
     
+    @Native("java", "#1+#2")
+    public native static def $plus(x:Double, y:Double): Double;    
+    
     @Native("java", "java.lang.Double.toHexString(#0)")
     public native def toHexString(): String;    
     
