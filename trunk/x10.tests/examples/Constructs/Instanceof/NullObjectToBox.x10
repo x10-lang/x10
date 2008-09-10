@@ -22,10 +22,10 @@ public class NullObjectToBox extends x10Test {
 	var nullableVarNull: Box[ValueClass] = null;
 
 	// array[0] is null hence it is not an instance of targeted non nullable type
-	val res1 = !(array(0) instanceof ValueClass);
+	val res1 = !(array(0) instanceof Box[ValueClass]);
 		
 	// var is null hence it is not an instance of targeted non nullable type
-	val res2 = !(v instanceof ValueClass);
+	val res2 = !(v instanceof Box[ValueClass]);
 		
 	// nullableVarNull is null hence it is an instance of the nullable type
 	val res3 = !(nullableVarNull instanceof Box[ValueClass]);
