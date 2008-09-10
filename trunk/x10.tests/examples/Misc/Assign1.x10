@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Test type parameter bounds.
+ * Test rail assignments.
  *
  * @author nystrom 8/2008
  */
