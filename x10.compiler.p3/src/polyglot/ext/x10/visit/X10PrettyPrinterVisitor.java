@@ -64,6 +64,7 @@ import polyglot.ext.x10.ast.Clocked;
 import polyglot.ext.x10.ast.ClosureCall;
 import polyglot.ext.x10.ast.ClosureCall_c;
 import polyglot.ext.x10.ast.Closure_c;
+import polyglot.ext.x10.ast.Contains_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
@@ -306,10 +307,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (cd.flags().isInterface() || cd.flags().isAbstract()) {
 	        return;
 	    }
+	    
 	    X10ClassType ct = (X10ClassType) cd.asType();
-	    List<MethodInstance> methods = new ArrayList<MethodInstance>();
-	    getInheritedVirtualMethods(ct, methods);
+
 	    Collection<MethodInstance> seen = new ArrayList<MethodInstance>();
+	    
+	    // Remove methods where we generate the dispatcher directly.
+            for (MethodDef md : cd.methods()) {
+                MethodInstance mi = md.asInstance();
+                mi = (MethodInstance) mi.container(ct);
+                if (methodUsesClassParameter(mi) && ! md.flags().isStatic())
+                    seen.add(mi);
+            }
+            
+            List<MethodInstance> methods = new ArrayList<MethodInstance>();
+            getInheritedVirtualMethods(ct, methods);
+
 	    for (ListIterator<MethodInstance> i = methods.listIterator(); i.hasNext(); ) {
 	        MethodInstance mi = i.next();	        
 	        mi = (MethodInstance) mi.container(ct);
@@ -320,14 +333,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        else
 	            i.set(mi);
 	    }
+	    
 	    for (MethodInstance mi : methods) {
-	        generateDispatcher((X10MethodDef) mi.def());
+	        generateDispatcher((X10MethodDef) mi.def(), cd.flags().isInterface());
 	    }
 	}
 	
 	private boolean seen(Collection<MethodInstance> seen, MethodInstance mi) {
 	    for (MethodInstance mj : seen) {
-	        if (mj.hasFormals(mi.formalTypes()))
+	        if (mi.name().equals(mj.name()) && mj.hasFormals(mi.formalTypes()))
 	            return true;
 	    }
 	    seen.add(mi);
@@ -350,14 +364,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 	}
 	
-	public void generateDispatcher(X10MethodDef md) {
+	public void generateDispatcher(X10MethodDef md, boolean isInterface) {
 	    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
 	    Flags flags = md.flags();
 
-	    Context c = tr.context();
-
-	    if (c.currentClass().flags().isInterface()) {
+	    if (isInterface) {
 	        flags = flags.clearPublic();
 	        flags = flags.clearAbstract();
 	    }
@@ -445,6 +457,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 
 	    w.end();
+	    
+	    if (isInterface) {
+	        w.write(";");
+	        return;
+	    }
 
 	    w.write(" ");
 	    w.write("{");
@@ -494,9 +511,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             MethodInstance mi = n.methodDef().asInstance();
 	    
             if (methodUsesClassParameter(mi) && ! flags.isStatic())
-                generateMethodDecl((X10MethodDecl_c) n.name(n.name().id(Name.make(n.name().id().toString() + "$"))), false, false);
+//                generateMethodDecl(n, false);
+                generateMethodDecl((X10MethodDecl_c) n.name(n.name().id(Name.make(n.name().id().toString() + "$"))), true);
             else
-                generateMethodDecl(n, false, false);
+                generateMethodDecl(n, false);
 	    
 	    // Translation of generics:
 	    // 1. add type arguments to all calls
@@ -556,7 +574,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return false;
     }
 	
-	private void generateMethodDecl(X10MethodDecl_c n, boolean boxx, boolean dispatxxch) {
+	private void generateMethodDecl(X10MethodDecl_c n, boolean box) {
 	   X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
 	    Flags flags = n.flags().flags();
@@ -586,7 +604,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.write("> ");
 	    }
 
-	    printType(n.returnType().type(), PRINT_TYPE_PARAMS);
+	    printType(n.returnType().type(), PRINT_TYPE_PARAMS | (box ? BOX_PRIMITIVES : 0));
             w.allowBreak(2, 2, " ", 1);
             tr.print(n, n.name(), w);
             
@@ -609,8 +627,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(p.name().id().toString());
             }
 
-            List<Expander> dispatchArgs = new ArrayList<Expander>();
-            
 	    for (int i = 0; i < n.formals().size(); i++) {
 	        Formal f = n.formals().get(i);
 	        if (! first) {
@@ -620,7 +636,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        first = false;
 	        
 	        tr.print(n, f.flags(), w);
-	        printType(f.type().type(), PRINT_TYPE_PARAMS);
+	        printType(f.type().type(), PRINT_TYPE_PARAMS | (box ? BOX_PRIMITIVES : 0));
 	        w.write(" ");
 
 	        Name name = f.name().id();
@@ -628,8 +644,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            name = Name.makeFresh("a");
 	        }
 	        tr.print(n, f.name().id(name), w);
-
-	        dispatchArgs.add(new Join("", CollectionUtil.list("(", new TypeExpander(f.type().type(), true, true, false), ") ", name.toString())));
 	    }
 	    
 	    w.end();
@@ -762,6 +776,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		else {
 		    w.write(";");
 		}
+	}
+	
+	public void visit(Contains_c n) {
+	    assert false;
 	}
 	
 	public void visit(TypeDecl_c n) {
@@ -1153,12 +1171,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                Type t = X10TypeMixin.baseType(xtn.type());
 	                boolean box = ! (c.expr().type().isBoolean() || c.expr().type().isNumeric());
 	                Expander ex = new TypeExpander(t, PRINT_TYPE_PARAMS | (box ? BOX_PRIMITIVES : 0));
+	                Expander rt = new RuntimeTypeExpander(t);
 	                
 	                DepParameterExpr dep = xtn.constraintExpr();
 	                if (dep != null) {
-	                    new Template("cast_deptype", ex, c.expr(), dep.condition()).expand();
+	                    new Template("cast_deptype", ex, c.expr(), rt, dep.condition()).expand();
 	                }
-	                else {
+	                else if (t.isBoolean() || t.isNumeric()) {
 	                    w.begin(0);
 	                    w.write("(");
 	                    ex.expand(tr);
@@ -1166,6 +1185,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                    w.allowBreak(2, " ");
 	                    c.printSubExpr(c.expr(), w, tr);
 	                    w.end();
+	                }
+	                else {
+	                    new Template("cast_deptype", ex, c.expr(), rt, "true").expand();
 	                }
 	            }
 	            else {
@@ -2498,12 +2520,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    // TODO: generate a real run-time test: if sub and sup are parameters, then this should test the actual parameters.
 	    TypeNode sub = n.subtype();
 	    TypeNode sup = n.supertype();
-	    if (sub.type().isSubtype(sup.type())) {
-	        w.write("true");
+	    
+	    w.write("((");
+	    new RuntimeTypeExpander(sub.type()).expand(tr);
+	    w.write(")");
+	    if (n.equals()) {
+	        w.write(".equals(");
 	    }
 	    else {
-	        w.write("false");
+	        w.write(".isSubtype(");
 	    }
+	    new RuntimeTypeExpander(sup.type()).expand(tr);
+	    w.write("))");
+	    
+//	    if (sub.type().isSubtype(sup.type())) {
+//	        w.write("true");
+//	    }
+//	    else {
+//	        w.write("false");
+//	    }
 	}
 	
 	public void visit(X10Binary_c n) {
