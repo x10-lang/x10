@@ -14,31 +14,31 @@ import x10.compiler.ArithmeticOps;
 
 public class GenericExample2 extends GenericTest {
 
-    public def run() = {
-
-        class Cell[X] {
+        static class Cell[X] {
             var x: X;
             def this(x: X) { this.x = x; }
             def get(): X = x;
-            def set(x: X) = { this.x = x: }
+            def set(x: X) = { this.x = x; }
         }
         
-        class Get[+X] {
+        static class Get[+X] {
             var x: X;
             def this(x: X) { this.x = x; }
             def get(): X = x;
         }
 
-        class Set[-X] {
+        static class Set[-X] {
             var x: X;
             def this(x: X) { this.x = x; }
-            def set(x: X) = { this.x = x: }
+            def set(x: X) = { this.x = x; }
         }
+
+    public def run() = {
 
         return result;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new GenericExample1().execute();
+        new GenericExample2().execute();
     }
 }

@@ -14,19 +14,19 @@ import x10.compiler.ArithmeticOps;
 
 public class GenericExample1 extends GenericTest {
 
-    public def run() = {
-
-        class List[T] {
+        static class List[T] {
             var head: T;
             var tail: List[T];
             def this(h: T, t: List[T]) { head = h; tail = t; }
             def append(x: T) {
                 if (this.tail == null)
-                    this.tail = new List(x, null);
+                    this.tail = new List[T](x, null);
                 else
                     this.tail.add(x);
             }
         }
+
+    public def run() = {
 
         return result;
     }
