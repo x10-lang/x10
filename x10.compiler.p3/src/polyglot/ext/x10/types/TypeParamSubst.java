@@ -11,6 +11,7 @@ import polyglot.types.Types;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -177,6 +178,8 @@ public class TypeParamSubst {
 	    c = c.substitute(ys, xs);
 	}
 	catch (XFailure e) {
+	    c = new XConstraint_c();
+	    c.setInconsistent();
 	}
 
 	return c;
