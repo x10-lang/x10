@@ -22,7 +22,7 @@ public class ValueEquality extends x10Test {
 	}
 
 	static value V {
-		var v: int;
+		val v: int;
 		def this(i: int): V = {
 			this.v = i;
 		}
