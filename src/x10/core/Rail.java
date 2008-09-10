@@ -1,6 +1,8 @@
 package x10.core;
 
+import x10.core.fun.Fun_0_1;
 import x10.types.Type;
+import x10.types.Types;
 
 public final class Rail<T> extends AnyRail<T> implements Settable<Integer,T> {
     public Rail(Type<T> type, int length) {
@@ -14,4 +16,48 @@ public final class Rail<T> extends AnyRail<T> implements Settable<Integer,T> {
     public T set(T v, Integer i) {
         return type.setArray(value, i, v);
     }
+    
+    //
+    // Runtime type information
+    //
+    
+    static public class RTT extends x10.types.RuntimeType<Rail<?>> {
+        Type<?> type;
+        
+        public RTT(Type<?> type) {
+            super(Rail.class);
+            this.type = type;
+        }
+
+        public boolean instanceof$(java.lang.Object o) {
+            if (!(o instanceof Rail))
+                return false;
+            Rail r = (Rail) o;
+            if (! r.type.equals(type)) // invariant
+                return false;
+            return true;
+        }
+        
+        public boolean isSubtype(Type<?> type) {
+            if (type instanceof Rail.RTT) {
+                Rail.RTT r = (Rail.RTT) type;
+                return r.type.equals(this.type);
+            }
+//            if (type instanceof Fun_0_1.RTT) {
+//                Fun_0_1.RTT r = (Fun_0_1.RTT) type;
+//                return r.I.equals(Types.INT) && r.V.equals(this.type);
+//            }
+//            if (type instanceof Settable.RTT) {
+//                Settable.RTT r = (Settable.RTT) type;
+//                return r.I.equals(Types.INT) && r.V.equals(this.type);
+//            }
+            return false;
+        }
+    }
+
+    public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
+    public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
+    public Type<?> rtt_x10$lang$Settable_I() { return Types.INT; }
+    public Type<?> rtt_x10$lang$Settable_V() { return type; }
+
 }
