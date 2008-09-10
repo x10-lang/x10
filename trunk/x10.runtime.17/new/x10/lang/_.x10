@@ -66,12 +66,17 @@ public class _ {
     public static type dist = Dist;
     public static type clock = Clock;
     
-    public static type Point(r: int) = Point{rank==r};
-    public static type point(r: int) = Point{rank==r};
-    public static type Region(r:nat) = Region{rank==r};
-    public static type Dist(r:nat)   = Dist{rank==r};
-    public static type Array[T](r:nat) = Array[T]{rank==r};
+    public static type Point(r: Int) = Point{rank==r};
+    public static type point(r: Int) = Point{rank==r};
+    public static type Region(r:Nat) = Region{rank==r};
+    
+    public static type Dist(r:Nat)   = Dist{rank==r};
+    public static type Dist(r:Region) = Dist{region==r};
+    
+    public static type Array[T](r:Nat) = Array[T]{rank==r};
+    public static type Array[T](r:Region) = Array[T]{region==r};
+    public static type Array[T](d:Dist) = Array[T]{dist==d};
 
     public static type ValArray[T] = Array[T]{rect,zeroBased,rank==1};
-    public static type ValRail[T](n:nat) = ValRail[T]{length==n};
+    public static type ValRail[T](n:Nat) = ValRail[T]{length==n};
 }

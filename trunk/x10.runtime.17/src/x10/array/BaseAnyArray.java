@@ -147,6 +147,9 @@ abstract public class BaseAnyArray<T> extends BaseArray {
         return max(T.absOperator());
     }
 
+    public T reduce(Fun_0_2<T, T, T> fun) {
+        return reduce(fun, T.zeroValue());
+    }
     public T reduce(Fun_0_2<T, T, T> fun, T unit) {
         return reduce(fun, unit, dist.region);
     }

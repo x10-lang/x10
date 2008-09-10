@@ -190,14 +190,14 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
       Return the distribution defined over the region this.region.intersection(d.region),
       and which maps each point p in this region to this(p).
     */
-    def intersection(d: Dist{rank==this.rank})=intersection(d.region);
+    def intersection(d: Dist(this.rank))=intersection(d.region);
     
      /**
       Return the distribution defined over the region this.region.intersection(r),
       and which maps each point p in this region to this(p).
     */
     @Native("java", "(#0).intersection(#1)")
-    public abstract def intersection(r: Region{rank==this.rank}): Dist{rank==this.rank};
+    public abstract def intersection(r: Region(this.rank)): Dist(this.rank);
     
 
     /**
@@ -205,7 +205,7 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
       this(p)==d(p).
     */
     @Native("java", "(#0).isSubDistribution(#1)")
-    public abstract def isSubDistribution(d: Dist{rank==this.rank}): boolean;
+    public abstract def isSubDistribution(d: Dist(this.rank)): boolean;
     
      /**
      * Returns a new distribution obtained by restricting this to the
@@ -213,11 +213,12 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
      * with the same rank.
      */
     @Native("java", "(#0).restriction(#1)")
-    public abstract def restriction(r: Region{rank==this.rank}): Dist{rank==this.rank};
+    public native def restriction(r: Region(this.rank)): Dist(this.rank);
 
     /** The d | r operator, defined as d.restriction(r).
     */
-    public def $bar(r: Region{rank==this.rank})=restriction(r);
+    @Native("java", "(#0).restriction(#1)")
+    public native def $bar(r: Region(this.rank)): Dist(this.rank);
     
       /**
      * Returns a local distribution over the region of all points that this maps

@@ -69,4 +69,5 @@ public final value Int implements Integer, Signed {
     
     @Native("java", "java.lang.Integer.reverseBytes(#0)")
     public native def reverseBytes(): Int;
+    
 }

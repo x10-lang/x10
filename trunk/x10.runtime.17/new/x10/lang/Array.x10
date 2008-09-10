@@ -26,7 +26,11 @@ public abstract value class Array[T](dist: Dist) implements
     property onePlace: Place = dist.onePlace;
 
  @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
-    native public static def $convert[T](r: Rail[T]): Array[T]{rank==1};
+    native public static def $convert[T](r: Rail[T]): Array[T]{rank==1,rail};
+ 
+ @Native("java", "x10.array.ArrayFactory.<#2>makeFromValRail(#4)")
+    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1,rail};  
+ 
     
     @Native("java", "x10.array.ArrayFactory.<#1>makeFromValRail(#3, #4)")
     native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1};
@@ -101,18 +105,79 @@ public abstract value class Array[T](dist: Dist) implements
     @Native("java", "(#0).div(#1)")
     native public def $over(that: Array[T]{dist==this.dist}): Array[T]{dist==this.dist};
 
+    // ----------------- restriction
     @Native("java", "(#0).restriction(#1)")
     native public def $bar(r: Region): Array[T]{region==r};
     
     @Native("java", "(#0).restriction(#1)")
-    native public def $bar(p: Place): Array[T]{onePlace==here};
-
-    @Native("java", "x10.array.ArrayFactory.makeFromRail(#1)")
-    native public static def $convert[T](r: Rail[T]): Array[T];
+    native public def $bar(d: Dist(this.rank)): Array[T](d.region);
     
-    @Native("java", "x10.array.ArrayFactory.<#2>makeFromValRail(#4)")
-    native public static def $convert[T](r: ValRail[T]): Array[T];    
-
+    @Native("java", "(#0).restriction(#1)")
+    native public def $bar(p: Place): Array[T]{onePlace==here};
+    
+    // ----------------- union
+    @Native("java", "(#0).union(#1)")
+    native public def $or(a:Array[T](this.rank)):Array[T](this.rank);
+    
+    // ----------------- overlay
+    @Native("java", "(#0).overlay(#1)")
+    native public def overlay(a:Array[T](this.rank)):Array[T](this.rank);
+    
+    // ----------------- update
+    @Native("java", "(#0).update(#1)")
+    native public def update(a:Array[T](this.rank)):Array[T](this.rank);
+    
+  
+    // ------------------- scan
+   @Native("java","(#0).scan(#1,#2)")
+    native public def scan(res:Array[T](this.dist), 
+              op:(T)=>T):Void;
+   
+    @Native("java","(#0).scan(#1,#2)")
+    native public def scan(res:Array[T](this.dist), 
+              op:(Point(this.rank), T)=>T):Void;
+    @Native("java", "(#0).scan(#1,#2)")
+    native public def scan(op:(T,T)=>T, unit:T):Array[T](this.dist);
+    
+    // ------------------- pointwise
+    @Native("java", "(#0).pointwise(#1,#2")
+    native public 
+      def pointwise(res: Array[T](this.dist), 
+                    f:(Point(this.rank), T, T)=>T):Void;
+    
+    // ------------------- reduce, reduction
+    @Native("java", "(#0).reduce(#1,#2,#3)")
+    native public def reduce(f:(T,T)=>T, unit:T, r:Region(this.rank)):T;
+    @Native("java", "(#0).reduce(#1,#2)")
+    native public def reduce(f:(T,T)=>T, unit:T):T;
+    @Native("java", "(#0).reduce(#1)")
+    native public def reduce(f:(T,T)=>T):T;
+    
+    @Native("java", "(#0).<#1>reduction(#3)")
+    native public def reduction[U](op:(T)=>U):U;
+    
+     // ------------------- lift
+    @Native("java", "(#0).lift(#1)")
+    native public def lift(op:(T)=>T):Array[T](dist);
+    
+     @Native("java", "(#0).lift(#1,#2)")
+    native public def lift(op:(T,T)=>T, other:Array[T](this.dist))
+      :Array[T](this.dist);
+    
+    @Native("java", "(#0).sum()")
+    native public def sum():T;
+    
+    @Native("java", "(#0).sum(#1)")
+    native public def sum(r:Region):T;
+    
+    @Native("java", "(#0).max()")
+    native public def max():T;
+    
+    @Native("java", "(#0).sum(#1)")
+    native public def max(r:Region):T;
+    
+    
+    
     //
     // private/protected
     //
