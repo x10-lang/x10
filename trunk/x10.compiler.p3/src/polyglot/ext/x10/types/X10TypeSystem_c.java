@@ -101,6 +101,44 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return equals((TypeObject) l, (TypeObject) r);
 	}
 	
+
+	/** Return true if the constraint is consistent. */
+	public boolean consistent(XConstraint c) {
+	    return c.consistent();
+	}
+
+	/** Return true if constraints in the type are all consistent. */
+	public boolean consistent(Type t) {
+	    if (t instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) t;
+	        if (!consistent(Types.get(ct.baseType())))
+	            return false;
+	        if (!consistent(Types.get(ct.constraint())))
+	            return false;
+	    }
+	    if (t instanceof MacroType) {
+	        MacroType mt = (MacroType) t;
+	        for (Type ti : mt.typeParameters()) {
+	            if (!consistent(ti))
+	                return false;
+	        }
+	        for (Type ti : mt.formalTypes()) {
+	            if (!consistent(ti))
+	                return false;
+	        }
+	    }
+	    if (t instanceof X10ClassType) {
+	        X10ClassType ct = (X10ClassType) t;
+	        for (Type ti : ct.typeArguments()) {
+	            if (!consistent(ti))
+	                return false;
+	        }
+	    }
+//	    if (!consistent(X10TypeMixin.realX(t)))
+//	        return false;
+	    return true;
+	}
+
     public List<Type> getBoundsFromConstraint(Type pt, XConstraint c, Bound dir) {
 	    if (c == null)
 	        return Collections.EMPTY_LIST;

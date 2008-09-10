@@ -327,4 +327,10 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean clausesConsistent(XConstraint c1, XConstraint c2);
 
+    /** Return true if the constraint is consistent. */
+    boolean consistent(XConstraint c);
+
+    /** Return true if constraints in the type are all consistent. */
+    boolean consistent(Type t);
+
 }
