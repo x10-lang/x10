@@ -508,7 +508,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                MacroType xmi = (MacroType) mi;
 	                Type c = container != null ? container : xmi.container();
 	                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-	                    return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, true);
+	                    return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, false); // no implicit coercions!
 	            }
 	        }
 	        return null;
