@@ -195,7 +195,7 @@ public class FibC  extends Closure {
 			  long endSA = g.getStealAttempts();
 			  times[j] = endTime - startTime;
 			  sc[j] = endSC - startSC;
-			  sa[j] = endSC - startSC;
+			  sa[j] = endSA - startSA;
 			  startSC = endSC;
 			  startSA = endSA;
 			  if (result != realFibResult) {
