@@ -717,6 +717,18 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	    Type newReturnType = subst(me.returnType(), y2, x2, Y, X, typeFormals);
 	    XConstraint newWhere = subst(me.guard(), y2, x2, Y, X, typeFormals);
 
+	    for (Type t : newFormals) {
+	        if (! xts.consistent(newReturnType)) {
+	            throw new SemanticException("Parameter type " + t + " of call is inconsistent in calling context.");
+	        }
+	    }
+	    if (! xts.consistent(newReturnType)) {
+	        throw new SemanticException("Result type " + newReturnType + " of call is inconsistent in calling context.");
+	    }
+	    if (newWhere != null && ! xts.consistent(newWhere)) {
+	        throw new SemanticException("Guard " + newWhere + " cannot be established; inconsistent in calling context.");
+	    }
+
 	    me = (PI) me.copy();
 	    me = (PI) me.typeParameters(getTypes(Y));
 	    me = (PI) me.returnType(newReturnType);
