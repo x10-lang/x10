@@ -10,6 +10,8 @@ import harness.x10Test;;
 /**
  * Purpose: 
  * @author vcave
+ * @author vj: Leaving the .new untouched -- cant see a way of converting 
+    this to a 1.7 test different from 
  **/
 public class PrimitiveToNullablePrimitiveConstrained3 extends x10Test {
 	 
