@@ -65,6 +65,17 @@ public final value class Point(rank: nat) implements
     native public def $minus(): Point(this.rank);
 
     @Native("java", "(#0).add(#1)")
+    native public def $plus(that: Int): Point{rank==this.rank};
+    @Native("java", "(#0).sub(#1)")
+    native public def $minus(that: Int): Point(this.rank);
+    @Native("java", "(#0).mul(#1)")
+    native public def $times(that: Int): Point(this.rank);
+    @Native("java", "(#0).div(#1)")
+    native public def $over(that: Int): Point(this.rank);
+    @Native("java", "(#0).mod(#1)")
+    native public def $percent(that: Int): Point(this.rank);
+
+    @Native("java", "(#0).add(#1)")
     native public def $plus(that: Point{rank==this.rank}): Point{rank==this.rank};
     @Native("java", "(#0).sub(#1)")
     native public def $minus(that: Point(this.rank)): Point(this.rank);
