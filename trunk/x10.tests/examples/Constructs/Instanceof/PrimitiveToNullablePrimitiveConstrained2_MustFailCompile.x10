@@ -11,13 +11,11 @@ import harness.x10Test;;
  * Purpose: 
  * @author vcave
  **/
-public class NullToNullablePrimitiveConstrained extends x10Test {
+public class PrimitiveToNullablePrimitiveConstrained2_MustFailCompile extends x10Test {
 	 
-	public def run(): boolean = {
-		return !(null instanceof nullable<int{self==4})>);
-	}
+	public def run() = !(3 instanceof Box[Int(4)]);
 	
 	public static def main(var args: Rail[String]): void = {
-		new NullToNullablePrimitiveConstrained().execute();
+		new PrimitiveToNullablePrimitiveConstrained2_MustFailCompile().execute();
 	}
 }

@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class BoxObjectToBoxConstrainedType extends x10Test {
 	 
 	public def run(): boolean = {
-		var n: Box[ValueClass{p==1}] = new ValueClass(1);
+		val n = new ValueClass(1);
 		return n instanceof Box[ValueClass{p==1}];
 	}
 	
