@@ -152,53 +152,86 @@ public class FibC  extends Closure {
   
 
   public static void main(String[] args) throws Exception {
-    int procs, nReps, num;
-    try {
-    	num = Integer.parseInt(args[2]);
-      procs = Integer.parseInt(args[0]);
-      nReps = Integer.parseInt(args[1]);
-      System.out.println("Number of procs=" + procs + " nReps=" + nReps + " N=" + num);
-      
-    } catch (Exception e) {
-      System.out.println("Usage: FibC2 <threads> <numRepeatations> <N>");
-      return;
-    }
-    
-    final Pool g = new Pool(procs);
-    final int[] points = new int[] { num};//1,5, 10, 15, 20, 25, 30, 35, 40, 45};
-    
-    long sc = 0, sa = 0;
-    for (int i = 0; i < points.length; i++) {
-      final int n = points[i];
-      	  int result=0;
-    	  long s = System.nanoTime();
-    	  for (int j = 0; j < nReps; j++) {
-    		  Job job = new Job(g) { 
-    	    	  int result;
-    	    	  public void setResultInt(int x) { result = x;}
-    	    	  public int resultInt() { return result;}
-    	    	  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n);}
-    	    	  public String toString() {
-    	    		  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ",frame="+ frame+")";
-    	    	  }};
-    		  g.submit(job);
-    		  result = job.getInt();
-    		  // System.out.println("Completed: "+job.toString());
-    	  }
-    	  
-    	  long t = System.nanoTime();
-    	  System.out.println("VJCWS Fib(" + n +")"+"\t"+(t-s)/1000000/nReps  + " ms" +"\t" 
-    			  + "\t" +"steals=" +((g.getStealCount()-sc)/nReps)
-    			  + "\t"+"stealAttempts=" +((g.getStealAttempts()-sa)/nReps)
-    			  + "\t" + (result==realFib(n)));
-    	  
-    	  //System.out.println(points[i] + " " + (t-s)/1000000/nReps  + "ms  " + result + " " + (result==realfib(n)?"ok" : "fail") );
-    	  sc=g.getStealCount();
-    	  sa=g.getStealAttempts();
-    }
-    g.shutdown();
+	  int procs, nReps, num;
+	  try {
+		  num = Integer.parseInt(args[2]);
+		  procs = Integer.parseInt(args[0]);
+		  nReps = Integer.parseInt(args[1]);
+		  System.out.println("Number of procs=" + procs + " nReps=" + nReps + " N=" + num);
+
+	  } catch (Exception e) {
+		  System.out.println("Usage: FibC2 <threads> <numRepeatations> <N>");
+		  return;
+	  }
+
+	  final Pool g = new Pool(procs);
+	  final int[] points = new int[] { num };//1,5, 10, 15, 20, 25, 30, 35, 40, 45};
+
+	  long startSC = 0;
+	  long startSA = 0;
+	  boolean valid = true;
+	  for (int i = 0; i < points.length; i++) {
+		  final int n = points[i];
+		  int result=0;
+		  final int realFibResult = realFib(n);
+		  final long[] times = new long[nReps];
+		  final long[] sc = new long[nReps];
+		  final long[] sa = new long[nReps];
+		  for (int j = 0; j < nReps; j++) {
+			  Job job = new Job(g) { 
+				  int result;
+				  public void setResultInt(int x) { result = x;}
+				  public int resultInt() { return result;}
+				  public int spawnTask(Worker ws) throws StealAbort { return fib(ws, n); }
+				  public String toString() {
+					  return "Job(#" + hashCode() + ", fib(n=" + n +"," + status+ ",frame="+ frame+")";
+				  }
+			  };
+			  long startTime = System.nanoTime();
+			  g.invoke(job);
+			  result = job.getInt();
+			  long endTime = System.nanoTime();
+			  long endSC = g.getStealCount();
+			  long endSA = g.getStealAttempts();
+			  times[j] = endTime - startTime;
+			  sc[j] = endSC - startSC;
+			  sa[j] = endSC - startSC;
+			  startSC = endSC;
+			  startSA = endSA;
+			  if (result != realFibResult) {
+				  System.out.println("FAILURE: "+job);
+				  valid = false;
+			  } else {
+				  System.out.println("SUCCESS: "+times[j]+" "+sc[j]+" "+sa[j]+" "+job);
+			  }
+		  }
+
+		  int warmupReps = warmupReps(nReps);
+		  int realReps = nReps - warmupReps;
+		  long totalTime = 0;
+		  long totalSC = 0;
+		  long totalSA = 0;
+		  for (int k = warmupReps; k<nReps; k++) {
+			  totalTime += times[k];
+			  totalSC += sc[k];
+			  totalSA += sa[k];
+		  }
+		  
+		  System.out.println("Stats for first "+warmupReps+" iterations discarded as warmup");
+		  System.out.println("VJCWS Fib(" + n +")"+"\t"+(totalTime)/1000000/realReps  + " ms" +"\t" 
+				  + "\t" +"steals=" +((totalSC)/realReps)
+				  + "\t"+"stealAttempts=" +((totalSA)/realReps)
+				  + "\t" + valid);
+	  }
+	  g.shutdown();
   }
-  protected int result;
+  
+  private static int warmupReps(int reps) {
+	  if (reps == 1 || reps == 2) return 0;
+	  return reps / 3;
+  }
+  
+ protected int result;
   @Override
   public int resultInt() { return result;}
   @Override
