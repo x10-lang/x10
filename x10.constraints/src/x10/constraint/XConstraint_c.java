@@ -150,6 +150,8 @@ public class XConstraint_c implements XConstraint, Cloneable {
      */
     public boolean valid() { 	
         if (valid) {
+            if (! consistent)
+                return false;
             List<XTerm> atoms = constraints();
             if (atoms.size() == 0) {
                 valid = true;
@@ -675,16 +677,22 @@ if (false) {
     public String toString() {
         XConstraint c = this;
         
+        if (! c.consistent()) {
+            return "{inconsistent}";
+        }
+        
         try {
             c = saturate();
         }
         catch (XFailure z) {
+            return "{inconsistent}";
         }
 
         try {
             c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
         }
         catch (XFailure z) {
+            return "{inconsistent}";
         }
 
         String str;
@@ -715,8 +723,11 @@ if (false) {
 
     public XConstraint substitute(XTerm y, XRoot x) throws XFailure {
         assert (y != null && x != null);
-
+        
         if (y.equals(x))
+            return this;
+        
+        if (! consistent)
             return this;
 
         // Don't do the quick occurrence check; x might occur in a self constraint.
