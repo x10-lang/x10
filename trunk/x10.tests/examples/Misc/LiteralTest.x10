@@ -10,8 +10,8 @@ public class LiteralTest extends x10Test {
 	var i4: int = 2147483647;
 	var i5: int = 0x7fffffff;
 	var i6: int = 017777777777;
-	var i7: int = (int) 037777777777L;
-	var i8: int = (int) 0xffffffffL;
+	var i7: int = 037777777777L to int;
+	var i8: int = 0xffffffffL to int;
 	var i9: int = -1;
 	var l1: long = -9223372036854775808L;
 	var l2: long = 0x8000000000000000l;
@@ -36,7 +36,7 @@ public class LiteralTest extends x10Test {
 		chk(i9+1 == (i1-i3));
 		chk((i9 << 31) == i1);
 		chk(l1 == l2 &&l2 == l3 && l1 == -l1);
-		chk(l1 == ((long)i1<<32));
+		chk(l1 == ((i1<<32) to long));
 		chk(l4 == l5 && l5 == l6);
 		chk(l4+1 == l1 && l4 == l1-1);
 		chk(l7 == l8 && l8 == l9 && l9 == i9);

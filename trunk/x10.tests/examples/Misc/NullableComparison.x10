@@ -16,7 +16,7 @@ import harness.x10Test;;
 public class NullableComparison extends x10Test {
 
 	public const N: int = 6;
-	public const objList: Rail[Object] = Array.make[Object](N);
+	public const objList: Rail[Object] = Rail.makeVar[Object](N);
 
 	public def run(): boolean = {
 		val obj: Object = new Ref();
