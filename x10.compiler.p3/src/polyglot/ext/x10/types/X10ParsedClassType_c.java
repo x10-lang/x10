@@ -166,7 +166,9 @@ implements X10ParsedClassType
 	}
 	
 	public List<Type> typeMembers() {
-	    return new TransformingList<TypeDef, Type>(x10Def().memberTypes(), new TypeDefAsMacroTypeTransform());
+	    TypeParamSubst subst = new TypeParamSubst((X10TypeSystem) ts, typeArguments(), x10Def().typeParameters());
+	    List<Type> l = new TransformingList<TypeDef, Type>(x10Def().memberTypes(), new TypeDefAsMacroTypeTransform());
+	    return subst.reinstantiate(l);
 	}
 	
 	public List<Type> typeProperties() {
