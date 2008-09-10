@@ -13,7 +13,8 @@ import harness.x10Test;
  * @author vj 8/2008
  */
 public class InCtorRetType extends x10Test {
-    static type Test(i:int) = Test{self.i==i};
+    static type Testy(i:int) = Test{self.i==i};
+
     static class Test(i:int) {
        def this(i:int):Test(i) = {
           property(i);
