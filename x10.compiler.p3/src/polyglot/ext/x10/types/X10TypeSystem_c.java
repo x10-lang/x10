@@ -3034,6 +3034,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    
 		    Type rt = fi.rightType();
 		    Type newRT = X10MethodInstance_c.subst(rt, new XVar[] { v }, new XRoot[] { oldThis });
+		    
+		    if (! ts.consistent(newT) || ! ts.consistent(newRT)) {
+		        throw new SemanticException("Type of field access is not consistent.");
+		    }
+		    
 		    return fi.type(newT, newRT);
 		}
 	    }
