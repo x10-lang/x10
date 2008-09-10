@@ -14,8 +14,8 @@ import harness.x10Test;;
 public class PrimitiveToBoxPrimitiveConstrained4 extends x10Test {
 	 
 	public def run(): boolean = {
-		val a = 3;
-		return !(a instanceof Box[int{self==4}]);
+		val a:Object = 3;
+		return !(a instanceof Box[Int(4)]);
 	}
 	
 	public static def main(var args: Rail[String]): void = {
