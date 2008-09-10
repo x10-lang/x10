@@ -1,6 +1,7 @@
 // (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
-// LIMTATION:
+
+//LIMITATION:
 // <= constraints not yet supported
 // overloading of local typedefs not supported
 
