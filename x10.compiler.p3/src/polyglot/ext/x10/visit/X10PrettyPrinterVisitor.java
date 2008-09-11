@@ -1181,7 +1181,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                if (dep != null) {
 	                    new Template("cast_deptype", ex, c.expr(), rt, dep.condition()).expand();
 	                }
-	                else if (t.isBoolean() || t.isNumeric()) {
+	                else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
 	                    w.begin(0);
 	                    w.write("(");
 	                    ex.expand(tr);
@@ -2723,7 +2723,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.write(pt.name().toString());
 	            return;
 	        }
-	        
+
+	        if (at instanceof ClosureType) {
+	            ClosureType ct = (ClosureType) at;
+	            List<Type> args = ct.argumentTypes();
+	            Type ret = ct.returnType();
+	            w.write("new ");
+	            if (ret.isVoid()) {
+	                w.write("x10.core.fun.VoidFun");
+	            }
+	            else {
+	                w.write("x10.core.fun.Fun");
+	            }
+	            w.write("_" + ct.typeParameters().size());
+	            w.write("_" + args.size());
+	            w.write(".RTT(");
+	            String sep = "";
+	            for (Type a : args) {
+	                w.write(sep);
+	                sep = ",";
+	                new RuntimeTypeExpander(a).expand(tr);
+	            }
+	            if (! ret.isVoid()) {
+	                w.write(sep);
+	                new RuntimeTypeExpander(ret).expand(tr);
+	            }
+	            w.write(")");
+	            return;
+	        }
+
 	        if (at instanceof X10ClassType) {
 	            X10ClassType ct = (X10ClassType) at;
 	            X10ClassDef cd = ct.x10Def();
