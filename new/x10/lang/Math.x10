@@ -6,10 +6,10 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "java.lang.Math")
 public class Math {
 
-   @Native("java", "E")
+   @Native("java", "java.lang.Math.E")
    val E:double=2.718281828459045D;
    
-   @Native("java", "PI")
+   @Native("java", "java.lang.Math.PI")
    val PI:double=3.141592653589793D;
    
    @Native("java", "java.lang.Math.abs(#1)")
