@@ -14,7 +14,7 @@ import harness.x10Test;;
 public class ObjectToNullablePrimitive extends x10Test {
 	 
 	public def run(): boolean = {
-		// transformed to new BoxedInteger(3);
+		// transformed to new Box(3)
 		var primitive: Object = 3;
 		// Type to check is transformed to BoxedInt
 		return (primitive instanceof Box[Int]);
