@@ -28,14 +28,10 @@ public abstract value class Array[T](dist: Dist) implements
  @Native("java", "x10.array.ArrayFactory.makeFromRail(#2, #4)")
     native public static def $convert[T](r: Rail[T]): Array[T]{rank==1,rail};
  
- @Native("java", "x10.array.ArrayFactory.<#2>makeFromValRail(#4)")
-    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1,rail};  
- 
+    @Native("java", "x10.array.ArrayFactory.<#2>makeFromValRail(#3, #4)")
+    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1,rail};
     
-    @Native("java", "x10.array.ArrayFactory.<#1>makeFromValRail(#3, #4)")
-    native public static def $convert[T](r: ValRail[T]): Array[T]{rank==1};
-    
-    @Native("java", "x10.array.ArrayFactory.<#2>makeVarArray(#3, #4,#5)")
+    @Native("java", "x10.array.ArrayFactory.<#2>makeVarArray(#3, #4, #5)")
     native public static def make[T](d: Dist, init: (Point)=>T)
        : Array[T]{self.dist==d};
     
