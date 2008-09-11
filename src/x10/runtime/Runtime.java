@@ -13,6 +13,8 @@ public abstract class Runtime {
         public static Runtime runtime;
         public static JavaRuntime java;
 
+        public static int maxPlaces() { return MAX_PLACES;}
+        
 	public static void main(String[] args) {
 	        if (args.length == 0) {
 	            System.err.println("usage: java x10.runtime.Runtime MainClass [args]");
