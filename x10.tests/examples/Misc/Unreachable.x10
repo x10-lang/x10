@@ -18,10 +18,10 @@ public class Unreachable extends x10Test {
 
 	val N: int = 10;
 	val R: region = [0..N];
-	val D: dist = Dist.make(R);
+	val D: dist = Dist.makeLocal(R);
 
 	def test(): void = {
-		async (D(0)) {
+		async (D([0])) {
 			return;
 		}
 	}

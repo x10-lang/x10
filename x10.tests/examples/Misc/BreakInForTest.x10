@@ -20,7 +20,7 @@ public class BreakInForTest extends x10Test {
 
 	public const N: int = 100;
 	var R: region = [0..N];
-	var D: dist = Dist.make(R);
+	var D: dist = Dist.makeLocal(R);
 	var n1: int = 91;
 	var n2: int = 27;
 
