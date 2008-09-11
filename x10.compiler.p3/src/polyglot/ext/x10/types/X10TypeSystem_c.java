@@ -223,7 +223,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 }
                 
                 visited.add(expanded);
-                
+
+                // Get constraints from the type's where clause.
+                XConstraint wc = X10TypeMixin.xclause(w);
+                if (wc != null) {
+                    List<Type> b = getBoundsFromConstraint(t, wc, dir);
+                    worklist.addAll(b);
+                }
+
                 if (expanded instanceof PathType) {
                     // p: C{self.T<:S}  implies  p.T <: S
                     PathType pt1 = (PathType) expanded;
@@ -2795,6 +2802,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	        if (isSubtype(type1, type2)) return type2;
 	        if (isSubtype(type2, type1)) return type1;
+	        
+	        if (isSubtype(type1, X10TypeMixin.baseType(type2))) return X10TypeMixin.baseType(type2);
+	        if (isSubtype(type2, X10TypeMixin.baseType(type1))) return X10TypeMixin.baseType(type1);
+	        
+	        
 
 	        if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
 	            // Walk up the hierarchy
