@@ -16,11 +16,11 @@ public class GenericOverPrimitives2x extends GenericTest {
         class A[T]{T<:ArithmeticOps[T]} {
             val t:T;
             def this(t:T) = {this.t=t;}
-            def get() = t/2;
+            def get(s:T) = t/s;
         }
 
-        a:A[double] = new A[double](1);
-        check("a.get()", a.get(), 0.5);
+        a:A[double] = new A[double](1.);
+        check("a.get(2.0)", a.get(2.0), 0.5);
 
         return result;
     }
