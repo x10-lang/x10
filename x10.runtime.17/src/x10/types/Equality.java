@@ -51,7 +51,7 @@ public class Equality {
     public static boolean equalsequals(double a, double b) { return a == b; }
     
     public static boolean equalsequals(String a, String b) { return a.equals(b); }
-    public static boolean equalsequals(Value a, Value b) { return a.equals(b); }
+    public static boolean equalsequals(Value a, Value b) { return a.structEquals(b); }
     public static boolean equalsequals(Ref a, Ref b) { return a == b; }
 
     public static boolean equalsequals(Object a, Object b) {
@@ -73,7 +73,7 @@ public class Equality {
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers(a, b);
         if (a instanceof Comparable) return ((Comparable) a).compareTo(b) == 0;
-        if (a instanceof Value) return a.equals(b);
+        if (a instanceof Value) return ((Value) a).structEquals(b);
         
         return false;
     }
