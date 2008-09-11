@@ -15,6 +15,12 @@ public abstract value class Rail[T](length: nat)
 
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
     public native static def makeVar[S](length: nat, init: (nat) => S): Rail[S]{self.length==length}; // should be native
+
+    @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4)")
+    public native static def makeVal[S](length: nat): ValRail[S]{self.length==length}; // should be native
+    
+    @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
+    public native static def makeVar[S](length: nat): Rail[S]{self.length==length}; // should be native
     
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     public native static def make[U](r: ValRail[U]): Rail[U]{self.length==r.length};
