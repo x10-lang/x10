@@ -506,11 +506,15 @@ public class XConstraint_c implements XConstraint, Cloneable {
                             XTerm t = ts.get(i);
                             XConstraint_c me2 = me.copy();
                             try {
-                                me2.addBinding(v, t);
+                                XTerm t2 = t.subst(me.self(), self);
+                                XTerm t3 = t2.subst(me2.self(), me.self());
+                                me2.addBinding(v, t3);
                             }
                             catch (XFailure z) {
                                 continue;
                             }
+                            if (! me2.consistent())
+                                continue;
                             if (entailsWithEQV(me2, terms, self, m))
                                 return true;
                         }
@@ -562,7 +566,7 @@ if (false) {
         XConstraint_c c = (XConstraint_c) copy();
         Set<XTerm> visited = new HashSet<XTerm>();
         for (XTerm term : constraints()) {
-            term.saturate(c, visited);
+            term.subst(c.self(), self()).saturate(c, visited);
         }
         return c;
     }
@@ -677,11 +681,13 @@ if (false) {
     public String toString() {
         XConstraint c = this;
         
+        
         if (! c.consistent()) {
             return "{inconsistent}";
         }
         
         try {
+            XConstraint c2 = this.substitute(this.genEQV(XTerms.makeName("xyzzy"), false), this.self());
             c = saturate();
         }
         catch (XFailure z) {
