@@ -10,7 +10,7 @@ import x10.constraint.XVar;
 
 public class EntailmentTest extends TestCase {
 	public EntailmentTest() {
-		super("FormulaTest");
+		super("EntailmentTest");
 	}
 	XTerm zero = XTerms.makeLit(new Integer(1));
 	XTerm one = XTerms.makeLit(new Integer(1));
@@ -226,7 +226,7 @@ public class EntailmentTest extends TestCase {
 		c.addBinding(x2,v2f);
 		
 		XConstraint d = new XConstraint_c();
-		c.addBinding(v1,v2);
+		d.addBinding(v1,v2);
 		
 		boolean result = c.entails(d);
 		assertFalse(result);
