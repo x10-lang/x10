@@ -17,24 +17,24 @@ public class NullObjectToNullableConstrained extends x10Test {
 	public def run(): boolean = {
 		var array: Rail[X10DepTypeClassOne] = new Array[X10DepTypeClassOne](1);
 		var var: X10DepTypeClassOne = array(0);
-		var nullableVarNull: nullable<X10DepTypeClassOne> = null;
+		var nullableVarNull: Box[X10DepTypeClassOne] = null;
 		
 		// array[0] is null hence it is not an instance of targeted non nullable type
-		var res1: boolean = !(array(0) instanceof  nullable<X10DepTypeClassOne{p==1})>);
+		var res1: boolean = !(array(0) instanceof  Box[X10DepTypeClassOne{p==1})]);
 		
 		// var is null hence it is not an instance of targeted non nullable type
-		var res2: boolean = !(var instanceof  nullable<X10DepTypeClassOne{p==1})>);
+		var res2: boolean = !(var instanceof  Box[X10DepTypeClassOne{p==1})]);
 		
 		// nullableVarNull is null hence it is not an instance of targeted non nullable type
-		var res3: boolean = !(nullableVarNull instanceof  nullable<X10DepTypeClassOne{p==1})>);
+		var res3: boolean = !(nullableVarNull instanceof  Box[X10DepTypeClassOne{p==1})]);
 		
 		// nullableVarNull is null hence it is an instance of the nullable type
-		var res4: boolean = !(getNullNullable() instanceof nullable<X10DepTypeClassOne{p==1})>);
+		var res4: boolean = !(getNullNullable() instanceof Box[X10DepTypeClassOne{p==1})]);
 
 		return res1 && res2 && res3 && res4;
 	}
 	
-	public def getNullNullable(): nullable<X10DepTypeClassOne> = {
+	public def getNullNullable(): Box[X10DepTypeClassOne] = {
 		return null;
 	}
 	
