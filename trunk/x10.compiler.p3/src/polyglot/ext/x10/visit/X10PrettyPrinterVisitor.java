@@ -2756,6 +2756,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            X10ClassType ct = (X10ClassType) at;
 	            X10ClassDef cd = ct.x10Def();
 	            String pat = getJavaRep(cd);
+	            
+	            if (at instanceof BoxType && pat == null) {
+	                pat = "x10.core.Box<#1>";
+	            }
+	            
 	            if (pat == null) {
 	                if (ct.isGloballyAccessible() && ct.typeArguments().size() == 0) {
 	                    w.write(rttName(cd));
