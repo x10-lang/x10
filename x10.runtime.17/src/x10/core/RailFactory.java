@@ -22,6 +22,25 @@ public class RailFactory {
         }
         return array;
     }
+    
+    public static <T> ValRail<T> makeValRail(Type<T> type, int length) {
+        Object o = type.makeArray(length);
+        ValRail<T> array = new ValRail<T>(type, length, o);
+        T zero = type.zeroValue();
+        for (int i = 0; i < length; i++) {
+            type.setArray(o, i, zero);
+        }
+        return array;
+    }
+    
+    public static <T> Rail<T> makeVarRail(Type<T> type, int length) {
+        Rail<T> array = new Rail<T>(type, length);
+        T zero = type.zeroValue();
+        for (int i = 0; i < length; i++) {
+            array.set(zero, i);
+        }
+        return array;
+    }
 
     public static <T> Rail<T> makeRailFromJavaArray(Object array) {
         if (array instanceof boolean[]) {
