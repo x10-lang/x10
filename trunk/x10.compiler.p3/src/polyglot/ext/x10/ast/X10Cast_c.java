@@ -105,10 +105,12 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        // Reboxing a value.  Unbox and then box again.
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
-	        Position p = position();
-                X10Cast unboxed = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true), tc);
-                X10Cast coerced = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unboxed, true), tc);
-                return this.expr(coerced).typeCheck(tc);
+	        if (! ts.typeEquals(fromBox, toBox)) {
+	            Position p = position();
+	            X10Cast unboxed = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, fromBox.arg()), expr, true), tc);
+	            X10Cast coerced = (X10Cast) check(nf.X10Cast(p, nf.CanonicalTypeNode(p, toBox.arg()), unboxed, true), tc);
+	            return this.expr(coerced).typeCheck(tc);
+	        }
 	    }
 
             // V to Box[W]
