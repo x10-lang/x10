@@ -323,7 +323,7 @@ findTests() {
     local topDir="$1"
     #eval "find '$topDir' -type f -name '*.x10' $findpat -print"
     #eval "find $findpat -type d -name CVS -prune -o -type f -name '*.x10' -print"
-    eval "find $findpat -type d -name CVS -prune -o -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print"
+    eval "find $findpat -type d -name CVS -prune -o -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print | sort"
 }
 
 checkLink() {
