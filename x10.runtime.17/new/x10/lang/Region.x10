@@ -14,11 +14,22 @@ public abstract value Region(
     property rail = rank==1 && rect && zeroBased;
 
 @Native("java", "(#0).size()")
-    public abstract def size(): int;
+    native public  def size(): int;
+    
+@Native("java", "(#0).low()")
+    native public def low(){rank==1}:Int;
+    
+@Native("java", "(#0).high()")
+    native public def high(){rank==1}:Int;
+    
+    
+@Native("java", "(#0).rank(#1)")
+    native public  def rank(n:Int):Region(1);
+    
 @Native("java", "(#0).isConvex()")
-    public abstract def isConvex(): boolean;
+    native public  def isConvex(): boolean;
 @Native("java", "(#0).disjoint(#1)")
-    public abstract def disjoint(that: Region): boolean;
+    native public def disjoint(that: Region): boolean;
 
 @Native("java", "x10.array.RegionFactory.makeEmpty(#1)")
     native public static def makeEmpty(rank: int): Region(rank);
