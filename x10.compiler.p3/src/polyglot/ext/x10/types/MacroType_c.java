@@ -227,7 +227,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public String toString() {
-	        return signature() + " = " + definedType();
+	        return signature(); // + " = " + definedType();
 	}
 
 	public String signature() {
