@@ -189,21 +189,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		n.translate(w, tr);
 	}
 	
-	// Wrap every Expr in a cast.  Grr... only works if in a context expecting an expr.
-//	       public void visitAppropriate(JL n) {
-//	           if (n instanceof Expr) {
-//	               Expr e = (Expr) n;
-//	               w.write("((");
-//	               printType(e.type(), true, false, false);
-//	               w.write(") ");
-//	               super.visitAppropriate(n);
-//	               w.write(")");
-//	           }
-//	           else {
-//	               super.visitAppropriate(n);
-//	           }
-//	       }
-	
 	public void visit(LocalAssign_c n) {
 	    Local l = n.local();
 	    TypeSystem ts = tr.typeSystem();
@@ -296,10 +281,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        tr.print(parent, e, w);
 	        return;	        
 	    }
-	    w.write("(");
-	    w.write("(");
-	    printType(expected, PRINT_TYPE_PARAMS);
-	    w.write(") ");
+	    
+            w.write("x10.types.Types.<");
+            printType(expected, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+            w.write(">javacast(");
 	    tr.print(parent, e, w);
 	    w.write(") ");
 	}
@@ -1000,6 +985,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    return mangle;
 	}
 	
+	private void javacast(Node parent, Type t, int flags, Expr e) {
+            w.write("x10.types.Types.<");
+            printType(t, flags | BOX_PRIMITIVES);
+            w.write(">javacast(");
+	    tr.print(parent, e, w);
+	    w.write(")");
+	}
+	private void javacast(Type t, int flags, Expander e) {
+            w.write("x10.types.Types.<");
+            printType(t, flags | BOX_PRIMITIVES);
+            w.write(">javacast(");
+	    e.expand(tr);
+	    w.write(")");
+	}
+	private void javacast(Type t, int flags, String e) {
+            w.write("x10.types.Types.<");
+            printType(t, flags | BOX_PRIMITIVES);
+            w.write(">javacast(");
+	    w.write(e);
+	    w.write(")");
+	}
+	
     private void generateRTType(X10ClassDef def) {
         w.newline();
 
@@ -1073,9 +1080,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("this.");
                 w.write(pt.name().toString());
                 w.write(".equals(");
-                w.write("((");
-                printType(def.asType(), BOX_PRIMITIVES);
-                w.write(") o)." + "rtt_" + mangle(def.fullName()) + "_");
+                javacast(def.asType(), BOX_PRIMITIVES, "o");
+                w.write("." + "rtt_" + mangle(def.fullName()) + "_");
                 w.write(pt.name().toString());
                 w.write("()");
                 w.write(")");
@@ -1084,17 +1090,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("this.");
                 w.write(pt.name().toString());
                 w.write(".isSubtype(");
-                w.write("((");
-                printType(def.asType(), BOX_PRIMITIVES);
-                w.write(") o)." + "rtt_" + mangle(def.fullName()) + "_");
+                javacast(def.asType(), BOX_PRIMITIVES, "o");
+                w.write("." + "rtt_" + mangle(def.fullName()) + "_");
                 w.write(pt.name().toString());
                 w.write("()");
                 w.write(")");
                 break;
             case CONTRAVARIANT:
-                w.write("((");
-                printType(def.asType(), BOX_PRIMITIVES);
-                w.write(") o)." + "rtt_" + mangle(def.fullName()) + "_");
+                javacast(def.asType(), BOX_PRIMITIVES, "o");
+                w.write("." + "rtt_" + mangle(def.fullName()) + "_");
                 w.write(pt.name().toString());
                 w.write("()");
                 w.write(".isSubtype(");
@@ -1204,9 +1208,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                X10Cast e = (X10Cast) c.expr();
 	                if (e.conversionType() == X10Cast.ConversionType.UNBOXING) {
 	                    // ((Box<T>) Box.make(TYPE, v))
-	                    w.write("((");
+	                    w.write("x10.types.Types.<");
 	                    printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	                    w.write(") ");
+	                    w.write(">javacast(");
 	                    w.write("x10.core.Box.make(");
 	                    new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
 	                    w.write(", ");
@@ -1217,9 +1221,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                }
 	            }
 	            // ((Box<T>) Box.make(TYPE, v))
-	            w.write("((");
-	            printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	            w.write(") ");
+                    w.write("x10.types.Types.<");
+                    printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                    w.write(">javacast(");
 	            w.write("x10.core.Box.make(");
 	            new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
 	            w.write(", ");
@@ -1229,9 +1233,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            break;
 	        case UNBOXING:
 	            // Box.unbox((Box<T>) v)
-	            w.write("x10.core.Box.unbox((x10.core.Box<");
-	            printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-	            w.write(">) ");
+	            w.write("x10.core.Box.unbox(");
+                    w.write("x10.types.Types.<x10.core.Box<");
+                    printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                    w.write(">>javacast(");
 	            tr.print(c, c.expr(), w);
 	            w.write(")");
 	            break;
