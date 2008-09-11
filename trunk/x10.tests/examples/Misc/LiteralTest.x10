@@ -36,7 +36,7 @@ public class LiteralTest extends x10Test {
 		chk(i9+1 == (i1-i3));
 		chk((i9 << 31) == i1);
 		chk(l1 == l2 &&l2 == l3 && l1 == -l1);
-		chk(l1 == ((i1<<32) to long));
+		chk(l1 == ((i1 to long)<<32));
 		chk(l4 == l5 && l5 == l6);
 		chk(l4+1 == l1 && l4 == l1-1);
 		chk(l7 == l8 && l8 == l9 && l9 == i9);
