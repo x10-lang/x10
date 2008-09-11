@@ -2451,6 +2451,20 @@ public static class MessageHandler implements IMessageHandler {
         ./
     
     
+    VariableDeclaratorsWithType ::= VariableDeclaratorWithType
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), Object[].class, false);
+                    l.add(VariableDeclaratorWithType);
+                    setResult(l);
+          $EndJava
+        ./
+                          | VariableDeclaratorsWithType , VariableDeclaratorWithType
+        /.$BeginJava
+                    VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
+                    // setResult(VariableDeclaratorsWithType);
+          $EndJava
+        ./
+    
     VariableDeclarators ::= VariableDeclarator
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Object[].class, false);
@@ -3227,6 +3241,22 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
           $EndJava
         ./
+                    
+    VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
+        /.$BeginJava
+                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, VariableInitializer });
+          $EndJava
+        ./
+                         | ( IdentifierList ) ResultType = VariableInitializer
+        /.$BeginJava
+                    setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, VariableInitializer });
+          $EndJava
+        ./
+                         | Identifier ( IdentifierList ) ResultType = VariableInitializer
+        /.$BeginJava
+                    setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, VariableInitializer });
+          $EndJava
+        ./
     
     LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
     
@@ -3263,13 +3293,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(l);
           $EndJava
         ./
-                               | VariableModifiersopt VariableDeclarators
+                               | VariableModifiersopt VariableDeclaratorsWithType
         /.$BeginJava
                     FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
         
                     List l = new TypedList(new LinkedList(), LocalDecl.class, false);
                     List s = new TypedList(new LinkedList(), Stmt.class, false);
-                        for (Iterator i = VariableDeclarators.iterator(); i.hasNext(); )
+                        for (Iterator i = VariableDeclaratorsWithType.iterator(); i.hasNext(); )
                         {
                             Object[] o = (Object[]) i.next();
                             Position pos = (Position) o[0];
@@ -4345,7 +4375,9 @@ public static class MessageHandler implements IMessageHandler {
     List ::= ClassBodyDeclaration | ClassMemberDeclaration
     List ::= FieldDeclaration
     List ::= VariableDeclarators | FormalDeclarators | FieldDeclarators
+    List ::= VariableDeclaratorsWithType
     'Object[]' ::= VariableDeclarator
+    'Object[]' ::= VariableDeclaratorWithType
     'Object[]' ::= FormalDeclarator
     'Object[]' ::= LoopIndexDeclarator
     'Object[]' ::= FieldDeclarator
