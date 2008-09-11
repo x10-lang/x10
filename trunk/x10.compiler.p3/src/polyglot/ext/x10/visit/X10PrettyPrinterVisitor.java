@@ -128,6 +128,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Def;
+import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -412,6 +413,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.allowBreak(0, " ");
 	        }
 	        first = false;
+	        w.write("final ");
 	        w.write(X10_RUNTIME_TYPE_CLASS);
 	        w.write(" ");
 	        Type pt = Types.get(p);
@@ -622,6 +624,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
                 first = false;
                 
+                w.write("final ");
                 w.write(X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
                 w.write(p.name().id().toString());
@@ -704,6 +707,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		for (Iterator i = ct.x10Def().typeParameters().iterator(); i.hasNext(); ) {
 		    ParameterType p = (ParameterType) i.next();
+		    w.write("final ");
 		    w.write(X10_RUNTIME_TYPE_CLASS);
 		    w.write(" ");
 		    w.write(p.name().toString());
@@ -1028,7 +1032,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             ParameterType pt = def.typeParameters().get(i);
             if (i != 0)
                 w.write(", ");
-            w.write("x10.types.Type ");
+            w.write("final x10.types.Type ");
             w.write(pt.name().toString());
         }
 
@@ -1828,14 +1832,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Field_c n) {
 		Receiver target = n.target();
 		Type t = target.type();
-
+		
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
+		
+		if (target instanceof TypeNode) {
+		    TypeNode tn = (TypeNode) target;
+		    if (t instanceof ParameterType) {
+		        // Rewrite to the class declaring the field.
+		        FieldDef fd = fi.def();
+		        t = Types.get(fd.container());
+		        target = tn.typeRef(fd.container());
+		        n = (Field_c) n.target(target);
+		    }
+		}
 
 		String pat = getJavaImplForDef(fi.x10Def());
 		if (pat != null) {
-		    Object[] components = new Object[] { n.target() };
+		    Object[] components = new Object[] { target };
 		    dumpRegex("Native", components, tr, pat);
 		    return;
 		}
