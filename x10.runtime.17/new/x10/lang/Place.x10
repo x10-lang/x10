@@ -12,7 +12,7 @@ public value Place(
          * The number of places in this run of the system.
          * This is set on initialization by x10.runtime.Runtime
          */
-        @Native("java", "x10.runtime.Runtime.getMaxPlaces()")
+        @Native("java", "x10.runtime.Runtime.maxPlaces()")
         public const MAX_PLACES: int = getMaxPlaces();
 
         /** The first place. */
