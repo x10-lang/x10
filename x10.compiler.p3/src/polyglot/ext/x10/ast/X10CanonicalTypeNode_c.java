@@ -105,18 +105,18 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
             throw new SemanticException("Invalid type; the real clause of " + t + " is inconsistent.", position());
         }
         
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        
+        if (! ts.consistent(t)) {
+            throw new SemanticException("Type " + t + " is inconsistent.", position());
+        }
+        
         return this;
     }
     
     public void checkType(Type t) throws SemanticException {
 	if (t == null) throw new SemanticException("Invalid type.", position());
         
-	X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	
-	if (! ts.consistent(t)) {
-	    throw new SemanticException("Type " + t + " is inconsistent.", position());
-	}
-	
 	if (t instanceof ConstrainedType) {
 	    ConstrainedType ct = (ConstrainedType) t;
 	    Type base = Types.get(ct.baseType());
