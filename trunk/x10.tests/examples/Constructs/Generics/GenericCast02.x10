@@ -1,9 +1,9 @@
 // (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
 
-import harness.x10Test;
+//LIMITATION: cannot extend more than one instantiation of the same interface
 
-import x10.compiler.ArithmeticOps;
+import harness.x10Test;
 
 /**
  * @author bdlucas 8/2008
