@@ -22,7 +22,7 @@ public class GenericExample1 extends GenericTest {
                 if (this.tail == null)
                     this.tail = new List[T](x, null);
                 else
-                    this.tail.add(x);
+                    this.tail.append(x);
             }
         }
 
