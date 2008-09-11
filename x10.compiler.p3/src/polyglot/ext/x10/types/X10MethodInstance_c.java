@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ext.x10.types.SubtypeSolver.XSubtype_c;
 import polyglot.main.Report;
 import polyglot.types.ArrayType;
 import polyglot.types.DerefTransform;
@@ -361,10 +362,26 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		for (int i = 0; i < yct.typeArguments().size(); i++) {
 		    Type xt = xct.typeArguments().get(i);
 		    Type yt = yct.typeArguments().get(i);
+		    TypeProperty.Variance v = xcd.variances().get(i);
 		    X10TypeSystem xts = (X10TypeSystem) xcd.typeSystem();
-		    XTerm Xi = xts.xtypeTranslator().trans(xt);
-		    XTerm Yi = xts.xtypeTranslator().trans(yt);
-		    env.addBinding(Xi, Yi);
+		    switch (v) {
+		    case INVARIANT: {
+		        XTerm Xi = xts.xtypeTranslator().trans(xt);
+		        XTerm Yi = xts.xtypeTranslator().trans(yt);
+		        env.addBinding(Xi, Yi);
+		        break;
+		    }
+		    case CONTRAVARIANT: {
+		        XTerm tt = xts.xtypeTranslator().transSubtype(xt, yt);
+		        env.addTerm(tt);
+		        break;
+		    }
+		    case COVARIANT: {
+		        XTerm tt = xts.xtypeTranslator().transSubtype(yt, xt);
+		        env.addTerm(tt);
+		        break;
+		    }
+		    }
 		}
 	    }
 	    else {
@@ -379,9 +396,11 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     private static void addTypeParameterBindings(Type xtype, Type ytype, XConstraint env) throws XFailure {
 	if (xtype instanceof ParameterType) {
 	    X10TypeSystem xts = (X10TypeSystem) xtype.typeSystem();
-	    XRoot Xi = xts.xtypeTranslator().transTypeParam((ParameterType) xtype);
-	    XTerm Yi = xts.xtypeTranslator().trans(ytype);
-	    env.addBinding(Xi, Yi);
+//	    XRoot Xi = xts.xtypeTranslator().transTypeParam((ParameterType) xtype);
+//	    XTerm Yi = xts.xtypeTranslator().trans(ytype);
+//	    env.addBinding(Xi, Yi);
+	    XTerm tt = xts.xtypeTranslator().transSubtype(ytype, xtype);
+	    env.addTerm(tt);
 	}
 	if (xtype instanceof X10ClassType) {
 	    X10ClassType xct = (X10ClassType) xtype;
@@ -842,35 +861,67 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         try {
             env.addIn(bigquery);
 
-            for (int i = 0; i < X.length; i++) {
-                env.addBinding(X[i], Y[i]);
-            }
-            for (int i = 0; i < x.length; i++) {
-                env.addBinding(x[i], y[i]);
-            }
+//            for (int i = 0; i < X.length; i++) {
+//                env.addBinding(X[i], Y[i]);
+//            }
+//            for (int i = 0; i < x.length; i++) {
+//                env.addBinding(x[i], y[i]);
+//            }
 
             for (int i = 0; i < actualTypeVars.size(); i++) {
                 XVar v = actualTypeVars.get(i);
 
-                List<XVar> matches = new ArrayList<XVar>();
-                matches.add(v);
+                List<XVar> upper = new ArrayList<XVar>();
+                List<XVar> lower = new ArrayList<XVar>();
                 
-                for (int j = 0; j < matches.size(); j++) {
-                    XVar m = matches.get(j);
+                List<XVar> worklist = new ArrayList<XVar>();
+                worklist.add(v);
+                
+                for (int j = 0; j < worklist.size(); j++) {
+                    XVar m = worklist.get(j);
                     for (XTerm term : env.constraints()) {
                         if (term instanceof XEquals) {
                             XEquals eq = (XEquals) term;
-                            if (m.equals(eq.left()) && eq.right() instanceof XVar && ! matches.contains(eq.right()))
-                                matches.add((XVar) eq.right());
-                            if (m.equals(eq.right()) && eq.left() instanceof XVar && ! matches.contains(eq.left()))
-                                matches.add((XVar) eq.left());
+                            if (m.equals(eq.left()) && eq.right() instanceof XVar) {
+                                if (! upper.contains(eq.right()))
+                                    upper.add((XVar) eq.right());
+                                if (! lower.contains(eq.right()))
+                                    lower.add((XVar) eq.right());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                            if (m.equals(eq.right()) && eq.left() instanceof XVar) {
+                                if (! upper.contains(eq.left()))
+                                    upper.add((XVar) eq.left());
+                                if (! lower.contains(eq.left()))
+                                    lower.add((XVar) eq.left());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                        }
+                        if (term instanceof XSubtype_c) {
+                            XSubtype_c eq = (XSubtype_c) term;
+                            if (m.equals(eq.left()) && eq.right() instanceof XVar) {
+                                if (! upper.contains(eq.right()))
+                                    upper.add((XVar) eq.right());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
+                            if (m.equals(eq.right()) && eq.left() instanceof XVar) {
+                                if (! lower.contains(eq.left()))
+                                    lower.add((XVar) eq.left());
+                                if (! worklist.contains(eq.right()))
+                                    worklist.add((XVar) eq.right());
+                            }
                         }
                     }
                 }
                 
-                matches.removeAll(actualTypeVars);
+                upper.removeAll(actualTypeVars);
+                lower.removeAll(actualTypeVars);
                 for (XRoot Xi : X) {
-                    matches.remove(Xi);
+                    upper.remove(Xi);
+                    lower.remove(Xi);
                 }
                 
 //                      // BUG: may return an existential even though there is a better type in there.
@@ -889,24 +940,48 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 //                          }
 //                      }
                 
-                boolean found = false;
+                Type upperBound = null;
+                Type lowerBound = null;
                 
-                for (XVar var : matches) {
+                for (XVar var : upper) {
                     Type t = getType(var);
                     if (t != null && ! dummyTypes.contains(t)) {
-                        Y[i] = var;
-                        found = true;
-                        break;
+                        if (upperBound == null)
+                            upperBound = t;
+                        else
+                            upperBound = meetTypes(xts, upperBound, t);
                     }
                 }
-
-                if (! found)
+                
+                for (XVar var : lower) {
+                    Type t = getType(var);
+                    if (t != null && ! dummyTypes.contains(t)) {
+                        if (lowerBound == null)
+                            lowerBound = t;
+                        else
+                            lowerBound = xts.leastCommonAncestor(lowerBound, t);
+                    }
+                }
+                
+                if (upperBound != null)
+                    Y[i] = (XVar) xts.xtypeTranslator().trans(upperBound);
+                else if (lowerBound != null)
+                    Y[i] = (XVar) xts.xtypeTranslator().trans(lowerBound);
+                else
                     throw new SemanticException("Could not infer type for type parameter " + typeFormals.get(i) + ".", me.position());
             }
         }
         catch (XFailure f) {
             throw new SemanticException("Call invalid; calling environment and callee is inconsistent.");
         }
+    }
+    
+    static Type meetTypes(X10TypeSystem xts, Type t1, Type t2) {
+        if (xts.isSubtype(t1, t2))
+            return t1;
+        if (xts.isSubtype(t2, t1))
+            return t2;
+        return null;
     }
     
     static List<Type> getTypes(XVar[] Y) {
