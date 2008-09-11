@@ -1,5 +1,6 @@
 package x10.core;
 
+import x10.types.Equality;
 import x10.types.RuntimeType;
 import x10.types.Type;
 import x10.types.Types;
@@ -76,8 +77,8 @@ public class Box<T> extends Ref {
         if (o == null)
             return false;
         if (o instanceof Box)
-            return value.equals(((Box<?>) o).value);
-        if (value.equals(o))
+            return Equality.equalsequals(value, ((Box<?>) o).value);
+        if (Equality.equalsequals(value, o))
             return true;
         return false;
     }
