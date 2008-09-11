@@ -22,7 +22,7 @@ public class ClockTest1 extends x10Test {
 
 	public def run(): boolean = {
 		// main activity A0
-	    val c = new Clock();
+	    val c = Clock.make();
 		
 	    // the fact of spawning this clocked activity increases 
 	    // the number of registered activities to two.
