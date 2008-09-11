@@ -138,12 +138,14 @@ public class TypeParamSubst {
     }
 
     public static XConstraint reinstantiateConstraint(X10ClassType ct, XConstraint c) {
-	if (c == null || c.valid()) return c;
-	if (ct instanceof X10ParsedClassType_c) {
-	    X10ParsedClassType_c t = (X10ParsedClassType_c) ct;
-	    new TypeParamSubst((X10TypeSystem) t.typeSystem(), t.typeArguments, t.x10Def().typeParameters()).reinstantiateConstraint(c);
-	}
-	return c;
+        if (c == null || c.valid())
+            return c;
+        XConstraint result = c;
+        if (ct instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c t = (X10ParsedClassType_c) ct;
+            result = new TypeParamSubst((X10TypeSystem) t.typeSystem(), t.typeArguments, t.x10Def().typeParameters()).reinstantiateConstraint(c);
+        }
+	return result;
     }
 
     public XConstraint reinstantiateConstraint(XConstraint c) {
@@ -159,7 +161,7 @@ public class TypeParamSubst {
 
 	for (int i = 0; i < n; i++) {
 	    ParameterType pt = typeParameters.get(i);
-	    Type at = typeArguments.get(0);
+	    Type at = typeArguments.get(i);
 
 	    XTerm p = ts.xtypeTranslator().trans(pt);
 	    XTerm a = ts.xtypeTranslator().trans(at);
@@ -173,16 +175,18 @@ public class TypeParamSubst {
 		xs[i] = XTerms.makeLit(XTerms.makeName("error"));
 	    }
 	}
+	
+	XConstraint result;
 
 	try {
-	    c = c.substitute(ys, xs);
+	    result = c.substitute(ys, xs);
 	}
 	catch (XFailure e) {
-	    c = new XConstraint_c();
-	    c.setInconsistent();
+	    result = new XConstraint_c();
+	    result.setInconsistent();
 	}
 
-	return c;
+	return result;
     }
 
     public XTerm reinstantiateTerm(XTerm t) {
