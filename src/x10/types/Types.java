@@ -11,6 +11,11 @@ public class Types {
             throw new ClassCastException(t.toString());
         return o;
     }
+    
+    // Hack to get around parsing problems for generated Java casts.
+    public static <T> T javacast(Object o) {
+        return (T) o;
+    }
 
     public static Type runtimeType(Class c) {
         return new RuntimeType(c);
