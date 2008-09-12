@@ -16,7 +16,7 @@ import harness.x10Test;
 public class RemoteAccessCheck extends x10Test {
 
 	public def run(): boolean = {
-		var d: dist = distmakeUnique(place.places);
+		var d: dist = dist.makeUnique(place.places);
 		if (d.region.size() < 2) {
 			System.out.println("RemoteAccessCheck requires 2 or more places.");
 			return false;
