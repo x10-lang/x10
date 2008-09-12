@@ -355,7 +355,9 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return true;
         if (other == null || other.valid())
             return true;
-        return entails(other.constraints(), other.self());
+        List<XTerm> otherConstraints = other.constraints();
+        XRoot otherSelf = other.self();
+        return entails(otherConstraints, otherSelf);
     }
 
     public List<XTerm> constraints() {
