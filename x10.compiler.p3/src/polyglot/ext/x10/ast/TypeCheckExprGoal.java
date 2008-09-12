@@ -49,6 +49,7 @@ public class TypeCheckExprGoal extends AbstractGoal_c {
 		try {
 			Node m = parent.visitChild(n, v);
 			v.job().nodeMemo().put(n, m);
+			v.job().nodeMemo().put(m, m);
 			if (m instanceof Expr) {
 			    Type t = ((Expr) m).type();
 			    if (t instanceof X10ClassType) {
