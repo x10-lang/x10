@@ -4,6 +4,7 @@
 package x10.types;
 
 import x10.core.Ref;
+import x10.core.Value;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
 
@@ -48,10 +49,10 @@ public class RuntimeType<T> implements Type<T> {
 
     public T zeroValue() {
         // null for ref types, otherwise complain
-        if (Ref.class.isAssignableFrom(c)) {
-            return null;
+        if (Value.class.isAssignableFrom(c)) {
+            throw new UnsupportedOperationException();
         }
-        throw new UnsupportedOperationException();
+        return null;
     }
     
     public T unitValue() {
