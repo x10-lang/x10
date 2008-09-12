@@ -250,9 +250,6 @@ public class XTypeTranslator {
 		return t;
 	}
 
-	public static void variables(Type t, List<XVar> result) {
-	}
-
 	private XTerm transClassType(X10ClassType t) {
 	    X10ClassDef def = t.x10Def();
 	    
@@ -307,10 +304,6 @@ public class XTypeTranslator {
 		if (n == this) n = (XTypeLit_c) clone();
 		n.val = XTypeTranslator.subst(type(), y, x);
 		return n;
-	    }
-
-	    public void variables(List<XVar> result) {
-		XTypeTranslator.variables(type(), result);
 	    }
 	}
 
