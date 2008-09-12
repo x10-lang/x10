@@ -53,9 +53,8 @@ public class RewriteAtomicMethodVisitor extends ContextVisitor {
                     
                     b = nf.Block(pos, Collections.singletonList(atomic));
                     b = check(b);
-
-                    md = (X10MethodDecl) md.body(b);
-                    return md;
+                    
+                    return b;
                 }
             }
         }
