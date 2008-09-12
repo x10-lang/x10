@@ -47,7 +47,7 @@ public class UnknownTypeNode_c extends TypeNode_c implements UnknownTypeNode {
 		    return this;
 		}
 		
-		return nf.CanonicalTypeNode(position(), t);
+		return nf.CanonicalTypeNode(position(), typeRef());
 	}
 
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
