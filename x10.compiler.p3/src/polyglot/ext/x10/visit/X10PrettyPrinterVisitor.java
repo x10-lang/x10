@@ -2162,6 +2162,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            for (Type a : typeArguments) {
 	                o[i++] = new TypeExpander(a, printGenerics, true, inSuper);
 	            }
+	            if (! printGenerics) {
+	                pat = pat.replaceAll("<.*>", "");
+	            }
 	            dumpRegex("NativeRep", o, tr, pat);
 	            return true;
 	        }
