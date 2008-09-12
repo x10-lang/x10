@@ -24,7 +24,7 @@ public class ListTest extends x10Test {
 		}
 		public def this(): List = {
 			n=0;
-			value=null;
+			value=0;
 			tail=null;
 		}
 		public def append(l: List): List = {
@@ -45,7 +45,7 @@ public class ListTest extends x10Test {
 		public def run(): boolean = {
 			a: List = new List(1, new List(2, new List()));
 			b: Int = a.nth(2);
-			return b.val==2;
+			return b.value==2;
 		}
 	
 		public static def main(var args: Rail[String]): void = {
