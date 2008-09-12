@@ -5,8 +5,6 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
 import harness.x10Test;;
 
 /**
@@ -17,8 +15,8 @@ import harness.x10Test;;
 public class PointRebinding extends x10Test {
 
 	public def run(): boolean = {
-		var p: point = [1, 2] to point;
-		var (i, j): point = p;
+		val p: point = [1, 2] to point;
+		val (i, j): point = p;
 
 		return (i == 1 && j == 2);
 	}
