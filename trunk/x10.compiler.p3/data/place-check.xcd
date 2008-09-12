@@ -1,2 +1,2 @@
 // SYNOPSIS: (#0)((#1)@here) #0=type #1=object
-((#0) x10.runtime.Runtime.hereCheck(#1))
+x10.types.Types<#0>.javacast(x10.runtime.Runtime.hereCheck(#1))
