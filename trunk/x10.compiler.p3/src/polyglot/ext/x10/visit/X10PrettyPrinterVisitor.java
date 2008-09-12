@@ -2597,20 +2597,31 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 		}
 		
-		Name methodName = X10Binary_c.binaryMethodName(op);
-		if (methodName != null)
-		    generateStaticOrInstanceCall(n.position(), left, methodName, right);
-		else
-		    throw new InternalCompilerError("No method to implement " + n, n.position());
-		return;
+		if (n.invert()) {
+		    Name methodName = X10Binary_c.invBinaryMethodName(op);
+		    if (methodName != null) {
+		        generateStaticOrInstanceCall(n.position(), right, methodName, left);
+		        return;
+		    }
+		}
+		else {
+		    Name methodName = X10Binary_c.binaryMethodName(op);
+		    if (methodName != null) {
+		        generateStaticOrInstanceCall(n.position(), left, methodName, right);
+		        return;
+		    }
+		}
+		throw new InternalCompilerError("No method to implement " + n, n.position());
 	}
 
 	/**
-	 * @param pos
-	 * @param left TODO
-	 * @param name
-	 * @param right TODO
-	 */
+         * @param pos
+         * @param left
+         *                TODO
+         * @param name
+         * @param right
+         *                TODO
+         */
 	private void generateStaticOrInstanceCall(Position pos, Expr left, Name name, Expr... right) {
 	    List<Expr> sargs = new ArrayList();
 	    List<Type> stypes = new ArrayList();

@@ -22,5 +22,8 @@ import polyglot.ext.x10.visit.ExprFlattener.Flattener;
  */
 public interface X10Binary extends Binary {
 
+    public boolean invert();
+    public X10Binary invert(boolean invert);
+
 	Expr flatten(ExprFlattener.Flattener f);
 }

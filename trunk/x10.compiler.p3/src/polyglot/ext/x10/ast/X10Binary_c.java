@@ -57,6 +57,8 @@ import x10.constraint.XConstraint;
  */
 public class X10Binary_c extends Binary_c implements X10Binary {
 
+    boolean invert;
+    
 	/**
 	 * @param pos
 	 * @param left
@@ -65,6 +67,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	 */
 	public X10Binary_c(Position pos, Expr left, Operator op, Expr right) {
 		super(pos, left, op, right);
+		invert = false;
 	}
 
 	/** Get the precedence of the expression. */
@@ -259,6 +262,11 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		    return null;
 		return Name.make(methodName);
 	}
+	
+	public static Name invBinaryMethodName(Binary.Operator op) {
+	    Name n = binaryMethodName(op);
+	    return Name.make("inv" + n.toString());
+	}
 
 	/**
 	 * Type check a binary expression. Must take care of various cases because
@@ -303,6 +311,19 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		    }
 		}
 		
+		Name invMethodName = invBinaryMethodName(op);
+		
+		if (invMethodName != null) {
+		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+		    try {
+		        X10MethodInstance mi = xts.findMethod(r, xts.MethodMatcher(r, invMethodName, Collections.singletonList(l)), tc.context().currentClassDef());
+		        return invert(true).type(mi.returnType());
+		    }
+		    catch (SemanticException e) {
+		        // Cannot find the method.  Fall through.
+		    }
+		}
+		
 		X10Binary_c n = (X10Binary_c) super.typeCheck(tc);
 
 		Type resultType = n.type();
@@ -312,6 +333,16 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		}
 
 		return n;
+	}
+	
+	public boolean invert() {
+	    return invert;
+	}
+	
+	public X10Binary_c invert(boolean invert) {
+	    X10Binary_c	    n = (X10Binary_c) copy();
+	    n.invert = invert;
+	    return n;
 	}
 	
 	 /** Flatten the expressions in place and body, creating stmt if necessary.
