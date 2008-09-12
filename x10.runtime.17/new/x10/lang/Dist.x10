@@ -65,12 +65,14 @@ public abstract value Dist(
    /** 
      Make a constant local distribution.
    */
-   public static def makeConstant(r: Region)=makeConstant(r,here);
+   @Native("java", "x10.array.DistFactory.makeConstant(#1, x10.runtime.Runtime.here())")
+   public native static def makeConstant(r: Region): Dist{region==r,onePlace==here};
     
    /**
     Make a constant local distribution. Same as makeConstant(r).
    */
-   public static def make(r: Region)=makeConstant(r,here);
+   @Native("java", "x10.array.DistFactory.makeConstant(#1, x10.runtime.Runtime.here())")
+   public native static def make(r: Region): Dist{region==r,onePlace==here};
 
    // *** unique distributions
    /**
