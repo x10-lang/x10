@@ -31,9 +31,6 @@ public class ListTest extends x10Test {
 			return (n==0)? l : new List(value, tail.append(l)); // this cast should not be needed.
 		}
 		public def nth(k: int): Int = {
-			// vj: Replacing the line below with the line after that removes the
-			// infinite loop in the compiler.
-			//return k==1 ? value : tail.nth(k-1);
 			return k==1 ? value : tail.nth(k-1);
      
 		}
@@ -45,7 +42,7 @@ public class ListTest extends x10Test {
 		public def run(): boolean = {
 			a: List = new List(1, new List(2, new List()));
 			b: Int = a.nth(2);
-			return b.value==2;
+			return b==2;
 		}
 	
 		public static def main(var args: Rail[String]): void = {
