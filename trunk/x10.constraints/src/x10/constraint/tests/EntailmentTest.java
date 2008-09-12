@@ -171,7 +171,7 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	/**
-	 *  |- exists x1. x1=v1, x2=x1.f, x2=v2 -- should fail
+	 *  |- exists x1 x2. x1=v1, x2=x1.f, x2=v2 -- should fail
 	 * @throws Throwable
 	 */
 	public void test10() throws Throwable {
@@ -191,7 +191,7 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	/**
-	 *  |- exists x1. x1=v1, x2=v1.f, x2=v2.f -- should fail
+	 *  |- exists x1 x2. x1=v1, x2=v1.f, x2=v2.f -- should fail
 	 * @throws Throwable
 	 */
 	public void test11() throws Throwable {
@@ -212,7 +212,7 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	/**
-	 *   exists x1. x1=v1, x2=v1.f, x2=v2.f |- v1=v2
+	 *   exists x1 x2. x1=v1, x2=v1.f, x2=v2.f |- v1=v2 -- should fail
 	 * @throws Throwable
 	 */
 	public void test12() throws Throwable {
@@ -232,6 +232,5 @@ public class EntailmentTest extends TestCase {
 		assertFalse(result);
 		
 	}
-	
 	
 }
