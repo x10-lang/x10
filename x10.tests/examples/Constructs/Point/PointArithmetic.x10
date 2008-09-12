@@ -18,34 +18,34 @@ public class PointArithmetic extends x10Test {
 
 	public def run(): boolean = {
 		var sum: int = 0;
-		val p = [2, 2, 2, 2, 2] to point;
-		val q = [1, 1, 1, 1, 1] to point;
+		val p = [2, 2, 2, 2, 2] to point(DIM);
+		val q = [1, 1, 1, 1, 1] to point(DIM);
 		var c: int = 2;
 
 		// First test that the point/point arithmetic works
 
-		var a: point{rank==p.rank} = p + q;
+		var a: point(DIM) = p + q;
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += a(i);
 		System.out.println("p+p: sum = "+sum);
 		if (sum != 15) return false;
 
-		var s: point = p - q;
+		var s: point(DIM) = p - q;
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += s(i);
 		System.out.println("p-p: sum = "+sum);
 		if (sum != 5) return false;
 
-		var m: point = p * q;
+		var m: point(DIM) = p * q;
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += m(i);
 		System.out.println("p*p: sum = "+sum);
 		if (sum != 10) return false;
 
-		var d: point = p / q;
+		var d: point(DIM) = p / q;
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += d(i);
@@ -54,7 +54,7 @@ public class PointArithmetic extends x10Test {
 
 		// Unary +/-
 
-		var u: point = -q;
+		var u: point(DIM) = -q;
 		sum = 0;
 		for (var i: int = 0; i < DIM; i++)
 			sum += u(i);
@@ -126,98 +126,6 @@ public class PointArithmetic extends x10Test {
 		System.out.println("c/p: sum = "+sum);
 		if (sum != 5) return false;
 
-		// Now test that the dimensionality is properly checked
-
-		var gotException: boolean;
-		var r: point = [1, 2, 3, 4] to point;
-
-		gotException = false;
-		sum = 0;
-		try {
-			a = p + r;
-			for (var i: int = 0; i < DIM; i++)
-				sum += a(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			s = p - r;
-			for (var i: int = 0; i < DIM; i++)
-				sum += s(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			m = p * r;
-			for (var i: int = 0; i < DIM; i++)
-				sum += m(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			d = p / r;
-			for (var i: int = 0; i < DIM; i++)
-				sum += d(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			a = r + p;
-			for (var i: int = 0; i < DIM-1; i++)
-				sum += a(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			s = r - p;
-			for (var i: int = 0; i < DIM-1; i++)
-				sum += s(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			m = r * p;
-			for (var i: int = 0; i < DIM-1; i++)
-				sum += m(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
-
-		gotException = false;
-		sum = 0;
-		try {
-			d = r / p;
-			for (var i: int = 0; i < DIM-1; i++)
-				sum += d(i);
-		} catch (var e: RankMismatchException) {
-			gotException = true;
-		}
-		if (!(sum == 0 && gotException)) return false;
 		return true;
 	}
 
