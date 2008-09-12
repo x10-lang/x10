@@ -49,10 +49,6 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
     
-//    public Type leftType() {
-//        return super.type();
-//    }
-    
     public X10LocalInstance type(Type t) {
         X10LocalInstance_c n = (X10LocalInstance_c) super.type(t);
         assert n != this;
@@ -78,7 +74,10 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
                 else {
                     try {
                         XConstraint c = X10TypeMixin.xclause(t);
-                        if (c == null) c = new XConstraint_c();
+                        if (c == null)
+                            c = new XConstraint_c();
+                        else
+                            c = c.copy();
                         X10TypeSystem xts = (X10TypeSystem) ts;
                         XLocal var = xts.xtypeTranslator().trans(c, this, t);
                         c.addSelfBinding(var);
