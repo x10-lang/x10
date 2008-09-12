@@ -170,6 +170,13 @@ public class Point extends Value implements x10.core.Indexable<Integer,java.lang
         return new Point(array);
     }
 
+    public Point sub(int c) {
+        int array[] = new int[val.length];
+        for (int i = 0; i < val.length; i++)
+            array[i] = val[i] - c;
+        return new Point(array);
+    }
+    
     public Point sub(Point p) {
         if (val.length != p.rank)
             throw new RankMismatchException(p, rank);
@@ -195,6 +202,14 @@ public class Point extends Value implements x10.core.Indexable<Integer,java.lang
         // The loop below may also throw an ArithmeticException
         for (int i = 0; i < val.length; i++)
             array[i] = val[i] / p.get(i);
+        return new Point(array);
+    }
+    
+    public Point mod(int c) {
+        int array[] = new int[val.length];
+        // The loop below may also throw an ArithmeticException
+        for (int i = 0; i < val.length; i++)
+            array[i] = val[i] % c;
         return new Point(array);
     }
 
