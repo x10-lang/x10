@@ -6,6 +6,9 @@ import x10.types.Type;
 public class ArrayFactory {
     public static <T> Array<T> makeVarArray(Type<T> type, Dist d) {
         Array<T> a = new GenericArray<T>(type, d);
+        for (Point p : d) {
+            a.set(type.zeroValue(), p);
+        }
         return a;
     }
 
@@ -19,6 +22,9 @@ public class ArrayFactory {
 
     public static <T> ValArray<T> makeValArray(Type<T> type, Dist d) {
         ValArray<T> a = new GenericValArray<T>(type, d);
+        for (Point p : d) {
+            a.set(type.zeroValue(), p);
+        }
         return a;
     }
 
