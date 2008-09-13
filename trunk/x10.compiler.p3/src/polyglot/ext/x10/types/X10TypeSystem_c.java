@@ -999,32 +999,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	public List<ClosureType> getFunctionSupertypes(Type t) {
 	    if (t == null)
-		return Collections.EMPTY_LIST;
+	        return Collections.EMPTY_LIST;
+
+	    List<ClosureType> l = new ArrayList<ClosureType>();
 	    
-	    t = X10TypeMixin.baseType(t);
-	    
-	    if (t instanceof ClosureType)
-		return Collections.singletonList((ClosureType) t);
-	    
-	    if (t instanceof ObjectType) {
-		List<ClosureType> l = Collections.EMPTY_LIST;
-		ObjectType ot = (ObjectType) t;
-		for (Type ti : superTypes(ot)) {
-		    List<ClosureType> supFunctions = getFunctionSupertypes(ti);
-		    if (! supFunctions.isEmpty()) {
-			if (l.isEmpty())
-			    l = supFunctions;
-			else {
-			    l = new ArrayList<ClosureType>(l);
-			    l.addAll(supFunctions);
-			}
-		    }
-		}
-		
-		return l;
+	    for (Type bound : upperBounds(t)) {
+	        if (bound instanceof ClosureType)
+	            l.add((ClosureType) bound);
+
+	        if (bound instanceof ObjectType) {
+	            ObjectType ot = (ObjectType) t;
+	            for (Type ti : superTypes(ot)) {
+	                List<ClosureType> supFunctions = getFunctionSupertypes(ti);
+	                l.addAll(supFunctions);
+	            }
+	        }
 	    }
 	    
-	    return Collections.EMPTY_LIST;
+	    return l;
 	}
 	
 	public boolean isFunction(Type t) {
