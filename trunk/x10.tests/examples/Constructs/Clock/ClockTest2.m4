@@ -11,12 +11,12 @@ import harness.x10Test;
  */
 public class ClockTest2 extends x10Test {
 
-	int val = 0;
-	static final int N = 10;
+	val val:int = 0;
+	const N = 10;
 
-	public boolean run() {
-		final clock c = clock.factory.clock();
-		for (int i = 0; i < N; i++) {
+	public def run():boolean = {
+		varl c = clock.make();
+		for (var i:Int = 0; i < N; i++) {
 			Now((c), {
 				async(here) {
 					atomic {
@@ -25,7 +25,7 @@ public class ClockTest2 extends x10Test {
 				}
 			})
 			next;
-			int temp;
+			var temp:Int;
 			atomic { temp = val; }
 			if (temp != i+1) return false;
 		}
@@ -38,7 +38,7 @@ public class ClockTest2 extends x10Test {
 		return true;
 	}
 
-	public static void main(String[] args) {
+	public static def main(args: Rail[String]):Void {
 		new ClockTest2().executeAsync();
 	}
 }
