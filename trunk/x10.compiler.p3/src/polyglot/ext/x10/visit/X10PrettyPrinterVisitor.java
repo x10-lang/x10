@@ -129,6 +129,7 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.FieldDef;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -1500,15 +1501,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    // add a check that verifies if the target of the call is in place 'here'
 		    // This is not needed for:
 
-		    boolean needsHereCheck = true;
-		    // calls on future literals
-		    needsHereCheck &= ! (target instanceof Future);
-		    // calls on this
-		    needsHereCheck &= ! (target instanceof Special);
-		    // calls on new objects
-		    needsHereCheck &= ! (target instanceof New);
-		    // others...
-		    needsHereCheck &= QueryEngine.INSTANCE().needsHereCheck(c);
+		    boolean needsHereCheck = needsHereCheck((Expr) target);
 
 		    w.write("(");
 
@@ -1829,6 +1822,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template("Now", n.clock(), n.body()).expand(tr2);
 	}
+	
+	boolean needsHereCheck( Expr target) {
+            boolean needsHereCheck = true;
+            // calls on future literals
+            needsHereCheck &= ! (target instanceof Future);
+            // calls on this
+            needsHereCheck &= ! (target instanceof Special);
+            // calls on new objects
+            needsHereCheck &= ! (target instanceof New);
+            // others...
+            needsHereCheck &= QueryEngine.INSTANCE().needsHereCheck(target.type());
+
+            if (needsHereCheck) {
+                if (target instanceof X10Cast) {
+                    X10Cast c = (X10Cast) target;
+                    if (c.conversionType() == X10Cast.ConversionType.COERCION) {
+                        return needsHereCheck(c.expr());
+                    }
+                }
+            }
+	    return needsHereCheck;
+	}
 
 	/*
 	 * Field access -- this includes FieldAssign (because the left node of
@@ -1859,29 +1874,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		    return;
 		}
 
-		// access to field x10.lang.Object.location should not be checked
-		boolean is_location_access;
-		String f_name = n.fieldInstance().name().toString();
-		StructType f_container = n.fieldInstance().container();
-		is_location_access = f_name != null && "location".equals(f_name) && f_container instanceof ReferenceType;
+		if (target instanceof TypeNode) {
+		    printType(t, 0);
+		    w.write(".");
+		    w.write(n.name().id().toString());
+		}
+		else {
 
-		if (! (target instanceof TypeNode) &&	// don't annotate access to static vars
-			t instanceof ReferenceType &&	// don't annotate access to instances of ordinary Java objects.
-			! n.isTargetImplicit() &&
-			! (target instanceof Special) &&
-			! (t.isClass() && t.toClass().isAnonymous()) && // don't annotate anonymous classes: they're here
-			! is_location_access &&
-			QueryEngine.INSTANCE().needsHereCheck(n))
-		{
-			// no check required for implicit targets, this and super
-			// the template file only emits the target
-			new Template("place-check", new TypeExpander(t, true, false, false), target).expand();
-			// then emit '.' and name of the field.
-			w.write(".");
-			w.write(n.name().id().toString());
-		} else
-			// WARNING: it's important to delegate to the appropriate visit() here!
-			visit((Node)n);
+		    boolean is_location_access = xts.isReferenceType(fi.container()) && fi.name().equals(Name.make("location"));
+		    boolean needsHereCheck = needsHereCheck((Expr) target) && ! is_location_access;
+
+		    if (needsHereCheck) {
+		        // no check required for implicit targets, this and super
+		        // the template file only emits the target
+		        new Template("place-check", new TypeExpander(t, true, false, false), target).expand();
+		        // then emit '.' and name of the field.
+		        w.write(".");
+		        w.write(n.name().id().toString());
+		    } else
+		        // WARNING: it's important to delegate to the appropriate visit() here!
+		        visit((Node)n);
+
+		}
 	}
 
 	private Stmt optionalBreak(Stmt s) {
