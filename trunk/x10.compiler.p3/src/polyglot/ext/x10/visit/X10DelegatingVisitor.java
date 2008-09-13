@@ -114,6 +114,7 @@ import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.Region_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
+import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
@@ -219,6 +220,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10Unary_c) { visit((X10Unary_c)n); return; }
 		if (n instanceof Unary_c) { visit((Unary_c)n); return; }
 		if (n instanceof Tuple_c) { visit((Tuple_c)n); return; }
+		if (n instanceof SubtypeTest_c) { visit((SubtypeTest_c)n); return; }
 		if (n instanceof X10Special_c) { visit((X10Special_c)n); return; }
 		if (n instanceof Special_c) { visit((Special_c)n); return; }
 		if (n instanceof Region_c) { visit((Region_c)n); return; }
@@ -370,6 +372,7 @@ public class X10DelegatingVisitor {
 				public void visit(Region_c n) { visit((Expr_c)n); }
 				public void visit(Special_c n) { visit((Expr_c)n); }
 					public void visit(X10Special_c n) { visit((Special_c)n); }
+				public void visit(SubtypeTest_c n) { visit((Expr_c)n); }
 				public void visit(Tuple_c n) { visit((Expr_c)n); }
 				public void visit(Unary_c n) { visit((Expr_c)n); }
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
