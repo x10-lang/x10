@@ -38,6 +38,7 @@ import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
+import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -231,6 +232,27 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 //	}
 //	
 //	throw new SemanticException("Invalid closure call.", position());
+    }
+
+    public Type childExpectedType(Expr child, AscriptionVisitor av)
+    {
+        if (child == target) {
+            return ci.container();
+        }
+
+        Iterator i = this.arguments.iterator();
+        Iterator j = ci.formalTypes().iterator();
+
+        while (i.hasNext() && j.hasNext()) {
+            Expr e = (Expr) i.next();
+            Type t = (Type) j.next();
+
+            if (e == child) {
+                return t;
+            }
+        }
+
+        return child.type();
     }
 
     public String toString() {
