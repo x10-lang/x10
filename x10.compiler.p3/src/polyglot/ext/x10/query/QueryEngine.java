@@ -58,7 +58,7 @@ public class QueryEngine {
 	            return false;
 	}
 
-	protected boolean needsHereCheck(Type t) {
+	public boolean needsHereCheck(Type t) {
 		/* Removed by RAJ to disable compile time BAD_PLACE_CHECK option*/
 		/* Reinstated by Igor because the place checks are still generated.
 		   To be removed when the generation is completely disabled. */
