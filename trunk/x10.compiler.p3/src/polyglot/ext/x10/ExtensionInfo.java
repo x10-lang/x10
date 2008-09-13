@@ -131,7 +131,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
             //
             // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
             //
-            X10Lexer x10_lexer = new X10Lexer(source.path());
+            // FIXME: HACK! Unwrap the escaping unicode reader, because LPG will do its own decoding
+            if (reader instanceof polyglot.lex.EscapedUnicodeReader)
+                reader = ((polyglot.lex.EscapedUnicodeReader)reader).getSource();
+            X10Lexer x10_lexer =
+                source.getClass()==FileSource.class ? // Optimization: it's faster to read from a file
+                                new X10Lexer(source.path()) :
+                                new X10Lexer(reader, source.toString());
             X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
             x10_lexer.lexer(x10_parser);
             return x10_parser; // Parse the token stream to produce an AST
