@@ -54,6 +54,12 @@
 
         public $action_type(java.io.Reader reader, String filename) throws java.io.IOException
         {
+            this(reader, filename, ECLIPSE_TAB_VALUE);
+        }
+
+        public $action_type(java.io.Reader reader, String filename, int tab) throws java.io.IOException
+        {
+            super(tab);
             ArrayList buffers = new ArrayList();
             int size = 0;
             while (true)

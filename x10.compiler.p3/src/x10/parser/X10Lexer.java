@@ -305,6 +305,12 @@ public class X10Lexer extends LpgLexStream implements X10Parsersym, X10Lexersym,
 
     public X10Lexer(java.io.Reader reader, String filename) throws java.io.IOException
     {
+        this(reader, filename, ECLIPSE_TAB_VALUE);
+    }
+
+    public X10Lexer(java.io.Reader reader, String filename, int tab) throws java.io.IOException
+    {
+        super(tab);
         ArrayList buffers = new ArrayList();
         int size = 0;
         while (true)
