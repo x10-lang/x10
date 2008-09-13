@@ -13,4 +13,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.core.MultipleExceptions")
 public class MultipleExceptions extends RuntimeException {
     public native def this(s:ValRail[Throwable]);
+    
+    @Native("java", "(#0).exceptions()")
+    native public def exceptions(): ValRail[Exception];
 }
