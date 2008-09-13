@@ -21,12 +21,12 @@ public class Foreach1 extends x10Test {
 		val d: dist = [0..N-1]->here;
 		val hasbug: Array[boolean] = Array.make[boolean](d);
 
-		finish foreach (val (i): point in d.region) {
+		finish foreach (val p(i): point in d.region) {
 			// Ensure each activity spawned by foreach
 			// runs at P0
 			// and that the hasbug array was
 			// all false initially
-			hasbug(i) |= !(P0 == d(i) && here == P0);
+			hasbug(i) |= !(P0 == d(p) && here == P0);
 			atomic this.nActivities++;
 		}
 		return !hasbug.reduce(boolean.|, false) &&
