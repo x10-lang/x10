@@ -15,27 +15,25 @@ import harness.x10Test;;
 public class Array1b extends x10Test {
 
 	public def run(): boolean = {
-		val e: region{rank==1} = 1..10;
-		val r: region = [e, e];
+		val e = 1..10;
+		val r = [e, e] to Region;
 		chk(r.equals([1..10, 1..10]));
 		//final dist d = r->here;
-		val d: dist = Dist.makeConstant([1..10, 1..10], here);
+		val d = Dist.makeConstant([1..10, 1..10], here);
 		chk(d.equals(Dist.makeConstant([1..10, 1..10], here)));
 		chk(d.equals(Dist.makeConstant([e, e], here)));
 		chk(d.equals(Dist.makeConstant(r, here)));
-		val ia: Array[int] = Array.make[int](d, (point)=>0);
+		val ia = Array.make[int](d, (point)=>0);
 
-		for (val p: point in e) for (val q: point in e) {
-				var i: int = p(0);
-				var j: int = q(0);
+		for (val p(i): Point in e) for (val q(j): Point in e) {
 				chk(ia(i, j) == 0);
 				ia(i, j) = i+j;
 			}
 
-		for (val p: point(2) in ia) {
+		for (val p: Point(2) in ia.region) {
 			var i: int = p(0);
 			var j: int = p(1);
-			var q1: point(2) = [i, j];
+			val q1 = [i, j] to Point;
 			chk(i == q1(0));
 			chk(j == q1(1));
 			chk(ia(i, j) == i+j);
