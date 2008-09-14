@@ -81,11 +81,13 @@ public abstract value Dist(
    */
    @Native("java", "x10.array.DistFactory.makeUnique()")
      public native static def makeUnique(): Dist{unique};
+     
     
    /**
      Make a unique distribution, defined over the given sequence of places.
    */
-   incomplete public static def makeUnique(ps: ValRail[Place])
+   @Native("java", "x10.array.DistFactory.makeUnique(#1)")
+  native public static def makeUnique(ps: ValRail[Place])
     : Dist{rail};
     
 // *** block distributions
@@ -97,14 +99,19 @@ public abstract value Dist(
 @Native("java", "x10.array.DistFactory.makeBlock(#1, #2)")
     public native static def makeBlock(r: Region, axis: int)
     : Dist{region==r};
-    public static def makeBlock(r:Region)=makeBlock(r,1);
+    
+@Native("java", "x10.array.DistFactory.makeBlock(#1, 1)")
+    public native static def makeBlock(r: Region)
+    : Dist(r);
+    
     
 /**
    Return a block distribution of the given region, blocked along the given dimension 
    (axis), across the given set of places. (Dimensions are 0-based.)
    TODO: Replace Set[Place] with ValRail[Place].
 */
-incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
+@Native("java", "x10.array.DistFactory.makeBlock(#1, #2, #3)")
+native public static def makeBlock(r: Region, axis: int, ps: ValRail[Place])
      : Dist{region==r};
 
 
@@ -133,10 +140,22 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
     @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, 0, #2)")
     public native static def makeBlockCyclic(r: Region,  blockSize: int)
     : Dist{region==r};
+    
+// ***Random distributions
+    
+@Native("java", "x10.array.DistFactory.makeRandom(#1)")
+    public native static def makeRandom(r: Region)
+    : Dist(r);
+    
+// ***Arbitrary distributions
+    
+@Native("java", "x10.array.DistFactory.makeArbitrary(#1)")
+    public native static def makeArbitrary(r: Region)
+    : Dist(r);
    
     
-@Native("java", "x10.core.RailFactory.makeFromJavaArray((#0).placesArray())")
-    public native def places(): Rail[Place];
+@Native("java", "(#0).places()")
+    public native def places(): ValRail[Place];
     
     /**
     The set of regions, one per place, defined by this distribution. 
@@ -164,7 +183,10 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
   Return the same distribution but restricted to this.region-r.
 */
 @Native("java", "(#0).difference(#1)")
-    public abstract def difference(d: Dist{rank==this.rank}): Dist{rank==this.rank};
+    public abstract def difference(d: Dist(this.rank)): Dist(this.rank);
+
+@Native("java", "(#0).difference(#1)")
+    public abstract def $minus(d: Dist(this.rank)): Dist(this.rank);
 
   /**
      * Takes as parameter a distribution d defined over a region
@@ -178,7 +200,10 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
      * @seeAlso distribution.asymmetricUnion.
      */
 @Native("java", "(#0).union(#1)")
-    public abstract def union(d: Dist{rank==this.rank}): Dist{rank==this.rank};
+    public abstract def union(d: Dist(this.rank)): Dist(this.rank);
+    
+@Native("java", "(#0).union(#1)")
+    public abstract def $or(d: Dist(this.rank)): Dist(this.rank);
     
      /**
      * Returns a distribution defined on region.union(R): it
@@ -186,7 +211,7 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
      * all remaining points.
      */
      @Native("java", "(#0).restriction(#1)")
-     public abstract def overlay(d: Dist{rank==this.rank}): Dist{rank==this.rank};
+     public abstract def overlay(d: Dist(this.rank)): Dist(this.rank);
   
     /**
       Return the distribution defined over the region this.region.intersection(d.region),
@@ -231,7 +256,9 @@ incomplete public static def makeBlock(r: Region, axis: int, ps: Set[Place])
     
     /** The d | p operator, defined as d.restriction(p).
     */
-    public def $bar(p: Place)= restriction(p);
+    @Native("java", "(#0).restriction(#1)")
+    public abstract def $bar(p: Place): Dist{rank==this.rank,onePlace==p};
+    
 
     protected def this(region: Region, unique: boolean, constant: boolean, onePlace: Place) = {
         property(region, unique, constant, onePlace);
