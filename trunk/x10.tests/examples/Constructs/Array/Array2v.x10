@@ -13,11 +13,11 @@ import harness.x10Test;;
 public class Array2v extends x10Test {
 
 	public def run(): boolean = {
-		var e: region{rank==1} = [0..9];
-		var r: region = [e, e, e];
-		var d: dist = Dist.makeConstant(r, here);
+		val e = 0..9;
+		val r = [e, e, e] to Region;
+		val d = Dist.makeConstant(r, here);
 		chk(d.equals(Dist.makeConstant([0..9, 0..9, 0..9], here)));
-		var ia: Array[int] = Array.make[int](d, (point)=>0);
+		val ia = Array.make[int](d, (point)=>0);
 
 		for (val (i,j,k): point in d) {
 			chk(ia(i, j, k) == 0);

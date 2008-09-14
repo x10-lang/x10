@@ -15,18 +15,18 @@ public class Array1Exploded extends x10Test {
     public def select(p(i,j): point, (k,l): point)=i+k;
 
 	public def run(): boolean = {
-		var d: dist = Dist.makeConstant([1..10, 1..10], here);
-		var ia: Array[int] = Array.make[int](d);
+		val d = Dist.makeConstant([1..10, 1..10] to Region, here);
+		val ia = Array.make[int](d);
 
-		for (val p(i,j): point in [1..10, 1..10]) {
+		for (val p(i,j): Point(2) in [1..10, 1..10] to Region) {
 			chk(ia(p) == 0);
 			ia(p) = i+j;
 		}
 
-		for (val p(i,j): point in d) {
-			var q1: point = [i, j];
-			chk(i == q1(0));
-			chk(j == q1(1));
+		for (val p(i,j): point(2) in d) {
+			val q1(m,n)  = [i, j] to Point;
+			chk(i == m);
+			chk(j == n);
 			chk(ia(i, j) == i+j);
 			chk(ia(i, j) == ia(p));
 			chk(ia(q1) == ia(p));
