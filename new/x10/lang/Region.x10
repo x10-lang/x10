@@ -9,7 +9,7 @@ public abstract value Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements SetOps[Region{self.rank==this.rank}], Iterable[Rail[Int]] {
+) implements SetOps[Region(this.rank)], Iterable[Rail[Int]] {
 
     property rail = rank==1 && rect && zeroBased;
 
@@ -73,18 +73,26 @@ public abstract value Region(
 @Native("java", "x10.array.RegionFactory.make(#1)")
     public native static def make(regions: ValRail[Region]): Region(regions.length);
     
+    // TODO: Arg needs to be ValRail[Region(1)] but this does not work as of 09/13/08.
 @Native("java", "x10.array.RegionFactory.make(#1)")
-    public native static def $convert(regions: ValRail[Region]): Region(regions.length);
+    public native static def $convert(regions: ValRail[Region]): 
+       Region{rank==regions.length};
 
 
 @Native("java", "(#0).union(#1)")
-    public abstract def union(that: Region(rank)): Region(rank);
+    public abstract def union(that: Region(this.rank)): Region(this.rank);
+@Native("java", "(#0).union(#1)")
+    native public def $or(that: Region{rank==this.rank}): Region{rank==this.rank};
 
 @Native("java", "(#0).intersection(#1)")
-    public abstract def intersection(that: Region(rank)): Region(rank);
+    public abstract def intersection(that: Region(this.rank)): Region(this.rank);
+@Native("java", "(#0).intersection(#1)")
+    native public def $and(that: Region(this.rank)): Region(this.rank);
 
 @Native("java", "(#0).difference(#1)")
-    public abstract def difference(that: Region{rank==this.rank}): Region{rank==this.rank};
+    public abstract def difference(that: Region(this.rank)): Region(this.rank);
+@Native("java", "(#0).difference(#1)")
+    public abstract def $minus(that: Region(this.rank)): Region(this.rank);
 
 @Native("java", "(#0).product(#1)")
     public abstract def product(that: Region): Region;
@@ -104,13 +112,10 @@ public abstract value Region(
     public abstract def contains(p: Point): boolean;
 
 @Native("java", "(#0).complement()")
-    native public def $not(): Region{rank==this.rank};
+    native public def $not(): Region(this.rank);
     
-@Native("java", "(#0).intersection(#1)")
-    native public def $and(that: Region{rank==this.rank}): Region{rank==this.rank};
-    
-@Native("java", "(#0).union(#1)")
-    native public def $or(that: Region{rank==this.rank}): Region{rank==this.rank};
+
+ 
 
 /*
     public abstract def scanners(): Iterator[Scanner];
