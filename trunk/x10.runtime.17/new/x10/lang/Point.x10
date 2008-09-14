@@ -8,7 +8,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.array.Point")
 public final value class Point(rank: nat) implements
     Indexable[nat,int],
-    ArithmeticOps[Point{rank==this.rank}],
+    ArithmeticOps[Point(this.rank)],
     ComparisonOps[Point(this.rank)]
 {
     @Native("java", "(#0).get(#1)")
