@@ -66,6 +66,38 @@ import x10.constraint.XVar;
  */
 public class X10MethodInstance_c extends MethodInstance_c implements X10MethodInstance {
 
+    public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
+        super(ts, pos, def);
+    }
+
+    @Override
+    protected void checkOverride(MethodInstance mj, boolean allowCovariantReturn) throws SemanticException {
+        super.checkOverride(mj, allowCovariantReturn);
+
+        X10MethodInstance xmi = this;
+        X10MethodInstance xmj = (X10MethodInstance) mj;
+        boolean entails = true;
+        if (xmj.guard() == null) {
+            entails = xmi.guard() == null || xmi.guard().valid();
+        }
+        else {
+            try {
+                entails = xmi.guard() == null || xmj.guard().entails(xmi.guard());
+            }
+            catch (XFailure e) {
+                entails = false;
+            }
+        }
+
+        if (! entails) {
+            throw new SemanticException(xmi.signature() + " in " + xmi.container() +
+                                        " cannot override " + 
+                                        xmj.signature() + " in " + xmj.container() + 
+                                        "; method guard is not entailed.",
+                                        xmi.position());
+        }
+    }
+
 	public static class NoClauseVariant implements Transformation<Type, Type> {
 		public Type transform(Type o) {
 			if (o instanceof ArrayType) {
@@ -94,10 +126,6 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	}
 	public List<Type> annotationsMatching(Type t) {
 	    return X10TypeObjectMixin.annotationsMatching(this, t);
-	}
-	
-	public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
-	    super(ts, pos, def);
 	}
 	
 	XTerm body;
