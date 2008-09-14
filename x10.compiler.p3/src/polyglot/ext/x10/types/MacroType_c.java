@@ -227,7 +227,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public String toString() {
-	        return signature(); // + " = " + definedType();
+	    return signature();
+//	        return signature() + " = " + definedType();
 	}
 
 	public String signature() {
@@ -246,12 +247,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		if (pkg != null) {
 		    Package p = pkg.getCached();
 		    if (p != null) {
-			if (p.name().equals(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME)) {
-			    sb.append(p.prefix());
-			}
-			else {
-			    sb.append(p);
-			}
+		        sb.append(p);
 			sb.append(".");
 		    }
 		}
