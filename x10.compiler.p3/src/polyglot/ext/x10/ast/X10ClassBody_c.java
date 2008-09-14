@@ -42,6 +42,7 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodDef;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -58,9 +59,74 @@ public class X10ClassBody_c extends ClassBody_c {
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         duplicateTypeDefCheck(tc);
+        checkMethodCompatibility(tc);
         return super.conformanceCheck(tc);
     }
     
+    private void getInheritedVirtualMethods(X10ClassType ct, List<MethodInstance> methods) {
+        for (MethodInstance mi : ct.methods()) {
+            if (mi.flags().isStatic()) continue;
+            methods.add(mi);
+        }
+        Type sup = ct.superClass();
+        if (sup instanceof X10ClassType) {
+            getInheritedVirtualMethods((X10ClassType) sup, methods);
+        }
+        for (Type t : ct.interfaces()) {
+            if (t instanceof X10ClassType) {
+                getInheritedVirtualMethods((X10ClassType) t, methods);
+            }
+        }
+    }
+    
+    private void checkMethodCompatibility(ContextVisitor tc) throws SemanticException {
+        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+        ClassDef cd = tc.context().currentClassDef();
+        
+        List<MethodInstance> l = new ArrayList<MethodInstance>();
+        getInheritedVirtualMethods((X10ClassType) cd.asType(), l);
+
+        // Remove overridden methods.
+        for (ListIterator<MethodInstance> i = l.listIterator(); i.hasNext(); ) {
+            MethodInstance mi = i.next();           
+            MethodInstance mj = ts.findImplementingMethod(cd.asType(), mi);
+            if (mj != null && mj.def() != mi.def())
+                i.remove();
+        }
+        
+        // It is a static error if mi overrides mk and mj overrides ml != mk and mk and ml have compatible signatures. 
+        for (int i = 0; i < l.size(); i++) {
+            X10MethodInstance mi = (X10MethodInstance) l.get(i);
+
+            for (int j = i + 1; j < l.size(); j++) {
+                X10MethodInstance mj = (X10MethodInstance) l.get(j);
+                if (mi.def() == mj.def())
+                    continue;
+
+                if (! mi.name().equals(mj.name()))
+                    continue;
+
+                for (MethodInstance mik : mi.implemented()) {
+                    X10MethodInstance mk = (X10MethodInstance) mik;
+                    if (mk.def() == mi.def()) continue;
+
+                    for (MethodInstance mjl : mj.implemented()) {
+                        X10MethodInstance ml = (X10MethodInstance) mjl;
+                        if (ml.def() == mj.def()) continue;
+
+                        if (hasCompatibleArguments(mk.x10Def(), ml.x10Def())) {
+                            throw new SemanticException("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
+                                                        + " override methods with compatible signatures.", mi.position());
+                        }
+                    }
+                }
+            }
+        }
+        
+        return;
+    }
+
     @Override
     protected void duplicateConstructorCheck(ContextVisitor tc) throws SemanticException {
         ClassDef type = tc.context().currentClassDef();
@@ -102,7 +168,7 @@ public class X10ClassBody_c extends ClassBody_c {
         }
     }    
 
-    protected boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2) {
+    public static boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2) {
         if (p1.typeParameters().size() != p2.typeParameters().size())
             return false;
         
