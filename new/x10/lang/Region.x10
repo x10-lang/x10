@@ -9,7 +9,7 @@ public abstract value Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements SetOps[Region], Iterable[Rail[Int]] {
+) implements SetOps[Region{self.rank==this.rank}], Iterable[Rail[Int]] {
 
     property rail = rank==1 && rect && zeroBased;
 
@@ -104,7 +104,7 @@ public abstract value Region(
     public abstract def contains(p: Point): boolean;
 
 @Native("java", "(#0).complement()")
-    native public def $not(): Region;
+    native public def $not(): Region{rank==this.rank};
     
 @Native("java", "(#0).intersection(#1)")
     native public def $and(that: Region{rank==this.rank}): Region{rank==this.rank};
