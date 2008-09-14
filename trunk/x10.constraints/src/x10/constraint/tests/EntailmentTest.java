@@ -12,7 +12,7 @@ public class EntailmentTest extends TestCase {
 	public EntailmentTest() {
 		super("EntailmentTest");
 	}
-	XTerm zero = XTerms.makeLit(new Integer(1));
+	XTerm zero = XTerms.makeLit(new Integer(0));
 	XTerm one = XTerms.makeLit(new Integer(1));
 	XTerm two = XTerms.makeLit(new Integer(2));
 	XVar v0 = XTerms.makeLocal(XTerms.makeName("v0"));
@@ -171,7 +171,7 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	/**
-	 *  |- exists x1 x2. x1=v1, x2=x1.f, x2=v2 -- should fail
+	 *  |- exists x1. x1=v1, x2=x1.f, x2=v2 -- should fail
 	 * @throws Throwable
 	 */
 	public void test10() throws Throwable {
@@ -191,7 +191,7 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	/**
-	 *  |- exists x1 x2. x1=v1, x2=v1.f, x2=v2.f -- should fail
+	 *  |- exists x1. x1=v1, x2=v1.f, x2=v2.f -- should fail
 	 * @throws Throwable
 	 */
 	public void test11() throws Throwable {
@@ -212,7 +212,7 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	/**
-	 *   exists x1 x2. x1=v1, x2=v1.f, x2=v2.f |- v1=v2 -- should fail
+	 *   exists x1. x1=v1, x2=v1.f, x2=v2.f |- v1=v2 --- should fail
 	 * @throws Throwable
 	 */
 	public void test12() throws Throwable {
@@ -232,5 +232,25 @@ public class EntailmentTest extends TestCase {
 		assertFalse(result);
 		
 	}
+	
+	/**
+	 *   v1=a |- exists x. x=a, x=v1
+	 * @throws Throwable
+	 */
+	public void test13() throws Throwable {
+		XConstraint c = new XConstraint_c();
+		c.addBinding(v1,zero);
+		
+		
+		XConstraint d = new XConstraint_c();
+		XVar x1 = d.genEQV(XTerms.makeName("x1"), true);
+		d.addBinding(zero,x1);
+		d.addBinding(v1,x1);
+		
+		boolean result = c.entails(d);
+		assertTrue(result);
+		
+	}
+	
 	
 }
