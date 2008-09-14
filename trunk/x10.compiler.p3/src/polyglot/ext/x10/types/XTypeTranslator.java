@@ -24,6 +24,7 @@ import polyglot.ext.x10.ast.X10Special;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
@@ -94,6 +95,19 @@ public class XTypeTranslator {
 		return trans(c, target, fi, fi.type());
 	}
 	
+	public XTerm trans(XConstraint c, XTerm target, MethodInstance fi, Type t) throws SemanticException {
+	    assert X10Flags.toX10Flags(fi.flags()).isProperty() && fi.formalTypes().size() == 0;
+	    XTerm v;
+	    XName field = XTerms.makeName(fi.def(), fi.name().toString() + "()");
+	    if (target instanceof XVar) {
+	        v = XTerms.makeField((XVar) target, field);
+	    }
+	    else {
+	        v = XTerms.makeAtom(field, target);
+	    }
+	    addTypeToEnv(v, t);
+	    return v;
+	}
 	
 	public XTerm trans(XConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;

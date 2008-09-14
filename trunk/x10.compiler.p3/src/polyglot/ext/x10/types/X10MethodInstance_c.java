@@ -18,12 +18,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import polyglot.ext.x10.ast.X10ClassBody_c;
 import polyglot.ext.x10.types.SubtypeSolver.XSubtype_c;
 import polyglot.main.Report;
 import polyglot.types.ArrayType;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -36,7 +38,9 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -156,10 +160,12 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		return n;
 	    }
 
-	public void checkOverride(MethodInstance mj) throws SemanticException {
+	public void checkOverride(MethodInstance other) throws SemanticException {
+	    X10MethodInstance mi = this;
+	    X10MethodInstance mj = (X10MethodInstance) other;
+
 	    super.checkOverride(mj, true);
 
-	    MethodInstance mi = this;
 	    X10Flags miF = X10Flags.toX10Flags(mi.flags());
 	    X10Flags mjF = X10Flags.toX10Flags(mj.flags());
 
@@ -1218,6 +1224,69 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    throw new SemanticException("Cannot instantiate type parameter " + formal + " on type " + actual + "; " + e.getMessage());
 	    }
     }
+    
+    Type rightType;
+
+    public Type rightType() {
+        X10TypeSystem xts = (X10TypeSystem) ts;
+
+        if (rightType == null) {
+            Type t = returnType();
+
+            // If a property method, replace T with T{self==this}.
+            X10Flags flags = X10Flags.toX10Flags(flags());
+
+            if (flags.isProperty() && formalTypes.size() == 0) {
+                if (t instanceof UnknownType) {
+                    rightType = t;
+                }
+                else {
+                    XConstraint rc = X10TypeMixin.xclause(t);
+                    if (rc == null)
+                        rc = new XConstraint_c();
+
+                    try {
+                        XTerm receiver;
+
+                        if (flags.isStatic()) {
+                            receiver = xts.xtypeTranslator().trans(container());
+                        }
+                        else {
+                            receiver = xts.xtypeTranslator().transThis(container());
+                        }
+                        
+                        // ### pass in the type rather than letting XField call fi.type();
+                        // otherwise, we'll get called recursively.
+                        XTerm self = body();
+                        
+                        XConstraint c = rc.copy();
+
+                        // TODO: handle non-vars, like rail().body
+                        if (self == null || ! (self instanceof XVar)) {
+                            self = xts.xtypeTranslator().trans(c, receiver, this, t);
+                        }
+                        
+                        c.addSelfBinding(self);
+                        rightType = X10TypeMixin.xclause(t, c);
+                    }
+                    catch (XFailure f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                    catch (SemanticException f) {
+                        throw new InternalCompilerError("Could not add self binding.", f);
+                    }
+                }
+            }
+            else {
+                rightType = t;
+            }
+            
+            assert rightType != null;
+        }
+
+        return rightType;
+    }
+
     
 
 }

@@ -25,6 +25,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
@@ -101,7 +102,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		// let's find the target, using the context, and
 		// set the target appropriately, and then type check
 		// the result
-		MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), typeArgs, argTypes));
+		X10MethodInstance mi = (X10MethodInstance) c.findMethod(ts.MethodMatcher(null, name.id(), typeArgs, argTypes));
 
 		XLocal this_ = ts.xtypeTranslator().transThisWithoutTypeConstraint();
 
@@ -129,7 +130,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		}
 
 		Call_c call = (Call_c) this.targetImplicit(true).target(r);       
-		call = (Call_c)call.methodInstance(mi).type(mi.returnType());
+		call = (Call_c)call.methodInstance(mi).type(mi.rightType());
 		return call;
 	}
 
@@ -217,13 +218,21 @@ public class X10Call_c extends Call_c implements X10Call {
 		    }
 		}
 
+    		if (target instanceof TypeNode) {
+    		    Type t = ((TypeNode) target).type();
+    		    t = X10TypeMixin.baseType(t);
+    		    if (t instanceof ParameterType) {
+    		        throw new SemanticException("Cannot invoke a static method of a type parameter.", position());
+    		    }
+    		}
+
 		X10Call_c n = this;
 
 		Type targetType = this.target.type();
 		Name name = this.name.id();
 		ClassDef currentClassDef = c.currentClassDef();
 
-		MethodInstance mi;
+		X10MethodInstance mi;
 
 		try {
 		    mi = xts.findMethod(targetType, 
@@ -259,7 +268,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		}
 
 		// Copy the method instance so we can modify it.
-		X10Call_c result = (X10Call_c) n.methodInstance(mi).type(mi.returnType());
+		X10Call_c result = (X10Call_c) n.methodInstance(mi).type(mi.rightType());
 
 		/////////////////////////////////////////////////////////////////////
 		// End inlined super call.
