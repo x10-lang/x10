@@ -13,12 +13,12 @@ import harness.x10Test;;
 public class ArrayOverRegion extends x10Test {
 
 	public def run(): boolean = {
-		var r: region = [1..10, 1..10];
-		var ia: Array[double] = 
+		val r = [1..10, 1..10] to Region;
+		val ia  = 
 		Array.make[double](r->here, (var (i,j): point)=> i+j to Double);
 		chk(ia.dist.equals(Dist.makeConstant(r, here)));
 
-		for (val p(i,j): point in r) chk(ia(p) == i+j);
+		for (val p(i,j): point(2) in r) chk(ia(p) == i+j);
 
 		return true;
 	}
