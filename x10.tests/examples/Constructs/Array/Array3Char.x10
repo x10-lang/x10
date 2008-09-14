@@ -13,8 +13,8 @@ import harness.x10Test;;
 public class Array3Char extends x10Test {
 
 	public def run(): boolean = {
-	    val r:region{rank==2} = [1..10, 1..10];
-	    var ia: Array[Char]{rank==2} = Array.makeFromRegion[Char](r, (x:Point)=>'_');
+	    val r  = [1..10, 1..10] to Region;
+	    val ia  = Array.makeFromRegion[Char](r, (x:Point)=>'_');
 		ia(1, 1) = 'a';
 		return ('a' == ia(1, 1));
 	}

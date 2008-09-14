@@ -13,8 +13,8 @@ import harness.x10Test;;
 public class Array3Float extends x10Test {
 
 	public def run(): boolean = {
-		val r = Region.make([1..10, 1..10]);
-	    var ia: Array[Float](2) = Array.makeFromRegion[Float](r, (x:Point)=>0.0F);
+		val r = [1..10, 1..10] to Region;
+	    val ia  = Array.makeFromRegion[Float](r, (x:Point)=>0.0F);
 		ia(1, 1) = 42.0F;
 		return (42.0F == ia(1, 1));
 	}
