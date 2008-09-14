@@ -636,6 +636,12 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             }
             return ret;
     }
+    
+
+	public BaseAnyArray<T> restriction(Place P) {
+		return restriction(dist.restriction(P));
+	}
+
 
     public Object toJava() {
             final int[] dims_tmp = new int[dist.rank];
