@@ -30,12 +30,10 @@ public class Array1b extends x10Test {
 				ia(i, j) = i+j;
 			}
 
-		for (val p: Point(2) in ia.region) {
-			var i: int = p(0);
-			var j: int = p(1);
-			val q1 = [i, j] to Point;
-			chk(i == q1(0));
-			chk(j == q1(1));
+		for (val p(i,j): Point(2) in ia.region) {
+			val q1(m,n) = [i, j] to Point;
+			chk(i == m);
+			chk(j == n);
 			chk(ia(i, j) == i+j);
 			chk(ia(i, j) == ia(p));
 			chk(ia(q1) == ia(p));
