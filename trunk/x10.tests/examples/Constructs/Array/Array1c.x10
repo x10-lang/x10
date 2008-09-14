@@ -19,29 +19,25 @@ import harness.x10Test;;
 public class Array1c extends x10Test {
 
 	public def run(): boolean = {
-		val e: Region(1) = 1..10;
-		val r: Region = [e, e];
+		val e  = 1..10;
+		val r = [e, e] to Region;
 		chk(r.equals([1..10, 1..10]));
-		val d: dist = Dist.makeConstant(r, here);
+		val d = Dist.makeConstant(r, here);
 		//final dist d = [1:10,1:10]->here;
 		chk(d.equals(Dist.makeConstant([1..10, 1..10], here)));
 		chk(d.equals(Dist.makeConstant([e, e], here)));
 		chk(d.equals(Dist.makeConstant(r, here)));
-		val ia: Array[int] = Array.make[int](d, (point)=>0);
+		val ia = Array.make[int](d, (point)=>0);
 
-		for (val p in e) for (val q: point in e) {
-				val i= p(0);
-				val j = q(0);
+		for (val p(i) in e) for (val q(j)  in e) {
 				chk(ia(i, j) == 0);
 				ia(i, j) = i+j;
 			}
 /*
-		for (val p in ia) {
-			val i = p(0);
-			val j = p(1);
-			var q1: point(2) = [i, j];
-			chk(i == q1(0));
-			chk(j == q1(1));
+		for (val p(i,j):Point(2) in ia) {
+			var q1(m,n)  = [i, j] to Point;
+			chk(i == m);
+			chk(j == n);
 			chk(ia(i, j) == i+j);
 			//Class cast exc. occurred at next line:
 			chk(ia(i, j) == ia(p));
