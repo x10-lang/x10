@@ -86,7 +86,7 @@ public abstract value class Array[T](dist: Dist) implements
     
     @Native("java", "(#0).set(#1, #2, #3, #4)")
     public native def set(v:T, i0: int, i1: int, i2: int){rank==3}: void;
-                     
+    
     @Native("java", "(#0)")
     native public def $plus(): Array[T]{dist==this.dist};
     @Native("java", "(#0).neg()")
@@ -106,7 +106,7 @@ public abstract value class Array[T](dist: Dist) implements
 
     // ----------------- restriction
     @Native("java", "(#0).restriction(#1)")
-    native public def $bar(r: Region): Array[T]{region==r};
+    native public def $bar(r: Region(this.rank)): Array[T](r);
     
     @Native("java", "(#0).restriction(#1)")
     native public def $bar(d: Dist(this.rank)): Array[T](d.region);
