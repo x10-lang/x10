@@ -12,6 +12,8 @@ public final class ValRail<T> extends AnyRail<T> {
         super(type, length, array);
     }
     
+    
+    
     //
     // Runtime type information
     //

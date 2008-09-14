@@ -5,12 +5,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import x10.core.ValRail;
 import x10.runtime.Place;
 import x10.runtime.Runtime;
 
 public class DistFactory {
 
-    public static final Dist UNIQUE = makeUnique(Runtime.placeSet());
+    public static final Dist UNIQUE = makeUnique(Runtime.places());
 
     public static
     /*(region R)*/ Dist/*(R)*/ makeBlock(final Region base, final Region[] R) {
@@ -168,8 +169,16 @@ public class DistFactory {
      * @param q The set of Places
      * @return
      */
-    public static Dist makeBlock(Region r, Set<Place> q) {
-        return makeBlock(r, q.size(), q);
+    public static Dist makeBlock(Region r) {
+    	return makeBlock(r, Runtime.places());
+    }
+    public static Dist makeBlock(Region r, int dimension) {
+    	if (dimension != 1)
+    		throw new UnsupportedOperationException();
+    	return makeBlock(r, Runtime.places());
+    }
+    public static Dist makeBlock(Region r, ValRail<Place> q) {
+        return makeBlock(r, q.length, q);
     }
 
     /**
@@ -204,8 +213,8 @@ public class DistFactory {
      * @param r
      * @return
      */
-    public static Dist makeBlock(Region r, int n, Set<Place> qs) {
-        assert n <= qs.size();
+    public static Dist makeBlock(Region r, int n, ValRail<Place> qs) {
+        assert n <= qs.length;
         assert n > 0;
 
         final boolean dim_splittable = r instanceof ContiguousRange || r instanceof MultiDimRegion;
@@ -216,7 +225,8 @@ public class DistFactory {
         //if (sz < n)
         // throw new Error("DistributionFactory::block - blocking only supported along the most significant dimension and blocking factor must be lower than or equal to the size of that dimension.");
 
-        Place[] q = qs.toArray(new Place[qs.size()]);
+        Place[] q = (Place[]) qs.getBackingArray();
+      //  Place[] q = qs.toArray(new Place[qs.size()]);
         //      actually qs should be a sorted set of places - here we sort the in global order 
         assert (q[0] instanceof Comparable);
 
@@ -292,7 +302,7 @@ public class DistFactory {
         Dist ret;
         int blocksize = r.size() / x10.runtime.Runtime.places().length;
         if (blocksize == 0)
-            ret = makeConstant(r, x10.runtime.Runtime.places()[0]);
+            ret = makeConstant(r, x10.runtime.Runtime.places().get(0));
         else
             ret = makeBlockCyclic(r, blocksize, x10.runtime.Runtime.placeSet());
         return ret;
@@ -320,12 +330,12 @@ public class DistFactory {
      * @param p the list of places (implicitly defines the Region_c)
      * @return
      */
-    public static Dist makeUnique(Set<Place> p) {
-        Object[] places = p.toArray();
+    public static Dist makeUnique(ValRail<Place> p) {
+        /*Object[] places = p.toArray();
         Place[] ps = new Place[places.length];
         for (int i = 0; i < places.length; i++)
-            ps[i] = (Place) places[i];
-
+            ps[i] = (Place) places[i];*/
+        Place[] ps = (Place[]) p.value;
         Dist newDist = new Distribution_c.Unique(ps);
         return newDist;
     }

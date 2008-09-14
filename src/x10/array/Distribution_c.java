@@ -15,9 +15,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
+import x10.core.RailFactory;
+import x10.core.ValRail;
 import x10.runtime.Place;
 import x10.runtime.Runtime;
+import x10.types.RuntimeType;
 
 /**
  * Implementation of Distributions. vj: Changed class to extend
@@ -38,9 +42,9 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
     }
 
     /* this field should actually be final - ?? */
-    protected final Set<Place> places;
+    protected  ValRail<Place> places;
 
-    public Set<Place> places() {
+    public ValRail<Place> places() {
         return places;
     }
 
@@ -50,7 +54,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
 
     protected Distribution_c(Region r, Place onePlace, boolean unique) {
         super(r, onePlace, unique);
-        this.places = new HashSet();
+        this.places = null;
     }
 
     public Region restrictToRegion(Place pl) {
@@ -439,8 +443,10 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
 
         Constant(Region r, Place p) {
             super(r, p);
-            this.places.add(p);
+            this.places = new ValRail<Place>(new RuntimeType(Place.class), 1, 
+            		new Place[] { p});
             place_ = p;
+            
         }
 
         /*
@@ -573,8 +579,9 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
         Unique(Place[] ps) {
             super(new ContiguousRange(0, ps.length - 1), ps.length == 1 ? ps[0] : null, ps.length == Runtime.MAX_PLACES);
             this.placeseq = ps;
-            for (int i = 0; i < placeseq.length; i++)
-                places.add(ps[i]);
+            this.places = new ValRail<Place>(new RuntimeType(Place.class),
+            		ps.length, ps);
+          
         }
 
         /**
@@ -633,9 +640,14 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
             assert members_ != null;
             // defensive copy
             this.members_ = (Distribution_c[]) members_.clone();
+            Set<Place> set = new TreeSet<Place>();
             for (int i = 0; i < members_.length; i++) {
-                places.addAll(members_[i].places());
+            	ValRail<Place> vs = places();
+            	if (vs != null)
+            	for (Place p : (Place[]) vs.value)
+                   set.add(p);
             }
+            places = RailFactory.makeValRailFromJavaArray(set.toArray());
         }
 
         /* (non-Javadoc)
@@ -717,7 +729,12 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
         Arbitrary(Region r, Map m, Place onePlace) {
             super(r, onePlace);
             map_ = m;
-            places.addAll(m.values());
+            Set<Place> set = new TreeSet<Place>();
+            set.addAll(m.values());
+           Object[] os = set.toArray();
+           Place[] ps = new Place[os.length];
+           for (int i=0; i < ps.length; ++i) ps[i] = (Place) os[i];
+           places =  new ValRail(new RuntimeType(Place.class), ps.length, ps);
             //	this._indexMap = generateIndexMap(this, m);
             //		this._distributionType = ARBITRARY;
         }

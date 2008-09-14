@@ -3,6 +3,7 @@ package x10.array;
 import java.util.Iterator;
 import java.util.Set;
 
+import x10.core.ValRail;
 import x10.runtime.Place;
 import x10.runtime.Runtime;
 
@@ -51,13 +52,16 @@ public abstract class Dist implements Iterable<Point> {
      * Place P is in this set then for some Point p in region,
      * this.valueAt(p)==P.
      */
-    abstract public Set<Place> places(); // consider making this a parameter?
+    abstract public ValRail<Place> places(); // consider making this a parameter?
 
     public Place[] placesArray() {
+    	/*
             java.lang.Object[] a = places().toArray();
             Place[] res = new Place[a.length];
             java.lang.System.arraycopy(a,0,res,0,a.length);
             return res;
+            */
+    	return (Place[]) places().value;
     }
 
     protected Dist(Region R, Place onePlace) {

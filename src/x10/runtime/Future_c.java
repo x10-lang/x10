@@ -163,7 +163,7 @@ public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
      */
     public static abstract class Activity<T> extends x10.runtime.Activity {
         public Type<T> type;
-        public Future_c<T> future;
+        public Future_c< T> future;
         
         public Activity(Type type) {
             this.type = type;
