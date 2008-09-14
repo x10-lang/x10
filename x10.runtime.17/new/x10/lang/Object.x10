@@ -8,4 +8,5 @@ public interface Object {
     public def equals(Object): boolean;
     public def hashCode(): int;
     public def toString(): String;
+    public def className():String;
 }
