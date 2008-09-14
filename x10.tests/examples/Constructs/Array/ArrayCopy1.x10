@@ -27,8 +27,17 @@ public class ArrayCopy1 extends x10Test {
 		// fetch the B[i] value
 		// Then compare it to the A[i] value
 		finish
-			ateach (val p in D)
-                                chk(A(p) == (future(E(p)) B(p)).force());
+			ateach (val p in D){
+			 val fp:Int = (future (E(p)) B(p)).force();
+			
+			         if (A(p) != fp) {
+			           throw new Error("****Error: A(" + p + ")= " + A(p) 
+                                   + ", B(" + p + ")=" + B(p) + " fp= " + fp);
+			         }  
+			         chk(A(p)==fp); 
+			         chk(A(p)==(future (E(p)) B(p)).force());
+			                              
+           }
 	}
 
 	/**
@@ -38,8 +47,8 @@ public class ArrayCopy1 extends x10Test {
 	 * Throws an error iff some assertion failed.
 	 */
 	public def arrayCopy(val A: Array[int], val B: Array[int]): void = {
-		final val D = A.dist;
-		final val E = B.dist;
+		val D = A.dist;
+		val E = B.dist;
 		// Spawn an activity for each index to
 		// fetch and copy the value
 		finish
@@ -57,20 +66,29 @@ public class ArrayCopy1 extends x10Test {
 	 * do an array copy from B to A, and verify.
 	 */
 	public def run(): boolean = {
+	try {
 		val R: region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
 		val TestDists: region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
-		for (val distP: point[dX,dY] in TestDists) {
+		for (val distP(dX,dY): point in TestDists) {
 			val D = dist2.getDist(dX, R);
 			val E = dist2.getDist(dY, R);
 			chk(D.region.equals(E.region) && D.region.equals(R));
-			val A = Array.make[int](D);
+			val A = Array.make[int](D,(point)=>0);
 			val B = Array.make[int](E,
-			 (var p(i,j,k,l): point): int => { var x: int = ((i*N+j)*N+k)*N+l; return x*x+1; });
+			 (p(i,j,k,l): point): int => { 
+			     var x: int = ((i*N+j)*N+k)*N+l; 
+			     return x*x+1; 
+			     }
+			     );
 			arrayCopy(A, B);
 			arrayEqual(A, B);
 		}
 		return true;
+		} catch (e:Error) {
+		   e.printStackTrace();
+		   return false;
+		}
 	}
 
 	public static def main(var args: Rail[String]): void = {
@@ -93,15 +111,15 @@ public class ArrayCopy1 extends x10Test {
 		/**
 		 * Return a dist with region r, of type disttype
 		 */
-		public static def getDist(distType: int, r: region): dist = {
+		public static def getDist(distType: Int, r: Region): Dist(r) = {
 			switch(distType) {
-				case BLOCK:case BLOCK: return distmakeBlock(r);
-				case CYCLIC:case CYCLIC: return dist.factory.cyclic(r);
-				case BLOCKCYCLIC:case BLOCKCYCLIC: return distmakeBlockCyclic(r, 3);
-				case CONSTANT:case CONSTANT: return r->here;
-				case RANDOM:case RANDOM: return dist.factory.random(r);
-				case ARBITRARY:case ARBITRARY: return dist.factory.arbitrary(r);
-				default:default: throw new Error();
+				case BLOCK: return dist.makeBlock(r);
+				case CYCLIC: return dist.makeCyclic(r);
+				case BLOCKCYCLIC: return dist.makeBlockCyclic(r, 3);
+				case CONSTANT: return r->here;
+				case RANDOM: return dist.makeRandom(r);
+				case ARBITRARY:return dist.makeArbitrary(r);
+				default: throw new Error();
 			}
 		}
 	}
