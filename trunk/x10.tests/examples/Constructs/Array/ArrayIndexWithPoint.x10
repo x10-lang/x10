@@ -9,24 +9,15 @@ import harness.x10Test;
 
 /**
  * Simple array test.
- *
- * Only uses the longhand forms such as ia.get(p) for ia[p].
- * Note: this a test only.  It is not the recommended way to
- * write x10 code.
+ * Testing whether one can write a for (val p in ia.region) ...ia(p)... loop.
  */
 public class ArrayIndexWithPoint extends x10Test {
 
 	public def run(): boolean = {
-	    val e:Region(1) = 1..10;
-	    val r:Region(2) = [e,e];
-	    val d:Dist = r->here;
-	    val ia: Array[int](d) = Array.make[int](d, (point)=>0);
-	   
-		for (val p(i,j) in d) {
-		    chk(ia(i, j) == ia(p));
-		    ia(p) = ia(p)-1;
-		    chk(ia(p) == i+j-1);
-		}
+	    val e = 1..10;
+	    val ia = Array.make[int](e->here, (point)=>0);
+		for (val p in ia.region) 
+		    chk(ia(p)==0);
 		return true;
 	}
 
