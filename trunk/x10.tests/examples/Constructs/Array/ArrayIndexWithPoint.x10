@@ -16,7 +16,7 @@ public class ArrayIndexWithPoint extends x10Test {
 	public def run(): boolean = {
 	    val e = 1..10;
 	    val ia = Array.make[int](e->here, (point)=>0);
-		for (val p in ia.region) 
+		for (val p in ia.region) // should infer p:Point(region.rank).
 		    chk(ia(p)==0);
 		return true;
 	}
