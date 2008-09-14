@@ -1,6 +1,8 @@
 // (C) Copyright IBM Corporation 2008
 // This file is part of X10 Test. *
 
+//LIMITATION: closure type params
+
 import harness.x10Test;
 
 

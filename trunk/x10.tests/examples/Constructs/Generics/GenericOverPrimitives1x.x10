@@ -13,7 +13,7 @@ public class GenericOverPrimitives1x extends GenericTest {
 
     public def run(): boolean = {
         
-        class A[T]{T<:ArithmeticOps[T]} {
+        class A[T]{T<:Int} {
             val t:T;
             def this(t:T) = {this.t=t;}
             def get() = t+t;

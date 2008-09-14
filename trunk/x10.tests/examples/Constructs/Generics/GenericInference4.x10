@@ -21,12 +21,12 @@ public class GenericInference4 extends GenericTest {
     class Y extends X {const name = "Y";};
     class Z extends X {const name = "Z";};
 
-    def m[T,U](t:T,u:U){T<:X && U<:X} = T.name + U.name;
+    def m[T,U](t:T,u:U){T<:X && U<:X} = X.name + X.name;
 
     public def run(): boolean = {
 
         val d = m(new Y(), new Z());;
-        check("d", d, "YZ");
+        check("d", d, "XX");
 
         return result;
     }
