@@ -14,7 +14,9 @@ import harness.x10Test;;
 public class ArrayTypeCheck_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		var a1: Array[int]{rank==3} = new Array[int](Dist.makeConstant([0..2, 0..3], here), (var p: point[i]): int => { return i; });
+		val a1:Array[Int](3)  =  // should be Array[Int](2)
+		  Array.make[Int](Dist.makeConstant([0..2, 0..3], here), 
+		     (p(i): Point)=>i);
 		
 		return true;
 	}
