@@ -6,11 +6,8 @@ import x10.lang.annotations.*;
 import dims.*;;
 
 public class DimTest extends harness.x10Test {
-    def move(var x0: double, var v0: double, var a: double, var t: double): double = {
-
-        return x0 + (v0 * t) + (a * t * t) / 2;
-    }
-    
+    def move(var x0: double, var v0: double, var a: double, var t: double) =
+      x0 + (v0 * t) + (a * t * t) / 2;
     public def run(): boolean = {
         var x0: double = 0;
         var t: double = 1;
