@@ -20,6 +20,12 @@ public final value class Point(rank: nat) implements
     //
     // factories
     //
+    
+    @Native("java", "x10.array.Point.makeFromVarRail(#1)")
+    public native static def $convert(r: Rail[int]): Point(r.length);
+    
+    @Native("java", "x10.array.Point.makeFromValRail(#1)")
+    public native static def $convert(r: ValRail[int]): Point(r.length);
 
     @Native("java", "x10.array.Point.makeFromValRail(#1)")
     public native static def make(cs: ValRail[int]): Point(cs.length);
@@ -111,11 +117,7 @@ public final value class Point(rank: nat) implements
     @Native("java", "(#0).ge(#1)")
     native public def $ge(that: Point(this.rank)): boolean;
 
-    @Native("java", "x10.array.Point.makeFromVarRail(#1)")
-    public native static def $convert(r: Rail[int]): Point(r.length);
     
-    @Native("java", "x10.array.Point.makeFromValRail(#1)")
-    public native static def $convert(r: ValRail[int]): Point(r.length);
 
     @Native("java", "(#0).toString()")
     public native def toString(): String;
