@@ -28,10 +28,10 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -62,6 +62,7 @@ public class X10Disamb_c extends Disamb_c {
 	@Override
 	protected Node disambiguateNoPrefix() throws SemanticException {
 	    X10Context c = (X10Context) this.c;
+	    X10TypeSystem ts = (X10TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
 	    	X10NamedType t = c.currentDepType();
@@ -92,9 +93,9 @@ public class X10Disamb_c extends Disamb_c {
 	    		if (fi instanceof X10FieldInstance) {
 	    		    X10FieldInstance xfi = (X10FieldInstance) fi;
 	    		    if (xfi.isProperty()) {
-	    		        Field f = nf.Field(pos, makeMissingPropertyTarget(fi, t), this.name);
-	    		        f = f.fieldInstance(fi);
-	    		        f = (Field) f.type(fi.type());
+	    		        Field f = nf.Field(pos, makeMissingPropertyTarget(xfi, t), this.name);
+	    		        f = f.fieldInstance(xfi);
+	    		        f = (Field) f.type(xfi.rightType());
 	    		        return f;
 	    		    }
 	    		    else {
@@ -114,11 +115,11 @@ public class X10Disamb_c extends Disamb_c {
 	    		
 	    		// Now try 0-ary property methods.
 	    		try {
-	    		    MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+	    		    X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST), c.currentClassDef());
 	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 	    			Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
 	    			call = call.methodInstance(mi);
-	    			call = (Call) call.type(mi.returnType());
+	    			call = (Call) call.type(mi.rightType());
 	    			return call;
 	    		    }
 	    		}
@@ -165,11 +166,11 @@ public class X10Disamb_c extends Disamb_c {
     		
     		// Now try 0-ary property methods.
     		try {
-    		    MethodInstance mi = c.findMethod(ts.MethodMatcher(null, name.id(), Collections.EMPTY_LIST));
+    		    X10MethodInstance mi = (X10MethodInstance) c.findMethod(ts.MethodMatcher(null, name.id(), Collections.EMPTY_LIST));
     		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
     			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
-    			call = (Call) call.type(mi.returnType());
+    			call = (Call) call.type(mi.rightType());
     			return call;
     		    }
     		}
@@ -336,11 +337,11 @@ public class X10Disamb_c extends Disamb_c {
 		    }
 		    // Now try 0-ary property methods.
 		    try {
-			MethodInstance mi = ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.EMPTY_LIST), xc.currentClassDef());
+			X10MethodInstance mi = (X10MethodInstance) ts.findMethod(e.type(), ts.MethodMatcher(e.type(), name.id(), Collections.EMPTY_LIST), xc.currentClassDef());
 			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);
-			    call = (Call) call.type(mi.returnType());
+			    call = (Call) call.type(mi.rightType());
 			    return call;
 			}
 		    }

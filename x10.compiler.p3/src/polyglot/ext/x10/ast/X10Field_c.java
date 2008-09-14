@@ -20,10 +20,13 @@ import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.FieldDef;
@@ -69,6 +72,14 @@ public class X10Field_c extends Field_c {
 		Type tType = target.type();
 		if (tType == null)
 		    assert tType != null : "type of target of |" + this + "| is null";
+
+		if (target instanceof TypeNode) {
+		    Type t = ((TypeNode) target).type();
+		    t = X10TypeMixin.baseType(t);
+		    if (t instanceof ParameterType) {
+		        throw new SemanticException("Cannot access a static field of a type parameter.", position());
+		    }
+		}
 
 		if (c.inSuperTypeDeclaration()) {
 		    Type tBase = X10TypeMixin.baseType(tType);
@@ -141,11 +152,11 @@ public class X10Field_c extends Field_c {
         	
         	// Now try 0-ary property methods.
         	try {
-        	    MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+        	    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.EMPTY_LIST), c.currentClassDef());
         	    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
         		Call call = nf.Call(pos, target, this.name);
         		call = call.methodInstance(mi);
-        		call = (Call) call.type(mi.returnType());
+        		call = (Call) call.type(mi.rightType());
         		return call;
         	    }
         	}
