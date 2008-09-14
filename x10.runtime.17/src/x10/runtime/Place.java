@@ -9,6 +9,7 @@ package x10.runtime;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import x10.core.ValRail;
 import x10.runtime.abstractmetrics.AbstractMetrics;
 
 /**
@@ -91,6 +92,7 @@ public abstract class Place implements Comparable, AbstractMetrics {
      * @return the placeholder for the future result.
      */
     public abstract <T> Future<T> runFuture(Future_c.Activity<T> a);
+    
 
     protected Place(int id) {
         this.id = id;

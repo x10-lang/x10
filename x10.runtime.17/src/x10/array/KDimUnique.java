@@ -3,6 +3,7 @@ package x10.array;
 import java.util.Set;
 
 import x10.core.Indexable;
+import x10.core.ValRail;
 import x10.runtime.Place;
 import x10.runtime.Runtime;
 
@@ -44,7 +45,7 @@ public class KDimUnique extends Dist {
 	}
 
 	@Override
-	public Set<Place> places() {
+	public ValRail<Place> places() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -9,6 +9,7 @@ package x10.runtime;
 
 import x10.runtime.abstractmetrics.AbstractMetrics;
 import x10.runtime.abstractmetrics.AbstractMetricsFactory;
+import x10.types.Type;
 /**
  * A LocalPlace_c is an implementation of a place
  * that runs on this Java Virtual Machine.  In the
@@ -114,7 +115,7 @@ public class LocalPlace extends Place {
 	 */
 	public <T> Future<T> runFuture(final Future_c.Activity<T> a) {
 		
-		Future_c<T> result = new Future_c<T>(a.type);
+		Future_c<T> result = new Future_c<T>((Type<T>) a.type);
 		a.future = result;
 		runAsync(a);
 		

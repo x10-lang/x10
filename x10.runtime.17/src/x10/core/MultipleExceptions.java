@@ -41,7 +41,10 @@ public class MultipleExceptions extends java.lang.RuntimeException {
         
         return s_actual;
     }
-    
+    public ValRail<Exception> exceptions() {
+    	Exception[] a = (Exception[]) exceptions.toArray();
+    	return RailFactory.makeValRailFromJavaArray(a);
+    }
     public String toString() {
         return exceptions.toString();
     }

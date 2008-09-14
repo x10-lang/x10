@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import x10.core.Ref;
+import x10.core.ValRail;
 import x10.runtime.util.ConfigurationError;
 import x10.runtime.util.ShowUsageNotification;
 
@@ -132,21 +133,26 @@ public abstract class Runtime {
 	    return location(o);
 	}
 	        
-	protected abstract Place[] getPlaces();
-	
+	protected abstract ValRail<Place> getPlacesRail();
 	public static Place getDefaultPlace() {
-            return runtime.getPlaces()[0];
+            return runtime.getPlacesAsJavaArray()[0];
 	}
 	
 	public static Place place(int i) {
-	    return runtime.getPlaces()[i];
+	    return runtime.getPlacesRail().get(i);
 	}
 	
-	public static Place[] places() {
-	    return runtime.getPlaces();
+	public static ValRail<Place> places() {
+	    return runtime.getPlacesRail();
 	}
+	public abstract Place[] getPlacesAsJavaArray();
+	public static Place[] placesAsJavaArray() {
+		return runtime.getPlacesAsJavaArray();
+	}
+	
+	
 	public static Set<Place> placeSet() {
-	    return new TreeSet<Place>(Arrays.asList(places()));
+	    return new TreeSet<Place>(Arrays.asList(placesAsJavaArray()));
 	}
 	
 	public static Place FIRST_PLACE;
