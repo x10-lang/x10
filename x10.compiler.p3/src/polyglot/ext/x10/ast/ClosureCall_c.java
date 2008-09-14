@@ -11,6 +11,7 @@ import java.util.List;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
+import polyglot.ast.Precedence;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
@@ -58,6 +59,11 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	this.target= target;
 	this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
+    }
+    
+    @Override
+    public Precedence precedence() {
+        return Precedence.LITERAL;
     }
 
     public Term firstChild() {
