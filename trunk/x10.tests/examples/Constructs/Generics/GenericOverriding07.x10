@@ -17,7 +17,7 @@ public class GenericOverriding07 extends GenericTest {
         def m(int,T) = 2;
     }
 
-    class B[T] {
+    class B[T] extends A[T] {
         def m(int,T) = 5;
     }
 
