@@ -27,17 +27,16 @@ import polyglot.ext.x10.types.X10SourceClassResolver;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
+import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
 import polyglot.ext.x10.visit.X10Boxer;
-import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10InitChecker;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.AllBarrierGoal;
-import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Goal;
@@ -237,6 +236,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(X10Expanded(job));
 
            goals.add(Serialized(job));
+           goals.add(CheckNativeAnnotations(job));
            goals.add(CodeGenBarrier());
            goals.add(CodeGenerated(job));
            goals.add(End(job));
@@ -348,6 +348,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
+       }
+       
+       public Goal CheckNativeAnnotations(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf)).intern(this);
        }
        
     }
