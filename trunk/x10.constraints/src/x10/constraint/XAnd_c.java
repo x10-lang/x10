@@ -7,8 +7,6 @@
  */     
 package x10.constraint;
 
-import java.util.Collections;
-import java.util.HashMap;
 
 public class XAnd_c extends XFormula_c implements XAnd {
 	
@@ -17,7 +15,6 @@ public class XAnd_c extends XFormula_c implements XAnd {
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last) throws XFailure {
-		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);
 	}
 
