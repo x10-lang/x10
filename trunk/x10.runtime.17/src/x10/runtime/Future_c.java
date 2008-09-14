@@ -165,7 +165,7 @@ public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
         public Type<T> type;
         public Future_c<T> future;
         
-        public Activity(Type<T> type) {
+        public Activity(Type type) {
             this.type = type;
         }
 
