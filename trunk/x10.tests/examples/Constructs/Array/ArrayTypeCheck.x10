@@ -15,18 +15,19 @@ import harness.x10Test;;
 public class ArrayTypeCheck extends x10Test {
 
 	public def run(): boolean = {
-		var a1: Array[int] = new Array[int](Dist.makeConstant([0..2, 0..3], here), (var p: point[i]): int => { return i; });
+		var a1: Array[int] = Array.make[int](Dist.makeConstant([0..2, 0..3], here),
+		  (var p(i): Point): int => { return i; });
 		System.out.println("1");
-		final val E: dist = Dist.makeConstant([-1..-2], here);
+		val E: dist = Dist.makeConstant(-1..-2, here);
 		try {
-		var a2: Array[int] = (Array[int]{distribution==E})a1;
+		var a2: Array[int] = a1 to Array[int](E);
 		return false;
 		} catch (var z: ClassCastException) {
 		System.out.println("2");
 		}
 		try {
-		  final val D: dist = distmakeUnique();
-		  var a3: Array[int] = (Array[int]{distribution == D})a1;
+		  val D: dist = dist.makeUnique();
+		  var a3: Array[int] = a1 to Array[int](D);
 		  return false;
 		} catch (var z: ClassCastException) {
 			System.out.println("3");
@@ -35,12 +36,12 @@ public class ArrayTypeCheck extends x10Test {
 		var i: int = 1;
 		var j: int = 2;
 		var k: int = 0;
-		var p: point = [i, j, k];
-		var q: point = [i, j];
-		var r: point = [i];
+		val p = [i, j, k] to Point;
+		val q = [i, j] to Point;
+		val r = [i] to Point;
 		if (p == q) return false;
 		
-
+/*
 		var gotException: boolean;
 		System.out.println("5");
 		try {
@@ -50,7 +51,7 @@ public class ArrayTypeCheck extends x10Test {
 			System.out.println("Caught "+e);
 		}
 		if (!gotException) return false;
-
+*/
 		return true;
 	}
 
