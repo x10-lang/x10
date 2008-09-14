@@ -6762,11 +6762,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
      
             //
-            // Rule 540:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 540:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 540: {
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
-                Expr e1 = (Expr) getRhsSym(1);
+                ParsedName e1 = (ParsedName) getRhsSym(1);
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
@@ -6774,482 +6774,499 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 4023 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
+                break;
+            }
+     
+            //
+            // Rule 541:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            //
+            case 541: {
+                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                Expr e1 = (Expr) getRhsSym(1);
+                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                List ArgumentList = (List) getRhsSym(3);
+                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
+                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                Expr AssignmentExpression = (Expr) getRhsSym(6);
+                //#line 4028 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                 break;
             }
      
             //
-            // Rule 541:  LeftHandSide ::= ExpressionName
+            // Rule 542:  LeftHandSide ::= ExpressionName
             //
-            case 541: {
-                //#line 4027 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+            case 542: {
+                //#line 4032 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4029 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4034 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
      
             //
-            // Rule 543:  AssignmentOperator ::= =
+            // Rule 544:  AssignmentOperator ::= =
             //
-            case 543: {
+            case 544: {
                 
-                //#line 4036 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4041 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
      
             //
-            // Rule 544:  AssignmentOperator ::= *=
+            // Rule 545:  AssignmentOperator ::= *=
             //
-            case 544: {
+            case 545: {
                 
-                //#line 4041 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4046 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
      
             //
-            // Rule 545:  AssignmentOperator ::= /=
+            // Rule 546:  AssignmentOperator ::= /=
             //
-            case 545: {
+            case 546: {
                 
-                //#line 4046 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4051 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
      
             //
-            // Rule 546:  AssignmentOperator ::= %=
+            // Rule 547:  AssignmentOperator ::= %=
             //
-            case 546: {
+            case 547: {
                 
-                //#line 4051 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4056 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
      
             //
-            // Rule 547:  AssignmentOperator ::= +=
+            // Rule 548:  AssignmentOperator ::= +=
             //
-            case 547: {
+            case 548: {
                 
-                //#line 4056 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4061 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
      
             //
-            // Rule 548:  AssignmentOperator ::= -=
+            // Rule 549:  AssignmentOperator ::= -=
             //
-            case 548: {
+            case 549: {
                 
-                //#line 4061 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4066 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
      
             //
-            // Rule 549:  AssignmentOperator ::= <<=
+            // Rule 550:  AssignmentOperator ::= <<=
             //
-            case 549: {
+            case 550: {
                 
-                //#line 4066 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4071 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
      
             //
-            // Rule 550:  AssignmentOperator ::= >>=
+            // Rule 551:  AssignmentOperator ::= >>=
             //
-            case 550: {
+            case 551: {
                 
-                //#line 4071 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4076 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SHR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 551:  AssignmentOperator ::= >>>=
+            // Rule 552:  AssignmentOperator ::= >>>=
             //
-            case 551: {
+            case 552: {
                 
-                //#line 4076 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4081 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.USHR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 552:  AssignmentOperator ::= &=
+            // Rule 553:  AssignmentOperator ::= &=
             //
-            case 552: {
+            case 553: {
                 
-                //#line 4081 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4086 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
      
             //
-            // Rule 553:  AssignmentOperator ::= ^=
+            // Rule 554:  AssignmentOperator ::= ^=
             //
-            case 553: {
+            case 554: {
                 
-                //#line 4086 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4091 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 554:  AssignmentOperator ::= |=
+            // Rule 555:  AssignmentOperator ::= |=
             //
-            case 554: {
+            case 555: {
                 
-                //#line 4091 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4096 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
      
             //
-            // Rule 557:  Catchesopt ::= $Empty
+            // Rule 558:  Catchesopt ::= $Empty
             //
-            case 557: {
+            case 558: {
                 
-                //#line 4104 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4109 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
      
             //
-            // Rule 559:  Identifieropt ::= $Empty
+            // Rule 560:  Identifieropt ::= $Empty
             //
-            case 559:
+            case 560:
                 setResult(null);
                 break;
  
             //
-            // Rule 560:  Identifieropt ::= Identifier
+            // Rule 561:  Identifieropt ::= Identifier
             //
-            case 560: {
-                //#line 4111 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+            case 561: {
+                //#line 4116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4113 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4118 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Identifier);
                 break;
             }
      
             //
-            // Rule 561:  ForUpdateopt ::= $Empty
+            // Rule 562:  ForUpdateopt ::= $Empty
             //
-            case 561: {
+            case 562: {
                 
-                //#line 4119 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4124 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
      
             //
-            // Rule 563:  Expressionopt ::= $Empty
+            // Rule 564:  Expressionopt ::= $Empty
             //
-            case 563:
+            case 564:
                 setResult(null);
                 break;
  
             //
-            // Rule 565:  ForInitopt ::= $Empty
+            // Rule 566:  ForInitopt ::= $Empty
             //
-            case 565: {
+            case 566: {
                 
-                //#line 4130 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4135 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
      
             //
-            // Rule 567:  SwitchLabelsopt ::= $Empty
+            // Rule 568:  SwitchLabelsopt ::= $Empty
             //
-            case 567: {
+            case 568: {
                 
-                //#line 4137 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4142 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
      
             //
-            // Rule 569:  SwitchBlockStatementGroupsopt ::= $Empty
+            // Rule 570:  SwitchBlockStatementGroupsopt ::= $Empty
             //
-            case 569: {
+            case 570: {
                 
-                //#line 4144 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4149 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
      
             //
-            // Rule 571:  VariableModifiersopt ::= $Empty
+            // Rule 572:  VariableModifiersopt ::= $Empty
             //
-            case 571: {
+            case 572: {
                 
-                //#line 4151 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4156 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 573:  VariableInitializersopt ::= $Empty
+            // Rule 574:  VariableInitializersopt ::= $Empty
             //
-            case 573:
+            case 574:
                 setResult(null);
                 break;
  
             //
-            // Rule 575:  InterfaceMemberDeclarationsopt ::= $Empty
+            // Rule 576:  InterfaceMemberDeclarationsopt ::= $Empty
             //
-            case 575: {
+            case 576: {
                 
-                //#line 4162 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4167 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
      
             //
-            // Rule 577:  ExtendsInterfacesopt ::= $Empty
+            // Rule 578:  ExtendsInterfacesopt ::= $Empty
             //
-            case 577: {
+            case 578: {
                 
-                //#line 4169 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4174 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 579:  InterfaceModifiersopt ::= $Empty
+            // Rule 580:  InterfaceModifiersopt ::= $Empty
             //
-            case 579: {
+            case 580: {
                 
-                //#line 4176 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4181 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 581:  ClassBodyopt ::= $Empty
+            // Rule 582:  ClassBodyopt ::= $Empty
             //
-            case 581:
+            case 582:
                 setResult(null);
                 break;
  
             //
-            // Rule 583:  Argumentsopt ::= $Empty
+            // Rule 584:  Argumentsopt ::= $Empty
             //
-            case 583: {
+            case 584: {
                 
-                //#line 4187 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4192 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
      
             //
-            // Rule 585:  ArgumentListopt ::= $Empty
+            // Rule 586:  ArgumentListopt ::= $Empty
             //
-            case 585: {
+            case 586: {
                 
-                //#line 4194 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4199 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
      
             //
-            // Rule 587:  BlockStatementsopt ::= $Empty
+            // Rule 588:  BlockStatementsopt ::= $Empty
             //
-            case 587: {
+            case 588: {
                 
-                //#line 4201 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4206 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
      
             //
-            // Rule 589:  ExplicitConstructorInvocationopt ::= $Empty
+            // Rule 590:  ExplicitConstructorInvocationopt ::= $Empty
             //
-            case 589:
+            case 590:
                 setResult(null);
                 break;
  
             //
-            // Rule 591:  ConstructorModifiersopt ::= $Empty
+            // Rule 592:  ConstructorModifiersopt ::= $Empty
             //
-            case 591: {
+            case 592: {
                 
-                //#line 4212 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4217 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 593:  FormalParameterListopt ::= $Empty
+            // Rule 594:  FormalParameterListopt ::= $Empty
             //
-            case 593: {
+            case 594: {
                 
-                //#line 4219 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4224 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
      
             //
-            // Rule 595:  Throwsopt ::= $Empty
+            // Rule 596:  Throwsopt ::= $Empty
             //
-            case 595: {
+            case 596: {
                 
-                //#line 4226 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4231 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 597:  MethodModifiersopt ::= $Empty
+            // Rule 598:  MethodModifiersopt ::= $Empty
             //
-            case 597: {
+            case 598: {
                 
-                //#line 4233 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4238 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 599:  FieldModifiersopt ::= $Empty
+            // Rule 600:  FieldModifiersopt ::= $Empty
             //
-            case 599: {
+            case 600: {
                 
-                //#line 4240 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4245 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
      
             //
-            // Rule 601:  ClassBodyDeclarationsopt ::= $Empty
+            // Rule 602:  ClassBodyDeclarationsopt ::= $Empty
             //
-            case 601: {
+            case 602: {
                 
-                //#line 4247 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4252 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
      
             //
-            // Rule 603:  Interfacesopt ::= $Empty
+            // Rule 604:  Interfacesopt ::= $Empty
             //
-            case 603: {
+            case 604: {
                 
-                //#line 4254 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4259 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 605:  Superopt ::= $Empty
+            // Rule 606:  Superopt ::= $Empty
             //
-            case 605:
+            case 606:
                 setResult(null);
                 break;
  
             //
-            // Rule 607:  TypeParametersopt ::= $Empty
+            // Rule 608:  TypeParametersopt ::= $Empty
             //
-            case 607: {
+            case 608: {
                 
-                //#line 4265 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4270 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                 break;
             }
      
             //
-            // Rule 609:  FormalParametersopt ::= $Empty
+            // Rule 610:  FormalParametersopt ::= $Empty
             //
-            case 609: {
+            case 610: {
                 
-                //#line 4272 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4277 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
      
             //
-            // Rule 611:  Annotationsopt ::= $Empty
+            // Rule 612:  Annotationsopt ::= $Empty
             //
-            case 611: {
+            case 612: {
                 
-                //#line 4279 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4284 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                 break;
             }
      
             //
-            // Rule 613:  TypeDeclarationsopt ::= $Empty
+            // Rule 614:  TypeDeclarationsopt ::= $Empty
             //
-            case 613: {
+            case 614: {
                 
-                //#line 4286 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4291 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
      
             //
-            // Rule 615:  ImportDeclarationsopt ::= $Empty
+            // Rule 616:  ImportDeclarationsopt ::= $Empty
             //
-            case 615: {
+            case 616: {
                 
-                //#line 4293 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4298 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
      
             //
-            // Rule 617:  PackageDeclarationopt ::= $Empty
+            // Rule 618:  PackageDeclarationopt ::= $Empty
             //
-            case 617:
+            case 618:
                 setResult(null);
                 break;
  
             //
-            // Rule 619:  ResultTypeopt ::= $Empty
+            // Rule 620:  ResultTypeopt ::= $Empty
             //
-            case 619:
+            case 620:
                 setResult(null);
                 break;
  
             //
-            // Rule 621:  TypeArgumentsopt ::= $Empty
+            // Rule 622:  TypeArgumentsopt ::= $Empty
             //
-            case 621: {
+            case 622: {
                 
-                //#line 4308 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4313 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
      
             //
-            // Rule 623:  TypePropertiesopt ::= $Empty
+            // Rule 624:  TypePropertiesopt ::= $Empty
             //
-            case 623: {
+            case 624: {
                 
-                //#line 4315 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4320 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypePropertyNode.class, false));
                 break;
             }
      
             //
-            // Rule 625:  Propertiesopt ::= $Empty
+            // Rule 626:  Propertiesopt ::= $Empty
             //
-            case 625: {
+            case 626: {
                 
-                //#line 4322 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4327 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                 break;
             }
      
             //
-            // Rule 627:  ,opt ::= $Empty
+            // Rule 628:  ,opt ::= $Empty
             //
-            case 627:
+            case 628:
                 setResult(null);
                 break;
 
