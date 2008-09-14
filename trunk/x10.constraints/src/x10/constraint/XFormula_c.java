@@ -38,7 +38,7 @@ public class XFormula_c extends XTerm_c implements XFormula {
     }
 
     public XTerm subst(XTerm y, XRoot x, boolean propagate) {
-        List<XTerm> newArgs = new ArrayList<XTerm>();
+        List<XTerm> newArgs = new ArrayList<XTerm>(this.arguments().size());
         boolean changed = false;
         for (XTerm arg: this.arguments()) {
             XTerm a = arg.subst(y, x, propagate);
