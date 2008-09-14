@@ -9,7 +9,7 @@ public abstract value Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements SetOps[Region(this.rank)], Iterable[Rail[Int]] {
+) implements SetOps[Region(this.rank)], Iterable[Point(this.rank)] {
 
     property rail = rank==1 && rect && zeroBased;
 
@@ -127,7 +127,7 @@ public abstract value Region(
     }
 */
 
-    public abstract def iterator(): Iterator[Rail[int]];
+    public abstract def iterator(): Iterator[Point(this.rank)];
 
     public abstract def printInfo(label: String): void;
 
