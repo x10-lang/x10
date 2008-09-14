@@ -330,6 +330,9 @@ public class DistFactory {
      * @param p the list of places (implicitly defines the Region_c)
      * @return
      */
+    public static Dist makeUnique() {
+    	return UNIQUE;
+    }
     public static Dist makeUnique(ValRail<Place> p) {
         /*Object[] places = p.toArray();
         Place[] ps = new Place[places.length];
