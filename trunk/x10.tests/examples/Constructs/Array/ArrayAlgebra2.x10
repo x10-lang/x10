@@ -19,18 +19,16 @@ import harness.x10Test;;
 public class ArrayAlgebra2 extends x10Test {
 
 	public const N: int = 24;
-	def makeArray(var D: dist, val k: boolean): Array[boolean] = {
-		return Array.make[Boolean](D, (var p: point): boolean => { return k; });
-	}
+	def makeArray(D: dist, k: boolean): Array[boolean](D) = Array.make[Boolean](D, (point)=>k);
 
 	public def run(): boolean = {
-		val D: dist = distmakeBlockCyclic([0..N-1], 2);
-		val D01: dist = D | [0..N/2-1];
-		val D23: dist = D | [(N/2)..N-1];
-		val D0: dist = D | [0..N/4-1];
-		val D1: dist = D | [(N/4)..N/2-1];
-		val D2: dist = D | [(N/2)..3*N/4-1];
-		val D3: dist = D | [(3*N/4)..N-1];
+		val D = dist.makeBlockCyclic(0..N-1, 2);
+		val D01 = D | 0..N/2-1;
+		val D23 = D | (N/2)..N-1;
+		val D0 = D | 0..N/4-1;
+		val D1: dist = D | (N/4)..N/2-1;
+		val D2: dist = D | (N/2)..3*N/4-1;
+		val D3: dist = D | (3*N/4)..N-1;
 		val ia1: Array[boolean] = makeArray(D, false).overlay((makeArray(D01, true) || makeArray(D23, false))
 					.overlay(makeArray(D3, true)).overlay(makeArray(D0, false)));
 		arrEq(ia1 | D0, makeArray(D0, false));
