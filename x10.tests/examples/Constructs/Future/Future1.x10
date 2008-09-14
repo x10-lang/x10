@@ -13,7 +13,7 @@ import harness.x10Test;;
 public class Future1 extends x10Test {
 	public def run(): boolean = {
 		val x  = future  41 ;
-		return x.force()+1 == 42;
+		return x()+1 == 42;
 	}
 
 	public static def main(var args: Rail[String]): void = {
