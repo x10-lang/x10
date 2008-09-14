@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class ArrayArrayInitializerShorthand extends x10Test {
 
 	public def run(): boolean = {
-		val d: dist = Dist.makeConstant([1..10, 1..10], here);
+		val d = Dist.makeConstant([1..10, 1..10], here);
 		val a: Array[int] = Array.make[int](d, (point)=>0);
 		val ia: Array[Array[int]] 
 		  = Array.make[Array[int]](d, ((i,j): point) =>a);

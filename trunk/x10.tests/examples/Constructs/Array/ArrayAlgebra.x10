@@ -22,14 +22,15 @@ public class ArrayAlgebra extends x10Test {
 	}
 
 	public def run(): boolean = {
-		val D = Dist.makeBlockCyclic(0..N-1, 2);
-		val D01: Dist(D.rank) = D | 0..N/2-1;
-		val D23: Dist(D.rank) = D | (N/2)..N-1;
-		val D0:  Dist(D.rank) = D | 0..N/4-1;
-		val D1:  Dist(D.rank) = D | (N/4)..N/2-1;
-		val D2:  Dist(D.rank) = D | (N/2)..3*N/4-1;
-		val D3:  Dist(D.rank) = D | (3*N/4)..N-1;
-		val ia1: Array[Int] = 
+	    val R=0..N-1;
+		val D = Dist.makeBlockCyclic(R, 2);
+		val D01 = D | 0..N/2-1;
+		val D23 = D | (N/2)..N-1;
+		val D0  = D | 0..N/4-1;
+		val D1  = D | (N/4)..N/2-1;
+		val D2  = D | (N/2)..3*N/4-1;
+		val D3  = D | (3*N/4)..N-1;
+		val ia1:Array[int](1) = 
 		  makeArray(D, -99)
 		  .overlay((makeArray(D01, -1) 
 		            || makeArray(D23, -2))
