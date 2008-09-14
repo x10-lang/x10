@@ -45,7 +45,7 @@ public abstract class Array<T> extends BaseRefArray<T> {
         public boolean isSubtype(Type<?> o) {
             if (o instanceof Array.RTT) {
                 Array.RTT other = (Array.RTT) o;
-                return type.isSubtype(other.type);
+                return type.equals(other.type);
             }
             return super.isSubtype(o);
         }
