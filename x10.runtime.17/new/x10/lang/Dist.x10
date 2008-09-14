@@ -98,7 +98,7 @@ public abstract value Dist(
 */
 @Native("java", "x10.array.DistFactory.makeBlock(#1, #2)")
     public native static def makeBlock(r: Region, axis: int)
-    : Dist{region==r};
+    : Dist(r);
     
 @Native("java", "x10.array.DistFactory.makeBlock(#1, 1)")
     public native static def makeBlock(r: Region)
@@ -112,21 +112,21 @@ public abstract value Dist(
 */
 @Native("java", "x10.array.DistFactory.makeBlock(#1, #2, #3)")
 native public static def makeBlock(r: Region, axis: int, ps: ValRail[Place])
-     : Dist{region==r};
+     : Dist(r);
 
 
     
 // *** cyclic distributions
 @Native("java", "x10.array.DistFactory.makeCyclic(#1)")
     public native static def makeCyclic(r: Region)
-    : Dist{region==r};
+    : Dist(r);
 
 @Native("java", "x10.array.DistFactory.makeCyclic(#1, #2)")
     public native static def makeCyclic(r: Region, axis: int)
-    : Dist{region==r};
+    : Dist(r);
 
    incomplete public static def makeCyclic(r: Region, axis: int, ps: Set[Place])
-   : Dist{region==r};
+   : Dist(r);
 
 // *** BlockCyclic distributions
    
@@ -134,12 +134,12 @@ native public static def makeBlock(r: Region, axis: int, ps: ValRail[Place])
     
 @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, #2, #3)")
     public native static def makeBlockCyclic(r: Region, axis: int, blockSize: int)
-    : Dist{region==r};
+    : Dist(r);
  //   public abstract def regionMap(): Map[Place,Region];
     
     @Native("java", "x10.array.DistFactory.makeBlockCyclic(#1, 0, #2)")
     public native static def makeBlockCyclic(r: Region,  blockSize: int)
-    : Dist{region==r};
+    : Dist(r);
     
 // ***Random distributions
     
@@ -173,6 +173,13 @@ native public static def makeBlock(r: Region, axis: int, ps: ValRail[Place])
     
 @Native("java", "(#0).get(#1)")
     public native def apply(p: Point): Place;
+    
+    @Native("java", " (#0).get(#1)")
+    public native def apply(i0: int){rank==1}: Place;
+    @Native("java", "(#0).get(#1, #2)")
+    public native def apply(i0: int, i1: int){rank==2}: Place;
+    @Native("java", " (#0).get(#1, #2, #3)")
+    public native def apply(i0: int, i1: int, i2: int){rank==3}: Place;
 
     
     @Native("java", "(#0).iterator()")
@@ -217,7 +224,8 @@ native public static def makeBlock(r: Region, axis: int, ps: ValRail[Place])
       Return the distribution defined over the region this.region.intersection(d.region),
       and which maps each point p in this region to this(p).
     */
-    def intersection(d: Dist(this.rank))=intersection(d.region);
+    @Native("java", "(#0).intersection((#1).region)")
+    public abstract def intersection(d: Dist(this.rank)): Dist(this.rank);
     
      /**
       Return the distribution defined over the region this.region.intersection(r),
@@ -252,12 +260,12 @@ native public static def makeBlock(r: Region, axis: int, ps: ValRail[Place])
      * to p.
      */
     @Native("java", "(#0).restriction(#1)")
-    public abstract def restriction(p: Place): Dist{rank==this.rank,onePlace==p};
+    public abstract def restriction(p: Place): Dist(this.rank){onePlace==p};
     
     /** The d | p operator, defined as d.restriction(p).
     */
     @Native("java", "(#0).restriction(#1)")
-    public abstract def $bar(p: Place): Dist{rank==this.rank,onePlace==p};
+    public abstract def $bar(p: Place): Dist(this.rank){onePlace==p};
     
 
     protected def this(region: Region, unique: boolean, constant: boolean, onePlace: Place) = {
