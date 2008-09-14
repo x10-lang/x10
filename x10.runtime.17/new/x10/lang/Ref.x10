@@ -14,12 +14,17 @@ public class Ref(
     
     public native def this();
     
-    @Native("java", "(#1).equals(#2)")
+    @Native("java", "(#0).equals(#1)")
     public native def equals(Object): boolean;
     
-    @Native("java", "(#1).hashCode()")
+    @Native("java", "(#0).hashCode()")
     public native def hashCode(): int;
     
-    @Native("java", "(#1).toString()")
+    @Native("java", "(#0).toString()")
     public native def toString(): String;
+    
+    @Native("java", "(#0).getClass().toString()")
+    public native def className():String;
+    
+   
 }
