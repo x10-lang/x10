@@ -30,7 +30,7 @@ import x10.types.Type;
 abstract public class BaseAnyArray<T> extends BaseArray {
 
     /** Runtime representation of the parameter type--needed for instanceof and to get operators. */
-    final Type<T> T;
+    final protected Type<T> T;
 
     protected BaseAnyArray(Type<T> T, Dist D, boolean mutable) {
         super(D, mutable);
@@ -188,6 +188,14 @@ abstract public class BaseAnyArray<T> extends BaseArray {
      * Can be used by any dimensioned array.
      */
     public abstract T getOrdinal(int rawIndex);
+    
+    public T apply(int i0) { return get(i0);}
+    public T apply(int i0, int i1) { return get(i0,i1);}
+    public T apply(int i0, int i1, int i2) { return get(i0, i1, i2);}
+    public T apply(int i0, int i1, int i2, int i3) { return get(i0, i1,i2,i3);}
+    public T apply(Point p) { return get(p);}
+
+    
 
     /**
      * Set the element at position rawIndex in the backing store to v.

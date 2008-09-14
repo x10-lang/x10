@@ -218,8 +218,8 @@ public class DefaultRuntime extends Runtime {
 	 * @see setCurrentPlace(place)
 	 */
 	public synchronized Place currentPlace() {
-		if (getPlaces().length == 1)
-			return getPlaces()[0]; // fast path for simple test environments!
+		if (getPlacesAsJavaArray().length == 1)
+			return getPlacesAsJavaArray()[0]; // fast path for simple test environments!
 		Thread t = Thread.currentThread();
 		Place ret = null;
 		if (t instanceof PoolRunner)
@@ -240,6 +240,7 @@ public class DefaultRuntime extends Runtime {
 		return result;
 	}
 
+
 	/**
 	 * Should be used only internally to the XVM. Should not
 	 * be exposed to the X10 programmer.
@@ -247,16 +248,15 @@ public class DefaultRuntime extends Runtime {
 	 * @return All places available in this VM.
 	 */
 	@Override
-	protected Place[] getPlaces() {
+	public Place[] getPlacesAsJavaArray() {
 		return places_;
 	}
-
 	/**
 	 * @deprecated
 	 * @return
 	 */
 	protected Place[] getLocalPlaces() {
-		return getPlaces();
+		return getPlacesAsJavaArray();
 	}
 
 	/**
@@ -269,38 +269,38 @@ public class DefaultRuntime extends Runtime {
 		    // PRINT STATISTICS ON NUMBER OF ACTIVITES
 		    {
 			long sum= 0;
-			for(int i= 0; i <= getPlaces().length - 1; i++) {
-			    sum+= getPlaces()[i].getThreadPool().getCompletedTaskCount();
+			for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			    sum+= getPlacesAsJavaArray()[i].getThreadPool().getCompletedTaskCount();
 			}
 			System.err.println("  TOTAL NUMBER OF ACTIVITIES = " + sum);
 			System.err.print("  TOTAL NUMBER OF ACTIVITIES PER PLACE = [ ");
-			for(int i= 0; i <= getPlaces().length - 1; i++) {
-			    System.err.print(getPlaces()[i].getThreadPool().getCompletedTaskCount() + " ");
+			for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			    System.err.print(getPlacesAsJavaArray()[i].getThreadPool().getCompletedTaskCount() + " ");
 			}
 			System.err.println("]");
 		    }
 		    // PRINT STATISTICS ON NUMBER OF OPS DEFINED BY CALLS TO
 		    // x10.lang.perf.addLocalOps()
 		    long sum= 0;
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			sum+= getPlaces()[i].getTotalOps();
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			sum+= getPlacesAsJavaArray()[i].getTotalOps();
 		    }
 		    System.err.println("\n  TOTAL NUMBER OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = " + sum);
 		    System.err.print("  TOTAL NUMBER OF OPS PER PLACE = [ ");
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			System.err.print(getPlaces()[i].getTotalOps() + " ");
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			System.err.print(getPlacesAsJavaArray()[i].getTotalOps() + " ");
 		    }
 		    System.err.println("]");
 		    // PRINT STATISTICS ON CRITICAL PATH LENGTHS OF OPS
 		    // DEFINED BY CALLS TO x10.lang.perf.addLocalOps()
 		    long max= 0;
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			max= Math.max(max, getPlaces()[i].getCritPathOps());
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			max= Math.max(max, getPlacesAsJavaArray()[i].getCritPathOps());
 		    }
 		    System.err.println("\n  CRITICAL PATH LENGTH OF OPS DEFINED BY CALLS TO x10.lang.perf.addLocalOps() = " + max);
 		    System.err.print("  CRITICAL PATH LENGTH OF OPS PER PLACE = [ ");
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			System.err.print(getPlaces()[i].getCritPathOps() + " ");
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			System.err.print(getPlacesAsJavaArray()[i].getCritPathOps() + " ");
 		    }
 		    System.err.println("]");
 		    double speedup= (double) max > 0 ? (double) sum / (double) max : 0;
@@ -309,24 +309,24 @@ public class DefaultRuntime extends Runtime {
 		if (VMInterface.ABSTRACT_EXECUTION_TIMES) {
 		    // PRINT STATISTICS ON TOTAL UNBLOCKED EXECUTION TIME
 		    long sum= 0;
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			sum+= getPlaces()[i].getTotalUnblockedTime();
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			sum+= getPlacesAsJavaArray()[i].getTotalUnblockedTime();
 		    }
 		    System.err.println("\n  TOTAL UNBLOCKED TIME FOR ALL ACTIVITIES (in milliseconds) = " + sum);
 		    System.err.print("  TOTAL UNBLOCKED TIME PER PLACE = [ ");
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			System.err.print(getPlaces()[i].getTotalUnblockedTime() + " ");
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			System.err.print(getPlacesAsJavaArray()[i].getTotalUnblockedTime() + " ");
 		    }
 		    System.err.println("]");
 		    // PRINT STATISTICS ON ESTIMATED EXECUTION TIMES
 		    long max= 0;
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			max= Math.max(max, getPlaces()[i].getCritPathTime());
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			max= Math.max(max, getPlacesAsJavaArray()[i].getCritPathTime());
 		    }
 		    System.err.println("\n  CRITICAL PATH LENGTH OF ALL ACTIVITIES (in milliseconds) = " + max);
 		    System.err.print("  CRITICAL PATH LENGTH PER PLACE = [ ");
-		    for(int i= 0; i <= getPlaces().length - 1; i++) {
-			System.err.print(getPlaces()[i].getCritPathTime() + " ");
+		    for(int i= 0; i <= getPlacesAsJavaArray().length - 1; i++) {
+			System.err.print(getPlacesAsJavaArray()[i].getCritPathTime() + " ");
 		    }
 		    System.err.println("]");
 		    double speedup= (double) max > 0 ? (double) sum / (double) max : 0;
