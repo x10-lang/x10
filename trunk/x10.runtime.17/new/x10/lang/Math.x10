@@ -18,5 +18,20 @@ public final class Math {
     @Native("java", "java.lang.Math.abs(#1)")
    public static native def abs(a:Int):Int;
    
+     @Native("java", "java.lang.Math.pow(#1,#2)")
+   public static native def pow(a:Double, b:Double):Double;
+   
+      @Native("java", "java.lang.Math.exp(#1)")
+   public static native def exp(a:Double):Double;
+   
+        @Native("java", "java.lang.Math.cos(#1)")
+   public static native def cos(a:Double):Double;
+   
+        @Native("java", "java.lang.Math.sin(#1)")
+   public static native def sin(a:Double):Double;
+   
+   @Native("java", "java.lang.Math.sqrt(#1)")
+   public static native def sqrt(a:Double):Double;
+   
 
 }
