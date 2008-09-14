@@ -11,11 +11,11 @@ import harness.x10Test;;
  * Test for X10 arrays -- tests arrays passed as parameters and stored in fields.
  */
 public class Array4 extends x10Test {
-	var ia: Array[int];
+	var ia: Array[int](2);
 
 	public def this(): Array4 = {}
 
-	public def this(var ia: Array[int]): Array4 = {
+	public def this(var ia: Array[int](2)): Array4 = {
 		this.ia = ia;
 	}
 

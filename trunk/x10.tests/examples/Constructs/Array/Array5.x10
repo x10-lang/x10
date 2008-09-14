@@ -11,11 +11,11 @@ import harness.x10Test;;
  * Testing int[] method parameters and fields.
  */
 public class Array5 extends x10Test {
-	var ia: Array[int];
+	var ia: Array[int](1);
 
 	public def this(): Array5 = {}
 
-	public def this(var ia: Array[int]): Array5 = {
+	public def this(var ia: Array[int](1)): Array5 = {
 		this.ia = ia;
 	}
 
@@ -25,7 +25,7 @@ public class Array5 extends x10Test {
 	}
 
 	public def run(): boolean = {
-		var temp: Array[int] = Array.make[int](1, (point)=>0);
+		val temp = Array.make[int](1, (point)=>0);
 		temp(0) = 43;
 		return (new Array5(temp)).runtest();
 	}
