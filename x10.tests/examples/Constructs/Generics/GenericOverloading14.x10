@@ -16,8 +16,8 @@ public class GenericOverloading14 extends GenericTest {
         def m(T) = 1;
     }
 
-    class B[T] extends A[T] {
-        def m(int,T) = 2;
+    class B[S] extends A[S] {
+        def m(int,S) = 2;
     }
 
     val  b = new  B[int]();
