@@ -6762,11 +6762,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
      
             //
-            // Rule 540:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+            // Rule 540:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 540: {
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
-                ParsedName e1 = (ParsedName) getRhsSym(1);
+                Expr e1 = (Expr) getRhsSym(1);
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
@@ -6774,7 +6774,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
                 //#line 4023 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
+                setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                 break;
             }
      

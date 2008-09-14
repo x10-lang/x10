@@ -4018,9 +4018,9 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
-                 | ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
+                 | Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
         /.$BeginJava
-                    setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
+                    setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
           $EndJava
         ./
     
