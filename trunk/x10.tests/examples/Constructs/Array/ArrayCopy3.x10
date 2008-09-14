@@ -32,16 +32,16 @@ public class ArrayCopy3 extends x10Test {
 	/**
 	 * Does not throw an error iff A[i] == B[i] for all points i.
 	 */
-	public def arrayEqual(val A: Array[int], val B: Array[int]): void = {
-		val D: dist = A.dist;
-		val E: dist = B.dist;
+	public def arrayEqual(A: Array[int], B: Array[int](A.rank)) {
+		val D = A.dist;
+		val E:Dist(A.rank) = B.dist;
 		// Spawn an activity for each index to
 		// fetch the B[i] value
 		// Then compare it to the A[i] value
 		finish
-			ateach (val p: point in D) {
+			ateach (val p: point(B.rank) in D) {
 			val f = (future(E(p)){B(p)}).force();
-			chk(A(p) == f);
+			chk(A(p as Point(A.rank)) == f);
 			}
 	}
 
@@ -51,30 +51,30 @@ public class ArrayCopy3 extends x10Test {
 	 * regions are equal.
 	 * Throws an error iff some assertion failed.
 	 */
-	public def arrayCopy(val A: Array[int], val B: Array[int]{rank==A.rank}): void = {
-		val D: dist{rank==A.rank} = A.dist;
-		val E: dist{rank==A.rank} = B.dist;
+	public def arrayCopy(val A: Array[int], val B: Array[int](A.rank)) {
+		val D = A.dist;
+		val E = B.dist;
 		// Allows message aggregation
 
-		val D_1: dist = dist.makeUnique(D.places());
+		val D_1 = dist.makeUnique(D.places());
 		// number of times elems of A are accessed
-		val accessed_a: Array[int] = Array.make[int](D);
+		val accessed_a = Array.make[int](D, (point)=>0);
 		// number of times elems of B are accessed
-		val accessed_b: Array[int] = Array.make[int](E);
+		val accessed_b  = Array.make[int](E, (point)=>0);
 
 		finish
-			ateach (val x: point in D_1) {
+			ateach (val x: Point in D_1) {
 				val px: place = D_1(x);
 				chk(here == px);
-				val LocalD: region{rank==A.rank} = (D | px).region;
+				val LocalD: Region(A.rank) = (D | px).region;
 				for (val py: place in (E | LocalD).places()) {
-					val RemoteE: region{rank==A.rank} = (E | py).region;
-					val Common: region{rank==A.rank} = LocalD && RemoteE;
-					val D_common: dist{rank==A.rank} = D | Common;
+					val RemoteE: region(A.rank) = (E | py).region;
+					val Common: region(A.rank) = LocalD && RemoteE;
+					val D_common: dist(A.rank) = D | Common;
 					// the future's can be aggregated
 					for (val i: point in D_common) {
 						async(py) atomic accessed_b(i) += 1;
-						val temp: int = (future(py){B(i)}).force();
+						val temp  = (future(py){B(i)}).force();
 						// the following may need to be bracketed in
 						// atomic, unless the disambiguator
 						// knows about dists
@@ -121,13 +121,13 @@ public class ArrayCopy3 extends x10Test {
 		val R: region{rank==4} = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
 		val TestDists: region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
-		for (val distP: point[dX,dY] in TestDists) {
+		for (val distP(dX,dY): Point(2) in TestDists) {
 			val D: dist{rank==4} = dist2.getDist(dX, R);
 			val E: dist{rank==4} = dist2.getDist(dY, R);
 			chk(D.region.equals(E.region) && D.region.equals(R));
-			val A: Array[int]{rank==4} = Array.make[int](D);
+			val A: Array[int]{rank==4} = Array.make[int](D, (point)=>0);
 			val B: Array[int]{rank==A.rank} = Array.make[int](E, 
-			(var p(i,j,k,l): point) => { var x: int = ((i*N+j)*N+k)*N+l; x*x+1 });
+			(p(i,j,k,l): Point) => { val x=((i*N+j)*N+k)*N+l; x*x+1});
 			arrayCopy(A, B);
 			arrayEqual(A, B);
 		}
