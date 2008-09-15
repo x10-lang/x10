@@ -19,8 +19,8 @@ public class ConstrainedTypeTests extends x10Test {
 		var res4: boolean = !(X10DepTypeSubClassOne{a==2} <: X10DepTypeClassOne{p==2});
 		var res5: boolean = !(X10DepTypeSubClassOne{a==3} <: X10DepTypeClassOne{p==2});
 		var res6: boolean = X10DepTypeSubClassOne{p==2} <: X10DepTypeClassOne{p==2 && p > 1 && p < 10};
-		System.out.println("X10DepTypeSubOne == X10DepTypeClassOne -> "+(!res1));
-		System.out.println("X10DepTypeSubClassOne <: X10DepTypeClassOne -> "+(!res2));
+		System.out.println("X10DepTypeSubOne == X10DepTypeClassOne -> "+res1);
+		System.out.println("X10DepTypeSubClassOne <: X10DepTypeClassOne -> "+res2);
 		System.out.println("X10DepTypeSubClassOne <: Int -> "+(!res3));
 		System.out.println("X10DepTypeSubClassOne{a==2} <: X10DepTypeClassOne{p==2} -> "+(!res4));
 		System.out.println("X10DepTypeSubClassOne{a==3} <: X10DepTypeClassOne{p==2} -> "+(!res5));
