@@ -1,0 +1,170 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import harness.x10Test;;
+
+/**
+ * Parallel version of Edmiston's algorithm for Sequence Alignment.
+ * This code is an X10 port of the Edmiston_Sequential.c program written by
+ * Sirisha Muppavarapu (sirisham@cs.unm.edu), U. New Mexico.
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
+ * @author Kemal Ebcioglu (kemal@us.ibm.com)
+ */
+public class Edmiston_Parallel2 extends x10Test {
+	public const gapPen: int = 2;
+	public const match: int = 0;
+	public const misMatch: int = -1;
+	public const EXPECTED_CHECKSUM: int = 549;
+	public const aminoAcids: Array[char] = { 'A', 'C', 'G', 'T' };
+
+	/**
+	 * Edmiston's algorithm
+	 */
+	public def run(): boolean = {
+
+		final val N: int = 10;
+		final val M: int = 10;
+		final val c1: Array[char] = new Array[char](Dist.makeConstant([0..N], here), (var point[i]: point): char => { return (i == 0) ? '-' : randomChar(i); });
+		final val c2: Array[char] = new Array[char](Dist.makeConstant([0..M], here), (var point[i]: point): char => { return (i == 0) ? '-' : randomChar(N+i); });
+		final val D: dist = distmakeBlock([0..N, 0..M]);
+		final val Dinner: dist{rank==D.rank} = D|[1..N, 1..M];
+		final val Dboundary: dist = D-Dinner;
+		//  Boundary of e is initialized to:
+		//  0     1*gapPen     2*gapPen     3*gapPen ...
+		//  1*gapPen ...
+		//  2*gapPen ...
+		//  3*gapPen ...
+		//  ...
+		final val e: Array[istructInt] = new Array[istructInt](D, (var point [i,j]: point): istructInt => {
+			final val t: istructInt = new istructInt();
+			if (Dboundary.contains([i, j])) t.wr(gapPen*(i+j));
+			return t;
+		});
+
+		finish ateach (val (i,j): point in Dinner) e(i, j).wr(min(rdElem(e, i-1, j)+gapPen,
+						rdElem(e, i, j-1)+gapPen,
+						rdElem(e, i-1, j-1)
+						+(c1(i) == c2(j) ? match : misMatch)));
+
+		pr(c1, c2, e, "Edit distance matrix:");
+
+		return checkSum(e) == EXPECTED_CHECKSUM;
+	}
+
+	/**
+	 * read e[i,j] remotely,
+	 * after waiting for it to be written.
+	 */
+	static def rdElem(val e: Array[istructInt], val i: int, val j: int): int = {
+		return future(e.dist(i, j)) { e(i, j).rd() }.force();
+	}
+
+	/**
+	 * returns the minimum of x y and z.
+	 */
+	static def min(var x: int, var y: int, var z: int): int = {
+		var t: int = (x < y) ? x : y;
+		return (t < z) ? t : z;
+	}
+
+	/**
+	 * Function to generate the i'th random character
+	 */
+	static def randomChar(var i: int): char = {
+		// Randomly select one of 'A', 'C', 'G', 'T'
+		var n: int = 0;
+		final val rand: Random = new Random(1L);
+		// find i'th random number.
+		// TODO: need to pre-compute random numbers and re-use
+		for (val (k): point in [1..i]) n = nextChoice(rand);
+		return aminoAcids(n);
+	}
+
+	static def nextChoice(var rand: Random): int = {
+		var k1: int = rand.nextBoolean() ? 0 : 1;
+		var k2: int = rand.nextBoolean() ? 0 : 1;
+		return k1*2+k2;
+	}
+
+	/**
+	 * Find the sum of a istructInt array
+	 */
+	static def checkSum(val e: Array[istructInt]): int = {
+		var sum: int = 0;
+		for (val (i,j): point in e) sum += rdElem(e, i, j);
+		return sum;
+	}
+
+	/**
+	 * Print the Edit Distance Matrix
+	 */
+	static def pr(val c1: Array[char], val c2: Array[char], val e: Array[istructInt], val s: String): void = {
+		final val N: int = c1.region.high();
+		final val M: int = c2.region.high();
+		final val K: int = 4; // padding amount
+
+		System.out.println(s);
+
+		System.out.print(" "+pad(' ', K));
+		for (val (j): point in c2) System.out.print(" "+pad(c2(j), K));
+		System.out.println();
+
+		for (val (i): point in [0..N]) {
+			System.out.print(" "+pad(c1(i), K));
+			for (val (j): point in [0..M]) System.out.print(" "+pad(rdElem(e, i, j), K));
+			System.out.println();
+		}
+	}
+
+	/**
+	 * right justify an integer in a field of n blanks
+	 */
+	static def pad(var x: int, var n: int): String = {
+		var s: String = ""+x;
+		while (s.length() < n) s = " "+s;
+		return s;
+	}
+
+	/**
+	 * right justify a character in a field of n blanks
+	 */
+	static def pad(var x: char, var n: int): String = {
+		var s: String = ""+x;
+		while (s.length() < n) s = " "+s;
+		return s;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Edmiston_Parallel2().execute();
+	}
+
+	/**
+	 * Single assignment synchronization buffer,
+	 * like an i-structure in a data flow machine.
+	 * All readers will wait until write occurs.
+	 */
+	static class istructInt {
+		var val: int;
+		var filled: boolean = false;
+		def rd(): int = {
+			var t: int;
+			when (filled) { t = val; }
+			return t;
+		}
+		atomic def wr(var v: int): void = atomic void wr(int v) {
+			if (filled) throw new Error();
+			filled = true;
+			val = v;
+		}{
+			if (filled) throw new Error();
+			filled = true;
+			val = v;
+		}
+	}
+}

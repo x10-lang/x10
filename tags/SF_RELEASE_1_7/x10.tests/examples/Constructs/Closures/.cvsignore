@@ -1,0 +1,14 @@
+*.java
+*.class
+harness
+x10
+*.swp
+*.swp
+.*.swp
+*.swo
+.*.swo
+makefile
+junk
+*.txt
+classes
+
