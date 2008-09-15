@@ -3,10 +3,13 @@
  */
 package x10.types;
 
+import java.util.List;
+
 import x10.core.Ref;
 import x10.core.Value;
 import x10.core.fun.Fun_0_1;
 import x10.core.fun.Fun_0_2;
+import x10.constraint.XConstraint;
 
 public class RuntimeType<T> implements Type<T> {
     Class<?> c;
@@ -27,12 +30,26 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     public boolean isSubtype(Type<?> o) {
-        // TODO
-        return equals(o);
+        if (this == o) return true;
+        if (o instanceof RuntimeType) {
+            RuntimeType<?> rt = (RuntimeType<?>) o;
+            if (rt.c.isAssignableFrom(c)) {
+                return true;
+            }
+        }
+        return false;
     }
     
-    public Type<T> reinstantiate(Type<T> rtt, java.lang.Object o) {
+    public XConstraint getConstraint() {
         return null;
+    }
+    
+    public List<Type<?>> getTypeParameters() {
+        return null;
+    }
+
+    public Type<T> reinstantiate(List<Type<?>> parms) {
+        return this;
     }
 
     public boolean instanceof$(Object o) {
