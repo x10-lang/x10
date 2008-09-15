@@ -355,6 +355,19 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         return nn;
     }
+    
+    @Override
+    public Node typeCheck(ContextVisitor tc) throws SemanticException {
+        X10ConstructorDecl_c n = this;
+        
+        for (TypeNode type : n.throwTypes()) {
+            XConstraint rc = X10TypeMixin.xclause(type.type());
+            if (rc != null && ! rc.valid())
+                throw new SemanticException("Cannot throw a dependent type.", type.position());
+        }
+
+        return super.typeCheck(tc);
+    }
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
