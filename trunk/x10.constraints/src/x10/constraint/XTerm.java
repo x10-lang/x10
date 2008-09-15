@@ -35,7 +35,7 @@ public interface XTerm extends Serializable, Cloneable {
 	XConstraint selfConstraint() throws XFailure;
 	
 	/** Set the constraint on the term's value. */
-	void setSelfConstraint(XRef_c<XConstraint> c);
+	XTerm setSelfConstraint(XRef_c<XConstraint> c);
 
 	/** Add in the self-constraint to c, and set the
 	 * self-constraint to null
