@@ -4,15 +4,20 @@
     &buildfile;
     <property name="x10.home" value="${basedir}/.."/>
     <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
+        <path refid="x10.constraints.classpath"/>
     </path>
     <path id="mainproject.classpath">
         <pathelement location="${build}"/>
+    </path>
+    <path id="x10.constraints.classpath">
+        <pathelement location="${x10.constraints.location}/classes"/>
     </path>
     <!-- get the environment variables -->
     <property environment="env"/>
@@ -33,6 +38,7 @@
         <jar jarfile="${build}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/new" includes="x10/**" excludes="${jar}"/>
+            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
         </jar>
     </target>
     <target name="build" depends="init">
