@@ -16,4 +16,7 @@ public class PrintStream extends OutputStream {
     
     @Native("java", "#0.println(#1)")
     public native def println(Object): void;
+    
+     @Native("java", "#0.println()")
+    public native def println(): void;
 }
