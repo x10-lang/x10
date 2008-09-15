@@ -53,6 +53,10 @@ public abstract value Dist(
 
     const UNIQUE = makeUnique();
 
+    @Native("java", "(#0).region.contains(#1)")
+    native public def contains(p:Point(this.rank)):boolean;
+	
+	
     // *** constant distributions
     /**
       Make a constant distribution defined over the given region and place.
