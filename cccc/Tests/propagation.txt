@@ -1,9 +1,0 @@
-# Vijay's multilevel propagation example.
-
-0.0 R y 0
-0.1 W x 0
-1.0 R x 0
-1.1 W y 1
-
-0.1 -> 1.0
-0.0 -> 1.1
