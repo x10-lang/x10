@@ -18,8 +18,10 @@ public class IntArrayMaxAbs extends x10Test {
 
 		finish ateach (val p(i,j): point(2) in D) { ia(p) = -i; }
 
-		return ia.reduce((a:Int, b:Int)=> 
-		   Math.abs(a) <= Math.abs(b) ? b : a
+		return ia.reduce((a:Int, b:Int):Int=> {
+		    val ma = Math.abs(a), mb =Math.abs(b);
+		     ma <= mb? mb : ma
+		  }
 		) == 10;
 	}
 
