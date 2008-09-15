@@ -1,6 +1,14 @@
 /*
  * Created on Mar 1, 2007
  */
+/*
+ *
+ * (C) Copyright IBM Corporation 2006-2008.
+ *
+ *  This file is part of X10 Language.
+ *
+ */
+
 package polyglot.ext.x10.types;
 
 import java.util.ArrayList;
