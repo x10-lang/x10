@@ -298,6 +298,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
             
             X10MethodDecl_c n = this;
+            
+            for (TypeNode type : n.throwTypes()) {
+                XConstraint rc = X10TypeMixin.xclause(type.type());
+                if (rc != null && ! rc.valid())
+                    throw new SemanticException("Cannot throw a dependent type.", type.position());
+            }
 
             X10Flags xf = X10Flags.toX10Flags(mi.flags());
             
