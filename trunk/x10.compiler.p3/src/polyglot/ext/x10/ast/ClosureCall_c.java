@@ -189,7 +189,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 		typeArgs.add(tn.type());
 	}
 	
-	List<Type> actualTypes = new ArrayList<Type>();
+	List<Type> actualTypes = new ArrayList<Type>(this.arguments.size());
 	for (Expr ei : arguments) {
 	    actualTypes.add(ei.type());
 	}
