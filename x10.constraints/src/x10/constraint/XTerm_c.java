@@ -95,8 +95,9 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 	    return c;
 	}
 	
-	public void setSelfConstraint(XRef_c<XConstraint> c) {
+	public XTerm setSelfConstraint(XRef_c<XConstraint> c) {
 		this.selfConstraint = c;
+		return this;
 	}
 
 	public boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure {
