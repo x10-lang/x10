@@ -27,6 +27,7 @@ import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Cast;
+import polyglot.ast.CharLit;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
@@ -106,6 +107,7 @@ import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.BoxType;
 import polyglot.ext.x10.types.ClosureType;
+import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.PathType;
@@ -124,6 +126,8 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.SubtypeSolver.XSubtype_c;
+import polyglot.ext.x10.types.XTypeTranslator.XTypeLit_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -149,6 +153,23 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
+import x10.constraint.XAnd_c;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XEQV_c;
+import x10.constraint.XEquals_c;
+import x10.constraint.XFailure;
+import x10.constraint.XField_c;
+import x10.constraint.XFormula_c;
+import x10.constraint.XLit_c;
+import x10.constraint.XLocal_c;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XNot_c;
+import x10.constraint.XRef_c;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
+import x10.constraint.XVar_c;
 
 
 /**
@@ -1024,10 +1045,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         String mangle = mangle(def.fullName());
 
+        boolean isConstrained = def.classInvariant() != null && !def.classInvariant().get().valid();
+
+        String superClass = "x10.types.RuntimeType";
+        if (isConstrained) { // constrained type; treat specially
+            superClass = "x10.types.ConstrainedType";
+        }
+
         if (def.asType().isGloballyAccessible()) {
             w.write("public static ");
         }
-        w.write("class " + rttShortName(def) + " extends x10.types.RuntimeType<");
+        w.write("class " + rttShortName(def) + " extends "+superClass+"<");
         printType(def.asType(), BOX_PRIMITIVES);
         w.write("> {");
         w.newline();
@@ -1037,7 +1065,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
             w.newline();
         }
-        for (int i = 0; i <  def.typeParameters().size(); i++) {
+        for (int i = 0; i < def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
             w.write("public final x10.types.Type ");
             w.write(pt.name().toString());
@@ -1058,8 +1086,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(") {");
         w.begin(4);
         w.write("super(");
-        printType(def.asType(), BOX_PRIMITIVES);
-        w.write(".class);");
+        if (isConstrained) { // constrained type; treat specially
+            w.write("new x10.types.RuntimeType<");
+            printType(def.asType(), BOX_PRIMITIVES);
+            w.write(">(");
+            printType(def.asType(), BOX_PRIMITIVES);
+            w.write(".class");
+            w.write(")");
+//            new RuntimeTypeExpander(def.asType()).expand(tr); // Cannot do this, because we are *defining* T.it here
+            w.write(", ");
+            w.write("null, "); // TODO
+            XConstraint constraint = def.classInvariant().get();
+            assert (constraint != null);
+            serializeConstraint(constraint);
+        }
+        else {
+            printType(def.asType(), BOX_PRIMITIVES);
+            w.write(".class");
+        }
+        w.write(");");
         w.newline();
         for (int i = 0; i <  def.typeParameters().size(); i++) {
             ParameterType pt = def.typeParameters().get(i);
@@ -1079,6 +1124,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("if (! (o instanceof ");
         printType(def.asType(), BOX_PRIMITIVES);
         w.write(")) return false;");
+        w.newline();
         //		w.write("RTT ro = (RTT) new RTT(this, o);");
         //		w.newline();
         //		w.write("if (ro == null) return false;");
@@ -1124,18 +1170,267 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         w.write("return true;");
         w.end();
+        w.newline();
         w.write("}");
-        w.end();
+        w.newline();
         
         for (Ref<? extends ClassType> mtref : def.memberClasses()) {
             X10ClassType mt = (X10ClassType) Types.get(mtref);
             generateRTType(mt.x10Def());
         }
         
+        w.write("public java.util.List<x10.types.Type<?>> getTypeParameters() {");
+        w.newline();
+        w.begin(4);
+        if (def.typeParameters().isEmpty())
+            w.write("return null;");
+        else {
+            w.write("return java.util.Arrays.asList(new x10.types.Type<?>[] { ");
+            w.newline();
+            w.begin(4);
+            for (int i = 0; i <  def.typeParameters().size(); i++) {
+                ParameterType pt = def.typeParameters().get(i);
+                if (i != 0)
+                    w.write(", ");
+                w.write(pt.name().toString());
+            }
+            w.end();
+            w.newline();
+            w.write(" });");
+        }
+        w.end();
+        w.newline();
+        w.write("}");
+        w.end();
+        w.newline();
+        
         w.write("}");
         w.newline();
     }
+
+    private void serializeConstraint(XConstraint constraint) {
+//        String serializedConstraint = serializedForm(constraint);
+//        StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, serializedConstraint);
+//        tr.print(null, lit, w);
+        w.write("new x10.constraint.XConstraint_c() {{");
+        w.newline(4);
+        w.begin(0);
+        w.write("try {");
+        w.newline(4);
+        w.begin(0);
+        List<XTerm> terms = constraint.constraints();
+        for (XTerm term : terms) {
+            w.write("addTerm(");
+            w.begin(0);
+            serializeTerm(term, constraint);
+            w.end();
+            w.write(");");
+            w.newline();
+            //XConstraint_c c = new XConstraint_c(); c.addTerm(XTerms.makeEquals(XTerms.makeField(c.self(), XTerms.makeName("p")), XTerms.makeLit(2)))
+        }
+        w.end();
+        w.newline();
+        w.write("} catch (x10.constraint.XFailure f) {");
+        w.newline(4);
+        w.begin(0);
+        w.write("setInconsistent();");
+        w.end();
+        w.newline();
+        w.write("}");
+        w.end();
+        w.newline();
+        w.write("}}");
+    }
     
+    private static final String XTERMS = "x10.constraint.XTerms";
+    private void serializeTerm(XTerm term, XConstraint parent) {
+        if (term.equals(parent.self())) {
+            w.write("self()");
+        } else
+        if (term == XTerms.OPERATOR) {
+            w.write(XTERMS+".OPERATOR");
+        } else
+        if (term instanceof XAnd_c) {
+            w.write(XTERMS+".makeAnd(");
+            w.begin(0);
+            serializeTerm(((XAnd_c)term).left(), parent);
+            w.write(",");
+            w.allowBreak(0, " ");
+            serializeTerm(((XAnd_c)term).right(), parent);
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XEquals_c) {
+            w.write(XTERMS+".makeEquals(");
+            w.begin(0);
+            serializeTerm(((XEquals_c)term).left(), parent);
+            w.write(",");
+            w.allowBreak(0, " ");
+            serializeTerm(((XEquals_c)term).right(), parent);
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XNot_c) {
+            w.write(XTERMS+".makeNot(");
+            w.begin(0);
+            serializeTerm(((XNot_c)term).unaryArg(), parent);
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XSubtype_c) {
+            w.write("new x10.types.ConstrainedType.XSubtype_c(");
+            w.begin(0);
+            serializeTerm(((XSubtype_c)term).left(), parent);
+            w.write(",");
+            w.allowBreak(0, " ");
+            serializeTerm(((XSubtype_c)term).right(), parent);
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XFormula_c) {
+            if (!((XFormula_c)term).isAtomicFormula())
+                throw new RuntimeException("Non-atomic formula encountered: "+term);
+            w.write(XTERMS+".makeAtom(");
+            w.begin(0);
+            serializeName(((XFormula_c)term).operator());
+            List<XTerm> arguments = ((XFormula_c)term).arguments();
+            for (XTerm arg : arguments) {
+                w.write(",");
+                w.allowBreak(0, " ");
+                serializeTerm(arg, parent);
+            }
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XTypeLit_c) {
+            w.write("new x10.types.ConstrainedType.XTypeLit_c(");
+            w.begin(0);
+            new RuntimeTypeExpander(((XTypeLit_c)term).type()).expand(tr);
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XLit_c) {
+            Object val = ((XLit_c)term).val();
+            w.write(XTERMS+".makeLit(");
+            w.begin(0);
+            if (val == null) {
+                w.write("null");
+            } else
+            if (val instanceof Boolean || val instanceof Number) {
+                w.write(val.toString());
+            } else
+            if (val instanceof Character) {
+                CharLit lit = tr.nodeFactory().CharLit(Position.COMPILER_GENERATED, ((Character) val).charValue());
+                tr.print(null, lit, w);
+            } else
+            if (val instanceof String) {
+                StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, (String) val);
+                tr.print(null, lit, w);
+            } else
+            if (val instanceof XName) {
+                serializeName((XName) val);
+            } else
+            if (val.getClass() == Object.class) {
+                StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+                tr.print(null, lit, w);
+            } else
+            {
+                throw new RuntimeException("Unknown value type "+val.getClass());
+            }
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XField_c) {
+            w.write(XTERMS+".makeField(");
+            w.begin(0);
+            serializeTerm(((XField_c)term).receiver(), parent);
+            w.write(",");
+            w.allowBreak(0, " ");
+            serializeName(((XField_c)term).field());
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XEQV_c) {
+            w.write("genEQV(");
+            w.begin(0);
+            serializeName(((XEQV_c)term).name());
+            w.write(",");
+            w.allowBreak(0, " ");
+            w.write(""+((XEQV_c)term).isEQV());
+            w.end();
+            w.write(")");
+        } else
+        if (term instanceof XLocal_c) {
+            w.write(XTERMS+".makeLocal(");
+            w.begin(0);
+            serializeName(((XLocal_c)term).name());
+            w.end();
+            w.write(")");
+        } else
+        {
+            throw new RuntimeException("Unknown term type "+term.getClass()+": "+term);
+        }
+        try {
+            if (term.selfConstraint() != null && !term.selfConstraint().valid()) {
+                w.write(".setSelfConstraint(");
+                w.newline(4);
+                w.begin(0);
+                w.write("new x10.constraint.XRef_c<x10.constraint.XConstraint>() {");
+                w.newline(4);
+                w.begin(0);
+                w.write("public x10.constraint.XConstraint compute() {");
+                w.newline(4);
+                w.begin(0);
+                w.write("return ");
+                serializeConstraint(term.selfConstraint());
+                w.write(";");
+                w.end();
+                w.newline();
+                w.write("}");
+                w.end();
+                w.end();
+                w.newline();
+                w.write("})");
+            }
+        } catch (XFailure e) { }
+    }
+    
+    private void serializeName(XName n) {
+        assert (n instanceof XNameWrapper);
+        XNameWrapper name = (XNameWrapper) n;
+        w.write(XTERMS+".makeName(");
+        w.begin(0);
+        Object val = name.val();
+        if (val == null) {
+            w.write("null");
+        } else
+        if (val instanceof Def) {
+            StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+            tr.print(null, lit, w);
+        } else
+        if (val instanceof Binary.Operator) {
+            StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+            tr.print(null, lit, w);
+        } else
+        if (val instanceof Unary.Operator) {
+            StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+            tr.print(null, lit, w);
+        } else
+        if (val.getClass() == Object.class) {
+            StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+            tr.print(null, lit, w);
+        } else
+        {
+            throw new RuntimeException("Unknown value type "+val.getClass());
+        }
+        w.write(",");
+        w.allowBreak(0, " ");
+        StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, name.toString());
+        tr.print(null, lit, w);
+        w.end();
+        w.write(")");
+    }
+
     void generateRTTMethods(X10ClassDef def) {
         // Generate RTTI methods, one for each parameter.
         for (int i = 0; i <  def.typeParameters().size(); i++) {
@@ -2842,6 +3137,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                    return;
 	                }
 	            }
+	        }
+
+	        if (at instanceof ConstrainedType) {
+	            ConstrainedType ct = (ConstrainedType) at;
+	            Type base = ct.baseType().get();
+	            XConstraint constraint = ct.constraint().get();
+	            w.write("new x10.types.ConstrainedType(");
+	            new RuntimeTypeExpander(base).expand(tr);
+	            w.write(", ");
+	            w.write("null, ");
+	            serializeConstraint(constraint);
+	            w.write(")");
+	            return;
 	        }
 
 	        w.write("x10.types.Types.runtimeType(");
