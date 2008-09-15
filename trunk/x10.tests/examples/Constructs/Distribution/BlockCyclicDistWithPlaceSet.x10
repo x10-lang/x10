@@ -24,32 +24,32 @@ import harness.x10Test;;
  */
 public class BlockCyclicDistWithPlaceSet extends x10Test {
 
-	public const P: dist = distmakeUnique();
-	public const COUNT: int = 200;
-	public const L: int = 5;
-	public const K: int = 1;
+	const P = dist.makeUnique();
+	const COUNT = 200;
+    const L = 5;
+	const K = 1;
 
 	public def run(): boolean = {
-		for (val (tries): point in [1..COUNT]) {
-			final val lb1: int = ranInt(-L, L);
-			final val lb2: int = ranInt(-L, L);
-			final val ub1: int = ranInt(lb1, L);
-			final val ub2: int = ranInt(lb2, L);
-			final val R: region = [lb1..ub1, lb2..ub2];
-			final val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
-			final val bSize: int = ranInt(1, totalPoints+1);
-			final val r: randPlaceSet = createRandPlaceSet();
-			final val np: int = r.np;
-			final val placeNums: Array[int] = r.placeNums;
-			final val placeSet: Set = r.placeSet;
+		for (val (tries): point in 1..COUNT) {
+			val lb1: int = ranInt(-L, L);
+			val lb2: int = ranInt(-L, L);
+			val ub1: int = ranInt(lb1, L);
+			val ub2: int = ranInt(lb2, L);
+			val R = [lb1..ub1, lb2..ub2] to Region;
+			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
+			val bSize: int = ranInt(1, totalPoints+1);
+			val r = createRandPlaceSet();
+			val np = r.np;
+			val placeNums = r.placeNums;
+			val placeSet  = r.placeSet;
 
-			final val DBlockCyclic: dist = distmakeBlockCyclic(R, bSize, placeSet);
-			var offsWithinPlace: Array[int] = new Array[int](np);
+			val DBlockCyclic = dist.makeBlockCyclic(R, bSize, placeSet);
+			val offsWithinPlace = Array.makeUnique[int](np);
 			var pn: int = 0;
 			var offsWithinBlock: int = 0;
 			//System.out.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" bSize = "+bSize);
 
-			for (val (i,j): point in R) {
+			for (val (i,j): point(2) in R) {
 				//System.out.println("placeNum = "+placeNums[pn]+" offsWithinPlace[pn] = "+offsWithinPlace[pn]+" offsWithinBlock = "+offsWithinBlock+" i = "+i+" j = "+j+" DBlockCyclic[i,j] = "+DBlockCyclic[i,j].id);
 				chk(DBlockCyclic(i, j) == P(placeNums(pn)));
 				offsWithinPlace(pn)++;
@@ -72,35 +72,56 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 	 */
 	static class randPlaceSet {
 		val np: int;
-		val placeSet: Set;
-		val placeNums: Array[int];
-		def this(var n: int, var a: Array[int], var s: Set): randPlaceSet = {
+		val placeSet: ValRail[Place];
+		val placeNums: Array[Int](1);
+		def this(n: int, a: Array[Int](1), s: ValRail[Place]): randPlaceSet = {
 			np = n;
 			placeNums = a;
 			placeSet = s;
 		}
 	}
-
+    static class Cell {
+      val p:Place;
+      var next:Cell;
+      var length:Int;
+      def this(p:Place) = this(p, null);
+        
+      def this(p:Place, n:Cell):Cell {
+        this.p=p;
+        this.next=n;
+        this.length=(n==null? 0: n.length+1);
+      }
+      var temp:Cell;
+      def add(p:Place) = new Cell(p, this);
+      def toValRail():ValRail[Place] = {
+         temp = this;
+         new ValRail[Place](length, (Nat)=> 
+           { val pp = this.temp.p; 
+             this.temp = this.temp.next;
+             pp})
+      }
+    }
+   
 	/**
 	 * Create a random, non-empty subset of the places
 	 */
 	def createRandPlaceSet(): randPlaceSet = {
-		var placeSet: Set;
+		var placeSet: Cell = null;
 		var np: int;
-		var placeNums: Array[int] = new Array[int](place.MAX_PLACES);
+		val placeNums  = Array.makeUnique[int](place.MAX_PLACES);
 		do {
 			np = 0;
-			placeSet = new HashSet();
-			final val THRESH: int = ranInt(10, 90);
-			for (val (i): point in P) {
-				final val x: int = ranInt(0, 99);
+			
+			val THRESH: int = ranInt(10, 90);
+			for (val (i): point(1) in P) {
+				val x: int = ranInt(0, 99);
 				if (x >= THRESH) {
-					placeSet.add(P(i));
+				    placeSet = new Cell(P(i), placeSet);
 					placeNums(np++) = i;
 				}
 			}
 		} while (np == 0);
-		return new randPlaceSet(np, placeNums, placeSet);
+		return new randPlaceSet(np, placeNums, placeSet.toValRail());
 	}
 
 	public static def main(var args: Rail[String]): void = {

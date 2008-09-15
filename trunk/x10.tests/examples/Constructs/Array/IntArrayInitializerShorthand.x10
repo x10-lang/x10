@@ -16,7 +16,7 @@ public class IntArrayInitializerShorthand extends x10Test {
 		var d: dist = Dist.makeConstant([1..10, 1..10], here);
 		var ia: Array[int] = new Array[int](d, (var point [i,j]: point): int => { return i+j; });
 
-		for (val p: point[i,j] in [1..10, 1..10]) chk(ia(p) == i+j);
+		for (val p(i,j): point(2) in ([1..10, 1..10] to Region)) chk(ia(p) == i+j);
 
 		return true;
 	}

@@ -34,21 +34,21 @@ public class BlockDistWithPlaceSet extends x10Test {
 
 	public def run(): boolean = {
 		for (val (tries): point in [1..COUNT]) {
-			final val lb1: int = ranInt(-L, L);
-			final val lb2: int = ranInt(-L, L);
-			final val ub1: int = ranInt(lb1, L);
-			final val ub2: int = ranInt(lb2, L);
-			final val R: region = [lb1..ub1, lb2..ub2];
+			val lb1: int = ranInt(-L, L);
+			val lb2: int = ranInt(-L, L);
+			val ub1: int = ranInt(lb1, L);
+			val ub2: int = ranInt(lb2, L);
+			val R: region = [lb1..ub1, lb2..ub2];
 
-			final val r: randPlaceSet = createRandPlaceSet();
-			final val np: int = r.np;
-			final val placeNums: Array[int] = r.placeNums;
-			final val placeSet: Set = r.placeSet;
+			val r: randPlaceSet = createRandPlaceSet();
+			val np: int = r.np;
+			val placeNums: Array[int] = r.placeNums;
+			val placeSet: Set = r.placeSet;
 
-			final val DBlock: dist = distmakeBlock(R, placeSet);
-			final val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
-			final val p: int = totalPoints/np;
-			final val q: int = totalPoints%np;
+			val DBlock: dist = distmakeBlock(R, placeSet);
+			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
+			val p: int = totalPoints/np;
+			val q: int = totalPoints%np;
 			var offsWithinPlace: int = 0;
 			var pn: int = 0;
 			//System.out.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
@@ -88,13 +88,13 @@ public class BlockDistWithPlaceSet extends x10Test {
 	def createRandPlaceSet(): randPlaceSet = {
 		var placeSet: Set;
 		var np: int;
-		var placeNums: Array[int] = new Array[int](place.MAX_PLACES);
+		var placeNums: Array[int] = Array.make[int](place.MAX_PLACES);
 		do {
 			np = 0;
 			placeSet = new HashSet();
-			final val THRESH: int = ranInt(10, 90);
+			val THRESH: int = ranInt(10, 90);
 			for (val (i): point in P) {
-				final val x: int = ranInt(0, 99);
+				val x: int = ranInt(0, 99);
 				if (x >= THRESH) {
 					placeSet.add(P(i));
 					placeNums(np++) = i;
