@@ -16,7 +16,7 @@ import harness.x10Test;;
  * In an earlier implementation this would give a t0 not reachable error.
  */
 public class FlattenVarInit extends x10Test {
-    var a: Array[int](2);
+    val a: Array[int](2);
     public def this(): FlattenVarInit = {
       a = Array.make[int](([1..10, 1..10] to Region)->here, 
            ((i,j): point): int => { return i+j;});
