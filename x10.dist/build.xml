@@ -65,7 +65,7 @@
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
 
-    <target name="dist" depends="init,build,runtime-jar,constraints-jar,compiler-jar"/>
+    <target name="dist" depends="init,build,constraints-jar,runtime-jar,compiler-jar"/>
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
