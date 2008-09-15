@@ -18,6 +18,12 @@ public final class Math {
     @Native("java", "java.lang.Math.abs(#1)")
    public static native def abs(a:Int):Int;
    
+    @Native("java", "java.lang.Math.abs(#1)")
+   public static native def abs(a:Float):Float;
+   
+    @Native("java", "java.lang.Math.abs(#1)")
+   public static native def abs(a:Long):Long;
+   
      @Native("java", "java.lang.Math.pow(#1,#2)")
    public static native def pow(a:Double, b:Double):Double;
    
