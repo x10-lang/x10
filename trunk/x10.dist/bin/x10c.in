@@ -81,7 +81,7 @@ classpath="${CP_OVERRIDE}"
 classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar${PATH_SEP}${LIB_DIR}${FILE_SEP}${POLYGLOT_JAR}${PATH_SEP}${LIB_DIR}${FILE_SEP}${LPG_JAR}${ext_cp}${extra_cp}"
 
 # include x10.jar in sourcepath
-extargs="$extargs -sourcepath ${PATH_SEP}${LIB_DIR}${FILE_SEP}x10.jar"
+extargs="$extargs -sourcepath \"${LIB_DIR}${FILE_SEP}x10.jar\""
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
