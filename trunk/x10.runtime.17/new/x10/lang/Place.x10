@@ -5,7 +5,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.runtime.Place")
 public value Place(
-        @Native("(#0).id()")
+        @Native("java", "(#0).id()")
         id: nat
     ) {
         /**
