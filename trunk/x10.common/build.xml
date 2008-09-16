@@ -103,7 +103,7 @@
 
 	<target name="etc-deps">
 		<condition property="etc.up-to-date">
-			<istrue value="true"/><!-- Cannot simply say <true> -->
+			<istrue value="true"/><!-- Cannot simply say <true/> -->
 			<!--
 			<and>
 				<available file="${etc}/standard.cfg"/>
