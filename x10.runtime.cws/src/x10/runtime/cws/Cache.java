@@ -85,7 +85,6 @@ class Cache {
  	private final Frame[] getChunk(int i) { 		
     	Frame[] chunk = stack[chunkIndex(i)];
     	if (chunk == null) {
-    		System.out.println("Allocating backing storage for chunk "+chunkIndex(i)+ "("+Thread.currentThread()+")");
     		chunk = new Frame[CHUNK_SIZE];
     		stack[chunkIndex(i)] = chunk;
     	}
