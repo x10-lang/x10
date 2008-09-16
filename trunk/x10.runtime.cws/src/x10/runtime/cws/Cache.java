@@ -8,21 +8,37 @@ package x10.runtime.cws;
  * group at MIT.
  * 
  * @author vj 05/18/2007
- *
  */
 class Cache {
-	public static final int MAXIMUM_CAPACITY = 1 << 30;
-	public static final int INITIAL_CAPACITY = 1 << 22; // too high??
-	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
+	private static final int CHUNK_SIZE_LOG = 14; /* 16K */
+	private static final int CHUNK_SIZE = 1 << CHUNK_SIZE_LOG;
+	private static final int MAXIMUM_CAPACITY = 1 << 30;
+	private static final int INITIAL_CAPACITY = 4 * CHUNK_SIZE;
 	
-	public Frame[] stack;
+	public static final int EXCEPTION_INFINITY = Integer.MAX_VALUE;
+	/*
+	 * Logically a Frame[], but maintained as a chunked Frame[][] to
+	 * bound the costs of incrementally growing the array without requiring
+	 * pre-allocation of large arrays most of which will not be used.
+	 */
+	private final Frame[][] stack;
 	private volatile int head, tail, exception; // these are indices into stack.
 	protected final Worker owner;
+
 	protected Cache(Worker w) {
 		owner=w;
-		stack = new Frame[INITIAL_CAPACITY];
+		stack = new Frame[MAXIMUM_CAPACITY/CHUNK_SIZE][];
+		for (int i=0; i<(INITIAL_CAPACITY/CHUNK_SIZE)+1; i++) {
+			stack[i] = new Frame[CHUNK_SIZE];
+		}	
 	}
+
 	public String toString() { return "Cache("+owner.index+")";}
+	
+	private final int chunkIndex(int i) { assert i >= 0; return i >> CHUNK_SIZE_LOG; }
+	private final int chunkOffset(int i) { assert i >= 0; return i & (CHUNK_SIZE-1); }
+	private final Frame getFrame(int i) { return stack[chunkIndex(i)][chunkOffset(i)]; }
+	
 	 /**
      * Pushes a task. Called only by current thread.
      * TODO: Need to make sure the increment to tail is seen
@@ -30,100 +46,67 @@ class Cache {
      * Does Java allow an array of volatiles?
      * @param x the task
      */
-    final protected void pushFrame(Frame x) {
-    	assert x !=null;
-    	Frame[] array = stack;
-    	if (array != null && tail < array.length - 1) {
-    		array[tail]=x;
-    		++tail;
-    		return;
-    	}
-    	growAndPushFrame(x);
+    protected final void pushFrame(Frame x) {
+    	assert x != null;
+    	int localTail = tail;
+    	Frame[] chunk = getChunk(localTail);
+    	chunk[chunkOffset(localTail)] = x;
+    	tail++;
     }
     protected void pushIntUpdatingInPlace(int x) {
-    	
-    	Frame[] array = stack;
-    	if (array != null && tail < array.length - 1) {
-    		if (array[tail] != null) {
-    			array[tail].setInt(x);
-    		} else {
-    			Worker w = (Worker) Thread.currentThread();
-    			Frame f = w.fg.make();
-    			f.setInt(x);
-    			array[tail] = f;
-    			
-    		}
-    		++tail; 
-    		return;
+    	int localTail = tail;
+    	Frame[] chunk = getChunk(localTail);
+    	Frame f = chunk[chunkOffset(localTail)];
+    	if (f != null) {
+    		f.setInt(x);
+    	} else {
+			Worker w = (Worker) Thread.currentThread();
+			f = w.fg.make();
+			f.setInt(x);
+			chunk[chunkOffset(localTail)] = f;
     	}
-    	Worker w = (Worker) Thread.currentThread();
-		Frame f = w.fg.make();
-		f.setInt(x);
-    	growAndPushFrame(f);
-    	
+    	tail++;
     }
- protected void pushObjectUpdatingInPlace(Object x) {
-    	
-    	Frame[] array = stack;
-    	if (array != null && tail < array.length - 1) {
-    		if (array[tail] != null) {
-    			array[tail].setObject(x);
-    		} else {
-    			Worker w = (Worker) Thread.currentThread();
-    			Frame f = w.fg.make();
-    			f.setObject(x);
-    			array[tail] = f;
-    			
-    		}
-    		++tail; 
-    		return;
+    protected void pushObjectUpdatingInPlace(Object x) {
+    	int localTail = tail;
+    	Frame[] chunk = getChunk(localTail);
+    	Frame f = chunk[chunkOffset(localTail)];
+    	if (f != null) {
+    		f.setObject(x);
+    	} else {
+			Worker w = (Worker) Thread.currentThread();
+			f = w.fg.make();
+			f.setObject(x);
+			chunk[chunkOffset(localTail)] = f;
     	}
-    	Worker w = (Worker) Thread.currentThread();
-		Frame f = w.fg.make();
-		f.setObject(x);
-    	growAndPushFrame(f);
-    	
+    	tail++;
     }
-	  /*
-     * Handles resizing and reinitialization cases for pushFrame
-     * @param x the task
-     */
-    private void growAndPushFrame(Frame x) {
-        int oldSize = 0;
-        int newSize = 0;
-        Frame[] oldArray = stack;
-        if (oldArray != null) {
-            oldSize = oldArray.length;
-            newSize = oldSize << 1;
-        }
-        if (newSize < INITIAL_CAPACITY)
-            newSize = INITIAL_CAPACITY;
-        if (newSize > MAXIMUM_CAPACITY)
-            throw new Error("Frame stack size exceeded");
-        Frame[] newArray = new Frame[newSize];
-        if (oldArray != null) {
-            for (int i = head; i < tail; ++i) {
-                newArray[i] = oldArray[i];
-            }
-        }
-        newArray[tail] = x;
-        stack = newArray;
-        ++tail; 
-    }
+ 
+ 	private final Frame[] getChunk(int i) { 		
+    	Frame[] chunk = stack[chunkIndex(i)];
+    	if (chunk == null) {
+    		System.out.println("Allocating backing storage for chunk "+chunkIndex(i)+ "("+Thread.currentThread()+")");
+    		chunk = new Frame[CHUNK_SIZE];
+    		stack[chunkIndex(i)] = chunk;
+    	}
+    	return chunk;
+ 	}
+ 	
     protected void signalImmediateException() { exception = EXCEPTION_INFINITY; }
     protected boolean atTopOfStack() { 	return head+1 == tail; }
-    protected Frame childFrame() { return stack[head+1];  }
-    protected Frame topFrame() {  	return stack[head];   }
-    public Frame currentFrame() { 	return stack[tail-1]; }
+    protected Frame childFrame() { return getFrame(head+1);  }
+    protected Frame topFrame() {   return getFrame(head);   }
+    public Frame currentFrame() {  return getFrame(tail-1); }
     public void incHead() { ++head; }
 	public boolean exceptionOutstanding() { return head <= exception; }
 	public int head() { return head;}
 	public int tail() { return tail;}
 	public int exception() { return exception;}
     public Frame currentFrameIfStackExists() {
-    	return (stack !=null && head  < tail)? stack[tail-1] : null;
+    	return (head < tail)? getFrame(tail-1) : null;
     }
 	public boolean empty()    { return head >=tail; }
+	// TODO: DAVE.  pop should null out stack entry; we're retaining garbage here!
     protected void popFrame() { --tail; assert tail >=0; }
     /**
      * The victim's portion of Dekker.
@@ -134,6 +117,7 @@ class Cache {
 	public String dump() {
 		return this.toString() + "(head=" + head + " tail=" + tail + " exception=" + exception + ")";
 	}
+	// TODO: DAVE.  need to null out old data to avoid retaining garbage.
 	public void reset() {
 		tail=0; // order is imp.
 		head=0;
@@ -192,9 +176,11 @@ class Cache {
 				exception=head;
 				
 				w.unlock();
-			} 
-			Frame f = stack[tail];
-			stack[tail]=null;
+			}
+			int localTail = tail;
+			Frame[] chunk = stack[chunkIndex(localTail)];
+			Frame f = chunk[chunkOffset(localTail)];
+			chunk[chunkOffset(localTail)] = null;
 			return f;	
 		} finally {
 			assert (head >=0);
