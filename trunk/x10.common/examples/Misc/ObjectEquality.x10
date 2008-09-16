@@ -15,10 +15,10 @@ import harness.x10Test;
  */
 public class ObjectEquality extends x10Test {
 
-	nullable<java.lang.Object> objField;
+	nullable<x10.lang.Object> objField;
 
 	public boolean run() {
-		final java.lang.Object obj = new java.lang.Object();
+		final x10.lang.Object obj = new x10.lang.Object();
 		if (obj == objField)
 			return false;
 		return true;

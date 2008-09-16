@@ -18,11 +18,11 @@ public class NotInstanceof2_Method extends x10Test {
 		return !(this.getDifferentType() instanceof X10DepTypeClassOne(:p==1));
 	}
 
-	private java.lang.Object getSameType( {
+	private x10.lang.Object getSameType() {
 		return new X10DepTypeClassOne(1);
 	}
 	
-	private java.lang.Object getDifferentType( {
+	private x10.lang.Object getDifferentType() {
 		return new OtherClass(1);
 	}
 	

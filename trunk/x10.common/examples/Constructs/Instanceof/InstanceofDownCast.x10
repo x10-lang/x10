@@ -21,8 +21,8 @@ public class InstanceofDownCast extends x10Test {
 	 private int counter3 = 0;
 	 
 	public boolean run() {
-		java.lang.Object upcast1 = new X10DepTypeClassOne(1);
-		java.lang.Object upcast2 = new X10DepTypeSubClassOne(1,2);
+		x10.lang.Object upcast1 = new X10DepTypeClassOne(1);
+		x10.lang.Object upcast2 = new X10DepTypeSubClassOne(1,2);
 		X10DepTypeClassOne upcast3 = new X10DepTypeSubClassOne(2,3);
 
 		// instance of checked against an object
@@ -51,12 +51,12 @@ public class InstanceofDownCast extends x10Test {
 				(counter1==1) && (counter2==2) && (counter3==2));
 	}
 	
-	private java.lang.Object getX10DepTypeClassOne(int c1) {
+	private x10.lang.Object getX10DepTypeClassOne(int c1) {
 		counter1++;
 		return new X10DepTypeClassOne(c1);
 	}
 
-	private java.lang.Object getX10DepTypeSubClassOne(int c1, int c2) {
+	private x10.lang.Object getX10DepTypeSubClassOne(int c1, int c2) {
 		counter2++;
 		return new X10DepTypeSubClassOne(c1, c2);
 	}
