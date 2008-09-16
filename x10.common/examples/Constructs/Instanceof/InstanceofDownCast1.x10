@@ -16,7 +16,7 @@ import harness.x10Test;
 public class InstanceofDownCast1 extends x10Test {
 
 	public boolean run() {
-		java.lang.Object upcast = new X10DepTypeSubClassOne(1,2);
+		x10.lang.Object upcast = new X10DepTypeSubClassOne(1,2);
 		return !(upcast instanceof X10DepTypeSubClassOne(:p==2&&a==2));
 	}
 	

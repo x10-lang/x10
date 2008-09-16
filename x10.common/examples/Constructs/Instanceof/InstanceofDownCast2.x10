@@ -18,7 +18,7 @@ public class InstanceofDownCast2 extends x10Test {
 		return !(this.getX10DepTypeSubClassOne(1,1) instanceof X10DepTypeSubClassOne(:p==2&&a==2));
 	}
 
-	private java.lang.Object getX10DepTypeSubClassOne(int c1, int c2) {
+	private x10.lang.Object getX10DepTypeSubClassOne(int c1, int c2) {
 		return new X10DepTypeSubClassOne(c1, c2);
 	}
 

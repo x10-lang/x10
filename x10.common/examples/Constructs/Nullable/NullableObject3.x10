@@ -745,7 +745,7 @@ public class NullableObject3 extends x10Test {
 	}
 
 	static class X {
-		static void use( nullable<java.lang.Object> y) { }
+		static void use( nullable<x10.lang.Object> y) { }
 	}
 }
 

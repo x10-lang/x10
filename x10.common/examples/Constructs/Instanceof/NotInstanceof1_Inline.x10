@@ -15,16 +15,16 @@ import harness.x10Test;
 public class NotInstanceof1_Inline extends x10Test {
 	 
 	public boolean run() {
-		java.lang.Object diffType = this.getDifferentType()
+		x10.lang.Object diffType = this.getDifferentType();
 		
 		return !(diffType instanceof X10DepTypeClassOne(:p==1));
 	}
 
-	private java.lang.Object getSameType( {
+	private x10.lang.Object getSameType() {
 		return new X10DepTypeClassOne(1);
 	}
 	
-	private java.lang.Object getDifferentType( {
+	private x10.lang.Object getDifferentType() {
 		return new OtherClass(1);
 	}
 	
@@ -32,10 +32,10 @@ public class NotInstanceof1_Inline extends x10Test {
 		new NotInstanceof1_Inline().execute();
 	}
 		 
-	 public class OtherClass (int p) {
+	public class OtherClass (int p) {
 		public OtherClass(int p) {
-		    this.p=p;
+			this.p=p;
 		}
-	 }
+	}
 }
  
