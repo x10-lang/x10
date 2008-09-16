@@ -1706,7 +1706,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(ClosureCall_c c) {
-            Receiver target = c.target();
+            Expr target = c.target();
             Type t = target.type();
             boolean base = false;
             
@@ -1714,7 +1714,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             X10MethodInstance mi = c.closureInstance();
 
-            tr.print(c, target, w);
+            c.printSubExpr(target, w, tr);
             w.write(".");
             w.write("apply");
             w.write("(");
@@ -1809,19 +1809,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		    boolean needsHereCheck = needsHereCheck((Expr) target);
 
-		    w.write("(");
+		    if (! (target instanceof Special || target instanceof New)) {
+		        w.write("(");
 
-		    if (needsHereCheck) {
-		        // don't annotate calls with implicit target, or this and super
-		        // the template file only emits the target
-		        new Template("place-check", new TypeExpander(t, true, false, false), target).expand();
+		        if (needsHereCheck) {
+		            // don't annotate calls with implicit target, or this and super
+		            // the template file only emits the target
+		            new Template("place-check", new TypeExpander(t, true, false, false), target).expand();
+		        }
+		        else {
+		            tr.print(c, target, w);
+		        }
+
+		        w.write(")");
 		    }
 		    else {
 		        tr.print(c, target, w);
 		    }
-		    
-		    w.write(")");
-		    
+
 		    w.write(".");
 		    
 		    // Call the unboxed version of the method if we know it exists.
