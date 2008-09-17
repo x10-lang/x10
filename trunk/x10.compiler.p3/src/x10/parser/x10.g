@@ -47,6 +47,8 @@
     import polyglot.ast.ClassBody;
     import polyglot.ast.ClassDecl;
     import polyglot.ast.ClassMember;
+    import polyglot.ast.ConstructorCall;
+    import polyglot.ast.ConstructorDecl;
     import polyglot.ast.Eval;
     import polyglot.ast.Expr;
     import polyglot.ast.Field;
@@ -56,10 +58,9 @@
     import polyglot.ast.Formal;
     import polyglot.ast.Id;
     import polyglot.ast.Import;
+    import polyglot.ast.Initializer;
     import polyglot.ast.IntLit;
     import polyglot.ast.LocalDecl;
-    import polyglot.ast.ConstructorCall;
-    import polyglot.ast.ConstructorDecl;
     import polyglot.ast.MethodDecl;
     import polyglot.ast.FieldDecl;
     import polyglot.ast.New;
@@ -4397,7 +4398,7 @@ public static class MessageHandler implements IMessageHandler {
     Stmt ::= LoopStatement
     List ::= Throwsopt | Throws
     Block ::= MethodBody
-    Block ::= StaticInitializer
+    Initializer ::= StaticInitializer
     ConstructorDecl ::= ConstructorDeclaration
     Block ::= ConstructorBody
     Block ::= ConstructorBlock
@@ -4472,7 +4473,7 @@ public static class MessageHandler implements IMessageHandler {
     ParsedName ::= AmbiguousName
     ParsedName ::= MethodName
     ParsedName ::= PackageOrTypeName
-    Block ::= InstanceInitializer
+    Initializer ::= InstanceInitializer
     TypeNode ::= ResultType
     List ::= FormalParameters
     List ::= ExceptionTypeList

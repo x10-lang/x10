@@ -32,6 +32,8 @@ import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -41,10 +43,9 @@ import polyglot.ast.ForUpdate;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Import;
+import polyglot.ast.Initializer;
 import polyglot.ast.IntLit;
 import polyglot.ast.LocalDecl;
-import polyglot.ast.ConstructorCall;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.New;
@@ -309,7 +310,7 @@ public class X10Parser extends PrsStream implements RuleAction, Parser
     }
 
 
-    //#line 308 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+    //#line 309 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
     private ErrorQueue eq;
     private X10TypeSystem ts;
     private X10NodeFactory nf;
@@ -1089,19 +1090,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 16:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt = Type ;
             //
             case 16: {
-                //#line 863 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 863 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 863 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 863 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 863 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 863 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 865 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 866 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1117,17 +1118,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 17:  TypeDefDeclaration ::= TypeDefModifiersopt type Identifier TypeParametersopt FormalParametersopt WhereClauseopt ;
             //
             case 17: {
-                //#line 875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 876 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiersopt = (List) getRhsSym(1);
-                //#line 875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 876 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 876 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 876 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParametersopt = (List) getRhsSym(5);
-                //#line 875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 876 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 877 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 878 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode f = extractFlags(TypeDefModifiersopt);
                 List annotations = extractAnnotations(TypeDefModifiersopt);
                 for (Formal v : (List<Formal>) FormalParametersopt) {
@@ -1143,9 +1144,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 18:  Properties ::= ( PropertyList )
             //
             case 18: {
-                //#line 888 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 889 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(2);
-                //#line 890 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 891 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
    setResult(PropertyList);
            break;
             }  
@@ -1153,9 +1154,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 19:  PropertyList ::= Property
             //
             case 19: {
-                //#line 893 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 894 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(1);
-                //#line 895 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 896 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), PropertyDecl.class, false);
                 l.add(Property);
                 setResult(l);
@@ -1166,11 +1167,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 20:  PropertyList ::= PropertyList , Property
             //
             case 20: {
-                //#line 900 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 901 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List PropertyList = (List) getRhsSym(1);
-                //#line 900 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 901 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 PropertyDecl Property = (PropertyDecl) getRhsSym(3);
-                //#line 902 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 903 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 PropertyList.add(Property);
                 break;
             }
@@ -1179,13 +1180,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 21:  Property ::= Annotationsopt Identifier : Type
             //
             case 21: {
-                //#line 907 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 908 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 907 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 908 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 907 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 908 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(4);
-                //#line 909 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 910 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List annotations = extractAnnotations(Annotationsopt);
                 PropertyDecl cd = nf.PropertyDecl(pos(), nf.FlagsNode(pos(), Flags.PUBLIC.Final()), Type, Identifier);
                 cd = (PropertyDecl) ((X10Ext) cd.ext()).annotations(annotations);
@@ -1197,23 +1198,23 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 22:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 22: {
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 916 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 917 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 918 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 919 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
        if (Identifier.id().toString().equals("this")) {
                    ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(MethodModifiersopt),
@@ -1248,23 +1249,23 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 23:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
             //
             case 23: {
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 948 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 949 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(9);
-                //#line 950 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 951 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(9)),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1283,17 +1284,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 24:  PropertyMethodDeclaration ::= MethodModifiersopt property Identifier WhereClauseopt ResultTypeopt MethodBody
             //
             case 24: {
-                //#line 963 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 964 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiersopt = (List) getRhsSym(1);
-                //#line 963 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 964 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 963 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 964 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(4);
-                //#line 963 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 964 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 963 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 964 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block MethodBody = (Block) getRhsSym(6);
-                //#line 965 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 966 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
        MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(6)),
           extractFlags(MethodModifiersopt, X10Flags.PROPERTY),
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
@@ -1312,11 +1313,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 25:  ExplicitConstructorInvocation ::= this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 25: {
-                //#line 979 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 980 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 979 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 980 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 981 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 982 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10ThisCall(pos(), TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1325,11 +1326,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 26:  ExplicitConstructorInvocation ::= super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 26: {
-                //#line 984 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 985 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 984 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 985 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 986 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 987 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10SuperCall(pos(), TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1338,13 +1339,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 27:  ExplicitConstructorInvocation ::= Primary . this TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 27: {
-                //#line 989 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 989 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 989 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 990 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 991 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 992 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10ThisCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1353,13 +1354,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 28:  ExplicitConstructorInvocation ::= Primary . super TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 28: {
-                //#line 994 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 995 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 994 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 995 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 994 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 995 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 996 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 997 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10SuperCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1368,21 +1369,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 29:  NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypePropertiesopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
             //
             case 29: {
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifiersopt = (List) getRhsSym(1);
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExtendsInterfacesopt = (List) getRhsSym(7);
-                //#line 1000 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1001 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody InterfaceBody = (ClassBody) getRhsSym(8);
-                //#line 1002 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1003 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
       checkTypeName(Identifier);
       List TypeParametersopt = Collections.EMPTY_LIST;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -1407,15 +1408,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 30:  ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 30: {
-                //#line 1022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1023 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 1022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1023 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(3);
-                //#line 1022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1023 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(5);
-                //#line 1022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1023 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(7);
-                //#line 1024 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1025 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
                 else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
@@ -1426,17 +1427,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 31:  ClassInstanceCreationExpression ::= Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 31: {
-                //#line 1029 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1030 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1029 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1030 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1029 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1030 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1029 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1030 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1029 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1030 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1031 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1032 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1448,17 +1449,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 32:  ClassInstanceCreationExpression ::= AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
             //
             case 32: {
-                //#line 1037 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 1037 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(4);
-                //#line 1037 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(5);
-                //#line 1037 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(7);
-                //#line 1037 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBodyopt = (ClassBody) getRhsSym(9);
-                //#line 1039 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1040 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ParsedName b = new X10ParsedName(nf, ts, pos(), Identifier);
                 if (ClassBodyopt == null)
                      setResult(nf.X10New(pos(), AmbiguousName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
@@ -1470,11 +1471,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 33:  AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
             //
             case 33: {
-                //#line 1046 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1047 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1046 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1047 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 1048 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1049 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.AssignPropertyCall(pos(), TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -1483,17 +1484,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 36:  FunctionType ::= TypeArgumentsopt ( FormalParameterListopt ) WhereClauseopt Throwsopt => Type
             //
             case 36: {
-                //#line 1058 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(1);
-                //#line 1058 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(3);
-                //#line 1058 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(5);
-                //#line 1058 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(6);
-                //#line 1058 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(8);
-                //#line 1060 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1061 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.FunctionTypeNode(pos(), TypeArgumentsopt, FormalParameterListopt, WhereClauseopt, Type, Throwsopt));
                 break;
             }
@@ -1502,11 +1503,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 41:  AnnotatedType ::= Type Annotations
             //
             case 41: {
-                //#line 1067 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1068 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 1067 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1068 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(2);
-                //#line 1069 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1070 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeNode tn = Type;
                 tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
                 setResult(tn);
@@ -1517,9 +1518,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 45:  ConstrainedType ::= ( Type )
             //
             case 45: {
-                //#line 1078 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1079 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 1080 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1081 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Type);
                 break;
             }
@@ -1529,7 +1530,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 46: {
                 
-                //#line 1086 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1087 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(null);
                 break;
             }
@@ -1539,7 +1540,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 47: {
                 
-                //#line 1091 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1092 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(),
                                     nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
                                     nf.Field(pos(), nf.Self(pos()), nf.Id(pos(), "$current"))));
@@ -1550,9 +1551,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 48:  PlaceType ::= PlaceExpression
             //
             case 48: {
-                //#line 1096 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1097 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(1);
-                //#line 1098 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1099 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(),
                                     nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
                                     PlaceExpression));
@@ -1563,17 +1564,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 49:  NamedType ::= Primary . Identifier TypeArgumentsopt Argumentsopt DepParametersopt
             //
             case 49: {
-                //#line 1104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 1104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 1104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(5);
-                //#line 1104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1106 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1107 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             TypeNode type = nf.X10AmbTypeNode(pos(), Primary, Identifier);
             // TODO: place constraint
             if (DepParametersopt != null || (TypeArgumentsopt != null && ! TypeArgumentsopt.isEmpty()) || (Argumentsopt != null && ! Argumentsopt.isEmpty())) {
@@ -1587,15 +1588,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 50:  NamedType ::= TypeName TypeArgumentsopt Argumentsopt DepParametersopt
             //
             case 50: {
-                //#line 1115 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1115 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 1115 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Argumentsopt = (List) getRhsSym(3);
-                //#line 1115 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr DepParametersopt = (DepParameterExpr) getRhsSym(4);
-                //#line 1117 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1118 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             TypeNode type;
             
             if (TypeName.name.id().toString().equals("void")) {
@@ -1623,11 +1624,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 51:  DepParameters ::= { ExistentialListopt Conjunction }
             //
             case 51: {
-                //#line 1141 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1142 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1141 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1142 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(3);
-                //#line 1143 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1144 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
                 break;
             }
@@ -1636,11 +1637,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 52:  DepParameters ::= { ExistentialListopt Conjunction } !
             //
             case 52: {
-                //#line 1146 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1147 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1146 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1147 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(3);
-                //#line 1148 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1149 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
                 break;
             }
@@ -1649,13 +1650,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 53:  DepParameters ::= { ExistentialListopt Conjunction } ! PlaceType
             //
             case 53: {
-                //#line 1151 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1152 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialListopt = (List) getRhsSym(2);
-                //#line 1151 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1152 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(3);
-                //#line 1151 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1152 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceType = (Expr) getRhsSym(6);
-                //#line 1153 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1154 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (PlaceType != null)
                     setResult(nf.DepParameterExpr(pos(), ExistentialListopt, nf.Binary(pos(), Conjunction, Binary.COND_AND, PlaceType)));
             else
@@ -1667,9 +1668,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 54:  TypeProperties ::= [ TypePropertyList ]
             //
             case 54: {
-                //#line 1160 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1161 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypePropertyList = (List) getRhsSym(2);
-                //#line 1162 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1163 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(TypePropertyList);
                 break;
             }
@@ -1678,9 +1679,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 55:  TypeParameters ::= [ TypeParameterList ]
             //
             case 55: {
-                //#line 1166 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1167 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(2);
-                //#line 1168 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1169 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(TypeParameterList);
                 break;
             }
@@ -1689,9 +1690,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 56:  FormalParameters ::= ( FormalParameterListopt )
             //
             case 56: {
-                //#line 1171 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1172 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(2);
-                //#line 1173 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1174 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(FormalParameterListopt);
                 break;
             }
@@ -1700,9 +1701,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 57:  Conjunction ::= Expression
             //
             case 57: {
-                //#line 1177 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1178 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1179 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1180 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Expression);
                 break;
             }
@@ -1711,11 +1712,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 58:  Conjunction ::= Conjunction , Expression
             //
             case 58: {
-                //#line 1182 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1183 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Conjunction = (Expr) getRhsSym(1);
-                //#line 1182 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1183 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1184 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1185 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), Conjunction, Binary.COND_AND, Expression));
                 break;
             }
@@ -1724,11 +1725,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 59:  SubtypeConstraint ::= Type$t1 <: Type$t2
             //
             case 59: {
-                //#line 1188 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1189 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1188 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1189 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1190 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1191 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, false));
                 break;
             }
@@ -1737,11 +1738,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 60:  SubtypeConstraint ::= Type$t1 :> Type$t2
             //
             case 60: {
-                //#line 1193 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1194 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 1193 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1194 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 1195 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1196 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.SubtypeTest(pos(), t2, t1, false));
                 break;
             }
@@ -1750,9 +1751,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 61:  WhereClause ::= DepParameters
             //
             case 61: {
-                //#line 1199 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1200 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr DepParameters = (DepParameterExpr) getRhsSym(1);
-                //#line 1201 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1202 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             setResult(DepParameters);
                 break;
             }
@@ -1762,7 +1763,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 62: {
                 
-                //#line 1207 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1208 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             setResult(new ArrayList());
                 break;
             }
@@ -1771,9 +1772,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 63:  ExistentialListopt ::= ExistentialList ;
             //
             case 63: {
-                //#line 1210 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1211 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1212 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1213 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             setResult(ExistentialList);
                 break;
             }
@@ -1782,9 +1783,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 64:  ExistentialList ::= FormalParameter
             //
             case 64: {
-                //#line 1216 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1217 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 1218 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1219 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                 setResult(l);
@@ -1795,11 +1796,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 65:  ExistentialList ::= ExistentialList ; FormalParameter
             //
             case 65: {
-                //#line 1223 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1224 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExistentialList = (List) getRhsSym(1);
-                //#line 1223 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1224 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1225 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1226 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ExistentialList.add(FormalParameter.flags(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
@@ -1808,23 +1809,23 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 68:  NormalClassDeclaration ::= ClassModifiersopt class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
             case 68: {
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1236 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1237 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
       checkTypeName(Identifier);
                 List TypeParametersopt = Collections.EMPTY_LIST;
       List/*<PropertyDecl>*/ props = Propertiesopt;
@@ -1842,23 +1843,23 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 69:  ValueClassDeclaration ::= ClassModifiersopt value Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
             //
             case 69: {
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiersopt = (List) getRhsSym(1);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypePropertiesopt = (List) getRhsSym(4);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Propertiesopt = (List) getRhsSym(5);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Superopt = (TypeNode) getRhsSym(7);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Interfacesopt = (List) getRhsSym(8);
-                //#line 1249 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassBody ClassBody = (ClassBody) getRhsSym(9);
-                //#line 1251 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1252 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
     checkTypeName(Identifier);
                 List TypeParametersopt = Collections.EMPTY_LIST;
     List props = Propertiesopt;
@@ -1875,21 +1876,21 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 70:  ConstructorDeclaration ::= ConstructorModifiersopt def this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt ConstructorBody
             //
             case 70: {
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifiersopt = (List) getRhsSym(1);
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(4);
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(5);
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(6);
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(7);
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(8);
-                //#line 1263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ConstructorBody = (Block) getRhsSym(9);
-                //#line 1265 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1266 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
      ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                                              extractFlags(ConstructorModifiersopt),
                                              nf.Id(pos(3), "this"),
@@ -1908,9 +1909,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 71:  Super ::= extends ClassType
             //
             case 71: {
-                //#line 1279 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1280 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ClassType = (TypeNode) getRhsSym(2);
-                //#line 1281 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1282 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ClassType);
                 break;
             }
@@ -1920,7 +1921,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 72: {
                 
-                //#line 1287 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1288 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
@@ -1930,7 +1931,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 73: {
                 
-                //#line 1292 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1293 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                 break;
             }
@@ -1940,7 +1941,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 74: {
                 
-                //#line 1297 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1298 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL.Static())));
                 break;
             }
@@ -1950,7 +1951,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 75: {
                 
-                //#line 1305 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1306 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
@@ -1960,7 +1961,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 76: {
                 
-                //#line 1310 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1311 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
                 break;
             }
@@ -1969,13 +1970,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 77:  FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
             //
             case 77: {
-                //#line 1315 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1316 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifiersopt = (List) getRhsSym(1);
-                //#line 1315 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1316 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldKeyword = (List) getRhsSym(2);
-                //#line 1315 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1316 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(3);
-                //#line 1317 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1318 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                     FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
     
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -2003,11 +2004,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 107:  IfThenStatement ::= if ( Expression ) Statement
             //
             case 107: {
-                //#line 1373 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1374 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1373 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1374 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1375 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1376 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, Statement));
                 break;
             }
@@ -2016,13 +2017,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 108:  IfThenElseStatement ::= if ( Expression ) Statement$s1 else Statement$s2
             //
             case 108: {
-                //#line 1379 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1380 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1379 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1380 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt s1 = (Stmt) getRhsSym(5);
-                //#line 1379 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1380 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt s2 = (Stmt) getRhsSym(7);
-                //#line 1381 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1382 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.If(pos(), Expression, s1, s2));
                 break;
             }
@@ -2032,7 +2033,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 109: {
                 
-                //#line 1387 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1388 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Empty(pos()));
                 break;
             }
@@ -2041,11 +2042,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 110:  LabeledStatement ::= Identifier : LoopStatement
             //
             case 110: {
-                //#line 1391 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1392 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1391 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1392 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LoopStatement = (Stmt) getRhsSym(3);
-                //#line 1393 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1394 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Labeled(pos(), Identifier, LoopStatement));
                 break;
             }
@@ -2054,9 +2055,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 116:  ExpressionStatement ::= StatementExpression ;
             //
             case 116: {
-                //#line 1403 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1404 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1405 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1406 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 boolean eval = true;
                 if (StatementExpression instanceof X10Call) {
                     X10Call c = (X10Call) StatementExpression;
@@ -2082,9 +2083,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 124:  AssertStatement ::= assert Expression ;
             //
             case 124: {
-                //#line 1434 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1435 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1436 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1437 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assert(pos(), Expression));
                 break;
             }
@@ -2093,11 +2094,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 125:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 125: {
-                //#line 1439 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1440 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(2);
-                //#line 1439 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1440 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(4);
-                //#line 1441 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1442 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assert(pos(), expr1, expr2));
                 break;
             }
@@ -2106,11 +2107,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 126:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 126: {
-                //#line 1445 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1446 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1445 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1446 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlock = (List) getRhsSym(5);
-                //#line 1447 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1448 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Switch(pos(), Expression, SwitchBlock));
                 break;
             }
@@ -2119,11 +2120,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 127:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 127: {
-                //#line 1451 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1452 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroupsopt = (List) getRhsSym(2);
-                //#line 1451 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1452 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabelsopt = (List) getRhsSym(3);
-                //#line 1453 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1454 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 SwitchBlockStatementGroupsopt.addAll(SwitchLabelsopt);
                 setResult(SwitchBlockStatementGroupsopt);
                 break;
@@ -2133,11 +2134,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 129:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 129: {
-                //#line 1459 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1460 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroups = (List) getRhsSym(1);
-                //#line 1459 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1460 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchBlockStatementGroup = (List) getRhsSym(2);
-                //#line 1461 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1462 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 SwitchBlockStatementGroups.addAll(SwitchBlockStatementGroup);
                 // setResult(SwitchBlockStatementGroups);
                 break;
@@ -2147,11 +2148,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 130:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 130: {
-                //#line 1466 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1467 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1466 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1467 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(2);
-                //#line 1468 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1469 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), SwitchElement.class, false);
                 l.addAll(SwitchLabels);
                 l.add(nf.SwitchBlock(pos(), BlockStatements));
@@ -2163,9 +2164,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 131:  SwitchLabels ::= SwitchLabel
             //
             case 131: {
-                //#line 1475 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1476 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(1);
-                //#line 1477 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1478 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Case.class, false);
                 l.add(SwitchLabel);
                 setResult(l);
@@ -2176,11 +2177,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 132:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 132: {
-                //#line 1482 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1483 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List SwitchLabels = (List) getRhsSym(1);
-                //#line 1482 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1483 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Case SwitchLabel = (Case) getRhsSym(2);
-                //#line 1484 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1485 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 SwitchLabels.add(SwitchLabel);
                 //setResult(SwitchLabels);
                 break;
@@ -2190,9 +2191,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 133:  SwitchLabel ::= case ConstantExpression :
             //
             case 133: {
-                //#line 1489 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1490 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConstantExpression = (Expr) getRhsSym(2);
-                //#line 1491 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1492 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Case(pos(), ConstantExpression));
                 break;
             }
@@ -2202,7 +2203,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 134: {
                 
-                //#line 1496 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1497 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Default(pos()));
                 break;
             }
@@ -2211,11 +2212,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 135:  WhileStatement ::= while ( Expression ) Statement
             //
             case 135: {
-                //#line 1500 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1501 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1500 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1501 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1502 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1503 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.While(pos(), Expression, Statement));
                 break;
             }
@@ -2224,11 +2225,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 136:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 136: {
-                //#line 1506 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1507 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1506 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1507 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1508 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1509 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Do(pos(), Statement, Expression));
                 break;
             }
@@ -2237,15 +2238,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 139:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 139: {
-                //#line 1515 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1516 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ForInitopt = (List) getRhsSym(3);
-                //#line 1515 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1516 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(5);
-                //#line 1515 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1516 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ForUpdateopt = (List) getRhsSym(7);
-                //#line 1515 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1516 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(9);
-                //#line 1517 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1518 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.For(pos(), ForInitopt, Expressionopt, ForUpdateopt, Statement));
                 break;
             }
@@ -2254,9 +2255,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 141:  ForInit ::= LocalVariableDeclaration
             //
             case 141: {
-                //#line 1522 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1523 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List LocalVariableDeclaration = (List) getRhsSym(1);
-                //#line 1524 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1525 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ForInit.class, false);
                 l.addAll(LocalVariableDeclaration);
                 //setResult(l);
@@ -2267,9 +2268,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 143:  StatementExpressionList ::= StatementExpression
             //
             case 143: {
-                //#line 1532 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1533 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(1);
-                //#line 1534 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1535 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Eval.class, false);
                 l.add(nf.Eval(pos(), StatementExpression));
                 setResult(l);
@@ -2280,11 +2281,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 144:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 144: {
-                //#line 1539 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1540 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List StatementExpressionList = (List) getRhsSym(1);
-                //#line 1539 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1540 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr StatementExpression = (Expr) getRhsSym(3);
-                //#line 1541 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1542 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 StatementExpressionList.add(nf.Eval(pos(), StatementExpression));
                 break;
             }
@@ -2293,9 +2294,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 145:  BreakStatement ::= break Identifieropt ;
             //
             case 145: {
-                //#line 1545 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1546 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1547 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1548 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Break(pos(), Identifieropt));
                 break;
             }
@@ -2304,9 +2305,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 146:  ContinueStatement ::= continue Identifieropt ;
             //
             case 146: {
-                //#line 1551 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1552 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifieropt = (Id) getRhsSym(2);
-                //#line 1553 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1554 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Continue(pos(), Identifieropt));
                 break;
             }
@@ -2315,9 +2316,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 147:  ReturnStatement ::= return Expressionopt ;
             //
             case 147: {
-                //#line 1557 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1558 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expressionopt = (Expr) getRhsSym(2);
-                //#line 1559 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1560 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Return(pos(), Expressionopt));
                 break;
             }
@@ -2326,9 +2327,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 148:  ThrowStatement ::= throw Expression ;
             //
             case 148: {
-                //#line 1563 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1564 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1565 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1566 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Throw(pos(), Expression));
                 break;
             }
@@ -2337,11 +2338,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 149:  TryStatement ::= try Block Catches
             //
             case 149: {
-                //#line 1569 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1570 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1569 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1570 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(3);
-                //#line 1571 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1572 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Try(pos(), Block, Catches));
                 break;
             }
@@ -2350,13 +2351,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 150:  TryStatement ::= try Block Catchesopt Finally
             //
             case 150: {
-                //#line 1574 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1575 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1574 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1575 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catchesopt = (List) getRhsSym(3);
-                //#line 1574 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1575 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Finally = (Block) getRhsSym(4);
-                //#line 1576 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1577 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Try(pos(), Block, Catchesopt, Finally));
                 break;
             }
@@ -2365,9 +2366,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 151:  Catches ::= CatchClause
             //
             case 151: {
-                //#line 1580 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1581 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(1);
-                //#line 1582 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1583 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Catch.class, false);
                 l.add(CatchClause);
                 setResult(l);
@@ -2378,11 +2379,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 152:  Catches ::= Catches CatchClause
             //
             case 152: {
-                //#line 1587 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1588 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Catches = (List) getRhsSym(1);
-                //#line 1587 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1588 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Catch CatchClause = (Catch) getRhsSym(2);
-                //#line 1589 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1590 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Catches.add(CatchClause);
                 //setResult(Catches);
                 break;
@@ -2392,11 +2393,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 153:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 153: {
-                //#line 1594 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1595 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 1594 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1595 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(5);
-                //#line 1596 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1597 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Catch(pos(), FormalParameter, Block));
                 break;
             }
@@ -2405,9 +2406,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 154:  Finally ::= finally Block
             //
             case 154: {
-                //#line 1600 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1601 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 1602 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1603 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
@@ -2416,11 +2417,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 155:  NowStatement ::= now ( Clock ) Statement
             //
             case 155: {
-                //#line 1606 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1607 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1606 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1607 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1608 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1609 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(nf.Now(pos(), Clock, Statement));
                 break;
             }
@@ -2429,9 +2430,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 156:  ClockedClause ::= clocked ( ClockList )
             //
             case 156: {
-                //#line 1612 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1613 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(3);
-                //#line 1614 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1615 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ClockList);
                 break;
             }
@@ -2440,13 +2441,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 157:  AsyncStatement ::= async PlaceExpressionSingleListopt ClockedClauseopt Statement
             //
             case 157: {
-                //#line 1618 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1619 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1618 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1619 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(3);
-                //#line 1618 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1619 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(4);
-                //#line 1620 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1621 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(nf.Async(pos(), (PlaceExpressionSingleListopt == null
                                                                         ? nf.Here(pos(getLeftSpan()))
                                                                         : PlaceExpressionSingleListopt),
@@ -2458,11 +2459,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 158:  AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
             //
             case 158: {
-                //#line 1627 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1628 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleListopt = (Expr) getRhsSym(2);
-                //#line 1627 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1628 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(3);
-                //#line 1629 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1630 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
                                                ? nf.Here(pos(getLeftSpan()))
                                                : PlaceExpressionSingleListopt), Statement));
@@ -2473,11 +2474,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 159:  WhenStatement ::= when ( Expression ) Statement
             //
             case 159: {
-                //#line 1636 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1637 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1636 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1637 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(5);
-                //#line 1638 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1639 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.When(pos(), Expression, Statement));
                 break;
             }
@@ -2486,15 +2487,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 160:  WhenStatement ::= WhenStatement or$or ( Expression ) Statement
             //
             case 160: {
-                //#line 1641 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 When WhenStatement = (When) getRhsSym(1);
-                //#line 1641 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken or = (IToken) getRhsIToken(2);
-                //#line 1641 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(4);
-                //#line 1641 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(6);
-                //#line 1643 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1644 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               WhenStatement.addBranch(pos(getRhsFirstTokenIndex(2), getRightSpan()), Expression, Statement);
               setResult(WhenStatement);
                 break;
@@ -2504,15 +2505,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 161:  ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 161: {
-                //#line 1648 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1649 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1648 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1649 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1648 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1649 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1648 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1649 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1650 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1651 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -2529,15 +2530,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 162:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 162: {
-                //#line 1662 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1663 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1662 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1663 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1662 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1663 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockedClauseopt = (List) getRhsSym(7);
-                //#line 1662 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1663 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(8);
-                //#line 1664 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1665 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -2554,13 +2555,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 163:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
             case 163: {
-                //#line 1676 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1677 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal LoopIndex = (X10Formal) getRhsSym(3);
-                //#line 1676 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1677 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(5);
-                //#line 1676 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1677 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(7);
-                //#line 1678 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1679 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = LoopIndex.flags();
                 Flags f = fn.flags();
                 f = f.Final();
@@ -2576,9 +2577,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 164:  FinishStatement ::= finish Statement
             //
             case 164: {
-                //#line 1689 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1690 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1691 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1692 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Finish(pos(),  Statement));
                 break;
             }
@@ -2587,11 +2588,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 165:  AnnotationStatement ::= Annotations Statement
             //
             case 165: {
-                //#line 1696 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1697 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 1696 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1697 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(2);
-                //#line 1698 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1699 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (Statement.ext() instanceof X10Ext && Annotations instanceof List) {
                     Statement = (Stmt) ((X10Ext) Statement.ext()).annotations((List) Annotations);
                 }
@@ -2603,9 +2604,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 166:  PlaceExpressionSingleList ::= ( PlaceExpression )
             //
             case 166: {
-                //#line 1705 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1706 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpression = (Expr) getRhsSym(2);
-                //#line 1707 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1708 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
               setResult(PlaceExpression);
                 break;
             }
@@ -2615,7 +2616,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 168: {
                 
-                //#line 1715 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1716 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Next(pos()));
                 break;
             }
@@ -2624,9 +2625,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 169:  AwaitStatement ::= await Expression ;
             //
             case 169: {
-                //#line 1719 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1720 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 1721 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1722 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Await(pos(), Expression));
                 break;
             }
@@ -2635,9 +2636,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 170:  ClockList ::= Clock
             //
             case 170: {
-                //#line 1725 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1726 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(1);
-                //#line 1727 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1728 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Clock);
                 setResult(l);
@@ -2648,11 +2649,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 171:  ClockList ::= ClockList , Clock
             //
             case 171: {
-                //#line 1732 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1733 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClockList = (List) getRhsSym(1);
-                //#line 1732 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1733 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Clock = (Expr) getRhsSym(3);
-                //#line 1734 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1735 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ClockList.add(Clock);
                 setResult(ClockList);
                 break;
@@ -2662,9 +2663,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 172:  Clock ::= Expression
             //
             case 172: {
-                //#line 1740 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1741 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1742 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1743 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
     setResult(Expression);
                 break;
             }
@@ -2673,11 +2674,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 173:  CastExpression ::= ConditionalExpression as Type
             //
             case 173: {
-                //#line 1754 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1755 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1754 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1755 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1756 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1757 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Cast(pos(), Type, ConditionalExpression, false));
                 break;
             }
@@ -2686,11 +2687,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 174:  CastExpression ::= ConditionalExpression to Type
             //
             case 174: {
-                //#line 1759 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1760 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1759 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1760 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1761 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1762 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Cast(pos(), Type, ConditionalExpression, true));
                 break;
             }
@@ -2699,11 +2700,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 175:  CastExpression ::= ConditionalExpression ! Expression
             //
             case 175: {
-                //#line 1764 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1765 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(1);
-                //#line 1764 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1765 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 1766 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1767 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.PlaceCast(pos(), Expression, ConditionalExpression));
                 break;
             }
@@ -2712,9 +2713,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 177:  TypePropertyList ::= TypeProperty
             //
             case 177: {
-                //#line 1773 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1774 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypePropertyNode TypeProperty = (TypePropertyNode) getRhsSym(1);
-                //#line 1775 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1776 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypePropertyNode.class, false);
                 l.add(TypeProperty);
                 setResult(l);
@@ -2725,11 +2726,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 178:  TypePropertyList ::= TypePropertyList , TypeProperty
             //
             case 178: {
-                //#line 1780 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1781 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypePropertyList = (List) getRhsSym(1);
-                //#line 1780 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1781 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypePropertyNode TypeProperty = (TypePropertyNode) getRhsSym(3);
-                //#line 1782 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1783 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypePropertyList.add(TypeProperty);
                 setResult(TypePropertyList);
                 break;
@@ -2739,9 +2740,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 179:  TypeParameterList ::= TypeParameter
             //
             case 179: {
-                //#line 1787 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1788 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(1);
-                //#line 1789 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1790 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
                 l.add(TypeParameter);
                 setResult(l);
@@ -2752,11 +2753,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 180:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
             case 180: {
-                //#line 1794 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1795 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParameterList = (List) getRhsSym(1);
-                //#line 1794 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1795 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeParamNode TypeParameter = (TypeParamNode) getRhsSym(3);
-                //#line 1796 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1797 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeParameterList.add(TypeParameter);
                 setResult(TypeParameterList);
                 break;
@@ -2766,9 +2767,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 181:  TypeProperty ::= Identifier
             //
             case 181: {
-                //#line 1801 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1802 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1803 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1804 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.INVARIANT));
                 break;
             }
@@ -2777,9 +2778,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 182:  TypeProperty ::= + Identifier
             //
             case 182: {
-                //#line 1806 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1807 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1808 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1809 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.COVARIANT));
                 break;
             }
@@ -2788,9 +2789,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 183:  TypeProperty ::= - Identifier
             //
             case 183: {
-                //#line 1811 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1812 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(2);
-                //#line 1813 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1814 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.CONTRAVARIANT));
                 break;
             }
@@ -2799,9 +2800,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 184:  TypeParameter ::= Identifier
             //
             case 184: {
-                //#line 1817 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1818 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1819 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1820 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.TypeParamNode(pos(), Identifier));
                 break;
             }
@@ -2811,7 +2812,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 185: {
                 
-                //#line 1825 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1826 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(((X10NodeFactory) nf).Here(pos()));
                 break;
             }
@@ -2820,9 +2821,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 187:  RegionExpressionList ::= RegionExpression
             //
             case 187: {
-                //#line 1831 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1832 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(1);
-                //#line 1833 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1834 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(RegionExpression);
                 setResult(l);
@@ -2833,11 +2834,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 188:  RegionExpressionList ::= RegionExpressionList , RegionExpression
             //
             case 188: {
-                //#line 1838 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1839 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List RegionExpressionList = (List) getRhsSym(1);
-                //#line 1838 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1839 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RegionExpression = (Expr) getRhsSym(3);
-                //#line 1840 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1841 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 RegionExpressionList.add(RegionExpression);
                 //setResult(RegionExpressionList);
                 break;
@@ -2847,9 +2848,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 189:  Primary ::= [ ArgumentList ]
             //
             case 189: {
-                //#line 1845 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1846 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(2);
-                //#line 1847 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1848 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Tuple tuple = nf.Tuple(pos(), ArgumentList);
                 setResult(tuple);
                 break;
@@ -2859,11 +2860,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 190:  AssignmentExpression ::= Expression$expr1 -> Expression$expr2
             //
             case 190: {
-                //#line 1852 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1853 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 1852 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1853 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 1854 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1855 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Expr call = nf.ConstantDistMaker(pos(), expr1, expr2);
                 setResult(call);
                 break;
@@ -2873,19 +2874,19 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 191:  ClosureExpression ::= TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt => ClosureBody
             //
             case 191: {
-                //#line 1859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(1);
-                //#line 1859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameters = (List) getRhsSym(2);
-                //#line 1859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(3);
-                //#line 1859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 1859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Throwsopt = (List) getRhsSym(5);
-                //#line 1859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(7);
-                //#line 1861 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1862 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Closure(pos(), TypeParametersopt, FormalParameters, WhereClauseopt, 
           ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt, Throwsopt, ClosureBody));
                 break;
@@ -2895,9 +2896,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 192:  LastExpression ::= Expression
             //
             case 192: {
-                //#line 1866 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1867 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 1868 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1869 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Return(pos(), Expression, true));
                 break;
             }
@@ -2906,9 +2907,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 193:  ClosureBody ::= CastExpression
             //
             case 193: {
-                //#line 1872 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1873 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr CastExpression = (Expr) getRhsSym(1);
-                //#line 1874 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1875 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
                 break;
             }
@@ -2917,11 +2918,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 194:  ClosureBody ::= { BlockStatementsopt LastExpression }
             //
             case 194: {
-                //#line 1877 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1878 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 1877 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1878 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(3);
-                //#line 1879 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1880 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Stmt> l = new ArrayList<Stmt>();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -2933,9 +2934,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 196:  AsyncExpression ::= async ClosureBody
             //
             case 196: {
-                //#line 1887 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1888 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 1889 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1890 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
@@ -2944,11 +2945,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 197:  AsyncExpression ::= async PlaceExpressionSingleList ClosureBody
             //
             case 197: {
-                //#line 1892 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1893 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1892 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1893 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 1894 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1895 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
@@ -2957,11 +2958,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 198:  AsyncExpression ::= async [ Type ] ClosureBody
             //
             case 198: {
-                //#line 1897 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1898 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1897 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1898 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 1899 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1900 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
@@ -2970,13 +2971,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 199:  AsyncExpression ::= async [ Type ] PlaceExpressionSingleList ClosureBody
             //
             case 199: {
-                //#line 1902 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1903 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1902 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1903 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 1902 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1903 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 1904 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1905 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Call(pos(), nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody), nf.Id(pos(), "force")));
                 break;
             }
@@ -2985,9 +2986,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 200:  FutureExpression ::= future ClosureBody
             //
             case 200: {
-                //#line 1908 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1909 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(2);
-                //#line 1910 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1911 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), nf.UnknownTypeNode(pos()), ClosureBody));
                 break;
             }
@@ -2996,11 +2997,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 201:  FutureExpression ::= future PlaceExpressionSingleList ClosureBody
             //
             case 201: {
-                //#line 1913 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1914 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(2);
-                //#line 1913 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1914 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
-                //#line 1915 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1916 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                 break;
             }
@@ -3009,11 +3010,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 202:  FutureExpression ::= future [ Type ] ClosureBody
             //
             case 202: {
-                //#line 1918 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1919 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1918 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1919 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(5);
-                //#line 1920 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1921 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), nf.Here(pos(getLeftSpan())), Type, ClosureBody));
                 break;
             }
@@ -3022,13 +3023,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 203:  FutureExpression ::= future [ Type ] PlaceExpressionSingleList ClosureBody
             //
             case 203: {
-                //#line 1923 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1924 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 1923 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1924 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PlaceExpressionSingleList = (Expr) getRhsSym(5);
-                //#line 1923 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1924 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(6);
-                //#line 1925 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1926 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Future(pos(), PlaceExpressionSingleList, Type, ClosureBody));
                 break;
             }
@@ -3045,7 +3046,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 206: {
                 
-                //#line 1936 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1937 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                 break;
             }
@@ -3076,7 +3077,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 214: {
                 
-                //#line 1955 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1956 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                 break;
             }  
@@ -3085,7 +3086,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 216: {
                 
-                //#line 1961 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1962 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
          setResult(Collections.singletonList(nf.FlagsNode(Position.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
                 break;
             }  
@@ -3101,7 +3102,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 219: {
                 
-                //#line 1969 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1970 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 // any value distinct from null
                 setResult(this);
                 break;
@@ -3112,7 +3113,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 220: {
                 
-                //#line 1976 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1977 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
@@ -3121,9 +3122,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 222:  identifier ::= IDENTIFIER$ident
             //
             case 222: {
-                //#line 1985 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1986 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 1987 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1988 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ident.setKind(X10Parsersym.TK_IDENTIFIER);
                 setResult(id(getRhsFirstTokenIndex(1)));
                 break;
@@ -3133,9 +3134,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 223:  TypeName ::= Identifier
             //
             case 223: {
-                //#line 1992 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1993 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 1994 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 1995 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -3144,11 +3145,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 224:  TypeName ::= TypeName . Identifier
             //
             case 224: {
-                //#line 1997 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1998 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 1997 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 1998 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 1999 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2000 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3161,9 +3162,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 226:  TypeArguments ::= [ TypeArgumentList ]
             //
             case 226: {
-                //#line 2009 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2010 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(2);
-                //#line 2011 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2012 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(TypeArgumentList);
                 break;
             }
@@ -3172,9 +3173,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 227:  TypeArgumentList ::= Type
             //
             case 227: {
-                //#line 2016 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2017 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2018 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2019 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new ArrayList();
                 l.add(Type);
                 setResult(l);
@@ -3185,11 +3186,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 228:  TypeArgumentList ::= TypeArgumentList , Type
             //
             case 228: {
-                //#line 2023 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2024 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentList = (List) getRhsSym(1);
-                //#line 2023 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2024 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2025 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2026 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeArgumentList.add(Type);
                 break;
             }
@@ -3198,9 +3199,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 229:  PackageName ::= Identifier
             //
             case 229: {
-                //#line 2033 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2034 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2035 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2036 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -3209,11 +3210,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 230:  PackageName ::= PackageName . Identifier
             //
             case 230: {
-                //#line 2038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2039 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(1);
-                //#line 2038 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2039 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2040 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2041 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3226,9 +3227,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 231:  ExpressionName ::= Identifier
             //
             case 231: {
-                //#line 2054 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2055 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2056 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2057 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -3237,11 +3238,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 232:  ExpressionName ::= AmbiguousName . Identifier
             //
             case 232: {
-                //#line 2059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2060 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2059 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2060 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2061 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2062 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3254,9 +3255,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 233:  MethodName ::= Identifier
             //
             case 233: {
-                //#line 2069 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2070 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2071 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2072 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -3265,11 +3266,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 234:  MethodName ::= AmbiguousName . Identifier
             //
             case 234: {
-                //#line 2074 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2075 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2074 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2075 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2076 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2077 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3282,9 +3283,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 235:  PackageOrTypeName ::= Identifier
             //
             case 235: {
-                //#line 2084 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2085 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2086 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2087 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -3293,11 +3294,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 236:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
             case 236: {
-                //#line 2089 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2090 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(1);
-                //#line 2089 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2090 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2091 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2092 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3310,9 +3311,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 237:  AmbiguousName ::= Identifier
             //
             case 237: {
-                //#line 2099 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2100 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2101 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2102 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -3321,11 +3322,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 238:  AmbiguousName ::= AmbiguousName . Identifier
             //
             case 238: {
-                //#line 2104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName AmbiguousName = (ParsedName) getRhsSym(1);
-                //#line 2104 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 2106 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2107 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf,
                                   ts,
                                   pos(getLeftSpan(), getRightSpan()),
@@ -3338,13 +3339,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 239:  CompilationUnit ::= PackageDeclarationopt ImportDeclarationsopt TypeDeclarationsopt
             //
             case 239: {
-                //#line 2116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2117 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 PackageNode PackageDeclarationopt = (PackageNode) getRhsSym(1);
-                //#line 2116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2117 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ImportDeclarationsopt = (List) getRhsSym(2);
-                //#line 2116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2117 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDeclarationsopt = (List) getRhsSym(3);
-                //#line 2118 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2119 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 // Add import x10.lang.* by default.
                 int token_pos = (ImportDeclarationsopt.size() == 0
                                      ? TypeDeclarationsopt.size() == 0
@@ -3363,9 +3364,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 240:  ImportDeclarations ::= ImportDeclaration
             //
             case 240: {
-                //#line 2132 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2133 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(1);
-                //#line 2134 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2135 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Import.class, false);
                 l.add(ImportDeclaration);
                 setResult(l);
@@ -3376,11 +3377,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 241:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
             case 241: {
-                //#line 2139 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2140 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ImportDeclarations = (List) getRhsSym(1);
-                //#line 2139 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2140 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Import ImportDeclaration = (Import) getRhsSym(2);
-                //#line 2141 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2142 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (ImportDeclaration != null)
                     ImportDeclarations.add(ImportDeclaration);
                 //setResult(l);
@@ -3391,9 +3392,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 242:  TypeDeclarations ::= TypeDeclaration
             //
             case 242: {
-                //#line 2147 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2148 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(1);
-                //#line 2149 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2150 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TopLevelDecl.class, false);
                 if (TypeDeclaration != null)
                     l.add(TypeDeclaration);
@@ -3405,11 +3406,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 243:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
             case 243: {
-                //#line 2155 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2156 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDeclarations = (List) getRhsSym(1);
-                //#line 2155 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2156 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TopLevelDecl TypeDeclaration = (TopLevelDecl) getRhsSym(2);
-                //#line 2157 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2158 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (TypeDeclaration != null)
                     TypeDeclarations.add(TypeDeclaration);
                 //setResult(l);
@@ -3420,11 +3421,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 244:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
             case 244: {
-                //#line 2163 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2164 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotationsopt = (List) getRhsSym(1);
-                //#line 2163 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2164 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageName = (ParsedName) getRhsSym(3);
-                //#line 2165 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2166 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 PackageNode pn = PackageName.toPackage();
                 pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
                 setResult(pn);
@@ -3435,9 +3436,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 247:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 247: {
-                //#line 2177 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2178 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(2);
-                //#line 2179 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2180 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
                 break;
             }
@@ -3446,9 +3447,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 248:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 248: {
-                //#line 2183 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2184 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName PackageOrTypeName = (ParsedName) getRhsSym(2);
-                //#line 2185 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2186 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.PACKAGE, QName.make(PackageOrTypeName.toString())));
                 break;
             }
@@ -3458,7 +3459,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 252: {
                 
-                //#line 2200 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2201 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(null);
                 break;
             }
@@ -3467,9 +3468,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 253:  ClassModifiers ::= ClassModifier
             //
             case 253: {
-                //#line 2206 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2207 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(1);
-                //#line 2208 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2209 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ClassModifier);
                 setResult(l);
@@ -3480,11 +3481,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 254:  ClassModifiers ::= ClassModifiers ClassModifier
             //
             case 254: {
-                //#line 2213 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2214 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifiers = (List) getRhsSym(1);
-                //#line 2213 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2214 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassModifier = (List) getRhsSym(2);
-                //#line 2215 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2216 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ClassModifiers.addAll(ClassModifier);
                 break;
             }
@@ -3493,9 +3494,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 255:  ClassModifier ::= Annotation
             //
             case 255: {
-                //#line 2219 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2220 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2221 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2222 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -3505,7 +3506,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 256: {
                 
-                //#line 2226 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2227 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
@@ -3515,7 +3516,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 257: {
                 
-                //#line 2231 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2232 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
@@ -3525,7 +3526,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 258: {
                 
-                //#line 2236 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2237 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
@@ -3535,7 +3536,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 259: {
                 
-                //#line 2241 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2242 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
@@ -3545,7 +3546,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 260: {
                 
-                //#line 2246 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2247 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
@@ -3555,7 +3556,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 261: {
                 
-                //#line 2251 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2252 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
@@ -3565,7 +3566,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 262: {
                 
-                //#line 2256 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2257 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                 break;
             }
@@ -3575,7 +3576,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 263: {
                 
-                //#line 2261 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2262 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                 break;
             }
@@ -3585,7 +3586,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 264: {
                 
-                //#line 2266 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2267 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.VALUE)));
                 break;
             }
@@ -3594,9 +3595,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 265:  TypeDefModifiers ::= TypeDefModifier
             //
             case 265: {
-                //#line 2270 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2271 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(1);
-                //#line 2272 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2273 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(TypeDefModifier);
                 setResult(l);
@@ -3607,11 +3608,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 266:  TypeDefModifiers ::= TypeDefModifiers TypeDefModifier
             //
             case 266: {
-                //#line 2277 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2278 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifiers = (List) getRhsSym(1);
-                //#line 2277 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2278 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeDefModifier = (List) getRhsSym(2);
-                //#line 2279 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2280 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 TypeDefModifiers.addAll(TypeDefModifier);
                 break;
             }
@@ -3620,9 +3621,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 267:  TypeDefModifier ::= Annotation
             //
             case 267: {
-                //#line 2283 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2284 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2285 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2286 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -3632,7 +3633,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 268: {
                 
-                //#line 2290 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2291 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
@@ -3642,7 +3643,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 269: {
                 
-                //#line 2295 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2296 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
@@ -3652,7 +3653,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 270: {
                 
-                //#line 2300 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2301 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
@@ -3662,7 +3663,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 271: {
                 
-                //#line 2305 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2306 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
@@ -3672,7 +3673,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 272: {
                 
-                //#line 2310 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2311 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
@@ -3682,7 +3683,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 273: {
                 
-                //#line 2315 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2316 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
@@ -3691,9 +3692,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 274:  Interfaces ::= implements InterfaceTypeList
             //
             case 274: {
-                //#line 2322 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2323 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(2);
-                //#line 2324 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2325 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(InterfaceTypeList);
                 break;
             }
@@ -3702,9 +3703,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 275:  InterfaceTypeList ::= Type
             //
             case 275: {
-                //#line 2328 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2329 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2330 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2331 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -3715,11 +3716,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 276:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
             case 276: {
-                //#line 2335 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2336 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceTypeList = (List) getRhsSym(1);
-                //#line 2335 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2336 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 2337 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2338 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 InterfaceTypeList.add(Type);
                 setResult(InterfaceTypeList);
                 break;
@@ -3729,9 +3730,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 277:  ClassBody ::= { ClassBodyDeclarationsopt }
             //
             case 277: {
-                //#line 2345 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2346 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclarationsopt = (List) getRhsSym(2);
-                //#line 2347 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2348 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
                 break;
             }
@@ -3740,11 +3741,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 279:  ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
             //
             case 279: {
-                //#line 2352 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2353 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclarations = (List) getRhsSym(1);
-                //#line 2352 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2353 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ClassBodyDeclaration = (List) getRhsSym(2);
-                //#line 2354 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2355 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ClassBodyDeclarations.addAll(ClassBodyDeclaration);
                 // setResult(a);
                 break;
@@ -3754,9 +3755,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 281:  ClassBodyDeclaration ::= InstanceInitializer
             //
             case 281: {
-                //#line 2360 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
-                Block InstanceInitializer = (Block) getRhsSym(1);
-                //#line 2362 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2361 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                Initializer InstanceInitializer = (Initializer) getRhsSym(1);
+                //#line 2363 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InstanceInitializer);
                 setResult(l);
@@ -3767,9 +3768,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 282:  ClassBodyDeclaration ::= StaticInitializer
             //
             case 282: {
-                //#line 2367 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
-                Block StaticInitializer = (Block) getRhsSym(1);
-                //#line 2369 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2368 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                Initializer StaticInitializer = (Initializer) getRhsSym(1);
+                //#line 2370 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(StaticInitializer);
                 setResult(l);
@@ -3780,9 +3781,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 283:  ClassBodyDeclaration ::= ConstructorDeclaration
             //
             case 283: {
-                //#line 2374 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2375 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ConstructorDecl ConstructorDeclaration = (ConstructorDecl) getRhsSym(1);
-                //#line 2376 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2377 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ConstructorDeclaration);
                 setResult(l);
@@ -3793,9 +3794,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 285:  ClassMemberDeclaration ::= MethodDeclaration
             //
             case 285: {
-                //#line 2383 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2384 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2385 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2386 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -3806,9 +3807,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 286:  ClassMemberDeclaration ::= PropertyMethodDeclaration
             //
             case 286: {
-                //#line 2390 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2391 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 2392 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2393 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -3819,9 +3820,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 287:  ClassMemberDeclaration ::= TypeDefDeclaration
             //
             case 287: {
-                //#line 2397 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2398 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 2399 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2400 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -3832,9 +3833,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 288:  ClassMemberDeclaration ::= ClassDeclaration
             //
             case 288: {
-                //#line 2404 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2405 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2406 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2407 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -3845,9 +3846,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 289:  ClassMemberDeclaration ::= InterfaceDeclaration
             //
             case 289: {
-                //#line 2411 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2412 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 2413 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2414 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -3859,7 +3860,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 290: {
                 
-                //#line 2420 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2421 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 setResult(l);
                 break;
@@ -3869,9 +3870,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 291:  FormalDeclarators ::= FormalDeclarator
             //
             case 291: {
-                //#line 2425 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2426 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(1);
-                //#line 2427 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2428 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FormalDeclarator);
                 setResult(l);
@@ -3882,11 +3883,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 292:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
             case 292: {
-                //#line 2432 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2433 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(1);
-                //#line 2432 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2433 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2434 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2435 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FormalDeclarators.add(FormalDeclarator);
                 break;
             }
@@ -3895,9 +3896,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 293:  FieldDeclarators ::= FieldDeclarator
             //
             case 293: {
-                //#line 2439 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2440 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(1);
-                //#line 2441 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2442 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(FieldDeclarator);
                 setResult(l);
@@ -3908,11 +3909,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 294:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
             case 294: {
-                //#line 2446 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2447 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldDeclarators = (List) getRhsSym(1);
-                //#line 2446 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2447 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FieldDeclarator = (Object[]) getRhsSym(3);
-                //#line 2448 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2449 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FieldDeclarators.add(FieldDeclarator);
                 // setResult(FieldDeclarators);
                 break;
@@ -3922,9 +3923,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 295:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
             case 295: {
-                //#line 2454 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2455 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(1);
-                //#line 2456 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2457 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclaratorWithType);
                 setResult(l);
@@ -3935,11 +3936,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 296:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
             case 296: {
-                //#line 2461 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2462 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(1);
-                //#line 2461 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2462 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclaratorWithType = (Object[]) getRhsSym(3);
-                //#line 2463 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2464 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
                 // setResult(VariableDeclaratorsWithType);
                 break;
@@ -3949,9 +3950,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 297:  VariableDeclarators ::= VariableDeclarator
             //
             case 297: {
-                //#line 2468 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2469 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(1);
-                //#line 2470 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2471 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Object[].class, false);
                 l.add(VariableDeclarator);
                 setResult(l);
@@ -3962,11 +3963,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 298:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 298: {
-                //#line 2475 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2476 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(1);
-                //#line 2475 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2476 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] VariableDeclarator = (Object[]) getRhsSym(3);
-                //#line 2477 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2478 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableDeclarators.add(VariableDeclarator);
                 // setResult(VariableDeclarators);
                 break;
@@ -3976,9 +3977,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 300:  FieldModifiers ::= FieldModifier
             //
             case 300: {
-                //#line 2484 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2485 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(1);
-                //#line 2486 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2487 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(FieldModifier);
                 setResult(l);
@@ -3989,11 +3990,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 301:  FieldModifiers ::= FieldModifiers FieldModifier
             //
             case 301: {
-                //#line 2491 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2492 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifiers = (List) getRhsSym(1);
-                //#line 2491 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2492 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FieldModifier = (List) getRhsSym(2);
-                //#line 2493 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2494 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FieldModifiers.addAll(FieldModifier);
                 break;
             }
@@ -4002,9 +4003,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 302:  FieldModifier ::= Annotation
             //
             case 302: {
-                //#line 2497 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2498 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2499 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2500 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -4014,7 +4015,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 303: {
                 
-                //#line 2504 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2505 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
@@ -4024,7 +4025,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 304: {
                 
-                //#line 2509 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2510 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
@@ -4034,7 +4035,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 305: {
                 
-                //#line 2514 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2515 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
@@ -4044,7 +4045,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 306: {
                 
-                //#line 2519 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2520 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
@@ -4054,7 +4055,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 307: {
                 
-                //#line 2524 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2525 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.TRANSIENT)));
                 break;
             }
@@ -4064,7 +4065,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 308: {
                 
-                //#line 2529 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2530 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.VOLATILE)));
                 break;
             }
@@ -4073,9 +4074,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 309:  ResultType ::= : Type
             //
             case 309: {
-                //#line 2533 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2534 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 2535 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2536 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Type);
                 break;
             }
@@ -4084,9 +4085,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 310:  FormalParameters ::= ( FormalParameterList )
             //
             case 310: {
-                //#line 2539 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2540 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(2);
-                //#line 2541 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2542 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(FormalParameterList);
                 break;
             }
@@ -4095,9 +4096,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 311:  FormalParameterList ::= FormalParameter
             //
             case 311: {
-                //#line 2545 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2546 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(1);
-                //#line 2547 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2548 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Formal.class, false);
                 l.add(FormalParameter);
                 setResult(l);
@@ -4108,11 +4109,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 312:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
             case 312: {
-                //#line 2552 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2553 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterList = (List) getRhsSym(1);
-                //#line 2552 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2553 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 X10Formal FormalParameter = (X10Formal) getRhsSym(3);
-                //#line 2554 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2555 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FormalParameterList.add(FormalParameter);
                 break;
             }
@@ -4121,11 +4122,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 313:  LoopIndexDeclarator ::= Identifier ResultTypeopt
             //
             case 313: {
-                //#line 2558 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2559 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2558 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2559 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 2560 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2561 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, null });
                 break;
             }
@@ -4134,11 +4135,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 314:  LoopIndexDeclarator ::= ( IdentifierList ) ResultTypeopt
             //
             case 314: {
-                //#line 2563 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2564 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 2563 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2564 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 2565 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2566 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, null });
                 break;
             }
@@ -4147,13 +4148,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 315:  LoopIndexDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt
             //
             case 315: {
-                //#line 2568 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2569 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2568 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2569 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 2568 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2569 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 2570 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2571 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, null });
                 break;
             }
@@ -4162,11 +4163,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 316:  LoopIndex ::= VariableModifiersopt LoopIndexDeclarator
             //
             case 316: {
-                //#line 2574 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2575 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2574 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2575 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(2);
-                //#line 2576 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2577 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = LoopIndexDeclarator;
@@ -4192,13 +4193,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 317:  LoopIndex ::= VariableModifiersopt VarKeyword LoopIndexDeclarator
             //
             case 317: {
-                //#line 2596 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2597 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2596 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2597 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2596 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2597 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] LoopIndexDeclarator = (Object[]) getRhsSym(3);
-                //#line 2598 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2599 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = LoopIndexDeclarator;
@@ -4224,11 +4225,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 318:  FormalParameter ::= VariableModifiersopt FormalDeclarator
             //
             case 318: {
-                //#line 2619 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2620 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2619 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2620 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(2);
-                //#line 2621 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2622 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
             Object[] o = FormalDeclarator;
@@ -4255,13 +4256,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 319:  FormalParameter ::= VariableModifiersopt VarKeyword FormalDeclarator
             //
             case 319: {
-                //#line 2642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2643 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 2642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2643 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 2642 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2643 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object[] FormalDeclarator = (Object[]) getRhsSym(3);
-                //#line 2644 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2645 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
                         	FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
             Object[] o = FormalDeclarator;
@@ -4288,9 +4289,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 320:  FormalParameter ::= Type
             //
             case 320: {
-                //#line 2665 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2666 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(1);
-                //#line 2667 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2668 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
             Formal f;
             f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST);
             setResult(f);
@@ -4301,9 +4302,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 321:  VariableModifiers ::= VariableModifier
             //
             case 321: {
-                //#line 2673 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2674 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(1);
-                //#line 2675 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2676 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(VariableModifier);
                 setResult(l);
@@ -4314,11 +4315,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 322:  VariableModifiers ::= VariableModifiers VariableModifier
             //
             case 322: {
-                //#line 2680 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2681 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiers = (List) getRhsSym(1);
-                //#line 2680 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2681 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifier = (List) getRhsSym(2);
-                //#line 2682 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2683 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableModifiers.addAll(VariableModifier);
                 break;
             }
@@ -4327,9 +4328,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 323:  VariableModifier ::= Annotation
             //
             case 323: {
-                //#line 2686 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2687 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2688 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2689 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -4339,7 +4340,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 324: {
                 
-                //#line 2693 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2694 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
                 break;
             }
@@ -4348,9 +4349,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 325:  MethodModifiers ::= MethodModifier
             //
             case 325: {
-                //#line 2700 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2701 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(1);
-                //#line 2702 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2703 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(MethodModifier);
                 setResult(l);
@@ -4361,11 +4362,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 326:  MethodModifiers ::= MethodModifiers MethodModifier
             //
             case 326: {
-                //#line 2707 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2708 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifiers = (List) getRhsSym(1);
-                //#line 2707 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2708 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List MethodModifier = (List) getRhsSym(2);
-                //#line 2709 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2710 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 MethodModifiers.addAll(MethodModifier);
                 break;
             }
@@ -4374,9 +4375,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 327:  MethodModifier ::= Annotation
             //
             case 327: {
-                //#line 2713 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2714 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2715 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2716 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -4386,7 +4387,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 328: {
                 
-                //#line 2720 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2721 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
@@ -4396,7 +4397,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 329: {
                 
-                //#line 2725 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2726 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
@@ -4406,7 +4407,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 330: {
                 
-                //#line 2730 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2731 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
@@ -4416,7 +4417,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 331: {
                 
-                //#line 2735 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2736 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
@@ -4426,7 +4427,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 332: {
                 
-                //#line 2740 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2741 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
@@ -4436,7 +4437,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 333: {
                 
-                //#line 2745 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2746 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
                 break;
             }
@@ -4446,7 +4447,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 334: {
                 
-                //#line 2750 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2751 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                 break;
             }
@@ -4456,7 +4457,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 335: {
                 
-                //#line 2755 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2756 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                 break;
             }
@@ -4466,7 +4467,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 336: {
                 
-                //#line 2760 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2761 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
                 break;
             }
@@ -4476,7 +4477,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 337: {
                 
-                //#line 2765 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2766 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
                 break;
             }
@@ -4486,7 +4487,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 338: {
                 
-                //#line 2770 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2771 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
                 break;
             }
@@ -4496,7 +4497,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 339: {
                 
-                //#line 2775 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2776 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
                 break;
             }
@@ -4506,7 +4507,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 340: {
                 
-                //#line 2780 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2781 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.LOCAL)));
                 break;
             }
@@ -4516,7 +4517,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 341: {
                 
-                //#line 2785 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2786 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
                 break;
             }
@@ -4526,7 +4527,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 342: {
                 
-                //#line 2790 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2791 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
                 break;
             }
@@ -4536,7 +4537,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 343: {
                 
-                //#line 2795 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2796 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
                 break;
             }
@@ -4545,9 +4546,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 344:  Throws ::= throws ExceptionTypeList
             //
             case 344: {
-                //#line 2800 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2801 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(2);
-                //#line 2802 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2803 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExceptionTypeList);
                 break;
             }
@@ -4556,9 +4557,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 345:  ExceptionTypeList ::= ExceptionType
             //
             case 345: {
-                //#line 2806 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2807 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(1);
-                //#line 2808 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2809 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(ExceptionType);
                 setResult(l);
@@ -4569,11 +4570,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 346:  ExceptionTypeList ::= ExceptionTypeList , ExceptionType
             //
             case 346: {
-                //#line 2813 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2814 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExceptionTypeList = (List) getRhsSym(1);
-                //#line 2813 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2814 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ExceptionType = (TypeNode) getRhsSym(3);
-                //#line 2815 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2816 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ExceptionTypeList.add(ExceptionType);
                 break;
             }
@@ -4582,9 +4583,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 348:  MethodBody ::= = LastExpression ;
             //
             case 348: {
-                //#line 2821 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2822 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(2);
-                //#line 2823 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2824 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), LastExpression));
                 break;
             }
@@ -4593,11 +4594,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 349:  MethodBody ::= = { BlockStatementsopt LastExpression }
             //
             case 349: {
-                //#line 2826 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2827 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2826 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2827 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt LastExpression = (Stmt) getRhsSym(4);
-                //#line 2828 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2829 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new ArrayList();
                 l.addAll(BlockStatementsopt);
                 l.add(LastExpression);
@@ -4609,9 +4610,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 350:  MethodBody ::= = Block
             //
             case 350: {
-                //#line 2834 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2835 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2836 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2837 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
@@ -4620,9 +4621,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 351:  MethodBody ::= Block
             //
             case 351: {
-                //#line 2839 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2840 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
-                //#line 2841 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2842 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Block);
                 break;
             }
@@ -4638,9 +4639,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 353:  InstanceInitializer ::= Block
             //
             case 353: {
-                //#line 2847 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2848 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(1);
-                //#line 2849 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2850 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(), Flags.NONE), Block));
                 break;
             }
@@ -4649,9 +4650,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 354:  StaticInitializer ::= static Block
             //
             case 354: {
-                //#line 2853 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2854 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block Block = (Block) getRhsSym(2);
-                //#line 2855 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2856 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
                 break;
             }
@@ -4660,9 +4661,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 355:  SimpleTypeName ::= Identifier
             //
             case 355: {
-                //#line 2859 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2860 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 2861 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2862 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -4671,9 +4672,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 356:  ConstructorModifiers ::= ConstructorModifier
             //
             case 356: {
-                //#line 2865 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2866 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(1);
-                //#line 2867 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2868 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(ConstructorModifier);
                 setResult(l);
@@ -4684,11 +4685,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 357:  ConstructorModifiers ::= ConstructorModifiers ConstructorModifier
             //
             case 357: {
-                //#line 2872 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2873 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifiers = (List) getRhsSym(1);
-                //#line 2872 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2873 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ConstructorModifier = (List) getRhsSym(2);
-                //#line 2874 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2875 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ConstructorModifiers.addAll(ConstructorModifier);
                 break;
             }
@@ -4697,9 +4698,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 358:  ConstructorModifier ::= Annotation
             //
             case 358: {
-                //#line 2878 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2879 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2880 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2881 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -4709,7 +4710,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 359: {
                 
-                //#line 2885 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2886 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
@@ -4719,7 +4720,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 360: {
                 
-                //#line 2890 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2891 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
@@ -4729,7 +4730,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 361: {
                 
-                //#line 2895 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2896 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
@@ -4739,7 +4740,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 362: {
                 
-                //#line 2900 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2901 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
                 break;
             }
@@ -4748,9 +4749,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 363:  ConstructorBody ::= = ConstructorBlock
             //
             case 363: {
-                //#line 2904 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2905 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(2);
-                //#line 2906 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2907 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ConstructorBlock);
                 break;
             }
@@ -4759,9 +4760,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 364:  ConstructorBody ::= ConstructorBlock
             //
             case 364: {
-                //#line 2909 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2910 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ConstructorBlock = (Block) getRhsSym(1);
-                //#line 2911 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2912 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ConstructorBlock);
                 break;
             }
@@ -4770,9 +4771,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 365:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
             case 365: {
-                //#line 2914 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2915 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ConstructorCall ExplicitConstructorInvocation = (ConstructorCall) getRhsSym(2);
-                //#line 2916 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2917 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(ExplicitConstructorInvocation);
@@ -4784,9 +4785,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 366:  ConstructorBody ::= = AssignPropertyCall
             //
             case 366: {
-                //#line 2922 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2923 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt AssignPropertyCall = (Stmt) getRhsSym(2);
-                //#line 2924 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2925 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(AssignPropertyCall);
@@ -4805,11 +4806,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 368:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 368: {
-                //#line 2933 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2934 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt ExplicitConstructorInvocationopt = (Stmt) getRhsSym(2);
-                //#line 2933 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2934 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(3);
-                //#line 2935 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2936 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l;
                 l = new TypedList(new LinkedList(), Stmt.class, false);
                 if (ExplicitConstructorInvocationopt == null)
@@ -4829,9 +4830,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 369:  Arguments ::= ( ArgumentListopt )
             //
             case 369: {
-                //#line 2950 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2951 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(2);
-                //#line 2952 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2953 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ArgumentListopt);
                 break;
             }
@@ -4840,9 +4841,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 371:  InterfaceModifiers ::= InterfaceModifier
             //
             case 371: {
-                //#line 2960 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2961 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(1);
-                //#line 2962 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2963 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new LinkedList();
                 l.addAll(InterfaceModifier);
                 setResult(l);
@@ -4853,11 +4854,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 372:  InterfaceModifiers ::= InterfaceModifiers InterfaceModifier
             //
             case 372: {
-                //#line 2967 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2968 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifiers = (List) getRhsSym(1);
-                //#line 2967 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2968 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceModifier = (List) getRhsSym(2);
-                //#line 2969 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2970 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 InterfaceModifiers.addAll(InterfaceModifier);
                 break;
             }
@@ -4866,9 +4867,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 373:  InterfaceModifier ::= Annotation
             //
             case 373: {
-                //#line 2973 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 2974 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 2975 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2976 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(Annotation));
                 break;
             }
@@ -4878,7 +4879,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 374: {
                 
-                //#line 2980 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2981 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
                 break;
             }
@@ -4888,7 +4889,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 375: {
                 
-                //#line 2985 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2986 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
                 break;
             }
@@ -4898,7 +4899,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 376: {
                 
-                //#line 2990 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2991 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
                 break;
             }
@@ -4908,7 +4909,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 377: {
                 
-                //#line 2995 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 2996 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
                 break;
             }
@@ -4918,7 +4919,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 378: {
                 
-                //#line 3000 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3001 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
                 break;
             }
@@ -4928,7 +4929,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 379: {
                 
-                //#line 3005 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3006 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STRICTFP)));
                 break;
             }
@@ -4937,9 +4938,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 380:  ExtendsInterfaces ::= extends Type
             //
             case 380: {
-                //#line 3009 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3010 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(2);
-                //#line 3011 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3012 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), TypeNode.class, false);
                 l.add(Type);
                 setResult(l);
@@ -4950,11 +4951,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 381:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
             case 381: {
-                //#line 3016 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3017 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ExtendsInterfaces = (List) getRhsSym(1);
-                //#line 3016 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3017 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3018 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3019 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ExtendsInterfaces.add(Type);
                 break;
             }
@@ -4963,9 +4964,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 382:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 382: {
-                //#line 3025 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarationsopt = (List) getRhsSym(2);
-                //#line 3027 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3028 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ClassBody(pos(), InterfaceMemberDeclarationsopt));
                 break;
             }
@@ -4974,11 +4975,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 384:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
             case 384: {
-                //#line 3032 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3033 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclarations = (List) getRhsSym(1);
-                //#line 3032 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3033 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List InterfaceMemberDeclaration = (List) getRhsSym(2);
-                //#line 3034 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3035 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
                 // setResult(l);
                 break;
@@ -4988,9 +4989,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 385:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
             case 385: {
-                //#line 3039 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3040 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember MethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3041 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3042 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(MethodDeclaration);
                 setResult(l);
@@ -5001,9 +5002,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 386:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
             case 386: {
-                //#line 3046 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3047 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassMember PropertyMethodDeclaration = (ClassMember) getRhsSym(1);
-                //#line 3048 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3049 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(PropertyMethodDeclaration);
                 setResult(l);
@@ -5014,9 +5015,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 387:  InterfaceMemberDeclaration ::= ClassDeclaration
             //
             case 387: {
-                //#line 3053 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3054 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3055 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3056 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(ClassDeclaration);
                 setResult(l);
@@ -5027,9 +5028,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 388:  InterfaceMemberDeclaration ::= InterfaceDeclaration
             //
             case 388: {
-                //#line 3060 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3061 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl InterfaceDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3062 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3063 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(InterfaceDeclaration);
                 setResult(l);
@@ -5040,9 +5041,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 389:  InterfaceMemberDeclaration ::= TypeDefDeclaration
             //
             case 389: {
-                //#line 3067 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3068 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3069 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3070 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), ClassMember.class, false);
                 l.add(TypeDefDeclaration);
                 setResult(l);
@@ -5054,7 +5055,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 390: {
                 
-                //#line 3076 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3077 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -5063,9 +5064,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 391:  Annotations ::= Annotation
             //
             case 391: {
-                //#line 3080 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3081 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(1);
-                //#line 3082 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3083 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), AnnotationNode.class, false);
                 l.add(Annotation);
                 setResult(l);
@@ -5076,11 +5077,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 392:  Annotations ::= Annotations Annotation
             //
             case 392: {
-                //#line 3087 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3088 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3087 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3088 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 AnnotationNode Annotation = (AnnotationNode) getRhsSym(2);
-                //#line 3089 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3090 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Annotations.add(Annotation);
                 break;
             }
@@ -5089,9 +5090,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 393:  Annotation ::= @ NamedType
             //
             case 393: {
-                //#line 3093 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3094 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode NamedType = (TypeNode) getRhsSym(2);
-                //#line 3095 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3096 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.AnnotationNode(pos(), NamedType));
                 break;
             }
@@ -5100,9 +5101,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 394:  SimpleName ::= Identifier
             //
             case 394: {
-                //#line 3099 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3100 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3101 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3102 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new X10ParsedName(nf, ts, pos(), Identifier));
                 break;
             }
@@ -5111,9 +5112,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 395:  Identifier ::= identifier
             //
             case 395: {
-                //#line 3105 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3106 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 polyglot.lex.Identifier identifier = (polyglot.lex.Identifier) getRhsSym(1);
-                //#line 3107 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3108 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult( nf.Id(identifier.getPosition(), identifier.getIdentifier()));
                 break;
             }
@@ -5122,11 +5123,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 396:  ArrayInitializer ::= [ VariableInitializersopt ,opt$opt ]
             //
             case 396: {
-                //#line 3113 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3114 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableInitializersopt = (List) getRhsSym(2);
-                //#line 3113 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3114 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Object opt = (Object) getRhsSym(3);
-                //#line 3115 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3116 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (VariableInitializersopt == null)
                      setResult(nf.ArrayInit(pos()));
                 else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
@@ -5137,9 +5138,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 397:  VariableInitializers ::= VariableInitializer
             //
             case 397: {
-                //#line 3121 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3122 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(1);
-                //#line 3123 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3124 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(VariableInitializer);
                 setResult(l);
@@ -5150,11 +5151,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 398:  VariableInitializers ::= VariableInitializers , VariableInitializer
             //
             case 398: {
-                //#line 3128 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3129 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableInitializers = (List) getRhsSym(1);
-                //#line 3128 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3129 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(3);
-                //#line 3130 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3131 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 VariableInitializers.add(VariableInitializer);
                 //setResult(VariableInitializers);
                 break;
@@ -5164,9 +5165,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 399:  Block ::= { BlockStatementsopt }
             //
             case 399: {
-                //#line 3146 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3147 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatementsopt = (List) getRhsSym(2);
-                //#line 3148 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3149 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Block(pos(), BlockStatementsopt));
                 break;
             }
@@ -5175,9 +5176,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 400:  BlockStatements ::= BlockStatement
             //
             case 400: {
-                //#line 3152 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3153 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(1);
-                //#line 3154 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3155 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.addAll(BlockStatement);
                 setResult(l);
@@ -5188,11 +5189,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 401:  BlockStatements ::= BlockStatements BlockStatement
             //
             case 401: {
-                //#line 3159 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3160 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatements = (List) getRhsSym(1);
-                //#line 3159 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3160 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List BlockStatement = (List) getRhsSym(2);
-                //#line 3161 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3162 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 BlockStatements.addAll(BlockStatement);
                 //setResult(l);
                 break;
@@ -5202,9 +5203,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 403:  BlockStatement ::= ClassDeclaration
             //
             case 403: {
-                //#line 3167 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3168 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ClassDecl ClassDeclaration = (ClassDecl) getRhsSym(1);
-                //#line 3169 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3170 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalClassDecl(pos(), ClassDeclaration));
                 setResult(l);
@@ -5215,9 +5216,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 404:  BlockStatement ::= TypeDefDeclaration
             //
             case 404: {
-                //#line 3174 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3175 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeDecl TypeDefDeclaration = (TypeDecl) getRhsSym(1);
-                //#line 3176 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3177 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(nf.LocalTypeDef(pos(), TypeDefDeclaration));
                 setResult(l);
@@ -5228,9 +5229,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 405:  BlockStatement ::= Statement
             //
             case 405: {
-                //#line 3181 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3182 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Stmt Statement = (Stmt) getRhsSym(1);
-                //#line 3183 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3184 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Stmt.class, false);
                 l.add(Statement);
                 setResult(l);
@@ -5241,9 +5242,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 406:  IdentifierList ::= Identifier
             //
             case 406: {
-                //#line 3189 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3190 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3191 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3192 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Id.class, false);
                 l.add(Identifier);
                 setResult(l);
@@ -5254,11 +5255,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 407:  IdentifierList ::= IdentifierList , Identifier
             //
             case 407: {
-                //#line 3196 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3197 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(1);
-                //#line 3196 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3197 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3198 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3199 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 IdentifierList.add(Identifier);
                 break;
             }
@@ -5267,11 +5268,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 408:  FormalDeclarator ::= Identifier : Type
             //
             case 408: {
-                //#line 3202 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3203 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3202 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3203 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3204 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3205 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, Type, null });
                 break;
             }
@@ -5280,11 +5281,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 409:  FormalDeclarator ::= ( IdentifierList ) : Type
             //
             case 409: {
-                //#line 3207 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3208 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3207 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3208 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(5);
-                //#line 3209 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3210 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, Type, null });
                 break;
             }
@@ -5293,13 +5294,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 410:  FormalDeclarator ::= Identifier ( IdentifierList ) : Type
             //
             case 410: {
-                //#line 3212 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3213 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3212 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3213 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3212 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3213 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(6);
-                //#line 3214 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3215 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, Type, null });
                 break;
             }
@@ -5308,13 +5309,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 411:  FieldDeclarator ::= Identifier WhereClauseopt : Type
             //
             case 411: {
-                //#line 3218 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3219 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3218 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3219 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 3218 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3219 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(4);
-                //#line 3220 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3221 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, WhereClauseopt, Type, null });
                 break;
             }
@@ -5323,15 +5324,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 412:  FieldDeclarator ::= Identifier WhereClauseopt ResultTypeopt = VariableInitializer
             //
             case 412: {
-                //#line 3223 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3224 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3223 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3224 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 DepParameterExpr WhereClauseopt = (DepParameterExpr) getRhsSym(2);
-                //#line 3223 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3224 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(3);
-                //#line 3223 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3224 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(5);
-                //#line 3225 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3226 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, WhereClauseopt, ResultTypeopt, VariableInitializer });
                 break;
             }
@@ -5340,13 +5341,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 413:  VariableDeclarator ::= Identifier ResultTypeopt = VariableInitializer
             //
             case 413: {
-                //#line 3229 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3230 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3229 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3230 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(2);
-                //#line 3229 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3230 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3231 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3232 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultTypeopt, VariableInitializer });
                 break;
             }
@@ -5355,13 +5356,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 414:  VariableDeclarator ::= ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
             case 414: {
-                //#line 3234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(4);
-                //#line 3234 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3235 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3236 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3237 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultTypeopt, VariableInitializer });
                 break;
             }
@@ -5370,15 +5371,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 415:  VariableDeclarator ::= Identifier ( IdentifierList ) ResultTypeopt = VariableInitializer
             //
             case 415: {
-                //#line 3239 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3240 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3239 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3240 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3239 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3240 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultTypeopt = (TypeNode) getRhsSym(5);
-                //#line 3239 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3240 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3241 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3242 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultTypeopt, VariableInitializer });
                 break;
             }
@@ -5387,13 +5388,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 416:  VariableDeclaratorWithType ::= Identifier ResultType = VariableInitializer
             //
             case 416: {
-                //#line 3245 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3246 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3245 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3246 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(2);
-                //#line 3245 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3246 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(4);
-                //#line 3247 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3248 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, null, ResultType, VariableInitializer });
                 break;
             }
@@ -5402,13 +5403,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 417:  VariableDeclaratorWithType ::= ( IdentifierList ) ResultType = VariableInitializer
             //
             case 417: {
-                //#line 3250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3251 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(2);
-                //#line 3250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3251 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(4);
-                //#line 3250 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3251 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(6);
-                //#line 3252 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3253 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), null, IdentifierList, null, ResultType, VariableInitializer });
                 break;
             }
@@ -5417,15 +5418,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 418:  VariableDeclaratorWithType ::= Identifier ( IdentifierList ) ResultType = VariableInitializer
             //
             case 418: {
-                //#line 3255 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3256 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 3255 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3256 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List IdentifierList = (List) getRhsSym(3);
-                //#line 3255 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3256 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode ResultType = (TypeNode) getRhsSym(5);
-                //#line 3255 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3256 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr VariableInitializer = (Expr) getRhsSym(7);
-                //#line 3257 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3258 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new Object[] { pos(), Identifier, IdentifierList, null, ResultType, VariableInitializer });
                 break;
             }
@@ -5434,13 +5435,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 420:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword VariableDeclarators
             //
             case 420: {
-                //#line 3263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3263 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3264 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclarators = (List) getRhsSym(3);
-                //#line 3265 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3266 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -5477,11 +5478,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 421:  LocalVariableDeclaration ::= VariableModifiersopt VariableDeclaratorsWithType
             //
             case 421: {
-                //#line 3296 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3297 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3296 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3297 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableDeclaratorsWithType = (List) getRhsSym(2);
-                //#line 3298 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3299 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, Flags.FINAL);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -5519,13 +5520,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 422:  LocalVariableDeclaration ::= VariableModifiersopt VarKeyword FormalDeclarators
             //
             case 422: {
-                //#line 3330 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3331 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VariableModifiersopt = (List) getRhsSym(1);
-                //#line 3330 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3331 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List VarKeyword = (List) getRhsSym(2);
-                //#line 3330 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3331 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalDeclarators = (List) getRhsSym(3);
-                //#line 3332 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3333 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 FlagsNode fn = extractFlags(VariableModifiersopt, VarKeyword);
     
                 List l = new TypedList(new LinkedList(), LocalDecl.class, false);
@@ -5563,9 +5564,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 425:  Primary ::= TypeName . class
             //
             case 425: {
-                //#line 3374 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3375 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3376 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3377 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (TypeName instanceof ParsedName)
                 {
                     ParsedName a = (ParsedName) TypeName;
@@ -5580,7 +5581,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 426: {
                 
-                //#line 3386 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3387 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Self(pos()));
                 break;
             }
@@ -5590,7 +5591,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 427: {
                 
-                //#line 3391 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3392 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.This(pos()));
                 break;
             }
@@ -5599,9 +5600,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 428:  Primary ::= ClassName . this
             //
             case 428: {
-                //#line 3394 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3395 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3396 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3397 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.This(pos(), ClassName.toType()));
                 break;
             }
@@ -5610,9 +5611,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 429:  Primary ::= ( Expression )
             //
             case 429: {
-                //#line 3399 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3400 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(2);
-                //#line 3401 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3402 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.ParExpr(pos(), Expression));
                 break;
             }
@@ -5621,9 +5622,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 435:  OperatorFunction ::= TypeName . +
             //
             case 435: {
-                //#line 3410 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3411 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3412 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3413 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5638,9 +5639,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 436:  OperatorFunction ::= TypeName . -
             //
             case 436: {
-                //#line 3421 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3422 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3423 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3424 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5655,9 +5656,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 437:  OperatorFunction ::= TypeName . *
             //
             case 437: {
-                //#line 3432 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3433 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3434 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3435 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5672,9 +5673,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 438:  OperatorFunction ::= TypeName . /
             //
             case 438: {
-                //#line 3443 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3444 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3445 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3446 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5689,9 +5690,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 439:  OperatorFunction ::= TypeName . %
             //
             case 439: {
-                //#line 3454 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3455 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3456 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3457 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5706,9 +5707,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 440:  OperatorFunction ::= TypeName . &
             //
             case 440: {
-                //#line 3465 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3466 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3467 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3468 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5723,9 +5724,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 441:  OperatorFunction ::= TypeName . |
             //
             case 441: {
-                //#line 3476 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3477 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3478 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3479 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5740,9 +5741,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 442:  OperatorFunction ::= TypeName . ^
             //
             case 442: {
-                //#line 3487 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3488 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3489 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3490 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5757,9 +5758,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 443:  OperatorFunction ::= TypeName . <<
             //
             case 443: {
-                //#line 3498 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3499 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3500 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3501 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5774,9 +5775,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 444:  OperatorFunction ::= TypeName . >>
             //
             case 444: {
-                //#line 3509 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3510 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3511 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3512 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5791,9 +5792,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 445:  OperatorFunction ::= TypeName . >>>
             //
             case 445: {
-                //#line 3520 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3521 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3522 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3523 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5808,9 +5809,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 446:  OperatorFunction ::= TypeName . <
             //
             case 446: {
-                //#line 3531 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3532 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3533 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3534 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5825,9 +5826,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 447:  OperatorFunction ::= TypeName . <=
             //
             case 447: {
-                //#line 3542 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3543 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3544 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3545 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5842,9 +5843,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 448:  OperatorFunction ::= TypeName . >=
             //
             case 448: {
-                //#line 3553 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3554 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3555 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3556 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5859,9 +5860,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 449:  OperatorFunction ::= TypeName . >
             //
             case 449: {
-                //#line 3564 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3565 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3566 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3567 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5876,9 +5877,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 450:  OperatorFunction ::= TypeName . ==
             //
             case 450: {
-                //#line 3575 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3576 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3577 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3578 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5893,9 +5894,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 451:  OperatorFunction ::= TypeName . !=
             //
             case 451: {
-                //#line 3586 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3587 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName TypeName = (ParsedName) getRhsSym(1);
-                //#line 3588 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3589 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<Formal> formals = new ArrayList<Formal>();
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "x")));
                 formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
@@ -5910,9 +5911,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 452:  Literal ::= IntegerLiteral$IntegerLiteral
             //
             case 452: {
-                //#line 3599 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3600 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken IntegerLiteral = (IToken) getRhsIToken(1);
-                //#line 3601 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3602 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.LongLiteral a = int_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.INT, a.getValue().longValue()));
                 break;
@@ -5922,9 +5923,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 453:  Literal ::= LongLiteral$LongLiteral
             //
             case 453: {
-                //#line 3605 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3606 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken LongLiteral = (IToken) getRhsIToken(1);
-                //#line 3607 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3608 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.LongLiteral a = long_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.IntLit(pos(), IntLit.LONG, a.getValue().longValue()));
                 break;
@@ -5934,9 +5935,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 454:  Literal ::= FloatingPointLiteral$FloatLiteral
             //
             case 454: {
-                //#line 3611 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3612 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken FloatLiteral = (IToken) getRhsIToken(1);
-                //#line 3613 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3614 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.FloatLiteral a = float_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.FLOAT, a.getValue().floatValue()));
                 break;
@@ -5946,9 +5947,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 455:  Literal ::= DoubleLiteral$DoubleLiteral
             //
             case 455: {
-                //#line 3617 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3618 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken DoubleLiteral = (IToken) getRhsIToken(1);
-                //#line 3619 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3620 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.DoubleLiteral a = double_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.FloatLit(pos(), FloatLit.DOUBLE, a.getValue().doubleValue()));
                 break;
@@ -5958,9 +5959,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 456:  Literal ::= BooleanLiteral
             //
             case 456: {
-                //#line 3623 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3624 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 polyglot.lex.BooleanLiteral BooleanLiteral = (polyglot.lex.BooleanLiteral) getRhsSym(1);
-                //#line 3625 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3626 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.BooleanLit(pos(), BooleanLiteral.getValue().booleanValue()));
                 break;
             }
@@ -5969,9 +5970,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 457:  Literal ::= CharacterLiteral$CharacterLiteral
             //
             case 457: {
-                //#line 3628 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3629 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken CharacterLiteral = (IToken) getRhsIToken(1);
-                //#line 3630 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3631 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.CharacterLiteral a = char_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.CharLit(pos(), a.getValue().charValue()));
                 break;
@@ -5981,9 +5982,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 458:  Literal ::= StringLiteral$str
             //
             case 458: {
-                //#line 3634 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3635 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 3636 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3637 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 polyglot.lex.StringLiteral a = string_lit(getRhsFirstTokenIndex(1));
                 setResult(nf.StringLit(pos(), a.getValue()));
                 break;
@@ -5994,7 +5995,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 459: {
                 
-                //#line 3642 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3643 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.NullLit(pos()));
                 break;
             }
@@ -6003,9 +6004,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 460:  BooleanLiteral ::= true$trueLiteral
             //
             case 460: {
-                //#line 3646 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3647 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 3648 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3649 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -6014,9 +6015,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 461:  BooleanLiteral ::= false$falseLiteral
             //
             case 461: {
-                //#line 3651 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3652 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 3653 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3654 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(boolean_lit(getRhsFirstTokenIndex(1)));
                 break;
             }
@@ -6025,9 +6026,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 462:  ArgumentList ::= Expression
             //
             case 462: {
-                //#line 3660 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3661 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(1);
-                //#line 3662 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3663 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List l = new TypedList(new LinkedList(), Expr.class, false);
                 l.add(Expression);
                 setResult(l);
@@ -6038,11 +6039,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 463:  ArgumentList ::= ArgumentList , Expression
             //
             case 463: {
-                //#line 3667 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3668 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(1);
-                //#line 3667 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3668 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 3669 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3670 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 ArgumentList.add(Expression);
                 break;
             }
@@ -6051,11 +6052,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 464:  FieldAccess ::= Primary . Identifier
             //
             case 464: {
-                //#line 3673 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3674 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3673 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3674 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3675 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3676 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), Primary, Identifier));
                 break;
             }
@@ -6064,9 +6065,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 465:  FieldAccess ::= super . Identifier
             //
             case 465: {
-                //#line 3678 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3679 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3680 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3681 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), Identifier));
                 break;
             }
@@ -6075,13 +6076,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 466:  FieldAccess ::= ClassName . super$sup . Identifier
             //
             case 466: {
-                //#line 3683 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3684 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3683 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3684 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3683 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3684 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3685 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3686 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
                 break;
             }
@@ -6090,11 +6091,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 467:  FieldAccess ::= Primary . class$c
             //
             case 467: {
-                //#line 3688 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3689 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3688 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3689 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3690 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3691 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                 break;
             }
@@ -6103,9 +6104,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 468:  FieldAccess ::= super . class$c
             //
             case 468: {
-                //#line 3693 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3694 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(3);
-                //#line 3695 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3696 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3)), "class")));
                 break;
             }
@@ -6114,13 +6115,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 469:  FieldAccess ::= ClassName . super$sup . class$c
             //
             case 469: {
-                //#line 3698 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3699 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3698 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3699 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3698 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3699 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken c = (IToken) getRhsIToken(5);
-                //#line 3700 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3701 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Field(pos(getRightSpan()), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5)), "class")));
                 break;
             }
@@ -6129,13 +6130,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 470:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
             case 470: {
-                //#line 3704 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3705 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3704 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3705 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3704 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3705 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3706 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3707 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), MethodName.prefix == null
                                                              ? null
                                                              : MethodName.prefix.toReceiver(), MethodName.name, TypeArgumentsopt, ArgumentListopt));
@@ -6146,15 +6147,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 471:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 471: {
-                //#line 3711 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3712 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3711 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3712 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3711 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3712 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3711 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3712 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3713 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3714 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), Primary, Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -6163,13 +6164,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 472:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 472: {
-                //#line 3716 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3717 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3716 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3717 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(4);
-                //#line 3716 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3717 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(6);
-                //#line 3718 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3719 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -6178,17 +6179,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 473:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 473: {
-                //#line 3721 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3722 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3721 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3722 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3721 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3722 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3721 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3722 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(6);
-                //#line 3721 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3722 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(8);
-                //#line 3723 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3724 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
                 break;
             }
@@ -6197,13 +6198,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 474:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
             case 474: {
-                //#line 3726 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3727 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3726 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3727 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeArgumentsopt = (List) getRhsSym(2);
-                //#line 3726 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3727 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentListopt = (List) getRhsSym(4);
-                //#line 3728 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3729 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 if (Primary instanceof Field) {
                     Field f = (Field) Primary;
                     setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
@@ -6226,13 +6227,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 475:  MethodSelection ::= MethodName . TypeParametersopt ( FormalParameterListopt )
             //
             case 475: {
-                //#line 3746 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3747 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName MethodName = (ParsedName) getRhsSym(1);
-                //#line 3746 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3747 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(3);
-                //#line 3746 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3747 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(5);
-                //#line 3748 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3749 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6249,15 +6250,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 476:  MethodSelection ::= Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 476: {
-                //#line 3759 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3760 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Primary = (Expr) getRhsSym(1);
-                //#line 3759 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3760 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3759 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3760 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3759 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3760 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3761 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3762 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6273,13 +6274,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 477:  MethodSelection ::= super . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 477: {
-                //#line 3771 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3772 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(3);
-                //#line 3771 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3772 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(5);
-                //#line 3771 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3772 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(7);
-                //#line 3773 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3774 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6295,17 +6296,17 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 478:  MethodSelection ::= ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
             //
             case 478: {
-                //#line 3783 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3784 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ClassName = (ParsedName) getRhsSym(1);
-                //#line 3783 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3784 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 3783 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3784 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(5);
-                //#line 3783 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3784 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List TypeParametersopt = (List) getRhsSym(7);
-                //#line 3783 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3784 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List FormalParameterListopt = (List) getRhsSym(9);
-                //#line 3785 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3786 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 List<TypeNode> typeArgs = toTypeArgs(TypeParametersopt);
                 List<TypeParamNode> typeParams = toTypeParams(TypeParametersopt);
                 List<Formal> formals = toFormals(FormalParameterListopt);
@@ -6321,9 +6322,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 481:  PostfixExpression ::= ExpressionName
             //
             case 481: {
-                //#line 3798 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3799 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 3800 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3801 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -6332,9 +6333,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 484:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 484: {
-                //#line 3806 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3807 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 3808 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3809 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_INC));
                 break;
             }
@@ -6343,9 +6344,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 485:  PostDecrementExpression ::= PostfixExpression --
             //
             case 485: {
-                //#line 3812 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3813 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr PostfixExpression = (Expr) getRhsSym(1);
-                //#line 3814 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3815 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), PostfixExpression, Unary.POST_DEC));
                 break;
             }
@@ -6354,9 +6355,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 488:  UnaryExpression ::= + UnaryExpressionNotPlusMinus
             //
             case 488: {
-                //#line 3820 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3821 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3822 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3823 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.POS, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6365,9 +6366,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 489:  UnaryExpression ::= - UnaryExpressionNotPlusMinus
             //
             case 489: {
-                //#line 3825 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3826 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3827 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3828 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NEG, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6376,9 +6377,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 491:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
             case 491: {
-                //#line 3832 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3833 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3834 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3835 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_INC, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6387,9 +6388,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 492:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
             case 492: {
-                //#line 3838 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3839 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpressionNotPlusMinus = (Expr) getRhsSym(2);
-                //#line 3840 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3841 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.PRE_DEC, UnaryExpressionNotPlusMinus));
                 break;
             }
@@ -6398,9 +6399,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 494:  UnaryExpressionNotPlusMinus ::= ~ UnaryExpression
             //
             case 494: {
-                //#line 3845 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3846 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3847 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3848 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.BIT_NOT, UnaryExpression));
                 break;
             }
@@ -6409,11 +6410,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 495:  UnaryExpressionNotPlusMinus ::= Annotations UnaryExpression
             //
             case 495: {
-                //#line 3850 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3851 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List Annotations = (List) getRhsSym(1);
-                //#line 3850 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3851 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3852 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3853 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Expr e = UnaryExpression;
                 e = (Expr) ((X10Ext) e.ext()).annotations(Annotations);
                 setResult(e);
@@ -6424,9 +6425,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 496:  UnaryExpressionNotPlusMinus ::= ! UnaryExpression
             //
             case 496: {
-                //#line 3857 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3858 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(2);
-                //#line 3859 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3860 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Unary(pos(), Unary.NOT, UnaryExpression));
                 break;
             }
@@ -6435,11 +6436,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 498:  MultiplicativeExpression ::= MultiplicativeExpression * UnaryExpression
             //
             case 498: {
-                //#line 3864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3865 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3864 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3865 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3866 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3867 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MUL, UnaryExpression));
                 break;
             }
@@ -6448,11 +6449,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 499:  MultiplicativeExpression ::= MultiplicativeExpression / UnaryExpression
             //
             case 499: {
-                //#line 3869 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3870 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3869 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3870 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3871 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3872 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.DIV, UnaryExpression));
                 break;
             }
@@ -6461,11 +6462,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 500:  MultiplicativeExpression ::= MultiplicativeExpression % UnaryExpression
             //
             case 500: {
-                //#line 3874 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(1);
-                //#line 3874 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3875 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr UnaryExpression = (Expr) getRhsSym(3);
-                //#line 3876 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3877 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), MultiplicativeExpression, Binary.MOD, UnaryExpression));
                 break;
             }
@@ -6474,11 +6475,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 502:  AdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 502: {
-                //#line 3881 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3882 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 3881 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3882 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 3883 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3884 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.ADD, MultiplicativeExpression));
                 break;
             }
@@ -6487,11 +6488,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 503:  AdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 503: {
-                //#line 3886 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3887 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(1);
-                //#line 3886 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3887 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr MultiplicativeExpression = (Expr) getRhsSym(3);
-                //#line 3888 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3889 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AdditiveExpression, Binary.SUB, MultiplicativeExpression));
                 break;
             }
@@ -6500,11 +6501,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 505:  ShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 505: {
-                //#line 3893 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3894 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3893 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3894 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3895 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3896 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHL, AdditiveExpression));
                 break;
             }
@@ -6513,11 +6514,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 506:  ShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
             case 506: {
-                //#line 3898 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3899 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3898 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3899 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3900 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3901 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.SHR, AdditiveExpression));
                 break;
             }
@@ -6526,11 +6527,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 507:  ShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
             case 507: {
-                //#line 3903 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3904 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(1);
-                //#line 3903 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3904 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AdditiveExpression = (Expr) getRhsSym(3);
-                //#line 3905 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3906 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
                 break;
             }
@@ -6539,11 +6540,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 509:  RangeExpression ::= ShiftExpression$expr1 .. ShiftExpression$expr2
             //
             case 509: {
-                //#line 3910 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3911 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr1 = (Expr) getRhsSym(1);
-                //#line 3910 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3911 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr expr2 = (Expr) getRhsSym(3);
-                //#line 3912 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3913 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 Expr regionCall = nf.RegionMaker(pos(), expr1, expr2);
                 setResult(regionCall);
                 break;
@@ -6553,11 +6554,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 512:  RelationalExpression ::= RelationalExpression < RangeExpression
             //
             case 512: {
-                //#line 3919 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3920 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3919 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3920 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 3921 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3922 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LT, RangeExpression));
                 break;
             }
@@ -6566,11 +6567,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 513:  RelationalExpression ::= RelationalExpression > RangeExpression
             //
             case 513: {
-                //#line 3924 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3925 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3924 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3925 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 3926 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3927 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GT, RangeExpression));
                 break;
             }
@@ -6579,11 +6580,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 514:  RelationalExpression ::= RelationalExpression <= RangeExpression
             //
             case 514: {
-                //#line 3929 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3930 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3929 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3930 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 3931 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3932 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.LE, RangeExpression));
                 break;
             }
@@ -6592,11 +6593,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 515:  RelationalExpression ::= RelationalExpression >= RangeExpression
             //
             case 515: {
-                //#line 3934 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3935 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3934 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3935 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RangeExpression = (Expr) getRhsSym(3);
-                //#line 3936 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3937 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), RelationalExpression, Binary.GE, RangeExpression));
                 break;
             }
@@ -6605,11 +6606,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 516:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 516: {
-                //#line 3939 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3940 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3939 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3940 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode Type = (TypeNode) getRhsSym(3);
-                //#line 3941 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3942 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Instanceof(pos(), RelationalExpression, Type));
                 break;
             }
@@ -6618,11 +6619,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 517:  RelationalExpression ::= RelationalExpression in ShiftExpression
             //
             case 517: {
-                //#line 3944 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3945 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(1);
-                //#line 3944 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3945 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ShiftExpression = (Expr) getRhsSym(3);
-                //#line 3946 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3947 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Contains(pos(), RelationalExpression, ShiftExpression));
                 break;
             }
@@ -6631,11 +6632,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 519:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 519: {
-                //#line 3951 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3952 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 3951 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3952 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 3953 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3954 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.EQ, RelationalExpression));
                 break;
             }
@@ -6644,11 +6645,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 520:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 520: {
-                //#line 3956 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3957 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(1);
-                //#line 3956 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3957 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr RelationalExpression = (Expr) getRhsSym(3);
-                //#line 3958 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3959 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), EqualityExpression, Binary.NE, RelationalExpression));
                 break;
             }
@@ -6657,11 +6658,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 521:  EqualityExpression ::= Type$t1 == Type$t2
             //
             case 521: {
-                //#line 3961 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3962 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t1 = (TypeNode) getRhsSym(1);
-                //#line 3961 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3962 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 TypeNode t2 = (TypeNode) getRhsSym(3);
-                //#line 3963 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3964 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.SubtypeTest(pos(), t1, t2, true));
                 break;
             }
@@ -6670,11 +6671,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 523:  AndExpression ::= AndExpression & EqualityExpression
             //
             case 523: {
-                //#line 3968 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3969 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(1);
-                //#line 3968 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3969 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr EqualityExpression = (Expr) getRhsSym(3);
-                //#line 3970 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3971 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
                 break;
             }
@@ -6683,11 +6684,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 525:  ExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 525: {
-                //#line 3975 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3976 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 3975 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3976 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AndExpression = (Expr) getRhsSym(3);
-                //#line 3977 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3978 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ExclusiveOrExpression, Binary.BIT_XOR, AndExpression));
                 break;
             }
@@ -6696,11 +6697,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 527:  InclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 527: {
-                //#line 3982 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3983 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(1);
-                //#line 3982 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3983 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ExclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 3984 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3985 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
                 break;
             }
@@ -6709,11 +6710,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 529:  ConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 529: {
-                //#line 3989 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3990 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(1);
-                //#line 3989 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3990 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr InclusiveOrExpression = (Expr) getRhsSym(3);
-                //#line 3991 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3992 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalAndExpression, Binary.COND_AND, InclusiveOrExpression));
                 break;
             }
@@ -6722,11 +6723,11 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 531:  ConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 531: {
-                //#line 3996 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3997 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 3996 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 3997 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalAndExpression = (Expr) getRhsSym(3);
-                //#line 3998 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 3999 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
                 break;
             }
@@ -6735,13 +6736,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 536:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 536: {
-                //#line 4007 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4008 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalOrExpression = (Expr) getRhsSym(1);
-                //#line 4007 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4008 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr Expression = (Expr) getRhsSym(3);
-                //#line 4007 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4008 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr ConditionalExpression = (Expr) getRhsSym(5);
-                //#line 4009 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4010 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
                 break;
             }
@@ -6750,13 +6751,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 539:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 539: {
-                //#line 4016 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4017 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr LeftHandSide = (Expr) getRhsSym(1);
-                //#line 4016 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4017 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(2);
-                //#line 4016 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4017 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(3);
-                //#line 4018 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4019 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.Assign(pos(), LeftHandSide, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -6765,15 +6766,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 540:  Assignment ::= ExpressionName$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 540: {
-                //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName e1 = (ParsedName) getRhsSym(1);
-                //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4021 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4022 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4023 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4024 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.SettableAssign(pos(), e1.toExpr(), ArgumentList, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -6782,15 +6783,15 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 541:  Assignment ::= Primary$e1 ( ArgumentList ) AssignmentOperator AssignmentExpression
             //
             case 541: {
-                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4027 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr e1 = (Expr) getRhsSym(1);
-                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4027 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 List ArgumentList = (List) getRhsSym(3);
-                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4027 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Assign.Operator AssignmentOperator = (Assign.Operator) getRhsSym(5);
-                //#line 4026 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4027 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Expr AssignmentExpression = (Expr) getRhsSym(6);
-                //#line 4028 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4029 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(nf.SettableAssign(pos(), e1, ArgumentList, AssignmentOperator, AssignmentExpression));
                 break;
             }
@@ -6799,9 +6800,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 542:  LeftHandSide ::= ExpressionName
             //
             case 542: {
-                //#line 4032 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4033 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 ParsedName ExpressionName = (ParsedName) getRhsSym(1);
-                //#line 4034 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4035 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(ExpressionName.toExpr());
                 break;
             }
@@ -6811,7 +6812,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 544: {
                 
-                //#line 4041 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4042 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.ASSIGN);
                 break;
             }
@@ -6821,7 +6822,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 545: {
                 
-                //#line 4046 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4047 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.MUL_ASSIGN);
                 break;
             }
@@ -6831,7 +6832,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 546: {
                 
-                //#line 4051 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4052 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.DIV_ASSIGN);
                 break;
             }
@@ -6841,7 +6842,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 547: {
                 
-                //#line 4056 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4057 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.MOD_ASSIGN);
                 break;
             }
@@ -6851,7 +6852,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 548: {
                 
-                //#line 4061 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4062 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.ADD_ASSIGN);
                 break;
             }
@@ -6861,7 +6862,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 549: {
                 
-                //#line 4066 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4067 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SUB_ASSIGN);
                 break;
             }
@@ -6871,7 +6872,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 550: {
                 
-                //#line 4071 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4072 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SHL_ASSIGN);
                 break;
             }
@@ -6881,7 +6882,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 551: {
                 
-                //#line 4076 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4077 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.SHR_ASSIGN);
                 break;
             }
@@ -6891,7 +6892,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 552: {
                 
-                //#line 4081 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4082 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.USHR_ASSIGN);
                 break;
             }
@@ -6901,7 +6902,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 553: {
                 
-                //#line 4086 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4087 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_AND_ASSIGN);
                 break;
             }
@@ -6911,7 +6912,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 554: {
                 
-                //#line 4091 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4092 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_XOR_ASSIGN);
                 break;
             }
@@ -6921,7 +6922,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 555: {
                 
-                //#line 4096 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4097 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Assign.BIT_OR_ASSIGN);
                 break;
             }
@@ -6931,7 +6932,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 558: {
                 
-                //#line 4109 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4110 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Catch.class, false));
                 break;
             }
@@ -6947,9 +6948,9 @@ public void handleMessage(int errorCode, int[] msgLocation,
             // Rule 561:  Identifieropt ::= Identifier
             //
             case 561: {
-                //#line 4116 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
+                //#line 4117 "/Users/nystrom/work/x10/1.7/x10.compiler.p3/src/x10/parser/x10.g"
                 Id Identifier = (Id) getRhsSym(1);
-                //#line 4118 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4119 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Identifier);
                 break;
             }
@@ -6959,7 +6960,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 562: {
                 
-                //#line 4124 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4125 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForUpdate.class, false));
                 break;
             }
@@ -6976,7 +6977,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 566: {
                 
-                //#line 4135 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4136 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ForInit.class, false));
                 break;
             }
@@ -6986,7 +6987,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 568: {
                 
-                //#line 4142 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4143 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Case.class, false));
                 break;
             }
@@ -6996,7 +6997,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 570: {
                 
-                //#line 4149 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4150 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), SwitchElement.class, false));
                 break;
             }
@@ -7006,7 +7007,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 572: {
                 
-                //#line 4156 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4157 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -7023,7 +7024,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 576: {
                 
-                //#line 4167 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4168 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -7033,7 +7034,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 578: {
                 
-                //#line 4174 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4175 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -7043,7 +7044,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 580: {
                 
-                //#line 4181 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4182 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -7060,7 +7061,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 584: {
                 
-                //#line 4192 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4193 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
@@ -7070,7 +7071,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 586: {
                 
-                //#line 4199 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4200 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Expr.class, false));
                 break;
             }
@@ -7080,7 +7081,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 588: {
                 
-                //#line 4206 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4207 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Stmt.class, false));
                 break;
             }
@@ -7097,7 +7098,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 592: {
                 
-                //#line 4217 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4218 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -7107,7 +7108,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 594: {
                 
-                //#line 4224 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4225 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -7117,7 +7118,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 596: {
                 
-                //#line 4231 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4232 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -7127,7 +7128,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 598: {
                 
-                //#line 4238 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4239 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -7137,7 +7138,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 600: {
                 
-                //#line 4245 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4246 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(Collections.EMPTY_LIST);
                 break;
             }
@@ -7147,7 +7148,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 602: {
                 
-                //#line 4252 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4253 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), ClassMember.class, false));
                 break;
             }
@@ -7157,7 +7158,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 604: {
                 
-                //#line 4259 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4260 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -7174,7 +7175,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 608: {
                 
-                //#line 4270 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4271 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
                 break;
             }
@@ -7184,7 +7185,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 610: {
                 
-                //#line 4277 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4278 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Formal.class, false));
                 break;
             }
@@ -7194,7 +7195,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 612: {
                 
-                //#line 4284 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4285 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), AnnotationNode.class, false));
                 break;
             }
@@ -7204,7 +7205,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 614: {
                 
-                //#line 4291 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4292 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TopLevelDecl.class, false));
                 break;
             }
@@ -7214,7 +7215,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 616: {
                 
-                //#line 4298 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4299 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), Import.class, false));
                 break;
             }
@@ -7238,7 +7239,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 622: {
                 
-                //#line 4313 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4314 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypeNode.class, false));
                 break;
             }
@@ -7248,7 +7249,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 624: {
                 
-                //#line 4320 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4321 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), TypePropertyNode.class, false));
                 break;
             }
@@ -7258,7 +7259,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             //
             case 626: {
                 
-                //#line 4327 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
+                //#line 4328 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
                 setResult(new TypedList(new LinkedList(), PropertyDecl.class, false));
                 break;
             }
