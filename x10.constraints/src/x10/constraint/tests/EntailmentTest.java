@@ -252,5 +252,31 @@ public class EntailmentTest extends TestCase {
 		
 	}
 	
+	/**
+         * v0 : _{self=v1} |- v0=v1
+         * @throws Throwable
+         */
+        public void test14() throws Throwable {
+            final XVar v0 = XTerms.makeLocal(XTerms.makeName("v0"));
+            final XVar v1 = XTerms.makeLocal(XTerms.makeName("v1"));
+
+            XConstraint s = new XConstraint_c();
+            s.addBinding(v1, s.self());
+            v0.setSelfConstraint(s);
+
+            XConstraint c = new XConstraint_c();
+
+            XConstraint d = new XConstraint_c();
+            d.addBinding(v0, v1);
+            
+//            XConstraint e = d.saturate();
+
+//            System.out.println(c);
+//            System.out.println(d);
+//            System.out.println(e);
+
+            assertTrue(c.entails(d));
+        }
+
 	
 }
