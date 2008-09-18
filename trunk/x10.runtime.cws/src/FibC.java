@@ -26,9 +26,10 @@ public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
   
   static final boolean ELISION = false;
-  static final boolean ELIDE_DEQUE = true;
+  static final boolean ELIDE_DEQUE = false;
+  static final boolean ONE_FRAME = false;
   
-  public static FibFrame dummy; /* used when ELIDE DEQUE to prevent JIT from optimizing away allocations */
+  public static FibFrame dummy = new FibFrame(10); /* used when ELIDE DEQUE to prevent JIT from optimizing away allocations */
   
   @AllocateOnStack
   static class FibFrame extends Frame {
@@ -61,9 +62,13 @@ public class FibC  extends Closure {
     if (ELISION) {
     	frame = null;
     } else {
-    	frame = new FibFrame(n);
+    	if (ONE_FRAME) {
+    		frame = dummy;
+    	} else {
+    		frame = new FibFrame(n);
+    	}
     	frame.PC=LABEL_1; // continuation pointer
-    	if (ELIDE_DEQUE) {
+    	if (ELIDE_DEQUE && !ONE_FRAME) {
     		dummy = frame;
     	} else {
     		w.pushFrame(frame);
