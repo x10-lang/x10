@@ -33,7 +33,7 @@ public class FibC  extends Closure {
   
   @AllocateOnStack
   static class FibFrame extends Frame {
-	  public volatile int PC;
+      public volatile int PC;
 	  final int n;
 	  int x,y;
 	  public FibFrame(int n) {
@@ -68,8 +68,10 @@ public class FibC  extends Closure {
     		frame = new FibFrame(n);
     	}
     	frame.PC=LABEL_1; // continuation pointer
-    	if (ELIDE_DEQUE && !ONE_FRAME) {
+    	if (ELIDE_DEQUE) {
+	    if (!ONE_FRAME) {
     		dummy = frame;
+	    }
     	} else {
     		w.pushFrame(frame);
     	}
