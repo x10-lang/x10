@@ -26,6 +26,9 @@ public class FibC  extends Closure {
   static final int ENTRY=0, LABEL_1=1, LABEL_2=2,LABEL_3=3;
   
   static final boolean ELISION = false;
+  static final boolean ELIDE_DEQUE = true;
+  
+  public static FibFrame dummy; /* used when ELIDE DEQUE to prevent JIT from optimizing away allocations */
   
   @AllocateOnStack
   static class FibFrame extends Frame {
@@ -60,14 +63,18 @@ public class FibC  extends Closure {
     } else {
     	frame = new FibFrame(n);
     	frame.PC=LABEL_1; // continuation pointer
-    	w.pushFrame(frame);
+    	if (ELIDE_DEQUE) {
+    		dummy = frame;
+    	} else {
+    		w.pushFrame(frame);
+    	}
     }
     
     // this thread will definitely execute fib(n-1), and
     // hence set the value in the frame.
     final int x = fib(w, n-1);
     
-    if (!ELISION) {
+    if (!ELISION && !ELIDE_DEQUE) {
     	// Now need to figure out who is doing fib(n-2).
     	// If frame has been stolen, then this thread wont do fib(n-2).
     	// it should just return, and subsequent work will be done
@@ -85,7 +92,7 @@ public class FibC  extends Closure {
     	frame.PC=LABEL_2;
     }
     final int y=fib(w, n-2);
-    if (!ELISION) {
+    if (!ELISION && !ELIDE_DEQUE) {
     	w.abortOnSteal(y);
     }
   
@@ -93,7 +100,7 @@ public class FibC  extends Closure {
     // i.e. since the worker has made it so far, it is going to complete 
     // execution of this procedure.
 
-    if (!ELISION) {
+    if (!ELISION && !ELIDE_DEQUE) {
     	// pop the task -- it is guaranteed to be garbage.
     	w.popFrame();
     }
