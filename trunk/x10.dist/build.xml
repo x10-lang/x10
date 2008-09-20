@@ -15,6 +15,8 @@
     <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_latest.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
+    <property name="x10.common.location" location="${x10.home}/x10.common.17"/>
+    <property name="common.jar" value="x10common.jar"/>
     <property name="x10.compiler.location" location="${x10.home}/x10.compiler.p3"/>
     <property name="compiler.jar" value="x10c.jar"/>
     <property name="config" value="standard.cfg"/>
@@ -57,16 +59,18 @@
                 <include name="${runtime.jar}"/>
                 <!--
                 <include name="${constraints.jar}"/>
+                <include name="${common.jar}"/>
                 -->
                 <include name="${compiler.jar}"/>
             </fileset>
         </delete>
-        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
+        <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
 
-    <target name="dist" depends="init,build,constraints-jar,runtime-jar,compiler-jar"/>
+    <target name="dist" depends="init,build,common-jar,constraints-jar,runtime-jar,compiler-jar"/>
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
@@ -97,7 +101,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="runtime-jar" depends="init">
+    <target name="runtime-jar" depends="init,common-jar,constraints-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="jar" inheritAll="false" dir="${x10.runtime.location}"/>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
@@ -116,7 +120,18 @@
         -->
     </target>
 
-    <target name="compiler-jar" depends="init,runtime-jar,constraints-jar">
+    <target name="common-jar" depends="init">
+        <ant antfile="${x10.common.location}/build.xml" target="build" inheritAll="false" dir="${x10.common.location}"/>
+        <!--
+        <ant antfile="${x10.common.location}/build.xml" target="jar" inheritAll="false" dir="${x10.common.location}"/>
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${x10.common.location}/${builddir}" includes="${common.jar}"/>
+        </copy>
+        -->
+    </target>
+
+    <target name="compiler-jar" depends="init,common-jar,constraints-jar">
         <ant antfile="${x10.compiler.location}/build.xml" target="jar" inheritAll="false" dir="${x10.compiler.location}"/>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
@@ -367,6 +382,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
             <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.common.17" dir="${x10.common.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
         </zip>
     </target>
