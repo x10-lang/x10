@@ -10,7 +10,7 @@ package x10.runtime;
 import java.io.PrintStream;
 import java.util.StringTokenizer;
 
-import x10.runtime.util.ConfigurationError;
+import x10.config.ConfigurationError;
 
 /**
  * Code for outputting usage information for the X10 runtime.

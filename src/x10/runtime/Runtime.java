@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
+import x10.config.ConfigurationError;
 import x10.core.Ref;
 import x10.core.ValRail;
-import x10.runtime.util.ConfigurationError;
 import x10.runtime.util.ShowUsageNotification;
 
 public abstract class Runtime {
