@@ -11,9 +11,11 @@ endif
 FILES = $(wildcard Test[0-9][0-9]*.x10)
 TESTS = $(FILES:.x10=) CG
 
+LIB = ../../src/x10/classes
+
 default:
-	$(X10C) -J-Xmx1024m -cp ../classes -d ../classes *.x10
-	-$(X10) -cp ../classes Tester $(TESTS)
+	$(X10C) -J-Xmx1024m -cp $(LIB) -d $(LIB) *.x10
+	-$(X10) -cp $(LIB) Tester $(TESTS)
 	diff dbg.ref dbg.out
 	rm *.out
 
