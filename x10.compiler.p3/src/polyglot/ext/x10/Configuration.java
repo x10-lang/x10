@@ -10,8 +10,8 @@
  */
 package polyglot.ext.x10;
 
-import x10.runtime.util.ConfigurationError;
-import x10.runtime.util.OptionError;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 
 /**
  * This class provides the configuration for the X10 compiler.
@@ -19,14 +19,14 @@ import x10.runtime.util.OptionError;
  * configure the compiler, for example in order to tune performance
  * of the generated code.
  *
- * @see x10.runtime.util.Configuration
+ * @see x10.config.Configuration
  *
  * @author Christian Grothoff
  * @author Igor Peshansky
  * 
  * @author barikr: added LOOP_OPTIMIZATIONS 26th Aug 2006
  */
-public final class Configuration extends x10.runtime.util.Configuration {
+public final class Configuration extends x10.config.Configuration {
 
 	/**
 	 * The error received when attempting to load the configuration from

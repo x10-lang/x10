@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime.util;
+package x10.config;
 
 /**
  * A configuration error.

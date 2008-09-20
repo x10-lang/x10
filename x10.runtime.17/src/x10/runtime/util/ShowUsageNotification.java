@@ -7,6 +7,8 @@
  */
 package x10.runtime.util;
 
+import x10.config.ConfigurationError;
+
 /**
  * A notification for parsing command-line options.
  * Used to notify the caller that the usage message needs to be shown.

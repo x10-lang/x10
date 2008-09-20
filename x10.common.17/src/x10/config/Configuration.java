@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime.util;
+package x10.config;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.Properties;
+
 
 /**
  * Base class for the X10 configuration classes.

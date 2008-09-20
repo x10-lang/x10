@@ -10,8 +10,8 @@
  */
 package x10.runtime;
 
-import x10.runtime.util.ConfigurationError;
-import x10.runtime.util.OptionError;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 import x10.runtime.util.ShowUsageNotification;
 
 import java.util.StringTokenizer;
@@ -21,14 +21,14 @@ import java.util.StringTokenizer;
  * The configuration is a set of values that can be used to
  * configure the runtime, for example in order to tune performance.
  *
- * @see x10.runtime.util.Configuration
+ * @see x10.config.Configuration
  *
  * @author Christian Grothoff
  *
  * Extensions for JUC implementation 
  * @author Raj Barik, Vivek Sarkar
  */
-public final class Configuration extends x10.runtime.util.Configuration {
+public final class Configuration extends x10.config.Configuration {
 
 	/**
 	 * The error received when attempting to load the configuration from
