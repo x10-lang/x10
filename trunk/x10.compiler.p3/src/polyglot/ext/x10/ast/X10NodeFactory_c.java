@@ -29,6 +29,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.DelFactory;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.ExtFactory;
@@ -91,6 +92,11 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	protected ExtensionInfo extInfo;
 	public X10NodeFactory_c(ExtensionInfo extInfo) {
 		super(new X10ExtFactory_c(), new X10DelFactory_c());
+		this.extInfo = extInfo;
+	}
+	
+	protected X10NodeFactory_c(ExtensionInfo extInfo, ExtFactory extFact, DelFactory delFact) {
+		super(extFact, delFact);
 		this.extInfo = extInfo;
 	}
 
