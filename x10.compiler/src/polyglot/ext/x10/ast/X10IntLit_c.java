@@ -44,8 +44,11 @@ public class X10IntLit_c extends IntLit_c {
 	 /** Type check the expression. */
 	  public Node typeCheck(TypeChecker tc) throws SemanticException {
 		  if (kind==INT) {
-			  if (value > ((long)Integer.MAX_VALUE)+1  )
-			  throw new SemanticException("Integer literal " + value + " is out of range.",position());
+			  if ((value > (long)Integer.MAX_VALUE || value < (long)Integer.MIN_VALUE) &&
+				  (value & ~0xFFFFFFFFL) != 0L)
+			  {
+				  throw new SemanticException("Integer literal " + value + " is out of range.",position());
+			  }
 			  if (boundary()) {
 				  value = - (int) value;
 			  }
