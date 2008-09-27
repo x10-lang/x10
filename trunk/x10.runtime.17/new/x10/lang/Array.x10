@@ -113,10 +113,10 @@ public abstract value class Array[T](dist: Dist) implements
     native public def $over(that: Array[T]{dist==this.dist}): Array[T]{dist==this.dist};
 
     // ----------------- restriction
-    @Native("java", "(#0).restriction(#1)")
+    @Native("java", "((x10.array.Array)(#0).restriction(#1))")
     native public def $bar(r: Region(this.rank)): Array[T](r);
     
-    @Native("java", "(#0).restriction(#1)")
+    @Native("java", "((x10.array.Array)(#0).restriction(#1))")
     native public def $bar(d: Dist(this.rank)): Array[T](d.region);
     
     @Native("java", "(#0).restriction(#1)")
