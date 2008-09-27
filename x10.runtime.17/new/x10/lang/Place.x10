@@ -27,7 +27,7 @@ public value Place(
         @Native("java", "x10.runtime.Runtime.getFirstPlace()")
         public const FIRST_PLACE: Place = getFirstPlace();
 
-        @Native("java", "x10.runtime.Runtime.getPlacesRail()")
+        @Native("java", "x10.runtime.Runtime.places()")
         public const places: ValRail[Place] = getPlaces();
 
         /** Stubs to make the type-checker happy. */
