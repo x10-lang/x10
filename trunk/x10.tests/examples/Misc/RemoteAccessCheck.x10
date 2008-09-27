@@ -15,58 +15,56 @@ import harness.x10Test;
  */
 public class RemoteAccessCheck extends x10Test {
 
-	public def run(): boolean = {
-		var d: dist = dist.makeUnique(place.places);
+	public def run()  {
+		val d = dist.makeUnique(place.places);
 		if (d.region.size() < 2) {
 			System.out.println("RemoteAccessCheck requires 2 or more places.");
 			return false;
 		}
-		val a: A = (future(d(0)) new A()).force();
-		var error: int = (future(d(1)) checkField(a) ).force();
-		if (error != 0)
-			System.out.println(error);
-		var error2: int = (future(d(1)) checkMethod(a)).force();
+		val a = (future(d(0)) new A()).force();
+		val error = (future(d(1)) checkField(a) ).force();
+		if (error != 0) System.out.println(error);
+		val error2 = (future(d(1)) checkMethod(a)).force();
 		if (error2 != 0)
 			System.out.println(error2);
 			System.out.println("error=" + error + " error2=" + error2);
 		return error == 0 && error2 == 0;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]) {
 		new RemoteAccessCheck().execute();
 	}
 
-	static def checkField(var a: A): int = {
+	static def checkField(a: A){
 		try {
 			a.f.a = a;
 			return 2;
-		} catch (var bpe: BadPlaceException) {
+		} catch (BadPlaceException) {
 		}
 		return 0;
 	}
 
-	static def checkMethod(var a: A): int = {
+	static def checkMethod(a: A) {
 		try {
 			a.f.m();
 			return 3;
-		} catch (var bpe: BadPlaceException) {
+		} catch (BadPlaceException) {
 		}
 
 		return 0;
 	}
 
-    static value A extends Object {
-	var f: F;
-	var a: Array[int];
+    static value A extends Value {
+	val f: F;
+	val a: Array[int];
 	def this(): A = {
 	    f = new F();
-	    a = new Array[int](Dist.makeConstant([0..4], here), 
-			       (var i: point): int => { return 3; });
+	    a = Array.make[int](Dist.makeConstant(0..4, here), (point)=>3);
 		}
 	}
 
 	static class F {
 		var a: A;
-		def m(): void = { }
+		def m() { }
 	}
 }
