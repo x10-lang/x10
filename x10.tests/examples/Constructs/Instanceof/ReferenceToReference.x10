@@ -14,7 +14,7 @@ public class ReferenceToReference extends x10Test {
 
 	public def run(): boolean = {
 		var identity: X10DepTypeClassOne = new X10DepTypeClassOne(1);
-		var upcast: java.lang.Object = new X10DepTypeClassOne(1);
+		var upcast: Object = new X10DepTypeClassOne(1);
 		var downcast: X10DepTypeClassOne = new X10DepTypeSubClassOne(1,2);
 		
 		var res1: boolean = identity instanceof X10DepTypeClassOne;
