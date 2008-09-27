@@ -11,8 +11,18 @@ package x10.io;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.io.InputStream")
+
 public class InputStream {
-    @Native("java", "$0.read(#1)")
-    public native def read(): Int;
+
+    @NativeRep("java", "java.io.InputStream")
+    public static class NativeInputStream {
+      @Native("java", "#0.read()")
+      public native def read(): Int;
+    }
+    val n: NativeInputStream;
+    public def this(n:NativeInputStream) {
+      this.n  = n;
+    }
+   
+    public def read() throws IOException = n.read();
 }
