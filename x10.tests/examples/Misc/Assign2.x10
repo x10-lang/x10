@@ -16,7 +16,7 @@ public class Assign2 extends x10Test {
 	public def run(): boolean = {
                 val a = Rail.makeVar[String](5, (nat)=>"hi");
                 var i:Settable[nat,String] = a;
-                i.set(1, "bye");
+                i.set("bye", 1);
 
                 return true;
 	}
