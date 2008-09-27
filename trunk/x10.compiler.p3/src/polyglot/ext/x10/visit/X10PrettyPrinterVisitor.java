@@ -1501,11 +1501,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	                }
 	                else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
 	                    w.begin(0);
+	                    w.write("("); // put "(Type) expr" in parentheses.
 	                    w.write("(");
 	                    ex.expand(tr);
 	                    w.write(")");
 	                    w.allowBreak(2, " ");
 	                    c.printSubExpr(c.expr(), w, tr);
+	                    w.write(")");
 	                    w.end();
 	                }
 	                else {
@@ -1661,6 +1663,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(X10New_c c) {
 	    X10New_c n = c;
 	    if (n.qualifier() != null) {
+	    	
 	        tr.print(c, n.qualifier(), w);
 	        w.write(".");
 	    }
