@@ -789,6 +789,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        if (n.body().statements().size() > 0) {
                             if (n.body().statements().get(0) instanceof ConstructorCall)
                                 n.printSubStmt(n.body().statements(n.body().statements().subList(1, n.body().statements().size())), w, tr);
+                            // vj: the main body was not being written. Added next two lines.
+                            else 
+                            	 n.printSubStmt(n.body(), w, tr);
 		        }
 		        else
 		            n.printSubStmt(n.body(), w, tr);
