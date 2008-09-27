@@ -674,9 +674,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.allowBreak(6);
 	        w.write("throws ");
 
+	       
 	        for (Iterator<TypeNode> i = n.throwTypes().iterator(); i.hasNext(); ) {
-	            TypeNode tn = (TypeNode) i.next();
-	            tr.print(n, tn, w);
+	           TypeNode tn = (TypeNode) i.next();
+	            // vj 09/26/08: Changed to print out translated version of throw type
+	            // tr.print(n, tn, w);
+	           // TODO: Nate to check.
+	            printType(tn.type(), 0);
 
 	            if (i.hasNext()) {
 	                w.write(",");
