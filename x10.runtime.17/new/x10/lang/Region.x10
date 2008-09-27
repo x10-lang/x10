@@ -86,7 +86,13 @@ public abstract value Region(
     public native static def $convert(regions: ValRail[Region]): 
        Region{rank==regions.length};
 
+@Native("java", "(#0).ordinal(#1)")
+    native public def ordinal(p:Point(this.rank)):Nat 
+       throws ArrayIndexOutOfBoundsException;
 
+@Native("java", "(#0).coord(#1)")
+    native public def coord(i:Int):Point(this.rank) 
+       throws ArrayIndexOutOfBoundsException;
 @Native("java", "(#0).union(#1)")
     public abstract def union(that: Region(this.rank)): Region(this.rank);
 @Native("java", "(#0).union(#1)")
