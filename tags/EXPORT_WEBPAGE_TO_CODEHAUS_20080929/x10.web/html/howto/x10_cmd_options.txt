@@ -1,0 +1,57 @@
+HOWTO: Specify and use command line options for the X10 runtime
+---------------------------------------------------------------
+
+
+All X10 options are public static fields in the class 
+x10.runtime.Configuration.  For example, you will find a field
+
+public static boolean DUMP_STATS_ON_EXIT = false;
+
+in that class.  The only types allowed for these fields are the primitive 
+types and String. The default value for the option is always given together 
+with the declaration. When writing X10 runtime code, this is all you need to 
+do to add a new option!
+
+The value of an option can be changed by the user in two ways.  First, users 
+can specify a configuration file (in the format accepted by 
+java.util.Properties).  The configuration file is passed using 
+-Dx10.configuration=FILENAME on the Java command line (that is, using system 
+properties). The second way is to specify the value of options on the X10 
+command line, using -OPTIONNAME=VALUE.  Note that OPTIONNAME must match 
+exactly the name of the static field in Configuration.
+
+The MAIN_CLASS_NAME is the option in Configuration which specifies the main 
+class of the X10 client application.  This option is *special* in that it 
+cannot be in the configuration file and cannot be given as a "normal" option.  
+Instead, MAIN_CLASS_NAME is defined to be the first option on the java 
+command line given to the x10 Runtime (not the JVM options!) that is not 
+specified with a "-".  After the MAIN_CLASS_NAME all arguments are considered 
+X10 application arguments.  In other words, the command line looks like this: 
+
+$ java JAVA_VM_OPTIONS x10.lang.Runtime \
+          X10_VM_OPTIONS main.class.name \
+          X10_APP_OPTIONS
+
+
+Let me illustrate this with an example.  Suppose you want to run the 
+client.GaussSeidel X10 application with the arguments "-size=100".  
+Furthermore, let "myConfig.prop" be a configuration file that overrides some 
+of the default options (say, configuring the Runtime according to your 
+setup).  Finally, suppose you want to obtain statistics on exit.  Then you 
+would invoke Java like this:
+
+$ java -Dx10.configuration=myConfig.prop x10.lang.Runtime \
+          -DUMP_STATS_ON_EXIT=true client.GaussSeidel \
+          -size=100
+
+
+The preference for the final value of a configuration option at runtime is 
+command-line option overrides configuration file option which overrides the 
+default. So if you have an option in both the config file and on the command 
+line, the command line option will be used.
+
+For "loadLibrary" the option is "LOAD" and the format is a colon-separated 
+list of libraries to load in the format accepted by System.loadLibary().  So 
+for example, you can do:
+
+$ java x10.lang.Runtime -LOAD=libncurses:libcrypt my.x10.app

@@ -1,0 +1,341 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:p="urn:schemas-microsoft-com:office:powerpoint"
+xmlns:oa="urn:schemas-microsoft-com:office:activation"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=ProgId content=PowerPoint.Slide>
+<meta name=Generator content="Microsoft PowerPoint 10">
+<link id=Main-File rel=Main-File href="../web-tutorial-1.htm">
+<link rel=Preview href=preview.wmf>
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+p\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+v\:textbox {display:none;}
+</style>
+<![endif]-->
+<title>Slide 1</title>
+<meta name=Description content="12/8/2006: Memoization (with proposed generics)">
+<link rel=Stylesheet href="master06_stylesheet.css">
+<!--[if gte IE 5]>
+<object id=MSOANIM classid="CLSID:A4639D2F-774E-11D3-A490-00C04F6843FB"></object>
+<object id=MSOTIME classid="CLSID:A4639D29-774E-11D3-A490-00C04F6843FB"></object>
+<![endif]-->
+<![if !ppt]>
+<style media=print>
+<!--.sld
+	{left:0px !important;
+	width:6.0in !important;
+	height:4.5in !important;
+	font-size:76% !important;}
+-->
+</style>
+<style>
+<!--
+oa\:* { BEHAVIOR: url(#MSOANIM#ANIM) url(#MSOTIME#TIME) }
+oa\:par,oa\:seq,oa\:iterate { BEHAVIOR:url(#MSOTIME) }
+oa\:video,oa\:audio {BEHAVIOR:url(#MSOTIME) url(#MSOTIME#MEDIA) }
+-->
+</style>
+<script src=script.js></script><script><!--
+if( !IsNts() ) Redirect( "PPTSld" );
+//--></script><script><!--
+g_animItemsToHide=new Array("_x0000_s1481731_AllText","_x0000_s1481731");
+
+//--></script><!--[if vml]><script>g_vml = 1;
+</script><![endif]--><![endif]><o:shapelayout v:ext="edit">
+ <o:idmap v:ext="edit" data="1447"/>
+</o:shapelayout>
+</head>
+
+<body lang=EN-US style='margin:0px;background-color:white'
+onclick="DocumentOnClick()" onresize="_RSW()" onload="LoadSld()"
+onkeypress="_KPH()" oa:clockstart="onstart">
+
+<div id=SlideObj class=sld style='position:absolute;top:0px;left:0px;
+width:755px;height:566px;font-size:16px;background-color:white;clip:rect(0%, 101%, 101%, 0%);
+visibility:hidden'><p:slide coordsize="720,540"
+ colors="#FFFFFF,#000000,#808080,#7889FB,#7889FB,#2DB6B3,#996633,#D18213"
+ masterhref="master06.xml">
+ <p:shaperange href="master06.xml#_x0000_s344065"/><![if !ppt]><p:shaperange
+  href="master06.xml#_x0000_s344066"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344066" src="master06_image391.jpg" style='position:absolute;
+ top:94.34%;left:0%;width:100.0%;height:5.65%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344067"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344067" src="master06_image392.jpg" style='position:absolute;
+ top:0%;left:0%;width:100.0%;height:5.47%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344070"/>
+ <div v:shape="_x0000_s344070" class=O>
+ <div style='mso-char-wrap:0;mso-kinsoku-overflow:0;position:absolute;
+ top:1.94%;left:11.78%;width:38.01%;height:3.0%'><span style='font-size:78%;
+ color:white'>IBM Research: Software Technology</span></div>
+ </div>
+ <div v:shape="_x0000_s344071" class=O>
+ <div style='text-align:right;mso-char-wrap:0;mso-kinsoku-overflow:0;
+ position:absolute;top:95.58%;left:63.57%;width:34.3%;height:2.29%'><span
+ style='font-size:56%;color:white'>© 2005 IBM Corporation</span></div>
+ </div>
+ <p:shaperange href="master06.xml#_x0000_s344072"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344072" src="master06_image393.gif" style='position:absolute;
+ top:.88%;left:92.58%;width:6.75%;height:3.53%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344073"/>
+ <div v:shape="_x0000_s344073" class=O>
+ <div style='mso-line-spacing:"100 50 0";position:absolute;top:95.58%;
+ left:2.64%;width:9.13%;height:2.29%'><span style='mso-hansi-font-family:Arial;
+ font-size:56%;color:white;mso-field-code:meta16'><b>101</b></span><span
+ style='mso-hansi-font-family:Arial;font-size:56%;color:white;mso-special-format:
+ lastCR;display:none'><b>&#13;</b></span></div>
+ </div>
+ <p:shaperange href="master06.xml#_x0000_s344074"/><p:shaperange
+  href="master06.xml#_x0000_s344076"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344076" src="master06_image394.gif" style='position:absolute;
+ top:2.12%;left:10.72%;width:.39%;height:3.88%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344077"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344077" src="master06_image395.gif" style='position:absolute;
+ top:94.34%;left:10.72%;width:.39%;height:3.35%'><![endif]><p:shaperange
+  href="master06.xml#_x0000_s344078"/><map name="map_m14"></map><![if !ppt]><img
+ border=0 v:shapes="_x0000_s344078" src="master06_image396.gif"
+ usemap="#map_m14" alt="Text Box: Software Technology Department"
+ style='position:absolute;top:5.47%;left:0%;width:3.57%;height:89.22%'><![endif]>
+ <div v:shape="_x0000_s344078" class=O style='position:absolute;top:5.47%;
+ left:.26%;width:2.91%;height:86.39%;visibility:hidden'>
+ <div style='mso-line-spacing:"100 50 0";position:absolute;top:49.48%;
+ left:-1027.27%;width:2222.72%;height:4.49%;visibility:hidden'><span
+ style='color:white;mso-color-index:0'>Software Technology Department</span></div>
+ </div>
+ <p:shaperange href="master06.xml#_x0000_s344079"/><![if !vml]><img border=0
+ v:shapes="_x0000_s344079" src="master06_image397.gif" style='position:absolute;
+ top:15.54%;left:3.31%;width:97.08%;height:.53%'><![endif]><![endif]><p:shaperange
+  href="master06.xml#_x0000_m344068"/><v:shape id="_x0000_s1481730" type="#_x0000_m344068"
+  style='position:absolute;left:24pt;top:36pt;width:637.25pt;height:48pt'
+  o:userdrawn="f">
+  <v:fill o:detectmouseclick="f"/>
+  <v:stroke o:forcedash="f"/>
+  <v:imagedata preservegray="f" grayscale="f" bilevel="f"/>
+  <o:lock v:ext="edit" text="f"/>
+  <p:placeholder type="title"/></v:shape>
+ <div v:shape="_x0000_s1481730" class=T style='position:absolute;top:9.18%;
+ left:4.37%;width:86.62%;height:6.0%'>Memoization (with proposed generics)</div>
+ <v:rect id="_x0000_s1481731" style='position:absolute;left:30pt;top:102pt;
+  width:666pt;height:378pt' fillcolor="#c8f9b7" stroked="f" strokecolor="black [1]">
+  <v:shadow color="gray [2]"/>
+  <p:animation number="2" delay="0" type="object" effect="fly" direction="down"
+   flag="17408"/></v:rect><![if !vml]><img border=0 v:shapes="_x0000_s1481731"
+ src="slide0101_image530.gif" style='position:absolute;top:18.9%;left:4.1%;
+ width:92.71%;height:70.31%'><![endif]>
+ <div id="_x0000_s1481731_AllText" v:shape="_x0000_s1481731" class=B
+ style='position:absolute;top:19.25%;left:5.16%;width:108.07%;height:67.66%;
+ white-space:nowrap'>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:0%;left:0%;
+ width:83.82%;height:4.69%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:58%;display:none'>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:4.17%;left:0%;
+ width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;display:none'>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:9.39%;left:0%;
+ width:100.0%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>public class</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'> Memoizer&lt;V,A&gt; </span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>implements</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'> Computable&lt;V,A&gt; {<span
+ style='mso-tab-count:1;width:7.29%'> </span><span style='mso-spacerun:yes'> 
+ </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:14.62%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>  </span></span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>private final</span><span style='font-family:
+ "Courier New";mso-ascii-font-family:"Courier New";font-size:75%'>
+ ConcurrentMap&lt;</span><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New";font-size:75%;color:#3366FF'>future</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'>&lt;V&gt;,A&gt; cache = &#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:20.1%;left:0%;
+ width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>      </span>new
+ ConcurrentHashMap&lt;</span><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New";font-size:75%;color:#3366FF'>future</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'>&lt;V&gt;,A&gt;();<span style='mso-spacerun:yes'>  </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:25.32%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>  </span></span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>private final</span><span style='font-family:
+ "Courier New";mso-ascii-font-family:"Courier New";font-size:75%'>
+ Computable&lt;V,A&gt; c;<span style='mso-spacerun:yes'>  </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:30.54%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;display:none'>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:35.77%;
+ left:0%;width:84.68%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>  </span></span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>public</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'>
+ Memoizer(Computable&lt;V,A&gt; c) { this.c = c;} &#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:41.25%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'> &#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:46.47%;
+ left:0%;width:84.68%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'> </span><span style='font-family:"Courier New";mso-ascii-font-family:
+ "Courier New";font-size:75%;color:#3366FF'> public</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'> V compute (</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%;color:#3366FF'>final</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'> A arg) </span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%;color:#3366FF'>throws</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'> Exception {<span style='mso-spacerun:yes'>    </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:51.69%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>    </span></span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>nullable</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'>&lt;</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>future</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'>&lt;V&gt;&gt; f =
+ cache.get(arg);<span style='mso-spacerun:yes'>    </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:57.18%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>    </span></span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>if</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'> (f == </span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>null</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'>) {<span style='mso-tab-count:
+ 1;width:.15%'> </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:62.4%;left:0%;
+ width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>      </span>future&lt;V&gt; g =
+ </span><span style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>new</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'> Latch(c, arg);<span
+ style='mso-tab-count:1;width:3.6%'> </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:67.62%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>      </span>f =
+ cache.putIfAbsent(arg, g);<span style='mso-tab-count:1;width:6.89%'> </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:73.1%;left:0%;
+ width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>      </span>if (f==</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>null</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'>) { f=g; f.run();}<span
+ style='mso-spacerun:yes'>    </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:78.32%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>    </span>}<span
+ style='mso-spacerun:yes'>    </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:83.55%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>     </span></span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%;color:#3366FF'>return</span><span style='font-family:"Courier New";
+ mso-ascii-font-family:"Courier New";font-size:75%'> f.force();<span
+ style='mso-spacerun:yes'>  </span>&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:89.03%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'><span style='mso-spacerun:yes'>  </span>}&#13;</span></div>
+ <div style='mso-line-spacing:"80 10 0";position:absolute;top:94.25%;
+ left:0%;width:83.82%;height:5.74%'><span style='mso-special-format:nobullet;
+ display:none;color:#6666FF;font-family:Wingdings'>§</span><span
+ style='font-family:"Courier New";mso-ascii-font-family:"Courier New";
+ font-size:75%'>} </span></div>
+ </div>
+</p:slide></div>
+
+<p:animation number="341485681"/><oa:par id="TimeNode0" dur="indefinite"
+ restart="never" p:nodeType="timingRoot">
+ <oa:seq id="TimeNode1" dur="indefinite" prev="document.onpptprev"
+  next="document.onpptnext" concurrent="enabled" nextAction="seek"
+  p:nodeType="mainSeq">
+  <oa:par id="TimeNode2" begin="indefinite" fill="hold">
+   <oa:par id="TimeNode3" begin="0.0" fill="hold">
+    <oa:par id="TimeNode4" o:presetID="ppt_2" o:presetClass="entrance"
+     o:presetSubType="0x4" begin="0.0" fill="hold" o:groupID="0"
+     p:nodeType="clickEffect">
+     <oa:set id="TimeNode5" begin="0.0" dur="0.001" fill="hold"
+      targetElement="_x0000_s1481731" attributeName="style.visibility"
+      to="visible"/>
+     <oa:animate id="TimeNode6" dur="0.5" fill="hold"
+      targetElement="_x0000_s1481731" additive="base" attributeName="ppt_x"
+      calcmode="linear" valueType="number" keyTimes="0.0;1.0"
+      values="#ppt_x;#ppt_x"/>
+     <oa:animate id="TimeNode7" dur="0.5" fill="hold"
+      targetElement="_x0000_s1481731" additive="base" attributeName="ppt_y"
+      calcmode="linear" valueType="number" keyTimes="0.0;1.0"
+      values="1+#ppt_h/2;#ppt_y"/>
+    </oa:par>
+    <![if !ppt]><oa:par id="TimeNode8" o:presetID="ppt_2" o:presetClass="entrance"
+     o:presetSubType="0x4" begin="0.0" fill="hold" p:nodeType="withEffect">
+     <oa:set id="TimeNode9" begin="0.0" dur="0.001" fill="hold"
+      targetElement="_x0000_s1481731_AllText" attributeName="style.visibility"
+      to="visible"/>
+     <oa:animate id="TimeNode10" dur="0.5" fill="hold"
+      targetElement="_x0000_s1481731_AllText" additive="base"
+      attributeName="ppt_x" calcmode="linear" valueType="number"
+      keyTimes="0.0;1.0" values="#ppt_x;#ppt_x"/>
+     <oa:animate id="TimeNode11" dur="0.5" fill="hold"
+      targetElement="_x0000_s1481731_AllText" additive="base"
+      attributeName="ppt_y" calcmode="linear" valueType="number"
+      keyTimes="0.0;1.0" values="1+#ppt_h/2;#ppt_y"/>
+    </oa:par>
+    <![endif]></oa:par>
+  </oa:par>
+ </oa:seq>
+</oa:par>
+<![if ppt]>
+<oa:buildParagraph targetElement="_x0000_s1481731" groupID="0" build="asAWhole"
+ buildLevel="1" alsoAnimate="background" reverse="false" buildAdvance="onclick"
+ userSetAnimBgd="false"/>
+<![endif]>
+</body>
+
+</html>
