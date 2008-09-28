@@ -1,2 +1,0 @@
-// SYNOPSIS: #0=clock
-x10.runtime.Runtime.getCurrentActivity().checkClockUse((x10.runtime.Clock) #0)
