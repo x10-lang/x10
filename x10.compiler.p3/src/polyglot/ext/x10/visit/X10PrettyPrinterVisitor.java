@@ -2413,17 +2413,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.write("return ");
 	        }
 	        w.write("array.set(");
-	        {
-	            int i = 0;
-	            for (Expr e : index) {
-	                if (i != 0)
-	                    w.write(", ");
-	                w.write("i" + i);
-	                i++;
-	            }
-	        }
-	        if (index.size() > 0)
-	            w.write(", ");
+	       
+	        
 	        w.write(" array.apply(");
 	        {
 	            int i = 0;
@@ -2445,7 +2436,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            w.write(methodName.toString());
 	            w.write("(right)");
 	        }
-
+	        if (index.size() > 0)
+	            w.write(", ");
+	        {
+	            int i = 0;
+	            for (Expr e : index) {
+	                if (i != 0)
+	                    w.write(", ");
+	                w.write("i" + i);
+	                i++;
+	            }
+	        }
 	        w.write(");");
 	        w.newline();
 	        w.write("} }.eval(");
