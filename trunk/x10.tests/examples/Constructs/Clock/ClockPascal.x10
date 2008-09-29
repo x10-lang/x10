@@ -74,29 +74,27 @@ public class ClockPascal extends x10Test {
 	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
 	public const DELAY: int = 2000;
 	public def run(): boolean = {
-		val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
-		val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
-		val Dboundary: dist = D-Dinner;
-		val A: Array[int] = Array.make[int](D, (var (i,j): point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
+		val D = dist.makeConstant([0..N-1, 0..N-1], here);
+		val Dinner = D|([1..N-1, 1..N-1] to Region);
+		val Dboundary = D-Dinner;
+		val A: Array[int] = Array.make[int](D, ((i,j):point)=>Dboundary.contains([i, j]) ? 1 : 0);
 		finish async {
 			// (nullable clock)[.] N = does not work
 			// clock[.] N = new clock[D]; should not work but does.
 			// This is a workaround for this bug.
-			var N: Array[clock] = Array.make[clock](D);
-			for (val (i,j): point in D) { N(i, j) = Clock.make(); }
-			var W: Array[clock] = Array.make[clock](D);
-			for (val (i,j): point in D) { W(i, j) = Clock.make(); }
+			var N: Array[clock] = Array.make[clock](D, (point)=>Clock.make());
+			var W: Array[clock] = Array.make[clock](D, (point)=>Clock.make());
 
 			// foreach (point [i,j]: Dinner)
 			//   clocked(N[i-1,j], W[i,j-1], N[i,j], W[i,j]) { ... }
 			// does not work -- this is a workaround for this bug.
-			for (val (i,j): point in Dinner) {
+			for ((i,j) in Dinner.region) {
 				val n01: clock = N(i-1, j);
 				val w10: clock = W(i, j-1);
 				val n11: clock = N(i, j);
 				val w11: clock = W(i, j);
 				async clocked(n01, w10, n11, w11) {
-					for (val (n): point in [3..(i+j)]) {
+					for ((n) in 3..(i+j)) {
 						randDelay(DELAY);
 						pr1(i, j, n);
 						next;
@@ -126,7 +124,7 @@ public class ClockPascal extends x10Test {
 
 	static def tim(): double = {
 		var x: long = System.currentTimeMillis();
-		return (double)((x-startTime)/1000.00);
+		return ((x-startTime)/1000.00) to double;
 	}
 
 	static def pr1(var i: int, var j: int, var n: int): void = {
@@ -137,14 +135,14 @@ public class ClockPascal extends x10Test {
 		System.out.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 	}
 
-	public const maxW: boxedInt = new boxedInt(-1);
+	public static val maxW = Rail.makeVar[Int](1, (x:nat)=>0);
 
 	static def pr3(var i: int, var j: int, var A: Array[int]): void = {
 		var w: int = i+j-1; // wave number
 		var oo: boolean;
 		atomic {
-			oo = (w < maxW.val);
-			maxW.val = maxW.val < w ? w : maxW.val;
+			oo = (w < maxW(0));
+			maxW(0) = maxW(0) < w ? w : maxW(0);
 		}
 		val s: String = oo ? " Out of order!" : "";
 
