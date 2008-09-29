@@ -191,7 +191,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     }
     
     public static class X10Scheduler extends JLScheduler {
-       X10Scheduler(ExtensionInfo extInfo) {
+       public X10Scheduler(ExtensionInfo extInfo) {
 		   super(extInfo);
 	   }
 
