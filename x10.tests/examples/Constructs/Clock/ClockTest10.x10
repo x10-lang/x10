@@ -26,11 +26,11 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 public class ClockTest10 extends x10Test {
-    var varA = Array.make[int](2,(x:nat)=>0);
-    var varB = Array.make[int](2,(x:nat)=>0);
-    var varC = Array.make[int](2,(x:nat)=>0);
-    var varD = Array.make[int](2,(x:nat)=>0);
-    var varE = Array.make[int](2,(x:nat)=>0);
+    val varA = Rail.makeVar[int](2,(x:nat)=>0);
+    val varB = Rail.makeVar[int](2,(x:nat)=>0);
+    val varC = Rail.makeVar[int](2,(x:nat)=>0);
+    val varD = Rail.makeVar[int](2,(x:nat)=>0);
+    val varE = Rail.makeVar[int](2,(x:nat)=>0);
     public const N: int = 10;
     public const pipeDepth: int = 2;
 
@@ -51,56 +51,56 @@ public class ClockTest10 extends x10Test {
     }
 
     def taskA(val a: clock): void = {
-	for (val (k): point in [1..N]) {
+	for ((k) in 1..N) {
 	    varA(ph(k)) = k;
-	    System.out.println(Thread.currentThread() + " " + k + " A producing " + varA(ph(k)));
+	    System.out.println( " " + k + " A producing " + varA(ph(k)));
 	    next;
 	}
     }
     def taskB(val a: clock, val b: clock): void = {
-	for (val (k): point in [1..N]) {
+	for ((k) in 1..N) {
 	    val tmp = new boxedInt();
 	    finish tmp.val = varA(ph(k-1))+varA(ph(k-1));
-	    System.out.println(Thread.currentThread() + " " + k + " B consuming oldA producing " + tmp.val);
+	    System.out.println(" " + k + " B consuming oldA producing " + tmp.val);
 	    a.resume();
 	    varB(ph(k)) = tmp.val;
-	    System.out.println(Thread.currentThread() + " " + "B before next");
+	    System.out.println(" " + "B before next");
 	    next;
 	}
     }
     def taskC(val a: clock, val c: clock): void = {
-	for (val (k): point in [1..N]) {
+	for ((k) in 1 ..N) {
 	    val tmp: boxedInt = new boxedInt();
 	    finish tmp.val = varA(ph(k-1))*varA(ph(k-1));
-	    System.out.println(Thread.currentThread() + " " + k + " C consuming oldA "+ tmp.val);
+	    System.out.println(" " + k + " C consuming oldA "+ tmp.val);
 	    a.resume();
 	    varC(ph(k)) = tmp.val;
-	    System.out.println(Thread.currentThread() + " " + "C before next");
+	    System.out.println(" " + "C before next");
 	    next;
 	}
     }
     def taskD(val b: clock, val c: clock): void = {
-	for (val (k): point in [1..N]) {
+	for ((k) in 1 ..N) {
 	    val tmp: boxedInt = new boxedInt();
 	    finish tmp.val = varB(ph(k-1))+varC(ph(k-1))+10;
-	    System.out.println(Thread.currentThread() + " " + k + " D consuming oldB+oldC producing " + tmp.val);
+	    System.out.println(" " + k + " D consuming oldB+oldC producing " + tmp.val);
 	    c.resume();
 	    b.resume();
 	    varD(ph(k)) = tmp.val;
-	    System.out.println(Thread.currentThread() + " " + k + " D before next");
+	    System.out.println(" " + k + " D before next");
 	    var n: int = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varD(ph(k)) == n+n+n*n+10);
 	    next;
 	}
     }
     def taskE(val c: clock): void = {
-	for (val (k): point in [1..N]) {
+	for ((k) in 1 ..N) {
 	    val tmp: boxedInt = new boxedInt();
 	    finish tmp.val = varC(ph(k-1))*7;
-	    System.out.println(Thread.currentThread() + " " + k + " E consuming oldC producing " + tmp.val);
+	    System.out.println(" " + k + " E consuming oldC producing " + tmp.val);
 	    c.resume();
 	    varE(ph(k)) = tmp.val;
-	    System.out.println(Thread.currentThread() + " " + k + " E before next");
+	    System.out.println(" " + k + " E before next");
 	    var n: int = k-pipeDepth;
 	    chk(!(k>pipeDepth) || varE(ph(k)) == n*n*7);
 	    next;
