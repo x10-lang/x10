@@ -74,18 +74,18 @@ public class ClockPascal2 extends x10Test {
 	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
 	public const DELAY: int = 2000;
 	public def run(): boolean = {
-		val D: dist = Dist.makeConstant([0..N-1, 0..N-1], here);
-		val Dinner: dist{rank==D.rank} = D|[1..N-1, 1..N-1];
-		val Dboundary: dist = D-Dinner;
-		val A: Array[int] = Array.make[int](D, (var point [i,j]: point): int => { return Dboundary.contains([i, j]) ? 1 : 0; });
+		val D = Dist.makeConstant([0..N-1, 0..N-1], here);
+		val Dinner = D|([1..N-1, 1..N-1] to Region);
+		val Dboundary = D-Dinner;
+		val A: Array[int] = Array.make[int](D, ((i,j):point)=>Dboundary.contains([i, j]) ? 1 : 0);
 		finish async {
-			val N: Array[nullable<clock>] = Array.make[nullable<clock>](D);
-			for (val (i,j): point in D) { N(i, j) = Clock.make(); }
-			val W: Array[nullable<clock>] = Array.make[nullable<clock>](D);
-			for (val (i,j): point in D) { W(i, j) = Clock.make(); }
+			val N = Array.make[clock](D, (point)=>Clock.make());
+			for ((i,j) in D.region) { N(i, j) = Clock.make(); }
+			val W = Array.make[clock](D, (point)=>Clock.make());
 
-			foreach (val (i,j): point in Dinner) {
-					for (val (n): point in [3..(i+j)]) {
+			foreach ((i,j) in Dinner.region)
+			 	clocked(N(i-1,j), W(i,j-1), N(i,j), W(i,j)) {
+					for ((n) in 3..(i+j)) {
 						randDelay(DELAY);
 						pr1(i, j, n);
 						next;
@@ -113,7 +113,7 @@ public class ClockPascal2 extends x10Test {
 
 	static def tim(): double = {
 		var x: long = System.currentTimeMillis();
-		return (double)((x-startTime)/1000.00);
+		return ((x-startTime)/1000.00 to double);
 	}
 
 	static def pr1(var i: int, var j: int, var n: int): void = {
