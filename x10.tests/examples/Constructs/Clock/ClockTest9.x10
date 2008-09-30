@@ -57,7 +57,7 @@ public class ClockTest9 extends x10Test {
 
 	def foreachBodyInner(val i: int, val j: int, val d: clock): void = {
 		// activity i, j increments val[i] by j
-		async(here) clocked(d) finish async(here) { atomic v(i) = v(i) + j; }
+		async(here) clocked(d) finish async(here) { atomic v(i) += j; }
 		System.out.println("#1 i = "+i+" j = "+j);
 		next;
 		// val[i] must now be SUM(j = 0 to M-1)(j)
@@ -65,7 +65,7 @@ public class ClockTest9 extends x10Test {
 		System.out.println("#2 i = "+i+" j = "+j);
 		next;
 		// decrement val[i] by the same amount
-		async(here) clocked(d) finish async(here) { atomic v(i) = v(i) - j; }
+		async(here) clocked(d) finish async(here) { atomic v(i) -= j; }
 		System.out.println("#3 i = "+i+" j = "+j);
 		next;
 		// val[i] should be 0 by now
