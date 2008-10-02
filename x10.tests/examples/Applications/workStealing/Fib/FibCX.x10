@@ -1,3 +1,8 @@
+import x10.runtime.xws.Job;
+import x10.runtime.xws.Pool;
+import x10.runtime.xws.StealAbort;
+import x10.runtime.xws.Worker;
+
 /**
  * A pointless recursive Fibonacci in straight X10.  
  * Meant to be used to test system performance.
@@ -41,31 +46,67 @@ public class FibCX {
 	  return;
 	}
 
+	val g = new Pool(procs);
 
+	var startSC:long = 0;
+	var startSA:long = 0;
 	var valid:boolean = true;
 	val realFibResult = realFib(num);
-	val times : Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
+	val times:Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
+	val sc:Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
+	val sa:Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
 	for (var j:int = 0; j < nReps; j++) {
+          val cachedNum = num;
+	  val job = new Job(g) {
+            var result:int;
+	    public def spawnTask(ws:Worker):int throws StealAbort { return fib(/*ws, */cachedNum); }
+	    public def setResultInt(x:int):void { result = x;}
+            public def resultInt():int { return result;}
+
+
+};
+/*
+		Job job = new Job(g) { 
+		  public String toString() {
+			return "Job(#" + hashCode() + ", fib(n=" + num +"," + status+ ",frame="+ frame+")";
+		  }
+		};
+*/
+
 	  val startTime = System.nanoTime();
 	  val result = fib(num);
 	  val endTime = System.nanoTime();
+	  val endSC = g.getStealCount();
+	  val endSA = g.getStealAttempts();
 	  times(j) = endTime - startTime;
+	  sc(j) = endSC - startSC;
+	  sa(j) = endSA - startSA;
+	  startSC = endSC;
+	  startSA = endSA;
 	  if (result != realFibResult) {
 		System.out.println("FAILURE: "); // +job
 		valid = false;
 	  } else {
-		System.out.println("SUCCESS: "+times(j));
+		System.out.println("SUCCESS: "+times(j)+" "+sc(j)+" "+sa(j)/*+" "+job*/);
 	  }
 	}
 
 	val warmupReps:int = warmupReps(nReps);
 	val realReps = nReps - warmupReps;
 	var totalTime:long = 0;
+	var totalSC:long = 0;
+	var totalSA:long = 0;
 	for (var k:int = warmupReps; k<nReps; k++) {
 	  totalTime += times(k);
+	  totalSC += sc(k);
+	  totalSA += sa(k);
 	}
 
 	System.out.println("Stats for first "+warmupReps+" iterations discarded as warmup");
-	System.out.println("Fib(" + num +")"+"\t"+(totalTime)/1000000/realReps  + " ms" +"\t" + "\t" + valid);
+	System.out.println("XWS Fib(" + num +")"+"\t"+(totalTime)/1000000/realReps  + " ms" +"\t" 
+					   + "\t" +"steals=" +((totalSC)/realReps)
+					   + "\t"+"stealAttempts=" +((totalSA)/realReps)
+					   + "\t" + valid);
+	g.shutdown();
   }
 }
