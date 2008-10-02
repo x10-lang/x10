@@ -1,11 +1,11 @@
 
-import x10.runtime.xws.Closure;
-import x10.runtime.xws.Frame;
-import x10.runtime.xws.Job;
-import x10.runtime.xws.Closure.Outlet;
-import x10.runtime.xws.Pool;
-import x10.runtime.xws.Worker;
-import x10.runtime.xws.StealAbort;
+import x10.runtime.xws.impl.Closure;
+import x10.runtime.xws.impl.Frame;
+import x10.runtime.xws.impl.Job;
+import x10.runtime.xws.impl.Closure.Outlet;
+import x10.runtime.xws.impl.Pool;
+import x10.runtime.xws.impl.Worker;
+import x10.runtime.xws.impl.StealAbort;
 
 
 /**
