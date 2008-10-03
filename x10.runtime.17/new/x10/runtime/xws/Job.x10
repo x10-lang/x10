@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.runtime.xws.impl.Job")
 public abstract class Job extends Closure {
 
-  public native def this(Pool):Job;
+  public native def this(p:Pool):Job;
 	
   @Native("java", "#0.executionTime()")
   public native def executionTime():Int;

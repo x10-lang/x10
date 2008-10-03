@@ -27,7 +27,18 @@ import x10.compiler.NativeRep;
  * migrate to being in x10.
  */
 @NativeRep("java", "x10.runtime.xws.impl.Closure")
-public class Closure /* implements Executable */ {
-  // public Frame frame;
-  // public int joinCount;
+public class Closure {
+ 
+  protected native def this(f:Frame):Closure;
+
+  @Native("java", "#0.setOutlet(#1)")
+  public native def setOutlet(x:int):void;
+  
+  @Native("java", "#0.setupReturn()")
+  protected native def setupReturn():void;
+  
+  @Native("java", "#0.sync(#1)")
+  protected	native def sync(ws:Worker):boolean;
+  
+  	 
 }
