@@ -11,7 +11,8 @@ import x10.runtime.xws.Worker;
 public class FibCX {
   static def fib(n:int):int {
 	if (n < 2) return n;
-	return (async fib(n-1)) + fib(n-2);
+	// return (async fib(n-1)) + fib(n-2);
+	return fib(n-1) + fib(n-2);
   }
 
   static def realFib(n:int):int {
@@ -31,7 +32,7 @@ public class FibCX {
   }
 
 
-  public static def main(args:Rail[String]):void = {
+  public static def main(args:Rail[String]):void {
 	var procs:int;
 	var nReps:int;
 	var num:int;
@@ -45,9 +46,16 @@ public class FibCX {
 	  System.out.println("Usage: FibC2 <threads> <numRepeatations> <N>");
 	  return;
 	}
+	try {
+	        doWork(procs, nReps, num);
+	} catch (e:Exception) {
+	  System.out.println("Unexpected exception" +e);
+	  e.printStackTrace();
+        }
+  }
 
-	val g = new Pool(procs);
-
+  public static def doWork(procs:int, nReps:int, num:int) throws Exception {
+	val pool = new Pool(procs);
 	var startSC:long = 0;
 	var startSA:long = 0;
 	var valid:boolean = true;
@@ -55,29 +63,20 @@ public class FibCX {
 	val times:Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
 	val sc:Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
 	val sa:Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
+
 	for (var j:int = 0; j < nReps; j++) {
-          val cachedNum = num;
-	  val job = new Job(g) {
+	  val job = new Job(pool) {
             var result:int;
-	    public def spawnTask(ws:Worker):int throws StealAbort { return fib(/*ws, */cachedNum); }
+	    public def spawnTask(ws:Worker):int throws StealAbort { return fib(/*ws, */num); }
 	    public def setResultInt(x:int):void { result = x;}
             public def resultInt():int { return result;}
-
-
-};
-/*
-		Job job = new Job(g) { 
-		  public String toString() {
-			return "Job(#" + hashCode() + ", fib(n=" + num +"," + status+ ",frame="+ frame+")";
-		  }
-		};
-*/
-
+	  };
 	  val startTime = System.nanoTime();
-	  val result = fib(num);
+	  pool.invoke(job);
+          val result = job.getInt();
 	  val endTime = System.nanoTime();
-	  val endSC = g.getStealCount();
-	  val endSA = g.getStealAttempts();
+	  val endSC = pool.getStealCount();
+	  val endSA = pool.getStealAttempts();
 	  times(j) = endTime - startTime;
 	  sc(j) = endSC - startSC;
 	  sa(j) = endSA - startSA;
@@ -107,6 +106,6 @@ public class FibCX {
 					   + "\t" +"steals=" +((totalSC)/realReps)
 					   + "\t"+"stealAttempts=" +((totalSA)/realReps)
 					   + "\t" + valid);
-	g.shutdown();
+	pool.shutdown();
   }
 }
