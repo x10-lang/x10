@@ -2,7 +2,6 @@
  * A pointless recursive Fibonacci in straight X10.  
  * Meant to be used to test system performance.
  */ 
-
 public class FibX {
   static def fib(n:int):int {
 	if (n < 2) return n;
@@ -21,12 +20,7 @@ public class FibX {
 	return x;
   }
 
-  static def warmupReps(reps:int):int {
-	return (reps == 1 || reps == 2) ? 0 : reps/3;
-  }
-
-
-  public static def main(args:Rail[String]):void = {
+  public static def main(args:Rail[String]):void {
 	var procs:int;
 	var nReps:int;
 	var num:int;
@@ -41,7 +35,6 @@ public class FibX {
 	  return;
 	}
 
-
 	var valid:boolean = true;
 	val realFibResult = realFib(num);
 	val times : Rail[long] = Rail.makeVar[long](nReps, (x:nat)=>0L);
@@ -51,7 +44,7 @@ public class FibX {
 	  val endTime = System.nanoTime();
 	  times(j) = endTime - startTime;
 	  if (result != realFibResult) {
-		System.out.println("FAILURE: "); // +job
+		System.out.println("FAILURE: ");
 		valid = false;
 	  } else {
 		System.out.println("SUCCESS: "+times(j));
@@ -64,8 +57,12 @@ public class FibX {
 	for (var k:int = warmupReps; k<nReps; k++) {
 	  totalTime += times(k);
 	}
-
+	
 	System.out.println("Stats for first "+warmupReps+" iterations discarded as warmup");
 	System.out.println("Fib(" + num +")"+"\t"+(totalTime)/1000000/realReps  + " ms" +"\t" + "\t" + valid);
+  }
+  
+  private static def warmupReps(reps:int):int {
+      return (reps == 1 || reps == 2) ? 0 : reps/3;
   }
 }
