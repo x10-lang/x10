@@ -1,19 +1,175 @@
+import x10.runtime.xws.Closure;
+import x10.runtime.xws.Frame;
 import x10.runtime.xws.Job;
 import x10.runtime.xws.Pool;
 import x10.runtime.xws.StealAbort;
 import x10.runtime.xws.Worker;
 
 /**
- * A pointless recursive Fibonacci in straight X10.  
+ * A pointless recursive Fibonacci written against X10 implementation of XWS.  
  * Meant to be used to test system performance.
+ * Can be used to micro-benchmark the overheads of specific pieces of the XWS implementation.
  */ 
+public class FibCX {  
+  /* Flags for microbenchmarking; enable/disable various pieces of XWS implementation */
+  private const ELISION = false;
+  private const ELIDE_DEQUE = false;
+  private const ONE_FRAME = false;
+    
+  /**
+   * Closure that implements the Cilk-style Fast and Slow paths for 
+   * the following silly recursive fib method written in X10.
+   * <pre>  
+   * static def fib(n:int):int {
+   *   if (n < 2) return n;
+   *   return (async fib(n-1)) + fib(n-2);
+   * }
+   * </pre>
+   */
+  private static class FibClosure extends Closure {
+    /* PC labels */
+    private const ENTRY = 0;
+    private const LABEL_1 = 1;
+    private const LABEL_2 = 2;
+    private const LABEL_3 = 4;
 
-public class FibCX {
-  static def fib(n:int):int {
-	if (n < 2) return n;
-	// return (async fib(n-1)) + fib(n-2);
-	return fib(n-1) + fib(n-2);
-  }
+    /* Only used when ONE_FRAME is true */
+    private const dummyFrame = new FibFrame(10);
+    /* Used when ELIDE DEQUE to prevent JIT from optimizing away allocations of the FibFrame objects */
+    var foolTheJIT:FibFrame;
+    
+    private var result:int;
+    public def resultInt():int { return result;}
+    public def setResultInt(x:int):void { result=x;}
+      
+    def this(frame:FibFrame) { super(frame); }
+    
+    def this(n:int) { super(new FibFrame(n)); }
+    
+    def fib(w:Worker, n:int):int throws StealAbort { // fast mode
+        if (n < 2) return n;
+        var frame:FibFrame;
+        if (ELISION) {
+    	    frame = null;
+        } else {
+	    	if (ONE_FRAME) {
+	    		frame = dummyFrame;
+	    	} else {
+	    		frame = new FibFrame(n);
+	    	}
+	    	frame.PC=LABEL_1; // continuation pointer
+	    	if (ELIDE_DEQUE && !ONE_FRAME) {
+	    		foolTheJIT = frame;
+	    	} else {
+	    		w.pushFrame(frame);
+	    	}
+	    }
+	    
+	    // this thread will definitely execute fib(n-1), and
+	    // hence set the value in the frame.
+	    val x = fib(w, n-1);
+	    
+	    if (!ELISION && !ELIDE_DEQUE) {
+	    	// Now need to figure out who is doing fib(n-2).
+	    	// If frame has been stolen, then this thread wont do fib(n-2).
+	    	// it should just return, and subsequent work will be done
+	    	// by others. 
+	    	w.abortOnSteal(x);
+	    }
+	        
+	    // Now we are back in the current frame, it has not been stolen. 
+	    // Execute the local code to the next spawn. 
+	    
+	    if (!ELISION) {
+	    	// Now at the next spawn, exactly as before, set up the 
+	    	// continuation pointer. 
+	    	frame.x=x;
+	    	frame.PC=LABEL_2;
+	    }
+	    val y=fib(w, n-2);
+	    if (!ELISION && !ELIDE_DEQUE) {
+	    	w.abortOnSteal(y);
+	    }
+	  
+	    // Now there is nothing more to spawn -- so no need for the frame.
+	    // i.e. since the worker has made it so far, it is going to complete 
+	    // execution of this procedure.
+	    if (!ELISION && !ELIDE_DEQUE) {
+	    	// pop the task -- it is guaranteed to be garbage.
+	    	w.popFrame();
+	    }
+	    
+	    // the sync is a no-op.
+	    // return the computed value.
+	    val result = x+y;
+	    return result;
+	  }
+	
+	  public def compute(w:Worker, frame:Frame):void throws StealAbort { // slow mode
+	    val f = frame as FibFrame;
+	    val n = f.n;
+	    switch (f.PC) { // NOTE: all cases in switch are falling through!
+	    case ENTRY: 
+	    	if (n < 2) {
+	    		result = n;
+	    		setupReturn();
+	    		return;
+	    	}
+	    	f.PC=LABEL_1;
+	    	val x = fib(w, n-1);
+	    	w.abortOnSteal(x);
+	    	f.x=x;
+	    	
+	    case LABEL_1: 
+	    	f.PC=LABEL_2;
+	    	val y=fib(w,n-2);
+	    	w.abortOnSteal(y);
+	    	f.y=y;
+	    	
+	    case LABEL_2: 
+	    	f.PC=LABEL_3;
+	    	if (sync(w)) {
+	    		return;
+	    	}
+	    case LABEL_3:
+	    	result=f.x+f.y;
+	    	setupReturn();
+	    }
+	    return;
+	  }
+
+      private static class FibFrame extends Frame {
+	    val n:int;
+	    var PC:int;
+	    var x:int;
+	    var y:int;
+	    
+	  	def this(n:int) { 
+	  	  super(); 
+	  	  this.n = n; 
+	  	}
+	
+		public def acceptInlet(index:int, value:int):void {
+	 	  if (index==LABEL_1) { 
+		    x=value;
+	 	  } else {
+			y=value;
+		  }
+		}
+		
+		public def setOutletOn(c:Closure):void {
+		  c.setOutlet(PC);
+		}
+		
+		public def makeClosure(): Closure {
+	      return new FibClosure(this);
+		}
+		
+		public def toString():String { 
+		  return "FibFrame(n="+n+",x="+x+",y="+y+",PC=" + PC + ")";
+		}  
+	  };
+  };
 
   static def realFib(n:int):int {
 	if (n < 2) return n;
@@ -47,11 +203,11 @@ public class FibCX {
 	  return;
 	}
 	try {
-	        doWork(procs, nReps, num);
+	  doWork(procs, nReps, num);
 	} catch (e:Exception) {
 	  System.out.println("Unexpected exception" +e);
 	  e.printStackTrace();
-        }
+    }
   }
 
   public static def doWork(procs:int, nReps:int, num:int) throws Exception {
@@ -67,7 +223,7 @@ public class FibCX {
 	for (var j:int = 0; j < nReps; j++) {
 	  val job = new Job(pool) {
             var result:int;
-	    public def spawnTask(ws:Worker):int throws StealAbort { return fib(/*ws, */num); }
+	    public def spawnTask(ws:Worker):int throws StealAbort { return new FibClosure(num).fib(ws, num); }
 	    public def setResultInt(x:int):void { result = x;}
             public def resultInt():int { return result;}
 	  };
