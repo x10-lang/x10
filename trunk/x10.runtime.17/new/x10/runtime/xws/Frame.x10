@@ -24,5 +24,5 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.runtime.xws.impl.Frame")
 public class Frame {
-	
+  protected native def this():Frame;
 }
