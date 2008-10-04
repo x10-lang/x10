@@ -8,6 +8,7 @@
 package polyglot.ext.x10.types;
 
 import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -79,5 +80,7 @@ public interface X10Context extends Context {
     boolean inAnnotation();
     void setAnnotation();
     void clearAnnotation();
+
+    CodeDef definingCodeDef(Name name);
    
 }

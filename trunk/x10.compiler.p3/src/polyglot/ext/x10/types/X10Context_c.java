@@ -80,6 +80,19 @@ public class X10Context_c extends Context_c implements X10Context {
 	public XConstraint currentConstraint() { return currentConstraint; }
 	public void setCurrentConstraint(XConstraint c) { currentConstraint = c; }
 
+	public CodeDef definingCodeDef(Name name) {
+	    if ((isBlock() || isCode()) &&
+	            (findVariableInThisScope(name) != null || findInThisScope(name) != null)) {
+	        return currentCode();
+	    }
+
+	    if (outer instanceof X10Context) {
+	        return ((X10Context) outer).definingCodeDef(name);
+	    }
+
+	    return null;
+	}
+
 	// Set if we are in a supertype declaration of this type.
 	protected X10ClassDef inSuperOf = null;
 	public boolean inSuperTypeDeclaration() { return inSuperOf != null; }
