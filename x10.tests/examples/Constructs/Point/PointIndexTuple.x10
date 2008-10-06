@@ -14,34 +14,35 @@ import harness.x10Test;;
  * @author kemal, 6/2005
  * @author vj same as PointIndex, except that it uses tuple [1,2] instead of [1,2] as point.
  */
-public class PointIndex extends x10Test {
 
-	public def run(): boolean = {
-		var sum: int = 0;
-		var gotException: boolean;
-		var p: point = [1, 2];
-		
+public class PointIndexTuple extends x10Test {
 
-		gotException = false;
-		try {
-			sum += p(-1);
-		} catch (var e: ArrayIndexOutOfBoundsException) {
-			gotException = true;
-		}
-		System.out.println("1: sum = "+sum+" gotException = "+gotException);
-		if (!(sum == 0 && gotException)) return false;
+    public def run(): boolean = {
 
-		gotException = false;
-		try {
-			sum += p(3);
-		} catch (var e: ArrayIndexOutOfBoundsException) {
-			gotException = true;
-		}
-		System.out.println("2: sum = "+sum+" gotException = "+gotException);
-		return sum == 0 && gotException;
-	}
+        var sum: int = 0;
+        var gotException: boolean;
+        var p: Point = [1, 2];
+        
+        gotException = false;
+        try {
+            sum += p(-1);
+        } catch (var e: ArrayIndexOutOfBoundsException) {
+            gotException = true;
+        }
+        System.out.println("1: sum = "+sum+" gotException = "+gotException);
+        if (!(sum == 0 && gotException)) return false;
 
-	public static def main(var args: Rail[String]): void = {
-		new PointIndex().execute();
-	}
+        gotException = false;
+        try {
+            sum += p(3);
+        } catch (var e: ArrayIndexOutOfBoundsException) {
+            gotException = true;
+        }
+        System.out.println("2: sum = "+sum+" gotException = "+gotException);
+        return sum == 0 && gotException;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointIndexTuple().execute();
+    }
 }
