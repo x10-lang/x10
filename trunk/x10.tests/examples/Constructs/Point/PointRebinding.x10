@@ -12,16 +12,18 @@ import harness.x10Test;;
  *
  * @author igor, 1/2006
  */
+
 public class PointRebinding extends x10Test {
 
-	public def run(): boolean = {
-		val p: point = [1, 2] to point;
-		val (i, j): point = p;
+    public def run(): boolean = {
 
-		return (i == 1 && j == 2);
-	}
+        val p: Point = [1, 2] to Point;
+        val (i, j): Point = p;
 
-	public static def main(var args: Rail[String]): void = {
-		new PointRebinding().execute();
-	}
+        return (i == 1 && j == 2);
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointRebinding().execute();
+    }
 }

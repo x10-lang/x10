@@ -15,32 +15,32 @@ import harness.x10Test;;
  */
 public class PointIndex extends x10Test {
 
-	public def run(): boolean = {
-		var sum:int = 0;
-		var gotException: boolean;
-		var p: point = [1, 2] to point;
-		
+    public def run(): boolean = {
 
-		gotException = false;
-		try {
-			sum += p(-1);
-		} catch (var e: ArrayIndexOutOfBoundsException) {
-			gotException = true;
-		}
-		System.out.println("1: sum = "+sum+" gotException = "+gotException);
-		if (!(sum == 0 && gotException)) return false;
+        var sum:int = 0;
+        var gotException: boolean;
+        var p: Point = [1, 2] to Point;
 
-		gotException = false;
-		try {
-			sum += p(3);
-		} catch (var e: ArrayIndexOutOfBoundsException) {
-			gotException = true;
-		}
-		System.out.println("2: sum = "+sum+" gotException = "+gotException);
-		return sum == 0 && gotException;
-	}
+        gotException = false;
+        try {
+            sum += p(-1);
+        } catch (var e: ArrayIndexOutOfBoundsException) {
+            gotException = true;
+        }
+        System.out.println("1: sum = "+sum+" gotException = "+gotException);
+        if (!(sum == 0 && gotException)) return false;
 
-	public static def main(var args: Rail[String]): void = {
-		new PointIndex().execute();
-	}
+        gotException = false;
+        try {
+            sum += p(3);
+        } catch (var e: ArrayIndexOutOfBoundsException) {
+            gotException = true;
+        }
+        System.out.println("2: sum = "+sum+" gotException = "+gotException);
+        return sum == 0 && gotException;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointIndex().execute();
+    }
 }

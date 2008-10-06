@@ -12,17 +12,19 @@ import harness.x10Test;
  *
  * @author igor, 1/2006
  */
+
 public class UninitializedPointBinding_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
-                var p(i,j): point;
-                p = [1,2];
+    public def run(): boolean = {
 
-		return (i == 1 && j == 2);
-	}
+        var p(i,j): Point;
+        p = [1,2];
 
-	public static def main(args: Rail[String]): void = {
-		new UninitializedPointBinding_MustFailCompile().execute();
-	}
+        return (i == 1 && j == 2);
+    }
+
+    public static def main(args: Rail[String]): void = {
+        new UninitializedPointBinding_MustFailCompile().execute();
+    }
 }
 

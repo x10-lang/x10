@@ -12,17 +12,19 @@ import harness.x10Test;
  *
  * @author igor, 1/2006
  */
+
 public class ArrayPointBinding_MustFailCompile extends x10Test {
 
-	public def run(): boolean = {
-		p(i,j): Rail[point] = new Rail[point](1);
-		p(0) = [1,2];
+    public def run(): boolean = {
 
-		return (i == 1 && j == 2);
-	}
+        p(i,j): Rail[Point] = new Rail[Point](1);
+        p(0) = [1,2];
 
-	public static def main(args: Rail[String]): void = {
-		new ArrayPointBinding_MustFailCompile().execute();
-	}
+        return (i == 1 && j == 2);
+    }
+
+    public static def main(args: Rail[String]): void = {
+        new ArrayPointBinding_MustFailCompile().execute();
+    }
 }
 

@@ -12,18 +12,20 @@ import harness.x10Test;;
  *
  * @author vj 08/29/08
  */
+
 public class PointAdd extends x10Test {
 
+    public def run(): boolean = {
 
-	public def run(): boolean = {
-		val p  = [2, 2, 2, 2, 2] to point;
-		val q = [1, 1, 1, 1, 1] to point;
-	
-		var a:point{p.rank==rank} = p + q;
-		return true;
-		}
+        val p = [2, 2, 2, 2, 2] to Point;
+        val q = [1, 1, 1, 1, 1] to Point;
+    
+        var a:Point(p.rank) = p + q;
 
-	public static def main(var args: Rail[String]): void = {
-		new PointAdd().execute();
-	}
+        return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointAdd().execute();
+    }
 }

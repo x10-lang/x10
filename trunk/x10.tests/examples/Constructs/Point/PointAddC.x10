@@ -12,20 +12,24 @@ import harness.x10Test;;
  *
  * @author igor, 2/2006
  */
+
 public class PointAddC extends x10Test {
 
-	public def run(): boolean = {
-		val p:point = [2, 2, 2, 2, 2] to point;
-		var c:int = 2;
-		val a = p + c;
-		var sum: int= 0;
-		for (var i: int = 0; i < p.rank(); i++)
-			sum += a(i);
-		if (sum != 20) return false;
-		return true;
-	}
+    public def run(): boolean = {
 
-	public static def main(var args: Rail[String]): void = {
-		new PointAddC().execute();
-	}
+        val p:Point = [2, 2, 2, 2, 2] to Point;
+        var c:int = 2;
+        val a = p + c;
+
+        var sum: int= 0;
+        for (var i: int = 0; i < p.rank(); i++)
+            sum += a(i);
+
+        if (sum != 20) return false;
+        return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointAddC().execute();
+    }
 }
