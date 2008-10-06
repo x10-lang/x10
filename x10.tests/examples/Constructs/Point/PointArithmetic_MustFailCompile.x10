@@ -12,39 +12,41 @@ import harness.x10Test;;
  *
  * @author igor, 2/2006
  */
+
 public class PointArithmetic_MustFailCompile extends x10Test {
 
-	public const DIM: int = 5;
+    public const DIM: int = 5;
 
-	public def run(): boolean = {
-		var sum: int = 0;
-		val p = [2, 2, 2, 2, 2] to point(DIM);
-		val q = [1, 1, 1, 1, 1] to point(DIM);
-		var c: int = 2;
+    public def run(): boolean = {
 
-		// Now test that the dimensionality is properly checked
+        var sum: int = 0;
+        val p = [2, 2, 2, 2, 2] to Point(DIM);
+        val q = [1, 1, 1, 1, 1] to Point(DIM);
+        var c: int = 2;
 
-		var gotException: boolean;
-		var r: point = [1, 2, 3, 4] to point;
+        // Now test that the dimensionality is properly checked
 
-                var a: point;
-                var s: point;
-                var m: point;
-                var d: point;
+        var gotException: boolean;
+        var r: Point = [1, 2, 3, 4] to Point;
 
-                a = p + r;
-                s = p - r;
-                m = p * r;
-                d = p / r;
-                a = r + p;
-                s = r - p;
-                m = r * p;
-                d = r / p;
+        var a: Point;
+        var s: Point;
+        var m: Point;
+        var d: Point;
+        
+        a = p + r;
+        s = p - r;
+        m = p * r;
+        d = p / r;
+        a = r + p;
+        s = r - p;
+        m = r * p;
+        d = r / p;
+        
+        return true;
+    }
 
-                return true;
-        }
-
-	public static def main(var args: Rail[String]): void = {
-		new PointArithmetic().execute();
-	}
+    public static def main(var args: Rail[String]): void = {
+        new PointArithmetic().execute();
+    }
 }

@@ -12,18 +12,18 @@ import harness.x10Test;;
  *
  * @author igor, 1/2006
  */
+
 public class PointArray extends x10Test {
 
-	public def run(): boolean = {
-		var p: Rail[point] 
-		            = Rail.makeVar[point](1, 
-		            		(x:nat)=>Point.make(0));
-		p(0) = Point.make(1, 2);
+    public def run(): boolean = {
 
-		return (p(0)(0) == 1 && p(0)(1) == 2);
-	}
+        var p: Rail[Point] = Rail.makeVar[Point](1, (nat)=>Point.make(0));
+        p(0) = Point.make(1, 2);
 
-	public static def main(var args: Rail[String]): void = {
-		new PointArray().execute();
-	}
+        return (p(0)(0) == 1 && p(0)(1) == 2);
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointArray().execute();
+    }
 }

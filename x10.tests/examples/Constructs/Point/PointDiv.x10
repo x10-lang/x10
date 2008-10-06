@@ -12,18 +12,19 @@ import harness.x10Test;;
  *
  * @author vj 08/29/08
  */
+
 public class PointDiv extends x10Test {
 
+    public def run(): boolean = {
 
-	public def run(): boolean = {
-		val p  = [2, 2, 2, 2, 2] to point;
-		val q = [1, 1, 1, 1, 1] to point;
-	
-		val a = p / q;
-		return p==a*q;
-		}
+        val p  = [2, 2, 2, 2, 2] to Point;
+        val q = [1, 1, 1, 1, 1] to Point;
+    
+        val a = p / q;
+        return p==a*q;
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new PointDiv().execute();
-	}
+    public static def main(var args: Rail[String]): void = {
+        new PointDiv().execute();
+    }
 }

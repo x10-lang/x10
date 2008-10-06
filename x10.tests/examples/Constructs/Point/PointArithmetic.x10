@@ -12,124 +12,126 @@ import harness.x10Test;;
  *
  * @author igor, 2/2006
  */
+
 public class PointArithmetic extends x10Test {
 
-	public const DIM: int = 5;
+    public const DIM: int = 5;
 
-	public def run(): boolean = {
-		var sum: int = 0;
-		val p = [2, 2, 2, 2, 2] to point(DIM);
-		val q = [1, 1, 1, 1, 1] to point(DIM);
-		var c: int = 2;
+    public def run(): boolean = {
 
-		// First test that the point/point arithmetic works
+        var sum: int = 0;
+        val p = [2, 2, 2, 2, 2] to Point(DIM);
+        val q = [1, 1, 1, 1, 1] to Point(DIM);
+        var c: int = 2;
 
-		var a: point(DIM) = p + q;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += a(i);
-		System.out.println("p+p: sum = "+sum);
-		if (sum != 15) return false;
+        // First test that the point/point arithmetic works
 
-		var s: point(DIM) = p - q;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += s(i);
-		System.out.println("p-p: sum = "+sum);
-		if (sum != 5) return false;
+        var a: Point(DIM) = p + q;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += a(i);
+        System.out.println("p+p: sum = "+sum);
+        if (sum != 15) return false;
 
-		var m: point(DIM) = p * q;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += m(i);
-		System.out.println("p*p: sum = "+sum);
-		if (sum != 10) return false;
+        var s: Point(DIM) = p - q;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += s(i);
+        System.out.println("p-p: sum = "+sum);
+        if (sum != 5) return false;
 
-		var d: point(DIM) = p / q;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += d(i);
-		System.out.println("p/p: sum = "+sum);
-		if (sum != 10) return false;
+        var m: Point(DIM) = p * q;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += m(i);
+        System.out.println("p*p: sum = "+sum);
+        if (sum != 10) return false;
 
-		// Unary +/-
+        var d: Point(DIM) = p / q;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += d(i);
+        System.out.println("p/p: sum = "+sum);
+        if (sum != 10) return false;
 
-		var u: point(DIM) = -q;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += u(i);
-		System.out.println("-p: sum = "+sum);
-		if (sum != -5) return false;
+        // Unary +/-
 
-		u = +q;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += u(i);
-		System.out.println("+p: sum = "+sum);
-		if (sum != 5) return false;
+        var u: Point(DIM) = -q;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += u(i);
+        System.out.println("-p: sum = "+sum);
+        if (sum != -5) return false;
 
-		// Then test that the point/constant arithmetic works
+        u = +q;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += u(i);
+        System.out.println("+p: sum = "+sum);
+        if (sum != 5) return false;
 
-		a = p + c;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += a(i);
-		System.out.println("p+c: sum = "+sum);
-		if (sum != 20) return false;
+        // Then test that the point/constant arithmetic works
 
-		s = p - c;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += s(i);
-		System.out.println("p-c: sum = "+sum);
-		if (sum != 0) return false;
+        a = p + c;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += a(i);
+        System.out.println("p+c: sum = "+sum);
+        if (sum != 20) return false;
 
-		m = p * c;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += m(i);
-		System.out.println("p*c: sum = "+sum);
-		if (sum != 20) return false;
+        s = p - c;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += s(i);
+        System.out.println("p-c: sum = "+sum);
+        if (sum != 0) return false;
 
-		d = p / c;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += d(i);
-		System.out.println("p/c: sum = "+sum);
-		if (sum != 5) return false;
+        m = p * c;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += m(i);
+        System.out.println("p*c: sum = "+sum);
+        if (sum != 20) return false;
 
-		a = c + p;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += a(i);
-		System.out.println("c+p: sum = "+sum);
-		if (sum != 20) return false;
+        d = p / c;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += d(i);
+        System.out.println("p/c: sum = "+sum);
+        if (sum != 5) return false;
 
-		s = c - p;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += s(i);
-		System.out.println("c-p: sum = "+sum);
-		if (sum != 0) return false;
+        a = c + p;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += a(i);
+        System.out.println("c+p: sum = "+sum);
+        if (sum != 20) return false;
 
-		m = c * p;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += m(i);
-		System.out.println("c*p: sum = "+sum);
-		if (sum != 20) return false;
+        s = c - p;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += s(i);
+        System.out.println("c-p: sum = "+sum);
+        if (sum != 0) return false;
 
-		d = c / p;
-		sum = 0;
-		for (var i: int = 0; i < DIM; i++)
-			sum += d(i);
-		System.out.println("c/p: sum = "+sum);
-		if (sum != 5) return false;
+        m = c * p;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += m(i);
+        System.out.println("c*p: sum = "+sum);
+        if (sum != 20) return false;
 
-		return true;
-	}
+        d = c / p;
+        sum = 0;
+        for (var i: int = 0; i < DIM; i++)
+            sum += d(i);
+        System.out.println("c/p: sum = "+sum);
+        if (sum != 5) return false;
 
-	public static def main(var args: Rail[String]): void = {
-		new PointArithmetic().execute();
-	}
+        return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new PointArithmetic().execute();
+    }
 }
