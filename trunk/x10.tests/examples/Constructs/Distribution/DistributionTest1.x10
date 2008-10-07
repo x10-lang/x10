@@ -10,19 +10,20 @@ import harness.x10Test;;
 /**
  * Minimal test for dists.
  */
+
 public class DistributionTest1 extends x10Test {
 
-	public def run(): boolean = {
-	    val r= 0..100;
-	    val R = [r,r] to Region;
-	    val D  = R->here;
-	    return ((D(0, 0) == here) &&
-		    (D.rank == 2) &&
-		    (R.rank == 2) &&
-		    (R.rank(1).high() - R.rank(1).low() + 1 == 101));
-	}
+    public def run(): boolean = {
+        val r= 0..100;
+        val R = [r,r] to Region;
+        val D  = R->here;
+        return ((D(0, 0) == here) &&
+            (D.rank == 2) &&
+            (R.rank == 2) &&
+            (R.rank(1).high() - R.rank(1).low() + 1 == 101));
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new DistributionTest1().execute();
-	}
+    public static def main(var args: Rail[String]): void = {
+        new DistributionTest1().execute();
+    }
 }
