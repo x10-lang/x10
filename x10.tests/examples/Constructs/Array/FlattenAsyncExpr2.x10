@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 
 /**
@@ -15,27 +15,28 @@ import harness.x10Test;;
  * not produce a variable standing alone. 
  * In an earlier implementation this would give a t0 not reachable error.
  */
+
 public class FlattenAsyncExpr2 extends x10Test {
-   var a: Array[int](1);
+
+    var a: Array[int](1);
+
     public def this(): FlattenAsyncExpr2 = {
-      a = Array.make[int](1..10 -> here, ((j): point): int => { return 2*j;});
+        a = Array.make[int](1..10 -> here, ((j): Point): int => { return 2*j;});
     }
+
     def m(var x: int): int = {
-      
-      return x;
+        return x;
     }
     
-	public def run(): boolean = {
-		finish async(a.dist(1)) {
-					m(50000);
-					atomic { a(1) = (a(1)^2);}
-          
-				}
-	 return a(1)== (2^2);
-	}
+    public def run(): boolean = {
+        finish async(a.dist(1)) {
+            m(50000);
+            atomic { a(1) = (a(1)^2);}
+        }
+        return a(1)== (2^2);
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new FlattenAsyncExpr2().execute();
-	}
-	
+    public static def main(var args: Rail[String]): void = {
+        new FlattenAsyncExpr2().execute();
+    }
 }

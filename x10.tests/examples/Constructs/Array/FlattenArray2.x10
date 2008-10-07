@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Test for array reference flattening. Checks that after flattening
@@ -20,22 +20,24 @@ import harness.x10Test;;
  */
  
 public class FlattenArray2 extends x10Test {
-    var a: Array[int](2);
-    public def this(): FlattenArray2 = {
-      a = Array.make[int](([1..10, 1..10] to Region)->here, 
-         ((i,j): Point) => { return i+j;});
-    }
-    def m(var x: int): int = {
-      return x;
-    }
-	public def run(): boolean = {
-	    var x: int = m(3) + m(a(1, 1)); // being called in a method to force flattening.
-	    var y: int = m(4) + m(a(2, 2));
-	    return true;
-	}
 
-	public static def main(var args: Rail[String]): void = {
-		new FlattenArray2().execute();
-	}
-	
+    var a: Array[int](2);
+
+    public def this(): FlattenArray2 = {
+        a = Array.make[int](([1..10, 1..10] to Region)->here, ((i,j): Point) => { return i+j;});
+    }
+
+    def m(var x: int): int = {
+        return x;
+    }
+
+    public def run(): boolean = {
+        var x: int = m(3) + m(a(1, 1)); // being called in a method to force flattening.
+        var y: int = m(4) + m(a(2, 2));
+        return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new FlattenArray2().execute();
+    }
 }

@@ -14,34 +14,39 @@ import harness.x10Test;
  * Note: this a test only.  It is not the recommended way to
  * write x10 code.
  */
+
 public class Array1 extends x10Test {
 
-	public def run(): boolean = {
-	    val e:Region{rank==1} = 1..10;
-	    val r:Region{rank==2} = [e,e];
-	    val d = r->here;
-	    val ia: Array[int](d) = Array.make[int](d, (point)=>0);
-	    for (val p(i) in e) 
-	    for (val q(j) in e) {
-		chk(ia(i,j) == 0);
-		ia(i,j) = i+j;
-	    }
+    public def run(): boolean = {
 
-		for (val p(i,j):Point(2) in d) {
-		    val q1 = [i,j];
-		    chk(i == q1(0));
-		    chk(j == q1(1));
-		    chk(ia(i, j) == i+j);
-		    chk(ia(i, j) == ia(p));
-		    chk(ia(q1) == ia(p));
-		    ia(p) = ia(p)-1;
-		    chk(ia(p) == i+j-1);
-		    chk(ia(q1) == ia(p));
-		}
-		return true;
-	}
+        val e:Region{rank==1} = 1..10;
+        val r:Region{rank==2} = [e,e];
+        val d = r->here;
+        val ia: Array[int](d) = Array.make[int](d, (Point)=>0);
 
-	public static def main(Rail[String]) = {
-		new Array1().execute();
-	}
+        for (val p(i) in e) {
+            for (val q(j) in e) {
+                chk(ia(i,j) == 0);
+                ia(i,j) = i+j;
+            }
+        }
+
+        for (val p(i,j): Point(2) in d) {
+            val q1 = [i,j];
+            chk(i == q1(0));
+            chk(j == q1(1));
+            chk(ia(i, j) == i+j);
+            chk(ia(i, j) == ia(p));
+            chk(ia(q1) == ia(p));
+            ia(p) = ia(p)-1;
+            chk(ia(p) == i+j-1);
+            chk(ia(q1) == ia(p));
+        }
+
+        return true;
+    }
+
+    public static def main(Rail[String]) = {
+        new Array1().execute();
+    }
 }

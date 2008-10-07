@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 
 /**
@@ -15,25 +15,26 @@ import harness.x10Test;;
  * not produce a variable standing alone. 
  * In an earlier implementation this would give a t0 not reachable error.
  */
+
 public class FlattenVarInit extends x10Test {
+
     val a: Array[int](2);
+
     public def this(): FlattenVarInit = {
-      a = Array.make[int](([1..10, 1..10] to Region)->here, 
-           ((i,j): point): int => { return i+j;});
+        a = Array.make[int](([1..10, 1..10] to Region)->here, ((i,j): Point): int => { return i+j;});
     }
+
     def m(var x: int): int = {
-      
-      return x;
+        return x;
     }
     
-	public def run(): boolean = {
-	var t0: int;
-	 t0 = m(a(1, 1));
-	 return t0==2;
-	}
+    public def run(): boolean = {
+    var t0: int;
+        t0 = m(a(1, 1));
+        return t0==2;
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new FlattenVarInit().execute();
-	}
-	
+    public static def main(var args: Rail[String]): void = {
+        new FlattenVarInit().execute();
+    }
 }
