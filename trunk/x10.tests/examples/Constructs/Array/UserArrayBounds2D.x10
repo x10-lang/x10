@@ -6,7 +6,7 @@
  *
  */
 import java.util.Random;
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * User defined type array bounds test - 2D.
@@ -18,76 +18,78 @@ import harness.x10Test;;
  *
  * @author kemal 11/2005
  */
+
 public class UserArrayBounds2D extends x10Test {
 
-	public def run(): boolean = {
-		val COUNT: int = 100;
-		val L: int = 10;
-		val K: int = 3;
-		for(var n: int = 0; n < COUNT; n++) {
-			var i: int = ranInt(-L-K, L+K);
-			var j: int = ranInt(-L-K, L+K);
-			var lb1: int = ranInt(-L, L);
-			var lb2: int = ranInt(-L, L);
-			var ub1: int = ranInt(lb1, L);
-			var ub2: int = ranInt(lb2, L);
-			var withinBounds: boolean = arrayAccess(lb1, ub1, lb2, ub2, i, j);
-			chk(iff(withinBounds,
-						i>=lb1 && i<=ub1 &&
-						j>=lb2 && j<=ub2));
-		}
-		return true;
-	}
+    public def run(): boolean = {
 
-	/**
-	 * create a[lb1..ub1,lb2..ub2] then access a[i,j], return true iff
-	 * no array bounds exception occurred
-	 */
-	private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var i: int, var j: int): boolean = {
-		//pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j);
+        val COUNT: int = 100;
+        val L: int = 10;
+        val K: int = 3;
 
-		var a: Array[boxedInt] = Array.make[boxedInt](
-		   Dist.makeConstant([lb1..ub1, lb2..ub2], here), 
-		   ((i,j): point)=> new boxedInt(0));
+        for(var n: int = 0; n < COUNT; n++) {
+            var i: int = ranInt(-L-K, L+K);
+            var j: int = ranInt(-L-K, L+K);
+            var lb1: int = ranInt(-L, L);
+            var lb2: int = ranInt(-L, L);
+            var ub1: int = ranInt(lb1, L);
+            var ub2: int = ranInt(lb2, L);
+            var withinBounds: boolean = arrayAccess(lb1, ub1, lb2, ub2, i, j);
+            chk(iff(withinBounds, i>=lb1 && i<=ub1 && j>=lb2 && j<=ub2));
+        }
+        return true;
+    }
 
-		var withinBounds: boolean = true;
-		try {
-			a(i, j) = new boxedInt(0xabcdef07L to Int);
-			//pr("assigned");
-			chk(a(i, j).equals(new boxedInt(0xabcdef07L to Int)));
-		} catch (var e: ArrayIndexOutOfBoundsException) {
-			withinBounds = false;
-		}
-		//pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j+" "+withinBounds);
+    /**
+     * create a[lb1..ub1,lb2..ub2] then access a[i,j], return true iff
+     * no array bounds exception occurred
+     */
+    private static def arrayAccess(var lb1: int, var ub1: int, var lb2: int, var ub2: int, var i: int, var j: int): boolean = {
 
-		return withinBounds;
-	}
+        //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j);
 
-	// utility methods after this point
+        var a: Array[boxedInt] = Array.make[boxedInt](
+           Dist.makeConstant([lb1..ub1, lb2..ub2], here), 
+           ((i,j): Point)=> new boxedInt(0));
 
-	/**
-	 * print a string
-	 */
-	private static def pr(var s: String): void = {
-		System.out.println(s);
-	}
+        var withinBounds: boolean = true;
+        try {
+            a(i, j) = new boxedInt(0xabcdef07L to Int);
+            //pr("assigned");
+            chk(a(i, j).equals(new boxedInt(0xabcdef07L to Int)));
+        } catch (var e: ArrayIndexOutOfBoundsException) {
+            withinBounds = false;
+        }
+        //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j+" "+withinBounds);
 
-	/**
-	 * true iff (x if and only if y)
-	 */
-	private static def iff(var x: boolean, var y: boolean): boolean = {
-		return x == y;
-	}
+        return withinBounds;
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new UserArrayBounds2D().execute();
-	}
+    // utility methods after this point
 
-	static class boxedInt {
-		var val: int;
-		public def this(var x: int): boxedInt = { val = x; }
-		public def equals(var other: boxedInt): boolean = {
-			return this.val == other.val;
-		}
-	}
+    /**
+     * print a string
+     */
+    private static def pr(var s: String): void = {
+        System.out.println(s);
+    }
+
+    /**
+     * true iff (x if and only if y)
+     */
+    private static def iff(var x: boolean, var y: boolean): boolean = {
+        return x == y;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new UserArrayBounds2D().execute();
+    }
+
+    static class boxedInt {
+        var val: int;
+        public def this(var x: int): boxedInt = { val = x; }
+        public def equals(var other: boxedInt): boolean = {
+            return this.val == other.val;
+        }
+    }
 }

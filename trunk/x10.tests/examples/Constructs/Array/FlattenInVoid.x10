@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 
 /**
@@ -14,23 +14,25 @@ import harness.x10Test;;
  * as a statement. Thus the x10 compiler must check that as a result of flattening it does
  * not produce a variable standing alone. 
  */
+
 public class FlattenInVoid extends x10Test {
+
     var a: Array[int](2);
+
     public def this(): FlattenInVoid = {
-      a = Array.make[int](([1..10, 1..10] to Region)->here, 
-          (var p(i,j): point): int => { return i+j;});
+        a = Array.make[int](([1..10, 1..10] to Region)->here, (var p(i,j): Point): int => { return i+j;});
     }
+
     def m(var x: int): boolean = {
       return true;
     }
     
-	public def run(): boolean = {
-	  m(a(1, 1));
-	  return true;
-	}
+    public def run(): boolean = {
+        m(a(1, 1));
+        return true;
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new FlattenInVoid().execute();
-	}
-	
+    public static def main(var args: Rail[String]): void = {
+        new FlattenInVoid().execute();
+    }
 }
