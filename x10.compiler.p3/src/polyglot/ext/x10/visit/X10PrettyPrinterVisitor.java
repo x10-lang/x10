@@ -2337,22 +2337,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        nativeop = true;
 	    }
 
+	    X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+	    boolean superUsesClassParameter = ! mi.flags().isStatic() && overridesMethodThatUsesClassParameter(mi);
+
 	    if (n.operator() == Assign.ASSIGN) {
 	    	// Look for the appropriate set method on the array and emit native code if there is an
 	    	// @Native annotation on it.
-	    	X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
 	    	List<Expr> args = new ArrayList<Expr>(index.size()+1);
 	    	//args.add(array);
 	    	args.add(n.right());
 	    	for (Expr e : index) args.add(e);
 	    	String pat = getJavaImplForDef(mi.x10Def());
+
 	    	if (pat != null) {
 	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
 	    		return;
 	    	} else {
 	    		// otherwise emit the hardwired code.
 	    		tr.print(n, array, w);
-	    		w.write(".set(");
+	    		w.write(".set");
+	    		if (superUsesClassParameter)
+	    			w.write("$");
+	    		w.write("(");
 	    		tr.print(n, n.right(), w);
 	    		if (index.size() > 0)
 	    		    w.write(", ");
@@ -2364,7 +2370,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 	        Name methodName = X10Binary_c.binaryMethodName(op);
 	        tr.print(n, array, w);
-	        w.write(".set((");
+	        w.write(".set");
+    		if (superUsesClassParameter)
+    			w.write("$");
+	        w.write("((");
 	        tr.print(n, array, w);
 	        w.write(").apply(");
 	        new Join(", ", index).expand(tr);
@@ -2412,8 +2421,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        if (! n.type().isVoid()) {
 	            w.write("return ");
 	        }
-	        w.write("array.set(");
-	       
+	        w.write("array.set");
+    		if (superUsesClassParameter)
+    			w.write("$");
+    		w.write("(");
 	        
 	        w.write(" array.apply(");
 	        {
