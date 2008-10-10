@@ -24,7 +24,7 @@ public class ClockTest4 extends x10Test {
 	public def run(): boolean = {
 		val c: clock = clock.make();
 
-		foreach (val (i): point in 1..(N-1)) clocked(c) {
+		foreach (val (i): Point in 1..(N-1)) clocked(c) {
 			foreachBody(i, c);
 		}
 		foreachBody(0, c);

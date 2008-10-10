@@ -7,5 +7,5 @@
  */
 
 public class Temp {
-    def m(a: region{rank==3}): region{rank==3} = a;
+    def m(a: Region{rank==3}): Region{rank==3} = a;
 }

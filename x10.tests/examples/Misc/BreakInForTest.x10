@@ -19,8 +19,8 @@ import harness.x10Test;;
 public class BreakInForTest extends x10Test {
 
 	public const N: int = 100;
-	var R: region = [0..N];
-	var D: dist = Dist.make(R);
+	var R: Region = [0..N];
+	var D: Dist = Dist.make(R);
 	var n1: int = 91;
 	var n2: int = 27;
 
@@ -29,7 +29,7 @@ public class BreakInForTest extends x10Test {
 			if ((i+1) % n1 == 0) continue;
 			if ((i+1) % n2 == 0) break;
 		}
-		for (val (i): point in D) {
+		for (val (i): Point in D) {
 			if ((i+1) % n1 == 0) continue;
 			if ((i+1) % n2 == 0) break;
 		}

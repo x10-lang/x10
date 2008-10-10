@@ -44,10 +44,10 @@ public class ArrayIndexing extends x10Test {
 
 	public def this(): ArrayIndexing = {
 		val kArraySize: int = 30;
-		var range1D: region;
-                var range2D: region;
-                var range3D: region;
-                var range4D: region;
+		var range1D: Region;
+                var range2D: Region;
+                var range3D: Region;
+                var range4D: Region;
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0..kArraySize];
@@ -462,66 +462,66 @@ public class ArrayIndexing extends x10Test {
 	}
 
 	def initialize(var array: Array[double]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = count++;
 			if (verbose) System.out.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[Generic]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = new Generic();
 			array(p).value = count++;
 			if (verbose) System.out.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[int]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = count++;
 			if (verbose) System.out.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[long]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = count++;
 			if (verbose) System.out.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[float]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = count++;
 			if (verbose) System.out.println("init:"+p+" = "+count);
 		}
 	}
 	def initialize(var array: Array[byte]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = (count++) to byte;
 			if (verbose) System.out.println("init:"+p+" = "+(count to byte));
 		}
 	}
 	def initialize(var array: Array[char]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = (count++) to char;
 			if (verbose) System.out.println("init:"+p+" = "+(count to char));
 		}
 	}
 	def initialize(var array: Array[boolean]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = 1 == (count++)%2;
 			if (verbose) System.out.println("init:"+p+" = "+(1 == count%2));
 		}

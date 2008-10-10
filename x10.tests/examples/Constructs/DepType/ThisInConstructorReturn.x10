@@ -16,8 +16,8 @@ import harness.x10Test;
 
 
 public class ThisInConstructorReturn extends x10Test {
-    class Test(R1:region) {
-       val a:region = [1..10];
+    class Test(R1:Region) {
+       val a:Region = [1..10];
        public def this():Test{self.R1==this.a} { 
     	      property(this.a);
        }

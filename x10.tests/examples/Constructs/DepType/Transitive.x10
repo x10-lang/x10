@@ -18,9 +18,9 @@ import harness.x10Test;;
 public class Transitive extends x10Test {
 	
 	public def run(): boolean = {
-	    val a: region{rank==2} = [0..10, 0..10];
-	    val b: region{rank==a.rank} = a;
-	    var c: region{rank==2} = b;
+	    val a: Region{rank==2} = [0..10, 0..10];
+	    val b: Region{rank==a.rank} = a;
+	    var c: Region{rank==2} = b;
 	    return true;
 	}
 	public static def main(var args: Rail[String]): void = {

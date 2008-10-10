@@ -13,9 +13,9 @@ import harness.x10Test;
 public class ImplicitFinal extends x10Test {
 
 	public def run(): boolean = {
-		var p: point = [1, 2, 3];
-		var r: region = [10..10];
-		var p1: point = [1+1, 2+2, 3+3];
+		var p: Point = [1, 2, 3];
+		var r: Region = [10..10];
+		var p1: Point = [1+1, 2+2, 3+3];
 		return true;
 	}
 

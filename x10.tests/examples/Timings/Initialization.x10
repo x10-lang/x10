@@ -32,15 +32,15 @@ public class Initialization extends x10Test {
 
 		start = System.currentTimeMillis();
 		System.out.println("creating array size "+OneDSize);
-		var r: region = [0..OneDSize];
-		val D: dist = dist.makeBlock(r);
+		var r: Region = [0..OneDSize];
+		val D: Dist = Dist.makeBlock(r);
 		x_doubleArray1D = Array.make[double](D);
 		stop = System.currentTimeMillis();
 		System.out.println("Created array in "+(((stop-start) to double)/1000)+" seconds");
 
 		System.out.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
-		var r2: region = [0..kArraySize, 0..kArraySize];
-		val D2: dist = dist.makeBlock(r2);
+		var r2: Region = [0..kArraySize, 0..kArraySize];
+		val D2: Dist = Dist.makeBlock(r2);
 		System.out.println("Start allocation...");
 		start = System.currentTimeMillis();
 		x_doubleArray2D = Array.make[double](D2);

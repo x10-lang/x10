@@ -18,8 +18,8 @@ public class RailTest extends x10Test {
 	  
 	}
 	public def run(): boolean = {
-		val r:region{rail} = 0..10;
-		var d: dist{rail} = Dist.makeBlock(r);
+		val r:Region{rail} = 0..10;
+		var d: Dist{rail} = Dist.makeBlock(r);
 		var a: Array[double]{rail} = Array.make[double](d, (x:Point)=>0.0);
 	    return true;
 	}

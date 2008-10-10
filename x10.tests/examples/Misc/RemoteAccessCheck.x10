@@ -16,7 +16,7 @@ import harness.x10Test;
 public class RemoteAccessCheck extends x10Test {
 
 	public def run()  {
-		val d = dist.makeUnique(place.places);
+		val d = Dist.makeUnique(place.places);
 		if (d.region.size() < 2) {
 			System.out.println("RemoteAccessCheck requires 2 or more places.");
 			return false;
@@ -59,7 +59,7 @@ public class RemoteAccessCheck extends x10Test {
 	val a: Array[int];
 	def this(): A = {
 	    f = new F();
-	    a = Array.make[int](Dist.makeConstant(0..4, here), (point)=>3);
+	    a = Array.make[int](Dist.makeConstant(0..4, here), (Point)=>3);
 		}
 	}
 

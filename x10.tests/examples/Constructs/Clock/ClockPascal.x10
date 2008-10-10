@@ -74,18 +74,18 @@ public class ClockPascal extends x10Test {
 	//const int EXPECTED_CHECKSUM = 251; // (for N = 5)
 	public const DELAY: int = 2000;
 	public def run(): boolean = {
-		val D = dist.makeConstant([0..N-1, 0..N-1], here);
+		val D = Dist.makeConstant([0..N-1, 0..N-1], here);
 		val Dinner = D|([1..N-1, 1..N-1] to Region);
 		val Dboundary = D-Dinner;
-		val A: Array[int] = Array.make[int](D, ((i,j):point)=>Dboundary.contains([i, j]) ? 1 : 0);
+		val A: Array[int] = Array.make[int](D, ((i,j):Point)=>Dboundary.contains([i, j]) ? 1 : 0);
 		finish async {
 			// (nullable clock)[.] N = does not work
 			// clock[.] N = new clock[D]; should not work but does.
 			// This is a workaround for this bug.
-			var N: Array[clock] = Array.make[clock](D, (point)=>Clock.make());
-			var W: Array[clock] = Array.make[clock](D, (point)=>Clock.make());
+			var N: Array[clock] = Array.make[clock](D, (Point)=>Clock.make());
+			var W: Array[clock] = Array.make[clock](D, (Point)=>Clock.make());
 
-			// foreach (point [i,j]: Dinner)
+			// foreach (Point [i,j]: Dinner)
 			//   clocked(N[i-1,j], W[i,j-1], N[i,j], W[i,j]) { ... }
 			// does not work -- this is a workaround for this bug.
 			for ((i,j) in Dinner.region) {
