@@ -22,7 +22,7 @@ public class ClockTest3 extends x10Test {
 	public def run(): boolean = {
 		val c: clock = clock.make();
 
-		foreach (val (i): point in 0..(N-1)) clocked(c) {
+		foreach (val (i): Point in 0..(N-1)) clocked(c) {
 			async(here) clocked(c) 
 			   finish async(here) { 
 			       async(here) { 

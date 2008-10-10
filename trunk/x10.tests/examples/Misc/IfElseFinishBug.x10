@@ -19,7 +19,7 @@ public class IfElseFinishBug extends x10Test {
 
 	public def run(): boolean = {
 		if (true) System.out.println("True branch");
-		else finish foreach (val (i): point in [0..1]) { throw new Error("Throwing "+i); }
+		else finish foreach (val (i): Point in [0..1]) { throw new Error("Throwing "+i); }
 		return true;
 	}
 

@@ -15,11 +15,11 @@ import harness.x10Test;;
 public class StaticReturn extends x10Test {
 		 
 	public def run(): boolean = {		
-		var s: dist{rank==2} = starY();
+		var s: Dist{rank==2} = starY();
 		return true;
 	}
-	def starY(): dist{rank==2} = {	
-		var d: dist{rank==2} = Dist.makeConstant([0..-1, 0..-1], here);	
+	def starY(): Dist{rank==2} = {	
+		var d: Dist{rank==2} = Dist.makeConstant([0..-1, 0..-1], here);	
 		return d;
 	}
 	public static def main(var args: Rail[String]): void = {

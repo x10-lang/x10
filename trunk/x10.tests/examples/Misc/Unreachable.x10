@@ -17,8 +17,8 @@ import harness.x10Test;;
 public class Unreachable extends x10Test {
 
 	val N: int = 10;
-	val R: region = [0..N];
-	val D: dist = Dist.make(R);
+	val R: Region = [0..N];
+	val D: Dist = Dist.make(R);
 
 	def test(): void = {
 		async (D([0])) {

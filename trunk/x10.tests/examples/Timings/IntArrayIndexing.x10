@@ -23,10 +23,10 @@ public class IntArrayIndexing extends x10Test {
 
 	public def this(): IntArrayIndexing = {
 		val kArraySize: int = 30;
-		var range1D: region;
-                var range2D: region;
-                var range3D: region;
-                var range4D: region;
+		var range1D: Region;
+                var range2D: Region;
+                var range3D: Region;
+                var range4D: Region;
 
 		// Note: cannot do anything fancy with starting index--assume 0 based
 		range1D = [0..kArraySize];
@@ -95,9 +95,9 @@ public class IntArrayIndexing extends x10Test {
 	}
 
 	def initialize(var array: Array[int]): void = {
-		var arrayDist: dist = array.dist;
+		var arrayDist: Dist = array.dist;
 		var count: int = 0;
-		for (val p: point in array.dist.region) {
+		for (val p: Point in array.dist.region) {
 			array(p) = count++;
 			if (verbose) System.out.println("init:"+p+" = "+count);
 		}

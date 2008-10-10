@@ -96,7 +96,7 @@ public class ClockTest13 extends x10Test {
 	}
 
 	def taskA(val a: clock): void = {
-		for (val (k): point in 1..N) {
+		for (val (k): Point in 1..N) {
 			System.out.println(k+" A new phase");
 			atomic phaseA++;
 			System.out.println(k+" A resuming a");
@@ -114,7 +114,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskB(val a: clock, val b: clock): void = {
-		for (val (k): point in 1..N) {
+		for (val (k): Point in 1..N) {
 			System.out.println(k+" B new phase");
 			atomic phaseB++;
 			System.out.println(k+" B resuming a");
@@ -126,7 +126,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskC(val b: clock, val c: clock): void = {
-		for (val (k): point in 1..N) {
+		for (val (k): Point in 1..N) {
 			System.out.println(k+" C new phase");
 			atomic phaseC++;
 			System.out.println(k+" C resuming b");
@@ -138,7 +138,7 @@ public class ClockTest13 extends x10Test {
 		}
 	}
 	def taskD(val c: clock): void = {
-		for (val (k): point in 1..N) {
+		for (val (k): Point in 1..N) {
 			System.out.println(k+" D new phase");
 			atomic phaseD++;
 			System.out.println(k+" D resuming c");

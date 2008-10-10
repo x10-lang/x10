@@ -17,7 +17,7 @@ public class NoAtEachInAtomic_MustFailCompile extends x10Test {
 	
 	public def run(): boolean = {
 		atomic {
-		  ateach (val p: point in [1..10]) {
+		  ateach (val p: Point in [1..10]) {
 		    System.out.println("Cannot reach this point.");
 		  }
 		  }
