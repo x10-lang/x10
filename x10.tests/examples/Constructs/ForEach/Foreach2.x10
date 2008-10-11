@@ -23,7 +23,7 @@ public class Foreach2 extends x10Test {
 		val d: Dist = r->P0;
 
 		finish
-			foreach (val p: Point in d.Region) {
+			foreach (val p: Point in d.region) {
 				// Ensure each activity spawned by foreach
 				// runs at P0
 				// and that the hasbug array was
