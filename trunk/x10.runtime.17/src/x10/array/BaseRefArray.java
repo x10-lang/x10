@@ -54,23 +54,23 @@ public abstract class BaseRefArray<T> extends BaseAnyArray<T> implements Settabl
     }
 
     @Override
-    public T set(T v, int d0, int d1, int d2, int d3) {
-        return super.set(v, d0, d1, d2, d3);
+    public T set$(T v, Integer d0, Integer d1, Integer d2, Integer d3) {
+        return super.set$(v, d0, d1, d2, d3);
     }
 
     @Override
-    public T set(T v, int d0, int d1, int d2) {
-        return super.set(v, d0, d1, d2);
+    public T set$(T v, Integer d0, Integer d1, Integer d2) {
+        return super.set$(v, d0, d1, d2);
     }
 
     @Override
-    public T set(T v, int d0, int d1) {
-        return super.set(v, d0, d1);
+    public T set$(T v, Integer d0, Integer d1) {
+        return super.set$(v, d0, d1);
     }
 
     @Override
-    public T set(T v, int d0) {
-        return super.set(v, d0);
+    public T set$(T v, Integer d0) {
+        return super.set$(v, d0);
     }
 
   
@@ -79,8 +79,8 @@ public abstract class BaseRefArray<T> extends BaseAnyArray<T> implements Settabl
     }
 
     @Override
-    public T set(T v, Point pos) {
-        return super.set(v, pos);
+    public T set$(T v, Point pos) {
+        return super.set$(v, pos);
     }
 
 }

@@ -40,7 +40,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_1<Byte, Byte> absOperator() {
         return new Fun_0_1<Byte, Byte>() {
-            public Byte apply(Byte x) {
+            public Byte apply$(Byte x) {
                 return (byte) (x > 0 ? x : -x);
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
@@ -50,7 +50,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_1<Byte, Byte> scaleOperator(final int k) {
         return new Fun_0_1<Byte, Byte>() {
-            public Byte apply(Byte x) {
+            public Byte apply$(Byte x) {
                 return (byte) (x * k);
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
@@ -61,7 +61,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> addOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x + y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -72,7 +72,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> subOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x - y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -83,7 +83,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> mulOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x * y);
             }         
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -94,7 +94,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> divOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x / y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -105,7 +105,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> modOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x % y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -116,7 +116,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> maxOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (x > y ? x : y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -127,7 +127,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> minOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (x < y ? x : y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -139,7 +139,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> andOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x & y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -151,7 +151,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> orOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x | y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -163,7 +163,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_2<Byte, Byte, Byte> xorOperator() {
         return new Fun_0_2<Byte, Byte, Byte>() {
-            public Byte apply(Byte x, Byte y) {
+            public Byte apply$(Byte x, Byte y) {
                 return (byte) (x ^ y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BYTE; }
@@ -175,7 +175,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_1<Byte, Byte> negOperator() {
         return new Fun_0_1<Byte, Byte>() {
-            public Byte apply(Byte x) {
+            public Byte apply$(Byte x) {
                 return (byte) -x;
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
@@ -186,7 +186,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_1<Byte, Byte> posOperator() {
         return new Fun_0_1<Byte, Byte>() {
-            public Byte apply(Byte x) {
+            public Byte apply$(Byte x) {
                 return (byte) +x;
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }
@@ -197,7 +197,7 @@ public class ByteType extends RuntimeType<Byte> {
     @Override
     public Fun_0_1<Byte, Byte> invOperator() {
         return new Fun_0_1<Byte, Byte>() {
-            public Byte apply(Byte x) {
+            public Byte apply$(Byte x) {
                 return (byte) ~x;
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BYTE; }

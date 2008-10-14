@@ -166,7 +166,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
                             if (res != null)
-                                    res.set(c, p);
+                                    res.set$(c, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -189,11 +189,11 @@ abstract public class BaseAnyArray<T> extends BaseArray {
      */
     public abstract T getOrdinal(int rawIndex);
     
-    public T apply(int i0) { return get(i0);}
-    public T apply(int i0, int i1) { return get(i0,i1);}
-    public T apply(int i0, int i1, int i2) { return get(i0, i1, i2);}
-    public T apply(int i0, int i1, int i2, int i3) { return get(i0, i1,i2,i3);}
-    public T apply(Point p) { return get(p);}
+    public T apply$(int i0) { return get$(i0);}
+    public T apply$(int i0, int i1) { return get$(i0,i1);}
+    public T apply$(int i0, int i1, int i2) { return get$(i0, i1, i2);}
+    public T apply$(int i0, int i1, int i2, int i3) { return get$(i0, i1,i2,i3);}
+    public T apply$(Point p) { return get$(p);}
 
     
 
@@ -204,7 +204,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
      */
     protected abstract T setOrdinal(T v, int rawIndex);
 
-    public T set( T v, Point i) {
+    public T set$( T v, Point i) {
         return setPoint(v, i);
     }
 
@@ -216,7 +216,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return setOrdinal(v, theIndex);
     }
 
-    protected T set(T v, int d0) { return set(v,d0,true,true); }
+    protected T set$(T v, Integer d0) { return set(v,d0,true,true); }
     protected T set(T v, int d0,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0));
@@ -225,7 +225,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
     }
 
     
-    protected T set(T v, int d0,int d1) { return set(v,d0,d1,false,false); }
+    protected T set$(T v, Integer d0,Integer d1) { return set(v,d0,d1,false,false); }
     protected T set(T v, int d0, int d1,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0, d1));
@@ -233,7 +233,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return setOrdinal(v, theIndex);
     }
 
-    protected T set(T v, int d0,int d1,int d2) {return set(v,d0,d1,d2,false,false);}
+    protected T set$(T v, Integer d0,Integer d1,Integer d2) {return set(v,d0,d1,d2,false,false);}
     protected T set(T v, int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0, d1, d2));
@@ -241,7 +241,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return setOrdinal(v, theIndex);
     }
 
-    protected T set(T v, int d0,int d1,int d2,int d3) {return set(v,d0,d1,d2,d3,true,true);}
+    protected T set$(T v, Integer d0,Integer d1,Integer d2,Integer d3) {return set(v,d0,d1,d2,d3,true,true);}
     protected T set(T v, int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0, d1, d2, d3));
@@ -249,7 +249,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return setOrdinal(v, theIndex);
     }
 
-    public T get(Point pos) {return get(pos,true,true);}
+    public T get$(Point pos) {return get(pos,true,true);}
     public T get(Point pos,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(pos));
@@ -257,7 +257,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return getOrdinal(theIndex);
     }
 
-    public T get(int d0) {return get(d0,true,true);}
+    public T get$(Integer d0) {return get(d0,true,true);}
     public T get(int d0,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0));
@@ -265,7 +265,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return getOrdinal(theIndex);
     }
 
-    public T get(int d0,int d1) {return get(d0,d1,true,true);}
+    public T get$(Integer d0,Integer d1) {return get(d0,d1,true,true);}
     public T get(int d0, int d1,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0, d1));
@@ -273,7 +273,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return getOrdinal(theIndex);
     }
 
-    public T get(int d0,int d1,int d2) {return get(d0,d1,d2,true,true);}
+    public T get$(Integer d0,Integer d1,Integer d2) {return get(d0,d1,d2,true,true);}
     public T get(int d0, int d1, int d2,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0, d1, d2));
@@ -281,7 +281,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
             return getOrdinal(theIndex);
     }
 
-    public T get(int d0,int d1,int d2,int d3) {return get(d0,d1,d2,d3,true,true);}
+    public T get$(Integer d0,Integer d1,Integer d2,Integer d3) {return get(d0,d1,d2,d3,true,true);}
     public T get(int d0, int d1, int d2, int d3,boolean chkPl,boolean chkAOB) {
             if (chkPl && Configuration.BAD_PLACE_RUNTIME_CHECK && mutable_)
                     Runtime.hereCheckPlace(dist.get(d0, d1, d2, d3));
@@ -307,7 +307,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point pos = (Point) it.next();
                             Place pl = dist.get(pos);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            if (get(pos) != o.get(pos))
+                            if (get$(pos) != o.get$(pos))
                                     return false;
                     }
             } finally {
@@ -327,7 +327,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point pos = (Point) it.next();
                             Place pl = dist.get(pos);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            set(rhs_t.get(pos), pos);
+                            set$(rhs_t.get$(pos), pos);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -349,11 +349,11 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T arg1 = get(p);
-                            T arg2 = arg.get(p);
-                            T val = op.apply(p, arg1, arg2);
+                            T arg1 = get$(p);
+                            T arg2 = arg.get$(p);
+                            T val = op.apply$(p, arg1, arg2);
                             if (res != null)
-                                    res.set(val, p);
+                                    res.set$(val, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -369,10 +369,10 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T arg1 = get(p);
-                            T val = op.apply(p, arg1);
+                            T arg1 = get$(p);
+                            T val = op.apply$(p, arg1);
                             if (res != null)
-                                    res.set(val, p);
+                                    res.set$(val, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -387,8 +387,8 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T arg1 = get(p);
-                            op.apply(arg1);
+                            T arg1 = get$(p);
+                            op.apply$(arg1);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -406,10 +406,10 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T arg1 = get(p);
-                            T val = op.apply(arg1);
+                            T arg1 = get$(p);
+                            T val = op.apply$(arg1);
                             if (res != null)
-                                    res.set(val, p);
+                                    res.set$(val, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -431,9 +431,9 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T val = op.apply(p, T.zeroValue());
+                            T val = op.apply$(p, T.zeroValue());
                             if (res != null)
-                                    res.set(val, p);
+                                    res.set$(val, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -449,7 +449,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            result.set(op.apply(this.get(p), arg.get(p)),p);
+                            result.set$(op.apply$(this.get$(p), arg.get$(p)),p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -471,7 +471,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            result.set(op.apply(this.get(p)),p);
+                            result.set$(op.apply$(this.get$(p)),p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -498,7 +498,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            result = op.apply(result, this.get(p));
+                            result = op.apply$(result, this.get$(p));
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -515,8 +515,8 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            temp = op.apply(this.get(p), temp);
-                            result.set(temp, p);
+                            temp = op.apply$(this.get$(p), temp);
+                            result.set$(temp, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -541,8 +541,8 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T val = (d.dist.region.contains(p)) ? d.get(p) : get(p);
-                            ret.set(val, p);
+                            T val = (d.dist.region.contains(p)) ? d.get$(p) : get$(p);
+                            ret.set$(val, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -568,7 +568,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            set(d.get(p), p);
+                            set$(d.get$(p), p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -594,8 +594,8 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = Dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            T val = (dist.region.contains(p)) ? get(p) : d.get(p);
-                            ret.set(val, p);
+                            T val = (dist.region.contains(p)) ? get$(p) : d.get$(p);
+                            ret.set$(val, p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -629,7 +629,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
                             Point p = (Point) it.next();
                             Place pl = Dist.get(p);
                             x10.runtime.Runtime.runtime.setCurrentPlace(pl);
-                            ret.set(get(p), p);
+                            ret.set$(get$(p), p);
                     }
             } finally {
                     x10.runtime.Runtime.runtime.setCurrentPlace(here);
@@ -650,7 +650,7 @@ abstract public class BaseAnyArray<T> extends BaseArray {
 
             final Object ret = java.lang.reflect.Array.newInstance(T.getJavaClass(), dims_tmp);
             pointwise(null, new Fun_0_2<Point,T,T>() {
-                    public T apply(Point p, T arg) {
+                    public T apply$(Point p, T arg) {
                             Object handle = ret;
                             int i = 0;
                             for (; i < dims_tmp.length - 1; ++i) {

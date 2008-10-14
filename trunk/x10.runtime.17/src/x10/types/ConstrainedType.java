@@ -40,7 +40,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
     }
     
     public boolean instanceof$(Object o) {
-        return base.instanceof$(o) && (tester == null || tester.apply((T) o));
+        return base.instanceof$(o) && (tester == null || tester.apply$((T) o));
     }
     
     public boolean isSubtype(Type<?> o) {
