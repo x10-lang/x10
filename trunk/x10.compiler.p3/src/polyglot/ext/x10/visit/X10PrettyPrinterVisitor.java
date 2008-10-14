@@ -1350,7 +1350,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(")");
         } else
         if (term instanceof XField_c) {
-            w.write(XTERMS+".makeField(");
+            w.write(XTERMS+".makeField((x10.constraint.XVar)");
             w.begin(0);
             serializeTerm(((XField_c)term).receiver(), parent);
             w.write(",");
@@ -1429,6 +1429,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
             tr.print(null, lit, w);
         } else
+        if (val instanceof String) {
+       		StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+       		tr.print(null, lit, w);
+       	} else
         if (val.getClass() == Object.class) {
             StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
             tr.print(null, lit, w);
