@@ -7,15 +7,36 @@
  */
 package harness;
 
-import java.util.Random;
-import java.lang.Thread;
-import java.lang.Runnable;
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
 
 /**
  * Test harness abstract class.
  * FIXME: remove the ugly hack of relying on Java Threads
  */
 abstract public class x10Test {
+
+    @NativeRep("java", "java.util.Random")
+    static class Random {
+        public native def this(Long);
+        @Native("java", "#0.nextInt(#1)")
+        public native def nextInt(int): int;
+    }
+
+    @NativeRep("java", "java.lang.Thread")
+    static class Thread {
+        public native def this(Runnable);
+        @Native("java", "#0.start()")
+        public native def start(): void;
+        @Native("java", "#0.interrupt()")
+        public native def interrupt(): void;
+    }
+    
+    @NativeRep("java", "java.lang.Runnable")
+    static interface Runnable {
+        public def run(): void;
+    }
+        
 
 	/**
 	 * The body of the test.
