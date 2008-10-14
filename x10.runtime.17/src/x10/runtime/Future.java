@@ -21,15 +21,16 @@ public interface Future<T> extends Fun_0_0<T> {
     /**
      * Wait for the completion of this activity and return the return value.
      */
-    public T apply();
+    public T apply$();
 
     /**
      * Wait for the completion of this activity and return the return value.
      */
-    public abstract T force();
+    public abstract T force$();
 
     /**
      * Return true if this activity has completed.
      */
     public abstract boolean forced();
+    public abstract Boolean forced$();
 }

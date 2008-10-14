@@ -90,14 +90,14 @@ public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
         }
     }
 
-    public T apply() {
-        return force();
+    public T apply$() {
+        return force$();
     }
 
     /*
      * @see x10.runtime.Future#force()
      */
-    public T force() {
+    public T force$() {
         PoolRunner t = (PoolRunner) Thread.currentThread();
         if (cdl.getCount() > 0) {
             ((PoolRunner) t).getPlace().threadBlockedNotification();
@@ -131,6 +131,10 @@ public final class Future_c<T> implements Future<T>, Fun_0_0<T> {
      */
     public boolean forced() {
         return completed_;
+    }
+    
+    public Boolean forced$() {
+    	return forced();
     }
 
     /*

@@ -20,7 +20,7 @@ public class Ref(
     location: Place
     ) {
     
-    public  def this() { 
+    public def this() { 
        // dummy.
        location = Place.place(0);
     }

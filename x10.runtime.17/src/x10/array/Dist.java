@@ -12,10 +12,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import x10.core.ValRail;
+import x10.core.Value;
 import x10.runtime.Place;
 import x10.runtime.Runtime;
 
-public abstract class Dist implements Iterable<Point> {
+public abstract class Dist extends Value implements Iterable<Point> {
 
     /*property*/ public final Region region;
 
@@ -99,6 +100,7 @@ public abstract class Dist implements Iterable<Point> {
      * Returns the Place to which the Point p in region is mapped.
      */
     abstract public Place get(Point/*(region)*/ p) throws MalformedError;
+    abstract public Place get$(Point/*(region)*/ p) throws MalformedError;
     
     public Place get(int[] p) {
             return get(Point.makeFromJavaArray(p));

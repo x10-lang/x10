@@ -34,6 +34,8 @@ public class KDimUnique extends Dist {
 		throw new UnsupportedOperationException();
 	}
 
+    public Place get$(Point p) { return get(p); }
+
 	@Override
 	public Place get(Point p) throws MalformedError {
 		assert p.rank==R.rank;
