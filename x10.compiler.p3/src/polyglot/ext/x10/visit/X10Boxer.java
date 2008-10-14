@@ -17,6 +17,7 @@ import polyglot.ast.FieldDecl;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Special;
 import polyglot.ast.Unary;
 import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10NodeFactory;
@@ -172,6 +173,10 @@ public class X10Boxer extends AscriptionVisitor {
         }
 
         Position p = e.position();
+        
+        if (e instanceof Special && ((Special) e).kind() == Special.SUPER) {
+        	return e;
+        }
 
         if (needsExplicitConversion(fromType, toType)) {
             X10NodeFactory nf = (X10NodeFactory) this.nf;
