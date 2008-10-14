@@ -70,30 +70,37 @@ abstract public class BaseArray extends Value {
         return !this.mutable_;
     }
 
+    public Integer rank$() { return rank; }
     public int rank() {
         return rank;
     }
 
+    public Boolean rect$() { return rect; }
     public boolean rect() {
         return rect;
     }
 
+    public Boolean zeroBased$() { return zeroBased; }
     public boolean zeroBased() {
         return zeroBased;
     }
 
+    public Boolean rail$() { return rail; }
     public boolean rail() {
         return rail;
     }
 
+    public Dist distribution$() { return dist; }
     public Dist distribution() {
         return dist;
     }
 
+    public Region region$() { return region; }
     public Region region() {
         return region;
     }
 
+    public Place onePlace$() { return onePlace; }
     public Place onePlace() {
         return onePlace;
     }

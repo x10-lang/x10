@@ -115,8 +115,12 @@ public class Point extends Value implements x10.core.Indexable<Integer,java.lang
     /**
      * Return the value of this AbstractPoint on the i'th dimension.
      */
-    public Integer apply(Integer i) {
-        return val[i];
+    public Integer apply$(Integer i) {
+        return get(i);
+    }
+    
+    public int apply(int i) {
+    	return get(i);
     }
 
     public int hashCode() {

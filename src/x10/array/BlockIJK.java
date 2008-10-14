@@ -79,6 +79,8 @@ public class BlockIJK extends Distribution_c {
 	int ord(int i, int j, int k) {
 		return k+z*(j+y*i);
 	}
+	
+    public Place get$(Point p) { return get(p); }
 
 	public Place get(Point p) throws MalformedError {
 		int[] r = p.val();

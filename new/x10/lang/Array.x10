@@ -65,34 +65,34 @@ public abstract value class Array[T](dist: Dist) implements
     @Native("java", "(#0).restriction(#1)")
     public native def restriction(r: Region): Array[T]{region==r};
                      
-    @Native("java", "(#0).get(#1)")
+    @Native("java", "(#0).get$(#1)")
     public native def get(pt: Point(this.rank)): T;
-    @Native("java", " (#0).get(#1)")
+    @Native("java", " (#0).get$(#1)")
     public native def get(i0: int){rank==1}: T;
-    @Native("java", "(#0).get(#1, #2)")
+    @Native("java", "(#0).get$(#1, #2)")
     public native def get(i0: int, i1: int){rank==2}: T;
-    @Native("java", " (#0).get(#1, #2, #3)")
+    @Native("java", " (#0).get$(#1, #2, #3)")
     public native def get(i0: int, i1: int, i2: int){rank==3}: T;   
                  
-    @Native("java", "(#0).get(#1)")
+    @Native("java", "(#0).get$(#1)")
     public native def apply(pt: Point(this.rank)): T;
-    @Native("java", " (#0).get(#1)")
+    @Native("java", " (#0).get$(#1)")
     public native def apply(i0: int){rank==1}: T;
-    @Native("java", "(#0).get(#1, #2)")
+    @Native("java", "(#0).get$(#1, #2)")
     public native def apply(i0: int, i1: int){rank==2}: T;
-    @Native("java", " (#0).get(#1, #2, #3)")
+    @Native("java", " (#0).get$(#1, #2, #3)")
     public native def apply(i0: int, i1: int, i2: int){rank==3}: T;
     
                 
-    @Native("java", "(#0).set(#1, #2)")
+    @Native("java", "(#0).set$(#1, #2)")
     public native def set(v:T, pt: Point(this.rank)): void;
-    @Native("java", "(#0).set(#1, #2)")
+    @Native("java", "(#0).set$(#1, #2)")
     public native def set(v:T, i0: int){rank==1}: void;
     
-    @Native("java", "(#0).set(#1, #2, #3)")
+    @Native("java", "(#0).set$(#1, #2, #3)")
     public native def set(v:T, i0: int, i1: int){rank==2}: void;
     
-    @Native("java", "(#0).set(#1, #2, #3, #4)")
+    @Native("java", "(#0).set$(#1, #2, #3, #4)")
     public native def set(v:T, i0: int, i1: int, i2: int){rank==3}: void;
     
     @Native("java", "(#0)")

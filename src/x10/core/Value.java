@@ -16,6 +16,19 @@ import x10.types.Equality;
 
 // Base class of all X10 value objects -- should be generated, but we need this class to get Box to compile.
 public class Value {
+    
+    public String toString$() {
+    	return toString();
+    }
+    
+    public Boolean equals$(Object o) {
+    	return equals(o);
+    }
+    
+    public Integer hashCode$() {
+    	return hashCode();
+    }
+
     public final boolean structEquals(Object o) {
         if (o == null)
             return false;

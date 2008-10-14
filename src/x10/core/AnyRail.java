@@ -66,17 +66,30 @@ public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Ite
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
     
+    public Integer length$() {
+    	return length();
+    }
+    
     public int length() {
         return length;
     }
     
-    public T get(Integer i) {
-        return type.getArray(value, i);
+    public T get$(Integer i) {
+    	return get(i);
     }
     
-    public T apply(Integer i) {
-        return type.getArray(value, i);
+    public T get(int i) {
+    	return apply(i);
     }
+    
+    public T apply$(Integer i) {
+    	return apply(i);
+    }
+
+    public T apply(int i) {
+    	return type.getArray(value, i);
+    }
+    
     public boolean isZero() {
     	boolean zero=true;
     	for (int i=0; i < length && zero; ++i) {

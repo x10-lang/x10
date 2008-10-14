@@ -41,7 +41,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_1<Double, Double> absOperator() {
         return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x) {
+            public Double apply$(Double x) {
                 return (double) Math.abs(x);
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.DOUBLE; }
@@ -51,7 +51,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_1<Double, Double> scaleOperator(final int k) {
         return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x) {
+            public Double apply$(Double x) {
                 return (double) (x * k);
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.DOUBLE; }
@@ -62,7 +62,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> addOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (double) (x + y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -73,7 +73,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> subOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (double) (x - y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -84,7 +84,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> mulOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (double) (x * y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -95,7 +95,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> divOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (double) (x / y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -106,7 +106,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> modOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (double) (x % y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -117,7 +117,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> maxOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (x > y ? x : y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -128,7 +128,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_2<Double, Double, Double> minOperator() {
         return new Fun_0_2<Double, Double, Double>() {
-            public Double apply(Double x, Double y) {
+            public Double apply$(Double x, Double y) {
                 return (x < y ? x : y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.DOUBLE; }
@@ -140,7 +140,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_1<Double, Double> negOperator() {
         return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x) {
+            public Double apply$(Double x) {
                 return (double) -x;
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.DOUBLE; }
@@ -151,7 +151,7 @@ public class DoubleType extends RuntimeType<Double> {
     @Override
     public Fun_0_1<Double, Double> posOperator() {
         return new Fun_0_1<Double, Double>() {
-            public Double apply(Double x) {
+            public Double apply$(Double x) {
                 return (double) +x;
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.DOUBLE; }

@@ -352,6 +352,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
         /**
          * Returns the Place to which the Point p in region is mapped.
          */
+        public Place get$(Point p) { return get(p); }
         public Place get(Point/* (region) */p) {
             throw new ArrayIndexOutOfBoundsException();
         }
@@ -464,6 +465,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
         /**
          * Returns the Place to which the Point p in region is mapped.
          */
+        public Place get$(Point p) { return get(p); }
         public Place get(Point/* (region) */p) {
             if (p.rank != rank)
                 throw new RankMismatchException(p, rank);
@@ -587,6 +589,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
         /**
          * Returns the Place to which the Point p in region is mapped.
          */
+        public Place get$(Point p) { return get(p); }
         public Place get(Point/* (region) */p) {
             if (p.rank != rank)
                 throw new RankMismatchException(p, rank);
@@ -653,6 +656,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
         /* (non-Javadoc)
          * @see x10.runtime.distribution#get(x10.runtime.Point)
          */
+        public Place get$(Point p) { return get(p); }
         public Place get(Point p) {
             if (p.rank != rank)
                 throw new RankMismatchException(p, rank);
@@ -743,6 +747,7 @@ public abstract class Distribution_c extends Dist /* implements Distribution */{
          * Returns the Place to which the Point p in region is mapped.
          */
         // [IP] FIXME: should we throw a RankMismatchException here?
+        public Place get$(Point p) { return get(p); }
         public Place get(Point/*(region)*/p) {
             assert p != null;
             Place ret = (Place) map_.get(p);

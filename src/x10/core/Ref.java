@@ -22,4 +22,16 @@ public class Ref {
     public final Place location() {
         return location;
     }
+    
+    public String toString$() {
+    	return toString();
+    }
+    
+    public Boolean equals$(Object o) {
+    	return equals(o);
+    }
+    
+    public Integer hashCode$() {
+    	return hashCode();
+    }
 }
