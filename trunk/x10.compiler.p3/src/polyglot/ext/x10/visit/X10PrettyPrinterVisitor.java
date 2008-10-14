@@ -2151,7 +2151,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 							 form.type(),
 							 form.name(),
 							 f.domain(),
-							 new Join("\n", new Join("\n", f.locals()), f.body())
+							 new Join("\n", new Join("\n", f.locals()), f.body()),
+							 new TypeExpander(form.type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES)
 						 ).expand();
 	}
 
@@ -2164,7 +2165,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 l.domain(),
 						 new Join("\n", new Join("\n", l.locals()), l.body()),
 						 processClocks(l),
-						 new Join("\n", l.locals())
+						 new Join("\n", l.locals()),
+						 new TypeExpander(l.formal().type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES)
 					 ).expand(tr2);
 	}
 
