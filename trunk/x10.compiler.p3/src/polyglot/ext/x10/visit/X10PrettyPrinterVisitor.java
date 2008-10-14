@@ -16,9 +16,12 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -29,7 +32,6 @@ import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Cast;
 import polyglot.ast.CharLit;
 import polyglot.ast.ConstructorCall;
-import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign_c;
@@ -37,10 +39,8 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
-import polyglot.ast.Id;
 import polyglot.ast.Import_c;
 import polyglot.ast.Instanceof;
-import polyglot.ast.JL;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
@@ -55,7 +55,6 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
-import polyglot.ast.Binary.Operator;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -94,11 +93,8 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop;
 import polyglot.ext.x10.ast.X10ConstructorCall_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
-import polyglot.ext.x10.ast.X10FieldDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
-import polyglot.ext.x10.ast.X10LocalDecl_c;
-import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10New_c;
 import polyglot.ext.x10.ast.X10Special;
@@ -112,7 +108,6 @@ import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.TypeProperty;
-import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
@@ -120,7 +115,6 @@ import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Def;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
-import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -133,7 +127,6 @@ import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.FieldDef;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -142,9 +135,7 @@ import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -155,7 +146,6 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import x10.constraint.XAnd_c;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV_c;
 import x10.constraint.XEquals_c;
 import x10.constraint.XFailure;
@@ -166,10 +156,8 @@ import x10.constraint.XLocal_c;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XNot_c;
-import x10.constraint.XRef_c;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar_c;
 
 
 /**
@@ -1415,6 +1403,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
             tr.print(null, lit, w);
         } else
+        if (val instanceof ParameterType) {
+            StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
+            tr.print(null, lit, w);
+        } else
         if (val instanceof Binary.Operator) {
             StringLit lit = tr.nodeFactory().StringLit(Position.COMPILER_GENERATED, val.toString());
             tr.print(null, lit, w);
@@ -1460,17 +1452,44 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // Generate RTTI methods for each interface instantiation.
         if (! def.flags().isInterface()) {
+                Set<Type> visited = new HashSet<Type>();
+                LinkedList<Type> worklist = new LinkedList<Type>();
+                
             for (Type t : def.asType().interfaces()) {
                 Type it = X10TypeMixin.baseType(t);
+                worklist.add(it);
+            }
+            
+            while (! worklist.isEmpty()) {
+                Type it = worklist.removeFirst();
+                
+                if (visited.contains(it))
+                        continue;
+                visited.add(it);
+                
                 if (it instanceof X10ClassType) {
                     X10ClassType ct = (X10ClassType) it;
                     X10ClassDef idef = ct.x10Def();
+                    
+                    for (Type t : ct.interfaces()) {
+                        Type it2 = X10TypeMixin.baseType(t);
+                        worklist.add(it2);
+                    }
+
                     for (int i = 0; i < idef.typeParameters().size(); i++) {
                         ParameterType pt = idef.typeParameters().get(i);
                         w.write("public x10.types.Type<?> " + "rtt_" + mangle(idef.fullName()) + "_");
                         w.write(pt.name().toString());
                         w.write("() { return ");
-                        new RuntimeTypeExpander(ct.typeArguments().get(i)).expand();
+                        Type at = ct.typeArguments().get(i);
+                        if (at instanceof ParameterType) {
+                                ParameterType pat = (ParameterType) at;
+                                                        w.write("this.");
+                                                        w.write(pat.name().toString());
+                                                }
+                        else {
+                                new RuntimeTypeExpander(at).expand();
+                                                }
                         w.write("; }");
                         w.newline();
                     }
@@ -1478,6 +1497,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
         }
     }
+
 
 	public void visit(X10Cast_c c) {
 	        TypeNode tn = c.castType();
