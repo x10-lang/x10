@@ -73,6 +73,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -264,7 +265,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
     			    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
     			    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     			    tc = (TypeChecker) tc.context(tcp.context().freeze());
-    			    r.setResolver(new TypeCheckFragmentGoal(this, body, tc, r, true));
+    			    r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
     		    }
     	    }
     	    return super.setResolverOverride(parent, v);
@@ -859,15 +860,22 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
             if (childtc2.hasErrors()) throw new SemanticException();
             nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
-            
+
             if (nn.returnType() instanceof UnknownTypeNode) {
-        	NodeFactory nf = tc.nodeFactory();
-        	TypeSystem ts = tc.typeSystem();
-        	// Body had no return statement.  Set to void.
-        	((Ref<Type>) nn.returnType().typeRef()).update(ts.Void());
-        	nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), ts.Void()));
+            	NodeFactory nf = tc.nodeFactory();
+            	TypeSystem ts = tc.typeSystem();
+            	// Body had no return statement.  Set to void.
+            	Type t;
+            	if (! (((Ref<Type>) nn.returnType().typeRef()).getCached() instanceof UnknownType)) {
+            		t = ((Ref<Type>) nn.returnType().typeRef()).getCached();
+            	}
+            	else {
+            		t = ts.Void();
+            	}
+            	((Ref<Type>) nn.returnType().typeRef()).update(t);
+            	nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), t));
             }
-          
+
             return nn;
         }
 
