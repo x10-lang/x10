@@ -11,9 +11,8 @@ package x10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.Iterator")
+@NativeRep("java", "java.util.Iterator<#1>")
 public class Iterator[T] {
-
     @Native("java", "#0.hasNext()")
     public native def hasNext():boolean;
 
