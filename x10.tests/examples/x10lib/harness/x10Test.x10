@@ -21,22 +21,7 @@ abstract public class x10Test {
         public native def this(Long);
         @Native("java", "#0.nextInt(#1)")
         public native def nextInt(int): int;
-    }
-
-    @NativeRep("java", "java.lang.Thread")
-    static class Thread {
-        public native def this(Runnable);
-        @Native("java", "#0.start()")
-        public native def start(): void;
-        @Native("java", "#0.interrupt()")
-        public native def interrupt(): void;
-    }
-    
-    @NativeRep("java", "java.lang.Runnable")
-    static interface Runnable {
-        public def run(): void;
-    }
-        
+    }        
 
 	/**
 	 * The body of the test.
@@ -46,25 +31,21 @@ abstract public class x10Test {
 
 	public def executeAsync(): void = {
 		val b: Rail[boolean] = [ false ]; // use a rail until we have shared locals working
-		val timer: Thread = startTimeoutTimer();
 		try {
 			finish async(this) b(0) = this.run();
 		} catch (e: Throwable) {
 			e.printStackTrace();
 		}
-		timer.interrupt();
 		reportResult(b(0));
 	}
 
 	public def execute(): void = {
 		var b: boolean = false;
-		var timer: Thread = startTimeoutTimer();
 		try {
 			finish b = this.run();
 		} catch (e: Throwable) {
 			e.printStackTrace();
 		}
-		timer.interrupt();
 		reportResult(b);
 	}
 
@@ -103,24 +84,5 @@ abstract public class x10Test {
 	 */
 	protected def ranInt(lb: int, ub: int): int = {
 		return lb + myRand.nextInt(ub-lb+1);
-	}
-
-	/**
-	 * Start the timeout timer for the number of seconds specified in the
-	 * "x10test.timeout" system property (default is 300).
-	 * @return the timer thread.
-	 */
-	private static def startTimeoutTimer(): Thread = {
-		val seconds: int = Int.getInteger("x10test.timeout", 300);
-		// Cannot use async -- have to force a real Thread
-		var timer: Thread = new Thread(new Runnable() {
-			public def run(): void = {
-				if (x10.lang.Runtime.sleep(seconds*1000)) {
-					x10.lang.Runtime.exit(128);
-				}
-			}
-		});
-		timer.start();
-		return timer;
 	}
 }
