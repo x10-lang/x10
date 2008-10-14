@@ -28,15 +28,15 @@ public class UserDefinedArray extends x10Test {
         val v2: E = (future(D(0)){new E(2)}).force();
         val a  = Array.make[E](D, ((i): Point)=> (i==0) ? v1 : v2);
 
-        chk(a.dist(0) == D(0) &&
-            (future(a.dist(0)){a(0)}).force() == v1 &&
-            v1.location() == D(1) &&
-            (future(v1){v1.v}).force() == 1);
+        chk(a.dist(0) == D(0));
+        chk((future(a.dist(0)){a(0)}).force() == v1);
+        chk(v1.location() == D(1));
+        chk((future(v1){v1.v}).force() == 1);
 
-        chk(a.dist(1) == D(1) &&
-            (future(a.dist(1)){a(1)}).force() == v2 &&
-            v2.location() == D(0) &&
-            (future(v2){v2.v}).force() == 2);
+        chk(a.dist(1) == D(1));
+        chk((future(a.dist(1)){a(1)}).force() == v2);
+        chk(v2.location() == D(0));
+        chk((future(v2){v2.v}).force() == 2);
 
         //this top level future runs in D[1] since a[0]==v1 && v1.location()==D[1]
         var i0: int = (future((future(a.dist(0)){a(0)}).force().location())
