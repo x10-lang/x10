@@ -45,6 +45,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -313,7 +314,7 @@ public class Closure_c extends Expr_c implements Closure {
 			    final LazyRef<Type> r = (LazyRef<Type>) tn.typeRef();
 			    TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 			    tc = (TypeChecker) tc.context(tcp.context().freeze());
-			    r.setResolver(new TypeCheckFragmentGoal(this, body, tc, r, true));
+			    r.setResolver(new TypeCheckReturnTypeGoal(this, body, tc, r, true));
 		    }
 	    }
 	    return super.setResolverOverride(parent, v);
@@ -337,11 +338,18 @@ public class Closure_c extends Expr_c implements Closure {
         }
         
         if (n.returnType() instanceof UnknownTypeNode) {
-            NodeFactory nf = tc.nodeFactory();
-            TypeSystem ts = tc.typeSystem();
-            // Body had no return statement.  Set to void.
-            ((Ref<Type>) n.returnType().typeRef()).update(ts.Void());
-            n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), ts.Void()));
+        	NodeFactory nf = tc.nodeFactory();
+        	TypeSystem ts = tc.typeSystem();
+        	// Body had no return statement.  Set to void.
+        	Type t;
+        	if (! (((Ref<Type>) n.returnType().typeRef()).getCached() instanceof UnknownType)) {
+        		t = ((Ref<Type>) n.returnType().typeRef()).getCached();
+        	}
+        	else {
+        		t = ts.Void();
+        	}
+        	((Ref<Type>) n.returnType().typeRef()).update(t);
+        	n = (Closure_c) n.returnType(nf.CanonicalTypeNode(n.returnType().position(), t));
         }
         
         // Create an anonymous subclass of the closure type.

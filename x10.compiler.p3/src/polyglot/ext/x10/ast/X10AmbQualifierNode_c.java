@@ -23,6 +23,7 @@ import polyglot.ast.Node_c;
 import polyglot.ast.Prefix;
 import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeCheckFragmentGoal;
+import polyglot.ast.TypeCheckTypeGoal;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.LazyRef;
 import polyglot.types.Qualifier;
@@ -102,7 +103,7 @@ public class X10AmbQualifierNode_c extends AmbQualifierNode_c implements X10AmbQ
 		final LazyRef<Qualifier> r = (LazyRef<Qualifier>) qualifierRef();
 		TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 		tc = (TypeChecker) tc.context(v.context().freeze());
-		r.setResolver(new TypeCheckFragmentGoal(parent, this, tc, r, false));
+		r.setResolver(new TypeCheckTypeGoal(parent, this, tc, r, false));
 	}
 
 	public Node disambiguate(ContextVisitor ar) throws SemanticException {
