@@ -129,6 +129,7 @@ import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -139,6 +140,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -300,6 +302,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 	
 	public void generateDispatchers(X10ClassDef cd) {
+		if (true) return;
 	    if (cd.flags().isInterface() || cd.flags().isAbstract()) {
 	        return;
 	    }
@@ -471,6 +474,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	    w.end();
 	    
+	    if (isAbstract(md)) {
+	    	w.write(";");
+	    	return;
+	    }
+	    
 	    w.write(" ");
 	    w.write("{");
 	    w.allowBreak(4);
@@ -482,8 +490,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write("this");
 	    w.write(".");
 	    w.write(md.name().toString());
-	    if (usesClassParam)
-	        w.write("$");
+//	    if (usesClassParam)
+//	        w.write("$");
 	    w.write("(");
 	    w.begin(0);
 
@@ -501,6 +509,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write("}");
 	}
 
+	boolean isAbstract(MemberInstance mi) {
+		if (mi.flags().isAbstract())
+			return true;
+		Type t = X10TypeMixin.baseType(mi.container());
+		if (t instanceof ClassType) {
+			ClassType ct = (ClassType) t;
+			if (ct.flags().isInterface())
+				return true;
+		}
+		return false;
+	}
+	
 	public void visit(X10MethodDecl_c n) {
 	    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 	    
@@ -516,22 +536,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        new Template("Main", n.formals().get(0), n.body()).expand();
 	        return;
 	    }
+
+	    X10MethodInstance mi = (X10MethodInstance) n.methodDef().asInstance();
 	    
-            // If method overrides method with class type parameters, generate m$() that dispatches to m().
-            MethodInstance mi = n.methodDef().asInstance();
+	    if (! isAbstract(mi))
+	    	generateMethodDecl(n, false);
 	    
-            if (methodUsesClassParameter(mi.def()) && ! flags.isStatic())
-//                generateMethodDecl(n, false);
-                generateMethodDecl((X10MethodDecl_c) n.name(n.name().id(Name.make(n.name().id().toString() + "$"))), true);
-            else
-                generateMethodDecl(n, false);
-	    
-	    // Translation of generics:
-	    // 1. add type arguments to all calls
-	    // 2. translate all parameter types to Object
-	    // 3. if a method overrides a generic method, create a dispatch
-	    //    method with the formals as Object.
-	    // 4. cast every expression to it's translated type.
+	    // If method overrides method with class type parameters, generate m$() that dispatches to m().
+	    assert ! ( mi.returnType() instanceof UnknownType);
+	    if (! mi.flags().isStatic())
+	    	generateDispatcher(mi, true);
 	}
 
     private boolean overridesMethodThatUsesClassParameter(MethodInstance mi) {
@@ -1482,14 +1496,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(pt.name().toString());
                         w.write("() { return ");
                         Type at = ct.typeArguments().get(i);
-                        if (at instanceof ParameterType) {
-                                ParameterType pat = (ParameterType) at;
-                                                        w.write("this.");
-                                                        w.write(pat.name().toString());
-                                                }
-                        else {
+//                        if (at instanceof ParameterType) {
+//                                ParameterType pat = (ParameterType) at;
+//                                                        w.write("this.");
+//                                                        w.write(pat.name().toString());
+//                                                }
+//                        else {
                                 new RuntimeTypeExpander(at).expand();
-                                                }
+//                                                }
                         w.write("; }");
                         w.newline();
                     }
@@ -1746,7 +1760,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             c.printSubExpr(target, w, tr);
             w.write(".");
-            w.write("apply");
+            w.write("apply$");
             w.write("(");
             w.begin(0);
 
@@ -1877,7 +1891,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //		    }
 		    
 		    if (USE_JAVA_GENERICS) {
-		        boolean superUsesClassParameter = ! mi.flags().isStatic() && overridesMethodThatUsesClassParameter(mi);
+		        boolean superUsesClassParameter = ! mi.flags().isStatic() ; // && overridesMethodThatUsesClassParameter(mi);
 		        // FIXME: this test is too imprecise.
 		        callUnboxedMethod = superUsesClassParameter;
 		    }
@@ -1963,7 +1977,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write("() {");
 		w.write("public ");
 		ret.expand(tr2);
-		w.write(" apply(");
+		w.write(" apply$(");
 		new Join(", ", formals).expand(tr2);
 		w.write(") { ");
 		tr2.print(n, n.body(), w);
@@ -2358,7 +2372,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    }
 
 	    X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
-	    boolean superUsesClassParameter = ! mi.flags().isStatic() && overridesMethodThatUsesClassParameter(mi);
+	    boolean superUsesClassParameter = ! mi.flags().isStatic() ; // && overridesMethodThatUsesClassParameter(mi);
 
 	    if (n.operator() == Assign.ASSIGN) {
 	    	// Look for the appropriate set method on the array and emit native code if there is an
@@ -2395,7 +2409,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			w.write("$");
 	        w.write("((");
 	        tr.print(n, array, w);
-	        w.write(").apply(");
+	        w.write(").apply$(");
 	        new Join(", ", index).expand(tr);
 	        w.write(")");
 	        if (nativeop) {
@@ -2446,7 +2460,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     			w.write("$");
     		w.write("(");
 	        
-	        w.write(" array.apply(");
+	        w.write(" array.apply$(");
 	        {
 	            int i = 0;
 	            for (Expr e : index) {
@@ -2849,7 +2863,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             dumpRegex("Native", components, tr, pat);
                         }
                         else {
-                            w.write("target.apply(");
+                            w.write("target.apply$(");
                             {int i = 0;
                             for (Expr e : args) {
                                 if (i > 0) w.write(", ");
@@ -2867,7 +2881,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write((op == Unary.POST_INC || op == Unary.PRE_INC ? "+" : "-") + "1");
                         w.write(";");
                         w.allowBreak(0, " ");
-                        w.write("target.set(neu");
+                        w.write("target.set$(neu");
                         {int i = 0;
                         for (Expr e : args) {
                             w.write(", ");
