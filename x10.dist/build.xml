@@ -248,7 +248,7 @@ POLYGLOT_URL='${polyglot.jar.url}'
 LPG_URL='${lpg.jar.url}'
 
 UNAME=`uname -s -p | sed -e 's/ /,/g'`
-FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\'; fi
+FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
 PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 [ -n "$X10_PLATFORM" ] || \
 case "$UNAME" in
@@ -261,7 +261,9 @@ case "$UNAME" in
 esac
 # FIXME: the above assumes that Cygwin==win32 and Linux==x86 and AIX==ppc
 
-TOP="$(cd "$(dirname $0)/.." &amp;&amp; pwd)"
+prog=$(readlink $0)
+if [ "$prog" = "" ]; then prog="$0"; fi
+TOP="$(cd "$(dirname $prog)/.." &amp;&amp; pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 
 if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
