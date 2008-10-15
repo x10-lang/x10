@@ -2142,7 +2142,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 									 form.type(),
 									 form.name(),
 									 regVar,
-									 new Join("\n", new Join("\n", f.locals()), f.body())
+									 new Join("\n", new Join("\n", f.locals()), f.body()),
+     			   			   	     new TypeExpander(form.type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES)
 								 )
 						 ).expand();
 		} else
