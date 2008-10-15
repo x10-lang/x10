@@ -90,12 +90,17 @@ public class X10ClassBody_c extends ClassBody_c {
         // Remove overridden methods.
         for (ListIterator<MethodInstance> i = l.listIterator(); i.hasNext(); ) {
             MethodInstance mi = i.next();           
-            MethodInstance mj = ts.findImplementingMethod(cd.asType(), mi);
+            MethodInstance mj = ts.findImplementingMethod(cd.asType(), mi, true);
             if (mj != null && mj.def() != mi.def())
                 i.remove();
         }
         
-        // It is a static error if mi overrides mk and mj overrides ml != mk and mk and ml have compatible signatures. 
+        // It is a static error if:
+        // * mi overrides mk
+        // * mj overrides ml
+        // * ml != mk
+        // * mk and ml have compatible signatures
+        // * mk and ml are parameterized
         for (int i = 0; i < l.size(); i++) {
             X10MethodInstance mi = (X10MethodInstance) l.get(i);
 
@@ -114,8 +119,9 @@ public class X10ClassBody_c extends ClassBody_c {
                     for (MethodInstance mjl : mj.implemented()) {
                         X10MethodInstance ml = (X10MethodInstance) mjl;
                         if (ml.def() == mj.def()) continue;
+                        if (ml.def() == mk.def()) continue;
 
-                        if (hasCompatibleArguments(mk.x10Def(), ml.x10Def())) {
+                        if (hasCompatibleArguments(mk.x10Def(), ml.x10Def()) && isParameterized(mk.x10Def()) && isParameterized(ml.x10Def())) {
                             throw new SemanticException("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
                                                         + " override methods with compatible signatures.", mi.position());
                         }
@@ -167,6 +173,23 @@ public class X10ClassBody_c extends ClassBody_c {
             }
         }
     }    
+
+    public static boolean isParameterized(X10ProcedureDef p1) {
+        X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+        
+        for (int i = 0; i < p1.formalTypes().size(); i++) {
+            Type t1 = Types.get(p1.formalTypes().get(i));
+            
+            // Erase types and expand formals.
+            t1 = X10TypeMixin.baseType(t1);
+            
+            // Parameters conflict with everything
+            if (t1 instanceof ParameterType)
+            	return true;
+        }
+        
+        return false;
+    }
 
     public static boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2) {
         if (p1.typeParameters().size() != p2.typeParameters().size())
