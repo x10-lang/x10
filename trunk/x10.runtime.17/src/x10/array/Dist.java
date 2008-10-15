@@ -62,6 +62,7 @@ public abstract class Dist extends Value implements Iterable<Point> {
      * this.valueAt(p)==P.
      */
     abstract public ValRail<Place> places(); // consider making this a parameter?
+    public ValRail<Place> places$() { return places(); }
 
     public Place[] placesArray() {
     	/*
@@ -262,21 +263,27 @@ public abstract class Dist extends Value implements Iterable<Point> {
             return distributionEfficiency;
     }
 
+    public Integer rank$() { return rank; }
     public int rank() {
             return rank;
     }
+    public Boolean rect$() { return rect; }
     public boolean rect() {
             return rect;
     }
+    public Boolean zeroBased$() { return zeroBased; }
     public boolean zeroBased() {
             return zeroBased;
     }
+    public Region region$() { return region; }
     public Region region() {
             return region;
     }
+    public Place onePlace$() { return onePlace; }
     public Place onePlace() {
             return onePlace;
     }
+    public Boolean constant$() { return constant; }
     public boolean constant() { return constant; }
     public boolean unique() { return unique; }
 
