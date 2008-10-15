@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -523,7 +524,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	
 	public void visit(X10MethodDecl_c n) {
 	    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-	    
+ 
 	    Flags flags = n.flags().flags();
 
 	    if (n.name().id().toString().equals("main") &&
@@ -1844,7 +1845,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			emitNativeAnnotation(pat, target, mi.typeParameters(), c.arguments());
 			return;
 		}
-
+		
 		if (target instanceof TypeNode) {
 		    printType(t, 0);
 		    w.write(".");
@@ -2518,11 +2519,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		X10ClassType act = (X10ClassType) at;
 		if (index < act.propertyInitializers().size()) {
 		    Expr e = act.propertyInitializer(index);
-		    if (e instanceof StringLit) {
-			StringLit lit = (StringLit) e;
-			String s = lit.value();
-			return s;
-		    }
+            if (e.isConstant() && e.constantValue() instanceof String) {
+            	return (String) e.constantValue();
+            }
 		}
 	    }
 	    return null;
@@ -2960,6 +2959,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		NodeFactory nf = tr.nodeFactory();
 		Binary.Operator op = n.operator();
 		
+		if (op == Binary.EQ) {
+			new Template("equalsequals", left, right).expand();
+			return;
+		}
+		
+		if (op == Binary.NE) {
+			new Template("notequalsequals", left, right).expand();
+			return;
+		}
+		
 		if (l.isNumeric() && r.isNumeric()) {
 		    visit((Binary_c)n);
 		    return;
@@ -2972,16 +2981,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		if (op == Binary.ADD && (l.isSubtype(xts.String()) || r.isSubtype(xts.String()))) {
 		    visit((Binary_c)n);
-		    return;
-		}
-		
-		if (op == Binary.EQ) {
-		    new Template("equalsequals", left, right).expand();
-		    return;
-		}
-		
-		if (op == Binary.NE) {
-		    new Template("notequalsequals", left, right).expand();
 		    return;
 		}
 		

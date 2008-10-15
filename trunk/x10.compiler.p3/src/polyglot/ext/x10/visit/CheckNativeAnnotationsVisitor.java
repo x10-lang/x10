@@ -10,19 +10,21 @@ package polyglot.ext.x10.visit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-import polyglot.ast.Block;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Expr;
-import polyglot.ast.Formal;
-import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
+import polyglot.ext.x10.ast.X10ClassDecl;
+import polyglot.ext.x10.ast.X10ConstructorDecl;
+import polyglot.ext.x10.ast.X10FieldDecl;
+import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.types.X10ClassDef;
+import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10Def;
+import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -30,21 +32,6 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import polyglot.util.Position;
-import polyglot.util.InternalCompilerError;
-import polyglot.ext.x10.ast.Closure;
-import polyglot.ext.x10.ast.X10ClassDecl;
-import polyglot.ext.x10.ast.X10ClockedLoop;
-import polyglot.ext.x10.ast.X10ConstructorDecl;
-import polyglot.ext.x10.ast.X10FieldDecl;
-import polyglot.ext.x10.ast.X10Loop;
-import polyglot.ext.x10.ast.X10Formal;
-import polyglot.ext.x10.ast.X10MethodDecl;
-import polyglot.ext.x10.types.X10ClassDef;
-import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10Def;
-import polyglot.ext.x10.types.X10TypeMixin;
-import polyglot.ext.x10.types.X10TypeSystem;
 
 /**
  * Visitor that expands implicit declarations in formal parameters.
@@ -79,10 +66,8 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
             X10ClassType act = (X10ClassType) at;
             if (index < act.propertyInitializers().size()) {
                 Expr e = act.propertyInitializer(index);
-                if (e instanceof StringLit) {
-                    StringLit lit = (StringLit) e;
-                    String s = lit.value();
-                    return s;
+                if (e.isConstant() && e.constantValue() instanceof String) {
+                	return (String) e.constantValue();
                 }
                 else {
                     throw new SemanticException("Property initializer for @" + at + " must be a string literal.");
