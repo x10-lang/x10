@@ -197,7 +197,7 @@ STATISTICS_DISABLE=none</echo>
 
 #JAVA='${java.executable}'
 [ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
-JRE_HOME='${java.home}'
+[ -n "$JRE_HOME" ] || JRE_HOME="$JAVA_HOME/jre"
 #FILE_SEP='${file.separator}'
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='standard.cfg'
