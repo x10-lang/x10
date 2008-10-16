@@ -53,7 +53,7 @@ public class IntArray_c extends IntArray implements UnsafeContainer {
 
 	protected IntArray_c(dist d, boolean mutable, int[] a) {
 		super(d, mutable);
-		assert (d instanceof Distribution_c);
+	//	assert (d instanceof Distribution_c);
 		int count = d.region.size();
 		int rank = d.region.rank;
 		descriptor_ = new int[rank+1];

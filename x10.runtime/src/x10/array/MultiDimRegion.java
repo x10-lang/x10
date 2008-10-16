@@ -19,7 +19,7 @@ import x10.lang.RankMismatchException;
 
 /**
  * Implementation of Region. Instance of this class are immutable!
- * This class only implements a cross-product of contiguous or strided regions,
+ * This class only implements a cross-product of contiguous  regions,
  * [lo1:hi1,...,lok:hik].
  *  @seealso point
  * @author Christoph von Praun
@@ -27,6 +27,19 @@ import x10.lang.RankMismatchException;
  * @author vj
  */
 public class MultiDimRegion extends region implements Rectangular {
+	
+	/**
+	 * Return the unique region containing this point.
+	 * @param p
+	 * @return
+	 */
+	public static MultiDimRegion make(point p) {
+		region[] regions = new region[p.rank];
+		int[] val = p.val();
+		for (int i=0; i < p.rank; i++)
+			regions[i] = new ContiguousRange(val[i], val[i]);
+		return new MultiDimRegion(regions, p.isZero());
+	}
 
 	final region[] dims_;
 	final int[] base_;
@@ -185,18 +198,17 @@ public class MultiDimRegion extends region implements Rectangular {
 		return ret;
 	}
 
-	// [IP] FIXME: should we throw a RankMismatchException here?
 	public boolean contains(point p) {
-		boolean ret;
-		if (p.rank == rank) {
-			ret = true;
-			for (int i = 0; ret && i < rank; ++i) {
-				int[] coord = {p.get(i)};
-				ret = dims_[i].contains(coord);
-			}
-		} else
-			ret = false;
-		return ret;
+		assert p != null;
+		if (p.rank != rank) throw new RankMismatchException(this, p.rank);
+
+		for (int i = 0; i < rank; ++i) {
+			int[] coord = {p.get(i)};
+			if (! dims_[i].contains(coord)) return false;
+
+		}
+		return true;
+
 	}
 
 	public boolean contains(int[] val) {
@@ -241,7 +253,7 @@ public class MultiDimRegion extends region implements Rectangular {
 	 * in lexicographical * order. Points are specified as arrays of
 	 * int.
 	 */
-	public Iterator iterator() {
+	public Iterator<point> iterator() {
 		return new MultiDimRegionIterator_();
 	}
 
@@ -257,7 +269,7 @@ public class MultiDimRegion extends region implements Rectangular {
 		return sb.toString();
 	}
 
-	private class MultiDimRegionIterator_ implements Iterator {
+	private class MultiDimRegionIterator_ implements Iterator<point> {
 		private int nextOrd_ = 0;
 
 		public boolean hasNext() {
@@ -268,7 +280,7 @@ public class MultiDimRegion extends region implements Rectangular {
 			throw new Error("not implemented");
 		}
 
-		public java.lang.Object next() {
+		public point next() {
 			assert hasNext();
 			return coord(nextOrd_++);
 		}
@@ -349,7 +361,19 @@ public class MultiDimRegion extends region implements Rectangular {
 		return point.factory.point(ret);
 	}
 
-	
+	public region project(int dim) {
+		if (0 > dim || dim > rank) throw new RankMismatchException(this, dim);
+		region[] rs = new region[rank-1];
+		System.arraycopy(dims_, 0, rs, 0, dim);
+		System.arraycopy(dims_, dim+1, rs,dim, rank-dim-1);
+		boolean zero = true;
+		for (region r : rs) 
+			if (! r.zeroBased) {
+				zero=false;
+				break;
+			}
+		return new MultiDimRegion(rs, zero);
+	}
 	
 }
 

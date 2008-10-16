@@ -26,7 +26,7 @@ import x10.base.TypeArgument;
  * @author vj
  */
 public abstract /*value*/ class region extends Object
-	implements TypeArgument, ValueType
+	implements TypeArgument, ValueType, Iterable<point>
 {
 	public static final int UNKNOWN = 0;
 	public static final int RANGE = 1;
@@ -195,7 +195,7 @@ public abstract /*value*/ class region extends Object
 	abstract public region/*(rank)*/ convexHull();
 
 	public point startPoint() {
-		Iterator it = iterator();
+		Iterator<point> it = iterator();
 		return (it.hasNext() ? (point) it.next() : null);
 	}
 
@@ -246,9 +246,17 @@ public abstract /*value*/ class region extends Object
 	 * @return Iterator that yields the individual points of a region in
 	 * lexicographical order.
 	 */
-	abstract public Iterator iterator();
+	abstract public Iterator<point> iterator();
 
 	abstract public String toString();
+	
+	/**
+	 * Return the region with the dim'th dimension projected out. 
+	 * @param p
+	 * @return
+	 */
+	public abstract region/*(this.rank-p.rank)*/ project(int dim);
+	
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)

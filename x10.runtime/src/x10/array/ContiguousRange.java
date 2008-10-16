@@ -195,6 +195,9 @@ public class ContiguousRange extends Range implements Rectangular {
 	public region rank(int index) {
 		return this;
 	}
+	public region project(int dim) {
+		throw new UnsupportedOperationException();
+	}
 
 	// TODO: vj check that this arithmetic is correct.
 	public point/*(rank)*/ coord(/*nat*/ int ord) {
@@ -202,11 +205,11 @@ public class ContiguousRange extends Range implements Rectangular {
 		return Runtime.factory.getPointFactory().point(new int[] { ord + lo });
 	}
 
-	public Iterator iterator() {
+	public Iterator<point> iterator() {
 		return new RegionIterator();
 	}
 
-	private class RegionIterator implements Iterator {
+	private class RegionIterator implements Iterator<point> {
 		private int next_ = lo;
 
 		public boolean hasNext() {
@@ -217,7 +220,7 @@ public class ContiguousRange extends Range implements Rectangular {
 			throw new Error("not implemented");
 		}
 
-		public java.lang.Object next() {
+		public point next() {
 			assert hasNext();
 			point ret = Runtime.factory.getPointFactory().point(new int[] { next_ });
 			next_++;

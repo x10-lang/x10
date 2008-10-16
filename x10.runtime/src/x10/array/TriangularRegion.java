@@ -14,6 +14,8 @@ import x10.lang.region;
 import x10.lang.RankMismatchException;
 
 /**
+ * A triangular region is either the upper or lower triangular region for 
+ * [r1,..., rn] where each ri is a 1-d region low:hi.
  * @author Christoph von Praun
  */
 public class TriangularRegion extends region {
@@ -32,10 +34,10 @@ public class TriangularRegion extends region {
 		assert (dims != null && dims.length == 2);
 		int size = dims[0].size();
 		assert (size > 0);
-		for (int i = 0; i < dims.length; ++i) {
-			assert (dims[i] instanceof ContiguousRange);
-			assert (dims[i].size() == size);
-			if (zeroBased) assert dims[i].zeroBased;
+		for (region r : dims) {
+			assert r instanceof ContiguousRange;
+			assert r.size()==size;
+			if (zeroBased) assert r.zeroBased;
 		}
 		size_ = gauss_(size);
 		isLower_ = is_lower;
@@ -48,14 +50,12 @@ public class TriangularRegion extends region {
 
 	private int gauss_(int n) {
 		int ret = (n <= 0) ? 0 : ((n * (n + 1)) / 2);
-		// System.err.println("gauss_(" + n +")=" + ret);
 		return ret;
 	}
 
 	private int inv_gauss_(int x) {
 		assert (x >= 0);
 		int ret = (int) ((Math.sqrt(8 * x + 1.0) - 1.0) / 2.0);
-		// System.err.println("inv_gauss_(" + x +")=" + ret);
 		return ret;
 	}
 
@@ -121,12 +121,9 @@ public class TriangularRegion extends region {
 
 	public boolean contains(int[] p) {
 		assert (p != null);
-		boolean ret;
-		if (p.length == 2)
-			ret = contains_(p[0], p[1]);
-		else
-			ret = false;
-		return ret;
+		if (p.length==2)
+			return contains_(p[0], p[1]);
+		return false;
 	}
 
 	private boolean contains_(int a, int b) {
@@ -170,6 +167,9 @@ public class TriangularRegion extends region {
 		}
 		return gauss_(a_normal) + b_normal;
 	}
+	public region project(int dim) {
+		throw new UnsupportedOperationException();
+	}
 
 	public point coord(int ord) throws ArrayIndexOutOfBoundsException {
 		assert ord >= 0;
@@ -190,7 +190,7 @@ public class TriangularRegion extends region {
 		return ret;
 	}
 
-	private class TriangularRegionIterator_ implements Iterator {
+	private class TriangularRegionIterator_ implements Iterator<point> {
 		private int nextOrd_ = 0;
 
 		public boolean hasNext() {
@@ -201,13 +201,13 @@ public class TriangularRegion extends region {
 			throw new UnsupportedOperationException("TriangularRegionIterator_::remove - not implemented");
 		}
 
-		public java.lang.Object next() {
+		public point next() {
 			assert hasNext();
 			return coord(nextOrd_++);
 		}
 	}
 
-	public Iterator iterator() {
+	public Iterator<point> iterator() {
 		return new TriangularRegionIterator_();
 	}
 

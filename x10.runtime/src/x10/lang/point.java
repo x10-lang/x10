@@ -107,6 +107,33 @@ abstract public /*value*/ class point/*(region region)*/ extends java.lang.Objec
 	public point/*(region)*/ invsub(int c) { return add(-c).neg(); }
 	public point/*(region)*/ invmul(int c) { return mul(c); }
 	public point/*(region)*/ invdiv(int c) { return toPoint(rank, c).div(this); }
+	
+	@NoSideEffects
+	public abstract boolean isZero();
+	
+	abstract public point/*(region+p.region)*/ concat(point p);
+	/**
+	 * Returns true if this is prefixed by p, i.e. for some q, this= p.concat(q).
+	 * @param p
+	 * @return
+	 */
+	abstract public boolean prefixedBy(point p);
+	/**
+	 * Throw a RankMismatchException if n > rank. Otherwise return a new point with rank rank-n
+	 * whose coordinates are the last rank-n indices of this.
+	 * @param p
+	 * @return
+	 */
+	abstract public point suffix(int n) throws RankMismatchException;
+	
+	/** 
+	 * Throw a RankMismatchException if n > rank. Otherwise return a new point of rank-1 with
+	 * the value of the dim'th dimension elided.
+	 * 
+	 */
+	
+	abstract public point project(int dim) throws RankMismatchException;
+	
 	abstract public int[] val();
 }
 

@@ -503,7 +503,7 @@ public abstract class IntArray extends IntReferenceArray {
 	}
 
 	public x10.lang.intArray toValueArray() {
-		if (!mutable_) return this;
+		if (true || !mutable_) return this;
 		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
 	}
 

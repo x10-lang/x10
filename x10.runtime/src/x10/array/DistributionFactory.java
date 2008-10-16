@@ -307,6 +307,9 @@ public class DistributionFactory extends dist.factory {
 		return newDist;
 	}
 	public dist unique(region R) {
+		if (R instanceof MultiDimRegion) {
+			return new MultiDimRegionUnique((MultiDimRegion) R);
+		}
 		dist newDist = new KDimUnique(R);
 		return newDist;
 	}
