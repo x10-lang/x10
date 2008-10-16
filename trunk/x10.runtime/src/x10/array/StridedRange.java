@@ -47,33 +47,19 @@ public class StridedRange extends Range {
 	public region union(region r) {
 		if (r.rank != 1)
 			throw new RankMismatchException(r, 1);
-		HashSet set = new HashSet();
+		HashSet<point> set = new HashSet<point>();
 	
-		for (Iterator it = iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			set.add(p);
-			
-		}
-		for (Iterator it = r.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			set.add(p);
-			
-		}
+		for (point p : this) set.add(p);
 		return new ArbitraryRegion(1, set);
 	}
 
 	public region intersection(region r) {
 		if (r.rank != 1)
 			throw new RankMismatchException(r, 1);
-		HashSet set = new HashSet();
-		
-		for (Iterator it = iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
-			if (contains(p)) {
+		HashSet<point> set = new HashSet<point>();
+		for (point p : this) 
+			if (r.contains(p)) 
 				set.add(p);
-				
-			}
-		}
 		return new ArbitraryRegion(1, set);
 	}
 
@@ -111,37 +97,31 @@ public class StridedRange extends Range {
 		return new ContiguousRange(lo, hi);
 	}
 
-	// [IP] FIXME: should we throw a RankMismatchException here?
 	public boolean disjoint(region r) {
-		boolean ret = false;
-		if (r.rank == 1) {
-			for (Iterator it = r.iterator(); ret && it.hasNext(); ) {
-				point p = (point) it.next();
-				if (contains(p))
-					ret = false;
-			}
-		}
-		return ret;
+		if (r.rank != 1) throw new RankMismatchException(r, 1);
+		for (point p : r)
+			if (contains(p))
+				return false;
+		return true;
 	}
 
-	// [IP] FIXME: should we throw a RankMismatchException here?
 	public boolean contains(region r) {
-		boolean ret = false;
-		if (r.rank == 1) {
-			ret = true;
-			for (Iterator it = r.iterator(); ret && it.hasNext(); ) {
-				if (!contains((point) it.next()))
-					ret = false;
-			}
-		}
-		return ret;
+		if (r.rank != 1) throw new RankMismatchException(r, 1);
+		for (point p : r)
+			if (! contains(p))
+				return false;
+		return true;
+	}
+	public region project(int dim) {
+		if (dim != 0) throw new RankMismatchException(this, dim);
+		return new EmptyRegion(0);
 	}
 
-	public Iterator iterator() {
+	public Iterator<point> iterator() {
 		return new StridedRangeIterator();
 	}
 
-	private class StridedRangeIterator implements Iterator {
+	private class StridedRangeIterator implements Iterator<point> {
 		private int cur_ = lo;
 
 		public boolean hasNext() {
@@ -152,7 +132,7 @@ public class StridedRange extends Range {
 			throw new Error("not implemented");
 		}
 
-		public java.lang.Object next() {
+		public point next() {
 			assert hasNext();
 			point ret = point.factory.point(new int[] { cur_ });
 			cur_ += stride;

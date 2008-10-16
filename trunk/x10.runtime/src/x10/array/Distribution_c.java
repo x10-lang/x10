@@ -12,21 +12,16 @@ package x10.array;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import x10.array.ArbitraryRegion;
-import x10.array.EmptyRegion;
-import x10.array.ContiguousRange;
 import x10.lang.Indexable;
+import x10.lang.RankMismatchException;
 import x10.lang.Runtime;
 import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
-import x10.lang.RankMismatchException;
-import x10.array.point_c;
 import x10.lang.region;
 
 
@@ -57,9 +52,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	}
 
 	/* this field should actually be final - ?? */
-	protected final Set/*<place>*/ places;
+	protected final Set<place> places;
 
-	public Set/*<place>*/ places() {
+	public Set<place> places() {
 		return places;
 	}
 
@@ -69,7 +64,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 	protected Distribution_c(region r, place onePlace, boolean unique) {
 		super(r, onePlace, unique);
-		this.places = new HashSet();
+		this.places = new HashSet<place>();
 	}
 
 	public region restrictToRegion(place pl) {
@@ -92,11 +87,10 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			return ((Unique)th).restrictToRegion(pl);
 
 
-		Set points = new HashSet();
+		Set<point> points = new HashSet<point>();
 		boolean zeroBased = false;
 		point allZero = point.factory.point(new int[th.rank]);
-		for (Iterator it = th.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
+		for (point p : th.region ) {
 			if (th.get(p) == pl) {
 				points.add(p);
 				zeroBased |= p.equals(allZero);
@@ -106,7 +100,7 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		return ret;
 	}
 
-	public dist restriction(Set Ps) {
+	public dist restriction(Set<place> Ps) {
 		return restriction(this, Ps);
 	}
 
@@ -115,14 +109,13 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 	 * The region of the distribution returned is contained in this.region.
 	 */
 	protected static dist/*(:this.region.contains(region))*/
-		restriction(dist th, Set/*<place>*/Ps)
+		restriction(dist th, Set<place> Ps)
 	{
-		HashMap hm = new HashMap();
-		Set points = new HashSet();
+		HashMap<point, place> hm = new HashMap<point,place>();
+		Set<point> points = new HashSet<point>();
 		boolean zeroBased = false;
 		point allZero = point.factory.allZero(th.rank);
-		for (Iterator it = th.region.iterator(); it.hasNext(); ) {
-			point p = (point) it.next();
+		for (point p : th.region) {
 			place pl = th.get(p);
 			if (Ps.contains(pl)) {
 				points.add(p);
@@ -457,6 +450,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			return (D instanceof Empty || D.region.size() == 0);
 		}
 
+		public dist project(int dim) {
+			throw new UnsupportedOperationException();
+		}
 		public String toString() {
 			StringBuffer s = new StringBuffer("Distribution_c.Empty<");
 			s.append(region.toString());
@@ -484,6 +480,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			return theRegions;
 		}
 
+		public dist project(int dim) {
+			return new Constant(region.project(dim), place_);
+		}
 		/**
 		 * Returns the place to which the point p in region is mapped.
 		 */
@@ -598,14 +597,19 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		}
 	} // end of Distribution_c.Constant
 
+	/**
+	 * 1-d unique distribution over given sequence of places.
+	 * @author vj
+	 *
+	 */
 	static class Unique extends Distribution_c {
 
 		place[] placeseq;
 		Unique(place[] ps) {
-			super(new ContiguousRange(0, ps.length - 1), ps.length==1 ? ps[0] : null, ps.length == place.MAX_PLACES);
+			super(new ContiguousRange(0, ps.length - 1), 
+					ps.length==1 ? ps[0] : null, ps.length == place.MAX_PLACES);
 			this.placeseq = ps;
-			for (int i=0; i<placeseq.length; i++)
-				places.add(ps[i]);
+			for (place p : ps) places.add(p);
 		}
 
 		/**
@@ -626,6 +630,10 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			return placeseq[val[0]];
 		}
 
+		public dist project(int dim) {
+			if (dim!= 0) throw new RankMismatchException(region, dim);
+			return new Empty(0);
+		}
 		/**
 		 * Returns the region mapped by this distribution to the place P.
 		 * The value returned is a subset of this.region.
@@ -731,7 +739,9 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 			region ret = new ArbitraryRegion(region.rank, points);
 			return ret;
 		}
-
+		public dist project(int dim) {
+			throw new UnsupportedOperationException();
+		}
 		public String toString() {
 			StringBuffer s = new StringBuffer("CombinedDistribution_c<");
 			for (int i=0; i < members_.length; i++)
@@ -742,14 +752,12 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 
 	static final class Arbitrary extends Distribution_c {
 
-		private final Map map_;
+		private final Map<point,place> map_;
 
-		Arbitrary(region r, Map m, place onePlace) {
+		Arbitrary(region r, Map<point,place> m, place onePlace) {
 			super(r, onePlace);
 			map_ = m;
 			places.addAll(m.values());
-		//	this._indexMap = generateIndexMap(this, m);
-	//		this._distributionType = ARBITRARY;
 		}
 
 		/**
@@ -763,16 +771,26 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 				throw new ArrayIndexOutOfBoundsException();
 			return ret;
 		}
+		public dist project(int dim) {
+			if (region.size()==0) throw new RankMismatchException(region, dim);
+			Map<point, place> map = new HashMap<point,place>();
+			
+			Set <point> points = new HashSet<point>();
+			for (Map.Entry<point, place> me : map_.entrySet()) {
+				point p = me.getKey().project(dim);
+				place pl = me.getValue();
+				map.put(p.project(dim),pl);
+				points.add(p);
+			}
+			return new Arbitrary(new ArbitraryRegion(rank-1,points),map, onePlace);
+		}
 
 		public String toString() {
 			StringBuffer s = new StringBuffer("Distribution_c.Arbitrary<\n");
-			for (Iterator it = map_.entrySet().iterator(); it.hasNext(); ) {
-				Map.Entry me = (Map.Entry) it.next();
+			for (Map.Entry<point,place> me: map_.entrySet()) {
 				point p = (point) me.getKey();
 				place pl = (place) me.getValue();
-				s.append("[" + p + ", " + pl + "]");
-				if (it.hasNext())
-					s.append(",\n");
+				s.append("[" + p + ", " + pl + "]\n");
 			}
 			s.append(">");
 			return s.toString();

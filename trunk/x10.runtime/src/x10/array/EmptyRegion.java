@@ -135,7 +135,9 @@ public class EmptyRegion extends region {
 			throw new RankMismatchException(r, rank);
 		return true;
 	}
-	
+	public region project(int dim) {
+		throw new UnsupportedOperationException();
+	}
 	public region[] partition(int n, int dim) {
 		assert n > 0;
 		region[] ret = new region[n];
@@ -157,13 +159,19 @@ public class EmptyRegion extends region {
 	public point coord(int ord) throws ArrayIndexOutOfBoundsException {
 		throw new ArrayIndexOutOfBoundsException();
 	}
+	
+	//@Override
+	public region project(point p) {
+		if (p.rank != 0) throw new RankMismatchException(p, 0);
+		return this;
+	}
 
 	/* (non-Javadoc)
 	 * @see x10.lang.region#iterator()
 	 */
-	public Iterator iterator() {
+	public Iterator<point> iterator() {
 
-		class RegionIterator implements Iterator {
+		class RegionIterator implements Iterator<point> {
 
 			public boolean hasNext() {
 				return false;
@@ -173,19 +181,19 @@ public class EmptyRegion extends region {
 				throw new Error("not implemented");
 			}
 
-			public java.lang.Object next() {
+			public point next() {
 				throw new Error("No such element.");
 			}
 		}
 
-		return new Iterator() {
+		return new Iterator<point>() {
 			public boolean hasNext() {
 				return false;
 			}
 			public void remove() throws UnsupportedOperationException {
 				throw new UnsupportedOperationException();
 			}
-			public java.lang.Object next() throws NoSuchElementException {
+			public  point next() throws NoSuchElementException {
 				throw new NoSuchElementException();
 			}
 		};

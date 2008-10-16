@@ -107,7 +107,9 @@ public class BandedRegion extends region {
 			new EmptyRegion(2);
 		return ret;
 	}
-
+	public region project(int dim) {
+		throw new UnsupportedOperationException();
+	}
 	public region convexHull() {
 		return this;
 	}
@@ -180,7 +182,7 @@ public class BandedRegion extends region {
 		return ret;
 	}
 
-	private class BandedRegionIterator_ implements Iterator {
+	private class BandedRegionIterator_ implements Iterator<point> {
 		private int nextOrd_ = 0;
 
 		public boolean hasNext() {
@@ -191,13 +193,13 @@ public class BandedRegion extends region {
 			throw new UnsupportedOperationException("BandedRegionIterator_::remove - not implemented");
 		}
 
-		public java.lang.Object next() {
+		public point next() {
 			assert hasNext();
 			return coord(nextOrd_++);
 		}
 	}
 
-	public Iterator iterator() {
+	public Iterator<point> iterator() {
 		return new BandedRegionIterator_();
 	}
 

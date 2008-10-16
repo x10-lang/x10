@@ -460,7 +460,7 @@ public abstract class DoubleArray extends DoubleReferenceArray {
 	}
 
 	public x10.lang.doubleArray toValueArray() {
-		if (!mutable_) return this;
+		if (true || !mutable_) return this;
 		throw new Error("TODO: <T>ReferenceArray --> <T>ValueArray");
 	}
 

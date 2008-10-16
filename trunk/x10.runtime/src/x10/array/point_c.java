@@ -25,6 +25,12 @@ public final class point_c extends point implements Comparable {
 	final int[] val;
 	final int hash_;
 
+	@NoSideEffects
+	public boolean isZero() {
+		for (int i : val) 
+			if (i != 0) return false;
+		return true;
+	}
 	/**
 	 * Is this indexable value-equals to the other indexable?
 	 * @param other
@@ -234,6 +240,44 @@ public final class point_c extends point implements Comparable {
 		return factory.point(array);
 	}
 
+	@Override
+	public point/*(region+p.region)*/ concat(point p) {
+		int[] pval = p.val();
+		int[]  a = new int[val.length + pval.length];
+		System.arraycopy(val, 0,  a, 0, val.length-1);
+		System.arraycopy(pval, 0,  a, val.length, pval.length-1);
+		return new point_c(a);
+		
+	}
+	@Override
+	public boolean prefixedBy(point p) {
+		if (p.rank > rank) return false;
+		int[] pa = p.val();
+		for (int i=0; i < pa.length; ++i)
+			if (pa[i] != val[i])
+				return false;
+		return true;
+		
+	}
+	@Override
+		public point suffix(int n) throws RankMismatchException {
+		if (n > rank) throw new RankMismatchException(this,n);
+		int[] result = new int[rank-n];
+		for (int i=0; i < result.length; ++i)
+			System.arraycopy(val, n, result, 0, rank-n);
+		return new point_c(result);
+		
+	}
+	
+	@Override
+		public point project(int dim) throws RankMismatchException {
+		if (dim > rank) throw new RankMismatchException(this, dim);
+		int[] result = new int[rank-1];
+		System.arraycopy(val, 0, result, 0, dim);
+		System.arraycopy(val, dim+1, result, dim, rank-1-dim);
+		return new point_c(result);
+		
+	}
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");

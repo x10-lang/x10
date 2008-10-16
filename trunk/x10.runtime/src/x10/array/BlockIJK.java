@@ -103,7 +103,9 @@ public class BlockIJK extends Distribution_c {
         public final region[] getPerPlaceRegions(){
         	return regions;
         }
-        
+    	public dist project(int dim) {
+    		throw new UnsupportedOperationException();
+    	}
   
 
         /** Returns the region mapped by this distribution to the place P.
