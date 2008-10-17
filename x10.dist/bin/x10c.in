@@ -83,6 +83,9 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 # include x10.jar in sourcepath
 extargs="$extargs -sourcepath \"${LIB_DIR}${FILE_SEP}x10.jar\""
 
+# disable loop optimizations
+extargs="$extargs -LOOP_OPTIMIZATIONS=false"
+
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
 command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} $MAIN $extargs $args"
