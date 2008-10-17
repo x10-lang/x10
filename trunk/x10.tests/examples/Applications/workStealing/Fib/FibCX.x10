@@ -3,7 +3,7 @@ import x10.runtime.xws.Frame;
 import x10.runtime.xws.Job;
 import x10.runtime.xws.Pool;
 import x10.runtime.xws.StealAbort;
-import x10.runtime.xws.Worker;
+import x10.runtime.xws.XWSWorker;
 
 /**
  * A pointless recursive Fibonacci written against X10 implementation of XWS.  
@@ -46,7 +46,7 @@ public class FibCX {
     
     def this(n:int) { super(new FibFrame(n)); }
     
-    def fib(w:Worker, n:int):int throws StealAbort { // fast mode
+    def fib(w:XWSWorker, n:int):int throws StealAbort { // fast mode
         if (n < 2) return n;
         var frame:FibFrame;
         if (ELISION) {
@@ -105,7 +105,7 @@ public class FibCX {
 	    return result;
 	  }
 	
-	  public def compute(w:Worker, frame:Frame):void throws StealAbort { // slow mode
+	  public def compute(w:XWSWorker, frame:Frame):void throws StealAbort { // slow mode
 	    val f = frame as FibFrame;
 	    val n = f.n;
 	    switch (f.PC) { // NOTE: all cases in switch are falling through!
@@ -223,7 +223,7 @@ public class FibCX {
 	for (var j:int = 0; j < nReps; j++) {
 	  val job = new Job(pool) {
             var result:int;
-	    public def spawnTask(ws:Worker):int throws StealAbort { return new FibClosure(num).fib(ws, num); }
+	    public def spawnTask(ws:XWSWorker):int throws StealAbort { return new FibClosure(num).fib(ws, num); }
 	    public def setResultInt(x:int):void { result = x;}
             public def resultInt():int { return result;}
 	  };

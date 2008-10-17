@@ -42,7 +42,7 @@ public class Closure  implements Executable {
 	protected Closure parent;
 	protected  Status status;
 	protected ReentrantLock lock;
-	protected Worker lockOwner;
+	protected XWSWorker lockOwner;
 	public int joinCount;
 	
 	public Frame parentFrame() { return parent.frame;}
@@ -55,7 +55,7 @@ public class Closure  implements Executable {
 	protected List<Closure> completeInlets;
 	protected List<Closure> incompleteInlets;
 	
-	protected Worker ownerReadyQueue;
+	protected XWSWorker ownerReadyQueue;
 	/**
 	 * The ready deque is maintained through a pair of references.
 	 */
@@ -92,7 +92,7 @@ public class Closure  implements Executable {
 	}
 	
 	
-	void lock(Worker agent) { 
+	void lock(XWSWorker agent) { 
 		lock.lock();
 		lockOwner =agent;
 	}
@@ -124,7 +124,7 @@ public class Closure  implements Executable {
 	 * @param victim -- The worker from who work has been stolen.
 	 * @return the child closure
 	 */
-	Closure promoteChild(Worker thief, Worker victim) {
+	Closure promoteChild(XWSWorker thief, XWSWorker victim) {
 		
 		assert lockOwner == thief;
 		assert status == Status.RUNNING;
@@ -158,7 +158,7 @@ public class Closure  implements Executable {
 	 * @param thief  -- The worker performing the steal.
 	 * @param child -- The child closure being promoted.
 	 */
-	void finishPromote(Worker thief, Closure child) {
+	void finishPromote(XWSWorker thief, Closure child) {
 		
 		assert lockOwner == thief;
 		assert child == null || child.lockOwner != thief;
@@ -177,7 +177,7 @@ public class Closure  implements Executable {
 		cache=null;
 	}
 	
-    boolean handleException(Worker w) {
+    boolean handleException(XWSWorker w) {
     	cache.resetExceptionPointer(w);
     	Status s = status;
     	assert s == Status.RUNNING || s == Status.RETURNING;
@@ -190,7 +190,7 @@ public class Closure  implements Executable {
     	
     }
   
-    private void signalImmediateException(Worker ws) {
+    private void signalImmediateException(XWSWorker ws) {
     	assert lockOwner == ws;
     	assert status == Status.RUNNING;
     	cache.signalImmediateException();
@@ -204,7 +204,7 @@ public class Closure  implements Executable {
      * Required that ws==Thread.currentThread().
      * @return the parent, if this is the last child joining.
      */
-     private Closure closureReturn(Worker w) {
+     private Closure closureReturn(XWSWorker w) {
     	
     	// Short circuit for globally quiescent computations.
     	if (requiresGlobalQuiescence() && parent != null) {
@@ -225,7 +225,7 @@ public class Closure  implements Executable {
     	return parent.acceptChild(w, this);
      }
      
-     private Closure acceptChild(Worker ws, Closure child) {
+     private Closure acceptChild(XWSWorker ws, Closure child) {
     	lock(ws);
     	try {
     		assert status != Status.RETURNING;
@@ -252,7 +252,7 @@ public class Closure  implements Executable {
      * ws must be the worker executing suspend.
      * Assume: ws=Thread.currentThread();
      */
-   void suspend(Worker ws) {
+   void suspend(XWSWorker ws) {
     	assert lockOwner == ws;
     	assert status == Status.RUNNING;
     	
@@ -275,7 +275,7 @@ public class Closure  implements Executable {
      * value of a child
      * @return parent or null
      */
-    private Closure provablyGoodStealMaybe(Worker w, Closure child) {
+    private Closure provablyGoodStealMaybe(XWSWorker w, Closure child) {
     	assert child.lockOwner==w;
     	Closure result = null;
     	
@@ -285,7 +285,7 @@ public class Closure  implements Executable {
     		ownerReadyQueue =null;
     		status=Status.READY;
     		cache=null;
-    		if (Worker.reporting) {
+    		if (XWSWorker.reporting) {
     			System.out.println(w + " awakens " + this);
     		}
     	} 
@@ -299,7 +299,7 @@ public class Closure  implements Executable {
 	 * and not just once, after joinCount==0. Perhaps because
 	 * this method is supposed to perform abort processing.
 	 */
-	void pollInlets(Worker w) {
+	void pollInlets(XWSWorker w) {
 		assert lockOwner==w;
 		//System.out.println(w + " polling " + this);
 		if (status==Status.RUNNING && ! w.jobRequiresGlobalQuiescence && ! cache.atTopOfStack()) {
@@ -323,7 +323,7 @@ public class Closure  implements Executable {
      * @return
      */
    
-    Closure returnValue(Worker w) {
+    Closure returnValue(XWSWorker w) {
     	assert status==Status.RETURNING;
     	return closureReturn(w);
     }
@@ -334,7 +334,7 @@ public class Closure  implements Executable {
 	 * after setting things up.
 	 * @param w -- the current thread, must be equal to Thread.currentThread()
 	 */
-	public Executable execute(Worker w) {
+	public Executable execute(XWSWorker w) {
 		assert lockOwner != w;
 		
 		lock(w);
@@ -394,7 +394,7 @@ public class Closure  implements Executable {
 	 * @param w -- The thread invoking the compute, i.e. w == Thread.currentThread()
 	 * @param frame -- frame within which to execute
 	 */
-	protected void compute(Worker w, Frame frame) throws StealAbort {}
+	protected void compute(XWSWorker w, Frame frame) throws StealAbort {}
     
 	/**
 	 * Subclasses should override this as appropriate. 
@@ -410,7 +410,7 @@ public class Closure  implements Executable {
      * @return true -- iff the closure must suspend because not 
      *                 all children have returned
      */
-	final protected boolean sync(Worker ws) {
+	final protected boolean sync(XWSWorker ws) {
 		return ws.sync();
 	}
 	
@@ -425,14 +425,14 @@ public class Closure  implements Executable {
 	 */
 	final protected void setupReturn() {
 		// Do not trust client code to pass this parameter in.
-		Worker w = (Worker) Thread.currentThread();
+		XWSWorker w = (XWSWorker) Thread.currentThread();
 		done = true;
 		w.lock(w);
 		try {
 			if (requiresGlobalQuiescence()) {
 				w.extractBottom(w);
 				// speed the result on its way.
-				if (Worker.reporting)
+				if (XWSWorker.reporting)
 					System.err.println(this + ".setupReturn(): speeding result on its way.");
 				if (parent != null)
 					w.currentJob().accumulateResultInt(resultInt());
@@ -454,7 +454,7 @@ public class Closure  implements Executable {
 	}
 	final protected void setupGQReturnNoArg() {
 		// Do not trust client code to pass this parameter in.
-		Worker w = (Worker) Thread.currentThread();
+		XWSWorker w = (XWSWorker) Thread.currentThread();
 		w.lock(w);
 		try {
 			w.extractBottom(w);
@@ -466,7 +466,7 @@ public class Closure  implements Executable {
 	}
 	final protected void setupGQReturnNoArgNoPop() {
 		// Do not trust client code to pass this parameter in.
-		Worker w = (Worker) Thread.currentThread();
+		XWSWorker w = (XWSWorker) Thread.currentThread();
 		w.lock(w);
 		try {
 			w.extractBottom(w);
@@ -478,7 +478,7 @@ public class Closure  implements Executable {
 	
 	final protected void setupGQReturn() {
 		// Do not trust client code to pass this parameter in.
-		Worker w = (Worker) Thread.currentThread();
+		XWSWorker w = (XWSWorker) Thread.currentThread();
 		// do not set done to true. This will be 
 		// done when global quiescence is recognized.
 		w.lock(w);
@@ -527,7 +527,7 @@ public class Closure  implements Executable {
 	 * ownerReadyQueue must not be null.
 	 *
 	 */
-	final void copyFrame(Worker w) {
+	final void copyFrame(XWSWorker w) {
 		assert ownerReadyQueue.lockOwner==w;
 		frame = frame.copy();
 	}

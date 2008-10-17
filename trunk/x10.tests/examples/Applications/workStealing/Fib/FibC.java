@@ -4,7 +4,7 @@ import x10.runtime.xws.impl.Frame;
 import x10.runtime.xws.impl.Job;
 import x10.runtime.xws.impl.Closure.Outlet;
 import x10.runtime.xws.impl.Pool;
-import x10.runtime.xws.impl.Worker;
+import x10.runtime.xws.impl.XWSWorker;
 import x10.runtime.xws.impl.StealAbort;
 
 
@@ -49,7 +49,7 @@ public class FibC {
 
 		FibClosure(int n) { this(new FibFrame(n)); }
 
-		int fib(Worker w, int n) throws StealAbort { // fast mode
+		int fib(XWSWorker w, int n) throws StealAbort { // fast mode
 			if (n < 2) return n;
 			FibFrame frame;
 			if (ELISION) {
@@ -108,7 +108,7 @@ public class FibC {
 			return result;
 		}
 
-		public void compute(Worker w, Frame frame) throws StealAbort { // slow mode
+		public void compute(XWSWorker w, Frame frame) throws StealAbort { // slow mode
 			FibFrame f = (FibFrame)frame;
 			int n = f.n;
 			switch (f.PC) { // NOTE: all cases in switch are falling through!
@@ -211,7 +211,7 @@ public class FibC {
 				int result;
 				public void setResultInt(int x) { result = x;}
 				public int resultInt() { return result;}
-				public int spawnTask(Worker ws) throws StealAbort { return new FibClosure(num).fib(ws, num); }
+				public int spawnTask(XWSWorker ws) throws StealAbort { return new FibClosure(num).fib(ws, num); }
 				public String toString() {
 					return "Job(#" + hashCode() + ", fib(n=" + num +"," + status+ ",frame="+ frame+")";
 				}

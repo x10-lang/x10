@@ -54,7 +54,7 @@ public abstract class Job extends Closure implements Future {
 			status = READY;
 		}
 		@Override
-		protected void compute(Worker w, Frame frame) throws StealAbort {
+		protected void compute(XWSWorker w, Frame frame) throws StealAbort {
 			GFrame f = (GFrame) frame;
 			int PC = f.PC;
 			f.PC=LABEL_1;
@@ -66,7 +66,7 @@ public abstract class Job extends Closure implements Future {
 				// Accumulate into result.
 				int old = resultInt();
 				accumulateResultInt(f.x);
-				if (Worker.reporting)
+				if (XWSWorker.reporting)
 				System.err.println( w + " " + this + " adds " + f.x + " to move " + old + " --> " + resultInt());
 			}
 			setupGQReturn();
@@ -78,7 +78,7 @@ public abstract class Job extends Closure implements Future {
 			super(pool, f);
 		}
 		@Override
-		protected void compute(Worker w, Frame frame) throws StealAbort {
+		protected void compute(XWSWorker w, Frame frame) throws StealAbort {
 			
 			frame.compute(w);
 			// The completion of the job might leave behind work (frames).
@@ -86,7 +86,7 @@ public abstract class Job extends Closure implements Future {
 			setupGQReturnNoArgNoPop();
 		}
 		@Override
-		public int spawnTask(Worker ws) throws StealAbort {
+		public int spawnTask(XWSWorker ws) throws StealAbort {
 			assert false;
 			return 0;
 		}
@@ -163,7 +163,7 @@ public abstract class Job extends Closure implements Future {
 	}
 	public static final int LABEL_0=0,LABEL_1=1, LABEL_2=2, LABEL_3=3;
 	@Override
-	protected void compute(Worker w, Frame frame) throws StealAbort {
+	protected void compute(XWSWorker w, Frame frame) throws StealAbort {
 		JobFrame f = (JobFrame) frame;
 		switch (f.PC) {
 		case LABEL_0: 
@@ -181,10 +181,10 @@ public abstract class Job extends Closure implements Future {
 		}
 		return;
 	}
-	abstract public int spawnTask(Worker ws) throws StealAbort;
+	abstract public int spawnTask(XWSWorker ws) throws StealAbort;
 	public void completed() {
 		super.completed();
-		if ( Worker.reporting)
+		if ( XWSWorker.reporting)
 			System.out.println(Thread.currentThread() + " completed.");
 		synchronized(this) {
 			notifyAll();
@@ -241,7 +241,7 @@ public abstract class Job extends Closure implements Future {
 	 * 
 	 * @param w
 	 */
-	protected void onCheckIn(Worker w) {
+	protected void onCheckIn(XWSWorker w) {
 		assert Thread.currentThread()==w;
 		// no action.
 	}
