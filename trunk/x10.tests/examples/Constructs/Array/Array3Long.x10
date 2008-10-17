@@ -16,7 +16,7 @@ public class Array3Long extends x10Test {
     public def run(): boolean = {
 
     val r  = [1..10, 1..10] to Region;
-        val ia = Array.makeFromRegion[Long](r, (x:Point)=>0L);
+        val ia = Array.make[Long](r, (x:Point)=>0L);
         ia(1, 1) = 42L;
         return 42L == ia(1, 1);
     }

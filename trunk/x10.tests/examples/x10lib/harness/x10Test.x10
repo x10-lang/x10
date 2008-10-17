@@ -27,7 +27,7 @@ abstract public class x10Test {
 	 * The body of the test.
 	 * @return true on success, false on failure
 	 */
-	abstract protected def run(): boolean;
+	abstract public def run(): boolean;
 
 	public def executeAsync(): void = {
 		val b: Rail[boolean] = [ false ]; // use a rail until we have shared locals working

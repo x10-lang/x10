@@ -1,59 +1,36 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006
- *
- *  This file is part of X10 Test.
- *
- */
-import harness.x10Test;;
-
 /**
- * Testing cyclic dist.
+ * Basic distributions
  *
- * Randomly generate cyclic dists and check
- * index-to-place mapping for conformance with x10 0.41 spec:
- *
- *The dist cyclic(R, Q) distributes the points in R
- *cyclically across places in Q in order.
- *
- * @author kemal 4/2005
  */
-public class CyclicDist extends x10Test {
 
-	public def run(): boolean = {
-		val P: dist = Dist.makeUnique();
-		val np: int = place.MAX_PLACES;
-		val COUNT: int = 200;
-		val L: int = 5;
-		for (val (tries): point in 1..COUNT) {
-			val lb1: int = ranInt(-L, L);
-			val lb2: int = ranInt(-L, L);
-			val ub1: int = ranInt(lb1, L);
-			val ub2: int = ranInt(lb2, L);
+class CyclicDist extends TestDist {
 
-			val R = [lb1..ub1, lb2..ub2] to Region;
-			val DCyclic  = Dist.makeCyclic(R);
-			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
-			var offsWithinPlace: int = 0;
-			var placeNum: int = 0;
-			System.out.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints);
+    public def run() {
 
-			for (val (i,j): point in R) {
-				System.out.println("placeNum = "+placeNum+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DCyclic[i,j] = "+DCyclic(i, j).id);
-				chk(P(placeNum).id == placeNum);
-				chk(DCyclic(i, j) == P(placeNum));
-				placeNum++;
-				if (placeNum == np) {
-					//time to go to next offset
-					placeNum = 0;
-					offsWithinPlace++;
-				}
-			}
-		}
-		return true;
-	}
+        val r = [1..4, 1..7] to Region;
+        pr("r " + r);
 
-	public static def main(var args: Rail[String]): void = {
-		new CyclicDist().execute();
-	}
+        prDist("cyclic 0", Dist.makeCyclic(r, 0));
+        prDist("cyclic 1", Dist.makeCyclic(r, 1));
+
+        return status();
+    }
+
+    def expected() =
+        "r [1..4,1..7]\n"+
+        "--- cyclic 0: Dist(0->[1..1,1..7],1->[2..2,1..7],2->[3..3,1..7],3->[4..4,1..7])\n"+
+        "    1  . 0 0 0 0 0 0 0 . . \n"+
+        "    2  . 1 1 1 1 1 1 1 . . \n"+
+        "    3  . 2 2 2 2 2 2 2 . . \n"+
+        "    4  . 3 3 3 3 3 3 3 . . \n"+
+        "--- cyclic 1: Dist(0->([1..4,1..1] || [1..4,5..5]),1->([1..4,2..2] || [1..4,6..6]),2->([1..4,3..3] || [1..4,7..7]),3->[1..4,4..4])\n"+
+        "    1  . 0 1 2 3 0 1 2 . . \n"+
+        "    2  . 0 1 2 3 0 1 2 . . \n"+
+        "    3  . 0 1 2 3 0 1 2 . . \n"+
+        "    4  . 0 1 2 3 0 1 2 . . \n";
+    
+    public static def main(var args: Rail[String]) {
+        new CyclicDist().execute();
+    }
+
 }
