@@ -28,12 +28,41 @@ public class MultiDimRegionUnique extends Distribution_c {
 		+ ") > place.MAX_PLACES (" + place.MAX_PLACES + ")";
 	}
 
-	
+	MultiDimRegionUnique base;
+	public MultiDimRegionUnique(MultiDimRegion R, MultiDimRegionUnique base) {
+		super(R, place.MAX_PLACES==1? place.FIRST_PLACE : null, R.size()==place.MAX_PLACES);
+		this.base = base;
+	}
+	public String toString() {
+		StringBuilder sb = new StringBuilder("MDRU(#" + hashCode() + "){");
+		for (point p: region) {
+			sb.append(p).append("->").append(get(p)).append(",");
+		}
+		return sb.toString()+"}";
+	}
+	int projectedOutDim = -1;
+	int projectedOutVal = -1;
 	@Override
 	public dist project(int dim) throws RankMismatchException {
 		// The projection of a MultiDimRegion is a MultiDimRegion.
+		
 		MultiDimRegion r = (MultiDimRegion) region.project(dim);
-		return new MultiDimRegionUnique(r);
+		int pDim =  dim;
+		int pVal = 0;
+		for (point p : region) {
+			if (r.contains(p.project(dim))) {
+				pVal = p.get(dim);
+				break;
+			}
+		}
+		return new MultiDimRegionUnique(r, pDim, pVal, this);
+	}
+	public MultiDimRegionUnique(MultiDimRegion R, int pDim, int pVal, MultiDimRegionUnique base) {
+		super(R, place.MAX_PLACES==1? place.FIRST_PLACE : null, R.size()==place.MAX_PLACES);
+		this.base=base;
+		this.projectedOutDim = pDim;
+		this.projectedOutVal = pVal;
+		
 	}
 	@Override
 	public dist difference(x10.lang.region R) {
@@ -43,8 +72,19 @@ public class MultiDimRegionUnique extends Distribution_c {
 	@Override
 	public place get(point p) throws MalformedError {
 		assert p.rank==region.rank;
+		assert (region.contains(p)) : "MultiDimRegionUnique: " + region + " must contain " + p;
+		if (! region.contains(p)) throw new MalformedError();
+		if (base != null) {
+			if (projectedOutDim==-1)
+			return base.get(p);
+			point q = p.expand(projectedOutDim, projectedOutVal);
+			return base.get(q);
+		}
 		int ord = region.ordinal(p);
-		return place.places(ord);
+		
+		place q = place.places(ord);
+		
+		return q;
 	}
 
 	@Override
@@ -87,8 +127,10 @@ public class MultiDimRegionUnique extends Distribution_c {
 
 	@Override
 	public dist restriction(x10.lang.region R) {
+		assert (region.contains(R)) : "MDRU(#" + hashCode() + ") has region " + region 
+		+ " which does not contain intended restriction " + R;
 		if (R instanceof MultiDimRegion)
-			return new MultiDimRegionUnique((MultiDimRegion) R);
+			return new MultiDimRegionUnique((MultiDimRegion) R, this);
 		return new KDimUnique(R);
 	}
 

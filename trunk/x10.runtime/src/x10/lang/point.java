@@ -133,6 +133,15 @@ abstract public /*value*/ class point/*(region region)*/ extends java.lang.Objec
 	 */
 	
 	abstract public point project(int dim) throws RankMismatchException;
+	/**
+	 * The opposite of projection. Let this be a k-dim point. dim must be >=0 and <= k+1.
+	 * Construct a new k+1-ary point from this by inserting val into the dim'th position.
+	 * @param dim
+	 * @param val
+	 * @return
+	 * @throws RankMismatchException
+	 */
+	abstract public point expand (int dim, int val) throws RankMismatchException;
 	
 	abstract public int[] val();
 }

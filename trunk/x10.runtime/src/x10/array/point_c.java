@@ -278,6 +278,15 @@ public final class point_c extends point implements Comparable {
 		return new point_c(result);
 		
 	}
+	@Override
+	public point expand(int dim, int val) throws RankMismatchException {
+		if (dim < 0 || dim > rank+1) throw new RankMismatchException(this, dim);
+		int[] result = new int[rank+1];
+		for (int i=0; i <= rank; i++) {
+			result[i] = i < dim? get(i) : (i==dim ? val : get(i-1));
+		}
+		return new point_c(result);
+	}
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("[");
