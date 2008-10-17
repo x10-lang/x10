@@ -27,7 +27,7 @@ public class EncapsulatedArray2D extends x10Test {
 
         val size: int = 5;
         val R = [0..size-1, 0..size-1] to Region;
-        val D  = Dist.makeCyclic(R); 
+        val D  = Dist.makeCyclic(R, 0); 
         
         val A = Array.make[Wrapper](D, (Point) => new Wrapper(Array.make[double](R->here, (Point)=>0.0D)));
         

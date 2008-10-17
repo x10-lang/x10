@@ -102,20 +102,20 @@ public class DistBounds2D extends x10Test {
         const BLOCK: int = 0;
         const CYCLIC: int = 1;
         const CONSTANT: int = 2;
-        const RANDOM: int = 3;
-        const ARBITRARY: int = 4;
-        const N_DIST_TYPES: int = 5;
+        //const RANDOM: int = 3;
+        //const ARBITRARY: int = 4;
+        const N_DIST_TYPES: int = 3; //5;
 
         /**
          * Return a dist with region r, of type disttype
          */
         public static def getDist(var distType: int, var r: Region): Dist = {
             switch(distType) {
-                case BLOCK: return Dist.makeBlock(r);
-                case CYCLIC: return Dist.makeCyclic(r);
+                case BLOCK: return Dist.makeBlock(r, 0);
+                case CYCLIC: return Dist.makeCyclic(r, 0);
                 case CONSTANT: return r->here;
-                case RANDOM: return Dist.makeRandom(r);
-                case ARBITRARY: return Dist.makeArbitrary(r);
+                //case RANDOM: return Dist.makeRandom(r);
+                //case ARBITRARY: return Dist.makeArbitrary(r);
                 default:throw new Error("TODO");
             }
         }

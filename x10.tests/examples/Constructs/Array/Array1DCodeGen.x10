@@ -11,7 +11,7 @@ public class Array1DCodeGen extends x10Test {
 
     final def matgen(val a: Array[double](3), val b: Array[double]): double = {
 
-        var n: int = a.region.rank(0).high();
+        var n: int = a.region.max(0);
         var init: int = 1325;
         var norma: double = 0.0;
 
