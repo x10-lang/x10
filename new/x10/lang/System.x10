@@ -16,31 +16,34 @@ public class System {
 
     @NativeRep("java", "java.lang.System")
     private static class NativeSystem {
-      // Hide the constructor.
-      private def this() = { }
+
+        // Hide the constructor.
+        private def this() = { }
     
-      private static incomplete def fakeIt[T](): T;
+        private static incomplete def fakeIt[T](): T;
     
-      @Native("java", "java.lang.System.out")
-      public const out: PrintStream.NativePrintStream = fakeIt[x10.io.PrintStream.NativePrintStream]();
+        @Native("java", "java.lang.System.out")
+        public const out: PrintStream.NativePrintStream = fakeIt[x10.io.PrintStream.NativePrintStream]();
     
-      @Native("java", "java.lang.System.err")
-      public const err: PrintStream.NativePrintStream = fakeIt[x10.io.PrintStream.NativePrintStream]();
+        @Native("java", "java.lang.System.err")
+        public const err: PrintStream.NativePrintStream = fakeIt[x10.io.PrintStream.NativePrintStream]();
     
-      @Native("java", "java.lang.System.in")
-      public const input: InputStream.NativeInputStream = fakeIt[x10.io.InputStream.NativeInputStream]();
+        @Native("java", "java.lang.System.in")
+        public const input: InputStream.NativeInputStream = fakeIt[x10.io.InputStream.NativeInputStream]();
     
-      @Native("java", "java.lang.System.exit(#1)")
-      public static native def exit(code: Int): void;
+        @Native("java", "java.lang.System.exit(#1)")
+        public static native def exit(code: Int): void;
     
-      @Native("java", "java.lang.System.currentTimeMillis()")
-      public static native def currentTimeMillis(): Long;
+        @Native("java", "java.lang.System.currentTimeMillis()")
+        public static native def currentTimeMillis(): Long;
     
-      @Native("java", "java.lang.System.nanoTime()")
-      public static native def nanoTime(): Long;
+        @Native("java", "java.lang.System.nanoTime()")
+        public static native def nanoTime(): Long;
     
-      @Native("java", "java.lang.System.exit(-1)")
-      public static native def exit():Void;
+        @Native("java", "java.lang.System.exit(-1)")
+        public static native def exit():Void;
+
+        public static native def setProperty(p:String, v:String): void;
     }
     
     private def this() = {}
@@ -50,4 +53,7 @@ public class System {
     public static def exit(code: Int) { NativeSystem.exit();}
     public static def currentTimeMillis() = NativeSystem.currentTimeMillis();
     public static def nanoTime() = NativeSystem.nanoTime();
+    public static def setProperty(p:String,v:String) = NativeSystem.setProperty(p,v);
+
+
 }

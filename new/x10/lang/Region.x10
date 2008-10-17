@@ -1,137 +1,123 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006-2008.
- *
- *  This file is part of X10 Language.
- *
- */
+// (C) Copyright IBM Corporation 2006-2008.
+// This file is part of X10 Language.
 
 package x10.lang;
 
 import x10.compiler.SetOps;
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.array.Region")
-public abstract value Region(
+import x10.array.BaseRegion;
+
+public abstract value class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements SetOps[Region(this.rank)], Iterable[Point(this.rank)] {
+) implements Iterable[Point] {
 
     property rail = rank==1 && rect && zeroBased;
 
-@Native("java", "(#0).size()")
-    native public  def size(): int;
+    public abstract def size(): int;
+    public abstract def isConvex(): boolean;
+    abstract public def isEmpty(): boolean;
+    public abstract def disjoint(that: Region(rank)): boolean;
+
+    public static def makeEmpty(val rank: int): Region(rank) {
+        return BaseRegion.makeEmpty1(rank);
+    }
     
-@Native("java", "(#0).low()")
-    native public def low(){rank==1}:Int;
+    public static def makeFull(val rank: int): Region(rank) {
+        return BaseRegion.makeFull1(rank);
+    }
     
-@Native("java", "(#0).high()")
-    native public def high(){rank==1}:Int;
+    public static def makeUnit(): Region(0) {
+        return BaseRegion.makeUnit1();
+    }
     
+    public static def makeRectangular(val min: Rail[int], val max: Rail[int]): RectRegion(min.length) {
+        return BaseRegion.makeRectangular1(min, max);
+    }        
     
-@Native("java", "(#0).rank(#1)")
-    native public  def rank(n:Int):Region(1);
+    // XTENLANG-109 prevents zeroBased==(min==0)
+    public static def makeRectangular(min: int, max: int): Region{rank==1 && /*zeroBased==(min==0) &&*/ rect} {
+        return BaseRegion.makeRectangular1(min, max);
+    }        
     
-@Native("java", "(#0).isConvex()")
-    native public  def isConvex(): boolean;
-@Native("java", "(#0).disjoint(#1)")
-    native public def disjoint(that: Region): boolean;
-
-@Native("java", "x10.array.RegionFactory.makeEmpty(#1)")
-    native public static def makeEmpty(rank: int): Region(rank);
-
-@Native("java", "x10.array.RegionFactory.makeFull(#1)")
-    native public static def makeFull(rank: int): Region(rank);
-
-@Native("java", "x10.array.RegionFactory.makeUnit()")
-    native public static def makeUnit(): Region;
-
-@Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
-    native public static def makeRectangular(min: ValRail[Int], 
-                       max: ValRail[Int](min.length))
-    : Region{rank==min.length,rect};
-
-@Native("java", "x10.array.RegionFactory.makeRect(#1, #2)")
-    native public static def makeRectangular(min: int, max: int)
-    : Region{rect,rank==1,zeroBased==(min==0)};
-
-@Native("java", "x10.array.RegionFactory.makeBanded(#1, #2, #3)")
-    native public static def makeBanded(size: int, upper: int, lower: int): Region(1);
-
-@Native("java", "x10.array.RegionFactory.makeBanded(#1)")
-    native public static def makeBanded(size: int): Region(1);
-
-@Native("java", "x10.array.RegionFactory.makeUpperTriangular(#1)")
-    native public static def makeUpperTriangular(size: int): Region;
-
-@Native("java", "x10.array.RegionFactory.makeLowerTriangular(#1)")
-    native public static def makeLowerTriangular(size: int): Region;
+    public static def makeBanded(size: int, upper: int, lower: int): Region(2) {
+        return BaseRegion.makeBanded1(size, upper, lower);
+    }
     
-@Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
-    native public static def make(regions: Rail[Region]): Region(regions.length);
-
-@Native("java", "x10.array.RegionFactory.makeFromRail(#1)")
-    native public static def $convert(regions: Rail[Region]): Region(regions.length);
-
-@Native("java", "x10.array.RegionFactory.make(#1,#2)")
-    public static native def make(a: Region, b:Region): Region;
-
-@Native("java", "x10.array.RegionFactory.make(#1)")
-    public native static def make(regions: ValRail[Region]): Region(regions.length);
+    public static def makeBanded(size: int): Region(2) {
+        return BaseRegion.makeBanded1(size);
+    }
     
-    // TODO: Arg needs to be ValRail[Region(1)] but this does not work as of 09/13/08.
-@Native("java", "x10.array.RegionFactory.make(#1)")
-    public native static def $convert(regions: ValRail[Region]): 
-       Region{rank==regions.length};
-
-@Native("java", "(#0).ordinal(#1)")
-    native public def ordinal(p:Point(this.rank)):Nat 
-       throws ArrayIndexOutOfBoundsException;
-
-@Native("java", "(#0).coord(#1)")
-    native public def coord(i:Int):Point(this.rank) 
-       throws ArrayIndexOutOfBoundsException;
-@Native("java", "(#0).union(#1)")
-    public abstract def union(that: Region(this.rank)): Region(this.rank);
-@Native("java", "(#0).union(#1)")
-    native public def $or(that: Region{rank==this.rank}): Region{rank==this.rank};
-
-@Native("java", "(#0).intersection(#1)")
-    public abstract def intersection(that: Region(this.rank)): Region(this.rank);
-@Native("java", "(#0).intersection(#1)")
-    native public def $and(that: Region(this.rank)): Region(this.rank);
-
-@Native("java", "(#0).difference(#1)")
-    public abstract def difference(that: Region(this.rank)): Region(this.rank);
-@Native("java", "(#0).difference(#1)")
-    public abstract def $minus(that: Region(this.rank)): Region(this.rank);
-
-@Native("java", "(#0).product(#1)")
-    public abstract def product(that: Region): Region;
-
-@Native("java", "(#0).projection(#1)")
-    public abstract def projection(axis: int): Region;
-
-@Native("java", "(#0).boundingBox()")
-    public abstract def boundingBox(): Region;
-
-@Native("java", "(#0).contains(#1)")
-    public abstract def contains(that: Region{rank==this.rank}): boolean;
-@Native("java", "(#0).equals(#1)")
-    public abstract def equals(that: Region): boolean;
-
-@Native("java", "(#0).contains(#1)")
-    public abstract def contains(p: Point): boolean;
-
-@Native("java", "(#0).complement()")
-    native public def $not(): Region(this.rank);
+    public static def makeUpperTriangular(size: int): Region(2) {
+        return BaseRegion.makeUpperTriangular1(size);
+    }
     
+    public static def makeLowerTriangular(size: int): Region(2) {
+        return BaseRegion.makeLowerTriangular1(size);
+    }
+    
+    public static def make(min: int, max: int): RectRegion(1) {
+        return BaseRegion.makeRectangular1(min, max);
+    }
+    
+    public static def make(val regions: ValRail[Region/*(1)*/]): RectRegion(regions.length) {
+        return BaseRegion.make1(regions);
+    }
 
- 
 
-/*
+    abstract public def complement(): Region(rank);
+    abstract public def union(that: Region(rank)): Region(rank);
+    abstract public def disjointUnion(that: Region(rank)): Region(rank);
+    abstract public def intersection(that: Region(rank)): Region(rank);
+    abstract public def difference(that: Region(rank)): Region(rank);
+    abstract public def product(that: Region): Region;
+    abstract public def projection(axis: int): Region(1);
+    abstract public def boundingBox(): Region(rank);
+
+    abstract public def min(): Rail[int];
+    abstract public def max(): Rail[int];
+    
+    public def min(i:nat) = min()(i);
+    public def max(i:nat) = max()(i);    
+
+    public static def $convert(rs: ValRail[Region]): RectRegion(rs.length) = make(rs);
+
+
+    //
+    // set ops
+    //
+
+    public def $not(): Region(rank) {
+        return complement();
+    }
+
+    public def $and(that: Region(rank)): Region(rank) {
+        return intersection(that);
+    }
+
+    public def $or(that: Region(rank)): Region(rank) {
+        return union(that);
+    }
+
+    public def $minus(that: Region(rank)): Region(rank) {
+        return difference(that);
+    }
+
+
+    //
+    // comparison operations
+    //
+
+    abstract public def contains(that: Region(rank)): boolean;
+    abstract public def equals(that: Region/*(rank)*/): boolean; // XTENLANG-???
+    abstract public def contains(p: Point): boolean;
+
+
+    //
+    // efficient scanning - rank is known at compile time
+    //
+
     public abstract def scanners(): Iterator[Scanner];
 
     public static interface Scanner {
@@ -139,13 +125,21 @@ public abstract value Region(
         def min(axis: int): int;
         def max(axis: int): int;
     }
-*/
 
-    public abstract def iterator(): Iterator[Point(this.rank)];
+    //
+    // iteration - rank is not known at compile time
+    //
+    // Region.Iterator it = r.iterator();
+    // while (it.hasNext()) {
+    //     int [] x = it.next();
+    //     ... body using x[0],x[1], etc. ...
+    // }
+    //
 
-    public abstract def printInfo(label: String): void;
+    public abstract def iterator(): Iterator[Point(rank)];
 
-    protected def this(rank: int, rect: boolean, zeroBased: boolean) = {
+
+    protected def this(rank: int, rect: boolean, zeroBased: boolean) {
         property(rank, rect, zeroBased);
     }
 }
