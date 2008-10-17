@@ -45,7 +45,7 @@ import x10.runtime.xws.impl.Closure.Status;
  * @author vj 04/18/07
  *
  */
-public class Worker extends Thread {
+public class XWSWorker extends Thread {
 	protected final Pool pool;
 	protected Closure top, bottom;
 	Cache cache;
@@ -57,7 +57,7 @@ public class Worker extends Thread {
 	protected  boolean done;
 	protected Closure closure;
 	
-	protected static  Worker[] workers; 
+	protected static  XWSWorker[] workers; 
 	public  long stealAttempts;
 	public  long stealCount;
 	public static  boolean reporting = false;
@@ -80,8 +80,8 @@ public class Worker extends Thread {
      */
     volatile int sleepStatus;
 
-    static final AtomicIntegerFieldUpdater<Worker> sleepStatusUpdater =
-        AtomicIntegerFieldUpdater.newUpdater(Worker.class, "sleepStatus");
+    static final AtomicIntegerFieldUpdater<XWSWorker> sleepStatusUpdater =
+        AtomicIntegerFieldUpdater.newUpdater(XWSWorker.class, "sleepStatus");
 
     // values for sleepStatus. Order among values matters.
     static final int AWAKE    =  0;
@@ -119,7 +119,7 @@ public class Worker extends Thread {
 	 * Creates new Worker.
 TODO: Supposrt lazy initialization of nextCache.
 	 */
-	protected Worker(Pool pool, int index) {
+	protected XWSWorker(Pool pool, int index) {
 		this.pool = pool;
 		this.index = index;
 		this.lock = new ReentrantLock();
@@ -156,12 +156,12 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * @return
 	 */
 	static class AdvancePhaseException extends Exception{}
-	protected Executable steal(Worker thief, boolean retry) throws AdvancePhaseException {
+	protected Executable steal(XWSWorker thief, boolean retry) throws AdvancePhaseException {
 		++stealAttempts;
 		if (jobRequiresGlobalQuiescence)
 			return stealFrame(thief, retry);
 		assert !jobRequiresGlobalQuiescence;
-		final Worker victim = this;
+		final XWSWorker victim = this;
 		if (! retry) {
 			if (lock.tryLock()) {
 				this.lockOwner=thief;
@@ -297,9 +297,9 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * @return the Frame on top of the deque on success, null on failure.
 	 * @throws AdvancePhaseException
 	 */
-	protected Executable stealFrame(Worker thief, boolean retry) 
+	protected Executable stealFrame(XWSWorker thief, boolean retry) 
 	throws AdvancePhaseException{
-		final Worker victim = this;
+		final XWSWorker victim = this;
 		++stealAttempts;
 		if (! retry) {
 			if (lock.tryLock()) {
@@ -384,7 +384,7 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * @return top of the closure deque
 	 * @param ws -- the current thread, i.e. Thread.currentThread()==ws
 	 */
-	protected Closure peekTop(Worker agent, Worker subject) {
+	protected Closure peekTop(XWSWorker agent, XWSWorker subject) {
 		assert lockOwner==agent;
 		Closure cl = top;
 		if (cl == null) {
@@ -423,7 +423,7 @@ TODO: Supposrt lazy initialization of nextCache.
 	 * @param ws -- The current thread, i.e. ws == Thread.currentThread().
 	 * @return
 	 */
-	protected Closure peekBottom(Worker ws) {
+	protected Closure peekBottom(XWSWorker ws) {
 		assert lockOwner==ws;
 		Closure cl = bottom;
 		if (cl==null) {
@@ -535,17 +535,17 @@ TODO: Supposrt lazy initialization of nextCache.
          * This propagates wakeups across workers when new work
          * becomes available to a set of otherwise idle threads.
          */
-		Worker[] workers = pool.getWorkers();
+		XWSWorker[] workers = pool.getWorkers();
 		int n = workers.length;
 		int idx = rand() % n;
 		int origin = idx;
-		Worker sleeper = null;
-		Worker thief = this;
+		XWSWorker sleeper = null;
+		XWSWorker thief = this;
 		boolean retry = false; // first pass skips on contention.
 		Executable cl = null;
 		for (;;) {
 			
-			Worker victim = workers[idx];
+			XWSWorker victim = workers[idx];
 			if (victim != null && victim !=thief) {
 				//System.out.print(thief +  " at " + pool.time() + ": tries to steal from " 
 				//		+ victim.cache.dump() + "...");
@@ -621,7 +621,7 @@ TODO: Supposrt lazy initialization of nextCache.
      * On success, try to wake up some other sleeping worker.
      * @param sleeper a worker noticed to be sleeping while scanning
      */
-    private Closure getTaskFromPool(Worker sleeper) {
+    private Closure getTaskFromPool(XWSWorker sleeper) {
     	Job job = pool.getJob();
     	if (job != null) {
     		idleScanCount = -1;
@@ -707,7 +707,7 @@ TODO: Supposrt lazy initialization of nextCache.
     		pool.barrier.checkOut(this, phaseNum);
     	//}
     }
-    void checkOutSteal(Executable cl, Worker victim) throws AdvancePhaseException {
+    void checkOutSteal(Executable cl, XWSWorker victim) throws AdvancePhaseException {
     	assert victim.lockOwner==this;
     
     	// this may be a sleeper ... it may have not participated in the previous
@@ -1114,7 +1114,7 @@ TODO: Supposrt lazy initialization of nextCache.
 	}
 	
 	public static int getLocalQueueSize() {
-		Worker me = (Worker) Thread.currentThread();
+		XWSWorker me = (XWSWorker) Thread.currentThread();
 		return me.getQueueSize();
 	}
 	

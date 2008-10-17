@@ -80,7 +80,7 @@ public class Pool {
      * are prepared to see null entries, allowing alternative
      * schemes in which workers are added more lazily.
      */
-     final Worker[] workers;
+     final XWSWorker[] workers;
 
     
     /**
@@ -133,11 +133,11 @@ public class Pool {
      * of Worker threads.
      */
     public interface WorkerMaker {
-    	Worker makeWorker(Pool p, int index);
+    	XWSWorker makeWorker(Pool p, int index);
     }
     public static final WorkerMaker defaultMaker = new WorkerMaker() { 
-    	public Worker makeWorker(Pool p, int index) {
-    		return new Worker(p,index);
+    	public XWSWorker makeWorker(Pool p, int index) {
+    		return new XWSWorker(p,index);
     	}
     };
     public Pool(int poolSize) {
@@ -145,7 +145,7 @@ public class Pool {
     }
     public Pool(final int poolSize, final WorkerMaker m) {
         if (poolSize <= 0) throw new IllegalArgumentException();
-        Worker.workers = workers = new Worker[poolSize];
+        XWSWorker.workers = workers = new XWSWorker[poolSize];
         barrier = new ActiveWorkerCount(new Runnable() { 
         	public void run() {
         		
@@ -164,7 +164,7 @@ public class Pool {
         lock.lock();
         try {
             for (int i = 0; i < poolSize; ++i) {
-                Worker r = m.makeWorker(this, i);
+                XWSWorker r = m.makeWorker(this, i);
                 workers[i] = r;
             }
             for (int i = 0; i < poolSize; ++i) {
@@ -198,7 +198,7 @@ public class Pool {
             old = ueh;
             ueh = h;
             for (int i = 0; i < workers.length; ++i) {
-                Worker w = workers[i];
+                XWSWorker w = workers[i];
                 if (w != null)
                     w.setUncaughtExceptionHandler(h);
             }
@@ -311,7 +311,7 @@ public class Pool {
     /**
      * Return the workers array; needed for random-steal by Workers.
      */
-    final Worker[] getWorkers() {
+    final XWSWorker[] getWorkers() {
         return workers;
     }
     
@@ -357,7 +357,7 @@ public class Pool {
     public long getStealCount() {
         long sum = 0;
         for (int i = 0; i < workers.length; ++i) {
-            Worker t = workers[i];
+            XWSWorker t = workers[i];
             if (t != null) 
                 sum += t.stealCount;
         }
@@ -373,7 +373,7 @@ public class Pool {
     public long getStealAttempts() {
     	long sum = 0;
         for (int i = 0; i < workers.length; ++i) {
-            Worker t = workers[i];
+            XWSWorker t = workers[i];
             if (t != null) 
                 sum += t.stealAttempts;
         }
@@ -383,22 +383,22 @@ public class Pool {
     	long stealCount = getStealCount();
     	
     	System.out.print("stealCount=" + stealCount + " ");
-    	for (Worker w : workers) {
+    	for (XWSWorker w : workers) {
     		//System.out.println(w + ".stealCount=" + w.stealCount ); 
     		w.stealCount=0;
     	}
     }
     
-    public void initFrameGenerator(Worker.FrameGenerator fg) {
+    public void initFrameGenerator(XWSWorker.FrameGenerator fg) {
         for (int i = 0; i < workers.length; ++i) {
-            Worker t = workers[i];
+            XWSWorker t = workers[i];
             t.setFrameGenerator(fg);
         }
     }
     /**
      * Termination callback from dying worker.
      */
-    final void workerTerminated(Worker r, int index) {
+    final void workerTerminated(XWSWorker r, int index) {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -410,7 +410,7 @@ public class Pool {
             }
             else if (index >= 0 && index < workers.length &&
                      workers[index] == r) {
-                Worker replacement = new Worker(this, index);
+                XWSWorker replacement = new XWSWorker(this, index);
                 if (ueh != null)
                     replacement.setUncaughtExceptionHandler(ueh);
                 workers[index] = replacement;
@@ -515,7 +515,7 @@ public class Pool {
      */
     public boolean isQuiescent() {
         for (int i = 0; i < workers.length; ++i) {
-            Worker t = workers[i];
+            XWSWorker t = workers[i];
             if (t != null && t.isActive())
                 return false;
         }
