@@ -38,7 +38,7 @@ public class Closure {
   protected native def setupReturn():void;
   
   @Native("java", "#0.sync(#1)")
-  protected	native def sync(ws:Worker):boolean;
+  protected	native def sync(ws:XWSWorker):boolean;
   
   	 
 }

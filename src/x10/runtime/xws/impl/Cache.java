@@ -23,9 +23,9 @@ class Cache {
 	 */
 	private final Frame[][] stack;
 	private volatile int head, tail, exception; // these are indices into stack.
-	protected final Worker owner;
+	protected final XWSWorker owner;
 
-	protected Cache(Worker w) {
+	protected Cache(XWSWorker w) {
 		owner=w;
 		stack = new Frame[MAXIMUM_CAPACITY/CHUNK_SIZE][];
 		for (int i=0; i<(INITIAL_CAPACITY/CHUNK_SIZE)+1; i++) {
@@ -60,7 +60,7 @@ class Cache {
     	if (f != null) {
     		f.setInt(x);
     	} else {
-			Worker w = (Worker) Thread.currentThread();
+			XWSWorker w = (XWSWorker) Thread.currentThread();
 			f = w.fg.make();
 			f.setInt(x);
 			chunk[chunkOffset(localTail)] = f;
@@ -74,7 +74,7 @@ class Cache {
     	if (f != null) {
     		f.setObject(x);
     	} else {
-			Worker w = (Worker) Thread.currentThread();
+			XWSWorker w = (XWSWorker) Thread.currentThread();
 			f = w.fg.make();
 			f.setObject(x);
 			chunk[chunkOffset(localTail)] = f;
@@ -133,7 +133,7 @@ class Cache {
 	 * T so that E=T.
 	 * Must be the case that Thread.currentThread()==thief.
 	 */
-	boolean dekker(Worker thief) {
+	boolean dekker(XWSWorker thief) {
 		assert thief !=owner;
 		if (exception != EXCEPTION_INFINITY) ++exception;
 		if ((head + 1) >= tail) {
@@ -141,13 +141,13 @@ class Cache {
 			return false;
 		}
 		// so there must be at least two elements in the framestack for a theft.
-		if ( Worker.reporting) {
+		if ( XWSWorker.reporting) {
 			System.out.println(thief + " has found victim " + owner);
 		}
 		return true;
 	}
     
-	public void resetExceptionPointer(Worker w) {
+	public void resetExceptionPointer(XWSWorker w) {
 		assert w==owner;
 		exception=head;
 	}
@@ -160,10 +160,10 @@ class Cache {
 	 * @param w -- the current worker, potentially a victim
 	 * @return
 	 */
-    public void popFrameAndReset(Worker w) {
+    public void popFrameAndReset(XWSWorker w) {
 	popAndReturnFrame(w);
     }
-	public Frame popAndReturnFrame(Worker w) {
+	public Frame popAndReturnFrame(XWSWorker w) {
 		assert w==owner;
 		try {
 			if (head >= tail) { return null;}
