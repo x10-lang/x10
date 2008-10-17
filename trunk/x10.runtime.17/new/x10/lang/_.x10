@@ -1,11 +1,3 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006-2008.
- *
- *  This file is part of X10 Language.
- *
- */
-
 package x10.lang;
 
 // Members of the class x10.lang._ are imported automatically.
@@ -68,15 +60,13 @@ public class _ {
     public static type int32 = int;
     public static type int64 = long;
 
-    public static type point = Point;
     public static type place = Place;
-    public static type region = Region;
-    public static type dist = Dist;
     public static type clock = Clock;
     
     public static type Point(r: Int) = Point{rank==r};
-    public static type point(r: Int) = Point{rank==r};
+
     public static type Region(r:Nat) = Region{rank==r};
+    public static type RectRegion(r:Nat) = Region{rect && rank==r};
     
     public static type Dist(r:Nat)   = Dist{rank==r};
     public static type Dist(r:Region) = Dist{region==r};
@@ -85,10 +75,9 @@ public class _ {
     public static type Array[T](r:Region) = Array[T]{region==r};
     public static type Array[T](d:Dist) = Array[T]{dist==d};
 
-  
-    public static type ValArray[T](r:Nat) = ValArray[T]{rank==r};
-    public static type ValArray[T](r:Region) = ValArray[T]{region==r};
-    public static type ValArray[T](d:Dist) = ValArray[T]{dist==d};
-    
     public static type ValRail[T](n:Nat) = ValRail[T]{length==n};
+    public static type Rail[T](n:Nat) = Rail[T]{length==n};
+
+    public static type VarArray[T] = Array[T];
+    public static type ValArray[T] = Array[T];
 }

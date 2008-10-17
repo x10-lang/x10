@@ -1,139 +1,187 @@
-/*
- *
- * (C) Copyright IBM Corporation 2006-2008.
- *
- *  This file is part of X10 Language.
- *
- */
+// (C) Copyright IBM Corporation 2006-2008.
+// This file is part of X10 Language.
 
 package x10.lang;
 
 import x10.compiler.ArithmeticOps;
 import x10.compiler.ComparisonOps;
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.array.Point")
-public final value class Point(rank: nat) implements
-    Indexable[nat,int],
-    ArithmeticOps[Point(this.rank)],
-    ComparisonOps[Point(this.rank)]
-{
-    @Native("java", "(#0).get(#1)")
-    public native def apply(i: nat): int;
+public value class Point(rank: nat) implements Indexable[nat,int] {
 
-    @Native("java", "(#0).coordsRail()")
-    public native def coords(): ValRail[int];
+    public def apply(i: nat): int = coords(i);
+    public def coords(): ValRail[int] = coords;
 
     //
     // factories
     //
-    
-    @Native("java", "x10.array.Point.makeFromVarRail(#1)")
-    public native static def $convert(r: Rail[int]): Point(r.length);
-    
-    @Native("java", "x10.array.Point.makeFromValRail(#1)")
-    public native static def $convert(r: ValRail[int]): Point(r.length);
 
-    @Native("java", "x10.array.Point.makeFromValRail(#1)")
-    public native static def make(cs: ValRail[int]): Point(cs.length);
-    
-    @Native("java", "x10.array.Point.makeFromVarRail(#1)")
-    public native static def make(cs: Rail[int]): Point(cs.length);
-    
-    @Native("java", "x10.array.Point.makeFromVarArgs(#1)")
-    public native static def make(x0:nat): Point(1);
-    
-    @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2)")
-    public native static def make(x0:nat, x1:nat): Point(2);
-    
-     @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3)")
-    public native static def make(x0:nat, x1:nat, x2:nat): Point(3);
-    
-     @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4)")
-    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat): Point(4);
-    
-     @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4,#5)")
-    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat, x4:nat): Point(5);
-    
-      @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4,#5,#6)")
-    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat, x4:nat,x5:nat): Point(6);
-    
-      @Native("java", "x10.array.Point.makeFromVarArgs(#1,#2,#3,#4,#5,#6,#7)")
-    public native static def make(x0:nat, x1:nat, x2:nat, x3:nat, x4:nat,x5:nat,x6:nat): Point(7);
+    public static def make(cs: ValRail[int]): Point(cs.length) = new Point(cs);
 
-    @Native("java", "x10.array.Point.makeConstant(#1, #2)")
-    public native static def makeConstant(rank: nat, c: int): Point(rank);
+    public static def make(cs: Rail[int]): Point(cs.length) {
+        // (i:nat)=>cs(i) is workaround for XTENLANG-32
+        val a: ValRail[int](cs.length) = Rail.makeVal[int](cs.length, (i:nat)=>cs(i));
+        return make(a);
+    }
 
-    @Native("java", "x10.array.Point.makeZero(#1)")
-    public native static def makeZero(rank: nat): Point(rank);
-
-    //
-    // operations
-    //
-
-    @Native("java", "#0")
-    native public def $plus(): Point{rank==this.rank};
-    
-    @Native("java", "(#0).neg()")
-    native public def $minus(): Point(this.rank);
-
-    @Native("java", "(#0).add(#1)")
-    native public def $plus(that: Int): Point{rank==this.rank};
-    @Native("java", "(#0).sub(#1)")
-    native public def $minus(that: Int): Point(this.rank);
-    @Native("java", "(#0).mul(#1)")
-    native public def $times(that: Int): Point(this.rank);
-    @Native("java", "(#0).div(#1)")
-    native public def $over(that: Int): Point(this.rank);
-    @Native("java", "(#0).mod(#1)")
-    native public def $percent(that: Int): Point(this.rank);
-
-    @Native("java", "(#0).add(#1)")
-    native public def inv$plus(that: Int): Point{rank==this.rank};
-    @Native("java", "(#0).invsub(#1)")
-    native public def inv$minus(that: Int): Point(this.rank);
-    @Native("java", "(#0).mul(#1)")
-    native public def inv$times(that: Int): Point(this.rank);
-    @Native("java", "(#0).invdiv(#1)")
-    native public def inv$over(that: Int): Point(this.rank);
-    @Native("java", "(#0).invmod(#1)")
-    native public def inv$percent(that: Int): Point(this.rank);
-
-    @Native("java", "(#0).add(#1)")
-    native public def $plus(that: Point{rank==this.rank}): Point{rank==this.rank};
-    @Native("java", "(#0).sub(#1)")
-    native public def $minus(that: Point(this.rank)): Point(this.rank);
-    @Native("java", "(#0).mul(#1)")
-    native public def $times(that: Point(this.rank)): Point(this.rank);
-    @Native("java", "(#0).div(#1)")
-    native public def $over(that: Point(this.rank)): Point(this.rank);
-    @Native("java", "(#0).mod(#1)")
-    native public def $percent(that: Point(this.rank)): Point(this.rank);
-
-    @Native("java", "(#0).equals(#1)	")
-    native public def $eq(that: Point(this.rank)): boolean;
-    @Native("java", "(! (#0).equals(#1))")
-    native public def $ne(that: Point(this.rank)): boolean;
-    
-    @Native("java", "(#0).lt(#1)")
-    native public def $lt(that: Point(this.rank)): boolean;
-    @Native("java", "(#0).gt(#1)")
-    native public def $gt(that: Point(this.rank)): boolean;
-    @Native("java", "(#0).le(#1)")
-    native public def $le(that: Point(this.rank)): boolean;
-    @Native("java", "(#0).ge(#1)")
-    native public def $ge(that: Point(this.rank)): boolean;
-
-    
-
-    @Native("java", "(#0).toString()")
-    public native def toString(): String;
+    public static def make(i0:int) = make([i0]);
+    public static def make(i0:int, i1:int) = make([i0,i1]);
+    public static def make(i0:int, i1:int, i2:int) = make([i0,i1,i2]);
 
 
     //
+    // arithmetic ops
+    //
+
+    public def $plus(): Point(rank) {
+        return this;
+    }
+
+    public def $minus(): Point(rank) {
+        val cs = Rail.makeVar[int](rank, (i:nat)=>-this.coords(i));
+        return Point.make(cs);
+    }
+
+    public def $plus(that: Point(rank)): Point(rank) {
+        val init = (i:nat) => this.coords(i) + that.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $minus(that: Point(rank)): Point(rank) {
+        val init = (i:nat) => this.coords(i) - that.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $times(that: Point(rank)): Point(rank) {
+        val init = (i:nat) => this.coords(i) * that.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $over(that: Point(rank)): Point(rank) {
+        val init = (i:nat) => this.coords(i) / that.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $plus(c: int): Point(rank) {
+        val init = (i:nat) => this.coords(i) + c;
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $minus(c: int): Point(rank) {
+        val init = (i:nat) => this.coords(i) - c;
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $times(c: int): Point(rank) {
+        val init = (i:nat) => this.coords(i) * c;
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def $over(c: int): Point(rank) {
+        val init = (i:nat) => this.coords(i) / c;
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def inv$plus(c: int): Point(rank) {
+        val init = (i:nat) => c + this.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def inv$minus(c: int): Point(rank) {
+        val init = (i:nat) => c - this.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def inv$times(c: int): Point(rank) {
+        val init = (i:nat) => c * this.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+    public def inv$over(c: int): Point(rank) {
+        val init = (i:nat) => c / this.coords(i);
+        val cs = Rail.makeVar[int](rank, init);
+        return Point.make(cs);
+    }
+
+
+    //
+    // comparison ops
+    //
+
+    public def $eq(that: Point(rank)): boolean {
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)==that.coords(i)))
+                return false;
+        return true;
+    }
+
+    public def $lt(that: Point(rank)): boolean {
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)<that.coords(i)))
+                return false;
+        return true;
+    }
+
+    public def $gt(that: Point(rank)): boolean {
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)>that.coords(i)))
+                return false;
+        return true;
+    }
+
+    public def $le(that: Point(rank)): boolean {
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)<=that.coords(i)))
+                return false;
+        return true;
+    }
+
+    public def $ge(that: Point(rank)): boolean {
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)>=that.coords(i)))
+                return false;
+        return true;
+    }
+
+    public def $ne(that: Point(rank)): boolean {
+        for (var i: int = 0; i<rank; i++)
+            if (!(this.coords(i)!=that.coords(i)))
+                return false;
+        return true;
+    }
+
+    public static def $convert(r: Rail[int]): Point(r.length) = make(r);
+    public static def $convert(r: ValRail[int]): Point(r.length) = make(r);
+
+    public def toString() {
+        var s:String = "(";
+        if (coords.length>0)
+            s = s + coords(0); // XTENLANG-45
+        for (var i:int=1; i<coords.length; i++)
+            s = s + "," + coords(i); // XTENLANG-45
+        s += ")";
+        return s;
+    }
+
+    //
     //
     //
 
-    private native def this();
+    private val coords: ValRail[int];
+
+    private def this(cs: ValRail[int]): Point(cs.length) {
+        property(cs.length);
+        this.coords = cs;
+    }
+
 }
