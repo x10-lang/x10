@@ -27,7 +27,7 @@ public class AtomicInteger {
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	public native def compareAndSet(expect:int, update:int):boolean;
 
-	@Native("java", "#0.compareAndSet(#1,#2)")
+	@Native("java", "#0.weakCompareAndSet(#1,#2)")
 	public native def weakCompareAndSet(expect:int, update:int):boolean;
 	
 	@Native("java", "#0.getAndIncrement()")
