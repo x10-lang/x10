@@ -77,6 +77,7 @@ public abstract value class Dist(
     abstract public def apply(i0: int): Place;
     abstract public def apply(i0: int, i1: int): Place;
     abstract public def apply(i0: int, i1: int, i2: int): Place;
+    abstract public def apply(i0: int, i1: int, i2: int, i3: int): Place;
 
     //
     //
