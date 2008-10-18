@@ -11,9 +11,9 @@ public class RegionWithHoles2 extends x10Test {
 
 	public def run(): boolean = {
 		// all of those are contiguous
-		var r: region{rank==1} = [0..10];
-		var r1: region{rank==1} = [1..2];
-		var r2: region{rank==1} = [5..6];
+		var r: Region{rank==1} = [0..10];
+		var r1: Region{rank==1} = [1..2];
+		var r2: Region{rank==1} = [5..6];
 
 		// create wholes in r
 		r = r - r1;
@@ -27,11 +27,11 @@ public class RegionWithHoles2 extends x10Test {
 		chk(!cv);
 
 		System.out.print("indexes: ");
-		for (val (i): point in r) {
+		for (val (i): Point in r) {
 			System.out.print(i + " ");
 		}
 		System.out.println();
-		for (val (i): point in r) {
+		for (val (i): Point in r) {
 			System.out.println("val[" + i + "] = " + a(i));
 		}
 

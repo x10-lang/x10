@@ -75,19 +75,19 @@ public class Resid extends MGWorker {
 //		c---------------------------------------------------------------------
 //		c     exchange boundary data
 //		c---------------------------------------------------------------------
-		for (val (i3,i2): point in [start..end, 1..n2-2]) {
+		for (val (i3,i2): Point in [start..end, 1..n2-2]) {
 			r(off+n1*(i2+n2*i3)) = r(off+n1-2+n1*(i2+n2*i3));
 			r(off+n1-1+n1*(i2+n2*i3)) = r(off+1+n1*(i2+n2*i3));
 		}
 
-		for (val (i3,i1): point in [start..end, 0..n1-1]) {
+		for (val (i3,i1): Point in [start..end, 0..n1-1]) {
 			r(off+i1+n1*n2*i3) = r(off+i1+n1*(n2-2+n2*i3));
 			r(off+i1+n1*(n2-1+n2*i3)) = r(off+i1+n1*(1+n2*i3));
 		}
 	}
 	public static def resid(var u: Rail[double], var v: Rail[double], var r: Rail[double], var off: int, var n1: int, var n2: int, var n3: int, var u1: Rail[double], var u2: Rail[double], var a: Rail[double], var start: int, var end: int): void = {
-		for (val (i3,i2): point in [start..end, 1..n2-2]) {
-			for (val (i1): point in [0..n1-1]) {
+		for (val (i3,i2): Point in [start..end, 1..n2-2]) {
+			for (val (i1): Point in [0..n1-1]) {
 				u1(i1) = u(off+i1+n1*(i2-1+n3*i3))
 					+ u(off+i1+n1*(i2+1+n3*i3))
 					+ u(off+i1+n1*(i2+n3*(i3-1)))
@@ -97,7 +97,7 @@ public class Resid extends MGWorker {
 					+ u(off+i1+n1*(i2-1+n3*(i3+1)))
 					+ u(off+i1+n1*(i2+1+n3*(i3+1)));
 			}
-			for (val (i1): point in [1..n1-2]) {
+			for (val (i1): Point in [1..n1-2]) {
 				r(off+i1+n1*(i2+n3*i3)) = v(off+i1+n1*(i2+n3*i3))
 					- a(0) * u(off+i1+n1*(i2+n3*i3))
 //					c---------------------------------------------------------------------

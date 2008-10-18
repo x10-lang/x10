@@ -24,7 +24,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 	 */
 	public def run(): boolean = {
 		val A: Array[int] = Array.make[int](Dist.makeBlock([0..N-1, 0..N-1]), 
-		  (var (i,j): point): int =>  N*i+j);
+		  (var (i,j): Point): int =>  N*i+j);
 		var x: int;
 		var s: int;
 		x = 0;

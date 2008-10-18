@@ -151,7 +151,7 @@ public class DistAlgebra extends x10Test {
         pr("TD9", TD9);
         val Doverlay =  (DR1orR2orR3.overlay(TD9));
         pr("Doverlay", Doverlay);
-        for (val (i,j): point in Doverlay) {
+        for (val (i,j): Point in Doverlay) {
             if (R1orR2andR3.contains([i, j] to Point)) {
                 chk(Doverlay(i, j) == P(0) && TD9(i, j) == P(0));
             } else {
@@ -196,7 +196,7 @@ public class DistAlgebra extends x10Test {
         System.out.println("printing dist "+s);
         var k: int = 0;
         val N: int = 8;
-        for (val (i,j): point in ([0..N-1, 0..N-1] to Region)) {
+        for (val (i,j): Point in ([0..N-1, 0..N-1] to Region)) {
             System.out.print(" "+(d.contains([i, j] to Point) ? (""+d(i, j).id) : "."));
             if ((++k) % N == 0) System.out.println();
         }
@@ -207,7 +207,7 @@ public class DistAlgebra extends x10Test {
         System.out.println("printing region "+s);
         var k: int = 0;
         val N: int = 8;
-        for (val (i,j): point in ([0..N-1, 0..N-1] to Region)) {
+        for (val (i,j): Point in ([0..N-1, 0..N-1] to Region)) {
             System.out.print(" "+(r.contains([i, j] to Point) ? "+" : "."));
             if ((++k) % N == 0) System.out.println();
         }

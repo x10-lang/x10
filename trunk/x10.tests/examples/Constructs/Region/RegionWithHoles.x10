@@ -11,9 +11,9 @@ public class RegionWithHoles extends x10Test {
 
 	def test1D(): boolean = {
 		// all of those are contiguous
-		var r: region{rank==1} = [0..10];
-		var r1: region{rank==1} = [1..2];
-		var r2: region{rank==1} = [5..6];
+		var r: Region{rank==1} = [0..10];
+		var r1: Region{rank==1} = [1..2];
+		var r2: Region{rank==1} = [5..6];
 
 		// create holes in r
 		r = r - r1;
@@ -25,12 +25,12 @@ public class RegionWithHoles extends x10Test {
 		System.out.println("convex: " + r.isConvex() + " (should be false)");
 
 		System.out.print("indexes: ");
-		for (val (i): point in r) {
+		for (val (i): Point in r) {
 			System.out.print(i + " ");
 		}
 
 		try {
-			for (val (i): point in r) {
+			for (val (i): Point in r) {
 				if (a(i) != 0)
 					System.out.println("val[" + i + "] = " + a(i));
 			}
@@ -45,9 +45,9 @@ public class RegionWithHoles extends x10Test {
 	def test2D(): boolean = {
 		System.out.println("testing 2d");
 		// all of those are contiguous
-		var r: region{rank==2} = [0..10, 0..3];
-		var r1: region{rank==2} = [1..2, 0..3];
-		var r2: region{rank==2} = [5..6, 0..3];
+		var r: Region{rank==2} = [0..10, 0..3];
+		var r1: Region{rank==2} = [1..2, 0..3];
+		var r2: Region{rank==2} = [5..6, 0..3];
 
 		// create holes in r
 		r = r - r1;
@@ -60,7 +60,7 @@ public class RegionWithHoles extends x10Test {
 		chk(!r.isConvex());
 
 		try {
-			for (val point[i,j]: point in r) {
+			for (val point[i,j]: Point in r) {
 				if (a(i, j) != 0)
 					System.out.println("val[" + i + "] = " + a(i, j));
 			}
@@ -74,9 +74,9 @@ public class RegionWithHoles extends x10Test {
 
 	def test3D(): boolean = {
 		// all of those are contiguous
-		var r: region{rank==3} = [0..10, 0..3, 0..0];
-		var r1: region{rank==3} = [1..2, 0..3, 0..0];
-		var r2: region{rank==3} = [5..6, 0..3, 0..0];
+		var r: Region{rank==3} = [0..10, 0..3, 0..0];
+		var r1: Region{rank==3} = [1..2, 0..3, 0..0];
+		var r2: Region{rank==3} = [5..6, 0..3, 0..0];
 
 		// create holes in r
 		r = r - r1;
@@ -88,7 +88,7 @@ public class RegionWithHoles extends x10Test {
 		System.out.println("convex: " + r.isConvex() + " (should be false)");
 
 		try {
-			for (val point[i,j,k]: point in r) {
+			for (val point[i,j,k]: Point in r) {
 				if (a(i, j, k) != 0)
 					System.out.println("val[" + i + "] = " + a(i, j, k));
 			}
@@ -102,9 +102,9 @@ public class RegionWithHoles extends x10Test {
 
 	def test4D(): boolean = {
 		// all of those are contiguous
-		var r: region{rank==4} = [0..0, 0..10, 0..3, 0..0];
-		var r1: region{rank==4} = [0..0, 1..2, 0..3, 0..0];
-		var r2: region{rank==4} = [0..0, 5..6, 0..3, 0..0];
+		var r: Region{rank==4} = [0..0, 0..10, 0..3, 0..0];
+		var r1: Region{rank==4} = [0..0, 1..2, 0..3, 0..0];
+		var r2: Region{rank==4} = [0..0, 5..6, 0..3, 0..0];
 
 		// create holes in r
 		r = r - r1;
@@ -117,13 +117,13 @@ public class RegionWithHoles extends x10Test {
 
 		if (false) {
 			System.out.print("indexes: ");
-			for (val point[i]: point in r) {
+			for (val point[i]: Point in r) {
 				System.out.print(i + " ");
 			}
 		}
 
 		try {
-			for (val point[i,j,k,l]: point in r) {
+			for (val point[i,j,k,l]: Point in r) {
 				if (a(i, j, k, l) != 0)
 					System.out.println("val[" + i + "] = " + a(i, j, k, l));
 			}
@@ -138,9 +138,9 @@ public class RegionWithHoles extends x10Test {
 	def testPoint(): boolean = {
 		System.out.println("testing point");
 		// all of those are contiguous
-		var r: region{rank==1} = [0..10];
-		var r1: region{rank==1} = [1..2];
-		var r2: region{rank==1} = [5..6];
+		var r: Region{rank==1} = [0..10];
+		var r1: Region{rank==1} = [1..2];
+		var r2: Region{rank==1} = [5..6];
 
 		// create holes in r
 		r = r - r1;
@@ -152,7 +152,7 @@ public class RegionWithHoles extends x10Test {
 		System.out.println("convex: " + r.isConvex() + " (should be false)");
 
 		try {
-			for (val p: point in r) {
+			for (val p: Point in r) {
 				if (a(p) != 0)
 					System.out.println("val[" + p + "] = " + a(p));
 			}

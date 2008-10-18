@@ -21,18 +21,18 @@ public class ArrayOfRegions extends x10Test {
 
 	public def run(): boolean = {
 		val N: int = 3;
-		val ra: Array[region{rank==1}] = Array.make[region]([0..N-1], ((i): point): region => { return [1..0]; });
-		for (val (i): point in ra) {
+		val ra: Array[region{rank==1}] = Array.make[region]([0..N-1], ((i): Point): Region => { return [1..0]; });
+		for (val (i): Point in ra) {
 			ra(i) = ((region{rank==1})) ra(i)) || [10*i..10*i+9]; //TODOVJ -- Remove Cast
 			ra(i) = ((region{rank==1})) ra(i)) && [10*i+1..10*i+21];
 		}
-		for (val (i): point in ra) System.out.println("ra["+i+"] = "+ra(i));
+		for (val (i): Point in ra) System.out.println("ra["+i+"] = "+ra(i));
 
-		for (val (i): point in ra) chk(ra(i).equals([10*i+1..10*i+9]));
+		for (val (i): Point in ra) chk(ra(i).equals([10*i+1..10*i+9]));
 
-		for (val (i): point in ra) {
+		for (val (i): Point in ra) {
 			var n: int = 0;
-			for (val (k): point in ra(i)) {
+			for (val (k): Point in ra(i)) {
 				chk(k >= 10*i+1 && k <= 10*i+9 &&
 						ra(i).contains([k]));
 				++n;

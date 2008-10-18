@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class PropertyPropagationTest2 extends x10Test {
     def nothing()={}
 	public def run(): boolean = {
-	    val P  = dist.makeUnique();
+	    val P  = Dist.makeUnique();
 		val R1  = [0..1, 0..7] to Region; // horizontal strip
 		val R2  = [4..5, 0..7] to Region; // horizontal strip
 		val R3 = [0..7, 4..5] to Region; // vertical strip
@@ -23,12 +23,12 @@ public class PropertyPropagationTest2 extends x10Test {
 		val R1orR2andR3  = R1orR2 && R3;
 		val R1orR2orR3  = R1 || R2 || R3;
 		val R1orR2minusR3 = R1orR2 - R3;
-		val DR1orR2orR3  = dist.makeCyclic(R1orR2orR3);
+		val DR1orR2orR3  = Dist.makeCyclic(R1orR2orR3);
 		var placeNum: int = 0;
 		var offsetWithinPlace: int = 0;
 		val np: int = place.MAX_PLACES;
 		//Check range restriction to a place
-		for (val (k): point in 0..np-1) {
+		for (val (k): Point in 0..np-1) {
 			val DR1orR2orR3Here  = DR1orR2orR3 | P(k);
 			for (val (i,j): Point(2) in DR1orR2orR3) {
 			  nothing();
@@ -57,7 +57,7 @@ public class PropertyPropagationTest2 extends x10Test {
 
 		val TD9  = Dist.makeConstant(R1orR2andR3, P(0));
 		val Doverlay =  (DR1orR2orR3.overlay(TD9));
-		for (val (i,j): point in Doverlay) {
+		for (val (i,j): Point in Doverlay) {
 			if (R1orR2andR3.contains([i, j] to Point)) {
 				chk(Doverlay(i, j) == P(0) && TD9(i, j) == P(0));
 			} else {

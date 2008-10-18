@@ -19,18 +19,18 @@ public class AsyncTest5 extends x10Test {
 		chk(place.MAX_PLACES >= 2);
 		finish async chk(A.dist(0) == here);
 		// verify unique distribution
-		for (val (i): point in A)
-                        for (val (j): point in A)
+		for (val (i): Point in A)
+                        for (val (j): Point in A)
                                 chk(implies(A.dist(i) == A.dist(j), i == j));
 
 		// verify async S is async(here)S
-		finish ateach (val (i): point in A) {
+		finish ateach (val (i): Point in A) {
 			async { atomic A(i) += i;
 				chk(A.dist(i) == here);
 				async(this) async chk(A.dist(0) == here);
 			}
 		}
-		finish ateach (val (i): point in A) {
+		finish ateach (val (i): Point in A) {
 			chk(A(i) == i);
 		}
 		return true;

@@ -19,8 +19,8 @@ public class ValueClass extends x10Test {
 
 	public def run(): boolean = {
 
-		var r: region = [0..9];
-		var d: dist = r->here;
+		var r: Region = [0..9];
+		var d: Dist = r->here;
 		val f: foo = new foo();
 		var x: myval = new myval(1, new complex(2,3), f, Array.make[int](d));
 		var y: myval = new myval(1, new complex(2,3), f, Array.make[int](d));

@@ -28,7 +28,7 @@ public class FutureTest3 extends x10Test {
 	 * Spawns subactivities that cause delayed side-effects.
 	 */
 	def m1(val A: Array[int], val K: int): int = {
-		foreach (val (i): point in A) {
+		foreach (val (i): Point in A) {
 			x10.lang.Runtime.sleep(3000);
 			atomic A(i) += 1;
 		}
@@ -42,7 +42,7 @@ public class FutureTest3 extends x10Test {
 	 * and exceptions.
 	 */
 	def m2(val A: Array[int], val K: int): int = {
-		foreach (val p(i): point in A) {
+		foreach (val p(i): Point in A) {
 			x10.lang.Runtime.sleep(3000);
 			atomic A(i) += 1;
 			atomic A(OUTOFRANGE) = -1;
@@ -57,7 +57,7 @@ public class FutureTest3 extends x10Test {
 	 * side effects and exceptions.
 	 */
 	public def run(): boolean = {
-		val A: Array[int] = Array.make[int](Dist.makeConstant(0..N-1, here), (point)=>0);
+		val A: Array[int] = Array.make[int](Dist.makeConstant(0..N-1, here), (Point)=>0);
 		val K: int = 3;
 		var gotException: boolean;
 
@@ -92,9 +92,9 @@ public class FutureTest3 extends x10Test {
 		System.out.println("3");
 		chk(r3 == 1 && !gotException);
 		// must read new values of A here
-		for (val (i): point in A) System.out.println("A["+i+"] = "+A(i));
+		for (val (i): Point in A) System.out.println("A["+i+"] = "+A(i));
 		chk(A(K) == 2);
-		for (val (i): point in A) atomic chk(imp(i != K, A(i) == 1));
+		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 1));
 
 		//future { e }.force() must throw
 		//exceptions from subactivities of e
@@ -108,9 +108,9 @@ public class FutureTest3 extends x10Test {
 		System.out.println("4" + gotException + " r4 = " + r4);
 		chk(r4 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): point in A) System.out.println("A["+i+"] = "+A(i));
+		for (val (i): Point in A) System.out.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 3);
-		for (val (i): point in A) atomic chk(imp(i != K, A(i) == 2));
+		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
@@ -118,7 +118,7 @@ public class FutureTest3 extends x10Test {
 		System.out.println("5");
 		// must read old values of A here
 		atomic chk(A(K) == 3);
-		for (val (i): point in A) atomic chk(imp(i != K, A(i) == 2));
+		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
 		var r5: int = -1;
 		gotException = false;
 		try {
@@ -128,9 +128,9 @@ public class FutureTest3 extends x10Test {
 		}
 		chk(r5 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): point in A) System.out.println("A["+i+"] = "+A(i));
+		for (val (i): Point in A) System.out.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 4);
-		for (val (i): point in A) atomic chk(imp(i != K, A(i) == 3));
+		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 3));
 
 		return true;
 	}

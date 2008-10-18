@@ -112,7 +112,7 @@ public class CG {
 
 	var worker: Rail[CGWorker];
 	var master: CG;
-	val THREADS: region;
+	val THREADS: Region;
 
 	public def this(var CLSS: char, var np: int, var ser: boolean): CG = {
 		CLASS = CLSS;
@@ -286,26 +286,26 @@ public class CG {
 		//  Main Iteration for inverse power method
 		//---------------------------------------------------------------------
 
-		for (val (itt): point in [1..niter]) {
+		for (val (itt): Point in [1..niter]) {
 			if (timeron)timer.start(t_conj_grad);
 			if (serial) {
 				rnorm = conj_grad(colidx, rowstr, x, z, a, p, q, r, rnorm);
 			} else {
-				finish foreach (val (p): point in THREADS) worker(p).step3();
+				finish foreach (val (p): Point in THREADS) worker(p).step3();
 				var rho: double = 0.0;
-				for (val (p): point in THREADS) rho += rhomaster(p);
-				for (val (ii): point in [0..cgitmax]) {
-					finish foreach (val (p): point in THREADS) worker(p).step0();
-					var dcff: double = 0.0; for (val (m): point in THREADS) dcff += dmaster(m);
+				for (val (p): Point in THREADS) rho += rhomaster(p);
+				for (val (ii): Point in [0..cgitmax]) {
+					finish foreach (val (p): Point in THREADS) worker(p).step0();
+					var dcff: double = 0.0; for (val (m): Point in THREADS) dcff += dmaster(m);
 					val rho0: double = rho;
 					val alpha: double = rho/dcff;
-					finish foreach (val (p): point in THREADS) worker(p).step1(alpha);
-					rho = 0.0; for (val (m): point in THREADS) rho += rhomaster(m);
+					finish foreach (val (p): Point in THREADS) worker(p).step1(alpha);
+					rho = 0.0; for (val (m): Point in THREADS) rho += rhomaster(m);
 					val beta: double = rho/rho0;
-					finish foreach (val (p): point in THREADS) worker(p).step2(beta);
+					finish foreach (val (p): Point in THREADS) worker(p).step2(beta);
 				}
-				finish foreach (val (p): point in THREADS) worker(p).endWork();
-				rnorm = 0.0; for (val (m): point in THREADS) rnorm += rnormmaster(m);
+				finish foreach (val (p): Point in THREADS) worker(p).endWork();
+				rnorm = 0.0; for (val (m): Point in THREADS) rnorm += rnormmaster(m);
 				rnorm = Math.sqrt(rnorm);
 			}
 			if (timeron) timer.stop(t_conj_grad);

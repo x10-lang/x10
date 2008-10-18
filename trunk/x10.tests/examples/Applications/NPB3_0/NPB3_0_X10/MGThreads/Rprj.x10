@@ -67,12 +67,12 @@ public class Rprj extends MGWorker {
 		var r: Rail[double] = mg.r;
 		rprj3(r, roff, m1k, m2k, m3k, zoff, m1j, m2j, m3j, x1, y1, start, end);
 
-		for (val (j3,j2): point in [start-1..end-1, 1..m2j-1]) {
+		for (val (j3,j2): Point in [start-1..end-1, 1..m2j-1]) {
 			r(zoff+m1j*(j2+m2j*j3)) = r(zoff+m1j-2+m1j*(j2+m2j*j3));
 			r(zoff+m1j-1+m1j*(j2+m2j*j3)) = r(zoff+1+m1j*(j2+m2j*j3));
 		}
 
-		for (val (j3,j1): point in [start-1..end-1, 0..m1j]) {
+		for (val (j3,j1): Point in [start-1..end-1, 0..m1j]) {
 			r(zoff+j1+m1j*m2j*j3) = r(zoff+j1+m1j*(m2j-2+m2j*j3));
 			r(zoff+j1+m1j*(m2j-1+m2j*j3)) = r(zoff+j1+m1j*(1+m2j*j3));
 		}
@@ -82,11 +82,11 @@ public class Rprj extends MGWorker {
 		val d2: int = (m2k == 3) ? 2 : 1;
 		val d3: int = (m3k == 3) ? 2 : 1;
 
-		for (val (j3): point in [start..end]) {
+		for (val (j3): Point in [start..end]) {
 			val i3: int = 2*j3-d3-1;
-			for (val (j2): point in [2..m2j-1]) {
+			for (val (j2): Point in [2..m2j-1]) {
 				val i2: int = 2*j2-d2-1;
-				for (val (j1): point in [2..m1j]) {
+				for (val (j1): Point in [2..m1j]) {
 					val i1: int = 2*j1-d1-1;
 					x1(i1-1) = r(roff+i1-1+m1k*(i2-1+m2k*i3))
 						+ r(roff+i1-1+m1k*(i2+1+m2k*i3))
@@ -98,7 +98,7 @@ public class Rprj extends MGWorker {
 						+ r(roff+i1-1+m1k*(i2+1+m2k*(i3+1)));
 				}
 
-				for (val (j1): point in [2..m1j-1]) {
+				for (val (j1): Point in [2..m1j-1]) {
 					val i1: int = 2*j1-d1-1;
 					var y2: double = r(roff+i1+m1k*(i2-1+m2k*(i3-1)))
 						+r(roff+i1+m1k*(i2-1+m2k*(i3+1)))

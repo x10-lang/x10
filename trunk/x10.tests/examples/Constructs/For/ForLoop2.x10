@@ -17,17 +17,17 @@ public class ForLoop2 extends x10Test {
 	public const N: int = 3;
 
 	public def run(): boolean = {
-		var r: region{rank==1} = [0..N-1];
-		var r3: region = [r, r, r];
+		var r: Region{rank==1} = [0..N-1];
+		var r3: Region = [r, r, r];
 		var P0: place = here;
-		var d3: dist = r3->P0;
+		var d3: Dist = r3->P0;
 
 		if (!d3.region.equals(r3)) return false;
 
 		//Ensure iterator works in lexicographic order
 		var n: int = 0;
 		var prev: Box[point] = null;
-		for (val p: point in d3) {
+		for (val p: Point in d3) {
 			if (!successor(prev, p)) return false;
 			prev = p;
 			if (P0 != d3(p)) return false;
@@ -43,7 +43,7 @@ public class ForLoop2 extends x10Test {
 	 * i.e. we expect the order (0,0,0), (0,0,1),(0,0,2)
 	 *  (0,1,0) ... (2,2,2) (row-major order)
 	 */
-	static def successor(var prev: Box[point], var p: point): boolean = {
+	static def successor(var prev: Box[point], var p: Point): boolean = {
 		if (prev == null) return true;
 		var i: int = prev(0);
 		var j: int = prev(1);

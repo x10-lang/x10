@@ -90,8 +90,8 @@ public class Interp extends MGWorker {
 //		c      parameter(m = 535)
 
 		if (n1 != 3 && n2 != 3 && n3 != 3) {
-			for (val (i3,i2): point in [start..end, 1..mm2-1]) {
-				for (val (i1): point in [1..mm1]) {
+			for (val (i3,i2): Point in [start..end, 1..mm2-1]) {
+				for (val (i1): Point in [1..mm1]) {
 					z1(i1-1) = u(zoff+i1-1+mm1*(i2+mm2*(i3-1)))
 						+ u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1)));
 					z2(i1-1) = u(zoff+i1-1+mm1*(i2-1+mm2*i3))
@@ -100,22 +100,22 @@ public class Interp extends MGWorker {
 						+ u(zoff+i1-1+mm1*(i2-1+mm2*i3)) + z1(i1-1);
 				}
 
-				for (val (i1): point in [1..mm1-1]) {
+				for (val (i1): Point in [1..mm1-1]) {
 					u(uoff+2*i1-2+n1*(2*i2-2+n2*(2*i3-2))) +=
 						u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1)));
 					u(uoff+2*i1-1+n1*(2*i2-2+n2*(2*i3-2))) +=
 						0.5*(u(zoff+i1+mm1*(i2-1+mm2*(i3-1)))
 								+u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1))));
 				}
-				for (val (i1): point in [1..mm1-1]) {
+				for (val (i1): Point in [1..mm1-1]) {
 					u(uoff+2*i1-2+n1*(2*i2-1+n2*(2*i3-2))) += 0.5 * z1(i1-1);
 					u(uoff+2*i1-1+n1*(2*i2-1+n2*(2*i3-2))) += 0.25*(z1(i1-1) + z1(i1));
 				}
-				for (val (i1): point in [1..mm1-1]) {
+				for (val (i1): Point in [1..mm1-1]) {
 					u(uoff+2*i1-2+n1*(2*i2-2+n2*(2*i3-1))) += 0.5 * z2(i1-1);
 					u(uoff+2*i1-1+n1*(2*i2-2+n2*(2*i3-1))) += 0.25*(z2(i1-1) + z2(i1));
 				}
-				for (val (i1): point in [1..mm1-1]) {
+				for (val (i1): Point in [1..mm1-1]) {
 					u(uoff+2*i1-2+n1*(2*i2-1+n2*(2*i3-1))) += 0.25*z3(i1-1);
 					u(uoff+2*i1-1+n1*(2*i2-1+n2*(2*i3-1))) += 0.125*(z3(i1-1) + z3(i1));
 				}
@@ -128,25 +128,25 @@ public class Interp extends MGWorker {
 			val d3: int = (n3 == 3) ? 2 : 1;
 			val t3: int = (n3 == 3) ? 1 : 0;
 
-			for (val (i3): point in [1..mm3-1]) {
-				for (val (i2): point in [1..mm2-1]) {
-					for (val (i1): point in [1..mm1-1]) {
+			for (val (i3): Point in [1..mm3-1]) {
+				for (val (i2): Point in [1..mm2-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-d1+n1*(2*i2-1-d2+n2*(2*i3-1-d3))) +=
 							u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1)));
 					}
-					for (val (i1): point in [1..mm1-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-t1+n1*(2*i2-1-d2+n2*(2*i3-1-d3))) +=
 							0.5*(u(zoff+i1+mm1*(i2-1+mm2*(i3-1)))
 									+u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1))));
 					}
 				}
-				for (val (i2): point in [1..mm2-1]) {
-					for (val (i1): point in [1..mm1-1]) {
+				for (val (i2): Point in [1..mm2-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-d1+n1*(2*i2-1-t2+n2*(2*i3-1-d3))) +=
 							0.5*(u(zoff+i1-1+mm1*(i2+mm2*(i3-1)))
 									+u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1))));
 					}
-					for (val (i1): point in [1..mm1-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-t1+n1*(2*i2-1-t2+n2*(2*i3-1-d3))) +=
 							0.25*(u(zoff+i1+mm1*(i2+mm2*(i3-1)))
 									+u(zoff+i1+mm1*(i2-1+mm2*(i3-1)))
@@ -156,14 +156,14 @@ public class Interp extends MGWorker {
 				}
 			}
 
-			for (val (i3): point in [1..mm3-1]) {
-				for (val (i2): point in [1..mm2-1]) {
-					for (val (i1): point in [1..mm1-1]) {
+			for (val (i3): Point in [1..mm3-1]) {
+				for (val (i2): Point in [1..mm2-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-d1+n1*(2*i2-1-d2+n2*(2*i3-1-t3))) =
 							0.5*(u(zoff+i1-1+mm1*(i2-1+mm2*i3))
 									+u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1))));
 					}
-					for (val (i1): point in [1..mm1-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-t1+n1*(2*i2-1-d2+n2*(2*i3-1-t3))) +=
 							0.25*(u(zoff+i1+mm1*(i2-1+mm2*i3))
 									+u(zoff+i1-1+mm1*(i2-1+mm2*i3))
@@ -171,15 +171,15 @@ public class Interp extends MGWorker {
 									+u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1))));
 					}
 				}
-				for (val (i2): point in [1..mm2-1]) {
-					for (val (i1): point in [1..mm1-1]) {
+				for (val (i2): Point in [1..mm2-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-d1+n1*(2*i2-1-t2+n2*(2*i3-1-t3))) +=
 							0.25*(u(zoff+i1-1+mm1*(i2+mm2*i3))
 									+u(zoff+i1-1+mm1*(i2-1+mm2*i3))
 									+u(zoff+i1-1+mm1*(i2+mm2*(i3-1)))
 									+u(zoff+i1-1+mm1*(i2-1+mm2*(i3-1))));
 					}
-					for (val (i1): point in [1..mm1-1]) {
+					for (val (i1): Point in [1..mm1-1]) {
 						u(uoff+2*i1-1-t1+n1*(2*i2-1-t2+n2*(2*i3-1-t3))) +=
 							0.125*(u(zoff+i1+mm1*(i2+mm2*i3))
 									+u(zoff+i1+mm1*(i2-1+mm2*i3))
