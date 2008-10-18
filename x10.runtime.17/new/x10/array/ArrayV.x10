@@ -43,6 +43,11 @@ final value class ArrayV[T] extends BaseArray[T] {
         return raw(layout.offset(i0,i1,i2));
     }
 
+    final public def apply(i0: int, i1: int, i2: int, i3: int): T {
+        checkBounds(i0, i1, i2, i3);
+        return raw(layout.offset(i0,i1,i2,i3));
+    }
+
 
     //
     // illegal for value array
@@ -61,6 +66,10 @@ final value class ArrayV[T] extends BaseArray[T] {
         throw U.illegal();
     }
 
+    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): void {
+        throw U.illegal();
+    }
+
 
     //
     //
@@ -71,7 +80,7 @@ final value class ArrayV[T] extends BaseArray[T] {
         super(dist);
 
         layout = layout(region);
-        var n: int = region.size();
+        val n = layout.size();
         raw = Rail.makeVar[T](n);
 
         if (init!=null)
