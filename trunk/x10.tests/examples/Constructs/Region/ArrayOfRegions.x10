@@ -17,33 +17,39 @@ import harness.x10Test;;
  *
  * @author kemal 11/2005
  */
+
 public class ArrayOfRegions extends x10Test {
 
-	public def run(): boolean = {
-		val N: int = 3;
-		val ra: Array[region{rank==1}] = Array.make[region]([0..N-1], ((i): Point): Region => { return [1..0]; });
-		for (val (i): Point in ra) {
-			ra(i) = ((region{rank==1})) ra(i)) || [10*i..10*i+9]; //TODOVJ -- Remove Cast
-			ra(i) = ((region{rank==1})) ra(i)) && [10*i+1..10*i+21];
-		}
-		for (val (i): Point in ra) System.out.println("ra["+i+"] = "+ra(i));
+    public def run(): boolean = {
 
-		for (val (i): Point in ra) chk(ra(i).equals([10*i+1..10*i+9]));
+        val N = 3;
+        // XTENLANG-129
+        val ra = Array.make[Region(1)]([0..N-1], (Point) => [1..0] to Region(1));
 
-		for (val (i): Point in ra) {
-			var n: int = 0;
-			for (val (k): Point in ra(i)) {
-				chk(k >= 10*i+1 && k <= 10*i+9 &&
-						ra(i).contains([k]));
-				++n;
-			}
-			chk(n == 9);
-		}
+        for ((i): Point in ra) {
+            ra(i) = ra(i) || [10*i..10*i+9];
+            ra(i) = ra(i) && [10*i+1..10*i+21];
+        }
 
-		return true;
-	}
+        for ((i): Point in ra)
+            System.out.println("ra["+i+"] = "+ra(i));
 
-	public static def main(var args: Rail[String]): void = {
-		new ArrayOfRegions().execute();
-	}
+        for ((i): Point in ra)
+            chk(ra(i).equals([10*i+1..10*i+9]));
+
+        for ((i): Point in ra) {
+            var n: int = 0;
+            for (val (k): Point in ra(i)) {
+                chk(k >= 10*i+1 && k <= 10*i+9 && ra(i).contains([k]));
+                ++n;
+            }
+            chk(n == 9);
+        }
+
+        return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new ArrayOfRegions().execute();
+    }
 }
