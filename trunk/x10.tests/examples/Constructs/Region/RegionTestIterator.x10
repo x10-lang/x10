@@ -11,23 +11,23 @@ import harness.x10Test;
 /**
  * Testing the standard region iterator.
  */
+
 public class RegionTestIterator extends x10Test {
 
-	public def run(): boolean = {
-		var r: Region = Region.makeRectangular(0, 100); // (low, high)
-		var r2: Rail[region] = [ r, r ];
-		val reg = Region.make(r2);
+    public def run(): boolean = {
 
-		var sum: int = 0;
-		for (var it: Iterator[Rail[Int]] = reg.iterator(); it.hasNext(); ) {
-			val p =  it.next();
-			sum += p(0)-p(1);
-		}
-		// for (point [i,j]: reg) sum += i - j;
-		return sum == 0;
-	}
+        val r = Region.makeRectangular(0, 100); // (low, high)
+        val r2 = [r, r];
+        val reg = Region.make(r2);
 
-	public static def main(var args: Rail[String]): void = {
-		new RegionTestIterator().execute();
-	}
+        var sum:int = 0;
+        for ((i,j):Point in reg)
+            sum += i - j;
+
+        return sum == 0;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new RegionTestIterator().execute();
+    }
 }
