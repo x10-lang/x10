@@ -9,36 +9,41 @@ import harness.x10Test;;
 
 public class RegionWithHoles2 extends x10Test {
 
-	public def run(): boolean = {
-		// all of those are contiguous
-		var r: Region{rank==1} = [0..10];
-		var r1: Region{rank==1} = [1..2];
-		var r2: Region{rank==1} = [5..6];
+    public def run(): boolean = {
 
-		// create wholes in r
-		r = r - r1;
-		r = r - r2;
+        // all of those are contiguous
+        var r: Region{rank==1} = [0..10];
+        var r1: Region{rank==1} = [1..2];
+        var r2: Region{rank==1} = [5..6];
 
-		var a: ValArray[short] = new ValArray[short](r);
+        // create holes in r
+        r = r - r1;
+        r = r - r2;
 
-		// check if r is convex - it should not!
-		var cv: boolean = r.isConvex();
-		System.out.println("convex: " + cv + " (should be false)");
-		chk(!cv);
+        System.out.println("r " + r);
+        System.out.println("r.boundingBox() " + r.boundingBox());
 
-		System.out.print("indexes: ");
-		for (val (i): Point in r) {
-			System.out.print(i + " ");
-		}
-		System.out.println();
-		for (val (i): Point in r) {
-			System.out.println("val[" + i + "] = " + a(i));
-		}
+        val a = Array.makeVal[short](r);
 
-		return true;
-	}
+        // check if r is convex - it should not!
+        var cv: boolean = r.isConvex();
+        System.out.println("convex: " + cv + " (should be false)");
+        chk(!cv);
 
-	public static def main(var args: Rail[String]): void = {
-		new RegionWithHoles2().execute();
-	}
+        System.out.print("indexes: ");
+        for (val (i): Point in r) {
+            System.out.print(i + " ");
+        }
+
+        System.out.println();
+        for (val (i): Point in r) {
+            System.out.println("val[" + i + "] = " + a(i));
+        }
+
+        return true;
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new RegionWithHoles2().execute();
+    }
 }
