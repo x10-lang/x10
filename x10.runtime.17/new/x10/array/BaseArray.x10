@@ -87,6 +87,9 @@ public abstract value class BaseArray[T] extends Array[T] {
         (region as BaseRegion).checkBounds(i0, i1, i2);
     }
 
+    def checkBounds(i0: int, i1: int, i2: int, i3: int) {
+        (region as BaseRegion).checkBounds(i0, i1, i2, i3);
+    }
 
 
     //
