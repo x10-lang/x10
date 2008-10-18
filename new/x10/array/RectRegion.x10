@@ -55,7 +55,7 @@ final value class RectRegion extends PolyRegion {
             var max: Rail[int] = halfspaces.rectMax();
             var size:int = 1;
             for (var i: int = 0; i<rank; i++)
-                size = (size to int) * max(i) - min(i) + 1;
+                size *= max(i) - min(i) + 1;
             nonValue.size = size;
         }
         return nonValue.size;
