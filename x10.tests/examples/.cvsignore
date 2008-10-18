@@ -9,3 +9,4 @@ TMP_XXX_*
 *.swo
 .*.swo
 x10
+makefile
