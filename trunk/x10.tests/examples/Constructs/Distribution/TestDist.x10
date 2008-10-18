@@ -109,7 +109,7 @@ abstract public class TestDist extends x10Test {
         var grid: Grid = new Grid();
         for (p:Point(2) in a.region) {
             if (bump) a(p(0), p(1)) += 1;
-            grid.set(p(0), p(1), a(p));
+            grid.set(p(0), p(1), a(p(0), p(1)));
         }
         grid.pr(a.rank);
     }
@@ -125,7 +125,7 @@ abstract public class TestDist extends x10Test {
         for (var i: int = 0; i<ps.length; i++) {
             var r: Region = d.get(ps(i));
             for (p:Point(2) in r)
-                a(p) = a(p) + ps(i).id + 1;
+                a(p(0), p(1)) = a(p(0), p(1)) + ps(i).id + 1;
         }
         prArray(a, false);
     }
