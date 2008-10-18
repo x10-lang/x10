@@ -5,170 +5,173 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 public class RegionWithHoles extends x10Test {
 
-	def test1D(): boolean = {
-		// all of those are contiguous
-		var r: Region{rank==1} = [0..10];
-		var r1: Region{rank==1} = [1..2];
-		var r2: Region{rank==1} = [5..6];
+    def test1D(): boolean = {
 
-		// create holes in r
-		r = r - r1;
-		r = r - r2;
+        // all of those are contiguous
+        var r: Region{rank==1} = [0..10];
+        var r1: Region{rank==1} = [1..2];
+        var r2: Region{rank==1} = [5..6];
 
-		var a: ValArray[short] = new ValArray[short](r);
-		chk(!r.isConvex());
-		// check if r is convex - it should not!
-		System.out.println("convex: " + r.isConvex() + " (should be false)");
+        // create holes in r
+        r = r - r1;
+        r = r - r2;
 
-		System.out.print("indexes: ");
-		for (val (i): Point in r) {
-			System.out.print(i + " ");
-		}
+        val a = Array.make[short](r);
+        chk(!r.isConvex());
+        // check if r is convex - it should not!
+        System.out.println("convex: " + r.isConvex() + " (should be false)");
 
-		try {
-			for (val (i): Point in r) {
-				if (a(i) != 0)
-					System.out.println("val[" + i + "] = " + a(i));
-			}
-		}
-		catch (var t: Throwable) {
-			System.out.println(t);
-			return false;
-		}
-		return true;
-	}
+        System.out.print("indexes: ");
+        for (val (i): Point in r) {
+            System.out.print(i + " ");
+        }
 
-	def test2D(): boolean = {
-		System.out.println("testing 2d");
-		// all of those are contiguous
-		var r: Region{rank==2} = [0..10, 0..3];
-		var r1: Region{rank==2} = [1..2, 0..3];
-		var r2: Region{rank==2} = [5..6, 0..3];
+        try {
+            for (val (i): Point in r) {
+                if (a(i) != 0)
+                    System.out.println("val[" + i + "] = " + a(i));
+            }
+        }
+        catch (var t: Throwable) {
+            System.out.println(t);
+            return false;
+        }
+        return true;
+    }
 
-		// create holes in r
-		r = r - r1;
-		r = r - r2;
+    def test2D(): boolean = {
 
-		var a: Array[short] = Array.make[short](r);
+        System.out.println("testing 2d");
+        // all of those are contiguous
+        var r: Region{rank==2} = [0..10, 0..3];
+        var r1: Region{rank==2} = [1..2, 0..3];
+        var r2: Region{rank==2} = [5..6, 0..3];
 
-		// check if r is convex - it should not!
-		System.out.println("convex: " + r.isConvex() + " (should be false)");
-		chk(!r.isConvex());
+        // create holes in r
+        r = r - r1;
+        r = r - r2;
 
-		try {
-			for (val point[i,j]: Point in r) {
-				if (a(i, j) != 0)
-					System.out.println("val[" + i + "] = " + a(i, j));
-			}
-		}
-		catch (var t: Throwable) {
-			System.out.println(t);
-			return false;
-		}
-		return true;
-	}
+        val a = Array.make[short](r);
 
-	def test3D(): boolean = {
-		// all of those are contiguous
-		var r: Region{rank==3} = [0..10, 0..3, 0..0];
-		var r1: Region{rank==3} = [1..2, 0..3, 0..0];
-		var r2: Region{rank==3} = [5..6, 0..3, 0..0];
+        // check if r is convex - it should not!
+        System.out.println("convex: " + r.isConvex() + " (should be false)");
+        chk(!r.isConvex());
 
-		// create holes in r
-		r = r - r1;
-		r = r - r2;
+        try {
+            for (val (i,j): Point in r) {
+                if (a(i, j) != 0)
+                    System.out.println("val[" + i + "] = " + a(i, j));
+            }
+        }
+        catch (var t: Throwable) {
+            System.out.println(t);
+            return false;
+        }
+        return true;
+    }
 
-		var a: Array[short] = Array.make[short](r);
-		chk(!r.isConvex());
-		// check if r is convex - it should not!
-		System.out.println("convex: " + r.isConvex() + " (should be false)");
+    def test3D(): boolean = {
+        // all of those are contiguous
+        var r: Region{rank==3} = [0..10, 0..3, 0..0];
+        var r1: Region{rank==3} = [1..2, 0..3, 0..0];
+        var r2: Region{rank==3} = [5..6, 0..3, 0..0];
 
-		try {
-			for (val point[i,j,k]: Point in r) {
-				if (a(i, j, k) != 0)
-					System.out.println("val[" + i + "] = " + a(i, j, k));
-			}
-		}
-		catch (var t: Throwable) {
-			System.out.println(t);
-			return false;
-		}
-		return true;
-	}
+        // create holes in r
+        r = r - r1;
+        r = r - r2;
 
-	def test4D(): boolean = {
-		// all of those are contiguous
-		var r: Region{rank==4} = [0..0, 0..10, 0..3, 0..0];
-		var r1: Region{rank==4} = [0..0, 1..2, 0..3, 0..0];
-		var r2: Region{rank==4} = [0..0, 5..6, 0..3, 0..0];
+        val a = Array.make[short](r);
+        chk(!r.isConvex());
+        // check if r is convex - it should not!
+        System.out.println("convex: " + r.isConvex() + " (should be false)");
 
-		// create holes in r
-		r = r - r1;
-		r = r - r2;
+        try {
+            for ((i,j,k): Point in r) {
+                if (a(i, j, k) != 0)
+                    System.out.println("val[" + i + "] = " + a(i, j, k));
+            }
+        }
+        catch (var t: Throwable) {
+            System.out.println(t);
+            return false;
+        }
+        return true;
+    }
 
-		var a: Array[short] = Array.make[short](r);
-		chk(!r.isConvex());
-		// check if r is convex - it should not!
-		System.out.println("4d:convex: " + r.isConvex() + " (should be false)");
+    def test4D(): boolean = {
+        // all of those are contiguous
+        var r: Region{rank==4} = [0..0, 0..10, 0..3, 0..0];
+        var r1: Region{rank==4} = [0..0, 1..2, 0..3, 0..0];
+        var r2: Region{rank==4} = [0..0, 5..6, 0..3, 0..0];
 
-		if (false) {
-			System.out.print("indexes: ");
-			for (val point[i]: Point in r) {
-				System.out.print(i + " ");
-			}
-		}
+        // create holes in r
+        r = r - r1;
+        r = r - r2;
 
-		try {
-			for (val point[i,j,k,l]: Point in r) {
-				if (a(i, j, k, l) != 0)
-					System.out.println("val[" + i + "] = " + a(i, j, k, l));
-			}
-		}
-		catch (var e: x10.lang.Exception) {
-			System.out.println(e);
-			return false;
-		}
-		return true;
-	}
+        val a = Array.make[short](r);
+        chk(!r.isConvex());
+        // check if r is convex - it should not!
+        System.out.println("4d:convex: " + r.isConvex() + " (should be false)");
 
-	def testPoint(): boolean = {
-		System.out.println("testing point");
-		// all of those are contiguous
-		var r: Region{rank==1} = [0..10];
-		var r1: Region{rank==1} = [1..2];
-		var r2: Region{rank==1} = [5..6];
+        if (false) {
+            System.out.print("indexes: ");
+            for ((i): Point in r) {
+                System.out.print(i + " ");
+            }
+        }
 
-		// create holes in r
-		r = r - r1;
-		r = r - r2;
+        try {
+            for ((i,j,k,l): Point in r) {
+                if (a(i, j, k, l) != 0)
+                    System.out.println("val[" + i + "] = " + a(i, j, k, l));
+            }
+        }
+        catch (var e: x10.lang.Exception) {
+            System.out.println(e);
+            return false;
+        }
+        return true;
+    }
 
-		var a: Array[short] = Array.make[short](r);
-		chk(!r.isConvex());
-		// check if r is convex - it should not!
-		System.out.println("convex: " + r.isConvex() + " (should be false)");
+    def testPoint(): boolean = {
 
-		try {
-			for (val p: Point in r) {
-				if (a(p) != 0)
-					System.out.println("val[" + p + "] = " + a(p));
-			}
-		}
-		catch (var t: Throwable) {
-			System.out.println(t);
-			return false;
-		}
-		return true;
-	}
+        System.out.println("testing point");
+        // all of those are contiguous
+        var r: Region{rank==1} = [0..10];
+        var r1: Region{rank==1} = [1..2];
+        var r2: Region{rank==1} = [5..6];
 
-	public def run(): boolean = {
-		return test1D() && test2D() && test3D() && test4D() && testPoint();
-	}
+        // create holes in r
+        r = r - r1;
+        r = r - r2;
 
-	public static def main(var args: Rail[String][]): void = {
-		new RegionWithHoles().execute();
-	}
+        val a = Array.make[short](r);
+        chk(!r.isConvex());
+        // check if r is convex - it should not!
+        System.out.println("convex: " + r.isConvex() + " (should be false)");
+
+        try {
+            for (val p: Point in r) {
+                if (a(p as Point{rank==1}) != 0) // XTENLANG-128
+                    System.out.println("val[" + p + "] = " + a(p as Point{rank==1}));
+            }
+        }
+        catch (var t: Throwable) {
+            System.out.println(t);
+            return false;
+        }
+        return true;
+    }
+
+    public def run(): boolean = {
+        return test1D() && test2D() && test3D() && test4D() && testPoint();
+    }
+
+    public static def main(var args: Rail[String]): void = {
+        new RegionWithHoles().execute();
+    }
 }
