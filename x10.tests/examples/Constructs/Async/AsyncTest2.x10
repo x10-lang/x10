@@ -16,13 +16,13 @@ public class AsyncTest2 extends x10Test {
 
 	public def run(): boolean = {
 		val NP: int = place.MAX_PLACES;
-		val A: Array[int] = Array.make[int](dist.makeUnique());
+		val A: Array[int] = Array.make[int](Dist.makeUnique());
 		finish
-			for (val (k): point in [0..NP-1])
+			for (val (k): Point in [0..NP-1])
                                 async (A.dist(k))
-					ateach (val (i): point in A)
+					ateach (val (i): Point in A)
                                                 atomic A(i) += i;
-		finish ateach (val (i): point in A) { chk(A(i) == i*NP); }
+		finish ateach (val (i): Point in A) { chk(A(i) == i*NP); }
 
 		return true;
 	}

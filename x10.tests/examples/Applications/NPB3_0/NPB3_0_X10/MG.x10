@@ -147,7 +147,7 @@ public class MG extends MGBase {
 		if (serial) resid(u, v, r, 0, n1, n2, n3);
 		else residMaster(u, v, r, 0, n1, n2, n3);
 		if (timeron) timer.stop(T_resid2);
-		for (val (it): point in [1..nit]) {
+		for (val (it): Point in [1..nit]) {
 			if (timeron) timer.start(T_mg3P);
 			if (serial) mg3P(u, v, r, n1, n2, n3); else mg3Pmaster(u, v, r, n1, n2, n3);
 			if (timeron) timer.stop(T_mg3P);
@@ -328,7 +328,7 @@ fmt.format(t*100./tmax)+"%)");
 	}
 
 	public def zero3(var z: Rail[double], var off: int, var n1: int, var n2: int, var n3: int): void = {
-		for (val (i3,i2,i1): point in [0..n3-1, 0..n2-1, 0..n1-1]) z(off+i1+n1*(i2+n2*i3)) = 0.0;
+		for (val (i3,i2,i1): Point in [0..n3-1, 0..n2-1, 0..n1-1]) z(off+i1+n1*(i2+n2*i3)) = 0.0;
 	}
 
 	public def zran3(var z: Rail[double], var n1: int, var n2: int, var n3: int, var nx: int, var ny: int): void = {
@@ -384,7 +384,7 @@ fmt.format(t*100./tmax)+"%)");
 			j3(i) = 0;
 		}
 
-		for (val (i3,i2,i1): point in [1..n3-2, 1..n2-2, 1..n1-2]) {
+		for (val (i3,i2,i1): Point in [1..n3-2, 1..n2-2, 1..n1-2]) {
 			if (z(i1+n1*(i2+n2*i3)) > ten(mm)) {
 				ten(mm) = z(i1+n1*(i2+n2*i3));
 				j1(mm) = i1;
@@ -439,9 +439,9 @@ fmt.format(t*100./tmax)+"%)");
 		val m1: int = i1+1;
 		val m0: int = i0+1;
 
-		for (val (i3,i2,i): point in [0..n3-1, 0..n2-1, 0..n1-1]) z(i+n1*(i2+n2*i3)) = 0.0;
-		for (val (i): point in [m0..mm]) z(j1(i-1)+n1*(j2(i-1)+n2*(j3(i-1)))) = -1.0;
-		for (val (i): point in [m1..mm]) z(j1(i-1+mm)+n1*(j2(i-1+mm)+n2*(j3(i-1+mm)))) = 1.0;
+		for (val (i3,i2,i): Point in [0..n3-1, 0..n2-1, 0..n1-1]) z(i+n1*(i2+n2*i3)) = 0.0;
+		for (val (i): Point in [m0..mm]) z(j1(i-1)+n1*(j2(i-1)+n2*(j3(i-1)))) = -1.0;
+		for (val (i): Point in [m1..mm]) z(j1(i-1+mm)+n1*(j2(i-1+mm)+n2*(j3(i-1+mm)))) = 1.0;
 		comm3(z, 0, n1, n2, n3);
 	}
 
@@ -457,7 +457,7 @@ fmt.format(t*100./tmax)+"%)");
 		if (timeron) timer.start(T_norm2);
 		rnmu = 0.0;
 		var rnm2: double = 0.0;
-		for (val (i3,i2,i1): point in [1..n3-2, 1..n2-2, 1..n1-2]) {
+		for (val (i3,i2,i1): Point in [1..n3-2, 1..n2-2, 1..n1-2]) {
 			rnm2 += r(i1+n1*(i2+n2*i3))*r(i1+n1*(i2+n2*i3));
 			var a: double = Math.abs(r(i1+n1*(i2+n2*i3)));
 			rnmu = dmax1(rnmu, a);
@@ -470,7 +470,7 @@ fmt.format(t*100./tmax)+"%)");
 
 	public def TestNorm(var r: Rail[double], var n1: int, var n2: int, var n3: int): double = {
 		var rnm2: double = 0.0;
-		for (val (i3,i2,i1): point in [1..n3-2, 1..n2-2, 1..n1-2]) rnm2 += r(i1+n1*(i2+n2*i3))*r(i1+n1*(i2+n2*i3));
+		for (val (i3,i2,i1): Point in [1..n3-2, 1..n2-2, 1..n1-2]) rnm2 += r(i1+n1*(i2+n2*i3))*r(i1+n1*(i2+n2*i3));
 		rnm2 = Math.sqrt(rnm2 / ((n1*n2*n3) to double));
 		System.out.println("*****TestNorm  "+rnm2);
 		return rnm2;
@@ -688,7 +688,7 @@ fmt.format(t*100./tmax)+"%)");
 		rprj = new Rail[Rprj](num_threads);
 		resid = new Rail[Resid](num_threads);
 
-		for (val (i): point in [0..num_threads-1]) {
+		for (val (i): Point in [0..num_threads-1]) {
 			interp(i) = new Interp(this, i);
 			//interp[i].start();
 
@@ -708,7 +708,7 @@ fmt.format(t*100./tmax)+"%)");
 		if (num_threads == 1) resid(u, v, r, off, n1, n2, n3);
 		else {
 			val visr: boolean = (v == r);
-			finish foreach (val (l): point in [0..num_threads-1]) resid(l).step(false, visr, 1, n3, n1, n2, n3, off);
+			finish foreach (val (l): Point in [0..num_threads-1]) resid(l).step(false, visr, 1, n3, n1, n2, n3, off);
 			comm3(r, off, n1, n2, n3);
 		}
 		if (timeron) timer.stop(T_resid);
@@ -718,7 +718,7 @@ fmt.format(t*100./tmax)+"%)");
 		if (timeron) timer.start(T_psinv);
 		if (num_threads == 1) psinv(r, roffl, u, uoffl, n1, n2, n3);
 		else {
-			finish foreach (val (l): point in [0..num_threads-1]) psinv(l).step(false, 1, n3, n1, n2, n3, roffl, uoffl);
+			finish foreach (val (l): Point in [0..num_threads-1]) psinv(l).step(false, 1, n3, n1, n2, n3, roffl, uoffl);
 			comm3(u, uoffl, n1, n2, n3);
 		}
 		if (timeron) timer.stop(T_psinv);
@@ -728,7 +728,7 @@ fmt.format(t*100./tmax)+"%)");
 		if (timeron) timer.start(T_interp);
 		if (num_threads == 1) interp(u, zoffl, mm1, mm2, mm3, uoffl, n1, n2, n3);
 		else {
-			finish foreach (val (l): point in [0..num_threads-1]) interp(l).step(false, 1, mm3, mm1, mm2, mm3, n1, n2, n3, zoffl, uoffl);
+			finish foreach (val (l): Point in [0..num_threads-1]) interp(l).step(false, 1, mm3, mm1, mm2, mm3, n1, n2, n3, zoffl, uoffl);
 		}
 		if (timeron) timer.stop(T_interp);
 	}
@@ -737,7 +737,7 @@ fmt.format(t*100./tmax)+"%)");
 		if (timeron) timer.start(T_rprj3);
 		if (num_threads == 1) rprj3(r, roffl, m1k, m2k, m3k, zoffl, m1j, m2j, m3j);
 		else {
-			finish foreach (val (l): point in [0..num_threads-1]) rprj(l).step(false, 2, m3j, m1k, m2k, m3k, m1j, m2j, m3j, roffl, zoffl);
+			finish foreach (val (l): Point in [0..num_threads-1]) rprj(l).step(false, 2, m3j, m1k, m2k, m3k, m1j, m2j, m3j, roffl, zoffl);
 			comm3(r, zoffl, m1j, m2j, m3j);
 		}
 		if (timeron) timer.stop(T_rprj3);

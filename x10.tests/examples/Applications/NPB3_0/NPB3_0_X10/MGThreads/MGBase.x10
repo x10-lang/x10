@@ -186,17 +186,17 @@ public class MGBase {
 //		c---------------------------------------------------------------------
 //		double precision u(n1,n2,n3)
 
-		for (val (i3,i2): point in [1..n3-2, 1..n2-2]) {
+		for (val (i3,i2): Point in [1..n3-2, 1..n2-2]) {
 			u(off+n1*(i2+n2*i3)) = u(off+n1-2+n1*(i2+n2*i3));
 			u(off+n1-1+n1*(i2+n2*i3)) = u(off+1+n1*(i2+n2*i3));
 		}
 
-		for (val (i3,i1): point in [1..n3-2, 0..n1-1]) {
+		for (val (i3,i1): Point in [1..n3-2, 0..n1-1]) {
 			u(off+i1+n1*n2*i3) = u(off+i1+n1*(n2-2+n2*i3));
 			u(off+i1+n1*(n2-1+n2*i3)) = u(off+i1+n1*(1+n2*i3));
 		}
 
-		for (val (i2,i1): point in [0..n2-1, 0..n1-1]) {
+		for (val (i2,i1): Point in [0..n2-1, 0..n1-1]) {
 			u(off+i1+n1*i2) = u(off+i1+n1*(i2+n2*(n3-2)));
 			u(off+i1+n1*(i2+n2*(n3-1))) = u(off+i1+n1*(i2+n2));
 		}

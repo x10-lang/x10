@@ -11,7 +11,7 @@ public class RegionEquality extends x10Test {
 
 	public def run(): boolean = {
 		val size: int = 10;
-		val R: region = [0..size-1, 0..size-1];
+		val R: Region = [0..size-1, 0..size-1];
 		return R==[0..size-1, 0..size-1];
 	}
 	public static def main(var args: Rail[String]): void = {

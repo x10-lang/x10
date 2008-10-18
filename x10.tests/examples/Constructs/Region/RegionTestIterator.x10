@@ -14,9 +14,9 @@ import harness.x10Test;
 public class RegionTestIterator extends x10Test {
 
 	public def run(): boolean = {
-		var r: region = region.makeRectangular(0, 100); // (low, high)
+		var r: Region = Region.makeRectangular(0, 100); // (low, high)
 		var r2: Rail[region] = [ r, r ];
-		val reg = region.make(r2);
+		val reg = Region.make(r2);
 
 		var sum: int = 0;
 		for (var it: Iterator[Rail[Int]] = reg.iterator(); it.hasNext(); ) {

@@ -28,24 +28,24 @@ import harness.x10Test;;
  */
 public class BlockDistWithPlaceSet extends x10Test {
 
-	public const P: dist = distmakeUnique();
+	public const P: Dist = distmakeUnique();
 	public const COUNT: int = 200;
 	public const L: int = 5;
 
 	public def run(): boolean = {
-		for (val (tries): point in [1..COUNT]) {
+		for (val (tries): Point in [1..COUNT]) {
 			val lb1: int = ranInt(-L, L);
 			val lb2: int = ranInt(-L, L);
 			val ub1: int = ranInt(lb1, L);
 			val ub2: int = ranInt(lb2, L);
-			val R: region = [lb1..ub1, lb2..ub2];
+			val R: Region = [lb1..ub1, lb2..ub2];
 
 			val r: randPlaceSet = createRandPlaceSet();
 			val np: int = r.np;
 			val placeNums: Array[int] = r.placeNums;
 			val placeSet: Set = r.placeSet;
 
-			val DBlock: dist = distmakeBlock(R, placeSet);
+			val DBlock: Dist = distmakeBlock(R, placeSet);
 			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
 			val p: int = totalPoints/np;
 			val q: int = totalPoints%np;
@@ -53,7 +53,7 @@ public class BlockDistWithPlaceSet extends x10Test {
 			var pn: int = 0;
 			//System.out.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
 
-			for (val (i,j): point in R) {
+			for (val (i,j): Point in R) {
 				//System.out.println("placeNum = "+placeNums[pn]+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock[i,j].id);
 				chk(DBlock(i, j) == P(placeNums(pn)));
 				chk(P(placeNums(pn)).id == placeNums(pn));
@@ -93,7 +93,7 @@ public class BlockDistWithPlaceSet extends x10Test {
 			np = 0;
 			placeSet = new HashSet();
 			val THRESH: int = ranInt(10, 90);
-			for (val (i): point in P) {
+			for (val (i): Point in P) {
 				val x: int = ranInt(0, 99);
 				if (x >= THRESH) {
 					placeSet.add(P(i));

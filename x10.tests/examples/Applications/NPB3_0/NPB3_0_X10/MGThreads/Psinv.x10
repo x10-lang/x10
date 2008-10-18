@@ -97,8 +97,8 @@ public class Psinv extends MGWorker {
 		//		c---------------------------------------------------------------------
 		//		double precision u(n1,n2,n3),r(n1,n2,n3),c(0:3)
 
-		for (val (i3,i2): point in [start..end-1, 1..n2-2]) {
-			for (val (i1): point in [0..n1-1]) {
+		for (val (i3,i2): Point in [start..end-1, 1..n2-2]) {
+			for (val (i1): Point in [0..n1-1]) {
 				r1(i1) = r(roff+i1+n1*(i2-1+n2*i3))
 					+ r(roff+i1+n1*(i2+1+n2*i3))
 					+ r(roff+i1+n1*(i2+n2*(i3-1)))
@@ -108,7 +108,7 @@ public class Psinv extends MGWorker {
 					+ r(roff+i1+n1*(i2-1+n2*(i3+1)))
 					+ r(roff+i1+n1*(i2+1+n2*(i3+1)));
 			}
-			for (val (i1): point in [1..n1-2]) {
+			for (val (i1): Point in [1..n1-2]) {
 				u(uoff+i1+n1*(i2+n2*i3)) +=
 					c(0) * r(roff+i1+n1*(i2+n2*i3))
 					+ c(1) * (r(roff+i1-1+n1*(i2+n2*i3))

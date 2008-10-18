@@ -74,14 +74,14 @@ public class ConditionalAtomicQueue extends x10Test {
 	public def run(): boolean = {
 		val N: int = T.N;
 		val NP: int = place.MAX_PLACES;
-		val D2: dist = MyDist.val(N*NP);
+		val D2: Dist = MyDist.val(N*NP);
 		val received: Array[int] = new Array[int](D2);
 
 		finish {
 			// spawn producer activities on each place
 			async( this )
-				ateach (val (i): point in MyDist.unique()) {
-					for (val (j): point in [0..N-1]) {
+				ateach (val (i): Point in MyDist.unique()) {
+					for (val (j): Point in [0..N-1]) {
 						val t: T = new T(i, j); // produce a T
 						async(this) {
 							when (!full()) { insert(t); }
@@ -90,7 +90,7 @@ public class ConditionalAtomicQueue extends x10Test {
 				}
 			// spawn a single consumer activity in place P0
 			async( this ) {
-				for (val p: point in D2) {
+				for (val p: Point in D2) {
 					var t: Box[T];
 					when (!empty()) { t = remove(); }
 					val t1: T = t to T;
@@ -104,7 +104,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		}
 
 		// Ensure all messages were received exactly once
-		for (val p: point in D2) chk(received(p) == 1);
+		for (val p: Point in D2) chk(received(p) == 1);
 
 		// Ensure the FIFO queue is empty now
 		chk(empty());
@@ -142,20 +142,20 @@ public class ConditionalAtomicQueue extends x10Test {
 		/**
 		 * create a simple 1D blocked dist
 		 */
-		static def block(var arraySize: int): dist = {
-			return dist.makeBlock([0..(arraySize-1)]);
+		static def block(var arraySize: int): Dist = {
+			return Dist.makeBlock([0..(arraySize-1)]);
 		}
 		/**
 		 * create a unique dist (mapping each i to place i)
 		 */
-		static def unique(): dist = {
-			return dist.makeUnique(place.places);
+		static def unique(): Dist = {
+			return Dist.makeUnique(place.places);
 		}
 
 		/**
 		 * create a constant-Here dist
 		 */
-		static def val(var arraySize: int): dist = {
+		static def val(var arraySize: int): Dist = {
 			return [0..(arraySize-1)]->here;
 		}
 	}

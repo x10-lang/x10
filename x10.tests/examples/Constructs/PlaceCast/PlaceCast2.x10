@@ -10,13 +10,13 @@ import harness.x10Test;;
 public class PlaceCast2 extends x10Test {
 	var nplaces: int = 0;
 	public def run(): boolean = {
-		val d: dist = dist.factory.unique(place.places);
+		val d: Dist = dist.factory.unique(place.places);
 		System.out.println("num places = " + place.places);
-		val disagree: Array[BoxedBoolean]{dist==d} = Array.make[BoxedBoolean](d, ((p): point): BoxedBoolean => {
+		val disagree: Array[BoxedBoolean]{dist==d} = Array.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
 				System.out.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});
-		finish ateach (val (p): point in d) {
+		finish ateach (val (p): Point in d) {
 			// remember if here and d[p] disagree
 			// at any activity at any place
 			try {

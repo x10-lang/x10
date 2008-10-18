@@ -20,7 +20,7 @@ public class Unsafe extends x10Test {
 		var x: Array[int] = Array.make[int](d); // ok
 		var y: Array[int] = Array.make[int](d); //ok
 		var y1: Array[int] = Array.make[int](d); // ok
-		var zz: Array[int] = Array.make[int](d, (p: point): int => 41); // bad
+		var zz: Array[int] = Array.make[int](d, (p: Point): int => 41); // bad
 		return true;
 	}
 

@@ -18,9 +18,9 @@ public class RegionDifference extends x10Test {
 		val size: int = 10;
 	    	val k: int = 5;
 	    	val factor: int = 8;
-	    	val r: region{rank==2} = [k..size-1, k..k];
+	    	val r: Region{rank==2} = [k..size-1, k..k];
 	    	//System.out.println(([k:k+factor-1,k:k]-r).toString());
-	    	val d: dist = dist.makeCyclic([k..k+factor-1, k..k]-r);
+	    	val d: Dist = Dist.makeCyclic([k..k+factor-1, k..k]-r);
 	    	
 		return true;
 	}

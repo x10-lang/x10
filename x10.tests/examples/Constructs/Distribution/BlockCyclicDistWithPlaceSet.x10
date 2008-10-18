@@ -24,13 +24,13 @@ import harness.x10Test;;
  */
 public class BlockCyclicDistWithPlaceSet extends x10Test {
 
-	const P = dist.makeUnique();
+	const P = Dist.makeUnique();
 	const COUNT = 200;
     const L = 5;
 	const K = 1;
 
 	public def run(): boolean = {
-		for (val (tries): point in 1..COUNT) {
+		for (val (tries): Point in 1..COUNT) {
 			val lb1: int = ranInt(-L, L);
 			val lb2: int = ranInt(-L, L);
 			val ub1: int = ranInt(lb1, L);
@@ -43,13 +43,13 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 			val placeNums = r.placeNums;
 			val placeSet  = r.placeSet;
 
-			val DBlockCyclic = dist.makeBlockCyclic(R, bSize, placeSet);
+			val DBlockCyclic = Dist.makeBlockCyclic(R, bSize, placeSet);
 			val offsWithinPlace = Array.makeUnique[int](np);
 			var pn: int = 0;
 			var offsWithinBlock: int = 0;
 			//System.out.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" bSize = "+bSize);
 
-			for (val (i,j): point(2) in R) {
+			for (val (i,j): Point(2) in R) {
 				//System.out.println("placeNum = "+placeNums[pn]+" offsWithinPlace[pn] = "+offsWithinPlace[pn]+" offsWithinBlock = "+offsWithinBlock+" i = "+i+" j = "+j+" DBlockCyclic[i,j] = "+DBlockCyclic[i,j].id);
 				chk(DBlockCyclic(i, j) == P(placeNums(pn)));
 				offsWithinPlace(pn)++;
@@ -113,7 +113,7 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 			np = 0;
 			
 			val THRESH: int = ranInt(10, 90);
-			for (val (i): point(1) in P) {
+			for (val (i): Point(1) in P) {
 				val x: int = ranInt(0, 99);
 				if (x >= THRESH) {
 				    placeSet = new Cell(P(i), placeSet);

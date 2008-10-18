@@ -17,13 +17,13 @@ import harness.x10Test;;
 public class RegionTriangular extends x10Test {
 
 	public def run(): boolean = {
-		val Universe: region = [0..7, 0..7];
-		var upperT: region = region.makeUpperTriangular(8);
+		val Universe: Region = [0..7, 0..7];
+		var upperT: Region = Region.makeUpperTriangular(8);
 		pr("upperT", upperT);
-		for (val (i,j): point in Universe) chk(iff(i <= j, upperT.contains([i, j])));
-		var lowerT: region = region.makeLowerTriangular(8);
+		for (val (i,j): Point in Universe) chk(iff(i <= j, upperT.contains([i, j])));
+		var lowerT: Region = Region.makeLowerTriangular(8);
 		pr("lowerT", lowerT);
-		for (val (i,j): point in Universe) chk(iff(i >= j, lowerT.contains([i, j])));
+		for (val (i,j): Point in Universe) chk(iff(i >= j, lowerT.contains([i, j])));
 		return true;
 	}
 
@@ -31,12 +31,12 @@ public class RegionTriangular extends x10Test {
 		return (x == y);
 	}
 
-	static def pr(var s: String, var r: region): void = {
+	static def pr(var s: String, var r: Region): void = {
 		System.out.println();
 		System.out.println("printing region "+s);
 		var k: int = 0;
 		val N: int = 8;
-		for (val (i,j): point in [0..N-1, 0..N-1]) {
+		for (val (i,j): Point in [0..N-1, 0..N-1]) {
 			System.out.print(" "+(r.contains([i, j]) ? "+" : "."));
 			if ((++k) % N == 0) System.out.println();
 		}

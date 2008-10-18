@@ -13,13 +13,13 @@ public class PlaceCast extends x10Test {
 	var nplaces: int = 0;
 
 	public def run(): boolean = {
-		val d: dist = Dist.makeUnique(place.places);
+		val d: Dist = Dist.makeUnique(place.places);
 		System.out.println("num places = " + place.places);
-		val disagree: Array[BoxedBoolean]{distribution==d} = new Array[BoxedBoolean](d, ((p): point): BoxedBoolean => {
+		val disagree: Array[BoxedBoolean]{distribution==d} = new Array[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
 				System.out.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});
-		finish ateach (val (p): point in d) {
+		finish ateach (val (p): Point in d) {
 			// remember if here and d[p] disagree
 			// at any activity at any place
 			try {

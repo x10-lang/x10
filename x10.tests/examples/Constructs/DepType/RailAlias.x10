@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class RailAlias extends x10Test {
      public def this(): RailAlias = { }
      public def run(): boolean = {
-          var r: region{rail} = [0..10];
+          var r: Region{rail} = [0..10];
           var a: Array[double]{rail} 
              = Array.makeFromR[double](r, (x:Point)=>0.0);
           var d: double = a(1);
