@@ -114,6 +114,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def apply(i0: int) = apply([i0] to Point(rank));
     public def apply(i0: int, i1: int) = apply([i0,i1] to Point(rank));
     public def apply(i0: int, i1: int, i2: int) = apply([i0,i1,i2] to Point(rank));
+    public def apply(i0: int, i1: int, i2: int, i3: int) = apply([i0,i1,i2,i3] to Point(rank));
 
 
     //

@@ -45,6 +45,11 @@ final value class Array1[T] extends BaseArray[T] {
         return raw(layout.offset(i0,i1,i2));
     }
 
+    final public def apply(i0: int, i1: int, i2: int, i3: int): T {
+        checkBounds(i0, i1, i2, i3);
+        return raw(layout.offset(i0,i1,i2,i3));
+    }
+
 
     //
     // high-performance methods here to facilitate inlining
@@ -65,6 +70,11 @@ final value class Array1[T] extends BaseArray[T] {
         raw(layout.offset(i0,i1,i2)) = v;
     }
 
+    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): void {
+        checkBounds(i0, i1, i2, i3);
+        raw(layout.offset(i0,i1,i2,i3)) = v;
+    }
+
 
     //
     //
@@ -78,7 +88,7 @@ final value class Array1[T] extends BaseArray[T] {
             //async (dist.onePlace) {
                 var r: Region = dist.get(here);
                 layout = layout(r);
-                var n: int = layout.size();
+                val n = layout.size();
                 raw = Rail.makeVar[T](n);
                 if (init!=null) {
                     for (p:Point in r)
