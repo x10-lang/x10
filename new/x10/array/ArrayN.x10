@@ -61,6 +61,11 @@ final value class ArrayN[T] extends BaseArray[T] {
         return raw()(layout().offset(i0,i1,i2));
     }
 
+    final public def apply(i0: int, i1: int, i2: int, i3: int): T {
+        checkBounds(i0, i1, i2, i3);
+        return raw()(layout().offset(i0,i1,i2,i3));
+    }
+
 
     //
     // high-performance methods here to facilitate inlining
@@ -81,6 +86,12 @@ final value class ArrayN[T] extends BaseArray[T] {
         checkBounds(i0, i1, i2);
         raw()(layout().offset(i0,i1,i2)) = v;
     }
+
+    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): void {
+        checkBounds(i0, i1, i2, i3);
+        raw()(layout().offset(i0,i1,i2,i3)) = v;
+    }
+
 
     //
     //
@@ -105,11 +116,11 @@ final value class ArrayN[T] extends BaseArray[T] {
         finish {
             for (var i: int = 0; i<Place.MAX_PLACES; i++) {
                 async (Place.places(i)) {
-                    var r: Region = dist.get(here);
-                    var layout: RectLayout = layout(r);
+                    val r: Region = dist.get(here);
+                    val layout: RectLayout = layout(r);
                     layouts(here.id) = layout;
-                    var n: int = layout.size();
-                    var raw: RailT = new RailT(n);
+                    val n = layout.size();
+                    val raw: RailT = new RailT(n);
                     raws(here.id) = raw;
                     if (init!=null) {
                         for (p:Point in r)

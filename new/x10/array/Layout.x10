@@ -8,9 +8,10 @@ abstract value class Layout {
     abstract def size(): int;
 
     abstract def offset(pt: Point): int;
-    abstract def offset(x0: int): int;
-    abstract def offset(x0: int, x1: int): int;
-    abstract def offset(x0: int, x1: int, x2: int): int;
+    abstract def offset(i0: int): int;
+    abstract def offset(i0: int, i1: int): int;
+    abstract def offset(i0: int, i1: int, i2: int): int;
+    abstract def offset(i0: int, i1: int, i2: int, i3: int): int;
 
     /*
       doesn't work (for now? for good?) - use constructor instead

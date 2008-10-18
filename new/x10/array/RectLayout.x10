@@ -11,11 +11,13 @@ final value class RectLayout(rank: int) extends Layout {
     private val min0: int;
     private val min1: int;
     private val min2: int;
+    private val min3: int;
 
     private val delta: Rail[int];
     private val delta0: int;
     private val delta1: int;
     private val delta2: int;
+    private val delta3: int;
 
     def this(min: Rail[int], max: Rail[int]) {
         
@@ -37,10 +39,12 @@ final value class RectLayout(rank: int) extends Layout {
         min0 = rank>=1? min(0) : 0;
         min1 = rank>=2? min(1) : 0;
         min2 = rank>=3? min(2) : 0;
+        min3 = rank>=4? min(3) : 0;
 
         delta0 = rank>=1? delta(0) : 0;
         delta1 = rank>=2? delta(1) : 0;
         delta2 = rank>=3? delta(2) : 0;
+        delta3 = rank>=4? delta(3) : 0;
     }
 
 
@@ -74,6 +78,14 @@ final value class RectLayout(rank: int) extends Layout {
         var offset:int = i0 - min0;
         offset = offset*delta1 + i1 - min1;
         offset = offset*delta2 + i2 - min2;
+        return offset;
+    }
+
+    final def offset(i0: int, i1: int, i2: int, i3: int): int {
+        var offset:int = i0 - min0;
+        offset = offset*delta1 + i1 - min1;
+        offset = offset*delta2 + i2 - min2;
+        offset = offset*delta3 + i3 - min3;
         return offset;
     }
 

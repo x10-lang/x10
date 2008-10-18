@@ -154,6 +154,10 @@ abstract public value class BaseRegion extends Region {
         (this as BaseRegion(3)).checkBounds([i0,i1,i2] to Point(3)); // XXXX cast?
     }
 
+    def checkBounds(i0: int, i1: int, i2: int, i3: int) {rank==4} {
+        (this as BaseRegion(4)).checkBounds([i0,i1,i2,i3] to Point(4)); // XXXX cast?
+    }
+
 
     //
     // region comparison operations
