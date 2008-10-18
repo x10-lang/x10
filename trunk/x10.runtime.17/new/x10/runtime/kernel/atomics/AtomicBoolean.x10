@@ -22,7 +22,7 @@ public class AtomicBoolean {
 	public native def get():boolean;
 
 	@Native("java", "#0.set(#1)")
-	public native def set(val:boolean):boolean;
+	public native def set(val:boolean):void;
 
 	@Native("java", "#0.compareAndSet(#1,#2)")
 	public native def compareAndSet(expect:boolean, update:boolean):boolean;
