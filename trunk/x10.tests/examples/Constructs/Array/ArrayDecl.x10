@@ -30,9 +30,9 @@ public class ArrayDecl extends x10Test {
         chk(v_ia2.dist.equals(Dist.makeConstant(0..N-1, here)));
         for (val (i): Point in v_ia2.region) chk(v_ia2(i) == i);
 
-        val ia2: Array[byte] = Array.make[byte](Dist.makeConstant(0..N-1, (here).prev().prev()), (Point)=> (0 to Byte));
+        val ia2: Array[byte] = Array.make[byte](Dist.makeConstant(0..N-1, (here).prev().prev()), (Point)=> (0 to byte));
         chk(ia2.dist.equals(Dist.makeConstant(0..N-1, (here).prev().prev())));
-        finish ateach ((i): Point in ia2.dist) chk(ia2(i) == (0 to Byte));
+        finish ateach ((i): Point in ia2.dist) chk(ia2(i) == (0 to byte));
 
         //Examples similar to section 10.3 of X10 reference manual
 
@@ -51,19 +51,20 @@ public class ArrayDecl extends x10Test {
         chk(data3.dist.equals(Dist.makeConstant(1..11, here)));
         for (val (i): Point in data3.region) chk(data3(i) == (i*i to Long));
 
-        val D: Dist = Dist.makeRandom(0..9);
+        val D: Dist = Dist.makeCyclic(0..9, 0);
         val d = Array.make[float](D, ((i):Point) => (10.0*i to Float));
         chk(d.dist.equals(D));
         finish ateach (val (i): Point in D) chk(d(i) == (10.0*i to Float));
 
-        val E = Dist.makeRandom([1..7, 0..1]);
+        val E = Dist.makeCyclic([1..7, 0..1], 1);
         val result1  = Array.make[Short](E, ((i,j): Point) => (i+j to Short));
         chk(result1.dist.equals(E));
         finish ateach (val (i,j): Point in E) chk(result1(i, j) == (i+j to Short));
 
         val result2 = Array.make[complex](Dist.makeConstant(0..N-1, here), ((i) : Point) =>  new complex(i*N,-i));
         chk(result2.dist.equals(Dist.makeConstant(0..N-1, here)));
-        finish ateach (val (i): Point in result2.dist) chk(result2(i) == new complex(i*N,-i));
+        // work around XTENLANG-46
+        finish ateach (val (i): Point in result2.dist) chk(result2(i)/*==*/.equals(new complex(i*N,-i)));
 
         return true;
     }
@@ -71,6 +72,7 @@ public class ArrayDecl extends x10Test {
     final static value complex  {
         val re:Int;
         val im:Int;
+        def equals(that:complex) = this.re==that.re && this.im==that.im;
         public def this(re:Int, im:Int) { this.re = re; this.im = im; }
     }
 
