@@ -6,10 +6,9 @@ package x10.array;
 /**
  * a raw piece in each place, initialized at its place
  * suitable for distributed arrays if the raw and layout fields are per-place
- * suitable for "simulated distribution" for constant distributions
+ * suitable for single-process case for constant distributions
  *
  * XXX whether this works depends on distributed object semantics
- * XXX raw and layout must be non-final? but want final for performance...
  */
 
 final value class Array1[T] extends BaseArray[T] {
@@ -77,7 +76,7 @@ final value class Array1[T] extends BaseArray[T] {
 
 
     //
-    //
+    // XXX only works for single-process shared-memory implementation
     //
 
     def this(val dist: Dist{constant}, val init: (Point)=>T): Array1[T]{self.dist==dist} {
@@ -86,7 +85,7 @@ final value class Array1[T] extends BaseArray[T] {
 
         //finish {
             //async (dist.onePlace) {
-                var r: Region = dist.get(here);
+        	var r: Region = dist.get(/*here*/dist.onePlace);
                 layout = layout(r);
                 val n = layout.size();
                 raw = Rail.makeVar[T](n);
