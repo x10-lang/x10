@@ -89,6 +89,13 @@ final value class RectLayout(rank: int) extends Layout {
         return offset;
     }
 
-    public def toString() = "RectLayout"; // XTENLANG-89
+    public def toString() {
+        var s:String = "RectLayout[";
+        s += "size=," + size;
+        for (var i:int=0; i<min.length; i++)
+            s += "," + delta(i);
+        s += "]";
+        return s;
+    }
 
 }
