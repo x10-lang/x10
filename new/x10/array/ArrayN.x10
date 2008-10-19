@@ -72,24 +72,28 @@ final value class ArrayN[T] extends BaseArray[T] {
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public def set(v: T, i0: int): void {
+    final public def set(v: T, i0: int): T {
         checkBounds(i0);
         raw()(layout().offset(i0)) = v;
+        return v;
     }
 
-    final public def set(v: T, i0: int, i1: int): void {
+    final public def set(v: T, i0: int, i1: int): T {
         checkBounds(i0, i1);
         raw()(layout().offset(i0,i1)) = v;
+        return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int): void {
+    final public def set(v: T, i0: int, i1: int, i2: int): T {
         checkBounds(i0, i1, i2);
         raw()(layout().offset(i0,i1,i2)) = v;
+        return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): void {
+    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         checkBounds(i0, i1, i2, i3);
         raw()(layout().offset(i0,i1,i2,i3)) = v;
+        return v;
     }
 
 
