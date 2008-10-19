@@ -31,14 +31,14 @@ public class ArrayCopy1 extends x10Test {
         // fetch the B[i] value
         // Then compare it to the A[i] value
         finish
-            ateach (val p in D) {
-                val fp:Int = (future (E(p)) B(p)).force();
-            
-                if (A(p) != fp) {
-                    throw new Error("****Error: A(" + p + ")= " + A(p) + ", B(" + p + ")=" + B(p) + " fp= " + fp);
-                }  
-                chk(A(p)==fp); 
-                chk(A(p)==(future (E(p)) B(p)).force());
+            ateach (p:Point in D) {
+                val pa = p as Point(A.dist.region.rank);
+                val pb = p as Point(B.dist.region.rank);
+                val fp:Int = (future (E(p)) B(pb)).force();
+                if (A(pa) != fp)
+                    throw new Error("****Error: A(" + p + ")= " + A(pa) + ", B(" + p + ")=" + B(pb) + " fp= " + fp);
+                chk(A(pa)==fp); 
+                chk(A(pa)==(future (E(p)) B(pb)).force());
             }
     }
 
@@ -56,10 +56,12 @@ public class ArrayCopy1 extends x10Test {
         // Spawn an activity for each index to
         // fetch and copy the value
         finish
-            ateach (val p in D) {
+            ateach (p:Point in D) {
+                val pa = p as Point(A.dist.region.rank);
+                val pb = p as Point(B.dist.region.rank);
                 chk(D(p) == here);
                 async(E(p)) chk(E(p) == here);
-                A(p) = (future(E(p)) B(p)).force();
+                A(pa) = (future(E(p)) B(pb)).force();
             }
     }
 
@@ -113,21 +115,21 @@ public class ArrayCopy1 extends x10Test {
         const CYCLIC: int = 1;
         const BLOCKCYCLIC: int = 2;
         const CONSTANT: int = 3;
-        const RANDOM: int = 4;
-        const ARBITRARY: int = 5;
-        const N_DIST_TYPES: int = 6;
+        //const RANDOM: int = 4;
+        //const ARBITRARY: int = 5;
+        const N_DIST_TYPES: int = 4; //6;
 
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, r: Region): Dist(r) = {
+        public static def getDist(distType: Int, r: Region): Dist {
             switch(distType) {
-                case BLOCK: return Dist..makeBlock(r);
-                case CYCLIC: return Dist..makeCyclic(r);
-                case BLOCKCYCLIC: return Dist..makeBlockCyclic(r, 3);
+                case BLOCK: return Dist.makeBlock(r, 0);
+                case CYCLIC: return Dist.makeCyclic(r, 0);
+                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 3, 0);
                 case CONSTANT: return r->here;
-                case RANDOM: return Dist..makeRandom(r);
-                case ARBITRARY:return Dist.makeArbitrary(r);
+                //case RANDOM: return Dist.makeRandom(r);
+                //case ARBITRARY:return Dist.makeArbitrary(r);
                 default: throw new Error();
             }
         }
