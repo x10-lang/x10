@@ -84,11 +84,11 @@ public abstract value class Array[T](dist:Dist)
     public abstract def apply(i0: int, i1: int, i2: int) {rank==3}: T;
     public abstract def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
     
-    public abstract def set(v:T, pt: Point(rank)): void;
-    public abstract def set(v:T, i0: int) {rank==1}: void;
-    public abstract def set(v:T, i0: int, i1: int){rank==2}: void;
-    public abstract def set(v:T, i0: int, i1: int, i2: int){rank==3}: void;
-    public abstract def set(v:T, i0: int, i1: int, i2: int, i3:int){rank==4}: void;
+    public abstract def set(v:T, pt: Point(rank)): T;
+    public abstract def set(v:T, i0: int) {rank==1}: T;
+    public abstract def set(v:T, i0: int, i1: int) {rank==2}: T;
+    public abstract def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
 
     public abstract def restriction(r: Region(rank)): Array[T];
     public abstract def restriction(p: Place): Array[T];

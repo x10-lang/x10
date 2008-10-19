@@ -53,20 +53,20 @@ final value class ArrayV[T] extends BaseArray[T] {
     // illegal for value array
     //
 
-    final public def set(v: T, i0: int): void {
+    final public def set(v: T, i0: int): T {
         throw U.illegal();
     }
 
-    final public def set(v: T, i0: int, i1: int): void {
+    final public def set(v: T, i0: int, i1: int): T {
         throw U.illegal();
 
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int): void {
+    final public def set(v: T, i0: int, i1: int, i2: int): T {
         throw U.illegal();
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): void {
+    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         throw U.illegal();
     }
 
