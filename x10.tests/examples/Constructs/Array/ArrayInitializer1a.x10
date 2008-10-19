@@ -16,11 +16,8 @@ public class ArrayInitializer1a extends x10Test {
     public def run(): boolean = {
 
         val e = 0..9;
-        val r= [e, e, e] to Region;
-
-        //TODO: next line causes runtime error
-        //dist d=r->here;
-        val d  = Dist.makeConstant(e, here);
+        val r = [e, e, e] to Region;
+        val d = r->here;
         val ia = Array.make[Int](d, ((i,j,k): Point)=> i);
 
         for (val p in ia.region) chk(ia(p) == i); // should infer p:Point(3)
