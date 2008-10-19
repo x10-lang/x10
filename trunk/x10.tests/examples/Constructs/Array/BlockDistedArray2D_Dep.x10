@@ -18,15 +18,15 @@ public class BlockDistedArray2D_Dep extends x10Test {
 
     public const SIZE: int = 5; 
     public const N_PLACES: int = place.MAX_PLACES; 
-    public const ALLPLACES: Dist = distmakeUnique();
+    public const ALLPLACES: Dist = Dist.makeUnique();
 
     public def run(): boolean = {
         var D: Dist{rank==2};
-        D=Dist.makeConstant([0..SIZE-1, 0..SIZE-1], place.factory.place(0));
-        for(var i: int = 1;i<N_PLACES;i++) D=D||(Dist.makeConstant([0..SIZE-1, i*SIZE..(i+1*SIZE-1)], place.factory.place(i)));
-        final val intArray: Array[int]{rank==2} = new Array[int](D, (var Point [i,j]: Point): int => {return i+j;}); 
-        final val dblArray: Array[double]{rank==2} = new Array[double](D, (var Point [i,j]: Point): double => {return (i+j)*0.1;});
-        finish ateach (val p: Point[i] in ALLPLACES) for (val (j,k): Point in intArray|here) dblArray(j, k)+=intArray(j, k); 
+        D=Dist.makeConstant([0..SIZE-1, 0..SIZE-1], Place.place(0));
+        for(var i: int = 1;i<N_PLACES;i++) D=D||(Dist.makeConstant([0..SIZE-1, i*SIZE..(i+1*SIZE-1)], Place.place(i)));
+        val intArray: Array[int]{rank==2} = Array.make[int](D, ((i,j): Point): int => {return i+j;}); 
+        val dblArray: Array[double]{rank==2} = Array.make[double](D, ((i,j): Point): double => {return (i+j)*0.1;});
+        finish ateach ((i):Point in ALLPLACES) for ((j,k): Point in intArray|here) dblArray(j, k)+=intArray(j, k); 
         return true;
     }
     
