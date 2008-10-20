@@ -127,14 +127,14 @@ abstract public /*value*/ class point/*(region region)*/ extends java.lang.Objec
 	abstract public point suffix(int n) throws RankMismatchException;
 	
 	/** 
-	 * Throw a RankMismatchException if n > rank. Otherwise return a new point of rank-1 with
+	 * Throw a RankMismatchException if n >= rank || n < 0. Otherwise return a new point of rank-1 with
 	 * the value of the dim'th dimension elided.
 	 * 
 	 */
 	
-	abstract public point project(int dim) throws RankMismatchException;
+	abstract public point project(int n) throws RankMismatchException;
 	/**
-	 * The opposite of projection. Let this be a k-dim point. dim must be >=0 and <= k+1.
+	 * The opposite of projection. Let this be a k-dim point. dim must be >=0 and <= k.
 	 * Construct a new k+1-ary point from this by inserting val into the dim'th position.
 	 * @param dim
 	 * @param val

@@ -397,10 +397,10 @@ implements Indexable, ValueType {
 	public boolean unique() { return unique; }
 	/**
 	 * dim must be in 0..rank-1.
-	 * It is assumed that the projection (in the dim'th dimension) of two different points in the underlying region
-	 * yields two different points. Under this assumption, this function must return the (uniquely defined)
-	 * distribution which maps a point p to get(q) where q is the unique point in region such that
-	 * q.project(dim)==p. 
+	 * It is assumed that the projection (in the dim'th dimension) of two different points in the 
+	 * underlying region yields two different points. Under this assumption, this function must return 
+	 * the (uniquely defined) distribution which maps a point p to get(q) where q is the unique point 
+	 * in region such that q.project(dim)==p. 
 	 * <p>
 	 * The rank of the resulting distribution is this.rank-1.
 	 * @param dim

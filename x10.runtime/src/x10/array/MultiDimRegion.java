@@ -361,6 +361,11 @@ public class MultiDimRegion extends region implements Rectangular {
 		return point.factory.point(ret);
 	}
 
+	/**
+	 * Return the region obtained from this MultiDimRegion by projecting out the dim'th 
+	 * component. This is done by simply removing this region from the list of regions
+	 * and creating a MultiDimRegion from this list.
+	 */
 	public region project(int dim) {
 		if (0 > dim || dim > rank) throw new RankMismatchException(this, dim);
 		region[] rs = new region[rank-1];
