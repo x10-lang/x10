@@ -38,9 +38,9 @@ public class ClockTest10 extends x10Test {
 
     public def run(): boolean = {
 	finish async(here) {
-	    val a = Clock.make();
-	    val b = Clock.make();
-	    val c = Clock.make();
+	    val a: clock = Clock.make();
+	    val b: clock = Clock.make();
+	    val c: clock = Clock.make();
 	    async clocked(a) taskA(a);
 	    async clocked(a, b) taskB(a, b);
 	    async clocked(a, c) taskC(a, c);
