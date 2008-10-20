@@ -16,10 +16,11 @@ import harness.x10Test;
 
 public class UserDefinedArray extends x10Test {
 
-    const R= 0..1;
-    const D = Dist.makeBlock(R);
+    const R = 0..1;
+    const D = Dist.makeBlock(R, 0);
 
     public def run(): boolean = {
+
         chk(place.MAX_PLACES <= 1 || D(0) != D(1));
         // create an array a such that
         // a[0] is in D[0] but points to an object in D[1]
@@ -30,8 +31,10 @@ public class UserDefinedArray extends x10Test {
 
         chk(a.dist(0) == D(0));
         chk((future(a.dist(0)){a(0)}).force() == v1);
+        System.out.println("v1.location() " + v1.location() + " D(1) " + D(1));
         chk(v1.location() == D(1));
         chk((future(v1){v1.v}).force() == 1);
+
 
         chk(a.dist(1) == D(1));
         chk((future(a.dist(1)){a(1)}).force() == v2);

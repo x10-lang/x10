@@ -22,26 +22,26 @@ public class MiscTest1 extends x10Test {
 
     public def run(): boolean = {
 
-        final val R: Region{rank==1} = [0..NP-1];
+        val R: Region{rank==1} = [0..NP-1];
 
         // verify that a blocked dist for
         // (0..MAX_PLACES-1) is a unique dist
         // verify that a cyclic dist for
         // (0..MAX_PLACES-1) is again the same
-        final val D: Dist{rank==1} = (Dist{rank==1}) distmakeBlock(R);
-        final val D2: Dist = distmakeUnique(place.places);
-        final val D3: Dist = dist.factory.cyclic(R);
+        val D: Dist{rank==1} = Dist.makeBlock(R,0) as (Dist{rank==1});
+        val D2: Dist = Dist.makeUnique(Place.places);
+        val D3: Dist = Dist.makeCyclic(R, 0);
 
         chk(D.equals(D2));
         chk(D.equals(D3));
 
         // create zero int array x
-        final val x: Array[int]{distribution==D} = new Array[int](D);
+        val x: Array[int]{distribution==D} = new Array[int](D);
 
 
         // set x[i] = N*i with N atomic updates
         finish
-            for (val pi: Point[i] in R)
+            for (pi(i) in R)
                 for (val (j): Point in [0..N-1])
                     async(D(pi))
                         atomic x(pi) += i;
@@ -49,16 +49,16 @@ public class MiscTest1 extends x10Test {
 
         // ensure sum = N*SUM(int i = 0..NP-1)(i);
         // == N*((NP*(NP-1))/2)
-        final val sum: int = x.sum();
+        val sum: int = x.sum();
         chk(sum == (N*NP*(NP-1)/2));
 
 
         // also verify each array elem x[i] == N*i;
         // test D|R restricton and also D-D1
 
-        final val r_inner: Region{rank==1} = [1..NP-2];
-        final val D_inner: Dist{rank==1} = D|r_inner;
-        final val D_boundary: Dist{rank==1} = D-r_inner;
+        val r_inner: Region{rank==1} = [1..NP-2];
+        val D_inner: Dist{rank==1} = D|r_inner;
+        val D_boundary: Dist{rank==1} = D-r_inner;
         finish {
             ateach (val pi: Point[i] in D_inner) {
                 chk(x(pi) == N*i);
@@ -75,25 +75,25 @@ public class MiscTest1 extends x10Test {
         }
 
         // test scan
-        final val y: Array[int]{distribution==D} = (Array[int]{distribution==D}) x.scan(intArray.add, 0);
+        val y: Array[int]{distribution==D} = x.scan(intArray.add, 0);
 
         // y[i] == x[i]+y[i-1], for i>0
         finish {
-            ateach (val pi: Point[i] in D) {
-                final val pi1: Point = [i-1];
+            ateach (pi(i):Point in D) {
+                val pi1: Point = [i-1];
                 chk(y(pi) == x(pi) + (i == 0 ? 0 : future(D(pi1)){y(pi1)}.force()));
                 chk(y(i) == x(i) + (i == 0 ? 0 : future(D(i-1)){y(i-1)}.force()));
             }
         }
 
         // y[NP-1] == SUM(x[0..NP-1])
-        final val pNP_1: Point = [NP-1];
+        val pNP_1: Point = [NP-1];
 
         chk(sum == future(D(pNP_1)){y(pNP_1)}.force());
         chk(sum == future(D(NP-1)){y(NP-1)}.force());
 
         // test lift
-        final val z: Array[int]{distribution==D} = (Array[int]{distribution==D}) x.lift(intArray.add, y);
+        val z: Array[int]{distribution==D} = (Array[int]{distribution==D}) x.lift(intArray.add, y);
 
         finish ateach (val pi: Point in D) chk(z(pi) == x(pi) + y(pi));
 
