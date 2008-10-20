@@ -24,7 +24,12 @@ public class ArrayTypeCheck extends x10Test {
         val E: Dist = Dist.makeConstant(-1..-2, here);
 
         try {
+            System.out.println("a1.dist " + a1.dist);
+            System.out.println("E " + E);
+            System.out.println("== " + (a1.dist==E));
+            // System.out.println(".equals " + a1.dist.equals(E)); XXXX
             var a2: Array[int] = a1 to Array[int](E);
+            System.out.println("did not get exception");
             return false;
         } catch (var z: ClassCastException) {
             System.out.println("2");

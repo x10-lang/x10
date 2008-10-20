@@ -22,15 +22,16 @@ public class MultiDimensionalJavaArray extends x10Test {
     const PI = Math.PI;
 
     public def run(): boolean = {
-        val a = Array.make[Array[Double]](MIN, 
-            (Point) => Array.make[Double](MAJ, (Point)=>0.0D));
-//          ^ MultiDimensionalJavaArray.x10:15: Cannot assign double[] to double[][].
-        for (val (i,j): Point(2) in ([MIN, MAJ] to Region)) {
-            a(i)(j) = (i * j /PI);
-        }
-        val d = a(MAJ/2);
-        for (val (j): Point in MIN) 
-            chk(d(j) == (MAJ/2 * j / PI));
+
+        val a = Array.make[Array[Double]](MIN, (Point) => Array.make[Double](MAJ));
+
+        for (val (i,j): Point(2) in ([MIN, MAJ] to Region))
+            a(i)(j) = (i * j / PI);
+
+        val d = a(MIN.max(0)/2);
+        for (val (j): Point in MAJ) 
+            chk(d(j) == (MIN.max(0)/2 * j / PI));
+
         return true;
     }
 

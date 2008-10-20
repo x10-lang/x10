@@ -15,10 +15,11 @@ public class IntArrayInitializerShorthand extends x10Test {
 
     public def run(): boolean = {
 
-        var d: Dist = Dist.makeConstant([1..10, 1..10], here);
-        var ia: Array[int] = new Array[int](d, (var Point [i,j]: Point): int => { return i+j; });
+        val d = Dist.makeConstant([1..10, 1..10], here);
+        val ia = Array.make[int](d, ((i,j):Point) => i+j);
 
-        for (val p(i,j): Point(2) in ([1..10, 1..10] to Region)) chk(ia(p) == i+j);
+        for (val p(i,j): Point(2) in ([1..10, 1..10] to Region))
+            chk(ia(p) == i+j);
 
         return true;
     }
