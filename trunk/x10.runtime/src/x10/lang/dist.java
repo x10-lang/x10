@@ -211,8 +211,7 @@ implements Indexable, ValueType {
 	}
 
 	public static final factory factory = Runtime.factory.getDistributionFactory();
-	public static dist  unique(region R) { return dist.factory.unique(R);}
-		
+	public static dist/*(:rank==R.rank)*/ unique(region R) { return dist.factory.unique(R); }
 	
 	public static final dist UNIQUE = factory.unique();
 
