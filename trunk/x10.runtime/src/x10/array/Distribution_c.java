@@ -451,7 +451,8 @@ public abstract class Distribution_c extends dist /*implements Distribution*/ {
 		}
 
 		public dist project(int dim) {
-			throw new UnsupportedOperationException();
+			if (dim < 0 || dim >= rank) throw new RankMismatchException(region, dim);
+			return new Empty(rank-1);
 		}
 		public String toString() {
 			StringBuffer s = new StringBuffer("Distribution_c.Empty<");
