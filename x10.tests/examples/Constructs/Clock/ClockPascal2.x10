@@ -101,7 +101,7 @@ public class ClockPascal2 extends x10Test {
 		return A.sum() == EXPECTED_CHECKSUM;
 	}
 
-	public const rand: java.util.Random = new java.util.Random(1L);
+	public const rand: x10.util.Random = new x10.util.Random(1L);
 
 	static def randDelay(var millis: int): void = {
 		var n: int;
