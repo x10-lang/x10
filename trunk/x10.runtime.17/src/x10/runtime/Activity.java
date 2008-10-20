@@ -13,9 +13,6 @@ import java.util.Stack;
 import x10.core.MultipleExceptions;
 import x10.runtime.abstractmetrics.AbstractMetrics;
 import x10.runtime.abstractmetrics.AbstractMetricsFactory;
-import x10.runtime.clock.ClockManager;
-import x10.runtime.clock.ClockManagerFactory;
-import x10.runtime.clock.ClockUseException;
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -57,9 +54,8 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	/** The finishStack is lazily created **/
 	protected Stack<FinishState> finishStack_ = null;
 	
-	/** Manage all clock of this activity.
-	 * The clockManager is lazily created **/
-	protected ClockManager activityClockManager;
+	/** Manage all clocks of this activity. */
+	protected Clocks clocks = new Clocks();	
 	
 	/**
 	 * The FinishState up in the invocation tree within
@@ -107,24 +103,24 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	/**
 	 * Create an activity with the given list of clocks.
 	 * @thread mySpawningThread  
-	 * @param clocks
+	 * @param list
 	 * @param name
 	 */
-	public Activity(List clocks, String name) {
+	public Activity(List list, String name) {
 	    this.name= name;
 	    if (VMInterface.ABSTRACT_EXECUTION_STATS)
 		this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
-	    this.activityClockManager = ClockManagerFactory.getClockManager(this, clocks);
+	    clocks.register(list);
 	    this.initializeActivity();
 	}
 
 	/**
 	 * Create an activity with the given list of clocks.
 	 * @thread mySpawningThread  
-	 * @param clocks
+	 * @param list
 	 */
-	public Activity(List clocks) {
-	    this(clocks, new Throwable().getStackTrace()[2].toString());
+	public Activity(List list) {
+	    this(list, new Throwable().getStackTrace()[2].toString());
 	}
 
 	/**
@@ -137,7 +133,7 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	    this.name= name;
 	    if (VMInterface.ABSTRACT_EXECUTION_STATS)
 		this.abstractMetricsManager = AbstractMetricsFactory.getAbstractMetricsManager();
-	    this.activityClockManager = ClockManagerFactory.getClockManager(this, clock);
+	    clocks.register(clock);
 	    this.initializeActivity();
 	}
 
@@ -162,9 +158,6 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 			Report.report(5, PoolRunner.logString()
 					+ " Activity: initializing " + this);
 		}
-		
-		if(this.activityClockManager != null)
-			this.activityClockManager.registerClocks();
 		
 		if (VMInterface.ABSTRACT_EXECUTION_TIMES)
 			// Record time at which activity was started
@@ -366,103 +359,20 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	}
 	
 	
-	/********** CLOCK MANAGER DELEGATION **********/
+	/********** CLOCKS **********/
 	
-	
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#addClock(x10.runtime.Clock)
-	 * @thread myThread
-	 */
-	public void addClock(Clock c) {
-		if(this.activityClockManager != null)
-			this.activityClockManager.addClock(c);
-		else 
-			this.activityClockManager = ClockManagerFactory.getClockManager(this,c);
-	}
-	
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#dropClock(x10.runtime.Clock)
-	 * @thread myThread
-	 */
-	public void dropClock(Clock c) {
-		if(this.activityClockManager != null)
-		{
-			this.activityClockManager.dropClock(c);
-			if (this.activityClockManager.getNbRegisteredClocks() == 0)
-				this.activityClockManager = null;
-		} else {
-			if (Report.should_report(Report.CLOCK, 3)) {
-				Report.report(3, PoolRunner.logString() + " " + this + 
-						" dropClock attempt failed because no clocks are registered in this activity "
-						+ c + ".");
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#dropAllClocks()
-	 * @thread myThread
-	 */
-	protected void dropAllClocks() {
-		if(this.activityClockManager != null) {
-			this.activityClockManager.dropAllClocks();
-			this.activityClockManager = null;
-		} else {
-			if (Report.should_report(Report.CLOCK, 3)) {
-				Report.report(3, PoolRunner.logString() + 
-						" dropAllClock attempt failed because no clocks are registered in this activity ");
-			}
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#doNext()
-	 * @thread myThread
+	/**
+	 * Next statement = next on all clocks in parallel 
 	 */
 	public void doNext() {
-		if(this.activityClockManager != null)
-			this.activityClockManager.doNext();
-		else {
-			if (Report.should_report(Report.CLOCK, 3)) {
-				Report.report(3, PoolRunner.logString() + 
-						" doNext attempt failed because no clocks are registered in this activity ");
-			}
-		}
+		clocks.next();
 	}
 	
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#checkClockUse(x10.runtime.Clock)
-	 * @thread myThread
-	 */
 	public Clock checkClockUse(Clock c) {
-		if (c.dropped())
-			throw new ClockUseException("Cannot transmit dropped clock.");
-		if (c.quiescent())
-			throw new ClockUseException("Cannot transmit resumed clock.");
-		if (this.inFinish())
-			throw new ClockUseException("Finish cannot spawn clocked async.");
+		// functionality has been moved to XRX
 		return c;
 	}
 
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#getNbRegisteredClocks
-	 */
-	public int getNbRegisteredClocks() {
-	if (this.activityClockManager == null)
-		return 0;
-	else
-		return this.activityClockManager.getNbRegisteredClocks();
-	}
-	
-	/* (non-Javadoc)
-	 * @see x10.runtime.clock.ClockManager#registerClocks()
-	 */
-	public void registerClocks() {
-		if(this.activityClockManager != null) {
-			this.activityClockManager.registerClocks();
-		}
-	}
-	
 	
 	/********** ABSTRACT METRICS MANAGER DELEGATION **********/
 	
@@ -661,7 +571,7 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 				x10.runtime.Runtime.here().maxCritPathTime(getCritPathTime());
 			}
 		}
-		dropAllClocks();
+		clocks.drop();
 		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, Thread.currentThread() + " " + this
 					+ " drops clocks, has rootNode_ " + rootNode_);
