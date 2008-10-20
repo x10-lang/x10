@@ -290,15 +290,15 @@ public class X10Call_c extends Call_c implements X10Call {
 		if (mi !=null) {
 			X10Flags flags = X10Flags.toX10Flags(mi.flags());
 			if (c.inNonBlockingCode() 
-					&& ! (mi.isJavaMethod() || mi.isSafe() || flags.isNonBlocking()))
+					&& ! (mi.isJavaMethod() || mi.isSafe() || flags.isNonBlocking() || flags.isNative()))
 				throw new SemanticException(mi + ": Only nonblocking methods can be called from nonblocking code.", 
 						position());
 			if (c.inSequentialCode() 
-					&& ! (mi.isJavaMethod()|| mi.isSafe() || flags.isSequential()))
+					&& ! (mi.isJavaMethod()|| mi.isSafe() || flags.isSequential() || flags.isNative()))
 				throw new SemanticException(mi + ": Only sequential methods can be called from sequential code.", 
 						position());
 			if (c.inLocalCode() 
-					&& ! (mi.isJavaMethod() || mi.isSafe() || flags.isLocal()))
+					&& ! (mi.isJavaMethod() || mi.isSafe() || flags.isLocal() || flags.isNative()))
 				throw new SemanticException(mi + ": Only local methods can be called from local code.", 
 						position());
 		}
