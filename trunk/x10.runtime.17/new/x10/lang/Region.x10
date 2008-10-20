@@ -4,7 +4,6 @@
 package x10.lang;
 
 import x10.compiler.SetOps;
-
 import x10.array.BaseRegion;
 
 public abstract value class Region(
@@ -15,71 +14,278 @@ public abstract value class Region(
 
     property rail = rank==1 && rect && zeroBased;
 
-    public abstract def size(): int;
-    public abstract def isConvex(): boolean;
-    abstract public def isEmpty(): boolean;
-    public abstract def disjoint(that: Region(rank)): boolean;
+    //
+    // factories
+    //
 
-    public static def makeEmpty(val rank: int): Region(rank) {
-        return BaseRegion.makeEmpty1(rank);
-    }
+    /**
+     * Construct an empty region of the specified rank.
+     */
+
+    public static def makeEmpty(val rank: int): Region(rank) = BaseRegion.makeEmpty1(rank);
     
-    public static def makeFull(val rank: int): Region(rank) {
-        return BaseRegion.makeFull1(rank);
-    }
+    /**
+     * Construct an unbounded region of a given rank that contains all
+     * points of that rank.
+     */
+
+    public static def makeFull(val rank: int): Region(rank) = BaseRegion.makeFull1(rank);
     
-    public static def makeUnit(): Region(0) {
-        return BaseRegion.makeUnit1();
-    }
+    /**
+     * Construct a region of rank 0 that contains the single point of
+     * rank 0. Useful as the identity region under Cartesian product.
+     */
+
+    public static def makeUnit(): Region(0) = BaseRegion.makeUnit1();
+
     
-    public static def makeRectangular(val min: Rail[int], val max: Rail[int]): RectRegion(min.length) {
-        return BaseRegion.makeRectangular1(min, max);
-    }        
-    
+
+    //
+    // rectangular factories
+    //
+
+    /**
+     * Construct a rectangular region whose bounds are specified as
+     * rails of ints.
+     */
+
+    public static def makeRectangular(val min: Rail[int], val max: Rail[int]): RectRegion(min.length)
+        = BaseRegion.makeRectangular1(min, max);
+
+    /**
+     * Construct a rank-1 rectangular region with the specified bounds.
+     */
+
     // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular(min: int, max: int): Region{rank==1 && /*zeroBased==(min==0) &&*/ rect} {
-        return BaseRegion.makeRectangular1(min, max);
-    }        
-    
-    public static def makeBanded(size: int, upper: int, lower: int): Region(2) {
-        return BaseRegion.makeBanded1(size, upper, lower);
-    }
-    
-    public static def makeBanded(size: int): Region(2) {
-        return BaseRegion.makeBanded1(size);
-    }
-    
-    public static def makeUpperTriangular(size: int): Region(2) {
-        return BaseRegion.makeUpperTriangular1(size);
-    }
-    
-    public static def makeLowerTriangular(size: int): Region(2) {
-        return BaseRegion.makeLowerTriangular1(size);
-    }
-    
-    public static def make(min: int, max: int): RectRegion(1) {
-        return BaseRegion.makeRectangular1(min, max);
-    }
-    
-    public static def make(val regions: ValRail[Region/*(1)*/]): RectRegion(regions.length) {
-        return BaseRegion.make1(regions);
-    }
+    public static def makeRectangular(min: int, max: int): Region{rank==1 && /*zeroBased==(min==0) &&*/ rect}
+        = BaseRegion.makeRectangular1(min, max);
+
+    /**
+     * Construct a rank-1 rectangular region with the specified bounds.
+     */
+
+    public static def make(min: int, max: int): RectRegion(1)
+        = BaseRegion.makeRectangular1(min, max);
+
+    /**
+     * Construct a rank-n rectangular region that is the Cartesian
+     * product of the specified rank-1 regions.
+     */
+
+    public static def make(val regions: ValRail[Region/*(1)*/]): RectRegion(regions.length)
+        = BaseRegion.make1(regions);
 
 
-    abstract public def complement(): Region(rank);
-    abstract public def union(that: Region(rank)): Region(rank);
-    abstract public def disjointUnion(that: Region(rank)): Region(rank);
-    abstract public def intersection(that: Region(rank)): Region(rank);
-    abstract public def difference(that: Region(rank)): Region(rank);
-    abstract public def product(that: Region): Region;
-    abstract public def projection(axis: int): Region(1);
+    //
+    // non-rectangular factories
+    //
+
+    /**
+     * Construct a banded region of the given size, with the specified
+     * number of diagonals above and below the main diagonal
+     * (inclusive of the main diagonal).
+     */
+
+    public static def makeBanded(size: int, upper: int, lower: int): Region(2)
+        = BaseRegion.makeBanded1(size, upper, lower);
+
+    /**
+     * Construct a banded region of the given size that includes only
+     * the main diagonal.
+     */
+
+    public static def makeBanded(size: int): Region(2)
+        = BaseRegion.makeBanded1(size);
+    
+    /**
+     * Construct an upper triangular region of the given size.
+     */
+
+    public static def makeUpperTriangular(size: int): Region(2)
+        = BaseRegion.makeUpperTriangular1(size);
+    
+    /**
+     * Construct a lower triangular region of the given size.
+     */
+
+    public static def makeLowerTriangular(size: int): Region(2)
+        = BaseRegion.makeLowerTriangular1(size);
+
+
+
+    //
+    // Basic non-property information.
+    //
+
+    /**
+     * Returns the number of points in this region.
+     */
+
+    public abstract def size(): int;
+
+    /**
+     * Returns true iff this region is convex.
+     */
+
+    public abstract def isConvex(): boolean;
+
+    /**
+     * Returns true iff this region is empty.
+     */
+
+    public abstract def isEmpty(): boolean;
+
+
+
+    //
+    // bounding box
+    //
+
+    /**
+     * The bounding box of a region r is the smallest rectangular region
+     * that contains all the points of r.
+     */
+
     abstract public def boundingBox(): Region(rank);
 
+    /**
+     * Returns the lower bounds of the bounding box of the region as a
+     * Rail[int].
+     */
+
     abstract public def min(): Rail[int];
+
+    /**
+     * Returns the upper bounds of the bounding box of the region as a
+     * Rail[int].
+     */
+
     abstract public def max(): Rail[int];
     
+    /**
+     * Returns the lower bound of the bounding box of the region along
+     * the ith axis.
+     */
+
     public def min(i:nat) = min()(i);
+
+    /**
+     * Returns the upper bound of the bounding box of the region along
+     * the ith axis.
+     */
+
     public def max(i:nat) = max()(i);    
+
+
+    //
+    // geometric ops
+    //
+
+    /**
+     * Returns the complement of a region. The complement of a bounded
+     * region will be unbounded.
+     */
+
+    abstract public def complement(): Region(rank);
+
+    /**
+     * Returns the union of two regions: a region that contains all
+     * points that are in either this region or that region.
+     */
+
+    abstract public def union(that: Region(rank)): Region(rank);
+
+    /**
+     * Returns the union of two regions if they are disjoint,
+     * otherwise throws an exception.
+     */
+
+    abstract public def disjointUnion(that: Region(rank)): Region(rank);
+
+    /**
+     * Returns the intersection of two regions: a region that contains all
+     * points that are in both this region and that region.
+     */
+
+    abstract public def intersection(that: Region(rank)): Region(rank);
+
+    /**
+     * Returns the difference between two regions: a region that
+     * contains all points that are in this region but are not in that
+     * region.
+     */
+
+    abstract public def difference(that: Region(rank)): Region(rank);
+
+    /**
+     * Returns the Cartesian product of two regions. The Cartesian
+     * product has rank this.rank+that.rank. For every point p in the
+     * Cartesian product, the first this.rank coordinates of p are a
+     * point in this region, while the last that.rank coordinates of p
+     * are a point in that.region.
+     */
+
+    abstract public def product(that: Region): Region;
+
+    /**
+     * Returns the projection if a region onto the specified axis. The
+     * projection is a rank-1 region such that for every point (i) in
+     * the projection, there is some point p in this region such that
+     * p(axis)==i.
+     */
+
+    abstract public def projection(axis: int): Region(1);
+
+    /**
+     * Returns true iff this region has no points in common with that
+     * region.
+     */
+
+    public abstract def disjoint(that: Region(rank)): boolean;
+
+
+    /**
+     * Return an iterator for this region. Normally accessed using the
+     * syntax
+     *
+     *    for (p:Point in r)
+     *        ... p ...
+     */
+
+    public abstract def iterator(): Iterator[Point(rank)];
+
+
+    /**
+     * The Scanner class supports efficient scanning. Usage:
+     *
+     *    for (s:Scanner in r.scanners()) {
+     *        int min0 = s.min(0);
+     *        int max0 = s.max(0);
+     *        for (var i0:int=min0; i0<=max0; i0++) {
+     *            s.set(0,i0);
+     *            int min1 = s.min(1);
+     *            int max1 = s.max(1);
+     *            for (var i1:int=min1; i1<=max1; i1++) {
+     *                ...
+     *            }
+     *        }
+     *    }
+     *
+     */
+
+    public static interface Scanner {
+        def set(axis: int, position: int): void;
+        def min(axis: int): int;
+        def max(axis: int): int;
+    }
+
+    public abstract def scanners(): Iterator[Scanner];
+
+
+
+    //
+    // conversion ops
+    //
 
     public static def $convert(rs: ValRail[Region]): RectRegion(rs.length) = make(rs);
 
@@ -88,25 +294,14 @@ public abstract value class Region(
     // set ops
     //
 
-    public def $not(): Region(rank) {
-        return complement();
-    }
-
-    public def $and(that: Region(rank)): Region(rank) {
-        return intersection(that);
-    }
-
-    public def $or(that: Region(rank)): Region(rank) {
-        return union(that);
-    }
-
-    public def $minus(that: Region(rank)): Region(rank) {
-        return difference(that);
-    }
+    public def $not(): Region(rank) = complement();
+    public def $and(that: Region(rank)): Region(rank) = intersection(that);
+    public def $or(that: Region(rank)): Region(rank) = union(that);
+    public def $minus(that: Region(rank)): Region(rank) = difference(that);
 
 
     //
-    // comparison operations
+    // comparison ops
     //
 
     abstract public def contains(that: Region(rank)): boolean;
@@ -115,29 +310,8 @@ public abstract value class Region(
 
 
     //
-    // efficient scanning - rank is known at compile time
     //
-
-    public abstract def scanners(): Iterator[Scanner];
-
-    public static interface Scanner {
-        def set(axis: int, position: int): void;
-        def min(axis: int): int;
-        def max(axis: int): int;
-    }
-
     //
-    // iteration - rank is not known at compile time
-    //
-    // Region.Iterator it = r.iterator();
-    // while (it.hasNext()) {
-    //     int [] x = it.next();
-    //     ... body using x[0],x[1], etc. ...
-    // }
-    //
-
-    public abstract def iterator(): Iterator[Point(rank)];
-
 
     protected def this(rank: int, rect: boolean, zeroBased: boolean) {
         property(rank, rect, zeroBased);

@@ -8,14 +8,32 @@ import x10.compiler.ComparisonOps;
 
 public value class Point(rank: nat) implements Indexable[nat,int] {
 
+    /**
+     * Returns the value of the ith coordinate.
+     */
+
     public def apply(i: nat): int = coords(i);
+
+    /**
+     * Returns the coordinates as a ValRail[int].
+     */
+
     public def coords(): ValRail[int] = coords;
+
 
     //
     // factories
     //
 
+    /**
+     * Constructs a Point from a ValRail[int].
+     */
+
     public static def make(cs: ValRail[int]): Point(cs.length) = new Point(cs);
+
+    /**
+     * Constructs a Point from a Rail[int]
+     */
 
     public static def make(cs: Rail[int]): Point(cs.length) {
         // (i:nat)=>cs(i) is workaround for XTENLANG-32
@@ -27,6 +45,15 @@ public value class Point(rank: nat) implements Indexable[nat,int] {
     public static def make(i0:int, i1:int) = make([i0,i1]);
     public static def make(i0:int, i1:int, i2:int) = make([i0,i1,i2]);
     public static def make(i0:int, i1:int, i2:int, i3:int) = make([i0,i1,i2,i3]);
+
+
+    //
+    // conversion ops
+    //
+
+    public static def $convert(r: Rail[int]): Point(r.length) = make(r);
+    public static def $convert(r: ValRail[int]): Point(r.length) = make(r);
+
 
 
     //
@@ -161,8 +188,9 @@ public value class Point(rank: nat) implements Indexable[nat,int] {
         return true;
     }
 
-    public static def $convert(r: Rail[int]): Point(r.length) = make(r);
-    public static def $convert(r: ValRail[int]): Point(r.length) = make(r);
+    //
+    //
+    //
 
     public def toString() {
         var s:String = "(";
