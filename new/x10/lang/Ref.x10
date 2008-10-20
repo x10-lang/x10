@@ -14,16 +14,13 @@ import x10.compiler.NativeRep;
 /**
  * The base class for all reference classes.
  */
-//@NativeRep("java", "x10.core.Ref")
+@NativeRep("java", "x10.core.Ref")
 public class Ref(
-    @Native("java", "x10.runtime.Runtime.location(#0)")
+    @Native("java", "(#0).location()")
     location: Place
     ) {
     
-    public def this() { 
-       // dummy.
-       location = Place.place(0);
-    }
+    public native def this(); 
     
     @Native("java", "(#0).equals(#1)")
     public native def equals(Object): boolean;
