@@ -252,10 +252,14 @@ public abstract /*value*/ class region extends Object
 	
 	/**
 	 * Return the region with the dim'th dimension projected out. 
+	 * Hence if this is a region of rank r, this.project(d) has rank r-1.
+	 * A point p is in this.project(d) if there is some point q in this
+	 * such that removing its d'th entry yields p. For instance [0:0,1:10].project(0) is
+	 * [1:10]. A RankkMismatchException must be thrown if d < 0 or d >= this.rank.
 	 * @param p
 	 * @return
 	 */
-	public abstract region/*(this.rank-p.rank)*/ project(int dim);
+	public abstract region/*(this.rank-1)*/ project(int dim);
 	
 
 	/* (non-Javadoc)
