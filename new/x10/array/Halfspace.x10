@@ -14,8 +14,6 @@ import x10.io.ByteArrayOutputStream;
  * The as are stored in the first rank elements of the as[] array; the
  * constant is stored in as[rank()] (using homogeneous coordinates).
  *
- * XXX shouldn't be public - temp hack to support Iterator_Halfspace
- *
  */
 
 class Halfspace(rank:nat) implements Comparable[Halfspace] {
