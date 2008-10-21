@@ -20,9 +20,13 @@ public class Ref {
     
     /** Property accessor */
     public final Place location() {
-        return location;
+    	return location;
     }
     
+    public final Place location$() {
+        return location();
+     }
+     
     public String toString$() {
     	return toString();
     }
