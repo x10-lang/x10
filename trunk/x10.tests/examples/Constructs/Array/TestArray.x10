@@ -5,8 +5,6 @@ import x10.io.PrintStream;
 import x10.io.FileOutputStream;
 import x10.io.ByteArrayOutputStream;
 
-import x10.array.BaseRegion;
-import x10.array.PolyScanner;
 import x10.array.UnboundedRegionException;
 
 import harness.x10Test;
@@ -182,10 +180,6 @@ abstract public class TestArray extends x10Test {
             prRegion(test, r);
             var s: Region.Scanner = r.scanners().next() as Region.Scanner; // XTENLANG-55
             var i: Iterator[Point] = r.iterator();
-            /*
-            if (Tester.dbg!=null && s instanceof PolyScanner)
-                (s as PolyScanner).printInfo(Tester.dbg as PrintStream);
-            */
         } catch (e: UnboundedRegionException) {
             pr(e.toString());
         }
@@ -206,10 +200,6 @@ abstract public class TestArray extends x10Test {
 
         pr("region: " + r);
 
-        /*
-        if (Tester.dbg!=null && r instanceof BaseRegion)
-            (r as BaseRegion).printInfo(Tester.dbg);
-        */
     }
 
     def prArray(test: String, a: Array[double]): void = {
@@ -227,10 +217,6 @@ abstract public class TestArray extends x10Test {
         var it: Iterator[Region.Scanner] = r.scanners();
         while (it.hasNext()) {
             var s: Region.Scanner = it.next() as Region.Scanner; // XTENLANG-55
-            /*
-            if (Tester.dbg!=null && s instanceof PolyScanner)
-                (s as PolyScanner).printInfo(Tester.dbg);
-            */
             pr("  poly");
             if (r.rank==0) {
                 pr("ERROR rank==0");

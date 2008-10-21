@@ -5,8 +5,6 @@ import x10.io.PrintStream;
 import x10.io.FileOutputStream;
 import x10.io.ByteArrayOutputStream;
 
-import x10.array.BaseRegion;
-import x10.array.PolyScanner;
 import x10.array.UnboundedRegionException;
 
 import harness.x10Test;
