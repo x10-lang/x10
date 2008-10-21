@@ -346,6 +346,12 @@ public abstract class Runtime {
 	public static void arrayCopy(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
 		runtime.arrayCopy_internal(src, srcoffset, dest, destoffset, length);
 	}
+	public static void arrayGet(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
+		arrayCopy(src, srcoffset, dest, destoffset, length);
+	}
+	public static void arrayPut(x10Array src, int srcoffset, x10Array dest, int destoffset, int length) {
+		arrayCopy(src, srcoffset, dest, destoffset, length);
+	}
 	
 	/**
 	 * Copy the i'th element in the enumeration order of the source array into the
