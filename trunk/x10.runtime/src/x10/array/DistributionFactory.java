@@ -306,6 +306,9 @@ public class DistributionFactory extends dist.factory {
 		dist newDist = new Distribution_c.Unique(ps);
 		return newDist;
 	}
+	public dist unique(place[] P) {
+		return new Distribution_c.Unique(P);
+	}
 	public dist unique(region R) {
 		if (R instanceof MultiDimRegion) {
 			return new MultiDimRegionUnique((MultiDimRegion) R);
