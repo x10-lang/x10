@@ -102,15 +102,30 @@ public abstract value class Region(
      */
 
     public static def makeUpperTriangular(size: int): Region(2)
-        = BaseRegion.makeUpperTriangular1(size);
+        = BaseRegion.makeUpperTriangular1(0, 0, size);
+
+    /**
+     * Construct an upper triangular region of the given size with the
+     * given lower bounds.
+     */
+
+    public static def makeUpperTriangular(rowMin: int, colMin: int, size: int): Region(2)
+        = BaseRegion.makeUpperTriangular1(rowMin, colMin, size);
     
     /**
      * Construct a lower triangular region of the given size.
      */
 
     public static def makeLowerTriangular(size: int): Region(2)
-        = BaseRegion.makeLowerTriangular1(size);
+        = BaseRegion.makeLowerTriangular1(0, 0, size);
 
+    /**
+     * Construct an lower triangular region of the given size with the
+     * given lower bounds.
+     */
+
+    public static def makeLowerTriangular(rowMin: int, colMin: int, size: int): Region(2)
+        = BaseRegion.makeLowerTriangular1(rowMin, colMin, size);
 
 
     //

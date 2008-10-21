@@ -110,11 +110,6 @@ final value class ArrayN[T] extends BaseArray[T] {
         raws = Rail.makeVar[RailT](Place.MAX_PLACES);
         layouts = Rail.makeVar[RectLayout](Place.MAX_PLACES);
 
-        /*
-        // new RailT(n) below doesn't work b/c of XTENLANG-1
-        complain();
-        */
-
         // XXX do we really need to do this at all places?
 
         finish {

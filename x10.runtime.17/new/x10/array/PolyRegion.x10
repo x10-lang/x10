@@ -331,7 +331,7 @@ value class PolyRegion extends BaseRegion {
         return makeBanded(0, 0, size-1, size-1, upper, lower);
     }
 
-    public static def makeUpperTriangular(rowMin: int, colMin: int, size: int): Region(2) {
+    public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
         var hl: HalfspaceList{rank==2} = new HalfspaceList(2);
         hl.add(ROW, hl.GE, rowMin);
         hl.add(COL, hl.LE, colMin+size-1);
@@ -340,7 +340,7 @@ value class PolyRegion extends BaseRegion {
         return PolyRegion.make(hl);
     }
 
-    public static def makeLowerTriangular(rowMin: int, colMin: int, size: int): Region(2) {
+    public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
         var hl: HalfspaceList{rank==2} = new HalfspaceList(2);
         hl.add(COL, hl.GE, colMin);
         hl.add(ROW, hl.LE, rowMin+size-1);
