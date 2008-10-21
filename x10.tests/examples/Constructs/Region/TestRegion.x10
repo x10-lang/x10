@@ -5,8 +5,6 @@ import x10.io.PrintStream;
 import x10.io.FileOutputStream;
 import x10.io.ByteArrayOutputStream;
 
-import x10.array.BaseRegion;
-import x10.array.PolyScanner;
 import x10.array.UnboundedRegionException;
 
 import harness.x10Test;
@@ -260,5 +258,30 @@ abstract public class TestRegion extends x10Test {
         //return Region.makeRectangular([a,c], [b,d]);
         return [a..b, c..d] to Region(2);
     }
+
+    // a simple mechanism of somewhat dubious utility to allow
+    // semi-symbolic specification of halfspaces. For example
+    // X0-Y1 >= n is specified as addHalfspace(X(0)-Y(1), GE, n)
+    //
+    // XXX coefficients must be -1,0,+1; can allow larger coefficients
+    // by increasing # bits per coeff
+
+    const ZERO = 0xAAAAAAA;
+    const GE = 0;
+    const LE = 1;
+    def X(axis: int) = 0x1<<2*axis;
+
+    public def reg(rank: int, var coeff: int, op: int, k: int): Region(rank) {
+        coeff += ZERO;
+        val as = Rail.makeVar[int](rank);
+        for (var i: int = 0; i<rank; i++) {
+            var a: int = (coeff&3) - 2;
+            as(i) = op==LE? a : - a;
+            coeff = coeff >> 2;
+        }
+        return Region.makeHalfspace(rank, as, op==LE? -k : k);
+    }
+
+
 
 }
