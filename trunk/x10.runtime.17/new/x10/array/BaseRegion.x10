@@ -31,6 +31,17 @@ abstract public value class BaseRegion extends Region {
         return new FullRegion(0);
     }
 
+    public static def makeHalfspace1(rank:int, normal:Point(rank), k:int): Region(rank) {
+        val hl = new HalfspaceList(rank);
+        val as = Rail.makeVar[int](rank+1);
+        for (var i:int=0; i<rank; i++)
+            as(i) = normal(i);
+        as(rank) = k;
+        val h = new Halfspace(as);
+        hl.add(h);
+        return PolyRegion.make(hl);
+    }
+
     public static def makeRectangular1(val min: Rail[int], val max: Rail[int]): RectRegion(min.length) { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
