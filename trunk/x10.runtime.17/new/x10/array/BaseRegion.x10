@@ -48,14 +48,12 @@ abstract public value class BaseRegion extends Region {
         return PolyRegion.makeBanded(size, 1, 1);
     }
 
-    public static def makeUpperTriangular1(size: int): Region(2) { // XTENLANG-4
-        return PolyRegion.makeUpperTriangular(0, 0, size);
-    }
+    public static def makeUpperTriangular1(rowMin: int, colMin: int, size: int): Region(2)
+        = PolyRegion.makeUpperTriangular2(rowMin, colMin, size);
 
-    public static def makeLowerTriangular1(size: int): Region(2) { // XTENLANG-4
-        return PolyRegion.makeLowerTriangular(0, 0, size);
-    }
-
+    public static def makeLowerTriangular1(rowMin: int, colMin: int, size: int): Region(2)
+        = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
+    
     public static def make1(val regions: Rail[Region]): RectRegion(regions.length) { // XTENLANG-4
         var r: Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
