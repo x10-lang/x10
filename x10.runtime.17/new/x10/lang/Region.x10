@@ -39,6 +39,14 @@ public abstract value class Region(
     public static def makeUnit(): Region(0) = BaseRegion.makeUnit1();
 
     
+    /**
+     * Construct a region of rank k that consists of all points p of
+     * rank k satisfying dot(p,normal) + k <= 0.
+     */
+
+    public static def makeHalfspace(rank:int, normal:Point(rank), k:int): Region(rank)
+        = BaseRegion.makeHalfspace1(rank, normal, k);
+
 
     //
     // rectangular factories
