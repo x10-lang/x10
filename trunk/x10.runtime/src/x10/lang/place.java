@@ -74,6 +74,7 @@ implements TypeArgument, ValueType{
 	public static /*final*/ place/*(0)*/ FIRST_PLACE /*= factory.place(0)*/;
 	
 	public static /*final*/ Set/*<place>*/ places /*= factory.places( MAX_PLACES-1 )*/;	
+	public static place[] placeArray;
 	/**
 	 * Needs to be called after MAX_PLACES has its final value.
 	 *
@@ -82,6 +83,8 @@ implements TypeArgument, ValueType{
 		LAST_PLACE = factory.place(MAX_PLACES-1);
 		FIRST_PLACE = factory.place(0);
 		places = factory.places(MAX_PLACES-1);
+		placeArray = new place[MAX_PLACES];
+		for (int i=0; i < MAX_PLACES; ++i) placeArray[i] = factory.place(i);
 	}
 	public static place places(int i) { return factory.place(i);}
 	public boolean equals(java.lang.Object o) {
