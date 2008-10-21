@@ -31,7 +31,7 @@ public class AtomicLongFieldUpdater[T] {
 	public native def get(obj:T):long;
 
 	@Native("java", "#0.getAndSet(#1,#2)")
-	public native def get(obj:T, value:long):long;
+	public native def getAndSet(obj:T, value:long):long;
 	
 	@Native("java", "#0.getAndIncrement(#1)")
 	public native def getAndIncrement(obj:T):long;

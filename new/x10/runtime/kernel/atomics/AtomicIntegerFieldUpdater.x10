@@ -31,7 +31,7 @@ public class AtomicIntegerFieldUpdater[T] {
 	public native def get(obj:T):int;
 
 	@Native("java", "#0.getAndSet(#1,#2)")
-	public native def get(obj:T, value:int):int;
+	public native def getAndSet(obj:T, value:int):int;
 	
 	@Native("java", "#0.getAndIncrement(#1)")
 	public native def getAndIncrement(obj:T):int;
