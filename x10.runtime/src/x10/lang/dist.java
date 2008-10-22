@@ -112,7 +112,7 @@ implements Indexable, ValueType {
 		public dist/*(:rank=1)*/ unique() {
 			return unique(x10.lang.place.places);
 		}
-		
+			abstract public dist unique(place[] P);
 		public abstract dist/*(:rank==R.rank)*/ unique(region R);
 			
 		public /*(region R)*/ dist/*(R)*/ local(region R) {
