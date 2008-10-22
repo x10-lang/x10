@@ -19,11 +19,11 @@ abstract public value class BaseRegion extends Region {
     // factories
     //
 
-    public static def makeEmpty1(val rank: int): Region(rank) { // XTENLANG-4
+    public static def makeEmpty1(rank: int): Region(rank) { // XTENLANG-4
         return new EmptyRegion(rank);
     }
 
-    public static def makeFull1(val rank: int): Region(rank) { // XTENLANG-4
+    public static def makeFull1(rank: int): Region(rank) { // XTENLANG-4
         return new FullRegion(rank);
     }
 
@@ -31,7 +31,8 @@ abstract public value class BaseRegion extends Region {
         return new FullRegion(0);
     }
 
-    public static def makeHalfspace1(rank:int, normal:Point(rank), k:int): Region(rank) {
+    public static def makeHalfspace1(normal:Point, k:int): Region(normal.rank) {
+        val rank = normal.rank;
         val hl = new HalfspaceList(rank);
         val as = Rail.makeVar[int](rank+1);
         for (var i:int=0; i<rank; i++)
@@ -42,7 +43,7 @@ abstract public value class BaseRegion extends Region {
         return PolyRegion.make(hl);
     }
 
-    public static def makeRectangular1(val min: Rail[int], val max: Rail[int]): RectRegion(min.length) { // XTENLANG-4
+    public static def makeRectangular1(min: Rail[int], max: Rail[int]): RectRegion(min.length) { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
 
@@ -65,7 +66,7 @@ abstract public value class BaseRegion extends Region {
     public static def makeLowerTriangular1(rowMin: int, colMin: int, size: int): Region(2)
         = PolyRegion.makeLowerTriangular2(rowMin, colMin, size);
     
-    public static def make1(val regions: Rail[Region]): RectRegion(regions.length) { // XTENLANG-4
+    public static def make1(regions: Rail[Region]): RectRegion(regions.length) { // XTENLANG-4
         var r: Region = regions(0);
         for (var i: int = 1; i<regions.length; i++)
             r = r.product(regions(i));
