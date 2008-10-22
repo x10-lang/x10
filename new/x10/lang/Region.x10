@@ -22,14 +22,14 @@ public abstract value class Region(
      * Construct an empty region of the specified rank.
      */
 
-    public static def makeEmpty(val rank: int): Region(rank) = BaseRegion.makeEmpty1(rank);
+    public static def makeEmpty(rank: int): Region(rank) = BaseRegion.makeEmpty1(rank);
     
     /**
      * Construct an unbounded region of a given rank that contains all
      * points of that rank.
      */
 
-    public static def makeFull(val rank: int): Region(rank) = BaseRegion.makeFull1(rank);
+    public static def makeFull(rank: int): Region(rank) = BaseRegion.makeFull1(rank);
     
     /**
      * Construct a region of rank 0 that contains the single point of
@@ -40,12 +40,12 @@ public abstract value class Region(
 
     
     /**
-     * Construct a region of rank k that consists of all points p of
-     * rank k satisfying dot(p,normal) + k <= 0.
+     * Construct an unbounded halfspace region of rank normal.rank
+     * that consists of all points p satisfying dot(p,normal) + k <= 0.
      */
 
-    public static def makeHalfspace(rank:int, normal:Point(rank), k:int): Region(rank)
-        = BaseRegion.makeHalfspace1(rank, normal, k);
+    public static def makeHalfspace(normal:Point, k:int): Region(normal.rank)
+        = BaseRegion.makeHalfspace1(normal, k);
 
 
     //
@@ -57,7 +57,7 @@ public abstract value class Region(
      * rails of ints.
      */
 
-    public static def makeRectangular(val min: Rail[int], val max: Rail[int]): RectRegion(min.length)
+    public static def makeRectangular(min: Rail[int], max: Rail[int]): RectRegion(min.length)
         = BaseRegion.makeRectangular1(min, max);
 
     /**
@@ -80,7 +80,7 @@ public abstract value class Region(
      * product of the specified rank-1 regions.
      */
 
-    public static def make(val regions: ValRail[Region/*(1)*/]): RectRegion(regions.length)
+    public static def make(regions: ValRail[Region/*(1)*/]): RectRegion(regions.length)
         = BaseRegion.make1(regions);
 
 
