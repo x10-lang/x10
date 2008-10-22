@@ -279,7 +279,7 @@ abstract public class TestRegion extends x10Test {
             as(i) = op==LE? a : - a;
             coeff = coeff >> 2;
         }
-        return Region.makeHalfspace(rank, as, op==LE? -k : k);
+        return Region.makeHalfspace(as, op==LE? -k : k);
     }
 
 
