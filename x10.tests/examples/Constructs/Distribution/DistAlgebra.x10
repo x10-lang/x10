@@ -88,23 +88,15 @@ public class DistAlgebra extends x10Test {
         chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
 
         //Cyclic dist of R1||R2||R3
-        val DR1orR2orR3:Dist(2)  = Dist.makeCyclic(R1orR2orR3);
+        val DR1orR2orR3:Dist(2)  = Dist.makeCyclic(R1orR2orR3, 0);
         pr("DR1orR2orR3", DR1orR2orR3);
-
-        var placeNum: int = 0;
-        var offsetWithinPlace: int = 0;
-        val np: int = place.MAX_PLACES;
         for (val (i,j): Point in DR1orR2orR3) {
-            chk(DR1orR2orR3(i, j) == P(placeNum));
-            placeNum++;
-            if (placeNum == np) {
-                placeNum = 0;
-                offsetWithinPlace++;
-            }
+            val p = (i - DR1orR2orR3.region.min(0))%Place.MAX_PLACES;
+            chk(DR1orR2orR3(i, j) == Place.places(p));
         }
 
         //Check range restriction to a place
-        for (val (k): Point in 0..np-1) {
+        for (val (k): Point in 0..Place.MAX_PLACES-1) {
             val DR1orR2orR3Here  = DR1orR2orR3 | P(k);
             pr("DR1orR2orR3Here("+k+")", DR1orR2orR3Here);
             for (val (i,j): Point(2) in DR1orR2orR3) {
