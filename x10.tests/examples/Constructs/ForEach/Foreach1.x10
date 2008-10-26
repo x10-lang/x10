@@ -17,7 +17,7 @@ public class Foreach1 extends x10Test {
 	var nActivities: int = 0;
 
 	public def run(): boolean = {
-		val P0: place = here; // save current place
+		val P0: Place = here; // save current place
 		val d: Dist = [0..N-1]->here;
 		val hasbug: Array[boolean] = Array.make[boolean](d);
 

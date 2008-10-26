@@ -14,7 +14,7 @@ public class AsyncFieldAccess extends x10Test {
 
 	var t: T;
 	public def run(): boolean = {
-		var Second: place = place.FIRST_PLACE.next();
+		var Second: Place = Place.FIRST_PLACE.next();
 		var r: Region = [0..0];
 		val D: Dist = r->Second;
 		finish ateach (val p: Point in D) {

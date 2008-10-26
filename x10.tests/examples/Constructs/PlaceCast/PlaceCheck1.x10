@@ -16,9 +16,9 @@ public class PlaceCheck1 extends x10Test {
 
 	public def run(): boolean = {
 		var ret: boolean;
-		System.out.println("num places = " + place.places);
+		System.out.println("num places = " + Place.MAX_PLACES);
 		// this test only works with > 1 place
-		if (place.places.size() <= 1) {
+		if (Place.places.size() <= 1) {
 			System.out.println("This test requires at least 2 places.");
 			ret = false;
 		} else {
@@ -31,16 +31,16 @@ public class PlaceCheck1 extends x10Test {
 		return ret;
 	}
 
-	public static def getNotHere(): place = {
-		var place: Box[ret] = null; // here.next(); -- does not work
-		for (var it: Iterator[place] = place.places.iterator(); it.hasNext(); ) {
-			var p: place = it.next();
+	public static def getNotHere(): Place = {
+		var Place: Box[ret] = null; // here.next(); -- does not work
+		for (var it: Iterator[Place] = Place.places.iterator(); it.hasNext(); ) {
+			var p: Place = it.next();
 			if (p != here) {
 				ret = p;
 				break;
 			}
 		}
-		return ret to place;
+		return ret to Place;
 	}
 
 	public var foo: int;
@@ -54,7 +54,7 @@ public class PlaceCheck1 extends x10Test {
 			val obj_here: PlaceCheck1 = new PlaceCheck1();
 			obj_here.foo = 123;
 			// System.out.println("DEBUG - creating object in place p = " + here);
-			var other_place: place = getNotHere();
+			var other_place: Place = getNotHere();
 			finish async (other_place) {
 				var xxx: int;
 				atomic { xxx = obj_here.foo; }
@@ -73,7 +73,7 @@ public class PlaceCheck1 extends x10Test {
 		var ret: boolean = false;
 		try {
 			val obj_here: PlaceCheck1 = new PlaceCheck1();
-			var other_place: place = getNotHere();
+			var other_place: Place = getNotHere();
 			finish async (other_place) {
 				atomic { obj_here.foo = 123; }
 			};
@@ -89,7 +89,7 @@ public class PlaceCheck1 extends x10Test {
 		var ret: boolean = false;
 		try {
 			val obj_here: PlaceCheck1 = new PlaceCheck1();
-			var other_place: place = getNotHere();
+			var other_place: Place = getNotHere();
 			finish async (other_place) {
 				atomic { obj_here.foo_method(); }
 			};
@@ -103,10 +103,10 @@ public class PlaceCheck1 extends x10Test {
 
 	public static def checkArrayAccess(): boolean = {
 		var ret: boolean = false;
-		val d: Dist = dist.factory.unique(place.places);
+		val d: Dist = dist.factory.unique(Place.places);
 		val arr: Array[int] = new Array[int](d, ((p): Point): int => 123);
 		try {
-			var other_place: place = getNotHere();
+			var other_place: Place = getNotHere();
 			atomic { arr(other_place.id) = 123; }
 			System.out.println("WARN - expected exception/error for remote array element write in atomic");
 		} catch (var e: BadPlaceException) {
@@ -118,10 +118,10 @@ public class PlaceCheck1 extends x10Test {
 
 	public static def checkArrayAssign(): boolean = {
 		var ret: boolean = false;
-		val d: Dist = dist.factory.unique(place.places);
+		val d: Dist = dist.factory.unique(Place.places);
 		val arr: Array[int] = new Array[int](d, ((p): Point): int => 123);
 		try {
-			var other_place: place = getNotHere();
+			var other_place: Place = getNotHere();
 			var xxx: int;
 			atomic { xxx = arr(other_place.id);}
 			if (xxx != 123)

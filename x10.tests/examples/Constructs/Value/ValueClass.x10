@@ -47,7 +47,7 @@ public class ValueClass extends x10Test {
 		if (y.refval.w != x.refval.w) return false;
 		System.out.println("5");
 		if (y.refval.w != 20) return false;
-		val P0: place = here;
+		val P0: Place = here;
 		// the "place" of a value class instance is here
 		var n: int;
 		{ val y0: myval = y;

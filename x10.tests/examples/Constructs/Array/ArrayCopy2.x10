@@ -68,7 +68,7 @@ public class ArrayCopy2 extends x10Test {
 
         finish
             ateach (val x: Point in D_1) {
-                val px: place = D_1(x);
+                val px: Place = D_1(x);
                 chk(px == here);
                 val D_local:Dist(D.rank)  = (D | px);
                 for (val i: Point in D_local) {
