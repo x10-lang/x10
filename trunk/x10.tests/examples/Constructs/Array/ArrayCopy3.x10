@@ -68,10 +68,10 @@ public class ArrayCopy3 extends x10Test {
 
         finish
             ateach (val x: Point in D_1) {
-                val px: place = D_1(x);
+                val px: Place = D_1(x);
                 chk(here == px);
                 val LocalD: Region(A.rank) = (D | px).region;
-                for (val py: place in (E | LocalD).places()) {
+                for (val py: Place in (E | LocalD).places()) {
                     val RemoteE: Region(A.rank) = (E | py).region;
                     val Common: Region(A.rank) = LocalD && RemoteE;
                     val D_common: Dist(A.rank) = D | Common;

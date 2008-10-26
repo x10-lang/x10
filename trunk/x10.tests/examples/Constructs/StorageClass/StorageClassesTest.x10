@@ -18,7 +18,7 @@ public class StorageClassesTest extends x10Test {
 
 	public def run(): boolean {
 		val b: bar = new bar(here);
-		val p0: place = here;
+		val p0: Place = here;
 
 		x1: foo!place = new foo!place();
 		x2: foo!activity = new foo!activity();
@@ -54,8 +54,8 @@ public class StorageClassesTest extends x10Test {
 	}
 
 	static class bar {
-		var pl: place;
-		public def this(p: place) = { this.pl = p; }
+		var pl: Place;
+		public def this(p: Place) = { this.pl = p; }
 	}
 }
 

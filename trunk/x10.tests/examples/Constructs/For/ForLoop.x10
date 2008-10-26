@@ -19,7 +19,7 @@ public class ForLoop extends x10Test {
 
 	public def run(): boolean = {
 		var r: Region = [0..N-1];
-		var P0: place = here;
+		var P0: Place = here;
 		var d: Dist = r->P0;
 
 		if (!d.region.equals(r)) return false;

@@ -10,8 +10,8 @@ import harness.x10Test;;
 public class PlaceCast2 extends x10Test {
 	var nplaces: int = 0;
 	public def run(): boolean = {
-		val d: Dist = dist.factory.unique(place.places);
-		System.out.println("num places = " + place.places);
+		val d: Dist = dist.factory.unique(Place.places);
+		System.out.println("num places = " + Place.MAX_PLACES);
 		val disagree: Array[BoxedBoolean]{dist==d} = Array.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
 				System.out.println("The currentplace is:" + here);
 				return new BoxedBoolean();
@@ -27,7 +27,7 @@ public class PlaceCast2 extends x10Test {
 			}
 		}
 		System.out.println("nplaces == " + nplaces);
-		return nplaces == place.places.size();
+		return nplaces == Place.places.size();
 	}
 
 	public static def main(var args: Rail[String]): void = {

@@ -20,7 +20,7 @@ public class ArrayDecl extends x10Test {
     public def run(): boolean = {
 
         val ia0 = Array.make[int](Dist.makeConstant(0..N-1, here));
-        val p: place = here;
+        val p: Place = here;
 
         chk(ia0.dist.equals(Dist.makeConstant(0..N-1, p)));
 
