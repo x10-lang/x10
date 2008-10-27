@@ -9,7 +9,6 @@ package x10.runtime;
 
 
 import java.util.concurrent.locks.*;
-import java.util.concurrent.atomic.*;
 import java.util.concurrent.*;
 
 public class ModCountDownLatch {
@@ -158,13 +157,13 @@ public class ModCountDownLatch {
      * happens.
      */
     public void countDown() {
-    	if ( VMInterface.ABSTRACT_EXECUTION_STATS ) {
-		    // Method finalizeTermination() in Activity.java ensures that the activity's ideal execution ops & time values are updated 
-		    // before the call to notifySubActivityTermination() occurs
-    		maxCritPathOps(x10.runtime.Runtime.getCurrentActivity().getCritPathOps());
-    		if ( VMInterface.ABSTRACT_EXECUTION_TIMES )
-    			maxIdealTime(x10.runtime.Runtime.getCurrentActivity().getCritPathTime());
-    	}
+//    	if ( VMInterface.ABSTRACT_EXECUTION_STATS ) {
+//		    // Method finalizeTermination() in Activity.java ensures that the activity's ideal execution ops & time values are updated 
+//		    // before the call to notifySubActivityTermination() occurs
+//    		maxCritPathOps(x10.runtime.Runtime.getCurrentActivity().getCritPathOps());
+//    		if ( VMInterface.ABSTRACT_EXECUTION_TIMES )
+//    			maxIdealTime(x10.runtime.Runtime.getCurrentActivity().getCritPathTime());
+//    	}
         sync.releaseShared(1);
     }
     

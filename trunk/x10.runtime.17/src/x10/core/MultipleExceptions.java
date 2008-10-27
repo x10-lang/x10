@@ -9,6 +9,7 @@ package x10.core;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * @author Christian Grothoff
@@ -21,6 +22,10 @@ public class MultipleExceptions extends java.lang.RuntimeException {
     }
     
     public MultipleExceptions(List<Throwable> s) {
+        exceptions = toList(s);
+    }
+    
+    public MultipleExceptions(Stack<Throwable> s) {
         exceptions = toList(s);
     }
     

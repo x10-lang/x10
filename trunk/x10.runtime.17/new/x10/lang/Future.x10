@@ -8,20 +8,19 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
-@NativeRep("java", "x10.runtime.Future<#1>")
-public interface Future[+T] extends ()=>T {
-    // public abstract def start(): void;
-    // public abstract def started(): boolean;
-
-    @Native("java", "(#0).force$()")
-    public def apply(): T;
-    
-    @Native("java", "(#0).force$()")
+/**
+ * @author Christian Grothoff
+ * @author Christoph von Praun
+ * @author tardieu
+ */
+public interface Future[T] extends ()=>T {
+    /**
+     * Wait for the completion of this activity and return the computed value.
+     */
     public def force(): T;
-    
-    @Native("java", "(#0).forced()")
+
+    /**
+     * Return true if this activity has completed.
+     */
     public def forced(): boolean;
 }
