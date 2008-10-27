@@ -73,7 +73,7 @@ public class ConditionalAtomicQueue extends x10Test {
 
 	public def run(): boolean = {
 		val N: int = T.N;
-		val NP: int = place.MAX_PLACES;
+		val NP: int = Place.MAX_PLACES;
 		val D2: Dist = MyDist.val(N*NP);
 		val received: Array[int] = new Array[int](D2);
 
@@ -149,7 +149,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		 * create a unique dist (mapping each i to place i)
 		 */
 		static def unique(): Dist = {
-			return Dist.makeUnique(place.places);
+			return Dist.makeUnique(Place.places);
 		}
 
 		/**

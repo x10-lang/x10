@@ -27,7 +27,7 @@ public class EncapsulatedArray1D_Dep extends x10Test {
         val size: int = 5;
         val R  = [0..size-1, 0..size-1] to Region;
         val D  = Dist.makeUnique(); 
-        val numOfPlaces = place.MAX_PLACES;
+        val numOfPlaces = Place.MAX_PLACES;
         
         val A  = Array.make[Wrapper](D);
         finish ateach (val (i): Point in D) 

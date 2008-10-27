@@ -95,7 +95,7 @@ public class DistAlgebra2 extends x10Test {
         }
 
         //Check range restriction to a place
-        val np: int = place.MAX_PLACES;
+        val np: int = Place.MAX_PLACES;
         for (val (k): Point in 0..np-1) {
             val DR1orR2orR3Here = (DR1orR2orR3 | P(k));
             pr("DR1orR2orR3Here("+k+")", DR1orR2orR3Here);

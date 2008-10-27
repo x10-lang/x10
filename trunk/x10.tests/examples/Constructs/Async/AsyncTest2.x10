@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class AsyncTest2 extends x10Test {
 
 	public def run(): boolean = {
-		val NP: int = place.MAX_PLACES;
+		val NP: int = Place.MAX_PLACES;
 		val A: Array[int] = Array.make[int](Dist.makeUnique());
 		finish
 			for (val (k): Point in [0..NP-1])

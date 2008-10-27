@@ -18,7 +18,7 @@ public class MiscTest1 extends x10Test {
 
     public const N: int = 50;
 
-    public const NP: int = place.MAX_PLACES;
+    public const NP: int = Place.MAX_PLACES;
 
     public def run(): boolean = {
 
