@@ -110,13 +110,13 @@ public abstract class Activity(name: String) implements Runnable {
 	/**
 	 * Create an activity with the given list of clocks.
 	 */
-	public def this(list: List[Clock], name: String) {
+	public def this(list: x10.lang.List[Clock], name: String) {
 	    this(name);
 	    clocks = new Clocks();
 		clocks.register(list);
 	}
 
-	public def this(list: List[Clock]) {
+	public def this(list: x10.lang.List[Clock]) {
 	    this(list, "");
 	}
 

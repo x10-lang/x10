@@ -16,7 +16,7 @@ class Clocks extends HashMap[Clock,int] {
 		clock._register(this);
 	}
 
-	def register(list: List[Clock]): void {
+	def register(list: x10.lang.List[Clock]): void {
 		for(clock: Clock in list) register(clock);
 	}
 
