@@ -108,7 +108,7 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 	def createRandPlaceSet(): randPlaceSet = {
 		var placeSet: Cell = null;
 		var np: int;
-		val placeNums  = Array.makeUnique[int](place.MAX_PLACES);
+		val placeNums  = Array.makeUnique[int](Place.MAX_PLACES);
 		do {
 			np = 0;
 			

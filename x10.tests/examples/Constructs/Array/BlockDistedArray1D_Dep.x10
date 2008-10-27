@@ -17,7 +17,7 @@ import harness.x10Test;
 public class BlockDistedArray1D_Dep extends x10Test {
 
     const SIZE = 5; 
-    const N_PLACES = place.MAX_PLACES; 
+    const N_PLACES = Place.MAX_PLACES; 
     const ALLPLACES = Dist.makeUnique();
 
     public def run(): boolean = {

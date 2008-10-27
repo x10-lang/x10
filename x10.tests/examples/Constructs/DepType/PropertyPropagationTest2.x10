@@ -26,7 +26,7 @@ public class PropertyPropagationTest2 extends x10Test {
 		val DR1orR2orR3  = Dist.makeCyclic(R1orR2orR3);
 		var placeNum: int = 0;
 		var offsetWithinPlace: int = 0;
-		val np: int = place.MAX_PLACES;
+		val np: int = Place.MAX_PLACES;
 		//Check range restriction to a place
 		for (val (k): Point in 0..np-1) {
 			val DR1orR2orR3Here  = DR1orR2orR3 | P(k);

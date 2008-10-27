@@ -16,7 +16,7 @@ public class AtEach extends x10Test {
     var nplaces: int = 0;
 
     public def run(): boolean = {
-        val d: Dist = Dist.makeUnique(place.places);
+        val d: Dist = Dist.makeUnique(Place.places);
         val disagree: Array[int] = Array.make[int](d);
         finish ateach (val p: Point in d) {
             // remember if here and d[p] disagree
@@ -28,7 +28,7 @@ public class AtEach extends x10Test {
         // all places
         // and that an activity ran in each place
         return disagree.reduce(int.+,0) == 0 &&
-                nplaces == place.MAX_PLACES;
+                nplaces == Place.MAX_PLACES;
     }
 
     public static def main(var args: Rail[String]): void = {

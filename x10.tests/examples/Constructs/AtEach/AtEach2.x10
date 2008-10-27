@@ -17,7 +17,7 @@ public class AtEach2 extends x10Test {
     var nplaces: int = 0;
 
     public def run(): boolean = {
-        val d: Dist = Dist.makeUnique(place.places);
+        val d: Dist = Dist.makeUnique(Place.places);
         finish ateach (val p: Point in d) {
             // remember if here and d[i] disagree
             // at any activity at any place
@@ -25,7 +25,7 @@ public class AtEach2 extends x10Test {
             async(this) { atomic { /*this.*/nplaces++; } } //FIXME this hack
         }
         // ensure that an activity ran in each place
-        return nplaces == place.MAX_PLACES;
+        return nplaces == Place.MAX_PLACES;
     }
 
     public static def main(var args: Rail[String]): void = {

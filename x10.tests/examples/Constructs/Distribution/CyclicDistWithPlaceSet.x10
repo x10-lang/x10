@@ -81,7 +81,7 @@ public class CyclicDistWithPlaceSet extends x10Test {
 	def createRandPlaceSet(): randPlaceSet = {
 		var placeSet: Set;
 		var np: int;
-		var placeNums: Array[int] = Array.make[int](place.MAX_PLACES);
+		var placeNums: Array[int] = Array.make[int](Place.MAX_PLACES);
 		do {
 			np = 0;
 			placeSet = new HashSet();
