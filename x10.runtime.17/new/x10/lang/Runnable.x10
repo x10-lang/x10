@@ -10,5 +10,5 @@ package x10.lang;
 
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.Set<#1>")
-public interface Set[T] {}
+@NativeRep("java", "java.lang.Runnable")
+public interface Runnable {}

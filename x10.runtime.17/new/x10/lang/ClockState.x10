@@ -6,31 +6,31 @@
  *
  */
 
-package x10.util;
+package x10.lang;
 
 /**
- * Manages the state of a clock 
+ * @author tardieu
  */
-public class ClockState {
-	public static val FIRST_PHASE = 1;
+class ClockState {
+	static val FIRST_PHASE = 1;
 	
 	private var count: int = 1;
 	private var alive: int = 1;
 	private var phase: int = FIRST_PHASE; 
 
-	public atomic def register(ph: int): void {
+	atomic def register(ph: int): void {
 		++count;
 		if (-ph != phase) ++alive;
 	}
 
-	public atomic def resume(): void {
+	atomic def resume(): void {
 		if (--alive == 0) {
 			alive = count;
 			++phase;
 		}
 	}
 	
-	public def next(ph: int): int {
+	def next(ph: int): void {
 		val abs: int;
 		if (ph < 0) {
 			abs = -ph; 
@@ -38,11 +38,13 @@ public class ClockState {
 			resume();
 			abs = ph;
 		}
-		when (abs < phase) return abs + 1;
+		await (abs < phase);
 	}
-	
-	public atomic def drop(ph: int): void {
-		--count;
-		if (-ph != phase) resume();
+
+	def drop(ph: int): void {
+		atomic { // HACK atomic method does compile properly
+			--count;
+			if (-ph != phase) resume();
+		}
 	}
 }

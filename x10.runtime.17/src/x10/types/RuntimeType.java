@@ -74,9 +74,10 @@ public class RuntimeType<T> implements Type<T> {
 
     public T zeroValue() {
         // null for ref types, otherwise complain
-        if (Value.class.isAssignableFrom(c)) {
-            throw new UnsupportedOperationException();
-        }
+// temporary hack: disabled check (Olivier)
+//        if (Value.class.isAssignableFrom(c)) {
+//            throw new UnsupportedOperationException();
+//        }
         return null;
     }
     

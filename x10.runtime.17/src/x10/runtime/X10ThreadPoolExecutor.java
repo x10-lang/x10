@@ -8,24 +8,24 @@
 package x10.runtime;
 
 import java.util.concurrent.*;
-import java.util.*;
-import java.lang.*;
 
 /**
  * @author Raj Barik, Vivek Sarkar
  * 3/6/2006: extension of JCU ThreadPoolExecutor to allow for adding threads to the pool based on the
  * number of X10 activities that are blocked.
+ * @tardieu
  */
 
 public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
-		
 
-	/** Fix nThreads to 1 for best results */
-	public X10ThreadPoolExecutor ( int nThreads ) { 
-		super ( nThreads,nThreads, 
+    private int nbThreadBlocked = 0;
+
+	public X10ThreadPoolExecutor ( int placeId ) { 
+		super ( Configuration.INIT_THREADS_PER_PLACE,
+				Configuration.INIT_THREADS_PER_PLACE,
 				1000L, TimeUnit.MILLISECONDS,
-				new LinkedBlockingQueue (),
-				new X10ThreadFactory ()); 
+				new LinkedBlockingQueue<Runnable> (),
+				new X10ThreadFactory (placeId)); 
                 prestartAllCoreThreads();
 	}
 	
@@ -33,8 +33,10 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 	 *  Call this method when you are blocked on finish, force, next*/
 	
 	public synchronized void increasePoolSize () {
-		setCorePoolSize ( getCorePoolSize() + 1 );
-		setMaximumPoolSize ( getMaximumPoolSize () + 1);
+		if(++nbThreadBlocked >= getCorePoolSize()) { 
+			setCorePoolSize ( getCorePoolSize() + 1 );
+			setMaximumPoolSize ( getMaximumPoolSize () + 1);
+		}
 	}
 
 
@@ -43,6 +45,7 @@ public class X10ThreadPoolExecutor extends ThreadPoolExecutor {
 	 */
 
 	public synchronized void decreasePoolSize () {
+		--nbThreadBlocked;
 	// TODO this code is likely to crash some non regression test
 	//		setCorePoolSize ( getCorePoolSize () - 1 );
 	//		setMaximumPoolSize ( getMaximumPoolSize () - 1);

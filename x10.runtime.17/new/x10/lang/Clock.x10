@@ -8,14 +8,11 @@
 
 package x10.lang;
 
-import x10.util.ClockState;
-
 /**
- * Implements the clock API
+ * @author tardieu
  */
-public value Clock implements ClockInterface {
+public value Clock(name: String) {
 	private val state = new ClockState();
-	val name: String;
 	
     private static def abs(z: int): int {
     	return (z<0) ? -z : z;
@@ -30,43 +27,25 @@ public value Clock implements ClockInterface {
     }
 
 	private def this(name: String): Clock {
-		this.name = name;
-    	ActivityClocks.put(this, ClockState.FIRST_PHASE);
+		property(name);
+    	Activity.current().clocks().put(this, ClockState.FIRST_PHASE);
 	}
 
     public def registered(): boolean {
-    	return ActivityClocks.contains(this);
+    	return Activity.current().clocks().containsKey(this);
     }
 
     public def dropped(): boolean {
     	return !registered();
     }
 
-    public def _register(): void {
-    	if (dropped()) throw new ClockUseException();
-    	val ph = ActivityClocks.get(this);
-    	finish async (state) state.register(ph);
-    }
-
-    public def _resume(): void {
-		val ph = ActivityClocks.get(this);
-		if (ph < 0) return;
-		finish async (state) state.resume();
-    	ActivityClocks.put(this, -ph);
-    }
-
     public def resume(): void {
     	if (dropped()) throw new ClockUseException();
-		val ph = ActivityClocks.get(this);
+		val ph = Activity.current().clocks()(this);
 		if (ph < 0) throw new ClockUseException();
 		finish async (state) state.resume();
-    	ActivityClocks.put(this, -ph);
+    	Activity.current().clocks().put(this, -ph);
     }
-
-    public def _next(): void {
-    	val ph = ActivityClocks.get(this);
-    	ActivityClocks.put(this, (future (state) state.next(ph))());
-    }    
 
     public def next(): void {
     	if (dropped()) throw new ClockUseException();
@@ -75,21 +54,43 @@ public value Clock implements ClockInterface {
 
     public def phase(): int { 
     	if (dropped()) throw new ClockUseException();
-    	return abs(ActivityClocks.get(this));
+    	return abs(Activity.current().clocks()(this));
     }
     
-    public def _drop(): void {
-    	val ph = ActivityClocks.get(this); 
-    	async (state) state.drop(ph);
-    }
-
     public def drop(): void {
     	if (dropped()) throw new ClockUseException();
-    	val ph = ActivityClocks.remove(this);
+    	val ph = Activity.current().clocks().remove(this);
     	async (state) state.drop(ph);
     }
     
 	public def hashCode(): int {
 		return state.hashCode();
 	}
+	
+	// methods called by the Activity object
+	
+    def _register(clocks: Clocks): void {
+       	if (dropped()) throw new ClockUseException();
+    	val ph = Activity.current().clocks()(this);
+    	finish async (state) state.register(ph);
+    	clocks.put(this, ph);
+    }
+
+    def _resume(): void {
+		val ph = Activity.current().clocks()(this);
+		if (ph < 0) return;
+		finish async (state) state.resume();
+    	Activity.current().clocks().put(this, -ph);
+    }
+
+    def _next(): void {
+    	val ph = Activity.current().clocks()(this);
+		finish async (state) state.next(ph);
+    	Activity.current().clocks().put(this, abs(ph) + 1);
+    }    
+
+    def _drop(): void {
+    	val ph = Activity.current().clocks()(this); 
+    	async (state) state.drop(ph);
+    }
 }

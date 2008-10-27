@@ -16,23 +16,20 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.core.Ref")
 public class Ref(
-    @Native("java", "(#0).location()")
-    location: Place
-    ) {
+    	@Native("java", "x10.lang.Place.place(#0.placeId())")
+    	location: Place) {
     
-    public native def this(); 
-    
-    @Native("java", "(#0).equals(#1)")
+    public native def this();
+
+   	@Native("java", "#0.equals(#1)")
     public native def equals(Object): boolean;
-    
-    @Native("java", "(#0).hashCode()")
+
+   	@Native("java", "#0.hashCode()")
     public native def hashCode(): int;
-    
-    @Native("java", "(#0).toString()")
+
+   	@Native("java", "#0.toString()")
     public native def toString(): String;
     
-    @Native("java", "(#0).getClass().toString()")
-    public native def className():String;
-    
-   
+    @Native("java", "#0.getClass().toString()")
+    public native def className(): String;
 }
