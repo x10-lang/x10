@@ -1,2 +1,2 @@
 // SYNOPSIS: here
-x10.runtime.Runtime.here()
+x10.lang.Activity.here()

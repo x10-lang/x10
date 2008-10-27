@@ -1,12 +1,22 @@
 // SYNOPSIS: main(#0) #1
 
-public static class Main extends x10.runtime.Activity {
-	private final x10.core.Rail<java.lang.String> form;
+public static class Main implements java.lang.Runnable {
+	private final java.lang.String[] args;
 	public Main(java.lang.String[] args) {
+		this.args = args;
+	}
+	public void run() {
+		x10.lang.Place.runMain(new MainActivity(args));
+	}
+}
+
+public static class MainActivity extends x10.lang.Activity {
+	private final x10.core.Rail<java.lang.String> form;
+	public MainActivity(java.lang.String[] args) {
 		super("Main Activity");
 		this.form = x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args);
 	}
-	public void runX10Task() {
+	public void runX10Task$() {
 		main(form);
 	}
 }

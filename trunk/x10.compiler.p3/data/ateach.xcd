@@ -7,9 +7,9 @@
 	{
 		#0 #1 #2 = #2__.next();
 		#6
-		((x10.runtime.Place) #2__distCopy.apply$(#2)).runAsync
-			(new x10.runtime.Activity(#5) {
-				public void runX10Task() {
+		((x10.lang.Place) #2__distCopy.apply$(#2)).runAsync
+			(new x10.lang.Activity(#5) {
+				public void runX10Task$() {
 					#4
 				}
 			});

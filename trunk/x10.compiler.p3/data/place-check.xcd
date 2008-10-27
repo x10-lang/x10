@@ -1,6 +1,6 @@
 // SYNOPSIS: (#0)((#1)@here) #0=type #1=object -- wrap in Object to help javac
 new java.lang.Object() {
     #0 eval(#0 it) {
-        return (#0) x10.runtime.Runtime.hereCheck(it);
+        return (#0) x10.lang.Activity.here().placeCheck(it);
     }
 }.eval(#1)
