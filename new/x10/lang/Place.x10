@@ -11,51 +11,123 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.runtime.Place")
-public value Place(
-        @Native("java", "(#0).id()")
-        id: nat
-    ) {
-        /**
-         * The number of places in this run of the system.
-         * This is set on initialization by x10.runtime.Runtime
-         */
-        @Native("java", "x10.runtime.Runtime.maxPlaces()")
-        public const MAX_PLACES: int = getMaxPlaces();
+/**
+ * @author Christian Grothoff
+ * @author Raj Barik, Vivek Sarkar
+ * @author tardieu
+ */
+public value Place(id: nat) {
+	//TODO hashCode and equals methods
+	//TODO place check/place-cast of null?
+	//TODO VarRail -> ValRail
 
-        /** The first place. */
-        @Native("java", "x10.runtime.Runtime.getFirstPlace()")
-        public const FIRST_PLACE: Place = getFirstPlace();
+    public const MAX_PLACES: int = Runtime.MAX_PLACES;
+	public const places: Rail[Place] = Rail.makeVar[Place](MAX_PLACES, ((id: nat) => new Place(id)));
+    public const FIRST_PLACE = place(0);
 
-        @Native("java", "x10.runtime.Runtime.places()")
-        public const places: ValRail[Place] = getPlaces();
+	// native thread pools
+	
+	@NativeRep("java", "x10.runtime.X10ThreadPoolExecutor")
+	private static class Executor {
+		native def this(placeId: int);
+	
+		@Native("java", "#0.increasePoolSize()")
+		native def increasePoolSize(): void;	
+	
+		@Native("java", "#0.decreasePoolSize()")
+		native def decreasePoolSize(): void;	
+	
+		@Native("java", "#0.execute(#1)")
+		native def execute(r: Runnable): void;	
+	}
+	
+    /**
+     * Executor Service which provides the thread pool
+     */
+	private val executor: Executor;
 
-        /** Stubs to make the type-checker happy. */
-        private static incomplete def getMaxPlaces(): int;
-        private static incomplete def getFirstPlace(): Place;
-        private static incomplete def getPlaces(): ValRail[Place];
+	public def threadBlockedNotification(): void {
+		executor.increasePoolSize();
+    }
 
-        /** Private constructor. */
-        private native def this();
+	public def threadUnblockedNotification(): void {
+		executor.decreasePoolSize();
+    }
 
-        @Native("java", "x10.runtime.Runtime.place(#1)")
-        public native static def place(i: nat): Place;
+	// constructor
 
-        @Native("java", "(#0).next()")
-        public native def next(): Place;
+	private def this(id: nat) {
+		property(id);
+		executor = new Executor(id);
+	}
+	
+	// running activities
+	
+	public static def runMain(activity: Activity): void {
+		try {
+			activity.startFinish();
+			activity.finishState().notifySubActivitySpawn();
+			FIRST_PLACE.executor.execute(activity);
+			activity.stopFinish();
+		} catch (t: Throwable) {
+			t.printStackTrace();
+		}
+	}
+	
+	public def runAsync(activity: Activity): void {
+		activity.setFinishState(Activity.current().finishState());
+		activity.finishState().notifySubActivitySpawn();
+		executor.execute(activity);
+	}
 
-        @Native("java", "(#0).prev()")
-        public native def prev(): Place;
+	//HACK code generation fails if method is not static
+	public static def runFuture[T](p: Place, future_c: Future_c[T]): Future[T] {
+		p.runAsync(future_c);
+		return future_c;
+	}
 
-        @Native("java", "(#0).next(#1)")
-        public native def next(k: int): Place;
+	// place arithmetics
 
-        @Native("java", "(#0).prev(#1)")
-        public native def prev(k: int): Place;
-                
-        @Native("java", "(#0).isFirst()")
-        public native def isFirst(): Boolean;
-                
-        @Native("java", "(#0).isLast()")
-        public native def isLast(): Boolean;
-}
+	public static def place(id: nat): Place {
+		return Place.places(id);
+	}
+
+    public def next(): Place { return next(1); }
+
+    public def prev(): Place { return next(-1); }
+
+    public def prev(i: int): Place { return next(-i); }
+    
+    public def next(i: int): Place {
+        // -1 % n == -1, not n-1, so need to add n
+        val k = (id + i % MAX_PLACES + MAX_PLACES) % MAX_PLACES;
+        return Place.place(k);
+	}
+	
+	public def isFirst(): boolean {
+		return id == 0;
+	}
+
+	public def isLast(): boolean {
+		return id == MAX_PLACES - 1;
+	}
+	
+	// locations
+	
+	private static def location(o: Object): Place {
+		if (o instanceof Ref) return (o as Ref).location;
+		return here;
+	}
+	
+	public static def asPlace(o: Object): Place {
+		if (o instanceof Place)	return o as Place;
+		return location(o);
+	}
+
+	public def placeCheck(o: Object): Object {
+//		if (null != o && location(o) != this) {
+//			throw new BadPlaceException("object=" + o + " access at place=" + this);
+//		}
+		return o;
+	}
+}    

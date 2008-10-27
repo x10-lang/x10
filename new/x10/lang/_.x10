@@ -60,7 +60,7 @@ public class _ {
     public static type int32 = int;
     public static type int64 = long;
 
-    public static type place = Place;
+//    public static type place = Place;
     public static type clock = Clock;
     
     public static type Point(r: Int) = Point{rank==r};

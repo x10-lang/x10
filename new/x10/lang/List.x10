@@ -10,8 +10,5 @@ package x10.lang;
 
 import x10.compiler.NativeRep;
 
-/**
- * Bridges XRX with Java runtime 
- */
-@NativeRep("java", "x10.runtime.Clock") 
-public interface ClockInterface {}
+@NativeRep("java", "java.util.List<#1>")
+public interface List[T] {}

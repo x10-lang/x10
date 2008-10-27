@@ -8,4 +8,11 @@
 
 package x10.lang;
 
-public interface Map[K,V] extends (K)=>V {}
+public interface Map[K,V] extends (K)=>V {
+	public def containsKey(k: K): boolean;
+	public def get(k: K): V;
+	public def put(k: K, v: V): void;
+	public def remove(k: K): V;
+	public def keySet(): Set[K];
+	public def clear(): void;
+}
