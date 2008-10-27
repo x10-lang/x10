@@ -233,7 +233,7 @@ public abstract class Activity(name: String) implements Runnable {
 		} catch (e: InterruptedException) {
 			return false;
 		} finally {
-			here().threadBlockedNotification();
+			here().threadUnblockedNotification();
 		}
 	}
 }
