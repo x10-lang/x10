@@ -239,29 +239,6 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
                 }
             }
             else {
-//            if (prefix == null) {
-//                Name dummyName = X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME;
-//        	Package p = tc.context().package_();
-//        	Named n;
-//        	if (p == null)
-//        	    n = ts.systemResolver().find(QName.make(null, dummyName));
-//        	else {
-//        	    n = ts.packageContextResolver(p).find(ts.TypeMatcher(dummyName));
-//        	}
-//        	if (n instanceof X10ParsedClassType) {
-//        	    typeDefContainer = (X10ParsedClassType) n;
-//        	}
-//            }
-//                else if (prefix instanceof PackageNode) {
-//                    PackageNode pn = (PackageNode) prefix;
-//                    Name dummyName = X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME;
-//                    QName fullName = QName.make(pn != null ? Types.get(pn.package_()).fullName() : null, dummyName);
-//                    Named n = ts.systemResolver().find(fullName);
-//                    if (n instanceof X10ParsedClassType) {
-//                        typeDefContainer = (X10ParsedClassType) n;
-//                    }
-//                }
-
                 if (prefix instanceof TypeNode) {
                     TypeNode tn = (TypeNode) prefix;
                     Type container = tn.type();
