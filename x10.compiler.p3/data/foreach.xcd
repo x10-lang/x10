@@ -3,9 +3,9 @@
 for (java.util.Iterator #2__ = (#3).iterator(); #2__.hasNext(); ) {
 	#0 #1 #2 = (#7) #2__.next();
 	#6
-	x10.runtime.Runtime.here().runAsync
-		(new x10.runtime.Activity(#5) {
-			public void runX10Task() {
+	x10.lang.Activity.here().runAsync
+		(new x10.lang.Activity(#5) {
+			public void runX10Task$() {
 				#4
 			}
 		});
