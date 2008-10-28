@@ -41,10 +41,8 @@ class ClockState {
 		await (abs < phase);
 	}
 
-	def drop(ph: int): void {
-		atomic { // HACK atomic method does compile properly
-			--count;
-			if (-ph != phase) resume();
-		}
+	atomic def drop(ph: int): void {
+		--count;
+		if (-ph != phase) resume();
 	}
 }
