@@ -39,6 +39,9 @@ public final class Configuration extends x10.config.Configuration {
 	public static int NUMBER_OF_LOCAL_PLACES = 4;
 	private static final String NUMBER_OF_LOCAL_PLACES_desc = "The number of places";
 
+	public static boolean NULL_DEFAULT_VALUE = true;
+	private static final String NULL_DEFAULT_VALUE_desc = "Value types have a null default value";
+
 	public static int INIT_THREADS_PER_PLACE = 3;
 	private static final String INIT_THREADS_PER_PLACE_desc = "Initial number of Java threads allocated to thread pool for a single place";
 
