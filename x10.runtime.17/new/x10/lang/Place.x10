@@ -19,10 +19,9 @@ import x10.compiler.NativeRep;
 public value Place(id: nat) {
 	//TODO hashCode and equals methods
 	//TODO place check/place-cast of null?
-	//TODO VarRail -> ValRail
 
-    public const MAX_PLACES: int = Runtime.MAX_PLACES;
-	public const places: Rail[Place] = Rail.makeVar[Place](MAX_PLACES, ((id: nat) => new Place(id)));
+    public const MAX_PLACES = Runtime.MAX_PLACES;
+	public const places = Rail.makeVal[Place](MAX_PLACES, ((id: nat) => new Place(id)));
     public const FIRST_PLACE = place(0);
 
 	// native thread pools
