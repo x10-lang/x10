@@ -15,7 +15,7 @@ public class AtomicMethodTest extends x10Test {
 	var val: long = 0;
 	public const N: int = 1000;
 	var startCount: long = 0;
-	var endCount: long = 0;
+	var endCount: long = N;
 	atomic def body(): void = {
 		startCount = this.val;
 		for (var i: int = 0; i < N; i++) this.val++;
@@ -24,7 +24,7 @@ public class AtomicMethodTest extends x10Test {
 
 	public def run(): boolean = {
 		async(this) body();
-		for (var i: long = 0; i < N*100; i++) {
+		for (var i: long = 0; i < N*N; i++) {
 			var b: boolean; // temp
 			atomic { this.val = i; b = (endCount != 0); }
 			if (b) break;
