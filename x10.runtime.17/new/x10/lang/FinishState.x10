@@ -65,11 +65,9 @@ public class FinishState {
 	 * finishCount --- this exception was thrown by
 	 * inline code, not a spawned activity.
 	 */
-	public def pushException(t: Throwable): void {
-		atomic { // HACK atomic method does compile properly
-			if (null == exceptions) exceptions = new Stack[Throwable]();
-			exceptions.push(t);
-		}
+	public atomic def pushException(t: Throwable): void {
+		if (null == exceptions) exceptions = new Stack[Throwable]();
+		exceptions.push(t);
 	}
 
 	/**
