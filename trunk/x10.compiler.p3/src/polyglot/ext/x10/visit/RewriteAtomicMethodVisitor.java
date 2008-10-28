@@ -32,42 +32,39 @@ import polyglot.visit.NodeVisitor;
 
 public class RewriteAtomicMethodVisitor extends ContextVisitor {
 
-    public RewriteAtomicMethodVisitor(Job job, TypeSystem ts, NodeFactory nf) {
-        super(job, ts, nf);
-    }
-    
-    <T extends Node> T check(T n) throws SemanticException {
-        return (T) n.del().disambiguate(this).del().typeCheck(this).del().checkConstants(this);
-    }
+	public RewriteAtomicMethodVisitor(Job job, TypeSystem ts, NodeFactory nf) {
+		super(job, ts, nf);
+	}
 
-    @Override
-    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        n = super.leaveCall(parent, old, n, v);
+	<T extends Node> T check(T n) throws SemanticException {
+		return (T) n.del().disambiguate(this).del().typeCheck(this).del().checkConstants(this);
+	}
 
-        if (parent instanceof X10MethodDecl) {
-            X10MethodDecl md = (X10MethodDecl) parent;
-            Block b = md.body();
-            if (n == b) {
-                X10Flags flags = X10Flags.toX10Flags(md.flags().flags());
-                if (flags.isAtomic()) {
-                    X10NodeFactory nf = (X10NodeFactory) this.nf;
-                    Position pos = b.position();
+	@Override
+	public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+		n = super.leaveCall(old, n, v);
 
-                    Expr here = nf.Here(pos);
-                    here = check(here);
-                    
-                    Stmt atomic = nf.Atomic(pos, here, b);
-                    atomic = check(atomic);
-                    
-                    b = nf.Block(pos, Collections.singletonList(atomic));
-                    b = check(b);
-                    
-                    return b;
-                }
-            }
-        }
+		if (n instanceof X10MethodDecl) {
+			X10MethodDecl md = (X10MethodDecl) n;
+			X10Flags flags = X10Flags.toX10Flags(md.flags().flags());
+			if (flags.isAtomic()) {
+				Block b = md.body();
+				X10NodeFactory nf = (X10NodeFactory) this.nf;
+				Position pos = b.position();
 
-        return n;
-    }
+				Expr here = nf.Here(pos);
+				here = check(here);
 
+				Stmt atomic = nf.Atomic(pos, here, b);
+				atomic = check(atomic);
+
+				b = nf.Block(pos, Collections.singletonList(atomic));
+				b = check(b);
+				
+				return md.body(b);
+			}
+		}
+
+		return n;
+	}
 }
