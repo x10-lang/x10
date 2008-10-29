@@ -28,12 +28,19 @@ import x10.compiler.NativeRep;
  * and no more --- this API is not intended to be exposed to 
  * general X10 programmers.
  */
+
+import x10.runtime.kernel.Runnable;
+import x10.runtime.kernel.InterruptedException;
+
 @NativeRep("java", "java.lang.Thread")
 public class NativeThread {
 	
 	public native def this(task:Runnable):NativeThread;
 	
 	public native def this(task:Runnable, name:String):NativeThread;
+	
+	@Native("java", "java.lang.Thread.currentThread()")
+	public static native def currentThread():NativeThread;
 	
 	@Native("java", "#0.run()")
 	public native def run():void;
