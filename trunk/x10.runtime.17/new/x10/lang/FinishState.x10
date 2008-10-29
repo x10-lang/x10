@@ -37,11 +37,7 @@ public class FinishState {
 	 * the activity reside when the activity is blocked and unblock.
 	 */
 	public def waitForFinish(): void {
-		if (latch.getCount() > 0) {
-			here.threadBlockedNotification();
-			try { latch.await(); } catch (z: InterruptedException) {}
-			here.threadUnblockedNotification();
-		}
+		latch.await();
 	}
 
 	/** 

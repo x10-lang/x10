@@ -8,22 +8,26 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
-@NativeRep("java", "x10.runtime.ModCountDownLatch")
 public class ModCountDownLatch {
-	public native def this(i: int);
+	private var count: nat;
 	
-	@Native("java", "#0.updateCount()")
-    public native def updateCount(): void;
+	public def this(init: nat) {
+		count = init;
+	}
+	
+    public atomic def updateCount(): void {
+    	count++;
+    }
 
-	@Native("java", "#0.countDown()")
-    public native def countDown(): void;
+    public atomic def countDown(): void {
+    	if (count > 0) count--;
+    }
 
-	@Native("java", "#0.await()")
-    public native def await(): void throws InterruptedException;
-
-	@Native("java", "#0.getCount()")
-    public native def getCount(): int;
+    public def await(): void {
+    	if (count > 0) await count == 0;
+	}
+	
+	public def getCount(): nat {
+		return count;
+	}
 }
