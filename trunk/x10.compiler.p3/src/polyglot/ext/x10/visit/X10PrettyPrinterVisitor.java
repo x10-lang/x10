@@ -1836,13 +1836,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		boolean base = false;
 		
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-
+		
 		X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
-	            
+		
 		String pat = getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
 			emitNativeAnnotation(pat, target, mi.typeParameters(), c.arguments());
 			return;
+		}
+
+		// Check for properties accessed using method syntax.  They may have @Native annotations too.
+		if (X10Flags.toX10Flags(mi.flags()).isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
+			X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
+			if (fi != null) {
+				String pat2 = getJavaImplForDef(fi.x10Def());
+				if (pat != null) {
+				    Object[] components = new Object[] { target };
+				    dumpRegex("Native", components, tr, pat2);
+					return;
+				}
+			}
 		}
 
 		if (target instanceof TypeNode) {
