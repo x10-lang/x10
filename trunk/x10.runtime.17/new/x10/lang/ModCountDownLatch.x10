@@ -22,33 +22,37 @@ public class ModCountDownLatch {
 	}
 	
     public def updateCount(): void {
-    	lock.lock(); {
-    		++count;
-    	} lock.unlock();
+    	lock.lock();
+    	count += 1;
+    	lock.unlock();
     }
 
     public def countDown(): void {
+    	lock.lock();
     	if (count > 0) { 
-	    	lock.lock(); {
 	    		--count;
 	    		if (count == 0) {
     				for(th: NativeThread in stack) NativeThread.unpark(th);
-    				// no need to clear the stack
+    				// no need to clear the stack; the latch is now dead.
     			}
-    		} lock.unlock();
-	    }
+	}
+    	lock.unlock();
     }
 
     public def await(): void {
+    	lock.lock();
     	if (count > 0) {
-    		lock.lock(); {
-    			stack.push(NativeThread.currentThread());
-    		} lock.unlock();
+    		stack.push(NativeThread.currentThread());
+    		lock.unlock();
+    		here.threadBlockedNotification();
     		NativeThread.park();
-    	}
+    		here.threadUnblockedNotification();
+    	} else {
+    		lock.unlock();
 	}
+    }
 	
-	public def getCount(): nat {
-		return count;
-	}
+    public def getCount(): nat {
+	return count;
+    }
 }
