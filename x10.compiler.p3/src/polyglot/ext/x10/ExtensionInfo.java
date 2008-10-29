@@ -37,8 +37,10 @@ import polyglot.ext.x10.visit.X10InitChecker;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.AllBarrierGoal;
+import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
@@ -236,21 +238,35 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(X10Expanded(job));
 
            goals.add(Serialized(job));
+//           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
-           goals.add(CodeGenBarrier());
            goals.add(CodeGenerated(job));
            goals.add(End(job));
+           
+           // the barrier will handle prereqs on its own
+           CodeGenerated(job).addPrereq(CodeGenBarrier());
            
            return goals;
        }
        
        public Goal CodeGenBarrier() {
-           return new AllBarrierGoal("CodeGenBarrier", this) {
-               @Override
-               public Goal prereqForJob(Job job) {
-                   return Serialized(job);
-               }
-           };
+    	   if (Globals.Options().compile_command_line_only) {
+    		   return new BarrierGoal(commandLineJobs()) {
+    			   @Override
+    			   public Goal prereqForJob(Job job) {
+    				   return Serialized(job);
+    			   }
+    			   public String name() { return "CodeGenBarrier"; }
+    		   };
+    	   }
+    	   else {
+    		    return new AllBarrierGoal("CodeGenBarrier", this) {
+    		    	@Override
+    		    	public Goal prereqForJob(Job job) {
+    		    		return Serialized(job);
+    		    	}
+    		    };
+    	    }
        }
 
 //       @Override
