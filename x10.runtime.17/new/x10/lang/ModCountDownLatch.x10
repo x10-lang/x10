@@ -8,23 +8,44 @@
 
 package x10.lang;
 
+import x10.runtime.kernel.Lock;
+import x10.runtime.kernel.NativeThread;
+
 public class ModCountDownLatch {
 	private var count: nat;
+	private val lock = new Lock();
+	private val stack = new Stack[NativeThread]();
 	
-	public def this(init: nat) {
-		count = init;
+	public def this(count: nat) {
+		if (count < 0) throw new IllegalArgumentException("count < 0 in ModCountDownLatch");
+		this.count = count;
 	}
 	
-    public atomic def updateCount(): void {
-    	count++;
+    public def updateCount(): void {
+    	lock.lock(); {
+    		++count;
+    	} lock.unlock();
     }
 
-    public atomic def countDown(): void {
-    	if (count > 0) count--;
+    public def countDown(): void {
+    	if (count > 0) { 
+	    	lock.lock(); {
+	    		--count;
+	    		if (count == 0) {
+    				for(th: NativeThread in stack) NativeThread.unpark(th);
+    				// no need to clear the stack
+    			}
+    		} lock.unlock();
+	    }
     }
 
     public def await(): void {
-    	if (count > 0) await count == 0;
+    	if (count > 0) {
+    		lock.lock(); {
+    			stack.push(NativeThread.currentThread());
+    		} lock.unlock();
+    		NativeThread.park();
+    	}
 	}
 	
 	public def getCount(): nat {
