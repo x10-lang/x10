@@ -21,7 +21,7 @@ public class Stack[T] {
 	@Native("java", "#0.pop()")
 	public native def pop(): T;
 
-	@Native("java", "#0.empty()")
+	@Native("java", "#0.isEmpty()")
 	public native def empty(): boolean;
 
 	@Native("java", "#0.size()")
