@@ -11,6 +11,9 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+import x10.runtime.kernel.InterruptedException;
+import x10.runtime.kernel.Runnable;
+
 /**
  * The representation of an X10 async activity.
  * Note that an Activity object is created by a different thread than the one that executes it. 

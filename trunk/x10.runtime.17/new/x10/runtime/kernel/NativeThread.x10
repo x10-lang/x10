@@ -12,6 +12,12 @@ package x10.runtime.kernel;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+/* 
+ * Would have prefered to name this "x10.runtime.kernel.Thread" but worried 
+ * about name clashes with java.lang.Thread for the Java backend so 
+ * decided to use unambiguous name.
+ */
+ 
 /**
  * A unit of execution (a thread).
  * 
@@ -23,11 +29,11 @@ import x10.compiler.NativeRep;
  * general X10 programmers.
  */
 @NativeRep("java", "java.lang.Thread")
-public class Worker {
+public class NativeThread {
 	
-	public native def this(task:Runnable):Worker;
+	public native def this(task:Runnable):NativeThread;
 	
-	public native def this(task:Runnable, name:String):Worker;
+	public native def this(task:Runnable, name:String):NativeThread;
 	
 	@Native("java", "#0.run()")
 	public native def run():void;
@@ -45,7 +51,6 @@ public class Worker {
 	public static native def parkNanos(nanos:Long):void;
 	
 	@Native("java", "java.util.concurrent.locks.LockSupport.unpark(#1)")
-	public static native def unpark(worker:Worker):void;
-
+	public static native def unpark(thread:NativeThread):void;
 }
  

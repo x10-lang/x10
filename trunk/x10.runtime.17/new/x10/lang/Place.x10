@@ -11,6 +11,8 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+import x10.runtime.kernel.Runnable;
+
 /**
  * @author Christian Grothoff
  * @author Raj Barik, Vivek Sarkar
