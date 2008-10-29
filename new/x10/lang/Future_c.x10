@@ -39,11 +39,7 @@ public abstract class Future_c[T] extends Activity implements Future[T] {
     }
 
     public def force(): T {
-        if (cdl.getCount() > 0) {
-        	here.threadBlockedNotification();
-            try { cdl.await(); } catch (ie: InterruptedException) {}
-            here.threadUnblockedNotification();
-        }
+  	    cdl.await();
         if (null != exception) {
             if (exception instanceof Error)
                 throw exception as Error;
