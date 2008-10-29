@@ -15,11 +15,11 @@ import x10.compiler.NativeRep;
 public final value Float {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
-    public const POSITIVE_INFINITY: Float = java.lang.Float.POSITIVE_INFINITY;
-    public const NEGATIVE_INFINITY: Float = java.lang.Float.NEGATIVE_INFINITY;
-    public const NaN: Float = java.lang.Float.NaN;
-    public const MAX_VALUE: Float = java.lang.Float.MAX_VALUE;
-    public const MIN_VALUE: Float = java.lang.Float.MIN_VALUE;
+    public const POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
+    public const NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
+    public const NaN: Float = Float.fromIntBits(0x7fc00000);
+    public const MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
+    public const MIN_VALUE: Float = Float.fromIntBits(0x00800000);
     
     @Native("java", "java.lang.Float.toHexString(#0)")
     public native def toHexString(): String;    
