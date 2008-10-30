@@ -1,0 +1,65 @@
+#
+# See the manual page for "commondefs" for more information.
+#
+
+MAKEDIR = ../make
+INCLDIR = $(ROOT)/usr/include
+TEXDIR = ../tex-macros
+
+COMMONRULES = $(MAKEDIR)/commonrules
+
+SOURCES = $(CFILES) $(C++FILES) $(YFILES) $(LFILES) $(AFILES)
+OBJECTS = $(CFILES:.c=.o) $(C++FILES:.C=.o)
+DIRT = *.o core *.aux *.dvi *.log *.stamp *.i *.bbl *.[ib]lg $(LDIRT)
+GENERATED = .dependtime Makedepend Makedepend.bak
+RM = rm -f
+MKDEPFILE = Makedepend
+MKDEPEND = makedepend
+MKDEPFLAGS = -Y
+MKDEPC++FLAGS = $(C++DEFS) $(C++INCS) $(MKDEPFLAGS)
+MKDEPCFLAGS = $(CDEFS) $(CINCS) $(MKDEPFLAGS)
+
+.SUFFIXES: .C .ps .i .txt .h
+.SUFFIXES: .tex .dvi .ind .idx .bbl .aux .glo .aux .stamp .pdf .eps
+
+GNUBIN = /usr/local
+
+ATTC++ = CC
+DECC++ = cxx
+GNUC++ = g++
+
+CC = cc
+C++ = $(GNUC++)
+YACC = bison
+DVIPS = dvips
+
+C++F = $(C++) $(C++FLAGS)
+CCF = $(CC) $(CFLAGS)
+
+C++FLAGS = $(C++OPTS) $(C++DEFS) $(C++INCS)
+
+C++INCS = $(GC++INCS) $(LC++INCS)
+C++OPTS = $(GC++OPTS) $(LC++OPTS)
+C++DEFS = $(GC++DEFS) $(LC++DEFS)
+
+GC++OPTS = $(OPTIMIZER)
+
+CFLAGS = $(COPTS) $(CDEFS) $(CINCS)
+COPTS = $(GCOPTS) $(LCOPTS)
+CDEFS = $(GCDEFS) $(LCDEFS)
+CINCS = $(GCINCS) $(LCINCS)
+
+GCOPTS = $(OPTIMIZER)
+
+M3F = $(M3) $(M3FLAGS)
+M3 = m3
+M3PP = m3pp
+
+LDFLAGS = $(LLDFLAGS) $(GLDFLAGS)
+LLDFLAGS = $(LLDLIBS) $(LLDOPTS) 
+
+SEP=:
+#SEP=\;         # for MikTeX+Cygwin
+TEXINPUTS = .$(SEP)$(TEXDIR)$(SEP)
+LATEX = TEXINPUTS=$(TEXINPUTS) latex
+PDFLATEX = TEXINPUTS=$(TEXINPUTS) pdflatex

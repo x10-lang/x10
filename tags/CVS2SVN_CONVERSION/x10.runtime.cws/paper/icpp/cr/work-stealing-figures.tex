@@ -1,0 +1,128 @@
+
+\begin{figure*}
+\begin{minipage}{0.5\textwidth}
+\scriptsize
+\begin{verbatim}
+public void run() {
+  Executable cl=null; //frame/closure
+  int yields = 0;
+  while (!done) {
+    if (cl == null ) {
+      //Extract work from local queue.
+      //It will be a closure
+      //cl may be null. When non-null
+      //cl is typically RETURNING.
+      lock(this);
+      try {
+        cl = extractBottom(this);
+      } finally {
+        unlock();
+      }
+    }
+  }
+  if (cl == null)
+    //Steal or get from global queue
+    cl = getTask(true);  
+  if (cl !=null) {
+    // Found some work! Execute it.
+    Executable cl1 = cl.execute(this);
+    cl=cl1;
+    cache.reset();
+  } else Thread.yield();
+}
+                (a)
+\end{verbatim}
+\end{minipage}%
+\begin{minipage}{0.5\textwidth}
+\scriptsize
+\begin{verbatim}
+public void run() {
+  Executable cl=null; //frame or closure
+  int yields = 0;
+  while (!done) {
+    if (cl == null ) {
+      //Addition for GlobalQuiescence. 
+      //Keep executing current frame 
+      //until dequeue becomes empty.
+      if (jobMayHaveImproperTask) {
+       Cache cache = this.cache;
+        for(;;) {
+          if(!cache.empty())
+            Frame f=cache.currentFrame();
+          if (f == null) break;
+          Executable cl1=f.execute(this);
+          if (cl1 != null) {
+            cl=cl1;
+            break;
+          }
+        }
+      } 
+      //Rest of worker code same as for
+      //properly nested tasks ...
+    }
+  }
+}
+                 (b)
+\end{verbatim}
+\end{minipage}
+\caption{Code executed by workers for (a) only properly nested tasks (b)
+  properly and improperly nested tasks. Note that (b) is an extension of (a)}
+\label{fig:worker-code}
+\end{figure*}
+
+\begin{figure*}
+\begin{minipage}{0.5\textwidth}
+\scriptsize
+\begin{verbatim}
+Closure steal(Worker thief) {
+  lock(thief); //lock victim deque
+  Closure cl = peekTop(thief, victim);
+  if (cl==null) 
+    return null; //nothing to steal
+  //cl = Closure that can be stolen
+  cl.lock(thief);
+  Status status = cl.status();
+  if (status == READY) {
+    //Closure not processed by victim
+    //steal the Closure
+  }
+  else if (status == RUNNING) {
+    //Possible contention with victim
+    //Need to steal head frame in Closure
+    if (cache.dekker(thief)) {
+      //>1 Frame available in Closure
+      //Promote child frame to Closure 
+      //Steal this Closure & head frame
+    } 
+  }
+  return null; //No Closure to steal
+}
+         (a)
+\end{verbatim}
+\end{minipage}%
+\begin{minipage}{0.5\textwidth}
+\scriptsize
+\begin{verbatim}
+Frame stealFrame(Worker thief) {
+  Worker victim = this;
+  lock(thief);
+
+  //>1 frame in victm's frame stack?
+  boolean b=cache.dekker(thief);
+  if (b) {
+    //Frame available to steal
+    Frame frame = cache.headFrame();
+    //Mark this frame as stolen
+    cache.incHead(); //H=H+1
+    return frame;
+  }
+  return null; //No frame to steal
+}
+          (b) 
+\end{verbatim}
+\end{minipage}
+\caption{Work stealing algorithm for (a) Properly nested tasks (b)
+  Improperly nested tasks. Both are invoked on victim's
+  Worker object (victim==this). Locks held are freed before returning.}%
+\label{fig:stealing-alg}
+\end{figure*}

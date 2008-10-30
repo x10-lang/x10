@@ -1,0 +1,25 @@
+// SYNOPSIS: when (#0) #1 #2=optional-break #3=loop-over-branches #4=unique_id
+
+synchronized (x10.lang.Activity.here()) {
+	try {
+	        x10.lang.Activity.here().threadBlockedNotification(); // Add a thread for current activity if needed
+			while (true) {
+			// first when branch
+			if (#0) {
+				#1
+				#2
+			}
+			#3
+			x10.lang.Activity.here().wait();
+		}
+	} catch (java.lang.Throwable tmp#4) {
+		tmp#4.printStackTrace();
+		x10.runtime.Runtime.java.log(java.util.logging.Level.SEVERE,
+				"Unexpected exception during conditional atomic.", tmp#4);
+		throw new java.lang.RuntimeException(tmp#4);
+	} finally {
+	    x10.lang.Activity.here().threadUnblockedNotification(); // Allow current thread to be used for other activities if needed
+		x10.lang.Activity.here().notifyAll();
+	}
+}
+

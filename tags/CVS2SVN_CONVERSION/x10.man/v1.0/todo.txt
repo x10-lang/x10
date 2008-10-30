@@ -1,0 +1,123 @@
+Mon Jul 25 22:45:50 2005
+* Check the latest changes to the syntax in mantis.
+* Add a section about things that are yet to be worked out at the end,
+  and work-arounds for them.
+* Remote place types.
+* Remove local annotation.
+* Insert text about dynamic place checks, and place casts.
+* Consider adding atomic expressions. Current work around is place the
+  expression in an assignment. 
+
+* Later date:
+  * Add functions to the syntax.
+
+Mon Apr 25 10:27:47 2005
+
+* Need to define notion of hashCode for value classes. This cannot
+  depend on the storage representation of course. And must be
+  compatible with ==.
+
+Wed Apr 13 05:15:46 2005
+
+* Insert syntax statements for clock. XtenClocks.tex
+
+2/17/2005
+* Add section on native code. (done)
+* Check Java Memory Model for input on ordering of atomics.
+* Respond to Christoph' suggestion about atomic sections.
+* Determine whether atomics can be general or not.
+* Parallel I/O
+* Array views, array sections (a la Fortran)
+* Sparse regions.
+* Operator overloading
+* Generics
+* Interface with Java.
+* Introduction of immutable annotation on variables. Immutable
+  variables can be initialized only once. Unlike final fields,
+  immutable fields may be initialized after the constructor for the
+  object has returned. Any attempt to assign an initialized immutable
+  field will throw a runtime exception unless the value is equal to
+  the value already stored in the field.
+* Introduction of syntax for typestate assertions, for unaliased variables.
+* Introduction of pure annotations on methods. Pure methods return the same
+  value in any properly initialized heap (one in which all final fields
+  have a value and those immutable fields that are read have a value). Such
+  methods can read only immutable and final fields. Should they be allowed
+  to initialize immutable heaps, and create new objects to be placed in 
+  such a heap.
+* Introduction of flow annotations on variables. A value in a flow
+  variable cannot be communicated to old activities -- those that
+  exist before this variable is created, or that are created by other
+  activities. A value stored in a flow variable cannot be assigned to
+  a field of a placelocal or placeglobal object. It can only be
+  passed into methods, or returned from methods, or passed into
+  created activities.
+
+* Ensure that the array type constructor is equivariant. Cannot assign
+  to a variable of type T[] an array of type S[] where S is a subtype
+  of T.
+
+* Add a comment about Cilk. async is closely related to spawn and
+  finish to sync. X10 programs with "finish mains" generate
+  series/parallel call graphs.
+
+* Allow a method to be annotated with finish. This is the same as
+  wrapping a finish around the body of the method. Hmm.. Need to allow
+  an atomic to spawn an async as well. Then methods could be both
+  finish and atomic. However, the finish must be outside the atomic.
+
+* Thus X10 is changed to permit daemon threads.
+
+* Fix the X10 clock spec so that clocked statements are correctly
+  dealt with.
+
+
+Grammar
+
+o XtenOverview.tex.. fields typed at reference classes. Check the
+  idiomatic expression here.
+o s/he
+o P 9... class F change m .. use this.a
+o P 9 .. place P.. change to final place P.
+p P 9 .. discuss how method invocation should be type-checked.
+o P 10 ... ?T --> nullable T.
+o P 10 ... last paragraph of col 1 on Page 10.
+o Types.. A variable of a value data type {\tt R} where {\tt R} is the name of a
+value class always holds a reference to an instance of {\tt R} (or a
+class that is a subclass of {\tt R}) or an instance of {\tt R} (or a
+class that is a subclass of {\tt R}). No program can distinguish
+between the two cases.
+
+o X10 support seven kinds of variable... Say something about clocked final variables, and how place/clock variables are just like other variables, but happen to be used in types.
+
+o 3.6.2 ... used the phrase "variable declared at a type" a lot.
+ class C {
+  D x;
+ }
+So this text should discuss that u get an overflow. Compiler should detect
+this and say something about it.
+
+o Page 11. 3.7 ... == and != may communicate if the value is a value
+  and its not local.
+
+6/12/2004
+o Need to respond to Kielstra note.
+o Need to figure out whether annotations are to be allowed.
+
+o Need to figure out whether enumerations are allowed. Can we just use
+  JSR 201 here?
+
+
+----------------------
+
+''' To do list'''
+
+The following pages contain TodoItems in situ
+
+*XtenEnums
+*
+
+-------------------------
+Sun Dec 05 07:14:42 2004
+
+o TODO: XtenStatement.tex. Need to introduce text supporting

@@ -1,0 +1,217 @@
+\chapter{Annotations and Compiler
+Plugins}\label{XtenAnnotations}\index{annotations}
+
+
+X10 provides an 
+an annotation system and compiler plugin system for to allow the
+compiler to be extended with new static analyses and new
+transformations.
+
+Annotations are interface types that decorate the abstract syntax tree
+of an X10 program.  The X10 type-checker ensures that an annotation
+is a legal interface type.
+In X10, interfaces may declare
+both methods and properties.  Therefore, like any interface type, an
+annotation may instantiate
+one or more of its interface's properties.
+Unlike with Java
+annotations,
+property initializers need not be
+compile-time constants;
+however, a given compiler plugin
+may do additional checks to constrain the allowable
+initializer expressions.
+The X10 type-checker does not check that
+all properties of an annotation are initialized,
+although this could be enforced by
+a compiler plugin.
+
+\section{Annotation syntax}
+
+The annotation syntax consists of an ``\texttt{@}'' followed by an interface type.
+\begin{x10}
+532   Annotation ::= @ InterfaceType
+533   Annotations ::= Annotation
+534     | Annotations Annotation
+535   Annotationsopt ::=
+536     | Annotations
+\end{x10}
+Annotations can be applied to most syntactic constructs in the language
+including class declarations, constructors, methods, field declarations,
+local variable declarations and formal parameters, statements,
+expressions, and types.
+Multiple occurrences of the same annotation (i.e., multiple
+annotations with the same interface type) on the same entity are permitted.
+
+\begin{x10}
+537   ClassModifier ::= Annotation
+538   InterfaceModifier ::= Annotation
+539   FieldModifier ::= Annotation
+540   MethodModifier ::= Annotation
+541   VariableModifier ::= Annotation
+542   ConstructorModifier ::= Annotation
+543   AbstractMethodModifier ::= Annotation
+544   ConstantModifier ::= Annotation
+545   Type ::= AnnotatedType
+546   AnnotatedType ::= Type Annotations
+547   Statement ::= AnnotatedStatement
+548   AnnotatedStatement ::= Annotation Statement
+549   Expression ::= AnnotatedExpression
+550   AnnotatedExpression ::= ( Annotations ) Expression
+\end{x10}
+\noindent
+Recall that interface types may have dependent parameters.
+
+\noindent
+The following examples illustrate the syntax:
+
+\begin{itemize}
+\item Declaration annotations:
+\begin{x10}
+  // class annotation
+  @Value
+  class Cons \{ ... \}
+
+  // method annotation
+  @PreCondition(0 <= i \&\& i < this.size)
+  public Object get(int i) \{ ... \}
+
+  // constructor annotation
+  @Where(x != null)
+  C(T x) \{ ... \}
+
+  // constructor return type annotation
+  C@Initialized(T x) \{ ... \}
+
+  // variable annotation
+  @Unique A x;
+\end{x10}
+\item Type annotations:
+\begin{x10}
+  List@Nonempty
+
+  int@Range(1,4)
+
+  double[][]@Size(n * n)
+\end{x10}
+\item Expression annotations:
+\begin{x10}
+  (@RemoteCall) m()
+
+  3 == (@Bits(2)) 15
+\end{x10}
+\item Statement annotations:
+\begin{x10}
+  @Atomic \{ ... \}
+
+  @MinIterations(1)
+  @MaxIterations(n)
+  for (int i = 0; i < n; i++) \{ ... \}
+
+  // An annotated empty statement ;
+  @Assert(x < y);
+\end{x10}
+\end{itemize}
+
+\section{Annotation declarations}
+
+Annotations are declared as interfaces.  They must be
+subtypes of \texttt{x10.lang.annotation.Annotation}.
+Annotations on types, expressions, statements, classes, fields,
+methods, constructors, and local variable declarations (or
+formal parameters)
+must extend
+\texttt{ExpressionAnnotation},
+\texttt{StatementAnnotation},
+\texttt{ClassAnnotation},
+\texttt{FieldAnnotation},
+\texttt{MethodAnnotation},
+\texttt{ConstructorAnnotation}, and
+\texttt{VariableAnnotation}, respectively.
+
+\section{Compiler plugins}
+\index{plugins}
+
+After the base X10 semantic checking is completed, 
+compiler plugins are loaded and run.  Plugins may perform
+any number of compiler passes to implement
+additional semantic checking and code transformations, including
+transformations using the abstract syntax of the annotations
+themselves.  Plugins should output valid X10 abstract
+syntax trees.
+
+Plugins are implemented in java as
+Polyglot~\cite{ncm03} passes applied to the AST
+after normal base X10 type checking.
+Plugins to run are specified on the command-line.  The order of
+execution is determined by the Polyglot pass scheduler.
+\index{Polyglot}
+
+To run compiler plugins, add the command-line option:
+\begin{x10}
+  -PLUGINS=P1,P2,...,Pn
+\end{x10}
+where \texttt{P1}, \texttt{P2}, \dots, \texttt{Pn} are classes that implement the
+\texttt{CompilerPlugin} interface:
+\index{CompilerPlugin}
+
+\begin{x10}
+  package polyglot.ext.x10.plugin;
+
+  import polyglot.ext.x10.ExtensionInfo;
+  import polyglot.frontend.Job;
+  import polyglot.frontend.goals.Goal;
+
+  public interface CompilerPlugin \{
+      public Goal register(ExtensionInfo extInfo, Job job);
+  \}
+\end{x10}
+
+\index{Goal}
+The \texttt{Goal} object returned by the \texttt{register} method specifies dependencies on other passes.
+Documentation for Polyglot can be found at:
+\begin{x10}
+  http://www.cs.cornell.edu/Projects/polyglot
+\end{x10}
+Most plugins should implement either \texttt{SimpleOnePassPlugin} or
+\texttt{SimpleVisitorPlugin}.
+
+The compiler loads plugin classes from the x10c classpath.
+
+Plugins are given access to a Polyglot AST and type system.  Annotations are
+represented in the AST as \texttt{Node}s with the following interface:
+\index{Node}
+
+\begin{x10}
+  package polyglot.ext.x10.ast;
+
+  public interface AnnotationNode extends Node \{
+    X10ClassType annotation();
+  \}
+\end{x10}
+
+Annotations for a \texttt{Node} object \texttt{n} can be accessed through the
+node's extension object as follows:
+\index{AnnotationNode}
+
+\begin{x10}
+  List<AnnotationNode> annotations =
+    ((X10Ext) n.ext()).annotations();
+  List<X10ClassType> annotationTypes =
+    ((X10Ext) n.ext()).annotationInterfaces();
+\end{x10}
+In the type system, \texttt{X10TypeObject} has the following
+method for accessing annotations:
+\begin{x10}
+  List<X10ClassType> annotations();
+\end{x10}
+
+
+%\balance
+\bibliography{pm.bib,db.bib}
+
+% \clearpage
+
+\end{document}
+
+

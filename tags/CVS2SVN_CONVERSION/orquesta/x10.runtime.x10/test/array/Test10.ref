@@ -1,0 +1,9 @@
+--- Test10: unbounded rectangle
+rank 2
+rect true
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0>=0 && x1<=1 && x0<=3)
+x10.array.UnboundedRegionException: axis 1 has no minimum

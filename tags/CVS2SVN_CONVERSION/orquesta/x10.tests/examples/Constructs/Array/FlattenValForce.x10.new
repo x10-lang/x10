@@ -1,0 +1,31 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+
+/**
+ * Test for array reference flattening. Check that flattening works inside a Future.
+ */
+public class FlattenValForce extends x10Test {
+   
+    static def rd(val e: Array[future<int>], val i: int): future<int> = {
+       var fd: future<double> = future { 3.0 };
+       var x: double = fd.force();
+		return
+			future { e(i).force() };
+	}
+   
+	public def run(): boolean = {
+	  return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new FlattenValForce().execute();
+	}
+	
+}

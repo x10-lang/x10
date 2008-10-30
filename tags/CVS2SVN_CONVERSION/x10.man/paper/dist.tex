@@ -1,0 +1,152 @@
+\begin{tightcode}
+\quad\num{1}package x10.lang;
+\quad\num{2}
+\quad\num{3}/** A distribution is a mapping from a given region to a set of
+\quad\num{4} * places. It takes as parameter the region over which the mapping is
+\quad\num{5} * defined. The dimensionality of the distribution is the same as the
+\quad\num{6} * dimensionality of the underlying region.
+\quad\num{7}
+\quad\num{8}   @author vj
+\quad\num{9}   @date 12/24/2004
+\quad\num{10} */
+\quad\num{11}
+\quad\num{12}public final value class distribution( region region ) \{
+\quad\num{13}    /** The parameter dimension may be used in constructing types derived
+\quad\num{14}     * from the class distribution. For instance,
+\quad\num{15}     * distribution(dimension=k) is the type of all k-dimensional
+\quad\num{16}     * distributions.
+\quad\num{17}     */
+\quad\num{18}    parameter int dimension = region.dimension;
+\quad\num{19}
+\quad\num{20}    /** places is the range of the distribution. Guranteed that if a
+\quad\num{21}     * place P is in this set then for some point p in region,
+\quad\num{22}     * this.valueAt(p)==P.
+\quad\num{23}     */
+\quad\num{24}    public final Set<place> places; \emph{// consider making this a parameter?}
+\quad\num{25}
+\quad\num{26}    /** Returns the place to which the point p in region is mapped.
+\quad\num{27}     */
+\quad\num{28}    extern public place valueAt(point(region) p);
+\quad\num{29}
+\quad\num{30}    /** Returns the region mapped by this distribution to the place P.
+\quad\num{31}        The value returned is a subset of this.region.
+\quad\num{32}     */
+\quad\num{33}    extern public region(dimension) restriction( place P );
+\quad\num{34}
+\quad\num{35}    /** Returns the distribution obtained by range-restricting this to Ps.
+\quad\num{36}        The region of the distribution returned is contained in this.region.
+\quad\num{37}     */
+\quad\num{38}    extern public distribution(:this.region.contains(region))
+\quad\num{39}        restriction( Set<place> Ps );
+\quad\num{40}
+\quad\num{41}    /** Returns a new distribution obtained by restricting this to the
+\quad\num{42}     * domain region.intersection(R), where parameter R is a region
+\quad\num{43}     * with the same dimension.
+\quad\num{44}     */
+\quad\num{45}    extern public (region(dimension) R) distribution(region.intersection(R))
+\quad\num{46}        restriction();
+\quad\num{47}
+\quad\num{48}    /** Returns the restriction of this to the domain region.difference(R),
+\quad\num{49}        where parameter R is a region with the same dimension.
+\quad\num{50}     */
+\quad\num{51}    extern public (region(dimension) R) distribution(region.difference(R))
+\quad\num{52}        difference();
+\quad\num{53}
+\quad\num{54}    /** Takes as parameter a distribution D defined over a region
+\quad\num{55}        disjoint from this. Returns a distribution defined over a
+\quad\num{56}        region which is the union of this.region and D.region.
+\quad\num{57}        This distribution must assume the value of D over D.region
+\quad\num{58}        and this over this.region.
+\quad\num{59}
+\quad\num{60}        @seealso distribution.asymmetricUnion.
+\quad\num{61}     */
+\quad\num{62}    extern public (distribution(:region.disjoint(this.region) &&
+\quad\num{63}                                dimension=this.dimension) D)
+\quad\num{64}        distribution(region.union(D.region)) union();
+\quad\num{65}
+\quad\num{66}    /** Returns a distribution defined on region.union(R): it takes on
+\quad\num{67}        this.valueAt(p) for all points p in region, and D.valueAt(p) for all
+\quad\num{68}        points in R.difference(region).
+\quad\num{69}     */
+\quad\num{70}    extern public (region(dimension) R) distribution(region.union(R))
+\quad\num{71}        asymmetricUnion( distribution(R) D);
+\quad\num{72}
+\quad\num{73}    /** Return a distribution on region.setMinus(R) which takes on the
+\quad\num{74}     * same value at each point in its domain as this. R is passed as
+\quad\num{75}     * a parameter; this allows the type of the return value to be
+\quad\num{76}     * parametric in R.
+\quad\num{77}     */
+\quad\num{78}    extern public (region(dimension) R) distribution(region.setMinus(R))
+\quad\num{79}        setMinus();
+\quad\num{80}
+\quad\num{81}    /** Return true iff the given distribution D, which must be over a
+\quad\num{82}     * region of the same dimension as this, is defined over a subset
+\quad\num{83}     * of this.region and agrees with it at each point.
+\quad\num{84}     */
+\quad\num{85}    extern public (region(dimension) r)
+\quad\num{86}        boolean subDistribution( distribution(r) D);
+\quad\num{87}
+\quad\num{88}    /** Returns true iff this and d map each point in their common
+\quad\num{89}     * domain to the same place.
+\quad\num{90}     */
+\quad\num{91}    public boolean equal( distribution( region ) d ) \{
+\quad\num{92}        return this.subDistribution(region)(d)
+\quad\num{93}            && d.subDistribution(region)(this);
+\quad\num{94}    \}
+\quad\num{95}
+\quad\num{96}    /** Returns the unique 1-dimensional distribution U over the region 1..k,
+\quad\num{97}     * (where k is the cardinality of Q) which maps the point [i] to the
+\quad\num{98}     * i'th element in Q in canonical place-order.
+\quad\num{99}     */
+\quad\num{100}    extern public static distribution(:dimension=1) unique( Set<place> Q );
+\quad\num{101}
+\quad\num{102}    /** Returns the constant distribution which maps every point in its
+\quad\num{103}        region to the given place P.
+\quad\num{104}    */
+\quad\num{105}    extern public static (region R) distribution(R) constant( place P );
+\quad\num{106}
+\quad\num{107}    /** Returns the block distribution over the given region, and over
+\quad\num{108}     * place.MAX\_PLACES places.
+\quad\num{109}     */
+\quad\num{110}    public static (region R) distribution(R) block() \{
+\quad\num{111}        return this.block(R)(place.places);
+\quad\num{112}    \}
+\quad\num{113}
+\quad\num{114}    /** Returns the block distribution over the given region and the
+\quad\num{115}     * given set of places. Chunks of the region are distributed over
+\quad\num{116}     * s, in canonical order.
+\quad\num{117}     */
+\quad\num{118}    extern public static (region R) distribution(R) block( Set<place> s);
+\quad\num{119}
+\quad\num{120}
+\quad\num{121}    /** Returns the cyclic distribution over the given region, and over
+\quad\num{122}     * all places.
+\quad\num{123}     */
+\quad\num{124}    public static (region R) distribution(R) cyclic() \{
+\quad\num{125}        return this.cyclic(R)(place.places);
+\quad\num{126}    \}
+\quad\num{127}
+\quad\num{128}    extern public static (region R) distribution(R) cyclic( Set<place> s);
+\quad\num{129}
+\quad\num{130}    /** Returns the block-cyclic distribution over the given region, and over
+\quad\num{131}     * place.MAX\_PLACES places. Exception thrown if blockSize < 1.
+\quad\num{132}     */
+\quad\num{133}    extern public static (region R)
+\quad\num{134}        distribution(R) blockCyclic( int blockSize)
+\quad\num{135}        throws MalformedRegionException;
+\quad\num{136}
+\quad\num{137}    /** Returns a distribution which assigns a random place in the
+\quad\num{138}     * given set of places to each point in the region.
+\quad\num{139}     */
+\quad\num{140}    extern public static (region R) distribution(R) random();
+\quad\num{141}
+\quad\num{142}    /** Returns a distribution which assigns some arbitrary place in
+\quad\num{143}     * the given set of places to each point in the region. There are
+\quad\num{144}     * no guarantees on this assignment, e.g. all points may be
+\quad\num{145}     * assigned to the same place.
+\quad\num{146}     */
+\quad\num{147}    extern public static (region R) distribution(R) arbitrary();
+\quad\num{148}
+\quad\num{149}\}
+\quad\num{150}
+\end{tightcode}

@@ -1,0 +1,3 @@
+// SYNOPSIS: next;
+x10.lang.Activity.current().next();
+

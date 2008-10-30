@@ -1,0 +1,6 @@
+// SYNOPSIS: future[#1](#0) #2    #3=run-time type for #1
+(x10.lang.Activity.here()).<#1>runFuture(#3, x10.lang.Place.asPlace(#0), new x10.lang.Future_c<#1>(#3) {
+  public #1 eval$() {
+        #2
+  }
+})

@@ -1,0 +1,45 @@
+C++ cws runs.
+
+xlc compiler:
+
+
+bash-2.05a$ for p in 16 12 8 6 4 2 1
+> do
+> for n in 8 10 12 14
+> do
+> ./NQueensCStack_a.x $p 5 $n
+> done
+> done
+nprocs=16 NQueensCStack_a(8)    572 us  ok       steals=11      stealAttempts=152
+nprocs=16 NQueensCStack_a(10)   168674 us       ok       steals=137     stealAttempts=1680
+nprocs=16 NQueensCStack_a(12)   109968 us       ok       steals=315     stealAttempts=1306
+nprocs=16 NQueensCStack_a(14)   1260089 us      ok       steals=781     stealAttempts=1213
+nprocs=12 NQueensCStack_a(8)    521 us  ok       steals=35      stealAttempts=471
+nprocs=12 NQueensCStack_a(10)   2360 us ok       steals=138     stealAttempts=866
+nprocs=12 NQueensCStack_a(12)   41942 us        ok       steals=347     stealAttempts=1630
+nprocs=12 NQueensCStack_a(14)   1548826 us      ok       steals=506     stealAttempts=1096
+nprocs=8 NQueensCStack_a(8)     402 us  ok       steals=27      stealAttempts=165
+nprocs=8 NQueensCStack_a(10)    2962 us ok       steals=106     stealAttempts=788
+nprocs=8 NQueensCStack_a(12)    61016 us        ok       steals=189     stealAttempts=1026
+nprocs=8 NQueensCStack_a(14)    2303197 us      ok       steals=322     stealAttempts=1086
+nprocs=6 NQueensCStack_a(8)     664 us  ok       steals=23      stealAttempts=308
+nprocs=6 NQueensCStack_a(10)    3434 us ok       steals=78      stealAttempts=403
+nprocs=6 NQueensCStack_a(12)    81319 us        ok       steals=142     stealAttempts=554
+nprocs=6 NQueensCStack_a(14)    2990300 us      ok       steals=277     stealAttempts=770
+nprocs=4 NQueensCStack_a(8)     424 us  ok       steals=14      stealAttempts=65
+nprocs=4 NQueensCStack_a(10)    4327 us ok       steals=49      stealAttempts=120
+nprocs=4 NQueensCStack_a(12)    116478 us       ok       steals=66      stealAttempts=236
+nprocs=4 NQueensCStack_a(14)    4693439 us      ok       steals=112     stealAttempts=414
+nprocs=2 NQueensCStack_a(8)     467 us  ok       steals=8       stealAttempts=22
+nprocs=2 NQueensCStack_a(10)    7980 us ok       steals=10      stealAttempts=27
+nprocs=2 NQueensCStack_a(12)    231758 us       ok       steals=22      stealAttempts=71
+nprocs=2 NQueensCStack_a(14)    8969701 us      ok       steals=25      stealAttempts=74
+nprocs=1 NQueensCStack_a(8)     728 us  ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(10)    15694 us        ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(12)    462746 us       ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(14)    17951491 us     ok       steals=0       stealAttempts=0
+bash-2.05a$ date
+Sun Aug 19 17:18:48 EDT 2007
+bash-2.05a$
+
+

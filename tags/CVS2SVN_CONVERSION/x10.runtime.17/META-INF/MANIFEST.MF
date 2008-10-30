@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 runtime
+Bundle-SymbolicName: x10.runtime.17
+Bundle-Version: 1.0.70
+Bundle-Localization: plugin
+Eclipse-AutoStart: true
+Export-Package: x10.array,
+ x10.array.sharedmemory,
+ x10.base,
+ x10.compilergenerated,
+ x10.lang,
+ x10.runtime,
+ x10.runtime.util
+Bundle-Vendor: rfuhrer@watson.ibm.com
+

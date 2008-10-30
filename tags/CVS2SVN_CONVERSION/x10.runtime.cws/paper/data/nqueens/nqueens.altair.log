@@ -1,0 +1,157 @@
+These are cilk numbers (best of 5 runs)
+
+No inlet (array of integers to store result values)
+
+altair - vijay - nqueens > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-no-inlet -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=1483.654 us
+nqueens(10)=724  ok time=32011.539 us
+nqueens(12)=14200        ok time=929608.468 us
+nqueens(14)=365596       ok time=35755580.120 us
+nqueens(8)=92    ok time=1154.138 us
+nqueens(10)=724  ok time=20021.294 us
+nqueens(12)=14200        ok time=469892.649 us
+nqueens(14)=365596       ok time=17882850.524 us
+nqueens(8)=92    ok time=1492.186 us
+nqueens(10)=724  ok time=26300.053 us
+nqueens(12)=14200        ok time=236499.647 us
+nqueens(14)=365596       ok time=8965604.412 us
+nqueens(8)=92    ok time=1493.925 us
+nqueens(10)=724  ok time=25756.235 us
+nqueens(12)=14200        ok time=179070.512 us
+nqueens(14)=365596       ok time=5999242.641 us
+nqueens(8)=92    ok time=1480.804 us
+nqueens(10)=724  ok time=29618.943 us
+nqueens(12)=14200        ok time=141667.321 us
+nqueens(14)=365596       ok time=4526239.198 us
+
+
+
+Code with a inlet and single counter in the parent frame that is updated by all child activities. 
+
+altair - vijay - nqueens >
+altair - vijay - nqueens > foreach p ( 1 2 4 6 8 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-inlet-counter  -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=1162.336 us
+nqueens(10)=724  ok time=25357.340 us
+nqueens(12)=14200        ok time=751983.836 us
+nqueens(14)=365596       ok time=29619652.852 us
+nqueens(8)=92    ok time=1161.433 us
+nqueens(10)=724  ok time=13160.898 us
+nqueens(12)=14200        ok time=376951.780 us
+nqueens(14)=365596       ok time=14829452.702 us
+nqueens(8)=92    ok time=1161.134 us
+nqueens(10)=724  ok time=15288.957 us
+nqueens(12)=14200        ok time=204548.949 us
+nqueens(14)=365596       ok time=7431496.500 us
+nqueens(8)=92    ok time=1158.227 us
+nqueens(10)=724  ok time=17618.920 us
+nqueens(12)=14200        ok time=139602.810 us
+nqueens(14)=365596       ok time=4963292.234 us
+nqueens(8)=92    ok time=1156.086 us
+nqueens(10)=724  ok time=20111.119 us
+nqueens(12)=14200        ok time=120517.523 us
+nqueens(14)=365596       ok time=3742639.653 us
+altair - vijay - nqueens > date
+Sun Aug 19 00:13:58 EDT 2007
+
+
+with -O2 optimization:
+
+altair - vijay - nqueens > foreach p ( 8 6 4 2 1 )                              foreach? foreach n ( 8 10 12 14 )
+foreach? ./nqueens-inlet-counter -nproc $p 5 $n
+foreach? end
+foreach? end
+nqueens(8)=92    ok time=591.955 us
+nqueens(10)=724  ok time=12538.881 us
+nqueens(12)=14200        ok time=95089.834 us
+nqueens(14)=365596       ok time=1847505.993 us
+nqueens(8)=92    ok time=591.280 us
+nqueens(10)=724  ok time=11350.986 us
+nqueens(12)=14200        ok time=92570.902 us
+nqueens(14)=365596       ok time=2419364.171 us
+nqueens(8)=92    ok time=590.672 us
+nqueens(10)=724  ok time=8878.728 us
+nqueens(12)=14200        ok time=106896.499 us
+nqueens(14)=365596       ok time=3619364.942 us
+nqueens(8)=92    ok time=591.905 us
+nqueens(10)=724  ok time=6640.773 us
+nqueens(12)=14200        ok time=187247.307 us
+nqueens(14)=365596       ok time=7229839.449 us
+nqueens(8)=92    ok time=593.325 us
+nqueens(10)=724  ok time=12812.191 us
+nqueens(12)=14200        ok time=374847.308 us
+nqueens(14)=365596       ok time=14461815.173 us
+altair - vijay - nqueens >
+
+
+
+---------------------------------------------------------------------------------------
+
+Following are numbers for c++ cws
+
+altair - vijay - sched > foreach p ( 8 6 4 2 1 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./NQueensCStack_a.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=8 NQueensCStack_a(8)     573 us  ok       steals=33      stealAttempts=402
+nprocs=8 NQueensCStack_a(10)    2978 us ok       steals=63      stealAttempts=1149
+nprocs=8 NQueensCStack_a(12)    66857 us        ok       steals=164     stealAttempts=8620
+nprocs=8 NQueensCStack_a(14)    2439578 us      ok       steals=292     stealAttempts=2386
+nprocs=6 NQueensCStack_a(8)     449 us  ok       steals=27      stealAttempts=425
+nprocs=6 NQueensCStack_a(10)    3116 us ok       steals=76      stealAttempts=412
+nprocs=6 NQueensCStack_a(12)    83654 us        ok       steals=169     stealAttempts=729
+nprocs=6 NQueensCStack_a(14)    2881058 us      ok       steals=194     stealAttempts=452
+nprocs=4 NQueensCStack_a(8)     353 us  ok       steals=21      stealAttempts=115
+nprocs=4 NQueensCStack_a(10)    4052 us ok       steals=47      stealAttempts=215
+nprocs=4 NQueensCStack_a(12)    107970 us       ok       steals=64      stealAttempts=199
+nprocs=4 NQueensCStack_a(14)    4094926 us      ok       steals=130     stealAttempts=381
+nprocs=2 NQueensCStack_a(8)     367 us  ok       steals=10      stealAttempts=33
+nprocs=2 NQueensCStack_a(10)    6174 us ok       steals=11      stealAttempts=24
+nprocs=2 NQueensCStack_a(12)    180999 us       ok       steals=17      stealAttempts=52
+nprocs=2 NQueensCStack_a(14)    7165675 us      ok       steals=31      stealAttempts=66
+nprocs=1 NQueensCStack_a(8)     547 us  ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(10)    12047 us        ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(12)    364261 us       ok       steals=0       stealAttempts=0
+nprocs=1 NQueensCStack_a(14)    14345054 us     ok       steals=0       stealAttempts=0
+altair - vijay - sched >
+altair - vijay - sched >
+altair - vijay - sched > date
+Sun Aug 19 15:13:32 EDT 2007
+
+altair - vijay - sched > foreach p ( 8 6 4 2 1 )
+foreach? foreach n ( 8 10 12 14 )
+foreach? ./NQueensGStack.x $p 5 $n
+foreach? end
+foreach? end
+nprocs=8 NQueensGStack(8)       316 us ok        steals=41      stealAttempts=143
+nprocs=8 NQueensGStack(10)      2698 us ok       steals=88      stealAttempts=307
+nprocs=8 NQueensGStack(12)      32661 us ok      steals=138     stealAttempts=809
+Segmentation fault
+nprocs=6 NQueensGStack(8)       267 us ok        steals=42      stealAttempts=119
+nprocs=6 NQueensGStack(10)      3288 us ok       steals=74      stealAttempts=145
+nprocs=6 NQueensGStack(12)      88363 us ok      steals=162     stealAttempts=228
+nprocs=6 NQueensGStack(14)      3246770 us ok    steals=219     stealAttempts=307
+nprocs=4 NQueensGStack(8)       262 us ok        steals=25      stealAttempts=44
+nprocs=4 NQueensGStack(10)      4333 us ok       steals=43      stealAttempts=74
+nprocs=4 NQueensGStack(12)      120725 us ok     steals=90      stealAttempts=108
+nprocs=4 NQueensGStack(14)      4521553 us ok    steals=99      stealAttempts=127
+nprocs=2 NQueensGStack(8)       322 us ok        steals=8       stealAttempts=12
+nprocs=2 NQueensGStack(10)      6274 us ok       steals=9       stealAttempts=15
+nprocs=2 NQueensGStack(12)      187375 us ok     steals=22      stealAttempts=26
+nprocs=2 NQueensGStack(14)      7380682 us ok    steals=26      stealAttempts=32
+nprocs=1 NQueensGStack(8)       603 us ok        steals=0       stealAttempts=0
+nprocs=1 NQueensGStack(10)      12458 us ok      steals=0       stealAttempts=0
+nprocs=1 NQueensGStack(12)      374416 us ok     steals=0       stealAttempts=0
+nprocs=1 NQueensGStack(14)      14742548 us ok   steals=0       stealAttempts=0
+altair - vijay - sched > ./NQueensGStack.x 8 5 14
+nprocs=8 NQueensGStack(14)      2826037 us ok    steals=339     stealAttempts=562
+
+

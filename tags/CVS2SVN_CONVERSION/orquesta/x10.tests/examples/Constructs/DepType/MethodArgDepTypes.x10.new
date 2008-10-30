@@ -1,0 +1,105 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Check that a method arg can have a deptype and it is propagated into the body.
+ *
+ * @author vj
+ */
+public class MethodArgDepTypes extends x10Test {
+   class Test(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that a method arg can have a deptype and it is propagated into the body.
+ *
+ * @author vj
+ */
+public class MethodArgDepTypes extends x10Test {
+   class Test(int i, int j) {
+     public def this(var ii: int, var jj: int): Test = { i=ii; j=jj;}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that a method arg can have a deptype and it is propagated into the body.
+ *
+ * @author vj
+ */
+public class MethodArgDepTypes extends x10Test {
+   class Test(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that a method arg can have a deptype and it is propagated into the body.
+ *
+ * @author vj
+ */
+public class MethodArgDepTypes extends x10Test {
+   class Test(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that a method arg can have a deptype and it is propagated into the body.
+ *
+ * @author vj
+ */
+public class MethodArgDepTypes extends x10Test {
+   class Test(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that a method arg can have a deptype and it is propagated into the body.
+ *
+ * @author vj
+ */
+public class MethodArgDepTypes extends x10Test {
+   class Test(int i, int j) {
+     public Test(int ii, int jj) { i=ii; j=jj;}
+   }
+   public def m(var t: Test{i==j}): boolean = { 
+      var tt: Test{i==j} = t;
+      return true;
+    }
+	public def run(): boolean = {
+	   return m((Test{i==j})) new Test(2,2));
+	}
+	public static def main(var args: Rail[String]): void = {
+		new MethodArgDepTypes().execute();
+	}
+}

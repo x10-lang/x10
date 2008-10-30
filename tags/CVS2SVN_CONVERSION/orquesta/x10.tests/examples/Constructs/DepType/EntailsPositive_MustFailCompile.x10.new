@@ -1,0 +1,104 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * 
+ *
+ * @author vj
+ */
+public class EntailsPositiveMustFailCompile(public val i: int, public val j: int, ) extends x10Test /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * 
+ *
+ * @author vj
+ */
+public class EntailsPositiveMustFailCompile(int i, int j) extends x10Test {
+
+	public def this(var i: int, var j: int): EntailsPositiveMustFailCompile = { this.i=i; this.j=j;}
+	public def run(): boolean = {
+	    var x: EntailsPositiveMustFailCompile{i==1} = new EntailsPositiveMustFailCompile(1,2);
+	    return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new EntailsPositiveMustFailCompile(1,2).execute();
+	}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * 
+ *
+ * @author vj
+ */
+public class EntailsPositiveMustFailCompile(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * 
+ *
+ * @author vj
+ */
+public class EntailsPositiveMustFailCompile(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * 
+ *
+ * @author vj
+ */
+public class EntailsPositiveMustFailCompile(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * 
+ *
+ * @author vj
+ */
+public class EntailsPositiveMustFailCompile(int i, int j) extends x10Test {
+
+	public EntailsPositiveMustFailCompile(int i, int j) { this.i=i; this.j=j;}
+	public boolean run() {
+	    EntailsPositiveMustFailCompile(: i==1) x =  new EntailsPositiveMustFailCompile(1,2);
+	    return true;
+	}
+	public static void main(String[] args) {
+		new EntailsPositiveMustFailCompile(1,2).execute();
+	}
+}

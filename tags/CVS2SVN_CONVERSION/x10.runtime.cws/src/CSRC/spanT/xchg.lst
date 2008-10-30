@@ -1,0 +1,14 @@
+
+ xchg.s                              V5.3                08/17/07
+
+File# Line#  Mode Name    Loc Ctr   Object Code  PowerPC     Source
+
+0       1 |  PWR5X        00000000  7ca01828                 lwarx 5,0,3
+0       2 |  PWR5X        00000004  7c80192d                 stwcx. 4,0,3
+0       3 |  PWR5X        00000008  40820008                 bne- fail_xchg 
+0       4 |  PWR5X        0000000c  38a5fffd                 addi 5, 5, -3
+0       5 |                                                fail_xchg:
+0       6 |  PWR5X        00000010  38a50003                 addi 5, 5, 3 
+0       7 |  PWR5X        00000014  38650000                 addi 3, 5, 0
+0       8 |  PWR5X        00000018  4c00012c                 isync
+0       9 |                                                
