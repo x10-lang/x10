@@ -66,24 +66,23 @@ public value Place(id: nat) {
 	
 	public static def runMain(activity: Activity): void {
 		try {
-			activity.startFinish();
-			activity.finishState().notifySubActivitySpawn();
+			val state = new FinishState();
+			activity.finishState(state);
 			FIRST_PLACE.executor.execute(activity);
-			activity.stopFinish();
+			state.waitForFinish();
 		} catch (t: Throwable) {
 			t.printStackTrace();
 		}
 	}
 	
 	public def runAsync(activity: Activity): void {
-		activity.setFinishState(Activity.current().finishState());
-		activity.finishState().notifySubActivitySpawn();
+		activity.finishState(Activity.current().finishState());
 		executor.execute(activity);
 	}
 
 	//HACK code generation fails if method is not static
-	public static def runFuture[T](p: Place, future_c: Future_c[T]): Future[T] {
-		p.runAsync(future_c);
+	public static def runFuture[T](place: Place, future_c: Future_c[T]): Future[T] {
+		place.runAsync(future_c);
 		return future_c;
 	}
 

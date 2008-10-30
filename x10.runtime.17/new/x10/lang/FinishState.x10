@@ -33,11 +33,22 @@ public class FinishState {
 	/**
 	 * This method returns only when all spawned activity registered with this 
 	 * FinishState have terminated either normally or abruptly.
-	 * Additionnaly, a notification is sent to the place where 
-	 * the activity reside when the activity is blocked and unblock.
 	 */
 	public def waitForFinish(): void {
 		latch.await();
+		if ((null != exceptions) && !exceptions.empty()) {
+			if (exceptions.size() == 1) {
+				val t = exceptions.pop();
+				if (t instanceof Error) {
+					throw t as Error;
+				}
+				if (t instanceof RuntimeException) {		
+					throw t as RuntimeException;
+				}
+				assert false as boolean;
+			}
+			throw new MultipleExceptions(exceptions);
+		}
 	}
 
 	/** 
@@ -64,12 +75,5 @@ public class FinishState {
 	public atomic def pushException(t: Throwable): void {
 		if (null == exceptions) exceptions = new Stack[Throwable]();
 		exceptions.push(t);
-	}
-
-	/**
-	 * Return the stack of exceptions, if any, recorded for this finish.
-	 */
-	public def exceptions(): Stack[Throwable] {
-		return exceptions;
 	}
 }
