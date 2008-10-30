@@ -169,8 +169,9 @@ public abstract class Activity(name: String) implements Runnable {
 		return finishState;
 	}
 	
-	public def setFinishState(state: FinishState): void {
+	public def finishState(state: FinishState): void {
 		finishState = state;
+		state.notifySubActivitySpawn();
 	}
 	
 	/**
@@ -178,10 +179,8 @@ public abstract class Activity(name: String) implements Runnable {
 	 * (i.e. within a finish statement).
 	 */
 	public def startFinish(): void {
-		if (null != finishState) {
-			if (null == finishStack) finishStack = new Stack[FinishState]();
-			finishStack.push(finishState);
-		}
+		if (null == finishStack) finishStack = new Stack[FinishState]();
+		finishStack.push(finishState);
 		finishState = new FinishState();
 	}
 
@@ -192,24 +191,9 @@ public abstract class Activity(name: String) implements Runnable {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public def stopFinish(): void {
-		finishState.waitForFinish();
-		val exceptions = finishState.exceptions();
-		if ((null != finishStack) && !finishStack.empty()) {
-			finishState = finishStack.pop();
-		}
-		if ((null != exceptions) && !exceptions.empty()) {
-			if (exceptions.size() == 1) {
-				val t = exceptions.pop();
-				if (t instanceof Error) {
-					throw t as Error;
-				}
-				if (t instanceof RuntimeException) {		
-					throw t as RuntimeException;
-				}
-				assert false as boolean;
-			}
-			throw new MultipleExceptions(exceptions);
-		}
+		val state = finishState;
+		finishState = finishStack.pop();
+		state.waitForFinish();
 	}
 
 	/** 
