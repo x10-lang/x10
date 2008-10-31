@@ -8,7 +8,7 @@
 /*
  * Created on Sep 28, 2004
  */
-package x10.runtime;
+package x10.runtime.impl.java;
 
 import x10.config.ConfigurationError;
 import x10.config.OptionError;

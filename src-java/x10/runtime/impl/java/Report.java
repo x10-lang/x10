@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime;
+package x10.runtime.impl.java;
 
 import java.util.Arrays;
 import java.util.Collection;

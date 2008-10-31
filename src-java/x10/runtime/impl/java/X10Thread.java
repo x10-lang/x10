@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime;
+package x10.runtime.impl.java;
 
 /**
  * Thread in the thread pool that can be used to run multiple

@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime;
+package x10.runtime.impl.java;
 
 public class NativeStack<T> extends java.util.Stack<T> {
 	// HACK discard type parameter

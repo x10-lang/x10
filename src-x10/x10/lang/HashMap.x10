@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.runtime.NativeHashMap<#1,#2>")
+@NativeRep("java", "x10.runtime.impl.java.NativeHashMap<#1,#2>")
 public class HashMap[K,V] implements Map[K,V] {
 	public native def this();
 	

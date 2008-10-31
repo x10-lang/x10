@@ -5,7 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
-package x10.runtime;
+package x10.runtime.impl.java;
 
 import x10.config.ConfigurationError;
 import x10.runtime.util.ShowUsageNotification;

@@ -8,7 +8,7 @@
 
 package x10.core;
 
-import x10.runtime.X10Thread;
+import x10.runtime.impl.java.X10Thread;
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref {
