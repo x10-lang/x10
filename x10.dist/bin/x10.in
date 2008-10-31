@@ -85,7 +85,7 @@ if [ -n "$mx" ]; then
 fi
 java_args="${java_args} ${defs}"
 
-command="\"$JAVA\" $java_args $config x10.runtime.Runtime $args"
+command="\"$JAVA\" $java_args $config x10.runtime.impl.java.Runtime $args"
 
 [ -n "$verbose" ] && echo "$command"
 

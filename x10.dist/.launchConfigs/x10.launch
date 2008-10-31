@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
-<listEntry value="/x10.runtime.x10/src/x10/runtime/Runtime.java"/>
+<listEntry value="/x10.runtime.x10/src-java/x10/runtime/impl/java/Runtime.java"/>
 </listAttribute>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
 <listEntry value="1"/>
@@ -20,7 +20,7 @@
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;runtimeClasspathEntry path=&quot;3&quot; projectName=&quot;polyglot3&quot; type=&quot;1&quot;/&gt;&#10;"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
-<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="x10.runtime.Runtime"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="x10.runtime.impl.java.Runtime"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="${resource_name}"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="x10.runtime.17"/>
 <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-ea"/>

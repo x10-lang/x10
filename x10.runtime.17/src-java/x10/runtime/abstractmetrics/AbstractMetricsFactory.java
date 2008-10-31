@@ -7,7 +7,7 @@
  */
 package x10.runtime.abstractmetrics;
 
-import x10.runtime.VMInterface;
+import x10.runtime.impl.java.VMInterface;
 
 /**
  * The default implementation of the AbstractMetrics interface
