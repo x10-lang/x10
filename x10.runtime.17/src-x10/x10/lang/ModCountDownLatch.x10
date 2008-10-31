@@ -45,7 +45,7 @@ public class ModCountDownLatch {
     		stack.push(NativeThread.currentThread());
     		lock.unlock();
     		here.threadBlockedNotification();
-    		NativeThread.park();
+    		while (count > 0) NativeThread.park();
     		here.threadUnblockedNotification();
     	} else {
     		lock.unlock();
