@@ -1,0 +1,109 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Set;
+import java.util.HashSet;
+import harness.x10Test;;
+
+/**
+ * Testing block-cyclic dist.
+ *
+ * Randomly generate block-cyclic dists and check
+ * index-to-place mapping for conformance with x10 0.41 spec:
+ *
+ * The dist blockCyclic(R, N, Q) distributes the elements of
+ * R cyclically over the set of places Q in blocks of size N.
+ *
+ * This version actually uses a place set Q.
+ *
+ * @author kemal 5/2005
+ */
+public class BlockCyclicDistWithPlaceSet extends x10Test {
+
+	public const P: dist = distmakeUnique();
+	public const COUNT: int = 200;
+	public const L: int = 5;
+	public const K: int = 1;
+
+	public def run(): boolean = {
+		for (val (tries): point in [1..COUNT]) {
+			final val lb1: int = ranInt(-L, L);
+			final val lb2: int = ranInt(-L, L);
+			final val ub1: int = ranInt(lb1, L);
+			final val ub2: int = ranInt(lb2, L);
+			final val R: region = [lb1..ub1, lb2..ub2];
+			final val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
+			final val bSize: int = ranInt(1, totalPoints+1);
+			final val r: randPlaceSet = createRandPlaceSet();
+			final val np: int = r.np;
+			final val placeNums: Array[int] = r.placeNums;
+			final val placeSet: Set = r.placeSet;
+
+			final val DBlockCyclic: dist = distmakeBlockCyclic(R, bSize, placeSet);
+			var offsWithinPlace: Array[int] = new Array[int](np);
+			var pn: int = 0;
+			var offsWithinBlock: int = 0;
+			//System.out.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" bSize = "+bSize);
+
+			for (val (i,j): point in R) {
+				//System.out.println("placeNum = "+placeNums[pn]+" offsWithinPlace[pn] = "+offsWithinPlace[pn]+" offsWithinBlock = "+offsWithinBlock+" i = "+i+" j = "+j+" DBlockCyclic[i,j] = "+DBlockCyclic[i,j].id);
+				chk(DBlockCyclic(i, j) == P(placeNums(pn)));
+				offsWithinPlace(pn)++;
+				offsWithinBlock++;
+				if (offsWithinBlock == bSize) {
+					//time to go to next placeNum
+					offsWithinBlock = 0;
+					pn++;
+					if (pn == np) {
+						pn = 0;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * emulating multiple return values
+	 */
+	static class randPlaceSet {
+		val np: int;
+		val placeSet: Set;
+		val placeNums: Array[int];
+		def this(var n: int, var a: Array[int], var s: Set): randPlaceSet = {
+			np = n;
+			placeNums = a;
+			placeSet = s;
+		}
+	}
+
+	/**
+	 * Create a random, non-empty subset of the places
+	 */
+	def createRandPlaceSet(): randPlaceSet = {
+		var placeSet: Set;
+		var np: int;
+		var placeNums: Array[int] = new Array[int](place.MAX_PLACES);
+		do {
+			np = 0;
+			placeSet = new HashSet();
+			final val THRESH: int = ranInt(10, 90);
+			for (val (i): point in P) {
+				final val x: int = ranInt(0, 99);
+				if (x >= THRESH) {
+					placeSet.add(P(i));
+					placeNums(np++) = i;
+				}
+			}
+		} while (np == 0);
+		return new randPlaceSet(np, placeNums, placeSet);
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new BlockCyclicDistWithPlaceSet().execute();
+	}
+}

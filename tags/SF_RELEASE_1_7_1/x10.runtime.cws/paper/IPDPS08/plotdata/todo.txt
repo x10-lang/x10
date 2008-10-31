@@ -1,0 +1,17 @@
+Mon Jan 21 08:05:32 2008
+
+-- Integrate date for 1500^2 and 2100^2 for Torus for 
+      Altair/BFS/{SpanT,Cilk}
+      Altair/DFS/{SpanT,Cilk}
+      Altair/SV/{SpanT,Cilk}
+
+See data files in the corresponding directories for Jan 19.
+
+-- Integrate data on moxie for 
+     24/30 procs for BFS for KGraph,Random (XWS,Cilk,C)
+    
+  
+   SpanT SV random,kgraph,torus
+   SpanT DFS random,kgraph,torus
+
+-- Integrate data on moxie and altair for dfs random/kgraph/torus

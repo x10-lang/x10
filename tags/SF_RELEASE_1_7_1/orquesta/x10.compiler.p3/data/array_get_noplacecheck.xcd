@@ -1,0 +1,2 @@
+// SYNOPSIS: #0[#1] : #2
+(#0).get(#1,false,true)

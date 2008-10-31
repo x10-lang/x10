@@ -1,0 +1,8 @@
+// SYNOPSIS: now(#0) #1
+
+(#0.now(new x10.lang.Activity() {
+  public void runX10Task$() {
+     #1
+  }
+});
+

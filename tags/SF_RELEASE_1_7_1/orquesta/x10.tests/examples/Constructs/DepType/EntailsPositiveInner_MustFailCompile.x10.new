@@ -1,0 +1,109 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * A class with parameters, Test, is defined as an inner class. Check
+ * that a type Tes(:i==j) can be defined. 
+ *
+ * @author vj
+ */
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
+    class Test(public val i: int, public val j: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * A class with parameters, Test, is defined as an inner class. Check
+ * that a type Tes(:i==j) can be defined. 
+ *
+ * @author vj
+ */
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
+    class Test(int i, int j) {
+	public def this(val ii: int, val jj: int): Test{i==ii&&j==jj} = { property(ii,jj);}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * A class with parameters, Test, is defined as an inner class. Check
+ * that a type Tes(:i==j) can be defined. 
+ *
+ * @author vj
+ */
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
+    class Test(int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * A class with parameters, Test, is defined as an inner class. Check
+ * that a type Tes(:i==j) can be defined. 
+ *
+ * @author vj
+ */
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
+    class Test(int i/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * A class with parameters, Test, is defined as an inner class. Check
+ * that a type Tes(:i==j) can be defined. 
+ *
+ * @author vj
+ */
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
+    class Test(int i, int jint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * A class with parameters, Test, is defined as an inner class. Check
+ * that a type Tes(:i==j) can be defined. 
+ *
+ * @author vj
+ */
+public class EntailsPositiveInner_MustFailCompile extends x10Test {
+    class Test(int i, int j) {
+	public Test(:i==ii&&j==jj)(final int ii, final int jj) { property(ii,jj);}
+    }
+
+	public def run(): boolean = {
+	    var x: Test{i==j} = new Test(1,2); // should fail
+	    return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new EntailsPositiveInner_MustFailCompile().execute();
+	}
+}

@@ -1,0 +1,133 @@
+
+
+                    X10Lib : The X10 Runtime System
+
+                              Version 0.6
+
+
+                              R E A D M E
+                              -----------
+
+
+This is the Readme file for X10 Runtime System Example Programs.
+
+
+/// Simple hello, world program. ///
+
+* hello_cc.cc
+
+    Example that demonstrates how X10Lib can be linked against C++ code.
+
+
+* hello_c.c
+
+    Example that demonstrates how X10Lib can be linked against C code.
+
+
+/// Make a global reference for the selected local address
+	and display both local and remote references across all
+	the places.
+	Also, register a function handler and retrieve its address
+	using the returned handle. ///
+
+* addr_cc.cc
+
+	Example that demonstrates the usage of X10Lib's various
+	addressing routines. [C++ Lang Version]
+
+
+* addr_c.c
+
+	Example that demonstrates the usage of X10Lib's various
+	addressing routines. [C Lang Version]
+
+
+/// Send an array of ints from one place to the next place for
+	all the buddy pairs that constitute the even number of places
+	specified.
+	Display results for both sending and reception. ///
+	
+* recv_cc.cc
+
+	Example that demonstrates the usage of X10Lib's remote
+	copy interface (non-blocking) and switches.
+	[C++ Lang Version]
+
+* recv_c.c
+
+	Example that demonstrates the usage of X10Lib's remote
+	copy interface (non-blocking) and switches.
+	[C Lang Version]
+
+
+/// Send and receive (after manipulation) an array of ints from
+	one place to the next place for all the buddy pairs that
+	constitute the even number of places specified.
+	Display results at the send side both before and after
+	manipulation. ///
+
+* acc_ret_cc.cc
+
+	Example that demonstrates the usage of X10Lib's remote
+	copy interface (blocking). [C++ Lang Version]
+
+* acc_ret_c.c
+
+	Example that demonstrates the usage of X10Lib's remote
+	copy interface (blocking). [C Lang Version]
+
+* async_cc.cc
+
+	Example the demonstrates the usage of async spawn routines and
+	global synchronization routines in X10LIB. The example performs
+	a broadcast of values in the range [0:rank-1] to every other place
+	from place zero. Then the other places return the value to zero, which
+	sums them up locally. 
+
+* finish_cc.cc
+
+	Example the demonstrates the usage of FinishBegin and FinishEnd.
+	The example is same as async_cc.cc, except that instead of SyncGlobal,
+	FinishBegin and FinishEnd are used.
+
+* reduce_cc.cc
+
+	Example the demonstrates the usage of Reduce and FinishReduceAll. The
+	example performs sum reduction over a (logically) uniquely distributed
+        array.
+
+* region_cc.cc
+
+	Example that demonstrates the usage of points, regions and region iterators
+
+* dist_array_spmd.cc
+	
+	Example that demonstartes the usage of local arrays with unique handle. Every
+	place creates a local array (that logically belongs to a distributed array)
+	independently.
+
+* dist_array_onesided.cc
+
+	Example that demonstrates the usage of one-sided constructors to create a
+  	distributed array from a parent without other's involvement.  
+
+*  async_array_put_cc.cc
+
+	Example that demonstrates the usage of AsyncArrayPut method. The example
+	simply transposes a (logically) distributed array.
+ 	
+Scripts for running the build examples
+--------------------------------------
+
+* run_v20.sh
+
+    Runtime script for "v20n17.pbm.ihost.com" system.
+	[Uses v20n17 and v20n18 nodes on v20 cluster.]
+	Uses ../hostfiles/host_v20.list file during runtime
+	for node identification.
+
+* run_rlsecomp1.sh
+
+	Runtime script for "rlsecomp1.watson.ibm.com" system.
+	Uses ../hostfiles/host_rlsecomp1.list file during
+	runtime for node identification.

@@ -1,0 +1,73 @@
+\usepackage{listings}
+%k\usepackage[keywords]{lstpatch}
+\usepackage{color}
+
+\definecolor{Brown}{cmyk}{0,0.49,0.71,0.37}
+\definecolor{RoyalBlue}{cmyk}{0.71,0.53,0,0.12}
+\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
+\definecolor{Red}{cmyk}{0,0.80,0.80,0.10}
+\definecolor{Gray}{cmyk}{0.2,0.2,0.2,0.2}
+\definecolor{Black}{cmyk}{0,0,0,1}
+
+\lstdefinelanguage{X10}%
+  {morekeywords={abstract,break,case,catch,class,%
+      const,continue,default,do,else,extends,false,final,%
+      finally,for,goto,if,implements,import,instanceof,%
+      interface,label,native,new,null,package,private,protected,%
+      public,return,static,super,switch,synchronized,this,throw,%
+      throws,transient,true,try,void,volatile,while,%
+      async,atomic,when,foreach,ateach,finish,clocked,%
+      type,here,%
+      self,property,%
+      has,as,var,val,def,where,in,%
+      next,placelocal,reference,value,or,await,current,activitylocal},%
+   basicstyle=\ttfamily\color{Red},%
+   keywordstyle=\ttfamily\color{OliveGreen},%
+   commentstyle=\ttfamily\color{Gray},%
+   identifierstyle=\ttfamily\color{Red},%
+   stringstyle=\ttfamily,%
+   tabsize=4,%
+   showstringspaces=false,%
+   sensitive,%
+   morecomment=[l]//,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]",%
+   morestring=[b]',%
+   columns=fullflexible,%
+   mathescape=false,%
+   keepspaces=true,%
+   showlines=false,%
+   breaklines=true,%
+  }
+
+\newcommand\codestyle\tt
+
+\lstnewenvironment{xtenmath}
+  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=2em,mathescape=true}}
+  {}
+
+\lstnewenvironment{xten}
+  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=2em}}
+  {}
+
+\lstnewenvironment{xtennoindent}
+  {\lstset{language=X10,breaklines=false,captionpos=b}}
+  {}
+
+%\newenvironment{x10}{\begin{xten}}{\end{xten}}
+
+\newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,breaklines=false,captionpos=b,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
+
+\lstset{language=X10}
+
+\newcommand\xcd{%
+    \leavevmode\bgroup % \hbox\bgroup --> \bgroup
+      \def\lst@boxpos{b}%
+      \lsthk@PreSet\lstset{flexiblecolumns,language=X10}%
+      \lsthk@TextStyle
+      \@ifnextchar\bgroup{\afterassignment\lst@InlineG \let\@let@token}%
+                         \lstinline@}
+
+\newcommand{\Xcd}[1]{{\lstinline[language=X10]"#1"}}
+\newcommand{\Xcdmath}[1]{{\lstinline[language=X10,mathescape=true]"#1"}}
+

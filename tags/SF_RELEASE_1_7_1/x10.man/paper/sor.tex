@@ -1,0 +1,28 @@
+\begin{tightcode}
+\quad\num{1}point NORTH = point.factory.point(1,0);
+\quad\num{2}point WEST  = point.factory.point(0,1);
+\quad\num{3}void sor(double omega, double[.] G, int iter) \{
+\quad\num{4}  region(:self==G.region) outer = G.region;
+\quad\num{5}  region(:outer.contains(self)) inner =
+\quad\num{6}    outer & (outer-NORTH) & (outer+NORTH)
+\quad\num{7}          & (outer-WEST)  & (outer+WEST);
+\quad\num{8}  region d0 = inner.project(0);
+\quad\num{9}  region d1 = inner.project(1);
+\quad\num{10}  if (d1.size() == 0) return;
+\quad\num{11}  int d1min = d1.min()[0];
+\quad\num{12}  int d1max = d1.max()[0];
+\quad\num{13}  for (point[off] : [1:iter*2]) \{
+\quad\num{14}    int red\_black = off % 2;
+\quad\num{15}    finish foreach (point[i]: d0) \{
+\quad\num{16}      if (i % 2 == red\_black) \{
+\quad\num{17}        for (point ij: inner & [i:i,d1min:d1max]) \{
+\quad\num{18}          G[ij] = omega / 4.
+\quad\num{19}                * (G[ij-NORTH] + G[ij+NORTH]
+\quad\num{20}                 + G[ij-WEST]  + G[ij+WEST])
+\quad\num{21}                * (1. - omega) * G[ij];
+\quad\num{22}        \}
+\quad\num{23}      \}
+\quad\num{24}    \}
+\quad\num{25}  \}
+\quad\num{26}\}
+\end{tightcode}

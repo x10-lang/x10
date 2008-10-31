@@ -1,0 +1,50 @@
+1.1 w x 1
+1.2 r y 0
+2.3 w y 1
+2.4 r x 0
+# Manually specified dependencies
+1.2 -> 2.3
+2.4 -> 1.1
+# Program-order dependencies
+1.1 -> 1.2
+2.3 -> 2.4
+# Propagated dependencies
+1.1 -> 2.3
+1.1 -> 2.4
+1.2 -> 2.4
+2.3 -> 1.1
+2.3 -> 1.2
+2.4 -> 1.2
+Happens-before dependencies for task 1
+1.1 -> 1.2
+1.1 -> 2.3
+1.1 -> 2.4
+1.2 -> 2.3
+1.2 -> 2.4
+2.3 -> 1.1
+2.3 -> 1.2
+2.3 -> 2.4
+2.4 -> 1.1
+2.4 -> 1.2
+Cycle located:
+1.1 -> 1.2  (program order)
+1.2 -> 2.3  (manual)
+2.3 -> 1.1  (propagation)
+Task 1 sees cycle
+Happens-before dependencies for task 2
+1.1 -> 1.2
+1.1 -> 2.3
+1.1 -> 2.4
+1.2 -> 2.3
+1.2 -> 2.4
+2.3 -> 1.1
+2.3 -> 1.2
+2.3 -> 2.4
+2.4 -> 1.1
+2.4 -> 1.2
+Cycle located:
+1.1 -> 1.2  (program order)
+1.2 -> 2.3  (manual)
+2.3 -> 1.1  (propagation)
+Task 2 sees cycle
+Cycle found: illegal CCCC execution

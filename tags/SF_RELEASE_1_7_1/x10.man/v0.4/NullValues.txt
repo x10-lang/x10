@@ -1,0 +1,46 @@
+The Null Type Constructor
+
+X10 supports the type constructor '''nullable'''. 
+For any type '''T''', the type '''nullable T''' contains all the
+values of type '''T''', and a special ''null'' value, unless '''T'''
+already contains ''null''. This value is designated by the literal
+'''null'''. 
+
+This literal is special in that it has the type '''nullable \tau'''
+for all types '''\tau'''. Thus it can be passed as an argument to a method
+call whose corresponding formal parameter is of type '''nullable
+\tau''' for some type '''\tau'''. (This is a widening reference
+conversion, per \cite[Sec 5.1.4]{jls}.)
+
+An immediate consequence of the definition of '''nullable''' is that
+for any type '''\tau''', the type '''nullable nullable \tau''' is
+equal to the type '''nullable \tau'''.
+
+Any attempt to access a field or invoke a method on the value ''null''
+results in a '''NullPointerException''' being thrown.
+
+For any value '''v''' of type '''\tau''', the class cast expression 
+'''(nullable \tau) v''' succeeds and specifies a value 
+of type '''nullable \tau''' that may be seen as the ``boxed'' version
+of '''v'''. 
+
+X10 permits the widening reference conversion from any type '''\tau'''
+to the type '''nullable \tau' ''' if '''\tau''' can be widened
+to the type '''\tau' '''. 
+
+
+%% Can two variables of different reference types be compared 
+%% by the == operation without a static type error being thrown?
+
+Correspondingly, a value '''e''' of type '''nullable \tau''' can be
+cast to the type '''\tau''', resulting in a '''ClassCastException''' if
+'''e''' is '''null''' and '''nullable \tau''' is not equal to '''\tau''', and
+in the corresponding value of type '''\tau''' otherwise.  If '''\tau''' is a
+value type this may be seen as the ``unboxing'' operator.
+
+Implementation notes.
+
+A value of type '''nullable T''' may be implemented by boxing a value of
+type '''T''' unless the value is already boxed. The literal '''null'''
+may be represented as the unique null reference.
+

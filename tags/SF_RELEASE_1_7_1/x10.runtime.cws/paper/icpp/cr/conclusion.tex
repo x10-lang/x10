@@ -1,0 +1,42 @@
+\section{Related work}\label{sec:related}
+%\paragraph{Related work}
+Adaptive batching bears some similarities to the steal-half algorithm
+of \cite{shavit-steal-half}, and its variants. Both approaches attempt to cope
+with non-hierarchical workloads for graph problems. In the steal-half
+algorithm, each node is queued as its own task; and thieves take half
+(or some other percentage) of the nodes available per steal
+attempt. In contrast, in our approach, the tasks are pre-batched, so
+only one batch is stolen at a time. This can substantially reduce
+queue overhead, contention and data movement costs, but comes with
+potential disadvantages because nodes cannot be stolen while they are
+being batched, and batches cannot be re-split.  For example, our
+approach does not allow for a subset of the nodes from a stolen batch
+to themselves be re-stolen by other threads (as does
+steal-half). However, queue-sensing adaptation makes consequent
+impediments to global progress highly unlikely.  Because we adaptively
+choose batch sizes so that there are always (during steady state
+processing) some nodes available to be stolen from each active thread,
+imbalanced progress by any one of them has little impact on the
+ability of others to find and steal new work.  Additionally, by
+relating batching rules to sequential processing thresholds needed for
+any work-stealing program, our approach supports simpler empirically
+guided performance tuning.
+\section{Conclusion}\label{sec:concl}
+%\paragraph{Conclusion}
+In this paper we have shown how several graph algorithms can be
+expressed concisely and elegantly in \Xten. These algorithms rely
+heavily on support for fine-grained concurrency. The \Xten{} runtime
+(\XWS) implements fine-grained concurrency through an enhanced
+work-stealing scheduler. Specifically the scheduler supports
+improperly nested tasks, detection of global termination, and phased
+work-stealing.  We measure the performance of spanning tree algorithms
+implemented with pseudo-depth-first search and breadth-first search on
+two multicore systems. We also present a strategy to adaptively control the granularity of parallel tasks in the work-stealing scheme. We show that the \XWS{} programs scale and
+exhibit performance comparable with hand-written C programs.
+
+\paragraph{Acknowledgements} 
+We thank Raj Barik for his contributions to the implementation of the
+C++ version of \XWS. We thank the rest of the \Xten{} team for many
+discussions of these issues. This material is based upon work
+supported by the Defense Advanced Research Projects Agency under its
+Agreement No.  HR0011-07-9-0002.

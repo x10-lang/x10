@@ -1,0 +1,19 @@
+Thu Jan 31 15:03:46 2008
+
+Changes to be made.
+
+-- Supporting full finish.
+
+-- Supporting
+
+great work in languages and concurrency.
+
+Bill Scherer...
+John Mellor-Crummy...
+Anna ...
+...
+Saurav.. research scientist
+Zoran..
+Latsuno...postdoc
+Raj... 
+Raghavan .. grad student

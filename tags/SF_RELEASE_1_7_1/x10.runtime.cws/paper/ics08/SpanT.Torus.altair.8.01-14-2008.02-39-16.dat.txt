@@ -1,0 +1,452 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 01/14/2008 - 02:39:16
+############################################################
+#
+# Run: 1
+#
+
+## Size: 300
+
+### nproc: 1
+./span -t 1 -- 1 300
+THREADS: 1
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.044981 s
+Best time used on TRAVERSE is 0.017969 s
+Best time used on BFS is 0.013683 s
+Best time used on BFS_localq is 0.017034 s
+
+### nproc: 2
+./span -t 2 -- 1 300
+THREADS: 2
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:7
+number of iterations:6
+Best time used on CRCW is 0.029680 s
+Best time used on TRAVERSE is 0.012372 s
+Best time used on BFS is 0.014621 s
+Best time used on BFS_localq is 0.024162 s
+
+### nproc: 4
+./span -t 4 -- 1 300
+THREADS: 4
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:7
+number of iterations:6
+Best time used on CRCW is 0.019309 s
+Best time used on TRAVERSE is 0.011083 s
+Best time used on BFS is 0.020622 s
+Best time used on BFS_localq is 0.037950 s
+
+### nproc: 8
+./span -t 8 -- 1 300
+THREADS: 8
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:7
+number of iterations:7
+Best time used on CRCW is 0.024495 s
+Best time used on TRAVERSE is 0.006634 s
+Best time used on BFS is 0.044306 s
+Best time used on BFS_localq is 0.076810 s
+
+
+
+## Size: 900
+
+### nproc: 1
+./span -t 1 -- 1 900
+THREADS: 1
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:7
+number of iterations:7
+Best time used on CRCW is 1.008016 s
+Best time used on TRAVERSE is 0.227289 s
+Best time used on BFS is 0.184227 s
+Best time used on BFS_localq is 0.217988 s
+
+### nproc: 2
+./span -t 2 -- 1 900
+THREADS: 2
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:7
+number of iterations:7
+Best time used on CRCW is 0.809343 s
+Best time used on TRAVERSE is 0.143712 s
+Best time used on BFS is 0.138296 s
+Best time used on BFS_localq is 0.194654 s
+
+### nproc: 4
+./span -t 4 -- 1 900
+THREADS: 4
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:7
+Best time used on CRCW is 0.657841 s
+Best time used on TRAVERSE is 0.130090 s
+Best time used on BFS is 0.124254 s
+Best time used on BFS_localq is 0.172398 s
+
+### nproc: 8
+./span -t 8 -- 1 900
+THREADS: 8
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:7
+Best time used on CRCW is 0.652316 s
+Best time used on TRAVERSE is 0.084632 s
+Best time used on BFS is 0.173401 s
+Best time used on BFS_localq is 0.254797 s
+
+
+
+## Size: 2700
+
+### nproc: 1
+./span -t 1 -- 1 2700
+THREADS: 1
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 12.947234 s
+Best time used on TRAVERSE is 3.195900 s
+Best time used on BFS is 3.947662 s
+Best time used on BFS_localq is 3.467174 s
+
+### nproc: 2
+./span -t 2 -- 1 2700
+THREADS: 2
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 10.587415 s
+Best time used on TRAVERSE is 1.916163 s
+Best time used on BFS is 2.509859 s
+Best time used on BFS_localq is 2.322937 s
+
+### nproc: 4
+./span -t 4 -- 1 2700
+THREADS: 4
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:9
+number of iterations:8
+Best time used on CRCW is 7.854827 s
+Best time used on TRAVERSE is 1.994383 s
+Best time used on BFS is 2.488940 s
+Best time used on BFS_localq is 1.627491 s
+
+### nproc: 8
+./span -t 8 -- 1 2700
+THREADS: 8
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:8
+number of iterations:9
+Best time used on CRCW is 9.382877 s
+Best time used on TRAVERSE is 1.754530 s
+Best time used on BFS is 1.680745 s
+Best time used on BFS_localq is 1.390608 s
+
+
+#
+# Run: 2
+#
+
+## Size: 300
+
+### nproc: 1
+./span -t 1 -- 1 300
+THREADS: 1
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.045266 s
+Best time used on TRAVERSE is 0.018127 s
+Best time used on BFS is 0.013721 s
+Best time used on BFS_localq is 0.017068 s
+
+### nproc: 2
+./span -t 2 -- 1 300
+THREADS: 2
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.027533 s
+Best time used on TRAVERSE is 0.011451 s
+Best time used on BFS is 0.013735 s
+Best time used on BFS_localq is 0.022508 s
+
+### nproc: 4
+./span -t 4 -- 1 300
+THREADS: 4
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.020519 s
+Best time used on TRAVERSE is 0.011204 s
+Best time used on BFS is 0.020560 s
+Best time used on BFS_localq is 0.038007 s
+
+### nproc: 8
+./span -t 8 -- 1 300
+THREADS: 8
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.018613 s
+Best time used on TRAVERSE is 0.006795 s
+Best time used on BFS is 0.038458 s
+Best time used on BFS_localq is 0.069133 s
+
+
+
+## Size: 900
+
+### nproc: 1
+./span -t 1 -- 1 900
+THREADS: 1
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:7
+number of iterations:7
+Best time used on CRCW is 0.994111 s
+Best time used on TRAVERSE is 0.233181 s
+Best time used on BFS is 0.192182 s
+Best time used on BFS_localq is 0.220681 s
+
+### nproc: 2
+./span -t 2 -- 1 900
+THREADS: 2
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 0.918358 s
+Best time used on TRAVERSE is 0.144897 s
+Best time used on BFS is 0.135779 s
+Best time used on BFS_localq is 0.183817 s
+
+### nproc: 4
+./span -t 4 -- 1 900
+THREADS: 4
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:7
+Best time used on CRCW is 0.678698 s
+Best time used on TRAVERSE is 0.126606 s
+Best time used on BFS is 0.115996 s
+Best time used on BFS_localq is 0.175087 s
+
+### nproc: 8
+./span -t 8 -- 1 900
+THREADS: 8
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 0.737772 s
+Best time used on TRAVERSE is 0.092797 s
+Best time used on BFS is 0.168953 s
+Best time used on BFS_localq is 0.252646 s
+
+
+
+## Size: 2700
+
+### nproc: 1
+./span -t 1 -- 1 2700
+THREADS: 1
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 12.988663 s
+Best time used on TRAVERSE is 3.252723 s
+Best time used on BFS is 3.994016 s
+Best time used on BFS_localq is 3.611520 s
+
+### nproc: 2
+./span -t 2 -- 1 2700
+THREADS: 2
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 10.477444 s
+Best time used on TRAVERSE is 1.860995 s
+Best time used on BFS is 2.412193 s
+Best time used on BFS_localq is 2.310039 s
+
+### nproc: 4
+./span -t 4 -- 1 2700
+THREADS: 4
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:9
+number of iterations:8
+Best time used on CRCW is 5.645844 s
+Best time used on TRAVERSE is 1.955514 s
+Best time used on BFS is 1.405340 s
+Best time used on BFS_localq is 1.456087 s
+
+### nproc: 8
+./span -t 8 -- 1 2700
+THREADS: 8
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:9
+number of iterations:8
+Best time used on CRCW is 5.311831 s
+Best time used on TRAVERSE is 1.751411 s
+Best time used on BFS is 2.037584 s
+Best time used on BFS_localq is 1.287843 s
+
+
+#
+# Run: 3
+#
+
+## Size: 300
+
+### nproc: 1
+./span -t 1 -- 1 300
+THREADS: 1
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.044623 s
+Best time used on TRAVERSE is 0.017833 s
+Best time used on BFS is 0.013519 s
+Best time used on BFS_localq is 0.016864 s
+
+### nproc: 2
+./span -t 2 -- 1 300
+THREADS: 2
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:6
+number of iterations:6
+Best time used on CRCW is 0.030531 s
+Best time used on TRAVERSE is 0.012463 s
+Best time used on BFS is 0.014325 s
+Best time used on BFS_localq is 0.023377 s
+
+### nproc: 4
+./span -t 4 -- 1 300
+THREADS: 4
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:7
+number of iterations:7
+Best time used on CRCW is 0.022229 s
+Best time used on TRAVERSE is 0.010460 s
+Best time used on BFS is 0.021088 s
+Best time used on BFS_localq is 0.038249 s
+
+### nproc: 8
+./span -t 8 -- 1 300
+THREADS: 8
+init edge list done, n_edge = 360000, n_vertices=90000
+number of iterations:7
+number of iterations:6
+Best time used on CRCW is 0.018691 s
+Best time used on TRAVERSE is 0.006446 s
+Best time used on BFS is 0.037949 s
+Best time used on BFS_localq is 0.069475 s
+
+
+
+## Size: 900
+
+### nproc: 1
+./span -t 1 -- 1 900
+THREADS: 1
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:7
+number of iterations:7
+Best time used on CRCW is 1.143900 s
+Best time used on TRAVERSE is 0.268870 s
+Best time used on BFS is 0.207664 s
+Best time used on BFS_localq is 0.259959 s
+
+### nproc: 2
+./span -t 2 -- 1 900
+THREADS: 2
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:7
+Best time used on CRCW is 0.817888 s
+Best time used on TRAVERSE is 0.141122 s
+Best time used on BFS is 0.137384 s
+Best time used on BFS_localq is 0.194913 s
+
+### nproc: 4
+./span -t 4 -- 1 900
+THREADS: 4
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 0.761548 s
+Best time used on TRAVERSE is 0.131127 s
+Best time used on BFS is 0.124658 s
+Best time used on BFS_localq is 0.169158 s
+
+### nproc: 8
+./span -t 8 -- 1 900
+THREADS: 8
+init edge list done, n_edge = 3240000, n_vertices=810000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 0.718844 s
+Best time used on TRAVERSE is 0.084973 s
+Best time used on BFS is 0.166757 s
+Best time used on BFS_localq is 0.246406 s
+
+
+
+## Size: 2700
+
+### nproc: 1
+./span -t 1 -- 1 2700
+THREADS: 1
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:8
+number of iterations:8
+Best time used on CRCW is 12.983597 s
+Best time used on TRAVERSE is 3.203348 s
+Best time used on BFS is 3.941010 s
+Best time used on BFS_localq is 3.439204 s
+
+### nproc: 2
+./span -t 2 -- 1 2700
+THREADS: 2
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:9
+number of iterations:8
+Best time used on CRCW is 10.930899 s
+Best time used on TRAVERSE is 1.974859 s
+Best time used on BFS is 2.807910 s
+Best time used on BFS_localq is 2.697746 s
+
+### nproc: 4
+./span -t 4 -- 1 2700
+THREADS: 4
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:9
+number of iterations:8
+Best time used on CRCW is 9.220616 s
+Best time used on TRAVERSE is 1.863577 s
+Best time used on BFS is 1.546516 s
+Best time used on BFS_localq is 1.635589 s
+
+### nproc: 8
+./span -t 8 -- 1 2700
+THREADS: 8
+init edge list done, n_edge = 29160000, n_vertices=7290000
+number of iterations:9
+number of iterations:8
+Best time used on CRCW is 9.046604 s
+Best time used on TRAVERSE is 1.572735 s
+Best time used on BFS is 1.685509 s
+Best time used on BFS_localq is 1.430202 s
+
+
+
+############################################################
+# End Time: 01/14/2008 - 02:50:04
+############################################################
