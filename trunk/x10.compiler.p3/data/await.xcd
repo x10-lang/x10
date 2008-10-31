@@ -10,7 +10,7 @@
 			}
 		} catch (java.lang.Throwable tmp#1) {
 			tmp#1.printStackTrace();
-			x10.runtime.Runtime.java.log(java.util.logging.Level.SEVERE,
+			x10.runtime.impl.java.Runtime.java.log(java.util.logging.Level.SEVERE,
 					"Unexpected exception during conditional atomic.", tmp#1);
 			throw new java.lang.RuntimeException(tmp#1);
 		} finally {

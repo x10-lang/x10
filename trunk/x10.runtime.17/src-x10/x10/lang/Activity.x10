@@ -39,12 +39,12 @@ public abstract class Activity(name: String) implements Runnable {
 
 	// native threads
 
-	@NativeRep("java", "x10.runtime.X10Thread")
+	@NativeRep("java", "x10.runtime.impl.java.X10Thread")
 	private static class Thread {
 		@Native("java", "java.lang.Thread.sleep(#1)")
     	native static def sleep(millis: long): void throws InterruptedException;
 
-		@Native("java", "x10.runtime.X10Thread.currentThread()")
+		@Native("java", "x10.runtime.impl.java.X10Thread.currentThread()")
     	native static def currentThread(): Thread;
 
 	    @Native("java", "#0.getRunnable()")

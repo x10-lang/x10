@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.runtime.NativeStack<#1>")
+@NativeRep("java", "x10.runtime.impl.java.NativeStack<#1>")
 public class Stack[T] {
 	public native def this();
 	

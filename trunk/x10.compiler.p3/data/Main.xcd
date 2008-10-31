@@ -33,5 +33,5 @@ public static void main(#0) {
 }
 
 // How to invoke?  Use the following general command:
-// java $(javaArgs) x10.runtime.Runtime $(x10Args) ClassName $(x10AppArgs)
+// java $(javaArgs) x10.runtime.impl.java.Runtime $(x10Args) ClassName $(x10AppArgs)
 

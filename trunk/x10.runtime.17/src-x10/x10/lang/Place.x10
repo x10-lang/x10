@@ -28,7 +28,7 @@ public value Place(id: nat) {
 
 	// native thread pools
 	
-	@NativeRep("java", "x10.runtime.X10ThreadPoolExecutor")
+	@NativeRep("java", "x10.runtime.impl.java.X10ThreadPoolExecutor")
 	private static class Executor {
 		native def this(placeId: int);
 	
