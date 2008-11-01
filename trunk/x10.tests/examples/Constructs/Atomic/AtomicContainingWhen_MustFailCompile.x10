@@ -54,12 +54,12 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 		var lock0: boolean;
 		var lock1: boolean;
 		var futureInt: Future[int];
-		var c: clock;
+		var c: Clock;
 		def this(): lockStruct = {
 			futureInt = future 1;
 			lock0 = false;
 			lock1 = false;
-			c = clock.make();
+			c = Clock.make();
 		}
 	}
 

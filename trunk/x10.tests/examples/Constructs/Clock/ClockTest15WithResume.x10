@@ -78,8 +78,8 @@ public class ClockTest15WithResume extends x10Test {
 	var advanced_A1: boolean = false; // signals that A1 executed next and read x == 2
 	public def run(): boolean = {
 		finish /* A0 */ async {
-			val a: clock = clock.make();
-			val b: clock = clock.make();
+			val a = Clock.make();
+			val b = Clock.make();
 			/* A1 */ async (here) clocked (a) {
 				atomic x++;
 				next;

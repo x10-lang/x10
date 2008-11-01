@@ -73,8 +73,8 @@ public class ClockTest15 extends x10Test {
 	var x: int = 0; // global counter
 	public def run(): boolean = {
 		finish /* A0 */ async {
-			val a: clock = clock.make();
-			val b: clock = clock.make();
+			val a = Clock.make();
+			val b = Clock.make();
 			/* A1 */ async (here) clocked (a) {
 				atomic x++;
 				next;

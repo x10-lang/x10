@@ -39,9 +39,9 @@ public class ClockTest16a_MustFailRun extends x10Test {
 	public def run(): boolean = {
 		val x: X = new X();
 		finish async {
-			val c0: clock = clock.make();
-			val c1: clock = clock.make();
-			val ca: Rail[clock] = [c0,c1];
+			val c0 = Clock.make();
+			val c1 = Clock.make();
+			val ca: Rail[Clock] = [c0,c1];
 			(ca(0)).drop();
 
 			// Question:
@@ -51,7 +51,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 			// Compiler answer: NO, actual runtime answer: NO
 			// no compiler error
 			{
-				val cx: clock = ca(1);
+				val cx: Clock = ca(1);
 				async clocked(cx) { // no clock use error
 					next;
 				}
@@ -60,7 +60,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 			// Compiler: MAYBE, actual: NO
 			// must have a compiler error
 			{
-				val cx: clock = ca(x.one());
+				val cx: Clock = ca(x.one());
 				async clocked(cx) { //no clock use error
 					next;
 				}
@@ -68,7 +68,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 
 			var f0: foo = new foo() {
 				public def apply(): void = {
-					val cx: clock = ca(x.zero());
+					val cx: Clock = ca(x.zero());
 					async clocked(cx) { //clock use error
 						next;
 					}
@@ -77,7 +77,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 
 			var f1: foo = new foo() {
 				public def apply(): void = {
-					val cx: clock = ca(x.one());
+					val cx: Clock = ca(x.one());
 					async clocked(cx) { //no clock use error
 						next;
 					}
@@ -99,7 +99,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 			// Compiler: MAYBE, actual: YES
 			// must have a compiler error
 			{
-				val cx: clock = ca(x.zero());
+				val cx: Clock = ca(x.zero());
 				async clocked(cx) { // clock use error
 					next;
 				}
@@ -109,7 +109,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 			// Compiler: YES, actual: YES
 			// must have a compiler error
 			{
-				val cx: clock = ca(0);
+				val cx: Clock = ca(0);
 				async clocked(cx) { // clock use error
 					next;
 				}

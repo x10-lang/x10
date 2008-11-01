@@ -40,9 +40,9 @@ public class ClockTest10a extends x10Test {
 
 	public def run(): boolean = {
 		finish async(here) {
-			val a: clock = Clock.make();
-			val b: clock = Clock.make();
-			val c: clock = Clock.make();
+			val a = Clock.make();
+			val b = Clock.make();
+			val c = Clock.make();
 			async clocked(a) taskA(a);
 			async clocked(a, b) taskB(a, b);
 			async clocked(a, c) taskC(a, c);
@@ -52,28 +52,28 @@ public class ClockTest10a extends x10Test {
 		return true;
 	}
 
-	def taskA(val a: clock): void = {
+	def taskA(val a: Clock): void = {
 		for ((k) in 1..N) {
 			varA(ph(k)) = k;
 			System.out.println(k + " A producing " + varA(ph(k)));
 			next;
 		}
 	}
-	def taskB(val a: clock, val b: clock): void = {
+	def taskB(val a: Clock, val b: Clock): void = {
 		for ((k) in 1..N) {
 			varB(ph(k)) = varA(ph(k-1))+varA(ph(k-1));
 			System.out.println(k + " B consuming oldA producing " + varB(ph(k)));
 			next;
 		}
 	}
-	def taskC(val a: clock, val c: clock): void = {
+	def taskC(val a: Clock, val c: Clock): void = {
 		for ((k) in 1..N) {
 			varC(ph(k)) = varA(ph(k-1))*varA(ph(k-1));
 			System.out.println(k+" C consuming oldA producing "+ varC(ph(k)));
 			next;
 		}
 	}
-	def taskD(val b: clock, val c: clock): void = {
+	def taskD(val b: Clock, val c: Clock): void = {
 		for ((k) in 1..N) {
 			varD(ph(k)) = varB(ph(k-1))+varC(ph(k-1))+10;
 			System.out.println(k+" D consuming oldC producing "+varD(ph(k)));
@@ -82,7 +82,7 @@ public class ClockTest10a extends x10Test {
 			next;
 		}
 	}
-	def taskE(val c: clock): void = {
+	def taskE(val c: Clock): void = {
 		for ((k) in 1..N) {
 			varE(ph(k)) = varC(ph(k-1))*7;
 			System.out.println(k+" E consuming oldC producing "+varE(ph(k)));

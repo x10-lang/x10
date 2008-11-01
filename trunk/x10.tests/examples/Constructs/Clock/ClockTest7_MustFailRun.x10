@@ -44,7 +44,7 @@ public class ClockTest7_MustFailRun extends x10Test {
 	const N: int = 16;
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
+		val c: Clock = Clock.make();
 
 		finish foreach (val (i): Point in 0..(N-1)) {
 			atomic val++;

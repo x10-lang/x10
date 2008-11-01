@@ -14,7 +14,7 @@ import harness.x10Test;;
 public class ClockTest14 extends x10Test {
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
+		val c = Clock.make();
 		var gotException: boolean;
 		next;
 		c.resume();

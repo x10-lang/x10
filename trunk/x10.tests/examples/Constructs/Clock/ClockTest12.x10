@@ -21,7 +21,7 @@ public class ClockTest12 extends x10Test {
 
 	public def run(): boolean = {
 		finish async {
-		    val c  = clock.make();
+		    val c  = Clock.make();
 		    async clocked(c) taskA(1, c);
 		    async clocked(c) taskA(2, c);
 		    async clocked(c) taskB(c);
@@ -29,7 +29,7 @@ public class ClockTest12 extends x10Test {
 		return true;
 	}
 
-	def taskA(var id: int, val c: clock): void = {
+	def taskA(var id: int, val c: Clock): void = {
 		var tmp: int;
 		x10.lang.Runtime.sleep(1000);
 		atomic tmp = phase;
@@ -62,7 +62,7 @@ public class ClockTest12 extends x10Test {
 		next;
 	}
 
-	def taskB(val c: clock): void = {
+	def taskB(val c: Clock): void = {
 		var tmp: int;
 		atomic tmp = phase;
 		System.out.println("now in phase "+tmp);

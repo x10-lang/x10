@@ -15,7 +15,7 @@ public class AwaitTest extends x10Test {
 	var val: int = 0;
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
+		val c: Clock = Clock.make();
 		async(this) clocked(c) {
 			await (val > 43);
 			atomic val = 42;
