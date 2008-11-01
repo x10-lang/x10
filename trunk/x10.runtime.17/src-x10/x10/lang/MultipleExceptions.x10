@@ -5,13 +5,16 @@
  *  This file is part of X10 Language.
  *
  */
+ 
 package x10.lang;
+
+import x10.util.Stack;
 
 /**
  * @author Christian Grothoff
  * @author tardieu
  */
-public class MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
+public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
     public def this(stack: Stack[Throwable]) {
         val s = new Stack[Throwable]();
         // flatten MultipleExceptions in the stack

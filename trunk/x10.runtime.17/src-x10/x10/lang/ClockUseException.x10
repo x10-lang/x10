@@ -8,4 +8,7 @@
 
 package x10.lang;
 
-public class ClockUseException extends RuntimeException {}
+public value ClockUseException extends RuntimeException {
+    public def this() = super("clock use exception");
+    public def this(message: String) = super(message);
+}
