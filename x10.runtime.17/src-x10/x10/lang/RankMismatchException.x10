@@ -5,6 +5,7 @@
  *  This file is part of X10 Language.
  *
  */
+ 
 package x10.lang;
 
 /**
@@ -12,7 +13,7 @@ package x10.lang;
    @author vj -- This class should not be needed. X10 1.7 catches rank mismatches
    statically.
  */
-public class RankMismatchException extends x10.lang.Exception {
+public value RankMismatchException extends x10.lang.Exception {
 	private val p: Box[Point];
 	private val r: Box[Region];
 	private val d: Box[Dist];
