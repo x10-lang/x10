@@ -28,7 +28,7 @@ public class ClockTest9 extends x10Test {
 
 	public def run(): boolean = {
 		finish async {
-			val c: clock = clock.make();
+			val c: Clock = Clock.make();
 
 			// outer barrier loop
 			foreach ((i) in 0..N-1) clocked(c) {
@@ -38,9 +38,9 @@ public class ClockTest9 extends x10Test {
 		return true;
 	}
 
-	def foreachBody(val i: int, val c: clock): void = {
+	def foreachBody(val i: int, val c: Clock): void = {
 		async(here) clocked(c) finish async(here) {
-			val d: clock = clock.make();
+			val d: Clock = Clock.make();
 
 			// inner barrier loop
 			foreach ((j) in 0..M-1) clocked(d) {
@@ -55,7 +55,7 @@ public class ClockTest9 extends x10Test {
 		next;
 	}
 
-	def foreachBodyInner(val i: int, val j: int, val d: clock): void = {
+	def foreachBodyInner(val i: int, val j: int, val d: Clock): void = {
 		// activity i, j increments val[i] by j
 		async(here) clocked(d) finish async(here) { atomic v(i) += j; }
 		System.out.println("#1 i = "+i+" j = "+j);

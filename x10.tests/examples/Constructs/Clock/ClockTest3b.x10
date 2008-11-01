@@ -23,7 +23,7 @@ public class ClockTest3b extends x10Test {
 
 	public def run(): boolean = {
 		finish async {
-			val c: clock = clock.make();
+			val c: Clock = Clock.make();
 			foreach (val (i): Point in 0..(N-1)) clocked(c) {
 				async(here) clocked(c) finish async(here) { atomic val++; }
 				next;

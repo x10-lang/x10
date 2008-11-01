@@ -41,7 +41,7 @@ public class ClockTest17_MustFailRun extends x10Test {
 
 	public def run(): boolean = {
 		/*A0*/
-		val c0: clock = clock.make();
+		val c0: Clock = Clock.make();
 		var x: X = new X();
 		// f0 does not transmit clocks to subactivity
 		var f0: foo = new foo() {

@@ -53,9 +53,9 @@ import harness.x10Test;;
 public class ClockTest5 extends x10Test {
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
-		val d: clock = clock.make();
-		val e: clock = clock.make();
+		val c: Clock = Clock.make();
+		val d: Clock = Clock.make();
+		val e: Clock = Clock.make();
 		/*Activity_1A*/async(here) clocked(c) { m("1A", "(c)", 0); next; m("1A", "(c)", 1); next; }
 		/*Activity_1B*/async(here) clocked(c) { m("1B", "(c)", 0); next; m("1B", "(c)", 1); next; }
 		/*Activity_2A*/async(here) clocked(d) { m("2A", "(d)", 0); next; m("2A", "(d)", 1); next; }

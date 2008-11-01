@@ -20,7 +20,7 @@ public class ClockTest2 extends x10Test {
 	const N: int = 10;
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
+		val c: Clock = Clock.make();
 		for (var i: int = 0; i < N; i++) {
 			async(here) clocked(c) finish async(here) {
 				async(here) {

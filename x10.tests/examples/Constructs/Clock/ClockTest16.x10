@@ -40,9 +40,9 @@ public class ClockTest16 extends x10Test {
 		val x: X = new X();
 		try {
 			finish async {
-				val c0: clock = clock.make();
-				val c1: clock = clock.make();
-				val ca: Rail[clock] = [c0,c1];
+				val c0 = Clock.make();
+				val c1 = Clock.make();
+				val ca: Rail[Clock] = [c0,c1];
 
 				// Question:
 				// Can an activity ever pass a clock it is not
@@ -51,7 +51,7 @@ public class ClockTest16 extends x10Test {
 
 				// Compiler answer: NO, actual runtime answer: NO
 				async clocked(c1) {
-					val cx: clock = ca(1);
+					val cx = ca(1);
 					async clocked(cx) { // no clock use error
 						next;
 					}
@@ -60,7 +60,7 @@ public class ClockTest16 extends x10Test {
 
 				// Compiler: MAYBE, actual: NO
 				async clocked(c1) {
-					val cx: clock = ca(x.one());
+					val cx = ca(x.one());
 					async clocked(cx) { //no clock use error
 						next;
 					}
@@ -69,7 +69,7 @@ public class ClockTest16 extends x10Test {
 
 				// Compiler: MAYBE, actual: YES
 				async clocked(c1) {
-					val cx: clock = ca(x.zero());
+					val cx = ca(x.zero());
 					async clocked(cx) { // clock use error
 						next;
 					}
@@ -78,7 +78,7 @@ public class ClockTest16 extends x10Test {
 
 				val f0: foo = new foo() {
 					public def apply(): void = {
-						val cx: clock = ca(x.zero());
+						val cx = ca(x.zero());
 						async clocked(cx) { // clock use error
 							next;
 						}
@@ -87,7 +87,7 @@ public class ClockTest16 extends x10Test {
 
 				val f1: foo = new foo() {
 					public def apply(): void = {
-						val cx: clock = ca(x.one());
+						val cx = ca(x.one());
 						async clocked(cx) { // no clock use error
 							next;
 						}
@@ -104,7 +104,7 @@ public class ClockTest16 extends x10Test {
 
 				// Compiler: YES, actual: YES
 				async clocked(c1) {
-					val cx: clock = ca(0);
+					val cx = ca(0);
 					async clocked(cx) { // clock use error
 						next;
 					}
@@ -132,7 +132,7 @@ public class ClockTest16 extends x10Test {
 	 * A class to invoke a 'function pointer' inside of async
 	 */
 	static class Y {
-		static def test(val f: foo, val c: clock): void = {
+		static def test(val f: foo, val c: Clock): void = {
 			// Compiler analysis may not be possible here
 			async clocked(c) {
 				f.apply(); // it is hard to determine f does an async clocked(c2) S, where c2 != c

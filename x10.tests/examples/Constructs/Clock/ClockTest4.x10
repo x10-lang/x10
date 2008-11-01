@@ -22,7 +22,7 @@ public class ClockTest4 extends x10Test {
 	public const N: int = 32;
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
+		val c: Clock = Clock.make();
 
 		foreach (val (i): Point in 1..(N-1)) clocked(c) {
 			foreachBody(i, c);
@@ -34,7 +34,7 @@ public class ClockTest4 extends x10Test {
 		return true;
 	}
 
-	def foreachBody(val i: int, val c: clock): void = {
+	def foreachBody(val i: int, val c: Clock): void = {
 		async(here) clocked(c) finish async(here) { async(here) { atomic val += i; } }
 		next;
 		var temp: int;

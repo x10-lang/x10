@@ -17,7 +17,7 @@ public class NoNextInAtomic_MustFailCompile extends x10Test {
 	
 	public def run(): boolean = {
 	async {
-	  var c: clock = clock.make();
+	  var c: Clock = Clock.make();
 		atomic {
 		  next;
 		  }

@@ -11,7 +11,7 @@ import harness.x10Test;;
  * Tests if we can assign a clock to an array element or
  * field.
  * Tests if clocks can be "aliased" per x10 manual terminology.
- * E.g.: clock c1 = clock.factory.clock(); clock c2 = c1;
+ * E.g.: Clock c1 = Clock.make(); clock c2 = c1;
  * //clocks c1 and c2 are "aliased"
  * ca[0] = c1; ca[1] = ca[0];
  * // ca[0] and ca[1] are "aliased"
@@ -37,16 +37,16 @@ public class ClockTest8_MustFailRun extends x10Test {
 
 	public def run(): boolean = {
 		finish async {
-			var bc: BoxedClock = new BoxedClock(clock.make());
-			var ca: Rail[clock] = [clock.make(), bc.val ];
-			val c1: clock = ca(1);
-			val c2: clock = c1; //aliased clocks c2 and c1
-			val c3: clock = ca(0);
+			var bc: BoxedClock = new BoxedClock(Clock.make());
+			var ca: Rail[Clock] = [Clock.make(), bc.val ];
+			val c1: Clock = ca(1);
+			val c2: Clock = c1; //aliased clocks c2 and c1
+			val c3: Clock = ca(0);
 			bc.val.drop();
 			//TODO: the following line (arrays of clocks) does not parse
 
 			//async clocked(ca[U.zero()])
-			val c4: clock = ca(U.zero());
+			val c4: Clock = ca(U.zero());
 			async clocked(c4) {
 				async clocked(c2) { System.out.println("hello"); }
 			}
@@ -59,8 +59,8 @@ public class ClockTest8_MustFailRun extends x10Test {
 	}
 
 	static class BoxedClock {
-		public var val: clock;
-		public def this(val x: clock): BoxedClock = {
+		public var val: Clock;
+		public def this(val x: Clock): BoxedClock = {
 			val = x;
 		}
 	}

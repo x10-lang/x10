@@ -69,9 +69,9 @@ public class ClockTest6 extends x10Test {
 	public def run(): boolean = {
 		finish async(here) {
 			// create and register with multiple clocks
-			val c: clock = clock.make();
-			val d: clock = clock.make();
-			val e: clock = clock.make();
+			val c: Clock = Clock.make();
+			val d: Clock = Clock.make();
+			val e: Clock = Clock.make();
 			// Spawn subactivities using different subset of the clocks
 			// The subactivities will perform N_NEXTS next pairs each
 			for (val (i): Point in 1..N_INSTANCES) {

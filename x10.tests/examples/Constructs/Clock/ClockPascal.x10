@@ -79,20 +79,20 @@ public class ClockPascal extends x10Test {
 		val Dboundary = D-Dinner;
 		val A: Array[int] = Array.make[int](D, ((i,j):Point)=>Dboundary.contains([i, j]) ? 1 : 0);
 		finish async {
-			// (nullable clock)[.] N = does not work
+			// (nullable Clock)[.] N = does not work
 			// clock[.] N = new clock[D]; should not work but does.
 			// This is a workaround for this bug.
-			var N: Array[clock] = Array.make[clock](D, (Point)=>Clock.make());
-			var W: Array[clock] = Array.make[clock](D, (Point)=>Clock.make());
+			var N: Array[Clock] = Array.make[Clock](D, (Point)=>Clock.make());
+			var W: Array[Clock] = Array.make[Clock](D, (Point)=>Clock.make());
 
 			// foreach (Point [i,j]: Dinner)
 			//   clocked(N[i-1,j], W[i,j-1], N[i,j], W[i,j]) { ... }
 			// does not work -- this is a workaround for this bug.
 			for ((i,j) in Dinner.region) {
-				val n01: clock = N(i-1, j);
-				val w10: clock = W(i, j-1);
-				val n11: clock = N(i, j);
-				val w11: clock = W(i, j);
+				val n01: Clock = N(i-1, j);
+				val w10: Clock = W(i, j-1);
+				val n11: Clock = N(i, j);
+				val w11: Clock = W(i, j);
 				async clocked(n01, w10, n11, w11) {
 					for ((n) in 3..(i+j)) {
 						randDelay(DELAY);

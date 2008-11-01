@@ -20,7 +20,7 @@ public class ClockTest3a extends x10Test {
 	const N: int = 32;
 
 	public def run(): boolean = {
-		val c: clock = clock.make();
+		val c: Clock = Clock.make();
 
 		foreach (val (i): Point in 0..(N-1)) clocked(c) {
 			async(here) clocked(c) finish async(here) { atomic val++; }

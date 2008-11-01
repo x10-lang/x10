@@ -84,9 +84,9 @@ public class ClockTest13 extends x10Test {
 
 	public def run(): boolean = {
 		finish async {
-			val a: clock = clock.make();
-			val b: clock = clock.make();
-			val c: clock = clock.make();
+			val a = Clock.make();
+			val b = Clock.make();
+			val c = Clock.make();
 			async clocked(a) taskA(a);
 			async clocked(a, b) taskB(a, b);
 			async clocked(b, c) taskC(b, c);
@@ -95,7 +95,7 @@ public class ClockTest13 extends x10Test {
 		return true;
 	}
 
-	def taskA(val a: clock): void = {
+	def taskA(val a: Clock): void = {
 		for (val (k): Point in 1..N) {
 			System.out.println(k+" A new phase");
 			atomic phaseA++;
@@ -113,7 +113,7 @@ public class ClockTest13 extends x10Test {
 			next;
 		}
 	}
-	def taskB(val a: clock, val b: clock): void = {
+	def taskB(val a: Clock, val b: Clock): void = {
 		for (val (k): Point in 1..N) {
 			System.out.println(k+" B new phase");
 			atomic phaseB++;
@@ -125,7 +125,7 @@ public class ClockTest13 extends x10Test {
 			next;
 		}
 	}
-	def taskC(val b: clock, val c: clock): void = {
+	def taskC(val b: Clock, val c: Clock): void = {
 		for (val (k): Point in 1..N) {
 			System.out.println(k+" C new phase");
 			atomic phaseC++;
@@ -137,7 +137,7 @@ public class ClockTest13 extends x10Test {
 			next;
 		}
 	}
-	def taskD(val c: clock): void = {
+	def taskD(val c: Clock): void = {
 		for (val (k): Point in 1..N) {
 			System.out.println(k+" D new phase");
 			atomic phaseD++;
