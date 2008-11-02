@@ -13,6 +13,7 @@ public abstract value class Region(
 ) implements Iterable[Point] {
 
     property rail = rank==1 && rect && zeroBased;
+    property region = this; // structural affinity w/ Dist, Array for compiler
 
     //
     // factories
