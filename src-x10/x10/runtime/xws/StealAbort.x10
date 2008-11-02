@@ -24,6 +24,6 @@ import x10.compiler.NativeRep;
  * migrate to being in x10.
  */
 @NativeRep("java", "x10.runtime.xws.impl.StealAbort")
-public class StealAbort extends Exception {
+public value class StealAbort extends Exception {
 	
 }
