@@ -86,7 +86,7 @@ value class UnionRegion extends BaseRegion {
 
     incomplete public def product(Region): Region(rank);
     incomplete public def projection(int): Region(1);
-
+    incomplete public def eliminate(int): Region(rank-1);
 
     public def contains(p: Point): boolean {
         for (r:PolyRegion(rank) in regions)

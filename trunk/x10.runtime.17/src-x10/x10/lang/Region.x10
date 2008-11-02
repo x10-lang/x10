@@ -252,7 +252,7 @@ public abstract value class Region(
     abstract public def product(that: Region): Region;
 
     /**
-     * Returns the projection if a region onto the specified axis. The
+     * Returns the projection of a region onto the specified axis. The
      * projection is a rank-1 region such that for every point (i) in
      * the projection, there is some point p in this region such that
      * p(axis)==i.
@@ -261,11 +261,42 @@ public abstract value class Region(
     abstract public def projection(axis: int): Region(1);
 
     /**
+     * Returns the projection of a region onto all axes but the
+     * specified axis.
+     */
+
+    abstract public def eliminate(axis: int): Region(rank-1);
+
+    /**
      * Returns true iff this region has no points in common with that
      * region.
      */
 
     public abstract def disjoint(that: Region(rank)): boolean;
+
+
+    /**
+     * Utility method to return an array of n regions, which together
+     * block divide the rank-1 region r.
+     */
+
+    // XXX temp port from previous util/Dist.x10 to support Rice trial
+    // refactor dist, region to generalize this; and/or connect to
+    // tiled regions
+
+    public static def makeBlock(r: Region(1), n:int): ValRail[Region(1)](n) {
+        assert n >=0;
+        val min = r.min(0);
+        val max = r.max(0);
+        val count = max-min+1;
+        val baseSize = count/n;
+        val extra = count - baseSize*n;
+        val result = ValRail.make[Region(1)](n, (i:nat):Region(1) => {
+            val start = min + i*baseSize + (i<extra?i:extra);
+            return start..start+baseSize+(i<extra?0:-1);
+        });
+        return result;
+    }
 
 
     /**

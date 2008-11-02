@@ -201,6 +201,16 @@ value class PolyRegion extends BaseRegion {
         return Region.makeRectangular(hl.rectMin(axis), hl.rectMax(axis)) as Region(1);
     }
 
+    /**
+     * Eliminate the ith axis.
+     */
+
+    // XXX add a test case for this; also for projection!
+    public def eliminate(axis: int): Region(rank-1) {
+        val hl = halfspaces.FME(axis, true); 
+        val result = PolyRegion.make(hl);
+        return result as Region(rank-1);
+    }
 
     /**
      * Cartesian product requires copying the halfspace matrices into
