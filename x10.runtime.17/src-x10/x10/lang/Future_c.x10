@@ -25,8 +25,7 @@ public abstract class Future_c[T] extends Activity implements Future[T] {
      * Can only be of type Error or RuntimeException
      * (since X10 only has unchecked exceptions).
      */
-	private var error: boolean = false;
-    private var exception: Throwable;
+    private var exception: Box[Throwable];
 
     private var result: T;
 
@@ -41,11 +40,12 @@ public abstract class Future_c[T] extends Activity implements Future[T] {
 
     public def force(): T {
   	    cdl.await();
-        if (error) {
-            if (exception instanceof Error)
-                throw exception as Error;
-            if (exception instanceof RuntimeException)
-                throw exception as RuntimeException;
+        if (exception !=null) {
+        	val e = exception to Throwable;
+            if (e instanceof Error)
+                throw e as Error;
+            if (e instanceof RuntimeException)
+                throw e as RuntimeException;
             assert false as boolean;
         }
         return result;
@@ -68,8 +68,7 @@ public abstract class Future_c[T] extends Activity implements Future[T] {
             stopFinish();
         } catch (t: Throwable) {
             // Now nested asyncs have terminated.
-            exception = t;
-            error = true;
+            exception = t to Box[Throwable];
         } finally {
           	cdl.countDown();
 		}        
