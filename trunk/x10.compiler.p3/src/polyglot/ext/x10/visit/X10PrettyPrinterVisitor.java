@@ -1593,6 +1593,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(">>javacast(");
 	            tr.print(c, c.expr(), w);
 	            w.write(")");
+	            w.write(")");
 	            break;
 	        case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
