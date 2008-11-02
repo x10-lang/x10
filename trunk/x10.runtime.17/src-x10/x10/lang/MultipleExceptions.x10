@@ -8,8 +8,6 @@
  
 package x10.lang;
 
-import x10.util.Stack;
-
 /**
  * @author Christian Grothoff
  * @author tardieu
