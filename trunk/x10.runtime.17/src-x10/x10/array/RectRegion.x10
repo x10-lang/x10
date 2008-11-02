@@ -12,11 +12,17 @@ package x10.array;
 
 final value class RectRegion extends PolyRegion {
 
-    private class NonValue {
-        var size:int = -1;
-    }
+    val size: int;
 
-    val nonValue: NonValue = new NonValue();
+    val min0:int;
+    val min1:int;
+    val min2:int;
+    val min3:int;
+
+    val max0:int;
+    val max1:int;
+    val max2:int;
+    val max3:int;
 
 
     /**
@@ -25,7 +31,20 @@ final value class RectRegion extends PolyRegion {
      */
 
     def this(val hl: HalfspaceList): RectRegion{rank==hl.rank && rect} {
+
         super(hl);
+
+        size = hl.isBounded()? computeSize() : -1;
+
+        min0 = rank>=1 && hl.isBounded()? min(0) : 0;
+        min1 = rank>=2 && hl.isBounded()? min(1) : 0;
+        min2 = rank>=3 && hl.isBounded()? min(2) : 0;
+        min3 = rank>=4 && hl.isBounded()? min(3) : 0;
+
+        max0 = rank>=1 && hl.isBounded()? max(0) : 0;
+        max1 = rank>=2 && hl.isBounded()? max(1) : 0;
+        max2 = rank>=3 && hl.isBounded()? max(2) : 0;
+        max3 = rank>=4 && hl.isBounded()? max(3) : 0;
     }
 
     public static def make1(val min: Rail[int], val max: Rail[int]): Region{rank==min.length&&rect} { // XTENLANG-4
@@ -49,17 +68,21 @@ final value class RectRegion extends PolyRegion {
         return make1([min], [max]) as Region{rect && rank==1 /*&& zeroBased==(min==0)*/};
     }
 
-    public def size(): int {
-        if (nonValue.size < 0) {
-            var min: Rail[int] = halfspaces.rectMin();
-            var max: Rail[int] = halfspaces.rectMax();
-            var size:int = 1;
-            for (var i: int = 0; i<rank; i++)
-                size *= max(i) - min(i) + 1;
-            nonValue.size = size;
-        }
-        return nonValue.size;
+    private def computeSize(): int {
+        val min = halfspaces.rectMin();
+        val max = halfspaces.rectMax();
+        var size:int = 1;
+        for (var i: int = 0; i<rank; i++)
+            size *= max(i) - min(i) + 1;
+        return size;
     }
+
+    public def size(): int {
+        if (size<0)
+            throw new UnboundedRegionException("unbounded");
+        return size;
+    }
+
 
 
     /**
@@ -145,6 +168,50 @@ final value class RectRegion extends PolyRegion {
         return new RectRegion.Iterator(this);
     }
     */
+
+
+    //
+    // specialized bounds checking for performance
+    // 
+
+    //const doChecks = Runtime.ARRAY_BOUNDS_RUNTIME_CHECK;
+    const doChecks = true;
+
+    def checkBounds(i0: int) {rank==1} {
+        if (doChecks && (
+            i0<min0 || i0>max0
+        ))
+            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+    }
+
+    def checkBounds(i0: int, i1: int) {rank==2} {
+        if (doChecks && (
+            i0<min0 || i0>max0 ||
+            i1<min1 || i1>max1
+        ))
+            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+    }
+
+    def checkBounds(i0: int, i1: int, i2: int) {rank==3} {
+        if (doChecks && (
+            i0<min0 || i0>max0 ||
+            i1<min1 || i1>max1 ||
+            i2<min2 || i2>max2
+        ))
+            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+
+    }
+
+    def checkBounds(i0: int, i1: int, i2: int, i3: int) {rank==4} {
+        if (doChecks && (
+            i0<min0 || i0>max0 ||
+            i1<min1 || i1>max1 ||
+            i2<min2 || i2>max2 ||
+            i3<min3 || i3>max3
+        ))
+            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+
+    }
 
 
     //
