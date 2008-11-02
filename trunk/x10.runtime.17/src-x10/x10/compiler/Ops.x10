@@ -47,7 +47,7 @@ interface Ops[B,C] {
 
     def $in(): C;                // a in b
     
-    static def $instanceof(that: B): C; // a instanceof b
-    static def $cast(that: B): C;       // (b)a
+    def $instanceof(that: B): C; // a instanceof b
+    def $cast(that: B): C;       // (b)a
 }
 
