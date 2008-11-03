@@ -6,13 +6,12 @@
  *
  */
 
-package x10.lang;
+package x10.runtime;
 
 /**
  * This class encapsulates the return value of a local async
  * call and allows the client to wait for the completion of the
  * async call (force future).
- *
  * @author Christian Grothoff
  * @author Christoph von Praun
  * @author vj

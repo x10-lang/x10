@@ -11,10 +11,20 @@ package x10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-import x10.util.Iterator;
-
-@NativeRep("java", "java.util.Stack<#1>")
+@NativeRep("java", "x10.runtime.impl.java.NativeStack<#1>")
 public class Stack[T] {
-    @Native("java", "#0.iterator()")
-    native public def iterator(): Iterator[T];
+
+	public native def this();
+	
+	@Native("java", "#0.push(#1)")
+	public native def push(t: T): void;
+
+	@Native("java", "#0.pop()")
+	public native def pop(): T;
+
+	@Native("java", "#0.empty()")
+	public native def empty(): boolean;
+
+	@Native("java", "#0.size()")
+	public native def size(): int;
 }

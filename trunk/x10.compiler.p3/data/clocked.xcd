@@ -1,6 +1,4 @@
-// SYNOPSIS: clocked(#0) #1=unique_id
-// SYNOPSIS: Elements are added to the list in an instance initializer
+// SYNOPSIS: clocked(#0)    #1=unique_id
 new java.util.LinkedList() {{
-	x10.lang.Activity current#1 = x10.lang.Activity.current();
 	#0
 }}

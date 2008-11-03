@@ -8,27 +8,22 @@
 
 package x10.core;
 
-import x10.runtime.impl.java.X10Thread;
+import x10.runtime.impl.java.Thread;
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref {
-    public final int placeId;
+    public final Object place;
     
     public Ref() {
-        Thread t = Thread.currentThread();
-        if (t instanceof X10Thread) {
-        	placeId = ((X10Thread) t).getPlaceId();
-        } else {
-        	placeId = 0;
-        }
+       	place = Thread.currentThread().place();
     }
     
-    public final int placeId() {
-        return placeId;
+    public final Object place() {
+        return place;
      }
      
-    public final Integer placeId$() {
-        return placeId();
+    public final Object place$() {
+        return place();
      }
      
     public String toString$() {
