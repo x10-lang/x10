@@ -28,7 +28,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val overall = Region.makeRectangular(0, ps.length-1);
 
         // regions
-        var regions: Rail[Region] = Rail.makeVar[Region](ps.length);
+        val regions = Rail.makeVar[Region](ps.length);
         for (var i: int = 0; i<ps.length; i++)
             regions(i) = Region.makeRectangular(i, i);
 
@@ -37,18 +37,18 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r.rank) { // XTENLANG-4
 
-        var b: Region = r.boundingBox();
-        var min: int = b.min()(axis);
-        var max: int = b.max()(axis);
+        val b = r.boundingBox();
+        val min = b.min()(axis);
+        val max = b.max()(axis);
 
         var regions: Rail[Region] = Rail.makeVar[Region](Place.MAX_PLACES);
         for (var i: int = 0; i<Place.MAX_PLACES; i++)
             regions(i) = Region.makeEmpty(r.rank);
 
         for (var i: int = min, p: int = 0; i<=max; i+=blockSize, p++) {
-            var r1: Region = Region.makeFull(axis);
-            var r2: Region = Region.makeRectangular(i, i+blockSize-1);
-            var r3: Region = Region.makeFull(r.rank-axis-1);
+            val r1 = Region.makeFull(axis);
+            val r2 = Region.makeRectangular(i, i+blockSize-1);
+            val r3 = Region.makeFull(r.rank-axis-1);
             var rr:Region(r.rank) = r1.product(r2).product(r3) as Region(r.rank);
             rr = rr.intersection(r);
             rr = (regions(p%Place.MAX_PLACES) as Region(r.rank)).union(rr);
@@ -128,12 +128,12 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         // XXX throw away places that map to empty regions!!!
 
         // places
-        var ps: Rail[Place] = Rail.makeVar[Place](this.places.length);
+        val ps = Rail.makeVar[Place](this.places.length);
         for (var i: int = 0; i<this.places.length; i++)
             ps(i) = this.places(i);
 
         // regions
-        var rs: Rail[Region] = Rail.makeVar[Region](this.regions.length);
+        val rs = Rail.makeVar[Region](this.regions.length);
         for (var i: int = 0; i<this.regions.length; i++)
             rs(i) = (this.regions(i) as Region(rank)).intersection(r);
 
@@ -141,9 +141,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
     public def restriction(p: Place): Dist(rank) {
-        var ps: Rail[Place] = [p];
+        val ps = [p];
         //var rs: Rail[Region] = [get(p)]; XTENLANG-52
-        var rs: Rail[Region] = Rail.makeVal[Region](1, (nat)=>get(p));
+        val rs = Rail.makeVal[Region](1, (nat)=>get(p));
         return new BaseDist(region.intersection(rs(0) as Region(rank)), ps, rs);
     }
 
@@ -160,12 +160,12 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def intersection(that: Dist(rank)): Dist(rank) {
 
         // places
-        var ps: Rail[Place] = Rail.makeVar[Place](this.places.length);
+        val ps = Rail.makeVar[Place](this.places.length);
         for (var i: int = 0; i<this.places.length; i++)
             ps(i) = this.places(i);
 
         // regions
-        var rs: Rail[Region] = Rail.makeVar[Region](this.regions.length);
+        val rs = Rail.makeVar[Region](this.regions.length);
         var overall: Region(rank) = Region.makeEmpty(rank);
         for (var i: int = 0; i<this.regions.length; i++) {
             val r1 = this.regions(i) as Region(rank);
@@ -181,12 +181,12 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def difference(that: Dist(rank)): Dist(rank) {
 
         // places
-        var ps: Rail[Place] = Rail.makeVar[Place](this.places.length);
+        val ps = Rail.makeVar[Place](this.places.length);
         for (var i: int = 0; i<this.places.length; i++)
             ps(i) = this.places(i);
 
         // regions
-        var rs: Rail[Region] = Rail.makeVar[Region](this.regions.length);
+        val rs = Rail.makeVar[Region](this.regions.length);
         var overall: Region(rank) = Region.makeEmpty(rank);
         for (var i: int = 0; i<this.regions.length; i++) {
             val r1 = this.regions(i) as Region(rank);
@@ -205,7 +205,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val ps = Place.places;
 
         // regions
-        var rs: Rail[Region] = Rail.makeVar[Region](ps.length);
+        val rs = Rail.makeVar[Region](ps.length);
         for (var i: int = 0; i<ps.length; i++) {
             val p = ps(i);
             val r = this.get(p) as Region(rank); // XXXX
@@ -221,7 +221,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val ps = Place.places;
 
         // regions
-        var rs: Rail[Region] = Rail.makeVar[Region](ps.length);
+        val rs = Rail.makeVar[Region](ps.length);
         var overall: Region(rank) = Region.makeEmpty(rank);
         for (var i: int = 0; i<ps.length; i++) {
             val r1 = that.get(ps(i)) as Region(rank); // XXXX
@@ -258,7 +258,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
     protected static def isConstant(places: Rail[Place]): boolean {
-        var p: Place = places(0);
+        val p = places(0);
         for (var i: int = 1; i<places.length; i++) {
             if (places(i)!=p)
                 return false;
@@ -272,7 +272,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     public def equals(that: Dist/*(rank)*/): boolean {
         for (var i: int = 0; i<Place.MAX_PLACES; i++) {
-            var p: Place = Place.places(i);
+            val p = Place.places(i);
             if (!this.get(p).equals(that.get(p)))
                 return false;
         }
@@ -307,8 +307,8 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         super(r, isUnique(ps), isConstant(ps), onePlace(ps));
 
         // remove empty regions
-        var rl: ArrayList[Region] = new ArrayList[Region]();
-        var pl: ArrayList[Place] = new ArrayList[Place]();
+        val rl = new ArrayList[Region]();
+        val pl = new ArrayList[Place]();
         for (var i: int = 0; i<rs.length; i++) {
             if (/*rs(i)!=null &&*/ !rs(i).isEmpty()) {
                 rl.add(rs(i) as Region);

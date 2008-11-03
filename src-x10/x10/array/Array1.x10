@@ -89,7 +89,7 @@ final value class Array1[T] extends BaseArray[T] {
 
         //finish {
             //async (dist.onePlace) {
-        	var r: Region = dist.get(/*here*/dist.onePlace);
+        	val r = dist.get(/*here*/dist.onePlace);
                 layout = layout(r);
                 val n = layout.size();
                 raw = Rail.makeVar[T](n);
@@ -114,9 +114,9 @@ final value class Array1[T] extends BaseArray[T] {
         finish {
             for (var i: int = 0; i<dist.places().length; i++) {
                 async (dist.places()(i)) {
-                    var r: Region = dist.get(here);
+                    val r = dist.get(here);
                     layout = layout(r);
-                    var n: int = layout.size();
+                    val n = layout.size();
                     raw = Rail.makeVar[T](n);
                     if (init!=null) {
                         for (p:Point in r)

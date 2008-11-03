@@ -138,7 +138,7 @@ value class PolyRegion extends BaseRegion {
 
     public class PointIt implements Iterator[Point(PolyRegion.this.rank)] {
 
-        var it: RailIt;
+        val it: RailIt;
 
         def this() {
             it = new RailIt();
@@ -164,8 +164,8 @@ value class PolyRegion extends BaseRegion {
         if (t instanceof PolyRegion) {
 
             // start
-            var that: PolyRegion = t as PolyRegion; // XXX
-            var hl: HalfspaceList = new HalfspaceList(rank);
+            val that = t as PolyRegion; // XXX
+            val hl = new HalfspaceList(rank);
 
             // these halfspaces
             for (h:Halfspace in this.halfspaces)
@@ -220,8 +220,8 @@ value class PolyRegion extends BaseRegion {
     public def product(r: Region): Region {
         if (!(r instanceof PolyRegion))
             throw U.unsupported(this, "product(" + r/*.getClass().getName()*/ + ")");
-        var that: PolyRegion = r as PolyRegion;
-        var result: HalfspaceList = new HalfspaceList(this.rank + that.rank);
+        val that = r as PolyRegion;
+        val result = new HalfspaceList(this.rank + that.rank);
         copy(result, this.halfspaces, 0);         // padded w/ 0s on the right
         copy(result, that.halfspaces, this.rank); // padded w/ 0s on the left
         return PolyRegion.make(result);
@@ -230,8 +230,8 @@ value class PolyRegion extends BaseRegion {
     private static def copy(tt: HalfspaceList, ff: HalfspaceList, offset: int): void {
 
         for (h:Halfspace in ff) {
-            var f: Rail[int] = h.as;
-            var t: Rail[int] = Rail.makeVar[int](tt.rank+1);
+            val f = h.as;
+            val t = Rail.makeVar[int](tt.rank+1);
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
             t(tt.rank) = f(ff.rank);
@@ -248,11 +248,11 @@ value class PolyRegion extends BaseRegion {
 
     public def complement(): Region(rank) {
         
-        var rl: PolyRegionList(rank) = new PolyRegionList(rank);
+        val rl = new PolyRegionList(rank);
 
         for (h:Halfspace in halfspaces) {
-            var hi: Halfspace(rank) = h as Halfspace(rank); // XXXX
-            var hl: HalfspaceList(rank) = new HalfspaceList(rank);
+            val hi = h as Halfspace(rank); // XXXX
+            val hl = new HalfspaceList(rank);
             hl.add(hi.complement());
             for (hj:Halfspace in halfspaces) {
                 if (hj==hi)
@@ -327,7 +327,7 @@ value class PolyRegion extends BaseRegion {
     private const COL: int = HalfspaceList.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
-        var hl: HalfspaceList{rank==2} = new HalfspaceList(2);
+        val hl = new HalfspaceList(2);
         hl.add(ROW, hl.GE, rowMin);
         hl.add(ROW, hl.LE, rowMax);
         hl.add(COL, hl.GE, colMin);
@@ -351,7 +351,7 @@ value class PolyRegion extends BaseRegion {
     }
 
     public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        var hl: HalfspaceList{rank==2} = new HalfspaceList(2);
+        val hl = new HalfspaceList(2);
         hl.add(COL, hl.GE, colMin);
         hl.add(ROW, hl.LE, rowMin+size-1);
         hl.add(ROW-COL, hl.GE, rowMin-colMin);
