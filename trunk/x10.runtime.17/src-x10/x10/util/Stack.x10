@@ -27,4 +27,7 @@ public class Stack[T] {
 
 	@Native("java", "#0.size()")
 	public native def size(): int;
+
+	@Native("java", "#0.search(#1)")
+	public native def search(o: Object): int;
 }

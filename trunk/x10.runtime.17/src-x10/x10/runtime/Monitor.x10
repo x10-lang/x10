@@ -40,10 +40,13 @@ value Monitor {
 	 * Must be called while holding the lock
 	 */
     def park(): void {
-    	stack.push(Thread.currentThread());
-       	unlock();
-    	Thread.park();
-       	lock();
+    	val thread = Thread.currentThread();
+    	stack.push(thread);
+    	while (stack.search(thread) != -1) {
+       		unlock();
+    		Thread.park();
+       		lock();
+		}
     }
 
     /**
@@ -52,14 +55,11 @@ value Monitor {
 	 * Must be called while holding the lock
 	 */
     def await(): void {
-    	stack.push(Thread.currentThread());
-
 		// notify runtime thread is about to block
     	Runtime.threadBlockedNotification();
-       	unlock();
-    	Thread.park();
-       	lock();
 
+		park();
+		
 		// notify runtime thread is running again
     	Runtime.threadUnblockedNotification();
     }
