@@ -4,6 +4,7 @@
 package x10.array;
 
 import x10.util.ArrayList;
+import x10.util.Set;
 
 
 public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
