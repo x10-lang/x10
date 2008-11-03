@@ -28,20 +28,20 @@ LIBNAME = xrx_kernel
 # Build by default static library
 LIBTARGET = lib$(LIBNAME).a
 
-SRCS = Lock.cc Worker.cc
-HEADERS = Lock.h Worker.h Runnable.h
-OBJS = Lock.o Worker.o
+SRCS = Lock.cc Thread.cc
+HEADERS = Types.h InterruptedException.h Runnable.h Lock.h Thread.h
+OBJS = Lock.o Thread.o
 
 
 all: $(LIBTARGET)
 
-$(LIBTARGET): $(OBJS)
+$(LIBTARGET): $(OBJS) $(HEADERS)
 	$(RM) $@
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 	$(RANLIB) $@
 
 clean:
-	(cd $(SUBDIR1); $(MAKE) $@)
+	#(cd $(SUBDIR1); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS)
 
 .cc.o:

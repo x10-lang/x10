@@ -7,7 +7,6 @@
 
 /** Implementation file for low level lock interface. **/
 
-// #include <xrx/kernel/Lock.h>
 #include "Lock.h"
 
 namespace xrx_kernel {
@@ -62,7 +61,7 @@ Lock::unlock(void)
 }
 
 // try and acquire lock
-bool
+boolean
 Lock::tryLock(void)
 {
 	// no need to handle EBUSY return value for the simple

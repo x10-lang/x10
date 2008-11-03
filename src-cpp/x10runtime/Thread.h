@@ -7,61 +7,58 @@
 
 /** Low level worker interface based on pthreads. **/
 
-#ifndef __XRX_KERNEL_WORKER_H
-#define __XRX_KERNEL_WORKER_H
+#ifndef __XRX_KERNEL_THREAD_H
+#define __XRX_KERNEL_THREAD_H
 
-#include <pthread.h>
-#include <iostream>
-//#include <xrx/kernel/Runnable.h>
+#include "Types.h"
 #include "Runnable.h"
+#include "InterruptedException.h"
 
-using namespace std;
 namespace xrx_kernel {
 
-class Worker : public Runnable {
+class Thread {
 public:
 	
 	// constructors
-	Worker(void);
-	Worker(Runnable task);
-	// string <-- String ??
-	Worker(Runnable task, string name);
+	Thread(void);
+	Thread(Runnable task);
+	Thread(Runnable task, String name);
 
 	// destructor
-	~Worker(void);
+	~Thread(void);
 
-	// invoke separate Runnable object run method, if available
-	void run(void);
+	// return the currently executing thread
+	static Thread currentThread(void);
+
+	// begin thread execution
+	void start(void);
 
 	// put the current thread to sleep for the specified number
 	// of milli seconds
-	// long <-- Long; once primitive classes are available
-	void sleep(long millis);
+	void sleep(Long millis) throw (InterruptedException);
 
 	// put the current thread to sleep for the specified number
 	// of milli seconds plus the specified number of nano seconds
-	// long <-- Long && int <-- Int; once primitive classes are available
-	void sleep(long millis, int nanos);
+	void sleep(Long millis, Int nanos) throw (InterruptedException);
 
 	// disable the current thread for thread scheduling purposes
 	void park(void);
 
 	// disable the current thread for thread scheduling purposes
 	// for up to the specified waiting time
-	// long <-- Long; once primitive classes are available
-	void parkNanos(long nanos);
+	void parkNanos(Long nanos);
 
 	// make available the current thread for thread scheduling
-	void unpark(Worker worker);
+	void unpark(Thread thread);
 
 protected:
-	pthread_attr_t __worker_attr;
-	Runnable __worker_runobj;
-	pthread_t __worker;
+	pthread_attr_t __thread_attr;
+	Runnable __thread_runobj;
+	static Thread &__current_thread;
 	// ?? more state as per x10 thread pool executor
 
 };
 
 } /* closing brace for namespace xrx_kernel */
 
-#endif /* __XRX_KERNEL_WORKER_H */
+#endif /* __XRX_KERNEL_THREAD_H */
