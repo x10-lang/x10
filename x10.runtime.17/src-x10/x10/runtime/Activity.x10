@@ -6,13 +6,10 @@
  *
  */
 
-package x10.lang;
+package x10.runtime;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
-import x10.runtime.kernel.InterruptedException;
-import x10.runtime.kernel.Runnable;
+import x10.util.List;
+import x10.util.Stack;
 
 /**
  * The representation of an X10 async activity.
@@ -21,7 +18,7 @@ import x10.runtime.kernel.Runnable;
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu
  */
-public abstract class Activity(name: String) implements Runnable {
+public abstract class Activity(name: String) {
 	/**
 	 * The FinishState of this activity. 
 	 */
@@ -36,44 +33,6 @@ public abstract class Activity(name: String) implements Runnable {
 	 * The clock phases of this activity. Lazily created.
 	 */
 	private var clocks: Clocks;
-
-	// native threads
-
-	@NativeRep("java", "x10.runtime.impl.java.X10Thread")
-	private static class Thread {
-		@Native("java", "java.lang.Thread.sleep(#1)")
-    	native static def sleep(millis: long): void throws InterruptedException;
-
-		@Native("java", "x10.runtime.impl.java.X10Thread.currentThread()")
-    	native static def currentThread(): Thread;
-
-	    @Native("java", "#0.getRunnable()")
-	    native def getRunnable(): Runnable;
-	
-		@Native("java", "#0.getPlaceId()")
-		native def getPlaceId(): nat;
-	
-		@Native("java", "#0.setRunnable(#1)")
-		native def setRunnable(r: Runnable): void;
-	}
-
-	/**
-	 * Return the activity being executed by the current thread.
-	 */
-	public static def current(): Activity {
-		return Thread.currentThread().getRunnable() as Activity;
-	}
-
-	/**
-	 * The place at which the current activity is running.
-	 */
-	public static def here(): Place {
-		val th = Thread.currentThread();
-		if (null == th) return Place.place(0);
-		return Place.place(th.getPlaceId());
-	}
-
-	// clocks
 	
 	/**
 	 * The clocks of the current activity.
@@ -86,18 +45,11 @@ public abstract class Activity(name: String) implements Runnable {
 	/**
 	 * Next statement = next on all clocks in parallel.
 	 */
-	public def next(): void {
+	def next(): void {
 		if (null != clocks) clocks.next();
 	}
 	
-	/**
-	 * @deprecated
-	 */
-	public static def checkClockUse(c: Clock): Clock {
-		return c;
-	}
-
-	// constructors
+	// public constructors
 
 	/**
 	 * Create an activity.
@@ -113,13 +65,13 @@ public abstract class Activity(name: String) implements Runnable {
 	/**
 	 * Create an activity with the given list of clocks.
 	 */
-	public def this(list: x10.lang.List[Clock], name: String) {
+	public def this(list: List[Clock], name: String) {
 	    this(name);
 	    clocks = new Clocks();
 		clocks.register(list);
 	}
 
-	public def this(list: x10.lang.List[Clock]) {
+	public def this(list: List[Clock]) {
 	    this(list, "");
 	}
 
@@ -151,9 +103,7 @@ public abstract class Activity(name: String) implements Runnable {
 	 * This run method allows performing actions before and after activity execution allowing
 	 * to submit the activity safely as regard to runtime and pool thread.
 	 */
-	public def run(): void {
-		// Binding current thread to this activity
-		Thread.currentThread().setRunnable(this);
+	def run(): void {
 		try {
 			runX10Task();
 		} catch (t: Throwable) {
@@ -165,11 +115,18 @@ public abstract class Activity(name: String) implements Runnable {
 	
 	// finish state
 
-	public def finishState(): FinishState {
+	/**
+	 * Return the finish state of the current activity
+	 */
+	def finishState(): FinishState {
 		return finishState;
 	}
 	
-	public def finishState(state: FinishState): void {
+	/**
+	 * Set the root finish state of the current activity 
+	 * Notify the finish state of a spawned activity
+	 */
+	def finishState(state: FinishState): void {
 		finishState = state;
 		state.notifySubActivitySpawn();
 	}
@@ -178,7 +135,7 @@ public abstract class Activity(name: String) implements Runnable {
 	 * Start executing this activity synchronously 
 	 * (i.e. within a finish statement).
 	 */
-	public def startFinish(): void {
+	def startFinish(): void {
 		if (null == finishStack) finishStack = new Stack[FinishState]();
 		finishStack.push(finishState);
 		finishState = new FinishState();
@@ -190,7 +147,7 @@ public abstract class Activity(name: String) implements Runnable {
 	 * async terminated abruptly. Otherwise continue normally.
 	 * Should only be called by the thread executing the current activity.
 	 */
-	public def stopFinish(): void {
+	def stopFinish(): void {
 		val state = finishState;
 		finishState = finishStack.pop();
 		state.waitForFinish();
@@ -200,27 +157,7 @@ public abstract class Activity(name: String) implements Runnable {
 	 * Push the exception thrown while executing s in a finish s, 
 	 * onto the finish state.
 	 */
-	public def pushException(t: Throwable): void  {
+	def pushException(t: Throwable): void  {
 		finishState.pushException(t);
-	}
-	
-	// utilities
-
-	/**
-	 * Sleep for the specified number of milliseconds.
-	 * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
-	 * @param millis the number of milliseconds to sleep
-	 * @return true if completed normally, false if interrupted
-	 */
-	public static def sleep(millis: long): boolean {
-		try {
-			here().threadBlockedNotification();
-			Thread.sleep(millis);
-			return true;
-		} catch (e: InterruptedException) {
-			return false;
-		} finally {
-			here().threadUnblockedNotification();
-		}
 	}
 }

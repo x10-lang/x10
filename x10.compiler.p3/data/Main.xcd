@@ -1,23 +1,22 @@
 // SYNOPSIS: main(#0) #1
 
 public static class Main implements java.lang.Runnable {
-	private final java.lang.String[] args;
+	private final x10.core.Rail<java.lang.String> rail;
+	
 	public Main(java.lang.String[] args) {
-		this.args = args;
+		rail = x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args);
 	}
-	public void run() {
-		x10.lang.Place.runMain(new MainActivity(args));
-	}
-}
 
-public static class MainActivity extends x10.lang.Activity {
-	private final x10.core.Rail<java.lang.String> form;
-	public MainActivity(java.lang.String[] args) {
-		super("Main Activity");
-		this.form = x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args);
-	}
-	public void runX10Task$() {
-		main(form);
+	public void run() {
+		// initialize places and attach current thread to first place
+		x10.runtime.impl.java.Thread.currentThread().place(x10.lang.Place.FIRST_PLACE);
+
+		// run main activity
+		x10.runtime.Runtime.runMain(new x10.runtime.Activity() {
+			public void runX10Task$() {
+				main(rail);
+			}
+		});
 	}
 }
 

@@ -11,12 +11,8 @@ package x10.runtime.kernel;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-
-/* 
- * Would have prefered to name this "x10.runtime.kernel.Thread" but worried 
- * about name clashes with java.lang.Thread for the Java backend so 
- * decided to use unambiguous name.
- */
+import x10.runtime.kernel.Runnable;
+import x10.runtime.kernel.InterruptedException;
  
 /**
  * A unit of execution (a thread).
@@ -29,26 +25,23 @@ import x10.compiler.NativeRep;
  * general X10 programmers.
  */
 
-import x10.runtime.kernel.Runnable;
-import x10.runtime.kernel.InterruptedException;
-
-@NativeRep("java", "java.lang.Thread")
-public class NativeThread {
+@NativeRep("java", "x10.runtime.impl.java.Thread")
+public class Thread {
 	
-	public native def this(task:Runnable):NativeThread;
+	public native def this(task:Runnable):Thread;
 	
-	public native def this(task:Runnable, name:String):NativeThread;
+	public native def this(task:Runnable, name:String):Thread;
 	
-	@Native("java", "java.lang.Thread.currentThread()")
-	public static native def currentThread():NativeThread;
+	@Native("java", "#0.currentThread()")
+	public static native def currentThread():Thread;
 	
-	@Native("java", "#0.run()")
-	public native def run():void;
+	@Native("java", "#0.start()")
+	public native def start():void;
 	
-	@Native("java", "java.lang.Thread.sleep(#1)")
+	@Native("java", "#0.sleep(#1)")
 	public static native def sleep(millis:Long):void throws InterruptedException;
 	
-	@Native("java", "java.lang.Thread.sleep(#1,#2)")
+	@Native("java", "#0.sleep(#1,#2)")
 	public static native def sleep(millis:Long, nanos:Int):void throws InterruptedException;
 	
 	@Native("java","java.util.concurrent.locks.LockSupport.park()")
@@ -58,6 +51,23 @@ public class NativeThread {
 	public static native def parkNanos(nanos:Long):void;
 	
 	@Native("java", "java.util.concurrent.locks.LockSupport.unpark(#1)")
-	public static native def unpark(thread:NativeThread):void;
+	public static native def unpark(thread:Thread):void;
+
+    @Native("java", "#0.activity()")
+    public native def activity():Object;
+
+	@Native("java", "#0.activity(#1)")
+	public native def activity(activity:Object):void;
+
+	@Native("java", "#0.place()")
+	public native def place():Object;
+
+	@Native("java", "#0.place(#1)")
+	public native def place(place:Object):void;
+
+    @Native("java", "#0.getName()")
+    public native def name():String;
+
+	@Native("java", "#0.setName(#1)")
+	public native def name(name:String):void;
 }
- 

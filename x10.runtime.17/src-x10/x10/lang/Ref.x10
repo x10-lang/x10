@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.core.Ref")
 public class Ref(
-    	@Native("java", "x10.lang.Place.place(#0.placeId())")
+    	@Native("java", "(x10.lang.Place) #0.place()")
     	location: Place) {
     
     public native def this();
