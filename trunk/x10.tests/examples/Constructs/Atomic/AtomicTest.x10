@@ -16,7 +16,7 @@ public class AtomicTest extends x10Test {
 	var val: long = 0;
 	const N: long = 1000;
 	var startCount: long = 0;
-	var endCount: long = 0;
+	var endCount: long = N;
 
 	public def run(): boolean = {
 		var b: boolean; // temp

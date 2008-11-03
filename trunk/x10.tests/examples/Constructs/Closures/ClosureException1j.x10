@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class ClosureException1j extends ClosureTest {
 
-    class E extends Exception {}
+    value E extends Exception {}
 
     public def run(): boolean = {
         
