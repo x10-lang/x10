@@ -8,23 +8,21 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
-@NativeRep("java", "x10.runtime.impl.java.Runtime")
+/**
+ * @author tardieu
+ */
 public value Runtime {
-	// HACK to handle sleep calls
-    @Native("java", "x10.lang.Activity.sleep(#1)")
-    public native static def sleep(millis: long): boolean;
+	/**
+	 * Sleep for the specified number of milliseconds.
+	 * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
+	 * @param millis the number of milliseconds to sleep
+	 * @return true if completed normally, false if interrupted
+	 */
+	public static def sleep(millis: long): boolean {
+		return x10.runtime.Runtime.sleep(millis);
+	}
 
-    @Native("java", "x10.runtime.impl.java.Runtime.exit(#1)")
-    public native static def exit(code: int): void;
-
-    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
-	public native static def setExitCode(code: int): void;
-	
-    @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
-	public const MAX_PLACES: int = dummy();
-	
-	private incomplete static def dummy(): int;
-}
+    public static def setExitCode(code: int): void {
+		x10.runtime.kernel.Runtime.setExitCode(code);
+    }
+}    

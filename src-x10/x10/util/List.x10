@@ -6,7 +6,7 @@
  *
  */
 
-package x10.lang;
+package x10.util;
 
 import x10.compiler.NativeRep;
 
