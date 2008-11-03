@@ -102,7 +102,7 @@ class Halfspace(rank:nat) implements Comparable[Halfspace] {
      */
 
     def complement(): Halfspace {
-        var as: Rail[int] = Rail.makeVar[int](rank+1);
+        val as = Rail.makeVar[int](rank+1);
         for (var i: int = 0; i<rank; i++)
             as(i) = -this.as(i);
         as(rank) = -this.as(rank)+1;
@@ -139,7 +139,7 @@ class Halfspace(rank:nat) implements Comparable[Halfspace] {
                 else if (as(i)>0)
                     sgn = 1;
             }
-            var c: int = sgn*as(i);
+            val c = sgn*as(i);
             if (c==1) {
                 if (first)
                     ps.printf("x%d", i);
@@ -161,8 +161,8 @@ class Halfspace(rank:nat) implements Comparable[Halfspace] {
     }
 
     public def toString(): String {
-        var os: ByteArrayOutputStream = new ByteArrayOutputStream();
-        var ps: PrintStream = new PrintStream(os);
+        val os = new ByteArrayOutputStream();
+        val ps = new PrintStream(os);
         //printInfo(ps);
         printEqn(ps, "");
         return os.toString();
