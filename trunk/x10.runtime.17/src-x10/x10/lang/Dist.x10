@@ -4,6 +4,7 @@
 package x10.lang;
 
 import x10.array.BaseDist;
+import x10.util.Set;
 
 public abstract value class Dist(
     region: Region,
