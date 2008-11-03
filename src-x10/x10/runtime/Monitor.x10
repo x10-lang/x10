@@ -38,6 +38,7 @@ value Monitor {
      * Park calling thread
      * Does not increment blocked thread count
 	 * Must be called while holding the lock
+	 * Must not be called while holding the lock more than once
 	 */
     def park(): void {
     	val thread = Thread.currentThread();
@@ -53,6 +54,7 @@ value Monitor {
      * Park calling thread
      * Increment blocked thread count
 	 * Must be called while holding the lock
+	 * Must not be called while holding the lock more than once
 	 */
     def await(): void {
 		// notify runtime thread is about to block
