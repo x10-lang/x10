@@ -10,7 +10,7 @@
 #ifndef __XRX_KERNEL_LOCK_H
 #define __XRX_KERNEL_LOCK_H
 
-#include <pthread.h>
+#include "Types.h"
 
 namespace xrx_kernel {
 
@@ -30,7 +30,7 @@ public:
 	void unlock(void);
 
 	// acquire lock (non-blocking)
-	bool tryLock(void);
+	boolean tryLock(void);
 
 protected:
 	pthread_mutex_t __lock_mutex;

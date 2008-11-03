@@ -7,46 +7,50 @@
 
 /** Implementation file for low level worker interface. **/
 
-//#include <xrx/kernel/Worker.h>
-#include "Worker.h"
-//#include <xrx/kernel/Runnbale.h>
-#include "Runnable.h"
+#include "Thread.h"
 
 namespace xrx_kernel {
 
 // constructor (1)
-Worker::Worker(void)
+Thread::Thread(void)
 {
 	// to do
 }
 
 // constructor (2)
-Worker::Worker(Runnable task)
+Thread::Thread(Runnable task)
 {
 	// let compiler take care of object type mismatches
-	__worker_runobj = task;
+	__thread_runobj = task;
 	// to do
 
 }
 
 // constructor (3)
-Worker::Worker(Runnable task, string name)
+Thread::Thread(Runnable task, string name)
 {
-	__worker_runobj = task;
+	__thread_runobj = task;
 	// to do
 
 }
 
 // destructor
-Worker::~Worker(void)
+Thread::~Thread(void)
 {
 	// to do
 }
 
-// if available, invoke separate Runnable object run method
-// otherwise, do nothing
+// return the currently executing thread
+Thread
+Thread::currentThread(void)
+{
+	return (__current_thread);
+	// to do
+}
+
+// begin thread execution
 void
-Worker::run(void)
+Thread::start(void)
 {
 	// to do
 }
@@ -54,7 +58,7 @@ Worker::run(void)
 // put the current thread to sleep for the specified number of
 // milliseconds
 void
-Worker::sleep(long millis)
+Thread::sleep(Long millis) throw (InterruptedException)
 {
 	// to do
 }
@@ -62,28 +66,28 @@ Worker::sleep(long millis)
 // put the current thread to sleep for the specified number of
 // milliseconds plus the specified number of nano seconds
 void
-Worker::sleep(long millis, int nanos)
+Thread::sleep(Long millis, Int nanos) throw (InterruptedException)
 {
 	// to do
 }
 
 // disable the current thread for thread scheduling purposes
 void
-Worker::park(void)
+Thread::park(void)
 {
 	// to do
 }
 
 // disable the current thread for thread scheduling purposes
 void
-Worker::parkNanos(long nanos)
+Thread::parkNanos(Long nanos)
 {
 	// to do
 }
 
 // make available the current thread for thread scheduling
 void
-Worker::unpark(Worker worker)
+Thread::unpark(Thread worker)
 {
 	// to do
 }
