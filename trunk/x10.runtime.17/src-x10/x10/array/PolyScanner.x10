@@ -89,21 +89,21 @@ final public class PolyScanner implements Region.Scanner {
     private val minSum: Rail3;
     private val maxSum: Rail3;
 
-    def this(var cl: HalfspaceList): PolyScanner {
+    def this(var hl: HalfspaceList): PolyScanner {
 
-        this.rank = cl.rank;
+        this.rank = hl.rank;
 
         min = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
         max = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
         minSum = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
         maxSum = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
 
-        //cl.printInfo(System.out, "axis " + (rank-1));
-        init(cl, rank-1);
+        //hl.printInfo(System.out, "axis " + (rank-1));
+        init(hl, rank-1);
         for (var k: int = rank-2; k>=0; k--) {
-            cl = cl.FME(k+1, true);
-            //cl.printInfo(System.out, "axis " + k);
-            init(cl, k);
+            hl = hl.FME(k+1, true);
+            //hl.printInfo(System.out, "axis " + k);
+            init(hl, k);
         }
         //printInfo(System.out);
     }
@@ -135,21 +135,21 @@ final public class PolyScanner implements Region.Scanner {
     }
 
 
-    final private def init(cl: HalfspaceList, axis: int): void {
+    final private def init(hl: HalfspaceList, axis: int): void {
 
         // count
         var imin: int = 0;
         var imax: int = 0;
 
-        for (h:Halfspace in cl) {
+        for (h:Halfspace in hl) {
             if (h.as(axis)<0) imin++;
             if (h.as(axis)>0) imax++;
         }
 
         // complain if unbounded
         if (imin==0 || imax==0) {
-            var m: String = imin==0? "minimum" : "maximum";
-            var msg: String = "axis " + axis + " has no " + m;
+            val m = imin==0? "minimum" : "maximum";
+            val msg = "axis " + axis + " has no " + m;
             throw new UnboundedRegionException(msg);
         }
 
@@ -161,7 +161,7 @@ final public class PolyScanner implements Region.Scanner {
 
         // fill in
         imin=0; imax=0;
-        for (h:Halfspace in cl) {
+        for (h:Halfspace in hl) {
             if (h.as(axis)<0) {
                 min.r(axis).r(imin) = /*Rail.makeVar[int](axis+1)*/ new Rail1(axis+1);
                 minSum.r(axis).r(imin) = /*Rail.makeVar[int](axis+1)*/ new Rail1(axis+1);
@@ -202,9 +202,9 @@ final public class PolyScanner implements Region.Scanner {
     final public def min(axis: int): int {
         var result: int = MIN_VALUE;
         for (var k: int = 0; k<min.r(axis).r.length; k++) {
-            var a: int = min.r(axis).r(k).r(axis);
+            val a = min.r(axis).r(k).r(axis);
             var b: int = minSum.r(axis).r(k).r(axis);
-            var m: int = -b / a;
+            val m = -b / a;
             if (m > result) result = m;
         }
         return result;
@@ -213,9 +213,9 @@ final public class PolyScanner implements Region.Scanner {
     final public def max(axis: int): int {
         var result: int = MAX_VALUE;
         for (var k: int = 0; k<max.r(axis).r.length; k++) {
-            var a: int = max.r(axis).r(k).r(axis);
-            var b: int = maxSum.r(axis).r(k).r(axis);
-            var m: int = -b / a;
+            val a = max.r(axis).r(k).r(axis);
+            val b = maxSum.r(axis).r(k).r(axis);
+            val m = -b / a;
             if (m < result) result = m;
         }
         return result;

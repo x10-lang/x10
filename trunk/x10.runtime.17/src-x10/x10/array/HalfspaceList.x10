@@ -34,9 +34,9 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
 
     public def add(var coeff: int, op: int, k: int): void {
         coeff += ZERO;
-        var as: Rail[int] = Rail.makeVar[int](rank+1);
+        val as = Rail.makeVar[int](rank+1);
         for (var i: int = 0; i<rank; i++) {
-            var a: int = (coeff&3) - 2;
+            val a = (coeff&3) - 2;
             as(i) = op==LE? a : - a;
             coeff = coeff >> 2;
         }
@@ -60,7 +60,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
         if (size()==0)
             return this;
 
-        var result: HalfspaceList = new HalfspaceList(rank);
+        val result = new HalfspaceList(rank);
         var last: Halfspace = null as Halfspace;
         for (next:Halfspace in this) {
             if (last!=null && !next.isParallel(last))
@@ -88,11 +88,11 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
         sort(); // not needed but helps w/ debugging to keep in sorted order
         if (isSimplified)
             return this;
-        var result: HalfspaceList = new HalfspaceList(rank);
+        val result = new HalfspaceList(rank);
         var removed: Rail[boolean] = Rail.makeVar[boolean](size(), (nat)=>false); // XTENLANG-39 workaround
         for (var i: int = 0; i<size(); i++) {
-            var h: Halfspace = get(i);
-            var trial: HalfspaceList = new HalfspaceList(rank);
+            val h = get(i);
+            val trial = new HalfspaceList(rank);
             for (var j: int = 0; j<size(); j++)
                 if (!removed(j))
                     trial.add(i==j? h.complement() : get(j));
@@ -125,15 +125,15 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
     def FME(k: int, simplifyDegenerate: boolean): HalfspaceList {
         var result: HalfspaceList = new HalfspaceList(rank);
         for (var i: int = 0; i<size(); i++) {
-            var ih: Halfspace = get(i);
-            var ia: int = ih.as(k);
+            val ih = get(i);
+            val ia = ih.as(k);
             if (ia==0) {
                 result.add(ih);
             } else {
                 for (var j: int = i+1; j<size(); j++) {
-                    var jh: Halfspace = get(j);
-                    var ja: int = jh.as(k);
-                    var as: Rail[int] = Rail.makeVar[int](rank+1);
+                    val jh = get(j);
+                    val ja = jh.as(k);
+                    val as = Rail.makeVar[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
                             as(l) = ia*jh.as(l) - ja*ih.as(l);
@@ -141,7 +141,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
                         for (var l: int = 0; l<=rank; l++)
                             as(l) = ja*ih.as(l) - ia*jh.as(l);
                     }
-                    var lim: int = simplifyDegenerate? rank : rank+1;
+                    val lim = simplifyDegenerate? rank : rank+1;
                     var degenerate: boolean = true;
                     for (var l: int = 0; l<lim; l++)
                         if (as(l)!=0)
@@ -180,7 +180,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
     def rectMin(axis: int): int {
 
         for (h:Halfspace in this) {
-            var a: int = h.as(axis);
+            val a = h.as(axis);
             if (a < 0)
                 return -h.as(rank()) / a;
         }
@@ -192,24 +192,24 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
     def rectMax(axis: int): int {
 
         for (h:Halfspace in this) {
-            var a: int = h.as(axis);
+            val a = h.as(axis);
             if (a > 0)
                 return -h.as(rank()) / a;
         }
 
-        var msg: String = "axis " + axis + " has no maximum";
+        val msg = "axis " + axis + " has no maximum";
         throw new UnboundedRegionException(msg);
     }
 
     def rectMin(): Rail[int] {
-        var min: Rail[int] = Rail.makeVar[int](rank);
+        val min = Rail.makeVar[int](rank);
         for (var i: int = 0; i<min.length; i++)
             min(i) = rectMin(i);
         return min;
     }
 
     def rectMax(): Rail[int] {
-        var max: Rail[int] = Rail.makeVar[int](rank);
+        val max = Rail.makeVar[int](rank);
         for (var i: int = 0; i<max.length; i++)
             max(i) = rectMax(i);
         return max;
@@ -257,7 +257,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
     
         // look for contradictions
         for (var i: int = 0; i<hl.size(); i++) {
-            var h: Halfspace = hl.get(i);
+            val h = hl.get(i);
             if (h.as(rank)>0)
                 return true;
         }

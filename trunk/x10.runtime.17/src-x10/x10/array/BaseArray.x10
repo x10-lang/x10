@@ -18,12 +18,12 @@ public abstract value class BaseArray[T] extends Array[T] {
     //
 
     public static def makeVal1[T](region: Region, init: (Point)=>T): Array[T] {
-        var dist: Dist = Dist.makeConstant(region);
+        val dist = Dist.makeConstant(region);
         return makeVal[T](dist, init);
     }
 
     public static def makeVar1[T](region: Region, init: (Point)=>T): Array[T](region) {
-        var dist: Dist = Dist.makeConstant(region); // XXX _.x10 shd have Dist(Region) type?
+        val dist = Dist.makeConstant(region); // XXX _.x10 shd have Dist(Region) type?
         return makeVar[T](dist, init) as Array[T](region); // would eliminate cast here
     }
 

@@ -52,7 +52,7 @@ final value class RectRegion extends PolyRegion {
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        var hl: HalfspaceList{rank==min.length} = new HalfspaceList(min.length);
+        val hl = new HalfspaceList(min.length);
         for (var i: int = 0; i<min.length; i++) {
             hl.add(hl.X(i), hl.GE, min(i));
             hl.add(hl.X(i), hl.LE, max(i));
@@ -244,10 +244,10 @@ final value class RectRegion extends PolyRegion {
             return false;
 
         // fetch bounds
-        var thisMin: Rail[int] = this.min();
-        var thisMax: Rail[int] = this.max();
-        var thatMin: Rail[int] = (that as RectRegion).min();
-        var thatMax: Rail[int] = (that as RectRegion).max();
+        val thisMin = this.min();
+        val thisMax = this.max();
+        val thatMin = (that as RectRegion).min();
+        val thatMax = (that as RectRegion).max();
 
         // compare 'em
         for (var i: int = 0; i<rank; i++) {
@@ -263,8 +263,8 @@ final value class RectRegion extends PolyRegion {
     //
 
     public def toString(): String {
-        var min: Rail[int] = min();
-        var max: Rail[int] = max();
+        val min = min();
+        val max = max();
         var s: String = "[";
         for (var i: int = 0; i<rank; i++) {
             if (i>0) s += ",";

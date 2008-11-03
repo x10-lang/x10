@@ -52,7 +52,7 @@ value class UnionRegion extends BaseRegion {
     //
 
     public def intersection(that: Region(rank)): Region(rank) {
-        var rs: PolyRegionList(rank) = new PolyRegionList(rank);
+        val rs = new PolyRegionList(rank);
         for (var i: int = 0; i<regions.length; i++) {
             val r = regions(i) as Region(rank); // XXXX
             rs.add(r.intersection(that));
@@ -168,8 +168,8 @@ value class UnionRegion extends BaseRegion {
             for (var axis: int = 0; axis<rank; axis++)
                 max(axis) = MIN_VALUE;
             for (var i: int = 0; i<regions.length; i++) {
-                var rmin: Rail[int] = regions(i).min();
-                var rmax: Rail[int] = regions(i).max();
+                val rmin = regions(i).min();
+                val rmax = regions(i).max();
                 for (var axis: int = 0; axis<rank; axis++) {
                     if (rmin(axis)<min(axis)) min(axis) = rmin(axis);
                     if (rmax(axis)>max(axis)) max(axis) = rmax(axis);
