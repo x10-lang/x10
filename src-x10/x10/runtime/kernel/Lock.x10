@@ -30,5 +30,8 @@ public class Lock {
 	
 	@Native("java", "#0.unlock()")
 	public native def unlock():void;
+
+	@Native("java", "#0.getHoldCount()")
+	public native def getHoldCount():int;
 }
  
