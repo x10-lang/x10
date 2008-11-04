@@ -5,71 +5,88 @@
  * This file is part of XRX Kernel implementation in C++.
  */
 
-/** Implementation file for low level lock interface. **/
-
+/**
+ * Implementation file for the low level reentrant lock
+ * interface.
+ */
 #include "Lock.h"
 
 namespace xrx_kernel {
 
-// constructors implementation
+// [constructor] Create an instance of reentrant Lock.
 Lock::Lock(void)
 {
-	// remove cast once we are ready to catch no memory exceptions
-	(void)pthread_mutexattr_init(&__lock_mutexattr);
+	// create lock attributes object
+	// ??check the return code for ENOMEM and throw OutOfMemoryError??
+	(void)pthread_mutexattr_init(&__lock_attr);
 
-	// java reentrantlock behavior
+	// set lock type to reentrant
 	int type = PTHREAD_MUTEX_RECURSIVE;
-	(void)pthread_mutexattr_settype(&__lock_mutexattr, type);
+	pthread_mutexattr_settype(&__lock_attr, type);
 
-	// change this to 'SHARED' for inter place accesses
+	// whether this lock is shared by threads across places
+	// if so, set this to PTHREAD_PROCESS_SHARED
 	int pshared = PTHREAD_PROCESS_PRIVATE;
-	(void)pthread_mutexattr_setpshared(&__lock_mutexattr, pshared);
+	pthread_mutexattr_setpshared(&__lock_attr, pshared);
 
-	// until we need lock priorities
-	{
-		int protocol = PTHREAD_PRIO_DEFAULT;
-		(void)pthread_mutexattr_setprotocol(&__lock_mutexattr, protocol);
-	}
+	// we are not currently implementing any fairness policy
+	int protocol = PTHREAD_PRIO_NONE;
+	pthread_mutexattr_setprotocol(&__lock_attr, protocol);
 
-	// remove cast once we are ready to catch no memory exceptions
-	(void)pthread_mutex_init(&__lock_mutex, &__lock_mutexattr);
-
+	// create lock object
+	// ??check the return code for ENOMEM and throw OutOfMemoryError??
+	(void)pthread_mutex_init(&__lock, &__lock_attr);
 }
 
-// destructor implementation
+// destructor
 Lock::~Lock(void)
 {
-	(void)pthread_mutex_destroy(&__lock_mutex);
-	(void)pthread_mutexattr_destroy(&__lock_mutexattr);
+	// free lock object
+	pthread_mutex_destroy(&__lock);
 
+	// free lock attributes
+	pthread_mutexattr_destroy(&__lock_attr);
 }
 
-// blocking lock (reentrant)
+// acquire lock (blocking)
 void
 Lock::lock(void)
 {
-	(void)pthread_mutex_lock(&__lock_mutex);
+	// blocks until the lock becomes available
+	pthread_mutex_lock(&__lock);
 }
 
-// release lock (reentrant)
+// release lock
 void
-Lock::unlock(void)
+Lock::unlock(void) throw (IllegalMonitorStateException)
 {
-	// remove the underlying cast once we are ready to
-	// handle properly EPERM (not the owner) through exceptions
-	(void)pthread_mutex_unlock(&__lock_mutex);
+	IllegalMonitorStateException imse;
+
+	// calling thread doesn't own the lock
+	if (pthread_mutex_unlock(&__lock) == EPERM) {
+		throw imse;
+	}
 }
 
-// try and acquire lock
+// acquire lock (non-blocking)
 boolean
 Lock::tryLock(void)
 {
-	// no need to handle EBUSY return value for the simple
-	// trylock semantics [java trylock() behavior]
-	if (pthread_mutex_trylock(&__lock_mutex) == 0) {
+	// acquire the lock only if it is not held by another thread
+	if (pthread_mutex_trylock(&__lock) == 0) {
 		return true;
 	}
 	return false;
 }
+
+#ifdef XRX_KERNEL_DEBUG
+// get lock count
+int
+Lock::getHoldCount(void)
+{
+	// to do
+	return 0;
+}
+#endif /* XRX_KERNEL_DEBUG */
 
 } /* closing brace for namespace xrx_kernel */
