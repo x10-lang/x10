@@ -6,7 +6,7 @@
 #
 
 ## Makefile for XRX Kernel library.
-.SUFFIXES: .cc .o .a
+.SUFFIXES: .cc .h .o .a
 
 # platform architecure
 ARCH = ppc
@@ -14,6 +14,7 @@ ARCH = ppc
 CXX = xlC_r
 CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH)
 INCLUDES = -I.
+DEFS = -DXRX_KERNEL_DEBUG=1
 
 AR = ar
 ARFLAGS = -r -X64
@@ -28,9 +29,20 @@ LIBNAME = xrx_kernel
 # Build by default static library
 LIBTARGET = lib$(LIBNAME).a
 
-SRCS = Lock.cc Thread.cc
-HEADERS = Types.h InterruptedException.h Runnable.h Lock.h Thread.h
-OBJS = Lock.o Thread.o
+SRCS = \
+	Lock.cc \
+	Thread.cc
+OBJS = \
+	Lock.o \
+	Thread.o
+HEADERS = \
+	Object.h \
+	Types.h \
+	InterruptedException.h \
+	IllegalMonitorStateException.h \
+	Runnable.h \
+	Lock.h \
+	Thread.h
 
 
 all: $(LIBTARGET)
