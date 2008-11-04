@@ -34,11 +34,7 @@ abstract public value class BaseRegion extends Region {
     public static def makeHalfspace1(normal:Point, k:int): Region(normal.rank) {
         val rank = normal.rank;
         val hl = new HalfspaceList(rank);
-        val as = Rail.makeVar[int](rank+1);
-        for (var i:int=0; i<rank; i++)
-            as(i) = normal(i);
-        as(rank) = k;
-        val h = new Halfspace(as);
+        val h = new Halfspace(normal, k);
         hl.add(h);
         return PolyRegion.make(hl);
     }

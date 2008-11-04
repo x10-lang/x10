@@ -61,13 +61,13 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
             return this;
 
         val result = new HalfspaceList(rank);
-        var last: Halfspace = null as Halfspace;
+        var last: Box[Halfspace] = null as Box[Halfspace];
         for (next:Halfspace in this) {
-            if (last!=null && !next.isParallel(last))
-                result.add(last);
-            last = next;
+            if (last!=null && !next.isParallel(last to Halfspace))
+                result.add(last to Halfspace);
+            last = next to Box[Halfspace];
         }
-        result.add(last);
+        result.add(last to Halfspace);
 
         return result;
     }

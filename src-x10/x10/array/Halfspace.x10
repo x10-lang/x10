@@ -16,19 +16,31 @@ import x10.io.ByteArrayOutputStream;
  *
  */
 
-class Halfspace(rank:nat) implements Comparable[Halfspace] {
+value class Halfspace(rank:nat) implements Comparable[Halfspace] {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionList(rank:nat) = PolyRegionList{self.rank==rank};
     static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
 
-    val as: Rail[int];
+    val as: ValRail[int];
 
-    def this(as: Rail[int]): Halfspace(as.length-1) {
+    def this(as: ValRail[int]): Halfspace(as.length-1) {
         property(as.length-1);
         this.as = as;
     }
+
+    def this(as: Rail[int]): Halfspace(as.length-1) {
+        property(as.length-1);
+        this.as = Rail.makeVal[int](as.length, (i:nat)=>as(i)); // XTENLANG-???
+    }
+
+    def this(p:Point, k:int) {
+        property(p.rank);
+        val init = (i:nat) => i<p.rank? p(i) : k;
+        this.as = Rail.makeVal[int](p.rank+1, init);
+    }
+
 
     /**
      * natural sort order for halfspaces: from lo to hi on each
