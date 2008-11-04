@@ -197,7 +197,7 @@ value class PolyRegion extends BaseRegion {
         var hl: HalfspaceList = halfspaces;
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
-                hl = hl.FME(k, true);
+                hl = hl.eliminate(k, true);
         return Region.makeRectangular(hl.rectMin(axis), hl.rectMax(axis)) as Region(1);
     }
 
@@ -207,7 +207,7 @@ value class PolyRegion extends BaseRegion {
 
     // XXX add a test case for this; also for projection!
     public def eliminate(axis: int): Region(rank-1) {
-        val hl = halfspaces.FME(axis, true); 
+        val hl = halfspaces.eliminate(axis, true); 
         val result = PolyRegion.make(hl);
         return result as Region(rank-1);
     }
@@ -285,10 +285,10 @@ value class PolyRegion extends BaseRegion {
             for (var axis: int = 0; axis<rank; axis++) {
                 var x: HalfspaceList = hl;
                 for (var k: int = axis+1; k<rank; k++)
-                    x = x.FME(k, true);
+                    x = x.eliminate(k, true);
                 min(axis) = x.rectMin(axis);
                 max(axis) = x.rectMax(axis);
-                hl = hl.FME(axis, true);
+                hl = hl.eliminate(axis, true);
             }
             boundingBox.b = new B(Region.makeRectangular(min, max));
         }
