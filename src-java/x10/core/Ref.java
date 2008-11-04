@@ -12,18 +12,18 @@ import x10.runtime.impl.java.Thread;
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref {
-    public final Object place;
+    public final Object location;
     
     public Ref() {
-       	place = Thread.currentThread().place();
+       	location = Thread.currentThread().place();
     }
     
-    public final Object place() {
-        return place;
+    public final Object location() {
+        return location;
      }
      
-    public final Object place$() {
-        return place();
+    public final Object location$() {
+        return location();
      }
      
     public String toString$() {
