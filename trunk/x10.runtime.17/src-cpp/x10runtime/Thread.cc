@@ -5,12 +5,20 @@
  * This file is part of XRX Kernel implementation in C++.
  */
 
-/** Implementation file for low level worker interface. **/
+/**
+ * Implementation file for the low level thread interface.
+ */
 
 #include "Thread.h"
 
 namespace xrx_kernel {
 
+// Allocates a new Thread object.
+// local method to initialize a new thread object
+static void thread_init(Runnable task, String name)
+{
+	// to do
+}
 // constructor (1)
 Thread::Thread(void)
 {
@@ -20,18 +28,13 @@ Thread::Thread(void)
 // constructor (2)
 Thread::Thread(Runnable task)
 {
-	// let compiler take care of object type mismatches
-	__thread_runobj = task;
 	// to do
-
 }
 
 // constructor (3)
 Thread::Thread(Runnable task, string name)
 {
-	__thread_runobj = task;
 	// to do
-
 }
 
 // destructor
@@ -40,56 +43,118 @@ Thread::~Thread(void)
 	// to do
 }
 
-// return the currently executing thread
+// Returns a reference to the currently executing thread object.
 Thread
 Thread::currentThread(void)
 {
 	return (__current_thread);
-	// to do
 }
 
-// begin thread execution
+// Begin thread execution.
 void
 Thread::start(void)
 {
 	// to do
 }
 
-// put the current thread to sleep for the specified number of
-// milliseconds
+// Invoke the Runnable object's run method, if possible.
+void
+Thread::run(void)
+{
+	// to do
+}
+
+/**
+ * Put the current thread to sleep for the specified number of
+ * milliseconds.
+ */
 void
 Thread::sleep(Long millis) throw (InterruptedException)
 {
 	// to do
 }
 
-// put the current thread to sleep for the specified number of
-// milliseconds plus the specified number of nano seconds
+/**
+ * Put the current thread to sleep for the specified number of
+ * milliseconds plus the specified number of nano seconds.
+ */
 void
 Thread::sleep(Long millis, Int nanos) throw (InterruptedException)
 {
 	// to do
 }
 
-// disable the current thread for thread scheduling purposes
+/**
+ * Disables the current thread for thread scheduling purposes
+ * unless the permit is available.
+ */
 void
 Thread::park(void)
 {
 	// to do
 }
 
-// disable the current thread for thread scheduling purposes
+/**
+ * Disables the current thread for thread scheduling purposes,
+ * for up to the specified waiting time, unless the permit is
+ * available.
+ */
 void
 Thread::parkNanos(Long nanos)
 {
 	// to do
 }
 
-// make available the current thread for thread scheduling
+/**
+ * Makes available the permit for the given thread, if it was
+ * not already available.
+ */
 void
-Thread::unpark(Thread worker)
+Thread::unpark(Thread thread)
 {
 	// to do
+}
+
+// Returns the current activity.
+Object
+Thread::activity(void)
+{
+	return (__current_activity);
+}
+
+// Set the current activity.
+void
+Thread::activity(Object activity)
+{
+	__current_activity = activity;
+}
+
+// Returns the current place.
+Object
+Thread::place(void)
+{
+	return (__current_place);
+}
+
+// Set the current place.
+void
+Thread::place(Object place)
+{
+	__current_place = place;
+}
+
+// Returns this thread's name.
+String
+Thread::getName(void)
+{
+	return (__thread_name);
+}
+
+// Set the name of this thread.
+void
+Thread::setName(String name)
+{
+	__thread_name = name;
 }
 
 } /* closing brace for namespace xrx_kernel */
