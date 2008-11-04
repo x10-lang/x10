@@ -25,13 +25,12 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
     public static def makeUnique1(ps: Rail[Place]): Dist(1) { // XTENLANG-4
 
+        // regions
+        val init = (i:nat) => Region.makeRectangular(i, i);
+        val regions = Rail.makeVal[Region](ps.length, init);
+
         // overall region
         val overall = Region.makeRectangular(0, ps.length-1);
-
-        // regions
-        val regions = Rail.makeVar[Region](ps.length);
-        for (var i: int = 0; i<ps.length; i++)
-            regions(i) = Region.makeRectangular(i, i);
 
         return new BaseDist(overall, ps, regions);
     }
@@ -42,9 +41,8 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val min = b.min()(axis);
         val max = b.max()(axis);
 
-        var regions: Rail[Region] = Rail.makeVar[Region](Place.MAX_PLACES);
-        for (var i: int = 0; i<Place.MAX_PLACES; i++)
-            regions(i) = Region.makeEmpty(r.rank);
+        val init = (i:nat) => Region.makeEmpty(r.rank);
+        var regions: Rail[Region] = Rail.makeVar[Region](Place.MAX_PLACES, init);
 
         for (var i: int = min, p: int = 0; i<=max; i+=blockSize, p++) {
             val r1 = Region.makeFull(axis);
@@ -129,21 +127,17 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         // XXX throw away places that map to empty regions!!!
 
         // places
-        val ps = Rail.makeVar[Place](this.places.length);
-        for (var i: int = 0; i<this.places.length; i++)
-            ps(i) = this.places(i);
+        val ps = this.places;
 
         // regions
-        val rs = Rail.makeVar[Region](this.regions.length);
-        for (var i: int = 0; i<this.regions.length; i++)
-            rs(i) = (this.regions(i) as Region(rank)).intersection(r);
+        val init = (i:nat) => (this.regions(i) as Region(rank)).intersection(r);
+        val rs = Rail.makeVal[Region](this.regions.length, init);
 
         return new BaseDist(r, ps, rs);
     }
 
     public def restriction(p: Place): Dist(rank) {
         val ps = [p];
-        //var rs: Rail[Region] = [get(p)]; XTENLANG-52
         val rs = Rail.makeVal[Region](1, (nat)=>get(p));
         return new BaseDist(region.intersection(rs(0) as Region(rank)), ps, rs);
     }
@@ -161,20 +155,20 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def intersection(that: Dist(rank)): Dist(rank) {
 
         // places
-        val ps = Rail.makeVar[Place](this.places.length);
-        for (var i: int = 0; i<this.places.length; i++)
-            ps(i) = this.places(i);
+        val ps = this.places;
 
         // regions
-        val rs = Rail.makeVar[Region](this.regions.length);
-        var overall: Region(rank) = Region.makeEmpty(rank);
-        for (var i: int = 0; i<this.regions.length; i++) {
+        val init = (i:nat) => {
             val r1 = this.regions(i) as Region(rank);
             val r2 = that.get(this.places(i)) as Region(rank);
-            val r = r1.intersection(r2);
-            rs(i) = r;
-            overall = overall.union(r);
-        }
+            return r1.intersection(r2);
+        };
+        val rs = Rail.makeVal[Region](this.regions.length, init);
+
+        // overall region
+        var overall: Region(rank) = Region.makeEmpty(rank);
+        for (var i: int = 0; i<this.regions.length; i++)
+            overall = overall.union(rs(i) as Region(rank));
 
         return new BaseDist(overall, ps, rs);
     }
@@ -182,20 +176,20 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def difference(that: Dist(rank)): Dist(rank) {
 
         // places
-        val ps = Rail.makeVar[Place](this.places.length);
-        for (var i: int = 0; i<this.places.length; i++)
-            ps(i) = this.places(i);
+        val ps = this.places;
 
         // regions
-        val rs = Rail.makeVar[Region](this.regions.length);
-        var overall: Region(rank) = Region.makeEmpty(rank);
-        for (var i: int = 0; i<this.regions.length; i++) {
+        val init = (i:nat) => {
             val r1 = this.regions(i) as Region(rank);
             val r2 = that.get(this.places(i)) as Region(rank);
-            val r = r1.difference(r2);
-            rs(i) = r;
-            overall = overall.union(r);
-        }
+            return r1.difference(r2);
+        };
+        val rs = Rail.makeVal[Region](this.regions.length, init);
+
+        // overall region
+        var overall: Region(rank) = Region.makeEmpty(rank);
+        for (var i: int = 0; i<this.regions.length; i++)
+            overall = overall.union(rs(i) as Region(rank));
 
         return new BaseDist(overall, ps, rs);
     }
@@ -206,12 +200,12 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val ps = Place.places;
 
         // regions
-        val rs = Rail.makeVar[Region](ps.length);
-        for (var i: int = 0; i<ps.length; i++) {
+        val init = (i:nat) => {
             val p = ps(i);
             val r = this.get(p) as Region(rank); // XXXX
-            rs(i) = r.difference(that.region).union(that.get(p));
-        }
+            return r.difference(that.region).union(that.get(p));
+        };
+        val rs = Rail.makeVal[Region](ps.length, init);
 
         return new BaseDist(this.region.union(that.region), ps, rs);
     }
@@ -222,14 +216,17 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val ps = Place.places;
 
         // regions
-        val rs = Rail.makeVar[Region](ps.length);
-        var overall: Region(rank) = Region.makeEmpty(rank);
-        for (var i: int = 0; i<ps.length; i++) {
+        val init = (i:nat) => {
             val r1 = that.get(ps(i)) as Region(rank); // XXXX
             val r2 = this.get(ps(i)) as Region(rank); // XXXX
-            rs(i) = r2.union(r1);
+            return r2.union(r1);
+        };
+        val rs = Rail.makeVal[Region](ps.length, init);
+
+        // overall region
+        var overall: Region(rank) = Region.makeEmpty(rank);
+        for (var i: int = 0; i<ps.length; i++)
             overall = overall.disjointUnion(rs(i) as Region(rank));
-        }
 
         return new BaseDist(overall, ps, rs);
     }
