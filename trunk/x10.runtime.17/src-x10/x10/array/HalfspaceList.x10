@@ -122,7 +122,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
      * by eliminating axis k
      */
 
-    def FME(k: int, simplifyDegenerate: boolean): HalfspaceList {
+    def eliminate(k: int, simplifyDegenerate: boolean): HalfspaceList {
         var result: HalfspaceList = new HalfspaceList(rank);
         for (var i: int = 0; i<size(); i++) {
             val ih = get(i);
@@ -253,7 +253,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
         // eliminate all variables
         var hl: HalfspaceList = this;
         for (var i: int = 0; i<rank; i++)
-            hl = hl.FME(i, false);
+            hl = hl.eliminate(i, false);
     
         // look for contradictions
         for (var i: int = 0; i<hl.size(); i++) {

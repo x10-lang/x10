@@ -101,7 +101,7 @@ final public class PolyScanner implements Region.Scanner {
         //hl.printInfo(System.out, "axis " + (rank-1));
         init(hl, rank-1);
         for (var k: int = rank-2; k>=0; k--) {
-            hl = hl.FME(k+1, true);
+            hl = hl.eliminate(k+1, true);
             //hl.printInfo(System.out, "axis " + k);
             init(hl, k);
         }
