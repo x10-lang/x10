@@ -152,7 +152,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	        try {
 	            LoadedClassResolver lr;
 	            lr = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-	                                         compiler.loader(), true,
+	                                         compiler.loader(), false,
 	                                         getOptions().compile_command_line_only,
 	                                         getOptions().ignore_mod_times);
 
