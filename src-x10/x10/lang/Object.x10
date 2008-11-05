@@ -23,5 +23,5 @@ public interface Object {
     public def toString(): String;
 
     @Native("java", "#0.getClass().toString()")
-    public def className():String;
+    public def className(): String;
 }
