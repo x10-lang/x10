@@ -12,7 +12,7 @@ package x10.runtime.kernel.atomics;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicBoolean")
+@NativeRep("java", "java.util.concurrent.atomic.AtomicBoolean", null, null)
 public class AtomicBoolean {
 	
 	public native def this():AtomicBoolean;

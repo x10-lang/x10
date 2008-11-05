@@ -11,7 +11,7 @@ import x10.compiler.NativeRep;
  * the Java implementation.  Eventually will mostly
  * migrate to being in x10.
  */
-@NativeRep("java", "x10.runtime.xws.impl.Job")
+@NativeRep("java", "x10.runtime.xws.impl.Job", null, null)
 public abstract class Job extends Closure {
 
   public native def this(p:Pool):Job;

@@ -39,7 +39,7 @@ class FinishState {
 	 */
 	def waitForFinish(): void {
 		latch.await();
-		if ((null != exceptions) && !exceptions.empty()) {
+		if ((null != exceptions) && !exceptions.isEmpty()) {
 			if (exceptions.size() == 1) {
 				val t = exceptions.pop();
 				if (t instanceof Error) {

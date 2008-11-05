@@ -10,5 +10,4 @@ package x10.util;
 
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.Set<#1>")
-public interface Set[T] {}
+public interface Set[T] extends Collection[T] {}

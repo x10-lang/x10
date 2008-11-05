@@ -14,7 +14,7 @@ import x10.io.*;
 
 public class System {
 
-    @NativeRep("java", "java.lang.System")
+    @NativeRep("java", "java.lang.System", null, null)
     private static class NativeSystem {
 
         // Hide the constructor.

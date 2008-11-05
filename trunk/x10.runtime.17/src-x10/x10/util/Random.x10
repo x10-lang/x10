@@ -11,15 +11,57 @@ package x10.util;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.Random") 
+/** Random number generator, following the algorithm of java.util.Random. */
 public class Random {
-
-	@Native("java", "new java.util.Random()")
-    public native def this(): Random;
-
-	@Native("java", "new java.util.Random(#1)")
-    public native def this(n: long): Random;
+    var seed: long;
     
-	@Native("java", "#0.nextInt(#1)")
-    public native def nextInt(n: int): int;
+    public def this(): Random {
+       this(System.currentTimeMillis());
+    }
+    
+    public def this(seed: Long): Random {
+        setSeed(seed);
+    }
+    
+    public def setSeed(seed: Long): void {
+        this.seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
+    }
+     
+    private def nextBits(bits: int): int {
+        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+        return (seed >>> (48 - bits)) to Int;
+    }
+	
+	public def nextInt() = nextBits(32);
+	
+	public def nextInt(n: int): int {
+	    assert n <= 0;
+
+        if ((n & -n) == n)  // i.e., n is a power of 2
+            return ((n * (nextBits(31) to long)) >> 31) to Int;
+
+        var bits: int;
+        var v: int;
+        
+        do {
+            bits = nextBits(31);
+            v = bits % n;
+        } while (bits - v + (n-1) < 0);
+ 
+        return v;
+    }
+     
+    public def nextLong(): long { 
+        return ((nextBits(32) to long) << 32) + nextBits(32);
+    }
+     
+    public def nextBoolean() = nextBits(1) != 0;
+      
+    public def nextFloat(): float {
+        return nextBits(24) / ((1 << 24) to float);
+    }
+     
+    public def nextDouble(): double {
+       return (((nextBits(26) to long) << 27) + nextBits(27)) / ((1L << 53) to double);
+    }
 }

@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
  * Interface with native runtime
  * @author tardieu
  */
-@NativeRep("java", "x10.runtime.impl.java.Runtime")
+@NativeRep("java", "x10.runtime.impl.java.Runtime", null, null)
 public value Runtime {
 
     @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")

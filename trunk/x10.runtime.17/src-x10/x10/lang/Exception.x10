@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.lang.Exception")
+@NativeRep("java", "java.lang.Exception", null, null)
 public value Exception extends Throwable {
     public native def this(): Exception;
     public native def this(message: String): Exception;

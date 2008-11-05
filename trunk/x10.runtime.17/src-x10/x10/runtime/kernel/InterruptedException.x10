@@ -23,6 +23,6 @@ import x10.compiler.NativeRep;
 /**
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
-@NativeRep("java", "java.lang.InterruptedException")
+@NativeRep("java", "java.lang.InterruptedException", null, null)
 public value InterruptedException extends Exception {}
  

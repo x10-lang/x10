@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.lang.Throwable")
+@NativeRep("java", "java.lang.Throwable", null, null)
 public value Throwable {
     public native def this(): Throwable;
     public native def this(message: String): Throwable;

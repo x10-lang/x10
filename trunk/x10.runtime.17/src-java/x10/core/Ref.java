@@ -9,6 +9,7 @@
 package x10.core;
 
 import x10.runtime.impl.java.Thread;
+import x10.types.RuntimeType;
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref {
@@ -17,24 +18,26 @@ public class Ref {
     public Ref() {
        	location = Thread.currentThread().place();
     }
-    
+     
+    /** Note: since this is final, it's important that the method name not conflict with any methods introduced by subclasses of Ref in X10 code. */
     public final Object location() {
         return location;
-     }
-     
-    public final Object location$() {
-        return location();
-     }
-     
-    public String toString$() {
-    	return toString();
     }
     
-    public Boolean equals$(Object o) {
-    	return equals(o);
+    public static class RTT extends RuntimeType<Ref> {
+    	public static final RTT it = new RTT();
+
+    	public RTT() {
+            super(Ref.class);
+        }
+
+        @Override
+        public boolean instanceof$(Object o) {
+            return o instanceof Ref;
+        }
     }
-    
-    public Integer hashCode$() {
-    	return hashCode();
+
+    public Ref box$() {
+        return this;
     }
 }

@@ -25,7 +25,7 @@ import x10.runtime.kernel.InterruptedException;
  * general X10 programmers.
  */
 
-@NativeRep("java", "x10.runtime.impl.java.Thread")
+@NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
 public class Thread {
 	
 	public native def this(task:Runnable):Thread;

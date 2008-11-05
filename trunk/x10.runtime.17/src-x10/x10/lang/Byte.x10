@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "byte")
+@NativeRep("java", "byte", "x10.core.BoxedByte", "x10.types.Type.BYTE")
 public final value Byte implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

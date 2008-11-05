@@ -12,7 +12,7 @@ package x10.runtime.kernel.atomics;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicInteger")
+@NativeRep("java", "java.util.concurrent.atomic.AtomicInteger", null, null)
 public class AtomicInteger {
 	
 	public native def this():AtomicInteger;

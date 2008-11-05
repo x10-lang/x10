@@ -12,7 +12,7 @@ import x10.types.RuntimeType;
 import x10.types.Type;
 
 public interface VoidFun_0_1<T1> {
-    void apply$(T1 o);
+    void apply(T1 o);
     Type<?> rtt_x10$lang$VoidFun_0_1_Z1();
 
 
