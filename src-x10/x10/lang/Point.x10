@@ -6,7 +6,16 @@ package x10.lang;
 import x10.compiler.ArithmeticOps;
 import x10.compiler.ComparisonOps;
 
-public value class Point(rank: nat) implements Indexable[nat,int] {
+/**
+ * Point(rank) represents a point in a rank-dimensional space. The
+ * coordinates of a point p may be accessed individually using p(i)
+ * because Point implements (nat)=>int. The coordinates may also be
+ * accessed as a Rail[int]. Point arithmetic is supported.
+ *
+ * @author bdlucas
+ */
+
+final public value class Point(rank: nat) implements Indexable[nat,int] {
 
     /**
      * Returns the value of the ith coordinate.
