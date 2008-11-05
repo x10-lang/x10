@@ -13,6 +13,6 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.ClassCastException", null, null)
 public value ClassCastException extends RuntimeException {
-    public native def this(): ClassCastException;
-    public native def this(message: String): ClassCastException;
+    public def this() { super(); }
+    public def this(message: String) ( super(message); }
 }
