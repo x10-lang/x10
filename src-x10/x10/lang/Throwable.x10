@@ -16,13 +16,17 @@ import x10.io.PrintStream;
 public value Throwable {
 	val cause: Box[Throwable];
     val message: String;
-    public def this() = this("", null);
-    public def this(message: String) = this(message, null);
+    public def this() = this("");
+    public def this(message: String) {
+    	super();
+    	this.cause = null;
+    	this.message = message;
+    }
     public def this(cause: Throwable) = this("", cause);
     public def this(message: String, cause: Throwable): Throwable {
     	super();
-    	this.cause = cause;
-    	this.message=message;
+    	this.cause = cause to Box[Throwable]; // BUG: should autobox
+    	this.message = message;
     }
     
     @Native("java", "#0.getMessage()")
@@ -31,8 +35,8 @@ public value Throwable {
     @Native("java", "#0.getLocalizedMessage()")
     public incomplete def getLocalizedMessage(): String;
     
-    @Native("java", "#0.getCause()")
-    public def getCause() = cause;
+    @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
+    public final def getCause(): Box[Throwable] = cause;
     
     @Native("java", "#0.toString()")
     public def toString() = className() + ": " + getMessage();
@@ -42,12 +46,12 @@ public value Throwable {
     	printStackTrace(System.err);
     }
     
-    @Native("java", "#0.printStackTrace(#1)")
+    @Native("java", "#0.printStackTrace((java.io.PrintStream) (#1).nativeWriter())")
     public def printStackTrace(p: PrintStream ) {
     	// We do not bother to walk the stack and insert stack elements
     	// for the C/C++ implementation (for now).
     	p.println(this);
-    	p.println("Stack trace unavailable. So cry your heart out.")
+    	p.println("Stack trace unavailable. So cry your heart out.");
     }
     /*
     public void printStackTrace(java.io.PrintWriter);
