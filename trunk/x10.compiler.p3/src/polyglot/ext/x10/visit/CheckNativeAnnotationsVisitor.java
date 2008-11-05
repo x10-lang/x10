@@ -25,6 +25,7 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Def;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -34,11 +35,14 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 
 /**
- * Visitor that expands implicit declarations in formal parameters.
+ * Visitor that checks @Native and @NativeRep annotations.
  */
 public class CheckNativeAnnotationsVisitor extends ContextVisitor {
-    public CheckNativeAnnotationsVisitor(Job job, TypeSystem ts, NodeFactory nf) {
+	String theLanguage;
+	
+    public CheckNativeAnnotationsVisitor(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
+        this.theLanguage = theLanguage;
     }
 
     public Map<String, String> getNativeRepParam(X10ClassDef def, int i) {
@@ -116,7 +120,6 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         return map;
     }
 
-
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         boolean isNative = false;
         boolean classHasNativeRep = false;
@@ -157,7 +160,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
             X10Def def = (X10Def) fd.fieldDef();
             nativeImps = getNativeImplForDef(def);
         }
-        
+
         if (n instanceof X10ClassDecl) {
         	for (String lang : nativeReps.keySet()) {
         		{
@@ -181,6 +184,10 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         		}
         	}
         }
+        
+        if (isNative && nativeImps.get(theLanguage) != null && n instanceof X10MethodDecl)
+        	throw new SemanticException("Native methods must have a @Native annotation for backend \"" + theLanguage + "\".", n.position());
+        	
         
 //        if (! nativeReps.isEmpty() && ! isNative && n instanceof X10MethodDecl) {
 //        	throw new SemanticException("Class with NativeRep annotation may contain only native methods.", n.position());
