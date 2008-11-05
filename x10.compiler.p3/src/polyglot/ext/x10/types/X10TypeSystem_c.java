@@ -1307,7 +1307,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	// The only primitive left.
 	Type VOID_;
 	public Type Void() { if (VOID_ == null) VOID_ = new Void(this); return VOID_; }
-	public boolean isVoid(Type t) { return t != null && t.equals((Object) Void()); } // do not use typeEquals
+	public boolean isVoid(Type t) { return t != null && expandMacros(t).equals((Object) Void()); } // do not use typeEquals
 
 	protected ClassType Boolean_;
 	public Type Boolean() { if (Boolean_ == null) Boolean_ = load("x10.lang.Boolean"); return Boolean_; }
@@ -1930,7 +1930,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		catch (XFailure e) {
 		    return false;
 		}
-
+		
+		if (t1 instanceof ParameterType && t2 instanceof ParameterType) {
+			ParameterType pt1 = (ParameterType) t1;
+			ParameterType pt2 = (ParameterType) t2;
+			if (TypeParamSubst.isSameParameter(pt1, pt2))
+				return true;
+		}
+	
 		if (t1 != baseType1 || t2 != baseType2)
 		    if (typeEquals(baseType1, baseType2, env))
 		        return true;
