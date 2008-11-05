@@ -483,10 +483,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write(" ");
 	    w.write("{");
 	    w.allowBreak(4);
-
+	    
 	    if (! md.returnType().isVoid()) {
 	        w.write(" return       ");
 	    }
+	    
+	    String pat = getJavaImplForDef(md.x10Def());
+		if (pat != null) {
+			String target = "this";
+			emitNativeAnnotation(pat, target, md.typeParameters(), dispatchArgs);
+			w.write("; }");
+			return;
+		}
 
 	    w.write("this");
 	    w.write(".");
@@ -1192,8 +1200,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    	boxPrimitives = false;
 	    if (mi.name() == Name.make("equals") && mi.formalTypes().size() == 1)
 	    	boxPrimitives = false;
-	    if (mi.name() == Name.make("hasNext") && mi.formalTypes().size() == 0)
-	    	boxPrimitives = false;
 
 	    X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
@@ -1291,6 +1297,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (! md.returnType().isVoid()) {
 	        w.write(" return       ");
 	    }
+	    
+	    String pat = getJavaImplForDef(md.x10Def());
+		if (pat != null) {
+			String target = "this.value";
+			emitNativeAnnotation(pat, target, md.typeParameters(), dispatchArgs);
+			w.write("; }");
+			return;
+		}
 
 	    w.write("this.value");
 	    w.write(".");
@@ -2127,7 +2141,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                          new Join(",", c.arguments())).expand();
 	}
 
-/*
+    /*
 	 * For "java" annotations:
 	 *
 	 * Given a method with signature:
@@ -2144,20 +2158,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	 * #7 = a
 	 * #8 = b
 	 */
-	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {
-		 Object[] components = new Object[1 + types.size() * 3 + args.size()];
-		    int i = 0;
-		    components[i++] = target;
-		    for (Type at : types) {
-		        components[i++] = new TypeExpander(at, true, false, false, false);
-		        components[i++] = new TypeExpander(at, true, true, false, false);
-		        components[i++] = new RuntimeTypeExpander(at);
-		    }
-		    for (Expr e : args) {
-		        components[i++] = e;
-		    }
-		    dumpRegex("Native", components, tr, pat);
+	private void emitNativeAnnotation(String pat, Object target, List<Type> types, List<? extends Object> args) {
+		Object[] components = new Object[1 + types.size() * 3 + args.size()];
+		int i = 0;
+		components[i++] = target;
+		for (Type at : types) {
+			components[i++] = new TypeExpander(at, true, false, false, false);
+			components[i++] = new TypeExpander(at, true, true, false, false);
+			components[i++] = new RuntimeTypeExpander(at);
+		}
+		for (Object e : args) {
+			components[i++] = e;
+		}
+		dumpRegex("Native", components, tr, pat);
 	}
+	
 	public void visit(X10Call_c c) {
 		Receiver target = c.target();
 		Type t = target.type();
