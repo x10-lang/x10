@@ -6,6 +6,17 @@ package x10.lang;
 import x10.compiler.ArithmeticOps;
 import x10.array.BaseArray;
 
+/**
+ * An array defines a mapping from points to data of some type T. An
+ * array is defined over a particular region. Distributed arrays are
+ * supported by defining an array over a distribution; the
+ * distribution determines at what place each array data item is
+ * stored. Arrays may be accessed using a(p) because arrays implement
+ * (Point)=>T. Array views are supported via the restriction function.
+ *
+ * @author bdlucas
+ */
+
 public abstract value class Array[T](dist:Dist)
     implements (Point{self.rank==dist.region.rank})=>T
 {

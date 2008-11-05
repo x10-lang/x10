@@ -6,6 +6,17 @@ package x10.lang;
 import x10.array.BaseDist;
 import x10.util.Set;
 
+/**
+ * A distributution supports distributed arrays by providing a mapping
+ * from Points to Places. Equivalently, a distribution may be defined
+ * as a mapping from Places to Regions. The Dist class provides a set
+ * of factory methods for constructing various distributions. There
+ * are a set of methods supporting algebraic operations on
+ * distributions, such as union, intersection, difference, and so on.
+ *
+ * @author
+ */
+
 public abstract value class Dist(
     region: Region,
     unique: boolean,
@@ -14,10 +25,7 @@ public abstract value class Dist(
 ) implements
     (Point/*(region.rank)*/)=>Place
     // (Place)=>Region XTENLANG-60
-    
-    // [NN] TODO
     //, Iterable[Point(region.rank)]
-    
 {
 
     property rank: int = region.rank;

@@ -6,6 +6,19 @@ package x10.lang;
 import x10.compiler.SetOps;
 import x10.array.BaseRegion;
 
+/**
+ * A Region(rank) represents a set of points of class Point(rank). The
+ * Region class defines a set of static factory methods for
+ * constructing regions. There are properties and methods for
+ * accessing basic information about of a region, such as its bounding
+ * box, its size, whether or not it is convex, whether or not it is
+ * empty. There are a set of methods for supporting algebraic
+ * operations on regions, such as intersection, union, difference, and
+ * so on. The set of points in a region may be iterated over.
+ *
+ * @author bdlucas
+ */
+
 public abstract value class Region(
     rank: int,
     rect: boolean,
