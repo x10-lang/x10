@@ -14,6 +14,10 @@ import x10.io.ByteArrayOutputStream;
  * The as are stored in the first rank elements of the as[] array; the
  * constant is stored in as[rank()] (using homogeneous coordinates).
  *
+ * Equivalently, this class may be considered to represent a linear
+ * inequality constraint, or a row in a constraint matrix.
+ *
+ * @author bdlucas
  */
 
 value class Halfspace(rank:nat) implements Comparable[Halfspace] {

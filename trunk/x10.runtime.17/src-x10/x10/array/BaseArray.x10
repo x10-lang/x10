@@ -7,6 +7,17 @@ import x10.array.Array1;
 import x10.array.ArrayN;
 import x10.array.ArrayV;
 
+/**
+ * The BaseArray class is the base of the hierarchy of classes that
+ * implement Array. BaseArray provides a set of factory methods, and
+ * also provides some function common to all Array implementations,
+ * such as default implementations of some Array methods. Specific
+ * Array implementation classes may override these methods with more
+ * efficient implementations.
+ *
+ * @author bdlucas
+ */
+
 public abstract value class BaseArray[T] extends Array[T] {
 
     // XTENLANG-49

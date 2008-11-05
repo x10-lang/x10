@@ -5,9 +5,10 @@ package x10.array;
 
 
 /**
- * XXX caching of min/max in constructor will generate exception that
- * prevents creation of unbounded rectangular RectRegion - fix that so
- * it only happens when scanner or iterator are created
+ * This class provides special-case efficient operations for
+ * rectangluar regions, such as bounds checking and scanning.
+ *
+ * @author bdlucas
  */
 
 final value class RectRegion extends PolyRegion {

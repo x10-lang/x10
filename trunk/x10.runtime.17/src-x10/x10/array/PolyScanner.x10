@@ -56,6 +56,8 @@ import x10.io.PrintStream;
  *
  * The loop bounds for Xk are then obtained by computing mins and
  * maxes over the sum[k]/Ak for the halfspaces in elim[k].
+ *
+ * @author bdlucas
  */
 
 final public class PolyScanner implements Region.Scanner {

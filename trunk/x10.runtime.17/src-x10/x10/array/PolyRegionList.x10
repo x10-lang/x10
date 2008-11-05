@@ -5,6 +5,14 @@ package x10.array;
 
 import x10.util.ArrayList;
 
+/**
+ * A list of PolyRegions, based on ArrayList. We override add to do
+ * some special processing on the way in. Used as the basis of
+ * UnionRegion.
+ *
+ * @author bdlucas
+ */
+
 class PolyRegionList(rank: int) extends ArrayList[PolyRegion{self.rank==rank}] {
 
     // XTENLANG-49

@@ -4,7 +4,10 @@
 package x10.array;
 
 /**
- * Implemented as a UnionRegion with no regions.
+ * Represents and empty region, implemented as a UnionRegion with no
+ * regions.
+ *
+ * @author bdlucas
  */
 
 value class EmptyRegion extends UnionRegion {

@@ -4,11 +4,19 @@
 package x10.array;
 
 /**
- * a raw piece in each place, initialized at its place
- * suitable for distributed arrays if the raw and layout fields are per-place
- * suitable for single-process case for constant distributions
+ * This class represents an array with raw chunk in each place,
+ * initialized at its place.
  *
- * XXX whether this works depends on distributed object semantics
+ * The per-chunk information is stored in a single field in the
+ * object. This is suitable for distributed arrays if the raw and
+ * layout fields are per-place. Since this is not currently the case
+ * we must use the ArrayN implementation instead, but there is a
+ * performance hit as a result.
+ *
+ * It is also suitable for single-process implementation for constant
+ * distributions
+ *
+ * @author bdlucas
  */
 
 final value class Array1[T] extends BaseArray[T] {
