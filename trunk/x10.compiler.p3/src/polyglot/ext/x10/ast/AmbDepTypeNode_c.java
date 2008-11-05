@@ -25,6 +25,7 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.BoxType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
@@ -183,8 +184,13 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         		else {
         		    throw new SemanticException("Incorrect number of type arguments for annotation type " + ct + ".", position());
         		}
-        		if (args().size() > 0) {
-        		    ct = ct.propertyInitializers(args());
+        		if (ct.x10Def().properties().size() == args().size()) {
+        			if (args().size() > 0) {
+        				ct = ct.propertyInitializers(args());
+        			}
+        		}
+        		else {
+        			throw new SemanticException("Incorrect number of property initializers for annotation type " + ct + ".", position());
         		}
         		tref.update(ct);
         		return tn;
@@ -357,7 +363,9 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         // Box[T] is T for non-value types.
         while (t instanceof BoxType) {
             BoxType box = (BoxType) t;
-            if (ts.isValueType(box.arg())) {
+            // [NN] Order is important here.  isValueType on a ParameterType will compute the real clause of the parameter's def, which might be recursive.
+            // Should fix this!
+            if (box.arg() instanceof ParameterType || ts.isValueType(box.arg())) {
                 break;
             }
             t = box.arg();
