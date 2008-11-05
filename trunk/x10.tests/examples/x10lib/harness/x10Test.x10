@@ -7,21 +7,13 @@
  */
 package harness;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
+import x10.util.Random;
 
 /**
  * Test harness abstract class.
  * FIXME: remove the ugly hack of relying on Java Threads
  */
 abstract public class x10Test {
-
-    @NativeRep("java", "java.util.Random")
-    static class Random {
-        public native def this(Long);
-        @Native("java", "#0.nextInt(#1)")
-        public native def nextInt(int): int;
-    }        
 
 	/**
 	 * The body of the test.
