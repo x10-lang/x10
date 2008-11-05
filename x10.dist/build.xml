@@ -370,7 +370,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
         <zip destfile="${zip.location}/x10-${zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
             <zipfileset prefix="bin" dir="${basedir}/bin" includes="setupX10,x10,x10c"/>
-            <zipfileset prefix="doc" dir="${basedir}/doc" excludes="**/CVS/**,**/.cvsignore,**/.*.swp"/>
+            <zipfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp"/>
             <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <zipfileset prefix="lib" dir="${lib}" includes="*.jar"/>
         </zip>
@@ -380,12 +380,12 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar}"/>
-            <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
-            <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
-            <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
-            <zipfileset prefix="x10.common.17" dir="${x10.common.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
-            <zipfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar}"/>
+            <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.common.17" dir="${x10.common.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
         </zip>
     </target>
     <target name="test-zip" depends="testzip"/>
@@ -394,8 +394,8 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
             <zipfileset fullpath="TESTS-README" dir="${x10.tests.location}" includes="README"/>
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="projectList.txt"/>
-            <zipfileset prefix="" dir="${x10.tests.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
-            <!--<zipfileset prefix="" dir="${x10.tests.location}" excludes="**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="examples/Constructs/Extern/*Impl.c*"/> TODO-->
+            <zipfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="build*,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
+            <!--<zipfileset prefix="" dir="${x10.tests.location}" excludes="releng/**,**/CVS/**,**/.cvsignore,**/.*.swp,lib/**,etc/**" includes="examples/Constructs/Extern/*Impl.c*"/> TODO-->
         </zip>
     </target>
     <!--
