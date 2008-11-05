@@ -248,7 +248,7 @@ class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
       * halfspace k<=0 where k>0.
       */
 
-    def isEmpty(): boolean {
+    public def isEmpty(): boolean {
 
         // eliminate all variables
         var hl: HalfspaceList = this;
