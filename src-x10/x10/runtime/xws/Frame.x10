@@ -22,7 +22,7 @@ import x10.compiler.NativeRep;
  * the Java implementation.  Eventually will mostly
  * migrate to being in x10.
  */
-@NativeRep("java", "x10.runtime.xws.impl.Frame")
+@NativeRep("java", "x10.runtime.xws.impl.Frame", null, null)
 public class Frame {
   protected native def this():Frame;
 }

@@ -164,4 +164,8 @@ public class RuntimeType<T> implements Type<T> {
         ((Object[]) array)[i] = v;
         return v;
     }
+    
+    public int arrayLength(Object array) {
+		return ((Object[]) array).length;
+    }
 }

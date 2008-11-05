@@ -12,7 +12,7 @@ package x10.runtime.kernel.atomics;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicReference<#1>")
+@NativeRep("java", "java.util.concurrent.atomic.AtomicReference<#1>", null, null)
 public class AtomicReference[T] {
 	
 	// Unusable due to compiler bug.  See http://jira.codehaus.org/browse/XTENLANG-127

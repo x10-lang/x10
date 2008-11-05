@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "boolean")
+@NativeRep("java", "boolean", "x10.core.BoxedBoolean", "x10.types.Type.BOOLEAN")
 public final value Boolean {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

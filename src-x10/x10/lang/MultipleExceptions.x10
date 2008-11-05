@@ -27,7 +27,7 @@ public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeE
         }
         property(Rail.makeVal[Throwable](s.size(), (i:nat)=>s.pop()));
     }
-    
+
     public def printStackTrace(): void {
         super.printStackTrace();
         for (t: Throwable in exceptions) t.printStackTrace();

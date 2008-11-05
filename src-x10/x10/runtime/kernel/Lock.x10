@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
  * the functionality of java.util.concurrent.locks.ReentrantLock.
  * The API is subsetted to that which is also supported by pthread_mutex.
  */
-@NativeRep("java", "java.util.concurrent.locks.ReentrantLock")
+@NativeRep("java", "java.util.concurrent.locks.ReentrantLock", null, null)
 public class Lock {
 	
 	public native def this():Lock;

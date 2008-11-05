@@ -12,7 +12,7 @@ package x10.runtime.kernel.atomics;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicLong")
+@NativeRep("java", "java.util.concurrent.atomic.AtomicLong", null, null)
 public class AtomicLong {
 	
 	public native def this():AtomicLong;

@@ -8,6 +8,7 @@
 
 package x10.core;
 
+import x10.core.fun.Fun_0_1;
 import x10.types.Type;
 import x10.types.Types;
 
@@ -20,17 +21,43 @@ public final class ValRail<T> extends AnyRail<T> {
         super(type, length, array);
     }
     
+    //
+    // boxed rail
+    //
     
+    @Override
+    public Ref box$() {
+    	return new BoxedValRail(type, this);
+    }
+    
+    public static class BoxedValRail<T> extends Box<ValRail<T>> implements Indexable<Integer,T>, Fun_0_1<Integer,T> {
+    	public BoxedValRail(Type<T> T, ValRail<T> v) {
+    		super(new ValRail.RTT(T), v);
+		}
+
+		public T apply(Integer o) {
+			return this.value.apply(o);
+		}
+
+		public Type<?> rtt_x10$lang$Fun_0_1_U() {
+			throw new RuntimeException();
+		}
+
+		public Type<?> rtt_x10$lang$Fun_0_1_Z1() {
+			throw new RuntimeException();
+		}
+    }
+
     
     //
     // Runtime type information
     //
     
-    static public class RTT extends x10.types.RuntimeType<Rail<?>> {
-        Type<?> type;
+    static public class RTT<T> extends x10.types.RuntimeType<ValRail<T>> {
+        Type<T> type;
         
-        public RTT(Type<?> type) {
-            super(Rail.class);
+        public RTT(Type<T> type) {
+            super(ValRail.class);
             this.type = type;
         }
 
@@ -45,8 +72,8 @@ public final class ValRail<T> extends AnyRail<T> {
         
         
         public boolean isSubtype(Type<?> type) {
-            if (type instanceof Rail.RTT) {
-                Rail.RTT r = (Rail.RTT) type;
+            if (type instanceof ValRail.RTT) {
+                ValRail.RTT r = (ValRail.RTT) type;
                 return r.type.equals(this.type);
             }
 //            if (type instanceof Fun_0_1.RTT) {

@@ -13,6 +13,8 @@ import x10.lang.annotations.ClassAnnotation;
 /**
  * Annotation to mark classes as having a particular native representation.
  * lang is the name of the language, typically "java" or "c".
- * type is the class type of the native representation.  Type parameters are not supported.
+ * type is the type of the native representation of T.
+ * boxedType is the type the native representation of Box[T] (note: for java, Box[int] != Integer).  This should be non-null for value types.  For class types it's not examined.
+ * rtt is an expression that returns the runtime type for T.
  */ 
-public interface NativeRep(lang: String, type: String) extends ClassAnnotation { }
+public interface NativeRep(lang: String, type: String, boxedType: String, rtt: String) extends ClassAnnotation { }

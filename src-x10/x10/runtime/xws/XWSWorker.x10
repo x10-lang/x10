@@ -24,7 +24,7 @@ import x10.compiler.NativeRep;
  * the Java implementation.  Eventually will mostly
  * migrate to being in x10.
  */
-@NativeRep("java", "x10.runtime.xws.impl.XWSWorker")
+@NativeRep("java", "x10.runtime.xws.impl.XWSWorker", null, null)
 public class XWSWorker {
 
 

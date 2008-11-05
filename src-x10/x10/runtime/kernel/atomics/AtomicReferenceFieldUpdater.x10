@@ -12,7 +12,7 @@ package x10.runtime.kernel.atomics;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicReferenceFieldUpdater<#1,#2>")
+@NativeRep("java", "java.util.concurrent.atomic.AtomicReferenceFieldUpdater<#1,#2>", null, null)
 public class AtomicReferenceFieldUpdater[T,V] {
 	
 	@Native("java", "((java.util.concurrent.atomic.AtomicReferenceFieldUpdater<#1,#4>)java.util.concurrent.atomic.AtomicReferenceFieldUpdater.newUpdater(#3.getJavaClass(), #6.getJavaClass(), #7))")

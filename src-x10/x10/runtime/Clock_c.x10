@@ -33,7 +33,7 @@ public value Clock_c extends Clock {
 
     public def resume(): void {
     	if (dropped()) throw new ClockUseException();
-		val ph = Runtime.clocks()(this);
+		val ph = ph_c();
 		if (ph < 0) throw new ClockUseException();
 		finish async (state) state.resume();
     	Runtime.clocks().put(this, -ph);
@@ -46,12 +46,12 @@ public value Clock_c extends Clock {
 
     public def phase(): int { 
     	if (dropped()) throw new ClockUseException();
-    	return abs(Runtime.clocks()(this));
+    	return abs(ph_c());
     }
     
     public def drop(): void {
     	if (dropped()) throw new ClockUseException();
-    	val ph = Runtime.clocks().remove(this);
+    	val ph = Runtime.clocks().remove(this) to Int;
     	async (state) state.drop(ph);
     }
     
@@ -61,26 +61,30 @@ public value Clock_c extends Clock {
 	
     def register_c(clocks: Clocks): void {
        	if (dropped()) throw new ClockUseException();
-    	val ph = Runtime.clocks()(this);
+    	val ph = ph_c();
     	finish async (state) state.register(ph);
     	clocks.put(this, ph);
     }
 
     def resume_c(): void {
-		val ph = Runtime.clocks()(this);
+		val ph = ph_c();
 		if (ph < 0) return;
 		finish async (state) state.resume();
     	Runtime.clocks().put(this, -ph);
     }
 
     def next_c(): void {
-    	val ph = Runtime.clocks()(this);
+    	val ph = ph_c();
 		finish async (state) state.next(ph);
     	Runtime.clocks().put(this, abs(ph) + 1);
     }    
 
     def drop_c(): void {
-    	val ph = Runtime.clocks()(this); 
+    	val ph = ph_c(); 
     	async (state) state.drop(ph);
+    }
+    
+    def ph_c(): int {
+        return Runtime.clocks()(this) to Int;
     }
 }

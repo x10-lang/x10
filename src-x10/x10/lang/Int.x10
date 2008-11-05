@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "int")
+@NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Type.INT")
 public final value Int implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
