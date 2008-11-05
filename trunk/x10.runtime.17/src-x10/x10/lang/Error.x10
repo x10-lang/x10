@@ -16,6 +16,5 @@ public value Error extends Throwable {
     public def this() { super(); } 
     public def this(message: String) { super(message); } 
     public def this(cause: Throwable) { super(cause); } 
-    public def this(message: String, cause: Throwable) { super)(message, cause); }
-   
+    public def this(message: String, cause: Throwable) { super(message, cause); }
 }
