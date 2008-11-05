@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.lang.RuntimeException")
+@NativeRep("java", "java.lang.RuntimeException", null, null)
 public value RuntimeException extends Exception {
     public native def this(): RuntimeException;
     public native def this(message: String): RuntimeException;

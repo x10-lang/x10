@@ -1,10 +1,10 @@
 // SYNOPSIS: foreach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type
-for (java.util.Iterator<#7> #2__ = (#3).iterator(); #2__.hasNext(); ) {
+for (x10.core.Iterator<#7> #2__ = (#3).iterator(); #2__.hasNext(); ) {
 	#0 #1 #2 = #2__.next();
 	#6
 	x10.runtime.Runtime.runAsync(
 		new x10.runtime.Activity(#5) {
-			public void runX10Task$() {
+			public void runX10Task() {
 				#4
 			}
 		}, x10.runtime.Runtime.here());

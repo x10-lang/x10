@@ -15,7 +15,7 @@ import x10.compiler.NativeRep;
 /**
  * Runnable interface
  */
-@NativeRep("java", "java.lang.Runnable")
+@NativeRep("java", "java.lang.Runnable", null, null)
 public interface Runnable {
 	
 	@Native("java", "#0.run()")

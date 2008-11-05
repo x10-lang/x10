@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "float")
+@NativeRep("java", "float", "x10.core.BoxedFloat", "x10.types.Type.FLOAT")
 public final value Float {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

@@ -38,9 +38,14 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
+    public int arrayLength(Object array) {
+    	return ((char[]) array).length;
+    }
+
+    @Override
     public Fun_0_2<Character, Character, Character> maxOperator() {
         return new Fun_0_2<Character, Character, Character>() {
-            public Character apply$(Character x, Character y) {
+            public Character apply(Character x, Character y) {
                 return (x > y ? x : y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.CHAR; }
@@ -51,7 +56,7 @@ public class CharType extends RuntimeType<Character> {
     @Override
     public Fun_0_2<Character, Character, Character> minOperator() {
         return new Fun_0_2<Character, Character, Character>() {
-            public Character apply$(Character x, Character y) {
+            public Character apply(Character x, Character y) {
                 return (x < y ? x : y);
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.CHAR; }

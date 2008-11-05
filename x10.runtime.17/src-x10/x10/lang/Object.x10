@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.lang.Object")
+@NativeRep("java", "java.lang.Object", null, null)
 public interface Object {
     @Native("java", "#0.equals(#1)")
     public def equals(Object): boolean;

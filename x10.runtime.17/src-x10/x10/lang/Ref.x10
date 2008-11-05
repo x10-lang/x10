@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 /**
  * The base class for all reference classes.
  */
-@NativeRep("java", "x10.core.Ref")
+@NativeRep("java", "x10.core.Ref", null, null)
 public class Ref(
     	@Native("java", "(x10.lang.Place) #0.location()")
     	location: Place) {

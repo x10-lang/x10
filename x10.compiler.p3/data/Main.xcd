@@ -13,7 +13,7 @@ public static class Main implements java.lang.Runnable {
 
 		// run main activity
 		x10.runtime.Runtime.runMain(new x10.runtime.Activity() {
-			public void runX10Task$() {
+			public void runX10Task() {
 				main(rail);
 			}
 		});

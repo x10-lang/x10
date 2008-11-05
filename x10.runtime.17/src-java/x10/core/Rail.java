@@ -8,6 +8,8 @@
 
 package x10.core;
 
+import java.util.Iterator;
+
 import x10.core.fun.Fun_0_1;
 import x10.types.Type;
 import x10.types.Types;
@@ -21,18 +23,49 @@ public final class Rail<T> extends AnyRail<T> implements Settable<Integer,T> {
         super(type, length, array);
     }
     
-    public T set$(T v, Integer i) {
+    public T set(T v, Integer i) {
         return type.setArray(value, i, v);
     }
+
+    //
+    // boxed rail
+    //
     
+    @Override
+    public Ref box$() {
+    	return new BoxedRail(type, this);
+    }
+    
+    public static class BoxedRail<T> extends Box<Rail<T>> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Settable<Integer,T> {
+    	public BoxedRail(Type<T> T, Rail<T> v) {
+    		super(new Rail.RTT(T), v);
+		}
+
+		public T apply(Integer o) {
+			return this.value.apply(o);
+		}
+
+		public Type<?> rtt_x10$lang$Fun_0_1_U() {
+			throw new RuntimeException();
+		}
+
+		public Type<?> rtt_x10$lang$Fun_0_1_Z1() {
+			throw new RuntimeException();
+		}
+
+		public T set(T v, Integer i) {
+			return this.value.set(v, i);
+		}
+    }
+
     //
     // Runtime type information
     //
     
-    static public class RTT extends x10.types.RuntimeType<Rail<?>> {
-        Type<?> type;
+    static public class RTT<T> extends x10.types.RuntimeType<Rail<T>> {
+        Type<T> type;
         
-        public RTT(Type<?> type) {
+        public RTT(Type<T> type) {
             super(Rail.class);
             this.type = type;
         }

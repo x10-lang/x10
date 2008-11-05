@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 public final class Math {
 
-  @NativeRep("java", "java.lang.Math")
+  @NativeRep("java", "java.lang.Math", null, null)
   static final class NativeMath {
    
      @Native("java", "java.lang.Math.abs(#1)")

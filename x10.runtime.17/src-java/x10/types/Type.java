@@ -49,6 +49,7 @@ public interface Type<T> {
     Object makeArray(int length);
     T setArray(Object array, int i, T v);
     T getArray(Object array, int i);
+    int arrayLength(Object array);
 
     Class<?> getJavaClass();
 }

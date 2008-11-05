@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "short")
+@NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Type.SHORT")
 public final value Short implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

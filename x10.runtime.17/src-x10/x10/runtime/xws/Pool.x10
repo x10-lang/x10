@@ -10,7 +10,7 @@ import x10.compiler.NativeRep;
  * the Java implementation.  Eventually will mostly
  * migrate to being in x10.
  */
-@NativeRep("java", "x10.runtime.xws.impl.Pool")
+@NativeRep("java", "x10.runtime.xws.impl.Pool", null, null)
 public class Pool {
 
   public native def this():Pool;

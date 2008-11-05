@@ -38,9 +38,24 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
+    public int arrayLength(Object array) {
+    	return ((boolean[]) array).length;
+    }
+    
+    @Override
+    public Boolean zeroValue() {
+    	return Boolean.FALSE;
+    }
+    
+    @Override
+    public Boolean unitValue() {
+    	return Boolean.TRUE;
+    }
+    
+    @Override
     public Fun_0_2<Boolean, Boolean, Boolean> andOperator() {
         return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply$(Boolean x, Boolean y) {
+            public Boolean apply(Boolean x, Boolean y) {
                 return x & y;
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BOOLEAN; }
@@ -52,7 +67,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Fun_0_2<Boolean, Boolean, Boolean> orOperator() {
         return new Fun_0_2<Boolean, Boolean, Boolean>() {
-            public Boolean apply$(Boolean x, Boolean y) {
+            public Boolean apply(Boolean x, Boolean y) {
                 return x | y;
             }
             public Type<?> rtt_x10$lang$Fun_0_2_U() { return Types.BOOLEAN; }
@@ -64,7 +79,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     @Override
     public Fun_0_1<Boolean, Boolean> notOperator() {
         return new Fun_0_1<Boolean, Boolean>() {
-            public Boolean apply$(Boolean x) {
+            public Boolean apply(Boolean x) {
                 return !x;
             }
             public Type<?> rtt_x10$lang$Fun_0_1_U() { return Types.BOOLEAN; }

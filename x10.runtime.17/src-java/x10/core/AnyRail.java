@@ -8,13 +8,13 @@
 
 package x10.core;
 
-import java.util.Iterator;
-
+import x10.core.Iterator;
+import x10.core.Iterable;
 import x10.core.fun.Fun_0_1;
 import x10.types.Type;
 import x10.types.Types;
 
-public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T> {
+public class AnyRail<T> extends Value implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Iterable<T> {
     public final int length;
     
     public final Object value;
@@ -30,25 +30,22 @@ public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Ite
         this.value = array;
     }
     
-    protected class RailIterator implements Iterator<T> {
-        int i = 0;
-        
-        public boolean hasNext() {
-            return i < length;
-        }
-        
-        public T next() {
-            return get(i++);
-        }
-        
-        public void remove() {
-            throw new UnsupportedOperationException("remove");
-        }
-    }
-    
-    public Iterator<T> iterator() {
-        return new RailIterator();
-    }
+	public Iterator<T> iterator() {
+		return new RailIterator();
+	}
+
+	protected class RailIterator implements Iterator<T> {
+		int i = 0;
+
+		public boolean hasNext() {
+			return i < length;
+		}
+
+		public T next() {
+			return apply(i++);
+		}
+	}
+
     
     public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
     public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
@@ -66,28 +63,20 @@ public class AnyRail<T> implements Indexable<Integer,T>, Fun_0_1<Integer,T>, Ite
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
     
-    public Integer length$() {
-    	return length();
+    public Integer length() {
+    	return length;
     }
     
-    public int length() {
-        return length;
-    }
-    
-    public T get$(Integer i) {
-    	return get(i);
-    }
-    
-    public T get(int i) {
+    public T get(Integer i) {
     	return apply(i);
     }
     
-    public T apply$(Integer i) {
-    	return apply(i);
-    }
-
-    public T apply(int i) {
+    public T apply(Integer i) {
     	return type.getArray(value, i);
+    }
+    
+    protected T set$(T v, Integer i) {
+    	return type.setArray(value, i, v);
     }
     
     public boolean isZero() {

@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.lang.String")
+@NativeRep("java", "java.lang.String", "x10.core.BoxedString", null)
 public final value String implements (nat) => Char {
     // TODO: constructors
     public native def this(): String;

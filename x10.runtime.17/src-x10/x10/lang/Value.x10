@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 /**
  * Base class of all value classes.
  */
-@NativeRep("java", "x10.core.Value")
+@NativeRep("java", "x10.core.Value", "x10.core.Value.BoxedValue", null)
 public value Value {
     public native def equals(Object): boolean;
     public native def hashCode(): int;

@@ -11,7 +11,7 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "long")
+@NativeRep("java", "long", "x10.core.BoxedLong", "x10.types.Type.LONG")
 public final value Long implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

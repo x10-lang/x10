@@ -66,7 +66,7 @@ class Pool {
 		monitor.lock();
 
 		// park worker thread
-		while (jobs.empty()) monitor.park();
+		while (jobs.isEmpty()) monitor.park();
 
 		val job = jobs.pop();
 		monitor.unlock();

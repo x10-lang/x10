@@ -41,17 +41,17 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         super(job, ts, nf);
     }
 
-    public Map<String, String> getNativeRep(X10ClassDef def) {
+    public Map<String, String> getNativeRepParam(X10ClassDef def, int i) {
     	Map<String,String> map = new HashMap<String, String>();
         try {
             X10TypeSystem xts = (X10TypeSystem) this.typeSystem();
             Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
             List<Type> as = def.annotationsMatching(rep);
             for (Type at : as) {
-                assertNumberOfInitializers(at, 2);
+                assertNumberOfInitializers(at, 4);
                 String lang = getPropertyInit(at, 0);
                 if (lang != null) {
-                    String lit = getPropertyInit(at, 1);
+                    String lit = getPropertyInit(at, i);
                     map.put(lang, lit);
                 }
             }
@@ -60,6 +60,18 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         return map;
     }
 
+    public Map<String, String> getNativeRep(X10ClassDef def) {
+    	return getNativeRepParam(def, 1);
+    }
+    
+    public Map<String, String> getNativeBoxedRep(X10ClassDef def) {
+    	return getNativeRepParam(def, 2);
+    }
+    
+    public Map<String, String> getNativeRTTRep(X10ClassDef def) {
+    	return getNativeRepParam(def, 3);
+    }
+    
     String getPropertyInit(Type at, int index) throws SemanticException {
         at = X10TypeMixin.baseType(at);
         if (at instanceof X10ClassType) {

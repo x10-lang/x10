@@ -71,7 +71,7 @@ value Monitor {
 	 * Must be called while holding the lock
 	 */
     def unpark(): void {
-    	if (!stack.empty()) Thread.unpark(stack.pop());
+    	if (!stack.isEmpty()) Thread.unpark(stack.pop());
     }
     
  	/**
@@ -79,7 +79,7 @@ value Monitor {
 	 * Must be called while holding the lock
 	 */
     def unparkAll(): void {
-    	while (!stack.empty()) Thread.unpark(stack.pop());
+    	while (!stack.isEmpty()) Thread.unpark(stack.pop());
     }
     
 	/**
