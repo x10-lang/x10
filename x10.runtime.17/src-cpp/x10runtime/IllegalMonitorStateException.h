@@ -2,7 +2,7 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /**
@@ -10,14 +10,17 @@
  * Lock.unlock().
  */
 
-#ifndef __XRX_KERNEL_ILLEGAL_MONITOR_STATE_EXCEPTION_H
-#define __XRX_KERNEL_ILLEGAL_MONITOR_STATE_EXCEPTION_H
-namespace xrx_kernel {
+#ifndef __XRX_ILLEGAL_MONITOR_STATE_EXCEPTION_H
+#define __XRX_ILLEGAL_MONITOR_STATE_EXCEPTION_H
 
-class IllegalMonitorStateException : public exception {
+#include <Exception.h>
+
+namespace xrx_runtime {
+
+class IllegalMonitorStateException : public Exception {
 	// to do
 };
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */
 
-#endif /* __XRX_KERNEL_ILLEGAL_MONITOR_STATE_EXCEPTION_H */
+#endif /* __XRX_ILLEGAL_MONITOR_STATE_EXCEPTION_H */

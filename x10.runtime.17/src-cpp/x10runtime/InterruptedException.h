@@ -2,21 +2,22 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /** InterruptedException that may be thrown by Thread.sleep(). **/
 
-#ifndef __XRX_KERNEL_INTERRUPTED_EXCEPTION_H
-#define __XRX_KERNEL_INTERRUPTED_EXCEPTION_H
-#include <exception>
+#ifndef __XRX_INTERRUPTED_EXCEPTION_H
+#define __XRX_INTERRUPTED_EXCEPTION_H
 
-namespace xrx_kernel {
+#include <Exception.h>
 
-class InterruptedException : public exception {
+namespace xrx_runtime {
+
+class InterruptedException : public Exception {
 	// to do
 };
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */
 
-#endif /* __XRX_KERNEL_INTERRUPTED_EXCEPTION_H */
+#endif /* __XRX_INTERRUPTED_EXCEPTION_H */

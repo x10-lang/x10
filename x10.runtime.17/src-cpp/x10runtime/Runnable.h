@@ -2,28 +2,28 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
-/** Thread Runnbale interface. **/
+/** Thread Runnbale Interface **/
 
-#ifndef __XRX_KERNEL_RUNNABLE_H
-#define __XRX_KERNEL_RUNNABLE_H
+#ifndef __XRX_RUNNABLE_H
+#define __XRX_RUNNABLE_H
 
-namespace xrx_kernel {
+namespace xrx_runtime {
 
 class Runnable {
 public:
+	// constructor
+	Runnable() {};
 
-	// no constructors & destructor
-	// Runnable(void);
-	// ~Runnable(void);
+	// destructor
+	~Runnable() {};
 
-	// any subclass should implement this
+	// any Runnable subclass should implement this
 	virtual void run(void);
-
 };
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */
 
-#endif /* __XRX_KERNEL_RUNNABLE_H */
+#endif /* __XRX_RUNNABLE_H */
