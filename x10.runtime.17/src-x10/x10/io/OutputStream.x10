@@ -17,7 +17,7 @@ the native NativeOutputStream that it wraps.
 */
 public class OutputStream {
     
-    @NativeRep("java", "java.io.OutputStream")
+    @NativeRep("java", "java.io.OutputStream", null, null)
     public static class NativeOutputStream {
       @Native("java", "#0.write(#1)")
       public native def write(Byte): void throws IOException;
@@ -30,8 +30,10 @@ public class OutputStream {
     public def this(n:NativeOutputStream) {
        this.n=n;
     }
+    
+    public def nativeWriter() = n;
    
-    public  def write(r:Rail[Byte], a:Int, b:Int) throws IOException {
+    public def write(r:Rail[Byte], a:Int, b:Int) throws IOException {
        n.write(r, a, b);
     }
     public def write(b:Byte) throws IOException {

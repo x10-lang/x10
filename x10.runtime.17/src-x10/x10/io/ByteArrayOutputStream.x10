@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
 
 public class ByteArrayOutputStream extends OutputStream {
     
-    @NativeRep("java", "java.io.ByteArrayOutputStream")
+    @NativeRep("java", "java.io.ByteArrayOutputStream", null, null)
     public static class NativeByteArrayOutputStream extends NativeOutputStream {
         
         @Native("java", "#0.write(#1)")

@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 public class PrintStream extends OutputStream {
 
     
-    @NativeRep("java", "java.io.PrintStream")
+    @NativeRep("java", "java.io.PrintStream", null, null)
     public static class NativePrintStream extends NativeOutputStream {
     
         // this is fake.
@@ -53,7 +53,7 @@ public class PrintStream extends OutputStream {
     public def this(o:OutputStream) {
         super(new NativePrintStream(o.n));
     }
-
+    
     public def this(n:NativePrintStream) { super(n); }
     public def write(a:Int) { (n as NativePrintStream).print(a);}
     public def println() { (n as NativePrintStream).println();}
