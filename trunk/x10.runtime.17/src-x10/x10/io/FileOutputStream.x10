@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
 
 public class FileOutputStream {
     
-    @NativeRep("java", "java.io.FileOutputStream")
+    @NativeRep("java", "java.io.FileOutputStream", null, null)
     public static class NativeFileOutputStream {
         
         @Native("java", "#0.write(#1)")

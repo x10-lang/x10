@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 
 public class InputStream {
 
-    @NativeRep("java", "java.io.InputStream")
+    @NativeRep("java", "java.io.InputStream", null, null)
     public static class NativeInputStream {
       @Native("java", "#0.read()")
       public native def read(): Int;
