@@ -13,6 +13,6 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.NullPointerException", null, null)
 public value NullPointerException extends RuntimeException {
-    public native def this(): NullPointerException;
-    public native def this(message: String): NullPointerException;
+    public def this() { super(); }
+    public def this(message: String) { super(message); } 
 }
