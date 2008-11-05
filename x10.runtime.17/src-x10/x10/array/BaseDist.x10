@@ -6,6 +6,16 @@ package x10.array;
 import x10.util.ArrayList;
 import x10.util.Set;
 
+/**
+ * The BaseDist class is the base of the hierarchy of classes that
+ * implement Dist. BaseDist provides a set of factory methods, and
+ * also provides some function common to all Dist implementations,
+ * such as default implementations of some Dist methods. Specific
+ * Dist implementation classes may override these methods with more
+ * efficient implementations.
+ *
+ * @author bdlucas
+ */
 
 public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 

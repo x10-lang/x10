@@ -7,6 +7,18 @@ import x10.io.PrintStream;
 
 import x10.util.ArrayList;
 
+/**
+ * A HalfspaceList is essentially a set of linear inequalisty
+ * constraints represented as a constraint matrix. Each row is
+ * represented as a Halfspace object. The constraint matrix represents
+ * a set of points defined as the intersection of the halfspaces
+ * represented by each Halfspace in the list, or equivalently, as the
+ * set of points satisfying the conjunction of the linear inequalities
+ * represented by each Halfspace object.
+ *
+ * @author bdlucas
+ */
+
 class HalfspaceList(rank: int) extends ArrayList[Halfspace] {
 
     public def this(val rank: int): HalfspaceList{self.rank==rank} {

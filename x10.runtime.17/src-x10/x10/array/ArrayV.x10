@@ -4,10 +4,10 @@
 package x10.array;
 
 /**
- * a single raw piece, initialized only in place of creation
- * suitable for value arrays
+ * This class represents an array with a single raw piece, initialized
+ * only in place of creation. This is suitable for ValArrays.
  *
- * XXX raw must be a ValRail?
+ * @author bdlucas
  */
 
 final value class ArrayV[T] extends BaseArray[T] {

@@ -3,15 +3,17 @@
 
 package x10.array;
 
-/*
- * a rail of pieces, one entry per place
- * each piece initialized in the place of creation
+/**
+ * This class represents an array with raw chunk in each place,
+ * initialized at its place.
  *
- * suitable for "simulated distribution" for non-constant distributions
- * or if non-replicated fields are not available in distrbuted object design
- * performance hit for 1) determining here and 2) indexing rail to get piece
+ * The per-chunk information is stored in a rail, one entry per
+ * place. This is suitable for distributed arrays where we do not have
+ * place-local fields, as is currently the case. If we had place-local
+ * storage we could use the Array1 design instead, saving the cost of
+ * accessing here and indexing the per-place rail of chunks.
  *
- * XXX whether this is needed depends on semantics of distributed objects
+ * @author bdlucas
  */
 
 final value class ArrayN[T] extends BaseArray[T] {

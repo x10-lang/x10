@@ -6,9 +6,14 @@ package x10.array;
 import x10.util.ArrayList;
 
 /**
- * A union of poly regions. Since a poly region is a conjunction of
- * halfspaces, this means we are essentially representing systems of
- * inequalities in DNF.
+ * A UnionRegion is a region represented as the union of a disjoint
+ * set of polyhedral regions, represented as a list of
+ * PolyRegions. Since each PolyRegion is a conjunction of a list of
+ * halfspaces, this means a UnionRegion is essentially a boolean
+ * combination of linear inequalities represented in disjunctive
+ * normal form.
+ *
+ * @author bdlucas
  */
 
 value class UnionRegion extends BaseRegion {

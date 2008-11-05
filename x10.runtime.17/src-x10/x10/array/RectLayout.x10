@@ -3,6 +3,14 @@
 
 package x10.array;
 
+/**
+ * A RectLayout represents a rectangular memory layout for a
+ * region. It provides efficient access but wastes storage for
+ * non-rectangular regions.
+ *
+ * @author bdlucas
+ */
+
 final value class RectLayout(rank: int) extends Layout {
 
     private val size: int;
