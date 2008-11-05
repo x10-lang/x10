@@ -28,6 +28,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
+import polyglot.ext.x10.visit.Desugarer;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
@@ -240,6 +241,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
 //           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
+           goals.add(Desugarer(job));
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
@@ -369,9 +371,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal CheckNativeAnnotations(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
-           return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf)).intern(this);
+           return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "java")).intern(this);
        }
        
+       public Goal Desugarer(Job job) {
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+       }
     }
     
     protected Options createOptions() {
