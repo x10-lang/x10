@@ -5,6 +5,18 @@ package x10.array;
 
 import x10.io.PrintStream;
 
+/**
+ * A PolyRegion represents a polyhedral region represented as the
+ * intersection of a list of Halfspaces. The halfspaces are stored in
+ * a HalfspaceList object, which is essentially a constraint matrix
+ * that defines the region. The PolyRegion object wraps a
+ * HalfpaceList, adding some static factory methods for PolyRegions
+ * and some methods such as region algebra that operate on
+ * HalfspaceList objects.
+ *
+ * @author bdlucas
+ */
+
 value class PolyRegion extends BaseRegion {
 
     // XTENLANG-49

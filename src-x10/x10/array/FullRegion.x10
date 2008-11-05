@@ -3,8 +3,12 @@
 
 package x10.array;
 
-/*
- * Implemented as a PolyRegion with no halfspaces.
+/**
+ * A full region is the unbounded region that contains all points of
+ * its rank, implemented as a PolyRegion with no constraints (no
+ * halfspaces).
+ *
+ * @author bdlucas
  */
 
 value class FullRegion extends PolyRegion {

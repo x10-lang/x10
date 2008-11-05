@@ -5,6 +5,17 @@ package x10.array;
 
 import x10.io.PrintStream;
 
+/**
+ * The BaseRegion class is the base of the hierarchy of classes that
+ * implement Region. BaseRegion provides a set of factory methods, and
+ * also provides some function common to all Region implementations,
+ * such as default implementations of some Region methods. Specific
+ * Region implementation classes may override these methods with more
+ * efficient implementations.
+ *
+ * @author bdlucas
+ */
+
 abstract public value class BaseRegion extends Region {
 
     // XTENLANG-49
