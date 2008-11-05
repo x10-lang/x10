@@ -7,6 +7,8 @@
  */
 package x10.runtime.impl.java;
 
+import java.lang.reflect.Constructor;
+
 import x10.config.ConfigurationError;
 import x10.runtime.util.ShowUsageNotification;
 
@@ -54,12 +56,17 @@ public class Runtime {
 		try {
 			java.lang.Object[] args = { strippedArgs };
 			Class main = Class.forName(Configuration.MAIN_CLASS_NAME + "$Main");
-			r = (Runnable) main.getDeclaredConstructor(STRING_ARRAYS).newInstance(args);
+			Constructor ctor = main.getDeclaredConstructor(STRING_ARRAYS);
+			r = (Runnable) ctor.newInstance(args);
 			if (Configuration.PRELOAD_CLASSES) {
 				PreLoader.preLoad(main, Configuration.PRELOAD_STRINGS);
 			}
+		} catch (ClassNotFoundException e) {
+			System.err.println("Could not find main class '"
+					+ Configuration.MAIN_CLASS_NAME + "$Main" + "'!");
+			throw new Error(e);
 		} catch (Exception e) {
-			System.err.println("Could not find default constructor of main class '"
+			System.err.println("Could not find constructor of main class '"
 					+ Configuration.MAIN_CLASS_NAME + "$Main" + "'!");
 			throw new Error(e);
 		}
