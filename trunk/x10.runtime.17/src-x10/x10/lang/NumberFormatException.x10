@@ -13,6 +13,6 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.NumberFormatException", null, null)
 public value NumberFormatException extends IllegalArgumentException {
-    public native def this(): NumberFormatException;
-    public native def this(message: String): NumberFormatException;
+    public def this() { super(); }
+    public def this(message: String) { super(message); }
 }

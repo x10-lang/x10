@@ -13,8 +13,9 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.Error", null, null)
 public value Error extends Throwable {
-    public native def this(): Error;
-    public native def this(message: String): Error;
-    public native def this(message: String, cause: Throwable): Error;
-    public native def this(cause: Throwable): Error;
+    public def this() { super(); } 
+    public def this(message: String) { super(message); } 
+    public def this(cause: Throwable) { super(cause); } 
+    public def this(message: String, cause: Throwable) { super)(message, cause); }
+   
 }

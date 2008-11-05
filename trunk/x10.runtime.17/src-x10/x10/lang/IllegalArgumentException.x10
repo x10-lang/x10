@@ -13,8 +13,8 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.IllegalArgumentException", null, null)
 public value IllegalArgumentException extends RuntimeException {
-    public native def this(): IllegalArgumentException;
-    public native def this(message: String): IllegalArgumentException;
-    public native def this(message: String, cause: Throwable): IllegalArgumentException;
-    public native def this(cause: Throwable): IllegalArgumentException;
+    public def this() { super(); } 
+    public def this(message: String) { super(message); } 
+    public def this(message: String, cause: Throwable) { super(message, cause); } 
+    public def this(cause: Throwable) { super(cause); }
 }
