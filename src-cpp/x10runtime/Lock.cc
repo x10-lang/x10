@@ -2,19 +2,20 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /**
  * Implementation file for the low level reentrant lock
  * interface.
  */
-#include "Lock.h"
 
-namespace xrx_kernel {
+#include <Lock.h>
+
+namespace xrx_runtime {
 
 // [constructor] Create an instance of reentrant Lock.
-Lock::Lock(void)
+Lock::Lock()
 {
 	// create lock attributes object
 	// ??check the return code for ENOMEM and throw OutOfMemoryError??
@@ -39,7 +40,7 @@ Lock::Lock(void)
 }
 
 // destructor
-Lock::~Lock(void)
+Lock::~Lock()
 {
 	// free lock object
 	pthread_mutex_destroy(&__lock);
@@ -50,7 +51,7 @@ Lock::~Lock(void)
 
 // acquire lock (blocking)
 void
-Lock::lock(void)
+Lock::lock()
 {
 	// blocks until the lock becomes available
 	pthread_mutex_lock(&__lock);
@@ -58,7 +59,7 @@ Lock::lock(void)
 
 // release lock
 void
-Lock::unlock(void) throw (IllegalMonitorStateException)
+Lock::unlock() throw (IllegalMonitorStateException)
 {
 	IllegalMonitorStateException imse;
 
@@ -70,7 +71,7 @@ Lock::unlock(void) throw (IllegalMonitorStateException)
 
 // acquire lock (non-blocking)
 boolean
-Lock::tryLock(void)
+Lock::tryLock()
 {
 	// acquire the lock only if it is not held by another thread
 	if (pthread_mutex_trylock(&__lock) == 0) {
@@ -82,11 +83,11 @@ Lock::tryLock(void)
 #ifdef XRX_KERNEL_DEBUG
 // get lock count
 int
-Lock::getHoldCount(void)
+Lock::getHoldCount()
 {
 	// to do
 	return 0;
 }
 #endif /* XRX_KERNEL_DEBUG */
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */

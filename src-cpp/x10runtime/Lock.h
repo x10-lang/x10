@@ -2,7 +2,7 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /************************************************************
@@ -16,22 +16,22 @@
  * immediately if the calling thread already owns the lock.
  ************************************************************/
 
-#ifndef __XRX_KERNEL_LOCK_H
-#define __XRX_KERNEL_LOCK_H
+#ifndef __XRX_LOCK_H
+#define __XRX_LOCK_H
 
-#include "Types.h"
-#include "IllegalMonitorStateException.h"
+#include <Types.h>
+#include <IllegalMonitorStateException.h>
 
-namespace xrx_kernel {
+namespace xrx_runtime {
 
 class Lock {
 public:
 
 	// [constructor] Create an instance of reentrant Lock.
-	Lock(void);
+	Lock();
 
 	// destructor
-	~Lock(void);
+	~Lock();
 
 	/**
 	 * Acquires the lock [blocking call].
@@ -42,7 +42,7 @@ public:
 	 * If the lock is held by another thread then the calling thread
 	 * blocks until the lock is available.
 	 */
-	void lock(void);
+	void lock();
 
 	/**
 	 * Attempts to release this lock.
@@ -52,7 +52,7 @@ public:
 	 * If the calling thread is not the owner of this lock then
 	 * IllegalMonitorStateException is thrown.
 	 */
-	void unlock(void) throw (IllegalMonitorStateException);
+	void unlock() throw (IllegalMonitorStateException);
 
 	/**
 	 * Acquires the lock [non-blocking call].
@@ -66,7 +66,7 @@ public:
 	 * If the lock is owned by another thread the this method will
 	 * return immediately with the value false.
 	 */
-	boolean tryLock(void);
+	boolean tryLock();
 
 #ifdef XRX_KERNEL_DEBUG
 	/**
@@ -75,7 +75,7 @@ public:
 	 * not matched by an unlock action.
 	 * Returns zero if this lock is not held by the calling thread.
 	 */
-	int getHoldCount(void);
+	int getHoldCount();
 #endif /* XRX_KERNEL_DEBUG */
 
 private:
@@ -85,6 +85,6 @@ private:
 	pthread_mutexattr_t __lock_attr;
 };
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */
 
-#endif /* __XRX_KERNEL_LOCK_H */
+#endif /* __XRX_LOCK_H */

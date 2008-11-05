@@ -2,10 +2,10 @@
 # (c) Copyright IBM Corporation 2008
 #
 # $Id$
-# This file is part of XRX Kernel implementation in C++.
+# This file is part of XRX/C++ native layer implementation.
 #
 
-## Makefile for XRX Kernel library.
+## Makefile for XRX/C++ native layer implementation.
 .SUFFIXES: .cc .h .o .a
 
 # platform architecure
@@ -31,10 +31,12 @@ LIBTARGET = lib$(LIBNAME).a
 
 SRCS = \
 	Lock.cc \
-	Thread.cc
+	Thread.cc \
+	Object.cc
 OBJS = \
 	Lock.o \
-	Thread.o
+	Thread.o \
+	Object.o
 HEADERS = \
 	Object.h \
 	Types.h \
@@ -42,7 +44,8 @@ HEADERS = \
 	IllegalMonitorStateException.h \
 	Runnable.h \
 	Lock.h \
-	Thread.h
+	Thread.h \
+	Exception.h
 
 
 all: $(LIBTARGET)
