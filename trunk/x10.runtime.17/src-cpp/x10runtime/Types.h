@@ -2,25 +2,27 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /** Wrappers to maintain certain type equalities. **/
 
-#ifndef __XRX_KERNEL_TYPES_H
-#define __XRX_KERNEL_TYPES_H
+#ifndef __XRX_TYPES_H
+#define __XRX_TYPES_H
 
 #include <pthread.h>
 #include <iostream>
 using namespace std;
 
-namespace xrx_kernel {
+namespace xrx_runtime {
+
 	typedef bool boolean;
 
-	// until we have full-fledged primitive classes
-	typedef long Long;
-	typedef int Int;
+	// until we implement full-fledged primitive classes
 	typedef string String;
-} /* closing brace for namespace xrx_kernel */
+	typedef int Int;
+	typedef long Long;
 
-#endif /* __XRX_KERNEL_TYPES_H */
+} /* closing brace for namespace xrx_runtime */
+
+#endif /* __XRX_TYPES_H */

@@ -2,52 +2,53 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /**
  * Implementation file for the low level thread interface.
  */
 
-#include "Thread.h"
+#include <Thread.h>
 
-namespace xrx_kernel {
+namespace xrx_runtime {
 
 // Allocates a new Thread object.
 // local method to initialize a new thread object
-static void thread_init(Runnable task, String name)
+static void
+thread_init(const Runnable& task, String name)
 {
 	// to do
 }
 // constructor (1)
-Thread::Thread(void)
+Thread::Thread()
 {
 	// to do
 }
 
 // constructor (2)
-Thread::Thread(Runnable task)
+Thread::Thread(const Runnable& task)
 {
 	// to do
 }
 
 // constructor (3)
-Thread::Thread(Runnable task, string name)
+Thread::Thread(const Runnable& task, const String& name)
 {
 	// to do
 }
 
 // destructor
-Thread::~Thread(void)
+Thread::~Thread()
 {
 	// to do
 }
 
 // Returns a reference to the currently executing thread object.
-Thread
+Thread&
 Thread::currentThread(void)
 {
-	return (__current_thread);
+	return (*__current_thread);
 }
 
 // Begin thread execution.
@@ -69,7 +70,7 @@ Thread::run(void)
  * milliseconds.
  */
 void
-Thread::sleep(Long millis) throw (InterruptedException)
+Thread::sleep(const Long& millis) throw (InterruptedException)
 {
 	// to do
 }
@@ -79,7 +80,7 @@ Thread::sleep(Long millis) throw (InterruptedException)
  * milliseconds plus the specified number of nano seconds.
  */
 void
-Thread::sleep(Long millis, Int nanos) throw (InterruptedException)
+Thread::sleep(const Long& millis, const Int& nanos) throw (InterruptedException)
 {
 	// to do
 }
@@ -100,7 +101,7 @@ Thread::park(void)
  * available.
  */
 void
-Thread::parkNanos(Long nanos)
+Thread::parkNanos(const Long& nanos)
 {
 	// to do
 }
@@ -110,51 +111,51 @@ Thread::parkNanos(Long nanos)
  * not already available.
  */
 void
-Thread::unpark(Thread thread)
+Thread::unpark(Thread& thread)
 {
 	// to do
 }
 
 // Returns the current activity.
-Object
+Object&
 Thread::activity(void)
 {
-	return (__current_activity);
+	return (*__current_activity);
 }
 
 // Set the current activity.
 void
-Thread::activity(Object activity)
+Thread::activity(const Object& activity)
 {
-	__current_activity = activity;
+	*__current_activity = activity;
 }
 
 // Returns the current place.
-Object
+Object&
 Thread::place(void)
 {
-	return (__current_place);
+	return (*__current_place);
 }
 
 // Set the current place.
 void
-Thread::place(Object place)
+Thread::place(const Object& place)
 {
-	__current_place = place;
+	*__current_place = place;
 }
 
 // Returns this thread's name.
-String
+String&
 Thread::getName(void)
 {
-	return (__thread_name);
+	return (*__thread_name);
 }
 
 // Set the name of this thread.
 void
-Thread::setName(String name)
+Thread::setName(const String& name)
 {
-	__thread_name = name;
+	*__thread_name = name;
 }
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */

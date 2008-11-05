@@ -2,7 +2,7 @@
  * (c) Copyright IBM Corporation 2008
  *
  * $Id$
- * This file is part of XRX Kernel implementation in C++.
+ * This file is part of XRX/C++ native layer implementation.
  */
 
 /************************************************************
@@ -14,29 +14,29 @@
  * locks.LockSupport.
  ************************************************************/
 
-#ifndef __XRX_KERNEL_THREAD_H
-#define __XRX_KERNEL_THREAD_H
+#ifndef __XRX_THREAD_H
+#define __XRX_THREAD_H
 
 #include "Types.h"
 #include "Object.h"
 #include "Runnable.h"
 #include "InterruptedException.h"
 
-namespace xrx_kernel {
+namespace xrx_runtime {
 
 class Thread : public Runnable {
 public:
 	
 	// [constructors] Allocates a new Thread object.
-	Thread(void);
-	Thread(Runnable task);
-	Thread(Runnable task, String name);
+	Thread();
+	Thread(const Runnable& task);
+	Thread(const Runnable& task, const String& name);
 
 	// destructor
-	~Thread(void);
+	~Thread();
 
 	// Returns a reference to the currently executing thread object.
-	static Thread currentThread(void);
+	static Thread& currentThread(void);
 
 	/**
 	 * Causes this thread to begin execution; the XRX runtime
@@ -64,7 +64,7 @@ public:
 	 * Throws InterruptedException, if any thread has interrupted
 	 * the current thread.
 	 */
-	static void sleep(Long millis) throw (InterruptedException);
+	static void sleep(const Long& millis) throw (InterruptedException);
 
 	/**
 	 * Causes the currently executing thread to sleep (cease
@@ -74,7 +74,7 @@ public:
 	 * Throws InterruptedException, if any thread has interrupted
 	 * the current thread.
 	 */
-	static void sleep(Long millis, Int nanos) throw (InterruptedException);
+	static void sleep(const Long& millis, const Int& nanos) throw (InterruptedException);
 	/**
 	 * Disables the current thread for thread scheduling purposes
 	 * unless the permit is available.
@@ -109,7 +109,7 @@ public:
 	 * to return.  Callers should re-check the conditions which
 	 * caused the thread to park in the first place.
 	 */
-	static void parkNanos(Long nanos);
+	static void parkNanos(const Long& nanos);
 
 	/**
 	 * Makes available the permit for the given thread, if it was
@@ -119,43 +119,43 @@ public:
 	 * to have any effect at all if the given thread has not been
 	 * started.
 	 */
-	static void unpark(Thread thread);
+	static void unpark(Thread& thread);
 
 	// Returns the current activity.
-	Object activity(void);
+	Object& activity(void);
 
 	// Set the current activity.
-	void activity(Object activity);
+	void activity(const Object& activity);
 
 	// Returns the current place.
-	Object place(void);
+	Object& place(void);
 
 	// Set the current place.
-	void place(Object place);
+	void place(const Object& place);
 
 	// Returns this thread's name.
-	String getName(void);
+	String& getName(void);
 
 	// Changes the name of this thread to be equal to the argument name.
-	void setName(String name);
+	void setName(const String& name);
 
 private:
 	// the current place
-	static Object __current_place;
+	static Object *__current_place;
 	// the current activity
-	static Object __current_activity;
+	static Object *__current_activity;
 	// the current thread
-	static Thread __current_thread;
+	static Thread *__current_thread;
 	// thread id
 	pthread_t __threadid;
 	// thread name
-	String __thread_name;
+	String *__thread_name;
 	// thread attributes
 	pthread_attr_t __thread_attr;
 	// thread runnable object
-	Runnable __thread_runobj;
+	Runnable *__thread_runobj;
 };
 
-} /* closing brace for namespace xrx_kernel */
+} /* closing brace for namespace xrx_runtime */
 
-#endif /* __XRX_KERNEL_THREAD_H */
+#endif /* __XRX_THREAD_H */
