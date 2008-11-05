@@ -713,7 +713,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 	            Type xtype = newFormals.get(i);
 
 	            // Inline ts.isImplicitCastValid
-	            if (xts.isSubtype(ytype, xtype)) {
+	            if (xts.isSubtype(ytype, xtype, env.constraints())) {
 	                newActuals.add(ytype);
 	            }
 	            else {
