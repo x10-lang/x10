@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import java.util.Random;
+import x10.util.Random;
 import harness.x10Test;
 
 /**
