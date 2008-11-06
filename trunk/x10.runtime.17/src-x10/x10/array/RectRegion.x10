@@ -53,13 +53,13 @@ final value class RectRegion extends PolyRegion {
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        val hl = new HalfspaceList(min.length);
+        val hlb = new HalfspaceListBuilder(min.length);
         for (var i: int = 0; i<min.length; i++) {
-            hl.add(hl.X(i), hl.GE, min(i));
-            hl.add(hl.X(i), hl.LE, max(i));
+            hlb.add(hlb.X(i), hlb.GE, min(i));
+            hlb.add(hlb.X(i), hlb.LE, max(i));
         }
-        hl.isSimplified = true;
 
+        val hl = hlb.toHalfspaceList(true);
         return new RectRegion(hl);
     }
 
