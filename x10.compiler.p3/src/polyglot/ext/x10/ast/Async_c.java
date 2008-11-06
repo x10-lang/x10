@@ -45,7 +45,7 @@ import polyglot.visit.PrettyPrinter;
  * @author vj
  */
 
-public class Async_c extends Stmt_c implements Async, CompoundStmt {
+public class Async_c extends Stmt_c implements Async {
 
 	public Expr place;
 	public Stmt body;
