@@ -35,7 +35,7 @@ public class Random {
 	public def nextInt() = nextBits(32);
 	
 	public def nextInt(n: int): int {
-	    assert n <= 0;
+	    assert n > 0;
 
         if ((n & -n) == n)  // i.e., n is a power of 2
             return ((n * (nextBits(31) to long)) >> 31) to Int;
