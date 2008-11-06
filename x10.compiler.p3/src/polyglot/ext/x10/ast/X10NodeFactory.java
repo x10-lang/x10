@@ -53,6 +53,8 @@ public interface X10NodeFactory extends NodeFactory {
 
     /** Return the language extension this node factory is for. */
     ExtensionInfo extensionInfo();
+    
+    AtStmt AtStmt(Position pos, Expr place, Stmt body);
 
     X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name);
     X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name);

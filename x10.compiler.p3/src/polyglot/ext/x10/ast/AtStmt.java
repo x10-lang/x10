@@ -10,18 +10,20 @@
  */
 package polyglot.ext.x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Stmt;
 
-/** The node constructed for the X10 construct atomic(P) {S}.
+/** The node constructed for the X10 construct at (P) {S}.
  * @author Christian Grothoff
  */
-public interface Atomic extends CompoundStmt {
+public interface AtStmt extends CompoundStmt, RemoteActivityInvocation {
     
-    /** Set the Atomic's body */
-    Atomic body(Stmt body);
+    /** Set the Async's body */
+    AtStmt body(Stmt body);
 
-    /** Get the body of the Atomic. */
+    /** Get the body of the Async. */
     Stmt body();
 }

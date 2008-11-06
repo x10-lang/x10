@@ -92,6 +92,7 @@ import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.AssignPropertyCall_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
+import polyglot.ext.x10.ast.AtStmt_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
 import polyglot.ext.x10.ast.ClosureCall_c;
@@ -200,6 +201,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Branch_c) { visit((Branch_c)n); return; }
 		if (n instanceof Await_c) { visit((Await_c)n); return; }
 		if (n instanceof Atomic_c) { visit((Atomic_c)n); return; }
+		if (n instanceof AtStmt_c) { visit((AtStmt_c)n); return; }
 		if (n instanceof Async_c) { visit((Async_c)n); return; }
 		if (n instanceof AssignPropertyCall_c) { visit((AssignPropertyCall_c)n); return; }
 		if (n instanceof Assert_c) { visit((Assert_c)n); return; }
@@ -394,6 +396,7 @@ public class X10DelegatingVisitor {
 					public void visit(SwitchBlock_c n) { visit((AbstractBlock_c)n); }
 				public void visit(Assert_c n) { visit((Stmt_c)n); }
 				public void visit(AssignPropertyCall_c n) { visit((Stmt_c)n); }
+				public void visit(AtStmt_c n) { visit((Stmt_c)n); }
 				public void visit(Async_c n) { visit((Stmt_c)n); }
 				public void visit(Atomic_c n) { visit((Stmt_c)n); }
 				public void visit(Await_c n) { visit((Stmt_c)n); }

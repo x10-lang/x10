@@ -41,11 +41,8 @@ implements Atomic {
 	
 	public Stmt body;
 	
-	public Expr place; 
-	
 	public Atomic_c(Position p, Expr place, Stmt body) {
 		super(p);
-		this.place = place;
 		this.body = body;
 	}
 	
@@ -66,23 +63,10 @@ implements Atomic {
 		n.body = body;
 		return n;
 	}
-	
-	/** Get the RemoteActivity's place. */
-	public Expr place() {
-		return place;
-	}
-	
-	/** Set the Atomic's place. */
-	public Atomic place(Expr place) {
-		this.place = place;
-		return this;
-	}
-	
 	/** Reconstruct the statement. */
-	protected Atomic reconstruct( Expr place, Stmt body ) {
-		if ( place != this.place || body != this.body ) {
+	protected Atomic reconstruct( Stmt body ) {
+		if ( body != this.body ) {
 			Atomic_c n = (Atomic_c) copy();
-			n.place = place;
 			n.body = body;
 			return n;
 		}
@@ -92,9 +76,8 @@ implements Atomic {
 	
 	/** Visit the children of the statement. */
 	public Node visitChildren( NodeVisitor v ) {
-		Expr place = (Expr) visitChild(this.place, v);
 		Stmt body = (Stmt) visitChild(this.body, v);
-		return reconstruct(place, body);
+		return reconstruct(body);
 	}
 	
 	/** Type check the statement. */
@@ -112,32 +95,16 @@ implements Atomic {
 	public Context enterScope(Context c) {
 		X10Context cc = (X10Context) super.enterScope(c);
 		 cc = cc.pushAtomicBlock();
-		
-		
-		
 		return cc;
 		    
 	}
-	// not sure how this works.. vj. Copied from Synchronized_c.
-	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
-		
-		if ( child == place ) {
-			return ts.Place();
-		}
-		
-		return child.type();
-	}
-	
 	public String toString() {
-		return "atomic (" + place + ") { ... }";
+		return "atomic " + body;
 	}
 	
 	/** Write the statement to an output file. */
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
-		w.write("atomic (");
-		printBlock(place, w, tr);
-		w.write(") ");
+		w.write("atomic ");
 		printSubStmt(body, w, tr);
 	}
 	
@@ -146,14 +113,13 @@ implements Atomic {
 	 * term.
 	 */
 	public Term firstChild() {
-		return place;
+		return body;
 	}
 	
 	/**
 	 * Visit this term in evaluation order.
 	 */
 	public List acceptCFG(CFGBuilder v, List succs) {
-		v.visitCFG(place, body, ENTRY);
 		v.push(this).visitCFG(body, this, EXIT);
 		return succs;
 	}
