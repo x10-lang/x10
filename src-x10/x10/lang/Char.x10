@@ -36,14 +36,6 @@ public final value Char {
     public native def isLetter(): boolean;
     @Native("java", "java.lang.Character.isLetterOrDigit(#0)")
     public native def isLetterOrDigit(): boolean;
-    @Native("java", "java.lang.Character.isJavaLetter(#0)")
-    public native def isJavaLetter(): boolean;
-    @Native("java", "java.lang.Character.isJavaLetterOrDigit(#0)")
-    public native def isJavaLetterOrDigit(): boolean;
-    @Native("java", "java.lang.Character.isJavaIdentifierStart(#0)")
-    public native def isJavaIdentifierStart(): boolean;
-    @Native("java", "java.lang.Character.isJavaIdentifierPart(#0)")
-    public native def isJavaIdentifierPart(): boolean;
     @Native("java", "java.lang.Character.isUnicodeIdentifierStart(#0)")
     public native def isUnicodeIdentifierStart(): boolean;
     @Native("java", "java.lang.Character.isUnicodeIdentifierPart(#0)")
