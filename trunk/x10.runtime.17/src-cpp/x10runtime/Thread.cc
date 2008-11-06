@@ -10,38 +10,71 @@
  */
 
 #include <Thread.h>
+#include <sstream>
 
 namespace xrx_runtime {
 
-// Allocates a new Thread object.
-// local method to initialize a new thread object
-static void
-thread_init(const Runnable& task, String name)
+// initialize static data members
+Object *Thread::__current_place = NULL;
+Object *Thread::__current_activity = NULL;
+Thread *Thread::__current_thread = NULL;
+long Thread::__thread_cnt = 0;
+
+// thread name prefix -- used to construct thread names
+const String __thread_name_prefix = "xrxThread-";
+
+// Helper method to initialize a Thread object.
+void
+Thread::thread_init(const Runnable *task, const String *name)
 {
-	// to do
+	// increment the overall thread count
+	__thread_cnt += 1;
+
+	// set thread's external id
+	__thread_id = __thread_cnt;
+
+	// set this thread's runnble object
+	// null check will be done only during the actual invocation
+	__thread_runobj = (Runnable *)task;
+
+	// clear this thread's run flag
+	__thread_already_started = false;
+
+	// we maintain the internal copy of a thread name
+	if (!name) {
+		// construct a new name for this thread
+		ostringstream ost;
+		ost << __thread_name_prefix << __thread_id;
+		__thread_name = new String(ost.str());
+	} else {
+		__thread_name = new String(*name);
+	}
 }
+
+// Allocates a new Thread object.
 // constructor (1)
 Thread::Thread()
 {
-	// to do
+	thread_init(NULL, NULL);
 }
 
 // constructor (2)
 Thread::Thread(const Runnable& task)
 {
-	// to do
+	thread_init(&task, NULL);
 }
 
 // constructor (3)
 Thread::Thread(const Runnable& task, const String& name)
 {
-	// to do
+	thread_init(&task, &name);
 }
 
 // destructor
 Thread::~Thread()
 {
-	// to do
+	// free internal thread name object
+	delete __thread_name;
 }
 
 // Returns a reference to the currently executing thread object.
@@ -55,14 +88,27 @@ Thread::currentThread(void)
 void
 Thread::start(void)
 {
-	// to do
+	IllegalThreadStateException itse;
+
+	if (__thread_already_started) {
+		throw itse;
+	}
+	__thread_already_started = true;
+	// call the run method of this thread
+	this->run();
 }
 
 // Invoke the Runnable object's run method, if possible.
 void
 Thread::run(void)
 {
-	// to do
+	// check whether a separate Runnable run object is available
+	// if so, invoke it's run method
+	if (__thread_runobj != NULL) {
+		(*__thread_runobj).run();
+	} else {
+		// do nothing
+	}
 }
 
 /**
@@ -117,7 +163,7 @@ Thread::unpark(Thread& thread)
 }
 
 // Returns the current activity.
-Object&
+const Object&
 Thread::activity(void)
 {
 	return (*__current_activity);
@@ -131,7 +177,7 @@ Thread::activity(const Object& activity)
 }
 
 // Returns the current place.
-Object&
+const Object&
 Thread::place(void)
 {
 	return (*__current_place);
@@ -144,8 +190,15 @@ Thread::place(const Object& place)
 	*__current_place = place;
 }
 
+// Returns the identifier of this thread.
+long
+Thread::getId()
+{
+	return __thread_id;
+}
+
 // Returns this thread's name.
-String&
+const String&
 Thread::getName(void)
 {
 	return (*__thread_name);
@@ -155,7 +208,9 @@ Thread::getName(void)
 void
 Thread::setName(const String& name)
 {
-	*__thread_name = name;
+	// free the old thread name before new one is set
+	delete __thread_name;
+	__thread_name = new String(name);
 }
 
 } /* closing brace for namespace xrx_runtime */

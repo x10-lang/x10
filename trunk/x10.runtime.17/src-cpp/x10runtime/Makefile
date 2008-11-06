@@ -14,7 +14,7 @@ ARCH = ppc
 CXX = xlC_r
 CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH)
 INCLUDES = -I.
-DEFS = -DXRX_KERNEL_DEBUG=1
+DEFS = #-DXRX_KERNEL_DEBUG=1
 
 AR = ar
 ARFLAGS = -r -X64
@@ -24,7 +24,7 @@ RM = rm -f
 SUBDIR1 = tests
 SUBDIRS = $(SUBDIR1)
 
-LIBNAME = xrx_kernel
+LIBNAME = xrx
 
 # Build by default static library
 LIBTARGET = lib$(LIBNAME).a
@@ -42,6 +42,7 @@ HEADERS = \
 	Types.h \
 	InterruptedException.h \
 	IllegalMonitorStateException.h \
+	IllegalThreadStateException.h \
 	Runnable.h \
 	Lock.h \
 	Thread.h \
