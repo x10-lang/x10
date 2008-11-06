@@ -1,0 +1,14 @@
+// SYNOPSIS: at(#0) #1 #2=unique_id
+x10.runtime.Runtime.startFinish();
+try {
+        x10.runtime.Runtime.runAsync(
+                new x10.runtime.Activity() {
+                        public void runX10Task() {
+                                #1
+                        }
+                }, #0);
+} catch (java.lang.Throwable tmp#2) {
+        x10.runtime.Runtime.pushException(tmp#2);
+} finally {
+        x10.runtime.Runtime.stopFinish();
+}
