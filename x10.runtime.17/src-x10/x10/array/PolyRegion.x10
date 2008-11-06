@@ -177,17 +177,18 @@ value class PolyRegion extends BaseRegion {
 
             // start
             val that = t as PolyRegion; // XXX
-            val hl = new HalfspaceList(rank);
+            val hlb = new HalfspaceListBuilder(rank);
 
             // these halfspaces
             for (h:Halfspace in this.halfspaces)
-                hl.add(h);
+                hlb.add(h);
 
             // those halfspaces
             for (h:Halfspace in that.halfspaces)
-                hl.add(h);
+                hlb.add(h);
 
             // done
+            val hl = hlb.toHalfspaceList();
             return PolyRegion.make(hl) as Region(rank); // XXXX why?
 
         } else if (t instanceof UnionRegion) {
@@ -233,13 +234,14 @@ value class PolyRegion extends BaseRegion {
         if (!(r instanceof PolyRegion))
             throw U.unsupported(this, "product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
-        val result = new HalfspaceList(this.rank + that.rank);
-        copy(result, this.halfspaces, 0);         // padded w/ 0s on the right
-        copy(result, that.halfspaces, this.rank); // padded w/ 0s on the left
-        return PolyRegion.make(result);
+        val hlb = new HalfspaceListBuilder(this.rank + that.rank);
+        copy(hlb, this.halfspaces, 0);         // padded w/ 0s on the right
+        copy(hlb, that.halfspaces, this.rank); // padded w/ 0s on the left
+        val hl = hlb.toHalfspaceList();
+        return PolyRegion.make(hl);
     }
 
-    private static def copy(tt: HalfspaceList, ff: HalfspaceList, offset: int): void {
+    private static def copy(tt: HalfspaceListBuilder, ff: HalfspaceList, offset: int): void {
 
         for (h:Halfspace in ff) {
             val f = h.as;
@@ -264,14 +266,16 @@ value class PolyRegion extends BaseRegion {
 
         for (h:Halfspace in halfspaces) {
             val hi = h as Halfspace(rank); // XXXX
-            val hl = new HalfspaceList(rank);
-            hl.add(hi.complement());
+            val hlb = new HalfspaceListBuilder(rank);
+            hlb.add(hi.complement());
             for (hj:Halfspace in halfspaces) {
                 if (hj==hi)
                     break;
-                hl.add(hj);
+                hlb.add(hj);
             }
-            rl.add(PolyRegion.make(hl) as Region(rank)); // XXXX
+            val hl = hlb.toHalfspaceList();
+            val r = PolyRegion.make(hl);
+            rl.add(r as Region(rank)); // XXXX
         }
 
 
@@ -335,17 +339,18 @@ value class PolyRegion extends BaseRegion {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    private const ROW: int = HalfspaceList.X(0);
-    private const COL: int = HalfspaceList.X(1);
+    private const ROW: int = HalfspaceListBuilder.X(0);
+    private const COL: int = HalfspaceListBuilder.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
-        val hl = new HalfspaceList(2);
-        hl.add(ROW, hl.GE, rowMin);
-        hl.add(ROW, hl.LE, rowMax);
-        hl.add(COL, hl.GE, colMin);
-        hl.add(COL, hl.LE, colMax);
-        hl.add(COL-ROW, hl.GE, colMin-rowMin-(lower-1));
-        hl.add(COL-ROW, hl.LE, colMin-rowMin+(upper-1));
+        val hlb = new HalfspaceListBuilder(2);
+        hlb.add(ROW, hlb.GE, rowMin);
+        hlb.add(ROW, hlb.LE, rowMax);
+        hlb.add(COL, hlb.GE, colMin);
+        hlb.add(COL, hlb.LE, colMax);
+        hlb.add(COL-ROW, hlb.GE, colMin-rowMin-(lower-1));
+        hlb.add(COL-ROW, hlb.LE, colMin-rowMin+(upper-1));
+        val hl = hlb.toHalfspaceList();
         return PolyRegion.make(hl);
     }
 
@@ -354,20 +359,20 @@ value class PolyRegion extends BaseRegion {
     }
 
     public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        var hl: HalfspaceList{rank==2} = new HalfspaceList(2);
-        hl.add(ROW, hl.GE, rowMin);
-        hl.add(COL, hl.LE, colMin+size-1);
-        hl.add(COL-ROW, hl.GE, colMin-rowMin);
-        hl.isSimplified = true;
+        var hlb: HalfspaceListBuilder{rank==2} = new HalfspaceListBuilder(2);
+        hlb.add(ROW, hlb.GE, rowMin);
+        hlb.add(COL, hlb.LE, colMin+size-1);
+        hlb.add(COL-ROW, hlb.GE, colMin-rowMin);
+        val hl = hlb.toHalfspaceList(true);
         return PolyRegion.make(hl);
     }
 
     public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        val hl = new HalfspaceList(2);
-        hl.add(COL, hl.GE, colMin);
-        hl.add(ROW, hl.LE, rowMin+size-1);
-        hl.add(ROW-COL, hl.GE, rowMin-colMin);
-        hl.isSimplified = true;
+        val hlb = new HalfspaceListBuilder(2);
+        hlb.add(COL, hlb.GE, colMin);
+        hlb.add(ROW, hlb.LE, rowMin+size-1);
+        hlb.add(ROW-COL, hlb.GE, rowMin-colMin);
+        val hl = hlb.toHalfspaceList(true);
         return PolyRegion.make(hl);
     }
 
@@ -378,7 +383,7 @@ value class PolyRegion extends BaseRegion {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static def make(val hl: HalfspaceList): Region(hl.rank) {
+    public static def make(hl: HalfspaceList): Region(hl.rank) {
         if (hl.isEmpty()) {
             return new EmptyRegion(hl.rank);
         } else  if (hl.isRect() && hl.isBounded())
