@@ -21,7 +21,7 @@ public:
 	~Runnable() {};
 
 	// any Runnable subclass should implement this
-	virtual void run(void);
+	virtual void run(void) = 0;
 };
 
 } /* closing brace for namespace xrx_runtime */

@@ -21,6 +21,7 @@
 #include "Object.h"
 #include "Runnable.h"
 #include "InterruptedException.h"
+#include "IllegalThreadStateException.h"
 
 namespace xrx_runtime {
 
@@ -122,22 +123,33 @@ public:
 	static void unpark(Thread& thread);
 
 	// Returns the current activity.
-	Object& activity(void);
+	const Object& activity(void);
 
 	// Set the current activity.
 	void activity(const Object& activity);
 
 	// Returns the current place.
-	Object& place(void);
+	const Object& place(void);
 
 	// Set the current place.
 	void place(const Object& place);
 
 	// Returns this thread's name.
-	String& getName(void);
+	const String& getName(void);
+
+	/**
+	 * Returns the identifier of this thread. The thread ID is
+	 * a positive long number generated when this thread was created.
+	 * The thread ID is unique and remains unchanged during its lifetime.
+	 */
+	long getId();
 
 	// Changes the name of this thread to be equal to the argument name.
 	void setName(const String& name);
+
+protected:
+	// Helper method to initialize a Thread object.
+	void thread_init(const Runnable *task, const String *name);
 
 private:
 	// the current place
@@ -146,14 +158,23 @@ private:
 	static Object *__current_activity;
 	// the current thread
 	static Thread *__current_thread;
+	// internal thread id counter
+	static long __thread_cnt;
 	// thread id
-	pthread_t __threadid;
+	long __thread_id;
 	// thread name
 	String *__thread_name;
+	// thread's pthread id
+	// ??using __thread clashes with already existing identifier??
+	pthread_t __xthread;
 	// thread attributes
-	pthread_attr_t __thread_attr;
-	// thread runnable object
+	pthread_attr_t __xthread_attr;
+	// thread start condition
+	pthread_cond_t __xthread_start;
+	// this thread's runnable object
 	Runnable *__thread_runobj;
+	// thread run flag
+	boolean __thread_already_started;
 };
 
 } /* closing brace for namespace xrx_runtime */
