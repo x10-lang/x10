@@ -21,16 +21,16 @@ public final value Byte implements Integer, Signed {
     @Native("java", "java.lang.Byte.MAX_VALUE")
     public const MAX_VALUE = 0x7fff to Byte;
 
-    @Native("java", "java.lang.Byte.toString(#0, #1)")
+    @Native("java", "java.lang.Integer.toString(#0, #1)")
     public native def toString(radix: Int): String;
     
-    @Native("java", "java.lang.Byte.toHexString(#0)")
+    @Native("java", "java.lang.Integer.toHexString(#0)")
     public native def toHexString(): String;    
     
-    @Native("java", "java.lang.Byte.toOctalString(#0)")
+    @Native("java", "java.lang.Integer.toOctalString(#0)")
     public native def toOctalString(): String;  
       
-    @Native("java", "java.lang.Byte.toBinaryString(#0)")
+    @Native("java", "java.lang.Integer.toBinaryString(#0)")
     public native def toBinaryString(): String;    
     
     @Native("java", "java.lang.Byte.toString(#0)")
