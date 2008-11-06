@@ -251,6 +251,15 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		a = (Async) a.del(del_fac.delAsyncImpl());
 		return a;
 	}
+	// Wrap the body of the async in a Block so as to ease further code transforamtions.
+	public AtStmt AtStmt(Position pos, Expr place, Stmt body) {
+		AtStmt a = new AtStmt_c(pos, place, asBlock(body));
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		a = (AtStmt) a.ext(ext_fac.extAsyncImpl());
+		X10DelFactory_c del_fac = (X10DelFactory_c) delFactory();
+		a = (AtStmt) a.del(del_fac.delAsyncImpl());
+		return a;
+	}
 
 	// Wrap the body of an atomic in a block to facilitate code transformation.
 	public Atomic Atomic(Position pos, Expr place, Stmt body) {
@@ -259,7 +268,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		a = (Atomic) a.del(delFactory().delExpr());
 		return a;
 	}
-
+	
 	public Future Future(Position pos, Expr place, TypeNode returnType, Block body) {
 		Future f = new Future_c(pos, place, returnType, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();

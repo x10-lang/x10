@@ -71,6 +71,7 @@
 %Export
     abstract
     as
+    at
     assert
     async
     ateach
@@ -157,6 +158,12 @@
               | t y p e
         /.$BeginAction
                 $setResult($_type);
+          $EndAction
+        ./
+        
+              | a t
+        /.$BeginAction
+                $setResult($_at);
           $EndAction
         ./
 

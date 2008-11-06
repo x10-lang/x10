@@ -234,6 +234,7 @@
     as
     assert
     async
+    at
     ateach
     atomic
     await
@@ -1361,6 +1362,7 @@ public static class MessageHandler implements IMessageHandler {
                 | ForStatement
                 | NowStatement
                 | AsyncStatement
+                | AtStatement
                 | AtomicStatement
                 | WhenStatement
                 | ForEachStatement
@@ -1625,11 +1627,15 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    AtomicStatement ::= atomic PlaceExpressionSingleListopt Statement
+    AtStatement ::= at PlaceExpressionSingleList Statement
         /.$BeginJava
-                  setResult(nf.Atomic(pos(), (PlaceExpressionSingleListopt == null
-                                                   ? nf.Here(pos(getLeftSpan()))
-                                                   : PlaceExpressionSingleListopt), Statement));
+                  setResult(nf.AtStmt(pos(), PlaceExpressionSingleList, Statement));
+          $EndJava
+        ./
+
+    AtomicStatement ::= atomic Statement
+        /.$BeginJava
+                  setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
           $EndJava
         ./
 
@@ -1884,6 +1890,14 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
                   | Block
+                  
+    AtExpression ::= at PlaceExpressionSingleList ClosureBody
+        /.$BeginJava
+                  Block body = nf.Block(pos(), nf.AtStmt(pos(), PlaceExpressionSingleList, ClosureBody));
+                  Closure c = nf.Closure(pos(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, (DepParameterExpr) null, nf.UnknownTypeNode(pos()), Collections.EMPTY_LIST, body);
+                  setResult(nf.ClosureCall(pos(), c, Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+          $EndJava
+        ./
 
     AsyncExpression ::= async ClosureBody
         /.$BeginJava
@@ -4005,6 +4019,7 @@ public static class MessageHandler implements IMessageHandler {
                             | ClosureExpression
                             | FutureExpression
                             | AsyncExpression
+                            | AtExpression
                             | ConditionalOrExpression ? Expression : ConditionalExpression
         /.$BeginJava
                     setResult(nf.Conditional(pos(), ConditionalOrExpression, Expression, ConditionalExpression));
@@ -4496,6 +4511,7 @@ public static class MessageHandler implements IMessageHandler {
     Object ::= Unsafeopt
     Now ::= NowStatement
     Async ::= AsyncStatement
+    AtStmt ::= AtStatement
     Atomic ::= AtomicStatement
     When ::= WhenStatement
     ForEach ::= ForEachStatement
@@ -4514,6 +4530,7 @@ public static class MessageHandler implements IMessageHandler {
     Stmt ::= AssignPropertyCall
     Future ::= FutureExpression
     Expr ::= AsyncExpression
+    Expr ::= AtExpression
     DepParameterExpr ::= DepParametersopt
                        | DepParameters
     List ::= Properties | Propertiesopt 
