@@ -3,8 +3,6 @@
 
 package x10.array;
 
-import x10.util.ArrayList;
-
 /**
  * A UnionRegion is a region represented as the union of a disjoint
  * set of polyhedral regions, represented as a list of
@@ -30,7 +28,7 @@ value class UnionRegion extends BaseRegion {
     // value
     //
 
-    val regions: Rail[PolyRegion/*(rank)*/]; // XTENLANG-118
+    val regions: ValRail[PolyRegion/*(rank)*/]; // XTENLANG-118
 
 
     //
@@ -39,7 +37,7 @@ value class UnionRegion extends BaseRegion {
 
     protected def this(rs: PolyRegionList): UnionRegion(rs.rank) {
         super(rs.rank, false, false);
-        this.regions = (rs as PolyRegionList(rank)).toArray();
+        this.regions = (rs as PolyRegionList(rank)).toValRail();
     }
 
     static def make(rs: PolyRegionList): Region(rs.rank) {
@@ -58,19 +56,15 @@ value class UnionRegion extends BaseRegion {
 
     public def intersection(that: Region(rank)): Region(rank) {
         val rs = new PolyRegionList(rank);
-        for (var i: int = 0; i<regions.length; i++) {
-            val r = regions(i) as Region(rank); // XXXX
+        for (r:Region(rank) in regions)
             rs.add(r.intersection(that));
-        }
         return make(rs);
     }
 
     public def complement(): Region(rank) {
         var r: Region(rank) = Region.makeFull(rank);
-        for (var i: int = 0; i<regions.length; i++) {
-            val r1 = regions(i) as Region(rank); // XXXX
+        for (r1:Region(rank) in regions)
             r = r.intersection(r1.complement());
-        }
         return r;
     }
 
@@ -84,8 +78,8 @@ value class UnionRegion extends BaseRegion {
 
     public def size(): int {
         var size: int = 0;
-        for (var i: int = 0; i<regions.length; i++)
-            size += regions(i).size();
+        for (r:Region in regions)
+            size += r.size();
         return size;
     }
 
@@ -159,22 +153,17 @@ value class UnionRegion extends BaseRegion {
     //
     //
 
-    // XXX should get these from Integer but they are missing from
-    // x10.lang.Integer in the Java runtime so just put them here
-    const MAX_VALUE: int = 2147483647;
-    const MIN_VALUE: int = -2147483648;
-
     public def boundingBox(): Region(rank) {
         if (boundingBox.b==null) {
             val min = Rail.makeVar[int](rank);
             val max = Rail.makeVar[int](rank);
             for (var axis: int = 0; axis<rank; axis++)
-                min(axis) = MAX_VALUE;
+                min(axis) = int.MAX_VALUE;
             for (var axis: int = 0; axis<rank; axis++)
-                max(axis) = MIN_VALUE;
-            for (var i: int = 0; i<regions.length; i++) {
-                val rmin = regions(i).min();
-                val rmax = regions(i).max();
+                max(axis) = int.MIN_VALUE;
+            for (r:Region in regions) {
+                val rmin = r.min();
+                val rmax = r.max();
                 for (var axis: int = 0; axis<rank; axis++) {
                     if (rmin(axis)<min(axis)) min(axis) = rmin(axis);
                     if (rmax(axis)>max(axis)) max(axis) = rmax(axis);
@@ -200,7 +189,7 @@ value class UnionRegion extends BaseRegion {
 
     public def toString(): String {
         var s: String = "(";
-        for (var i: int = 0; i<regions.length; i++) {
+        for (var i:int=0; i<regions.length; i++) {
             if (i>0) s += " || ";
             s = s + regions(i); // XTENLANG-45
         }
