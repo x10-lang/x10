@@ -29,7 +29,7 @@ public value Runtime {
 	/**
 	 * The common thread pool
 	 */
-	private const pool = new Pool(x10.runtime.kernel.Runtime.INIT_THREADS_PER_PLACE);
+	private const pool = new Pool(Int.getInteger("x10.INIT_THREADS_PER_PLACE", 3));
 
 	/**
 	 * Notify the thread pool that one activity is about to block
@@ -69,15 +69,12 @@ public value Runtime {
 	/**
 	 * Run the main activity in a finish
 	 */
-	public static def runMain(activity: Activity): void {
-		try {
-			val state = new FinishState();
-			activity.finishState(state);
-			pool.execute(new Job(activity, Place.FIRST_PLACE));
-			state.waitForFinish();
-		} catch (t: Throwable) {
-			t.printStackTrace();
-		}
+	public static def start(activity: Activity): void {
+		Thread.currentThread().activity(activity);
+		val state = new FinishState();
+		activity.finishState(state);
+		activity.run();
+		state.waitForFinish();
 	}
 
 	/**
