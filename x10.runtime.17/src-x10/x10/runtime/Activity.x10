@@ -8,7 +8,6 @@
 
 package x10.runtime;
 
-import x10.util.List;
 import x10.util.Stack;
 
 /**
@@ -63,28 +62,28 @@ public abstract class Activity(name: String) {
 	}
 
 	/**
-	 * Create an activity with the given list of clocks.
+	 * Create an activity with the given rail of clocks.
 	 */
-	public def this(list: List[Clock], name: String) {
+	public def this(rail: Rail[Clock_c], name: String) {
 	    this(name);
 	    clocks = new Clocks();
-		clocks.register(list);
+		clocks.register(rail);
 	}
 
-	public def this(list: List[Clock]) {
-	    this(list, "");
+	public def this(rail: Rail[Clock_c]) {
+	    this(rail, "");
 	}
 
 	/**
 	 * Create an activity with the given clock.
 	 */
-	public def this(clock: Clock, name: String) {
+	public def this(clock: Clock_c, name: String) {
 	    this(name);
 	    clocks = new Clocks();
 	   	clocks.register(clock);
 	}
 
-	public def this(clock: Clock) {
+	public def this(clock: Clock_c) {
 	    this(clock, "");
 	}
 

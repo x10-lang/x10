@@ -8,19 +8,18 @@
 
 package x10.runtime;
 
-import x10.util.List;
 import x10.util.HashMap;
 
 /**
  * @author tardieu
  */
-class Clocks extends HashMap[Clock_c,int] {
-	def register(clock: Clock): void {
-		(clock as Clock_c).register_c(this);
+class Clocks extends HashMap[Clock_c,Int] {
+	def register(clock: Clock_c): void {
+		clock.register_c(this);
 	}
 
-	def register(list: List[Clock]): void {
-		for(clock: Clock in list) register(clock);
+	def register(rail: Rail[Clock_c]): void {
+		for(clock: Clock_c in rail) register(clock);
 	}
 
 	def next(): void {
