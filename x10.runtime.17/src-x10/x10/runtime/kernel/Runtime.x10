@@ -17,15 +17,6 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.runtime.impl.java.Runtime", null, null)
 public value Runtime {
-
-    @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
-	public const MAX_PLACES: int = foo();
-	
-    @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS_PER_PLACE")
-	public const INIT_THREADS_PER_PLACE: int = foo();
-
-	private incomplete static def foo(): int;
-
-    @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
+	@Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
 	public native static def setExitCode(code: int): void;
 }
