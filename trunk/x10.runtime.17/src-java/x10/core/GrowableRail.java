@@ -13,7 +13,7 @@ public class GrowableRail<T> extends Value implements Fun_0_1<Integer,T>, Settab
 	private int length;
 	
 	public GrowableRail(Type<T> t) {
-		this(t, 16);
+		this(t, 1);
 	}
 	
 	public GrowableRail(Type<T> t, int size) {
@@ -36,7 +36,9 @@ public class GrowableRail<T> extends Value implements Fun_0_1<Integer,T>, Settab
 	}
 	
 	public void removeLast() {
+		set(null, length-1);
 		length--;
+		shrink(length+1);
 	}
 
 	public Iterator<T> iterator() {
@@ -54,12 +56,23 @@ public class GrowableRail<T> extends Value implements Fun_0_1<Integer,T>, Settab
 			return apply(i++);
 		}
 	}
-
 	
 	private void grow(int newSize) {
 		if (newSize <= size())
 			return;
 		newSize = Math.max(newSize, size()*2);
+		newSize = Math.max(newSize, length);
+		newSize = Math.max(newSize, 8);
+		Object tmp = elementType.makeArray(newSize);
+		System.arraycopy(array, 0, tmp, 0, length);
+		array = tmp;
+	}
+	
+	private void shrink(int newSize) {
+		if (newSize > size()/2 || newSize < 8)
+			return;
+		newSize = Math.max(newSize, length);
+		newSize = Math.max(newSize, 8);
 		Object tmp = elementType.makeArray(newSize);
 		System.arraycopy(array, 0, tmp, 0, length);
 		array = tmp;
