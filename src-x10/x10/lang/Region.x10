@@ -190,14 +190,14 @@ public abstract value class Region(
      * Rail[int].
      */
 
-    abstract public def min(): Rail[int];
+    abstract public def min(): ValRail[int];
 
     /**
      * Returns the upper bounds of the bounding box of the region as a
      * Rail[int].
      */
 
-    abstract public def max(): Rail[int];
+    abstract public def max(): ValRail[int];
     
     /**
      * Returns the lower bound of the bounding box of the region along

@@ -164,13 +164,13 @@ public abstract value class Dist(
      * point to.
      */
 
-    abstract public def places(): Rail[Place];
+    abstract public def places(): ValRail[Place];
 
     /**
      * Returns the set of regions that this distribution maps some place to.
      */
 
-    abstract public def regions(): Rail[Region]; // essentially regionMap().values()
+    abstract public def regions(): ValRail[Region]; // essentially regionMap().values()
 
     
     /**

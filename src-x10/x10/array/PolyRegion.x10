@@ -242,7 +242,6 @@ value class PolyRegion extends BaseRegion {
     }
 
     private static def copy(tt: HalfspaceListBuilder, ff: HalfspaceList, offset: int): void {
-
         for (h:Halfspace in ff) {
             val f = h.as;
             val t = Rail.makeVar[int](tt.rank+1);
@@ -251,8 +250,6 @@ value class PolyRegion extends BaseRegion {
             t(tt.rank) = f(ff.rank);
             tt.add(new Halfspace(t));
         }
-
-
     }
 
 
@@ -401,11 +398,11 @@ value class PolyRegion extends BaseRegion {
         this.halfspaces = hl.simplifyAll();
     }
 
-    public def min(): Rail[int] {
+    public def min(): ValRail[int] {
         return boundingBox().min();
     }
 
-    public def max(): Rail[int] {
+    public def max(): ValRail[int] {
         return boundingBox().max();
     }
 

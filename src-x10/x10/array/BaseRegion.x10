@@ -234,11 +234,11 @@ abstract public value class BaseRegion extends Region {
         super(rank, rect, zeroBased);
     }
 
-    public def min(): Rail[int] {
+    public def min(): ValRail[int] {
         throw U.unsupported(this, "min()");
     }
 
-    public def max(): Rail[int] {
+    public def max(): ValRail[int] {
         throw U.unsupported(this, "max()");
     }
 }
