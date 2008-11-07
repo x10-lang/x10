@@ -13,7 +13,7 @@ package x10.array;
 value class EmptyRegion extends UnionRegion {
 
     def this(val rank: int): EmptyRegion{self.rank==rank} {
-        super(new PolyRegionList(rank));
+        super(new PolyRegionListBuilder(rank));
     }
 
     public def boundingBox(): Region(rank) {

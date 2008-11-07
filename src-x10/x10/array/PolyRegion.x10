@@ -21,7 +21,7 @@ value class PolyRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionList(rank:nat) = PolyRegionList{self.rank==rank};
+    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
     static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
     static type UnionRegion(rank:nat) = UnionRegion{self.rank==rank};
@@ -259,7 +259,7 @@ value class PolyRegion extends BaseRegion {
 
     public def complement(): Region(rank) {
         
-        val rl = new PolyRegionList(rank);
+        val rl = new PolyRegionListBuilder(rank);
 
         for (h:Halfspace in halfspaces) {
             val hi = h as Halfspace(rank); // XXXX

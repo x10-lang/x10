@@ -23,7 +23,7 @@ import x10.io.ByteArrayOutputStream;
 value class Halfspace(rank:nat) implements Comparable[Halfspace] {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionList(rank:nat) = PolyRegionList{self.rank==rank};
+    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
     static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
 
