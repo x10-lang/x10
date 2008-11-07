@@ -60,6 +60,17 @@ public value Runtime {
 	}
 
 	/**
+	 * Set the place of the current activity
+	 * Return the old place
+	 */
+	public static def here(place: Place): Place {
+		val thread = Thread.currentThread();
+		val h = thread.place() as Place;
+		thread.place(place);
+		return h;		
+	}
+
+	/**
 	 * Return the clock phases of the current activity
 	 */
 	static def clocks(): Clocks {
