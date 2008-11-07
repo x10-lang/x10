@@ -68,7 +68,7 @@ public:
 	 */
 	boolean tryLock();
 
-#ifdef XRX_KERNEL_DEBUG
+#ifdef XRX_DEBUG
 	/**
 	 * Queries the number of holds on this lock by the calling thread.
 	 * A thread has a hold on a lock for each lock action that is
@@ -76,7 +76,7 @@ public:
 	 * Returns zero if this lock is not held by the calling thread.
 	 */
 	int getHoldCount();
-#endif /* XRX_KERNEL_DEBUG */
+#endif /* XRX_DEBUG */
 
 private:
 	// lock id

@@ -10,6 +10,7 @@
  */
 
 #include <Thread.h>
+#include <Debug.h>
 #include <sstream>
 
 namespace xrx_runtime {
@@ -23,10 +24,27 @@ long Thread::__thread_cnt = 0;
 // thread name prefix -- used to construct thread names
 const String __thread_name_prefix = "xrxThread-";
 
+// Thread start routine.
+void *
+Thread::thread_start_routine(void *arg)
+{
+	// simply call the run method of the invoking thread object
+	__xrxDPrStart();
+	Thread *tp = (Thread *)arg;
+	pthread_mutex_lock(&(tp->__thread_start_lock));
+	pthread_cond_wait(&(tp->__thread_start_cond), &(tp->__thread_start_lock));
+	pthread_mutex_unlock(&(tp->__thread_start_lock));
+	tp->run();
+	__xrxDPrEnd();
+	pthread_exit(NULL);
+}
+
 // Helper method to initialize a Thread object.
 void
 Thread::thread_init(const Runnable *task, const String *name)
 {
+	__xrxDPrStart();
+
 	// increment the overall thread count
 	__thread_cnt += 1;
 
@@ -43,12 +61,53 @@ Thread::thread_init(const Runnable *task, const String *name)
 	// we maintain the internal copy of a thread name
 	if (!name) {
 		// construct a new name for this thread
-		ostringstream ost;
+		std::ostringstream ost;
 		ost << __thread_name_prefix << __thread_id;
 		__thread_name = new String(ost.str());
 	} else {
 		__thread_name = new String(*name);
 	}
+
+	// create start condition object with default attributes
+	// ??check the return code for ENOMEM/EAGAIN??
+	(void)pthread_cond_init(&__thread_start_cond, NULL);
+
+	// create the associated lock object with default attributes
+	// ??check the return code for ENOMEM??
+	(void)pthread_mutex_init(&__thread_start_lock, NULL);
+
+	// create thread attributes object
+	// ??check the return code for ENOMEM??
+	(void)pthread_attr_init(&__xthread_attr);
+
+	// set this thread's attributes
+	// guardsize
+	size_t guardsize = PAGESIZE;
+	pthread_attr_setguardsize(&__xthread_attr, guardsize);
+	// inheritsched
+	int inheritsched = PTHREAD_INHERIT_SCHED;
+	pthread_attr_setinheritsched(&__xthread_attr, inheritsched);
+	// schedpolicy
+	int policy = SCHED_OTHER;
+	pthread_attr_setschedpolicy(&__xthread_attr, policy);
+	// detachstate
+	int detachstate = PTHREAD_CREATE_JOINABLE;
+	pthread_attr_setdetachstate(&__xthread_attr, detachstate);
+	// contentionscope
+	int contentionscope = PTHREAD_SCOPE_PROCESS;
+	pthread_attr_setscope(&__xthread_attr, contentionscope);
+	// stacksize
+	size_t stacksize = PTHREAD_STACK_MIN;
+	pthread_attr_setstacksize(&__xthread_attr, stacksize);
+	// suspendstate
+	//int suspendstate = PTHREAD_CREATE_SUSPENDED_NP;
+	//pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
+
+	// create a new execution thread ??in suspended state??
+	(void)pthread_create(&__xthread, &__xthread_attr,
+				Thread::thread_start_routine, (void *)this);
+
+	__xrxDPrEnd();
 }
 
 // Allocates a new Thread object.
@@ -73,8 +132,15 @@ Thread::Thread(const Runnable& task, const String& name)
 // destructor
 Thread::~Thread()
 {
+	__xrxDPrStart();
 	// free internal thread name object
 	delete __thread_name;
+	// free start condition object & its lock
+	pthread_mutex_destroy(&__thread_start_lock);
+	pthread_cond_destroy(&__thread_start_cond);
+	// free thread attributes
+	pthread_attr_destroy(&__xthread_attr);
+	__xrxDPrEnd();
 }
 
 // Returns a reference to the currently executing thread object.
@@ -90,12 +156,17 @@ Thread::start(void)
 {
 	IllegalThreadStateException itse;
 
+	__xrxDPrStart();
+
 	if (__thread_already_started) {
 		throw itse;
 	}
+	pthread_mutex_lock(&__thread_start_lock);
 	__thread_already_started = true;
-	// call the run method of this thread
-	this->run();
+	pthread_cond_signal(&__thread_start_cond);
+	pthread_mutex_unlock(&__thread_start_lock);
+
+	__xrxDPrEnd();
 }
 
 // Invoke the Runnable object's run method, if possible.
@@ -104,11 +175,13 @@ Thread::run(void)
 {
 	// check whether a separate Runnable run object is available
 	// if so, invoke it's run method
+	__xrxDPrStart();
 	if (__thread_runobj != NULL) {
 		(*__thread_runobj).run();
 	} else {
 		// do nothing
 	}
+	__xrxDPrEnd();
 }
 
 /**

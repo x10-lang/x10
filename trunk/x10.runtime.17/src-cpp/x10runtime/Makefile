@@ -14,7 +14,7 @@ ARCH = ppc
 CXX = xlC_r
 CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH)
 INCLUDES = -I.
-DEFS = #-DXRX_KERNEL_DEBUG=1
+DEFS = -D_THREAD_SAFE -DXRX_DEBUG=1
 
 AR = ar
 ARFLAGS = -r -X64
@@ -46,7 +46,8 @@ HEADERS = \
 	Runnable.h \
 	Lock.h \
 	Thread.h \
-	Exception.h
+	Exception.h \
+	Debug.h
 
 
 all: $(LIBTARGET)
