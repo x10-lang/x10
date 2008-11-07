@@ -21,12 +21,9 @@ public class Thread extends java.lang.Thread {
 	private Object place; // the current place
 	private Object activity; // the current activity
 
-	public Thread(Runnable r) {
-		super(r);
-	}
-
-	public Thread(Runnable r, String name) {
-		super(r, name);
+	public Thread(Object place, Runnable runnable, String name) {
+		super(runnable, name);
+		this.place = place;
 	}
 
 	public void activity(Object activity) {
