@@ -20,7 +20,7 @@ abstract public value class BaseRegion extends Region {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionList(rank:nat) = PolyRegionList{self.rank==rank};
+    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
     static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
@@ -95,7 +95,7 @@ abstract public value class BaseRegion extends Region {
     //
 
     public def union(that: Region(rank)): Region(rank) {
-        val rs = new PolyRegionList(rank);
+        val rs = new PolyRegionListBuilder(rank);
         rs.add(this);
         rs.add(that.difference(this));
         return UnionRegion.make(rs);
@@ -104,7 +104,7 @@ abstract public value class BaseRegion extends Region {
     public def disjointUnion(that: Region(rank)): Region(rank) {
         if (!this.intersection(that).isEmpty())
             throw U.illegal("regions are not disjoint");
-        val rs = new PolyRegionList(rank);
+        val rs = new PolyRegionListBuilder(rank);
         rs.add(this);
         rs.add(that);
         return UnionRegion.make(rs);
