@@ -18,7 +18,7 @@ value class UnionRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
-    static type PolyRegionList(rank:nat) = PolyRegionList{self.rank==rank};
+    static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
     static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
     static type UnionRegion(rank:nat) = UnionRegion{self.rank==rank};
@@ -35,12 +35,12 @@ value class UnionRegion extends BaseRegion {
     // constructors
     //
 
-    protected def this(rs: PolyRegionList): UnionRegion(rs.rank) {
+    protected def this(rs: PolyRegionListBuilder): UnionRegion(rs.rank) {
         super(rs.rank, false, false);
-        this.regions = (rs as PolyRegionList(rank)).toValRail();
+        this.regions = (rs as PolyRegionListBuilder(rank)).toValRail();
     }
 
-    static def make(rs: PolyRegionList): Region(rs.rank) {
+    static def make(rs: PolyRegionListBuilder): Region(rs.rank) {
         if (rs.size()==0)
             return Region.makeEmpty(rs.rank);
         else if (rs.size()==1)
@@ -55,7 +55,7 @@ value class UnionRegion extends BaseRegion {
     //
 
     public def intersection(that: Region(rank)): Region(rank) {
-        val rs = new PolyRegionList(rank);
+        val rs = new PolyRegionListBuilder(rank);
         for (r:Region(rank) in regions)
             rs.add(r.intersection(that));
         return make(rs);
