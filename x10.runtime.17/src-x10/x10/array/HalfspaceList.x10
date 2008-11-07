@@ -199,19 +199,11 @@ value class HalfspaceList(rank: int) {
         throw new UnboundedRegionException(msg);
     }
 
-    def rectMin(): Rail[int] {
-        val min = Rail.makeVar[int](rank);
-        for (var i: int = 0; i<min.length; i++)
-            min(i) = rectMin(i);
-        return min;
-    }
+    def rectMin(): ValRail[int]
+        = Rail.makeVal[int](rank, (i:nat)=>rectMin(i));
 
-    def rectMax(): Rail[int] {
-        val max = Rail.makeVar[int](rank);
-        for (var i: int = 0; i<max.length; i++)
-            max(i) = rectMax(i);
-        return max;
-    }
+    def rectMax(): ValRail[int]
+        = Rail.makeVal[int](rank, (i:nat)=>rectMax(i));
 
     def isZeroBased(): boolean {
         if (!isRect())

@@ -94,11 +94,11 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // mapping places to region
     //
 
-    public def places(): Rail[Place] {
+    public def places(): ValRail[Place] {
         return places;
     }
 
-    public def regions(): Rail[Region] {
+    public def regions(): ValRail[Region] {
         return regions;
     }
 
@@ -295,15 +295,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // access.
     //
 
-    protected val places: Rail[Place];
-    protected val regions: Rail[Region];
-    private val regionMap: Rail[Region] = Rail.makeVar[Region](Place.MAX_PLACES);
-
-    /*
-    protected def this(region: Region, unique: boolean, constant: boolean, onePlace: Place): BaseDist {
-        super(region, unique, constant, onePlace);
-    }
-    */
+    protected val places: ValRail[Place];
+    protected val regions: ValRail[Region];
+    private val regionMap: ValRail[Region];
 
     protected def this(r: Region, ps: Rail[Place], rs: Rail[Region]): BaseDist{self.rank==r.rank} {
 
@@ -318,14 +312,15 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
                 pl.add(ps(i));
             }
         }
-        this.regions = rl.toArray();
-        this.places = pl.toArray();
+        this.regions = rl.toValRail();
+        this.places = pl.toValRail();
 
         // compute the map
-        for (var i: int = 0; i<regionMap.length; i++)
-            regionMap(i) = Region.makeEmpty(rank);
+        val empty = Region.makeEmpty(rank);
+        val regionMap = Rail.makeVar[Region](Place.MAX_PLACES, (nat)=>empty);
         for (var i: int = 0; i<this.places.length; i++)
             regionMap(this.places(i).id) = this.regions(i);
+        this.regionMap = Rail.makeVal[Region](regionMap.length, regionMap);
     }
 
 
