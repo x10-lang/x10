@@ -253,11 +253,9 @@ value class HalfspaceList(rank: int) {
             hl = hl.eliminate(i, false);
     
         // look for contradictions
-        for (var i: int = 0; i<hl.size(); i++) {
-            val h = hl.halfspaces(i);
+        for (h:Halfspace in hl)
             if (h.as(rank)>0)
                 return true;
-        }
         return false;
     }
 

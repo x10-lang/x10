@@ -186,12 +186,6 @@ final public class PolyScanner implements Region.Scanner {
     }
 
 
-    // XXX should get these from Integer but they are missing from
-    // x10.lang.Integer in the Java runtime so just put them here
-
-    const MAX_VALUE: int = 2147483647;
-    const MIN_VALUE: int = -2147483648;
-
     final public def set(axis: int, position: int): void {
         for (var k: int = axis+1; k<rank; k++)
             for (var l: int = 0; l<minSum.r(k).r.length; l++)
@@ -202,7 +196,7 @@ final public class PolyScanner implements Region.Scanner {
     }
 
     final public def min(axis: int): int {
-        var result: int = MIN_VALUE;
+        var result: int = int.MIN_VALUE;
         for (var k: int = 0; k<min.r(axis).r.length; k++) {
             val a = min.r(axis).r(k).r(axis);
             var b: int = minSum.r(axis).r(k).r(axis);
@@ -213,7 +207,7 @@ final public class PolyScanner implements Region.Scanner {
     }
 
     final public def max(axis: int): int {
-        var result: int = MAX_VALUE;
+        var result: int = int.MAX_VALUE;
         for (var k: int = 0; k<max.r(axis).r.length; k++) {
             val a = max.r(axis).r(k).r(axis);
             val b = maxSum.r(axis).r(k).r(axis);

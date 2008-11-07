@@ -115,8 +115,8 @@ final value class ArrayN[T] extends BaseArray[T] {
         // XXX do we really need to do this at all places?
 
         finish {
-            for (var i: int = 0; i<Place.MAX_PLACES; i++) {
-                async (Place.places(i)) {
+            for (p:Place in Place.places) {
+                async (p) {
                     val r: Region = dist.get(here);
                     val layout: RectLayout = layout(r);
                     layouts(here.id) = layout;
@@ -151,8 +151,8 @@ final value class ArrayN[T] extends BaseArray[T] {
         // XXX do we really need to do this at all places?
 
         finish {
-            for (var i: int = 0; i<Place.MAX_PLACES; i++) {
-                async (Place.places(i)) {
+            for (p:Place in Place.places) {
+                async (p) {
                     this.layouts(here.id) = a.layouts(here.id);
                     this.raws(here.id) = a.raws(here.id);
                 }
