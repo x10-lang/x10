@@ -174,11 +174,11 @@ value class UnionRegion extends BaseRegion {
         return boundingBox.b.b as Region(rank);
     }
 
-    public def min(): Rail[int] {
+    public def min(): ValRail[int] {
         return boundingBox().min();
     }
 
-    public def max(): Rail[int] {
+    public def max(): ValRail[int] {
         return boundingBox().max();
     }
 

@@ -92,8 +92,8 @@ final value class RectRegion extends PolyRegion {
 
     final private static class Scanner implements Region.Scanner {
 
-        private val min: Rail[int];
-        private val max: Rail[int];
+        private val min: ValRail[int];
+        private val max: ValRail[int];
 
         def this(r: PolyRegion): Scanner {
             min = r.halfspaces.rectMin();
@@ -129,8 +129,8 @@ final value class RectRegion extends PolyRegion {
         
         // parameters
         private val rank: int;
-        private val min: Rail[int];
-        private val max: Rail[int];
+        private val min: ValRail[int];
+        private val max: ValRail[int];
 
         // state
         private val x: Rail[int];
@@ -140,9 +140,7 @@ final value class RectRegion extends PolyRegion {
             rank = r.rank;
             min = r.halfspaces.rectMin();
             max = r.halfspaces.rectMax();
-            x = Rail.makeVar[int](rank);
-            for (var i: int = 0; i<rank; i++)
-                x(i) = min(i);
+            x = Rail.makeVar[int](rank, (i:nat)=>min(i));
             x(rank-1)--;
         }
 
@@ -223,11 +221,11 @@ final value class RectRegion extends PolyRegion {
         return this;
     }
 
-    public def min(): Rail[int] {
+    public def min(): ValRail[int] {
         return halfspaces.rectMin();
     }
 
-    public def max(): Rail[int] {
+    public def max(): ValRail[int] {
         return halfspaces.rectMax();
     }
 

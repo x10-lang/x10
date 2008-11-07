@@ -118,10 +118,8 @@ value class Halfspace(rank:nat) implements Comparable[Halfspace] {
      */
 
     def complement(): Halfspace {
-        val as = Rail.makeVar[int](rank+1);
-        for (var i: int = 0; i<rank; i++)
-            as(i) = -this.as(i);
-        as(rank) = -this.as(rank)+1;
+        val init = (i:nat) => i<rank? -this.as(i) : -this.as(rank)+1;
+        val as = Rail.makeVal[int](rank+1, init);
         return new Halfspace(as);
     }
 
