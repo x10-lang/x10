@@ -31,7 +31,7 @@ class Pool {
 	/**
 	 * Pool size
 	 */
-	private var size: int;
+	private var count: int;
 	
 	/** 
 	 * Number of blocked activities in the pool
@@ -39,11 +39,11 @@ class Pool {
 	private var busy: int = 0;
 	
 	/** 
-	 * Start nb threads
+	 * Start count threads
 	 */
-	def this(nb: nat) {
-		size = nb;
-		for(var i: int = 0; i<nb; i++) allocate();
+	def this(count: nat) {
+		this.count = count;
+		for(var i: int = 0; i<count; i++) allocate(i);
 	}
 	
 	/**
@@ -76,13 +76,8 @@ class Pool {
 	/**
 	 * Start a new thread
 	 */
-	def allocate(): void {
-		val thread = new Thread(new Worker(this));
-		
-		// must attach the thread to a place here!
-		thread.place(Place.FIRST_PLACE);
-		
-		thread.start();
+	def allocate(id: int): void {
+		new Thread(Place.FIRST_PLACE, new Worker(this), "thread-" + id.toString()).start();
 	}
 
 	/**
@@ -90,12 +85,7 @@ class Pool {
 	 */
 	def increase(): void {
 		monitor.lock();
-		if (++busy >= size) {
-		
-			// enlarge pool
-			size++;
-			allocate();
-		}
+		if (++busy >= count) allocate(count++);
 		monitor.unlock();
     }
 

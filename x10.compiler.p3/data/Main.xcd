@@ -1,36 +1,24 @@
 // SYNOPSIS: main(#0) #1
 
-public static class Main implements java.lang.Runnable {
-	private final x10.core.Rail<java.lang.String> rail;
-	
-	public Main(java.lang.String[] args) {
-		rail = x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args);
-	}
+public static void main(final java.lang.String[] args) {
 
-	public void run() {
-		// initialize places and attach current thread to first place
-		x10.runtime.impl.java.Thread.currentThread().place(x10.lang.Place.FIRST_PLACE);
+	// create places; start native runtime; start main x10 thread
+	x10.runtime.impl.java.Runtime.start(x10.lang.Place.FIRST_PLACE, new java.lang.Runnable() {
+		public void run() {
 
-		// run main activity
-		x10.runtime.Runtime.runMain(new x10.runtime.Activity() {
-			public void runX10Task() {
-				main(rail);
-			}
-		});
-	}
-}
-
-public static void main(java.lang.String[] args) {
-        java.lang.System.err.println("Please use the 'x10' script to invoke X10 programs, or see the generated");
-        java.lang.System.err.println("Java code for alternate invocation instructions.");
-        java.lang.System.exit(128);
+			// start XRX in main x10 thread
+			x10.runtime.Runtime.start(new x10.runtime.Activity() {
+				public void runX10Task() {
+				
+					// run main
+					main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
+				}
+			});
+		}
+	});
 }
 
 // the original app-main method
 public static void main(#0) {
 #1
 }
-
-// How to invoke?  Use the following general command:
-// java $(javaArgs) x10.runtime.impl.java.Runtime $(x10Args) ClassName $(x10AppArgs)
-

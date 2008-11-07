@@ -9,13 +9,7 @@ dev=""
 java_args=""
 args=""
 
-parse=true
 while [ -n "$1" ]; do
-    if [ -z "$parse" ]; then
-        args="$args '$1'"
-        shift
-        continue
-    fi
     case "$1" in
         -h|-help|--help) help="1"; break;;
         -v|-verbose|--verbose) verbose="1";;
@@ -32,8 +26,9 @@ while [ -n "$1" ]; do
         -config) shift; config="$1.cfg";;
         -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
-        --) parse=;;
-        *) args="$args '$1'";;
+        -*) java_args="${java_args} -Dx10.${1##-}";;
+        *.x10) args="$args ${1%%.x10}";;
+        *) args="$args $*"; break;;
     esac
     shift
 done
@@ -49,12 +44,10 @@ where [options] includes:
     -D<name>=<value>         set system property <name> to <value>
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
-    -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
+    -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -dev                     developer mode (use unpackaged X10 libraries)
     -J<arg>                  [USE WITH CAUTION] pass <arg> directly to java.
         e.g., use -J-verbose to make java execution verbose.
-
-    Use "x10 -- -help" to get help on X10 runtime configuration options
 EOF
     exit 1
 fi
@@ -85,7 +78,7 @@ if [ -n "$mx" ]; then
 fi
 java_args="${java_args} ${defs}"
 
-command="\"$JAVA\" $java_args $config x10.runtime.impl.java.Runtime $args"
+command="\"$JAVA\" $java_args $config $args"
 
 [ -n "$verbose" ] && echo "$command"
 
