@@ -56,7 +56,7 @@ public:
 	 * run object, then the Runnable objects' run method is called;
 	 * otherwise, this method does nothing and returns.
 	 */
-	void run(void);
+	virtual void run(void);
 
 	/**
 	 * Causes the currently executing thread to sleep (cease
@@ -150,6 +150,8 @@ public:
 protected:
 	// Helper method to initialize a Thread object.
 	void thread_init(const Runnable *task, const String *name);
+	// Thread start routine.
+	static void *thread_start_routine(void *arg);
 
 private:
 	// the current place
@@ -169,12 +171,13 @@ private:
 	pthread_t __xthread;
 	// thread attributes
 	pthread_attr_t __xthread_attr;
-	// thread start condition
-	pthread_cond_t __xthread_start;
 	// this thread's runnable object
 	Runnable *__thread_runobj;
 	// thread run flag
 	boolean __thread_already_started;
+	// thread start condition & associated lock
+	pthread_cond_t __thread_start_cond;
+	pthread_mutex_t __thread_start_lock;
 };
 
 } /* closing brace for namespace xrx_runtime */

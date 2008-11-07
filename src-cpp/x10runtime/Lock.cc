@@ -80,7 +80,7 @@ Lock::tryLock()
 	return false;
 }
 
-#ifdef XRX_KERNEL_DEBUG
+#ifdef XRX_DEBUG
 // get lock count
 int
 Lock::getHoldCount()
@@ -88,6 +88,6 @@ Lock::getHoldCount()
 	// to do
 	return 0;
 }
-#endif /* XRX_KERNEL_DEBUG */
+#endif /* XRX_DEBUG */
 
 } /* closing brace for namespace xrx_runtime */
