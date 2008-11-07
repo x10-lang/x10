@@ -177,8 +177,8 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);
-        for (var i: int = 0; i<this.regions.length; i++)
-            overall = overall.union(rs(i) as Region(rank));
+        for (r:Region(rank) in rs)
+            overall = overall.union(r);
 
         return new BaseDist(overall, ps, rs);
     }
@@ -198,8 +198,8 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);
-        for (var i: int = 0; i<this.regions.length; i++)
-            overall = overall.union(rs(i) as Region(rank));
+        for (r:Region(rank) in rs)
+            overall = overall.union(r);
 
         return new BaseDist(overall, ps, rs);
     }
@@ -235,16 +235,15 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
 
         // overall region
         var overall: Region(rank) = Region.makeEmpty(rank);
-        for (var i: int = 0; i<ps.length; i++)
-            overall = overall.disjointUnion(rs(i) as Region(rank));
+        for (r:Region(rank) in rs)
+            overall = overall.disjointUnion(r);
 
         return new BaseDist(overall, ps, rs);
     }
 
     public def isSubdistribution(that: Dist(rank)): boolean {
-        val ps = Place.places;
-        for (var i: int = 0; i<ps.length; i++)
-            if (!that.get(ps(i)).contains(this.get(ps(i))))
+        for (p:Place in Place.places)
+            if (!that.get(p).contains(this.get(p)))
                 return false;
         return true;
     }
@@ -266,11 +265,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
     protected static def isConstant(places: Rail[Place]): boolean {
-        val p = places(0);
-        for (var i: int = 1; i<places.length; i++) {
-            if (places(i)!=p)
+        for (p:Place in places)
+            if (p!=places(0))
                 return false;
-        }
         return true;
     }
 
@@ -279,11 +276,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     }
 
     public def equals(that: Dist/*(rank)*/): boolean {
-        for (var i: int = 0; i<Place.MAX_PLACES; i++) {
-            val p = Place.places(i);
+        for (p:Place in Place.places)
             if (!this.get(p).equals(that.get(p)))
                 return false;
-        }
         return true;
     }
 
@@ -317,9 +312,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         // remove empty regions
         val rl = new ArrayList[Region]();
         val pl = new ArrayList[Place]();
-        for (var i: int = 0; i<rs.length; i++) {
-            if (/*rs(i)!=null &&*/ !rs(i).isEmpty()) {
-                rl.add(rs(i) as Region);
+        for (var i:int=0; i<rs.length; i++) {
+            if (!rs(i).isEmpty()) {
+                rl.add(rs(i));
                 pl.add(ps(i));
             }
         }
@@ -341,9 +336,9 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     public def toString(): String {
         var s: String = "Dist(";
         var first: boolean = true;
-        for (var i: int = 0; i<places.length; i++) {
+        for (p:Place in places) {
             if (!first) s += ",";
-            s += places(i).id + "->" + get(places(i));
+            s += p.id + "->" + get(p);
             first = false;
         }
         s += ")";
