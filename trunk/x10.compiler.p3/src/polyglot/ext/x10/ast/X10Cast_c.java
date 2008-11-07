@@ -19,6 +19,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.BoxType;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
@@ -113,10 +114,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        }
 	    }
 
-            // V to Box[W]
+	    // V to Box[W]
 	    // -->
 	    // V to W to Box[W]
-	    if (ts.isValueType(fromType) && ts.isBox(toType)) {
+	    if ((ts.isValueType(fromType) || fromType instanceof ParameterType) && ts.isBox(toType)) {
 	        // Boxing a value type.  First coerce to the boxed type, then box.
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	        Position p = position();
@@ -125,9 +126,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	            return this.expr(coerced).typeCheck(tc);
 	        }
 	    }
-	    
 
-	    if (ts.isValueType(toType) && ts.isBox(fromType)) {
+	    if ((ts.isValueType(toType) || toType instanceof ParameterType) && ts.isBox(fromType)) {
 	        // Unboxing a value type.  First coerce to the boxed type, then unbox.
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
 
@@ -207,10 +207,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        conversionType = ConversionType.PRIMITIVE;
 	    }
 	}
-	else if (ts.isValueType(fromType) && ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
+	else if ((ts.isValueType(fromType) || fromType instanceof ParameterType) && ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
 	    conversionType = ConversionType.BOXING;
 	}
-	else if (ts.isValueType(toType) && ts.typeEquals(fromType, ts.boxOf(Types.ref(toType)))) {
+	else if ((ts.isValueType(toType) || toType instanceof ParameterType) && ts.typeEquals(fromType, ts.boxOf(Types.ref(toType)))) {
 	    conversionType = ConversionType.UNBOXING;
 	}
 	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType)) {
