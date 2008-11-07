@@ -34,7 +34,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     /** Number of (non-null) entries in the table. */
     var size: Int;
     
-    /** ~(0xffffffff << table.length) */
+    /** table.length - 1 */
     var mask: Int;
     
     var shouldRehash: Boolean;
@@ -59,7 +59,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         assert sz >= MIN_SIZE;
     
         table = Rail.makeVar[HashEntry[K,V]](sz);
-        mask = ~(0xffffffff << table.length);
+        mask = table.length - 1;
         size = 0;
         shouldRehash = false;
     }
@@ -146,7 +146,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         val t = table;
         val oldSize = size;
         table = Rail.makeVar[HashEntry[K,V]](t.length*2);
-        mask = ~(0xffffffff << table.length);
+        mask = 1 - table.length;
         size = 0;
 
         for (var i: int = 0; i < t.length; i++) {
