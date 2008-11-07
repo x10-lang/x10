@@ -11,16 +11,14 @@
 #define __XRX_TYPES_H
 
 #include <pthread.h>
-#include <iostream>
-
-using namespace std;
+#include <string>
 
 namespace xrx_runtime {
 
 	typedef bool boolean;
 
 	// until we implement full-fledged primitive classes
-	typedef string String;
+	typedef std::string String;
 	typedef int Int;
 	typedef long Long;
 

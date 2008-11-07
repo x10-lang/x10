@@ -16,12 +16,16 @@ CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH)
 INCLUDES = -I..
 LIBDIRS = -L..
 LIBS = -lxrx
-DEFS =
+DEFS = -D_THREAD_SAFE
 LINKFLAGS = #-bnoquiet
 
 TARGETS = ThreadConstructor1.x\
 		ThreadConstructor2.x \
-		ThreadConstructor3.x
+		ThreadConstructor3.x \
+		ThreadStart1.x \
+		ThreadStart2.x \
+		ThreadStart3.x \
+		ThreadStart4.x
 
 .PHONY: all
 all: $(TARGETS)
@@ -32,7 +36,7 @@ all: $(TARGETS)
 	
 .PHONY: clean
 clean:
-	$(RM) $(TARGETS) *.o
+	$(RM) $(TARGETS) *.o core
 
 .cc.o:
 	$(RM) $@

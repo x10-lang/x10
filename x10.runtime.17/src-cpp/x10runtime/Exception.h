@@ -14,7 +14,7 @@
 
 namespace xrx_runtime {
 
-class Exception : public exception {
+class Exception : public std::exception {
 	// to do
 };
 
