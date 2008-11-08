@@ -36,5 +36,7 @@ int main(int argc, char *argv[])
 	cout << "thread name: " << mythread1.getName() << " thread id: "
 			<< mythread1.getId() << endl;
 	mythread1.start();
+	mythread2.join();
+	mythread1.join();
 	return 0;
 }

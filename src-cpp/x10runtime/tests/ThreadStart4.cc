@@ -28,5 +28,6 @@ int main(int argc, char *argv[])
 	} catch(IllegalThreadStateException& e) {
 		cerr << "This thread was already started!!" << endl;
 	}
+	helloThread.join();
 	return 0;
 }

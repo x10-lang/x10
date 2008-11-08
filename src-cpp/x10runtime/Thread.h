@@ -52,6 +52,11 @@ public:
 	void start(void);
 
 	/**
+	 * Waits forever for this thread to die.
+	 */
+	void join(void);
+
+	/**
 	 * If this thread was constructed using a separate Runnable
 	 * run object, then the Runnable objects' run method is called;
 	 * otherwise, this method does nothing and returns.

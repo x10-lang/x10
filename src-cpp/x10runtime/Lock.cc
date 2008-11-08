@@ -11,6 +11,7 @@
  */
 
 #include <Lock.h>
+#include <errno.h>
 
 namespace xrx_runtime {
 

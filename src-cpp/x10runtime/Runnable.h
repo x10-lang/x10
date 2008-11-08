@@ -15,13 +15,13 @@ namespace xrx_runtime {
 class Runnable {
 public:
 	// constructor
-	Runnable() {};
+	//Runnable() {};
 
 	// destructor
-	~Runnable() {};
+	//~Runnable() {};
 
 	// any Runnable subclass should implement this
-	virtual void run(void) = 0;
+	virtual void run() = 0;
 };
 
 } /* closing brace for namespace xrx_runtime */

@@ -45,17 +45,17 @@ do { \
 
 #define __xrxDPrStart() \
 do { \
-	const int do_nothing = 0; \
+	/* do nothing */ \
 } while(0)
 
 #define __xrxDPrEnd() \
 do { \
-	const int do_nothing = 0; \
+	/* do nothing */ \
 } while(0)
 
 #define __xrxDPrMesg(message) \
 do { \
-	const int do_nothing = 0; \
+	/* do nothing */ \
 } while(0)
 
 #endif /* XRX_DEBUG */
