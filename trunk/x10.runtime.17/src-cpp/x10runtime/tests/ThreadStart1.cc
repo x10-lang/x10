@@ -23,5 +23,6 @@ int main(int argc, char *argv[])
 	Thread helloThread(helloTask);
 
 	helloThread.start();
+	helloThread.join();
 	return 0;
 }

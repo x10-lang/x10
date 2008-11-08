@@ -32,7 +32,9 @@ Thread::thread_start_routine(void *arg)
 	__xrxDPrStart();
 	Thread *tp = (Thread *)arg;
 	pthread_mutex_lock(&(tp->__thread_start_lock));
-	pthread_cond_wait(&(tp->__thread_start_cond), &(tp->__thread_start_lock));
+	while (tp->__thread_already_started == false) {
+		pthread_cond_wait(&(tp->__thread_start_cond), &(tp->__thread_start_lock));
+	}
 	pthread_mutex_unlock(&(tp->__thread_start_lock));
 	tp->run();
 	__xrxDPrEnd();
@@ -157,7 +159,6 @@ Thread::start(void)
 	IllegalThreadStateException itse;
 
 	__xrxDPrStart();
-
 	if (__thread_already_started) {
 		throw itse;
 	}
@@ -165,7 +166,16 @@ Thread::start(void)
 	__thread_already_started = true;
 	pthread_cond_signal(&__thread_start_cond);
 	pthread_mutex_unlock(&__thread_start_lock);
+	__xrxDPrEnd();
+}
 
+// Waits forever for this thread to die.
+void
+Thread::join(void)
+{
+	int status;
+	__xrxDPrStart();
+	pthread_join(__xthread, (void **)&status);
 	__xrxDPrEnd();
 }
 

@@ -11,15 +11,22 @@
 # platform architecure
 ARCH = ppc
 
-CXX = xlC_r
-CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH)
+ifeq ($(USE_GCC),1)
+CXX = /vol/x10/gcc.4.2.3/bin/g++
+CXXFLAGS = -maix64 -g -O2 -pthread
+else
+CXX = /usr/vacpp/bin/xlc++_r
+CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH) -qtwolink
+endif
+
 INCLUDES = -I.
-DEFS = -D_THREAD_SAFE -DXRX_DEBUG=1
+DEFS = -D_THREAD_SAFE #-DXRX_DEBUG=1
 
 AR = ar
 ARFLAGS = -r -X64
 RANLIB = ranlib -X64
 RM = rm -f
+MAKE = gmake
 
 SUBDIR1 = tests
 SUBDIRS = $(SUBDIR1)
@@ -51,6 +58,7 @@ HEADERS = \
 
 
 all: $(LIBTARGET)
+	USE_GCC=$(USE_GCC) $(MAKE) -C $(SUBDIR1)
 
 $(LIBTARGET): $(OBJS) $(HEADERS)
 	$(RM) $@
@@ -58,7 +66,7 @@ $(LIBTARGET): $(OBJS) $(HEADERS)
 	$(RANLIB) $@
 
 clean:
-	#(cd $(SUBDIR1); $(MAKE) $@)
+	@(cd $(SUBDIR1); $(MAKE) $@)
 	$(RM) $(LIBTARGET) $(OBJS)
 
 .cc.o:

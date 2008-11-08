@@ -11,8 +11,14 @@
 # platform architecure
 ARCH = ppc
 
-CXX = xlC_r
-CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH)
+ifeq ($(USE_GCC),1)
+CXX = /vol/x10/gcc.4.2.3/bin/g++
+CXXFLAGS = -maix64 -g -O2 -pthread
+else
+CXX = /usr/vacpp/bin/xlc++_r
+CXXFLAGS = -q64 -g -O2 -qarch=$(ARCH) -qtwolink
+endif
+
 INCLUDES = -I..
 LIBDIRS = -L..
 LIBS = -lxrx
