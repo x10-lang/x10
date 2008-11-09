@@ -137,7 +137,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                 e.value = v;
                 if (e.removed)
                     return null;
-                return old to Box[V];
+                return (old to V) to Box[V];
             }
         }
     }
@@ -146,8 +146,9 @@ public class HashMap[-K,V] implements Map[K,V] {
         val t = table;
         val oldSize = size;
         table = Rail.makeVar[HashEntry[K,V]](t.length*2);
-        mask = 1 - table.length;
+        mask = table.length - 1;
         size = 0;
+        shouldRehash = false;
 
         for (var i: int = 0; i < t.length; i++) {
             if (t(i) != null && ! t(i).removed) {
@@ -159,7 +160,8 @@ public class HashMap[-K,V] implements Map[K,V] {
     }
     
 	public def containsKey(k: K): boolean {
-	    return getEntry(k) != null;
+	    val e = getEntry(k);
+	    return e != null && ! e.removed;
 	}
 	
 	public def remove(k: K): Box[V] {
@@ -201,7 +203,7 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    }
 	    
 	    public def next(): HashEntry[Key,Value] {
-	        val j = i;
+	        val j = i++;
 	        advance();
 	        return map.table(j);
 	    }
