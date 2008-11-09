@@ -9,7 +9,6 @@
 //LIMITATION:
 //This test case will not meet expectations. It is a limitation of the current release.
 
-import java.util.Iterator;
 import harness.x10Test;;
 
 public class PlaceCheck1 extends x10Test {
