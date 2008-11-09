@@ -5,8 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
-import java.util.HashSet;
-import java.util.Set;
+import x10.util.HashSet;
+import x10.util.Set;
 import harness.x10Test;;
 
 /**

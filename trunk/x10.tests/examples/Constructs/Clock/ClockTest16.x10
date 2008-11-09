@@ -7,8 +7,6 @@
  */
 import harness.x10Test;
 
-import java.util.Iterator;;
-
 /**
  * OLD SEMANTICS:
  * The x10 compiler must conservatively check if an activity can
