@@ -3065,6 +3065,13 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(l);
           $EndJava
         ./
+                                 | FieldDeclaration
+        /.$BeginJava
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                    l.addAll(FieldDeclaration);
+                    setResult(l);
+          $EndJava
+        ./
                                  | ClassDeclaration
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
@@ -3380,9 +3387,6 @@ public static class MessageHandler implements IMessageHandler {
     --
     -- See Chapter 8
 
-    VariableInitializer ::= = Expression
-    
-    
     -- Chapter 15
     
     Primary ::= Literal
