@@ -17,15 +17,15 @@
 #ifndef __XRX_THREAD_H
 #define __XRX_THREAD_H
 
-#include "Types.h"
-#include "Object.h"
-#include "Runnable.h"
-#include "InterruptedException.h"
-#include "IllegalThreadStateException.h"
+#include <Xrx.h>
+#include <Object.h>
+#include <Runnable.h>
+#include <InterruptedException.h>
+#include <IllegalThreadStateException.h>
 
 namespace xrx_runtime {
 
-class Thread : public Runnable {
+class Thread : public Xrx, public Runnable {
 public:
 	
 	// [constructors] Allocates a new Thread object.
