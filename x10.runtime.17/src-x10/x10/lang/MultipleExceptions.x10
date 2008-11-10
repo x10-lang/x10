@@ -28,6 +28,16 @@ public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeE
         property(Rail.makeVal[Throwable](s.size(), (i:nat)=>s.pop()));
     }
 
+    public def this(t: Throwable) {
+        val s = new Stack[Throwable]();
+        if (t instanceof MultipleExceptions) {
+         	for (u: Throwable in (t as MultipleExceptions).exceptions) s.push(u); 
+        } else {
+            s.push(t);
+        }
+        property(Rail.makeVal[Throwable](s.size(), (i:nat)=>s.pop()));
+    }
+
     public def printStackTrace(): void {
         super.printStackTrace();
         for (t: Throwable in exceptions) t.printStackTrace();
