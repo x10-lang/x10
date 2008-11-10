@@ -22,6 +22,8 @@ public interface XTerm extends Serializable, Cloneable {
         public XTerm clone();
         List<XEQV> eqvs();
         
+        Solver solver();
+        
         /** 
          * Returns true if the variable v occurs in this term.
          * @param v -- the variable being checked.

@@ -446,7 +446,7 @@ public class XTypeTranslator {
 	}
 
 	public XTerm transSubtype(Type ltype, Type rtype) {
-	    return new SubtypeSolver.XSubtype_c(trans(ltype), trans(rtype));
+	    return new SubtypeSolver.XSubtype_c(trans(ltype), trans(rtype), ts.subtypeSolver());
 	}
 
 	public XTerm trans(XConstraint c, Variable term) throws SemanticException {

@@ -40,14 +40,19 @@ public class SubtypeSolver implements Solver {
 
     public SubtypeSolver(X10TypeSystem ts) {
         this.ts = ts;
-        // FIXME: should not be static
-        XTerms.addExternalSolvers(this);
     }
 
     public static class XSubtype_c extends XFormula_c {
-        public XSubtype_c(XTerm left, XTerm right) {
+    	SubtypeSolver solver;
+
+        public XSubtype_c(XTerm left, XTerm right, SubtypeSolver solver) {
             super(XTerms.makeName("<:"), left, right);
             markAsAtomicFormula();
+            this.solver = solver;
+        }
+        
+        public Solver solver() {
+        	return solver;
         }
 
         public Type subtype() {

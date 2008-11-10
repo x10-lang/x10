@@ -333,4 +333,6 @@ public interface X10TypeSystem extends TypeSystem {
     /** Return true if constraints in the type are all consistent. */
     boolean consistent(Type t);
 
+	SubtypeSolver subtypeSolver();
+
 }

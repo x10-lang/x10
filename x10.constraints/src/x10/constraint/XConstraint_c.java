@@ -134,11 +134,14 @@ public class XConstraint_c implements XConstraint, Cloneable {
             if (atoms.size() == 0) {
                 consistent = true;
             }
-            else {		
-                for (Solver solver : XTerms.externalSolvers()) {
-                    if (! consistent)
-                        break;
-                    consistent &= solver.isConsistent(atoms);
+            else {
+            	for (XTerm t : atoms) {
+            		if (! consistent)
+            			break;
+            		Solver solver = t.solver();
+            		if (solver != null) {
+            			consistent &= solver.isConsistent(atoms);
+            		}
                 }
             }
         }		
@@ -153,18 +156,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             if (! consistent)
                 return false;
             List<XTerm> atoms = constraints();
-            if (atoms.size() == 0) {
-                valid = true;
-            }
-            else {
-                if (XTerms.externalSolvers().size() == 0)
-                    valid = false;
-                for (Solver solver : XTerms.externalSolvers()) {
-                    if (! valid)
-                        break;
-                    valid &= solver.isValid(atoms);
-                }
-            }
+            valid = atoms.size() == 0;
         }		
         return valid;
     }
@@ -317,7 +309,8 @@ public class XConstraint_c implements XConstraint, Cloneable {
     }
 
     public void addDerivedEqualities(XTerm t) throws XFailure {
-        for (Solver solver : XTerms.externalSolvers()) {
+    	Solver solver = t.solver();
+    	if (solver != null) {
             solver.addDerivedEqualitiesInvolving(this, t);
         }
     }
@@ -583,14 +576,20 @@ if (false) {
             if (entails(left, right)) {
                 return true;
             }
-            
         }
 
         List<XTerm> atoms = constraints();
 
-        for (Solver solver : XTerms.externalSolvers()) {
-            if (solver.entails(atoms, t))
-                return true;
+        if (t.solver() != null) {
+        	if (t.solver().entails(atoms, t))
+        		return true;
+        }
+
+        for (XTerm ta : atoms) {
+        	if (ta.solver() != null && ta.solver() != t.solver()) {
+        		if (ta.solver().entails(atoms, t))
+        			return true;
+        	}
         }
 
         return false;
