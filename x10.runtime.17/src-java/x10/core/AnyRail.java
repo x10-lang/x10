@@ -46,7 +46,6 @@ public class AnyRail<T> extends Value implements Indexable<Integer,T>, Fun_0_1<I
 		}
 	}
 
-    
     public Type<?> rtt_x10$lang$Fun_0_1_Z1() { return Types.INT; }
     public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
     
@@ -80,11 +79,14 @@ public class AnyRail<T> extends Value implements Indexable<Integer,T>, Fun_0_1<I
     }
     
     public boolean isZero() {
-    	boolean zero=true;
-    	for (int i=0; i < length && zero; ++i) {
-    		zero &= get(i)==type.zeroValue();
-    	}
-    	return zero;
-    		
+    	boolean zero = true;
+		for (int i = 0; i < length && zero; ++i) {
+			zero &= get(i) == type.zeroValue();
+		}
+		return zero;
+    }
+    
+    public String toString() {
+    	return value.toString();
     }
 }
