@@ -1,4 +1,4 @@
-// SYNOPSIS: main(#0) #1    #2 = class name
+// SYNOPSIS: main(#0) #3 #1    #0=args #1=body #2=class name #3=throws clause
 
 public static class Main extends x10.runtime.impl.java.Runtime {
 	public static void main(java.lang.String[] args) {
@@ -9,11 +9,22 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 		x10.runtime.Runtime.start(
 			new x10.runtime.Activity() { 
 				public void runX10Task() {
-					#2.main(args);
+					try {
+						#2.main(args);
+					}
+					catch (java.lang.RuntimeException e) {
+					    throw e; 
+					}
+					catch (java.lang.Error e) {
+		 				throw e; 
+					}
+					catch (java.lang.Throwable t) {
+		  				throw new x10.lang.MultipleExceptions(t);
+					}
 				}
 			});
 	}
 }
 
 // the original app-main method
-public static void main(#0) #1
+public static void main(#0) #3 #1

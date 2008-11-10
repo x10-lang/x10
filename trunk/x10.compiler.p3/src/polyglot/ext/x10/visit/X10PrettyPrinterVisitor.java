@@ -541,7 +541,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            n.formals().size() == 1 &&
 	            n.formals().get(0).declType().typeEquals(ts.Rail(ts.String())))
 	    {
-	        new Template("Main", n.formals().get(0), n.body(), tr.context().currentClass().name()).expand();
+	    	Expander throwsClause = new Inline("");
+	    	if (n.throwTypes().size() > 0) {
+	    		List<Expander> l = new ArrayList<Expander>();
+	    		for (TypeNode tn : n.throwTypes()) {
+	    			l.add(new TypeExpander(tn.type(), PRINT_TYPE_PARAMS));
+	    		}
+	    		throwsClause = new Join("", "throws ", new Join(", ", l));
+	    	}
+	    	
+	        new Template("Main", n.formals().get(0), n.body(), tr.context().currentClass().name(), throwsClause).expand();
 	        return;
 	    }
 
@@ -693,7 +702,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            // vj 09/26/08: Changed to print out translated version of throw type
 	            // tr.print(n, tn, w);
 	           // TODO: Nate to check.
-	            printType(tn.type(), 0);
+	            printType(tn.type(), PRINT_TYPE_PARAMS);
 
 	            if (i.hasNext()) {
 	                w.write(",");
@@ -776,7 +785,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		    for (Iterator i = n.throwTypes().iterator(); i.hasNext(); ) {
 		        TypeNode tn = (TypeNode) i.next();
-		        n.print(tn, w, tr);
+		        printType(tn.type(), PRINT_TYPE_PARAMS);
 		
 		        if (i.hasNext()) {
 		            w.write(",");
@@ -3617,6 +3626,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		public abstract void expand(Translator tr);
+	}
+	/**
+	 * An abstract class for sub-template expansion.
+	 */
+	public class Inline extends Expander {
+		private final String str;
+		public Inline(String str) {
+			this.str = str;
+		}
+		public void expand(Translator tr) {
+			prettyPrint(str, tr);
+		}
 	}
 
 	/**
