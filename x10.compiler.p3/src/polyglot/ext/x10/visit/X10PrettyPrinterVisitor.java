@@ -541,7 +541,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            n.formals().size() == 1 &&
 	            n.formals().get(0).declType().typeEquals(ts.Rail(ts.String())))
 	    {
-	        new Template("Main", n.formals().get(0), n.body()).expand();
+	        new Template("Main", n.formals().get(0), n.body(), tr.context().currentClass().name()).expand();
 	        return;
 	    }
 
