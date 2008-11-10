@@ -2474,10 +2474,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return xtt;
 	}
 	
+	SubtypeSolver subtypeSolver;
+	
+	public SubtypeSolver subtypeSolver() {
+		return subtypeSolver;
+	}
+	
 	@Override
 	public void initialize(TopLevelResolver loadedResolver, ExtensionInfo extInfo) throws SemanticException {
 	    super.initialize(loadedResolver, extInfo);
-	    XTerms.addExternalSolvers(new SubtypeSolver(this));
+	    this.subtypeSolver = new SubtypeSolver(this);
 	}
 	
 	public boolean equivClause(Type me, Type other) {

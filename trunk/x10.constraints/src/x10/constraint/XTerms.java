@@ -121,18 +121,4 @@ public class XTerms {
 		assert arg != null;
 		return new XNot_c(arg);
 	}
-
-	// HACK: should be non-static
-	public static List<Solver> externalSolvers;
-	public static List<Solver> externalSolvers() {
-		if (externalSolvers == null)
-			return Collections.EMPTY_LIST;
-		return externalSolvers;
-	}
-	public static void addExternalSolvers(Solver s) {
-		if (externalSolvers == null)
-			externalSolvers = new ArrayList<Solver>();
-		externalSolvers.add(s);
-	}
-	
 }

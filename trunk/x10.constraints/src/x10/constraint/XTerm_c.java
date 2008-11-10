@@ -16,6 +16,10 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		super();
 	}
 
+	public Solver solver() {
+		return null;
+	}
+	
 	public final XTerm subst(XTerm y, XRoot x) {
 	    return subst(y, x, true);
 	}
