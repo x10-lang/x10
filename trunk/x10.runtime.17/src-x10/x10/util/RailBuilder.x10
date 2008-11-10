@@ -1,6 +1,6 @@
 package x10.util;
 
-public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
+public class RailBuilder[T] implements Builder[T,Rail[T]] {
     val buf: GrowableRail[T];
 
     public def this() {
@@ -11,13 +11,13 @@ public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
         buf = new GrowableRail[T](size);
     }
 
-    public def add(x: T): ValRailBuilder {
+    public def add(x: T): RailBuilder[T] {
         buf.add(x);
         return this;
     }
 
-    public def result(): ValRail[T] {
-        return buf.toValRail();
+    public def result(): Rail[T] {
+        return buf.toRail();
     }
 }
 
