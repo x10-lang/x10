@@ -1,35 +1,19 @@
-// SYNOPSIS: main(#0) #1
+// SYNOPSIS: main(#0) #1    #2 = class name
 
-public static class Activity extends x10.runtime.Activity {
-	private final String[] args;
-
-	public Activity(String[] args) {
-		this.args = args;
+public static class Main extends x10.runtime.impl.java.Runtime {
+	public static void main(java.lang.String[] args) {
+		new Main().start(x10.lang.Place.FIRST_PLACE, args);
 	}
-
-	public void runX10Task() {
-		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
-	}
-}
-
-public static class Main {
-	public static void main(final java.lang.String[] args) {
-		// main java thread
-
-		// create places; start native runtime; start main x10 thread
-		x10.runtime.impl.java.Runtime.start(x10.lang.Place.FIRST_PLACE, new Runnable() {
 		
-			public void run() {
-				// main x10 thread
-
-				// start xrx; execute main activity
-				x10.runtime.Runtime.start(new Activity(args));
-			}
-		});
+	public void main(final x10.core.Rail<java.lang.String> args) {
+		x10.runtime.Runtime.start(
+			new x10.runtime.Activity() { 
+				public void runX10Task() {
+					#2.main(args);
+				}
+			});
 	}
 }
 
 // the original app-main method
-public static void main(#0) {
-#1
-}
+public static void main(#0) #1
