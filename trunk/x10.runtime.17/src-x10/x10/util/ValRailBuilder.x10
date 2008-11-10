@@ -11,7 +11,7 @@ public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
         buf = new GrowableRail[T](size);
     }
 
-    public def add(x: T): ValRailBuilder {
+    public def add(x: T): ValRailBuilder[T] {
         buf.add(x);
         return this;
     }
