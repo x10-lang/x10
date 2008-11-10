@@ -43,7 +43,8 @@ SRCS = \
 OBJS = \
 	Lock.o \
 	Thread.o \
-	Object.o
+	Object.o \
+	Xrx.o
 HEADERS = \
 	Object.h \
 	Types.h \
@@ -54,7 +55,8 @@ HEADERS = \
 	Lock.h \
 	Thread.h \
 	Exception.h \
-	Debug.h
+	Debug.h \
+	Xrx.h
 
 
 all: $(LIBTARGET)

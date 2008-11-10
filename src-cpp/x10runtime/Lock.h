@@ -19,12 +19,12 @@
 #ifndef __XRX_LOCK_H
 #define __XRX_LOCK_H
 
-#include <Types.h>
+#include <Xrx.h>
 #include <IllegalMonitorStateException.h>
 
 namespace xrx_runtime {
 
-class Lock {
+class Lock : public Xrx {
 public:
 
 	// [constructor] Create an instance of reentrant Lock.
@@ -68,7 +68,6 @@ public:
 	 */
 	boolean tryLock();
 
-#ifdef XRX_DEBUG
 	/**
 	 * Queries the number of holds on this lock by the calling thread.
 	 * A thread has a hold on a lock for each lock action that is
@@ -76,7 +75,6 @@ public:
 	 * Returns zero if this lock is not held by the calling thread.
 	 */
 	int getHoldCount();
-#endif /* XRX_DEBUG */
 
 private:
 	// lock id
