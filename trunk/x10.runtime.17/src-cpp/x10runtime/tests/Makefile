@@ -21,7 +21,7 @@ endif
 
 INCLUDES = -I..
 LIBDIRS = -L..
-LIBS = -lxrx
+LIBS = -lxrx -lpthdebug
 DEFS = -D_THREAD_SAFE
 LINKFLAGS = #-bnoquiet
 
@@ -31,7 +31,8 @@ TARGETS = ThreadConstructor1.x\
 		ThreadStart1.x \
 		ThreadStart2.x \
 		ThreadStart3.x \
-		ThreadStart4.x
+		ThreadStart4.x \
+		ThreadLock1.x
 
 .PHONY: all
 all: $(TARGETS)

@@ -81,14 +81,28 @@ Lock::tryLock()
 	return false;
 }
 
-#ifdef XRX_DEBUG
 // get lock count
 int
 Lock::getHoldCount()
 {
-	// to do
-	return 0;
+	// don't we need to suspend the corresponding thread??
+	if (Xrx::__xrx_already_inited && Xrx::__xrx_session_valid) {
+		int count, rc1, rc2;
+		pthdb_mutex_t mutex = 0;
+
+		pthread_suspend_others_np();
+		pthdb_session_update(Xrx::__xrx_session);
+		rc1 = pthdb_mutex(Xrx::__xrx_session, &mutex, PTHDB_LIST_FIRST);
+		if (rc1 == PTHDB_SUCCESS) {
+			rc2 = pthdb_mutex_lock_count(Xrx::__xrx_session,
+							mutex, &count);
+		}
+		pthread_continue_others_np();
+		if (rc2 == PTHDB_SUCCESS) {
+			return count;
+		}
+	}
+	return -1;
 }
-#endif /* XRX_DEBUG */
 
 } /* closing brace for namespace xrx_runtime */
