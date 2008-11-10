@@ -8,19 +8,8 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 	public void main(final x10.core.Rail<java.lang.String> args) {
 		x10.runtime.Runtime.start(
 			new x10.runtime.Activity() { 
-				public void runX10Task() {
-					try {
-						#2.main(args);
-					}
-					catch (java.lang.RuntimeException e) {
-					    throw e; 
-					}
-					catch (java.lang.Error e) {
-		 				throw e; 
-					}
-					catch (java.lang.Throwable t) {
-		  				throw new x10.lang.MultipleExceptions(t);
-					}
+				public void runX10Task() throws java.lang.Throwable {
+					#2.main(args);
 				}
 			});
 	}
