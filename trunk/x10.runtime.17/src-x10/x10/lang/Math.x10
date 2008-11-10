@@ -43,8 +43,9 @@ public final class Math {
      @Native("java", "java.lang.Math.sqrt(#1)")
      public static native def sqrt(a:Double):Double;
    }
-   public static val E=2.718281828459045D;
-   public static val PI=3.141592653589793D;
+
+   public const E = 2.718281828459045D;
+   public const PI = 3.141592653589793D;
    
    public static def abs(a:Double)=NativeMath.abs(a);
    public static def abs(a:Int)=NativeMath.abs(a);

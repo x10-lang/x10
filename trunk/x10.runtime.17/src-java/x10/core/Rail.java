@@ -100,5 +100,4 @@ public final class Rail<T> extends AnyRail<T> implements Settable<Integer,T> {
     public Type<?> rtt_x10$lang$Fun_0_1_U()  { return type; }
     public Type<?> rtt_x10$lang$Settable_I() { return Types.INT; }
     public Type<?> rtt_x10$lang$Settable_V() { return type; }
-
 }
