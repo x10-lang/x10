@@ -11,7 +11,7 @@ public interface List[T] extends Collection[T], Indexed[T], Settable[Int,T] {
   public def lastIndexOf(Int, T): Int;
   public def iterator(): ListIterator[T];
   public def iteratorFrom(i: Int): ListIterator[T];
-  public def subList(from: Int, too: Int): List[T];
+  public def subList(fromIndex: Int, toIndex: Int): List[T];
   
   public def removeFirst(): T;
   public def removeLast(): T;
