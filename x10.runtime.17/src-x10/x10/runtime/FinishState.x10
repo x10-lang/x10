@@ -62,7 +62,7 @@ value FinishState {
 	 * associated with the finish.
 	 */
 	def notifySubActivitySpawn():Void {
-		at (latch) latch.updateCount();
+		at (latch.location) latch.updateCount();
 	}
 
 	/** 
@@ -70,14 +70,14 @@ value FinishState {
 	 * associated with the finish and notify the parent activity if it is waiting.
 	 */
 	def notifySubActivityTermination():Void {
-		at (latch) latch.countDown();
+		at (latch.location) latch.countDown();
 	}
 
 	/** 
 	 * Push an exception onto the stack.
 	 */
 	def pushException(t:Throwable):Void {
-		at (exceptions) {
+		at (exceptions.location) {
 			monitor.lock();
 			exceptions.push(t);
 			monitor.unlock();
