@@ -1,4 +1,3 @@
 // SYNOPSIS: clocked(#0)    #1=unique_id
-x10.core.RailFactory.<x10.runtime.Clock_c>makeRailFromJavaArray(new java.util.LinkedList() {{
-	#0
-}}.toArray())
+x10.core.RailFactory.<x10.runtime.Clock_c>makeValRailFromJavaArray(
+	new x10.runtime.Clock_c[] { #0 })
