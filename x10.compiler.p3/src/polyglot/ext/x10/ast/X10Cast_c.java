@@ -90,6 +90,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
         return (T) n.del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
     }
+    
+    boolean isParamType(Type t) {
+        return X10TypeMixin.baseType(t) instanceof ParameterType;
+    }
 
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	Type toType = castType.type();
@@ -117,7 +121,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    // V to Box[W]
 	    // -->
 	    // V to W to Box[W]
-	    if ((ts.isValueType(fromType) || fromType instanceof ParameterType) && ts.isBox(toType)) {
+	    if ((ts.isValueType(fromType) || isParamType(fromType)) && ts.isBox(toType)) {
 	        // Boxing a value type.  First coerce to the boxed type, then box.
 	        BoxType toBox = (BoxType) X10TypeMixin.baseType(toType);
 	        Position p = position();
@@ -127,7 +131,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        }
 	    }
 
-	    if ((ts.isValueType(toType) || toType instanceof ParameterType) && ts.isBox(fromType)) {
+	    if ((ts.isValueType(toType) || isParamType(toType)) && ts.isBox(fromType)) {
 	        // Unboxing a value type.  First coerce to the boxed type, then unbox.
 	        BoxType fromBox = (BoxType) X10TypeMixin.baseType(fromType);
 
@@ -207,10 +211,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	        conversionType = ConversionType.PRIMITIVE;
 	    }
 	}
-	else if ((ts.isValueType(fromType) || fromType instanceof ParameterType) && ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
+	else if ((ts.isValueType(fromType) || isParamType(fromType)) && ts.typeEquals(ts.boxOf(Types.ref(fromType)), toType)) {
 	    conversionType = ConversionType.BOXING;
 	}
-	else if ((ts.isValueType(toType) || toType instanceof ParameterType) && ts.typeEquals(fromType, ts.boxOf(Types.ref(toType)))) {
+	else if ((ts.isValueType(toType) || isParamType(toType)) && ts.typeEquals(fromType, ts.boxOf(Types.ref(toType)))) {
 	    conversionType = ConversionType.UNBOXING;
 	}
 	else if (ts.isValueType(toType) && ts.descendsFrom(fromType, toType)) {
