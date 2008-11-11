@@ -2213,38 +2213,49 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		if (target instanceof TypeNode) {
 		    printType(t, 0);
-		    w.write(".");
-		    w.write(c.name().id().toString());
 		}
-		else {
-		    
-		    // add a check that verifies if the target of the call is in place 'here'
-		    // This is not needed for:
+                else {
+                    
+                    // add a check that verifies if the target of the call is in place 'here'
+                    // This is not needed for:
 
-		    boolean needsHereCheck = needsHereCheck((Expr) target);
+                    boolean needsHereCheck = needsHereCheck((Expr) target);
 
-		    if (! (target instanceof Special || target instanceof New)) {
-		        w.write("(");
+                    if (! (target instanceof Special || target instanceof New)) {
+                        w.write("(");
 
-		        if (needsHereCheck) {
-		            // don't annotate calls with implicit target, or this and super
-		            // the template file only emits the target
-		            new Template("place-check", new TypeExpander(t, true, false, false, false), target).expand();
+                        if (needsHereCheck) {
+                            // don't annotate calls with implicit target, or this and super
+                            // the template file only emits the target
+                            new Template("place-check", new TypeExpander(t, true, false, false, false), target).expand();
+                        }
+                        else {
+                            tr.print(c, target, w);
+                        }
+
+                        w.write(")");
+                    }
+                    else {
+                        tr.print(c, target, w);
+                    }
+                }
+		
+		w.write(".");
+
+		if (mi.typeParameters().size() > 0) {
+		    w.write("<");
+		    for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
+		        final Type at = i.next();
+		        new TypeExpander(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES).expand(tr);
+		        if (i.hasNext()) {
+		            w.write(",");
+		            w.allowBreak(0, " ");
 		        }
-		        else {
-		            tr.print(c, target, w);
-		        }
-
-		        w.write(")");
 		    }
-		    else {
-		        tr.print(c, target, w);
-		    }
-
-		    w.write(".");
-		    
-		    w.write(c.name().id().toString());
+		    w.write(">");
 		}
+
+		w.write(c.name().id().toString());
 
 		w.write("(");
 		w.begin(0);
