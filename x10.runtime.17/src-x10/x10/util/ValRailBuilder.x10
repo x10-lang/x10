@@ -15,6 +15,10 @@ public class ValRailBuilder[T] implements Builder[T,ValRail[T]] {
         buf.add(x);
         return this;
     }
+    
+    public def length(): Int {
+        return buf.length();
+    }
 
     public def result(): ValRail[T] {
         return buf.toValRail();
