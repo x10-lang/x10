@@ -3,7 +3,7 @@
 
 package x10.array;
 
-import x10.io.PrintStream;
+import x10.io.Printer;
 
 /**
  * A PolyRegion represents a polyhedral region represented as the
@@ -411,7 +411,7 @@ value class PolyRegion extends BaseRegion {
     // debugging
     //
 
-    public def printInfo(out: PrintStream): void {
+    public def printInfo(out: Printer): void {
         halfspaces.printInfo(out, /*this.getClass().getName()*/this.toString());
     }
 
