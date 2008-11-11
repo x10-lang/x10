@@ -16,6 +16,10 @@ public class RailBuilder[T] implements Builder[T,Rail[T]] {
         return this;
     }
 
+    public def length(): Int {
+        return buf.length();
+    }
+
     public def result(): Rail[T] {
         return buf.toRail();
     }
