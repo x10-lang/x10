@@ -808,98 +808,100 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         
         XConstraint bigquery = new XConstraint_c();
 
-        for (int i = 0; i < formals.size(); i++) {
-            Type xtype = formals.get(i);
-            Type ytype = actuals.get(i);
-
-            XConstraint yc = X10TypeMixin.xclause(ytype);
-            try {
-                yc = yc != null ? yc.copy() : new XConstraint_c();
-                yc.addBinding(x[i], y[i]);
-                yc.addSelfBinding(y[i]);
-            }
-            catch (XFailure e) {
-            }
-
-            ytype = X10TypeMixin.xclause(ytype, yc);
-
-            XConstraint query = new XConstraint_c();
-
-            try {
-                query.addAtom(xts.xtypeTranslator().transSubtype(ytype, xtype));
-            }
-            catch (XFailure f) {
-                throw new SemanticException("Call invalid; calling environment is inconsistent.");
-            }
-
-            try {
-                XConstraint query2 = query.substitute(ythis, xthis);
-                XConstraint query3 = query2.substitute(Y, X);
-                XConstraint query4 = query3.substitute(y, x);
-                bigquery.addIn(query4);
-                
-                // BUG: <: constraints not being output in XConstraint.toString()
-                // BUG: <: constraints not being added correctly with addIn
-            }
-            catch (XFailure f) {
-                // Substitution introduces inconsistency.
-                throw new SemanticException("Call invalid; calling environment is inconsistent.");
-            }
-        }
-
-        for (int i = 0; i < formals.size(); i++) {
-            XVar yi = y[i];
-            XRoot xi = x[i];
-
-            Type xtype = formals.get(i);
-            XConstraint query = X10TypeMixin.xclause(xtype);
-
-            if (query != null && ! query.valid()) {
-                try {
-                    XConstraint query2 = query.substitute(ythis, xthis);
-                    XConstraint query3 = query2.substitute(Y, X);
-                    XConstraint query4 = query3.substitute(y, x);
-                    XConstraint query5 = query4.substitute(yi, query4.self());
-                    bigquery.addIn(query5);
-                }
-                catch (XFailure f) {
-                    // Substitution introduces inconsistency.
-                    throw new SemanticException("Call invalid; calling environment is inconsistent.");
-                }
-            }
-        }
-
+//        for (int i = 0; i < formals.size(); i++) {
+//            Type xtype = formals.get(i);
+//            Type ytype = actuals.get(i);
+//
+//            XConstraint yc = X10TypeMixin.xclause(ytype);
+//            try {
+//                yc = yc != null ? yc.copy() : new XConstraint_c();
+//                yc.addBinding(x[i], y[i]);
+//                yc.addSelfBinding(y[i]);
+//            }
+//            catch (XFailure e) {
+//            }
+//
+//            ytype = X10TypeMixin.xclause(ytype, yc);
+//
+//            XConstraint query = new XConstraint_c();
+//
+//            try {
+//                query.addAtom(xts.xtypeTranslator().transSubtype(ytype, xtype));
+//                addTypeParameterBindings(xtype, ytype, query);
+//            }
+//            catch (XFailure f) {
+//                throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//            }
+//
+//            try {
+//                XConstraint query2 = query.substitute(ythis, xthis);
+//                XConstraint query3 = query2.substitute(Y, X);
+//                XConstraint query4 = query3.substitute(y, x);
+//                bigquery.addIn(query4);
+//                
+//                // BUG: <: constraints not being output in XConstraint.toString()
+//                // BUG: <: constraints not being added correctly with addIn
+//            }
+//            catch (XFailure f) {
+//                // Substitution introduces inconsistency.
+//                throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//            }
+//        }
+//
+//        for (int i = 0; i < formals.size(); i++) {
+//            XVar yi = y[i];
+//            XRoot xi = x[i];
+//
+//            Type xtype = formals.get(i);
+//            XConstraint query = X10TypeMixin.xclause(xtype);
+//
+//            if (query != null && ! query.valid()) {
+//                try {
+//                    XConstraint query2 = query.substitute(ythis, xthis);
+//                    XConstraint query3 = query2.substitute(Y, X);
+//                    XConstraint query4 = query3.substitute(y, x);
+//                    XConstraint query5 = query4.substitute(yi, query4.self());
+//                    bigquery.addIn(query5);
+//                }
+//                catch (XFailure f) {
+//                    // Substitution introduces inconsistency.
+//                    throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//                }
+//            }
+//        }
+//
+//        try {
+//            XConstraint query = me.guard();
+//            if (query != null) {
+//                XConstraint query2 = query.substitute(ythis, xthis);
+//                XConstraint query3 = query2.substitute(Y, X);
+//                XConstraint query4 = query3.substitute(y, x);
+//                bigquery.addIn(query4);
+//            }
+//        }
+//        catch (XFailure f) {
+//            // Substitution introduces inconsistency.
+//            throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//        }
+//
+//        try {
+//            boolean result = env.entails(bigquery);
+//            if (! result)
+//                throw new SemanticException("Call invalid.");
+//        }
+//        catch (XFailure f) {
+//            throw new SemanticException("Call invalid; calling environment is inconsistent.");
+//        }
+        
         try {
-            XConstraint query = me.guard();
-            if (query != null) {
-                XConstraint query2 = query.substitute(ythis, xthis);
-                XConstraint query3 = query2.substitute(Y, X);
-                XConstraint query4 = query3.substitute(y, x);
-                bigquery.addIn(query4);
-            }
-        }
-        catch (XFailure f) {
-            // Substitution introduces inconsistency.
-            throw new SemanticException("Call invalid; calling environment is inconsistent.");
-        }
-
-        try {
-            boolean result = env.entails(bigquery);
-            if (! result)
-                throw new SemanticException("Call invalid.");
-        }
-        catch (XFailure f) {
-            throw new SemanticException("Call invalid; calling environment is inconsistent.");
-        }
-
-        try {
-            env.addIn(bigquery);
+        	XConstraint env2 = env.copy();
+            env2.addIn(bigquery);
 
 //            for (int i = 0; i < X.length; i++) {
-//                env.addBinding(X[i], Y[i]);
+//                env2.addBinding(X[i], Y[i]);
 //            }
 //            for (int i = 0; i < x.length; i++) {
-//                env.addBinding(x[i], y[i]);
+//                env2.addBinding(x[i], y[i]);
 //            }
 
             for (int i = 0; i < actualTypeVars.size(); i++) {
@@ -913,7 +915,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                 
                 for (int j = 0; j < worklist.size(); j++) {
                     XVar m = worklist.get(j);
-                    for (XTerm term : env.constraints()) {
+                    for (XTerm term : env2.constraints()) {
                         if (term instanceof XEquals) {
                             XEquals eq = (XEquals) term;
                             if (m.equals(eq.left()) && eq.right() instanceof XVar) {
@@ -960,7 +962,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
                 
 //                      // BUG: may return an existential even though there is a better type in there.
 //                      // Should iterate through all matching terms.
-//                      XPromise p = env.lookup(v);
+//                      XPromise p = env2.lookup(v);
 //                      
 //                      
 //                      if (p instanceof XTypeLit_c) {
