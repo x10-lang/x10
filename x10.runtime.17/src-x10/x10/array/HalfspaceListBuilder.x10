@@ -5,7 +5,7 @@ package x10.array;
 
 import x10.util.ArrayList;
 
-import x10.io.PrintStream;
+import x10.io.Printer;
 
 
 /**

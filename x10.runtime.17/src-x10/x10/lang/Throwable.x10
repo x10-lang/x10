@@ -10,7 +10,9 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import x10.io.PrintStream;
+
+import x10.io.Printer;
+import x10.io.Console;
 
 @NativeRep("java", "java.lang.Throwable", null, null)
 public value Throwable {
@@ -43,11 +45,11 @@ public value Throwable {
     
     @Native("java", "#0.printStackTrace()")
     public  def printStackTrace() {
-    	printStackTrace(System.err);
+    	printStackTrace(Console.ERR);
     }
     
-    @Native("java", "#0.printStackTrace((java.io.PrintStream) (#1).nativeWriter())")
-    public def printStackTrace(p: PrintStream ) {
+    @Native("java", "#0.printStackTrace((java.io.PrintStream) x10.io.Printer.getNative(#1))")
+    public def printStackTrace(p: Printer) {
     	// We do not bother to walk the stack and insert stack elements
     	// for the C/C++ implementation (for now).
     	p.println(this);

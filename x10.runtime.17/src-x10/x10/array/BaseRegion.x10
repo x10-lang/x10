@@ -3,7 +3,7 @@
 
 package x10.array;
 
-import x10.io.PrintStream;
+import x10.io.Printer;
 
 /**
  * The BaseRegion class is the base of the hierarchy of classes that
@@ -221,7 +221,7 @@ abstract public value class BaseRegion extends Region {
     // debugging
     //
 
-    public def printInfo(out: PrintStream): void {
+    public def printInfo(out: Printer): void {
         out.println("Region " + this/*.getClass().getName()*/);
     }
 
