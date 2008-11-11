@@ -2203,7 +2203,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
 			if (fi != null) {
 				String pat2 = getJavaImplForDef(fi.x10Def());
-				if (pat != null) {
+				if (pat2 != null) {
 				    Object[] components = new Object[] { target };
 				    dumpRegex("Native", components, tr, pat2);
 					return;
