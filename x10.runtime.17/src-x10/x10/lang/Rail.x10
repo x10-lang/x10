@@ -36,15 +36,15 @@ public abstract value class Rail[T](length: nat)
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
     public native static def $convert[U](r: ValRail[U]): Rail[U]{self.length==r.length};
 
-    @Native("java", "(#0).get(#1)")
+    @Native("java", "#0.get(#1)")
     public native def get(i: nat): T;
 
-    @Native("java", "(#0).apply(#1)")
+    @Native("java", "#0.apply(#1)")
     public native def apply(i: nat): T;
 
-    @Native("java", "(#0).set(#1, #2)")
+    @Native("java", "#0.set(#1, #2)")
     public native def set(v: T, i: nat): T;
     
-    @Native("java", "(#0).iterator()")
+    @Native("java", "#0.iterator()")
     public native def iterator(): Iterator[T];
 }
