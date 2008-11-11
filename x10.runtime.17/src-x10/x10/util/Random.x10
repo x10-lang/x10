@@ -16,7 +16,7 @@ public class Random {
     var seed: long;
     
     public def this(): Random {
-       this(System.currentTimeMillis());
+       this(Timer.milliTime());
     }
     
     public def this(seed: Long): Random {
