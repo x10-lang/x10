@@ -434,7 +434,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }
         });
         
-        def.setXClassInvariant(c);
+        def.setClassInvariant(c);
 
         return n;
     }

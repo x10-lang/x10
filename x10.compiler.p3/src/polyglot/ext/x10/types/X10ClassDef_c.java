@@ -89,13 +89,19 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     boolean computing = false;
     
     // Cached realClause of the root type.
-    XConstraint rootClause;
+    Ref<XConstraint> rootClause;
     
     protected Ref<XConstraint> classInvariant;
 
-    public void setXClassInvariant(Ref<XConstraint> c) {
+    public void setClassInvariant(Ref<XConstraint> c) {
         this.classInvariant = c;
         this.rootClause = null;
+        this.rootClauseInvalid = null;
+    }
+
+    public void setRootClause(Ref<XConstraint> c) {
+    	this.rootClause = c;
+    	this.rootClauseInvalid = null;
     }
 
     public Ref<XConstraint> classInvariant() {
@@ -110,10 +116,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XConstraint getRootClause() {
 	    if (rootClause == null) {
 		    if (computing) {
-			    this.rootClause = new XConstraint_c();
+			    this.rootClause = Types.<XConstraint>ref(new XConstraint_c());
 			    this.rootClauseInvalid = 
 				    new SemanticException("The real clause of " + this + " depends upon itself.", position());
-			    return rootClause;
+			    return rootClause.get();
 		    }
 		    
 		    computing = true;
@@ -180,12 +186,12 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    }
 			    catch (XFailure f) {
 				    result.setInconsistent();
-				    this.rootClause = result;
+				    this.rootClause = Types.ref(result);
 				    this.rootClauseInvalid = new SemanticException("The class invariant and property constraints of " + this + " are inconsistent.", position());
 			    }
 			    
 			    // Now, set the root clause and mark that we're no longer computing.
-			    this.rootClause = result;
+			    this.rootClause = Types.ref(result);
 			    this.computing = false;
 			    
 			    // Now verify that the root clause entails the assertions of the properties.
@@ -206,7 +212,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    c = c.substitute(newSelf, c.self());
 					    
 					    if (! result.entails(c)) {
-						    this.rootClause = result;
+						    this.rootClause = Types.ref(result);
 						    this.rootClauseInvalid = 
 							    new SemanticException("The real clause, " + result 
 							                          + ", does not satisfy constraints from " + fi + ".", position());
@@ -215,13 +221,15 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 			    }
 		    }
 		    catch (XFailure e) {
-			    this.rootClause = new XConstraint_c();
-			    this.rootClause.setInconsistent();
+		    	XConstraint result = new XConstraint_c();
+			    result.setInconsistent();
+			    this.rootClause = Types.ref(result);
 			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());
 		    }
 		    catch (SemanticException e) {
-			    this.rootClause = new XConstraint_c();
-			    this.rootClause.setInconsistent();
+		    	XConstraint result = new XConstraint_c();
+			    result.setInconsistent();
+			    this.rootClause = Types.ref(result);
 			    this.rootClauseInvalid = e;
 		    }
 		    finally {
@@ -229,7 +237,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 		    }
 	    }
 	    
-	    return rootClause;
+	    assert rootClause != null;
+	    return rootClause.get();
     }
 
     public boolean isJavaType() {
