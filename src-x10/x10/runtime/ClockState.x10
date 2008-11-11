@@ -12,26 +12,26 @@ package x10.runtime;
  * @author tardieu
  */
 class ClockState {
-	static val FIRST_PHASE = 1;
+	const FIRST_PHASE = 1;
 	
-	private var count: int = 1;
-	private var alive: int = 1;
-	private var phase: int = FIRST_PHASE; 
+	private var count:Int = 1;
+	private var alive:Int = 1;
+	private var phase:Int = FIRST_PHASE; 
 
-	atomic def register(ph: int): void {
+	atomic def register(ph:Int):Void {
 		++count;
 		if (-ph != phase) ++alive;
 	}
 
-	atomic def resume(): void {
+	atomic def resume():Void {
 		if (--alive == 0) {
 			alive = count;
 			++phase;
 		}
 	}
 	
-	def next(ph: int): void {
-		val abs: int;
+	def next(ph:Int):Void {
+		val abs:Int;
 		if (ph < 0) {
 			abs = -ph; 
 		} else {
@@ -41,7 +41,7 @@ class ClockState {
 		await (abs < phase);
 	}
 
-	atomic def drop(ph: int): void {
+	atomic def drop(ph:Int):Void {
 		--count;
 		if (-ph != phase) resume();
 	}

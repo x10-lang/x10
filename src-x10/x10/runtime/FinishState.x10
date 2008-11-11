@@ -19,14 +19,17 @@ import x10.util.Stack;
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu 
  */
-class FinishState {
-
+value FinishState {
 	/**
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
-	 * This Object is lazily created 
 	 */
-	private var exceptions: Stack[Throwable];
+	private val exceptions = new Stack[Throwable]();
+
+	/**
+	 * The monitor is used to serialize insertions into the Exception Stack. 
+	 */
+	private val monitor = new Monitor();
 
 	/**
 	 * Keep track of current number of activities associated with this finish state
@@ -37,9 +40,9 @@ class FinishState {
 	 * This method returns only when all spawned activity registered with this 
 	 * FinishState have terminated either normally or abruptly.
 	 */
-	def waitForFinish(): void {
+	def waitForFinish():Void {
 		latch.await();
-		if ((null != exceptions) && !exceptions.isEmpty()) {
+		if (!exceptions.isEmpty()) {
 			if (exceptions.size() == 1) {
 				val t = exceptions.pop();
 				if (t instanceof Error) {
@@ -58,23 +61,26 @@ class FinishState {
 	 * An activity created under this finish has been created. Increment the count
 	 * associated with the finish.
 	 */
-	def notifySubActivitySpawn(): void {
-		latch.updateCount();
+	def notifySubActivitySpawn():Void {
+		at (latch) latch.updateCount();
 	}
 
 	/** 
 	 * An activity created under this finish has terminated. Decrement the count
 	 * associated with the finish and notify the parent activity if it is waiting.
 	 */
-	def notifySubActivityTermination(): void {
-		latch.countDown();
+	def notifySubActivityTermination():Void {
+		at (latch) latch.countDown();
 	}
 
 	/** 
 	 * Push an exception onto the stack.
 	 */
-	atomic def pushException(t: Throwable): void {
-		if (null == exceptions) exceptions = new Stack[Throwable]();
-		exceptions.push(t);
+	def pushException(t:Throwable):Void {
+		at (exceptions) {
+			monitor.lock();
+			exceptions.push(t);
+			monitor.unlock();
+		}
 	}
 }
