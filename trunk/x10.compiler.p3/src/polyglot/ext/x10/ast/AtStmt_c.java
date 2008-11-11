@@ -135,7 +135,9 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
 		if (! placeIsPlace) {
-			newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
+	                throw new SemanticException(
+	                                            "Place expression of at must be of type \"" +
+	                                            place.type() + "\".", place.position());
 		}
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())

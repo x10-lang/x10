@@ -92,9 +92,12 @@ public class Future_c extends Closure_c
     	Expr newPlace = place;
     	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
     	if ( ! placeIsPlace ) {
-    	    newPlace = (Expr) nf.Field(position(), place, nf.Id(position(), "location")).del().typeCheck(tc);
+            if (! placeIsPlace) {
+                throw new SemanticException(
+                     "Place expression of future must be of type \"" +
+                     place.type() + "\".", place.position());
+            }
     	}
-    	
     	Future_c n = (Future_c) place(newPlace);
     	n = (Future_c) super.typeCheck(tc);
     	
