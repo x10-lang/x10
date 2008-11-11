@@ -30,6 +30,10 @@ public class StringBuilder implements Builder[Object,String] {
         return this;
     }
     
+    public def length() {
+        return buf.length();
+    }
+    
     @Native("java", "new String(#1.getCharArray())")
     private static native def makeString(ValRail[Char]): String;
 
