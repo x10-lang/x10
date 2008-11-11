@@ -32,7 +32,9 @@ TARGETS = ThreadConstructor1.x\
 		ThreadStart2.x \
 		ThreadStart3.x \
 		ThreadStart4.x \
-		ThreadLock1.x
+		ThreadLock1.x \
+		ThreadLock2.x \
+		ThreadLock3.x
 
 .PHONY: all
 all: $(TARGETS)
