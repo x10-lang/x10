@@ -3,7 +3,7 @@
 
 package x10.array;
 
-import x10.io.PrintStream;
+import x10.io.Printer;
 
 
 /**
@@ -100,17 +100,17 @@ final public class PolyScanner implements Region.Scanner {
         minSum = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
         maxSum = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
 
-        //hl.printInfo(System.out, "axis " + (rank-1));
+        //hl.printInfo(Console.OUT, "axis " + (rank-1));
         init(hl, rank-1);
         for (var k: int = rank-2; k>=0; k--) {
             hl = hl.eliminate(k+1, true);
-            //hl.printInfo(System.out, "axis " + k);
+            //hl.printInfo(Console.OUT, "axis " + k);
             init(hl, k);
         }
-        //printInfo(System.out);
+        //printInfo(Console.OUT);
     }
 
-    public def printInfo(ps: PrintStream): void {
+    public def printInfo(ps: Printer): void {
         for (var k: int = 0; k<min.r.length; k++) {
             ps.printf("axis %d\n", k);
             ps.printf("  min\n");

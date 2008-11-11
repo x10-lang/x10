@@ -3,7 +3,7 @@
 
 package x10.array;
 
-import x10.io.PrintStream;
+import x10.io.Printer;
 
 
 /**
@@ -256,7 +256,7 @@ value class HalfspaceList(rank: int) {
      *
      */
 
-    public def printInfo(ps: PrintStream, label: String): void {
+    public def printInfo(ps: Printer, label: String): void {
         ps.printf("%s\n", label);
         for (h:Halfspace in this) {
             ps.printf("    ");

@@ -3,8 +3,8 @@
 
 package x10.array;
 
-import x10.io.PrintStream;
-import x10.io.ByteArrayOutputStream;
+import x10.io.Printer;
+import x10.io.StringWriter;
 
 /**
  * This class represents a single polyhedral halfspace of the form
@@ -128,7 +128,7 @@ value class Halfspace(rank:nat) implements Comparable[Halfspace] {
      * print a halfspace in both matrix and equation form
      */
 
-    public def printInfo(ps: PrintStream): void {
+    public def printInfo(ps: Printer): void {
         ps.printf("[");
         for (var i: int = 0; i<as.length; i++) {
             ps.printf("%4d", as(i));
@@ -143,7 +143,7 @@ value class Halfspace(rank:nat) implements Comparable[Halfspace] {
      * print a halfspace in equation form
      */
 
-    private def printEqn(ps: PrintStream, spc: String): void {
+    private def printEqn(ps: Printer, spc: String): void {
         var sgn: int = 0;
         var first: boolean = true;
         for (var i: int = 0; i<as.length-1; i++) {
@@ -175,8 +175,8 @@ value class Halfspace(rank:nat) implements Comparable[Halfspace] {
     }
 
     public def toString(): String {
-        val os = new ByteArrayOutputStream();
-        val ps = new PrintStream(os);
+        val os = new StringWriter();
+        val ps = new Printer(os);
         //printInfo(ps);
         printEqn(ps, "");
         return os.toString();

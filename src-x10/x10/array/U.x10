@@ -3,14 +3,16 @@
 
 package x10.array;
 
+import x10.io.Console;
+
 class U {
 
     public static def pr(s: String): void {
-        System.out.println(s);
+        Console.OUT.println(s);
     }
 
     public static def xxx(s: String): void {
-        System.out.println("xxx " + s);
+        Console.OUT.println("xxx " + s);
     }
 
     public static def where(s: String): void {
