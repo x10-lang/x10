@@ -38,6 +38,15 @@ public final value String implements (nat) => Char {
     @Native("java", "#0.charAt(#1)")
     public native def charAt(index: nat): Char;
     
+    @Native("java", "x10.core.RailFactory.<java.lang.Character>makeValRailFromJavaArray(#0.toCharArray())")
+    public native def chars(): ValRail[Char];
+    
     @Native("java", "#0.substring(#1, #2)")
     public native def substring(fromIndex: nat, toIndex: nat): String;
+    
+    @Native("java", "#0.indexOf(#1)")
+    public native def indexOf(Char): Int;
+    
+    @Native("java", "#0.lastIndexOf(#1)")
+    public native def lastIndexOf(Char): Int;
 }
