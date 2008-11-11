@@ -14,77 +14,71 @@ package x10.runtime;
 public value Clock_c extends Clock {
 	private val state = new ClockState();
 	
-    private static def abs(z: int): int {
-    	return (z<0) ? -z : z;
-    }
+    private static def abs(z:Int):Int = z < 0 ? -z : z;
 
-	public def this(name: String) {
+	public def this(name:String) {
 		super(name);
-    	Runtime.clocks().put(this, ClockState.FIRST_PHASE);
+    	Runtime.clockPhases().put(this, ClockState.FIRST_PHASE);
 	}
 
-    public def registered(): boolean {
-    	return Runtime.clocks().containsKey(this);
-    }
+    public def registered():boolean = Runtime.clockPhases().containsKey(this);
 
-    public def dropped(): boolean {
-    	return !registered();
-    }
+    public def dropped():boolean = !registered();
 
-    public def resume(): void {
+    public def resume():Void {
     	if (dropped()) throw new ClockUseException();
 		val ph = ph_c();
 		if (ph < 0) throw new ClockUseException();
 		finish async (state) state.resume();
-    	Runtime.clocks().put(this, -ph);
+    	Runtime.clockPhases().put(this, -ph);
     }
 
-    public def next(): void {
+    public def next():Void {
     	if (dropped()) throw new ClockUseException();
     	next_c();
     }    
 
-    public def phase(): int { 
-    	if (dropped()) throw new ClockUseException();
-    	return abs(ph_c());
-    }
+    public def phase():Int = abs(phase_c());
     
-    public def drop(): void {
+    public def drop():Void {
     	if (dropped()) throw new ClockUseException();
-    	val ph = Runtime.clocks().remove(this) to Int;
+    	val ph = Runtime.clockPhases().remove(this) to Int;
     	async (state) state.drop(ph);
     }
     
-	public def hashCode(): int {
+	public def hashCode():Int {
 		return state.hashCode();
 	}
 	
-    def register_c(clocks: Clocks): void {
-       	if (dropped()) throw new ClockUseException();
-    	val ph = ph_c();
+    def register_c(clockPhases:ClockPhases, ph:Int):Void {
     	finish async (state) state.register(ph);
-    	clocks.put(this, ph);
+    	clockPhases.put(this, ph);
     }
 
-    def resume_c(): void {
+    def resume_c():Void {
 		val ph = ph_c();
 		if (ph < 0) return;
 		finish async (state) state.resume();
-    	Runtime.clocks().put(this, -ph);
+    	Runtime.clockPhases().put(this, -ph);
     }
 
-    def next_c(): void {
+    def next_c():Void {
     	val ph = ph_c();
 		finish async (state) state.next(ph);
-    	Runtime.clocks().put(this, abs(ph) + 1);
+    	Runtime.clockPhases().put(this, abs(ph) + 1);
     }    
 
-    def drop_c(): void {
+    def phase_c():Int { 
+    	if (dropped()) throw new ClockUseException();
+    	return ph_c();
+    }    
+
+    def drop_c():Void {
     	val ph = ph_c(); 
     	async (state) state.drop(ph);
     }
     
-    def ph_c(): int {
-        return Runtime.clocks()(this) to Int;
+    def ph_c():Int {
+        return Runtime.clockPhases()(this) to Int;
     }
 }

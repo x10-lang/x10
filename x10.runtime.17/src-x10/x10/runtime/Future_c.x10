@@ -8,68 +8,68 @@
 
 package x10.runtime;
 
+import x10.util.Stack;
+
 /**
- * This class encapsulates the return value of a local async
- * call and allows the client to wait for the completion of the
- * async call (force future).
- * @author Christian Grothoff
- * @author Christoph von Praun
- * @author vj
- * @author Raj Barik, Vivek Sarkar
+ * The representation of an X10 future expression.
  * @author tardieu
  */
-public abstract class Future_c[T] extends Activity implements Future[T] {
-    /**
-     * Set if the activity terminated with an exception.
-     * Can only be of type Error or RuntimeException
-     * (since X10 only has unchecked exceptions).
-     */
-    private var exception: Box[Throwable];
-
-    private var result: T;
-
+public value Future_c[T] implements Future[T] {
     /**
      * CountDownLatch for signaling and wait -- can be replaced by a boolean latch
      */
     private val cdl = new ModCountDownLatch(1);
 
-    public def apply(): T {
-        return force();
-    }
+    /**
+     * Set if the activity terminated with an exception.
+     * Can only be of type Error or RuntimeException
+     */
+	private val exception = new Stack[Throwable]();
+	
+	private val result:Rail[T];
+	
+	private val eval:()=>T;
+	
+	public def this(eval:()=>T) {
+		this.eval = eval;
+		result = Rail.makeVar[T](1);
+	}
+	
+    public def forced():boolean = Runtime.remote[boolean](cdl, ()=>forced_c());
+    
+    private def forced_c():boolean = cdl.getCount() == 0;
 
-    public def force(): T {
+    public def apply():T = force();
+
+    public def force():T = Runtime.remote[T](cdl, ()=>force_c());
+
+    private def force_c():T {
   	    cdl.await();
-        if (exception !=null) {
-        	val e = exception to Throwable;
+        if (!exception.isEmpty()) {
+        	val e = exception.peek();
             if (e instanceof Error)
                 throw e as Error;
             if (e instanceof RuntimeException)
                 throw e as RuntimeException;
             assert false as boolean;
         }
-        return result;
+        return result(0);
     }
 
-    public def forced(): boolean {
-        return cdl.getCount() == 0;
-    }
-
-    public abstract def eval(): T;
-        
-    public def runX10Task(): void {
+	def run():Void {
 		try {
-        	startFinish();
+        	Runtime.startFinish();
         	try {
-                result = eval();
-            } catch (t: Throwable) {
-                pushException(t);
+                result(0) = eval();
+            } catch (t:Throwable) {
+                Runtime.pushException(t);
             }
-            stopFinish();
-        } catch (t: Throwable) {
+            Runtime.stopFinish();
+        } catch (t:Throwable) {
             // Now nested asyncs have terminated.
-            exception = t to Box[Throwable];
+            exception.push(t);
         } finally {
           	cdl.countDown();
-		}        
-    }
+		}
+	}	
 }

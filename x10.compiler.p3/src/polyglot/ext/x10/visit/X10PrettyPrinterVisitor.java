@@ -2395,16 +2395,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	private Template processClocks(Clocked c) {
 		assert (null != c.clocks());
 		Template clocks = null;
-		if (c.clocks().isEmpty())
-			clocks = null;
-		else if (c.clocks().size() == 1)
-			clocks = new Template("clock", c.clocks().get(0));
-		else {
+//		if (c.clocks().isEmpty())
+//			clocks = null;
+//		else if (c.clocks().size() == 1)
+//			clocks = new Template("clock", c.clocks().get(0));
+//		else {
 			Integer id = getUniqueId_();
 			clocks = new Template("clocked",
 								  new Loop("clocked-loop", c.clocks(), new CircularList(id)),
 								  id);
-		}
+//		}
 		return clocks;
 	}
 

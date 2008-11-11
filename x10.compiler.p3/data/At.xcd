@@ -1,10 +1,13 @@
-// SYNOPSIS: at(#0) #1 #2=unique_id
+// SYNOPSIS: at(#0) #1    #2=unique_id
 {
 	x10.lang.Place tmp#2 = x10.runtime.Runtime.here(#0);
-	new java.lang.Runnable() {
-		public void run() {
-			#1
-		}
-    }.run();
-	x10.runtime.Runtime.here(tmp#2);
+	try {
+		new x10.core.fun.VoidFun_0_0() {
+			public void apply() {
+				#1
+			}
+    	}.apply();
+    } finally {
+		x10.runtime.Runtime.here(tmp#2);
+	}
 }

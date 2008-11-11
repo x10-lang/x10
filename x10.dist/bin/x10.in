@@ -26,7 +26,8 @@ while [ -n "$1" ]; do
         -config) shift; config="$1.cfg";;
         -dev) dev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
-        -*) java_args="${java_args} -Dx10.${1##-}";;
+        -*=*) java_args="${java_args} -Dx10.${1##-}";;
+        -*) java_args="${java_args} -Dx10.${1##-}=true";;
         *.x10) args="$args '${1%%.x10}\$Main'";;
         *) args="$args '$1\$Main'"; shift; args="$args $*"; break;;
     esac
