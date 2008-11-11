@@ -53,6 +53,11 @@ public value Runtime {
 	static def current():Activity = Thread.currentThread().activity() as Activity;
 	
 	/**
+	 * Return the location of the current activity.
+	 */
+	static def currentPlace():Place = current().location;
+	
+	/**
 	 * Return the clock phases of the current activity
 	 */
 	static def clockPhases():ClockPhases = current().clockPhases();
@@ -94,7 +99,7 @@ public value Runtime {
 	 * Run an async
 	 */
 	public static def runAsync(clocks:ValRail[Clock_c], body:()=>Void, place:Place):Void {
-		at (current()) {
+		at (currentPlace()) {
 			val state = current().finishStack.peek();
 			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
 			state.notifySubActivitySpawn();
@@ -194,7 +199,7 @@ public value Runtime {
 	 * Next statement = next on all clocks in parallel.
 	 */
 	public static def next():Void {
-		at (current()) current().clockPhases.next();
+		at (currentPlace()) current().clockPhases.next();
 	}
 
 	/**
@@ -202,7 +207,7 @@ public value Runtime {
 	 * (i.e. within a finish statement).
 	 */
 	public static def startFinish():Void {
-		at (current()) current().finishStack.push(new FinishState());
+		at (currentPlace()) current().finishStack.push(new FinishState());
 	}
 
 	/**
@@ -212,7 +217,7 @@ public value Runtime {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public static def stopFinish():Void {
-		at (current()) current().finishStack.pop().waitForFinish();
+		at (currentPlace()) current().finishStack.pop().waitForFinish();
 	}
 
 	/** 
@@ -220,6 +225,6 @@ public value Runtime {
 	 * onto the finish state.
 	 */
 	public static def pushException(t:Throwable):Void  {
-		at (current()) current().finishStack.peek().pushException(t);
+		at (currentPlace()) current().finishStack.peek().pushException(t);
 	}
 }

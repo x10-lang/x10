@@ -104,7 +104,7 @@ class Pool implements Runnable {
 			thread.activity(activity);
 			
 			// run activity
-			at (activity) activity.run();
+			at (activity.location) activity.run();
 		}
 	}
 }

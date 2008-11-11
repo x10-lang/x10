@@ -29,7 +29,7 @@ public value Clock_c extends Clock {
     	if (dropped()) throw new ClockUseException();
 		val ph = ph_c();
 		if (ph < 0) throw new ClockUseException();
-		finish async (state) state.resume();
+		finish async (state.location) state.resume();
     	Runtime.clockPhases().put(this, -ph);
     }
 
@@ -43,7 +43,7 @@ public value Clock_c extends Clock {
     public def drop():Void {
     	if (dropped()) throw new ClockUseException();
     	val ph = Runtime.clockPhases().remove(this) to Int;
-    	async (state) state.drop(ph);
+    	async (state.location) state.drop(ph);
     }
     
 	public def hashCode():Int {
@@ -51,20 +51,20 @@ public value Clock_c extends Clock {
 	}
 	
     def register_c(clockPhases:ClockPhases, ph:Int):Void {
-    	finish async (state) state.register(ph);
+    	finish async (state.location) state.register(ph);
     	clockPhases.put(this, ph);
     }
 
     def resume_c():Void {
 		val ph = ph_c();
 		if (ph < 0) return;
-		finish async (state) state.resume();
+		finish async (state.location) state.resume();
     	Runtime.clockPhases().put(this, -ph);
     }
 
     def next_c():Void {
     	val ph = ph_c();
-		finish async (state) state.next(ph);
+		finish async (state.location) state.next(ph);
     	Runtime.clockPhases().put(this, abs(ph) + 1);
     }    
 
@@ -75,7 +75,7 @@ public value Clock_c extends Clock {
 
     def drop_c():Void {
     	val ph = ph_c(); 
-    	async (state) state.drop(ph);
+    	async (state.location) state.drop(ph);
     }
     
     def ph_c():Int {
