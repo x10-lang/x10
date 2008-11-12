@@ -71,12 +71,12 @@ public interface Marshal[T] {
             if ((b1 & 0x80) == 0)
                 return b1 to Char;
             val b2 = r.read();
-            return ((b1 << 8) | b2) to Char;
+            return ((b2 << 8) | b1) to Char;
         }
         public def write(w: Writer, c: Char): Void throws IOException {
             val i = c to Int;
-            val b1 = ((i >>> 8) & 0xff) to Byte;
-            val b2 = ((i & 0xff) to Byte) to Byte;
+            val b2 = ((i >>> 8) & 0xff) to Byte;
+            val b1 = ((i & 0xff) to Byte) to Byte;
             w.write(b1);
             if ((b1 & 0x80) == 0 && b2 == 0)
                 return;
