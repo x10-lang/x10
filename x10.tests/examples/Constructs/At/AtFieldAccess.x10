@@ -21,7 +21,7 @@ public class AtFieldAccess extends x10Test {
 			val NewT: T = new T();
 			at (D(p)) { t = NewT; }
 		}
-		at (t) { t.i = 3; }
+		at (t.location) { t.i = 3; }
 		return 3 == (future(t) t.i).force();
 	}
 
