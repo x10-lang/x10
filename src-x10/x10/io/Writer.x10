@@ -14,7 +14,7 @@
  */    
 package x10.io;
 
-import x10.compiler.NativeRep;
+import x10.compiler.Native;
 
 public abstract class Writer {
     public abstract def close(): Void throws IOException;
@@ -45,4 +45,10 @@ public abstract class Writer {
             write(buf(i));
         }
     }
+    
+    @Native("java", "new java.io.OutputStream() { public void write(int x) throws java.io.IOException { Writer.this.write((byte) x); } }")
+    private native def oos(): OutputStreamWriter.OutputStream;
+    
+    // DO NOT CALL from X10 code -- only used in @Native annotations
+    public def getNativeOutputStream(): OutputStreamWriter.OutputStream = oos();
 }
