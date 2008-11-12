@@ -48,7 +48,7 @@ public value Throwable {
     	printStackTrace(Console.ERR);
     }
     
-    @Native("java", "#0.printStackTrace((java.io.PrintStream) x10.io.Printer.getNative(#1))")
+    @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
     public def printStackTrace(p: Printer) {
     	// We do not bother to walk the stack and insert stack elements
     	// for the C/C++ implementation (for now).
