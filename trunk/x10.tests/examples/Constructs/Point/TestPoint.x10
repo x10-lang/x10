@@ -1,23 +1,19 @@
-import x10.io.PrintStream;
-import x10.io.OutputStream;
-import x10.io.InputStream;
-import x10.io.PrintStream;
-import x10.io.FileOutputStream;
-import x10.io.ByteArrayOutputStream;
+import x10.io.Printer;
+import x10.io.StringWriter;
 
 import harness.x10Test;
 
 abstract public class TestPoint extends x10Test {
     
-    var os: OutputStream;
-    var out: PrintStream;
+    var os: StringWriter;
+    var out: Printer;
     val testName = className().substring(6,className().length());
 
     def this() {
         System.setProperty("line.separator", "\n");
         try {
-            os = new ByteArrayOutputStream();
-            out = new PrintStream(os);
+            os = new StringWriter();
+            out = new Printer(os);
         } catch (e:Exception) {
             e.printStackTrace();
         }
