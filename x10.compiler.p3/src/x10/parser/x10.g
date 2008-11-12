@@ -1849,9 +1849,9 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    Primary ::= '[' ArgumentList ']'
+    Primary ::= '[' ArgumentListopt ']'
         /.$BeginJava
-                    Tuple tuple = nf.Tuple(pos(), ArgumentList);
+                    Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                     setResult(tuple);
           $EndJava
         ./
