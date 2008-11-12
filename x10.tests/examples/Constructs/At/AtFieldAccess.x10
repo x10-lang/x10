@@ -8,25 +8,25 @@
 import harness.x10Test;;
 
 /**
- * Testing an async spawned to a field access.
+ * Testing an at spawned to a field access.
  */
-public class AsyncFieldAccess extends x10Test {
+public class AtFieldAccess extends x10Test {
 
 	var t: T;
 	public def run(): boolean = {
 		var Second: Place = Place.FIRST_PLACE.next();
 		var r: Region = [0..0];
 		val D: Dist = r->Second;
-		finish ateach (val p: Point in D) {
+		for (val p: Point in D.region) {
 			val NewT: T = new T();
-			async (this.location) { t = NewT; }
+			at (D(p)) { t = NewT; }
 		}
-		finish async (t.location) { atomic t.i = 3; }
+		at (t) { t.i = 3; }
 		return 3 == (future(t) t.i).force();
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new AsyncFieldAccess().execute();
+		new AtFieldAccess().execute();
 	}
 
 	static class T {

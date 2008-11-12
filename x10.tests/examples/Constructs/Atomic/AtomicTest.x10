@@ -20,7 +20,7 @@ public class AtomicTest extends x10Test {
 
 	public def run(): boolean = {
 		var b: boolean; // temp
-		async(this) {
+		async(this.location) {
 			atomic {
 				startCount = val;
 				for (var i: int = 0; i < N; i++) val++;

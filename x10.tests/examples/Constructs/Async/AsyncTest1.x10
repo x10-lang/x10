@@ -18,7 +18,7 @@ public class AsyncTest1 extends x10Test {
 
 	var flag: boolean;
 	public def run(): boolean = {
-		async (this) { atomic { flag = true; } }
+		async (this.location) { atomic { flag = true; } }
 		var b: boolean;
 		do {
 			atomic { b = flag; }

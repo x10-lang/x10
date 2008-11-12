@@ -23,7 +23,7 @@ public class AtomicMethodTest extends x10Test {
 	}
 
 	public def run(): boolean = {
-		async(this) body();
+		async(this.location) body();
 		for (var i: long = 0; i < N*N; i++) {
 			var b: boolean; // temp
 			atomic { this.val = i; b = (endCount != 0); }

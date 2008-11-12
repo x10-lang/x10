@@ -24,7 +24,7 @@ abstract public class x10Test {
 	public def executeAsync(): void = {
 		val b: Rail[boolean] = [ false ]; // use a rail until we have shared locals working
 		try {
-			finish async(this) b(0) = this.run();
+			finish async(this.location) b(0) = this.run();
 		} catch (e: Throwable) {
 			e.printStackTrace();
 		}
