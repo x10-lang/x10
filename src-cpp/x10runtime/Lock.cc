@@ -12,6 +12,9 @@
 
 #include <Lock.h>
 #include <errno.h>
+#ifdef XRX_DEBUG
+#include <iostream>
+#endif /* XRX_DEBUG */
 
 namespace xrx_runtime {
 
@@ -95,7 +98,6 @@ Lock::getHoldCount()
 		 * times number of additional recursive locks
 		 */
 		#ifdef XRX_DEBUG
-			#include <iostream>
 			std::cerr << __func__;
 			for (int i = 0; i < 8; i++) {
 				std::cerr << " " << i << "," << __lock.__mt_word[i];
@@ -116,7 +118,6 @@ Lock::getHoldCount()
 		 * 9th element [index 8] contains additional recursive locks
 		 */
 		#ifdef XRX_DEBUG
-			#include <iostream>
 			std::cerr << __func__;
 			for (int i = 0; i < 13; i++) {
 				std::cerr << " " << i << "," << __lock.__mt_word[i];
