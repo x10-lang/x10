@@ -62,6 +62,50 @@ public class AnyRail<T> extends Value implements Indexable<Integer,T>, Fun_0_1<I
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
     
+    public Object[] getBoxedArray() {
+    	if (value instanceof boolean[]) {
+    		boolean[] a = (boolean[]) value;
+    		Boolean[] b = new Boolean[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof byte[]) {
+    		byte[] a = (byte[]) value;
+    		Byte[] b = new Byte[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof char[]) {
+    		char[] a = (char[]) value;
+    		Character[] b = new Character[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof short[]) {
+    		short[] a = (short[]) value;
+    		Short[] b = new Short[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof int[]) {
+    		int[] a = (int[]) value;
+    		Integer[] b = new Integer[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof long[]) {
+    		long[] a = (long[]) value;
+    		Long[] b = new Long[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof float[]) {
+    		float[] a = (float[]) value;
+    		Float[] b = new Float[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	if (value instanceof double[]) {
+    		double[] a = (double[]) value;
+    		Double[] b = new Double[a.length];
+    		for (int i = 0; i < a.length; i++) b[i] = a[i];
+    	}
+    	return (Object[]) value;
+    }
+
     public Integer length() {
     	return length;
     }
