@@ -12,7 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
-public abstract value class Rail[T](length: nat)
+public abstract class Rail[T](length: nat)
     implements Indexable[nat,T], Settable[nat,T], Iterable[T]
 {
     // need to declare a constructor to shut up the initialization checker
