@@ -16,7 +16,10 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.core.Value", "x10.core.Value.BoxedValue", null)
 public value Value {
+    @Native("java", "#0.equals(#1)")
     public native def equals(Object): boolean;
+
+    @Native("java", "#0.hashCode()")
     public native def hashCode(): int;
 
     @Native("java", "#0.toString()")
