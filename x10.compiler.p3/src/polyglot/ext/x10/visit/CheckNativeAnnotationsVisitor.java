@@ -23,6 +23,8 @@ import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Def;
+import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
@@ -125,7 +127,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         boolean classHasNativeRep = false;
         boolean defHasNativeImp = false;
         
-        if (n instanceof ClassMember)
+        if (! (n instanceof ClassMember))
             return n;
         
         X10ClassDef cd = (X10ClassDef) context.currentClassDef();
@@ -185,9 +187,9 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         	}
         }
         
-        if (isNative && nativeImps.get(theLanguage) != null && n instanceof X10MethodDecl)
+        if (isNative && nativeImps.get(theLanguage) == null && n instanceof X10MethodDecl)
         	throw new SemanticException("Native methods must have a @Native annotation for backend \"" + theLanguage + "\".", n.position());
-        	
+
         
 //        if (! nativeReps.isEmpty() && ! isNative && n instanceof X10MethodDecl) {
 //        	throw new SemanticException("Class with NativeRep annotation may contain only native methods.", n.position());
@@ -201,6 +203,11 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
 
         for (String lang : nativeReps.keySet()) {
         	if (! nativeImps.containsKey(lang) && n instanceof X10MethodDecl) {
+        	    X10MethodDecl md = (X10MethodDecl) n;
+        	    X10MethodDef def = (X10MethodDef) md.methodDef();
+        	    // HACK: ignore unary property methods -- there could be a native annotation on the property
+        	    if (X10Flags.toX10Flags(def.flags()).isProperty() && def.formalTypes().size() == 0)
+        	        continue;
         		throw new SemanticException("Methods of a class with NativeRep annotation must be annotated Native.", n.position());
         	}
         	if (! nativeImps.containsKey(lang) && n instanceof X10FieldDecl) {
