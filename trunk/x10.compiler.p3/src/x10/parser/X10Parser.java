@@ -2854,13 +2854,13 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }
      
             //
-            // Rule 191:  Primary ::= [ ArgumentList ]
+            // Rule 191:  Primary ::= [ ArgumentListopt ]
             //
             case 191: {
                 //#line 1852 "/Users/nystrom/work/x10/1.7rel2/x10.compiler.p3/src/x10/parser/x10.g"
-                List ArgumentList = (List) getRhsSym(2);
+                List ArgumentListopt = (List) getRhsSym(2);
                 //#line 1854 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-                Tuple tuple = nf.Tuple(pos(), ArgumentList);
+                Tuple tuple = nf.Tuple(pos(), ArgumentListopt);
                 setResult(tuple);
                 break;
             }
