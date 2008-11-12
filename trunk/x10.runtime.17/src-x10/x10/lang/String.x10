@@ -27,7 +27,7 @@ public final value String implements (nat) => Char {
     public native def toString(): String;
     
     @Native("java", "\"x10.lang.String\"")
-    public native def className():String;
+    public native def className(): String;
     
     @Native("java", "#0.length()")
     public native def length(): Int;
@@ -49,4 +49,10 @@ public final value String implements (nat) => Char {
     
     @Native("java", "#0.lastIndexOf(#1)")
     public native def lastIndexOf(Char): Int;
+
+    @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
+    public native static def format(fmt: String, Rail[Object]): String;
+    
+    @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
+    public native static def format(fmt: String, ValRail[Object]): String;
 }

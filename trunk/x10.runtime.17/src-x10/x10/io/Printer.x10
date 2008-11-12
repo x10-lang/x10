@@ -52,34 +52,14 @@ public class Printer extends FilterWriter {
         println();
     }
     
-    // DO NOT CALL: this is public only so @Native annotations in other packages can use it.
-    public static def getNative(w: Writer): OutputStreamWriter.OutputStream {
-        if (w instanceof OutputStreamWriter) {
-            return (w as OutputStreamWriter).stream();
-        }
-        else if (w instanceof FilterWriter) {
-            return getNative( (w as FilterWriter).inner() );
-        }
-        throw new IORuntimeException("Could not get native output stream");
-    }
+    public def printf(fmt: String): Void { printf(fmt, []); }
+    public def printf(fmt: String, o1: Object): Void { printf(fmt, [o1]); }
+    public def printf(fmt: String, o1: Object, o2: Object): Void { printf(fmt, [o1,o2]); }
+    public def printf(fmt: String, o1: Object, o2: Object, o3: Object): Void { printf(fmt, [o1,o2,o3]); }
+    public def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object): Void { printf(fmt, [o1,o2,o3,o4]); }
+    public def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object): Void { printf(fmt, [o1,o2,o3,o4,o5]); }
+    public def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object, o6: Object): Void { printf(fmt, [o1,o2,o3,o4,o5,o6]); }
     
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1)")
-    public incomplete def printf(fmt: String): Void;
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, #2)")
-    public incomplete def printf(fmt: String, o1: Object): Void;
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, #2, #3)")
-    public incomplete def printf(fmt: String, o1: Object, o2: Object): Void;
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, #2, #3, #4)")
-    public incomplete def printf(fmt: String, o1: Object, o2: Object, o3: Object): Void;
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, #2, #3, #4, #5)")
-    public incomplete def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object): Void;
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, #2, #3, #4, #5, #6)")
-    public incomplete def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object): Void;
-    
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, (Object[]) #2.getBackingArray())")
-    public incomplete def printf(fmt: String, args: Rail[Object]): Void;
-    
-    @Native("java", "new java.io.PrintStream(x10.io.Printer.getNative(#0)).printf(#1, (Object[]) #2.getBackingArray())")
-    public incomplete def printf(fmt: String, args: ValRail[Object]): Void;
-        
+    public def printf(fmt: String, args: Rail[Object]): Void { println(String.format(fmt, args)); }
+    public def printf(fmt: String, args: ValRail[Object]): Void { println(String.format(fmt, args)); }
 }
