@@ -16,8 +16,12 @@ import x10.io.Console;
 
 @NativeRep("java", "java.lang.Throwable", null, null)
 public value Throwable {
+    @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
 	val cause: Box[Throwable];
+
+    @Native("java", "#0.getMessage()")
     val message: String;
+
     public def this() = this("");
     public def this(message: String) {
     	super();
@@ -33,9 +37,6 @@ public value Throwable {
     
     @Native("java", "#0.getMessage()")
     public def getMessage() = message;
-    
-    @Native("java", "#0.getLocalizedMessage()")
-    public incomplete def getLocalizedMessage(): String;
     
     @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     public final def getCause(): Box[Throwable] = cause;
@@ -56,7 +57,6 @@ public value Throwable {
     	p.println("Stack trace unavailable. So cry your heart out.");
     }
     /*
-    public void printStackTrace(java.io.PrintWriter);
     public synchronized native java.lang.Throwable fillInStackTrace();
     public java.lang.StackTraceElement[] getStackTrace();
     public void setStackTrace(java.lang.StackTraceElement[]);
