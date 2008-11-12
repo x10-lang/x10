@@ -27,6 +27,7 @@ public class System {
         @Native("java", "java.lang.System.exit(-1)")
         public static native def exit():Void;
 
+        @Native("java", "java.lang.System.setProperty(#1,#2)")
         public static native def setProperty(p:String, v:String): void;
     }
     
