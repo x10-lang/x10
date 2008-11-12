@@ -47,10 +47,10 @@ public final class Math {
    public const E = 2.718281828459045D;
    public const PI = 3.141592653589793D;
    
-   public static def abs(a:Double)=NativeMath.abs(a);
-   public static def abs(a:Int)=NativeMath.abs(a);
-   public static def abs(a:Float)=NativeMath.abs(a);
-   public static def abs(a:Long)=NativeMath.abs(a);
+   public static def abs(a:Double):Double=NativeMath.abs(a);
+   public static def abs(a:Int):Int=NativeMath.abs(a);
+   public static def abs(a:Float):Float=NativeMath.abs(a);
+   public static def abs(a:Long):Long=NativeMath.abs(a);
    public static def pow(a:Double, b:Double)=NativeMath.pow(a,b);
    public static def exp(a:Double)=NativeMath.exp(a);
    public static def cos(a:Double)=NativeMath.cos(a);
