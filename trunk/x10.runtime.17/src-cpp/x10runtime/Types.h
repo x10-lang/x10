@@ -22,6 +22,12 @@ namespace xrx_runtime {
 	typedef int Int;
 	typedef long Long;
 
+	// execution thread condition & associated lock pair
+	typedef struct {
+		pthread_cond_t cond;
+		pthread_mutex_t mutex;
+	} cond_mutex_t;
+
 } /* closing brace for namespace xrx_runtime */
 
 #endif /* __XRX_TYPES_H */

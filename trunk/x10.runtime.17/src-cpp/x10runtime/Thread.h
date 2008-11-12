@@ -57,6 +57,17 @@ public:
 	void join(void);
 
 	/**
+	 * Tests if this thread is alive.
+	 * A thread is alive if it has been started and has not yet died.
+	 */
+	boolean isAlive();
+
+	/**
+	 * Interrupts this thread.
+	 */
+	void interrupt();
+
+	/**
 	 * If this thread was constructed using a separate Runnable
 	 * run object, then the Runnable objects' run method is called;
 	 * otherwise, this method does nothing and returns.
@@ -157,6 +168,10 @@ protected:
 	void thread_init(const Runnable *task, const String *name);
 	// Thread start routine.
 	static void *thread_start_routine(void *arg);
+	// Clean-up routine for sleep method call.
+	static void thread_sleep_cleanup(void *arg);
+	// Dummy interrupt handler.
+	static void intr_hndlr(int signo);
 
 private:
 	// the current place
@@ -165,7 +180,7 @@ private:
 	static Object *__current_activity;
 	// the current thread
 	static Thread *__current_thread;
-	// internal thread id counter
+	// internal thread id counter (monotonically increasing only)
 	static long __thread_cnt;
 	// thread id
 	long __thread_id;
@@ -178,8 +193,9 @@ private:
 	pthread_attr_t __xthread_attr;
 	// this thread's runnable object
 	Runnable *__thread_runobj;
-	// thread run flag
+	// thread run flags
 	boolean __thread_already_started;
+	boolean __thread_running;
 	// thread start condition & associated lock
 	pthread_cond_t __thread_start_cond;
 	pthread_mutex_t __thread_start_lock;

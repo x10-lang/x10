@@ -21,17 +21,21 @@ using namespace xrx_runtime;
 int main(int argc, char *argv[])
 {
 	Lock lock;
+	int nlocks = 5;
 
 
+	/*
 	if (argc != 2) {
 		cerr << "Usage: " << argv[0] << " nlocks" << endl;
 		exit(1);
 	}
-
-	int nlocks = std::atoi(argv[1]);
-	if (nlocks <= 0) {
-		cerr << argv[0] << ": number of locks should be positive!!" << endl;
-		exit(1);
+	*/
+	if (argc == 2) {
+		nlocks = std::atoi(argv[1]);
+		if (nlocks <= 0) {
+			cerr << argv[0] << ": number of locks should be positive!!" << endl;
+			exit(1);
+		}
 	}
 	int i = 0;
 
