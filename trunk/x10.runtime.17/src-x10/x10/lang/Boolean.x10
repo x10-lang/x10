@@ -15,7 +15,10 @@ import x10.compiler.NativeRep;
 public final value Boolean {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
+    @Native("java", "true")
     public const TRUE = true;
+
+    @Native("java", "false")
     public const FALSE = false;
 
     @Native("java", "java.lang.Boolean.toString(#0)")
