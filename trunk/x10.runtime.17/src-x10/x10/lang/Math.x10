@@ -16,19 +16,19 @@ public final class Math {
   @NativeRep("java", "java.lang.Math", null, null)
   static final class NativeMath {
    
-     @Native("java", "java.lang.Math.abs(#1)")
+     @Native("java", "java.lang.Math.abs((double) #1)")
      public static native def abs(a:Double):Double;
    
-     @Native("java", "java.lang.Math.abs(#1)")
+     @Native("java", "java.lang.Math.abs((int) #1)")
      public static native def abs(a:Int):Int;
    
-     @Native("java", "java.lang.Math.abs(#1)")
+     @Native("java", "java.lang.Math.abs((float) #1)")
      public static native def abs(a:Float):Float;
    
-     @Native("java", "java.lang.Math.abs(#1)")
+     @Native("java", "java.lang.Math.abs((long) #1)")
      public static native def abs(a:Long):Long;
    
-     @Native("java", "java.lang.Math.pow(#1,#2)")
+     @Native("java", "java.lang.Math.pow(#1,# 2)")
      public static native def pow(a:Double, b:Double):Double;
    
      @Native("java", "java.lang.Math.exp(#1)")
