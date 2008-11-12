@@ -148,27 +148,26 @@ public class Tuple_c extends Expr_c implements Tuple {
 	    }
 
 	    if (type == null) {
-		return type(ts.Null());
+	        type = ts.Object();
 	    }
-	    else {
-		Type r = ts.ValRail();
-		Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
-		XConstraint c = new XConstraint_c();
-		FieldInstance lengthField = ((X10ClassType) t).fieldNamed(Name.make("length"));
-		if (lengthField == null)
-		    throw new InternalCompilerError("Could not find length field of " + t, position());
-		try {
-		    XVar selfLength = ts.xtypeTranslator().trans(c, c.self(), lengthField);
-		    XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
-		    c.addBinding(selfLength, sizeLiteral);
-		    c.toString();
-    		    t = X10TypeMixin.xclause(t, c);
-		}
-		catch (XFailure e) {
-		    throw new SemanticException(e);
-		}
-		return type(t);
+
+	    Type r = ts.ValRail();
+	    Type t = (X10ClassType) X10TypeMixin.instantiate(r, type);
+	    XConstraint c = new XConstraint_c();
+	    FieldInstance lengthField = ((X10ClassType) t).fieldNamed(Name.make("length"));
+	    if (lengthField == null)
+	        throw new InternalCompilerError("Could not find length field of " + t, position());
+	    try {
+	        XVar selfLength = ts.xtypeTranslator().trans(c, c.self(), lengthField);
+	        XLit sizeLiteral = ts.xtypeTranslator().trans(elements.size());
+	        c.addBinding(selfLength, sizeLiteral);
+	        c.toString();
+	        t = X10TypeMixin.xclause(t, c);
 	    }
+	    catch (XFailure e) {
+	        throw new SemanticException(e);
+	    }
+	    return type(t);
 	}
 
 	@Override
