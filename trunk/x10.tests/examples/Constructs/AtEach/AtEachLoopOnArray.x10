@@ -21,7 +21,7 @@ public class AtEachLoopOnArray extends x10Test {
 
 		finish ateach (val (i): Point in A)
                         if (A(i) != i)
-				async (this) atomic { success = false; }
+				async (this.location) atomic { success = false; }
 
 		return success;
 	}

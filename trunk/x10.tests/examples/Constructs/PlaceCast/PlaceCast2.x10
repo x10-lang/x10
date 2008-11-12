@@ -21,7 +21,7 @@ public class PlaceCast2 extends x10Test {
 			// at any activity at any place
 			try {
 				var x: BoxedBoolean = disagree(p) as BoxedBoolean!d(p);
-				async(this) { atomic { nplaces++; } }
+				async(this.location) { atomic { nplaces++; } }
 			} catch (x: BadPlaceException)  {
 				System.out.println("Caught bad place exception for " + p);
 			}

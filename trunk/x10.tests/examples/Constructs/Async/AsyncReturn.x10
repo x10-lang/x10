@@ -24,7 +24,7 @@ public class AsyncReturn extends x10Test {
 		finish async {
 			if (v == 1)
 				return;
-			async (f) {
+			async (f.location) {
 				atomic {
 					f.t = 2;
 				}

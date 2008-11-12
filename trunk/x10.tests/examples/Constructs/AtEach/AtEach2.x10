@@ -22,7 +22,7 @@ public class AtEach2 extends x10Test {
             // remember if here and d[i] disagree
             // at any activity at any place
             chk(here == d(p));
-            async(this) { atomic { /*this.*/nplaces++; } } //FIXME this hack
+            async(this.location) { atomic { /*this.*/nplaces++; } } //FIXME this hack
         }
         // ensure that an activity ran in each place
         return nplaces == Place.MAX_PLACES;
