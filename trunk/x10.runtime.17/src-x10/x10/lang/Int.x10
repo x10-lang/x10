@@ -12,13 +12,18 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Type.INT")
+//                  v-- when used
+@NativeRep("c++", "x10_int", null, null)
+//                            ^ when constructed
 public final value Int implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
     @Native("java", "java.lang.Integer.MIN_VALUE")
+    @Native("c++", "0x80000000")
     public const MIN_VALUE = 0x80000000;
     
     @Native("java", "java.lang.Integer.MAX_VALUE")
+    @Native("c++", "0x7fffffff")
     public const MAX_VALUE = 0x7fffffff;
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
