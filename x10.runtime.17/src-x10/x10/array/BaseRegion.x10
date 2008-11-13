@@ -134,11 +134,11 @@ abstract public value class BaseRegion extends Region {
     // B should be Box[Region] - workaround for XTENLANG-117
     //
 
-    protected class B(b:Region) {
+    protected static class B(b:Region) {
         def this(b:Region) = property(b);
     }
 
-    protected class BB {
+    protected static class BB {
         var b:B = null;
     }        
 
