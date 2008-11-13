@@ -38,6 +38,7 @@ value class UnionRegion extends BaseRegion {
     protected def this(rs: PolyRegionListBuilder): UnionRegion(rs.rank) {
         super(rs.rank, false, false);
         this.regions = (rs as PolyRegionListBuilder(rank)).toValRail();
+        cache = new Cache(this);
     }
 
     static def make(rs: PolyRegionListBuilder): Region(rs.rank) {
@@ -153,25 +154,28 @@ value class UnionRegion extends BaseRegion {
     //
     //
 
+    val cache:Cache;
+
     public def boundingBox(): Region(rank) {
-        if (boundingBox.b==null) {
-            val min = Rail.makeVar[int](rank);
-            val max = Rail.makeVar[int](rank);
-            for (var axis: int = 0; axis<rank; axis++)
-                min(axis) = int.MAX_VALUE;
-            for (var axis: int = 0; axis<rank; axis++)
-                max(axis) = int.MIN_VALUE;
-            for (r:Region in regions) {
-                val rmin = r.min();
-                val rmax = r.max();
-                for (var axis: int = 0; axis<rank; axis++) {
-                    if (rmin(axis)<min(axis)) min(axis) = rmin(axis);
-                    if (rmax(axis)>max(axis)) max(axis) = rmax(axis);
-                }
+        return cache.boundingBox() as Region(rank); // XXXX
+    }
+
+    protected def computeBoundingBox(): Region(rank) {
+        val min = Rail.makeVar[int](rank);
+        val max = Rail.makeVar[int](rank);
+        for (var axis: int = 0; axis<rank; axis++)
+            min(axis) = int.MAX_VALUE;
+        for (var axis: int = 0; axis<rank; axis++)
+            max(axis) = int.MIN_VALUE;
+        for (r:Region in regions) {
+            val rmin = r.min();
+            val rmax = r.max();
+            for (var axis: int = 0; axis<rank; axis++) {
+                if (rmin(axis)<min(axis)) min(axis) = rmin(axis);
+                if (rmax(axis)>max(axis)) max(axis) = rmax(axis);
             }
-            boundingBox.b = new B(Region.makeRectangular(min, max));
         }
-        return boundingBox.b.b as Region(rank);
+        return Region.makeRectangular(min, max);
     }
 
     public def min(): ValRail[int] {

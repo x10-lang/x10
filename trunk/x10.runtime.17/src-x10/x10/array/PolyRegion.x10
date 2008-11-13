@@ -290,22 +290,25 @@ value class PolyRegion extends BaseRegion {
      * projection on each axis because it re-uses the FME results.
      */
 
+    val cache:Cache;
+
     public def boundingBox(): Region(rank) {
-        if (boundingBox.b==null) {
-            val min = Rail.makeVar[int](rank);
-            val max = Rail.makeVar[int](rank);
-            var hl: HalfspaceList = halfspaces;
-            for (var axis: int = 0; axis<rank; axis++) {
-                var x: HalfspaceList = hl;
-                for (var k: int = axis+1; k<rank; k++)
-                    x = x.eliminate(k, true);
-                min(axis) = x.rectMin(axis);
-                max(axis) = x.rectMax(axis);
-                hl = hl.eliminate(axis, true);
-            }
-            boundingBox.b = new B(Region.makeRectangular(min, max));
+        return cache.boundingBox() as Region(rank); // XXXX
+    }
+
+    protected def computeBoundingBox(): Region(rank) {
+        val min = Rail.makeVar[int](rank);
+        val max = Rail.makeVar[int](rank);
+        var hl: HalfspaceList = halfspaces;
+        for (var axis: int = 0; axis<rank; axis++) {
+            var x: HalfspaceList = hl;
+            for (var k: int = axis+1; k<rank; k++)
+                x = x.eliminate(k, true);
+            min(axis) = x.rectMin(axis);
+            max(axis) = x.rectMax(axis);
+            hl = hl.eliminate(axis, true);
         }
-        return boundingBox.b.b as Region(rank);
+        return Region.makeRectangular(min, max);
     }
 
 
@@ -396,6 +399,9 @@ value class PolyRegion extends BaseRegion {
         // simplifyAll catches more (all) stuff, but may be expensive.
         //this.halfspaces = hl.simplifyParallel();
         this.halfspaces = hl.simplifyAll();
+
+        // cache stuff up front
+        cache = new Cache(this);
     }
 
     public def min(): ValRail[int] {
