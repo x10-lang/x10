@@ -14,8 +14,6 @@ package x10.runtime;
 public value Clock_c extends Clock {
 	private val state = new ClockState();
 	
-    private static def abs(z:Int):Int = z < 0 ? -z : z;
-
 	public def this(name:String) {
 		super(name);
     	Runtime.clockPhases().put(this, ClockState.FIRST_PHASE);
@@ -38,7 +36,7 @@ public value Clock_c extends Clock {
     	next_c();
     }    
 
-    public def phase():Int = abs(phase_c());
+    public def phase():Int = Math.abs(phase_c());
     
     public def drop():Void {
     	if (dropped()) throw new ClockUseException();
@@ -65,7 +63,7 @@ public value Clock_c extends Clock {
     def next_c():Void {
     	val ph = ph_c();
 		finish async (state.location) state.next(ph);
-    	Runtime.clockPhases().put(this, abs(ph) + 1);
+    	Runtime.clockPhases().put(this, Math.abs(ph) + 1);
     }    
 
     def phase_c():Int { 
