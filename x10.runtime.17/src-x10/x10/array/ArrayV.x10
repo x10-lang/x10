@@ -29,22 +29,22 @@ final value class ArrayV[T] extends BaseArray[T] {
     //
 
     final public def apply(i0: int): T {
-        checkBounds(i0);
+        if (checkBounds) checkBounds(i0);
         return raw(layout.offset(i0));
     }
 
     final public def apply(i0: int, i1: int): T {
-        checkBounds(i0, i1);
+        if (checkBounds) checkBounds(i0, i1);
         return raw(layout.offset(i0,i1));
     }
 
     final public def apply(i0: int, i1: int, i2: int): T {
-        checkBounds(i0, i1, i2);
+        if (checkBounds) checkBounds(i0, i1, i2);
         return raw(layout.offset(i0,i1,i2));
     }
 
     final public def apply(i0: int, i1: int, i2: int, i3: int): T {
-        checkBounds(i0, i1, i2, i3);
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
         return raw(layout.offset(i0,i1,i2,i3));
     }
 
