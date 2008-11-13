@@ -10,6 +10,7 @@ package polyglot.ext.x10.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -50,6 +51,8 @@ import polyglot.types.NullType;
 import polyglot.types.ObjectType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.PrimitiveType;
+import polyglot.types.ProcedureDef;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -655,6 +658,72 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return acceptable;
 	}
 	
+	protected static class X10MostSpecificComparator<S extends ProcedureDef, T extends ProcedureInstance<S>> extends MostSpecificComparator<S,T> {
+	    private Matcher<T> matcher;
+	    
+	    protected X10MostSpecificComparator(Matcher<T> matcher) {
+	        this.matcher = matcher;
+	    }
+	    
+	    public int compare(T p1, T p2) {
+	        int cmp = super.compare(p1, p2);
+	        if (cmp == 0)
+	            return 0;
+
+	        boolean old = true;
+	        try {
+	            T m1 = null;
+	            T m2 = null;
+	            
+	            if (matcher instanceof X10ConstructorMatcher) {
+	                old = ((X10ConstructorMatcher) matcher).tryCoercionFunction;
+	                ((X10ConstructorMatcher) matcher).tryCoercionFunction = false;
+	            }
+	            if (matcher instanceof X10MethodMatcher) {
+	                old = ((X10MethodMatcher) matcher).tryCoercionFunction;
+	                ((X10MethodMatcher) matcher).tryCoercionFunction = false;
+	            }
+
+	            try {
+	                m1 = matcher.instantiate(p1);
+	            }
+	            catch (SemanticException e) {
+	            }
+
+	            try {
+	                m2 = matcher.instantiate(p2);
+	            }
+	            catch (SemanticException e) {
+	            }
+	            
+	            if (m1 == null && m2 == null)
+	                // Both need a coercion.
+	                return cmp;
+	            if (m1 == null)
+	                // p1 needs a coercion, p2 does not => p2 is more precise.
+	                return 1;
+	            if (m2 == null)
+	                // p2 needs a coercion, p1 does not => p1 is more precise.
+	                return -1;
+	        }
+	        finally {
+	            if (matcher instanceof X10ConstructorMatcher) {
+	                ((X10ConstructorMatcher) matcher).tryCoercionFunction = old;
+	            }
+	            if (matcher instanceof X10MethodMatcher) {
+	                ((X10MethodMatcher) matcher).tryCoercionFunction = old;
+	            }
+	        }
+
+	        return cmp;
+	    }
+        }
+
+        @Override
+        protected <S extends ProcedureDef, T extends ProcedureInstance<S>> Comparator< T> mostSpecificComparator(Matcher<T> matcher) {
+            return new X10MostSpecificComparator<S,T>(matcher);
+        }
+
 	public MacroType findTypeDef(Type container, TypeDefMatcher matcher, ClassDef currClass) throws SemanticException {
 		List<MacroType> acceptable = findAcceptableTypeDefs(container, matcher, currClass);
 		
@@ -666,7 +735,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		}
 		
 		Collection<MacroType> maximal =
-			findMostSpecificProcedures(acceptable);
+			findMostSpecificProcedures(acceptable, (Matcher) matcher);
 		
 		if (maximal.size() > 1) {
 			StringBuffer sb = new StringBuffer();
@@ -3121,6 +3190,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	public static class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
 	    List<Type> typeArgs;
+	    boolean tryCoercionFunction;
 	    
 	    private X10ConstructorMatcher(Type container, List<Type> argTypes) {
 		this(container, Collections.EMPTY_LIST, argTypes);
@@ -3128,6 +3198,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    private X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes) {
 		super(container, argTypes);
 		this.typeArgs = typeArgs;
+		this.tryCoercionFunction = true;
 	    }
 	    
 	    @Override
@@ -3143,7 +3214,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
 		    Type c = container != null ? container : xmi.container();
 		    if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, true);
+			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, tryCoercionFunction);
 		}
 		return null;
 	    }
