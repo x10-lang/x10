@@ -675,11 +675,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
                 List<Type> actuals = null;
                 
-                if (matcher instanceof X10ConstructorMatcher) {
-                    actuals = ((X10ConstructorMatcher) matcher).arguments();
+                if (((Matcher) matcher) instanceof X10ConstructorMatcher) {
+                    actuals = ((X10ConstructorMatcher) (Matcher) matcher).arguments();
                 }
-                if (matcher instanceof X10MethodMatcher) {
-                    actuals = ((X10MethodMatcher) matcher).arguments();
+                if (((Matcher) matcher) instanceof X10MethodMatcher) {
+                    actuals = ((X10MethodMatcher) (Matcher) matcher).arguments();
                 }
                 
                 // Check if conversions are needed.
