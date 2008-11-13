@@ -53,6 +53,7 @@ public abstract class Reader {
     }
 
     public def read[T](m: Marshal[T], a: Array[T], region: Region{rank==a.rank}/*{self in a.region}*/): Void throws IOException {
+/* FIXME: commented out by Dave Cunningham as it breaks the c++ backend!
         try {
             finish for (p: Point{rank==a.rank} in region) {
                 async (a.dist(p)) {
@@ -68,6 +69,7 @@ public abstract class Reader {
         catch (e: MultipleExceptions) {
             throw new IOException();
         }
+*/
     }
      
     public def lines(): ReaderIterator[String] = new ReaderIterator[String](Marshal.LINE, this);
