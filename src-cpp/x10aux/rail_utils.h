@@ -1,6 +1,8 @@
 #ifndef X10AUX_RAIL_UTIL_H
 #define X10AUX_RAIL_UTIL_H
 
+#include <stdarg.h>
+
 #include <x10/lang/Value.h>
 #include <x10/lang/String.h>
 
