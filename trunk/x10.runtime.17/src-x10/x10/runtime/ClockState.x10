@@ -31,13 +31,8 @@ class ClockState {
 	}
 	
 	def next(ph:Int):Void {
-		val abs:Int;
-		if (ph < 0) {
-			abs = -ph; 
-		} else {
-			resume();
-			abs = ph;
-		}
+		if (ph > 0) resume();
+		val abs = Math.abs(ph);
 		await (abs < phase);
 	}
 
