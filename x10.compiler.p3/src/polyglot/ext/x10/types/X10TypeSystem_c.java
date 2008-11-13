@@ -672,37 +672,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	        boolean old = true;
 	        try {
-	            T m1 = null;
-	            T m2 = null;
+	            boolean convert1 = false;
+	            boolean convert2 = false;
+
+	            List<Type> actuals = null;
 	            
 	            if (matcher instanceof X10ConstructorMatcher) {
-	                old = ((X10ConstructorMatcher) matcher).tryCoercionFunction;
-	                ((X10ConstructorMatcher) matcher).tryCoercionFunction = false;
+	                actuals =
+	                ((X10ConstructorMatcher) matcher).arguments();
 	            }
 	            if (matcher instanceof X10MethodMatcher) {
-	                old = ((X10MethodMatcher) matcher).tryCoercionFunction;
-	                ((X10MethodMatcher) matcher).tryCoercionFunction = false;
-	            }
-
-	            try {
-	                m1 = matcher.instantiate(p1);
-	            }
-	            catch (SemanticException e) {
-	            }
-
-	            try {
-	                m2 = matcher.instantiate(p2);
-	            }
-	            catch (SemanticException e) {
+	                actuals =
+	                    ((X10MethodMatcher) matcher).arguments();
 	            }
 	            
-	            if (m1 == null && m2 == null)
+	            // Check if conversions are needed.
+	            
+	            for (int i = 0; i < p1.formalTypes().size(); i++) {
+	                Type t0 = actuals.get(i);
+	                Type t1 = p1.formalTypes().get(i);
+	                Type t2 = p2.formalTypes().get(i);
+	                if (! t0.isSubtype(t1)) {
+	                    convert1 = true;
+	                }
+	                if (! t0.isSubtype(t2)) {
+	                    convert2 = true;
+	                }
+	            }
+	            
+	            if (convert1 && convert2)
 	                // Both need a coercion.
 	                return cmp;
-	            if (m1 == null)
+	            if (convert1)
 	                // p1 needs a coercion, p2 does not => p2 is more precise.
 	                return 1;
-	            if (m2 == null)
+	            if (convert2)
 	                // p2 needs a coercion, p1 does not => p1 is more precise.
 	                return -1;
 	        }
@@ -3137,7 +3141,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    private X10MethodMatcher(Type container, Name name, List<Type> argTypes, boolean tryCoercionFunction) {
 		this(container, name, Collections.EMPTY_LIST, argTypes, tryCoercionFunction);
 	    }
-	    private X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, boolean tryCoercionFunction) {
+            public List<Type> arguments() {
+                return argTypes;
+            }
+        private X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, boolean tryCoercionFunction) {
 		super(container, name, argTypes);
 		this.typeArgs = typeArgs;
 		this.tryCoercionFunction = tryCoercionFunction;
@@ -3195,7 +3202,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    private X10ConstructorMatcher(Type container, List<Type> argTypes) {
 		this(container, Collections.EMPTY_LIST, argTypes);
 	    }
-	    private X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes) {
+	    public List<Type> arguments() {
+	        return argTypes;
+	    }
+        private X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes) {
 		super(container, argTypes);
 		this.typeArgs = typeArgs;
 		this.tryCoercionFunction = true;
