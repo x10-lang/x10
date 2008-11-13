@@ -443,8 +443,8 @@ public void handleMessage(int errorCode, int[] msgLocation,
                   leftToken.getLine(), leftToken.getColumn(),
                   rightToken.getEndLine(), rightToken.getEndColumn(),
                   leftToken.getStartOffset(), rightToken.getEndOffset());
-            this.leftIToken = null;
-            this.rightIToken = null;
+            this.leftIToken = null; // BRT -- was null, need to keep leftToken for later reference
+            this.rightIToken = null;  // BRT -- was null, need to keep rightToken for later reference
         }
 
         public IToken getLeftIToken() { return leftIToken; }
@@ -452,7 +452,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
 
         public String toText()
         {
-        if (true) return "...";
+            if (leftIToken == null) return "...";
             IPrsStream prsStream = leftIToken.getPrsStream();
             return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
         }
