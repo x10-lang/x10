@@ -18,29 +18,20 @@ package x10.array;
 
 final value class ArrayN[T] extends BaseArray[T] {
 
-    //
-    // Work around compiler issue XTENLANG-17
-    // Rail[Rail[T]] is not supported
-    // XXX this is performance-critical code
-    //
+    //private val raws: Rail[Rail[T]];
+    //private val layouts: Rail[RectLayout];
 
-    class RailT {
-        var r: Rail[T];
-        def this(n:int) {
-            r = Rail.makeVar[T](n);
-        }
-        public def toString() = "RailT"; // XTENLANG-89
-    }
-
-    private val raws: Rail[RailT];
-    private val layouts: Rail[RectLayout];
+    private val raws: PlaceLocal[Rail[T]];
+    private val layouts: PlaceLocal[RectLayout];
 
     final protected def raw(): Rail[T] {
-        return raws(here.id).r;
+        //return raws(here.id);
+        return raws();
     }
 
     final protected def layout(): RectLayout {
-        return layouts(here.id);
+        //return layouts(here.id);
+        return layouts();
     }
 
     //
@@ -49,22 +40,22 @@ final value class ArrayN[T] extends BaseArray[T] {
     //
 
     final public def apply(i0: int): T {
-        checkBounds(i0);
+        if (checkBounds) checkBounds(i0);
         return raw()(layout().offset(i0));
     }
 
     final public def apply(i0: int, i1: int): T {
-        checkBounds(i0, i1);
+        if (checkBounds) checkBounds(i0, i1);
         return raw()(layout().offset(i0,i1));
     }
 
     final public def apply(i0: int, i1: int, i2: int): T {
-        checkBounds(i0, i1, i2);
+        if (checkBounds) checkBounds(i0, i1, i2);
         return raw()(layout().offset(i0,i1,i2));
     }
 
     final public def apply(i0: int, i1: int, i2: int, i3: int): T {
-        checkBounds(i0, i1, i2, i3);
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
         return raw()(layout().offset(i0,i1,i2,i3));
     }
 
@@ -75,25 +66,25 @@ final value class ArrayN[T] extends BaseArray[T] {
     //
 
     final public def set(v: T, i0: int): T {
-        checkBounds(i0);
+        if (checkBounds) checkBounds(i0);
         raw()(layout().offset(i0)) = v;
         return v;
     }
 
     final public def set(v: T, i0: int, i1: int): T {
-        checkBounds(i0, i1);
+        if (checkBounds) checkBounds(i0, i1);
         raw()(layout().offset(i0,i1)) = v;
         return v;
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int): T {
-        checkBounds(i0, i1, i2);
+        if (checkBounds) checkBounds(i0, i1, i2);
         raw()(layout().offset(i0,i1,i2)) = v;
         return v;
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
-        checkBounds(i0, i1, i2, i3);
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
         raw()(layout().offset(i0,i1,i2,i3)) = v;
         return v;
     }
@@ -103,33 +94,26 @@ final value class ArrayN[T] extends BaseArray[T] {
     //
     //
 
-    incomplete def complain(): void;
-
-    def this(val dist: Dist, val init: (Point)=>T): ArrayN[T]{self.dist==dist} {
+    def this(dist: Dist, val init: (Point)=>T): ArrayN[T]{self.dist==dist} {
 
         super(dist);
 
-        raws = Rail.makeVar[RailT](Place.MAX_PLACES);
-        layouts = Rail.makeVar[RectLayout](Place.MAX_PLACES);
+        // compute per-place layout
+        val layoutInit = ()=>layout(dist.get(here));
+        layouts = PlaceLocal.make[RectLayout](dist.places(), layoutInit);
+            
+        // compute per-place raw storage
+        val rawInit = ()=>{
+            val layout = layouts();
+            val n = layout.size();
+            val raw = Rail.makeVar[T](n);
+            if (init!=null)
+                for (p:Point in dist.get(here))
+                    raw(layout.offset(p)) = init(p);
+            return raw;
+        };
+        raws = PlaceLocal.make[Rail[T]](dist.places(), rawInit);
 
-        // XXX do we really need to do this at all places?
-
-        finish {
-            for (p:Place in Place.places) {
-                async (p) {
-                    val r: Region = dist.get(here);
-                    val layout: RectLayout = layout(r);
-                    layouts(here.id) = layout;
-                    val n = layout.size();
-                    val raw: RailT = new RailT(n);
-                    raws(here.id) = raw;
-                    if (init!=null) {
-                        for (p:Point in r)
-                            raw.r(layout.offset(p)) = init(p);
-                    }
-                }
-            }
-        }
     }
 
 
@@ -141,23 +125,14 @@ final value class ArrayN[T] extends BaseArray[T] {
         return new ArrayN[T](this, d);
     }
 
-    def this(val a: ArrayN[T], d: Dist) {
+    def this(a: ArrayN[T], d: Dist) {
 
         super(d);
 
-        raws = Rail.makeVar[RailT](Place.MAX_PLACES);
-        layouts = Rail.makeVar[RectLayout](Place.MAX_PLACES);
+        val ps = dist.places();
+        layouts = PlaceLocal.make[RectLayout](ps, a.layouts);
+        raws = PlaceLocal.make[Rail[T]](ps, a.raws);
 
-        // XXX do we really need to do this at all places?
-
-        finish {
-            for (p:Place in Place.places) {
-                async (p) {
-                    this.layouts(here.id) = a.layouts(here.id);
-                    this.raws(here.id) = a.raws(here.id);
-                }
-            }
-        }
     }
 
 }
