@@ -40,15 +40,15 @@ import polyglot.visit.NodeVisitor;
  * Visitor that checks @Native and @NativeRep annotations.
  */
 public class CheckNativeAnnotationsVisitor extends ContextVisitor {
-	String theLanguage;
-	
+    String theLanguage;
+
     public CheckNativeAnnotationsVisitor(Job job, TypeSystem ts, NodeFactory nf, String theLanguage) {
         super(job, ts, nf);
         this.theLanguage = theLanguage;
     }
 
     public Map<String, String> getNativeRepParam(X10ClassDef def, int i) {
-    	Map<String,String> map = new HashMap<String, String>();
+        Map<String,String> map = new HashMap<String, String>();
         try {
             X10TypeSystem xts = (X10TypeSystem) this.typeSystem();
             Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
@@ -67,17 +67,17 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
     }
 
     public Map<String, String> getNativeRep(X10ClassDef def) {
-    	return getNativeRepParam(def, 1);
+        return getNativeRepParam(def, 1);
     }
-    
+
     public Map<String, String> getNativeBoxedRep(X10ClassDef def) {
-    	return getNativeRepParam(def, 2);
+        return getNativeRepParam(def, 2);
     }
-    
+
     public Map<String, String> getNativeRTTRep(X10ClassDef def) {
-    	return getNativeRepParam(def, 3);
+        return getNativeRepParam(def, 3);
     }
-    
+
     String getPropertyInit(Type at, int index) throws SemanticException {
         at = X10TypeMixin.baseType(at);
         if (at instanceof X10ClassType) {
@@ -85,7 +85,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
             if (index < act.propertyInitializers().size()) {
                 Expr e = act.propertyInitializer(index);
                 if (e.isConstant() && e.constantValue() instanceof String) {
-                	return (String) e.constantValue();
+                    return (String) e.constantValue();
                 }
                 else {
                     throw new SemanticException("Property initializer for @" + at + " must be a string literal.");
@@ -104,7 +104,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
     }
 
     Map<String,String> getNativeImplForDef(X10Def o) {
-    	Map<String,String> map = new HashMap<String, String>();
+        Map<String,String> map = new HashMap<String, String>();
         X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
         try {
             Type java = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
@@ -126,21 +126,21 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         boolean isNative = false;
         boolean classHasNativeRep = false;
         boolean defHasNativeImp = false;
-        
+
         if (! (n instanceof ClassMember))
             return n;
-        
+
         X10ClassDef cd = (X10ClassDef) context.currentClassDef();
-        
+
         if (cd == null)
             return n;
-        
+
         Map<String,String> nativeReps = getNativeRep(cd);
         Map<String,String> nativeImps = Collections.EMPTY_MAP;
-        
+
         if (! nativeReps.isEmpty())
             classHasNativeRep = true;
-        
+
         if (n instanceof X10MethodDecl) {
             X10MethodDecl md = (X10MethodDecl) n;
             X10Def def = (X10Def) md.methodDef();
@@ -148,7 +148,7 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
                 isNative = true;
             nativeImps = getNativeImplForDef(def);
         }
-        
+
         if (n instanceof X10ConstructorDecl) {
             X10ConstructorDecl xd = (X10ConstructorDecl) n;
             X10Def def = (X10Def) xd.constructorDef();
@@ -164,59 +164,59 @@ public class CheckNativeAnnotationsVisitor extends ContextVisitor {
         }
 
         if (n instanceof X10ClassDecl) {
-        	for (String lang : nativeReps.keySet()) {
-        		{
-        			Type t = cd.asType().superClass();
-        			if (t != null) {
-        				X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
-        				X10ClassDef sd = ct.x10Def();
-        				Map<String, String> map = getNativeRep(sd);
-        				if (!map.containsKey(lang)) {
-        					throw new SemanticException("Class with NativeRep annotation may only extend classes with NativeRep.", n.position());
-        				}
-        			}
-        		}
-        		for (Type t : cd.asType().interfaces()) {
-        			X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
-        			X10ClassDef sd = ct.x10Def();
-        			Map<String,String> map = getNativeRep(sd);
-        			if (! map.containsKey(lang)) {
-        				throw new SemanticException("Class with NativeRep annotation may only implement interfaces with NativeRep.", n.position());
-        			}
-        		}
-        	}
+            if (nativeReps.containsKey(theLanguage)) {
+                {
+                    Type t = cd.asType().superClass();
+                    if (t != null) {
+                        X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
+                        X10ClassDef sd = ct.x10Def();
+                        Map<String, String> map = getNativeRep(sd);
+                        if (!map.containsKey(theLanguage)) {
+                            throw new SemanticException("Class with NativeRep annotation may only extend classes with NativeRep.", n.position());
+                        }
+                    }
+                }
+                for (Type t : cd.asType().interfaces()) {
+                    X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
+                    X10ClassDef sd = ct.x10Def();
+                    Map<String,String> map = getNativeRep(sd);
+                    if (! map.containsKey(theLanguage)) {
+                        throw new SemanticException("Class with NativeRep annotation may only implement interfaces with NativeRep.", n.position());
+                    }
+                }
+            }
         }
-        
+
         if (isNative && nativeImps.get(theLanguage) == null && n instanceof X10MethodDecl)
-        	throw new SemanticException("Native methods must have a @Native annotation for backend \"" + theLanguage + "\".", n.position());
+            throw new SemanticException("Native methods must have a @Native annotation for backend \"" + theLanguage + "\".", n.position());
 
-        
-//        if (! nativeReps.isEmpty() && ! isNative && n instanceof X10MethodDecl) {
-//        	throw new SemanticException("Class with NativeRep annotation may contain only native methods.", n.position());
-//        }
-//        if (! nativeReps.isEmpty() && ! isNative && n instanceof X10ConstructorDecl) {
-//        	throw new SemanticException("Class with NativeRep annotation may contain only native constructors.", n.position());
-//        }
-//        if (! nativeImps.isEmpty() && ! isNative && n instanceof X10MethodDecl) {
-//        	throw new SemanticException("Method with Native annotation must be declared native.");
-//        }
+        //        if (! nativeReps.isEmpty() && ! isNative && n instanceof X10MethodDecl) {
+        //        	throw new SemanticException("Class with NativeRep annotation may contain only native methods.", n.position());
+        //        }
+        //        if (! nativeReps.isEmpty() && ! isNative && n instanceof X10ConstructorDecl) {
+        //        	throw new SemanticException("Class with NativeRep annotation may contain only native constructors.", n.position());
+        //        }
+        //        if (! nativeImps.isEmpty() && ! isNative && n instanceof X10MethodDecl) {
+        //        	throw new SemanticException("Method with Native annotation must be declared native.");
+        //        }
 
-        for (String lang : nativeReps.keySet()) {
-        	if (! nativeImps.containsKey(lang) && n instanceof X10MethodDecl) {
-        	    X10MethodDecl md = (X10MethodDecl) n;
-        	    X10MethodDef def = (X10MethodDef) md.methodDef();
-        	    // HACK: ignore unary property methods -- there could be a native annotation on the property
-        	    if (X10Flags.toX10Flags(def.flags()).isProperty() && def.formalTypes().size() == 0)
-        	        continue;
-        		throw new SemanticException("Methods of a class with NativeRep annotation must be annotated Native.", n.position());
-        	}
-        	if (! nativeImps.containsKey(lang) && n instanceof X10FieldDecl) {
-        		throw new SemanticException("Fields of a class with NativeRep annotation must be annotated Native.", n.position());
-        	}
+        if (nativeReps.containsKey(theLanguage)) {
+            if (! nativeImps.containsKey(theLanguage) && n instanceof X10MethodDecl) {
+                X10MethodDecl md = (X10MethodDecl) n;
+                X10MethodDef def = (X10MethodDef) md.methodDef();
+                // HACK: ignore unary property methods -- there could be a native annotation on the property
+                if (X10Flags.toX10Flags(def.flags()).isProperty() && def.formalTypes().size() == 0)
+                    ;
+                else
+                    throw new SemanticException("Methods of a class with NativeRep annotation must be annotated Native.", n.position());
+            }
+            if (! nativeImps.containsKey(theLanguage) && n instanceof X10FieldDecl) {
+                throw new SemanticException("Fields of a class with NativeRep annotation must be annotated Native.", n.position());
+            }
         }
-        
+
         if (! nativeImps.isEmpty() && n instanceof X10ConstructorDecl) {
-        	throw new SemanticException("Constructors may not have Native annotations.");
+            throw new SemanticException("Constructors may not have Native annotations.");
         }
 
         return n;
