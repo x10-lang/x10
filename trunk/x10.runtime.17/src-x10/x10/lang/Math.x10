@@ -28,7 +28,7 @@ public final class Math {
      @Native("java", "java.lang.Math.abs((long) #1)")
      public static native def abs(a:Long):Long;
    
-     @Native("java", "java.lang.Math.pow(#1,# 2)")
+     @Native("java", "java.lang.Math.pow(#1, #2)")
      public static native def pow(a:Double, b:Double):Double;
    
      @Native("java", "java.lang.Math.exp(#1)")
