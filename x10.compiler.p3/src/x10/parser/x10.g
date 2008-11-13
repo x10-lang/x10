@@ -439,8 +439,8 @@ public static class MessageHandler implements IMessageHandler {
                       leftToken.getLine(), leftToken.getColumn(),
                       rightToken.getEndLine(), rightToken.getEndColumn(),
                       leftToken.getStartOffset(), rightToken.getEndOffset());
-                this.leftIToken = null;
-                this.rightIToken = null;
+                this.leftIToken = leftToken; // BRT -- was null, need to keep leftToken for later reference
+                this.rightIToken = rightToken;  // BRT -- was null, need to keep rightToken for later reference
             }
 
             public IToken getLeftIToken() { return leftIToken; }
