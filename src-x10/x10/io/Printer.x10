@@ -60,6 +60,6 @@ public class Printer extends FilterWriter {
     public def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object): Void { printf(fmt, [o1,o2,o3,o4,o5]); }
     public def printf(fmt: String, o1: Object, o2: Object, o3: Object, o4: Object, o5: Object, o6: Object): Void { printf(fmt, [o1,o2,o3,o4,o5,o6]); }
     
-    public def printf(fmt: String, args: Rail[Object]): Void { println(String.format(fmt, args)); }
-    public def printf(fmt: String, args: ValRail[Object]): Void { println(String.format(fmt, args)); }
+    public def printf(fmt: String, args: Rail[Object]): Void { print(String.format(fmt, args)); }
+    public def printf(fmt: String, args: ValRail[Object]): Void { print(String.format(fmt, args)); }
 }
