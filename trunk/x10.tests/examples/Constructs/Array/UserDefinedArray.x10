@@ -33,20 +33,20 @@ public class UserDefinedArray extends x10Test {
         chk((future(a.dist(0)){a(0)}).force() == v1);
         System.out.println("v1.location() " + v1.location() + " D(1) " + D(1));
         chk(v1.location() == D(1));
-        chk((future(v1){v1.v}).force() == 1);
+        chk((future(v1.location){v1.v}).force() == 1);
 
 
         chk(a.dist(1) == D(1));
         chk((future(a.dist(1)){a(1)}).force() == v2);
         chk(v2.location() == D(0));
-        chk((future(v2){v2.v}).force() == 2);
+        chk((future(v2.location){v2.v}).force() == 2);
 
         //this top level future runs in D[1] since a[0]==v1 && v1.location()==D[1]
         var i0: int = (future((future(a.dist(0)){a(0)}).force().location())
            { (future(a.dist(0)){a(0)}).force().v }).force();
 
         //this top level future runs in D[0] since a[1]==v2 && v2.location()==D[0]
-        var i1: int = (future((future(a.dist(1)){a(1)}).force())
+        var i1: int = (future((future(a.dist(1)){a(1)}).force().location())
             { (future(a.dist(1)){a(1)}).force().v }).force();
 
         return i0 + 1 == i1;
