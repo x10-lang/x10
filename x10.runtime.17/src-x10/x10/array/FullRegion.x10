@@ -17,7 +17,7 @@ value class FullRegion extends PolyRegion {
         super((new HalfspaceListBuilder(rank)).toHalfspaceList());
     }
 
-    public def boundingBox(): Region(rank) {
+    protected def computeBoundingBox(): Region(rank) {
         return this;
     }
 
