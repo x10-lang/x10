@@ -177,9 +177,9 @@ public class Async_c extends Stmt_c implements Async {
 
 	
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = av.typeSystem();
+		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
 		if (child == place) {
-			return ts.Object();
+			return ts.Place();
 		}
 		return child.type();
 	}

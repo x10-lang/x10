@@ -148,9 +148,9 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
 
 	public Type childExpectedType(Expr child, AscriptionVisitor av) {
-		TypeSystem ts = av.typeSystem();
+		X10TypeSystem ts = (X10TypeSystem) av.typeSystem();
 		if (child == place) {
-			return ts.Object();
+			return ts.Place();
 		}
 		return child.type();
 	}
