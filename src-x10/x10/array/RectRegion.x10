@@ -217,7 +217,7 @@ final value class RectRegion extends PolyRegion {
     // region operations
     //
 
-    public def boundingBox(): Region(rank) {
+    protected def computeBoundingBox(): Region(rank) {
         return this;
     }
 

@@ -126,23 +126,9 @@ abstract public value class BaseRegion extends Region {
     abstract public def intersection(that: Region(rank)): Region(rank);
     abstract public def product(that: Region): Region;
     abstract public def projection(axis: int): Region(1);
+
     abstract public def boundingBox(): Region(rank);
-
-
-    //
-    // cached boundingbox, maintained by subclasses
-    // B should be Box[Region] - workaround for XTENLANG-117
-    //
-
-    protected static class B(b:Region) {
-        def this(b:Region) = property(b);
-    }
-
-    protected static class BB {
-        var b:B = null;
-    }        
-
-    protected val boundingBox = new BB();
+    abstract protected def computeBoundingBox(): Region(rank);
 
 
     //
@@ -240,5 +226,40 @@ abstract public value class BaseRegion extends Region {
 
     public def max(): ValRail[int] {
         throw U.unsupported(this, "max()");
+
     }
 }
+
+//
+// This should be cached and computed on demand, but that will
+// require place-local storage to do in a distributed setting, so
+// we cache it up front for now.
+//
+// XXX should be an inner class and Region should be Region(rank) and
+// this(Region) should be this(), but XTENLANG-163 prevents that
+//
+
+value class Cache {
+
+    val boundingBox: Box[Region];
+    val boundingBoxException: Box[RuntimeException];
+
+    def this(r:BaseRegion) {
+        var boundingBox: Box[Region] = null;
+        var boundingBoxException: Box[RuntimeException] = null;
+        try {
+            boundingBox = r.computeBoundingBox() to Box[Region];
+        } catch (e:RuntimeException) {
+            boundingBoxException = e to Box[RuntimeException];
+        }
+        this.boundingBox = boundingBox;
+        this.boundingBoxException = boundingBoxException;
+    }
+
+    def boundingBox(): Region {
+        if (boundingBoxException!=null)
+            throw boundingBoxException to RuntimeException;
+        return boundingBox to Region;
+    }
+}
+
