@@ -670,54 +670,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        if (cmp == 0)
 	            return 0;
 
-	        boolean old = true;
-	        try {
-	            boolean convert1 = false;
-	            boolean convert2 = false;
+                boolean convert1 = false;
+                boolean convert2 = false;
 
-	            List<Type> actuals = null;
-	            
-	            if (matcher instanceof X10ConstructorMatcher) {
-	                actuals =
-	                ((X10ConstructorMatcher) matcher).arguments();
-	            }
-	            if (matcher instanceof X10MethodMatcher) {
-	                actuals =
-	                    ((X10MethodMatcher) matcher).arguments();
-	            }
-	            
-	            // Check if conversions are needed.
-	            
-	            for (int i = 0; i < p1.formalTypes().size(); i++) {
-	                Type t0 = actuals.get(i);
-	                Type t1 = p1.formalTypes().get(i);
-	                Type t2 = p2.formalTypes().get(i);
-	                if (! t0.isSubtype(t1)) {
-	                    convert1 = true;
-	                }
-	                if (! t0.isSubtype(t2)) {
-	                    convert2 = true;
-	                }
-	            }
-	            
-	            if (convert1 && convert2)
-	                // Both need a coercion.
-	                return cmp;
-	            if (convert1)
-	                // p1 needs a coercion, p2 does not => p2 is more precise.
-	                return 1;
-	            if (convert2)
-	                // p2 needs a coercion, p1 does not => p1 is more precise.
-	                return -1;
-	        }
-	        finally {
-	            if (matcher instanceof X10ConstructorMatcher) {
-	                ((X10ConstructorMatcher) matcher).tryCoercionFunction = old;
-	            }
-	            if (matcher instanceof X10MethodMatcher) {
-	                ((X10MethodMatcher) matcher).tryCoercionFunction = old;
-	            }
-	        }
+                List<Type> actuals = null;
+                
+                if (matcher instanceof X10ConstructorMatcher) {
+                    actuals = ((X10ConstructorMatcher) matcher).arguments();
+                }
+                if (matcher instanceof X10MethodMatcher) {
+                    actuals = ((X10MethodMatcher) matcher).arguments();
+                }
+                
+                // Check if conversions are needed.
+                
+                for (int i = 0; i < p1.formalTypes().size(); i++) {
+                    Type t0 = actuals.get(i);
+                    Type t1 = p1.formalTypes().get(i);
+                    Type t2 = p2.formalTypes().get(i);
+                    if (! t0.isSubtype(t1)) {
+                        convert1 = true;
+                    }
+                    if (! t0.isSubtype(t2)) {
+                        convert2 = true;
+                    }
+                }
+                
+                if (convert1 && convert2)
+                    // Both need a coercion.
+                    return cmp;
+                if (convert1)
+                    // p1 needs a coercion, p2 does not => p2 is more precise.
+                    return 1;
+                if (convert2)
+                    // p2 needs a coercion, p1 does not => p1 is more precise.
+                    return -1;
 
 	        return cmp;
 	    }
