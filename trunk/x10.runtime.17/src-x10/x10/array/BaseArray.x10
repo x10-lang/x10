@@ -70,7 +70,7 @@ public abstract value class BaseArray[T] extends Array[T] {
     //     
 
     public final def apply(pt: Point(rank)): T {
-        checkBounds(pt);
+        if (checkBounds) checkBounds(pt);
         return raw()(layout().offset(pt));
     }
 
@@ -78,10 +78,13 @@ public abstract value class BaseArray[T] extends Array[T] {
 
     // XXXX settable order
     public final def set(v: T, pt: Point(rank)): T {
-        checkBounds(pt);
+        if (checkBounds) checkBounds(pt);
         raw()(layout().offset(pt)) = v;
         return v;
     }
+
+    //const checkBounds = false;
+    const checkBounds = true;
 
     def checkBounds(pt: Point(rank)) {
         (region as BaseRegion(rank)).checkBounds(pt);

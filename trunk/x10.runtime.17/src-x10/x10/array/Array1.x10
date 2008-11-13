@@ -38,22 +38,22 @@ final value class Array1[T] extends BaseArray[T] {
     //
 
     final public def apply(i0: int): T {
-        checkBounds(i0);
+        if (checkBounds) checkBounds(i0);
         return raw(layout.offset(i0));
     }
 
     final public def apply(i0: int, i1: int): T {
-        checkBounds(i0, i1);
+        if (checkBounds) checkBounds(i0, i1);
         return raw(layout.offset(i0,i1));
     }
 
     final public def apply(i0: int, i1: int, i2: int): T {
-        checkBounds(i0, i1, i2);
+        if (checkBounds) checkBounds(i0, i1, i2);
         return raw(layout.offset(i0,i1,i2));
     }
 
     final public def apply(i0: int, i1: int, i2: int, i3: int): T {
-        checkBounds(i0, i1, i2, i3);
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
         return raw(layout.offset(i0,i1,i2,i3));
     }
 
@@ -63,25 +63,25 @@ final value class Array1[T] extends BaseArray[T] {
     //
 
     final public def set(v: T, i0: int): T {
-        checkBounds(i0);
+        if (checkBounds) checkBounds(i0);
         raw(layout.offset(i0)) = v;
         return v;
     }
 
     final public def set(v: T, i0: int, i1: int): T {
-        checkBounds(i0, i1);
+        if (checkBounds) checkBounds(i0, i1);
         raw(layout.offset(i0,i1)) = v;
         return v;
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int): T {
-        checkBounds(i0, i1, i2);
+        if (checkBounds) checkBounds(i0, i1, i2);
         raw(layout.offset(i0,i1,i2)) = v;
         return v;
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
-        checkBounds(i0, i1, i2, i3);
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
         raw(layout.offset(i0,i1,i2,i3)) = v;
         return v;
     }
@@ -91,7 +91,7 @@ final value class Array1[T] extends BaseArray[T] {
     // XXX only works for single-process shared-memory implementation
     //
 
-    def this(val dist: Dist{constant}, val init: (Point)=>T): Array1[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: (Point)=>T): Array1[T]{self.dist==dist} {
 
         super(dist);
 
@@ -115,7 +115,7 @@ final value class Array1[T] extends BaseArray[T] {
     // suitable for distributed arrays if the raw and layout fields are per-place
     // won't compile now b/c it thinks raw is being re-initialized...
 
-    def this(val dist: Dist, val init: (Point)=>T): Array1[T] {
+    def this(dist: Dist, init: (Point)=>T): Array1[T] {
 
         super(dist);
 
@@ -145,7 +145,7 @@ final value class Array1[T] extends BaseArray[T] {
         return new Array1[T](this, d as Dist{constant});
     }
 
-    def this(val a: Array1[T], d: Dist{constant}) {
+    def this(a: Array1[T], d: Dist{constant}) {
 
         super(d);
 
@@ -158,7 +158,7 @@ final value class Array1[T] extends BaseArray[T] {
     }
 
     /*
-    def this(val a: Array1[T], d: Dist) {
+    def this(a: Array1[T], d: Dist) {
 
         super(d);
 
