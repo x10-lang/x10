@@ -12,6 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "float", "x10.core.BoxedFloat", "x10.types.Type.FLOAT")
+@NativeRep("c++", "x10_float", null, null)
 public final value Float {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
