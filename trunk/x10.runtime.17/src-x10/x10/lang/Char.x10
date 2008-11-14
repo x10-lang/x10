@@ -12,6 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "char", "x10.core.BoxedChar", "x10.types.Type.CHAR")
+@NativeRep("c++", "x10_char", "x10_char", null)
 public final value Char {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
