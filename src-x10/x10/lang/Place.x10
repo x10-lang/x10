@@ -37,4 +37,6 @@ public final value Place(id: nat) {
 	public def isFirst(): boolean = id == 0;
 
 	public def isLast(): boolean = id == MAX_PLACES - 1;
+
+    public def toString() = "(Place " + id + ")";
 }    
