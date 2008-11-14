@@ -29,6 +29,8 @@ ALL_OBJECTS = \
         x10/lang/Ref.o \
         x10/lang/Value.o \
         x10/lang/Object.o \
+        x10/io/NativeInputStream.o \
+        x10/io/NativeOutputStream.o \
         x10aux/place.o \
         x10aux/runtime.o \
         x10aux/string_utils.o \
