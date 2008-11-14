@@ -16,7 +16,7 @@ package x10.io;
 
 import x10.compiler.NativeRep;
 
-public abstract class Reader {
+public abstract value Reader {
     public abstract def close(): Void throws IOException;
 
     public abstract def read(): Byte throws IOException;

@@ -1,6 +1,6 @@
 package x10.io;
 
-public class ByteWriter[T] extends Writer {
+public value ByteWriter[T] extends Writer {
     val b: Builder[Byte,T];
 
     public def this(b: Builder[Byte,T]) { this.b = b; }
