@@ -14,6 +14,8 @@ package x10.runtime;
 public value Clock_c extends Clock {
 	private val state = new ClockState();
 	
+	private val hashCode = state.hashCode();
+	
 	public def this(name:String) {
 		super(name);
     	Runtime.clockPhases().put(this, ClockState.FIRST_PHASE);
@@ -45,7 +47,7 @@ public value Clock_c extends Clock {
     }
     
 	public def hashCode():Int {
-		return state.hashCode();
+		return hashCode;
 	}
 	
     def register_c(clockPhases:ClockPhases, ph:Int):Void {
