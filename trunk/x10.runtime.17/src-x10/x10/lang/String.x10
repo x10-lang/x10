@@ -51,7 +51,7 @@ public final value String implements (nat) => Char {
     public native def chars(): ValRail[Char];
     
     @Native("java", "x10.core.RailFactory.<java.lang.Byte>makeValRailFromJavaArray(#0.getBytes())")
-    @Native("c++", "*(#0).c_str")
+    @Native("c++", "(#0)->bytes()")
     public native def bytes(): ValRail[Byte];
     
     @Native("java", "#0.substring(#1, #2)")
