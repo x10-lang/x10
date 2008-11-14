@@ -35,6 +35,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XEQV_c;
@@ -120,12 +121,22 @@ public class XTypeTranslator {
 	public XTerm trans(XConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
 		XName field = XTerms.makeName(fi.def(), fi.name().toString());
+		if (fi.flags().isStatic()) {
+		    Type container = Types.get(fi.def().container());
+		    container = X10TypeMixin.baseType(container);
+		    if (container instanceof X10ClassType) {
+		        target  = XTerms.makeLit(((X10ClassType) container).fullName());
+		    }
+		    else {
+		        throw new SemanticException("Cannot translate a static field of non-class type " + container + ".");
+		    }
+		}
 		if (target instanceof XVar) {
 			v = XTerms.makeField((XVar) target, field);
-		}
-		else {
-			v = XTerms.makeAtom(field, target);
-		}
+		    }
+		    else {
+		        v = XTerms.makeAtom(field, target);
+		    }
 		addTypeToEnv(v, t);
 		return v;
 	}
