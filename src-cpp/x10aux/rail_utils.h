@@ -51,7 +51,7 @@ namespace x10aux {
                 #endif
             }
 
-            virtual bool equals (const ref<x10::lang::Object> &other) const {
+            virtual bool equals (const ref<x10::lang::Object> &other) {
                 if (!_type()->concreteInstanceOf(other)) return false;
                 const AnyRail &other_rail = static_cast<AnyRail&>(*other);
                 // different sizes so false
