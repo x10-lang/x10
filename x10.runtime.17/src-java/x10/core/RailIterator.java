@@ -12,7 +12,7 @@ public class RailIterator<T> implements Iterator<T> {
 	}
 
 	public boolean hasNext() {
-		return i < r.length;
+		return i < r.length();
 	}
 
 	public T next() {
