@@ -13,7 +13,7 @@ import x10.compiler.NativeRep;
 
 @NativeRep("java", "int", "x10.core.BoxedInt", "x10.types.Type.INT")
 //                  v-- when used
-@NativeRep("c++", "x10_int", null, null)
+@NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
 public final value Int implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.

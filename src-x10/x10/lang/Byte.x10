@@ -12,6 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "byte", "x10.core.BoxedByte", "x10.types.Type.BYTE")
+@NativeRep("c++", "x10_byte", "x10_byte", null)
 public final value Byte implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

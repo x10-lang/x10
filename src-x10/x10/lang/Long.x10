@@ -12,7 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "long", "x10.core.BoxedLong", "x10.types.Type.LONG")
-@NativeRep("c++", "x10_long", null, null)
+@NativeRep("c++", "x10_long", "x10_long", null)
 public final value Long implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

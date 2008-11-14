@@ -12,6 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "double", "x10.core.BoxedDouble", "x10.types.Types.DOUBLE")
+@NativeRep("c++", "x10_double", "x10_double", null)
 public final value Double {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     

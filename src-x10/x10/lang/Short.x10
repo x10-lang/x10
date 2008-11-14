@@ -12,7 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "short", "x10.core.BoxedShort", "x10.types.Type.SHORT")
-@NativeRep("c++", "x10_short", null, null)
+@NativeRep("c++", "x10_short", "x10_short", null)
 public final value Short implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
