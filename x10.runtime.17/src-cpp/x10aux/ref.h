@@ -10,6 +10,8 @@ namespace x10aux {
 
 #include <x10aux/config.h>
 
+namespace x10 { namespace lang { class String; } }
+
 namespace x10aux {
 
     class __ref {
@@ -163,7 +165,7 @@ namespace x10aux {
 #endif
     };
 
-
+	template<> ref<x10::lang::String>::ref(const x10::lang::String& val);
 
 } //namespace x10
 
