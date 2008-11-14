@@ -25,10 +25,11 @@
 //#include <x10/io/FILEPtrStream.h>
 //#include <x10/io/FilterInputStream.h>
 //#include <x10/io/FilterOutputStream.h>
-//#include <x10/io/InputStream.h>
-//#include <x10/io/OutputStream.h>
+#include <x10/io/NativeInputStream.h>
+#include <x10/io/NativeOutputStream.h>
 //#include <x10/io/PrintStream.h>
 #include <x10/lang/Box.h>
+#include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Fun_0_2.h>
 #include <x10/lang/Object.h>

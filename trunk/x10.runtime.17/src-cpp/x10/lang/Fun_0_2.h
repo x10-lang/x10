@@ -1,5 +1,5 @@
-#ifndef X10_LANG_FUN_0_1_H
-#define X10_LANG_FUN_0_1_H
+#ifndef X10_LANG_FUN_0_2_H
+#define X10_LANG_FUN_0_2_H
 
 #include <x10aux/config.h>
 

@@ -11,34 +11,37 @@ namespace x10aux {
 #include <x10aux/config.h>
 
 namespace x10aux {
+
     class __ref {
-    protected:
-#ifndef REF_STRIP_TYPE
+
+        protected:
+        #ifndef REF_STRIP_TYPE
         __ref(void* = NULL) { }
-#else
+        #else
         __ref(void* val = NULL) : _val(val) { }
-    public: // [IP] temporary
+        public: // [IP] temporary
         void* _val;
-#endif
+        #endif
     };
-#ifndef REF_STRIP_TYPE
-#  define REF_INIT(v) __ref(), _val(v)
-#else
-#  define REF_INIT(v) __ref(v)
-#endif
-#ifdef REF_COUNTING
-#  define INC(x) _inc(x)
-#  define DEC(x) _dec(x)
-#else
-#  define INC(x)
-#  define DEC(x)
-#endif
+
+    #ifndef REF_STRIP_TYPE
+    #  define REF_INIT(v) __ref(), _val(v)
+    #else
+    #  define REF_INIT(v) __ref(v)
+    #endif
+    #ifdef REF_COUNTING
+    #  define INC(x) _inc(x)
+    #  define DEC(x) _dec(x)
+    #else
+    #  define INC(x)
+    #  define DEC(x)
+    #endif
 
     template<class T> class ref : public __ref {
 
         //typedef typename T::RTT RTT;
 
-#ifdef REF_COUNTING
+        #ifdef REF_COUNTING
         void _inc(T* o) { // TODO
             if (o != NULL) {
                 o->__count++;
@@ -55,61 +58,95 @@ namespace x10aux {
                 //if (!o->__count) { o->~T(); dealloc(o); }
             }
         }
-#endif
+        #endif
+
         public:
+
         ~ref() { DEC(_val); }
+
         ref(const ref<T>& _ref) : REF_INIT(_ref._val) {
-            _R_("Copying reference " << &_ref << "(" << _ref._val << ") of type " << DEMANGLE(TYPENAME(T)) << " to " << this);
+            _R_("Copying reference " << &_ref << "(" << _ref._val
+                                     << ") of type " << DEMANGLE(TYPENAME(T))
+                                     << " to " << this);
             INC(_val);
         }
-        // FIXME: something is wrong with the return value; r1 = r2 = r3 doesn't work in xlC
+
+        // FIXME: something is wrong with the return value;
+        // r1 = r2 = r3 doesn't work in xlC
         const ref<T>& operator=(const ref<T>& _ref) {
             _val = _ref._val;
-            _R_("Assigning reference " << &_ref << "(" << _ref._val << ") of type " << DEMANGLE(TYPENAME(T)) << " to " << this);
+            _R_("Assigning reference " << &_ref << "(" << _ref._val
+                                       << ") of type " << DEMANGLE(TYPENAME(T))
+                                       << " to " << this);
             INC(_val);
             return *this;
         }
+
         ref(const T* val = NULL) : REF_INIT(const_cast<T*>(val)) {
             INC(_val);
         }
+
         ref(const T& val);
+
+        // allow casting between ref<S> and ref<T>
         template<class S> operator ref<S>() const {
             ref<S> _ref(dynamic_cast<S*>((T*)_val));
-            _R_("Casting reference " << this << "(" << _val << ") of type " << DEMANGLE(TYPENAME(T)) << " to type " << DEMANGLE(TYPENAME(S)) << " into " << &_ref);
+            _R_("Casting reference " << this << "(" << _val
+                                     << ") of type " << DEMANGLE(TYPENAME(T))
+                                     << " to type " << DEMANGLE(TYPENAME(S))
+                                     << " into " << &_ref);
             return _ref;
         }
-// TODO: find out which one is better -- the cast operator, or the constructor + assignment
-//        template<class S> ref(const ref<S>& _ref) : REF_INIT(dynamic_cast<T*>((S*)_ref._val)) {
-//            _R_("Casting reference " << &_ref << "(" << _ref._val << ") of type " << DEMANGLE(TYPENAME(S)) << " to type " << DEMANGLE(TYPENAME(T)) << " into " << this);
-//            INC(_val);
-//        }
-//        template<class S> const ref<T>& operator=(const ref<S>& _ref) {
-//            _val = dynamic_cast<T*>((S*)_ref._val);
-//            _R_("Casting reference " << &_ref << "(" << _ref._val << ") of type " << DEMANGLE(TYPENAME(S)) << " to type " << DEMANGLE(TYPENAME(T)) << " into " << this);
-//            INC(_val);
-//            return *this;
-//        }
-        T& operator*() const { // FIXME: throw NullPointerException
-            _R_("Accessing object (*) via reference " << this << "(" << _val << ") of type " << DEMANGLE(TYPENAME(T)));
+
+        /* TODO: find out which one is better -- the cast operator, or the constructor + assignment
+        template<class S> ref(const ref<S>& _ref)
+          : REF_INIT(dynamic_cast<T*>((S*)_ref._val)) {
+            _R_("Casting reference " << &_ref << "(" << _ref._val
+                                     << ") of type " << DEMANGLE(TYPENAME(S))
+                                     << " to type " << DEMANGLE(TYPENAME(T))
+                                     << " into " << this);
+            INC(_val);
+        }
+        
+        template<class S> const ref<T>& operator=(const ref<S>& _ref) {
+            _val = dynamic_cast<T*>((S*)_ref._val);
+            _R_("Casting reference " << &_ref << "(" << _ref._val
+                                     << ") of type " << DEMANGLE(TYPENAME(S))
+                                     << " to type " << DEMANGLE(TYPENAME(T))
+                                     << " into " << this);
+            INC(_val);
+            return *this;
+        }
+        */
+
+        T& operator*() const {
+            // FIXME: throw NullPointerException
+            _R_("Accessing object (*) via reference " << this << "(" << _val
+                                      << ") of type " << DEMANGLE(TYPENAME(T)));
             return *(T*)_val;
         }
-        T* operator->() const { // FIXME: should we throw NullPointerException here?
-            _R_("Accessing object (->) via reference " << this << "(" << _val << ") of type " << DEMANGLE(TYPENAME(T)));
+
+        T* operator->() const { 
+            // FIXME: should we throw NullPointerException here?
+            _R_("Accessing object (->) via reference " << this << "(" << _val
+                                      << ") of type " << DEMANGLE(TYPENAME(T)));
             return (T*)_val;
         }
+
         bool isNull() const {
-            _R_("Nullcheck reference " << this << "(" << _val << ") of type " << DEMANGLE(TYPENAME(T)));
+            _R_("Nullcheck reference " << this << "(" << _val
+                                      << ") of type " << DEMANGLE(TYPENAME(T)));
             return _val == NULL;
         }
 
-/* TODO: come back to this later once i find out why we need it
+        /* TODO: come back to this later once i find out why we need it [DC]
         bool operator==(const T* val) const {
             return _val == val;
         }
         bool operator!=(const T* val) const {
             return _val != val;
         }
-*/
+        */
 
         bool operator==(const ref<T>& _ref) const {
             return _val == _ref._val;
@@ -125,6 +162,8 @@ namespace x10aux {
         T* _val;
 #endif
     };
+
+
 
 } //namespace x10
 
