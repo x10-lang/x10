@@ -3,10 +3,6 @@
 
 package x10.array;
 
-import x10.array.Array1;
-import x10.array.ArrayN;
-import x10.array.ArrayV;
-
 /**
  * The BaseArray class is the base of the hierarchy of classes that
  * implement Array. BaseArray provides a set of factory methods, and
@@ -39,14 +35,14 @@ public abstract value class BaseArray[T] extends Array[T] {
     }
 
     public static def makeVal1[T](dist: Dist, init: (Point)=>T): Array[T] {
-        return new ArrayV[T](dist, init);
+        return makeVar1[T](dist, init); // XXX for now
     }
 
     public static def makeVar1[T](dist: Dist, init: (Point)=>T): Array[T](dist) {
         if (dist.constant)
-            return new Array1[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+            return new LocalArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
         else
-            return new ArrayN[T](dist, init);
+            return new DistArray[T](dist, init);
     }
 
     public static def makeVar1[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased} {

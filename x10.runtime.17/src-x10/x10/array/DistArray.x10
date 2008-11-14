@@ -5,32 +5,22 @@ package x10.array;
 
 /**
  * This class represents an array with raw chunk in each place,
- * initialized at its place.
- *
- * The per-chunk information is stored in a rail, one entry per
- * place. This is suitable for distributed arrays where we do not have
- * place-local fields, as is currently the case. If we had place-local
- * storage we could use the Array1 design instead, saving the cost of
- * accessing here and indexing the per-place rail of chunks.
+ * initialized at its place. The chunk is stored in a PlaceLocal
+ * object.
  *
  * @author bdlucas
  */
 
-final value class ArrayN[T] extends BaseArray[T] {
-
-    //private val raws: Rail[Rail[T]];
-    //private val layouts: Rail[RectLayout];
+final value class DistArray[T] extends BaseArray[T] {
 
     private val raws: PlaceLocal[Rail[T]];
     private val layouts: PlaceLocal[RectLayout];
 
     final protected def raw(): Rail[T] {
-        //return raws(here.id);
         return raws();
     }
 
     final protected def layout(): RectLayout {
-        //return layouts(here.id);
         return layouts();
     }
 
@@ -94,7 +84,7 @@ final value class ArrayN[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist, val init: (Point)=>T): ArrayN[T]{self.dist==dist} {
+    def this(dist: Dist, val init: (Point)=>T): DistArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -122,10 +112,13 @@ final value class ArrayN[T] extends BaseArray[T] {
      */
 
     public def restriction(d: Dist) {
-        return new ArrayN[T](this, d);
+        if (d.constant)
+            return new LocalArray[T](this, d as Dist{constant});
+        else
+            return new DistArray[T](this, d);
     }
 
-    def this(a: ArrayN[T], d: Dist) {
+    def this(a: DistArray[T], d: Dist) {
 
         super(d);
 

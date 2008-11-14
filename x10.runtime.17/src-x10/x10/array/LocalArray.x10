@@ -4,13 +4,12 @@
 package x10.array;
 
 /**
- * This class represents an array with a single raw piece, initialized
- * only in place of creation. This is suitable for ValArrays.
+ * This class represents an array with single raw chunk in one place.
  *
  * @author bdlucas
  */
 
-final value class ArrayV[T] extends BaseArray[T] {
+final value class LocalArray[T] extends BaseArray[T] {
 
     private val raw: Rail[T];
     private val layout: RectLayout;
@@ -50,24 +49,31 @@ final value class ArrayV[T] extends BaseArray[T] {
 
 
     //
-    // illegal for value array
+    // high-performance methods here to facilitate inlining
     //
 
     final public def set(v: T, i0: int): T {
-        throw U.illegal();
+        if (checkBounds) checkBounds(i0);
+        raw(layout.offset(i0)) = v;
+        return v;
     }
 
     final public def set(v: T, i0: int, i1: int): T {
-        throw U.illegal();
-
+        if (checkBounds) checkBounds(i0, i1);
+        raw(layout.offset(i0,i1)) = v;
+        return v;
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int): T {
-        throw U.illegal();
+        if (checkBounds) checkBounds(i0, i1, i2);
+        raw(layout.offset(i0,i1,i2)) = v;
+        return v;
     }
 
     final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
-        throw U.illegal();
+        if (checkBounds) checkBounds(i0, i1, i2, i3);
+        raw(layout.offset(i0,i1,i2,i3)) = v;
+        return v;
     }
 
 
@@ -75,34 +81,34 @@ final value class ArrayV[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist, val init: (Point)=>T): ArrayV[T] {
+    def this(dist: Dist{constant}, init: (Point)=>T): LocalArray[T]{self.dist==dist} {
 
         super(dist);
 
         layout = layout(region);
         val n = layout.size();
         raw = Rail.makeVar[T](n);
-
-        if (init!=null)
-            for (p: Point in region)
+        if (init!=null) {
+            for (p:Point in region)
                 raw(layout.offset(p)) = init(p);
+        }
     }
 
 
-    /**
+    /*
      * restriction view
      */
 
     public def restriction(d: Dist): Array[T] {
-        return new ArrayV[T](this, d);
+        return new LocalArray[T](this, d as Dist{constant});
     }
 
-    def this(a: ArrayV[T], d: Dist) {
+    def this(a: BaseArray[T], d: Dist{constant}) {
 
         super(d);
 
-        this.layout = a.layout;
-        this.raw = a.raw;
+        this.layout = (future(d.onePlace) a.layout()) .force();
+        this.raw = (future(d.onePlace) a.raw()) .force();
     }
 
 }
