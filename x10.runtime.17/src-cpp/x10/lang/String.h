@@ -73,11 +73,11 @@ namespace x10 {
                 return *this;
             }
 */
-            x10aux::ref<String> toString() const;
+            x10aux::ref<String> toString();
 
-            x10_int hashCode() const;
+            x10_int hashCode();
 
-            x10_boolean equals(const x10aux::ref<Object> &s) const;
+            x10_boolean equals(const x10aux::ref<Object> &s);
 
             x10_int length() const { return (x10_int) std::string::length(); }
             //String operator+(const String& s) const;

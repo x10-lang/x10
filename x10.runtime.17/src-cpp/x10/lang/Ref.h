@@ -22,8 +22,7 @@ namespace x10 {
                 public:
                 static const RTT* const it; 
             
-                RTT() : RuntimeType()
-                { }
+                RTT() : RuntimeType() { }
                 
                 virtual std::string name() const {
                     return "x10.lang.Ref";
