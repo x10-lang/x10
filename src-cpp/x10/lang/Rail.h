@@ -111,6 +111,7 @@ namespace x10 {
                         // covers everything.
                         (*rail)[i] = 0;
                 }
+                return rail;
             }
 
             /* TODO: this needs function types, etc
