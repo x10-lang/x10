@@ -35,7 +35,11 @@ namespace x10 {
 
             static const int SERIALIZATION_ID = -1;
 
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) { };
+            virtual void _serialize_fields(x10aux::serialization_buffer& buf,
+                                           x10aux::addr_map& m) {
+                (void) buf;
+                (void) m;
+            };
 
             explicit Value()
 #ifdef REF_COUNTING
@@ -64,7 +68,7 @@ namespace x10 {
 
             virtual x10aux::ref<String> toString();
 
-            virtual x10_boolean equals(const x10aux::ref<Value> &other) {
+            virtual x10_boolean equals(const x10aux::ref<Object> &other) {
                 if (!RTT::it->concreteInstanceOf(other)) return false;
                 // now compare fields but there aren't any
                 return true;
