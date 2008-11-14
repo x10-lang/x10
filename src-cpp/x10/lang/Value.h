@@ -35,6 +35,8 @@ namespace x10 {
 
             static const int SERIALIZATION_ID = -1;
 
+            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) { };
+
             explicit Value()
 #ifdef REF_COUNTING
                 : __count(0)

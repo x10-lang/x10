@@ -34,6 +34,7 @@ ALL_OBJECTS = \
         x10aux/place.o \
         x10aux/runtime.o \
         x10aux/string_utils.o \
+        x10aux/serialization.o \
         x10aux/finish.o \
         x10aux/exit_code.o \
         x10aux/RTT.o \
