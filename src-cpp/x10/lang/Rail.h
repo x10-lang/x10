@@ -140,6 +140,9 @@ namespace x10 {
         template<class T> const typename Rail<T>::RTT *Rail<T>::RTT::it =
             new typename Rail<T>::RTT();
 
+        template<class T> const typename Rail<T>::Iterator::RTT *Rail<T>::Iterator::RTT::it =
+            new typename Rail<T>::Iterator::RTT();
+
     }
 }
 
