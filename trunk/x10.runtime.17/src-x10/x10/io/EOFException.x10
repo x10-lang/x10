@@ -12,6 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.io.EOFException", null, null)
+@NativeRep("c++", "x10aux::ref<x10::io::EOFException>", "x10::io::EOFException", null)
 public value EOFException extends IOException {
     public native def this(): EOFException;
     public native def this(message: String): EOFException;

@@ -5,26 +5,34 @@ import x10.compiler.Native;
 
 public class OutputStreamWriter extends Writer {
     @NativeRep("java", "java.io.OutputStream", null, null)
+    @NativeRep("c++", "x10aux::ref<java.io.OutputStream>", "java.io.OutputStream", null)
     protected abstract static class OutputStream {
         @Native("java", "#0.close()")
+        @Native("c++", "(#0)->close()")
         public native def close(): Void throws IOException;
 
         @Native("java", "#0.flush()")
+        @Native("c++", "(#0)->flush()")
         public native def flush(): Void throws IOException;
         
         @Native("java", "#0.write(#1)")
+        @Native("c++", "(#0)->write(#1)")
         public native def write(Int): Void throws IOException;
         
         @Native("java", "#0.write(#1.getByteArray())")
+        @Native("c++", "(#0)->write(#1)")
         public native def write(Rail[Byte]): Void throws IOException;
         
         @Native("java", "#0.write(#1.getByteArray())")
+        @Native("c++", "(#0)->write(#1)")
         public native def write(ValRail[Byte]): Void throws IOException;
         
         @Native("java", "#0.write(#1.getByteArray(), #2, #3)")
+        @Native("c++", "(#0)->write(#1)")
         public native def write(Rail[Byte], Int, Int): Void throws IOException;
         
         @Native("java", "#0.write(#1.getByteArray(), #2, #3)")
+        @Native("c++", "(#0)->write(#1)")
         public native def write(ValRail[Byte], Int, Int): Void throws IOException;
     }
 
