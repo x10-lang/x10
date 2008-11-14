@@ -24,7 +24,7 @@ public class Array1c extends x10Test {
         val e  = 1..10;
         val r = [e, e] to Region;
 
-        chk(r.equals([1..10, 1..10]));
+        chk(r.equals((1..10)*(1..10)));
 
         val d = Dist.makeConstant(r, here);
         //final dist d = [1:10,1:10]->here;
