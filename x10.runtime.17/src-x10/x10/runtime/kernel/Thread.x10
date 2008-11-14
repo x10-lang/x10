@@ -26,7 +26,7 @@ import x10.runtime.kernel.InterruptedException;
  */
 
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
-public class Thread {
+public value Thread {
 	
 	public native def this(place:Object, runnable:Runnable, name:String):Thread;
 	
