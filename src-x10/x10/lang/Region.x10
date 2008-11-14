@@ -352,14 +352,14 @@ public abstract value class Region(
 
 
     //
-    // conversion ops
+    // conversion
     //
 
     public static def $convert(rs: ValRail[Region]): RectRegion(rs.length) = make(rs);
 
 
     //
-    // set ops
+    // ops
     //
 
     public def $not(): Region(rank) = complement();
@@ -367,14 +367,22 @@ public abstract value class Region(
     public def $or(that: Region(rank)): Region(rank) = union(that);
     public def $minus(that: Region(rank)): Region(rank) = difference(that);
 
+    public def $times(that: Region) = product(that);
+
 
     //
-    // comparison ops
+    // comparison
     //
 
     abstract public def contains(that: Region(rank)): boolean;
     abstract public def equals(that: Region/*(rank)*/): boolean; // XTENLANG-???
     abstract public def contains(p: Point): boolean;
+
+
+    //
+    //
+    //
+
 
 
     //
