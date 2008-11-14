@@ -30,7 +30,7 @@ public interface Marshal[T] {
     public const DOUBLE: DoubleMarshal = new DoubleMarshal();
     public const LINE: LineMarshal = new LineMarshal();
     
-    public static class LineMarshal implements Marshal[String] {
+    public static value LineMarshal implements Marshal[String] {
         public def read(r: Reader): String throws IOException {
             val sb = new StringBuilder();
             var ch: Char;
@@ -54,17 +54,17 @@ public interface Marshal[T] {
         }
     }
     
-    public static class BooleanMarshal implements Marshal[Boolean] {
+    public static value BooleanMarshal implements Marshal[Boolean] {
         public def read(r: Reader): Boolean throws IOException = r.read() != 0;
         public def write(w: Writer, b: Boolean): Void throws IOException = w.write((b ? 0 : 1) to Byte);
     }
     
-    public static class ByteMarshal implements Marshal[Byte] {
+    public static value ByteMarshal implements Marshal[Byte] {
         public def read(r: Reader): Byte throws IOException = r.read();
         public def write(w: Writer, b: Byte): Void throws IOException = w.write(b);
     }
 
-    public static class CharMarshal implements Marshal[Char] {
+    public static value CharMarshal implements Marshal[Char] {
         public def read(r: Reader): Char throws IOException {
             val b1 = r.read();
             if (b1 == -1) throw new EOFException();
@@ -84,7 +84,7 @@ public interface Marshal[T] {
         }
     }
     
-    public static class ShortMarshal implements Marshal[Short] {
+    public static value ShortMarshal implements Marshal[Short] {
         public def read(r: Reader): Short throws IOException {
             val b1 = r.read();
             val b2 = r.read();
@@ -100,7 +100,7 @@ public interface Marshal[T] {
         }
     }
     
-    public static class IntMarshal implements Marshal[Int] {
+    public static value IntMarshal implements Marshal[Int] {
         public def read(r: Reader): Int throws IOException {
             val b1 = r.read();
             val b2 = r.read();
@@ -121,7 +121,7 @@ public interface Marshal[T] {
         }
     }
     
-    public static class LongMarshal implements Marshal[Long] {
+    public static value LongMarshal implements Marshal[Long] {
         public def read(r: Reader): Long throws IOException {
             var l: Long = 0l;
             for (var i: Int = 0; i < 8; i++) {
@@ -142,7 +142,7 @@ public interface Marshal[T] {
         }
     }
 
-    public static class FloatMarshal implements Marshal[Float] {
+    public static value FloatMarshal implements Marshal[Float] {
         public def read(r: Reader): Float throws IOException {
             val i = INT.read(r);
             return Float.fromIntBits(i);
@@ -153,7 +153,7 @@ public interface Marshal[T] {
         }
     }
     
-    public static class DoubleMarshal implements Marshal[Double] {
+    public static value DoubleMarshal implements Marshal[Double] {
         public def read(r: Reader): Double throws IOException {
             val l = LONG.read(r);
             return Double.fromLongBits(l);

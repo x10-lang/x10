@@ -16,7 +16,7 @@ package x10.io;
 
 import x10.compiler.Native;
 
-public class Printer extends FilterWriter {
+public value Printer extends FilterWriter {
     public def this(w: Writer) { super(w); }
 
     private const NEWLINE = '\n'; // System.getProperty("line.separator");
@@ -32,10 +32,8 @@ public class Printer extends FilterWriter {
 
     public def print(s: String): Void {
         try {
-            for (var i: int = 0; i < s.length(); i++) {
-                val ch = s(i);
-                writeChar(ch);
-            }
+            val b = s.bytes();
+            write(b, 0, b.length);
             flush();
         }
         catch (e: IOException) {
