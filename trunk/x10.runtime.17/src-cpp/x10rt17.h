@@ -9,6 +9,7 @@
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
 #include <x10aux/RTT.h>
+#include <x10aux/int_utils.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/rail_utils.h>
 #include <x10aux/place.h>
