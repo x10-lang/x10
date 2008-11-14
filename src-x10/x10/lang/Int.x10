@@ -45,6 +45,7 @@ public final value Int implements Integer, Signed {
     public native static def parseInt(String, radix: Int): Int throws NumberFormatException;
     
     @Native("java", "java.lang.Integer.parseInt(#1)")
+    @Native("c++", "x10aux::int_parseInt(#1)")
     public native static def parseInt(String): Int throws NumberFormatException;
 
     @Native("java", "java.lang.Integer.getInteger(#1, #2).intValue()")
