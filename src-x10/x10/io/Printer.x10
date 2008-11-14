@@ -36,6 +36,7 @@ public class Printer extends FilterWriter {
                 val ch = s(i);
                 writeChar(ch);
             }
+            flush();
         }
         catch (e: IOException) {
             throw new IORuntimeException(e.getMessage());
