@@ -1,6 +1,6 @@
 #Configurable:
 
-CXX?=g++ #for sane people
+CXX?=g++
 AR?=ar
 
 X10LIB?=../../pgas/common/work
@@ -46,7 +46,7 @@ $(ARCHIVE): $(ALL_OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 depend:
-	find -name '*.cc' | xargs makedepend -Y $(INCLUDE_DIRS) -f depend.mk 
+	find -name '*.cc' | xargs makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
 
 
 clean:

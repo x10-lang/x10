@@ -5,6 +5,7 @@
 
 #include <x10/lang/Value.h>
 #include <x10/lang/String.h>
+#include <x10/lang/Iterator.h>
 
 namespace x10aux {
 
@@ -29,8 +30,6 @@ namespace x10aux {
                 for (int i=0; i<FMGL(length); i++)
                     data[i].~T();
             }
-
-            virtual const RuntimeType *_type() const = 0;
 
             void _check_bounds(x10_int index) const {
                 (void)index;
@@ -57,21 +56,18 @@ namespace x10aux {
                 const AnyRail &other_rail = static_cast<AnyRail&>(*other);
                 // different sizes so false
                 if (other_rail.FMGL(length)!=FMGL(length)) return false;
-/*              FIXME: ARRRRRRRRRRRRGH
                 for (x10_int index=0 ; index<FMGL(length) ; ++index) {
                     if (other_rail[index]!=this->operator[](index))
                         return false;
                 }
-*/
                 return true;
             }
 
-            virtual x10_int hashCode() const { return 0; }
+            virtual x10_int hashCode() { return 0; }
 
-            virtual ref<x10::lang::String> toString() const {
+            virtual ref<x10::lang::String> toString() {
                 return new (alloc<x10::lang::String>()) x10::lang::String();
             }
-                
 
             const T& operator[](x10_int index) const {
                 _check_bounds(index);

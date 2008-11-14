@@ -47,7 +47,9 @@ public abstract class Writer {
     }
     
     @Native("java", "new java.io.OutputStream() { public void write(int x) throws java.io.IOException { Writer.this.write((byte) x); } }")
-    private native def oos(): OutputStreamWriter.OutputStream;
+    private def oos(): OutputStreamWriter.OutputStream {
+        return null;
+    }
     
     // DO NOT CALL from X10 code -- only used in @Native annotations
     public def getNativeOutputStream(): OutputStreamWriter.OutputStream = oos();

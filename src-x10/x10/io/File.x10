@@ -21,43 +21,60 @@ import x10.compiler.Native;
 /* model after java.nio.file.Path */
 public class File {
     @NativeRep("java", "java.io.File", null, null)
+    @NativeRep("c++", "x10aux::ref<x10::io::NativeFile>", "x10::io::NativeFile", null)
     static class NativeFile {
         native def this(String);
     
         @Native("java", "#0.getName()")    
+        @Native("c++", "(#0)->getName()")    
         native def getName(): String;
         @Native("java", "#0.getParent()")    
+        @Native("c++", "(#0)->getParent()")    
         native def getParent(): String;
         @Native("java", "#0.getPath()")    
+        @Native("c++", "(#0)->getPath()")    
         native def getPath(): String;
         
         @Native("java", "#0.isAbsolute()")    
+        @Native("c++", "(#0)->isAbsolute()")    
         native def isAbsolute(): Boolean;
         
         @Native("java", "#0.getAbsolutePath()")    
+        @Native("c++", "(#0)->getAbsolutePath()")    
         native def getAbsolutePath(): String;
+        // here's what we must do if we make IOException non-native
         //@Native("java", "new Object() { String eval(java.io.File f) { try { return f.getCanonicalPath(); } catch (java.io.IOException e) { throw new x10.io.IOException(e.getMessage()); } } }.eval(#0)")    
         @Native("java", "#0.getCanonicalPath()")    
+        @Native("c++", "(#0)->getCanoninicalPath()")    
         native def getCanonicalPath(): String throws IOException;
         
         @Native("java", "#0.canRead()")    
+        @Native("c++", "(#0)->canRead()")    
         native def canRead(): Boolean;
         @Native("java", "#0.canWrite()")    
+        @Native("c++", "(#0)->canWrite()")    
         native def canWrite(): Boolean;
         @Native("java", "#0.exists()")    
+        @Native("c++", "(#0)->exists()")    
         native def exists(): Boolean;
         @Native("java", "#0.isDirectory()")    
+        @Native("c++", "(#0)->isDirectory()")    
         native def isDirectory(): Boolean;
         @Native("java", "#0.isFile()")    
+        @Native("c++", "(#0)->isFile()")    
         native def isFile(): Boolean;
         @Native("java", "#0.isHidden()")    
+        @Native("c++", "(#0)->isHidden()")    
         native def isHidden(): Boolean;
         @Native("java", "#0.lastModified()")    
+        @Native("c++", "(#0)->lastModified()")    
         native def lastModified(): Long;
         @Native("java", "#0.length()")    
+        @Native("c++", "(#0)->length()")    
         native def length(): Long;
 
         @Native("java", "#0.setLastModified(#1)")
+        @Native("c++", "(#0)->setLastModified()")    
         native def setLastModified(Long): Boolean;
     }
 

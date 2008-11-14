@@ -5,18 +5,18 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-x10_int String::hashCode() const {
+x10_int String::hashCode() {
     //FIXME:
     //presumably this needs a general hashcode implementation
     //that is centralised and used everywhere
     return 0;
 }
 
-ref<String> String::toString() const {
+ref<String> String::toString() {
     return this;
 }
 
-x10_boolean String::equals(const ref<Object>& other) const {
+x10_boolean String::equals(const ref<Object>& other) {
     if (!RTT::it->concreteInstanceOf(other)) return false;
     // now we can downcast the Object to String
     String &other_str = static_cast<String&>(*other);
