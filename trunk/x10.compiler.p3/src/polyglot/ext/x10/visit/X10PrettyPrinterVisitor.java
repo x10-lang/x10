@@ -2194,7 +2194,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		String pat = getJavaImplForDef(mi.x10Def());
 		if (pat != null) {
-			emitNativeAnnotation(pat, target, mi.typeParameters(), c.arguments());
+			boolean needsHereCheck = needsHereCheck(target);
+			Template tmp = null; 
+			if (needsHereCheck && ! (target instanceof TypeNode || target instanceof New)) {
+				tmp = new Template("place-check", new TypeExpander(target.type(), true, false, false, false), target);
+			}
+			emitNativeAnnotation(pat, null == tmp ? target : tmp, mi.typeParameters(), c.arguments());
 			return;
 		}
 
@@ -2541,7 +2546,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Template("Now", n.clock(), n.body()).expand(tr2);
 	}
 	
-	boolean needsHereCheck( Expr target) {
+	boolean needsHereCheck( Receiver target) {
             boolean needsHereCheck = true;
             // calls on future literals
             needsHereCheck &= ! (target instanceof Future);
@@ -2713,6 +2718,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    return true;
 	}
 
+	public void arrayPrint(Node n, Node array, CodeWriter w, Template tmp ) {
+		if (null == tmp) {
+			tr.print(n, array, w);
+		} else {
+			w.write("(");
+			tmp.expand();
+			w.write(")");
+		}
+		
+	}
+	
 	public void visit(SettableAssign_c n) {
 	    SettableAssign_c a = n;
 	    Expr array = a.array();
@@ -2729,6 +2745,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    TypeSystem ts = tr.typeSystem();
 	    Type t = n.leftType();
 
+        boolean needsHereCheck = needsHereCheck(array);
+        Template tmp = null; 
+        if (needsHereCheck) {
+        	tmp = new Template("place-check", new TypeExpander(array.type(), true, false, false, false), array);
+        }
+      
 	    boolean nativeop = false;
 	    if (t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String())) {
 	        nativeop = true;
@@ -2747,11 +2769,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    	String pat = getJavaImplForDef(mi.x10Def());
 
 	    	if (pat != null) {
-	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
+	    		emitNativeAnnotation(pat, null == tmp ? array : tmp, mi.typeParameters(), args);
 	    		return;
 	    	} else {
 	    		// otherwise emit the hardwired code.
-	    		tr.print(n, array, w);
+	    		arrayPrint(n, array, w, tmp);
 	    		w.write(".set");
 	    		w.write("(");
 	    		tr.print(n, n.right(), w);
@@ -2764,7 +2786,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    else if (! effects) {
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 	        Name methodName = X10Binary_c.binaryMethodName(op);
-	        tr.print(n, array, w);
+	        arrayPrint(n, array, w, tmp);
 	        w.write(".set");
 	        w.write("((");
 	        tr.print(n, array, w);
@@ -2852,7 +2874,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(");");
 	        w.newline();
 	        w.write("} }.eval(");
-	        tr.print(n, array, w);
+	        arrayPrint(n, array, w, tmp);
 	        if (index.size() > 0)
 	            w.write(", ");
 	        new Join(", ", index).expand();
