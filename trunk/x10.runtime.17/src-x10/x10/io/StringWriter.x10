@@ -2,7 +2,7 @@ package x10.io;
 
 import x10.util.StringBuilder;
 
-public class StringWriter extends Writer {
+public value StringWriter extends Writer {
     val b: StringBuilder;
 
     public def this() { this.b = new StringBuilder(); }

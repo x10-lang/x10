@@ -1,6 +1,6 @@
 package x10.io;
 
-public class PutbackReader extends FilterReader {
+public value PutbackReader extends FilterReader {
     val putback: GrowableRail[Byte];
 
     def this() {

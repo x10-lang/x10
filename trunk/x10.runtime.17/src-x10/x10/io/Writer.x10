@@ -16,7 +16,7 @@ package x10.io;
 
 import x10.compiler.Native;
 
-public abstract class Writer {
+public abstract value Writer {
     public abstract def close(): Void throws IOException;
     public abstract def flush(): Void throws IOException;
     public abstract def write(x: Byte): Void throws IOException;
@@ -46,7 +46,7 @@ public abstract class Writer {
         }
     }
     
-    @Native("java", "new java.io.OutputStream() { public void write(int x) throws java.io.IOException { Writer.this.write((byte) x); } }")
+    @Native("java", "new java.lang.Object() { java.io.OutputStream eval(final x10.io.Writer w) { return new java.io.OutputStream() { public void write(int x) throws java.io.IOException { w.write((byte) x); } }; } }.eval(#0)")
     private def oos(): OutputStreamWriter.OutputStream {
         return null;
     }
