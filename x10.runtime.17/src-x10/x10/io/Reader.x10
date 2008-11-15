@@ -41,7 +41,7 @@ public abstract value Reader {
     public def read[T](m: Marshal[T]): T throws IOException = m.read(this);
 
     public def read[T](m: Marshal[T], a: Rail[T]): Void  throws IOException = read[T](m, a, 0, a.length);
-    public def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): Void throws IOException = read[T](m, a, off..off+len);
+    public def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): Void throws IOException = read[T](m, a, off..off+len-1);
     public def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.length-1)*/}): Void throws IOException {
         for ((i) in region) {
             a(i) = read[T](m);
