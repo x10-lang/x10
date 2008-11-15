@@ -7,7 +7,7 @@ import x10.types.Types;
 import x10.core.Iterable;
 import x10.core.Iterator;
 
-public class GrowableRail<T> extends Value implements Fun_0_1<Integer,T>, Settable<Integer, T>, Iterable<T> {
+public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable<Integer, T>, Iterable<T> {
 	private Type<T> elementType;
 	private Object array;
 	private int length;
