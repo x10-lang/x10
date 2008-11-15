@@ -60,6 +60,7 @@ import polyglot.ast.Unary_c;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
+import polyglot.ext.x10.ast.AtExpr_c;
 import polyglot.ext.x10.ast.AtStmt_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
@@ -2499,6 +2500,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	public void visit(Future_c f) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template("Future", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type())).expand(tr2);
+	}
+	
+	public void visit(AtExpr_c f) {
+		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type())).expand(tr2);
 	}
 	
 	public void visit(Formal_c f) {

@@ -92,6 +92,7 @@ import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.AssignPropertyCall_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
+import polyglot.ext.x10.ast.AtExpr_c;
 import polyglot.ext.x10.ast.AtStmt_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
@@ -253,6 +254,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Instanceof_c) { visit((Instanceof_c)n); return; }
 		if (n instanceof Here_c) { visit((Here_c)n); return; }
 		if (n instanceof Future_c) { visit((Future_c)n); return; }
+		if (n instanceof AtExpr_c) { visit((AtExpr_c)n); return; }
 		if (n instanceof X10Field_c) { visit((X10Field_c)n); return; }
 		if (n instanceof Field_c) { visit((Field_c)n); return; }
 		if (n instanceof DepParameterExpr_c) { visit((DepParameterExpr_c)n); return; }
@@ -345,6 +347,7 @@ public class X10DelegatingVisitor {
 				public void visit(Field_c n) { visit((Expr_c)n); }
 					public void visit(X10Field_c n) { visit((Field_c)n); }
 				public void visit(Future_c n) { visit((Expr_c)n); }
+				public void visit(AtExpr_c n) { visit((Expr_c)n); }
 				public void visit(Here_c n) { visit((Expr_c)n); }
 				public void visit(Instanceof_c n) { visit((Expr_c)n); }
 					public void visit(X10Instanceof_c n) { visit((Instanceof_c)n); }

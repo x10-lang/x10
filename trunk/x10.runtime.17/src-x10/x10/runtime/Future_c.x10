@@ -35,13 +35,13 @@ public value Future_c[T] implements Future[T] {
 		result = Rail.makeVar[T](1);
 	}
 	
-    public def forced():boolean = Runtime.remote[boolean](cdl, ()=>forced_c());
+    public def forced():boolean = at (cdl.location) forced_c();
     
     private def forced_c():boolean = cdl.getCount() == 0;
 
     public def apply():T = force();
 
-    public def force():T = Runtime.remote[T](cdl, ()=>force_c());
+    public def force():T = at (cdl.location) force_c();
 
     private def force_c():T {
   	    cdl.await();

@@ -276,6 +276,13 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return (Future) f.del(delFactory().delStmt());
 	}
 
+	public AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body) {
+		AtExpr f = new AtExpr_c(pos, place, returnType, body);
+		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
+		f = (AtExpr) f.ext(ext_fac.extFutureImpl());
+		return (AtExpr) f.del(delFactory().delStmt());
+	}
+
 	public Here Here(Position pos) {
 		Here f = new Here_c(pos);
 		f = (Here) f.ext(extFactory().extStmt());
