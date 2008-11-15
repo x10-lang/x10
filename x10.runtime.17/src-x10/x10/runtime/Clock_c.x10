@@ -50,6 +50,8 @@ public value Clock_c extends Clock {
 		return hashCode;
 	}
 	
+	// clocksPhases = phases of the activity being spawned
+	// Runtime.clockPhases() = phases of the parent activity
     def register_c(clockPhases:ClockPhases, ph:Int):Void {
     	finish async (state.location) state.register(ph);
     	clockPhases.put(this, ph);
@@ -78,7 +80,7 @@ public value Clock_c extends Clock {
     	async (state.location) state.drop(ph);
     }
     
-    def ph_c():Int {
+    private def ph_c():Int {
         return Runtime.clockPhases()(this) to Int;
     }
 }
