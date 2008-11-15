@@ -1,13 +1,7 @@
 // SYNOPSIS: at(#0) #1    #2=unique_id
-{
-	x10.lang.Place tmp#2 = x10.runtime.Runtime.here(#0);
-	try {
-		new x10.core.fun.VoidFun_0_0() {
-			public void apply() {
-				#1
-			}
-    	}.apply();
-    } finally {
-		x10.runtime.Runtime.here(tmp#2);
-	}
-}
+x10.runtime.Runtime.runAt(#0,
+	new x10.core.fun.VoidFun_0_0() {
+		public void apply() {
+			#1
+		}
+	});

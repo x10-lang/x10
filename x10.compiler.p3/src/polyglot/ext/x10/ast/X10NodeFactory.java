@@ -55,6 +55,7 @@ public interface X10NodeFactory extends NodeFactory {
     ExtensionInfo extensionInfo();
     
     AtStmt AtStmt(Position pos, Expr place, Stmt body);
+	AtExpr AtExpr(Position pos, Expr place, TypeNode returnType, Block body);
 
     X10AmbQualifierNode X10AmbQualifierNode(Position pos, Prefix prefix, Id name);
     X10AmbTypeNode X10AmbTypeNode(Position pos, Prefix prefix, Id name);

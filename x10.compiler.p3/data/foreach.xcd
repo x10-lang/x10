@@ -2,10 +2,10 @@
 for (x10.core.Iterator<#7> #2__ = (#3).iterator(); #2__.hasNext(); ) {
 	#0 #1 #2 = #2__.next();
 	#6
-	x10.runtime.Runtime.runAsync(#5,
+	x10.runtime.Runtime.runAsync(x10.runtime.Runtime.here(), #5,
 		new x10.core.fun.VoidFun_0_0() {
 			public void apply() {
 				#4
 			}
-		}, x10.runtime.Runtime.here());
+		});
 }

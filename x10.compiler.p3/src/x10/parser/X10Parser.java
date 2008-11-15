@@ -2948,9 +2948,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
                 //#line 1894 "/Users/nystrom/work/x10/1.7rel2/x10.compiler.p3/src/x10/parser/x10.g"
                 Block ClosureBody = (Block) getRhsSym(3);
                 //#line 1896 "/Users/nystrom/work/x10/cvs/org.eclipse.imp.lpg.metatooling/templates/btParserTemplate.gi"
-              Block body = nf.Block(pos(), nf.AtStmt(pos(), PlaceExpressionSingleList, ClosureBody));
-              Closure c = nf.Closure(pos(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, (DepParameterExpr) null, nf.UnknownTypeNode(pos()), Collections.EMPTY_LIST, body);
-              setResult(nf.ClosureCall(pos(), c, Collections.EMPTY_LIST, Collections.EMPTY_LIST));
+                setResult(nf.AtExpr(pos(), PlaceExpressionSingleList, nf.UnknownTypeNode(pos()), ClosureBody));
                 break;
             }
      
