@@ -41,7 +41,7 @@ public abstract value Writer {
     }
 
     public def write(buf: (Int) => Byte, off: Int, len: Int): Void throws IOException {
-        for ((i) in off..off+len) {
+        for ((i) in off..off+len-1) {
             write(buf(i));
         }
     }
