@@ -44,7 +44,7 @@ public value OutputStreamWriter extends Writer {
         this.out = out;
     }
     
-    public def flush(): Void throws IOException = out.close();
+    public def flush(): Void throws IOException = out.flush();
 
     public def close(): Void throws IOException = out.close();
     
