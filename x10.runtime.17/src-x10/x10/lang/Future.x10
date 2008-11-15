@@ -13,14 +13,14 @@ package x10.lang;
  * @author Christoph von Praun
  * @author tardieu
  */
-public interface Future[T] extends ()=>T {
+public abstract value Future[T] implements ()=>T {
     /**
      * Wait for the completion of this activity and return the computed value.
      */
-    public def force(): T;
+    public abstract def force(): T;
 
     /**
      * Return true if this activity has completed.
      */
-    public def forced(): boolean;
+    public abstract def forced(): boolean;
 }

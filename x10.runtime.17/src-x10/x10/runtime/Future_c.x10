@@ -14,7 +14,7 @@ import x10.util.Stack;
  * The representation of an X10 future expression.
  * @author tardieu
  */
-public value Future_c[T] implements Future[T] {
+public value Future_c[T] extends Future[T] {
     /**
      * CountDownLatch for signaling and wait -- can be replaced by a boolean latch
      */
