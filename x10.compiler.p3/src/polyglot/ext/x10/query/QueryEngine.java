@@ -65,7 +65,6 @@ public class QueryEngine {
 		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
 			return false;
             X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-            if (ts.isPoint(t)) return true;
             if (ts.isValueType(t))  return false;
 		return true;
 	}

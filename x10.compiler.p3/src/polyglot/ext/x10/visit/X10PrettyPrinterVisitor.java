@@ -2605,10 +2605,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	
 	boolean needsHereCheck( Receiver target) {
             boolean needsHereCheck = true;
-            // calls on future literals
-            needsHereCheck &= ! (target instanceof Future);
-            // calls on this
-            needsHereCheck &= ! (target instanceof Special);
             // calls on new objects
             needsHereCheck &= ! (target instanceof New);
             // others...
