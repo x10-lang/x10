@@ -23,7 +23,7 @@ public value Runtime {
 	 * One monitor per place
 	 */
  	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
- 		(id:Nat)=>Runtime.remote[Monitor](Place.place(id), ()=>new Monitor()));
+ 		(id:Nat)=>at (Place.place(id)) new Monitor());
  		
 	/**
 	 * The common thread pool
@@ -31,7 +31,7 @@ public value Runtime {
 	private const pool = new Pool(Int.getInteger("x10.INIT_THREADS_PER_PLACE", 3));
 
 // 	private const pools = Rail.makeVal[Pool](Place.MAX_PLACES,
-//		(id:Nat)=>Runtime.remote[Pool](Place.place(id), ()=>new Pool(Int.getInteger("x10.INIT_THREADS_PER_PLACE", 3))));
+//		(id:Nat)=>at (Place.place(id)) new Pool(Int.getInteger("x10.INIT_THREADS_PER_PLACE", 3)));
 
 	/**
 	 * Notify the thread pool that one activity is about to block
@@ -68,18 +68,7 @@ public value Runtime {
 	public static def here():Place = Thread.currentThread().place() as Place;
 
 	/**
-	 * Set the current place
-	 * Return the former place
-	 */
-	public static def here(place:Place):Place {
-		val thread = Thread.currentThread();
-		val p = thread.place() as Place;
-		thread.place(place);
-		return p;		
-	}
-
-	/**
-	 * Run the main activity in a finish
+	 * Run main activity in a finish
 	 */
 	public static def start(body:()=>Void):Void {
 		try {
@@ -96,9 +85,9 @@ public value Runtime {
 	}
 
 	/**
-	 * Run an async
+	 * Run async
 	 */
-	public static def runAsync(clocks:ValRail[Clock_c], body:()=>Void, place:Place):Void {
+	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void):Void {
 		at (currentPlace()) {
 			val state = current().finishStack.peek();
 			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
@@ -112,13 +101,40 @@ public value Runtime {
 	}
 
 	/**
-	 * Run a future
+	 * Run at statement
 	 */
-	public static def runFuture[T](eval:()=>T, place:Place):Future[T] {
-		val futur = Runtime.remote[Future_c[T]](place, ()=>new Future_c[T](eval));
-		runAsync(Rail.makeVal[Clock_c](0), ()=>futur.run(), place);
+	public static def runAt(place:Place, body:()=>Void):Void {
+		val thread = Thread.currentThread();
+		val ret = thread.place() as Place;
+		thread.place(place);
+		try {
+			body();
+		} finally {
+			thread.place(ret);
+		}
+	}
+
+	/**
+	 * Eval future expression
+	 */
+	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
+		val futur = at (place) new Future_c[T](eval);
+		runAsync(place, Rail.makeVal[Clock_c](0), ()=>futur.run());
 		return futur;
 	}
+
+	/**
+	 * Eval at expression
+	 */
+    public static def evalAt[T](place:Place, eval:()=>T):T {
+    	val ret = here;
+    	val box = Rail.makeVar[T](1);
+    	at (place) {
+    		val result = eval();
+    		at (ret) box(0) = result; 
+    	}
+    	return box(0);
+    }
 
 	const PLACE_CHECKS = !Boolean.getBoolean("x10.NO_PLACE_CHECKS");
 
@@ -139,19 +155,6 @@ public value Runtime {
 		}
 		return o;
 	}
-
-	/**
-	 * Remote computation
-	 */
-    static def remote[T](location:Object, eval:()=>T):T {
-    	val ret = here;
-    	val box = Rail.makeVar[T](1);
-    	at (location instanceof Place ? location as Place :(location as Ref).location) {
-    		val result = eval();
-    		at (ret) box(0) = result; 
-    	}
-    	return box(0);
-    }
 
 	/**
 	 * Lock current place
