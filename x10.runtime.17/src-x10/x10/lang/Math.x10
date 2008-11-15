@@ -11,10 +11,10 @@ package x10.lang;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-public final class Math {
+public final value Math {
 
   @NativeRep("java", "java.lang.Math", null, null)
-  static final class NativeMath {
+  static final value NativeMath {
    
      @Native("java", "java.lang.Math.abs((double) #1)")
      public static native def abs(a:Double):Double;
