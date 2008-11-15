@@ -119,7 +119,7 @@ public value Runtime {
 	 */
 	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
 		val futur = at (place) new Future_c[T](eval);
-		runAsync(place, Rail.makeVal[Clock_c](0), ()=>futur.run());
+		async (place) futur.run();
 		return futur;
 	}
 
@@ -139,18 +139,10 @@ public value Runtime {
 	const PLACE_CHECKS = !Boolean.getBoolean("x10.NO_PLACE_CHECKS");
 
 	/**
-	 * Compute location
-	 */
-	private static def location(o:Object):Place {
-		if (o instanceof Ref) return (o as Ref).location;
-		return here;
-	}
-
-	/**
 	 * Place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (PLACE_CHECKS && null != o && location(o) != p) {
+		if (PLACE_CHECKS && null != o && o instanceof Ref && (o to Ref).location != p) {
 			throw new BadPlaceException("object=" + o + " access at place=" + p);
 		}
 		return o;
