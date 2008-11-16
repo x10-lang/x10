@@ -98,6 +98,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	Type toType = castType.type();
 	Type fromType = expr.type();
+
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 
@@ -160,7 +161,6 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 	    // V to Box[V] to R
 	    if (ts.isValueType(fromType)) {
                 Type boxOfFrom = null;
-                
                 // Don't create a box of an anonymous class
                 if (fromType instanceof X10ClassType) {
                     X10ClassType fromCT = (X10ClassType) fromType;
@@ -171,6 +171,14 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                             boxOfFrom = ts.boxOf(Types.ref(fromCT.interfaces().get(0)));
                         else
                             boxOfFrom = ts.Object();
+                    }
+                }
+                
+                // Don't create a box if casting to closure type
+                if (toType instanceof X10ClassType) {
+                    X10ClassType toCT = (X10ClassType) toType;
+                    if (toCT.name().toString().contains("Fun_0_")) {
+                    	boxOfFrom = ts.Object();
                     }
                 }
 
