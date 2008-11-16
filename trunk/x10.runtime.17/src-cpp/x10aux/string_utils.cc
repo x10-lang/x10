@@ -32,7 +32,7 @@ void x10aux::free_args(const ref<Rail<ref<String> > > &arr) {
 }
 
 // [DC] I'm sure Igor will hate this but it will do for now.
-template<class T> T from_string(const ref<String> &s) {
+template<class T> T x10aux::from_string(const ref<String> &s) {
     std::istringstream ss(*s);
     T x;
     if (!(ss >> x)) {
@@ -48,35 +48,35 @@ template<class T> ref<String> to_string_general(T v) {
     return new (alloc<String>()) String(ss.str());
 }
 
-ref<String> to_string(bool v) {
+ref<String> x10aux::to_string(bool v) {
     return to_string_general(v);
 }
     
-ref<String> to_string(char v) {
+ref<String> x10aux::to_string(char v) {
     return to_string_general(v);
 }
     
-ref<String> to_string(short v) {
+ref<String> x10aux::to_string(short v) {
     return to_string_general(v);
 }
     
-ref<String> to_string(int v) {
+ref<String> x10aux::to_string(int v) {
     return to_string_general(v);
 }
     
-ref<String> to_string(long v) {
+ref<String> x10aux::to_string(int64_t v) {
     return to_string_general(v);
 }
     
-ref<String> to_string(float v) {
+ref<String> x10aux::to_string(float v) {
     return to_string_general(v);
 }
 
-ref<String> to_string(double v) {
+ref<String> x10aux::to_string(double v) {
     return to_string_general(v);
 }
 
-ref<String> to_string(const char *v) {
+ref<String> x10aux::to_string(const char *v) {
     return to_string_general(std::string(v));
 }
     

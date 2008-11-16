@@ -22,7 +22,7 @@ endif
 
 ARCHIVE=libx10rt17.a
 
-all: $(ARCHIVE)
+all: $(X10LIB)/include/x10/x10.h $(ARCHIVE) 
 
 ALL_OBJECTS = \
         x10aux/exit_code.o \
