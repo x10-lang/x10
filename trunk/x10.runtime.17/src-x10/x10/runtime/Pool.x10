@@ -8,16 +8,17 @@
 
 package x10.runtime;
 
-import x10.runtime.kernel.Runnable;
 import x10.runtime.kernel.Thread;
 import x10.util.Stack;
 
 /**
  * @author tardieu
  */
-class Pool implements Runnable {
+value Pool {
+	// at statements in this class are guaranteed to be local to the node
+
 	/**
-	 * Instance lock
+	 * Pool lock
 	 */
 	private val monitor = new Monitor();
 
@@ -27,20 +28,16 @@ class Pool implements Runnable {
 	private val activities = new Stack[Activity]();
 	
 	/**
-	 * Pool size
+	 * counters(0) = pool size, counters(1) = nb of blocked threads
+	 * invariant: counters(0) > counters(1)
 	 */
-	private var count:Int;
-	
-	/** 
-	 * Number of blocked activities in the pool
-	 */
-	private var busy:Int = 0;
+	private val counters = Rail.makeVar[Int](2, (nat)=>0);
 	
 	/** 
 	 * Start count threads
 	 */
 	def this(count:Int) {
-		this.count = count;
+		counters(0) = count;
 		for(var i:Int = 0; i < count; i++) allocate(i);
 	}
 	
@@ -48,44 +45,50 @@ class Pool implements Runnable {
 	 * Submit a new activity to the pool
 	 */
 	def execute(activity:Activity):Void {
-		monitor.lock();
-		activities.push(activity);
-		
-		// wake up available worker if any
-		monitor.unpark();
-
-		monitor.unlock();
+		at (activities.location) { 
+			monitor.lock();
+			activities.push(activity);
+			
+			// wake up available worker if any
+			monitor.unpark();
+	
+			monitor.unlock();
+		}
 	}
 		
 	/**
 	 * Start a new thread
 	 */
-	def allocate(id:Int):Void {
-		new Thread(location, this, "thread-" + id.toString()).start();
+	private def allocate(id:Int):Void {
+		new Thread(()=>this.run(), "thread-" + id.toString()).start();
 	}
 
 	/**
 	 * Increment number of blocked activities
 	 */
 	def increase():Void {
-		monitor.lock();
-		if (++busy >= count) allocate(count++);
-		monitor.unlock();
+		at (activities.location) {
+			monitor.lock();
+			if (++counters(1) >= counters(0)) allocate(counters(0)++);
+			monitor.unlock();
+		}
     }
 
 	/**
 	 * Decrement number of blocked activities
 	 */
 	def decrease():Void {
-		monitor.lock();
-		--busy;
-		monitor.unlock();
+		at (activities.location) {
+			monitor.lock();
+			--counters(1);
+			monitor.unlock();
+		}
     }
 
 	/**
 	 * Worker body
 	 */
-	public def run():Void {
+	private def run():Void {
 		val thread = Thread.currentThread();
 		
 		// no need for termination condition

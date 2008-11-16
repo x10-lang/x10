@@ -2,14 +2,21 @@
 
 public static class Main extends x10.runtime.impl.java.Runtime {
 	public static void main(java.lang.String[] args) {
-		new Main().start(x10.lang.Place.FIRST_PLACE, args);
+		// start native runtime
+		new Main().start(args);
 	}
-		
+	
+	// called by native runtime inside main x10 thread 
 	public void main(final x10.core.Rail<java.lang.String> args) {
+		// start xrx
 		x10.runtime.Runtime.start(
+			// body of main activity
 			new x10.core.fun.VoidFun_0_0() { 
 				public void apply() {
+					// catch and rethrow checked exceptions
+					// (closures cannot throw checked exceptions)
 					try {
+						// call the original app-main method
 						#2.main(args);
 					} catch (java.lang.RuntimeException e) {
 						throw e; 
