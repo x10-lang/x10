@@ -12,5 +12,7 @@ bool x10aux::RuntimeType::concreteInstanceOf (
     return other->_type()->equals(this);
 }
 
-const x10aux::RuntimeType * const x10aux::IntType::it = new x10aux::IntType();
 
+const x10aux::RuntimeType * const x10aux::IntType::it = new x10aux::IntType();
+const x10aux::RuntimeType * const x10aux::ShortType::it=new x10aux::ShortType();
+const x10aux::RuntimeType * const x10aux::CharType::it = new x10aux::CharType();
