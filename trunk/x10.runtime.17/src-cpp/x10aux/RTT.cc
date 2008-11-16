@@ -2,16 +2,20 @@
 
 #include <x10/lang/Object.h>
 
-bool x10aux::RuntimeType::instanceOf (
-        const x10aux::ref<x10::lang::Object> &other) const {
+using namespace x10aux;
+using namespace x10::lang;
+
+bool x10aux::RuntimeType::instanceOf (const ref<Object> &other) const {
     return other->_type()->subtypeOf(this);
 }
 
-bool x10aux::RuntimeType::concreteInstanceOf (
-        const x10aux::ref<x10::lang::Object> &other) const {
+bool x10aux::RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
     return other->_type()->equals(this);
 }
 
+IntType::IntType() : RuntimeType(1,getRTT<Object>()) { }
+ShortType::ShortType() : RuntimeType(1,getRTT<Object>()) { }
+CharType::CharType() : RuntimeType(1,getRTT<Object>()) { }
 
 const x10aux::RuntimeType * const x10aux::IntType::it = new x10aux::IntType();
 const x10aux::RuntimeType * const x10aux::ShortType::it=new x10aux::ShortType();

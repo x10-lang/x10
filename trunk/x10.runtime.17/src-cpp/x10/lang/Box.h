@@ -23,8 +23,7 @@ namespace x10 {
                 public:
                 static const RTT *it;
 
-                RTT() : RuntimeType()
-                { }
+                RTT() : RuntimeType(1,x10aux::getRTT<Ref>()) { }
 
                 virtual std::string name() {
                     std::stringstream ss;

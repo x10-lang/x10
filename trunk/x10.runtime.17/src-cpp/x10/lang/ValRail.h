@@ -16,13 +16,16 @@ namespace x10 {
 
     namespace lang {
 
-        template<class T> class ValRail : public x10aux::AnyRail<T> {
+        template<class T> class ValRail : public Value,
+                                          public x10aux::AnyRail<T> {
 
             public:
 
             class RTT : public x10aux::RuntimeType {
                 public:
                 static const RTT* it;
+
+                RTT() : RuntimeType(1,x10aux::getRTT<Value>()) { }
 
                 virtual std::string name() const {
                     std::stringstream ss;

@@ -3,14 +3,14 @@
 
 #include <stdarg.h>
 
-#include <x10/lang/Value.h>
+//#include <x10/lang/Value.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Iterator.h>
 
 namespace x10aux {
 
 
-        template<class T> class AnyRail : public x10::lang::Value {
+        template<class T> class AnyRail {
 
             public:
 
@@ -23,8 +23,10 @@ namespace x10aux {
 
             public:
 
+            virtual const RuntimeType *_type() const = 0;
+
             AnyRail(x10_int length_)
-              : Value(), FMGL(length)(length_) { }
+              : FMGL(length)(length_) { }
 
             virtual ~AnyRail() {
                 for (int i=0; i<FMGL(length); i++)
@@ -53,7 +55,7 @@ namespace x10aux {
 
             virtual bool equals (const ref<x10::lang::Object> &other) {
                 if (!_type()->concreteInstanceOf(other)) return false;
-                const AnyRail &other_rail = static_cast<AnyRail&>(*other);
+                const AnyRail &other_rail = (AnyRail&)(*other);
                 // different sizes so false
                 if (other_rail.FMGL(length)!=FMGL(length)) return false;
                 for (x10_int index=0 ; index<FMGL(length) ; ++index) {

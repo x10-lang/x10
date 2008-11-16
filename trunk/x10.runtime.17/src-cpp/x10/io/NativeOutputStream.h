@@ -18,7 +18,7 @@ namespace x10 {
                 public:
                     static const RTT* const it;
 
-                    RTT() : RuntimeType() { }
+                    RTT() : RuntimeType(1,x10aux::getRTT<x10::lang::Ref>()) { }
 
                     virtual std::string name() const {
                         return "x10.io.OutputStreamWriter.NativeOutputStream";
