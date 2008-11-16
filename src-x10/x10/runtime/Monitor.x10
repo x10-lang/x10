@@ -16,7 +16,7 @@ import x10.util.Stack;
  * Lock with wait/notify capability implemented using park/unpark
  * @author tardieu
  */
-value Monitor {
+class Monitor {
  	/**
  	 * Instance lock
  	 */

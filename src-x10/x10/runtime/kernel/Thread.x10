@@ -11,7 +11,6 @@ package x10.runtime.kernel;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import x10.runtime.kernel.Runnable;
 import x10.runtime.kernel.InterruptedException;
  
 /**
@@ -28,7 +27,10 @@ import x10.runtime.kernel.InterruptedException;
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
 public value Thread {
 	
-	public native def this(place:Object, runnable:Runnable, name:String):Thread;
+	/**
+	 * Allocates new thread in current place
+	 */
+	public native def this(body:()=>Void, name:String):Thread;
 	
 	@Native("java", "#0.currentThread()")
 	public static native def currentThread():Thread;
@@ -58,10 +60,7 @@ public value Thread {
 	public native def activity(activity:Object):void;
 
 	@Native("java", "#0.place()")
-	public native def place():Object;
-
-	@Native("java", "#0.place(#1)")
-	public native def place(place:Object):void;
+	public native def place():Int;
 
     @Native("java", "#0.getName()")
     public native def name():String;
