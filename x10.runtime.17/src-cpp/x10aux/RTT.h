@@ -21,13 +21,30 @@ namespace x10aux {
 
         public:
 
-        virtual ~RuntimeType() { }
+        const int parentsc;
+        const RuntimeType ** const parents;
+
+        RuntimeType(int parentsc_, ...)
+          : parentsc(parentsc_), parents(new const RuntimeType*[parentsc]) {
+            va_list parentsv;
+            va_start(parentsv, parentsc_);
+            for (int i=0 ; i<parentsc ; ++i)
+                parents[i] = va_arg(parentsv,const RuntimeType*);
+            va_end(parentsv);
+        }
+
+        virtual ~RuntimeType() {
+            delete [] parents;
+        }
 
         virtual std::string name () const = 0;
 
         virtual bool subtypeOf (const RuntimeType * const other) const {
-            //TODO: walk hierarchy
-            return equals(other);
+            if (equals(other)) return true; // trivial case
+            for (int i=0 ; i<parentsc ; ++i) {
+                if (parents[i]->subtypeOf(other)) return true;
+            }
+            return false;
         }
 
         virtual bool instanceOf (
@@ -51,12 +68,20 @@ namespace x10aux {
         return T::RTT::it;
     } };
 
+    // this is the function we use to get runtime types from types
+    template<class T> const RuntimeType *getRTT() {
+        return RTT_WRAP<T>::_();
+    }
+
 
     class IntType : public RuntimeType {
 
         public:
 
         static const RuntimeType * const it;
+
+        //TODO: numeric subtype hierarchy
+        IntType();
 
         virtual ~IntType() { }
 
@@ -75,6 +100,8 @@ namespace x10aux {
 
         static const RuntimeType * const it;
 
+        ShortType();
+
         virtual ~ShortType() { }
 
         virtual std::string name () const { return "x10.lang.Short"; }
@@ -92,6 +119,8 @@ namespace x10aux {
 
         static const RuntimeType * const it;
 
+        CharType();
+
         virtual ~CharType() { }
 
         virtual std::string name () const { return "x10.lang.Char"; }
@@ -103,10 +132,6 @@ namespace x10aux {
 
 
 
-    // this is the function we use to get runtime types from types
-    template<class T> const RuntimeType *getRTT() {
-        return RTT_WRAP<T>::_();
-    }
 
 }
 

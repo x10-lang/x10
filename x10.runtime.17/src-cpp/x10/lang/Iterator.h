@@ -15,13 +15,15 @@ namespace x10 {
 
     namespace lang {
 
-        template<class T> class Iterator : public x10::lang::Object {
+        template<class T> class Iterator : public Object {
 
             public:
 
             class RTT : public x10aux::RuntimeType {
                 public:
                 static const RTT* it;
+ 
+                RTT() : RuntimeType(1,x10aux::getRTT<Object>()) { }
 
                 virtual std::string name() const {
                     std::stringstream ss;
