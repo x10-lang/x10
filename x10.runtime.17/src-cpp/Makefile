@@ -25,21 +25,26 @@ ARCHIVE=libx10rt17.a
 all: $(ARCHIVE)
 
 ALL_OBJECTS = \
-        x10/lang/String.o \
-        x10/lang/Ref.o \
-        x10/lang/Value.o \
-        x10/lang/Object.o \
+        x10aux/exit_code.o \
+        x10aux/finish.o \
+        x10aux/int_utils.o \
+        x10aux/io/FILEPtrInputStream.o \
+        x10aux/io/FILEPtrOutputStream.o \
+        x10aux/io/FILEPtrStream.o \
+        x10aux/place.o \
+        x10aux/ref.o \
+        x10aux/RTT.o \
+        x10aux/runtime.o \
+        x10aux/serialization.o \
+        x10aux/string_utils.o \
         x10/io/NativeInputStream.o \
         x10/io/NativeOutputStream.o \
-        x10aux/int_utils.o \
-        x10aux/place.o \
-	x10aux/ref.o \
-        x10aux/runtime.o \
-        x10aux/string_utils.o \
-        x10aux/serialization.o \
-        x10aux/finish.o \
-        x10aux/exit_code.o \
-        x10aux/RTT.o \
+        x10/lang/Exception.o \
+        x10/lang/Object.o \
+        x10/lang/Ref.o \
+        x10/lang/String.o \
+        x10/lang/Throwable.o \
+        x10/lang/Value.o \
 
 $(ARCHIVE): $(ALL_OBJECTS)
 	$(AR) $(ARFLAGS) $@ $^
@@ -51,7 +56,7 @@ $(ARCHIVE): $(ALL_OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 depend:
-	find -name '*.cc' | xargs makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
+	find -name '*.cc' -o -name '*.h' | xargs makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
 
 
 clean:
