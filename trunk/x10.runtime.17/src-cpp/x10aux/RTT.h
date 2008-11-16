@@ -1,6 +1,9 @@
 #ifndef X10AUX_RTT_H
 #define X10AUX_RTT_H
 
+#define INSTANCEOF(v,T) (x10aux::getRTT< T >()->instanceOf(v))
+
+
 #include <string>
 
 #include <x10aux/config.h>
@@ -48,6 +51,7 @@ namespace x10aux {
         return T::RTT::it;
     } };
 
+
     class IntType : public RuntimeType {
 
         public:
@@ -59,11 +63,47 @@ namespace x10aux {
         virtual std::string name () const { return "x10.lang.Int"; }
 
     };  
-
     template<> struct RTT_WRAP<x10_int> { static const RuntimeType *_() {
         return IntType::it;
     } };
 
+
+
+    class ShortType : public RuntimeType {
+
+        public:
+
+        static const RuntimeType * const it;
+
+        virtual ~ShortType() { }
+
+        virtual std::string name () const { return "x10.lang.Short"; }
+
+    };  
+    template<> struct RTT_WRAP<x10_short> { static const RuntimeType *_() {
+        return ShortType::it;
+    } };
+
+
+
+    class CharType : public RuntimeType {
+
+        public:
+
+        static const RuntimeType * const it;
+
+        virtual ~CharType() { }
+
+        virtual std::string name () const { return "x10.lang.Char"; }
+
+    };  
+    template<> struct RTT_WRAP<x10_char> { static const RuntimeType *_() {
+        return CharType::it;
+    } };
+
+
+
+    // this is the function we use to get runtime types from types
     template<class T> const RuntimeType *getRTT() {
         return RTT_WRAP<T>::_();
     }
