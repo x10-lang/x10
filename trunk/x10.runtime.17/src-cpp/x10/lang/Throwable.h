@@ -51,12 +51,13 @@ namespace x10 {
             virtual void printStackTrace();
             virtual void printStackTrace(x10aux::ref<x10::io::Printer> p);
 
-            /* TODO: don't care about this just yet
-            // Serialization
-            static const int SERIALIZATION_ID = 17;
             explicit Throwable(x10aux::SERIALIZATION_MARKER m) : Value(m){
                 (void) m;
             }
+
+            /* TODO: don't care about this just yet
+            // Serialization
+            static const int SERIALIZATION_ID = 17;
             virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) { x10aux::_serialize_ref(this, buf, m); }
             virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
             virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
