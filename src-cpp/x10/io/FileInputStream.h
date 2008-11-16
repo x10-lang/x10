@@ -1,18 +1,32 @@
-#ifndef X10_IO_FILEPTRINPUTSTREAM_H
-#define X10_IO_FILEPTRINPUTSTREAM_H
+#ifndef X10_IO_FILEINPUTSTREAM_H
+#define X10_IO_FILEINPUTSTREAM_H
 
-#include <x10/io/FILEPtrInputStream.h>
+#include <x10/io/NativeInputStream.h>
+#include <x10aux/io/FILEPtrInputStream.h>
 
 namespace x10 {
 
     namespace io {
 
-        class FileInputStream : public FILEPtrInputStream {
+        class FileInputStream : public x10aux::io::FILEPtrInputStream,
+                                public NativeInputStream {
 
-        protected:
-            virtual const x10_runtime_type _type() const {
-                return TYPEID(*this,"java::io::FileInputStream");
-            }
+        public:
+            class RTT : public x10aux::RuntimeType {
+                public: 
+                    static const RTT* const it;
+                    
+                    RTT() : RuntimeType() { }
+
+                    virtual std::string name() const {
+                        return "x10.io.FileWriter.FileInputStream";
+                    }
+
+            };
+            virtual const x10aux::RuntimeType *_type() const {
+                return x10aux::getRTT<FileInputStream>();
+            }   
+
 
 
         public:
