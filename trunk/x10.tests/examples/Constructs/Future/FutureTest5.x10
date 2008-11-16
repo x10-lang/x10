@@ -15,7 +15,7 @@ import harness.x10Test;;
  */
 public class FutureTest5 extends x10Test {
 
-	var fut: Future[Int];
+	var fut: Box[Future[Int]];
 
 	/**
 	 * Create a future in one activity, and then
@@ -36,12 +36,12 @@ public class FutureTest5 extends x10Test {
 		atomic fut = null;
 		async (here) {
 			val t1 = future (here) { 42 } ;
-			atomic fut = t1;
+			atomic fut = t1 to Box[Future[Int]];
 			if (del)
 				x10.lang.Runtime.sleep(500);
 		};
 		var t2: Future[Int];
-		when (fut != null) { t2 = fut; }
+		when (fut != null) { t2 = fut to Future[Int]; }
 		var fortytwo: int = t2.force();
 		System.out.println("up done");
 		return fortytwo == 42;
@@ -66,13 +66,13 @@ public class FutureTest5 extends x10Test {
 		atomic fut = null;
 		async (here) {
 			val t1= future (here) { 42 } ;
-			atomic fut = t1;
+			atomic fut = t1 to Box[Future[Int]];
 			if (del)
 				x10.lang.Runtime.sleep(500);
 		}
 		finish async (here) {
 			var t2: Future[Int];
-			when (fut != null) { t2 = fut; }
+			when (fut != null) { t2 = fut to Future[Int]; }
 			var fortytwo: int = t2.force();
 			System.out.println("sibling done");
 		};
