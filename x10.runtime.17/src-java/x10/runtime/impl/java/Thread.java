@@ -18,27 +18,50 @@ public class Thread extends java.lang.Thread {
 		return (Thread) java.lang.Thread.currentThread();
 	}
 
-	private Object place; // the current place
+	private int place; // the current place
 	private Object activity; // the current activity
 
-	public Thread(Object place, Runnable runnable, String name) {
+	/**
+	 * Create main x10 thread (called by native runtime only )
+	 */ 
+	Thread(int place, Runnable runnable, String name) {
 		super(runnable, name);
 		this.place = place;
 	}
 
+	/**
+	 * Create additional x10 threads (called by xrx only)
+	 */ 
+	public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
+		super(new Runnable() { public void run() { body.apply(); } }, name);
+		this.place = currentThread().place;
+	}
+
+	/**
+	 * Attach activity to thread
+	 */ 
 	public void activity(Object activity) {
 		this.activity = activity;
 	}
 
+	/**
+	 * Return current activity
+	 */ 
 	public Object activity() {
 		return activity;
 	}
 
-	public void place(Object place) {
+	/**
+	 * Update thread place (called by native runtime only)
+	 */ 
+	void place(int place) {
 		this.place = place;
 	}
 
-	public Object place() {
+	/**
+	 * Return current place
+	 */ 
+	public int place() {
 		return place;
 	}
 }

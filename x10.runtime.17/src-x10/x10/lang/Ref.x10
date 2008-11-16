@@ -20,7 +20,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.core.Ref", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
 public class Ref(
-        @Native("java", "(x10.lang.Place) #0.location()")
+        @Native("java", "x10.lang.Place.place(#0.location())")
         @Native("c++", "/*TODO: PLACES_NOT_IMPLEMENTED*/0")
         location: Place) {
 

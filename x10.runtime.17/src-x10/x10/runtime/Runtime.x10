@@ -10,38 +10,34 @@ package x10.runtime;
 
 import x10.runtime.kernel.InterruptedException;
 import x10.runtime.kernel.Thread;
-
+import x10.util.GrowableRail;
 /**
  * @author tardieu
  */
 public value Runtime {
 	// TODO place-cast of null?
 	// TODO runNow
-	// TODO configurable pools 
 	
 	
 	// thread pool
 	
 	/**
-	 * The common thread pool
+	 * One thread pool per node
 	 */
-	private const pool = new Pool(Int.getInteger("x10.INIT_THREADS_PER_PLACE", 3));
-
-// 	private const pools = Rail.makeVal[Pool](Place.MAX_PLACES,
-//		(id:Nat)=>at (Place.place(id)) new Pool(Int.getInteger("x10.INIT_THREADS_PER_PLACE", 3)));
+	private const pool = new Pool(x10.runtime.kernel.Runtime.INIT_THREADS);
 
 	/**
 	 * Notify the thread pool that one activity is about to block
 	 */
 	static def threadBlockedNotification():Void {
-		at (Place.FIRST_PLACE) pool.increase();
+		pool.increase();
     }
 
 	/**
 	 * Notify the thread pool that one activity has unblocked
 	 */
 	static def threadUnblockedNotification():Void {
-		at (Place.FIRST_PLACE) pool.decrease();
+		pool.decrease();
     }
 
 
@@ -55,7 +51,7 @@ public value Runtime {
 	/**
 	 * Return the current place
 	 */
-	public static def here():Place = Thread.currentThread().place() as Place;
+	public static def here():Place = Place.place(Thread.currentThread().place());
 
 
 	// main
@@ -75,8 +71,8 @@ public value Runtime {
 			t.printStackTrace();
 		}
 	}
-	
-	
+
+
 	// at statement -> at expression -> async -> future
 	// do not introduce cycles!!!
 
@@ -84,14 +80,7 @@ public value Runtime {
 	 * Run at statement
 	 */
 	public static def runAt(place:Place, body:()=>Void):Void {
-		val thread = Thread.currentThread();
-		val ret = thread.place() as Place;
-		thread.place(place);
-		try {
-			body();
-		} finally {
-			thread.place(ret);
-		}
+		x10.runtime.kernel.Runtime.runAt(place.id, body);
 	}
 
 	/**
@@ -99,7 +88,7 @@ public value Runtime {
 	 */
     public static def evalAt[T](place:Place, eval:()=>T):T {
     	val ret = here;
-    	val box = Rail.makeVar[T](1);
+    	val box = new GrowableRail[T]();
     	at (place) {
     		val result = eval();
     		at (ret) box(0) = result; 
@@ -115,8 +104,7 @@ public value Runtime {
 			val state = current().finishStack.peek();
 			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
 			state.notifySubActivitySpawn();
-			val activity = at (place) new Activity(body, state, clocks, phases);
-			at (Place.FIRST_PLACE) pool.execute(activity);
+			at (place) pool.execute(new Activity(body, state, clocks, phases));
 		}
 	}
 
@@ -124,21 +112,22 @@ public value Runtime {
 	 * Eval future expression
 	 */
 	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
-		val futur = at (place) new Future_c[T](eval);
-		async (place) futur.run();
-		return futur;
+		return at (place) {
+			val futur = new Future_c[T](eval);
+			async futur.run();
+			futur
+		};
 	}
     
     
     // place checks
 
-	const PLACE_CHECKS = !Boolean.getBoolean("x10.NO_PLACE_CHECKS");
-
 	/**
 	 * Place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (PLACE_CHECKS && null != o && o instanceof Ref && (o to Ref).location != p) {
+		if (x10.runtime.kernel.Runtime.PLACE_CHECKS &&
+				null != o && o instanceof Ref && (o to Ref).location != p) {
 			throw new BadPlaceException("object=" + o + " access at place=" + p);
 		}
 		return o;
@@ -148,13 +137,14 @@ public value Runtime {
 	// atomic, await, when
 
 	/**
-	 * One monitor per place
+	 * One monitor per place in the current node
 	 */
- 	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
- 		(id:Nat)=>at (Place.place(id)) new Monitor());
- 		
+	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
+		(id:Nat)=> x10.runtime.kernel.Runtime.local(id) ? at (Place.place(id)) new Monitor() : null); 
+ 	 		
 	/**
 	 * Lock current place
+	 * not reentrant!
 	 */
     public static def lock():Void {
     	monitors(here().id).lock();
