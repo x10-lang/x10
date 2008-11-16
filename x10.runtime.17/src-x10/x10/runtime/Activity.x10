@@ -19,16 +19,17 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState]) {
 	/**
 	 * Create an activity.
 	 */
-	def this(body:()=>Void) {
+	def this(body:()=>Void, state:FinishState) {
 	    property(new ClockPhases(), new Stack[FinishState]());
 	    this.body = body;
+	    finishStack.push(state);
 	}
 
 	/**
 	 * Create a clocked activity.
 	 */
-	def this(body:()=>Void, clocks:ValRail[Clock_c], phases:ValRail[Int]) {
-		this(body);
+	def this(body:()=>Void, state:FinishState, clocks:ValRail[Clock_c], phases:ValRail[Int]) {
+		this(body, state);
 		clockPhases.register(clocks, phases);
 	}
 

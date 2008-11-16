@@ -19,12 +19,9 @@ public value Runtime {
 	// TODO runNow
 	// TODO configurable pools 
 	
-	/**
-	 * One monitor per place
-	 */
- 	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
- 		(id:Nat)=>at (Place.place(id)) new Monitor());
- 		
+	
+	// thread pool
+	
 	/**
 	 * The common thread pool
 	 */
@@ -47,58 +44,41 @@ public value Runtime {
 		at (Place.FIRST_PLACE) pool.decrease();
     }
 
+
+	// current activity, current place
+
 	/**
 	 * Return the current activity
 	 */
-	static def current():Activity = Thread.currentThread().activity() as Activity;
+	private static def current():Activity = Thread.currentThread().activity() as Activity;
 	
-	/**
-	 * Return the location of the current activity.
-	 */
-	static def currentPlace():Place = current().location;
-	
-	/**
-	 * Return the clock phases of the current activity
-	 */
-	static def clockPhases():ClockPhases = current().clockPhases();
-
 	/**
 	 * Return the current place
 	 */
 	public static def here():Place = Thread.currentThread().place() as Place;
 
+
+	// main
+	
 	/**
 	 * Run main activity in a finish
 	 */
 	public static def start(body:()=>Void):Void {
 		try {
-			val activity = new Activity(body);
-			Thread.currentThread().activity(activity);
 			val state = new FinishState();
+			val activity = new Activity(body, state);
+			Thread.currentThread().activity(activity);
 			state.notifySubActivitySpawn();
-			activity.finishStack.push(state);
 			activity.run();
 			state.waitForFinish();
 		} catch (t:Throwable) {
 			t.printStackTrace();
 		}
 	}
-
-	/**
-	 * Run async
-	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void):Void {
-		at (currentPlace()) {
-			val state = current().finishStack.peek();
-			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
-			state.notifySubActivitySpawn();
-			at (place) {
-				val activity = new Activity(body, clocks, phases);
-				activity.finishStack.push(state);
-				at (Place.FIRST_PLACE) pool.execute(activity);
-			}
-		}
-	}
+	
+	
+	// at statement -> at expression -> async -> future
+	// do not introduce cycles!!!
 
 	/**
 	 * Run at statement
@@ -115,15 +95,6 @@ public value Runtime {
 	}
 
 	/**
-	 * Eval future expression
-	 */
-	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
-		val futur = at (place) new Future_c[T](eval);
-		async (place) futur.run();
-		return futur;
-	}
-
-	/**
 	 * Eval at expression
 	 */
     public static def evalAt[T](place:Place, eval:()=>T):T {
@@ -135,6 +106,31 @@ public value Runtime {
     	}
     	return box(0);
     }
+
+	/**
+	 * Run async
+	 */
+	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void):Void {
+		at (current().location) {
+			val state = current().finishStack.peek();
+			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
+			state.notifySubActivitySpawn();
+			val activity = at (place) new Activity(body, state, clocks, phases);
+			at (Place.FIRST_PLACE) pool.execute(activity);
+		}
+	}
+
+	/**
+	 * Eval future expression
+	 */
+	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
+		val futur = at (place) new Future_c[T](eval);
+		async (place) futur.run();
+		return futur;
+	}
+    
+    
+    // place checks
 
 	const PLACE_CHECKS = !Boolean.getBoolean("x10.NO_PLACE_CHECKS");
 
@@ -148,6 +144,15 @@ public value Runtime {
 		return o;
 	}
 
+
+	// atomic, await, when
+
+	/**
+	 * One monitor per place
+	 */
+ 	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
+ 		(id:Nat)=>at (Place.place(id)) new Monitor());
+ 		
 	/**
 	 * Lock current place
 	 */
@@ -172,6 +177,9 @@ public value Runtime {
 		monitors(here().id).unlock();
     }
 
+
+	// sleep
+
 	/**
 	 * Sleep for the specified number of milliseconds.
 	 * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.
@@ -190,19 +198,28 @@ public value Runtime {
 		}
 	}
 
+	
+	// clocks
+
+	/**
+	 * Return the clock phases of the current activity
+	 */
+	static def clockPhases():ClockPhases = at (current().location) current().clockPhases();
+
 	/**
 	 * Next statement = next on all clocks in parallel.
 	 */
-	public static def next():Void {
-		at (currentPlace()) current().clockPhases.next();
-	}
+	public static def next():Void =	clockPhases().next();
+
+
+	// finish
 
 	/**
 	 * Start executing current activity synchronously 
 	 * (i.e. within a finish statement).
 	 */
 	public static def startFinish():Void {
-		at (currentPlace()) current().finishStack.push(new FinishState());
+		at (current().location) current().finishStack.push(new FinishState());
 	}
 
 	/**
@@ -212,7 +229,7 @@ public value Runtime {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public static def stopFinish():Void {
-		at (currentPlace()) current().finishStack.pop().waitForFinish();
+		at (current().location) current().finishStack.pop().waitForFinish();
 	}
 
 	/** 
@@ -220,6 +237,6 @@ public value Runtime {
 	 * onto the finish state.
 	 */
 	public static def pushException(t:Throwable):Void  {
-		at (currentPlace()) current().finishStack.peek().pushException(t);
+		at (current().location) current().finishStack.peek().pushException(t);
 	}
 }
