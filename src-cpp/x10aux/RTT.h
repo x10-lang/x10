@@ -5,6 +5,7 @@
 
 
 #include <string>
+#include <stdarg.h>
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
