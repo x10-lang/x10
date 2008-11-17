@@ -11,6 +11,9 @@ package x10.runtime;
 import x10.runtime.kernel.InterruptedException;
 import x10.runtime.kernel.Thread;
 import x10.util.GrowableRail;
+
+import x10.io.Console;
+
 /**
  * @author tardieu
  */
@@ -68,7 +71,9 @@ public value Runtime {
 			activity.run();
 			state.waitForFinish();
 		} catch (t:Throwable) {
-			t.printStackTrace();
+            // temporary measure until we have a new stacktrace mechanism
+            Console.OUT.println("The activity did not catch: "+t);
+			//t.printStackTrace();
 		}
 	}
 
