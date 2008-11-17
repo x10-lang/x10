@@ -8,6 +8,7 @@
 
 package x10.runtime;
 
+import x10.util.GrowableRail;
 import x10.util.Stack;
 
 /**
@@ -26,47 +27,38 @@ public value Future_c[T] extends Future[T] {
      */
 	private val exception = new Stack[Throwable]();
 	
-	private val result:Rail[T];
+	private val result:GrowableRail[T];
 	
 	private val eval:()=>T;
 	
 	public def this(eval:()=>T) {
 		this.eval = eval;
-		result = Rail.makeVar[T](1);
+		result = new GrowableRail[T]();
 	}
 	
-    public def forced():boolean = at (cdl.location) forced_c();
+    public def forced():boolean = at (cdl.location) cdl.getCount() == 0;
     
-    private def forced_c():boolean = cdl.getCount() == 0;
-
     public def apply():T = force();
 
-    public def force():T = at (cdl.location) force_c();
-
-    private def force_c():T {
-  	    cdl.await();
-        if (!exception.isEmpty()) {
-        	val e = exception.peek();
-            if (e instanceof Error)
-                throw e as Error;
-            if (e instanceof RuntimeException)
-                throw e as RuntimeException;
-            assert false as boolean;
-        }
-        return result(0);
+    public def force():T {
+    	return at (cdl.location) {
+	    	cdl.await();
+	        if (!exception.isEmpty()) {
+	        	val e = exception.peek();
+	            if (e instanceof Error)
+	                throw e as Error;
+	            if (e instanceof RuntimeException)
+	                throw e as RuntimeException;
+	            assert false as boolean;
+	        }
+	        result(0)
+		};
     }
 
 	def run():Void {
 		try {
-        	Runtime.startFinish();
-        	try {
-                result(0) = eval();
-            } catch (t:Throwable) {
-                Runtime.pushException(t);
-            }
-            Runtime.stopFinish();
+        	finish result(0) = eval();
         } catch (t:Throwable) {
-            // Now nested asyncs have terminated.
             exception.push(t);
         } finally {
           	cdl.countDown();
