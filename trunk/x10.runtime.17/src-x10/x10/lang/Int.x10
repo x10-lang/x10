@@ -27,26 +27,31 @@ public final value Int implements Integer, Signed {
     public const MAX_VALUE = 0x7fffffff;
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
+    @Native("c++", "x10aux::int_utils::toString(#0, #1)")
     public native def toString(radix: Int): String;
     
     @Native("java", "java.lang.Integer.toHexString(#0)")
+    @Native("c++", "x10aux::int_utils::toHexString(#0)")
     public native def toHexString(): String;    
     
     @Native("java", "java.lang.Integer.toOctalString(#0)")
+    @Native("c++", "x10aux::int_utils::toOctalString(#0)")
     public native def toOctalString(): String;  
       
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
+    @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;    
     
     @Native("java", "java.lang.Integer.toString(#0)")
-    @Native("c++", "x10aux::to_string(#0)")
+    @Native("c++", "x10aux::int_utils::toString(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Integer.parseInt(#1, #2)")
+    @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parseInt(String, radix: Int): Int throws NumberFormatException;
     
     @Native("java", "java.lang.Integer.parseInt(#1)")
-    @Native("c++", "x10aux::int_parseInt(#1)")
+    @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parseInt(String): Int throws NumberFormatException;
 
     @Native("java", "java.lang.Integer.getInteger(#1, #2).intValue()")
@@ -56,33 +61,42 @@ public final value Int implements Integer, Signed {
     public native static def getInteger(property: String): Box[Int];
 
     @Native("java", "java.lang.Integer.highestOneBit(#0)")
+    @Native("c++", "x10aux::int_utils::highestOneBit(#0)")
     public native def highestOneBit(): Int;
     
     @Native("java", "java.lang.Integer.lowestOneBit(#0)")
+    @Native("c++", "x10aux::int_utils::lowestOneBit(#0)")
     public native def lowestOneBit(): Int;
 
     @Native("java", "java.lang.Integer.numberOfLeadingZeros(#0)")
+    @Native("c++", "x10aux::int_utils::numberOfLeadingZeros(#0)")
     public native def numberOfLeadingZeros(): Int;
 
     @Native("java", "java.lang.Integer.numberOfTrailingZeros(#0)")
+    @Native("c++", "x10aux::int_utils::numberOfTrailingZeros(#0)")
     public native def numberOfTrailingZeros(): Int;
 
     @Native("java", "java.lang.Integer.bitCount(#0)")
+    @Native("c++", "x10aux::int_utils::bitCount(#0)")
     public native def bitCount(): Int;
 
     @Native("java", "java.lang.Integer.rotateLeft(#0)")
+    @Native("c++", "x10aux::int_utils::rotateLeft(#0)")
     public native def rotateLeft(): Int;
     
     @Native("java", "java.lang.Integer.rotateRight(#0)")
+    @Native("c++", "x10aux::int_utils::rotateRight(#0)")
     public native def rotateRight(): Int;
     
     @Native("java", "java.lang.Integer.reverse(#0)")
+    @Native("c++", "x10aux::int_utils::reverse(#0)")
     public native def reverse(): Int;
     
     @Native("java", "java.lang.Integer.signum(#0)")
+    @Native("c++", "x10aux::int_utils::signum(#0)")
     public native def signum(): Int;
     
     @Native("java", "java.lang.Integer.reverseBytes(#0)")
+    @Native("c++", "x10aux::int_utils::reverseBytes(#0)")
     public native def reverseBytes(): Int;
-    
 }
