@@ -26,6 +26,8 @@ final value class LocalArray[T] extends BaseArray[T] {
     //
     // high-performance methods here to facilitate inlining
     //
+    // NB: local array, so don't do place checking
+    //
 
     final public def apply(i0: int): T {
         if (checkBounds) checkBounds(i0);
@@ -50,6 +52,8 @@ final value class LocalArray[T] extends BaseArray[T] {
 
     //
     // high-performance methods here to facilitate inlining
+    //
+    // NB: local array, so don't do place checking
     //
 
     final public def set(v: T, i0: int): T {
