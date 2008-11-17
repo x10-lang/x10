@@ -115,8 +115,31 @@ public abstract value class Array[T](dist:Dist)
     public abstract def $bar(r: Region(rank)): Array[T];
     public abstract def $bar(p: Place): Array[T];
 
-    public abstract def lift(f:(T)=>T): Array[T];
-    public abstract def sum(): T;
+
+    //
+    // array operations
+    //
+
+    public abstract def lift(op:(T)=>T): Array[T](dist);
+    public abstract def reduce(op:(T,T)=>T, unit:T): T;
+    public abstract def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+
+    //
+    // further generalizations TBD:
+    // - extra array arg to contain result
+    // - op takes current Point
+    //
+    // also TBD:
+    //   public abstract def lift[U](op:(T)=>U): Array[U](dist);
+    //   public abstract def lift[U,V](op:(T,U)=>V, that:Array[U](dist)): Array[V](dist);
+    //   public abstract def overlay(that:Array[T](rank)): Array[T](rank);
+    //   public abstract def update(that:Array[T](rank)): Array[T](rank);
+    //   public abstract def sum(): T;
+    //
+
+    //
+    //
+    //
 
     incomplete public static def $convert[T](r: Rail[T]): Array[T];
     incomplete public static def $convert[T](r: ValRail[T]): Array[T];
