@@ -16,7 +16,9 @@ class U {
     }
 
     public static def where(s: String): void {
-        new Exception(s).printStackTrace();
+        //printStackTrace doesn't exist anymore
+        Console.ERR.println("where("+s+") called!");
+        //new Exception(s).printStackTrace();
     }
 
     public static def unsupported(o: Object, op: String): RuntimeException {

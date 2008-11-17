@@ -50,24 +50,26 @@ public value Throwable {
     @Native("java", "#0.toString()")
     @Native("c++", "(#0)->toString()")
     public def toString() = className() + ": " + getMessage();
-    
-    @Native("java", "#0.printStackTrace()")
-    @Native("c++", "(#0)->printStackTrace()")
-    public  def printStackTrace() {
-    	printStackTrace(Console.ERR);
-    }
-    
-    @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
-    @Native("c++", "(#0)->printStackTrace(#1)")
-    public def printStackTrace(p: Printer) {
-    	// We do not bother to walk the stack and insert stack elements
-    	// for the C/C++ implementation (for now).
-    	p.println(this);
-    	p.println("Stack trace unavailable. So cry your heart out.");
-    }
-    /*
-    public synchronized native java.lang.Throwable fillInStackTrace();
-    public java.lang.StackTraceElement[] getStackTrace();
-    public void setStackTrace(java.lang.StackTraceElement[]);
-*/
+   
+
+//    @Native("java", "#0.printStackTrace()")
+//    @Native("c++", "(#0)->printStackTrace()")
+//    public  def printStackTrace() {
+//    	printStackTrace(Console.ERR);
+//    }
+//    
+//    @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
+//    @Native("c++", "(#0)->printStackTrace(#1)")
+//    public def printStackTrace(p: Printer) {
+//    	// We do not bother to walk the stack and insert stack elements
+//    	// for the C/C++ implementation (for now).
+//    	p.println(this);
+//    	p.println("Stack trace unavailable. So cry your heart out.");
+//    }
+//    /*
+//    public synchronized native java.lang.Throwable fillInStackTrace();
+//    public java.lang.StackTraceElement[] getStackTrace();
+//    public void setStackTrace(java.lang.StackTraceElement[]);
+//    */
+
 }
