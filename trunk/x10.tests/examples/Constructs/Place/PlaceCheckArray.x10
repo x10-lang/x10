@@ -36,7 +36,6 @@ public class PlaceCheckArray extends x10Test {
         a(0);
         (future (Place.places(1)) a(1)).force();
         return run01() && run02();
-        return true;
     }
 
     public static def main(var args: Rail[String]): void = {
