@@ -13,6 +13,7 @@
  *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_CONSTR      - trace object construction
  *   TRACE_REF         - trace reference operations
+ *   TRACE_RTT         - trace runtimetype instantiation
  *   TRACE_SER         - trace serialization operations
  *   TRACE_X10LIB      - trace X10lib invocations
  *   DEBUG             - general debug trace printouts
@@ -21,47 +22,42 @@
  *   REF_COUNTING      - experimental option: enable reference counting
  */
 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
-//#include <string>
+#define TRACE_RTT
+
+
 #ifndef NO_IOSTREAM
 #  include <iostream>
 #endif
 #include <stdint.h>
-//#include <stdarg.h>
-//#include <unistd.h>
-//#include <math.h>
-//#include <errno.h>
-#ifdef __GNUC__
-#  include <cxxabi.h>
-#endif
-//#include <x10/x10.h>
 
-#undef clock // because something defines clock as macro in above headers
-
-//using namespace std;
+#include <x10/x10.h> //pgas
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ALLOC)
-#define _M_(x) cerr << x10_here() << ": MM: " << x << endl
+#define _M_(x) std::cerr << x10_here() << ": MM: " << x << std::endl
 #else
 #define _M_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_CONSTR)
-#define _T_(x) cerr << x10_here() << ": CC: " << x << endl
+#define _T_(x) std::cerr << x10_here() << ": CC: " << x << std::endl
 #else
 #define _T_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_REF)
-#define _R_(x) cerr << x10_here() << ": RR: " << x << endl
+#define _R_(x) std::cerr << x10_here() << ": RR: " << x << std::endl
 #else
 #define _R_(x)
 #endif
 
+#if !defined(NO_IOSTREAM) && defined(TRACE_RTT)
+#define _RTT_(x) std::cerr << x10_here() << ": RTT: " << x << std::endl
+#else
+#define _RTT_(x)
+#endif
+
 #if !defined(NO_IOSTREAM) && defined(TRACE_SER)
-#define _S_(x) cerr << x10_here() << ": SS: " << x << endl
+#define _S_(x) std::cerr << x10_here() << ": SS: " << x << std::endl
 #define _Sd_(x) x
 #else
 #define _S_(x)
@@ -69,13 +65,13 @@
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_X10LIB)
-#define _X_(x) cerr << x10_here() << ": XX: " << x << endl
+#define _X_(x) std::cerr << x10_here() << ": XX: " << x << std::endl
 #else
 #define _X_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(DEBUG)
-#define _D_(x) cerr << x10_here() << ": " << x << endl
+#define _D_(x) std::cerr << x10_here() << ": " << x << std::endl
 #else
 #define _D_(x)
 #endif
@@ -83,30 +79,6 @@
 #ifdef IGNORE_EXCEPTIONS
 #define NO_EXCEPTIONS
 #endif
-
-/* disabled because we now use different mechanism
-#define TYPENAME(T) typeid(T).name()
-#ifdef __GNUC__
-#define MAX_NAME_LENGTH 512
-namespace x10 {
-    inline const char* __demangle(const char* N) {
-        // FIXME: not thread-safe
-        static char buffer[MAX_NAME_LENGTH];
-        char* d_N = abi::__cxa_demangle(N, NULL, NULL, NULL);
-        ::strncpy(buffer, d_N, MAX_NAME_LENGTH-1);
-        buffer[MAX_NAME_LENGTH-1] = '\0';
-        ::free(d_N);
-        return (const char*) buffer;
-    }
-}
-#undef MAX_NAME_LENGTH
-#define DEMANGLE(N) x10::__demangle(N)
-#define TYPEID(T,D) TYPENAME(T)
-#else
-#define DEMANGLE(N) N
-#define TYPEID(T,D) D
-#endif
-*/
 
 
 
@@ -134,20 +106,10 @@ typedef double   x10_Double;
 
 typedef void   x10_Void;
 
-/* disabled because arrays are now defined in x10
-// Array index type
-#ifdef USE_LONG_ARRAYS
-typedef x10_long x10_index_t;
-#else
-typedef x10_int x10_index_t;
-#endif
-*/
-
-// We must use same mangling rules as the compiler backend uses.
+// We must use the same mangling rules as the compiler backend uses.
 // The c++ target has to mangle fields because c++ does not allow fields
 // and methods to have the same name.
 #define FMGL(x) x10__##x
-#define MMGL(x) x
 
 
 #endif

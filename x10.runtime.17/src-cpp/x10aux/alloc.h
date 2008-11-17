@@ -1,12 +1,16 @@
+#include <cstdlib>
+
+namespace x10aux {
+    template<class T> T* alloc(size_t size = sizeof(T));
+    template<class T> void dealloc(T* obj);
+}
 
 #ifndef X10AUX_ALLOC_H
 #define X10AUX_ALLOC_H
 
-#include <cstdlib>
-
 #include <x10/x10.h> // pgas
 
-#include <x10aux/RTT.h> // pgas
+#include <x10aux/RTT.h>
 
 namespace x10aux {
 

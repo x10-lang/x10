@@ -46,19 +46,6 @@ ref<String> Throwable::toString() {
     return to_string(ss.str().c_str());
 }
 
-void Throwable::printStackTrace() {
-    //TODO: If we really want the c++ runtime tree to be independent of the
-    //generated xrx c++ code, we're going to have to implement x10.io.Console
-    //and probably even more high-level stuff in c++.  It's probably not worth
-    //it.
-
-    //printStackTrace(x10::io::Console::OUT);
-}
-
-void Throwable::printStackTrace(ref<x10::io::Printer> p) {
-    //TODO: see above
-    (void) p;
-}
 
 #if 0
 TODO: perhaps another day
@@ -78,4 +65,4 @@ void Throwable::_deserialize_fields(serialization_buffer& buf) {
 #endif
 
 
-const Throwable::RTT * const Throwable::RTT::it = new Throwable::RTT();
+DEFINE_RTT(Throwable);

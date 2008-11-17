@@ -10,11 +10,11 @@ using namespace x10::io;
 using namespace x10aux;
 
 
-void NativeOutputStream::write(const ref<Rail<x10_byte> >& b) {
+void NativeOutputStream::write(ref<Rail<x10_byte> > b) {
     this->write(b, 0, b->x10__length);
 }
 
-void NativeOutputStream::write(const ref<Rail<x10_byte> >& b,
+void NativeOutputStream::write(ref<Rail<x10_byte> > b,
                                x10_int off, x10_int len) {
     for (x10_int i = 0; i < len; i++)
         this->write((x10_int) b->operator[](off + i));
@@ -35,7 +35,4 @@ void NativeOutputStream::printf(const ref<String>& format) {
 */
 
 
-
-const NativeOutputStream::RTT * const NativeOutputStream::RTT::it =
-    new NativeOutputStream::RTT();
-
+DEFINE_RTT(NativeOutputStream);

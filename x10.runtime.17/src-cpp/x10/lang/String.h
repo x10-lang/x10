@@ -19,10 +19,9 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static const RTT* const it;
+                static RTT* const it;
 
-                RTT() : RuntimeType(1,x10aux::getRTT<Value>())
-                { }
+                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
 
                 virtual std::string name() const {
                     return "x10.lang.String";
