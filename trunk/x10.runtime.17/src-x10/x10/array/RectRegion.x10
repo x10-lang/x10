@@ -176,39 +176,38 @@ final value class RectRegion extends PolyRegion {
     //const doChecks = Runtime.ARRAY_BOUNDS_RUNTIME_CHECK;
     const doChecks = true;
 
-    def checkBounds(i0: int) {rank==1} {
+    def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
         if (doChecks && (
             i0<min0 || i0>max0
         ))
-            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+            throw err([i0] to Point);
     }
 
-    def checkBounds(i0: int, i1: int) {rank==2} {
+    def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
         if (doChecks && (
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1
         ))
-            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+            throw err([i0,i1] to Point);
     }
 
-    def checkBounds(i0: int, i1: int, i2: int) {rank==3} {
+    def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
         if (doChecks && (
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1 ||
             i2<min2 || i2>max2
         ))
-            throw new ArrayIndexOutOfBoundsException("point not contained in array");
-
+            throw err([i0,i1,i2] to Point);
     }
 
-    def checkBounds(i0: int, i1: int, i2: int, i3: int) {rank==4} {
+    def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
         if (doChecks && (
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1 ||
             i2<min2 || i2>max2 ||
             i3<min3 || i3>max3
         ))
-            throw new ArrayIndexOutOfBoundsException("point not contained in array");
+            throw err([i0,i1,i2,i3] to Point);
 
     }
 

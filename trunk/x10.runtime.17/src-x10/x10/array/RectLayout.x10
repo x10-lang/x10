@@ -98,9 +98,9 @@ final value class RectLayout(rank: int) extends Layout {
 
     public def toString() {
         var s:String = "RectLayout[";
-        s += "size=," + size;
+        s += "size=" + size;
         for (var i:int=0; i<min.length; i++)
-            s += "," + delta(i);
+            s += "," + min(i) + "/" + delta(i);
         s += "]";
         return s;
     }

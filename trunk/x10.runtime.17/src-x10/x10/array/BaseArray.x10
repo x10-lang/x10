@@ -66,6 +66,7 @@ public abstract value class BaseArray[T] extends Array[T] {
     //     
 
     public final def apply(pt: Point(rank)): T {
+        if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         return raw()(layout().offset(pt));
     }
@@ -74,33 +75,69 @@ public abstract value class BaseArray[T] extends Array[T] {
 
     // XXXX settable order
     public final def set(v: T, pt: Point(rank)): T {
+        if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         raw()(layout().offset(pt)) = v;
         return v;
     }
 
+
+    //
+    // bounds and place checking
+    //
+
     //const checkBounds = false;
     const checkBounds = true;
 
+    //const checkPlace = false;
+    const checkPlace = true;
+
+    val bounds = (pt:Point):RuntimeException =>
+        new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
+
+    val place = (pt:Point):RuntimeException =>
+        new BadPlaceException("point " + pt + " not defined at " + here);
+
     def checkBounds(pt: Point(rank)) {
-        (region as BaseRegion(rank)).checkBounds(pt);
+        (region as BaseRegion(rank)).check(bounds, pt);
     }
 
     def checkBounds(i0: int) {
-        (region as BaseRegion).checkBounds(i0);
+        (region as BaseRegion).check(bounds, i0);
     }
 
     def checkBounds(i0: int, i1: int) {
-        (region as BaseRegion).checkBounds(i0, i1);
+        (region as BaseRegion).check(bounds, i0, i1);
     }
 
     def checkBounds(i0: int, i1: int, i2: int) {
-        (region as BaseRegion).checkBounds(i0, i1, i2);
+        (region as BaseRegion).check(bounds, i0, i1, i2);
     }
 
     def checkBounds(i0: int, i1: int, i2: int, i3: int) {
-        (region as BaseRegion).checkBounds(i0, i1, i2, i3);
+        (region as BaseRegion).check(bounds, i0, i1, i2, i3);
     }
+
+    def checkPlace(pt: Point(rank)) {
+        (dist.get(here) as BaseRegion(rank)).check(place, pt);
+    }
+
+    def checkPlace(i0: int) {
+        (dist.get(here) as BaseRegion).check(place, i0);
+    }
+
+    def checkPlace(i0: int, i1: int) {
+        (dist.get(here) as BaseRegion).check(place, i0, i1);
+    }
+
+    def checkPlace(i0: int, i1: int, i2: int) {
+        (dist.get(here) as BaseRegion).check(place, i0, i1, i2);
+    }
+
+    def checkPlace(i0: int, i1: int, i2: int, i3: int) {
+        (dist.get(here) as BaseRegion).check(place, i0, i1, i2, i3);
+    }
+
 
 
     //
@@ -123,11 +160,17 @@ public abstract value class BaseArray[T] extends Array[T] {
     // operations
     //
 
+    public def lift(op:(T)=>T): Array[T](dist)
+        = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
+
+
+
+    //
+    // ops
+    //
+
     public def $bar(r: Region(rank)): Array[T] = restriction(r);
     public def $bar(p: Place): Array[T] = restriction(p);
-
-    public def lift(f:(T)=>T): Array[T]
-        = Array.make[T](dist, (p:Point)=>f(this(p as Point(rank))));
 
     incomplete public def $plus(): Array[T];
     incomplete public def $minus(): Array[T];
