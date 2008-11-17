@@ -28,6 +28,13 @@ namespace xrx_runtime {
 		pthread_mutex_t mutex;
 	} cond_mutex_t;
 
+	// thread permit type
+	typedef struct {
+		pthread_cond_t cond;
+		pthread_mutex_t mutex;
+		boolean permit;
+	} permit_t;
+
 } /* closing brace for namespace xrx_runtime */
 
 #endif /* __XRX_TYPES_H */

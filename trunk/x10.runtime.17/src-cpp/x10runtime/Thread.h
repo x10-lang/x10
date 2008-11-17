@@ -172,6 +172,14 @@ protected:
 	static void thread_sleep_cleanup(void *arg);
 	// Dummy interrupt handler.
 	static void intr_hndlr(int signo);
+	// Thread permit initialization.
+	static void thread_permit_init(permit_t *perm);
+	// Thread permit finalization.
+	static void thread_permit_destroy(permit_t *perm);
+	// Thread permit cleanup handler.
+	static void thread_permit_cleanup(void *arg);
+	// Thread mapper cleanup handler.
+	static void thread_mapper_cleanup(void *arg);
 
 private:
 	// the current place
@@ -199,6 +207,11 @@ private:
 	// thread start condition & associated lock
 	pthread_cond_t __thread_start_cond;
 	pthread_mutex_t __thread_start_lock;
+	// thread specific permit object
+	permit_t __thread_permit;
+	// pthread -> Thread mapping is maintained as thread specific data
+	static pthread_key_t __thread_mapper;
+	static boolean __thread_mapper_inited;
 };
 
 } /* closing brace for namespace xrx_runtime */
