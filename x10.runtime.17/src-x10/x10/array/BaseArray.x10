@@ -164,6 +164,33 @@ public abstract value class BaseArray[T] extends Array[T] {
         = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
 
 
+    public def reduce(op:(T,T)=>T, unit:T):T {
+
+        var result: T = unit;
+
+        // scatter
+        val ps = dist.places();
+        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
+            future (ps(p)) {
+                var result: T = unit;
+                val a = (this | here) as Array[T](rank);
+                for (pt:Point(rank) in a)
+                    result = op(result, a(pt));
+                return result;
+            }
+        });
+
+        // gather
+        for (var i:int=0; i<results.length; i++)
+            result = op(result, results(i).force());
+
+        return result;
+    }            
+
+
+    // LocalArray only for now!
+    incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
+
 
     //
     // ops
@@ -188,7 +215,7 @@ public abstract value class BaseArray[T] extends Array[T] {
     incomplete public def $ge(x: Array[T]): boolean;
     incomplete public def $ne(x: Array[T]): boolean;
 
-    incomplete public def sum(): T; // XTENLANG-116
+    // incomplete public def sum(): T; // XTENLANG-116
 
 
 
