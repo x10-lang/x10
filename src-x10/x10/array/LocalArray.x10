@@ -82,6 +82,28 @@ final value class LocalArray[T] extends BaseArray[T] {
 
 
     //
+    // is this really a good idea?
+    //
+
+    static class Accumulator[S] {
+        var result:S;
+        def this(r:S) {
+            result = r;
+        }
+    }
+
+    public def scan(op:(T,T)=>T, unit:T): Array[T](dist) {
+        val a = new Accumulator[T](unit);
+        return Array.make[T](dist, (p:Point):T => {
+            a.result = op(a.result, apply(p as Point(rank)));
+            return a.result;
+        });
+
+    }
+
+    
+
+    //
     //
     //
 
