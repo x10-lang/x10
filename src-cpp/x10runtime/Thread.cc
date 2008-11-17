@@ -21,6 +21,8 @@ Object *Thread::__current_place = NULL;
 Object *Thread::__current_activity = NULL;
 Thread *Thread::__current_thread = NULL;
 long Thread::__thread_cnt = 0;
+pthread_key_t Thread::__thread_mapper = 0;
+boolean Thread::__thread_mapper_inited = false;
 
 // thread name prefix -- used to construct thread names
 const String __thread_name_prefix = "xrxThread-";
@@ -32,6 +34,11 @@ Thread::thread_start_routine(void *arg)
 	// simply call the run method of the invoking thread object
 	__xrxDPrStart();
 	Thread *tp = (Thread *)arg;
+
+	// store this object reference in the place wide mapper key
+	if (Thread::__thread_mapper_inited) {
+		pthread_setspecific(Thread::__thread_mapper, arg);
+	}
 	pthread_mutex_lock(&(tp->__thread_start_lock));
 	while (tp->__thread_already_started == false) {
 		pthread_cond_wait(&(tp->__thread_start_cond), &(tp->__thread_start_lock));
@@ -83,6 +90,15 @@ Thread::thread_init(const Runnable *task, const String *name)
 	// ??check the return code for ENOMEM??
 	(void)pthread_mutex_init(&__thread_start_lock, NULL);
 
+	/**
+	 * create place wide pthread to Thread mapping key to
+	 * store thread object reference
+	 */
+	if (!Thread::__thread_mapper_inited) {
+		pthread_key_create(&Thread::__thread_mapper, NULL);
+		Thread::__thread_mapper_inited = true;
+	}
+
 	// create thread attributes object
 	// ??check the return code for ENOMEM??
 	(void)pthread_attr_init(&__xthread_attr);
@@ -113,6 +129,9 @@ Thread::thread_init(const Runnable *task, const String *name)
 	// create a new execution thread ??in suspended state??
 	(void)pthread_create(&__xthread, &__xthread_attr,
 				Thread::thread_start_routine, (void *)this);
+	// create this thread's permit object
+	thread_permit_init(&__thread_permit);
+
 	__xrxDPrEnd();
 }
 
@@ -146,6 +165,8 @@ Thread::~Thread()
 	pthread_cond_destroy(&__thread_start_cond);
 	// free thread attributes
 	pthread_attr_destroy(&__xthread_attr);
+	// free thread permit
+	thread_permit_destroy(&__thread_permit);
 	__xrxDPrEnd();
 }
 
@@ -153,7 +174,10 @@ Thread::~Thread()
 Thread&
 Thread::currentThread(void)
 {
-	return (*__current_thread);
+	Thread *tp;
+
+	tp = (Thread *)pthread_getspecific(Thread::__thread_mapper);
+	return (*tp);
 }
 
 // Begin thread execution.
@@ -306,6 +330,32 @@ Thread::sleep(const Long& millis, const Int& nanos) throw (InterruptedException)
 	__xrxDPrEnd();
 }
 
+// permit initialization
+void
+Thread::thread_permit_init(permit_t *perm)
+{
+	pthread_mutex_init(&(perm->mutex), NULL);
+	pthread_cond_init(&(perm->cond), NULL);
+	perm->permit = false;
+}
+
+// permit finalization
+void
+Thread::thread_permit_destroy(permit_t *perm)
+{
+	pthread_mutex_destroy(&(perm->mutex));
+	pthread_cond_destroy(&(perm->cond));
+}
+
+// permit cleanup
+void
+Thread::thread_permit_cleanup(void *arg)
+{
+	permit_t *perm = (permit_t *)arg;
+
+	pthread_mutex_unlock(&(perm->mutex));
+}
+
 /**
  * Disables the current thread for thread scheduling purposes
  * unless the permit is available.
@@ -313,7 +363,16 @@ Thread::sleep(const Long& millis, const Int& nanos) throw (InterruptedException)
 void
 Thread::park(void)
 {
-	// to do
+	Thread &th = currentThread();
+	permit_t *perm = &(th.__thread_permit);
+	
+	pthread_mutex_lock(&(perm->mutex));
+	pthread_cleanup_push(thread_permit_cleanup, (void *)perm);
+	while (perm->permit == false) {
+		pthread_cond_wait(&(perm->cond), &(perm->mutex));
+	}
+	perm->permit = false;
+	pthread_cleanup_pop(1);
 }
 
 /**
@@ -324,7 +383,26 @@ Thread::park(void)
 void
 Thread::parkNanos(const Long& nanos)
 {
-	// to do
+	Thread &th = currentThread();
+	permit_t *perm = &(th.__thread_permit);
+	struct timeval tval;
+	struct timespec tout;
+	int rc;
+	
+	pthread_mutex_lock(&(perm->mutex));
+	pthread_cleanup_push(thread_permit_cleanup, (void *)perm);
+
+	gettimeofday(&tval, NULL);
+	tout.tv_sec = tval.tv_sec;
+	tout.tv_nsec = (tval.tv_usec * 1000) + nanos;
+	while (perm->permit == false) {
+		rc = pthread_cond_timedwait(&(perm->cond), &(perm->mutex), &tout);
+		if (rc == ETIMEDOUT) {
+			perm->permit = true;
+		}
+	}
+	perm->permit = false;
+	pthread_cleanup_pop(1);
 }
 
 /**
@@ -334,7 +412,14 @@ Thread::parkNanos(const Long& nanos)
 void
 Thread::unpark(Thread& thread)
 {
-	// to do
+	permit_t *perm = &(thread.__thread_permit);
+	
+	pthread_mutex_lock(&(perm->mutex));
+	if (!perm->permit) {
+		perm->permit = true;
+		pthread_cond_signal(&(perm->cond));
+	}
+	pthread_mutex_unlock(&(perm->mutex));
 }
 
 // Returns the current activity.

@@ -28,6 +28,7 @@ LINKFLAGS = #-bnoquiet
 TARGETS = ThreadConstructor1.x\
 		ThreadConstructor2.x \
 		ThreadConstructor3.x \
+		ThreadConstructor4.x \
 		ThreadStart1.x \
 		ThreadStart2.x \
 		ThreadStart3.x \
@@ -36,7 +37,11 @@ TARGETS = ThreadConstructor1.x\
 		ThreadLock2.x \
 		ThreadLock3.x \
 		ThreadSleep1.x \
-		ThreadSleep2.x
+		ThreadSleep2.x \
+		ThreadPark1.x \
+		ThreadPark2.x \
+		ThreadPark3.x \
+		ThreadPark4.x
 
 .PHONY: all
 all: $(TARGETS)
