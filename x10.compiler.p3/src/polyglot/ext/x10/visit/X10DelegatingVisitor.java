@@ -118,6 +118,7 @@ import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
 import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.Tuple_c;
+import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10BooleanLit_c;
@@ -169,6 +170,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof AmbDepTypeNode_c) { visit((AmbDepTypeNode_c)n); return; }
 		if (n instanceof AmbTypeNode_c) { visit((AmbTypeNode_c)n); return; }
 		if (n instanceof TypeNode_c) { visit((TypeNode_c)n); return; }
+		if (n instanceof TypeDecl_c) { visit((TypeDecl_c)n); return; }
 		if (n instanceof ForEach_c) { visit((ForEach_c)n); return; }
 		if (n instanceof AtEach_c) { visit((AtEach_c)n); return; }
 		if (n instanceof X10ClockedLoop_c) { visit((X10ClockedLoop_c)n); return; }
@@ -434,6 +436,7 @@ public class X10DelegatingVisitor {
 					public void visit(X10ClockedLoop_c n) { visit((X10Loop_c)n); }
 						public void visit(AtEach_c n) { visit((X10ClockedLoop_c)n); }
 						public void visit(ForEach_c n) { visit((X10ClockedLoop_c)n); }
+			public void visit(TypeDecl_c n) { visit((Term_c)n); }
 			public void visit(TypeNode_c n) { visit((Term_c)n); }
 				public void visit(AmbTypeNode_c n) { visit((TypeNode_c)n); }
 				public void visit(ArrayTypeNode_c n) { visit((TypeNode_c)n); }
