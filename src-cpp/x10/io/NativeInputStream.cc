@@ -9,11 +9,11 @@ using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
 
-x10_int NativeInputStream::read(const ref<Rail<x10_byte> >& b) {
+x10_int NativeInputStream::read(ref<Rail<x10_byte> > b) {
     return this->read(b, 0, b->x10__length);
 }
 
-x10_int NativeInputStream::read(const ref<Rail<x10_byte> >& b,
+x10_int NativeInputStream::read(ref<Rail<x10_byte> > b,
                           x10_int off, x10_int len) {
     x10_int val;
     x10_int i;
@@ -24,6 +24,4 @@ x10_int NativeInputStream::read(const ref<Rail<x10_byte> >& b,
 
 
 
-const NativeInputStream::RTT * const NativeInputStream::RTT::it =
-    new NativeInputStream::RTT();
-
+DEFINE_RTT(NativeInputStream);

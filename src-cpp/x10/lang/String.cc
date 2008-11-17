@@ -18,7 +18,7 @@ ref<String> String::toString() {
 }
 
 x10_boolean String::equals(const ref<Object>& other) {
-    if (!RTT::it->concreteInstanceOf(other)) return false;
+    if (!CONCRETE_INSTANCEOF(other,String)) return false;
     // now we can downcast the Object to String
     String &other_str = static_cast<String&>(*other);
     // defer to std::string::compare to check string contents
@@ -78,6 +78,4 @@ ref<Rail<x10_char> > String::toCharRail() {
 }
 
 
-const String::RTT * const String::RTT::it =
-    new String::RTT();
-
+DEFINE_RTT(String);

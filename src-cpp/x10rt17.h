@@ -21,6 +21,8 @@
 //#include <x10/io/DataOutputStream.h>
 #include <x10/io/FileInputStream.h>
 #include <x10/io/FileOutputStream.h>
+#include <x10/io/FileNotFoundException.h>
+#include <x10/io/IOException.h>
 //#include <x10/io/FilterInputStream.h>
 //#include <x10/io/FilterOutputStream.h>
 #include <x10/io/NativeInputStream.h>

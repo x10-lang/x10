@@ -19,7 +19,7 @@ namespace x10aux {
 
             T data[1];
 
-            private: AnyRail(const AnyRail<T>& arr); // disabled
+            private: AnyRail(const AnyRail<T> &arr); // disabled
 
             public:
 
@@ -53,7 +53,7 @@ namespace x10aux {
                 #endif
             }
 
-            virtual bool equals (const ref<x10::lang::Object> &other) {
+            virtual bool equals (ref<x10::lang::Object> other) {
                 if (!_type()->concreteInstanceOf(other)) return false;
                 const AnyRail &other_rail = (AnyRail&)(*other);
                 // different sizes so false
@@ -94,15 +94,15 @@ namespace x10aux {
             return rail;
         }
 
-        template<class T, class R> R* alloc_rail(x10_int length, const T& v0) {
+        template<class T, class R> R* alloc_rail(x10_int length, T v0) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 0);
             (*rail)[0] = v0;
             return rail;
         }
 
-        template<class T, class R> R *alloc_rail(x10_int length, const T& v0,
-                                                                 const T& v1) {
+        template<class T, class R> R *alloc_rail(x10_int length, T v0,
+                                                                 T v1) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 1);
             (*rail)[0] = v0;
@@ -110,9 +110,9 @@ namespace x10aux {
             return rail;
         }
 
-        template<class T, class R> R *alloc_rail(x10_int length, const T& v0,
-                                                                 const T& v1,
-                                                                 const T& v2) {
+        template<class T, class R> R *alloc_rail(x10_int length, T v0,
+                                                                 T v1,
+                                                                 T v2) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 2);
             (*rail)[0] = v0;
@@ -121,10 +121,10 @@ namespace x10aux {
             return rail;
         }
 
-        template<class T, class R> R *alloc_rail(x10_int length, const T& v0,
-                                                                 const T& v1,
-                                                                 const T& v2,
-                                                                 const T& v3) {
+        template<class T, class R> R *alloc_rail(x10_int length, T v0,
+                                                                 T v1,
+                                                                 T v2,
+                                                                 T v3) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 3);
             (*rail)[0] = v0;
@@ -134,11 +134,11 @@ namespace x10aux {
             return rail;
         }
 
-        template<class T, class R> R *alloc_rail(x10_int length, const T& v0,
-                                                                 const T& v1,
-                                                                 const T& v2,
-                                                                 const T& v3,
-                                                                 const T& v4) {
+        template<class T, class R> R *alloc_rail(x10_int length, T v0,
+                                                                 T v1,
+                                                                 T v2,
+                                                                 T v3,
+                                                                 T v4) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 4);
             (*rail)[0] = v0;
@@ -149,12 +149,12 @@ namespace x10aux {
             return rail;
         }
 
-        template<class T, class R> R *alloc_rail(x10_int length, const T& v0,
-                                                                 const T& v1,
-                                                                 const T& v2,
-                                                                 const T& v3,
-                                                                 const T& v4,
-                                                                 const T& v5) {
+        template<class T, class R> R *alloc_rail(x10_int length, T v0,
+                                                                 T v1,
+                                                                 T v2,
+                                                                 T v3,
+                                                                 T v4,
+                                                                 T v5) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 5);
             (*rail)[0] = v0;
@@ -202,13 +202,13 @@ namespace x10aux {
                 (*rail)[i] = (x10_float)va_arg(init, double);
         }
 
-        template<class T, class R> R *alloc_rail(x10_int length, const T& v0,
-                                                                 const T& v1,
-                                                                 const T& v2,
-                                                                 const T& v3,
-                                                                 const T& v4,
-                                                                 const T& v5,
-                                                                 const T& v6,
+        template<class T, class R> R *alloc_rail(x10_int length, T v0,
+                                                                 T v1,
+                                                                 T v2,
+                                                                 T v3,
+                                                                 T v4,
+                                                                 T v5,
+                                                                 T v6,
                                                                  ...) {
             R* rail = alloc_rail<T,R>(length);
             assert (length > 6);
@@ -230,7 +230,7 @@ namespace x10aux {
         }
 
 
-        template<class T, class R> void free_rail(const x10aux::ref<R> &rail) {
+        template<class T, class R> void free_rail(x10aux::ref<R> rail) {
             rail->~R();
             x10aux::dealloc<R >(&*rail);
         }

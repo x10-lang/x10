@@ -37,4 +37,4 @@ void Exception::_deserialize_fields(x10aux::serialization_buffer& buf) {
 }
 #endif
 
-const Exception::RTT * const Exception::RTT::it = new Exception::RTT();
+DEFINE_RTT(Exception);

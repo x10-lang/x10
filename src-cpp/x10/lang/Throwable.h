@@ -8,9 +8,11 @@
 
 namespace x10 {
 
+/*
     namespace io {
         class Printer;
     }
+*/
 
     namespace lang {
 
@@ -22,9 +24,9 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType { 
                 public:
-                static const RTT* const it; 
+                static RTT* const it; 
             
-                RTT() : RuntimeType(1,x10aux::getRTT<Value>()) { }
+                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
                 
                 virtual std::string name() const {
                     return "x10.lang.Throwable";
@@ -48,8 +50,9 @@ namespace x10 {
             virtual x10aux::ref<String> getMessage();
             virtual x10aux::ref<Throwable> getCause();
             virtual x10aux::ref<String> toString();
-            virtual void printStackTrace();
-            virtual void printStackTrace(x10aux::ref<x10::io::Printer> p);
+            // TODO: getStackTrace()
+            //virtual x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > getStackTrace();
+            //virtual void printStackTrace(x10aux::ref<x10::io::Printer> p);
 
             explicit Throwable(x10aux::SERIALIZATION_MARKER m) : Value(m){
                 (void) m;
