@@ -21,9 +21,11 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static const RTT* it;
+                static RTT* it;
  
-                RTT() : RuntimeType(1,x10aux::getRTT<Object>()) { }
+                virtual void init() {
+                    initParents(1,x10aux::getRTT<Object>());
+                }
 
                 virtual std::string name() const {
                     std::stringstream ss;
@@ -54,7 +56,7 @@ namespace x10 {
         };
 
         template<class T>
-            const typename Iterator<T>::RTT *Iterator<T>::RTT::it =
+            typename Iterator<T>::RTT *Iterator<T>::RTT::it =
                 new typename Iterator<T>::RTT();
 
     }

@@ -13,9 +13,11 @@ namespace x10 {
             public:
             class RTT : public x10aux::RuntimeType {
                 public: 
-                    static const RTT* const it;
+                    static RTT* const it;
                     
-                    RTT() : RuntimeType() { }
+                    virtual void init() {
+                        initParents(0);
+                    }
                     
                     virtual std::string name() const {
                         return "x10.io.ByteArrayOutputStream.NativeByteArrayOutputStream";

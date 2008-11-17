@@ -21,9 +21,9 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static const RTT *it;
+                static RTT *it;
 
-                RTT() : RuntimeType(1,x10aux::getRTT<Ref>()) { }
+                virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
 
                 virtual std::string name() {
                     std::stringstream ss;
@@ -56,7 +56,7 @@ namespace x10 {
 
         };
 
-        template<class T> const typename Box<T>::RTT *Box<T>::RTT::it =
+        template<class T> typename Box<T>::RTT *Box<T>::RTT::it =
             new typename Box<T>::RTT(x10aux::getRTT<T>());
 
     }

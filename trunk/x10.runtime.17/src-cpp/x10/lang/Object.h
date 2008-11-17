@@ -15,9 +15,9 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static const RTT* const it;
+                static RTT* const it;
             
-                RTT() : RuntimeType(0) { }
+                virtual void init() { initParents(0); }
 
                 virtual std::string name() const {
                     return "x10.lang.Object";
@@ -29,7 +29,7 @@ namespace x10 {
                 return x10aux::getRTT<Object>();
             }
 
-            virtual x10_boolean equals(const x10aux::ref<Object> &id0) = 0;
+            virtual x10_boolean equals(x10aux::ref<Object> id0) = 0;
             virtual x10_int hashCode() = 0;
             virtual x10aux::ref<String> toString() = 0;
             virtual ~Object() { }

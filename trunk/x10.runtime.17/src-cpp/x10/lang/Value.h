@@ -17,10 +17,9 @@ namespace x10 {
         public:
             class RTT : public x10aux::RuntimeType { 
                 public:
-                static const RTT* const it; 
+                static RTT* const it; 
             
-                RTT() : RuntimeType(1,x10aux::getRTT<Object>())
-                { }
+                virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
                 
                 virtual std::string name() const {
                     return "x10.lang.Value";
@@ -68,8 +67,8 @@ namespace x10 {
 
             virtual x10aux::ref<String> toString();
 
-            virtual x10_boolean equals(const x10aux::ref<Object> &other) {
-                if (!RTT::it->concreteInstanceOf(other)) return false;
+            virtual x10_boolean equals(x10aux::ref<Object> other) {
+                if (!CONCRETE_INSTANCEOF(other,Value)) return false;
                 // now compare fields but there aren't any
                 return true;
             }

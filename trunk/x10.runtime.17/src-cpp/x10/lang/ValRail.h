@@ -23,9 +23,9 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static const RTT* it;
+                static RTT * const it;
 
-                RTT() : RuntimeType(1,x10aux::getRTT<Value>()) { }
+                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
 
                 virtual std::string name() const {
                     std::stringstream ss;
@@ -60,7 +60,7 @@ namespace x10 {
 
                 class RTT : public x10aux::RuntimeType {
                     public:
-                    static const RTT* it;
+                    static RTT * const it;
 
                     virtual std::string name() const {
                         std::stringstream ss;
@@ -92,7 +92,7 @@ namespace x10 {
                 }
 
                 virtual x10_boolean equals(const x10aux::ref<Object> &other) {
-                    if (!RTT::it->concreteInstanceOf(other)) return false;
+                    if (!CONCRETE_INSTANCEOF(other,ValRail)) return false;
                     Iterator &other_i = static_cast<Iterator&>(*other);
                     if (other_i.rail != rail) return false;
                     if (other_i.i != i) return false;
@@ -108,10 +108,10 @@ namespace x10 {
 
         };
 
-        template<class T> const typename ValRail<T>::RTT *ValRail<T>::RTT::it =
+        template<class T> typename ValRail<T>::RTT * const ValRail<T>::RTT::it =
             new typename ValRail<T>::RTT();
 
-        template<class T> const typename ValRail<T>::Iterator::RTT *
+        template<class T> typename ValRail<T>::Iterator::RTT * const
             ValRail<T>::Iterator::RTT::it =
                 new typename ValRail<T>::Iterator::RTT();
 

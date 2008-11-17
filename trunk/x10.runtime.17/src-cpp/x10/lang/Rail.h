@@ -22,9 +22,11 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static const RTT* it;
+                static RTT * const it;
 
-                RTT() : RuntimeType(1,x10aux::getRTT<Value>()) { }
+                virtual void init() {
+                    initParents(1,x10aux::getRTT<Value>());
+                }
 
                 virtual std::string name() const {
                     std::stringstream ss;
@@ -59,11 +61,11 @@ namespace x10 {
 
                 class RTT : public x10aux::RuntimeType {
                     public:
-                    static const RTT* it;
+                    static RTT * const it;
 
-                    RTT()
-                     : RuntimeType(1,x10aux::getRTT<x10::lang::Iterator<T> >())
-                    { }
+                    virtual void init() {
+                       initParents(1,x10aux::getRTT<x10::lang::Iterator<T> >());
+                    }
 
                     virtual std::string name() const {
                         std::stringstream ss;
@@ -77,7 +79,7 @@ namespace x10 {
                     return x10aux::getRTT<Iterator>();
                 }   
 
-                Iterator (const x10aux::ref<Rail> &rail_)
+                Iterator (x10aux::ref<Rail> rail_)
                         : i(0), rail(rail_) { }
 
                 virtual x10_boolean hasNext() {
@@ -90,17 +92,18 @@ namespace x10 {
 
                 virtual x10_int hashCode() { return 0; }
 
-                virtual x10aux::ref<String> toString() {
-                    return new (x10aux::alloc<String>()) String();
-                }
-
-                virtual x10_boolean equals(const x10aux::ref<Object> &other) {
+                virtual x10_boolean equals(x10aux::ref<Object> other) {
                     if (!RTT::it->concreteInstanceOf(other)) return false;
                     Iterator &other_i = static_cast<Iterator&>(*other);
                     if (other_i.rail != rail) return false;
                     if (other_i.i != i) return false;
                     return true;
                 }   
+
+                virtual x10aux::ref<String> toString() {
+                    return new (x10aux::alloc<String>()) String();
+                }
+
             };  
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
@@ -122,7 +125,7 @@ namespace x10 {
 
             /* TODO: this needs function types, etc
             static x10aux::ref<Rail<T> > makeVarRail(x10_int length,
-                                          const fun_0_1<x10_int,T> &init ) {
+                                          fun_0_1<x10_int,T> init ) {
                 x10aux::ref<Rail<T> > rail =    
                         x10aux::alloc_rail<T,Rail<T> >(length);
                 for (x10_int i=0 ; i<length ; ++i) {
@@ -132,7 +135,7 @@ namespace x10 {
             */
 
             static x10aux::ref<Rail<T> > makeVarRailFromValRail(
-                                    const x10aux::ref<ValRail<T> > &other) {
+                                    x10aux::ref<ValRail<T> > other) {
                 x10_int length = other->FMGL(length);
                 x10aux::ref<Rail<T> > rail =    
                         x10aux::alloc_rail<T,Rail<T> >(length);
@@ -143,10 +146,10 @@ namespace x10 {
 
         };
 
-        template<class T> const typename Rail<T>::RTT *Rail<T>::RTT::it =
+        template<class T> typename Rail<T>::RTT * const Rail<T>::RTT::it =
             new typename Rail<T>::RTT();
 
-        template<class T> const typename Rail<T>::Iterator::RTT *
+        template<class T> typename Rail<T>::Iterator::RTT * const
             Rail<T>::Iterator::RTT::it = new typename Rail<T>::Iterator::RTT();
 
     }

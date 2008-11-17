@@ -37,6 +37,8 @@ ALL_OBJECTS = \
         x10aux/runtime.o \
         x10aux/serialization.o \
         x10aux/string_utils.o \
+        x10/io/FileNotFoundException.o \
+        x10/io/IOException.o \
         x10/io/NativeInputStream.o \
         x10/io/NativeOutputStream.o \
         x10/lang/Exception.o \

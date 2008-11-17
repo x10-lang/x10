@@ -15,9 +15,11 @@ namespace x10 {
             public:
             class RTT : public x10aux::RuntimeType {
                 public: 
-                    static const RTT* const it;
+                    static RTT* const it;
                     
-                    RTT() : RuntimeType(1,x10aux::getRTT<x10::lang::Ref>()) { }
+                    virtual void init() {
+                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
+                    }
                     
                     virtual std::string name() const {
                         return "x10.io.InputStreamReader.NativeInputStream";
@@ -42,9 +44,9 @@ namespace x10 {
 
             virtual x10_int read() = 0;
 
-            virtual x10_int read(const x10aux::ref<x10::lang::Rail<x10_byte> >& b);
+            virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b);
 
-            virtual x10_int read(const x10aux::ref<x10::lang::Rail<x10_byte> >& b,
+            virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b,
                                  x10_int off,
                                  x10_int len);
 

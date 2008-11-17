@@ -6,5 +6,4 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-const Object::RTT * const Object::RTT::it = new Object::RTT();
-
+DEFINE_RTT(Object);
