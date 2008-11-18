@@ -4,15 +4,15 @@ import x10.compiler.Native;
 
 public value Console {
         @Native("java", "java.lang.System.out")
-        @Native("c++", "x10::io::System.out")
+        @Native("c++", "x10::io::FileOutputStream::STANDARD_OUT")
         private native static def realOut(): OutputStreamWriter.OutputStream;
 
         @Native("java", "java.lang.System.err")
-        @Native("c++", "x10::io::System.err")
+        @Native("c++", "x10::io::FileOutputStream::STANDARD_ERR")
         private native static def realErr(): OutputStreamWriter.OutputStream;
 
         @Native("java", "java.lang.System.in")
-        @Native("c++", "x10::io::System.in")
+        @Native("c++", "x10::io::FileInputStream::STANDARD_IN")
         private native static def realIn(): InputStreamReader.InputStream;
     
         public const OUT: Printer = new Printer(new OutputStreamWriter(realOut()));
