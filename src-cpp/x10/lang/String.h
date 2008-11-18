@@ -41,12 +41,16 @@ namespace x10 {
             explicit String(const x10aux::ref<String>& s)
               : Value(), std::string(*static_cast<std::string*>(&*s)) { }
 /*
-            //explicit String(const x10::ref<Object>& o) : Value(), string(to_string(o)) { }
+            explicit String(const x10::ref<Object>& o) : Value(), string(to_string(o)) { }
             const String& operator=(const String& s) {
                 string::operator=(dynamic_cast<const string&>(s));
                 return *this;
             }
 */
+
+            operator x10aux::ref<String> () {
+                return this;
+            }
             x10aux::ref<String> toString();
 
             x10_int hashCode();
@@ -68,8 +72,6 @@ namespace x10 {
 
             x10aux::ref<Rail<x10_char> > toCharRail(void);
 
-            //friend Rail<x10aux::ref<String> >* x10::convert_args(int ac, char **av);
-            //friend void x10::free_args(Rail<x10aux::ref<String> > *arr);
         };
 
     } // namespace x10::lang

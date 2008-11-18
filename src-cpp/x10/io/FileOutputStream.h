@@ -29,8 +29,23 @@ namespace x10 {
                 return x10aux::getRTT<FileOutputStream>();
             }   
 
-            explicit FileOutputStream(const x10aux::ref<x10::lang::String>& name)
+            virtual void write(const char *str) {
+                x10aux::io::FILEPtrOutputStream::write(str);
+            }
+
+            virtual void write(x10_int i) {
+                x10aux::io::FILEPtrOutputStream::write(i);
+            }
+
+            explicit FileOutputStream(x10aux::ref<x10::lang::String> name)
               : FILEPtrOutputStream(FILEPtrStream::open_file(name, "w")) { }
+
+            explicit FileOutputStream(FILE *file)
+              : FILEPtrOutputStream(file) { }
+
+            static x10aux::ref<FileOutputStream> STANDARD_OUT;
+
+            static x10aux::ref<FileOutputStream> STANDARD_ERR;
 
         };
     }

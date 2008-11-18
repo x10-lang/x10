@@ -1,7 +1,7 @@
 #ifndef X10_IO_NATIVEINPUTSTREAM_H
 #define X10_IO_NATIVEINPUTSTREAM_H
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Value.h>
 
 namespace x10 {
 
@@ -11,14 +11,14 @@ namespace x10 {
 
     namespace io {
 
-        class NativeInputStream : public x10::lang::Ref {
+        class NativeInputStream : public x10::lang::Value {
             public:
             class RTT : public x10aux::RuntimeType {
                 public: 
                     static RTT* const it;
                     
                     virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
+                        initParents(1,x10aux::getRTT<x10::lang::Value>());
                     }
                     
                     virtual std::string name() const {
@@ -33,7 +33,7 @@ namespace x10 {
 
         protected:
 
-            explicit NativeInputStream() : Ref() { }
+            explicit NativeInputStream() : Value() { }
 
             virtual char* gets(char* s, int num) = 0;
 

@@ -22,6 +22,9 @@ namespace x10aux {
                          x10_int off, x10_int len);
 
             x10_int read();
+
+            void skip(x10_int bytes);
+
         };
 
     }
