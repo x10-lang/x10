@@ -21,7 +21,6 @@ namespace x10aux {
 		static const ref<x10::lang::String> toString(x10_byte value);
 		static x10_byte parseByte(const ref<x10::lang::String>& s, x10_int radix);
 		static x10_byte parseByte(const ref<x10::lang::String>& s);
-		static x10_byte reverseBytes(x10_byte value);
 	};
 }
 

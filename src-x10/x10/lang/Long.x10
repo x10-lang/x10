@@ -50,12 +50,6 @@ public final value Long implements Integer, Signed {
     @Native("c++", "x10aux::long_utils::parseLong(#1)")
     public native static def parseLong(String): Long throws NumberFormatException;
 
-    @Native("java", "java.lang.Long.getLong(#1, #2)")
-    public native static def getLong(property: String, defaultValue: Long): Long;
-    
-    @Native("java", "x10.core.Box.make(java.lang.Long.getLong(#1))")
-    public native static def getLong(property: String): Box[Long];
-
     @Native("java", "java.lang.Long.highestOneBit(#0)")
     @Native("c++", "x10aux::long_utils::highestOneBit(#0)")
     public native def highestOneBit(): Long;
