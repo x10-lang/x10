@@ -88,8 +88,6 @@ namespace x10aux {
             INC(_val);
         }
 
-        ref(const T& val);
-
         // allow casting between ref<S> and ref<T>
         template<class S> operator ref<S>() const {
             ref<S> _ref(dynamic_cast<S*>((T*)_val));
@@ -166,7 +164,7 @@ namespace x10aux {
 #endif
     };
 
-	template<> ref<x10::lang::String>::ref(const x10::lang::String& val);
+	//template<> ref<x10::lang::String>::ref(const x10::lang::String& val);
 
 } //namespace x10
 

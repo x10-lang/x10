@@ -92,7 +92,7 @@ namespace x10aux {
             // TODO: null
             x10_int id = buf.read<x10_int>();
             _S_("Deserializing place " << id);
-            return (place) id;
+            return new place(id);
         }
     };
 

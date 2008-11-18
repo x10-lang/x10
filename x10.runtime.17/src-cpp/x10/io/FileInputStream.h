@@ -35,6 +35,24 @@ namespace x10 {
             explicit FileInputStream(const x10aux::ref<x10::lang::String>& name)
               : FILEPtrInputStream(FILEPtrStream::open_file(name, "r")) { }
 
+            explicit FileInputStream(FILE *file)
+              : FILEPtrInputStream(file) { }
+
+            virtual char * gets(char *buf, int sz) {
+                return x10aux::io::FILEPtrInputStream::gets(buf,sz);
+            }
+
+            virtual x10_int read() {
+                return x10aux::io::FILEPtrInputStream::read();
+            }
+
+            virtual void skip(x10_int bytes) {
+                return x10aux::io::FILEPtrInputStream::skip(bytes);
+            }
+
+            static x10aux::ref<FileInputStream> STANDARD_IN;
+
+
         };
     }
 }
