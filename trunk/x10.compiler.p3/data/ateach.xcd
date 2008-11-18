@@ -1,4 +1,4 @@
-// SYNOPSIS: ateach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type
+// SYNOPSIS: ateach (#0 #2: #1 in #3) clocked(#5) {#4}    #6=locals #7=boxed type #8=position
 {
 	x10.lang.Dist #2__distCopy = #3; // make copy to avoid recomputation
 	for (x10.core.Iterator<#7> #2__ = #2__distCopy.iterator(); #2__.hasNext(); ) {
@@ -9,6 +9,6 @@
 				public void apply() {
 					#4
 				}
-			});
+			}, "ateach-#8");
 	}
 }
