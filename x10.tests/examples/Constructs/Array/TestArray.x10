@@ -18,7 +18,8 @@ abstract public class TestArray extends x10Test {
             os = new StringWriter();
             out = new Printer(os);
         } catch (e:Exception) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println(e.toString());
         }
     }
 
