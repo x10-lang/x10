@@ -51,6 +51,9 @@ public value Throwable {
     @Native("c++", "(#0)->toString()")
     public def toString() = className() + ": " + getMessage();
    
+    @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
+    @Native("c++", "(#0)->getStackTrace()")
+    public native def getStackTrace() : ValRail[String];
 
 //    @Native("java", "#0.printStackTrace()")
 //    @Native("c++", "(#0)->printStackTrace()")
