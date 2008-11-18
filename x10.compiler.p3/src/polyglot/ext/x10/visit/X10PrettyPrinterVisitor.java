@@ -2470,7 +2470,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Template("Async",
 				a.place(),
 				processClocks(a),
-				a.body()).expand(tr2);
+				a.body(),
+				a.position().nameAndLineString()).expand(tr2);
 	}
 	
 	public void visit(AtStmt_c a) {
@@ -2478,7 +2479,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		new Template("At",
 					 a.place(),
 					 a.body(),
-                     getUniqueId_()).expand(tr2);
+                     getUniqueId_(),
+                     a.position().nameAndLineString()).expand(tr2);
 	}
 
 	public void visit(Atomic_c a) {
@@ -2499,12 +2501,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(Future_c f) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("Future", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type())).expand(tr2);
+		new Template("Future", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString()).expand(tr2);
 	}
 	
 	public void visit(AtExpr_c f) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type())).expand(tr2);
+		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString()).expand(tr2);
 	}
 	
 	public void visit(Formal_c f) {
@@ -2585,7 +2587,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 new Join("\n", new Join("\n", l.locals()), l.body()),
 						 processClocks(l),
 						 new Join("\n", l.locals()),
-						 new TypeExpander(l.formal().type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES)
+						 new TypeExpander(l.formal().type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES),
+						 l.position().nameAndLineString()
 					 ).expand(tr2);
 	}
 
