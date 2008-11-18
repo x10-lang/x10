@@ -31,10 +31,4 @@ public final value Boolean {
     @Native("java", "java.lang.Boolean.parseBoolean(#1)")
     @Native("c++", "x10aux::boolean_utils::parseBoolean(#0)")
     public native static def parseBoolean(String): Boolean;
-
-    @Native("java", "java.lang.Boolean.getBoolean(#1, #2)")
-    public native static def getBoolean(property: String, defaultValue: Boolean): Boolean;
-    
-    @Native("java", "java.lang.Boolean.getBoolean(#1)")
-    public native static def getBoolean(property: String): Boolean;
 }

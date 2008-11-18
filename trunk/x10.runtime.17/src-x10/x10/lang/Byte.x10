@@ -49,8 +49,4 @@ public final value Byte implements Integer, Signed {
     @Native("java", "java.lang.Byte.parseByte(#1)")
     @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parseByte(String): Byte throws NumberFormatException;
-    
-    @Native("java", "java.lang.Byte.reverseBytes(#0)")
-    @Native("c++", "x10aux::byte_utils::reverseBytes(#0)")
-    public native def reverseBytes(): Byte;
 }
