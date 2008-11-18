@@ -163,30 +163,34 @@ public abstract value class BaseArray[T] extends Array[T] {
     public def lift(op:(T)=>T): Array[T](dist)
         = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
 
+    incomplete public def reduce(op:(T,T)=>T, unit:T):T;
 
-    public def reduce(op:(T,T)=>T, unit:T):T {
-
-        var result: T = unit;
-
-        // scatter
-        val ps = dist.places();
-        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
-            future (ps(p)) {
-                var result: T = unit;
-                val a = (this | here) as Array[T](rank);
-                for (pt:Point(rank) in a)
-                    result = op(result, a(pt));
-                return result;
-            }
-        });
-
-        // gather
-        for (var i:int=0; i<results.length; i++)
-            result = op(result, results(i).force());
-
-        return result;
-    }            
-
+//
+// seems to be causing non-deterministic typechecking failures in a(pt).
+// perhaps related to XTENLANG-128 and/or XTENLANG-135
+//
+//    public def reduce(op:(T,T)=>T, unit:T):T {
+//
+//        // scatter
+//        val ps = dist.places();
+//        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
+//            future (ps(p)) {
+//                var result: T = unit;
+//                val a = (this | here) as Array[T](rank);
+//                for (pt:Point(rank) in a)
+//                    result = op(result, a(pt));
+//                return result;
+//            }
+//        });
+//
+//        // gather
+//        var result: T = unit;
+//        for (var i:int=0; i<results.length; i++)
+//            result = op(result, results(i).force());
+//
+//        return result;
+//    }            
+//
 
     // LocalArray only for now!
     incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
