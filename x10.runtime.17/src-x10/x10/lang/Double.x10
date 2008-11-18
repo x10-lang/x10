@@ -28,23 +28,34 @@ public final value Double {
     public const MIN_VALUE: Double = Double.fromLongBits(0x1L);
     
     @Native("java", "java.lang.Double.toHexString(#0)")
+    @Native("c++", "x10aux::double_utils::toHexString(#0)")
     public native def toHexString(): String;    
     
     @Native("java", "java.lang.Double.toString(#0)")
+    @Native("c++", "x10aux::double_utils::toString(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Double.parseDouble(#1)")
+    @Native("c++", "x10aux::double_utils::parseDouble(#1)")
     public native static def parseDouble(String): Double throws NumberFormatException;
     
     @Native("java", "java.lang.Double.isNaN(#0)")
+    @Native("c++", "x10aux::double_utils::isNaN(#0)")
     public native def isNaN(): boolean;
+
     @Native("java", "java.lang.Double.isInfinite(#0)")
+    @Native("c++", "x10aux::double_utils::isInfinite(#0)")
     public native def isInfinite(): boolean;
     
     @Native("java", "java.lang.Double.doubleToLongBits(#0)")
+    @Native("c++", "x10aux::double_utils::doubleToLongBits(#0)")
     public native def toLongBits(): Long;
-    @Native("java", "java.lang.Double.floatToRawLongBits(#0)")
+
+    @Native("java", "java.lang.Double.doubleToRawLongBits(#0)")
+    @Native("c++", "x10aux::double_utils::doubleToRawLongBits(#0)")
     public native def toRawLongBits(): Long;
+
     @Native("java", "java.lang.Double.longBitsToDouble(#1)")
+    @Native("c++", "x10aux::double_utils::longBitsToDouble(#1)")
     public static native def fromLongBits(Long): Double;
 }
