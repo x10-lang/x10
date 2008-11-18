@@ -12,9 +12,6 @@ public value _ {
     public static type float = Float;
     public static type double = Double;
     
-    public static type true = boolean{self==true};
-    public static type false = boolean{self==false};
-    
     public static type boolean(b:Boolean) = Boolean{self==b};
     public static type byte(b:Byte) = Byte{self==b};
     public static type short(b:Short) = Short{self==b};
@@ -35,8 +32,6 @@ public value _ {
     public static type Double(b:Double) = Double{self==b};
     public static type String(s:String) = String{self==s};
    
-    public static type Nat = Int;
-
 /*
     // UNCOMMENT IF UNSIGNED INTEGERS SUPPORTED
     public static type ubyte = UByte;
@@ -53,15 +48,13 @@ public value _ {
 */
 
     // COMMENT OUT IF UNSIGNED INTEGERS SUPPORTED
+    public static type Nat = Int;
     public static type nat = int;
  
     public static type int8 = byte;
     public static type int16 = short;
     public static type int32 = int;
     public static type int64 = long;
-
-//    public static type place = Place;
-//    public static type clock = Clock;
     
     public static type Point(r: Int) = Point{rank==r};
 
@@ -77,7 +70,4 @@ public value _ {
 
     public static type ValRail[T](n:Nat) = ValRail[T]{length==n};
     public static type Rail[T](n:Nat) = Rail[T]{length==n};
-
-    public static type VarArray[T] = Array[T];
-    public static type ValArray[T] = Array[T];
 }
