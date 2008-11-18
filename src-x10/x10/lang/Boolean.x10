@@ -25,18 +25,16 @@ public final value Boolean {
     public const FALSE = false;
 
     @Native("java", "java.lang.Boolean.toString(#0)")
-    @Native("c++", "x10::lang::Boolean::toString(#0)")
+    @Native("c++", "x10aux::boolean_utils::toString(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Boolean.parseBoolean(#1)")
-    @Native("c++", "x10::lang::Boolean::parseBoolean(#1)")
-    public native static def parseBoolean(String): Boolean throws NumberFormatException;
+    @Native("c++", "x10aux::boolean_utils::parseBoolean(#0)")
+    public native static def parseBoolean(String): Boolean;
 
     @Native("java", "java.lang.Boolean.getBoolean(#1, #2)")
-    @Native("c++", "x10::lang::Boolean::getBoolean(#1, #2)")
     public native static def getBoolean(property: String, defaultValue: Boolean): Boolean;
     
     @Native("java", "java.lang.Boolean.getBoolean(#1)")
-    @Native("c++", "x10::lang::Boolean::getBoolean(#1)")
     public native static def getBoolean(property: String): Boolean;
 }

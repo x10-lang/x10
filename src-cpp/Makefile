@@ -25,6 +25,10 @@ ARCHIVE=libx10rt17.a
 all: $(X10LIB)/include/x10/x10.h $(ARCHIVE) 
 
 ALL_OBJECTS = \
+        x10aux/boolean_utils.o \
+        x10aux/byte_utils.o \
+        x10aux/char_utils.o \
+        x10aux/double_utils.o \
         x10aux/exit_code.o \
         x10aux/finish.o \
         x10aux/int_utils.o \
@@ -38,6 +42,7 @@ ALL_OBJECTS = \
         x10aux/RTT.o \
         x10aux/runtime.o \
         x10aux/serialization.o \
+        x10aux/short_utils.o \
         x10aux/string_utils.o \
         x10/io/FileInputStream.o \
         x10/io/FileOutputStream.o \

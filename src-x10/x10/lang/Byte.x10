@@ -23,26 +23,34 @@ public final value Byte implements Integer, Signed {
     public const MAX_VALUE = 0x7fff to Byte;
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
+    @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
     public native def toString(radix: Int): String;
     
     @Native("java", "java.lang.Integer.toHexString(#0)")
+    @Native("c++", "x10aux::byte_utils::toHexString(#0)")
     public native def toHexString(): String;    
     
     @Native("java", "java.lang.Integer.toOctalString(#0)")
+    @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
     public native def toOctalString(): String;  
       
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
+    @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;    
     
     @Native("java", "java.lang.Byte.toString(#0)")
+    @Native("c++", "x10aux::byte_utils::toString(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Byte.parseByte(#1, #2)")
+    @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
     public native static def parseByte(String, radix: Int): Byte throws NumberFormatException;
     
     @Native("java", "java.lang.Byte.parseByte(#1)")
+    @Native("c++", "x10aux::byte_utils::parseByte(#1)")
     public native static def parseByte(String): Byte throws NumberFormatException;
     
     @Native("java", "java.lang.Byte.reverseBytes(#0)")
+    @Native("c++", "x10aux::byte_utils::reverseBytes(#0)")
     public native def reverseBytes(): Byte;
 }
