@@ -26,3 +26,6 @@ x10_int x10aux::io::FILEPtrInputStream::read() {
     return (x10_int)c;
 }
 
+void x10aux::io::FILEPtrInputStream::skip(x10_int bytes) {
+    ::fseek(_stream, bytes, SEEK_CUR);
+}

@@ -35,7 +35,7 @@ namespace x10aux {
             static FILE* open_file(const x10aux::ref<x10::lang::String>& name,
                                    const char* mode);
 
-            void close();
+            virtual void close();
         };
 
     }

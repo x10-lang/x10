@@ -8,21 +8,25 @@ using namespace std;
 using namespace x10aux;
 
 const ref<String> x10aux::int_utils::toString(x10_int value, x10_int radix) {
+    (void) value; (void) radix;
 	assert(false); /* FIXME: STUBBED NATIVE */
 	return NULL;
 }
 
 const ref<String> x10aux::int_utils::toHexString(x10_int value) {
+    (void) value;
 	assert(false); /* FIXME: STUBBED NATIVE */
 	return NULL;
 }
 
 const ref<String> x10aux::int_utils::toOctalString(x10_int value) {
+    (void) value;
 	assert(false); /* FIXME: STUBBED NATIVE */
 	return NULL;
 }
 
 const ref<String> x10aux::int_utils::toBinaryString(x10_int value) {
+    (void) value;
 	assert(false); /* FIXME: STUBBED NATIVE */
 	return NULL;
 }
@@ -32,6 +36,7 @@ const ref<String> x10aux::int_utils::toString(x10_int value) {
 }
 
 x10_int x10aux::int_utils::parseInt(const ref<String>& s, x10_int radix) {
+    (void) s;
 	assert(false); /* FIXME: STUBBED NATIVE */
 	return radix; /* Bogus, but use radix to avoid warning about unused parameter */
 }
