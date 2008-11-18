@@ -47,7 +47,3 @@ x10_byte x10aux::byte_utils::parseByte(const ref<String>& s) {
 	return 0; 
 }
 
-x10_byte x10aux::byte_utils::reverseBytes(x10_byte x) {
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return x; /* Bogus, but use x to avoid warning about unused parameter */
-}

@@ -54,12 +54,6 @@ public final value Int implements Integer, Signed {
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parseInt(String): Int throws NumberFormatException;
 
-    @Native("java", "java.lang.Integer.getInteger(#1, #2).intValue()")
-    public native static def getInteger(property: String, defaultValue: Int): Int;
-    
-    @Native("java", "x10.core.Box.make(java.lang.Integer.getInteger(#1))")
-    public native static def getInteger(property: String): Box[Int];
-
     @Native("java", "java.lang.Integer.highestOneBit(#0)")
     @Native("c++", "x10aux::int_utils::highestOneBit(#0)")
     public native def highestOneBit(): Int;
