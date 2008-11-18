@@ -28,23 +28,34 @@ public final value Float {
     public const MIN_VALUE: Float = Float.fromIntBits(0x00800000);
     
     @Native("java", "java.lang.Float.toHexString(#0)")
+    @Native("c++", "x10aux::float_utils::toHexString(#0)")
     public native def toHexString(): String;    
     
     @Native("java", "java.lang.Float.toString(#0)")
+    @Native("c++", "x10aux::float_utils::toString(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Float.parseFloat(#1)")
+    @Native("c++", "x10aux::float_utils::parseFloat(#1)")
     public native static def parseFloat(String): Float throws NumberFormatException;
 
     @Native("java", "java.lang.Float.isNaN(#0)")
+    @Native("c++", "x10aux::float_utils::isNaN(#0)")
     public native def isNaN(): boolean;
+
     @Native("java", "java.lang.Float.isInfinite(#0)")
+    @Native("c++", "x10aux::float_utils::isInfinite(#0)")
     public native def isInfinite(): boolean;
     
     @Native("java", "java.lang.Float.floatToIntBits(#0)")
+    @Native("c++", "x10aux::float_utils::floatToIntBits(#0)")
     public native def toIntBits(): Int;
+
     @Native("java", "java.lang.Float.floatToRawIntBits(#0)")
+    @Native("c++", "x10aux::float_utils::floatToRawIntBits(#0)")
     public native def toRawIntBits(): Int;
+
     @Native("java", "java.lang.Float.intBitsToFloat(#1)")
+    @Native("c++", "x10aux::float_utils::fromIntBits(#1)")
     public static native def fromIntBits(Int): Float;
 }
