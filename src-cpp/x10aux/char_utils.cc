@@ -7,44 +7,100 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
-const ref<String> x10aux::char_utils::toString(x10_char value, x10_int radix) {
-    (void) value; (void) radix;
+x10_boolean x10aux::char_utils::isLowerCase(x10_char x) {
+	(void) x;
 	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+	return false;
 }
 
-const ref<String> x10aux::char_utils::toHexString(x10_char value) {
-    (void) value;
+x10_boolean x10aux::char_utils::isUpperCase(x10_char x) {
+	(void) x;
 	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+	return false;
 }
 
-const ref<String> x10aux::char_utils::toOctalString(x10_char value) {
-    (void) value;
+x10_boolean x10aux::char_utils::isTitleCase(x10_char x) {
+	(void) x;
 	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+	return false;
 }
 
-const ref<String> x10aux::char_utils::toBinaryString(x10_char value) {
-    (void) value;
+x10_boolean x10aux::char_utils::isDigit(x10_char x) {
+	(void) x;
 	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+	return false;
 }
 
-const ref<String> x10aux::char_utils::toString(x10_char value) {
-	return to_string(value);
+x10_boolean x10aux::char_utils::isLetter(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
 }
 
-x10_char x10aux::char_utils::parseChar(const ref<String>& s, x10_int radix) {
-    (void) s;
+x10_boolean x10aux::char_utils::isLetterOrDigit(x10_char x) {
+	(void) x;
 	assert(false); /* FIXME: STUBBED NATIVE */
-	return radix; /* Bogus, but use radix to avoid warning about unused parameter */
+	return false;
 }
 
-x10_char x10aux::char_utils::parseChar(const ref<String>& s) {
-    (void) s;
+x10_boolean x10aux::char_utils::isUnicodeIdentifierStart(x10_char x) {
+	(void) x;
 	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+	return false;
+}
+
+x10_boolean x10aux::char_utils::isUnicodeIdentifierPart(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_boolean x10aux::char_utils::isUnicodeIdentifierIgnorable(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_boolean x10aux::char_utils::isSpace(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_boolean x10aux::char_utils::isSpaceChar(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_boolean x10aux::char_utils::isWhiteSpace(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_boolean x10aux::char_utils::isISOControl(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_char x10aux::char_utils::toLowerCase(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_char x10aux::char_utils::toUpperCase(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
+}
+
+x10_char x10aux::char_utils::toTitleCase(x10_char x) {
+	(void) x;
+	assert(false); /* FIXME: STUBBED NATIVE */
+	return false;
 }
 
 x10_char x10aux::char_utils::reverseBytes(x10_char x) {
