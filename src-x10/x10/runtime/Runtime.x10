@@ -63,18 +63,17 @@ public value Runtime {
 	 * Run main activity in a finish
 	 */
 	public static def start(body:()=>Void):Void {
-		try {
+// temporary: printStackTrace call moved to Main template (native code) 
+//		try {
 			val state = new FinishState();
 			val activity = new Activity(body, state);
 			Thread.currentThread().activity(activity);
 			state.notifySubActivitySpawn();
 			activity.run();
 			state.waitForFinish();
-		} catch (t:Throwable) {
-            // temporary measure until we have a new stacktrace mechanism
-            Console.OUT.println("The activity did not catch: "+t);
-			//t.printStackTrace();
-		}
+//		} catch (t:Throwable) {
+//			t.printStackTrace();
+//		}
 	}
 
 
