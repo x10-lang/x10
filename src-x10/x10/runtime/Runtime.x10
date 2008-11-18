@@ -66,7 +66,7 @@ public value Runtime {
 // temporary: printStackTrace call moved to Main template (native code) 
 //		try {
 			val state = new FinishState();
-			val activity = new Activity(body, state);
+			val activity = new Activity(body, state, "root");
 			Thread.currentThread().activity(activity);
 			state.notifySubActivitySpawn();
 			activity.run();
@@ -103,21 +103,21 @@ public value Runtime {
 	/**
 	 * Run async
 	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void):Void {
+	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void, name:String):Void {
 		at (current().location) {
 			val state = current().finishStack.peek();
 			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
 			state.notifySubActivitySpawn();
-			at (place) pool.execute(new Activity(body, state, clocks, phases));
+			at (place) pool.execute(new Activity(body, state, clocks, phases, name));
 		}
 	}
 
 	/**
 	 * Eval future expression
 	 */
-	public static def evalFuture[T](place:Place, eval:()=>T):Future[T] {
+	public static def evalFuture[T](place:Place, eval:()=>T, name:String):Future[T] {
 		return at (place) {
-			val futur = new Future_c[T](eval);
+			val futur = new Future_c[T](eval, name);
 			async futur.run();
 			futur
 		};
