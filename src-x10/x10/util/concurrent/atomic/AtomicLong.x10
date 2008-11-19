@@ -7,46 +7,46 @@
  *  X10 is released.
  *
  */
-package x10.runtime.kernel.atomics;
+package x10.util.concurrent.atomic;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "java.util.concurrent.atomic.AtomicInteger", null, null)
-public class AtomicInteger {
+@NativeRep("java", "java.util.concurrent.atomic.AtomicLong", null, null)
+public class AtomicLong {
 	
-	public native def this():AtomicInteger;
-	public native def this(val:int):AtomicInteger;
+	public native def this():AtomicLong;
+	public native def this(val:long):AtomicLong;
 	
 	@Native("java", "#0.get()")
-	public native def get():int;
+	public native def get():long;
 	
 	@Native("java", "#0.set(#1)")
-	public native def set(newVal:int):void;
+	public native def set(newVal:long):void;
 	
 	@Native("java", "#0.compareAndSet(#1,#2)")
-	public native def compareAndSet(expect:int, update:int):boolean;
+	public native def compareAndSet(expect:long, update:long):boolean;
 
 	@Native("java", "#0.weakCompareAndSet(#1,#2)")
-	public native def weakCompareAndSet(expect:int, update:int):boolean;
+	public native def weakCompareAndSet(expect:long, update:long):boolean;
 	
 	@Native("java", "#0.getAndIncrement()")
-	public native def getAndIncrement():int;
+	public native def getAndIncrement():long;
 
 	@Native("java", "#0.getAndDecrement()")
-	public native def getAndDecrement():int;
+	public native def getAndDecrement():long;
 	
 	@Native("java", "#0.getAndAdd(#1)")
-	public native def getAndAdd(delta:int):int;
+	public native def getAndAdd(delta:long):long;
 	
 	@Native("java", "#0.incrementAndGet()")
-	public native def incrementAndGet():int;
+	public native def incrementAndGet():long;
 
 	@Native("java", "#0.decrementAndGet()")
-	public native def decrementAndGet():int;
+	public native def decrementAndGet():long;
 	
 	@Native("java", "#0.addAndGet(#1)")
-	public native def addAndGet(delta:int):int;
+	public native def addAndGet(delta:long):long;
 	
 	@Native("java", "#0.toString()")
 	public native def toString():String;
