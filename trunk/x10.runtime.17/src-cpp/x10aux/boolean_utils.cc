@@ -1,6 +1,6 @@
 #include <x10aux/boolean_utils.h>
 
-#include <x10/lang/String.h>					\
+#include <x10/lang/String.h>                    \
 
 using namespace x10::lang;
 using namespace std;
@@ -10,7 +10,7 @@ ref<String> x10aux::boolean_utils::_trueString = new (alloc<String>())String("tr
 ref<String> x10aux::boolean_utils::_falseString = new (alloc<String>())String("false");
 
 const ref<String> x10aux::boolean_utils::toString(x10_boolean value) {
-	return value ? _trueString : _falseString;
+    return value ? _trueString : _falseString;
 }
 
 x10_boolean x10aux::boolean_utils::parseBoolean(const ref<String>& s) {
