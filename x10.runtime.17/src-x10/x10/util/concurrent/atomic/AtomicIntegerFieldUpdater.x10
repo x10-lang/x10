@@ -7,7 +7,7 @@
  *  X10 is released.
  *
  */
-package x10.runtime.kernel.atomics;
+package x10.util.concurrent.atomic;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
