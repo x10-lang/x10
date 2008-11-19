@@ -14,8 +14,6 @@ const ref<String> x10aux::boolean_utils::toString(x10_boolean value) {
 }
 
 x10_boolean x10aux::boolean_utils::parseBoolean(const ref<String>& s) {
-    (void) s;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    return s != NULL && !strcasecmp(((const string&)(*s)).c_str(), "true");
 }
 
