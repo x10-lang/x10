@@ -12,16 +12,16 @@ namespace x10 {
 
 
 namespace x10aux {
-	class byte_utils {
-	public:
-		static const ref<x10::lang::String> toString(x10_byte value, x10_int radix);
-		static const ref<x10::lang::String> toHexString(x10_byte value);
-		static const ref<x10::lang::String> toOctalString(x10_byte value);
-		static const ref<x10::lang::String> toBinaryString(x10_byte value);
-		static const ref<x10::lang::String> toString(x10_byte value);
-		static x10_byte parseByte(const ref<x10::lang::String>& s, x10_int radix);
-		static x10_byte parseByte(const ref<x10::lang::String>& s);
-	};
+    class byte_utils {
+    public:
+        static const ref<x10::lang::String> toString(x10_byte value, x10_int radix);
+        static const ref<x10::lang::String> toHexString(x10_byte value);
+        static const ref<x10::lang::String> toOctalString(x10_byte value);
+        static const ref<x10::lang::String> toBinaryString(x10_byte value);
+        static const ref<x10::lang::String> toString(x10_byte value);
+        static x10_byte parseByte(const ref<x10::lang::String>& s, x10_int radix);
+        static x10_byte parseByte(const ref<x10::lang::String>& s);
+    };
 }
 
 #endif
