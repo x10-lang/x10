@@ -23,6 +23,6 @@ public value Runtime {
 	}
 
     public static def setExitCode(code: int): void {
-		x10.runtime.kernel.Runtime.setExitCode(code);
+		x10.runtime.NativeRuntime.setExitCode(code);
     }
 }    

@@ -27,7 +27,7 @@ public value Runtime {
 	/**
 	 * One thread pool per node
 	 */
-	private const pool = new Pool(x10.runtime.kernel.Runtime.INIT_THREADS);
+	private const pool = new Pool(NativeRuntime.INIT_THREADS);
 
 	/**
 	 * Notify the thread pool that one activity is about to block
@@ -84,7 +84,7 @@ public value Runtime {
 	 * Run at statement
 	 */
 	public static def runAt(place:Place, body:()=>Void):Void {
-		x10.runtime.kernel.Runtime.runAt(place.id, body);
+		NativeRuntime.runAt(place.id, body);
 	}
 
 	/**
@@ -130,7 +130,7 @@ public value Runtime {
 	 * Place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (x10.runtime.kernel.Runtime.PLACE_CHECKS &&
+		if (NativeRuntime.PLACE_CHECKS &&
 				null != o && o instanceof Ref && (o to Ref).location != p) {
 			throw new BadPlaceException("object=" + (at ((o to Ref).location) o.toString()) + " access at place=" + p);
 		}
@@ -144,7 +144,7 @@ public value Runtime {
 	 * One monitor per place in the current node
 	 */
 	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
-		(id:Nat)=> x10.runtime.kernel.Runtime.local(id) ? at (Place.place(id)) new Monitor() : null); 
+		(id:Nat)=> NativeRuntime.local(id) ? at (Place.place(id)) new Monitor() : null); 
  	 		
 	/**
 	 * Lock current place
