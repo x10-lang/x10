@@ -25,7 +25,7 @@ namespace x10 {
 
                 virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
 
-                virtual std::string name() {
+                virtual std::string name() const {
                     std::stringstream ss;
                     ss<<"x10.lang.Box["<<x10aux::getRTT<T>()->name()<<"]";
                     return ss.str();
@@ -37,27 +37,27 @@ namespace x10 {
                 return x10aux::getRTT<Box<T> >();
             }
 
-            Box(const x10aux::ref<T>& contents_)
-              : Value(), contents(contents_) { }
+            Box(T contents_)
+              : Ref(), contents(contents_) { }
 
             ~Box() { }
 
-            T& get() const {
-                return *contents;
+            virtual T get() {
+                return contents;
             }
 
-            bool equals (const x10aux::ref<Object> &other) {
+            virtual bool equals (x10aux::ref<Object> other) {
                 return other==x10aux::ref<Box<T> >(this);
             }
 
             protected:
 
-            x10aux::ref<T> contents;
+            T contents;
 
         };
 
         template<class T> typename Box<T>::RTT *Box<T>::RTT::it =
-            new typename Box<T>::RTT(x10aux::getRTT<T>());
+            new typename Box<T>::RTT();
 
     }
 }

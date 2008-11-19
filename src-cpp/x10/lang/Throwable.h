@@ -17,6 +17,7 @@ namespace x10 {
     namespace lang {
 
         class String;
+        template<class T> class ValRail;
 
         class Throwable : public Value {
 
@@ -50,13 +51,15 @@ namespace x10 {
             virtual x10aux::ref<String> getMessage();
             virtual x10aux::ref<Throwable> getCause();
             virtual x10aux::ref<String> toString();
-            // TODO: getStackTrace()
-            //virtual x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > getStackTrace();
-            //virtual void printStackTrace(x10aux::ref<x10::io::Printer> p);
+            virtual x10aux::ref<Throwable> fillInStackTrace();
+            virtual x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > getStackTrace();
 
             explicit Throwable(x10aux::SERIALIZATION_MARKER m) : Value(m){
                 (void) m;
             }
+
+            void *trace[1024]; //any longer than this and will be truncated
+            int trace_size;
 
             /* TODO: don't care about this just yet
             // Serialization
