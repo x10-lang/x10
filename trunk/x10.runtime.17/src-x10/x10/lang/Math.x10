@@ -12,50 +12,33 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 public final value Math {
-
-  @NativeRep("java", "java.lang.Math", null, null)
-  static final value NativeMath {
-   
-     @Native("java", "java.lang.Math.abs((double) #1)")
-     public static native def abs(a:Double):Double;
-   
-     @Native("java", "java.lang.Math.abs((int) #1)")
-     public static native def abs(a:Int):Int;
-   
-     @Native("java", "java.lang.Math.abs((float) #1)")
-     public static native def abs(a:Float):Float;
-   
-     @Native("java", "java.lang.Math.abs((long) #1)")
-     public static native def abs(a:Long):Long;
-   
-     @Native("java", "java.lang.Math.pow(#1, #2)")
-     public static native def pow(a:Double, b:Double):Double;
-   
-     @Native("java", "java.lang.Math.exp(#1)")
-     public static native def exp(a:Double):Double;
-   
-     @Native("java", "java.lang.Math.cos(#1)")
-     public static native def cos(a:Double):Double;
-   
-     @Native("java", "java.lang.Math.sin(#1)")
-     public static native def sin(a:Double):Double;
-   
-     @Native("java", "java.lang.Math.sqrt(#1)")
-     public static native def sqrt(a:Double):Double;
-   }
-
    public const E = 2.718281828459045D;
    public const PI = 3.141592653589793D;
    
-   public static def abs(a:Double):Double=NativeMath.abs(a);
-   public static def abs(a:Int):Int=NativeMath.abs(a);
-   public static def abs(a:Float):Float=NativeMath.abs(a);
-   public static def abs(a:Long):Long=NativeMath.abs(a);
-   public static def pow(a:Double, b:Double)=NativeMath.pow(a,b);
-   public static def exp(a:Double)=NativeMath.exp(a);
-   public static def cos(a:Double)=NativeMath.cos(a);
-   public static def sin(a:Double)=NativeMath.sin(a);
-   public static def sqrt(a:Double)=NativeMath.sqrt(a);
+   public static safe def abs(a:Double):Double = a<=0?0-a:a;
+   public static safe def abs(a:Int):Int= a<0?-a:a;
+   public static safe def abs(a:Float):Float=a<=0?0-a:a;
+   public static safe def abs(a:Long):Long=a<0?-a:a;
+
+   @Native("java", "java.lang.Math.pow(#1, #2)")
+   @Native("c++", "x10aux::math_utils::pow(#1,#2)")
+   public static native def pow(a:Double, b:Double):Double;
+
+   @Native("java", "java.lang.Math.exp(#1)")
+   @Native("c++", "x10aux::math_utils::exp(#1)")
+   public static native def exp(a:Double):Double;
+
+   @Native("java", "java.lang.Math.cos(#1)")
+   @Native("c++", "x10aux::math_utils::cos(#1)")
+   public static native def cos(a:Double):Double;
+
+   @Native("java", "java.lang.Math.sin(#1)")
+   @Native("c++", "x10aux::math_utils::sin(#1)")
+   public static native def sin(a:Double):Double;
+
+   @Native("java", "java.lang.Math.sqrt(#1)")
+   @Native("c++", "x10aux::math_utils::sqrt(#1)")
+   public static native def sqrt(a:Double):Double;
    
    public static safe def max(a:Int, b:Int)= a<b?b:a;
    public static safe def max(a:Double, b:Double)= a<b?b:a;
