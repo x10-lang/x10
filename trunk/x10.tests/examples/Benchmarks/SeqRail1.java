@@ -1,4 +1,4 @@
-public class SeqRail extends Benchmark {
+public class SeqRail1 extends Benchmark {
 
     final int N = 10000000;
 
@@ -29,7 +29,7 @@ public class SeqRail extends Benchmark {
     //
 
     public static void main(String [] args) {
-        new SeqRail().run();
+        new SeqRail1().run();
     }
 }
 

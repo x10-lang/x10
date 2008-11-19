@@ -1,4 +1,4 @@
-public class SeqPseudoArray extends Benchmark {
+public class SeqPseudoArray1 extends Benchmark {
 
     final int N = 2000;
 
@@ -45,7 +45,7 @@ public class SeqPseudoArray extends Benchmark {
     //
 
     public static void main(String [] args) {
-        new SeqPseudoArray().run();
+        new SeqPseudoArray1().run();
     }
 }
 

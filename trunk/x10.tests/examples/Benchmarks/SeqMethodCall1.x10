@@ -1,4 +1,4 @@
-public class SeqMethodCall extends Benchmark {
+public class SeqMethodCall1 extends Benchmark {
 
     val N = 10000000;
 
@@ -43,10 +43,11 @@ public class SeqMethodCall extends Benchmark {
         super(args);
         reference("snakehead", "java",             1.69281e+08);
         reference("snakehead", "x10-opt-java",     1.61988e+08);
+        reference("snakehead", "x10-dbg-java",     1.99430e+05);
     }
 
     public static def main(args:Rail[String]) {
-        new SeqMethodCall(args).execute();
+        new SeqMethodCall1(args).execute();
     }
 }
 

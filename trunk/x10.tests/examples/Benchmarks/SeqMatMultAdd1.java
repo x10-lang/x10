@@ -1,4 +1,4 @@
-final public class SeqMatMultAdd extends Benchmark {
+final public class SeqMatMultAdd1 extends Benchmark {
 
     //
     // parameters
@@ -48,6 +48,6 @@ final public class SeqMatMultAdd extends Benchmark {
     //
 
     public static void main(String [] args) {
-        new SeqMatMultAdd().run();
+        new SeqMatMultAdd1().run();
     }
 }

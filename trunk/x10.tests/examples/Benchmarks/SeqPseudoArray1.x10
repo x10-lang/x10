@@ -1,4 +1,4 @@
-public class SeqPseudoArray extends Benchmark {
+public class SeqPseudoArray1 extends Benchmark {
 
     //
     // parameters
@@ -41,7 +41,7 @@ public class SeqPseudoArray extends Benchmark {
     def once() {
         for (var i:int=0; i<N; i++)
             for (var j:int=0; j<N; j++)
-                a.set(a.apply(i,j)+1, i,j);
+                a(i,j) += 1;
         return a.apply(20,20);
     }
 
@@ -52,10 +52,10 @@ public class SeqPseudoArray extends Benchmark {
     def this(args:Rail[String]) {
         super(args);
         reference("snakehead", "java",             1.63155e+08);
-        reference("snakehead", "x10-opt-java",     1.07302e+07);
+        reference("snakehead", "x10-opt-java",     1.11249e+07);
     }
 
     public static def main(args:Rail[String]) {
-        new SeqPseudoArray(args).execute();
+        new SeqPseudoArray1(args).execute();
     }
 }
