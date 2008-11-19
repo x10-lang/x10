@@ -187,6 +187,21 @@ public class X10TypeMixin {
 	    }
 	    return t;
 	}
+    public static Type stripConstraints(Type t) {
+        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+        t = ts.expandMacros(t);
+        t = X10TypeMixin.baseType(t);
+        if (t instanceof X10ClassType) {
+            X10ClassType ct = (X10ClassType) t;
+            List<Type> types = new ArrayList<Type>(ct.typeArguments().size());
+            for (Type ti : ct.typeArguments()) {
+                Type ti2 = stripConstraints(ti);
+                types.add(ti2);
+            }
+            return ct.typeArguments(types);
+        }
+        return t;
+    }
 	public static Type xclause(Type t, XConstraint c) {
 	    if (t == null)
 	        return null;
