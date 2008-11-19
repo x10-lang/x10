@@ -54,7 +54,7 @@ namespace x10 {
 
             virtual x10aux::ref<String> toString();
 
-            virtual bool equals(const x10aux::ref<Ref> &other) {
+            virtual bool equals(x10aux::ref<Object> other) {
                 if (other==x10aux::ref<Ref>(this)) return true;
                 return false;
             }

@@ -49,7 +49,7 @@ namespace x10 {
 */
 
             operator x10aux::ref<String> () {
-                return this;
+                return new (x10aux::alloc<String>()) String(this);
             }
             x10aux::ref<String> toString();
 
@@ -77,6 +77,8 @@ namespace x10 {
     } // namespace x10::lang
 
 } // namespace x10
+
+std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s);
 
 
 #endif

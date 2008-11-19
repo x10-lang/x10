@@ -62,6 +62,10 @@ namespace x10 {
                     public:
                     static RTT * const it;
 
+                    virtual void init() {
+                       initParents(1,x10aux::getRTT<x10::lang::Iterator<T> >());
+                    }
+
                     virtual std::string name() const {
                         std::stringstream ss;
                         ss<<"x10.lang.ValRail.Iterator["
@@ -91,7 +95,7 @@ namespace x10 {
                     return new (x10aux::alloc<String>()) String();
                 }
 
-                virtual x10_boolean equals(const x10aux::ref<Object> &other) {
+                virtual x10_boolean equals(x10aux::ref<Object> other) {
                     if (!CONCRETE_INSTANCEOF(other,ValRail)) return false;
                     Iterator &other_i = static_cast<Iterator&>(*other);
                     if (other_i.rail != rail) return false;
@@ -101,10 +105,12 @@ namespace x10 {
             };
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return new Iterator(this);
+                return new (x10aux::alloc<Iterator>()) Iterator(this);
             }
 
-
+            virtual x10aux::ref<String> toString() {
+                return x10aux::AnyRail<T>::toString();
+            }
 
         };
 

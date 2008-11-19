@@ -14,6 +14,7 @@
  *   TRACE_CONSTR      - trace object construction
  *   TRACE_REF         - trace reference operations
  *   TRACE_RTT         - trace runtimetype instantiation
+ *   TRACE_CAST        - trace casts
  *   TRACE_SER         - trace serialization operations
  *   TRACE_X10LIB      - trace X10lib invocations
  *   DEBUG             - general debug trace printouts
@@ -36,6 +37,12 @@
 #define _M_(x) std::cerr << x10_here() << ": MM: " << x << std::endl
 #else
 #define _M_(x)
+#endif
+
+#if !defined(NO_IOSTREAM) && defined(TRACE_RTT)
+#define _CAST_(x) std::cerr << x10_here() << ": CAST: " << x << std::endl
+#else
+#define _CAST_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_CONSTR)

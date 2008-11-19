@@ -4,6 +4,7 @@
 // include everything from this file
 
 #include <x10aux/config.h>
+#include <x10aux/class_cast.h>
 #include <x10aux/runtime.h>
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
