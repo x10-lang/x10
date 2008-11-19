@@ -54,7 +54,7 @@ namespace x10aux {
     };
 
     #define SPECIALISE_CAST(TYPE) \
-    template<class F> class ClassCast<TYPE,F> { \
+    template<class F> struct ClassCast<TYPE,F> { \
         static TYPE class_cast (F obj) { \
             _CAST_(getRTT<F>()->name() \
                    <<" converted to "<<getRTT<TYPE>()->name()); \
