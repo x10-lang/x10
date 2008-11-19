@@ -7,6 +7,12 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
+/* Use to move bits between x10_float/x10_int without confusing the compiler */
+typedef union TypePunner {
+	x10_int i;
+	x10_float f;
+} TypePunner;
+
 const ref<String> x10aux::float_utils::toHexString(x10_float value) {
     (void) value;
 	assert(false); /* FIXME: STUBBED NATIVE */
@@ -14,15 +20,13 @@ const ref<String> x10aux::float_utils::toHexString(x10_float value) {
 }
 
 const ref<String> x10aux::float_utils::toString(x10_float value) {
-    (void) value; 
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+	return to_string(value);
 }
 
 x10_float x10aux::float_utils::parseFloat(const ref<String>& s) {
-    (void) s;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    // FIXME: what about null?
+    // FIXME: NumberFormatException
+    return atof(((const string&)(*s)).c_str());
 }
 
 x10_boolean x10aux::float_utils::isNaN(x10_float x) {
@@ -38,19 +42,18 @@ x10_boolean x10aux::float_utils::isInfinite(x10_float x) {
 }
 
 x10_int x10aux::float_utils::toIntBits(x10_float x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+	// Check for NaN and return canonical NaN value
+	return isNaN(x) ? 0x7fc00000 : toRawIntBits(x);
 }
 
 x10_int x10aux::float_utils::toRawIntBits(x10_float x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+	TypePunner tmp;
+	tmp.f = x;
+	return tmp.i;
 }
 
 x10_float x10aux::float_utils::fromIntBits(x10_int x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+	TypePunner tmp;
+	tmp.i = x;
+	return tmp.f;
 }
