@@ -12,15 +12,15 @@ namespace x10 {
 
 
 namespace x10aux {
-	class boolean_utils {
-	public:
-		static const ref<x10::lang::String> toString(x10_boolean value);
-		static x10_boolean parseBoolean(const ref<x10::lang::String>& s);
+    class boolean_utils {
+    public:
+        static const ref<x10::lang::String> toString(x10_boolean value);
+        static x10_boolean parseBoolean(const ref<x10::lang::String>& s);
 
-	private:
-		static ref<x10::lang::String> _trueString;
-		static ref<x10::lang::String> _falseString;
-	};
+    private:
+        static ref<x10::lang::String> _trueString;
+        static ref<x10::lang::String> _falseString;
+    };
 }
 
 #endif

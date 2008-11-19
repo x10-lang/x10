@@ -11,26 +11,26 @@ namespace x10 {
 }
 
 namespace x10aux {
-	class char_utils {
-	public:
-		static x10_boolean isLowerCase(x10_char value);
-		static x10_boolean isUpperCase(x10_char value);
-		static x10_boolean isTitleCase(x10_char value);
-		static x10_boolean isDigit(x10_char value);
-		static x10_boolean isLetter(x10_char value);
-		static x10_boolean isLetterOrDigit(x10_char value);
-		static x10_boolean isUnicodeIdentifierStart(x10_char value);
-		static x10_boolean isUnicodeIdentifierPart(x10_char value);
-		static x10_boolean isUnicodeIdentifierIgnorable(x10_char value);
-		static x10_boolean isSpace(x10_char value);
-		static x10_boolean isSpaceChar(x10_char value);
-		static x10_boolean isWhiteSpace(x10_char value);
-		static x10_boolean isISOControl(x10_char value);
-		static x10_char toLowerCase(x10_char value);
-		static x10_char toUpperCase(x10_char value);
-		static x10_char toTitleCase(x10_char value);
-		static x10_char reverseBytes(x10_char value);
-	};
+    class char_utils {
+    public:
+        static x10_boolean isLowerCase(x10_char value);
+        static x10_boolean isUpperCase(x10_char value);
+        static x10_boolean isTitleCase(x10_char value);
+        static x10_boolean isDigit(x10_char value);
+        static x10_boolean isLetter(x10_char value);
+        static x10_boolean isLetterOrDigit(x10_char value);
+        static x10_boolean isUnicodeIdentifierStart(x10_char value);
+        static x10_boolean isUnicodeIdentifierPart(x10_char value);
+        static x10_boolean isUnicodeIdentifierIgnorable(x10_char value);
+        static x10_boolean isSpace(x10_char value);
+        static x10_boolean isSpaceChar(x10_char value);
+        static x10_boolean isWhiteSpace(x10_char value);
+        static x10_boolean isISOControl(x10_char value);
+        static x10_char toLowerCase(x10_char value);
+        static x10_char toUpperCase(x10_char value);
+        static x10_char toTitleCase(x10_char value);
+        static x10_char reverseBytes(x10_char value);
+    };
 }
 
 #endif
