@@ -63,11 +63,10 @@ the following X10 classes:
 
 (5) Threads & Locks
 -------------------
-[src-x10/x10/runtime/kernel/]
+[src-x10/x10/runtime/]
 
   InterruptedException.x10
   Lock.x10
-  Runnable.x10
   Thread.x10
 
 Note: Only stable classes are listed and need immediate implementation.
