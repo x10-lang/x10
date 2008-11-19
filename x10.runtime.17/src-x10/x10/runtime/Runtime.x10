@@ -132,7 +132,7 @@ public value Runtime {
 	public static def placeCheck(p:Place, o:Object):Object {
 		if (x10.runtime.kernel.Runtime.PLACE_CHECKS &&
 				null != o && o instanceof Ref && (o to Ref).location != p) {
-			throw new BadPlaceException("object=" + o + " access at place=" + p);
+			throw new BadPlaceException("object=" + (at ((o to Ref).location) o.toString()) + " access at place=" + p);
 		}
 		return o;
 	}
