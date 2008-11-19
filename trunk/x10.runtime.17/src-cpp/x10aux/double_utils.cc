@@ -2,55 +2,54 @@
 #include <x10aux/string_utils.h>
 
 #include <x10/lang/String.h>
+#include <math.h>
 
 using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
+/* Use to move bits between x10_long/x10_double without confusing the compiler */
+typedef union TypePunner {
+    x10_long l;
+    x10_double d;
+} TypePunner;
+
 const ref<String> x10aux::double_utils::toHexString(x10_double value) {
     (void) value;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+    assert(false); /* FIXME: STUBBED NATIVE */
+    return NULL;
 }
 
 const ref<String> x10aux::double_utils::toString(x10_double value) {
-    (void) value; 
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return NULL;
+    return to_string(value);
 }
 
 x10_double x10aux::double_utils::parseDouble(const ref<String>& s) {
     (void) s;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    assert(false); /* FIXME: STUBBED NATIVE */
+    return 0;
 }
 
 x10_boolean x10aux::double_utils::isNaN(x10_double x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    return isnan(x);
 }
 
 x10_boolean x10aux::double_utils::isInfinite(x10_double x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    return isinf(x);
 }
 
 x10_long x10aux::double_utils::toLongBits(x10_double x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    return isNaN(x) ? 0x7ff8000000000000LL : toRawLongBits(x);
 }
 
 x10_long x10aux::double_utils::toRawLongBits(x10_double x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    TypePunner tmp;
+    tmp.d = x;
+    return tmp.l;
 }
 
 x10_double x10aux::double_utils::fromLongBits(x10_long x) {
-	(void) x;
-	assert(false); /* FIXME: STUBBED NATIVE */
-	return 0; 
+    TypePunner tmp;
+    tmp.l = x;
+    return tmp.d;
 }
