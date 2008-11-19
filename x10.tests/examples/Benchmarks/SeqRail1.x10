@@ -1,4 +1,4 @@
-public class SeqRail extends Benchmark {
+public class SeqRail1 extends Benchmark {
 
     //
     // parameters
@@ -32,9 +32,10 @@ public class SeqRail extends Benchmark {
         super(args);
         reference("snakehead", "java",             2.82138e+08);
         reference("snakehead", "x10-opt-java",     6.23501e+07);
+        reference("snakehead", "x10-dbg-java",     1.64563e+05);
     }
 
     public static def main(args:Rail[String]) {
-        new SeqRail(args).execute();
+        new SeqRail1(args).execute();
     }
 }

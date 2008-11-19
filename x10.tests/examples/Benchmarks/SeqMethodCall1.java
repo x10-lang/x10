@@ -1,4 +1,4 @@
-public class SeqMethodCall extends Benchmark {
+public class SeqMethodCall1 extends Benchmark {
 
     final int N = 10000000;
 
@@ -36,7 +36,7 @@ public class SeqMethodCall extends Benchmark {
 
 
     public static void main(String [] args) {
-        new SeqMethodCall().run();
+        new SeqMethodCall1().run();
     }
 }
 

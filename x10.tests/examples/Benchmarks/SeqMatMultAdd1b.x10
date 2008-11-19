@@ -1,4 +1,4 @@
-public class SeqMatMultAdd extends Benchmark {
+public class SeqMatMultAdd1b extends Benchmark {
 
     val N = 100;
 
@@ -16,10 +16,8 @@ public class SeqMatMultAdd extends Benchmark {
     val c = Array.make[double](r, (p:Point)=>p(0)+p(1) to double);
 
     def once() {
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
-                for (var k:int=0; k<N; k++)
-                    a(i,j) += b(i,k)*c(k,j);
+        for ((i,j,k):Point in r*(0..N-1))
+            a(i,j) += b(i,k)*c(k,j);
         return a(20,20);
     }
 
@@ -31,11 +29,10 @@ public class SeqMatMultAdd extends Benchmark {
     def this(args:Rail[String]) {
         super(args);
         reference("snakehead", "java",             9.81450e+07);
-        reference("snakehead", "x10-opt-java",     3.16794e+06);
-        reference("snakehead", "x10-dbg-java",     5.13516e+04);
+        reference("snakehead", "x10-opt-java",     1.60570e+06);
     }
 
     public static def main(args:Rail[String]) {
-        new SeqMatMultAdd(args).execute();
+        new SeqMatMultAdd1b(args).execute();
     }
 }
