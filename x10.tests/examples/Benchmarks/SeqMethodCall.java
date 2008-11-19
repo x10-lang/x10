@@ -1,0 +1,43 @@
+public class SeqMethodCall extends Benchmark {
+
+    final int N = 10000000;
+
+    double expected() {return N;}
+
+    double operations() {return N * 5.0;} // 5 method calls per iteration
+
+    //
+    //
+    //
+
+    final static class X {
+        double x = 0.0;
+        double foo(double y) {return x+=y;}
+    }
+
+    X x = new X();
+    
+    double once() {
+        double sum = 0.0;
+        double a = 0;
+        double b = -1;
+        double c = 1;
+        double d = 2;
+        double e = -2;
+        for (int i=0; i<N; i++) {
+            sum += x.foo(a);
+            sum += x.foo(b);
+            sum += x.foo(c);
+            sum += x.foo(d);
+            sum += x.foo(e);
+        }
+        return sum;
+    }
+
+
+    public static void main(String [] args) {
+        new SeqMethodCall().run();
+    }
+}
+
+
