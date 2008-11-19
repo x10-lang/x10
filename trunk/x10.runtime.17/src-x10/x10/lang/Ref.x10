@@ -27,15 +27,15 @@ public class Ref(
     public native def this();
 
     @Native("java", "#0.equals(#1)")
-    @Native("c++", "#0.equals(#1)")
+    @Native("c++", "(#0)->equals(#1)")
     public native def equals(other : Object) : Boolean;
 
     @Native("java", "#0.hashCode()")
-    @Native("c++", "#0.hashCode()")
+    @Native("c++", "(#0)->hashCode()")
     public native def hashCode() : Int;
 
     @Native("java", "#0.toString()")
-    @Native("c++", "#0.toString()")
+    @Native("c++", "(#0)->toString()")
     public native def toString() : String;
 
     @Native("java", "#0.getClass().toString()")

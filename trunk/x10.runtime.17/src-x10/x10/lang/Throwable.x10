@@ -55,24 +55,18 @@ public value Throwable {
     @Native("c++", "(#0)->getStackTrace()")
     public native def getStackTrace() : ValRail[String];
 
-//    @Native("java", "#0.printStackTrace()")
-//    @Native("c++", "(#0)->printStackTrace()")
-//    public  def printStackTrace() {
-//    	printStackTrace(Console.ERR);
-//    }
-//    
-//    @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
-//    @Native("c++", "(#0)->printStackTrace(#1)")
-//    public def printStackTrace(p: Printer) {
-//    	// We do not bother to walk the stack and insert stack elements
-//    	// for the C/C++ implementation (for now).
-//    	p.println(this);
-//    	p.println("Stack trace unavailable. So cry your heart out.");
-//    }
-//    /*
-//    public synchronized native java.lang.Throwable fillInStackTrace();
-//    public java.lang.StackTraceElement[] getStackTrace();
-//    public void setStackTrace(java.lang.StackTraceElement[]);
-//    */
+    @Native("java", "#0.printStackTrace()")
+    @Native("c++", "do {    x10::io::Console::FMGL(ERR)->println((#0)->toString());    x10aux::ref<ValRail<String> > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace.FMGL(length) ; ++i) {        x10::io::Console::FMGL(ERR)->print(String(\"        at \");        x10::io::Console::FMGL(ERR)->println((#0)->toString());    }} while (0)")
+    public native def printStackTrace() : Void;
+    
+    @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
+    @Native("c++", "do {    (#1)->println((#0)->toString());    x10aux::ref<ValRail<String> > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace.FMGL(length) ; ++i) {        (#1)->print(String(\"        at \");        (#1)->println((#0)->toString());    }} while (0)")
+    public native def printStackTrace(p: Printer) : Void;
+
+    /*
+    public synchronized native java.lang.Throwable fillInStackTrace();
+    public java.lang.StackTraceElement[] getStackTrace();
+    public void setStackTrace(java.lang.StackTraceElement[]);
+    */
 
 }

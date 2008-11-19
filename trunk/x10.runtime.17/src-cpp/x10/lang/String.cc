@@ -77,5 +77,16 @@ ref<Rail<x10_char> > String::toCharRail() {
     return rail;
 }
 
+std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s)
+{
+    if (s.isNull()) {
+        o << "null";
+    } else {
+        o <<*s;
+    }
+
+    return o;
+}
+
 
 DEFINE_RTT(String);
