@@ -8,8 +8,6 @@
 
 package x10.runtime;
 
-import x10.runtime.kernel.InterruptedException;
-import x10.runtime.kernel.Thread;
 import x10.util.GrowableRail;
 
 import x10.io.Console;

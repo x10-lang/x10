@@ -7,14 +7,14 @@
  *  X10 is released.
  *
  */
-package x10.runtime.kernel;
+package x10.runtime;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 /*
- * I put this class in the kernel package instead of x10.lang because
- * I think (maybe?) that this exception can be confined to 
+ * This class is in the runtime package instead of x10.lang because
+ * we think (maybe?) that this exception can be confined to 
  * the XRX implementation and we won't have to expose it 
  * at the X10 language level.  If that turns out to not be true,
  * then we should move this class to x10.lang.
@@ -24,5 +24,5 @@ import x10.compiler.NativeRep;
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
 @NativeRep("java", "java.lang.InterruptedException", null, null)
-public value InterruptedException extends Exception {}
+value InterruptedException extends Exception {}
  
