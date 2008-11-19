@@ -8,7 +8,6 @@
 
 package x10.runtime;
 
-import x10.runtime.kernel.Thread;
 import x10.util.Stack;
 
 /**

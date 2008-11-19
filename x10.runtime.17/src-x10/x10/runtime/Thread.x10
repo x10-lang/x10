@@ -7,11 +7,11 @@
  *  X10 is released.
  *
  */
-package x10.runtime.kernel;
+package x10.runtime;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import x10.runtime.kernel.InterruptedException;
+import x10.runtime.InterruptedException;
  
 /**
  * A unit of execution (a thread).
@@ -25,7 +25,7 @@ import x10.runtime.kernel.InterruptedException;
  */
 
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, null)
-public value Thread {
+value Thread {
 	
 	/**
 	 * Allocates new thread in current place
