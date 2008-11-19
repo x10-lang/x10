@@ -17,14 +17,23 @@ public final value Float {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
     @Native("java", "java.lang.Float.POSITIVE_INFINITY")
+    @Native("c++", "x10aux::float_utils::fromIntBits(0x7f800000)")
     public const POSITIVE_INFINITY: Float = Float.fromIntBits(0x7f800000);
+
     @Native("java", "java.lang.Float.NEGATIVE_INFINITY")
+    @Native("c++", "x10aux::float_utils::fromIntBits(0xff800000)")
     public const NEGATIVE_INFINITY: Float = Float.fromIntBits(0xff800000);
+
     @Native("java", "java.lang.Float.NaN")
+    @Native("c++", "x10aux::float_utils::fromIntBits(0x7fc00000)")
     public const NaN: Float = Float.fromIntBits(0x7fc00000);
+
     @Native("java", "java.lang.Float.MAX_VALUE")
+    @Native("c++", "x10aux::float_utils::fromIntBits(0x7f7fffff)")
     public const MAX_VALUE: Float = Float.fromIntBits(0x7f7fffff);
+
     @Native("java", "java.lang.Float.MIN_VALUE")
+    @Native("c++", "x10aux::float_utils::fromIntBits(0x00800000)")
     public const MIN_VALUE: Float = Float.fromIntBits(0x00800000);
     
     @Native("java", "java.lang.Float.toHexString(#0)")
