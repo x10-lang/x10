@@ -28,12 +28,12 @@ x10_boolean String::equals(const ref<Object>& other) {
 
 
 String String::operator+(const String& s) {
-    return String(dynamic_cast<const std::string&>(*this)
-         + dynamic_cast<const std::string&>(s));
+    return String(static_cast<const std::string&>(*this)
+         + static_cast<const std::string&>(s));
 }
 
 x10_int String::indexOf(const ref<String>& str, x10_int i) {
-    size_type res = find(dynamic_cast<const std::string&>(*str), (size_type)i);
+    size_type res = find(static_cast<const std::string&>(*str), (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
     return (x10_int) res;
@@ -47,7 +47,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
 }
 
 x10_int String::lastIndexOf(const ref<String>& str, x10_int i) {
-    size_type res = rfind(dynamic_cast<const std::string&>(*str), (size_type)i);
+    size_type res = rfind(static_cast<const std::string&>(*str), (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
     return (x10_int) res;
@@ -61,7 +61,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 }
 
 String String::substring(x10_int start, x10_int end) {
-    return String(dynamic_cast<const std::string&>(*this).substr(start, end-start));
+    return String(static_cast<const std::string&>(*this).substr(start, end-start));
 }
 
 x10_char String::charAt(x10_int i) {

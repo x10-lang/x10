@@ -90,7 +90,7 @@ namespace x10aux {
 
         // allow casting between ref<S> and ref<T>
         template<class S> operator ref<S>() const {
-            ref<S> _ref(dynamic_cast<S*>((T*)_val));
+            ref<S> _ref(static_cast<S*>((T*)_val));
             //TODO instanceof check, throw CCE on fail (don't forget NO_EXCEPTIONS)
             _R_("Casting reference " << this << "(" << _val
                                      << ") of type " << DEMANGLE(TYPENAME(T))
