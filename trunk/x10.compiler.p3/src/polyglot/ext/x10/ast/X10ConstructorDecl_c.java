@@ -328,8 +328,8 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         ((Ref<Type>) nnci.returnType()).update(r.type());
        // Report.report(1, "X10MethodDecl_c: typeoverride mi= " + nn.methodInstance());
         
-        Type retTypeBase = X10TypeMixin.xclause(r.type(), (XConstraint) null);
-        Type clazz = X10TypeMixin.xclause(Types.get(nnci.container()), (XConstraint) null);
+        Type retTypeBase = X10TypeMixin.baseType(r.type());
+        Type clazz = X10TypeMixin.baseType(Types.get(nnci.container()));
         if (! xts.typeEquals(retTypeBase, clazz)) {
         	throw new SemanticException("The return type of the constructor (" + retTypeBase 
         			+ " must be derived from"
@@ -373,7 +373,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        Type retTypeBase = X10TypeMixin.xclause(n.returnType().type(), (XConstraint) null);
+        Type retTypeBase = X10TypeMixin.baseType(n.returnType().type());
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         Type clazz = nnci.asInstance().container();
         if (! ts.typeEquals(retTypeBase, clazz)) {
