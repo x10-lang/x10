@@ -7,10 +7,8 @@
 
 public class SeqMethodCall1 extends Benchmark {
 
-    final int N = 10000000;
-
+    final int N = 2000000;
     double expected() {return N;}
-
     double operations() {return N * 5.0;} // 5 method calls per iteration
 
     //

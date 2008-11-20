@@ -12,9 +12,7 @@ public class SeqPseudoArray1 extends Benchmark {
     //
 
     val N = 2000;
-
     def expected() = 1.0;
-
     def operations() = N*N to double;
 
 
@@ -58,8 +56,8 @@ public class SeqPseudoArray1 extends Benchmark {
 
     def this(args:Rail[String]) {
         super(args);
-        reference("snakehead", "java",             1.63155e+08);
-        reference("snakehead", "x10-opt-java",     1.11249e+07);
+        reference("snakehead", "java",             1.48288e+08);
+        reference("snakehead", "x10-opt-java",     5.67438e+06);
     }
 
     public static def main(args:Rail[String]) {

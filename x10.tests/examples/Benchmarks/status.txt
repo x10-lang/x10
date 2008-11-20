@@ -1,54 +1,55 @@
-1. Place checking is very expensive: 60x-800x performance penalty
+Test conditions changed to tend to include rather than exclude GC:
+remove explicit calls to GC, start with small JVM size, re-execute
+until reaching steady state, then take average over 10 executions.
+
+1. Place checking is very expensive: 60x-200x performance penalty
    relative to X10 code without place checking. (See x10-opt-java vs
    x10-dbg-java.)
 
-2. Basic X10 method calls are as good as Java. (SeqMethodCall1)
+2. Basic X10 method calls are 10x worse than Java. (SeqMethodCall1)
 
-3. X10 Rails are 4-5x more expensive than Java arrays. (SeqRail1)
+3. X10 Rails are about 7x more expensive than Java arrays. (SeqRail1)
 
 4. Simple recursive code calling util.Random also is 4-5x more
    expensive than equivalent Java. (SeqUTSBin1)
 
-5. Dead simple array-like X10 code is 15x worse than the
+5. Dead simple array-like X10 code is 26x worse than the
    hand-translation into Java. Likely due to
    boxing/unboxing. (SeqPseudoArray1)
 
-6. Actual X10 Arrays are an additional 2x slower.  Possibly due to
-   bounds checking combined w/ boxing/unboxing?. TODO: try with
-   bounds-checking turned off. (SeqMatMultAdd1a).
+6. Actual X10 Arrays are about 13x slower than equivalent Java code.
 
 7. Using "for ((i,j):Point in r)" loops is an additional 2x more
    expensive than traditional C/Java loops. Likely due to unnecessary
-   allocation of Point. (SeqMatMultAdd2a)
+   allocation of Point. (SeqMatMultAdd1b)
 
-Benchmarks run on snakehead (x86 Thinkpad Windows IBM Java 6) 2008/11/19:
+
+Benchmarks run on snakehead (x86 Thinkpad Windows IBM Java 6):
 
 --- SeqMethodCall1
-java                 169 Mop/s
-x10-opt-java         162 Mop/s =java/1.0
-x10-dbg-java         199 kop/s =java/848.8 =x10-opt-java/812.3
+java                 160 Mop/s
+x10-opt-java         15.6 Mop/s =java/10.3
+x10-dbg-java         199 kop/s =java/803.8 =x10-opt-java/78.3
 
 --- SeqRail1
-java                 282 Mop/s
-x10-opt-java         62.4 Mop/s =java/4.5
-x10-dbg-java         165 kop/s =java/1714.5 =x10-opt-java/378.9
+java                 272 Mop/s
+x10-opt-java         39.1 Mop/s =java/6.9
+x10-dbg-java         165 kop/s =java/1652.7 =x10-opt-java/237.9
 
 --- SeqUTSBin1
-
-java                 174 Mop/s
-x10-opt-java         40.0 Mop/s =java/4.4
+java                 4.41 Mop/s
+x10-opt-java         2.88 Mop/s =java/1.5
 
 --- SeqPseudoArray1
-java                 163 Mop/s
-x10-opt-java         11.1 Mop/s =java/14.7
+java                 148 Mop/s
+x10-opt-java         5.67 Mop/s =java/26.1
 
 --- SeqMatMultAdd1a
-java                 98.1 Mop/s
-x10-opt-java         3.17 Mop/s =java/31.0
-x10-dbg-java         51.4 kop/s =java/1911.2 =x10-opt-java/61.7
+java                 38.9 Mop/s
+x10-opt-java         2.97 Mop/s =java/13.1
+x10-dbg-java         51.4 kop/s =java/757.4 =x10-opt-java/57.9
 
 --- SeqMatMultAdd1b
-java                 98.1 Mop/s
-x10-opt-java         1.61 Mop/s =java/61.1
-
+java                 38.9 Mop/s
+x10-opt-java         1.61 Mop/s =java/24.2
 
