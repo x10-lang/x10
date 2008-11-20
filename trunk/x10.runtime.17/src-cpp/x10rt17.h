@@ -52,6 +52,7 @@
 #include <x10/lang/ValRail.h>
 #include <x10/lang/Value.h>
 
+#include <x10/runtime/Lock.h>
 
 using namespace x10::lang;
 
