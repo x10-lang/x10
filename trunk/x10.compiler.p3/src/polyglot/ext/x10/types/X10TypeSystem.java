@@ -260,7 +260,15 @@ public interface X10TypeSystem extends TypeSystem {
      * @param other
      * @return
      */
+
     boolean typeBaseEquals(Type me, Type other);
+    /**
+     * True if the two types are equal, ignoring their dep clauses and the dep clauses of their type arguments recursively.
+     * 
+     * @param other
+     * @return
+     */
+    boolean typeDeepBaseEquals(Type me, Type other);
 
     boolean equalTypeParameters(List<Type> a, List<Type> b);
 

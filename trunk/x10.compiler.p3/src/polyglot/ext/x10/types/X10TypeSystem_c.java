@@ -2904,6 +2904,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (type1 == null || type2 == null) return false;
 	        return typeEquals(X10TypeMixin.xclause(type1, (XConstraint) null), X10TypeMixin.xclause(type2, (XConstraint) null));
 	    }
+
+	 public boolean typeDeepBaseEquals(Type type1, Type type2) {
+	        assert_(type1);
+	        assert_(type2);
+		if (type1 == type2) return true;
+		if (type1 == null || type2 == null) return false;
+	        return typeEquals(X10TypeMixin.stripConstraints(type1), X10TypeMixin.stripConstraints(type2));
+	    }
 	 @Override
 	 public LocalDef localDef(Position pos,
 			 Flags flags, Ref<? extends Type> type, Name name) {
