@@ -28,6 +28,8 @@ namespace x10aux {
     ref<x10::lang::String> to_string(double v);
     ref<x10::lang::String> to_string(const char *v);
 
+    ref<x10::lang::String> to_string(x10aux::ref<x10::lang::ValRail<x10_char> > v);
+
     template<class T> T from_string(const ref<x10::lang::String> &s);
 }
 
