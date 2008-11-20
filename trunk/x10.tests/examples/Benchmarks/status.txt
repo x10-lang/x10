@@ -1,5 +1,3 @@
-on snakehead 2008/11/19
-
 1. Place checking is very expensive: 60x-800x performance penalty
    relative to X10 code without place checking. (See x10-opt-java vs
    x10-dbg-java.)
@@ -8,17 +6,22 @@ on snakehead 2008/11/19
 
 3. X10 Rails are 4-5x more expensive than Java arrays. (SeqRail1)
 
-4. Dead simple array-like X10 code is 15x worse than the
-   hand-translation into Java. (SeqPseudoArray1)
+4. Simple recursive code calling util.Random also is 4-5x more
+   expensive than equivalent Java. (SeqUTSBin1)
 
-5. Actual X10 Arrays are an additional 2x slower (possibly due to
-   bounds checking combined w/ boxing/unboxing?). TODO: try with
+5. Dead simple array-like X10 code is 15x worse than the
+   hand-translation into Java. Likely due to
+   boxing/unboxing. (SeqPseudoArray1)
+
+6. Actual X10 Arrays are an additional 2x slower.  Possibly due to
+   bounds checking combined w/ boxing/unboxing?. TODO: try with
    bounds-checking turned off. (SeqMatMultAdd1a).
 
-6. Using "for ((i,j):Point in r)" loops is an additional 2x more
+7. Using "for ((i,j):Point in r)" loops is an additional 2x more
    expensive than traditional C/Java loops. Likely due to unnecessary
    allocation of Point. (SeqMatMultAdd2a)
 
+Benchmarks run on snakehead (x86 Thinkpad Windows IBM Java 6) 2008/11/19:
 
 --- SeqMethodCall1
 java                 169 Mop/s
@@ -29,6 +32,11 @@ x10-dbg-java         199 kop/s =java/848.8 =x10-opt-java/812.3
 java                 282 Mop/s
 x10-opt-java         62.4 Mop/s =java/4.5
 x10-dbg-java         165 kop/s =java/1714.5 =x10-opt-java/378.9
+
+--- SeqUTSBin1
+
+java                 174 Mop/s
+x10-opt-java         40.0 Mop/s =java/4.4
 
 --- SeqPseudoArray1
 java                 163 Mop/s

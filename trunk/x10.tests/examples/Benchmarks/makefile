@@ -1,12 +1,13 @@
 #KIND=java
 #KIND=x10-dbg-java
-KIND=x10-opt-java
-#KIND=summary
+#KIND=x10-opt-java
+KIND=summary
 
 #BENCHMARK=SeqMatMultAdd
 #BENCHMARK=SeqMethodCall
-BENCHMARK=SeqPseudoArray1b
+#BENCHMARK=SeqPseudoArray1b
 #BENCHMARK=SeqRail
+BENCHMARK=SeqUTS
 
 X10_HOME = ~/x10/1.7
 JAVA_HOME = /ibm-java-sdk-60
@@ -118,7 +119,7 @@ OPTS3 =
 $(KIND3)!%: lib-$(KIND3)/%.class
 	$(JAVA) -cp lib-$(KIND3) $* `hostname` $(KIND3)
 
-lib-$(KIND3)/%.class: %.x10
+lib-$(KIND3)/%.class: %.java
 	$(JAVAC) -d lib-$(KIND3) $(OPTS3) $*.java
 
 
