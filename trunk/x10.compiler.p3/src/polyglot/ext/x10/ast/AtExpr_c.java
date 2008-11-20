@@ -95,7 +95,8 @@ public class AtExpr_c extends Closure_c
             if (! placeIsPlace) {
                 throw new SemanticException(
                      "Place expression of at must be of type \"" +
-                     place.type() + "\".", place.position());
+                     ts.Place() + "\", not \"" + place.type() + "\".",
+                     place.position());
             }
     	}
     	AtExpr_c n = (AtExpr_c) place(newPlace);

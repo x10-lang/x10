@@ -135,10 +135,11 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
 		if (! placeIsPlace) {
-	                throw new SemanticException(
-	                                            "Place expression of at must be of type \"" +
-	                                            place.type() + "\".", place.position());
-		}
+                    throw new SemanticException(
+                        "Place expression of at must be of type \"" +
+                        ts.Place() + "\", not \"" + place.type() + "\".",
+                        place.position());
+                }
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())
 			throw new SemanticException("at may not be invoked in sequential code.", position());
