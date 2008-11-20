@@ -81,7 +81,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
                         X10TypeSystem xts = (X10TypeSystem) ts;
                         XLocal var = xts.xtypeTranslator().trans(c, this, t);
                         c.addSelfBinding(var);
-                        rightType = X10TypeMixin.xclause(t, c);
+                        rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
                     }
                     catch (SemanticException f) {
                         throw new InternalCompilerError("Could not add self binding.", f);
