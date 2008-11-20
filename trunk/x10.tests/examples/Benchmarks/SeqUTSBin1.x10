@@ -32,17 +32,18 @@ class SeqUTSBin1 extends Benchmark {
     // parameters
     //
 
+    const r0 = 0;                      // seed for root
+
     //const b0 = 1000000;
     //const q = 0.2;
     //const m = 4;
     //def expected() = 4993764.0;
 
-    const r0 = 0;                      // seed for root
-    const b0 = 100000;                 // branching factor of root node
+    const b0 = 50000;                  // branching factor of root node
     const q = 0.12;                    // prob of non-zero branching factor
     const m = 8;                       // branching factor is m with prob q
+    def expected() = 1234872.0;        // expected size given above params 
 
-    def expected() = 2433680.0;        // expected size given above params 
     def operations() = size to double; // work is proportional to size
 
 
@@ -52,14 +53,21 @@ class SeqUTSBin1 extends Benchmark {
     // For now use util.Random instead of SHA. To substitute SHA
     // redefine descriptor, next(), and number().
     //
+    // Instead of actually using util.Random, we replicate its
+    // function here to avoid allocating a Random object.
+    //
 
     static type descriptor = long;
 
     def next(r:descriptor, i:nat) {
-        val rand = new Random(r+i);
-        for (var k:int=0; k<5; k++)
-            rand.nextLong();
-        return rand.nextLong();
+        var seed: long = r+i;
+        seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
+        for (var k:int=0; k<11; k++)
+            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+        val l0 = (seed >>> (48 - 32)) to int;
+        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+        val l1 = (seed >>> (48 - 32)) to int;
+        return ((l0 to long) << 32) + l1;
     }
 
     const scale = (long.MAX_VALUE to double) - (long.MIN_VALUE to double);
@@ -75,6 +83,7 @@ class SeqUTSBin1 extends Benchmark {
 
     def visit(r:long) {
         val b = number(r)<q? m : 0; // binomial distribution
+        //System.out.println(" " + number(r));
         sumb += b;
         size++;
         for (var i:int=0; i<b; i++)
@@ -90,6 +99,8 @@ class SeqUTSBin1 extends Benchmark {
     def once() {
 
         // root node
+        size = 0;
+        sumb = 0;
         for (var i:int=0; i<b0; i++)
             visit(next(r0,i));
 
@@ -114,8 +125,8 @@ class SeqUTSBin1 extends Benchmark {
 
     def this(args:Rail[String]) {
         super(args);
-        reference("snakehead", "java", 1.74059e+08);
-        reference("snakehead", "x10-opt-java", 3.99802e+07);
+        reference("snakehead", "java", 4.41421e+06);
+        reference("snakehead", "x10-opt-java", 2.87638e+06);
     }
 
     public static def main(args:Rail[String]) {

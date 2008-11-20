@@ -88,38 +88,28 @@ abstract class Benchmark extends x10Test {
         }
     }
 
-    @Native("java", "java.lang.System.gc()")
-    public static native def gc(): void;
+    //@Native("java", "java.lang.System.gc()")
+    //public static native def gc(): void;
 
     public def run():boolean {
 
-        var minTime:double = double.POSITIVE_INFINITY;
-        var maxGC:double = 0.0;
+        var min:double = double.POSITIVE_INFINITY;
         var first: boolean = true;
 
-        // do timing
+        // run tests until min doesn't change for reps times
         for (var i:int=0; i<reps; i++) {
 
             // run benchmark once and time it
             val start = now();
             val result = once();
             val time = now() - start;
-            if (time<minTime) {
-                minTime = time;
+            if (time<min) {
+                min = time;
                 i = 0;
             }
 
-            // do gc and time it
-            val startGC = now();
-            gc();
-            gc();
-            val timeGC = now() - startGC;
-            if (timeGC>maxGC)
-                maxGC = timeGC;
-
             // print timings
-            System.out.printf("time %.3f, min %.3f; ", time, minTime);
-            System.out.printf("gc %.3f, max %.3f\n", timeGC, maxGC);
+            System.out.printf("time %.3f, min %.3f\n", time, min);
 
             // check for correctness first time through
             if (first && result!=expected()) {
@@ -129,13 +119,30 @@ abstract class Benchmark extends x10Test {
             first = false;
         }
 
+        // now run reps times and average the time, and compute new min
+        min = double.POSITIVE_INFINITY;
+        var time: double = 0;
+        if (reps>0) pr("--- averaging");
+        for (var i:int=0; i<reps; i++) {
+            val s = now();
+            val result = once();
+            val t = now() - s;
+            if (t<min)
+                min = t;
+            System.out.printf("time %.3f, min %.3f\n", t, min);
+            time += t;
+        }            
+        time = time / reps;
+
+
         // timing info
         if (reps>0) {
 
             // current info
-            val currentOps = operations() / minTime;
+            val currentOps = operations() / time;
             pr(host + " " + kind + " " + sprintf("%.5e",currentOps));
             pr("current: " + fmt(currentOps, "op/s"));
+            pr("min/time: " + sprintf("%.2f",min/time));
             
             // relative to reference
             if (referenceOps!=0) {

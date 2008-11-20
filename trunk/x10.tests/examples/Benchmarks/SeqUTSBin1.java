@@ -15,10 +15,10 @@ class SeqUTSBin1 extends Benchmark {
 
     final int r0 = 0;
 
-    final int b0 = 100000;
+    final int b0 = 50000;
     final double q = 0.12;
     final int m = 8;
-    double expected() {return 2433680.0;}
+    double expected() {return 1234872.0;}
 
     double operations() {return size;}
 
@@ -28,10 +28,14 @@ class SeqUTSBin1 extends Benchmark {
     //
 
     long next(long r, int i) {
-        Random rand = new Random(r+i);
-        for (int k=0; k<5; k++)
-            rand.nextLong();
-        return rand.nextLong();
+        long seed = r+i;
+        seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
+        for (int k=0; k<11; k++)
+            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+        int l0 = (int) (seed >>> (48 - 32));
+        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
+        int l1 = (int) (seed >>> (48 - 32));
+        return (((long)l0) << 32) + l1;
     }
 
     final double scale = ((double)Long.MAX_VALUE) - ((double)Long.MIN_VALUE);
@@ -53,6 +57,8 @@ class SeqUTSBin1 extends Benchmark {
     double once() {
 
         // root node
+        size = 0;
+        sumb = 0;
         for (int i=0; i<b0; i++)
             visit(next(r0,i));
 

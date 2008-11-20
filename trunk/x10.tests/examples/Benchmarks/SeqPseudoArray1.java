@@ -8,9 +8,7 @@
 public class SeqPseudoArray1 extends Benchmark {
 
     final int N = 2000;
-
     double expected() {return 1.0;}
-
     double operations() {return N*N;}
 
     //

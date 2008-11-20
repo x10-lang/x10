@@ -1,13 +1,20 @@
-#KIND=java
 #KIND=x10-dbg-java
-#KIND=x10-opt-java
-KIND=summary
 
-#BENCHMARK=SeqMatMultAdd
-#BENCHMARK=SeqMethodCall
-#BENCHMARK=SeqPseudoArray1b
-#BENCHMARK=SeqRail
-BENCHMARK=SeqUTS
+#KIND=x10-opt-java
+KIND=java
+#KIND=summary
+
+#BENCHMARK=SeqRail1
+#BENCHMARK=SeqMethodCall1
+BENCHMARK=SeqPseudoArray1
+#BENCHMARK=SeqMatMultAdd1
+#BENCHMARK=SeqMatMultAdd1a
+#BENCHMARK=SeqMatMultAdd1b
+#BENCHMARK=SeqUTSBin1
+#BENCHMARK=ParUTSBin1
+
+#ALL=$(wildcard Par*.x10 Seq*.x10)
+ALL=$(wildcard Seq*.x10)
 
 X10_HOME = ~/x10/1.7
 JAVA_HOME = /ibm-java-sdk-60
@@ -18,11 +25,11 @@ JAVA_HOME = /ibm-java-sdk-60
 
 default: $(KIND)!$(BENCHMARK)
 
-SEQ=$(wildcard Seq*.x10)
+all: $(ALL:%.x10=$(KIND)!%)
 
-summary: $(SEQ:%.x10=summary!%)
+JVA=$(wildcard Par*.java Seq*.java)
+all-java: $(JVA:%.java=java!%)
 
-all: $(SEQ:%.x10=$(KIND)!%)
 
 
 #
@@ -85,7 +92,10 @@ lib-$(KIND1)-build: $(LIB)
 
 KIND2 = x10-opt-java
 OPTSC2 = -BAD_PLACE_RUNTIME_CHECK=false
-#OPTSR2 = -J-Xjit:optLevel=scorching
+OPTSR2 := $(OPTSR2) -J-Xmx40M
+OPTSR2 := $(OPTSR2) -INIT_THREADS_PER_PLACE=1 -NUMBER_OF_LOCAL_PLACES=1
+#OPTSR2 := $(OPTSR2) -J-Xjit:optLevel=scorching
+#OPTSR2 := $(OPTSR2) -DINIT_THREADS_PER_PLACE=1 -DNUMBER_OF_LOCAL_PLACES=1
 
 $(KIND2)!%: lib-$(KIND2)/%.class
 	-$(X10) -cp lib-$(KIND2) $(OPTSR2) $* `hostname` $(KIND2)
@@ -100,26 +110,20 @@ lib-$(KIND2)-build: $(LIB)
 	$(X10C) -d lib-$(KIND2) $(OPTSC2) $?
 	touch $@
 
-
-
 #
-#
+# java
 #
 
 JAVAC = $(JAVA_HOME)/bin/javac
 JAVA = $(JAVA_HOME)/bin/java
 
-#
-# java
-#
-
 KIND3 = java
-OPTS3 = 
+OPTSR3 = -Xmx40M
 
-$(KIND3)!%: lib-$(KIND3)/%.class
-	$(JAVA) -cp lib-$(KIND3) $* `hostname` $(KIND3)
+$(KIND3)!%: lib-$(KIND3)/%.class lib-$(KIND3)/Benchmark.class
+	$(JAVA) -cp lib-$(KIND3) $(OPTSR3) $* `hostname` $(KIND3)
 
 lib-$(KIND3)/%.class: %.java
-	$(JAVAC) -d lib-$(KIND3) $(OPTS3) $*.java
+	$(JAVAC) -d lib-$(KIND3) $(OPTSC3) $*.java
 
 

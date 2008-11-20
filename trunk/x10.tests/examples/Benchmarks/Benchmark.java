@@ -22,6 +22,7 @@ abstract public class Benchmark {
     }
 
     void run() {
+
         boolean first = true;
         double min = Double.POSITIVE_INFINITY;
         for (int i=0; i<reps; i++) {
@@ -39,6 +40,23 @@ abstract public class Benchmark {
             }
             first = false;
         }
-        System.out.printf("op/s: %.5e\n", operations() / min);
+
+        // now run reps times and average the time, and compute new min
+        min = Double.POSITIVE_INFINITY;
+        double time = 0;
+        if (reps>0) pr("--- averaging");
+        for (int i=0; i<reps; i++) {
+            double s = now();
+            double result = once();
+            double t = now() - s;
+            if (t<min)
+                min = t;
+            System.out.printf("time %.3f, min %.3f\n", t, min);
+            time += t;
+        }            
+        time = time / reps;
+
+        System.out.printf("op/s: %.5e\n", operations() / time);
+        System.out.printf("min/time: %.2f\n", min/time);
     }
 }
