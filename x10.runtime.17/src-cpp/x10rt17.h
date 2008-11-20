@@ -27,6 +27,7 @@
 #include <x10aux/short_utils.h>
 
 #include <x10aux/math_utils.h>
+#include <x10aux/system_utils.h>
 
 //#include <x10/io/ByteArrayOutputStream.h>
 //#include <x10/io/DataInputStream.h>
