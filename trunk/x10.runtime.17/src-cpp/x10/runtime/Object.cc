@@ -55,3 +55,4 @@ Object::className()
 }
 
 } /* closing brace for namespace xrx_runtime */
+// vim:tabstop=4:shiftwidth=4:expandtab

@@ -53,3 +53,4 @@ x10_double x10aux::double_utils::fromLongBits(x10_long x) {
     tmp.l = x;
     return tmp.d;
 }
+// vim:tabstop=4:shiftwidth=4:expandtab

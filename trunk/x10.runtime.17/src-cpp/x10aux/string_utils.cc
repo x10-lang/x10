@@ -80,3 +80,4 @@ ref<String> x10aux::to_string(const char *v) {
     return to_string_general(std::string(v));
 }
     
+// vim:tabstop=4:shiftwidth=4:expandtab

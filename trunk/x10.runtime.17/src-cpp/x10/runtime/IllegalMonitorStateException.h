@@ -24,3 +24,4 @@ class IllegalMonitorStateException : public Exception {
 } /* closing brace for namespace xrx_runtime */
 
 #endif /* __XRX_ILLEGAL_MONITOR_STATE_EXCEPTION_H */
+// vim:tabstop=4:shiftwidth=4:expandtab

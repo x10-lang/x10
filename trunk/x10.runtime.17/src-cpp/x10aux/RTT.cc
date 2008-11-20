@@ -21,3 +21,4 @@ void CharType::init() { initParents(1,getRTT<Object>()); }
 DEFINE_SPECIAL_RTT(IntType);
 DEFINE_SPECIAL_RTT(ShortType);
 DEFINE_SPECIAL_RTT(CharType);
+// vim:tabstop=4:shiftwidth=4:expandtab

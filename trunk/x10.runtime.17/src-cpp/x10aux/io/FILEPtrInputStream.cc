@@ -29,3 +29,4 @@ x10_int x10aux::io::FILEPtrInputStream::read() {
 void x10aux::io::FILEPtrInputStream::skip(x10_int bytes) {
     ::fseek(_stream, bytes, SEEK_CUR);
 }
+// vim:tabstop=4:shiftwidth=4:expandtab

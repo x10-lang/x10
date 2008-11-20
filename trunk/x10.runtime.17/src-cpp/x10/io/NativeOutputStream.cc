@@ -36,3 +36,4 @@ void NativeOutputStream::printf(const ref<String>& format) {
 
 
 DEFINE_RTT(NativeOutputStream);
+// vim:tabstop=4:shiftwidth=4:expandtab

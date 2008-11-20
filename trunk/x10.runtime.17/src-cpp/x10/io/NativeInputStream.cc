@@ -25,3 +25,4 @@ x10_int NativeInputStream::read(ref<Rail<x10_byte> > b,
 
 
 DEFINE_RTT(NativeInputStream);
+// vim:tabstop=4:shiftwidth=4:expandtab

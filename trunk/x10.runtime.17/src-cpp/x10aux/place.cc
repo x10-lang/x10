@@ -12,3 +12,4 @@ void x10aux::place::__init__MAX_PLACES() {
     const_cast<x10_int&>(x10__MAX_PLACES) = x10_nplaces();
 }
 
+// vim:tabstop=4:shiftwidth=4:expandtab

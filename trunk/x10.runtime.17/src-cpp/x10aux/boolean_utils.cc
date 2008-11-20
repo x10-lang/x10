@@ -17,3 +17,4 @@ x10_boolean x10aux::boolean_utils::parseBoolean(const ref<String>& s) {
     return s != NULL && !strcasecmp(((const string&)(*s)).c_str(), "true");
 }
 
+// vim:tabstop=4:shiftwidth=4:expandtab
