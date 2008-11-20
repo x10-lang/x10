@@ -156,8 +156,10 @@ public class Async_c extends Stmt_c implements Async {
 		Expr newPlace = place;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
 		if (! placeIsPlace) {
-	                throw new SemanticException("Place expression of async must be of type \"" +
-	                                            place.type() + "\".", place.position());
+                        throw new SemanticException(
+                            "Place expression of async must be of type \"" +
+                            ts.Place() + "\", not \"" + place.type() + "\".",
+                            place.position());
 		}
 		X10Context c = (X10Context) tc.context();
 		if (c.inSequentialCode())

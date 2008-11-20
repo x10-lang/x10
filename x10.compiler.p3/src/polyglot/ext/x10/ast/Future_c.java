@@ -95,7 +95,8 @@ public class Future_c extends Closure_c
             if (! placeIsPlace) {
                 throw new SemanticException(
                      "Place expression of future must be of type \"" +
-                     place.type() + "\".", place.position());
+                     ts.Place() + "\", not \"" + place.type() + "\".",
+                     place.position());
             }
     	}
     	Future_c n = (Future_c) place(newPlace);
