@@ -15,7 +15,7 @@ namespace x10 {
 
     namespace lang {
 
-        template<class T> class Iterator : public Object {
+        template<class T> class Iterator : public virtual Object {
 
             public:
 

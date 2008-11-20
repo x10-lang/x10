@@ -13,7 +13,7 @@ namespace x10 {
 
     namespace lang {
 
-        class Value : public Object {
+        class Value : public virtual Object {
         public:
             class RTT : public x10aux::RuntimeType { 
                 public:
