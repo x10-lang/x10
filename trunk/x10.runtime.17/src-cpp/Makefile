@@ -4,7 +4,7 @@ CXX?=g++
 AR?=ar
 
 X10LIB?=../../pgas/common/work
-CXXFLAGS=-ansi -pedantic -Wall -Wextra
+CXXFLAGS=-ansi -pedantic -Wall -Wextra -Wno-long-long
 INCLUDE_DIRS+=-I$(X10LIB)/include -I.
 CXXFLAGS+=$(INCLUDE_DIRS)
 ifneq ($(wildcard /usr/include/lapi.h),) # AIX
