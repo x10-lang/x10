@@ -6,6 +6,7 @@
 namespace x10 {
     namespace lang {
         class VoidFun_0_0 {
+        public:
             virtual ~VoidFun_0_0() { }
             virtual void apply() = 0;
         };
