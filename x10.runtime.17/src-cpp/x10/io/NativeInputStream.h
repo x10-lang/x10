@@ -61,6 +61,26 @@ namespace x10 {
 
             virtual x10_boolean markSupported() { return false; }
 
+            virtual void _serialize(x10aux::serialization_buffer& buf,
+                                    x10aux::addr_map& m) {
+                (void) buf;
+                (void) m;
+                ::fprintf(stderr,"Why are we serializing streams?");
+                ::abort();
+            }
+            virtual void _serialize_fields(x10aux::serialization_buffer& buf,
+                                           x10aux::addr_map& m) {
+                (void)buf;
+                (void)m;
+                ::fprintf(stderr,"Why are we serializing streams?");
+                ::abort();
+            }
+            virtual void _deserialize_fields(x10aux::serialization_buffer& buf){
+                (void)buf;
+                ::fprintf(stderr,"Why are we serializing streams?");
+                ::abort();
+            }
+
             //friend class FilterInputStream;
         };
 
