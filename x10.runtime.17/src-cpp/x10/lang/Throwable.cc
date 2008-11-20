@@ -102,3 +102,4 @@ void Throwable::_deserialize_fields(serialization_buffer& buf) {
 
 
 DEFINE_RTT(Throwable);
+// vim:tabstop=4:shiftwidth=4:expandtab

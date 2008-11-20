@@ -96,3 +96,4 @@ x10_int x10aux::int_utils::reverseBytes(x10_int x) {
     assert(false); /* FIXME: STUBBED NATIVE */
     return x; /* Bogus, but use x to avoid warning about unused parameter */
 }
+// vim:tabstop=4:shiftwidth=4:expandtab

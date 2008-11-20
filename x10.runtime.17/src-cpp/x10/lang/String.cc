@@ -90,3 +90,4 @@ std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s)
 
 
 DEFINE_RTT(String);
+// vim:tabstop=4:shiftwidth=4:expandtab

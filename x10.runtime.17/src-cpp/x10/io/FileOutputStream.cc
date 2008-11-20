@@ -12,3 +12,4 @@ x10aux::ref<FileOutputStream> FileOutputStream::STANDARD_ERR
 
 
 DEFINE_RTT(FileOutputStream);
+// vim:tabstop=4:shiftwidth=4:expandtab

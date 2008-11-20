@@ -21,3 +21,4 @@ x10_double x10aux::math_utils::sin(x10_double x) {
 x10_double x10aux::math_utils::sqrt(x10_double x) {
     return ::sqrt(x);
 }
+// vim:tabstop=4:shiftwidth=4:expandtab

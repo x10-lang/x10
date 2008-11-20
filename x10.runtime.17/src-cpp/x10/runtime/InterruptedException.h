@@ -21,3 +21,4 @@ class InterruptedException : public Exception {
 } /* closing brace for namespace xrx_runtime */
 
 #endif /* __XRX_INTERRUPTED_EXCEPTION_H */
+// vim:tabstop=4:shiftwidth=4:expandtab
