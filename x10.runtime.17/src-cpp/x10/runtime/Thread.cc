@@ -24,6 +24,12 @@
 #include <signal.h>
 #include <sys/time.h>
 
+#ifdef __CYGWIN__
+#define pthread_attr_setguardsize(A,B) do { (void)A; (void)B; } while(0)
+#define PTHREAD_STACK_MIN 0
+#define pthread_attr_setstacksize(A,B) do { (void)A; (void)B; } while(0)
+#endif
+
 using namespace x10::lang;
 using namespace x10::runtime;
 using namespace x10aux;
@@ -62,6 +68,7 @@ x10::runtime::Thread::thread_start_routine(void *arg)
 	tp->__thread_running = false;
 	__xrxDPrEnd();
 	pthread_exit(NULL);
+    return NULL; // quell compiler warning
 }
 
 // Helper method to initialize a Thread object.

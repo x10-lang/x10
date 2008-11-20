@@ -16,16 +16,15 @@ namespace x10aux {
 
     void free_args(const ref<x10::lang::Rail<ref<x10::lang::String> > > &arr);
 
-    // these deliberately do not use the x10_ primitive typedefs, because their
-    // implementations are tailored for the c types.  
-    // TODO: perhaps only bool, char, int64_t, and const char* are necessary?
-    ref<x10::lang::String> to_string(bool v);
-    ref<x10::lang::String> to_string(char v);
-    ref<x10::lang::String> to_string(short v);
-    ref<x10::lang::String> to_string(int v);
-    ref<x10::lang::String> to_string(int64_t v);
-    ref<x10::lang::String> to_string(float v);
-    ref<x10::lang::String> to_string(double v);
+    // these need to use the x10_ primitive typedefs, because otherwise they
+    // are not found.
+    ref<x10::lang::String> to_string(x10_boolean v);
+    ref<x10::lang::String> to_string(x10_char v);
+    ref<x10::lang::String> to_string(x10_short v);
+    ref<x10::lang::String> to_string(x10_int v);
+    ref<x10::lang::String> to_string(x10_long v);
+    ref<x10::lang::String> to_string(x10_float v);
+    ref<x10::lang::String> to_string(x10_double v);
     ref<x10::lang::String> to_string(const char *v);
 
     ref<x10::lang::String> to_string(x10aux::ref<x10::lang::ValRail<x10_char> > v);

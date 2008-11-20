@@ -2,6 +2,11 @@
 #define X10_LANG_THROWABLE_H
 
 #include <x10aux/config.h>
+#ifdef __GLIBC__
+#define MAX_TRACE_SIZE 1024
+#else
+#define MAX_TRACE_SIZE 1
+#endif
 #include <x10aux/RTT.h>
 
 #include <x10/lang/Value.h>
@@ -58,7 +63,7 @@ namespace x10 {
                 (void) m;
             }
 
-            void *trace[1024]; //any longer than this and will be truncated
+            void *trace[MAX_TRACE_SIZE]; //any longer than this and will be truncated
             int trace_size;
 
             /* TODO: don't care about this just yet

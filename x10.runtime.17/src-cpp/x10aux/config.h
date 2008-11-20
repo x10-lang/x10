@@ -100,19 +100,6 @@ typedef double   x10_double;
 
 typedef void   x10_void;
 
-// these probably give the wrong impression - that x10_Boolean is a class like
-// it is in x10
-typedef bool     x10_Boolean;
-typedef int8_t   x10_Byte;
-typedef uint16_t x10_Char;
-typedef int16_t  x10_Short;
-typedef int32_t  x10_Int;
-typedef int64_t  x10_Long;
-typedef float    x10_Float;
-typedef double   x10_Double;
-
-typedef void   x10_Void;
-
 // We must use the same mangling rules as the compiler backend uses.
 // The c++ target has to mangle fields because c++ does not allow fields
 // and methods to have the same name.
