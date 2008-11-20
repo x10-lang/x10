@@ -120,7 +120,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         XTerm self = xts.xtypeTranslator().trans(c, receiver, this, t);
                         c.addSelfBinding(self);
 
-                        rightType = X10TypeMixin.xclause(t, c);
+                        rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
                     }
                     catch (XFailure f) {
                         throw new InternalCompilerError("Could not add self binding.", f);
