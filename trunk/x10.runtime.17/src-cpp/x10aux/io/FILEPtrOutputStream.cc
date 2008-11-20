@@ -13,15 +13,6 @@ using namespace x10aux::io;
 using namespace x10::lang;
 using namespace x10::io;
 
-FILE* FILEPtrStream::check_stream(FILE* stream) {
-#ifndef NO_EXCEPTIONS
-/* TODO
-    if (stream == NULL) throw ref<IOException>(new (alloc<IOException>()) IOException(x10::lang::String("Null file pointer")));
-*/
-#endif
-    return stream;
-}
-
 void FILEPtrOutputStream::_vprintf(const char* format, va_list parms) {
     ::vfprintf(_stream, format, parms);
 }

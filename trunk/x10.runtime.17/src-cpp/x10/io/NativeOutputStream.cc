@@ -3,6 +3,7 @@
 #include <x10aux/alloc.h>
 
 #include <x10/io/NativeOutputStream.h>
+#include <x10/lang/ValRail.h>
 #include <x10/lang/Rail.h>
 
 using namespace x10::lang;
@@ -15,6 +16,16 @@ void NativeOutputStream::write(ref<Rail<x10_byte> > b) {
 }
 
 void NativeOutputStream::write(ref<Rail<x10_byte> > b,
+                               x10_int off, x10_int len) {
+    for (x10_int i = 0; i < len; i++)
+        this->write((x10_int) b->operator[](off + i));
+}
+
+void NativeOutputStream::write(ref<ValRail<x10_byte> > b) {
+    this->write(b, 0, b->x10__length);
+}
+
+void NativeOutputStream::write(ref<ValRail<x10_byte> > b,
                                x10_int off, x10_int len) {
     for (x10_int i = 0; i < len; i++)
         this->write((x10_int) b->operator[](off + i));
