@@ -12,8 +12,6 @@
 
 #include <iostream>
 
-namespace xrx_runtime {
-
 #ifdef XRX_DEBUG
 
 #define __xrxDPr() \
@@ -40,7 +38,7 @@ do { \
 
 #define __xrxDPr() \
 do { \
-	const int do_nothing = 0; \
+	/* do nothing */ \
 } while(0)
 
 #define __xrxDPrStart() \
@@ -59,8 +57,6 @@ do { \
 } while(0)
 
 #endif /* XRX_DEBUG */
-
-} /* closing brace for namespace xrx_runtime */
 
 #endif /* __XRX_DEBUG_H */
 // vim:tabstop=4:shiftwidth=4:expandtab
