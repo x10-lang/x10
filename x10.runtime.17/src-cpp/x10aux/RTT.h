@@ -87,7 +87,7 @@ namespace x10aux {
             
     };
 
-    template<class T> struct RTT_WRAP { static RuntimeType *_() {
+    template<class T> struct RTT_WRAP { static const RuntimeType *_() {
         RuntimeType *it = T::RTT::it;
         if (!it->initialized()) {
             it->init();
@@ -95,12 +95,12 @@ namespace x10aux {
         return it;
     } };
 
-    template<class T> struct RTT_WRAP<ref<T> > { static RuntimeType *_() {
+    template<class T> struct RTT_WRAP<ref<T> > { static const RuntimeType *_() {
         return RTT_WRAP<T>::_();
     } };
 
     // this is the function we use to get runtime types from types
-    template<class T> RuntimeType *getRTT() {
+    template<class T> const RuntimeType *getRTT() {
         return RTT_WRAP<T>::_();
     }
 
@@ -112,7 +112,7 @@ namespace x10aux {
         virtual ~RTTNAME() { } \
         virtual std::string name () const { return FQNAME; } \
     }; \
-    template<> RuntimeType *getRTT<PRIMNAME>() { return RTTNAME::it; }
+    template<> const RuntimeType *getRTT<PRIMNAME>();
 
     PRIMITIVE_RTT(BooleanType,x10_boolean,"x10.lang.Boolean")
     PRIMITIVE_RTT(ByteType,x10_byte,"x10.lang.Byte")
@@ -123,6 +123,7 @@ namespace x10aux {
     PRIMITIVE_RTT(FloatType,x10_float,"x10.lang.Float")
     PRIMITIVE_RTT(DoubleType,x10_double,"x10.lang.Double")
 
+    #undef PRIMITIVE_RTT
 
 
 
