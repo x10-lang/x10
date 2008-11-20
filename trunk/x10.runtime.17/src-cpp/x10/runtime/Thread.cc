@@ -9,35 +9,46 @@
  * Implementation file for the low level thread interface.
  */
 
-#include <Thread.h>
-#include <Debug.h>
+#include <x10/runtime/Thread.h>
+
+#include <x10/lang/String.h>
+#include <x10/lang/VoidFun_0_0.h>
+
+#include <x10/runtime/Debug.h>
+#include <x10/runtime/InterruptedException.h>
+#include <x10/runtime/IllegalThreadStateException.h>
+
+#include <unistd.h>
 #include <errno.h>
 #include <sstream>
+#include <signal.h>
+#include <sys/time.h>
 
-namespace xrx_runtime {
+using namespace x10::lang;
+using namespace x10::runtime;
+using namespace x10aux;
+using namespace std;
+
 
 // initialize static data members
-Object *Thread::__current_place = NULL;
-Object *Thread::__current_activity = NULL;
-Thread *Thread::__current_thread = NULL;
-long Thread::__thread_cnt = 0;
+ref<Object> Thread::__current_place = NULL;
+ref<Object> Thread::__current_activity = NULL;
+ref<Thread> Thread::__current_thread = NULL;
+long x10::runtime::Thread::__thread_cnt = 0;
 pthread_key_t Thread::__thread_mapper = 0;
-boolean Thread::__thread_mapper_inited = false;
-
-// thread name prefix -- used to construct thread names
-const String __thread_name_prefix = "xrxThread-";
+x10_boolean Thread::__thread_mapper_inited = false;
 
 // Thread start routine.
-void *
-Thread::thread_start_routine(void *arg)
+void*
+x10::runtime::Thread::thread_start_routine(void *arg)
 {
 	// simply call the run method of the invoking thread object
 	__xrxDPrStart();
 	Thread *tp = (Thread *)arg;
 
 	// store this object reference in the place wide mapper key
-	if (Thread::__thread_mapper_inited) {
-		pthread_setspecific(Thread::__thread_mapper, arg);
+	if (__thread_mapper_inited) {
+		pthread_setspecific(__thread_mapper, arg);
 	}
 	pthread_mutex_lock(&(tp->__thread_start_lock));
 	while (tp->__thread_already_started == false) {
@@ -46,7 +57,7 @@ Thread::thread_start_routine(void *arg)
 	pthread_mutex_unlock(&(tp->__thread_start_lock));
 	// this thread is now running
 	tp->__thread_running = true;
-	tp->run();
+	tp->__taskBody->apply();
 	// finished running
 	tp->__thread_running = false;
 	__xrxDPrEnd();
@@ -55,7 +66,7 @@ Thread::thread_start_routine(void *arg)
 
 // Helper method to initialize a Thread object.
 void
-Thread::thread_init(const Runnable *task, const String *name)
+Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
 {
 	__xrxDPrStart();
 	// increment the overall thread count
@@ -64,24 +75,14 @@ Thread::thread_init(const Runnable *task, const String *name)
 	// set thread's external id
 	__thread_id = __thread_cnt;
 
-	// set this thread's runnble object
-	// null check will be done only during the actual invocation
-	__thread_runobj = (Runnable *)task;
-
 	// clear this thread's run flags
 	__thread_already_started = false;
 	__thread_running = false;
 
-	// we maintain the internal copy of a thread name
-	if (!name) {
-		// construct a new name for this thread
-		std::ostringstream ost;
-		ost << __thread_name_prefix << __thread_id;
-		__thread_name = new String(ost.str());
-	} else {
-		__thread_name = new String(*name);
-	}
+    __thread_name = ref<String>(new (alloc<String>())String(*name));
+    __taskBody = task;
 
+    
 	// create start condition object with default attributes
 	// ??check the return code for ENOMEM/EAGAIN??
 	(void)pthread_cond_init(&__thread_start_cond, NULL);
@@ -94,9 +95,9 @@ Thread::thread_init(const Runnable *task, const String *name)
 	 * create place wide pthread to Thread mapping key to
 	 * store thread object reference
 	 */
-	if (!Thread::__thread_mapper_inited) {
-		pthread_key_create(&Thread::__thread_mapper, NULL);
-		Thread::__thread_mapper_inited = true;
+	if (!__thread_mapper_inited) {
+		pthread_key_create(&__thread_mapper, NULL);
+		__thread_mapper_inited = true;
 	}
 
 	// create thread attributes object
@@ -105,7 +106,11 @@ Thread::thread_init(const Runnable *task, const String *name)
 
 	// set this thread's attributes
 	// guardsize
-	size_t guardsize = PAGESIZE;
+#ifdef _AIX_
+    size_t guardsize = PAGESIZE;
+#else
+    size_t guardsize = getpagesize();
+#endif    
 	pthread_attr_setguardsize(&__xthread_attr, guardsize);
 	// inheritsched
 	int inheritsched = PTHREAD_INHERIT_SCHED;
@@ -128,39 +133,19 @@ Thread::thread_init(const Runnable *task, const String *name)
 
 	// create a new execution thread ??in suspended state??
 	(void)pthread_create(&__xthread, &__xthread_attr,
-				Thread::thread_start_routine, (void *)this);
+                         thread_start_routine, (void *)this);
 	// create this thread's permit object
 	thread_permit_init(&__thread_permit);
 
 	__xrxDPrEnd();
 }
 
-// Allocates a new Thread object.
-// constructor (1)
-Thread::Thread()
-{
-	thread_init(NULL, NULL);
-}
-
-// constructor (2)
-Thread::Thread(const Runnable& task)
-{
-	thread_init(&task, NULL);
-}
-
-// constructor (3)
-Thread::Thread(const Runnable& task, const String& name)
-{
-	thread_init(&task, &name);
-}
-
 // destructor
 Thread::~Thread()
 {
 	__xrxDPrStart();
-	// free internal thread name object
-	delete __thread_name;
-	// free start condition object & its lock
+
+    // free start condition object & its lock
 	pthread_mutex_destroy(&__thread_start_lock);
 	pthread_cond_destroy(&__thread_start_cond);
 	// free thread attributes
@@ -171,13 +156,13 @@ Thread::~Thread()
 }
 
 // Returns a reference to the currently executing thread object.
-Thread&
+ref<Thread>
 Thread::currentThread(void)
 {
 	Thread *tp;
 
-	tp = (Thread *)pthread_getspecific(Thread::__thread_mapper);
-	return (*tp);
+	tp = (Thread *)pthread_getspecific(__thread_mapper);
+    return ref<Thread>(tp);
 }
 
 // Begin thread execution.
@@ -208,7 +193,7 @@ Thread::join(void)
 }
 
 // Tests if this thread is alive.
-boolean
+x10_boolean
 Thread::isAlive()
 {
 	__xrxDPrStart();
@@ -227,21 +212,6 @@ Thread::interrupt()
 	if (isAlive()) {
 		pthread_kill(__xthread, SIGINT);
 	};
-	__xrxDPrEnd();
-}
-
-// Invoke the Runnable object's run method, if possible.
-void
-Thread::run(void)
-{
-	// check whether a separate Runnable run object is available
-	// if so, invoke it's run method
-	__xrxDPrStart();
-	if (__thread_runobj != NULL) {
-		(*__thread_runobj).run();
-	} else {
-		// do nothing
-	}
 	__xrxDPrEnd();
 }
 
@@ -265,18 +235,17 @@ Thread::thread_sleep_cleanup(void *arg)
  * milliseconds.
  */
 void
-Thread::sleep(const Long& millis) throw (InterruptedException)
+Thread::sleep(x10_long millis)
 {
-	Int nanos = 0;
-
-	sleep(millis, nanos);
+	sleep(millis, 0);
 }
 
 // Dummy interrupt handler.
 void
 Thread::intr_hndlr(int signo)
 {
-	__xrxDPr();
+    (void)signo;
+    __xrxDPr();
 }
 
 /**
@@ -284,13 +253,13 @@ Thread::intr_hndlr(int signo)
  * milliseconds plus the specified number of nano seconds.
  */
 void
-Thread::sleep(const Long& millis, const Int& nanos) throw (InterruptedException)
+Thread::sleep(x10_long millis, x10_int nanos)
 {
 	cond_mutex_t *cmp;
-	boolean done = false;
-	struct timeval tval, cval;
+	x10_boolean done = false;
+	struct timeval tval;
 	struct timespec tout;
-	long sleep_usec, cur_usec;
+	long sleep_usec;
 	int rc;
 	InterruptedException ie;
 
@@ -316,6 +285,8 @@ Thread::sleep(const Long& millis, const Int& nanos) throw (InterruptedException)
 			throw ie;
 			break;
 			/*
+            struct timeval cval;
+            long cur_usec;
 			gettimeofday(&cval, NULL);
 			cur_usec = (cval.tv_sec * 1000 * 1000) + cval.tv_usec;
 			if (cur_usec < sleep_usec) {
@@ -363,8 +334,8 @@ Thread::thread_permit_cleanup(void *arg)
 void
 Thread::park(void)
 {
-	Thread &th = currentThread();
-	permit_t *perm = &(th.__thread_permit);
+	ref<Thread> th = currentThread();
+	permit_t *perm = &(th->__thread_permit);
 	
 	pthread_mutex_lock(&(perm->mutex));
 	pthread_cleanup_push(thread_permit_cleanup, (void *)perm);
@@ -381,10 +352,10 @@ Thread::park(void)
  * available.
  */
 void
-Thread::parkNanos(const Long& nanos)
+Thread::parkNanos(x10_long nanos)
 {
-	Thread &th = currentThread();
-	permit_t *perm = &(th.__thread_permit);
+	ref<Thread> th = currentThread();
+	permit_t *perm = &(th->__thread_permit);
 	struct timeval tval;
 	struct timespec tout;
 	int rc;
@@ -410,9 +381,9 @@ Thread::parkNanos(const Long& nanos)
  * not already available.
  */
 void
-Thread::unpark(Thread& thread)
+Thread::unpark(ref<Thread> thread)
 {
-	permit_t *perm = &(thread.__thread_permit);
+	permit_t *perm = &(thread->__thread_permit);
 	
 	pthread_mutex_lock(&(perm->mutex));
 	if (!perm->permit) {
@@ -423,31 +394,31 @@ Thread::unpark(Thread& thread)
 }
 
 // Returns the current activity.
-const Object&
+ref<Object>
 Thread::activity(void)
 {
-	return (*__current_activity);
+	return __current_activity;
 }
 
 // Set the current activity.
 void
-Thread::activity(const Object& activity)
+Thread::activity(ref<Object> activity)
 {
-	*__current_activity = activity;
+	__current_activity = activity;
 }
 
 // Returns the current place.
-const Object&
+const ref<Object>
 Thread::place(void)
 {
-	return (*__current_place);
+	return __current_place;
 }
 
 // Set the current place.
 void
-Thread::place(const Object& place)
+Thread::place(const ref<Object> place)
 {
-	*__current_place = place;
+	__current_place = place;
 }
 
 // Returns the identifier of this thread.
@@ -458,20 +429,17 @@ Thread::getId()
 }
 
 // Returns this thread's name.
-const String&
+const ref<String>
 Thread::getName(void)
 {
-	return (*__thread_name);
+	return __thread_name;
 }
 
 // Set the name of this thread.
 void
-Thread::setName(const String& name)
+Thread::setName(ref<String> name)
 {
-	// free the old thread name before new one is set
-	delete __thread_name;
-	__thread_name = new String(name);
+	__thread_name = name;
 }
 
-} /* closing brace for namespace xrx_runtime */
 // vim:tabstop=4:shiftwidth=4:expandtab

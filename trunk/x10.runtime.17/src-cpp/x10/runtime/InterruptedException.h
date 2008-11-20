@@ -7,18 +7,19 @@
 
 /** InterruptedException that may be thrown by Thread.sleep(). **/
 
-#ifndef __XRX_INTERRUPTED_EXCEPTION_H
-#define __XRX_INTERRUPTED_EXCEPTION_H
+#ifndef X10_RUNTIME_INTERRUPTED_EXCEPTION_H
+#define X10_RUNTIME_INTERRUPTED_EXCEPTION_H
 
-#include <Exception.h>
+#include <x10/lang/Exception.h>
 
-namespace xrx_runtime {
+namespace x10 {
+    namespace runtime {
 
-class InterruptedException : public Exception {
-	// to do
-};
+        class InterruptedException : public x10::lang::Exception {
+            // to do
+        };
+    }
+}
 
-} /* closing brace for namespace xrx_runtime */
-
-#endif /* __XRX_INTERRUPTED_EXCEPTION_H */
+#endif /* X10_RUNTIME_INTERRUPTED_EXCEPTION_H */
 // vim:tabstop=4:shiftwidth=4:expandtab

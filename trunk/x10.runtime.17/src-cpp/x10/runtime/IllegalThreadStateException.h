@@ -10,18 +10,19 @@
  * when the calling thread is already started.
  */
 
-#ifndef __XRX_ILLEGAL_THREAD_STATE_EXCEPTION_H
-#define __XRX_ILLEGAL_THREAD_STATE_EXCEPTION_H
+#ifndef X10_RUNTIME_ILLEGAL_THREAD_STATE_EXCEPTION_H
+#define X10_RUNTIME_ILLEGAL_THREAD_STATE_EXCEPTION_H
 
-#include <Exception.h>
+#include <x10/lang/Exception.h>
 
-namespace xrx_runtime {
+namespace x10 {
+    namespace runtime {
 
-class IllegalThreadStateException : public Exception {
-	// to do
-};
+        class IllegalThreadStateException : public x10::lang::Exception {
+            // to do
+        };
+    }
+}
 
-} /* closing brace for namespace xrx_runtime */
-
-#endif /* __XRX_ILLEGAL_THREAD_STATE_EXCEPTION_H */
+#endif /* X10_RUNTIME_ILLEGAL_THREAD_STATE_EXCEPTION_H */
 // vim:tabstop=4:shiftwidth=4:expandtab
