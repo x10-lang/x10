@@ -26,6 +26,12 @@ namespace x10 {
 
             };
 
+            EOFException() { }
+
+            EOFException(x10aux::ref<x10::lang::String> msg) {
+                (void)msg; // doesn't seem to be extractable
+            }
+
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<EOFException>();
             }

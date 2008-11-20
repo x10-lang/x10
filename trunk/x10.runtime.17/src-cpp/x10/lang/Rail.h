@@ -9,6 +9,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/rail_utils.h>
 
+#include <x10/lang/Ref.h>
 #include <x10/lang/ValRail.h>
 
 
@@ -16,7 +17,7 @@ namespace x10 {
 
     namespace lang {
 
-        template<class T> class Rail : public Value, public x10aux::AnyRail<T> {
+        template<class T> class Rail : public Ref, public x10aux::AnyRail<T> {
 
             public:
 
@@ -25,7 +26,7 @@ namespace x10 {
                 static RTT * const it;
 
                 virtual void init() {
-                    initParents(1,x10aux::getRTT<Value>());
+                    initParents(1,x10aux::getRTT<Ref>());
                 }
 
                 virtual std::string name() const {
@@ -50,7 +51,7 @@ namespace x10 {
 
             ~Rail() { }
 
-            class Iterator : public x10::lang::Iterator<T> {
+            class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
 
                 protected:
 
@@ -93,10 +94,10 @@ namespace x10 {
                 virtual x10_int hashCode() { return 0; }
 
                 virtual x10_boolean equals(x10aux::ref<Object> other) {
-                    if (!RTT::it->concreteInstanceOf(other)) return false;
-                    Iterator &other_i = static_cast<Iterator&>(*other);
-                    if (other_i.rail != rail) return false;
-                    if (other_i.i != i) return false;
+                    if (!CONCRETE_INSTANCEOF(other,Iterator)) return false;
+                    x10aux::ref<Iterator> other_i = other;
+                    if (other_i->rail != rail) return false;
+                    if (other_i->i != i) return false;
                     return true;
                 }   
 

@@ -26,19 +26,18 @@ namespace x10 {
 
             };
 
-/* TODO: initialise name
-            FileNotFoundException()
-              : {
-                //
+            FileNotFoundException() { }
+
+            FileNotFoundException(x10aux::ref<x10::lang::String> msg) {
+                (void)msg; // doesn't seem to be extractable
             }
-*/
 
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<FileNotFoundException>();
             }
 
         protected:
-            x10aux::ref<x10::lang::String> FMGL(name);
+            //x10aux::ref<x10::lang::String> FMGL(name);
 
         };
 
