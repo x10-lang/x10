@@ -35,6 +35,7 @@ public class StringBuilder implements Builder[Object,String] {
     }
     
     @Native("java", "new String(#1.getCharArray())")
+    @Native("c++", "x10aux::to_string(#1)")
     private static native def makeString(ValRail[Char]): String;
 
     public def result(): String {
