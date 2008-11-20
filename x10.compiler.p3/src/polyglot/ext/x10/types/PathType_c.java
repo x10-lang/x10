@@ -87,7 +87,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	}
 	
 	public static XVar pathBase(Type t) {
-		t = X10TypeMixin.xclause(t, (XConstraint) null);
+		t = X10TypeMixin.baseType(t);
 		if (t instanceof PathType) {
 			PathType pt = (PathType) t;
 			return pt.base();
@@ -97,7 +97,7 @@ public class PathType_c extends ParametrizedType_c implements PathType {
 	
 	public static Type pathBase(Type t, XVar base, Type baseType) {
 		XConstraint c = X10TypeMixin.xclause(t);
-		t = X10TypeMixin.xclause(t, (XConstraint) null);
+		t = X10TypeMixin.baseType(t);
 		if (t instanceof PathType) {
 			PathType pt = (PathType) t;
 			return X10TypeMixin.xclause(pt.base(base, baseType), c);
