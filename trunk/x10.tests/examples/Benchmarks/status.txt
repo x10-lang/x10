@@ -23,6 +23,9 @@ until reaching steady state, then take average over 10 executions.
    expensive than traditional C/Java loops. Likely due to unnecessary
    allocation of Point. (SeqMatMultAdd1b)
 
+8. Performance of parallel UTS benchmark using X10 async/AtomicInteger
+   on a dual-core x86 is about 50x worse than the equivalent
+   sequential X10 code. (ParUTSBin1 vs SeqUTSBin1).
 
 Benchmarks run on snakehead (x86 Thinkpad Windows IBM Java 6):
 
@@ -40,6 +43,10 @@ x10-dbg-java         165 kop/s =java/1652.7 =x10-opt-java/237.9
 java                 4.41 Mop/s
 x10-opt-java         2.88 Mop/s =java/1.5
 
+--- ParUTSBin1
+(sequential)         8.82 Mop/s
+x10-opt-java         169 kop/s =(sequential)/52.1
+
 --- SeqPseudoArray1
 java                 148 Mop/s
 x10-opt-java         5.67 Mop/s =java/26.1
@@ -52,4 +59,5 @@ x10-dbg-java         51.4 kop/s =java/757.4 =x10-opt-java/57.9
 --- SeqMatMultAdd1b
 java                 38.9 Mop/s
 x10-opt-java         1.61 Mop/s =java/24.2
+
 
