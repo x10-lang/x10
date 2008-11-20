@@ -9,3 +9,4 @@ x10aux::ref<FileInputStream> FileInputStream::STANDARD_IN
 
 
 DEFINE_RTT(FileInputStream);
+// vim:tabstop=4:shiftwidth=4:expandtab

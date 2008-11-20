@@ -38,3 +38,4 @@ void Exception::_deserialize_fields(x10aux::serialization_buffer& buf) {
 #endif
 
 DEFINE_RTT(Exception);
+// vim:tabstop=4:shiftwidth=4:expandtab

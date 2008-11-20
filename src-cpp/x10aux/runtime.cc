@@ -20,3 +20,4 @@ void x10aux::shutdown() {
 
 int x10aux::__init__::count = 0;
 
+// vim:tabstop=4:shiftwidth=4:expandtab

@@ -28,3 +28,4 @@ void x10aux::general_finish_end() {
 */
 }
 
+// vim:tabstop=4:shiftwidth=4:expandtab

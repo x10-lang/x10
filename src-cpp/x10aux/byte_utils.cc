@@ -47,3 +47,4 @@ x10_byte x10aux::byte_utils::parseByte(const ref<String>& s) {
     return 0; 
 }
 
+// vim:tabstop=4:shiftwidth=4:expandtab

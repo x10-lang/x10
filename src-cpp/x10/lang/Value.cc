@@ -20,3 +20,4 @@ x10aux::ref<x10::lang::String> x10::lang::Value::toString() {
 }
 
 DEFINE_RTT(Value);
+// vim:tabstop=4:shiftwidth=4:expandtab

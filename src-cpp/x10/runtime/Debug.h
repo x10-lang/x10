@@ -63,3 +63,4 @@ do { \
 } /* closing brace for namespace xrx_runtime */
 
 #endif /* __XRX_DEBUG_H */
+// vim:tabstop=4:shiftwidth=4:expandtab

@@ -11,3 +11,4 @@ template<> x10aux::ref<x10::lang::String>::ref(const x10::lang::String& val)
     INC(_val);
 }
 */
+// vim:tabstop=4:shiftwidth=4:expandtab

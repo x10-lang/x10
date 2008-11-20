@@ -54,3 +54,4 @@ x10_float x10aux::float_utils::fromIntBits(x10_int x) {
     tmp.i = x;
     return tmp.f;
 }
+// vim:tabstop=4:shiftwidth=4:expandtab

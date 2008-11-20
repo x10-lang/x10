@@ -43,3 +43,4 @@ void FILEPtrOutputStream::write(const char* s) {
     ::fprintf(_stream, "%s", s);
 }
 
+// vim:tabstop=4:shiftwidth=4:expandtab

@@ -24,3 +24,4 @@ namespace x10aux {
 }
 
 #endif
+// vim:tabstop=4:shiftwidth=4:expandtab

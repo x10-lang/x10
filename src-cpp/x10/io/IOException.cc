@@ -7,3 +7,4 @@ using namespace x10::io;
 using namespace x10aux;
 
 DEFINE_RTT(IOException);
+// vim:tabstop=4:shiftwidth=4:expandtab
