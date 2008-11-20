@@ -85,7 +85,7 @@ public class Await_c extends Stmt_c implements Await {
 	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	
-    	if (! ts.typeBaseEquals(expr_.type(), ts.Boolean()) )
+    	if (! ts.isSubtype(expr_.type(), ts.Boolean()) )
     		throw new SemanticException("The argument to await, " + expr_ +", must be of type boolean.", position());
     	X10Context c = (X10Context) tc.context();
     	if (c.inNonBlockingCode())
