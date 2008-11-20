@@ -45,6 +45,7 @@ ALL_OBJECTS = \
 	x10aux/serialization.o \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
+	x10aux/system_utils.o \
 	x10/io/FileInputStream.o \
 	x10/io/FileOutputStream.o \
 	x10/io/FileNotFoundException.o \
