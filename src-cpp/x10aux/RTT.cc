@@ -14,11 +14,22 @@ bool x10aux::RuntimeType::concreteInstanceOf (ref<Object> other) const {
     return other->_type()->equals(this);
 }
 
-void IntType::init() { initParents(1,getRTT<Object>()); }
-void ShortType::init() { initParents(1,getRTT<Object>()); }
+void BooleanType::init() { initParents(1,getRTT<Object>()); }
+void ByteType::init() { initParents(1,getRTT<Object>()); }
 void CharType::init() { initParents(1,getRTT<Object>()); }
+void ShortType::init() { initParents(1,getRTT<Object>()); }
+void IntType::init() { initParents(1,getRTT<Object>()); }
+void LongType::init() { initParents(1,getRTT<Object>()); }
+void FloatType::init() { initParents(1,getRTT<Object>()); }
+void DoubleType::init() { initParents(1,getRTT<Object>()); }
 
-DEFINE_SPECIAL_RTT(IntType);
-DEFINE_SPECIAL_RTT(ShortType);
+DEFINE_SPECIAL_RTT(BooleanType);
+DEFINE_SPECIAL_RTT(ByteType);
 DEFINE_SPECIAL_RTT(CharType);
+DEFINE_SPECIAL_RTT(ShortType);
+DEFINE_SPECIAL_RTT(IntType);
+DEFINE_SPECIAL_RTT(LongType);
+DEFINE_SPECIAL_RTT(FloatType);
+DEFINE_SPECIAL_RTT(DoubleType);
+
 // vim:tabstop=4:shiftwidth=4:expandtab

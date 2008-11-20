@@ -1,12 +1,24 @@
 #ifndef X10AUX_RTT_H
 #define X10AUX_RTT_H
 
-#define INSTANCEOF(v,T) (x10aux::getRTT< T >()->instanceOf(v))
-#define CONCRETE_INSTANCEOF(v,T) (x10aux::getRTT< T >()->concreteInstanceOf(v))
+#define INSTANCEOF(v,T) \
+    (x10aux::getRTT< T >()->instanceOf(v))
 
-#define DEFINE_RTT(T) DEFINE_SPECIAL_RTT(T::RTT)
-#define DEFINE_SPECIAL_RTT(T) T * const T::it = new T()
+#define CONCRETE_INSTANCEOF(v,T) \
+    (x10aux::getRTT< T >()->concreteInstanceOf(v))
 
+#define SUBTYPEOF(T1,T2) \
+    (x10aux::getRTT< T1 >()->subTypeOf(x10aux::getRTT< T2 >()))
+
+
+#define DEFINE_RTT(T) \
+    DEFINE_SPECIAL_RTT(T::RTT)
+
+#define DEFINE_SPECIAL_RTT(T) \
+    T * const T::it = new T()
+
+// [DC] can't do RTT macros for generic classes because they would have to be
+// variadic to handle the varying number of type parameters
 
 #include <string>
 #include <stdarg.h>
@@ -84,11 +96,7 @@ namespace x10aux {
     } };
 
     template<class T> struct RTT_WRAP<ref<T> > { static RuntimeType *_() {
-        RuntimeType *it = T::RTT::it;
-        if (!it->initialized()) {
-            it->init();
-        }
-        return it;
+        return RTT_WRAP<T>::_();
     } };
 
     // this is the function we use to get runtime types from types
@@ -96,61 +104,24 @@ namespace x10aux {
         return RTT_WRAP<T>::_();
     }
 
+    #define PRIMITIVE_RTT(RTTNAME,PRIMNAME,FQNAME) \
+    class RTTNAME : public RuntimeType { \
+        public: \
+        static RTTNAME * const it; \
+        virtual void init(); \
+        virtual ~RTTNAME() { } \
+        virtual std::string name () const { return FQNAME; } \
+    }; \
+    template<> RuntimeType *getRTT<PRIMNAME>() { return RTTNAME::it; }
 
-    class IntType : public RuntimeType {
-
-        public:
-
-        static IntType * const it;
-
-        virtual void init();
-
-        virtual ~IntType() { }
-
-        virtual std::string name () const { return "x10.lang.Int"; }
-
-    };  
-    template<> struct RTT_WRAP<x10_int> { static RuntimeType *_() {
-        return IntType::it;
-    } };
-
-
-
-    class ShortType : public RuntimeType {
-
-        public:
-
-        static ShortType * const it;
-
-        virtual void init();
-
-        virtual ~ShortType() { }
-
-        virtual std::string name () const { return "x10.lang.Short"; }
-
-    };  
-    template<> struct RTT_WRAP<x10_short> { static RuntimeType *_() {
-        return ShortType::it;
-    } };
-
-
-
-    class CharType : public RuntimeType {
-
-        public:
-
-        static CharType * const it;
-
-        virtual void init();
-
-        virtual ~CharType() { }
-
-        virtual std::string name () const { return "x10.lang.Char"; }
-
-    };  
-    template<> struct RTT_WRAP<x10_char> { static RuntimeType *_() {
-        return CharType::it;
-    } };
+    PRIMITIVE_RTT(BooleanType,x10_boolean,"x10.lang.Boolean")
+    PRIMITIVE_RTT(ByteType,x10_byte,"x10.lang.Byte")
+    PRIMITIVE_RTT(CharType,x10_char,"x10.lang.Char")
+    PRIMITIVE_RTT(ShortType,x10_short,"x10.lang.Short")
+    PRIMITIVE_RTT(IntType,x10_int,"x10.lang.Int")
+    PRIMITIVE_RTT(LongType,x10_long,"x10.lang.Long")
+    PRIMITIVE_RTT(FloatType,x10_float,"x10.lang.Float")
+    PRIMITIVE_RTT(DoubleType,x10_double,"x10.lang.Double")
 
 
 
