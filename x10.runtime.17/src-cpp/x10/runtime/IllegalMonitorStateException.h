@@ -17,7 +17,7 @@
 namespace x10 {
     namespace runtime {
 
-        class IllegalMonitorStateException : public Exception {
+        class IllegalMonitorStateException : public x10::lang::Exception {
             // to do
         };
     }
