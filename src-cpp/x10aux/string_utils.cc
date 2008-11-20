@@ -79,5 +79,13 @@ ref<String> x10aux::to_string(double v) {
 ref<String> x10aux::to_string(const char *v) {
     return to_string_general(std::string(v));
 }
+
+ref<x10::lang::String> to_string(ref<ValRail<x10_char> > v) {
+    std::string str(v->FMGL(length),'\0');
+    for (int i=0 ; i<v->FMGL(length) ; ++i)
+        str[i] = (*v)[i];
+    return String(str);
+}
+
     
 // vim:tabstop=4:shiftwidth=4:expandtab
