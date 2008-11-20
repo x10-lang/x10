@@ -111,22 +111,6 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	}
 	
 	Formal setClauses(Formal formal, Expr domain, X10NodeFactory nf) {
-	    if (formal instanceof X10Formal) {
-	        X10Formal xf = (X10Formal) formal;
-	        if (domain instanceof RectRegionMaker) {
-	            List<Formal> vars = new ArrayList<Formal>();
-	            RectRegionMaker tuple = (RectRegionMaker) domain;
-	            if (tuple.arguments().size() == xf.vars().size()) {
-	                for (int i = 0; i < xf.vars().size(); i++) {
-	                    Formal f = xf.vars().get(i);
-	                    Formal f2 = setClauses(f, tuple.arguments().get(i), nf);
-	                    vars.add(f2);
-	                }
-	                return xf.vars(vars);
-	            }
-	        }
-	    }
-	    
 	    X10Type domainType = (X10Type) domain.type();
 	    X10TypeSystem ts = (X10TypeSystem) domainType.typeSystem();
 	    

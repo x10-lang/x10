@@ -686,13 +686,6 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		n = (Call) n.del(delFactory().delExpr());
 		return n;
 	}
-	public Expr RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args) {
-
-		RectRegionMaker n = new RectRegionMaker_c( pos, receiver, name, args );
-
-		n = (RectRegionMaker) n.ext(extFactory().extExpr());
-		return (RectRegionMaker) n.del(delFactory().delExpr());
-	}
 	public While While(Position pos, Expr cond, Stmt body) {
 		While n = new X10While_c(pos, cond, body);
 		n = (While)n.ext(extFactory().extWhile());
