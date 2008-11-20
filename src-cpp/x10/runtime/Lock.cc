@@ -39,9 +39,11 @@ void Lock::initialize()
 	int pshared = PTHREAD_PROCESS_PRIVATE;
 	pthread_mutexattr_setpshared(&__lock_attr, pshared);
 
+#ifdef PTHREAD_PRIO_NONE
 	// we are not currently implementing any fairness policy
 	int protocol = PTHREAD_PRIO_NONE;
 	pthread_mutexattr_setprotocol(&__lock_attr, protocol);
+#endif
 
 	// create lock object
 	// ??check the return code for ENOMEM and throw OutOfMemoryError??
@@ -90,7 +92,7 @@ Lock::tryLock()
 }
 
 // get lock count
-int
+x10_int
 Lock::getHoldCount()
 {
 	// hack, until we find someway to do this reliably
@@ -134,6 +136,8 @@ Lock::getHoldCount()
 		}
 		return 0;
 	#endif /* __64BIT__ */
+    #else /* !_AIX */
+        return -1;
 	#endif /* _AIX */
 	/*
 	if (Xrx::__xrx_already_inited && Xrx::__xrx_session_valid) {

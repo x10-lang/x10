@@ -104,28 +104,32 @@ namespace x10aux {
         return RTT_WRAP<T>::_();
     }
 
-    #define PRIMITIVE_RTT(RTTNAME,PRIMNAME,FQNAME) \
-    class RTTNAME : public RuntimeType { \
-        public: \
-        static RTTNAME * const it; \
-        virtual void init(); \
-        virtual ~RTTNAME() { } \
-        virtual std::string name () const { return FQNAME; } \
+    void primitive_init(RuntimeType* t);
+
+#define DECLARE_PRIMITIVE_RTT(C,P) \
+    class C##Type : public RuntimeType { \
+    public: \
+        static C##Type * const it; \
+        virtual void init() { primitive_init(this); } \
+        virtual ~C##Type() { } \
+        virtual std::string name () const { return "x10.lang." #C; } \
     }; \
-    template<> const RuntimeType *getRTT<PRIMNAME>();
+    template<> struct RTT_WRAP<x10_##P> { static RuntimeType *_() { \
+        return C##Type::it; \
+    } }
+#define DEFINE_PRIMITIVE_RTT(C) \
+    DEFINE_SPECIAL_RTT(C##Type)
 
-    PRIMITIVE_RTT(BooleanType,x10_boolean,"x10.lang.Boolean")
-    PRIMITIVE_RTT(ByteType,x10_byte,"x10.lang.Byte")
-    PRIMITIVE_RTT(CharType,x10_char,"x10.lang.Char")
-    PRIMITIVE_RTT(ShortType,x10_short,"x10.lang.Short")
-    PRIMITIVE_RTT(IntType,x10_int,"x10.lang.Int")
-    PRIMITIVE_RTT(LongType,x10_long,"x10.lang.Long")
-    PRIMITIVE_RTT(FloatType,x10_float,"x10.lang.Float")
-    PRIMITIVE_RTT(DoubleType,x10_double,"x10.lang.Double")
+    DECLARE_PRIMITIVE_RTT(Boolean, boolean);
+    DECLARE_PRIMITIVE_RTT(Byte,    byte);
+    DECLARE_PRIMITIVE_RTT(Char,    char);
+    DECLARE_PRIMITIVE_RTT(Short,   short);
+    DECLARE_PRIMITIVE_RTT(Int,     int);
+    DECLARE_PRIMITIVE_RTT(Long,    long);
+    DECLARE_PRIMITIVE_RTT(Float,   float);
+    DECLARE_PRIMITIVE_RTT(Double,  double);
 
-    #undef PRIMITIVE_RTT
-
-
+#undef DECLARE_PRIMITIVE_RTT
 
 }
 
