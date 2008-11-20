@@ -111,7 +111,6 @@ import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.PlaceCast_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.ast.Range_c;
-import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.Region_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
@@ -265,7 +264,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10Cast_c) { visit((X10Cast_c)n); return; }
 		if (n instanceof Cast_c) { visit((Cast_c)n); return; }
 		if (n instanceof RegionMaker_c) { visit((RegionMaker_c)n); return; }
-		if (n instanceof RectRegionMaker_c) { visit((RectRegionMaker_c)n); return; }
 		if (n instanceof ConstantDistMaker_c) { visit((ConstantDistMaker_c)n); return; }
 		if (n instanceof X10Call_c) { visit((X10Call_c)n); return; }
 		if (n instanceof Call_c) { visit((Call_c)n); return; }
@@ -339,7 +337,6 @@ public class X10DelegatingVisitor {
 				public void visit(Call_c n) { visit((Expr_c)n); }
 					public void visit(X10Call_c n) { visit((Call_c)n); }
 						public void visit(ConstantDistMaker_c n) { visit((X10Call_c)n); }
-						public void visit(RectRegionMaker_c n) { visit((X10Call_c)n); }
 						public void visit(RegionMaker_c n) { visit((X10Call_c)n); }
 				public void visit(Cast_c n) { visit((Expr_c)n); }
 					public void visit(X10Cast_c n) { visit((Cast_c)n); }

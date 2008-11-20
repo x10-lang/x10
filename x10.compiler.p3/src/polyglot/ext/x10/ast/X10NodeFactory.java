@@ -142,7 +142,6 @@ public interface X10NodeFactory extends NodeFactory {
     StmtSeq StmtSeq(Position pos, List<Stmt> l);
     Expr ConstantDistMaker(Position pos, Expr left, Expr right);
     Expr RegionMaker(Position pos, Expr left, Expr right);
-    Expr RectRegionMaker(Position pos, Receiver receiver, Id name, List<Expr> args);
     AssignPropertyCall AssignPropertyCall(Position pos, List<TypeNode> typeArgs, List<Expr> argList);
 
 	Closure Closure(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes, Block body);
