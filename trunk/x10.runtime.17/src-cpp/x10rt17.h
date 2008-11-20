@@ -30,6 +30,7 @@
 //#include <x10/io/ByteArrayOutputStream.h>
 //#include <x10/io/DataInputStream.h>
 //#include <x10/io/DataOutputStream.h>
+#include <x10/io/EOFException.h>
 #include <x10/io/FileInputStream.h>
 #include <x10/io/FileOutputStream.h>
 #include <x10/io/FileNotFoundException.h>
