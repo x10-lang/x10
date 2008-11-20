@@ -59,7 +59,7 @@ value Pool {
 	 * Start a new thread
 	 */
 	private def allocate(id:Int):Void {
-		new Thread(()=>this.run(), "thread-" + id.toString());
+		new Thread(()=>this.run(), "thread-" + id.toString()).start();
 	}
 
 	/**
