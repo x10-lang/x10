@@ -25,23 +25,19 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
-import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
-import polyglot.types.Ref;
-import polyglot.types.SemanticException;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
@@ -140,7 +136,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	                catch (XFailure e) {
 	                }
 	                
-	                Type newType = X10TypeMixin.xclause(t, c);
+	                Type newType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
 	                formal.localDef().setType(Types.ref(newType));
 	                return formal.type(nf.CanonicalTypeNode(formal.type().position(), Types.ref(newType)));
 	            }
