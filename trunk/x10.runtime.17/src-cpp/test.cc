@@ -8,3 +8,4 @@
 
 // (Note that "make all" and "make" are equivalent.)
 
+// vim:tabstop=4:shiftwidth=4:expandtab
