@@ -48,32 +48,32 @@ template<class T> ref<String> to_string_general(T v) {
     return new (alloc<String>()) String(ss.str());
 }
 
-ref<String> x10aux::to_string(bool v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_boolean v) {
+    return to_string_general((bool)v);
 }
     
-ref<String> x10aux::to_string(char v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_char v) {
+    return to_string_general((char)v);
 }
     
-ref<String> x10aux::to_string(short v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_short v) {
+    return to_string_general((short)v);
 }
     
-ref<String> x10aux::to_string(int v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_int v) {
+    return to_string_general((int)v);
 }
     
-ref<String> x10aux::to_string(int64_t v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_long v) {
+    return to_string_general((int64_t)v);
 }
     
-ref<String> x10aux::to_string(float v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_float v) {
+    return to_string_general((float)v);
 }
 
-ref<String> x10aux::to_string(double v) {
-    return to_string_general(v);
+ref<String> x10aux::to_string(x10_double v) {
+    return to_string_general((double)v);
 }
 
 ref<String> x10aux::to_string(const char *v) {

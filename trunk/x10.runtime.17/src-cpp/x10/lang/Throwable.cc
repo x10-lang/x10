@@ -3,7 +3,7 @@
 #include <x10/lang/Throwable.h>
 #include <x10aux/string_utils.h>
 
-#ifdef __GNUC__
+#ifdef __GLIBC__
 #include <execinfo.h> // for getStackTrace()
 #endif
 
@@ -52,7 +52,7 @@ ref<String> Throwable::toString() {
 
 
 ref<Throwable> Throwable::fillInStackTrace() {
-#ifdef __GNUC__
+#ifdef __GLIBC__
     if (trace_size>=0) return this;
     trace_size = ::backtrace(trace, sizeof(trace)/sizeof(*trace));
 #endif
@@ -61,7 +61,7 @@ ref<Throwable> Throwable::fillInStackTrace() {
 
 
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
-#ifdef __GNUC__
+#ifdef __GLIBC__
     if (trace_size<=0) {
         const char *msg = "No stacktrace recorded.";
         return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String(msg));
