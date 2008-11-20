@@ -39,7 +39,7 @@ value InputStreamReader extends Reader {
         public native def reset(): Void throws IOException;
 
         @Native("java", "#0.markSupported()")
-        @Native("c++", "(#0)->reset()")
+        @Native("c++", "(#0)->markSupported()")
         public native def markSupported(): Boolean;
     }
 
