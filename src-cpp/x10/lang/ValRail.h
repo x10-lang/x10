@@ -16,7 +16,7 @@ namespace x10 {
 
     namespace lang {
 
-        template<class T> class ValRail : public Value,
+        template<class T> class ValRail : public virtual Value,
                                           public x10aux::AnyRail<T> {
 
             public:
@@ -96,10 +96,10 @@ namespace x10 {
                 }
 
                 virtual x10_boolean equals(x10aux::ref<Object> other) {
-                    if (!CONCRETE_INSTANCEOF(other,ValRail)) return false;
-                    Iterator &other_i = static_cast<Iterator&>(*other);
-                    if (other_i.rail != rail) return false;
-                    if (other_i.i != i) return false;
+                    if (!CONCRETE_INSTANCEOF(other,Iterator)) return false;
+                    x10aux::ref<Iterator> other_i = other;
+                    if (other_i->rail != rail) return false;
+                    if (other_i->i != i) return false;
                     return true;
                 }
             };

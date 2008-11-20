@@ -13,7 +13,7 @@ namespace x10 {
 
         class String;
 
-        class Ref : public Object {
+        class Ref : public virtual Object {
         public:
 #ifdef REF_COUNTING
             int __count; // Ref counting implementation

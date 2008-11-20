@@ -30,6 +30,12 @@ namespace x10 {
                 return x10aux::getRTT<IOException>();
             }
 
+            IOException() { }
+
+            IOException(x10aux::ref<x10::lang::String> msg) {
+                (void)msg; // doesn't seem to be extractable
+            }
+
         };
 
     }

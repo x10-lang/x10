@@ -20,9 +20,9 @@ ref<String> String::toString() {
 x10_boolean String::equals(const ref<Object>& other) {
     if (!CONCRETE_INSTANCEOF(other,String)) return false;
     // now we can downcast the Object to String
-    String &other_str = static_cast<String&>(*other);
+    ref<String> other_str = other;
     // defer to std::string::compare to check string contents
-    return !compare(other_str);
+    return !compare(*other_str);
 }
     
 
@@ -33,7 +33,7 @@ String String::operator+(const String& s) {
 }
 
 x10_int String::indexOf(const ref<String>& str, x10_int i) {
-    size_type res = find(static_cast<const std::string&>(*str), (size_type)i);
+    size_type res = find(*static_cast<ref<std::string> >(str), (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
     return (x10_int) res;
