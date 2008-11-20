@@ -257,6 +257,7 @@ namespace x10aux {
     // Specialize for classes without SERIALIZATION_ID (e.g., final classes)
     template<class T> struct _reference_deserializer {
         static ref<T> _(serialization_buffer& buf) {
+            /*
             int id = buf.read<int>();
             // TODO
             //if (id == NULL_SERIALIZATION_ID)
@@ -266,6 +267,12 @@ namespace x10aux {
             ref<T> rv = ref<T>(new (alloc<T>()) T(SERIALIZATION_MARKER()));
             rv->_deserialize_fields(buf);
             return rv;
+            */
+            // [DC] this doesn't work when T is an abstract class
+            // not sure whether it should be called in these cases at all
+            // but commenting it out seems like the best option right now
+            (void) buf;
+            return 0;
         }
     };
 
