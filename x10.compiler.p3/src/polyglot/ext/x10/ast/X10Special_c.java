@@ -126,7 +126,7 @@ public class X10Special_c extends Special_c implements X10Special {
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
             }
-            tt = X10TypeMixin.xclause(tt, cc);
+            tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
             result = (X10Special) type(tt);
         }
         else if (kind == SUPER) {
@@ -139,7 +139,7 @@ public class X10Special_c extends Special_c implements X10Special {
             catch (XFailure e) {
                 throw new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position());
             }
-            tt = X10TypeMixin.xclause(tt, cc);
+            tt = X10TypeMixin.xclause(X10TypeMixin.baseType(tt), cc);
             result = (X10Special) type(tt);
         }
         
@@ -159,7 +159,7 @@ public class X10Special_c extends Special_c implements X10Special {
 		catch (XFailure e) {
 			throw new SemanticException(e.getMessage(), position());
 		}
-                newType = X10TypeMixin.xclause(newType, dep);
+                newType = X10TypeMixin.xclause(X10TypeMixin.baseType(newType), dep);
                 return result.type(newType);
             }
         }
