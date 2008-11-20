@@ -1,3 +1,6 @@
+// (C) Copyright IBM Corporation 2006
+// This file is part of X10 Test.
+
 import harness.x10Test;
 
 import x10.compiler.Native;
@@ -5,6 +8,10 @@ import x10.compiler.NativeRep;
 
 import x10.io.StringWriter;
 import x10.io.Printer;
+
+/**
+ * @author bdlucas
+ */
 
 abstract class Benchmark extends x10Test {
 
