@@ -10,16 +10,21 @@
  * interface.
  */
 
-#include <Lock.h>
+#include <x10/runtime/Lock.h>
+
 #include <errno.h>
 #ifdef XRX_DEBUG
 #include <iostream>
 #endif /* XRX_DEBUG */
 
-namespace xrx_runtime {
+using namespace x10::lang;
+using namespace x10::runtime;
+using namespace x10aux;
 
-// [constructor] Create an instance of reentrant Lock.
-Lock::Lock()
+#include <x10/runtime/IllegalMonitorStateException.h>
+
+
+void Lock::initialize()
 {
 	// create lock attributes object
 	// ??check the return code for ENOMEM and throw OutOfMemoryError??
@@ -44,7 +49,7 @@ Lock::Lock()
 }
 
 // destructor
-Lock::~Lock()
+void Lock::teardown()
 {
 	// free lock object
 	pthread_mutex_destroy(&__lock);
@@ -63,7 +68,7 @@ Lock::lock()
 
 // release lock
 void
-Lock::unlock() throw (IllegalMonitorStateException)
+Lock::unlock()
 {
 	IllegalMonitorStateException imse;
 
@@ -74,7 +79,7 @@ Lock::unlock() throw (IllegalMonitorStateException)
 }
 
 // acquire lock (non-blocking)
-boolean
+x10_boolean
 Lock::tryLock()
 {
 	// acquire the lock only if it is not held by another thread
@@ -151,5 +156,6 @@ Lock::getHoldCount()
 	*/
 }
 
-} /* closing brace for namespace xrx_runtime */
+DEFINE_RTT(Lock);
+
 // vim:tabstop=4:shiftwidth=4:expandtab
