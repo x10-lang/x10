@@ -69,11 +69,19 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-ref<Rail<x10_char> > String::toCharRail() {
+ref<Rail<x10_char> > String::chars() {
     x10_int sz = size();
     Rail<x10_char> *rail = alloc_rail<x10_char,Rail<x10_char> > (sz);
     for (int i=0 ; i<sz ; i++)
         (*rail)[i] = (x10_char)at(i);
+    return rail;
+}
+
+ref<Rail<x10_byte> > String::bytes() {
+    x10_int sz = size();
+    Rail<x10_byte> *rail = alloc_rail<x10_byte,Rail<x10_byte> > (sz);
+    for (int i=0 ; i<sz ; i++)
+        (*rail)[i] = (x10_byte)at(i);
     return rail;
 }
 

@@ -16,9 +16,7 @@ FILE* FILEPtrStream::open_file(const ref<String>& name, const char* mode) {
     FILE* res = fopen(filename, mode);
 #ifndef NO_EXCEPTIONS
     if (res == NULL)
-        throw ref<FileNotFoundException>(
-            new (x10aux::alloc<FileNotFoundException>())
-                FileNotFoundException()); //TODO: name));
+        throwException<FileNotFoundException>();
 #endif
     return res;
 }
@@ -31,7 +29,7 @@ void FILEPtrStream::close() {
 FILE* FILEPtrStream::check_stream(FILE* stream) {
 #ifndef NO_EXCEPTIONS
 /* TODO
-    if (stream == NULL) throw ref<IOException>(new (alloc<IOException>()) IOException(String("Null file pointer")));
+    if (stream == NULL) throwException(new (alloc<IOException>()) IOException(String("Null file pointer")));
 */
 #endif
     return stream;

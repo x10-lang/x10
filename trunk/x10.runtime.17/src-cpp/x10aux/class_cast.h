@@ -2,6 +2,7 @@
 #define X10AUX_CLASS_CAST_H
 
 #include <x10aux/config.h>
+#include <x10aux/throw.h>
 
 #include <x10aux/RTT.h>
 
@@ -21,8 +22,7 @@ namespace x10aux {
             #ifndef NO_EXCEPTIONS
             _CAST_(from->name()<<" to "<<to->name());
             if (!from->subtypeOf(to)) {
-                typedef x10::lang::ClassCastException CCE;
-                throw (ref<CCE>) new (alloc<CCE>()) CCE();
+                throwException<x10::lang::ClassCastException>();
             }
             return static_cast<T>(obj);
             #else
