@@ -52,6 +52,10 @@ ref<String> x10aux::to_string(x10_boolean v) {
     return to_string_general((bool)v);
 }
     
+ref<String> x10aux::to_string(x10_byte v) {
+    return to_string_general((int)v);
+}
+    
 ref<String> x10aux::to_string(x10_char v) {
     return to_string_general((char)v);
 }

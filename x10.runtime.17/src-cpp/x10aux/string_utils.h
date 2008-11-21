@@ -19,6 +19,7 @@ namespace x10aux {
     // these need to use the x10_ primitive typedefs, because otherwise they
     // are not found.
     ref<x10::lang::String> to_string(x10_boolean v);
+    ref<x10::lang::String> to_string(x10_byte v);
     ref<x10::lang::String> to_string(x10_char v);
     ref<x10::lang::String> to_string(x10_short v);
     ref<x10::lang::String> to_string(x10_int v);

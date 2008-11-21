@@ -5,6 +5,8 @@
 
 #ifdef __GLIBC__
 #include <execinfo.h> // for getStackTrace()
+#endif
+#ifdef __GNUC__
 #include <cxxabi.h> // for demangle()
 #endif
 
@@ -62,6 +64,7 @@ ref<Throwable> Throwable::fillInStackTrace() {
 }
 
 
+#ifdef __GLIBC__
 static char *demangle (const char *line) {
     // arbitrary_text + "(" + symbol + "+0x" + hex_offset + ") [0x" + address +"]"
     char *start = strrchr(line,'(');
@@ -81,6 +84,7 @@ static char *demangle (const char *line) {
     free(mangled);
     return demangled;
 }
+#endif
 
 
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
