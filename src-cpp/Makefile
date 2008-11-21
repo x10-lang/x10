@@ -52,9 +52,12 @@ ALL_OBJECTS = \
 	x10/io/IOException.o \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
+	x10/lang/ClassCastException.o \
 	x10/lang/Exception.o \
+	x10/lang/NullPointerException.o \
 	x10/lang/Object.o \
 	x10/lang/Ref.o \
+	x10/lang/RuntimeException.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
