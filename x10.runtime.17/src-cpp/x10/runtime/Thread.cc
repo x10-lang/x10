@@ -12,7 +12,6 @@
 #include <x10/runtime/Thread.h>
 
 #include <x10/lang/String.h>
-#include <x10/lang/VoidFun_0_0.h>
 
 #include <x10/runtime/Debug.h>
 #include <x10/runtime/InterruptedException.h>
