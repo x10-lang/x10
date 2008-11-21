@@ -2,12 +2,13 @@
 #define X10AUX_STRING_UTILS_H
 
 #include <x10aux/config.h>
-
-#include <x10/lang/Rail.h>
+#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
         class String;
+        template<class T> class Rail;
+        template<class T> class ValRail;
     }
 }
 
