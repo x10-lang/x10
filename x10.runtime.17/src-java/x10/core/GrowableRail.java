@@ -25,14 +25,14 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	public T set(T v, Integer i) {
 		grow(i+1);
 		assert i < size();
-		assert i <= length;
+		assert i < length;
 		return elementType.setArray(array, i, v);
 	}
 
 	public void add(T v) {
 		grow(length+1);
-		set(v, length);
 		length++;
+		set(v, length-1);
 	}
 	
 	public void removeLast() {
@@ -79,6 +79,8 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	}
 	
 	public T apply(Integer i) {
+		assert i < length;
+		assert i < size();
 		return elementType.getArray(array, i);
 	}
 	
