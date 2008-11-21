@@ -14,13 +14,12 @@
 #define args_name(closure) CONCAT(closure,_args)
 
 
-#define closure_class_and_args_struct(id, extends, type, UnpackedBody, formals, structure) \
-    structure \
-    class closure_name(id) : public extends { \
-     private: args_name(closure_name(id))* args; \
-     public: type apply formals UnpackedBody; \
+#define closure_class_and_args_struct(id, supertype, rettype, body, formals, captured_env) \
+    captured_env \
+    class closure_name(id) : public supertype { \
+     private: args_name(closure_name(id)) *args; \
+     public: rettype apply formals body; \
              closure_name(id) (args_name(closure_name(id))* arg) { args = arg; } \
-        virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<extends>(); } \
     }
 
 
