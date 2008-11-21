@@ -24,6 +24,8 @@ namespace x10 {
             virtual ~Fun_0_0() { }
             virtual R apply() = 0;
         };
+        template<class R> typename Fun_0_0<R>::RTT * const Fun_0_0<R>::RTT::it =
+            new typename Fun_0_0<R>::RTT();
     }
 }
 #endif

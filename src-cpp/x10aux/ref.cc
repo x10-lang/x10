@@ -8,11 +8,8 @@ using namespace x10::lang;
 
 // do not call this if NO_EXCEPTIONS is defined
 // defined here because it depends on NullPointerException and we don't want a header cycle
-template<class T> void ref<T>::assertNonNull() const {
-    if (_val==NULL) {
-        typedef NullPointerException NPE;
-        throw (ref<NPE>) new (alloc<NPE>()) NPE();
-    }
+void x10aux::throwNPE() {
+    throw (ref<NullPointerException>) new (alloc<NullPointerException>()) NullPointerException();
 }
 
 /*
