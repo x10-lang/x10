@@ -57,11 +57,11 @@ public final value Float {
     public native def isInfinite(): boolean;
     
     @Native("java", "java.lang.Float.floatToIntBits(#0)")
-    @Native("c++", "x10aux::float_utils::floatToIntBits(#0)")
+    @Native("c++", "x10aux::float_utils::toIntBits(#0)")
     public native def toIntBits(): Int;
 
     @Native("java", "java.lang.Float.floatToRawIntBits(#0)")
-    @Native("c++", "x10aux::float_utils::floatToRawIntBits(#0)")
+    @Native("c++", "x10aux::float_utils::toRawIntBits(#0)")
     public native def toRawIntBits(): Int;
 
     @Native("java", "java.lang.Float.intBitsToFloat(#1)")

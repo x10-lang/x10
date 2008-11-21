@@ -57,14 +57,14 @@ public final value Double {
     public native def isInfinite(): boolean;
     
     @Native("java", "java.lang.Double.doubleToLongBits(#0)")
-    @Native("c++", "x10aux::double_utils::doubleToLongBits(#0)")
+    @Native("c++", "x10aux::double_utils::toLongBits(#0)")
     public native def toLongBits(): Long;
 
     @Native("java", "java.lang.Double.doubleToRawLongBits(#0)")
-    @Native("c++", "x10aux::double_utils::doubleToRawLongBits(#0)")
+    @Native("c++", "x10aux::double_utils::toRawLongBits(#0)")
     public native def toRawLongBits(): Long;
 
     @Native("java", "java.lang.Double.longBitsToDouble(#1)")
-    @Native("c++", "x10aux::double_utils::longBitsToDouble(#1)")
+    @Native("c++", "x10aux::double_utils::fromLongBits(#1)")
     public static native def fromLongBits(Long): Double;
 }
