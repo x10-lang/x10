@@ -40,6 +40,7 @@
 #include <x10/io/NativeOutputStream.h>
 
 #include <x10/lang/Box.h>
+#include <x10/lang/ArrayIndexOutOfBoundsException.h>
 #include <x10/lang/ClassCastException.h>
 #include <x10/lang/Exception.h>
 #include <x10/lang/Fun_0_0.h>
