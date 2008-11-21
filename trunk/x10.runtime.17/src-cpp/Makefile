@@ -56,6 +56,7 @@ ALL_OBJECTS = \
 	x10/lang/ArrayIndexOutOfBoundsException.o \
 	x10/lang/ClassCastException.o \
 	x10/lang/Exception.o \
+	x10/lang/VoidFun_0_0.o \
 	x10/lang/NullPointerException.o \
 	x10/lang/Object.o \
 	x10/lang/Ref.o \
