@@ -46,18 +46,13 @@ namespace x10 {
                 return contents;
             }
 
-            virtual bool equals (x10aux::ref<Object> other) {
-                return other==x10aux::ref<Box<T> >(this);
-            }
-
             protected:
 
             T contents;
 
         };
 
-        template<class T> typename Box<T>::RTT *Box<T>::RTT::it =
-            new typename Box<T>::RTT();
+        template<class T> typename Box<T>::RTT *Box<T>::RTT::it = new typename Box<T>::RTT();
 
     }
 }

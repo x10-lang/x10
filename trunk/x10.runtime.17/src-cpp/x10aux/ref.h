@@ -10,8 +10,6 @@ namespace x10aux {
 
 #include <x10aux/config.h>
 
-namespace x10 { namespace lang { class String; } }
-
 namespace x10aux {
 
     class __ref {
@@ -119,17 +117,23 @@ namespace x10aux {
         }
         */
 
+        void assertNonNull() const;
+
         T& operator*() const {
-            // FIXME: throw NullPointerException
+            #ifndef NO_EXCEPTIONS
+            assertNonNull();
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << DEMANGLE(TYPENAME(T)));
+            #endif
             return *(T*)_val;
         }
 
         T* operator->() const { 
-            // FIXME: should we throw NullPointerException here?
+            #ifndef NO_EXCEPTIONS
+            assertNonNull();
             _R_("Accessing object (->) via reference " << this << "(" << _val
                                       << ") of type " << DEMANGLE(TYPENAME(T)));
+            #endif
             return (T*)_val;
         }
 
@@ -162,8 +166,6 @@ namespace x10aux {
         T* _val;
 #endif
     };
-
-	//template<> ref<x10::lang::String>::ref(const x10::lang::String& val);
 
 } //namespace x10
 
