@@ -1,10 +1,12 @@
-#include <cstdlib>
 
 #ifndef X10AUX_THROW_H
 #define X10AUX_THROW_H
 
-#include <x10/lang/Throwable.h>
+#include <cstdlib>
+#include <x10aux/config.h>
 #include <x10aux/ref.h>
+
+#include <x10/lang/Throwable.h>
 
 namespace x10aux {
 
