@@ -40,6 +40,18 @@ public final value Math {
    @Native("c++", "x10aux::math_utils::sqrt(#1)")
    public static native def sqrt(a:Double):Double;
    
+   @Native("java", "java.lang.Math.log(#1)")
+   @Native("c++", "x10aux::math_utils::log(#1)")
+   public static native def log(a:Double):Double;
+   
+   @Native("java", "java.lang.Math.log10(#1)")
+   @Native("c++", "x10aux::math_utils::log10(#1)")
+   public static native def log10(a:Double):Double;
+   
+   @Native("java", "java.lang.Math.log1p(#1)")
+   @Native("c++", "x10aux::math_utils::log1p(#1)")
+   public static native def log1p(a:Double):Double;
+   
    public static safe def max(a:Int, b:Int)= a<b?b:a;
    public static safe def max(a:Double, b:Double)= a<b?b:a;
    public static safe def min(a:Int, b:Int)= a<b?a:b;
