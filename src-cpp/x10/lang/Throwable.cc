@@ -109,7 +109,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     ::free(messages); // malloced by backtrace_symbols
     return rail;
 #else
-    const char *msg = "No stacktrace available for your compiler.";
+    const char *msg = "No stacktrace available for your compiler.  So cry your heart out.";
     return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String(msg));
 #endif
 }
