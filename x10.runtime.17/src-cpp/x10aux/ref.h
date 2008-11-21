@@ -12,6 +12,8 @@ namespace x10aux {
 
 namespace x10aux {
 
+    void throwNPE();
+
     class __ref {
 
         protected:
@@ -117,23 +119,23 @@ namespace x10aux {
         }
         */
 
-        void assertNonNull() const;
+        inline void assertNonNull() const {
+            #ifndef NO_EXCEPTIONS
+            if (isNull()) throwNPE();
+            #endif
+        }
 
         T& operator*() const {
-            #ifndef NO_EXCEPTIONS
-            assertNonNull();
             _R_("Accessing object (*) via reference " << this << "(" << _val
-                                      << ") of type " << DEMANGLE(TYPENAME(T)));
-            #endif
+                                      << ") of type " << getRTT<T>()->name())
+            assertNonNull();
             return *(T*)_val;
         }
 
         T* operator->() const { 
-            #ifndef NO_EXCEPTIONS
+            _R_("Accessing object (*) via reference " << this << "(" << _val
+                                      << ") of type " << getRTT<T>()->name())
             assertNonNull();
-            _R_("Accessing object (->) via reference " << this << "(" << _val
-                                      << ") of type " << DEMANGLE(TYPENAME(T)));
-            #endif
             return (T*)_val;
         }
 
