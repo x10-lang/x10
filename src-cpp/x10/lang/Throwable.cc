@@ -5,6 +5,7 @@
 
 #ifdef __GLIBC__
 #include <execinfo.h> // for getStackTrace()
+#include <cxxabi.h> // for demangle()
 #endif
 
 
@@ -61,6 +62,27 @@ ref<Throwable> Throwable::fillInStackTrace() {
 }
 
 
+static char *demangle (const char *line) {
+    // arbitrary_text + "(" + symbol + "+0x" + hex_offset + ") [0x" + address +"]"
+    char *start = strrchr(line,'(');
+    char *end = strrchr(line,'+');
+    assert(start!=NULL);
+    assert(end!=NULL);
+    start++;
+    size_t len = end - start + 1; // extra 1 for null terminator
+    char *mangled = (char*)malloc(len);
+    strncpy(mangled,start,len-1);
+    mangled[len-1] = '\0';
+    char *demangled = abi::__cxa_demangle(mangled, NULL, NULL, NULL);
+    if (demangled==NULL) {
+        demangled = mangled;
+        mangled = NULL;
+    }
+    free(mangled);
+    return demangled;
+}
+
+
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 #ifdef __GLIBC__
     if (FMGL(trace_size)<=0) {
@@ -71,9 +93,9 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
         alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
     char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
     for (int i=0 ; i<FMGL(trace_size) ; ++i) {
-        //fprintf(stderr,"%s\n",messages[i]);
-        (*rail)[i] = String(messages[i]);
-        // TODO: demangling would be nice, google for abi::__cxa_demangle
+        char *demangled = demangle(messages[i]);
+        (*rail)[i] = String(demangled);
+        ::free(demangled); // malloced by demangle
     }
     ::free(messages); // malloced by backtrace_symbols
     return rail;

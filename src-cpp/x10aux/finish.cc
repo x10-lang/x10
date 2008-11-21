@@ -22,7 +22,7 @@ void x10aux::general_finish_end() {
     if (num_exc > 0) {
         _X_("   got " << num_exc << " exceptions");
 #ifndef NO_EXCEPTIONS
-        throw x10::ref<x10::lang::MultipleExceptions>(new (x10::alloc<x10::lang::MultipleExceptions>()) x10::lang::MultipleExceptions(num_exc, exc_buf));
+        throwException(new (x10::alloc<x10::lang::MultipleExceptions>()) x10::lang::MultipleExceptions(num_exc, exc_buf));
 #endif
     }
 */

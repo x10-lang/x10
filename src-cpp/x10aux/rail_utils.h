@@ -3,6 +3,9 @@
 
 #include <stdarg.h>
 
+#include <x10aux/config.h>
+#include <x10aux/throw.h>
+
 #include <x10/lang/String.h>
 #include <x10/lang/Iterator.h>
 
@@ -43,7 +46,7 @@ namespace x10aux {
                     msg<<index<<" not in [0,"<<FMGL(length)<<")";
                     x10::lang::String msg_str(msg.str());
                     typedef x10::lang::ArrayIndexOutOfBoundsException Err;
-                    throw (ref<Err>) new (alloc<Err>()) Err(msg_str);
+                    throwException(new (alloc<Err>()) Err(msg_str));
                 }
                 #endif
                 #endif
