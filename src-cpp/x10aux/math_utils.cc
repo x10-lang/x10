@@ -18,7 +18,20 @@ x10_double x10aux::math_utils::sin(x10_double x) {
     return ::sin(x);
 }
 
+x10_double x10aux::math_utils::log(x10_double x) {
+    return ::log(x);
+}
+
+x10_double x10aux::math_utils::log10(x10_double x) {
+    return ::log10(x);
+}
+
+x10_double x10aux::math_utils::log1p(x10_double x) {
+    return ::log1p(x);
+}
+
 x10_double x10aux::math_utils::sqrt(x10_double x) {
     return ::sqrt(x);
 }
+
 // vim:tabstop=4:shiftwidth=4:expandtab
