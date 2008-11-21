@@ -12,6 +12,7 @@
 
 #include <x10/lang/Ref.h>
 #include <x10/lang/String.h>
+#include <x10/lang/VoidFun_0_0.h>
 
 #include <pthread.h>
 
@@ -19,7 +20,6 @@ namespace x10 {
     namespace lang {
         class String;
         class Object;
-        class VoidFun_0_0;
     }
 }
 
