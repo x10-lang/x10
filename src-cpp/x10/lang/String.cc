@@ -6,6 +6,15 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+String::String(x10_boolean v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_byte v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_char v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_short v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_int v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_long v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_float v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+String::String(x10_double v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+
 x10_int String::hashCode() {
     //FIXME:
     //presumably this needs a general hashcode implementation

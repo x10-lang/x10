@@ -84,7 +84,7 @@ namespace x10aux {
             return *this;
         }
 
-        ref(const T* val = NULL) : REF_INIT(const_cast<T*>(val)) {
+        ref(T* const val = NULL) : REF_INIT(const_cast<T*>(val)) {
             INC(_val);
         }
 
