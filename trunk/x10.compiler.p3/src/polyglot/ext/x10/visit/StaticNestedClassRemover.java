@@ -51,9 +51,9 @@ public class StaticNestedClassRemover extends ContextVisitor {
                         newName = Name.make(d.name().toString() + "$" + newName.toString());
                     }
                     
+                    def.outer(null);
                     def.kind(ClassDef.TOP_LEVEL);
                     def.flags(def.flags().clearStatic().clearPrivate().clearProtected());
-                    def.outer(null);
                     def.name(newName);
                     
                     cd = cd.name(nf.Id(cd.name().position(), newName));
