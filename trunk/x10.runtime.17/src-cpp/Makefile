@@ -52,6 +52,7 @@ ALL_OBJECTS = \
 	x10/io/IOException.o \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
+	x10/lang/ArrayIndexOutOfBoundsException.o \
 	x10/lang/ClassCastException.o \
 	x10/lang/Exception.o \
 	x10/lang/NullPointerException.o \
