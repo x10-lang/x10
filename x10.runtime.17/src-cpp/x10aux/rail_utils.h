@@ -1,11 +1,12 @@
-#ifndef X10AUX_RAIL_UTIL_H
-#define X10AUX_RAIL_UTIL_H
+#ifndef X10AUX_RAIL_UTILS_H
+#define X10AUX_RAIL_UTILS_H
 
 #include <stdarg.h>
 
-//#include <x10/lang/Value.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Iterator.h>
+
+#include <x10/lang/ArrayIndexOutOfBoundsException.h>
 
 namespace x10aux {
 
@@ -40,14 +41,9 @@ namespace x10aux {
                 if (index<0 || index>FMGL(length)) {
                     std::stringstream msg;
                     msg<<index<<" not in [0,"<<FMGL(length)<<")";
-                    //String msg_str(msg.str());
-/* FIXME            
-                    throw x10aux::ref<ArrayIndexOutOfBoundsException>
-                        (
-                          new (x10aux::alloc<ArrayIndexOutOfBoundsException>())
-                            ArrayIndexOutOfBoundsException(msg_str);
-                        );
-*/
+                    x10::lang::String msg_str(msg.str());
+                    typedef x10::lang::ArrayIndexOutOfBoundsException Err;
+                    throw (ref<Err>) new (alloc<Err>()) Err(msg_str);
                 }
                 #endif
                 #endif
