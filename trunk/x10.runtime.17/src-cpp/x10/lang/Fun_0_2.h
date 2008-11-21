@@ -26,6 +26,9 @@ namespace x10 {
             virtual ~Fun_0_2() { };
             virtual R apply(const P1 &p1, const P2 &p2) = 0;
         };
+        template<class P1, class P2, class R>
+            typename Fun_0_2<P1,P2,R>::RTT * const Fun_0_2<P1,P2,R>::RTT::it =
+                new typename Fun_0_2<P1,P2,R>::RTT();
     }
 }
 #endif
