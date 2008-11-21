@@ -10,6 +10,9 @@ namespace x10aux {
         static x10_double exp(x10_double x);
         static x10_double cos(x10_double x);
         static x10_double sin(x10_double x);
+        static x10_double log(x10_double x);
+        static x10_double log10(x10_double x);
+        static x10_double log1p(x10_double x);
         static x10_double sqrt(x10_double x);
     };
 }
