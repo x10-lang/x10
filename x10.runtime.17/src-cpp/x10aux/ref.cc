@@ -1,7 +1,9 @@
 #include <x10aux/config.h>
 
 #include <x10aux/ref.h>
+#include <x10aux/throw.h>
 #include <x10/lang/NullPointerException.h>
+
 
 using namespace x10aux;
 using namespace x10::lang;
@@ -9,7 +11,7 @@ using namespace x10::lang;
 // do not call this if NO_EXCEPTIONS is defined
 // defined here because it depends on NullPointerException and we don't want a header cycle
 void x10aux::throwNPE() {
-    throw (ref<NullPointerException>) new (alloc<NullPointerException>()) NullPointerException();
+    throwException<NullPointerException>();
 }
 
 /*

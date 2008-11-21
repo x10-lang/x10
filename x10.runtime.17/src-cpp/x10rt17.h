@@ -9,6 +9,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
+#include <x10aux/throw.h>
 #include <x10aux/RTT.h>
 #include <x10aux/place.h>
 #include <x10aux/finish.h>
