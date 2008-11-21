@@ -38,6 +38,7 @@ import polyglot.types.Resolver;
 import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.TypeObject;
 import polyglot.types.Types;
 import polyglot.types.ClassDef.Kind;
 import polyglot.util.InternalCompilerError;
@@ -94,4 +95,16 @@ public class ClosureType_c extends X10ParsedClassType_c implements ClosureType {
         }
         return "(" + sb.toString() + ") => " + mi.returnType();
     }
+
+	@Override
+	public boolean equalsImpl(TypeObject t) {
+		return super.equalsImpl(t);
+	}
+
+	@Override
+	public int hashCode() {
+		return def.get().hashCode();
+	}
+    
+    
 }
