@@ -1,7 +1,12 @@
+#include <sstream>
+
 #include <x10aux/config.h>
+#include <x10aux/string_utils.h>
 
 #include <x10/lang/Throwable.h>
-#include <x10aux/string_utils.h>
+#include <x10/lang/String.h>
+#include <x10/lang/Rail.h>
+
 
 #ifdef __GLIBC__
 #include <execinfo.h> // for getStackTrace()
