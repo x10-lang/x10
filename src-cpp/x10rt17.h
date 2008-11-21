@@ -15,6 +15,7 @@
 #include <x10aux/finish.h>
 #include <x10aux/exit_code.h>
 #include <x10aux/finish.h>
+#include <x10aux/closure.h>
 
 #include <x10aux/boolean_utils.h>
 #include <x10aux/byte_utils.h>
