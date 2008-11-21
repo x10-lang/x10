@@ -30,7 +30,8 @@ public abstract value Writer {
     public def writeDouble(x: Double): Void throws IOException = Marshal.DOUBLE.write(this, x);
     public def writeBoolean(x: Boolean): Void throws IOException = Marshal.BOOLEAN.write(this, x);
     
-    public def write[T](m: Marshal[T], x: T): Void throws IOException = m.write(this, x);
+    // made final to satisfy the restrictions on template functions in c++
+    public final def write[T](m: Marshal[T], x: T): Void throws IOException = m.write(this, x);
 
     public def write(buf: ValRail[Byte]): Void throws IOException {
         write(buf, 0, buf.length);
