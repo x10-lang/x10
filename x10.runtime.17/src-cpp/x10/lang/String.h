@@ -20,21 +20,12 @@ namespace x10 {
             class RTT : public x10aux::RuntimeType {
                 public:
                 static RTT* const it;
-
                 virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
-
-                virtual std::string name() const {
-                    return "x10.lang.String";
-                }
-
+                virtual std::string name() const { return "x10.lang.String"; }
             };
 
-        protected:
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<String>();
-            }
+            virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<String>(); }
 
-        public:
             String() : Value(), std::string("") { }
             String(const std::string& content) : Value(), std::string(content){}
             String(const char* s) : Value(), std::string(s) { }

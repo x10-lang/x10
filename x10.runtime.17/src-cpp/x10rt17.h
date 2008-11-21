@@ -10,8 +10,6 @@
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
 #include <x10aux/RTT.h>
-#include <x10aux/string_utils.h>
-#include <x10aux/rail_utils.h>
 #include <x10aux/place.h>
 #include <x10aux/finish.h>
 #include <x10aux/exit_code.h>
@@ -25,32 +23,34 @@
 #include <x10aux/float_utils.h>
 #include <x10aux/long_utils.h>
 #include <x10aux/short_utils.h>
+#include <x10aux/string_utils.h>
+#include <x10aux/rail_utils.h>
 
 #include <x10aux/math_utils.h>
 #include <x10aux/system_utils.h>
 
-//#include <x10/io/ByteArrayOutputStream.h>
-//#include <x10/io/DataInputStream.h>
-//#include <x10/io/DataOutputStream.h>
+
 #include <x10/io/EOFException.h>
+//#include <x10/io/File.h>
 #include <x10/io/FileInputStream.h>
 #include <x10/io/FileOutputStream.h>
 #include <x10/io/FileNotFoundException.h>
 #include <x10/io/IOException.h>
-//#include <x10/io/FilterInputStream.h>
-//#include <x10/io/FilterOutputStream.h>
 #include <x10/io/NativeInputStream.h>
 #include <x10/io/NativeOutputStream.h>
-//#include <x10/io/PrintStream.h>
+
 #include <x10/lang/Box.h>
+#include <x10/lang/ClassCastException.h>
 #include <x10/lang/Exception.h>
 #include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Fun_0_2.h>
+#include <x10/lang/NullPointerException.h>
 #include <x10/lang/Object.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Throwable.h>
 #include <x10/lang/Ref.h>
+#include <x10/lang/RuntimeException.h>
 #include <x10/lang/String.h>
 #include <x10/lang/ValRail.h>
 #include <x10/lang/Value.h>

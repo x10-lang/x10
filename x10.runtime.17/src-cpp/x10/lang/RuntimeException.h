@@ -1,36 +1,36 @@
-#ifndef X10_LANG_EXCEPTION_H
-#define X10_LANG_EXCEPTION_H
+#ifndef X10_LANG_RUNTIMEEXCEPTION_H
+#define X10_LANG_RUNTIMEEXCEPTION_H
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
 
-#include <x10/lang/Throwable.h>
+#include <x10/lang/Exception.h>
 
 namespace x10 {
 
     namespace lang {
 
-        class Exception : public Throwable {
+        class RuntimeException : public Exception {
         public:
             class RTT : public x10aux::RuntimeType { 
                 public:
                 static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<Throwable>()); }
-                virtual std::string name() const { return "x10.lang.Exception"; }
+                virtual void init() { initParents(1,x10aux::getRTT<Exception>()); }
+                virtual std::string name() const { return "x10.lang.RuntimeException"; }
             };
 
             virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Exception>();
+                return x10aux::getRTT<RuntimeException>();
             }
 
             typedef x10aux::ref<Box<x10aux::ref<Throwable> > > Cause;
 
-            Exception() : Throwable() { }
-            Exception(x10aux::ref<String> message) : Throwable(message) {   }
-            Exception(x10aux::ref<String> message, Cause cause) : Throwable(message, cause) { }
-            Exception(Cause cause) : Throwable(cause) { }
+            RuntimeException() : Exception() { }
+            RuntimeException(x10aux::ref<String> message) : Exception(message) {   }
+            RuntimeException(x10aux::ref<String> message, Cause cause) : Exception(message,cause) {}
+            RuntimeException(Cause cause) : Exception(cause) { }
 
-            Exception(x10aux::SERIALIZATION_MARKER m) : Throwable(m) { }
+            RuntimeException(x10aux::SERIALIZATION_MARKER m) : Exception(m) { }
 
             // Serialization
             //static const int SERIALIZATION_ID = 16;

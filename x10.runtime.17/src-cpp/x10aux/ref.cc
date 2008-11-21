@@ -1,7 +1,19 @@
 #include <x10aux/config.h>
 
 #include <x10aux/ref.h>
-#include <x10/lang/String.h>
+#include <x10/lang/NullPointerException.h>
+
+using namespace x10aux;
+using namespace x10::lang;
+
+// do not call this if NO_EXCEPTIONS is defined
+// defined here because it depends on NullPointerException and we don't want a header cycle
+template<class T> void ref<T>::assertNonNull() const {
+    if (_val==NULL) {
+        typedef NullPointerException NPE;
+        throw (ref<NPE>) new (alloc<NPE>()) NPE();
+    }
+}
 
 /*
 template<> x10aux::ref<x10::lang::String>::ref(const x10::lang::String& val)
