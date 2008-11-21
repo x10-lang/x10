@@ -26,8 +26,7 @@ abstract public class x10Test {
         try {
             finish async(this.location) b(0) = this.run();
         } catch (e: Throwable) {
-            //e.printStackTrace();
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         reportResult(b(0));
     }
@@ -37,8 +36,7 @@ abstract public class x10Test {
         try {
             finish b = this.run();
         } catch (e: Throwable) {
-            //e.printStackTrace();
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
         reportResult(b);
     }
