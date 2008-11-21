@@ -19,7 +19,7 @@ import x10.io.Console;
 public value Throwable {
     @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     @Native("c++", "(#0)->getCause()")
-    // [DC] Why the box?
+    // Box is to make it nullable
 	val cause: Box[Throwable];
 
     @Native("java", "#0.getMessage()")
@@ -56,11 +56,11 @@ public value Throwable {
     public native def getStackTrace() : ValRail[String];
 
     @Native("java", "#0.printStackTrace()")
-    @Native("c++", "do {    x10::io::Console::FMGL(ERR)->println((#0)->toString());    x10aux::ref<ValRail<String> > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace.FMGL(length) ; ++i) {        x10::io::Console::FMGL(ERR)->print(String(\"        at \");        x10::io::Console::FMGL(ERR)->println((#0)->toString());    }} while (0)")
+    @Native("c++", "do {    x10::io::Console::FMGL(ERR)->println((#0)->toString());    x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace->FMGL(length) ; ++i) {        x10::io::Console::FMGL(ERR)->print(String(\"        at \");        x10::io::Console::FMGL(ERR)->println((*trace)[i]);    }} while (0)")
     public native def printStackTrace() : Void;
     
     @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
-    @Native("c++", "do {    (#1)->println((#0)->toString());    x10aux::ref<ValRail<String> > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace.FMGL(length) ; ++i) {        (#1)->print(String(\"        at \");        (#1)->println((#0)->toString());    }} while (0)")
+    @Native("c++", "do {    (#1)->println((#0)->toString());    x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace->FMGL(length) ; ++i) {        (#1)->print(String(\"        at \");        (#1)->println((*trace)[i]);    }} while (0)")
     public native def printStackTrace(p: Printer) : Void;
 
     /*
