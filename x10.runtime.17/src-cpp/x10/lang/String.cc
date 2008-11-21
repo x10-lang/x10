@@ -41,6 +41,11 @@ String String::operator+(const String& s) {
          + static_cast<const std::string&>(s));
 }
 
+String String::operator+(ref<String> s) {
+    return String(static_cast<const std::string&>(*this)
+         + static_cast<const std::string&>(*s));
+}
+
 x10_int String::indexOf(const ref<String>& str, x10_int i) {
     size_type res = find(*static_cast<ref<std::string> >(str), (size_type)i);
     if (res == std::string::npos)

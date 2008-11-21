@@ -57,6 +57,7 @@ namespace x10 {
 
             x10_int length() { return (x10_int) std::string::length(); }
             String operator+(const String& s);
+            String operator+(x10aux::ref<String> s);
             x10_int indexOf(const x10aux::ref<String>& s, x10_int i = 0);
             x10_int indexOf(x10_char c, x10_int i = 0);
             x10_int lastIndexOf(const x10aux::ref<String>& s, x10_int i = 0);
