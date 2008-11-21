@@ -1,7 +1,12 @@
+#include <x10aux/config.h>
+
 #include <x10aux/long_utils.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/String.h>                    \
+#include <x10/lang/String.h>
+#ifdef __CYGWIN__
+extern "C" long long atoll(const char *);
+#endif
 
 using namespace x10::lang;
 using namespace std;

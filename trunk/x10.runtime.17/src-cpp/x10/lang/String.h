@@ -6,6 +6,7 @@
 #include <x10aux/config.h>
 
 #include <x10/lang/Value.h>
+#include <x10aux/string_utils.h>
 
 namespace x10 {
 
@@ -28,12 +29,21 @@ namespace x10 {
 
             String() : Value(), std::string("") { }
 
-            String(const std::string& content) : Value(), std::string(content){}
+            String(const std::string& content) : Value(), std::string(content) { }
 
             String(const char* s) : Value(), std::string(s) { }
 
             explicit String(const x10aux::ref<String>& s)
-              : Value(), std::string(*static_cast<std::string*>(&*s)) { }
+              : Value(), std::string(static_cast<std::string&>(*s)) { }
+
+            String(x10_boolean v);
+            String(x10_byte v);
+            String(x10_char v);
+            String(x10_short v);
+            String(x10_int v);
+            String(x10_long v);
+            String(x10_float v);
+            String(x10_double v);
 
             operator x10aux::ref<String> () {
                 return new (x10aux::alloc<String>()) String(this);
