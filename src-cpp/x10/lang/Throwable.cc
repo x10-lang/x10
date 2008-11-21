@@ -11,26 +11,27 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-Throwable::Throwable() : Value(), trace_size(-1) {
+typedef Throwable::Cause Cause;
+
+Throwable::Throwable() : Value(), FMGL(trace_size)(-1) {
     this->FMGL(cause) = NULL;
     this->FMGL(message) = to_string("");
 }
 
 
-Throwable::Throwable(const ref<String> &message) : Value(), trace_size(-1) {
+Throwable::Throwable(ref<String> message) : Value(), FMGL(trace_size)(-1) {
     this->FMGL(cause) = NULL;
     this->FMGL(message) = message;
 }
 
 
-Throwable::Throwable(const ref<Throwable> &cause) : Value(), trace_size(-1) {
+Throwable::Throwable(Cause cause) : Value(), FMGL(trace_size)(-1) {
     this->FMGL(cause) = cause;
     this->FMGL(message) = to_string("");
 }
 
 
-Throwable::Throwable(const ref<String> &message,
-                     const ref<Throwable> &cause) : Value(), trace_size(-1) {
+Throwable::Throwable(ref<String> message, Cause cause) : Value(), FMGL(trace_size)(-1) {
     this->FMGL(cause) = cause;
     this->FMGL(message) = message;
 }
@@ -40,7 +41,7 @@ ref<String> Throwable::getMessage() {
     return FMGL(message);
 }
 
-ref<Throwable> Throwable::getCause() {
+Cause Throwable::getCause() {
     return FMGL(cause);
 }
 
@@ -53,8 +54,8 @@ ref<String> Throwable::toString() {
 
 ref<Throwable> Throwable::fillInStackTrace() {
 #ifdef __GLIBC__
-    if (trace_size>=0) return this;
-    trace_size = ::backtrace(trace, sizeof(trace)/sizeof(*trace));
+    if (FMGL(trace_size)>=0) return this;
+    FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
 #endif
     return this;
 }
@@ -62,14 +63,14 @@ ref<Throwable> Throwable::fillInStackTrace() {
 
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 #ifdef __GLIBC__
-    if (trace_size<=0) {
+    if (FMGL(trace_size)<=0) {
         const char *msg = "No stacktrace recorded.";
         return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String(msg));
     }
     ref<ValRail<ref<String> > > rail =
-        alloc_rail<ref<String>,ValRail<ref<String> > >(trace_size);
-    char **messages = ::backtrace_symbols(trace, trace_size);
-    for (int i=0 ; i<trace_size ; ++i) {
+        alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
+    char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
+    for (int i=0 ; i<FMGL(trace_size) ; ++i) {
         //fprintf(stderr,"%s\n",messages[i]);
         (*rail)[i] = String(messages[i]);
         // TODO: demangling would be nice, google for abi::__cxa_demangle
@@ -83,22 +84,23 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 }
 
 
-#if 0
-TODO: perhaps another day
 void Throwable::_serialize_fields(serialization_buffer& buf, addr_map& m) {
     Value::_serialize_fields(buf, m);
-    buf.write(this->cause); /* non-value */
+/*
+    buf.write(this->FMGL(cause)); 
     _S_("Written reference cause");
-    if (!m.ensure_unique(this->message)) assert (false);
+    if (!m.ensure_unique(this->FMGL(message))) assert (false);
     this->message->_serialize(buf, m);
     _S_("Serialized message");
+*/
 }
-fillInStackTrace
 void Throwable::_deserialize_fields(serialization_buffer& buf) {
-    this->cause = buf.read<ref<Box < ref<Throwable> > > >(); /* non-value */
+    (void)buf; abort();
+/*
+    this->cause = buf.read<ref<Box < ref<Throwable> > > >();
     this->message = _deserialize_value_ref<String >(buf);
+*/
 }
-#endif
 
 
 DEFINE_RTT(Throwable);

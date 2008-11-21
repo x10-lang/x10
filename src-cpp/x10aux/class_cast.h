@@ -7,24 +7,27 @@
 
 #include <x10/lang/Box.h>
 
+#include <x10/lang/ClassCastException.h>
+
 namespace x10aux {
 
     // T stands for "to"
     // F stands for "from"
 
-    #ifndef NO_EXCEPTIONS
-    #define CHECK_CAST(frtt,T) \
-            _CAST_(frtt->name()<<" to "<<getRTT<T>()->name()); \
-            if (!frtt->subtypeOf(getRTT<T>())) { \
-                std::cerr<<"Your type cast was eaten by a grue."<<std::endl; \
-            }
-    #else
-    #define CHECK_CAST(F,T)
-    #endif
-
     template<class T, class F> struct ClassCast {
         static T class_cast (F obj) {
-            CHECK_CAST(obj->_type(),T)
+            const RuntimeType *from = obj->_type();
+            const RuntimeType *to = getRTT<T>();
+            #ifndef NO_EXCEPTIONS
+            _CAST_(from->name()<<" to "<<to->name());
+            if (!from->subtypeOf(to)) {
+                typedef x10::lang::ClassCastException CCE;
+                throw (ref<CCE>) new (alloc<CCE>()) CCE();
+            }
+            return static_cast<T>(obj);
+            #else
+            _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
+            #endif
             return static_cast<T>(obj);
         }
     };
@@ -72,16 +75,6 @@ namespace x10aux {
     SPECIALISE_CAST(x10_double)
 
     
-/*
-    template<typename F> float class_cast<float> (F obj) {
-        return static_cast<float>(obj);
-    }
-*/
-
-
-
-
-
     template<typename T, typename F> T class_cast (F obj) {
         return ClassCast<T,F>::class_cast(obj);
     }
