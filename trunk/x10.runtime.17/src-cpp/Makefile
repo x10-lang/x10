@@ -41,6 +41,7 @@ ALL_OBJECTS = \
 	x10aux/place.o \
 	x10aux/ref.o \
 	x10aux/RTT.o \
+	x10aux/rail_utils.o \
 	x10aux/runtime.o \
 	x10aux/serialization.o \
 	x10aux/short_utils.o \
