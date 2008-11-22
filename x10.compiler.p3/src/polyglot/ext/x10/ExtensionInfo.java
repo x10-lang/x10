@@ -316,7 +316,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal CodeGenerated(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new OutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory()));
+    	   return new OutputGoal(job, new X10Translator(job, ts, nf, extInfo.targetFactory())).intern(this);
        }
 
        public Goal X10MLTypeChecked(Job job) {
