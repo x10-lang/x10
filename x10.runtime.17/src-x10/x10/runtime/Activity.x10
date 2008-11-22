@@ -38,12 +38,24 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 	 */
 	def run():Void {
 		try {
-			body();
+		    finishStack.push(new FinishState());
+			try {
+				body();
+			} catch (t:Throwable) {
+				finishStack.peek().pushException(t);
+			}
+	    	clockPhases.drop();
+			finishStack().pop().waitForFinish();
 		} catch (t:Throwable) {
-			finishStack.peek().pushException(t);
-		}
-		clockPhases.drop();
-    	finishStack.peek().notifySubActivityTermination();
+			val state = finishStack.peek();
+			NativeRuntime.runAt(state.location.id, ()=>{
+				state.pushException(t);
+    			state.notifySubActivityTermination();
+    		});
+    		return;
+    	}
+    	val state = finishStack.peek();
+		NativeRuntime.runAt(state.location.id, ()=>state.notifySubActivityTermination());
 	}
 	
 	public def toString():String = name; 

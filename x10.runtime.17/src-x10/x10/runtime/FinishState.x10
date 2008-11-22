@@ -19,7 +19,7 @@ import x10.util.Stack;
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu 
  */
-value FinishState {
+class FinishState {
 	/**
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
@@ -62,7 +62,7 @@ value FinishState {
 	 * associated with the finish.
 	 */
 	def notifySubActivitySpawn():Void {
-		at (latch.location) latch.updateCount();
+		latch.updateCount();
 	}
 
 	/** 
@@ -70,17 +70,15 @@ value FinishState {
 	 * associated with the finish and notify the parent activity if it is waiting.
 	 */
 	def notifySubActivityTermination():Void {
-		at (latch.location) latch.countDown();
+		latch.countDown();
 	}
 
 	/** 
 	 * Push an exception onto the stack.
 	 */
 	def pushException(t:Throwable):Void {
-		at (exceptions.location) {
-			monitor.lock();
-			exceptions.push(t);
-			monitor.unlock();
-		}
+		monitor.lock();
+		exceptions.push(t);
+		monitor.unlock();
 	}
 }

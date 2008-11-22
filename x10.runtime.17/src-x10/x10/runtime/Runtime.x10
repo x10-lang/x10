@@ -8,7 +8,7 @@
 
 package x10.runtime;
 
-import x10.util.GrowableRail;
+import x10.util.ArrayList;
 
 import x10.io.Console;
 
@@ -75,14 +75,24 @@ public value Runtime {
 	}
 
 
-	// at statement -> at expression -> async -> future
+	// async -> at expression -> future
 	// do not introduce cycles!!!
 
 	/**
 	 * Run at statement
 	 */
 	public static def runAt(place:Place, body:()=>Void):Void {
-		NativeRuntime.runAt(place.id, body);
+		throw new RuntimeException("at statement is deprecated");
+	}
+
+	/**
+	 * Run async
+	 */
+	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void, name:String):Void {
+		val state = current().finishStack.peek();
+		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).register_c());
+		state.notifySubActivitySpawn();
+		NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, clocks, phases, name)));
 	}
 
 	/**
@@ -90,35 +100,21 @@ public value Runtime {
 	 */
     public static def evalAt[T](place:Place, eval:()=>T):T {
     	val ret = here;
-    	val box = new GrowableRail[T]();
-    	at (place) {
+    	val box = new ArrayList[T]();
+    	finish async (place) {
     		val result = eval();
-    		at (ret) box(0) = result; 
+    		async (ret) box.add(result); 
     	}
     	return box(0);
     }
 
 	/**
-	 * Run async
-	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void, name:String):Void {
-		at (current().location) {
-			val state = current().finishStack.peek();
-			val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).phase_c());
-			state.notifySubActivitySpawn();
-			at (place) pool.execute(new Activity(body, state, clocks, phases, name));
-		}
-	}
-
-	/**
 	 * Eval future expression
 	 */
 	public static def evalFuture[T](place:Place, eval:()=>T, name:String):Future[T] {
-		return at (place) {
-			val futur = new Future_c[T](eval, name);
-			async futur.run();
-			futur
-		};
+		val futur = at (place) new Future_c[T](eval, name);
+		async (place) futur.run();
+		return futur;
 	}
     
     
@@ -138,11 +134,27 @@ public value Runtime {
 
 	// atomic, await, when
 
+    public static def newMonitor(place:Place):Monitor {
+    	val ret = here;
+    	val box = new ArrayList[Monitor]();
+    	val state = new FinishState();
+    	state.notifySubActivitySpawn();
+    	NativeRuntime.runAtLocal(place.id, ()=>{
+    		val result = new Monitor();
+    		NativeRuntime.runAtLocal(ret.id, ()=>{
+    			box.add(result);
+		    	state.notifySubActivityTermination();
+    		});
+    	});
+    	state.waitForFinish();
+    	return box(0);
+    }
+
 	/**
 	 * One monitor per place in the current node
 	 */
 	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
-		(id:Nat)=> NativeRuntime.local(id) ? at (Place.place(id)) new Monitor() : null); 
+		(id:Nat)=> NativeRuntime.local(id) ? newMonitor(Place.place(id)) : null); 
  	 		
 	/**
 	 * Lock current place
@@ -196,7 +208,7 @@ public value Runtime {
 	/**
 	 * Return the clock phases of the current activity
 	 */
-	static def clockPhases():ClockPhases = at (current().location) current().clockPhases();
+	static def clockPhases():ClockPhases = current().clockPhases();
 
 	/**
 	 * Next statement = next on all clocks in parallel.
@@ -211,7 +223,7 @@ public value Runtime {
 	 * (i.e. within a finish statement).
 	 */
 	public static def startFinish():Void {
-		at (current().location) current().finishStack.push(new FinishState());
+		current().finishStack.push(new FinishState());
 	}
 
 	/**
@@ -221,7 +233,7 @@ public value Runtime {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public static def stopFinish():Void {
-		at (current().location) current().finishStack.pop().waitForFinish();
+		current().finishStack.pop().waitForFinish();
 	}
 
 	/** 
@@ -229,6 +241,6 @@ public value Runtime {
 	 * onto the finish state.
 	 */
 	public static def pushException(t:Throwable):Void  {
-		at (current().location) current().finishStack.peek().pushException(t);
+		current().finishStack.peek().pushException(t);
 	}
 }

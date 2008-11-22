@@ -8,8 +8,7 @@
 
 package x10.runtime;
 
-import x10.util.GrowableRail;
-import x10.util.Stack;
+import x10.util.ArrayList;
 
 /**
  * The representation of an X10 future expression.
@@ -25,16 +24,16 @@ public value Future_c[T](name:String) extends Future[T] {
      * Set if the activity terminated with an exception.
      * Can only be of type Error or RuntimeException
      */
-	private val exception = new Stack[Throwable]();
+	private val exception = new ArrayList[Throwable]();
 	
-	private val result:GrowableRail[T];
+	private val result:ArrayList[T];
 	
 	private val eval:()=>T;
 	
 	public def this(eval:()=>T, name:String) {
 		property(name);
 		this.eval = eval;
-		result = new GrowableRail[T]();
+		result = new ArrayList[T]();
 	}
 	
     public def forced():boolean = at (cdl.location) cdl.getCount() == 0;
@@ -45,7 +44,7 @@ public value Future_c[T](name:String) extends Future[T] {
     	return at (cdl.location) {
 	    	cdl.await();
 	        if (!exception.isEmpty()) {
-	        	val e = exception.peek();
+	        	val e = exception(0);
 	            if (e instanceof Error)
 	                throw e as Error;
 	            if (e instanceof RuntimeException)
@@ -58,9 +57,9 @@ public value Future_c[T](name:String) extends Future[T] {
 
 	def run():Void {
 		try {
-        	finish result(0) = eval();
+        	finish result.add(eval());
         } catch (t:Throwable) {
-            exception.push(t);
+            exception.add(t);
         } finally {
           	cdl.countDown();
 		}
