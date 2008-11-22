@@ -60,6 +60,7 @@
 
 #include <x10/runtime/Lock.h>
 #include <x10/runtime/Thread.h>
+#include <x10/runtime/InterruptedException.h>
 
 using namespace x10::lang;
 
