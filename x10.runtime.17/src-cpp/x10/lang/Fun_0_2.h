@@ -2,10 +2,12 @@
 #define X10_LANG_FUN_0_2_H
 
 #include <x10aux/config.h>
+#include <x10aux/RTT.h>
+#include <x10/lang/Value.h>
 
 namespace x10 {
     namespace lang {
-        template<class P1, class P2, class R> class Fun_0_2 {
+        template<class P1, class P2, class R> class Fun_0_2 : public Value {
             public:
             class RTT : public x10aux::RuntimeType {
                 public:
