@@ -72,6 +72,16 @@ namespace x10 {
 
             x10aux::ref<Rail<x10_byte> > bytes();
 
+            virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
+                (void)buf; (void)m; abort();
+                //x10aux::_serialize_ref(this, buf, m);
+            }
+            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
+            virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
+
+            static x10aux::ref<String> format(x10aux::ref<String> format,
+                                              x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
+
         };
 
     } // namespace x10::lang
@@ -82,6 +92,11 @@ x10::lang::String operator+(const x10::lang::String &s1, const x10::lang::String
 x10::lang::String operator+(const x10::lang::String &s1, x10aux::ref<x10::lang::String> s2);
 x10::lang::String operator+(x10aux::ref<x10::lang::String> s1, const x10::lang::String& s2);
 x10::lang::String operator+(x10aux::ref<x10::lang::String> s1, x10aux::ref<x10::lang::String> s2);
+
+x10::lang::String operator+=(const x10::lang::String &s1, const x10::lang::String& s2);
+x10::lang::String operator+=(const x10::lang::String &s1, x10aux::ref<x10::lang::String> s2);
+x10::lang::String operator+=(x10aux::ref<x10::lang::String> s1, const x10::lang::String& s2);
+x10::lang::String operator+=(x10aux::ref<x10::lang::String> s1, x10aux::ref<x10::lang::String> s2);
 
 std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s);
 

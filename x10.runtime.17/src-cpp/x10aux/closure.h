@@ -4,6 +4,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/RTT.h>
+#include <x10aux/ref.h>
 
 #include <x10/x10.h> // pgas
 
@@ -21,6 +22,8 @@
     } while(0)
 
 
+namespace x10 { namespace lang { class String; } }
+
 
 namespace x10aux {
 
@@ -28,6 +31,11 @@ namespace x10aux {
         public:
         int id;
         AnyClosure(int id_) : id(id_) { }
+        virtual ~AnyClosure() { }
+        //virtual ref<x10::lang::String> toString() = 0;
+        virtual x10_int hashCode() { return (x10_int)this; }
+        //FIXME: returning true here is probably suboptimal
+        virtual x10_boolean equals(ref<x10::lang::Object>) { return true; }
     };
 
 }

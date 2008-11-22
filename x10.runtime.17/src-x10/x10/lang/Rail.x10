@@ -21,27 +21,27 @@ public abstract class Rail[T](length: nat)
     private native def this(n: nat): Rail[T]{length==n};
     
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::ValRail<#1 >::makeValRail(#4, #5)")
+    @Native("c++", "x10::lang::ValRail<#1 >::make(#4, #5)")
     public native static def makeVal[S](length: nat, init: (nat) => S): ValRail[S]{self.length==length};
 
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4, #5)")
-    @Native("c++", "x10::lang::Rail<#1 >::makeVarRail(#4, #5)")
+    @Native("c++", "x10::lang::Rail<#1 >::make(#4, #5)")
     public native static def makeVar[S](length: nat, init: (nat) => S): Rail[S]{self.length==length};
 
     @Native("java", "x10.core.RailFactory.<#2>makeValRail(#3, #4)")
-    @Native("c++", "x10::lang::ValRail<#1 >::makeValRail(#4)")
+    @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
     public native static def makeVal[S](length: nat): ValRail[S]{self.length==length};
     
     @Native("java", "x10.core.RailFactory.<#2>makeVarRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#1 >::makeVarRail(#4)")
+    @Native("c++", "x10::lang::Rail<#1 >::make(#4)")
     public native static def makeVar[S](length: nat): Rail[S]{self.length==length};
     
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#2 >::makeRailFromValRail(#4)")
+    @Native("c++", "x10::lang::Rail<#2 >::make(#4)")
     public native static def make[U](r: ValRail[U]): Rail[U]{self.length==r.length};
 
     @Native("java", "x10.core.RailFactory.<#2>makeRailFromValRail(#3, #4)")
-    @Native("c++", "x10::lang::Rail<#2 >::makeRailFromValRail(#4)")
+    @Native("c++", "x10::lang::Rail<#2 >::make(#4)")
     public native static def $convert[U](r: ValRail[U]): Rail[U]{self.length==r.length};
 
     @Native("java", "#0.get(#1)")

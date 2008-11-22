@@ -1,4 +1,7 @@
+#include <x10aux/config.h>
+
 #include <x10aux/alloc.h>
+#include <x10aux/serialization.h>
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
@@ -35,6 +38,16 @@ x10_boolean String::equals(ref<Object> other) {
 }
     
 
+std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s)
+{
+    if (s.isNull()) {
+        o << "null";
+    } else {
+        o << *s;
+    }
+
+    return o;
+}
 
 String operator+(const String &s1, const String& s2) {
     return static_cast<const std::string&>(s1)
@@ -51,6 +64,23 @@ String operator+(ref<String> s1, const String& s2) {
 String operator+(ref<String> s1, ref<String> s2) {
     return static_cast<const std::string&>(*s1)
          + static_cast<const std::string&>(*s2);
+}
+
+String operator+=(const String &s1, const String& s2) {
+    return static_cast<const std::string&>(s1)
+         += static_cast<const std::string&>(s2);
+}
+String operator+=(const String &s1, ref<String> s2) {
+    return static_cast<const std::string&>(s1)
+         += static_cast<const std::string&>(*s2);
+}
+String operator+=(ref<String> s1, const String& s2) {
+    return static_cast<const std::string&>(*s1)
+         += static_cast<const std::string&>(s2);
+}
+String operator+=(ref<String> s1, ref<String> s2) {
+    return static_cast<const std::string&>(*s1)
+         += static_cast<const std::string&>(*s2);
 }
 
 
@@ -107,17 +137,63 @@ ref<Rail<x10_byte> > String::bytes() {
     return rail;
 }
 
-std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s)
-{
-    if (s.isNull()) {
-        o << "null";
-    } else {
-        o << *s;
+ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
+    return String("");
+/* TODO: fix this up (if you dare)
+    char* fmt = const_cast<char*>(format->c_str());
+    char* next = NULL;
+    for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
+        next = strchr(fmt+1, '%');
+        if (next != NULL)
+            *next = '\0';
+        if (*fmt != '%') {
+            this->_printf(fmt);
+            if (next != NULL)
+                *next = '%';
+            i--;
+            continue;
+        }
+#ifndef NO_EXCEPTIONS
+        if (i >= parms->x10__length)
+            throw x10::ref<x10::lang::RuntimeException>(new (x10::alloc<x10::lang::RuntimeException>()) x10::lang::RuntimeException(x10::lang::String("Index out of bounds: ") + i + x10::lang::String(" out of (") + (x10_int)0 + x10::lang::String(",") + parms->x10__length + x10::lang::String(")")));
+#endif
+        const x10::ref<x10::lang::Object>& p = parms->operator[](i);
+        if (p.isNull()) { } // Ignore nulls
+        else if (INSTANCEOF(p, x10::ref<x10::lang::String>))
+            this->_printf(fmt, ((const string&)(*((x10::ref<x10::lang::String>)p))).c_str());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedBoolean>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedBoolean>)p)).booleanValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedByte>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedByte>)p)).byteValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedCharacter>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedCharacter>)p)).charValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedShort>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedShort>)p)).shortValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedInteger>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedInteger>)p)).intValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedLong>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedLong>)p)).longValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedFloat>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedFloat>)p)).floatValue());
+        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedDouble>))
+            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedDouble>)p)).doubleValue());
+        else
+            this->_printf(fmt, p.operator->());
+        if (next != NULL)
+            *next = '%';
     }
-
-    return o;
+    this->flush(); // FIXME [IP] temp
+*/
 }
 
+
+void String::_serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
+    Value::_serialize_fields(buf, m);
+}
+
+void String::_deserialize_fields(x10aux::serialization_buffer& buf) {
+    (void)buf;
+}
 
 DEFINE_RTT(String);
 // vim:tabstop=4:shiftwidth=4:expandtab
