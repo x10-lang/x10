@@ -10,11 +10,12 @@
  * The following debugging macros are supported:
  *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_CONSTR      - trace object construction
+ *   TRACE_INIT        - trace x10 class initialization
  *   TRACE_REF         - trace reference operations
  *   TRACE_RTT         - trace runtimetype instantiation
  *   TRACE_CAST        - trace casts
+ *   TRACE_PGAS        - trace X10lib invocations
  *   TRACE_SER         - trace serialization operations
- *   TRACE_PGAS      - trace X10lib invocations
  *   DEBUG             - general debug trace printouts
  *
  *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
@@ -46,6 +47,12 @@
 #define _T_(x) std::cerr << x10_here() << ": CC: " << x << std::endl
 #else
 #define _T_(x)
+#endif
+
+#if !defined(NO_IOSTREAM) && defined(TRACE_INIT)
+#define _I_(x) std::cerr << x10_here() << ": INIT: " << x << std::endl
+#else
+#define _I_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_REF)

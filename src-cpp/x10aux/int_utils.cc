@@ -35,13 +35,13 @@ const ref<String> x10aux::int_utils::toString(x10_int value) {
     return to_string(value);
 }
 
-x10_int x10aux::int_utils::parseInt(const ref<String>& s, x10_int radix) {
+x10_int x10aux::int_utils::parseInt(ref<String> s, x10_int radix) {
     (void) s;
     assert(false); /* FIXME: STUBBED NATIVE */
     return radix; /* Bogus, but use radix to avoid warning about unused parameter */
 }
 
-x10_int x10aux::int_utils::parseInt(const ref<String>& s) {
+x10_int x10aux::int_utils::parseInt(ref<String> s) {
     // FIXME: what about null?
     // FIXME: NumberFormatException?
     return atoi(((const string&)(*s)).c_str());
