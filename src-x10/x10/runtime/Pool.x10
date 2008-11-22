@@ -14,8 +14,6 @@ import x10.util.Stack;
  * @author tardieu
  */
 value Pool {
-	// at statements in this class are guaranteed to be local to the node
-
 	/**
 	 * Pool lock
 	 */
@@ -44,7 +42,7 @@ value Pool {
 	 * Submit a new activity to the pool
 	 */
 	def execute(activity:Activity):Void {
-		at (activities.location) { 
+		NativeRuntime.runAtLocal(activities.location.id, ()=>{ 
 			monitor.lock();
 			activities.push(activity);
 			
@@ -52,7 +50,7 @@ value Pool {
 			monitor.unpark();
 	
 			monitor.unlock();
-		}
+		});
 	}
 		
 	/**
@@ -66,22 +64,22 @@ value Pool {
 	 * Increment number of blocked activities
 	 */
 	def increase():Void {
-		at (activities.location) {
+		NativeRuntime.runAtLocal(activities.location.id, ()=>{
 			monitor.lock();
 			if (++counters(1) >= counters(0)) allocate(counters(0)++);
 			monitor.unlock();
-		}
+		});
     }
 
 	/**
 	 * Decrement number of blocked activities
 	 */
 	def decrease():Void {
-		at (activities.location) {
+		NativeRuntime.runAtLocal(activities.location.id, ()=>{
 			monitor.lock();
 			--counters(1);
 			monitor.unlock();
-		}
+		});
     }
 
 	/**
@@ -106,7 +104,7 @@ value Pool {
 			thread.activity(activity);
 			
 			// run activity
-			at (activity.location) activity.run();
+			NativeRuntime.runAtLocal(activity.location.id, ()=>activity.run());
 		}
 	}
 }

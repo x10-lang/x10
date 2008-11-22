@@ -36,11 +36,18 @@ public value NativeRuntime {
     
   /**
    * Run body at place(id).
-   * Wait for body to terminate.
-   * Must use current thread if in the same node!!!
+   * May be implemented synchronously or asynchronously.
+   * Body cannot spawn activities, use clocks, or raise exceptions.
    */
   @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
   public static def runAt(id:Int, body:()=>Void):Void { body(); }
+
+  /**
+   * Java: run body synchronously at place(id) in the same node as the current place.
+   * C++: run body. (no need for a native implementation)
+   */
+  @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
+  public static def runAtLocal(id:Int, body:()=>Void):Void { body(); }
 
   /**
    * Return true if place(id) is in the current node.
