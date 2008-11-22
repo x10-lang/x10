@@ -16,7 +16,9 @@ value LocalTable {
     }
     
     public def update(ran:long) {
-        a(ran&mask to int) ^= ran;
+        //a(ran&mask to int) ^= ran;
+        val index = ran&mask to int;
+        a(index) = a(index) ^ ran;
     }
 }
 
