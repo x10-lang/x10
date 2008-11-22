@@ -3,16 +3,16 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10/lang/Value.h>
+#include <x10/lang/Object.h>
 
 namespace x10 {
     namespace lang {
-        template<class P1, class P2, class R> class Fun_0_2 : public Value {
+        template<class P1, class P2, class R> class Fun_0_2 : public virtual Object {
             public:
             class RTT : public x10aux::RuntimeType {
                 public:
                 static RTT * const it;
-                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
+                virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
                 virtual std::string name() const {
                     std::stringstream ss;
                     ss<<"x10.lang.Fun_0_2["<<x10aux::getRTT<P1>()->name()<<","
