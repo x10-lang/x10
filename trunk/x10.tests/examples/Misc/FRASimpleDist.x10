@@ -16,12 +16,13 @@ value LocalTable {
     }
     
     public def update(ran:long) {
+        //System.out.println("here " + here + " a " + a.location);
         a(ran&mask to int) ^= ran;
     }
 }
 
 
-class FRASimple {
+class FRASimpleDist {
 
     @Native("java", "System.out.println(#1)")
     @Native("c++", "printf(\"%s\\n\", (#1).c_str()); fflush(stdout)")
@@ -65,14 +66,19 @@ class FRASimple {
     static def randomAccessUpdate(
         NUM_UPDATES: long,
         logLocalTableSize: long,
-        tables: Rail[LocalTable]
+        tables: ValRail[LocalTable]
     ) {
-        for (var p:int=0; p<Place.MAX_PLACES; p++) {
-            var ran:long = HPCC_starts(p*(NUM_UPDATES/NUM_PLACES));
-            for (var i:long=0; i<NUM_UPDATES/NUM_PLACES; i++) {
-                val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
-                tables(placeId).update(ran);
-                ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
+        finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
+            val valp = p;
+            async (Place.places(p)) {
+                var ran:long = HPCC_starts(valp*(NUM_UPDATES/NUM_PLACES));
+                for (var i:long=0; i<NUM_UPDATES/NUM_PLACES; i++) {
+                    val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
+                    val valran = ran;
+                    async (Place.places(placeId))
+                        tables(placeId).update(valran);
+                    ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
+                }
             }
         }
     }
@@ -93,10 +99,11 @@ class FRASimple {
         val NUM_UPDATES = 4*tableSize;
 
         // create local tables
-        val tables = Rail.makeVar[LocalTable](Place.MAX_PLACES);
-        for (var i:int=0; i<Place.MAX_PLACES; i++)
-            tables(i) = new LocalTable(localTableSize);
-        //println("tables dist " + tables.dist);
+        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, (i:nat)=> {
+            val p = Place.places(i);
+            val f = future(p) new LocalTable(localTableSize);
+            return f.force();
+        });
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
@@ -116,11 +123,13 @@ class FRASimple {
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
         for (var i:int=0; i<Place.MAX_PLACES; i++) {
-            val l = tables(i);
-            var err:int = 0;
-            for (var j:int=0; j<l.a.length; j++)
-                if (l.a(j) != j) err++;
-            println("Found " + err + " errors.");
+            val table = tables(i);
+            async (Place.places(i)) {
+                var err:int = 0;
+                for (var j:int=0; j<table.a.length; j++)
+                    if (table.a(j) != j) err++;
+                println("Found " + err + " errors.");
+            }
         }
     }
 
