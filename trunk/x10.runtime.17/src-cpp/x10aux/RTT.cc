@@ -1,5 +1,6 @@
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
+#include <x10aux/alloc.h>
 
 #include <x10/lang/Object.h>
 
@@ -13,6 +14,24 @@ bool x10aux::RuntimeType::instanceOf (ref<Object> other) const {
 bool x10aux::RuntimeType::concreteInstanceOf (ref<Object> other) const {
     return other->_type()->equals(this);
 }
+
+void x10aux::RuntimeType::initParents(int parentsc_, ...) {
+    parentsc = parentsc_;
+    parents = x10aux::alloc<const RuntimeType*>
+              (parentsc * sizeof(const RuntimeType*));
+    _RTT_("Initialising RTT: "<<name());
+    va_list parentsv;
+    va_start(parentsv, parentsc_);
+    for (int i=0 ; i<parentsc ; ++i)
+        parents[i] = va_arg(parentsv,const RuntimeType*);
+    va_end(parentsv);
+}
+
+x10aux::RuntimeType::~RuntimeType() {
+    _RTT_("Deconstructing RTT: 0x"<<std::hex<<this<<std::dec);
+    dealloc(parents);
+}
+
 
 void x10aux::primitive_init(x10aux::RuntimeType* t) {
     t->initParents(1, getRTT<x10::lang::Object>());

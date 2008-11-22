@@ -45,6 +45,14 @@ namespace x10 {
             String(x10_float v);
             String(x10_double v);
 
+            operator x10aux::ref<Object> () {
+                return x10aux::ref<Object>(this);
+            }
+
+            operator x10aux::ref<Value> () {
+                return x10aux::ref<String>(this);
+            }
+
             operator x10aux::ref<String> () {
                 return new (x10aux::alloc<String>()) String(static_cast<std::string&>(*this));
             }

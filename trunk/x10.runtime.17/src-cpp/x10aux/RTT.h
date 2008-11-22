@@ -25,7 +25,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
-#include <x10aux/alloc.h>
 
 namespace x10 {
     namespace lang {
@@ -42,27 +41,17 @@ namespace x10aux {
         int parentsc;
         const RuntimeType ** parents;
 
-        RuntimeType() : parentsc(-1), parents(0) { }
+        RuntimeType() : parentsc(-1), parents(0) {
+            _RTT_("Creating uninitialised RTT: 0x"<<std::hex<<this<<std::dec);
+        }
 
         bool initialized() { return parentsc>=0; }
 
         virtual void init() = 0;
 
-        void initParents(int parentsc_, ...) {
-            parentsc = parentsc_;
-            parents = x10aux::alloc<const RuntimeType*>
-                      (parentsc * sizeof(const RuntimeType*));
-            _RTT_("Initialising RTT: "<<name());
-            va_list parentsv;
-            va_start(parentsv, parentsc_);
-            for (int i=0 ; i<parentsc ; ++i)
-                parents[i] = va_arg(parentsv,const RuntimeType*);
-            va_end(parentsv);
-        }
+        void initParents(int parentsc_, ...);
 
-        virtual ~RuntimeType() {
-            x10aux::dealloc(parents);
-        }
+        virtual ~RuntimeType();
 
         virtual std::string name () const = 0;
 
