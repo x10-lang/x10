@@ -38,21 +38,21 @@ public abstract value Reader {
     public def readDouble(): Double throws IOException = Marshal.DOUBLE.read(this);
     public def readLine(): String throws IOException = Marshal.LINE.read(this);
 
-    public def read[T](m: Marshal[T]): T throws IOException = m.read(this);
+    public final def read[T](m: Marshal[T]): T throws IOException = m.read(this);
 
-    public def read[T](m: Marshal[T], a: Rail[T]): Void  throws IOException = read[T](m, a, 0, a.length);
-    public def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): Void throws IOException = read[T](m, a, off..off+len-1);
-    public def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.length-1)*/}): Void throws IOException {
+    public final def read[T](m: Marshal[T], a: Rail[T]): Void  throws IOException = read[T](m, a, 0, a.length);
+    public final def read[T](m: Marshal[T], a: Rail[T], off: Int, len: Int): Void throws IOException = read[T](m, a, off..off+len-1);
+    public final def read[T](m: Marshal[T], a: Rail[T], region: Region{rank==1 /*,self in (0..a.length-1)*/}): Void throws IOException {
         for ((i) in region) {
             a(i) = read[T](m);
         }
     }
     
-    public def read[T](m: Marshal[T], a: Array[T]): Void throws IOException {
+    public final def read[T](m: Marshal[T], a: Array[T]): Void throws IOException {
         read[T](m, a, a.region);
     }
 
-    public def read[T](m: Marshal[T], a: Array[T], region: Region{rank==a.rank}/*{self in a.region}*/): Void throws IOException {
+    public final def read[T](m: Marshal[T], a: Array[T], region: Region{rank==a.rank}/*{self in a.region}*/): Void throws IOException {
         try {
             finish for (p: Point{rank==a.rank} in region) {
                 async (a.dist(p)) {
