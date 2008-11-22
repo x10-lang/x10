@@ -1,17 +1,18 @@
 #KIND=x10-dbg-java
 
-#KIND=x10-opt-java
-KIND=java
+KIND=x10-opt-java
+#KIND=java
 #KIND=summary
 
 #BENCHMARK=SeqRail1
 #BENCHMARK=SeqMethodCall1
-BENCHMARK=SeqPseudoArray1
+#BENCHMARK=SeqPseudoArray1
 #BENCHMARK=SeqMatMultAdd1
 #BENCHMARK=SeqMatMultAdd1a
 #BENCHMARK=SeqMatMultAdd1b
 #BENCHMARK=SeqUTSBin1
 #BENCHMARK=ParUTSBin1
+BENCHMARK=SeqUTSGeo1
 
 #ALL=$(wildcard Par*.x10 Seq*.x10)
 ALL=$(wildcard Seq*.x10)
@@ -57,7 +58,8 @@ LIB := $(filter-out $(EXCEPT),$(LIB))
 LIB := \
 $(LIB:%=$(SRC)/%)\
 $(TEST)/harness/x10Test.x10\
-Benchmark.x10
+Benchmark.x10\
+UTSRand.x10
 
 .SECONDARY:
 

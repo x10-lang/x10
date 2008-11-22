@@ -7,13 +7,23 @@
  */
 package harness;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 import x10.util.Random;
+
 
 /**
  * Test harness abstract class.
- * FIXME: remove the ugly hack of relying on Java Threads
  */
+
 abstract public class x10Test {
+
+    // TEMP
+    @Native("java", "System.out.println(#1)")
+    @Native("c++", "printf(\"%s\\n\", (#1).c_str()); fflush(stdout)")
+    public static native def println(x:String):void;
+
 
     /**
      * The body of the test.
@@ -43,11 +53,11 @@ abstract public class x10Test {
 
     public const PREFIX: String = "++++++ ";
     public static def success(): void = {
-        System.out.println(PREFIX+"Test succeeded.");
+        /*System.out.*/println(PREFIX+"Test succeeded.");
         x10.lang.Runtime.setExitCode(0);
     }
     public static def failure(): void = {
-        System.out.println(PREFIX+"Test failed.");
+        /*System.out.*/println(PREFIX+"Test failed.");
         x10.lang.Runtime.setExitCode(1);
     }
     protected static def reportResult(b: boolean): void = {

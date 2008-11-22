@@ -50,44 +50,19 @@ class SeqUTSBin1 extends Benchmark {
     //
     // the benchmark
     //
-    // For now use util.Random instead of SHA. To substitute SHA
-    // redefine descriptor, next(), and number().
-    //
-    // Instead of actually using util.Random, we replicate its
-    // function here to avoid allocating a Random object.
-    //
-
-    static type descriptor = long;
-
-    def next(r:descriptor, i:nat) {
-        var seed: long = r+i;
-        seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
-        for (var k:int=0; k<11; k++)
-            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l0 = (seed >>> (48 - 32)) to int;
-        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l1 = (seed >>> (48 - 32)) to int;
-        return ((l0 to long) << 32) + l1;
-    }
-
-    const scale = (long.MAX_VALUE to double) - (long.MIN_VALUE to double);
-    def number(r:descriptor) = (r / scale) - (long.MIN_VALUE / scale);
-
-
-    //
     // node visitor
     //
 
     var size:int = 0;
     var sumb:int = 0;
 
-    def visit(r:long) {
-        val b = number(r)<q? m : 0; // binomial distribution
-        //System.out.println(" " + number(r));
+    def visit(r:UTSRand.descriptor) {
+        val x = UTSRand.number(r);
+        val b = x<q? m : 0; // binomial distribution
         sumb += b;
         size++;
         for (var i:int=0; i<b; i++)
-            visit(next(r,i));
+            visit(UTSRand.next(r,i));
     }
     
     //
@@ -102,7 +77,7 @@ class SeqUTSBin1 extends Benchmark {
         size = 0;
         sumb = 0;
         for (var i:int=0; i<b0; i++)
-            visit(next(r0,i));
+            visit(UTSRand.next(r0,i));
 
         // sanity check on size and branching factor
         if (first) {
