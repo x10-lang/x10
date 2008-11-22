@@ -27,14 +27,14 @@ namespace x10 {
 
             virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<String>(); }
 
-            String() : Value(), std::string("") { }
+            String() : std::string("") { }
 
-            String(const std::string& content) : Value(), std::string(content) { }
+            String(const std::string& content) : std::string(content) { }
 
-            String(const char* s) : Value(), std::string(s) { }
+            String(const char *s) : std::string(s) { }
 
             explicit String(const x10aux::ref<String>& s)
-              : Value(), std::string(static_cast<std::string&>(*s)) { }
+              : std::string(static_cast<std::string&>(*s)) { }
 
             String(x10_boolean v);
             String(x10_byte v);
@@ -46,21 +46,19 @@ namespace x10 {
             String(x10_double v);
 
             operator x10aux::ref<String> () {
-                return new (x10aux::alloc<String>()) String(this);
+                return new (x10aux::alloc<String>()) String(static_cast<std::string&>(*this));
             }
 
             x10aux::ref<String> toString();
 
             x10_int hashCode();
 
-            x10_boolean equals(const x10aux::ref<Object> &s);
+            x10_boolean equals(x10aux::ref<Object> s);
 
             x10_int length() { return (x10_int) std::string::length(); }
-            String operator+(const String& s);
-            String operator+(x10aux::ref<String> s);
-            x10_int indexOf(const x10aux::ref<String>& s, x10_int i = 0);
+            x10_int indexOf(x10aux::ref<String> s, x10_int i = 0);
             x10_int indexOf(x10_char c, x10_int i = 0);
-            x10_int lastIndexOf(const x10aux::ref<String>& s, x10_int i = 0);
+            x10_int lastIndexOf(x10aux::ref<String> s, x10_int i = 0);
             x10_int lastIndexOf(x10_char c, x10_int i = 0);
             String substring(x10_int start, x10_int end);
 
@@ -79,6 +77,11 @@ namespace x10 {
     } // namespace x10::lang
 
 } // namespace x10
+
+x10::lang::String operator+(const x10::lang::String &s1, const x10::lang::String& s2);
+x10::lang::String operator+(const x10::lang::String &s1, x10aux::ref<x10::lang::String> s2);
+x10::lang::String operator+(x10aux::ref<x10::lang::String> s1, const x10::lang::String& s2);
+x10::lang::String operator+(x10aux::ref<x10::lang::String> s1, x10aux::ref<x10::lang::String> s2);
 
 std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s);
 

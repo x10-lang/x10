@@ -4,6 +4,7 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
+#include <x10aux/closure.h>
 
 #include <x10/x10.h>
 
@@ -339,6 +340,15 @@ namespace x10aux {
         _S_("Id = " << id);
         return _deserialize_subclass<S>(id, buf);
     }
+
+    extern "C" x10aux::AnyClosure *__x10_callback_closureswitch(int id, serialization_buffer& s);
+    template<> struct _reference_deserializer<x10aux::AnyClosure> { 
+        static x10aux::ref<x10aux::AnyClosure> _(serialization_buffer& s) {
+            int id = s.read<int>();
+            return __x10_callback_closureswitch(id,s);
+        }
+    };
+
 }
 
 #endif

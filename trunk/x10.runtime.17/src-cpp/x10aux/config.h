@@ -7,8 +7,6 @@
  *   NO_BOUNDS_CHECKS  - remove all bounds-checking code
  *   NO_IOSTREAM       - remove all iostream-related code
  *
- *   USE_LONG_ARRAYS   - use 'long' as the type of array indices
- *
  * The following debugging macros are supported:
  *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_CONSTR      - trace object construction
@@ -16,14 +14,13 @@
  *   TRACE_RTT         - trace runtimetype instantiation
  *   TRACE_CAST        - trace casts
  *   TRACE_SER         - trace serialization operations
- *   TRACE_X10LIB      - trace X10lib invocations
+ *   TRACE_PGAS      - trace X10lib invocations
  *   DEBUG             - general debug trace printouts
  *
  *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
  *   REF_COUNTING      - experimental option: enable reference counting
  */
 
-#define TRACE_RTT
 
 
 #ifndef NO_IOSTREAM
@@ -39,7 +36,7 @@
 #define _M_(x)
 #endif
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_RTT)
+#if !defined(NO_IOSTREAM) && defined(TRACE_CAST)
 #define _CAST_(x) std::cerr << x10_here() << ": CAST: " << x << std::endl
 #else
 #define _CAST_(x)
@@ -71,7 +68,7 @@
 #define _Sd_(x)
 #endif
 
-#if !defined(NO_IOSTREAM) && defined(TRACE_X10LIB)
+#if !defined(NO_IOSTREAM) && defined(TRACE_PGAS)
 #define _X_(x) std::cerr << x10_here() << ": XX: " << x << std::endl
 #else
 #define _X_(x)

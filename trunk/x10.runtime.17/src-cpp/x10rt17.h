@@ -55,6 +55,8 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/RuntimeException.h>
 #include <x10/lang/String.h>
+#include <x10/lang/VoidFun_0_0.h>
+#include <x10/lang/VoidFun_0_1.h>
 #include <x10/lang/ValRail.h>
 #include <x10/lang/Value.h>
 
