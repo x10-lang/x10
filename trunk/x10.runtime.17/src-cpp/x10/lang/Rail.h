@@ -17,6 +17,8 @@ namespace x10 {
 
     namespace lang {
 
+        template<class P1, class R> class Fun_0_1;
+
         template<class T> class Rail : public Ref, public x10aux::AnyRail<T> {
 
             public:
@@ -112,9 +114,8 @@ namespace x10 {
             }   
 
 
-            static x10aux::ref<Rail<T> > makeVarRail(x10_int length) {
-                x10aux::ref<Rail<T> > rail =    
-                        x10aux::alloc_rail<T,Rail<T> >(length);
+            static x10aux::ref<Rail<T> > make(x10_int length) {
+                x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
                 for (x10_int i=0 ; i<length ; ++i) {
                         // Initialise to zero, which should work for
                         // numeric types and x10aux:;ref<T> which I think
@@ -124,25 +125,22 @@ namespace x10 {
                 return rail;
             }
 
-            /* TODO: this needs function types, etc
-            static x10aux::ref<Rail<T> > makeVarRail(x10_int length,
-                                          fun_0_1<x10_int,T> init ) {
-                x10aux::ref<Rail<T> > rail =    
-                        x10aux::alloc_rail<T,Rail<T> >(length);
+            static x10aux::ref<Rail<T> > make(x10_int length,
+                                              x10aux::ref<Fun_0_1<x10_int,T> > init ) {
+                x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
                 for (x10_int i=0 ; i<length ; ++i) {
                         (*rail)[i] = init->apply(i);
                 }
+                return rail;
             }
-            */
 
-            static x10aux::ref<Rail<T> > makeVarRailFromValRail(
-                                    x10aux::ref<ValRail<T> > other) {
+            static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other) {
                 x10_int length = other->FMGL(length);
-                x10aux::ref<Rail<T> > rail =    
-                        x10aux::alloc_rail<T,Rail<T> >(length);
+                x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
                 for (x10_int i=0 ; i<length ; ++i) {
                         (*rail)[i] = (*other)[i];
                 }
+                return rail;
             }
 
         };
