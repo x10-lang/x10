@@ -10,13 +10,10 @@ value LocalTable {
     
     def this(size:int) {
         mask = size-1;
-        a = Rail.makeVar[long](size);
-        for (var i:int=0; i<size; i++)
-            a(i) = i to long;
+        a = Rail.makeVar[long](size, (i:nat)=>i to long);
     }
     
     public def update(ran:long) {
-        //System.out.println("here " + here + " a " + a.location);
         a(ran&mask to int) ^= ran;
     }
 }
