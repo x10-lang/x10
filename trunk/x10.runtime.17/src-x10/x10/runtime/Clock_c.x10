@@ -38,7 +38,10 @@ public value Clock_c extends Clock {
     	next_c();
     }    
 
-    public def phase():Int = Math.abs(phase_c());
+    public def phase():Int {
+       	if (dropped()) throw new ClockUseException();
+    	return Math.abs(ph_c());
+   	}
     
     public def drop():Void {
     	if (dropped()) throw new ClockUseException();
@@ -50,13 +53,6 @@ public value Clock_c extends Clock {
 		return hashCode;
 	}
 	
-	// clocksPhases = phases of the activity being spawned
-	// Runtime.clockPhases() = phases of the parent activity
-    def register_c(clockPhases:ClockPhases, ph:Int):Void {
-    	finish async (state.location) state.register(ph);
-    	clockPhases.put(this, ph);
-    }
-
     def resume_c():Void {
 		val ph = ph_c();
 		if (ph < 0) return;
@@ -70,9 +66,11 @@ public value Clock_c extends Clock {
     	Runtime.clockPhases().put(this, Math.abs(ph) + 1);
     }    
 
-    def phase_c():Int { 
+    def register_c():Int {
     	if (dropped()) throw new ClockUseException();
-    	return ph_c();
+    	val ph = ph_c();
+    	finish async (state.location) state.register(ph);
+    	return ph;
     }    
 
     def drop_c():Void {
