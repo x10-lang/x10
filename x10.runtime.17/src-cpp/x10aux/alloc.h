@@ -1,12 +1,8 @@
-#include <cstdlib>
-
-namespace x10aux {
-    template<class T> T* alloc(size_t size = sizeof(T));
-    template<class T> void dealloc(T* obj);
-}
-
 #ifndef X10AUX_ALLOC_H
 #define X10AUX_ALLOC_H
+
+#include <cstdlib>
+#include <cstring>
 
 #include <x10/x10.h> // pgas
 
@@ -22,6 +18,15 @@ namespace x10aux {
             _M_("Out of memory allocating " << size << " bytes");
         }
         return ret;
+    }
+
+    // there should probably be an optimise x10_realloc function but never mind
+    template<class T> T* realloc(T* src, size_t ssz = sizeof(T), size_t dsz = sizeof(T)) {
+        T *dest = alloc<T>(dsz);
+        if (dest!=NULL && src!=NULL)
+            memcpy(dest, src, ssz<dsz ? ssz : dsz);
+        dealloc(src);
+        return dest;
     }
 
     template<class T> void dealloc(T* obj) {

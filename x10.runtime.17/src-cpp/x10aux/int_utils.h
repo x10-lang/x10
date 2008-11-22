@@ -18,8 +18,8 @@ namespace x10aux {
         static const ref<x10::lang::String> toOctalString(x10_int value);
         static const ref<x10::lang::String> toBinaryString(x10_int value);
         static const ref<x10::lang::String> toString(x10_int value);
-        static x10_int parseInt(const ref<x10::lang::String>& s, x10_int radix);
-        static x10_int parseInt(const ref<x10::lang::String>& s);
+        static x10_int parseInt(ref<x10::lang::String> s, x10_int radix);
+        static x10_int parseInt(ref<x10::lang::String> s);
         static x10_int highestOneBit(x10_int value);
         static x10_int lowestOneBit(x10_int value);
         static x10_int numberOfLeadingZeros(x10_int value);

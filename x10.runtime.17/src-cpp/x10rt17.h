@@ -17,6 +17,7 @@
 #include <x10aux/finish.h>
 #include <x10aux/closure.h>
 #include <x10aux/assert.h>
+#include <x10aux/init_dispatcher.h>
 
 #include <x10aux/boolean_utils.h>
 #include <x10aux/byte_utils.h>

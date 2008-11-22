@@ -4,7 +4,7 @@ CXX?=g++
 AR?=ar
 
 X10LIB?=../../pgas/common/work
-CXXFLAGS=-ansi -pedantic -Wall -Wextra -Wno-long-long
+CXXFLAGS+=-ansi -pedantic -Wall -Wextra -Wno-long-long
 INCLUDE_DIRS+=-I$(X10LIB)/include -I.
 CXXFLAGS+=$(INCLUDE_DIRS)
 ifneq ($(wildcard /usr/include/lapi.h),) # AIX
@@ -32,6 +32,7 @@ ALL_OBJECTS = \
 	x10aux/exit_code.o \
 	x10aux/finish.o \
 	x10aux/int_utils.o \
+	x10aux/init_dispatcher.o \
 	x10aux/io/FILEPtrInputStream.o \
 	x10aux/io/FILEPtrOutputStream.o \
 	x10aux/io/FILEPtrStream.o \
