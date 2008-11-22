@@ -51,44 +51,20 @@ class ParUTSBin1 extends Benchmark {
     //
     // the benchmark
     //
-    // For now use util.Random instead of SHA. To substitute SHA
-    // redefine descriptor, next(), and number().
-    //
-    // Instead of actually using util.Random, we replicate its
-    // function here to avoid allocating a Random object.
-    //
-
-    static type descriptor = long;
-
-    def next(r:descriptor, i:nat) {
-        var seed: long = r+i;
-        seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
-        for (var k:int=0; k<11; k++)
-            seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l0 = (seed >>> (48 - 32)) to int;
-        seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l1 = (seed >>> (48 - 32)) to int;
-        return ((l0 to long) << 32) + l1;
-    }
-
-    const scale = (long.MAX_VALUE to double) - (long.MIN_VALUE to double);
-    def number(r:descriptor) = (r / scale) - (long.MIN_VALUE / scale);
-
-
-    //
     // node visitor
     //
 
     val asize = new AtomicInteger(0);
     val asumb = new AtomicInteger(0);
 
-    def visit(r:long) {
-        val b = number(r)<q? m : 0; // binomial distribution
+    def visit(r:UTSRand.descriptor) {
+        val x = UTSRand(r);
+        val b = x<q? m : 0; // binomial distribution
         asumb.addAndGet(b);
         asize.incrementAndGet();
         for (var i:int=0; i<b; i++) {
             val ii = i;
-            async visit(next(r,ii));
+            async visit(UTSRand.next(r,ii));
         }
     }
     
@@ -104,7 +80,7 @@ class ParUTSBin1 extends Benchmark {
         asize.set(0);
         asumb.set(0);
         finish for (var i:int=0; i<b0; i++)
-            visit(next(r0,i));
+            visit(UTSRand.next(r0,i));
 
         val size = asize.intValue();
         val sumb = asumb.intValue();
