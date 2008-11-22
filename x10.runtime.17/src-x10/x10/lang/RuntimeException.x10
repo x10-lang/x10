@@ -12,6 +12,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "java.lang.RuntimeException", null, null)
+@NativeRep("c++", "x10aux::ref<x10::lang::RuntimeException>", "x10::lang::RuntimeException", null)
 public value RuntimeException extends Exception {
     public def this() { super(); } 
     public def this(message: String) { super(message); }
