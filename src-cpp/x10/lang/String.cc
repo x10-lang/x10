@@ -26,7 +26,7 @@ ref<String> String::toString() {
     return this;
 }
 
-x10_boolean String::equals(const ref<Object>& other) {
+x10_boolean String::equals(ref<Object> other) {
     if (!CONCRETE_INSTANCEOF(other,String)) return false;
     // now we can downcast the Object to String
     ref<String> other_str = other;
@@ -36,17 +36,25 @@ x10_boolean String::equals(const ref<Object>& other) {
     
 
 
-String String::operator+(const String& s) {
-    return String(static_cast<const std::string&>(*this)
-         + static_cast<const std::string&>(s));
+String operator+(const String &s1, const String& s2) {
+    return static_cast<const std::string&>(s1)
+         + static_cast<const std::string&>(s2);
+}
+String operator+(const String &s1, ref<String> s2) {
+    return static_cast<const std::string&>(s1)
+         + static_cast<const std::string&>(*s2);
+}
+String operator+(ref<String> s1, const String& s2) {
+    return static_cast<const std::string&>(*s1)
+         + static_cast<const std::string&>(s2);
+}
+String operator+(ref<String> s1, ref<String> s2) {
+    return static_cast<const std::string&>(*s1)
+         + static_cast<const std::string&>(*s2);
 }
 
-String String::operator+(ref<String> s) {
-    return String(static_cast<const std::string&>(*this)
-         + static_cast<const std::string&>(*s));
-}
 
-x10_int String::indexOf(const ref<String>& str, x10_int i) {
+x10_int String::indexOf(ref<String> str, x10_int i) {
     size_type res = find(*static_cast<ref<std::string> >(str), (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
@@ -60,8 +68,8 @@ x10_int String::indexOf(x10_char c, x10_int i) {
     return (x10_int) res;
 }
 
-x10_int String::lastIndexOf(const ref<String>& str, x10_int i) {
-    size_type res = rfind(static_cast<const std::string&>(*str), (size_type)i);
+x10_int String::lastIndexOf(ref<String> str, x10_int i) {
+    size_type res = rfind(static_cast<std::string&>(*str), (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
     return (x10_int) res;
@@ -75,7 +83,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 }
 
 String String::substring(x10_int start, x10_int end) {
-    return String(static_cast<const std::string&>(*this).substr(start, end-start));
+    return String(static_cast<std::string&>(*this).substr(start, end-start));
 }
 
 x10_char String::charAt(x10_int i) {
@@ -104,7 +112,7 @@ std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s)
     if (s.isNull()) {
         o << "null";
     } else {
-        o <<*s;
+        o << *s;
     }
 
     return o;
