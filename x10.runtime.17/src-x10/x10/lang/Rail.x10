@@ -45,15 +45,15 @@ public abstract class Rail[T](length: nat)
     public native static def $convert[U](r: ValRail[U]): Rail[U]{self.length==r.length};
 
     @Native("java", "#0.get(#1)")
-    @Native("c++", "(#0)[#1]")
+    @Native("c++", "(*#0)[#1]")
     public native def get(i: nat): T;
 
     @Native("java", "#0.apply(#1)")
-    @Native("c++", "(#0)->operator[](#1)")
+    @Native("c++", "(*#0)[#1]")
     public native def apply(i: nat): T;
 
     @Native("java", "#0.set(#1, #2)")
-    @Native("c++", "(#0)->operator[](#2) = #1")
+    @Native("c++", "(*#0)[#2] = #1")
     public native def set(v: T, i: nat): T;
     
     @Native("java", "#0.iterator()")
