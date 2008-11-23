@@ -35,7 +35,7 @@ class FRASimple {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
-    const NUM_PLACES = Place.MAX_PLACES;
+    const NUM_PLACES = 4; //Place.MAX_PLACES;
     const PLACE_ID_MASK = NUM_PLACES-1;
 
     // Utility routine to start random number generator at Nth step
@@ -82,14 +82,16 @@ class FRASimple {
 
     public static def main(args:Rail[String]) {
 
+        val NUM_PLACES = 4; // hack until static init order is resolved
+
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;
         }
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = /*args.length > 1 && args(0).equals("-m")?
-            int.parseInt(args(1)) :*/ 10;
+        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?
+            int.parseInt(args(1)) : 10;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*NUM_PLACES;
         val NUM_UPDATES = 4*tableSize;
