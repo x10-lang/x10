@@ -35,7 +35,7 @@ class FRASimple {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
-    const NUM_PLACES = 4; //Place.MAX_PLACES;
+    const NUM_PLACES = 4; // Place.MAX_PLACES; TEMP hack to avoid static init issue
     const PLACE_ID_MASK = NUM_PLACES-1;
 
     // Utility routine to start random number generator at Nth step
@@ -69,7 +69,7 @@ class FRASimple {
         logLocalTableSize: long,
         tables: Rail[LocalTable]
     ) {
-        for (var p:int=0; p<Place.MAX_PLACES; p++) {
+        for (var p:int=0; p<NUM_PLACES; p++) {
             var ran:long = HPCC_starts(p*(NUM_UPDATES/NUM_PLACES));
             for (var i:long=0; i<NUM_UPDATES/NUM_PLACES; i++) {
                 val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
@@ -81,8 +81,6 @@ class FRASimple {
 
 
     public static def main(args:Rail[String]) {
-
-        val NUM_PLACES = 4; // hack until static init order is resolved
 
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
@@ -97,8 +95,8 @@ class FRASimple {
         val NUM_UPDATES = 4*tableSize;
 
         // create local tables
-        val tables = Rail.makeVar[LocalTable](Place.MAX_PLACES);
-        for (var i:int=0; i<Place.MAX_PLACES; i++)
+        val tables = Rail.makeVar[LocalTable](NUM_PLACES);
+        for (var i:int=0; i<NUM_PLACES; i++)
             tables(i) = new LocalTable(localTableSize);
         //println("tables dist " + tables.dist);
 
@@ -119,7 +117,7 @@ class FRASimple {
 
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
-        for (var i:int=0; i<Place.MAX_PLACES; i++) {
+        for (var i:int=0; i<NUM_PLACES; i++) {
             val l = tables(i);
             var err:int = 0;
             for (var j:int=0; j<l.a.length; j++)
