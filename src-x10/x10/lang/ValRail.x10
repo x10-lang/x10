@@ -32,7 +32,7 @@ public value class ValRail[+T](length: nat)
     public native def get(i: nat): T;
 
     @Native("java", "#0.apply(#1)")
-    @Native("c++", "(#0)->operator[](#1)")
+    @Native("c++", "(*#0)[#1]")
     public native def apply(i: nat): T;
     
     @Native("java", "#0.iterator()")
