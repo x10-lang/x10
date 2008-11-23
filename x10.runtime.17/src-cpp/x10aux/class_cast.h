@@ -74,6 +74,14 @@ namespace x10aux {
     SPECIALISE_CAST(x10_float)
     SPECIALISE_CAST(x10_double)
 
+    // from NULL
+    template<class T> struct ClassCast<ref<T>,int> {
+        static ref<T> class_cast (int ptr) {
+            assert (ptr == (int)NULL);
+            _CAST_("from null to : "<<getRTT<T>()->name());
+            return ref<T>();
+        }
+    };
     
     template<typename T, typename F> T class_cast (F obj) {
         return ClassCast<T,F>::class_cast(obj);
