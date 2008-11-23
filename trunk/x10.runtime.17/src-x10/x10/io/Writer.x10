@@ -41,8 +41,14 @@ public abstract value Writer {
         write(buf, 0, buf.length);
     }
 
-    public def write(buf: (Int) => Byte, off: Int, len: Int): Void throws IOException {
-        for ((i) in off..off+len-1) {
+    public def write(buf: ValRail[Byte], off: Int, len: Int): Void throws IOException {
+        for (var i: Int = off; i < off+len; i++) {
+            write(buf(i));
+        }
+    }
+
+    public def write(buf: Rail[Byte], off: Int, len: Int): Void throws IOException {
+        for (var i: Int = off; i < off+len; i++) {
             write(buf(i));
         }
     }
