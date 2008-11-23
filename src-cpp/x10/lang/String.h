@@ -7,6 +7,7 @@
 
 #include <x10/lang/Value.h>
 #include <x10aux/string_utils.h>
+#include <x10aux/RTT.h>
 
 namespace x10 {
 
@@ -14,7 +15,7 @@ namespace x10 {
 
         template<class T> class Rail;
 
-        class String : public Value, public std::string { // value?
+        class String : public Value, public std::string {
 
             public:
 
@@ -44,10 +45,6 @@ namespace x10 {
             String(x10_long v);
             String(x10_float v);
             String(x10_double v);
-
-            operator x10aux::ref<Object> () {
-                return x10aux::ref<Object>(this);
-            }
 
             operator x10aux::ref<Value> () {
                 return x10aux::ref<String>(this);
@@ -91,6 +88,27 @@ namespace x10 {
                                               x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
 
         };
+
+        template<typename T> String operator+(T v, const String& s);
+        template<typename T> String operator+(x10aux::ref<T> v, const String& s);
+        template<typename T> String operator+(x10aux::ref<String> v, T v);
+        template<> String operator+(x10aux::ref<String> v, String s);
+
+        template<typename T> String operator+(T v, const String& s) {
+            return String(v) + s;
+        }
+
+        template<typename T> String operator+(x10aux::ref<T> v, const String& s) {
+            return *(v->toString()) + s;
+        }
+
+        template<typename T> String operator+(x10aux::ref<String> s, T v) {
+            return *s + v;
+        }
+
+        template<> String operator+(x10aux::ref<String> s, String v) {
+            return *s + v;
+        }
 
     } // namespace x10::lang
 
