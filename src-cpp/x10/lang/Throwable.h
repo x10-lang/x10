@@ -47,8 +47,8 @@ namespace x10 {
 
             Throwable();
             Throwable(x10aux::ref<String> message);
-            Throwable(Cause cause);
-            Throwable(x10aux::ref<String> message, Cause cause);
+            Throwable(x10aux::ref<Throwable> cause);
+            Throwable(x10aux::ref<String> message, x10aux::ref<Throwable> cause);
 
             virtual x10aux::ref<String> getMessage();
             virtual Cause getCause();

@@ -2,6 +2,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
+#include <x10aux/class_cast.h>
 
 #include <x10/lang/Throwable.h>
 #include <x10/lang/String.h>
@@ -33,14 +34,15 @@ Throwable::Throwable(ref<String> message) : Value(), FMGL(trace_size)(-1) {
 }
 
 
-Throwable::Throwable(Cause cause) : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = cause;
+Throwable::Throwable(x10aux::ref<Throwable> cause) : Value(), FMGL(trace_size)(-1) {
+    this->FMGL(cause) = x10aux::box(cause);
     this->FMGL(message) = to_string("");
 }
 
 
-Throwable::Throwable(ref<String> message, Cause cause) : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = cause;
+Throwable::Throwable(ref<String> message, x10aux::ref<Throwable> cause)
+  : Value(), FMGL(trace_size)(-1) {
+    this->FMGL(cause) = x10aux::box(cause);
     this->FMGL(message) = message;
 }
 

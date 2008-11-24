@@ -24,12 +24,11 @@ namespace x10 {
                 return x10aux::getRTT<Exception>();
             }
 
-            typedef x10aux::ref<Box<x10aux::ref<Throwable> > > Cause;
-
             Exception() : Throwable() { }
             Exception(x10aux::ref<String> message) : Throwable(message) {   }
-            Exception(x10aux::ref<String> message, Cause cause) : Throwable(message, cause) { }
-            Exception(Cause cause) : Throwable(cause) { }
+            Exception(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
+                : Throwable(message, cause) { }
+            Exception(x10aux::ref<Throwable> cause) : Throwable(cause) { }
 
             Exception(x10aux::SERIALIZATION_MARKER m) : Throwable(m) { }
 
