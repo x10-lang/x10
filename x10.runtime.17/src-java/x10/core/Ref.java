@@ -16,7 +16,7 @@ public class Ref {
     public final int location;
     
     public Ref() {
-       	location = Thread.currentThread().place();
+       	location = Thread.currentThread().location();
     }
      
     /** Note: since this is final, it's important that the method name not conflict with any methods introduced by subclasses of Ref in X10 code. */
