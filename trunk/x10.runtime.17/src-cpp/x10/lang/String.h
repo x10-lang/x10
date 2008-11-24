@@ -106,8 +106,8 @@ namespace x10 {
         template<> struct OpPlus<String,String> {
             static x10aux::ref<String> _(x10aux::ref<String> s1, x10aux::ref<String> s2) {
                 //strings can't be null!
-                //if (s1==x10aux::null) s1 = X10NEW(String)("null"); 
-                //if (s2==x10aux::null) s2 = X10NEW(String)("null"); 
+                //if (s1 == x10aux::null) s1 = X10NEW(String)("null");
+                //if (s2 == x10aux::null) s2 = X10NEW(String)("null");
                 return X10NEW(String)(*s1+*s2);
             }
         };
@@ -115,17 +115,17 @@ namespace x10 {
         template<class T> struct OpPlus<String,T> {
             static x10aux::ref<String> _(x10aux::ref<String> s, x10aux::ref<T> o) {
                 //strings can't be null!
-                //if (s==x10aux::null) s = X10NEW(String)("null"); 
-                if (o==x10aux::null) o = X10NEW(String)("null"); 
+                //if (s == x10aux::null) s = X10NEW(String)("null");
+                if (o == x10aux::null) o = X10NEW(String)("null");
                 return X10NEW(String)(*s+*o->toString());
             }
         };
         //Object+String
         template<class T> struct OpPlus<T,String> {
             static x10aux::ref<String> _(x10aux::ref<T> o, x10aux::ref<String> s) {
-                if (o==x10aux::null) o = X10NEW(String)("null"); 
+                if (o == x10aux::null) o = X10NEW(String)("null"); 
                 //strings can't be null!
-                //if (s==x10aux::null) s = X10NEW(String)("null"); 
+                //if (s == x10aux::null) s = X10NEW(String)("null"); 
                 return X10NEW(String)(*o->toString()+*s);
             }
         };
@@ -139,6 +139,7 @@ namespace x10 {
             
         // Postfixing primitives
         x10aux::ref<String> operator+(x10_boolean v, x10aux::ref<String> s);
+        x10aux::ref<String> operator+(x10_byte v, x10aux::ref<String> s);
         x10aux::ref<String> operator+(x10_char v, x10aux::ref<String> s);
         x10aux::ref<String> operator+(x10_short v, x10aux::ref<String> s);
         x10aux::ref<String> operator+(x10_int v, x10aux::ref<String> s);
@@ -148,6 +149,7 @@ namespace x10 {
 
         // Prefixing primitives
         x10aux::ref<String> operator+(x10aux::ref<String> s, x10_boolean v);
+        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_byte v);
         x10aux::ref<String> operator+(x10aux::ref<String> s, x10_char v);
         x10aux::ref<String> operator+(x10aux::ref<String> s, x10_short v);
         x10aux::ref<String> operator+(x10aux::ref<String> s, x10_int v);
@@ -159,7 +161,7 @@ namespace x10 {
         x10aux::ref<String> operator+=(x10aux::ref<String> &s1, T v) {
             return s1 = s1 + v;
         }
-            
+
 
 /*
         template<typename T> String operator+(T v, const String& s);
@@ -184,6 +186,9 @@ namespace x10 {
         }
 */
 
+        // only needed for debugging native x10rt
+        std::ostream& operator<<(std::ostream& o, const x10aux::ref<x10::lang::String>& s);
+
     } // namespace x10::lang
 
 } // namespace x10
@@ -204,9 +209,6 @@ x10aux::ref<x10::lang::String> operator+=(x10aux::ref<x10::lang::String> &s1,
                                           x10aux::ref<x10::lang::Object> s2);
 
 */
-
-// only needed for debugging native x10rt
-std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s);
 
 
 #endif

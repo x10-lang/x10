@@ -86,8 +86,8 @@ String x10aux::to_string(const char *v) {
 }
 
 String x10aux::to_string(ref<ValRail<x10_char> > v) {
-    std::string str(v->FMGL(length),'\0');
-    for (int i=0 ; i<v->FMGL(length) ; ++i)
+    std::string str(v->FMGL(length), '\0');
+    for (int i = 0; i < v->FMGL(length); ++i)
         str[i] = (*v)[i];
     return String(str);
 }
