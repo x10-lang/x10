@@ -68,6 +68,8 @@
 #include <x10/runtime/Thread.h>
 #include <x10/runtime/InterruptedException.h>
 
+#include <x10/util/GrowableRail.h>
+
 using namespace x10::lang;
 
 #endif
