@@ -36,7 +36,7 @@ public interface Marshal[T] {
             var ch: Char;
             do {
                 ch = CHAR.read(r);
-            	sb.add(ch);
+            	sb.add(ch to Box[Char]);
             } while (ch != '\n');
             return sb.result();
         }
