@@ -110,7 +110,7 @@ namespace x10 {
             };  
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return new Iterator(this);
+                return X10NEW(Iterator)(this);
             }   
 
 
@@ -143,13 +143,18 @@ namespace x10 {
                 return rail;
             }
 
+            virtual x10aux::ref<String> toString() {
+                return x10aux::AnyRail<T>::toString();
+            }
+
         };
 
         template<class T> typename Rail<T>::RTT * const Rail<T>::RTT::it =
-            new typename Rail<T>::RTT();
+            new (x10aux::alloc<typename Rail<T>::RTT>()) typename Rail<T>::RTT();
 
-        template<class T> typename Rail<T>::Iterator::RTT * const
-            Rail<T>::Iterator::RTT::it = new typename Rail<T>::Iterator::RTT();
+        template<class T> typename Rail<T>::Iterator::RTT * const Rail<T>::Iterator::RTT::it =
+            new (x10aux::alloc<typename Rail<T>::Iterator::RTT>())
+                typename Rail<T>::Iterator::RTT();
 
     }
 }

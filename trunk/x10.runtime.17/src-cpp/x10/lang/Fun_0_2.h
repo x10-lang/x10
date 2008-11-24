@@ -30,7 +30,8 @@ namespace x10 {
         };
         template<class P1, class P2, class R>
             typename Fun_0_2<P1,P2,R>::RTT * const Fun_0_2<P1,P2,R>::RTT::it =
-                new typename Fun_0_2<P1,P2,R>::RTT();
+                new (x10aux::alloc<typename Fun_0_2<P1,P2,R>::RTT>())
+                    typename Fun_0_2<P1,P2,R>::RTT();
     }
 }
 #endif

@@ -10,12 +10,11 @@
 #define SUBTYPEOF(T1,T2) \
     (x10aux::getRTT< T1 >()->subTypeOf(x10aux::getRTT< T2 >()))
 
-
 #define DEFINE_RTT(T) \
     DEFINE_SPECIAL_RTT(T::RTT)
 
 #define DEFINE_SPECIAL_RTT(T) \
-    T * const T::it = new T()
+    T * const T::it = new (x10aux::alloc<T >()) T()
 
 // [DC] can't do RTT macros for generic classes because they would have to be
 // variadic to handle the varying number of type parameters
@@ -24,7 +23,7 @@
 #include <stdarg.h>
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
+//#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
@@ -34,6 +33,8 @@ namespace x10 {
 
 namespace x10aux {
 
+    template<class T> class ref;
+
     class RuntimeType {
 
         public:
@@ -42,7 +43,7 @@ namespace x10aux {
         const RuntimeType ** parents;
 
         RuntimeType() : parentsc(-1), parents(0) {
-            _RTT_("Creating uninitialised RTT: 0x"<<std::hex<<this<<std::dec);
+            _RTT_("Creating uninitialised RTT: "<<std::hex<<this<<std::dec);
         }
 
         bool initialized() { return parentsc>=0; }
@@ -63,11 +64,11 @@ namespace x10aux {
             return false;
         }
 
-        virtual bool instanceOf (
-            x10aux::ref<x10::lang::Object> other) const;
+        // use "const ref<t> &" here to break circular dependency
+        virtual bool instanceOf (const x10aux::ref<x10::lang::Object> &other) const;
 
-        virtual bool concreteInstanceOf (
-            x10aux::ref<x10::lang::Object> other) const;
+        // use "const ref<t> &" here to break circular dependency
+        virtual bool concreteInstanceOf (const x10aux::ref<x10::lang::Object> &other) const;
 
         virtual bool equals (const RuntimeType * const other) const {
             if (other==this) return true;
@@ -78,6 +79,7 @@ namespace x10aux {
 
     template<class T> struct RTT_WRAP { static const RuntimeType *_() {
         RuntimeType *it = T::RTT::it;
+        if (it==NULL) return NULL;
         if (!it->initialized()) {
             it->init();
         }
@@ -93,6 +95,12 @@ namespace x10aux {
         return RTT_WRAP<T>::_();
     }
 
+    template<class T> std::string typeName() {
+        const RuntimeType *t = getRTT<T>();
+        if (t==NULL) return "Uninitialised RTT";
+        return t->name();
+    }
+
     void primitive_init(RuntimeType* t);
 
 #define DECLARE_PRIMITIVE_RTT(C,P) \
@@ -101,8 +109,11 @@ namespace x10aux {
         static C##Type * const it; \
         virtual void init() { primitive_init(this); } \
         virtual ~C##Type() { } \
-        virtual std::string name () const { return "x10.lang." #C; } \
+        virtual std::string name () const { return "x10.lang."#C; } \
     }; \
+    template<> struct RTT_WRAP<C##Type> { static RuntimeType *_() { \
+        return C##Type::it; \
+    } }; \
     template<> struct RTT_WRAP<x10_##P> { static RuntimeType *_() { \
         return C##Type::it; \
     } }
@@ -110,15 +121,26 @@ namespace x10aux {
     DEFINE_SPECIAL_RTT(C##Type)
 
     DECLARE_PRIMITIVE_RTT(Boolean, boolean);
-    DECLARE_PRIMITIVE_RTT(Byte,    byte);
-    DECLARE_PRIMITIVE_RTT(Char,    char);
-    DECLARE_PRIMITIVE_RTT(Short,   short);
-    DECLARE_PRIMITIVE_RTT(Int,     int);
-    DECLARE_PRIMITIVE_RTT(Long,    long);
-    DECLARE_PRIMITIVE_RTT(Float,   float);
-    DECLARE_PRIMITIVE_RTT(Double,  double);
+    DECLARE_PRIMITIVE_RTT(Byte, byte);
+    DECLARE_PRIMITIVE_RTT(Char, char);
+    DECLARE_PRIMITIVE_RTT(Short, short);
+    DECLARE_PRIMITIVE_RTT(Int, int);
+    DECLARE_PRIMITIVE_RTT(Long, long);
+    DECLARE_PRIMITIVE_RTT(Float, float);
+    DECLARE_PRIMITIVE_RTT(Double, double);
 
-#undef DECLARE_PRIMITIVE_RTT
+    #define TYPENAME(T) typeName<T>()
+    class place;
+    template<> inline std::string typeName<place>() { return "place"; }
+    class AnyClosure;
+    template<> inline std::string typeName<AnyClosure>() { return "AnyClosure"; }
+    class InitDispatcher;
+    template<> inline std::string typeName<InitDispatcher>() { return "InitDispatcher"; }
+    template<> inline std::string typeName<void (*)()>() { return "void (*)()"; }
+    template<> inline std::string typeName<const void*>() { return "const void *"; }
+    template<> inline std::string typeName<char>() { return "char"; }
+    template<> inline std::string typeName<const RuntimeType*>() { return "const RuntimeType *"; }
+
 
 }
 

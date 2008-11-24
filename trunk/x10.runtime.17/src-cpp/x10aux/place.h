@@ -82,7 +82,7 @@ namespace x10aux {
     template<> struct _reference_serializer<place> {
         static void _(const ref<place>& v, serialization_buffer& buf, addr_map& m) {
             _Sd_(size_t len = buf.length());
-            _S_("Serializing " << DEMANGLE(TYPENAME(place)));
+            _S_("Serializing place");
             v->_serialize_fields(buf, m);
             _S_(_dump_chars(((const char*)buf) + len, buf.length() - len));
         }

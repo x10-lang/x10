@@ -5,7 +5,7 @@ using namespace x10::lang;
 using namespace x10::io;
 
 x10aux::ref<FileInputStream> FileInputStream::STANDARD_IN
-    = new FileInputStream(stdin);
+    = new (x10aux::alloc<FileInputStream>()) FileInputStream(stdin);
 
 
 DEFINE_RTT(FileInputStream);

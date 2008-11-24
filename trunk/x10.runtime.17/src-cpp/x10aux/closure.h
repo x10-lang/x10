@@ -9,11 +9,6 @@
 #include <x10/x10.h> // pgas
 
 
-#define CONCAT(A,B) A##B
-
-#define CLOSURE_NAME(id) CONCAT(__closure__,id)
-
-
 #define DESERIALIZE_CLOSURE(id) DESERIALIZE_CLOSURE_(id,closure_name(id))
 #define DESERIALIZE_CLOSURE_(id,T) case id: do { \
     T* closure = new (x10aux::alloc<T>()) T(SERIALIZATION_MARKER()); \

@@ -28,7 +28,8 @@ namespace x10 {
             virtual R apply(P1 p1) = 0;
         };
         template<class P1, class R> typename Fun_0_1<P1,R>::RTT * const Fun_0_1<P1,R>::RTT::it =
-            new typename Fun_0_1<P1,R>::RTT();
+            new (x10aux::alloc<typename Fun_0_1<P1,R>::RTT>())
+                typename Fun_0_1<P1,R>::RTT();
     }
 }
 #endif

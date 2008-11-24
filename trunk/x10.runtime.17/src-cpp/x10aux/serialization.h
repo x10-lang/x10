@@ -231,7 +231,7 @@ namespace x10aux {
     template<class T> struct _reference_serializer {
         static void _(ref<T> v, serialization_buffer& buf, addr_map& m) {
             _Sd_(size_t len = buf.length());
-            _S_("Serializing " << DEMANGLE(TYPENAME(T)));
+            _S_("Serializing " << TYPENAME(T));
             buf.write(T::SERIALIZATION_ID);
             _S_("Written " << T::SERIALIZATION_ID);
             v->_serialize_fields(buf, m);
@@ -264,7 +264,7 @@ namespace x10aux {
             //if (id == NULL_SERIALIZATION_ID)
             //    return NULL;
             assert (id == T::SERIALIZATION_ID);
-            _S_("Deserializing " << DEMANGLE(TYPENAME(T)));
+            _S_("Deserializing " << TYPENAME(T));
             ref<T> rv = ref<T>(new (alloc<T>()) T(SERIALIZATION_MARKER()));
             rv->_deserialize_fields(buf);
             return rv;
@@ -307,7 +307,7 @@ namespace x10aux {
     void _register_subclass_impl(int id, subclass_vector& registered_subclasses, void* (*deserialize_func)(serialization_buffer&));
 
     template<class S, class T> inline void _register_subclass() {
-        _S_("Registering " << DEMANGLE(TYPENAME(T)) << " as a subclass of " << DEMANGLE(TYPENAME(S)) << " (id=" << id << ")");
+        //_S_("Registering " << TYPENAME(T) << " as a subclass of " << TYPENAME(S) << " (id=" << id << ")");
         ref<T>(*deserialize_func)(serialization_buffer&) = _deserialize_ref<T>;
         _register_subclass_impl(T::SERIALIZATION_ID, S::_registered_subclasses, reinterpret_cast<void*(*)(serialization_buffer&)>(deserialize_func));
 //        int id = T::SERIALIZATION_ID;
@@ -335,7 +335,7 @@ namespace x10aux {
     }
 
     template<class S> inline ref<S> _deserialize_superclass(serialization_buffer& buf) {
-        _S_("Deserializing " << DEMANGLE(TYPENAME(S)) << " from ' " << x10::_dump_chars(buf, 40) << " '");
+        _S_("Deserializing " << TYPENAME(S) << " from ' " << _dump_chars(buf, 40) << " '");
         int id = buf.peek<int>();
         _S_("Id = " << id);
         return _deserialize_subclass<S>(id, buf);
@@ -343,7 +343,8 @@ namespace x10aux {
 
     extern "C" x10aux::AnyClosure *__x10_callback_closureswitch(int id, serialization_buffer& s);
     template<> struct _reference_deserializer<x10aux::AnyClosure> { 
-        static x10aux::ref<x10aux::AnyClosure> _(serialization_buffer& s) {
+        // can't have a ref of things that don't have RTTs
+        static x10aux::AnyClosure *_(serialization_buffer& s) {
             int id = s.read<int>();
             return __x10_callback_closureswitch(id,s);
         }
