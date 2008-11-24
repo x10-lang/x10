@@ -58,12 +58,11 @@ public value OutputStreamWriter extends Writer {
         out.write(buf);
     }
 
-    public def write(buf: (Int) => Byte, off: Int, len: Int): Void throws IOException {
-        if (buf instanceof Rail[Byte]) {
-            out.write(buf as Rail[Byte], off, len);
-        }
-        else if (buf instanceof ValRail[Byte]) {
-            out.write(buf as ValRail[Byte], off, len);
-        }
+    public def write(buf: Rail[Byte], off: Int, len: Int): Void throws IOException {
+        out.write(buf as Rail[Byte], off, len);
+    }
+
+    public def write(buf: ValRail[Byte], off: Int, len: Int): Void throws IOException {
+        out.write(buf as ValRail[Byte], off, len);
     }
 }
