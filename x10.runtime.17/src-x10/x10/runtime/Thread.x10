@@ -53,7 +53,7 @@ value Thread {
     public static native def park():void;
     
     @Native("java", "java.util.concurrent.locks.LockSupport.parkNanos(#1)")
-    @Native("c++", "x10::runtime::Thread::park(#1)")
+    @Native("c++", "x10::runtime::Thread::parkNanos(#1)")
     public static native def parkNanos(nanos:Long):void;
     
     @Native("java", "java.util.concurrent.locks.LockSupport.unpark(#1)")
