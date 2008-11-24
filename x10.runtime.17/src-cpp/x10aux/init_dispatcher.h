@@ -6,7 +6,7 @@
 
 namespace x10aux {
 
-    typedef void (*Initializer)(); // should really be this
+    typedef void* (*Initializer)(); // should really be this
 
     class InitDispatcher {
         protected:
