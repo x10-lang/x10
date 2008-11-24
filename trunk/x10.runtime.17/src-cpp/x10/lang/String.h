@@ -90,6 +90,9 @@ namespace x10 {
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
 
+            static x10aux::ref<String> format(x10aux::ref<String> format,
+                                              x10aux::ref<Rail<x10aux::ref<Object> > > parms);
+
         };
 
 
