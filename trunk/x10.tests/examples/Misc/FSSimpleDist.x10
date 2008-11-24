@@ -44,10 +44,8 @@ public class FSSimpleDist {
 
         println("localSize=" + localSize);
 
-        finish async {
+        finish {
 
-            val clock = Clock.make();
-            
             for (var pp:int=0; pp<NUM_PLACES; pp++) {
 
                 val p = pp;
@@ -67,18 +65,16 @@ public class FSSimpleDist {
                         if (p==0) times(j) = -now(); 
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
-                        next; 
                         if (p==0) times(j) = times(j) + now();
                     }
                     
                     // verification
                     for (var i:int=0; i<localSize; i++)
                         if (a(i) != b(i) + alpha*c(i)) 
-                            async(Place.FIRST_PLACE) clocked (clock)
-                            verified(0) = false;
+                            async(Place.FIRST_PLACE)
+                                verified(0) = false;
                 }
             }
-
         }
 
         var min:double = 1000000;
