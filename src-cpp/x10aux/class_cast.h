@@ -19,9 +19,15 @@ namespace x10aux {
         // all cases should be covered by the below specialisations
     };
 
+    template<class T, class F> struct ClassCast<ref<T>,F*> {
+        static ref<T> class_cast(F* obj) {
+            return ClassCast<ref<T>,ref<F> >::class_cast(ref<F>(obj));
+        }
+    };
+
     template<class T, class F> struct ClassCast<ref<T>,ref<F> > {
-        static ref<T> class_cast (ref<F> obj) {
-            if (obj==x10aux::null) {
+        static ref<T> class_cast(ref<F> obj) {
+            if (obj == x10aux::null) {
                 // NULL passes any class cast check and remains NULL
                 _CAST_("Special case: null gets cast to "<<TYPENAME(T));
                 return obj;
@@ -42,23 +48,39 @@ namespace x10aux {
 
     // into a box
     template<class T> struct ClassCast<ref<x10::lang::Box<T> >,T> {
-        static ref<x10::lang::Box<T> > class_cast (T obj) {
+        static ref<x10::lang::Box<T> > class_cast(T obj) {
             _CAST_("boxed: "<<TYPENAME(T));
-            return new (alloc<x10::lang::Box<T> >()) x10::lang::Box<T> (obj);
+            return new (alloc<x10::lang::Box<T> >()) x10::lang::Box<T>(obj);
         }
     };
 
     // out of a box
     template<class T> struct ClassCast<T, ref<x10::lang::Box<T> > > {
-        static T class_cast (ref<x10::lang::Box<T> > obj) {
+        static T class_cast(ref<x10::lang::Box<T> > obj) {
             _CAST_("unboxed: "<<TYPENAME(T));
+            return obj->get();
+        }
+    };
+
+    // ref into a box
+    template<class T> struct ClassCast<ref<x10::lang::Box<ref<T> > >,ref<T> > {
+        static ref<x10::lang::Box<ref<T> > > class_cast(ref<T> obj) {
+            _CAST_("boxed: "<<TYPENAME(ref<T>));
+            return new (alloc<x10::lang::Box<ref<T> > >()) x10::lang::Box<ref<T> >(obj);
+        }
+    };
+
+    // ref out of a box
+    template<class T> struct ClassCast<ref<T>, ref<x10::lang::Box<ref<T> > > > {
+        static ref<T> class_cast(ref<x10::lang::Box<ref<T> > > obj) {
+            _CAST_("unboxed: "<<TYPENAME(ref<T>));
             return obj->get();
         }
     };
 
     #define SPECIALISE_CAST(T,F) \
     template<> struct ClassCast<T,F> { \
-        static T class_cast (F obj) { \
+        static T class_cast(F obj) { \
             _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(T)); \
             return static_cast<T>(obj); \
         } \
@@ -97,7 +119,7 @@ namespace x10aux {
     // and we should explicitly check for NULL In the class cast.  The following won't work
     // if NULL is no-longer an int, plus it will cause ambiguity when casting from int to Box<int>
     template<class T> struct ClassCast<ref<T>,int> {
-        static ref<T> class_cast (int ptr) {
+        static ref<T> class_cast(int ptr) {
             assert (ptr == (int)NULL);
             _CAST_("from null to : "<<getRTT<T>()->name());
             return ref<T>();
@@ -107,16 +129,16 @@ namespace x10aux {
 
     // note this is separate sublevel of template specialisation so we can deal with <T,T>
     // (needed because generic classes can be instantiated in ways that make casts redundant)
-    template<class T, class F> struct ClassCast2 { static T class_cast (F obj) {
+    template<class T, class F> struct ClassCast2 { static T class_cast(F obj) {
         return ClassCast<T,F>::class_cast(obj);
     } };
-    template<class T> struct ClassCast2<T,T> { static T class_cast (T obj) {
+    template<class T> struct ClassCast2<T,T> { static T class_cast(T obj) {
         // nothing to do (until we have constraints)
         _CAST_("Identity cast to/from "<<TYPENAME(T));
         return obj;
     } };
 
-    template<typename T, typename F> T class_cast (F obj) {
+    template<typename T, typename F> T class_cast(F obj) {
         return ClassCast2<T,F>::class_cast(obj);
     }
 

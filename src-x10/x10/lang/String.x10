@@ -71,6 +71,6 @@ public final value String implements (nat) => Char {
     public native static def format(fmt: String, Rail[Object]): String;
     
     @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
-    @Native("c++", "x10::lang:String::format(#1,#2)")
+    @Native("c++", "x10::lang::String::format(#1,#2)")
     public native static def format(fmt: String, ValRail[Object]): String;
 }
