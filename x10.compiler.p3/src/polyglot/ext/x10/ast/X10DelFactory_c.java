@@ -97,5 +97,13 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	public JL delClosureImpl() {
 		return new TD();
 	}
+
+    /**
+     * For each future, add the delegate that redirects translate
+     * to the X10PrettyPrinterVisitor.
+     */
+    public JL delFutureImpl() {
+        return new TD();
+    }
 }
 
