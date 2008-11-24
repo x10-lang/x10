@@ -24,11 +24,11 @@ value LocalTable {
 class FRASimpleDist {
 
     @Native("java", "System.out.println(#1)")
-    @Native("c++", "printf(\"%s\\n\", (#1).c_str()); fflush(stdout)")
+    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
     public static native def println(x:String):void;
 
     @Native("java", "System.out.printf(#1,#2)")
-    @Native("c++", "printf((#1).c_str(), #2); fflush(stdout)")
+    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
     public static native def printf(x:String, o:Object):void;
 
     const POLY = 0x0000000000000007L;
