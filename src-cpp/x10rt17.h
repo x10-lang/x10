@@ -32,6 +32,7 @@
 
 #include <x10aux/math_utils.h>
 #include <x10aux/system_utils.h>
+#include <x10aux/iterator_utils.h>
 
 
 #include <x10/io/EOFException.h>

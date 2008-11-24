@@ -30,6 +30,12 @@ namespace x10aux {
         // All possibilities accounted for, if you got here something has gone wrong
     };
 
+    template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
+        static ref<T> _(F* obj) {
+            return ref<T>(ref<F>(obj));
+        }
+    };
+
     template<class T, class F> struct ClassCastNotBothRef<ref<x10::lang::Box<T> >,F> {
         static ref<x10::lang::Box<T> > _(F obj) {
             return box(obj);
