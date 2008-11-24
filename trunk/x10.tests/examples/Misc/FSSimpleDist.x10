@@ -31,12 +31,15 @@ public class FSSimpleDist {
     //const DEFAULT_SIZE = 2*MEG;
     const DEFAULT_SIZE = MEG / 8;
 
+    // const NUM_PLACES = Place.MAX_PLACES;
+    const NUM_PLACES = 4; // Place.MAX_PLACES;
+
     public static def main(args:Rail[String]) {
 
         val verified: Rail[boolean] = [true];
         val times = Rail.makeVar[double](NUM_TIMES);
         val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
-        val N = N0 * Place.MAX_PLACES;
+        val N = N0 * NUM_PLACES;
         val localSize =  N0;
 
         println("localSize=" + localSize);
@@ -45,7 +48,7 @@ public class FSSimpleDist {
 
             val clock = Clock.make();
             
-            for (var pp:int=0; pp<Place.MAX_PLACES; pp++) {
+            for (var pp:int=0; pp<NUM_PLACES; pp++) {
 
                 val p = pp;
 
@@ -65,7 +68,7 @@ public class FSSimpleDist {
                         for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
                         next; 
-                        if (p==0) times(j) += now();
+                        if (p==0) times(j) = times(j) + now();
                     }
                     
                     // verification
@@ -90,8 +93,8 @@ public class FSSimpleDist {
     static def printStats(N:int, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
-        println("Number of places=" + Place.MAX_PLACES);
-        println("Size of arrays: " + size +" MB (total)" + size/Place.MAX_PLACES + " MB (per place)");
+        println("Number of places=" + NUM_PLACES);
+        println("Size of arrays: " + size +" MB (total)" + size/NUM_PLACES + " MB (per place)");
         println("Min time: " + time + " rate=" + rate + " GB/s");
         println("Result is " + (verified ? "verified." : "NOT verified."));
     }                                
