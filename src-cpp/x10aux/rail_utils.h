@@ -89,7 +89,15 @@ namespace x10aux {
 namespace x10aux {
 
     template<class T> ref<x10::lang::String> AnyRail<T>::toString() {
-        return new (alloc<x10::lang::String>()) x10::lang::String();
+        std::stringstream ss;
+        const char *prefix = "[";
+        for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
+            T element = (*this)[i];
+            ss << prefix << (x10::lang::String::Lit("")+element);
+            prefix = ",";
+        }
+        ss << "]";
+        return x10::lang::String(ss.str().c_str());
     }
 
     template<class T, class R> R* alloc_rail(x10_int length) {

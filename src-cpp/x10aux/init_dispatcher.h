@@ -3,10 +3,12 @@
 
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
+#include <x10aux/RTT.h>
 
 namespace x10aux {
 
-    typedef void* (*Initializer)(); // should really be this
+    // [DC] if this doesn't work for you then you haven't updated cvs :)
+    typedef void (*Initializer)();
 
     class InitDispatcher {
         protected:

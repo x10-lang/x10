@@ -14,6 +14,8 @@ void x10aux::throwNPE() {
     throwException<NullPointerException>();
 }
 
+x10aux::NullType x10aux::null;
+
 /*
 template<> x10aux::ref<x10::lang::String>::ref(const x10::lang::String& val)
     : REF_INIT(new (x10aux::alloc<x10::lang::String>()) x10::lang::String(val))
