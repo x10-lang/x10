@@ -12,6 +12,8 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/Rail.h>
 
+#define GROWABLE_RAIL_SIZE_HACK 200
+
 
 namespace x10 {
 
@@ -43,8 +45,8 @@ namespace x10 {
             x10_int _len;
             
         public:
-            GrowableRail() : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(20)) { }
-            GrowableRail(x10_int size) : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(size)) { }
+            GrowableRail() : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(1+GROWABLE_RAIL_SIZE_HACK)) { }
+            GrowableRail(x10_int size) : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(size+GROWABLE_RAIL_SIZE_HACK)) { }
 
             T set(T v, x10_int i) {
                 grow(i+1);
@@ -53,7 +55,7 @@ namespace x10 {
 
             void add(T v) {
                 grow(_len+1);
-                set(v, _len);
+                (*_array)[_len] = v;
                 _len++;
             }
 
@@ -64,7 +66,7 @@ namespace x10 {
             }
 
             void removeLast() {
-                _array[_len-1] = (T)0;
+                (*_array)[_len-1] = (T)0;
                 _len--;
                 shrink(_len+1);
             }
