@@ -41,7 +41,7 @@ x10_boolean String::equals(ref<Object> other) {
 }
 
 
-std::ostream& operator<<(std::ostream& o, const x10aux::ref<String>& s) {
+std::ostream& x10::lang::operator<<(std::ostream& o, const x10aux::ref<String>& s) {
     return o << (s.isNull() ? String("null") : *s);
 }
 
