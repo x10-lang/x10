@@ -56,7 +56,7 @@ public value Throwable {
     public native def getStackTrace() : ValRail[String];
 
     @Native("java", "#0.printStackTrace()")
-    @Native("c++", "do {    x10::io::Console::FMGL(ERR)->println((#0)->toString());    x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace->FMGL(length) ; ++i) {        x10::io::Console::FMGL(ERR)->print(String(\"        at \");        x10::io::Console::FMGL(ERR)->println((*trace)[i]);    }} while (0)")
+    @Native("c++", "do { fprintf(stdout,\"%s\\n\",(#0)->toString()->c_str()); x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace(); for (int i=0 ; i<trace->FMGL(length) ; ++i) fprintf(stdout,\"        at %s\\n\",(*trace)[i]->c_str()); } while (0)")
     public native def printStackTrace() : Void;
     
     @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
