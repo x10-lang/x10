@@ -27,10 +27,10 @@ namespace x10 {
 
             ClassCastException(x10aux::ref<String> message) : RuntimeException(message) { }
 
-            ClassCastException(x10aux::ref<String> message, Cause cause)
+            ClassCastException(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
               : RuntimeException(message,cause) {}
 
-            ClassCastException(Cause cause) : RuntimeException(cause) { }
+            ClassCastException(x10aux::ref<Throwable> cause) : RuntimeException(cause) { }
 
             ClassCastException(x10aux::SERIALIZATION_MARKER m) : RuntimeException(m) { }
 

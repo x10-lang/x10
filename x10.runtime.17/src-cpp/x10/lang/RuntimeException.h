@@ -27,8 +27,9 @@ namespace x10 {
 
             RuntimeException() : Exception() { }
             RuntimeException(x10aux::ref<String> message) : Exception(message) {   }
-            RuntimeException(x10aux::ref<String> message, Cause cause) : Exception(message,cause) {}
-            RuntimeException(Cause cause) : Exception(cause) { }
+            RuntimeException(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
+              : Exception(message,cause) {}
+            RuntimeException(x10aux::ref<Throwable> cause) : Exception(cause) { }
 
             RuntimeException(x10aux::SERIALIZATION_MARKER m) : Exception(m) { }
 

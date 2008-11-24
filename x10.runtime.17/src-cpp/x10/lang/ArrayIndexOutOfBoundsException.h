@@ -28,10 +28,12 @@ namespace x10 {
             ArrayIndexOutOfBoundsException(x10aux::ref<String> message)
               : RuntimeException(message) { }
 
-            ArrayIndexOutOfBoundsException(x10aux::ref<String> message, Cause cause)
+            ArrayIndexOutOfBoundsException(x10aux::ref<String> message,
+                                           x10aux::ref<Throwable> cause)
               : RuntimeException(message,cause) {}
 
-            ArrayIndexOutOfBoundsException(Cause cause) : RuntimeException(cause) { }
+            ArrayIndexOutOfBoundsException(x10aux::ref<Throwable> cause)
+              : RuntimeException(cause) { }
 
             ArrayIndexOutOfBoundsException(x10aux::SERIALIZATION_MARKER m) : RuntimeException(m) { }
 
