@@ -57,7 +57,7 @@ namespace x10 {
 
         template<class T>
             typename Iterator<T>::RTT *Iterator<T>::RTT::it =
-                new typename Iterator<T>::RTT();
+                new (x10aux::alloc<typename Iterator<T>::RTT>()) typename Iterator<T>::RTT();
 
     }
 }

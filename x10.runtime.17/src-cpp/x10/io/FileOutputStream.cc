@@ -5,10 +5,10 @@ using namespace x10::lang;
 using namespace x10::io;
 
 x10aux::ref<FileOutputStream> FileOutputStream::STANDARD_OUT
-    = new FileOutputStream(stdout);
+    = new (x10aux::alloc<FileOutputStream>()) FileOutputStream(stdout);
 
 x10aux::ref<FileOutputStream> FileOutputStream::STANDARD_ERR
-    = new FileOutputStream(stderr);
+    = new (x10aux::alloc<FileOutputStream>()) FileOutputStream(stderr);
 
 
 DEFINE_RTT(FileOutputStream);

@@ -27,7 +27,7 @@ namespace x10 {
             virtual void apply(P1 p1) = 0;
         };
         template<class P1> typename VoidFun_0_1<P1>::RTT * const VoidFun_0_1<P1>::RTT::it =
-            new typename VoidFun_0_1<P1>::RTT();
+            new (x10aux::alloc<typename VoidFun_0_1<P1>::RTT>()) typename VoidFun_0_1<P1>::RTT();
     }
 }
 #endif

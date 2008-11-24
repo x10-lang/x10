@@ -156,11 +156,12 @@ namespace x10 {
         };
 
         template<class T> typename ValRail<T>::RTT * const ValRail<T>::RTT::it =
-            new typename ValRail<T>::RTT();
+            new (x10aux::alloc<typename ValRail<T>::RTT>()) typename ValRail<T>::RTT();
 
         template<class T> typename ValRail<T>::Iterator::RTT * const
             ValRail<T>::Iterator::RTT::it =
-                new typename ValRail<T>::Iterator::RTT();
+                new (x10aux::alloc<typename ValRail<T>::Iterator::RTT>())
+                    typename ValRail<T>::Iterator::RTT();
 
     }
 }

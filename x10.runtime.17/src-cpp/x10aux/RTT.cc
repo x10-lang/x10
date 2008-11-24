@@ -7,11 +7,11 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-bool x10aux::RuntimeType::instanceOf (ref<Object> other) const {
+bool x10aux::RuntimeType::instanceOf (const ref<Object> &other) const {
     return other->_type()->subtypeOf(this);
 }
 
-bool x10aux::RuntimeType::concreteInstanceOf (ref<Object> other) const {
+bool x10aux::RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
     return other->_type()->equals(this);
 }
 
@@ -28,7 +28,7 @@ void x10aux::RuntimeType::initParents(int parentsc_, ...) {
 }
 
 x10aux::RuntimeType::~RuntimeType() {
-    _RTT_("Deconstructing RTT: 0x"<<std::hex<<this<<std::dec);
+    _RTT_("Deconstructing RTT: "<<std::hex<<this<<std::dec);
     dealloc(parents);
 }
 

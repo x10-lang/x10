@@ -5,6 +5,7 @@
 #include <x10aux/RTT.h>
 
 #include <x10/lang/Throwable.h>
+#include <x10/lang/Box.h>
 
 namespace x10 {
 

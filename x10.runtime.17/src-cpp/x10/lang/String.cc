@@ -2,6 +2,7 @@
 
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
+#include <x10aux/string_utils.h>
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
@@ -9,6 +10,7 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+/*
 String::String(x10_boolean v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
 String::String(x10_byte v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
 String::String(x10_char v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
@@ -17,6 +19,7 @@ String::String(x10_int v) : Value(), std::string(static_cast<std::string&>(*to_s
 String::String(x10_long v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
 String::String(x10_float v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
 String::String(x10_double v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
+*/
 
 x10_int String::hashCode() {
     //FIXME:
@@ -38,54 +41,74 @@ x10_boolean String::equals(ref<Object> other) {
 }
     
 
-std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s)
-{
-    if (s.isNull()) {
-        o << "null";
-    } else {
-        o << *s;
-    }
-
-    return o;
+std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s) {
+    return o << (s.isNull()?String("null"):*s);
 }
 
+// postfix primitive operator+
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_boolean v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_char v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_short v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_int v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_long v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_float v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_double v)
+{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+
+// prefix primitive operator+
+ref<String> x10::lang::operator+(x10_boolean v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_char v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_short v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_int v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_long v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_float v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_double v, x10aux::ref<String> s)
+{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+
+
+/*
 String operator+(const String &s1, const String& s2) {
     return static_cast<const std::string&>(s1)
          + static_cast<const std::string&>(s2);
 }
-String operator+(const String &s1, ref<String> s2) {
+String operator+(const String &s1, ref<Object> s2) {
     return static_cast<const std::string&>(s1)
-         + static_cast<const std::string&>(*s2);
+         + static_cast<const std::string&>(*s2->toString());
 }
-String operator+(ref<String> s1, const String& s2) {
-    return static_cast<const std::string&>(*s1)
+String operator+(ref<Object> s1, const String& s2) {
+    return static_cast<const std::string&>(*s1->toString())
          + static_cast<const std::string&>(s2);
 }
-String operator+(ref<String> s1, ref<String> s2) {
-    return static_cast<const std::string&>(*s1)
-         + static_cast<const std::string&>(*s2);
+String operator+(ref<Object> s1, ref<Object> s2) {
+    return static_cast<const std::string&>(*s1->toString())
+         + static_cast<const std::string&>(*s2->toString());
 }
 
-String operator+=(const String &s1, const String& s2) {
-    return static_cast<const std::string&>(s1)
-         += static_cast<const std::string&>(s2);
+ref<String> operator+=(ref<String> &s1, const String& s2) {
+    s1 = s1 + s2;
+    return s1;
 }
-String operator+=(const String &s1, ref<String> s2) {
-    return static_cast<const std::string&>(s1)
-         += static_cast<const std::string&>(*s2);
+ref<String> operator+=(ref<String> &s1, ref<Object> s2) {
+    s1 = s1 + s2;
+    return s1;
 }
-String operator+=(ref<String> s1, const String& s2) {
-    return static_cast<const std::string&>(*s1)
-         += static_cast<const std::string&>(s2);
-}
-String operator+=(ref<String> s1, ref<String> s2) {
-    return static_cast<const std::string&>(*s1)
-         += static_cast<const std::string&>(*s2);
-}
+*/
 
 
 x10_int String::indexOf(ref<String> str, x10_int i) {
-    size_type res = find(*static_cast<ref<std::string> >(str), (size_type)i);
+    size_type res = find(*str, (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
     return (x10_int) res;
@@ -99,7 +122,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
 }
 
 x10_int String::lastIndexOf(ref<String> str, x10_int i) {
-    size_type res = rfind(static_cast<std::string&>(*str), (size_type)i);
+    size_type res = rfind(*str, (size_type)i);
     if (res == std::string::npos)
         return (x10_int) -1;
     return (x10_int) res;
@@ -113,7 +136,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 }
 
 String String::substring(x10_int start, x10_int end) {
-    return String(static_cast<std::string&>(*this).substr(start, end-start));
+    return String(this->substr(start, end-start));
 }
 
 x10_char String::charAt(x10_int i) {
@@ -138,7 +161,8 @@ ref<Rail<x10_byte> > String::bytes() {
 }
 
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
-    return String("");
+    (void) parms;
+    return format;
 /* TODO: fix this up (if you dare)
     char* fmt = const_cast<char*>(format->c_str());
     char* next = NULL;

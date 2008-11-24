@@ -9,6 +9,7 @@
 
 
 #include <x10/lang/Ref.h>
+#include <x10/lang/String.h>
 
 
 namespace x10 {
@@ -46,13 +47,18 @@ namespace x10 {
                 return contents;
             }
 
+            virtual x10aux::ref<String> toString() {
+                 return String::Lit("")+contents;
+            }
+
             protected:
 
             T contents;
 
         };
 
-        template<class T> typename Box<T>::RTT *Box<T>::RTT::it = new typename Box<T>::RTT();
+        template<class T> typename Box<T>::RTT *Box<T>::RTT::it =
+            new (x10aux::alloc<typename Box<T>::RTT>()) typename Box<T>::RTT();
 
     }
 }
