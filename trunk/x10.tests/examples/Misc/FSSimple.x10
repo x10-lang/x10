@@ -7,7 +7,20 @@
  * @author bdlucas
  */
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
+import x10.util.Timer;
+
 public class FSSimple {
+
+    @Native("java", "System.out.println(#1)")
+    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
+    public static native def println(x:String):void;
+
+    @Native("java", "System.out.printf(#1,#2)")
+    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
+    public static native def printf(x:String, o:Object):void;
 
     const MEG = 1024*1024;
     const alpha = 3.0D;
@@ -26,7 +39,7 @@ public class FSSimple {
         val N = N0 * Place.MAX_PLACES;
         val localSize =  N0;
 
-        System.out.println("localSize=" + localSize);
+        println("localSize=" + localSize);
 
         for (var pp:int=0; pp<Place.MAX_PLACES; pp++) {
 
@@ -61,14 +74,14 @@ public class FSSimple {
         printStats(N, min, verified(0));
     }
 
-    static def now():double = System.nanoTime() * 1e-9;
+    static def now():double = Timer.nanoTime() * 1e-9;
 
     static def printStats(N:int, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
-        System.out.println("Number of places=" + Place.MAX_PLACES);
-        System.out.println("Size of arrays: " + size +" MB (total)" + size/Place.MAX_PLACES + " MB (per place)");
-        System.out.println("Min time: " + time + " rate=" + rate + " GB/s");
-        System.out.println("Result is " + (verified ? "verified." : "NOT verified."));
+        println("Number of places=" + Place.MAX_PLACES);
+        println("Size of arrays: " + size +" MB (total)" + size/Place.MAX_PLACES + " MB (per place)");
+        println("Min time: " + time + " rate=" + rate + " GB/s");
+        println("Result is " + (verified ? "verified." : "NOT verified."));
     }                                
 }
