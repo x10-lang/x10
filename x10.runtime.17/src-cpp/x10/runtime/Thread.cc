@@ -454,4 +454,6 @@ Thread::setName(ref<String> name)
     __thread_name = name;
 }
 
+DEFINE_RTT(Thread);
+
 // vim:tabstop=4:shiftwidth=4:expandtab
