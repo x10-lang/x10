@@ -115,7 +115,7 @@ public class Future_c extends Closure_c
     }
 
     public String toString() {
-    	return  " future[" + returnType + "](" + place + ") " + body;
+    	return "future[" + returnType + "](" + place + ") " + body;
     }
    
     /** Write the expression to an output file. */
