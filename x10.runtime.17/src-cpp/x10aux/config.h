@@ -153,7 +153,7 @@ typedef void   x10_void;
 #define TOKEN_STRING(X) #X
 
 //if you want to do the above but the token is hidden behind a macro
-#define TOKEN_STRING_DEREF(X) TOKEN_TO_STRING(X)
+#define TOKEN_STRING_DEREF(X) TOKEN_STRING(X)
 
 //combine __FILE__ and __LINE__ without using sprintf or other junk
 #define __FILELINE__ __FILE__ ":" TOKEN_STRING_DEREF(__LINE__) 
