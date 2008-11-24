@@ -63,12 +63,9 @@ public value Runtime {
 	public static def start(body:()=>Void):Void {
 // temporary: printStackTrace call moved to Main template (native code) 
 //		try {
-			val state = new FinishState();
-			val activity = new Activity(body, state, "root");
+			val activity = new Activity(body, "root");
 			Thread.currentThread().activity(activity);
-			state.notifySubActivitySpawn();
-			activity.run();
-			state.waitForFinish();
+			finish activity.run();
 //		} catch (t:Throwable) {
 //			t.printStackTrace();
 //		}
@@ -137,16 +134,10 @@ public value Runtime {
     public static def newMonitor(place:Place):Monitor {
     	val ret = here;
     	val box = new ArrayList[Monitor]();
-    	val state = new FinishState();
-    	state.notifySubActivitySpawn();
     	NativeRuntime.runAtLocal(place.id, ()=>{
-    		val result = new Monitor();
-    		NativeRuntime.runAtLocal(ret.id, ()=>{
-    			box.add(result);
-		    	state.notifySubActivityTermination();
-    		});
+    		val monitor = new Monitor();
+    		NativeRuntime.runAtLocal(ret.id, ()=>{ box.add(monitor); });
     	});
-    	state.waitForFinish();
     	return box(0);
     }
 
