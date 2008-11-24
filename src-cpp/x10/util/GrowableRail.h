@@ -40,39 +40,60 @@ namespace x10 {
 
         private:
             x10aux::ref<x10::lang::Rail<T> > _array;
-            x10_int _length;
+            x10_int _len;
             
         public:
-            GrowableRail() : x10::lang::Ref(), _length(0), _array(x10::lang::Rail<T>::make(1)) { }
-            GrowableRail(x10_int size) : x10::lang::Ref(), _length(0), _array(x10::lang::Rail<T>::make(size)) { }
+            GrowableRail() : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(20)) { }
+            GrowableRail(x10_int size) : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(size)) { }
 
-            T set(x10aux::ref<T> v, x10_int i) {
+            T set(T v, x10_int i) {
                 grow(i+1);
-                return _array[i] = v;
+                return (*_array)[i] = v;
             }
 
-            void add(x10aux::ref<T> v) {
-                grow(length+1);
-                set(v, length);
-                length++;
+            void add(T v) {
+                grow(_len+1);
+                set(v, _len);
+                _len++;
+            }
+
+            T apply(x10_int i) {
+                assert(i>=0);
+                assert(i<_len);
+                return (*_array)[i];
             }
 
             void removeLast() {
-                _array[length-1] = (T)0;
-                length--;
-                shrink(length+1);
+                _array[_len-1] = (T)0;
+                _len--;
+                shrink(_len+1);
             }
 
-            x10_int length() { return _length; }
+            x10_int length() { return _len; }
 
-            x10aux::ref<x10::lang::Rail<T> > toRail();
+            x10aux::ref<x10::lang::Rail<T> > toRail() {
+                assert(false); // TODO
+            }
 
-            x10aux::ref<x10::lang::ValRail<T> > toValRail();
+            x10aux::ref<x10::lang::ValRail<T> > toValRail() {
+                assert(false); // TODO
+            }
 
         private:
-            void grow(x10_int newSize);
-            void shrink(x10_int newSize);
-            x10_int size() { return _array->length(); }
+            void grow(x10_int newSize) {
+                if (newSize <= size()) {
+                    return;
+                }
+                assert(false); // TODO:
+            }
+
+            void shrink(x10_int newSize) {
+                if (newSize > size()/2 || newSize < 8) {
+                    return;
+                }
+            }
+                
+            x10_int size() { return _array->FMGL(length); }
         };
 
         template<class T> typename GrowableRail<T>::RTT *GrowableRail<T>::RTT::it =
