@@ -5,6 +5,7 @@
 #include <x10aux/throw.h>
 
 #include <x10aux/RTT.h>
+#include <x10aux/ref.h>
 
 #include <x10/lang/Box.h>
 
@@ -12,134 +13,141 @@
 
 namespace x10aux {
 
+    template<class T> ref<x10::lang::Box<T> > box(T obj) {
+        _CAST_("boxed: "<<TYPENAME(T));
+        return X10NEW(x10::lang::Box<T>)(obj);
+    }
+
+    template<class T> T unbox(ref<x10::lang::Box<T> > obj) {
+        _CAST_("unboxed: "<<TYPENAME(T));
+        return obj->get();
+    }
+
     // T stands for "to"
     // F stands for "from"
 
-    template<class T, class F> struct ClassCast {
-        // all cases should be covered by the below specialisations
+    template<class T, class F> struct ClassCastNotBothRef {
+        // All possibilities accounted for, if you got here something has gone wrong
     };
 
-    template<class T, class F> struct ClassCast<ref<T>,F*> {
-        static ref<T> class_cast(F* obj) {
-            return ClassCast<ref<T>,ref<F> >::class_cast(ref<F>(obj));
+    template<class T, class F> struct ClassCastNotBothRef<ref<x10::lang::Box<T> >,F> {
+        static ref<x10::lang::Box<T> > _(F obj) {
+            return box(obj);
         }
     };
 
-    template<class T, class F> struct ClassCast<ref<T>,ref<F> > {
-        static ref<T> class_cast(ref<F> obj) {
-            if (obj == x10aux::null) {
-                // NULL passes any class cast check and remains NULL
-                _CAST_("Special case: null gets cast to "<<TYPENAME(T));
-                return obj;
-            }
-            const RuntimeType *from = obj->_type();
-            const RuntimeType *to = getRTT<T>();
-            #ifndef NO_EXCEPTIONS
-            _CAST_(from->name()<<" to "<<to->name());
-            if (!from->subtypeOf(to)) {
-                throwException<x10::lang::ClassCastException>();
-            }
-            #else
-            _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
-            #endif
-            return static_cast<ref<T> >(obj);
+    template<class T, class F> struct ClassCastNotBothRef<T,ref<x10::lang::Box<F> > > {
+        static T _(ref<x10::lang::Box<F> > obj) {
+            return unbox(obj);
         }
     };
 
-    // into a box
-    template<class T> struct ClassCast<ref<x10::lang::Box<T> >,T> {
-        static ref<x10::lang::Box<T> > class_cast(T obj) {
-            _CAST_("boxed: "<<TYPENAME(T));
-            return new (alloc<x10::lang::Box<T> >()) x10::lang::Box<T>(obj);
+
+    // ClassCastBothRef
+    template<class T, class F> struct ClassCastBothRef { static ref<T> _(ref<F> obj) {
+        if (obj==x10aux::null) {
+            // NULL passes any class cast check and remains NULL
+            _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));
+            return obj;
+        }
+        const RuntimeType *from = obj->_type();
+        const RuntimeType *to = getRTT<ref<T> >();
+        #ifndef NO_EXCEPTIONS
+        _CAST_(from->name()<<" to "<<to->name());
+        if (!from->subtypeOf(to)) {
+            throwException<x10::lang::ClassCastException>();
+        }
+        #else
+        _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
+        #endif
+        return static_cast<ref<T> >(obj);
+    } };
+
+    template<class T, class F> struct ClassCastBothRef<x10::lang::Box<T>,F> {
+        static ref<x10::lang::Box<T> > _(ref<F> obj) {
+            return box(obj);
         }
     };
 
-    // out of a box
-    template<class T> struct ClassCast<T, ref<x10::lang::Box<T> > > {
-        static T class_cast(ref<x10::lang::Box<T> > obj) {
-            _CAST_("unboxed: "<<TYPENAME(T));
-            return obj->get();
+    template<class T, class F> struct ClassCastBothRef<T,x10::lang::Box<F> > {
+        static ref<T> _(ref<x10::lang::Box<F> > obj) {
+            return unbox(obj);
         }
     };
 
-    // ref into a box
-    template<class T> struct ClassCast<ref<x10::lang::Box<ref<T> > >,ref<T> > {
-        static ref<x10::lang::Box<ref<T> > > class_cast(ref<T> obj) {
-            _CAST_("boxed: "<<TYPENAME(ref<T>));
-            return new (alloc<x10::lang::Box<ref<T> > >()) x10::lang::Box<ref<T> >(obj);
+
+    // ClassCastNotPrimitive
+    template<class T, class F> struct ClassCastNotPrimitive { static T _(F obj) {
+        return ClassCastNotBothRef<T,F>::_(obj);
+    } };
+
+    template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
+        static ref<T> _(ref<F> obj) {
+            return ClassCastBothRef<T,F>::_(obj);
         }
     };
 
-    // ref out of a box
-    template<class T> struct ClassCast<ref<T>, ref<x10::lang::Box<ref<T> > > > {
-        static ref<T> class_cast(ref<x10::lang::Box<ref<T> > > obj) {
-            _CAST_("unboxed: "<<TYPENAME(ref<T>));
-            return obj->get();
-        }
-    };
+    // This is the second level that recognises primitive casts
+    template<class T, class F> struct ClassCastPrimitive { static T _(F obj) {
+        // if we get here it's not a primitive cast
+        return ClassCastNotPrimitive<T,F>::_(obj);
+    } };
 
-    #define SPECIALISE_CAST(T,F) \
-    template<> struct ClassCast<T,F> { \
-        static T class_cast(F obj) { \
+    #define PRIMITIVE_CAST(T,F) \
+    template<> struct ClassCastPrimitive<T,F> { \
+        static T _ (F obj) { \
             _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(T)); \
             return static_cast<T>(obj); \
         } \
     }
 
     // make reflexive
-    #define SPECIALISE_CAST2(T,F) SPECIALISE_CAST(T,F) ; SPECIALISE_CAST(F,T)
+    #define PRIMITIVE_CAST2(T,F) PRIMITIVE_CAST(T,F) ; PRIMITIVE_CAST(F,T)
 
-    // boolean and char can't be cast to anything except themselves (handled above)
-    //SPECIALISE_CAST(x10_boolean);
-    //SPECIALISE_CAST(x10_char);
+    // boolean can't be cast to anything except itself (handled below)
+    // everything else is totally connected
 
-    SPECIALISE_CAST2(x10_byte,x10_short);
-    SPECIALISE_CAST2(x10_byte,x10_int);
-    SPECIALISE_CAST2(x10_byte,x10_long);
-    SPECIALISE_CAST2(x10_byte,x10_float);
-    SPECIALISE_CAST2(x10_byte,x10_double);
+    PRIMITIVE_CAST2(x10_byte,x10_char);
+    PRIMITIVE_CAST2(x10_byte,x10_short);
+    PRIMITIVE_CAST2(x10_byte,x10_int);
+    PRIMITIVE_CAST2(x10_byte,x10_long);
+    PRIMITIVE_CAST2(x10_byte,x10_float);
+    PRIMITIVE_CAST2(x10_byte,x10_double);
 
-    SPECIALISE_CAST2(x10_short,x10_int);
-    SPECIALISE_CAST2(x10_short,x10_long);
-    SPECIALISE_CAST2(x10_short,x10_float);
-    SPECIALISE_CAST2(x10_short,x10_double);
+    PRIMITIVE_CAST2(x10_char,x10_short);
+    PRIMITIVE_CAST2(x10_char,x10_int);
+    PRIMITIVE_CAST2(x10_char,x10_long);
+    PRIMITIVE_CAST2(x10_char,x10_float);
+    PRIMITIVE_CAST2(x10_char,x10_double);
 
-    SPECIALISE_CAST2(x10_int,x10_long);
-    SPECIALISE_CAST2(x10_int,x10_float);
-    SPECIALISE_CAST2(x10_int,x10_double);
+    PRIMITIVE_CAST2(x10_short,x10_int);
+    PRIMITIVE_CAST2(x10_short,x10_long);
+    PRIMITIVE_CAST2(x10_short,x10_float);
+    PRIMITIVE_CAST2(x10_short,x10_double);
 
-    SPECIALISE_CAST2(x10_long,x10_float);
-    SPECIALISE_CAST2(x10_long,x10_double);
+    PRIMITIVE_CAST2(x10_int,x10_long);
+    PRIMITIVE_CAST2(x10_int,x10_float);
+    PRIMITIVE_CAST2(x10_int,x10_double);
 
-    SPECIALISE_CAST2(x10_float,x10_double);
+    PRIMITIVE_CAST2(x10_long,x10_float);
+    PRIMITIVE_CAST2(x10_long,x10_double);
 
-/*
-    // from NULL
-    // [DC] I think NULL should always be a ref<Object> in the generated code
-    // and we should explicitly check for NULL In the class cast.  The following won't work
-    // if NULL is no-longer an int, plus it will cause ambiguity when casting from int to Box<int>
-    template<class T> struct ClassCast<ref<T>,int> {
-        static ref<T> class_cast(int ptr) {
-            assert (ptr == (int)NULL);
-            _CAST_("from null to : "<<getRTT<T>()->name());
-            return ref<T>();
-        }
-    };
-*/
+    PRIMITIVE_CAST2(x10_float,x10_double);
 
-    // note this is separate sublevel of template specialisation so we can deal with <T,T>
+
+    // first level of template specialisation that recognises <T,T>
     // (needed because generic classes can be instantiated in ways that make casts redundant)
-    template<class T, class F> struct ClassCast2 { static T class_cast(F obj) {
-        return ClassCast<T,F>::class_cast(obj);
+    template<class T, class F> struct ClassCast { static T _ (F obj) {
+        return ClassCastPrimitive<T,F>::_(obj);
     } };
-    template<class T> struct ClassCast2<T,T> { static T class_cast(T obj) {
+    template<class T> struct ClassCast<T,T> { static T _ (T obj) {
         // nothing to do (until we have constraints)
         _CAST_("Identity cast to/from "<<TYPENAME(T));
         return obj;
     } };
 
-    template<typename T, typename F> T class_cast(F obj) {
-        return ClassCast2<T,F>::class_cast(obj);
+    template<typename T, typename F> T class_cast (F obj) {
+        return ClassCast<T,F>::_(obj);
     }
 
 }
