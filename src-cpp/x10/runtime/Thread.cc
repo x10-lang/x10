@@ -363,13 +363,21 @@ Thread::parkNanos(x10_long nanos)
     struct timeval tval;
     struct timespec tout;
     int rc;
-    
-    pthread_mutex_lock(&(perm->mutex));
-    pthread_cleanup_push(thread_permit_cleanup, (void *)perm);
+    x10_long nanosPerSecond = 1000000000LL;
 
     gettimeofday(&tval, NULL);
-    tout.tv_sec = tval.tv_sec;
-    tout.tv_nsec = (tval.tv_usec * 1000) + nanos;
+
+    /* One must take care to ensure that the final value of tout.tv_nsec is valid (ie, between 0 and 1e9-1). */
+    x10_long timeOutNanos = nanos + (tval.tv_usec * 1000);
+    x10_long timeOutSeconds = (timeOutNanos/nanosPerSecond);
+    timeOutNanos -= (timeOutSeconds*nanosPerSecond);
+    assert(timeOutNanos >= 0 && timeOutNanos < nanosPerSecond);
+
+    tout.tv_sec = tval.tv_sec + timeOutSeconds;
+    tout.tv_nsec = timeOutNanos;
+
+    pthread_mutex_lock(&(perm->mutex));
+    pthread_cleanup_push(thread_permit_cleanup, (void *)perm);
     while (perm->permit == false) {
         rc = pthread_cond_timedwait(&(perm->cond), &(perm->mutex), &tout);
         if (rc == ETIMEDOUT) {
