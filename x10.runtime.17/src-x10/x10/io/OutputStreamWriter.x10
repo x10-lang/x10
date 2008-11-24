@@ -65,8 +65,5 @@ public value OutputStreamWriter extends Writer {
         else if (buf instanceof ValRail[Byte]) {
             out.write(buf as ValRail[Byte], off, len);
         }
-        else {
-            super.write(buf, off, len);
-        }
     }
 }
