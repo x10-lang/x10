@@ -52,7 +52,7 @@ public value Runtime {
 	/**
 	 * Return the current place
 	 */
-	public static def here():Place = Place.place(Thread.currentThread().place());
+	public static def here():Place = Thread.currentThread().location;
 
 
 	// main
