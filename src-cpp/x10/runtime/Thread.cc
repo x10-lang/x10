@@ -36,7 +36,6 @@ using namespace std;
 
 
 // initialize static data members
-ref<Object> Thread::__current_place = NULL;
 ref<Object> Thread::__current_activity = NULL;
 ref<Thread> Thread::__current_thread = NULL;
 long x10::runtime::Thread::__thread_cnt = 0;
@@ -417,20 +416,6 @@ void
 Thread::activity(ref<Object> activity)
 {
     __current_activity = activity;
-}
-
-// Returns the current place.
-const ref<Object>
-Thread::place(void)
-{
-    return __current_place;
-}
-
-// Set the current place.
-void
-Thread::place(const ref<Object> place)
-{
-    __current_place = place;
 }
 
 // Returns the identifier of this thread.
