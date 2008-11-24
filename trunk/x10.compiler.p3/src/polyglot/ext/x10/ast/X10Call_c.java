@@ -120,7 +120,7 @@ public class X10Call_c extends Call_c implements X10Call {
 			Type scope = c.findMethodScope(name.id());
 			scope = X10TypeMixin.setSelfVar(scope, this_);
 
-			if (! ts.typeEquals(scope, c.currentClass())) {
+			if (! ts.typeBaseEquals(scope, c.currentClass())) {
 				r = (Special) nf.This(position().startOf(),
 						nf.CanonicalTypeNode(position().startOf(), scope)).del().typeCheck(tc);
 			}
