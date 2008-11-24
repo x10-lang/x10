@@ -7,7 +7,7 @@ public value StringWriter extends Writer {
 
     public def this() { this.b = new StringBuilder(); }
 
-    public def write(x: Byte): Void { b.add((x to Byte) to Char); }
+    public def write(x: Byte): Void { b.add(((x to Byte) to Char) to Box[Char]); }
     public def size() = b.length();
     public def toString() = b.toString();
     public def result() = b.result(); 
