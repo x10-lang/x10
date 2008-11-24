@@ -164,7 +164,7 @@ ref<Rail<x10_byte> > String::bytes() {
     return rail;
 }
 
-ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
+static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > parms) {
     (void) parms;
     return format;
 /* TODO: fix this up (if you dare)
@@ -214,6 +214,13 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
 */
 }
 
+ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
+    return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
+}
+
+ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
+    return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
+}
 
 void String::_serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
     Value::_serialize_fields(buf, m);
