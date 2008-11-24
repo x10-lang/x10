@@ -69,10 +69,6 @@ class Thread {
     @Native("c++", "(#0)->activity(#1)")
     public native def activity(activity:Object):void;
 
-    @Native("java", "#0.place()")
-    @Native("c++", "(#0)->place()")
-    public native def place():Int;
-
     @Native("java", "#0.getName()")
     @Native("c++", "(#0)->getName()")
     public native def name():String;

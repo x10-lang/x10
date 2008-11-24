@@ -18,15 +18,15 @@ public class Thread extends java.lang.Thread {
 		return (Thread) java.lang.Thread.currentThread();
 	}
 
-	private int place; // the current place
+	private int location;    // the current place
 	private Object activity; // the current activity
 
 	/**
 	 * Create main x10 thread (called by native runtime only )
 	 */ 
-	Thread(int place, Runnable runnable, String name) {
+	Thread(int location, Runnable runnable, String name) {
 		super(runnable, name);
-		this.place = place;
+		this.location = location;
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class Thread extends java.lang.Thread {
 	 */ 
 	public Thread(final x10.core.fun.VoidFun_0_0 body, String name) {
 		super(new Runnable() { public void run() { body.apply(); } }, name);
-		this.place = currentThread().place;
+		location = currentThread().location;
 	}
 
 	/**
@@ -54,14 +54,14 @@ public class Thread extends java.lang.Thread {
 	/**
 	 * Update thread place (called by native runtime only)
 	 */ 
-	void place(int place) {
-		this.place = place;
+	void location(int location) {
+		this.location = location;
 	}
 
 	/**
 	 * Return current place
 	 */ 
-	public int place() {
-		return place;
+	public int location() {
+		return location;
 	}
 }
