@@ -170,12 +170,6 @@ namespace x10 {
             // Set the current activity.
             void activity(x10aux::ref<x10::lang::Object> activity);
 
-            // Returns the current place.
-            const x10aux::ref<x10::lang::Object> place(void);
-
-            // Set the current place.
-            void place(x10aux::ref<x10::lang::Object> place);
-
             // Returns this thread's name.
             const x10aux::ref<x10::lang::String> getName(void);
 
@@ -208,8 +202,6 @@ namespace x10 {
             static void thread_mapper_cleanup(void *arg);
 
         private:
-            // the current place
-            static x10aux::ref<x10::lang::Object> __current_place;
             // the current activity
             static x10aux::ref<x10::lang::Object> __current_activity;
             // the current thread
