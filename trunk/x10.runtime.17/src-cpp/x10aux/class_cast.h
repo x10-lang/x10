@@ -112,7 +112,7 @@ namespace x10aux {
     } };
     template<class T> struct ClassCast2<T,T> { static T class_cast (T obj) {
         // nothing to do (until we have constraints)
-        _CAST_("Identify cast to/from "<<TYPENAME(T));
+        _CAST_("Identity cast to/from "<<TYPENAME(T));
         return obj;
     } };
 
