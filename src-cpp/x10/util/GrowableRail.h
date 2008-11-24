@@ -74,11 +74,19 @@ namespace x10 {
             x10_int length() { return _len; }
 
             x10aux::ref<x10::lang::Rail<T> > toRail() {
-                assert(false); // TODO
+                x10aux::ref<x10::lang::Rail<T> > ans = x10::lang::Rail<T>::make(_len);
+                for (int i=0; i<_len; i++) {
+                    (*ans)[i] = (*_array)[i];
+                }
+                return ans;
             }
 
             x10aux::ref<x10::lang::ValRail<T> > toValRail() {
-                assert(false); // TODO
+                x10aux::ref<x10::lang::ValRail<T> > ans = x10::lang::ValRail<T>::make(_len);
+                for (int i=0; i<_len; i++) {
+                    (*ans)[i] = (*_array)[i];
+                }
+                return ans;
             }
 
         private:
