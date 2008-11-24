@@ -47,10 +47,22 @@ namespace x10 {
         * augmented with the park/unpark API of java.util.concurrent.
         * locks.LockSupport.
         */
-        class Thread : public x10::lang::Ref {
+        class Thread : public x10::lang::Value {
         public:
+
+            class RTT : public x10aux::RuntimeType {
+                public:
+                static RTT* const it;
+                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
+                virtual std::string name() const { return "x10.runtime.Thread"; }
+            };
+
+            virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<Thread>(); }
+
+
             // [constructors] Allocates a new Thread object.
-            explicit Thread(x10aux::ref<x10::lang::VoidFun_0_0> task, const x10aux::ref<x10::lang::String> name) : Ref() {
+            explicit Thread(x10aux::ref<x10::lang::VoidFun_0_0> task,
+                            x10aux::ref<x10::lang::String> name) {
                 thread_init(task, name);
             } 
 
