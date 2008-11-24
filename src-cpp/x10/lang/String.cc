@@ -39,43 +39,47 @@ x10_boolean String::equals(ref<Object> other) {
     // defer to std::string::compare to check string contents
     return !compare(*other_str);
 }
-    
 
-std::ostream &operator << (std::ostream &o, x10aux::ref<x10::lang::String> s) {
-    return o << (s.isNull()?String("null"):*s);
+
+std::ostream& operator<<(std::ostream& o, const x10aux::ref<String>& s) {
+    return o << (s.isNull() ? String("null") : *s);
 }
 
 // postfix primitive operator+
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_boolean v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_byte v)
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_char v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_short v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_int v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_long v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_float v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_double v)
-{ return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return X10NEW(String)(*s+x10aux::to_string(v)); }
 
 // prefix primitive operator+
 ref<String> x10::lang::operator+(x10_boolean v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+ref<String> x10::lang::operator+(x10_byte v, x10aux::ref<String> s)
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_char v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_short v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_int v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_long v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_float v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_double v, x10aux::ref<String> s)
-{ return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return X10NEW(String)(x10aux::to_string(v)+*s); }
 
 
 /*
