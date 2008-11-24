@@ -12,9 +12,6 @@
 #include <x10/lang/Ref.h>
 #include <x10/lang/Rail.h>
 
-#define GROWABLE_RAIL_SIZE_HACK 200
-
-
 namespace x10 {
 
     namespace util {
@@ -45,8 +42,8 @@ namespace x10 {
             x10_int _len;
             
         public:
-            GrowableRail() : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(1+GROWABLE_RAIL_SIZE_HACK)) { }
-            GrowableRail(x10_int size) : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(size+GROWABLE_RAIL_SIZE_HACK)) { }
+            GrowableRail() : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(1)) { }
+            GrowableRail(x10_int size) : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(size)) { }
 
             T set(T v, x10_int i) {
                 grow(i+1);
@@ -62,10 +59,13 @@ namespace x10 {
             T apply(x10_int i) {
                 assert(i>=0);
                 assert(i<_len);
+
                 return (*_array)[i];
             }
 
             void removeLast() {
+                assert(_len > 0);
+                
                 (*_array)[_len-1] = (T)0;
                 _len--;
                 shrink(_len+1);
@@ -91,16 +91,48 @@ namespace x10 {
 
         private:
             void grow(x10_int newSize) {
-                if (newSize <= size()) {
+                x10_int oldStorage = size();
+
+                if (newSize <= oldStorage) {
                     return;
                 }
-                assert(false); // TODO:
+                if (newSize < oldStorage*2) {
+                    newSize = oldStorage*2;
+                }
+                if (newSize < _len) {
+                    newSize = _len;
+                }
+                if (newSize < 8) {
+                    newSize = 8;
+                }
+
+                x10aux::ref<x10::lang::Rail<T> > tmp = x10::lang::Rail<T>::make(newSize);
+                for (int i=0; i<_len; i++) {
+                    (*tmp)[i] = (*_array)[i];
+                }
+
+                _array = tmp;
             }
+
 
             void shrink(x10_int newSize) {
                 if (newSize > size()/2 || newSize < 8) {
                     return;
                 }
+
+                if (newSize < _len) {
+                    newSize = _len;
+                }
+                if (newSize < 8) {
+                    newSize = 8;
+                }
+
+                x10aux::ref<x10::lang::Rail<T> > tmp = x10::lang::Rail<T>::make(newSize);
+                for (int i=0; i<_len; i++) {
+                    (*tmp)[i] = (*_array)[i];
+                }
+
+                _array = tmp;
             }
                 
             x10_int size() { return _array->FMGL(length); }
