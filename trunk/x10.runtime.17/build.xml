@@ -104,7 +104,7 @@
     <target name="check-bdwgc">
         <sequential>
 	    <available file="${bdwgc.dir}/bdwgc/configure" property="bdwgc.available"/>
-	    <available file="${bdwgc.dir}/bdwgc/.lib/libgc.so" property="bdwgc.built"/>
+	    <available file="${bdwgc.dir}/bdwgc/.libs/libgc.a" property="bdwgc.built"/>
         </sequential>
     </target>
 
