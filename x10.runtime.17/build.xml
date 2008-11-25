@@ -79,7 +79,9 @@
 
     <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.built">
         <sequential>
-	   <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
+	   <exec executable="bash" dir="${bdwgc.dir}/src" failonerror="true">
+              <arg value="-c" />
+              <arg value="./configure" />
 	      <arg value="-enable-threads=posix" />
 	      <arg value="--prefix=${bdwgc.dir}/install" />
 	   </exec>
