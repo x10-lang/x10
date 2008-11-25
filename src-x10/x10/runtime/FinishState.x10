@@ -74,6 +74,14 @@ class FinishState {
 	}
 
 	/** 
+	 * An activity created under this finish has terminated abnormally.
+	 */
+	def notifySubActivityTermination(t:Throwable):Void {
+		pushException(t);
+		latch.countDown();
+	}
+
+	/** 
 	 * Push an exception onto the stack.
 	 */
 	def pushException(t:Throwable):Void {

@@ -37,25 +37,24 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 	 * Run the activity.
 	 */
 	def run():Void {
-		try {
-		    finishStack.push(new FinishState());
+		val state = finishStack.peek();
+		if (location == state.location) {
+			// local async
 			try {
-				body();
+				try { body(); } finally { clockPhases.drop(); }
+				state.notifySubActivityTermination();
 			} catch (t:Throwable) {
-				finishStack.peek().pushException(t);
+				state.notifySubActivityTermination(t);
 			}
-	    	clockPhases.drop();
-			finishStack().pop().waitForFinish();
-		} catch (t:Throwable) {
-			val state = finishStack.peek();
-			NativeRuntime.runAt(state.location.id, ()=>{
-				state.pushException(t);
-    			state.notifySubActivityTermination();
-    		});
-    		return;
-    	}
-    	val state = finishStack.peek();
-		NativeRuntime.runAt(state.location.id, ()=>state.notifySubActivityTermination());
+		} else {
+			// remote async
+			try {
+				finish try { body(); } finally { clockPhases.drop(); }
+				NativeRuntime.runAt(state.location.id, ()=>state.notifySubActivityTermination());
+			} catch (t:Throwable) {
+				NativeRuntime.runAt(state.location.id, ()=>state.notifySubActivityTermination(t));
+	    	}
+		}
 	}
 	
 	public def toString():String = name; 
