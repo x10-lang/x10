@@ -81,9 +81,7 @@
         <sequential>
 	   <exec executable="bash" dir="${bdwgc.dir}/src" failonerror="true">
               <arg value="-c" />
-              <arg value="./configure" />
-	      <arg value="-enable-threads=posix" />
-	      <arg value="--prefix=${bdwgc.dir}/install" />
+              <arg value="./configure -enable-threads=posix --prefix='${bdwgc.dir}'/install" />
 	   </exec>
 	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true"></exec>
 	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
