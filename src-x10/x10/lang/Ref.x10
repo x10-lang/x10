@@ -21,7 +21,7 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10aux::ref<x10::lang::Ref>", "x10::lang::Ref", null)
 public class Ref(
         @Native("java", "x10.lang.Place.place(#0.location())")
-        @Native("c++", "x10aux::location(x10aux::ref<x10::lang::Ref>(this))")
+        @Native("c++", "x10::lang::Place::place(x10aux::location(#0))")
         location: Place) {
 
     public native def this();

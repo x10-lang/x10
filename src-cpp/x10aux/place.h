@@ -67,6 +67,10 @@ namespace x10aux {
 
     inline place here() { return (place) x10_here(); }
 
+    template<class T> inline place location(T* p) {
+        return (place) x10_ref_get_loc((x10_addr_t)p);
+    }
+
     template<class T> inline place location(ref<T> r) {
         return (place) x10_ref_get_loc((x10_addr_t)r.operator->());
     }
