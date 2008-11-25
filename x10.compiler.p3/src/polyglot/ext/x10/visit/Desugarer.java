@@ -106,9 +106,9 @@ public class Desugarer extends ContextVisitor {
                 fDef.methodContainer(), fDef.returnType(),
                 fDef.typeParameters(), fDef.formalTypes(),
                 fDef.formalNames(), fDef.guard(), fDef.throwTypes());
-        Closure closure = ((Closure_c) xnf.Closure(c.body().position(), c.typeParameters(),
+        Closure closure = (Closure_c) ((Closure_c) xnf.Closure(c.body().position(), c.typeParameters(),
                 c.formals(), c.guard(), c.returnType(),
-                c.throwTypes(), c.body())).closureDef(cDef);
+                c.throwTypes(), c.body())).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), cDef.asType() }));
         if (named) {
@@ -131,9 +131,9 @@ public class Desugarer extends ContextVisitor {
                 Collections.EMPTY_LIST);
         Type clockRail = xts.ValRail(xts.Clock());
         Tuple clocks = (Tuple) xnf.Tuple(pos, a.clocks()).type(clockRail);
-        Closure closure = ((Closure_c) xnf.Closure(a.body().position(), Collections.EMPTY_LIST,
+        Closure closure = (Closure_c) ((Closure_c) xnf.Closure(a.body().position(), Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST, null, xnf.CanonicalTypeNode(pos, xts.Void()),
-                Collections.EMPTY_LIST, xnf.Block(a.body().position(), a.body()))).closureDef(cDef);
+                Collections.EMPTY_LIST, xnf.Block(a.body().position(), a.body()))).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
         StringLit pString = xnf.StringLit(pos, pos.nameAndLineString());
         List<Expr> args = Arrays.asList(new Expr[] { a.place(), clocks, closure, pString });
         List<Type> mArgs = Arrays.asList(new Type[] { xts.Place(), clockRail,
