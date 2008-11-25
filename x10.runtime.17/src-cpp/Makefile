@@ -4,8 +4,9 @@ CXX?=g++
 AR?=ar
 
 X10LIB?=../../pgas/common/work
-CXXFLAGS+=-g -ansi -pedantic -Wall -Wextra -Wno-long-long
-INCLUDE_DIRS+=-I$(X10LIB)/include -I.
+BDWGC?=bdwgc/install
+CXXFLAGS+=-g -ansi -pedantic -Wall -Wextra -Wno-long-long -pthread
+INCLUDE_DIRS+=-I$(X10LIB)/include -I${BDWGC}/include -I. 
 CXXFLAGS+=$(INCLUDE_DIRS)
 ifneq ($(wildcard /usr/include/lapi.h),) # AIX
 CXX = mpCC_r
