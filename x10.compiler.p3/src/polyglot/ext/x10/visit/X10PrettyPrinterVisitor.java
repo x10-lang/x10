@@ -2466,47 +2466,55 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	public void visit(Async_c a) {
-		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("Async",
-				a.place(),
-				processClocks(a),
-				a.body(),
-				a.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
+	    assert false;
+//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+//		new Template("Async",
+//				a.place(),
+//				processClocks(a),
+//				a.body(),
+//				a.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
 	}
 	
 	public void visit(AtStmt_c a) {
-		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("At",
-					 a.place(),
-					 a.body(),
-                     getUniqueId_(),
-                     a.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
+	    assert false;
+//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+//		new Template("At",
+//					 a.place(),
+//					 a.body(),
+//                     getUniqueId_(),
+//                     a.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
 	}
 
 	public void visit(Atomic_c a) {
-		new Template("Atomic", a.body(), getUniqueId_()).expand();
+	    assert false;
+//		new Template("Atomic", a.body(), getUniqueId_()).expand();
 	}
 
 	public void visit(Here_c a) {
-		new Template("here").expand();
+	    assert false;
+//		new Template("here").expand();
 	}
 
 	public void visit(Await_c c) {
-		new Template("await", c.expr(), getUniqueId_()).expand();
+        assert false;
+//		new Template("await", c.expr(), getUniqueId_()).expand();
 	}
 
 	public void visit(Next_c d) {
-		new Template("next").expand();
+        assert false;
+//		new Template("next").expand();
 	}
 
 	public void visit(Future_c f) {
-		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("Future", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
+	    assert false;
+//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+//		new Template("Future", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
 	}
 	
 	public void visit(AtExpr_c f) {
-		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
-		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
+	    assert false;
+//		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+//		new Template("AtExpr", f.place(), new TypeExpander(f.returnType().type(), true, true, false, false), f.body(), new RuntimeTypeExpander(f.returnType().type()), f.position().nameAndLineString().replace("\\", "\\\\")).expand(tr2);
 	}
 	
 	public void visit(Formal_c f) {
@@ -2677,33 +2685,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 	}
 
-	private Stmt optionalBreak(Stmt s) {
-		NodeFactory nf = tr.nodeFactory();
-		if (s.reachable())
-			return nf.Break(s.position());
-		// [IP] Heh, Empty cannot be unreachable either.  Who knew?
-//		return nf.Empty(s.position());
-		return null;
-	}
+//	private Stmt optionalBreak(Stmt s) {
+//		NodeFactory nf = tr.nodeFactory();
+//		if (s.reachable())
+//			return nf.Break(s.position());
+//		// [IP] Heh, Empty cannot be unreachable either.  Who knew?
+////		return nf.Empty(s.position());
+//		return null;
+//	}
 
 	public void visit(When_c w) {
-		Integer id = getUniqueId_();
-		List breaks = new ArrayList(w.stmts().size());
-		for (Iterator i = w.stmts().iterator(); i.hasNext(); ) {
-			Stmt s = (Stmt) i.next();
-			breaks.add(optionalBreak(s));
-		}
-		new Template("when",
-						 w.expr(),
-						 w.stmt(),
-						 optionalBreak(w.stmt()),
-						 new Loop("when-branch", w.exprs(), w.stmts(), breaks),
-						 id
-					 ).expand();
+	    assert false;
+//		Integer id = getUniqueId_();
+//		List breaks = new ArrayList(w.stmts().size());
+//		for (Iterator i = w.stmts().iterator(); i.hasNext(); ) {
+//			Stmt s = (Stmt) i.next();
+//			breaks.add(optionalBreak(s));
+//		}
+//		new Template("when",
+//						 w.expr(),
+//						 w.stmt(),
+//						 optionalBreak(w.stmt()),
+//						 new Loop("when-branch", w.exprs(), w.stmts(), breaks),
+//						 id
+//					 ).expand();
 	}
 
 	public void visit(Finish_c a) {
-		new Template("finish", a.body(), getUniqueId_()).expand();
+	    assert false;
+//		new Template("finish", a.body(), getUniqueId_()).expand();
 	}
 
 	private TypeNode getParameterType(Type at) {
