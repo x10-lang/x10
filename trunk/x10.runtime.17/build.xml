@@ -81,14 +81,11 @@
 
     <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.built">
         <sequential>
-	   <exec executable="bash" dir="${bdwgc.dir}/src" failonerror="true">
+	   <exec executable="bash" dir="${bdwgc.dir}/bdwgc" failonerror="true">
               <arg value="-c" />
-              <arg value="./configure -enable-threads=posix --prefix='${bdwgc.dir}'/install" />
+              <arg value="./configure -enable-threads=posix" />
 	   </exec>
-	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true"></exec>
-	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-	       <arg value="install" />
-           </exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/bdwgc" failonerror="true"></exec>
         </sequential>
     </target>
 
@@ -100,15 +97,14 @@
                  dest="${bdwgc.dir}"
 	         failonerror="true"
             />
-	    <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
         </sequential>
 	
     </target>
 
     <target name="check-bdwgc">
         <sequential>
-	    <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
-	    <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+	    <available file="${bdwgc.dir}/bdwgc/configure" property="bdwgc.available"/>
+	    <available file="${bdwgc.dir}/bdwgc/.lib/libgc.so" property="bdwgc.built"/>
         </sequential>
     </target>
 
