@@ -115,7 +115,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     size_t guardsize = PAGESIZE;
 #else
     size_t guardsize = getpagesize();
-#endif    
+#endif
     pthread_attr_setguardsize(&__xthread_attr, guardsize);
     // inheritsched
     int inheritsched = PTHREAD_INHERIT_SCHED;
@@ -129,9 +129,15 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     // contentionscope
     int contentionscope = PTHREAD_SCOPE_PROCESS;
     pthread_attr_setscope(&__xthread_attr, contentionscope);
-    // stacksize
-    size_t stacksize = PTHREAD_STACK_MIN;
-    pthread_attr_setstacksize(&__xthread_attr, stacksize);
+
+    /*
+     * NOTE: Setting the stacksize to small breaks BDWGC.
+     *       Just use the default stacksize to avoid confusing the GC!
+     */
+    //stacksize
+    //size_t stacksize = PTHREAD_STACK_MIN;
+    //*pthread_attr_setstacksize(&__xthread_attr, stacksize);
+
     // suspendstate
     //int suspendstate = PTHREAD_CREATE_SUSPENDED_NP;
     //pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
