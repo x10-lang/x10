@@ -213,19 +213,22 @@ public class Desugarer extends ContextVisitor {
 
     private Node visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
+
         MethodInstance mi = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
                 PUSH_EXCEPTION, Collections.singletonList(xts.Throwable())), context.currentClassDef());
-        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, START_FINISH, xts.Void())), f.body());
-        LocalDef ld = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), Name.make("t"));
-        Formal formal = ((Formal) xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
-                xnf.CanonicalTypeNode(pos, xts.Throwable()), 
-                xnf.Id(pos, "t")).localDef(ld).type(xnf.CanonicalTypeNode(pos, xts.Throwable())));
+        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), Name.make("t"));
+        Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
+                xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, "t")).localDef(lDef);
+        Expr local = xnf.Local(pos, xnf.Id(pos, "t")).localInstance(lDef.asInstance()).type(xts.Throwable());
         Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.EMPTY_LIST,
-                Collections.singletonList((Expr) xnf.Local(pos, xnf.Id(pos, "t")).localInstance(ld.asInstance()).type(xts.Throwable()))).methodInstance(mi).type(xts.Void());
-        Catch c = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
+                Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
+
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, START_FINISH, xts.Void())), f.body());
+        Catch catchBlock = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
-        return xnf.Try(pos, tryBlock, Collections.singletonList(c), finallyBlock);
+
+        return xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
     }
 
 //    private Node visitForEach(ForEach f) throws SemanticException {
