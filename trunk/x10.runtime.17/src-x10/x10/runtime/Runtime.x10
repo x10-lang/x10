@@ -85,9 +85,9 @@ public value Runtime {
 	/**
 	 * Run async
 	 */
-	public static def runAsync(place:Place, clocks:ValRail[Clock_c], body:()=>Void, name:String):Void {
+	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, name:String):Void {
 		val state = current().finishStack.peek();
-		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>clocks(i).register_c());
+		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
 		NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, clocks, phases, name)));
 	}

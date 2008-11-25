@@ -27,7 +27,7 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 	/**
 	 * Create a clocked activity.
 	 */
-	def this(body:()=>Void, state:FinishState, clocks:ValRail[Clock_c], phases:ValRail[Int], name:String) {
+	def this(body:()=>Void, state:FinishState, clocks:ValRail[Clock], phases:ValRail[Int], name:String) {
 		this(body, name);
 	    finishStack.push(state);
 		clockPhases.register(clocks, phases);
