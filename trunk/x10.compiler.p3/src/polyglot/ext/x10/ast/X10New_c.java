@@ -160,7 +160,7 @@ public class X10New_c extends New_c implements X10New {
                         X10ClassType ct = (X10ClassType) t;
 
                         if (ct.isMember() && ! ct.flags().isStatic()) {
-                            New k = n.findQualifier(childtc, ct);
+                            New k = ((X10New_c)n.objectType(tn)).findQualifier(childtc, ct);
                             tn = k.objectType();
                             qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
                         }
