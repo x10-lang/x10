@@ -12,18 +12,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.ast.Block;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
+import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtExpr;
+import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.AtStmt;
+import polyglot.ext.x10.ast.Await;
 import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
+import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ClosureDef;
@@ -57,6 +63,10 @@ public class Desugarer extends ContextVisitor {
     private static final Name EVAL_FUTURE = Name.make("evalFuture");
     private static final Name RUN_ASYNC = Name.make("runAsync");
     private static final Name HERE = Name.make("here");
+    private static final Name NEXT = Name.make("next");
+    private static final Name LOCK = Name.make("lock");
+    private static final Name AWAIT = Name.make("await");
+    private static final Name RELEASE = Name.make("release");
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Future)
@@ -71,6 +81,12 @@ public class Desugarer extends ContextVisitor {
             return visitAtExpr((AtExpr) n);
         if (n instanceof Here)
             return visitHere((Here) n);
+        if (n instanceof Next)
+            return visitNext((Next) n);
+        if (n instanceof Atomic)
+            return visitAtomic((Atomic) n);
+        if (n instanceof Await)
+            return visitAwait((Await) n);
         return n;
     }
 
@@ -131,10 +147,34 @@ public class Desugarer extends ContextVisitor {
 
     private Node visitHere(Here h) throws SemanticException {
         Position pos = h.position();
-        MethodInstance implMI = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
-                HERE, Collections.EMPTY_LIST), context.currentClassDef());
+        return call(pos, HERE, xts.Place());
+    }
+
+    private Node visitNext(Next n) throws SemanticException {
+        Position pos = n.position();
+        return xnf.Eval(pos, call(pos, NEXT, xts.Void()));
+    }
+
+    private Node visitAtomic(Atomic a) throws SemanticException {
+        Position pos = a.position();
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), a.body());
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
+        return xnf.Try(pos, tryBlock, Collections.EMPTY_LIST, finallyBlock);
+    }
+    
+    private Node visitAwait(Await a) throws SemanticException {
+        Position pos = a.position();
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), 
+                xnf.While(pos, xnf.Unary(pos, a.expr(), Unary.NOT), xnf.Eval(pos, call(pos, AWAIT, xts.Void()))));
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
+        return xnf.Try(pos, tryBlock, Collections.EMPTY_LIST, finallyBlock);
+    }
+    
+    private Expr call(Position pos, Name name, Type t) throws SemanticException {
+        MethodInstance mi = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
+                name, Collections.EMPTY_LIST), context.currentClassDef());
         return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
-                xnf.Id(pos, HERE), Collections.EMPTY_LIST,
-                Collections.EMPTY_LIST).methodInstance(implMI).type(xts.Place());
+                xnf.Id(pos, name), Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST).methodInstance(mi).type(t);
     }
 }
