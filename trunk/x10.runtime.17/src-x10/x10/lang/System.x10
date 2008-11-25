@@ -31,5 +31,6 @@ public class System {
 
     /* TODO: XTENLANG-180.  Provide full System properties API in straight X10 */
     @Native("java", "java.lang.System.setProperty(#1,#2)")
+    @Native("c++", "assert(false)") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
 }
