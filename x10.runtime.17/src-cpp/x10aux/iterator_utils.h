@@ -9,7 +9,7 @@ namespace x10aux {
     template<class T, class F> class IteratorAdapter : public x10::lang::Iterator<T> {
         x10::lang::Iterator<F>* _from;
     public:
-        IteratorAdapter(ref<x10::lang::Iterator<F> > from) : _from(from) { }
+        IteratorAdapter(ref<x10::lang::Iterator<F> > from) : _from(from.operator->()) { }
 
         x10::lang::Iterator<F>* operator->() { return _from; }
 
