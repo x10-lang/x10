@@ -2392,25 +2392,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		tr2.print(n, n.body(), w);
 		w.write("}");
 		
-//		Type t = n.type();
-//		t = X10TypeMixin.baseType(t);
-//		if (t instanceof X10ClassType) {
-//		    X10ClassType ct = (X10ClassType) t;
-//		    generateRTTMethods(ct.x10Def());
-//		}
+		Type t = n.type();
+		t = X10TypeMixin.baseType(t);
+		if (t instanceof X10ClassType) {
+		    X10ClassType ct = (X10ClassType) t;
+		    generateRTTMethods(ct.x10Def());
+		}
 		
-        if (!n.returnType().type().isVoid()) {
-                w.write("public x10.types.Type<?> rtt_x10$lang$Fun_0_" + n.formals().size() + "_U() { return ");
-                new RuntimeTypeExpander(n.returnType().type()).expand(tr2);
-                w.write("; }");
-        }
-
-        for(int i=0; i<n.formals().size(); i++) {
-            w.write("public x10.types.Type<?> rtt_x10$lang$Fun_0_" + n.formals().size() + "_Z" + (i+1) + "() { return ");
-            new RuntimeTypeExpander(n.formals().get(i).type().type()).expand(tr2);
-            w.write("; }");
-        }
-        
 		w.write("}");
 	}
 
