@@ -65,7 +65,10 @@ public value Runtime {
 //		try {
 			val activity = new Activity(body, "root");
 			Thread.currentThread().activity(activity);
-			finish activity.run();
+			finish {
+				activity.finishStack.peek().notifySubActivitySpawn();
+				activity.run();
+			}
 //		} catch (t:Throwable) {
 //			t.printStackTrace();
 //		}
@@ -89,7 +92,11 @@ public value Runtime {
 		val state = current().finishStack.peek();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
-		NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, clocks, phases, name)));
+		if (place == here) {
+			pool.execute(new Activity(body, state, clocks, phases, name));
+		} else {
+			NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, clocks, phases, name)));
+		}
 	}
 
 	/**
