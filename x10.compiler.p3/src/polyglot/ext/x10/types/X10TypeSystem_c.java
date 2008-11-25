@@ -1565,7 +1565,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	protected ClassType runtimeType_;
 	public Type Runtime() {
 		if (runtimeType_ == null)
-			runtimeType_ = load("x10.lang.Runtime"); // java file
+			runtimeType_ = load("x10.runtime.Runtime"); // java file
 		return runtimeType_;
 	}
 	

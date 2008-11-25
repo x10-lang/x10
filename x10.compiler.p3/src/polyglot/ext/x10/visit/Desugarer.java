@@ -23,6 +23,7 @@ import polyglot.ext.x10.ast.AtStmt;
 import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.Future;
+import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ClosureDef;
@@ -43,15 +44,19 @@ import polyglot.visit.NodeVisitor;
  * Visitor to desugar the AST before code gen.
  */
 public class Desugarer extends ContextVisitor {
+    private final X10TypeSystem xts;
+    private final X10NodeFactory xnf;
+
     public Desugarer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
+        xts = (X10TypeSystem) ts;
+        xnf = (X10NodeFactory) nf;
     }
 
-    private static QName CLOCK_CLASSNAME = QName.make("x10.lang.Clock");
-    private static QName RUNTIME_CLASSNAME = QName.make("x10.runtime.Runtime");
-    private static final String EVAL_AT = "evalAt";
-    private static final String EVAL_FUTURE = "evalFuture";
-    private static final String RUN_ASYNC = "runAsync";
+    private static final Name EVAL_AT = Name.make("evalAt");
+    private static final Name EVAL_FUTURE = Name.make("evalFuture");
+    private static final Name RUN_ASYNC = Name.make("runAsync");
+    private static final Name HERE = Name.make("here");
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Future)
@@ -64,6 +69,8 @@ public class Desugarer extends ContextVisitor {
         }
         if (n instanceof AtExpr)
             return visitAtExpr((AtExpr) n);
+        if (n instanceof Here)
+            return visitHere((Here) n);
         return n;
     }
 
@@ -75,20 +82,17 @@ public class Desugarer extends ContextVisitor {
         return visitRemoteClosure(e, EVAL_AT, e.place(), false);
     }
 
-    private Node visitRemoteClosure(Closure c, String impl, Expr place, boolean named) throws SemanticException {
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        X10TypeSystem xts = (X10TypeSystem) typeSystem();
+    private Node visitRemoteClosure(Closure c, Name implName, Expr place, boolean named) throws SemanticException {
         Position pos = c.position();
-        Type runtime = (Type)xts.forName(RUNTIME_CLASSNAME);
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         ClosureDef fDef = c.closureDef();
         ClosureDef cDef = xts.closureDef(c.body().position(), fDef.typeContainer(),
-                                         fDef.methodContainer(), fDef.returnType(),
-                                         fDef.typeParameters(), fDef.formalTypes(),
-                                         fDef.formalNames(), fDef.guard(), fDef.throwTypes());
+                fDef.methodContainer(), fDef.returnType(),
+                fDef.typeParameters(), fDef.formalTypes(),
+                fDef.formalNames(), fDef.guard(), fDef.throwTypes());
         Closure closure = ((Closure_c) xnf.Closure(c.body().position(), c.typeParameters(),
-                                                   c.formals(), c.guard(), c.returnType(),
-                                                   c.throwTypes(), c.body())).closureDef(cDef);
+                c.formals(), c.guard(), c.returnType(),
+                c.throwTypes(), c.body())).closureDef(cDef);
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
         List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] { xts.Place(), cDef.asType() }));
         if (named) {
@@ -96,40 +100,41 @@ public class Desugarer extends ContextVisitor {
             mArgs.add(xts.String());
         }
         List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
-        Name implName = Name.make(impl);
-        MethodInstance implMI = xts.findMethod(runtime, xts.MethodMatcher(runtime, implName, mArgs),
-                                               context.currentClassDef());
-        return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, runtime),
-                           xnf.Id(pos, implName), typeArgs, args).methodInstance(implMI).type(c.type());
+        MethodInstance implMI = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(), implName, mArgs),
+                context.currentClassDef());
+        return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, implName), typeArgs, args).methodInstance(implMI).type(c.type());
     }
 
     private Node visitAsync(Async a) throws SemanticException {
-        X10NodeFactory xnf = (X10NodeFactory) nodeFactory();
-        X10TypeSystem xts = (X10TypeSystem) typeSystem();
         Position pos = a.position();
-        Type runtime = (Type)xts.forName(RUNTIME_CLASSNAME);
         ClosureDef cDef = xts.closureDef(a.body().position(), Types.ref(context.currentClass()),
-                                         Types.ref(context.currentCode().asInstance()),
-                                         Types.ref(xts.Void()), Collections.EMPTY_LIST,
-                                         Collections.EMPTY_LIST, Collections.EMPTY_LIST, null,
-                                         Collections.EMPTY_LIST);
-        Type clockRail = xts.ValRail((Type)xts.forName(CLOCK_CLASSNAME));
+                Types.ref(context.currentCode().asInstance()),
+                Types.ref(xts.Void()), Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST, Collections.EMPTY_LIST, null,
+                Collections.EMPTY_LIST);
+        Type clockRail = xts.ValRail(xts.Clock());
         Tuple clocks = (Tuple) xnf.Tuple(pos, a.clocks()).type(clockRail);
         Closure closure = ((Closure_c) xnf.Closure(a.body().position(), Collections.EMPTY_LIST,
-                                                   Collections.EMPTY_LIST, null,
-                                                   xnf.CanonicalTypeNode(pos, xts.Void()),
-                                                   Collections.EMPTY_LIST,
-                                                   xnf.Block(a.body().position(), a.body()))).closureDef(cDef);
+                Collections.EMPTY_LIST, null, xnf.CanonicalTypeNode(pos, xts.Void()),
+                Collections.EMPTY_LIST, xnf.Block(a.body().position(), a.body()))).closureDef(cDef);
         StringLit pString = xnf.StringLit(pos, pos.nameAndLineString());
         List<Expr> args = Arrays.asList(new Expr[] { a.place(), clocks, closure, pString });
         List<Type> mArgs = Arrays.asList(new Type[] { xts.Place(), clockRail,
-                                                      cDef.asType(), xts.String() });
-        Name implName = Name.make(RUN_ASYNC);
-        MethodInstance implMI = xts.findMethod(runtime, xts.MethodMatcher(runtime, implName, mArgs),
-                                               context.currentClassDef());
-        return xnf.Eval(pos,
-                        xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, runtime),
-                                    xnf.Id(pos, implName), Collections.EMPTY_LIST,
-                                    args).methodInstance(implMI).type(xts.Void()));
+                cDef.asType(), xts.String() });
+        MethodInstance implMI = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(), RUN_ASYNC, mArgs),
+                context.currentClassDef());
+        return xnf.Eval(pos, xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, RUN_ASYNC), Collections.EMPTY_LIST,
+                args).methodInstance(implMI).type(xts.Void()));
+    }
+
+    private Node visitHere(Here h) throws SemanticException {
+        Position pos = h.position();
+        MethodInstance implMI = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
+                HERE, Collections.EMPTY_LIST), context.currentClassDef());
+        return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, HERE), Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST).methodInstance(implMI).type(xts.Place());
     }
 }
