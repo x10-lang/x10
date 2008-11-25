@@ -47,7 +47,7 @@ public class Desugarer extends ContextVisitor {
         super(job, ts, nf);
     }
 
-    private static QName CLOCK_CLASSNAME = QName.make("x10.runtime.Clock_c");
+    private static QName CLOCK_CLASSNAME = QName.make("x10.lang.Clock");
     private static QName RUNTIME_CLASSNAME = QName.make("x10.runtime.Runtime");
     private static final String EVAL_AT = "evalAt";
     private static final String EVAL_FUTURE = "evalFuture";
