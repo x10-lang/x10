@@ -17,6 +17,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
+import polyglot.ast.Stmt;
 import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
@@ -31,6 +32,7 @@ import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.Tuple;
+import polyglot.ext.x10.ast.When;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -87,6 +89,8 @@ public class Desugarer extends ContextVisitor {
             return visitAtomic((Atomic) n);
         if (n instanceof Await)
             return visitAwait((Await) n);
+        if (n instanceof When)
+            return visitWhen((When) n);
         return n;
     }
 
@@ -166,6 +170,23 @@ public class Desugarer extends ContextVisitor {
         Position pos = a.position();
         Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), 
                 xnf.While(pos, xnf.Unary(pos, a.expr(), Unary.NOT), xnf.Eval(pos, call(pos, AWAIT, xts.Void()))));
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
+        return xnf.Try(pos, tryBlock, Collections.EMPTY_LIST, finallyBlock);
+    }
+    
+    private Stmt wrap(Position pos, Stmt s) {
+        return s.reachable() ? xnf.Block(pos, s, xnf.Break(pos)) : s;
+    }
+    
+    private Node visitWhen(When w) throws SemanticException {
+        Position pos = w.position();
+        Block body = xnf.Block(pos, xnf.If(pos, w.expr(), wrap(pos, w.stmt())));
+        for(int i=0; i<w.stmts().size(); i++) {
+            body = body.append(xnf.If(pos, (Expr) w.exprs().get(i), wrap(pos, (Stmt) w.stmts().get(i))));
+        }
+        body = body.append(xnf.Eval(pos, call(pos, AWAIT, xts.Void())));
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), 
+                xnf.While(pos, xnf.BooleanLit(pos, true), body));
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
         return xnf.Try(pos, tryBlock, Collections.EMPTY_LIST, finallyBlock);
     }
