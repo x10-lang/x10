@@ -1,2 +1,2 @@
 // SYNOPSIS: #0=clock    #1=unique_id
-(x10.runtime.Clock_c) #0,
+#0,
