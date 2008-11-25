@@ -254,7 +254,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof X10Instanceof_c) { visit((X10Instanceof_c)n); return; }
 		if (n instanceof Instanceof_c) { visit((Instanceof_c)n); return; }
 		if (n instanceof Here_c) { visit((Here_c)n); return; }
-		if (n instanceof AtExpr_c) { visit((AtExpr_c)n); return; }
 		if (n instanceof X10Field_c) { visit((X10Field_c)n); return; }
 		if (n instanceof Field_c) { visit((Field_c)n); return; }
 		if (n instanceof DepParameterExpr_c) { visit((DepParameterExpr_c)n); return; }
@@ -277,6 +276,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof ArrayInit_c) { visit((ArrayInit_c)n); return; }
 		if (n instanceof ArrayAccess_c) { visit((ArrayAccess_c)n); return; }
 		if (n instanceof AmbExpr_c) { visit((AmbExpr_c)n); return; }
+		if (n instanceof AtExpr_c) { visit((AtExpr_c)n); return; }
 		if (n instanceof Future_c) { visit((Future_c)n); return; }
 		if (n instanceof Closure_c) { visit((Closure_c)n); return; }
 		if (n instanceof ClosureCall_c) { visit((ClosureCall_c)n); return; }
@@ -345,7 +345,6 @@ public class X10DelegatingVisitor {
 				public void visit(DepParameterExpr_c n) { visit((Node_c)n); }
 				public void visit(Field_c n) { visit((Expr_c)n); }
 					public void visit(X10Field_c n) { visit((Field_c)n); }
-				public void visit(AtExpr_c n) { visit((Expr_c)n); }
 				public void visit(Here_c n) { visit((Expr_c)n); }
 				public void visit(Instanceof_c n) { visit((Expr_c)n); }
 					public void visit(X10Instanceof_c n) { visit((Instanceof_c)n); }
@@ -380,6 +379,7 @@ public class X10DelegatingVisitor {
 				public void visit(Unary_c n) { visit((Expr_c)n); }
 					public void visit(X10Unary_c n) { visit((Unary_c)n); }
 				public void visit(Closure_c n) { visit((Expr_c)n); }
+					public void visit(AtExpr_c n) { visit((Closure_c)n); }
 					public void visit(Future_c n) { visit((Closure_c)n); }
 				public void visit(ClosureCall_c n) { visit((Expr_c)n); }
 			public void visit(FieldDecl_c n) { visit((Term_c)n); }
@@ -406,7 +406,7 @@ public class X10DelegatingVisitor {
 				public void visit(Case_c n) { visit((Stmt_c)n); }
 				public void visit(Catch_c n) { visit((Stmt_c)n); }
 				public void visit(ConstructorCall_c n) { visit((Stmt_c)n); }
-				        public void visit(X10ConstructorCall_c n) { visit((ConstructorCall_c)n); }
+					public void visit(X10ConstructorCall_c n) { visit((ConstructorCall_c)n); }
 				public void visit(Empty_c n) { visit((Stmt_c)n); }
 				public void visit(Eval_c n) { visit((Stmt_c)n); }
 				public void visit(Finish_c n) { visit((Stmt_c)n); }

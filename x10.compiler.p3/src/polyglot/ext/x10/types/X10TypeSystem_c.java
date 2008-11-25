@@ -1089,7 +1089,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public boolean isInterfaceType(Type t) {
-	    t =  X10TypeMixin.baseType(t);
+	    t = X10TypeMixin.baseType(t);
 	    if (t instanceof ClassType)
 	        if (((ClassType) t).flags().isInterface())
 	            return true;
@@ -1100,7 +1100,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return isX10BaseSubtype(t, Ref()) ;
 	}
 	
-	public  boolean isValueType(Type t) {
+	public boolean isValueType(Type t) {
 	    return isX10BaseSubtype(t, Value());
 	}
 	
@@ -2135,7 +2135,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 }
 
                 void addSuperTypes(List<Type> l, Type t) {
-                    Type b =  X10TypeMixin.baseType(t);
+                    Type b = X10TypeMixin.baseType(t);
                     if (b != t)
                         l.add(b);
                     if (t instanceof ObjectType) {
@@ -2472,18 +2472,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return X10TypeMixin.instantiate(Rail(), arg);
 	}
 	
-	public	Type ValRail(Type arg) {
-	    return X10TypeMixin.instantiate(Rail(), arg);
+	public Type ValRail(Type arg) {
+	    return X10TypeMixin.instantiate(ValRail(), arg);
 	}
 
-	public	Type Settable(Type domain, Type range) {
+	public Type Settable(Type domain, Type range) {
 	    return X10TypeMixin.instantiate(Settable(), domain, range);
 	}
 	
-	public  boolean isSettable(Type me) { 
+	public boolean isSettable(Type me) { 
 	    return hasSameClassDef(me, Settable()); 
 	}
-	public  boolean isX10Array(Type me) { 
+	public boolean isX10Array(Type me) { 
 		return hasSameClassDef(me, Array()); 
 	}
 	
@@ -2491,37 +2491,37 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return me instanceof ConstrainedType;
 	}
 
-	public  boolean isClock(Type me) {
+	public boolean isClock(Type me) {
 		return isSubtype(me, Clock()); 
 	}
-	public  boolean isPoint(Type me) {
+	public boolean isPoint(Type me) {
 		return isSubtype(me, Point()); 
 	}
-	public  boolean isPlace(Type me) {
+	public boolean isPlace(Type me) {
 		return isSubtype(me, Place());
 	}
-	public  boolean isRegion(Type me) {
+	public boolean isRegion(Type me) {
 		return isSubtype(me, Region());
 	}
-	public  boolean isDistribution(Type me) {
+	public boolean isDistribution(Type me) {
 		return isSubtype(me, Dist());
 	}
-	public  boolean isDistributedArray(Type me) {
+	public boolean isDistributedArray(Type me) {
 		return isX10Array(me);
 	}
-	public  boolean isComparable(Type me) {
+	public boolean isComparable(Type me) {
 	    return isSubtype(me, Comparable());
 	}
-	public  boolean isIterable(Type me) {
+	public boolean isIterable(Type me) {
 	    return isSubtype(me, Iterable());
 	}
-	public  boolean isIterator(Type me) {
+	public boolean isIterator(Type me) {
 	    return isSubtype(me, Iterator());
 	}
-	public  boolean isContains(Type me) {
+	public boolean isContains(Type me) {
 	    return isSubtype(me, Contains());
 	}
-	public  boolean isContainsAll(Type me) {
+	public boolean isContainsAll(Type me) {
 	    return isSubtype(me, ContainsAll());
 	}
 	
@@ -2609,37 +2609,37 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	protected XLit NEG_ONE;
 	public XLit NEG_ONE() {
 	    if (NEG_ONE == null)
-		NEG_ONE=  xtypeTranslator().trans(-1);
+		NEG_ONE = xtypeTranslator().trans(-1);
 	    return NEG_ONE;
 	}
 	protected XLit ZERO;
 	public XLit ZERO() {
 	    if (ZERO == null)
-		ZERO=  xtypeTranslator().trans(0);
+		ZERO = xtypeTranslator().trans(0);
 	    return ZERO;
 	}
 	protected XLit ONE;
 	public XLit ONE() {
 	    if (ONE == null)
-		ONE=  xtypeTranslator().trans(1);
+		ONE = xtypeTranslator().trans(1);
 	    return ONE;
 	}
 	protected XLit TWO;
 	public XLit TWO() {
 	    if (TWO == null)
-		TWO=  xtypeTranslator().trans(2);
+		TWO = xtypeTranslator().trans(2);
 	    return TWO;
 	}
 	protected XLit THREE;
 	public XLit THREE() {
 	    if (THREE == null)
-		THREE=  xtypeTranslator().trans(3);
+		THREE = xtypeTranslator().trans(3);
 	    return THREE;
 	}
 	protected XLit NULL;
 	public XLit NULL() {
 	    if (NULL == null)
-		NULL=  xtypeTranslator().transNull();
+		NULL = xtypeTranslator().transNull();
 	    return NULL;
 	}
 
@@ -2890,7 +2890,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        }
 	    }
 	    finally {
-	        //Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
+	        //Report.report(1, "X10TypeSystem_c: The LCA of " + type1 + " " + type2 + " is " + result + ".");
 	    }
 	    
 	    throw new SemanticException("No least common ancestor found for types \"" + type1 +
