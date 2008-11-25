@@ -10,6 +10,9 @@
     <property name="src" location="${basedir}/src-java"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="jar" value="x10.jar"/>
+    <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
+    <property name="make.exe" value="make"/>
+    <property name="cvs.exe" value="cvs"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -32,14 +35,24 @@
     </target>
     <target name="clean">
         <delete dir="${build}"/>
+        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
+	    <arg value="clean"/>
+	</exec>
     </target>
-    <target name="dist" depends="jar" description="generate part of the distribution">
+    <target name="dist-clean" depends="clean">
+        <delete dir="${build}"/>
+        <delete dir="${bdwgc.dir}/install"/>
+        <exec executable="${make.exe}" failonerror="true" dir ="${bdwgc.dir}/src">
+	    <arg value="distclean"/>
+	</exec>
+    </target>
+    <target name="dist" depends="jar,build-cpp" description="generate part of the distribution">
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
     </target>
-    <target name="jar" depends="build">
+    <target name="jar" depends="build-java">
         <jar jarfile="${build}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
@@ -47,8 +60,7 @@
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
         </jar>
     </target>
-    <target name="build" depends="init">
-        <echo message="${ant.project.name}: ${ant.file}"/>
+    <target name="build-java" depends="init">
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
             <src path="${src}"/>
             <classpath>
@@ -56,4 +68,46 @@
             </classpath>
         </javac>
     </target>
+
+    <target name="build-cpp" depends="init,build-bdwgc">
+        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp"></exec>
+    </target>
+
+    <target name="build" depends="build-java,build-bdwgc,build-cpp">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+    </target>
+
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.built">
+        <sequential>
+	   <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
+	      <arg value="-enable-threads=posix" />
+	      <arg value="--prefix=${bdwgc.dir}/install" />
+	   </exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true"></exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+	       <arg value="install" />
+           </exec>
+        </sequential>
+    </target>
+
+    <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.available">
+        <sequential>
+	    <cvs cvsRoot=":pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc"
+	         package="bdwgc"
+                 tag="gc7_1"
+                 dest="${bdwgc.dir}"
+	         failonerror="true"
+            />
+	    <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
+        </sequential>
+	
+    </target>
+
+    <target name="check-bdwgc">
+        <sequential>
+	    <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
+	    <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+        </sequential>
+    </target>
+
 </project>
