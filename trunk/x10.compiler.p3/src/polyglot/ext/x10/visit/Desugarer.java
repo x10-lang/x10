@@ -13,7 +13,9 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.Catch;
 import polyglot.ast.Expr;
+import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
@@ -28,6 +30,7 @@ import polyglot.ext.x10.ast.AtStmt;
 import polyglot.ext.x10.ast.Await;
 import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Closure_c;
+import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
@@ -69,6 +72,9 @@ public class Desugarer extends ContextVisitor {
     private static final Name LOCK = Name.make("lock");
     private static final Name AWAIT = Name.make("await");
     private static final Name RELEASE = Name.make("release");
+    private static final Name START_FINISH = Name.make("startFinish");
+    private static final Name PUSH_EXCEPTION = Name.make("pushException");
+    private static final Name STOP_FINISH = Name.make("stopFinish");
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Future)
@@ -91,6 +97,8 @@ public class Desugarer extends ContextVisitor {
             return visitAwait((Await) n);
         if (n instanceof When)
             return visitWhen((When) n);
+        if (n instanceof Finish)
+            return visitFinish((Finish) n);
         return n;
     }
 
@@ -197,5 +205,23 @@ public class Desugarer extends ContextVisitor {
         return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, name), Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST).methodInstance(mi).type(t);
+    }
+
+    private Node visitFinish(Finish f) throws SemanticException {
+        Position pos = f.position();
+        MethodInstance mi = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
+                PUSH_EXCEPTION, Collections.singletonList(xts.Throwable())), context.currentClassDef());
+        Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, PUSH_EXCEPTION), Collections.EMPTY_LIST,
+                Collections.singletonList((Expr) xnf.Local(pos, xnf.Id(pos, "t")).type(xts.Throwable()))).methodInstance(mi).type(xts.Void());
+        Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, START_FINISH, xts.Void())), f.body());
+        Formal formal = ((Formal) xnf.Formal(pos,
+                xnf.FlagsNode(pos, xts.NoFlags()), 
+                xnf.CanonicalTypeNode(pos, xts.Throwable()), 
+                xnf.Id(pos, "t")).localDef(xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()),
+                        Name.make("t"))).type(xnf.CanonicalTypeNode(pos, xts.Throwable())));
+        Catch c = xnf.Catch(pos, formal, xnf.Block(pos, xnf.Eval(pos, call)));
+        Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, STOP_FINISH, xts.Void())));
+        return xnf.Try(pos, tryBlock, Collections.singletonList(c), finallyBlock);
     }
 }
