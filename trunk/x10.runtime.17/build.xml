@@ -41,6 +41,8 @@
     </target>
     <target name="dist-clean" depends="clean">
         <delete dir="${build}"/>
+    </target>
+    <target name="clean-bdwgc" depends="clean">
         <delete dir="${bdwgc.dir}/install"/>
         <exec executable="${make.exe}" failonerror="true" dir ="${bdwgc.dir}/src">
 	    <arg value="distclean"/>
