@@ -50,11 +50,15 @@
 	    <arg value="distclean"/>
 	</exec>
     </target>
-    <target name="dist" depends="jar,build-cpp" description="generate part of the distribution">
+    <target name="dist-java" depends="jar">
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
+    </target>
+    <target name="dist-cpp" depends="build-cpp">
+    </target>
+    <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
     </target>
     <target name="jar" depends="build-java">
         <jar jarfile="${build}/${jar}">
