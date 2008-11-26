@@ -30,6 +30,11 @@
     <!-- get the environment variables -->
     <property environment="env"/>
 
+    <!-- Determine whether or not we should be building with GC enabled -->
+    <condition property="bdwgc.enabled">
+        <os family="unix" name="linux" />
+    </condition>
+
     <target name="init">
         <mkdir dir="${build}"/>
     </target>
@@ -68,7 +73,7 @@
         </javac>
     </target>
 
-    <target name="build-cpp" depends="init">
+    <target name="build-cpp" depends="init,build-bdwgc">
         <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp"></exec>
     </target>
 
@@ -76,7 +81,7 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.built">
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.skip.build">
         <sequential>
 	   <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
 	      <arg value="-enable-threads=posix" />
@@ -89,7 +94,7 @@
         </sequential>
     </target>
 
-    <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.available">
+    <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.skip.download">
         <sequential>
 	    <cvs cvsRoot=":pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc"
 	         package="bdwgc"
@@ -104,8 +109,18 @@
 
     <target name="check-bdwgc">
         <sequential>
-	    <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
-	    <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+            <condition property="bdwgc.skip.download">
+	      <or>
+	        <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
+		<isfalse value="${bdwgc.enabled}" />
+	      </or>
+            </condition>
+            <condition property="bdwgc.skip.build">
+	      <or>
+	        <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+		<isfalse value="${bdwgc.enabled}" />
+	      </or>
+            </condition>
         </sequential>
     </target>
 

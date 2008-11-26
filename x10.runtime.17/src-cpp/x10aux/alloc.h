@@ -1,6 +1,15 @@
 #ifndef X10AUX_ALLOC_H
 #define X10AUX_ALLOC_H
 
+#include<x10aux/config.h>
+
+#ifdef X10_USE_BDWGC
+#ifdef __linux__
+#define GC_LINUX_THREADS
+#endif 
+#include "gc.h"
+#endif
+
 // hopefully this should make generated x10 code more readable
 #define X10NEW(C) (x10aux::ref< C >) new (x10aux::alloc< C >()) C
 
@@ -15,7 +24,11 @@ namespace x10aux {
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
+#ifdef X10_USE_BDWGC        
+        T* ret = (T*)GC_MALLOC(size);
+#else        
         T* ret = (T*)x10_alloc(size);
+#endif        
         _M_("\t-> " << ret);
         if (ret == NULL && size > 0) {
             _M_("Out of memory allocating " << size << " bytes");
@@ -24,6 +37,7 @@ namespace x10aux {
     }
 
     // there should probably be an optimise x10_realloc function but never mind
+    // FIXME:  There is a GC_REALLOC macro, which we could use when this is actually calling realloc..
     template<class T> T* realloc(T* src, size_t ssz = sizeof(T), size_t dsz = sizeof(T)) {
         T *dest = alloc<T>(dsz);
         if (dest!=NULL && src!=NULL)
@@ -34,7 +48,11 @@ namespace x10aux {
 
     template<class T> void dealloc(T* obj) {
         _M_("Freeing chunk " << obj << " of type " << TYPENAME(T));
+#ifdef X10_USE_BDWGC
+        GC_FREE((x10_addr_t) obj);
+#else        
         x10_free((x10_addr_t) obj);
+#endif        
     }
 
 }
