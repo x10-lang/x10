@@ -7,6 +7,9 @@
  *   NO_BOUNDS_CHECKS  - remove all bounds-checking code
  *   NO_IOSTREAM       - remove all iostream-related code
  *
+ * The following #defines make be specified by the enclosing build
+ *   X10_USE_BDWGC     - enable BDW conservative GC
+ *
  * The following debugging macros are supported:
  *   TRACE_ALLOC       - trace allocation operations
  *   TRACE_CONSTR      - trace object construction
@@ -20,6 +23,7 @@
  *
  *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
  *   REF_COUNTING      - experimental option: enable reference counting
+ * 
  */
 
 #ifndef USE_ANSI_COLORS

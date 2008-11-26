@@ -25,6 +25,9 @@ namespace x10aux {
         }
 
         static void init() {
+#ifdef X10_USE_BDWGC
+            GC_INIT();
+#endif            
             x10aux::init();
             //x10::lang::System::__init__in_out_err();
             x10aux::place::__init__MAX_PLACES();
