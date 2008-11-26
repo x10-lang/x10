@@ -32,7 +32,7 @@
 
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
-        <os family="unix" name="linux" />
+        <os family="unix" name="linux"/>
     </condition>
 
     <target name="init">
@@ -78,7 +78,14 @@
     </target>
 
     <target name="build-cpp" depends="init,build-bdwgc">
-        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp"></exec>
+      <sequential>
+        <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
+	    <isset property="bdwgc.enabled" />
+        </condition>
+        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
+	  <arg value="${cppmake.gcarg}" />
+        </exec>
+      </sequential>
     </target>
 
     <target name="build" depends="build-java,build-cpp">
