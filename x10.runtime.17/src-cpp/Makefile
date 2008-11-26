@@ -29,12 +29,12 @@ ARCHIVE=libx10rt17.a
 all: $(X10LIB)/include/x10/x10.h $(ARCHIVE) 
 
 ALL_OBJECTS = \
+	x10aux/assert.o \
 	x10aux/boolean_utils.o \
+	x10aux/bootstrap.o \
 	x10aux/byte_utils.o \
 	x10aux/char_utils.o \
 	x10aux/double_utils.o \
-	x10aux/exit_code.o \
-	x10aux/finish.o \
 	x10aux/int_utils.o \
 	x10aux/init_dispatcher.o \
 	x10aux/io/FILEPtrInputStream.o \
@@ -43,11 +43,10 @@ ALL_OBJECTS = \
 	x10aux/float_utils.o \
 	x10aux/long_utils.o \
 	x10aux/math_utils.o \
-	x10aux/place.o \
+	x10aux/pgas.o \
 	x10aux/ref.o \
 	x10aux/RTT.o \
 	x10aux/rail_utils.o \
-	x10aux/runtime.o \
 	x10aux/serialization.o \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \

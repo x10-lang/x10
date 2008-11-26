@@ -1,5 +1,7 @@
 #include <x10aux/config.h>
-#include <x10aux/exit_code.h>
+#include <x10aux/bootstrap.h>
+
+using namespace x10aux;
 
 x10_int x10aux::exitCode = 0;
 
