@@ -74,8 +74,9 @@ class FRASimpleDist {
                 for (var i:long=0; i<NUM_UPDATES/NUM_PLACES; i++) {
                     val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
                     val valran = ran;
+                    val table = tables(placeId);
                     async (Place.places(placeId))
-                        tables(placeId).update(valran);
+                        table.update(valran);
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
