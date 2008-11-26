@@ -30,6 +30,7 @@ all: $(X10LIB)/include/x10/x10.h $(ARCHIVE)
 
 ALL_OBJECTS = \
 	x10aux/assert.o \
+	x10aux/async_switch.o \
 	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \
 	x10aux/byte_utils.o \

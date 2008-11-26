@@ -39,7 +39,7 @@ namespace x10aux {
 
         BootStrapClosure(ApplicationMainFunction main_,
                          ref<x10::lang::Rail<ref<x10::lang::String> > > args_)
-          : x10aux::AnyClosure(-1), main(main_), args(args_)
+          : main(main_), args(args_)
         { }
 
 

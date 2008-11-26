@@ -27,22 +27,18 @@ namespace x10aux {
 
         public:
 
-        x10_int id;
+        //x10_int id;
 
 
 
-        AnyClosure(int id_) : id(id_) { }
+        ///AnyClosure(int id_) : id(id_) { }
 
 
 
 
-        virtual void _serialize_fields(serialization_buffer& buf, addr_map&) {
-            buf.write(id);
-        }
+        virtual void _serialize_fields(serialization_buffer& buf, addr_map&) = 0;
 
-        virtual void _deserialize_fields(serialization_buffer& buf) {
-            id = buf.read<x10_int>();
-        }
+        virtual void _deserialize_fields(serialization_buffer& buf) = 0;
 
         void _serialize(serialization_buffer& buf, addr_map& m) {
             _serialize_fields(buf,m);

@@ -207,7 +207,7 @@ namespace x10aux {
             return true;
         }
         void reset() { _top = 0; assert (false); }
-        ~addr_map() { delete _ptrs; }
+        ~addr_map() { x10aux::dealloc(_ptrs); }
     };
 
 
