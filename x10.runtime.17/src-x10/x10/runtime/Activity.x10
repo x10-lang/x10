@@ -41,7 +41,9 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 		if (location == state.location) {
 			// local async
 			try {
-				try { body(); } finally { clockPhases.drop(); }
+                // [DC] FIXME: sorry but finally doesn't work in c++
+				//try { body(); } finally { clockPhases.drop(); }
+				body(); clockPhases.drop();
 				state.notifySubActivityTermination();
 			} catch (t:Throwable) {
 				state.notifySubActivityTermination(t);
@@ -49,7 +51,9 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 		} else {
 			// remote async
 			try {
-				finish try { body(); } finally { clockPhases.drop(); }
+                // [DC] FIXME: sorry but finally doesn't work in c++
+				//finish try { body(); } finally { clockPhases.drop(); }
+				body(); clockPhases.drop();
                 val c = () => state.notifySubActivityTermination();
 				NativeRuntime.runAt(state.location.id, c);
 			} catch (t:Throwable) {

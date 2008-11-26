@@ -284,7 +284,7 @@ public class Closure_c extends Expr_c implements Closure {
     @Override
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the method scope already.
-        assert c.currentCode() == this.closureDef();
+        assert c.currentCode() == this.closureDef() : child.position().nameAndLineString();
         
         if (child != body()) {
             // Push formals so they're in scope in the types of the other formals.
