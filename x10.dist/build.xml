@@ -70,7 +70,9 @@
         <ant antfile="${x10.compiler.location}/build.xml" target="clean" inheritAll="false" dir="${x10.compiler.location}"/>
     </target>
 
-    <target name="dist" depends="init,build,common-jar,constraints-jar,runtime,compiler-jar"/>
+    <target name="dist-java" depends="init,build,common-jar,constraints-jar,runtime-java,compiler-jar"/>
+    <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
+    <target name="dist" depends="dist-java,dist-cpp"/>
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
@@ -101,12 +103,16 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="runtime" depends="init,common-jar,constraints-jar">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist" inheritAll="false" dir="${x10.runtime.location}"/>
+    <target name="runtime-java" depends="init,common-jar,constraints-jar">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-java" inheritAll="false" dir="${x10.runtime.location}"/>
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${x10.runtime.location}/${builddir}" includes="${runtime.jar}"/>
         </copy>
+    </target>
+
+    <target name="runtime-cpp" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
     <target name="constraints-jar" depends="init">
