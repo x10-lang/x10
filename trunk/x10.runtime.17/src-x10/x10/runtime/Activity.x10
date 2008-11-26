@@ -50,9 +50,11 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 			// remote async
 			try {
 				finish try { body(); } finally { clockPhases.drop(); }
-				NativeRuntime.runAt(state.location.id, ()=>state.notifySubActivityTermination());
+                val c = () => state.notifySubActivityTermination();
+				NativeRuntime.runAt(state.location.id, c);
 			} catch (t:Throwable) {
-				NativeRuntime.runAt(state.location.id, ()=>state.notifySubActivityTermination(t));
+                val c = () => state.notifySubActivityTermination(t);
+				NativeRuntime.runAt(state.location.id, c);
 	    	}
 		}
 	}
