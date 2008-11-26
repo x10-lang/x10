@@ -3,6 +3,13 @@
 
 #include <x10aux/config.h>
 
+#ifdef X10_USE_BDWGC
+#ifdef __linux__
+#define GC_LINUX_THREADS
+#endif 
+#include "gc.h"
+#endif
+
 #include <x10/x10.h> //pgas
 
 // Has to be first (aside from config.h which is inert and pgas itself)
@@ -14,6 +21,9 @@ namespace x10aux {
     public:
         PGASInitializer() {
             if (count++ == 0) {
+#ifdef X10_USE_BDWGC
+                GC_INIT();
+#endif                
                 x10_init();
                 _X_("PGAS initialization complete");
             }
