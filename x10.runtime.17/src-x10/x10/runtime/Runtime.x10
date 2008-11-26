@@ -95,7 +95,7 @@ public value Runtime {
 		if (place == here) {
 			pool.execute(new Activity(body, state, clocks, phases, name));
 		} else {
-            val c = () => pool.execute(new Activity(body, state, clocks, phases, name));
+            val c = ()=>pool.execute(new Activity(body, state, clocks, phases, name));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
@@ -194,11 +194,11 @@ public value Runtime {
 		try {
 			threadBlockedNotification();
 			Thread.sleep(millis);
+			threadUnblockedNotification();
 			return true;
 		} catch (e:InterruptedException) {
-			return false;
-		} finally {
 			threadUnblockedNotification();
+			return false;
 		}
 	}
 
