@@ -9,8 +9,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-volatile bool x10aux::ready_to_receive_asyncs = false;
-
 
 int PGASInitializer::count = 0;
 
