@@ -8,8 +8,6 @@
  
 package x10.runtime;
 
-import x10.util.Stack;
-
 /**
  * The state associated with a finish operation. Records the count of 
  * active activities associated with this finish, and the stack
@@ -24,7 +22,7 @@ class FinishState {
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
 	 */
-	private val exceptions = new Stack[Throwable]();
+	private val exceptions = new StackThrowable();
 
 	/**
 	 * The monitor is used to serialize insertions into the Exception Stack. 

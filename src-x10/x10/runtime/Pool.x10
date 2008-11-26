@@ -8,8 +8,6 @@
 
 package x10.runtime;
 
-import x10.util.Stack;
-
 /**
  * @author tardieu
  */
@@ -22,7 +20,7 @@ value Pool {
 	/**
 	 * Activities not yet assigned to a worker
 	 */
-	private val activities = new Stack[Activity]();
+	private val activities = new StackActivity();
 	
 	/**
 	 * counters(0) = pool size, counters(1) = nb of blocked threads
