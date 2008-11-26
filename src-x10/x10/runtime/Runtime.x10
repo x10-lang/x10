@@ -95,7 +95,8 @@ public value Runtime {
 		if (place == here) {
 			pool.execute(new Activity(body, state, clocks, phases, name));
 		} else {
-			NativeRuntime.runAt(place.id, ()=>pool.execute(new Activity(body, state, clocks, phases, name)));
+            val c = () => pool.execute(new Activity(body, state, clocks, phases, name));
+			NativeRuntime.runAt(place.id, c);
 		}
 	}
 
@@ -141,10 +142,11 @@ public value Runtime {
     public static def newMonitor(place:Place):Monitor {
     	val ret = here;
     	val box = new ArrayList[Monitor]();
-    	NativeRuntime.runAtLocal(place.id, ()=>{
+        val c = ()=>{
     		val monitor = new Monitor();
     		NativeRuntime.runAtLocal(ret.id, ()=>{ box.add(monitor); });
-    	});
+    	};
+    	NativeRuntime.runAtLocal(place.id, c);
     	return box(0);
     }
 

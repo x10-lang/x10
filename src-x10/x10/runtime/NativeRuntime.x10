@@ -29,6 +29,7 @@ public value NativeRuntime {
   public const PLACE_CHECKS = true;
 
   @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
+  @Native("c++", "(x10_int)x10_nplaces()")
   public const MAX_PLACES = 4;
 
   @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
@@ -40,6 +41,7 @@ public value NativeRuntime {
    * Body cannot spawn activities, use clocks, or raise exceptions.
    */
   @Native("java", "x10.runtime.impl.java.Runtime.runAt(#1, #2)")
+  @Native("c++", "x10aux::run_at(#1, #2)")
   public static def runAt(id:Int, body:()=>Void):Void { body(); }
 
   /**
