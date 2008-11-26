@@ -45,11 +45,7 @@ public class StaticNestedClassRemover extends ContextVisitor {
                     assert def.kind() == ClassDef.MEMBER;
                     assert def.flags().isStatic();
                     
-                    Name newName = def.name();
-                    
-                    for (ClassDef d = Types.get(def.outer()); d != null; d = Types.get(d.outer())) {
-                        newName = Name.make(d.name().toString() + "$" + newName.toString());
-                    }
+                    Name newName = mangleName(def);
                     
                     def.outer(null);
                     def.kind(ClassDef.TOP_LEVEL);
@@ -78,6 +74,15 @@ public class StaticNestedClassRemover extends ContextVisitor {
         }
         
         return n;
+    }
+
+    public static Name mangleName(ClassDef def) {
+        Name newName = def.name();
+        
+        for (ClassDef d = Types.get(def.outer()); d != null; d = Types.get(d.outer())) {
+            newName = Name.make(d.name().toString() + "$" + newName.toString());
+        }
+        return newName;
     }
     
 }
