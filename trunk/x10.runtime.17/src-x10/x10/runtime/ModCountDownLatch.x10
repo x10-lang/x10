@@ -8,8 +8,6 @@
 
 package x10.runtime;
 
-import x10.util.Stack;
-
 /**
  * Latch with ++ and -- capabilities
  * @author tardieu
