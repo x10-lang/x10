@@ -58,11 +58,11 @@ public value Future_c[T](name:String) extends Future[T] {
 	def run():Void {
 		try {
         	finish result.add(eval());
+          	cdl.countDown();
         } catch (t:Throwable) {
             exception.add(t);
-        } finally {
           	cdl.countDown();
-		}
+        }
 	}
 	
 	public def toString():String = name; 
