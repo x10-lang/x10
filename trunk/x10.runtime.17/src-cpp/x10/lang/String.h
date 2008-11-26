@@ -189,8 +189,6 @@ namespace x10 {
         }
 */
 
-        // only needed for debugging native x10rt
-        std::ostream& operator<<(std::ostream& o, const x10aux::ref<x10::lang::String>& s);
 
     } // namespace x10::lang
 

@@ -269,7 +269,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 
 
 void Throwable::_serialize_fields(serialization_buffer& buf, addr_map& m) {
-    Value::_serialize_fields(buf, m);
+    (void)buf; (void)m; abort();
 /*
     buf.write(this->FMGL(cause)); 
     _S_("Written reference cause");

@@ -5,8 +5,9 @@
 
 #include <x10aux/RTT.h>
 #include <x10aux/ref.h>
+#include <x10aux/serialization.h>
 
-#include <x10/x10.h> // pgas
+#include <x10/lang/Value.h>
 
 
 #define DESERIALIZE_CLOSURE(id) DESERIALIZE_CLOSURE_(id,closure_name(id))
@@ -22,15 +23,30 @@ namespace x10 { namespace lang { class String; } }
 
 namespace x10aux {
 
-    class AnyClosure {
+    class AnyClosure : public x10::lang::Value {
+
         public:
-        int id;
+
+        x10_int id;
+
+
+
         AnyClosure(int id_) : id(id_) { }
-        virtual ~AnyClosure() { }
-        //virtual ref<x10::lang::String> toString() = 0;
-        virtual x10_int hashCode() { return (x10_int)this; }
-        //FIXME: returning true here is probably suboptimal
-        virtual x10_boolean equals(ref<x10::lang::Object>) { return true; }
+
+
+
+
+        virtual void _serialize_fields(serialization_buffer& buf, addr_map&) {
+            buf.write(id);
+        }
+
+        virtual void _deserialize_fields(serialization_buffer& buf) {
+            id = buf.read<x10_int>();
+        }
+
+        void _serialize(serialization_buffer& buf, addr_map& m) {
+            _serialize_fields(buf,m);
+        }
     };
 
 }

@@ -4,7 +4,6 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
-#include <x10aux/closure.h>
 
 #include <x10/x10.h>
 
@@ -68,6 +67,7 @@ namespace x10 {
 
 namespace x10aux {
 
+    class AnyClosure;
 
     class SERIALIZATION_MARKER { };
 
@@ -92,7 +92,7 @@ namespace x10aux {
     // If the helper class is used on a ref, treat as remote
     template<class T> struct _serializer<ref<T> > {
         static void _(char*& buf, ref<T> val) {
-            x10_remote_ref_t rr = x10_ref_serialize((x10_addr_t) val.operator->());
+            x10_remote_ref_t rr = x10_ref_serialize((x10_addr_t) val.get());
             *(x10_remote_ref_t*) buf = rr;
             buf += sizeof(x10_remote_ref_t);
         }
@@ -199,7 +199,7 @@ namespace x10aux {
             assert (_ptrs != NULL);
         }
         template<class T> bool ensure_unique(const ref<T>& r) {
-            return ensure_unique((void*) r.operator->());
+            return ensure_unique((void*) r.get());
         }
         bool ensure_unique(const void* p) {
             if (_find(p)) return false;
@@ -209,6 +209,8 @@ namespace x10aux {
         void reset() { _top = 0; assert (false); }
         ~addr_map() { delete _ptrs; }
     };
+
+
 
 #ifndef NO_IOSTREAM
     // Debug helper; usage: o << _dump_chars(b, l)
@@ -227,17 +229,26 @@ namespace x10aux {
     };
 #endif
 
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //SERIALIZATION/////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     // Specialize for classes without SERIALIZATION_ID (e.g., final classes)
     template<class T> struct _reference_serializer {
         static void _(ref<T> v, serialization_buffer& buf, addr_map& m) {
             _Sd_(size_t len = buf.length());
-            _S_("Serializing " << TYPENAME(T));
+            _S_("Serializing " << TYPENAME(T) << "...");
             buf.write(T::SERIALIZATION_ID);
-            _S_("Written " << T::SERIALIZATION_ID);
+            _S_("Wrote " << T::SERIALIZATION_ID);
             v->_serialize_fields(buf, m);
             _S_(x10aux::_dump_chars(((const char*)buf) + len, buf.length() - len));
         }
     };
+
+
 
     template<class T> inline void _serialize_ref(ref<T> v, serialization_buffer& buf, addr_map& m) {
         _reference_serializer<T>::_(v, buf, m);
@@ -247,13 +258,29 @@ namespace x10aux {
         _serialize_ref(ref<T>(p), buf, m);
     }
 
-    template<class T> inline void _serialize_value_ref(serialization_buffer& buf, addr_map& m, const ref<T>& v) {
+
+    // assume that T implements a (not necessarily virtual) member function _serialize
+    template<class T> inline void _serialize_value_ref(serialization_buffer& buf,
+                                                       addr_map& m,
+                                                       const ref<T>& v)
+    {
         v->_serialize(buf, m);
     }
 
-    template<class T> inline void _serialize_value_ref(serialization_buffer& buf, addr_map& m, T* p) {
+    template<class T> inline void _serialize_value_ref(serialization_buffer& buf,
+                                                       addr_map& m,
+                                                       T* p)
+    {
         _serialize_value_ref(buf, m, ref<T>(p));
     }
+
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //DESERIALIZATION///////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     // Specialize for classes without SERIALIZATION_ID (e.g., final classes)
     template<class T> struct _reference_deserializer {

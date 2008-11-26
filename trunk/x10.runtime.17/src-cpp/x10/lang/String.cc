@@ -41,10 +41,6 @@ x10_boolean String::equals(ref<Object> other) {
 }
 
 
-std::ostream& x10::lang::operator<<(std::ostream& o, const x10aux::ref<String>& s) {
-    return o << (s.isNull() ? String("null") : *s);
-}
-
 // postfix primitive operator+
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_boolean v)
     { return X10NEW(String)(*s+x10aux::to_string(v)); }
@@ -206,7 +202,7 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
         else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedDouble>))
             this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedDouble>)p)).doubleValue());
         else
-            this->_printf(fmt, p.operator->());
+            this->_printf(fmt, p.get());
         if (next != NULL)
             *next = '%';
     }
@@ -223,7 +219,8 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
 }
 
 void String::_serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    Value::_serialize_fields(buf, m);
+    (void)buf; (void)m;
+    abort();
 }
 
 void String::_deserialize_fields(x10aux::serialization_buffer& buf) {
