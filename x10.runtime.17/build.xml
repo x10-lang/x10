@@ -41,8 +41,6 @@
     </target>
     <target name="dist-clean" depends="clean">
         <delete dir="${build}"/>
-    </target>
-    <target name="clean-bdwgc">
         <delete dir="${bdwgc.dir}/install"/>
         <exec executable="${make.exe}" failonerror="true" dir ="${bdwgc.dir}/src">
 	    <arg value="distclean"/>
@@ -71,21 +69,24 @@
         </javac>
     </target>
 
-    <target name="build-cpp" depends="init,build-bdwgc">
+    <target name="build-cpp" depends="init">
         <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp"></exec>
     </target>
 
-    <target name="build" depends="build-java,build-bdwgc,build-cpp">
+    <target name="build" depends="build-java,build-cpp">
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
     <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.built">
         <sequential>
-	   <exec executable="bash" dir="${bdwgc.dir}/bdwgc" failonerror="true">
-              <arg value="-c" />
-              <arg value="./configure -enable-threads=posix" />
+	   <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
+	      <arg value="-enable-threads=posix" />
+	      <arg value="--prefix=${bdwgc.dir}/install" />
 	   </exec>
-	   <exec executable="${make.exe}" dir="${bdwgc.dir}/bdwgc" failonerror="true"></exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true"></exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+	       <arg value="install" />
+           </exec>
         </sequential>
     </target>
 
@@ -97,14 +98,15 @@
                  dest="${bdwgc.dir}"
 	         failonerror="true"
             />
+	    <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
         </sequential>
 	
     </target>
 
     <target name="check-bdwgc">
         <sequential>
-	    <available file="${bdwgc.dir}/bdwgc/configure" property="bdwgc.available"/>
-	    <available file="${bdwgc.dir}/bdwgc/.libs/libgc.a" property="bdwgc.built"/>
+	    <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
+	    <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
         </sequential>
     </target>
 
