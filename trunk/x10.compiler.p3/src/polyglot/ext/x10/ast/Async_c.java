@@ -21,9 +21,12 @@ import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Stmt_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -131,11 +134,20 @@ public class Async_c extends Stmt_c implements Async {
 	 * The evaluation of place and list of clocks is not in the scope of the async.
 	 */
 	public Context enterScope(Context c) {
-		if (Report.should_report(TOPICS, 5))
-			Report.report(5, "enter async scope");
-		X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
-		c = c.pushCode(ts.asyncCodeInstance(c.inStaticContext()));
-		return c;
+	    if (Report.should_report(TOPICS, 5))
+	        Report.report(5, "enter async scope");
+	    X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+	    X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
+	    if (c.currentCode() instanceof X10MethodDef) {
+	        X10MethodDef outer = (X10MethodDef) c.currentCode();
+	        List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	        if (!capturedTypes.isEmpty()) {
+	            asyncInstance = ((X10MethodDef) asyncInstance.copy());
+	            asyncInstance.setTypeParameters(capturedTypes);
+	        }
+	    }
+	    c = c.pushCode(asyncInstance);
+	    return c;
 	}
 
 	/**
