@@ -252,11 +252,11 @@ FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
 PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 [ -n "$X10_PLATFORM" ] || \
 case "$UNAME" in
-  CYGWIN*) X10_PLATFORM='win32_x86';;
-  Linux,*) X10_PLATFORM='linux_x86';;
-  AIX,*) X10_PLATFORM='aix_ppc';;
-  Darwin,i386) X10_PLATFORM='macosx_x86';;
-  Darwin,powerpc) X10_PLATFORM='macosx_ppc';;
+  CYGWIN*) export X10_PLATFORM='win32_x86';;
+  Linux,*) export X10_PLATFORM='linux_x86';;
+  AIX,*) export X10_PLATFORM='aix_ppc';;
+  Darwin,i386) export X10_PLATFORM='macosx_x86';;
+  Darwin,powerpc) export X10_PLATFORM='macosx_ppc';;
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
 # FIXME: the above assumes that Cygwin==win32 and Linux==x86 and AIX==ppc
