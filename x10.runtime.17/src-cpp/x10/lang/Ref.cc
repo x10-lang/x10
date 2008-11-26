@@ -10,7 +10,7 @@ using namespace x10::lang;
 using namespace x10aux;
 
 x10_int x10::lang::Ref::hashCode() {
-    return (x10_int) this;
+    return (x10_int) (int64_t)(void*)this;
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
