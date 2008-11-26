@@ -9,11 +9,15 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+volatile bool x10aux::ready_to_receive_asyncs = false;
+
+
 int PGASInitializer::count = 0;
 
 void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
     assert(place!=x10_here()); // this case should be handled earlier
+    assert(place<x10_nplaces()); // this is ensured by XRX runtime
 
     serialization_buffer buf;
 

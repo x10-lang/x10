@@ -8,6 +8,7 @@
 // has to be first to ensure initialisation of pgas occurs before uses of x10aux::alloc
 #include <x10aux/pgas.h>
 
+#include <x10aux/async_switch.h>
 #include <x10aux/bootstrap.h>
 #include <x10aux/class_cast.h>
 #include <x10aux/ref.h>
