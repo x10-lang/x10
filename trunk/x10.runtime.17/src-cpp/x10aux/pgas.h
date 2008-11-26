@@ -16,8 +16,6 @@
 
 namespace x10aux {
 
-    volatile extern bool ready_to_receive_asyncs;
-
     class PGASInitializer {
         static int count;
     public:
@@ -61,10 +59,6 @@ namespace x10aux {
     }
 
     void run_at(x10_int place, ref<x10::lang::VoidFun_0_0> body);
-
-    inline void allow_received_async_execution() {
-        ready_to_receive_asyncs = true;
-    }
 }
 
 namespace {
