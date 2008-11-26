@@ -12,6 +12,9 @@ namespace x10 {
 
         class Object {
             public:
+#ifdef REF_COUNTING
+            int __count; // Ref counting implementation
+#endif
 
             class RTT : public x10aux::RuntimeType {
                 public:
@@ -29,10 +32,17 @@ namespace x10 {
                 return x10aux::getRTT<Object>();
             }
 
+            Object()
+#ifdef REF_COUNTING
+                : __count(0)
+#endif      
+            { }
+
+            virtual ~Object() { }
+
             virtual x10_boolean equals(x10aux::ref<Object> id0) = 0;
             virtual x10_int hashCode() = 0;
             virtual x10aux::ref<String> toString() = 0;
-            virtual ~Object() { }
         };
     }
 }

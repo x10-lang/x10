@@ -15,6 +15,7 @@ namespace x10 {
 
         class Value : public virtual Object {
         public:
+
             class RTT : public x10aux::RuntimeType { 
                 public:
                 static RTT* const it; 
@@ -34,32 +35,13 @@ namespace x10 {
 
             //static const int SERIALIZATION_ID = -1;
 
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf,
-                                           x10aux::addr_map& m) {
-                (void) buf;
-                (void) m;
-            };
+            virtual void _serialize_fields(x10aux::serialization_buffer&, x10aux::addr_map&) { };
 
-            explicit Value()
-#ifdef REF_COUNTING
-                : __count(0)
-#endif
-            {
-                _T_("Creating value "<<this<<" of type "<<_type()->name());
-            }
+            virtual void _deserialize_fields(x10aux::serialization_buffer&, x10aux::addr_map&) { };
 
-            explicit Value(x10aux::SERIALIZATION_MARKER m)
-#ifdef REF_COUNTING
-                : __count(0)
-#endif
-            {
-                (void) m;
-                _T_("Creating value "<<this<<" of type "<<_type()->name());
-            }
+            explicit Value() { }
 
-            ~Value() {
-                _T_("Destroying value "<<this<<" of type "<<_type()->name());
-            }
+            explicit Value(x10aux::SERIALIZATION_MARKER) { }
 
             template<class T> friend class x10aux::ref;
 

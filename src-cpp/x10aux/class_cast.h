@@ -14,12 +14,12 @@
 namespace x10aux {
 
     template<class T> ref<x10::lang::Box<T> > box(T obj) {
-        _CAST_("boxed: "<<TYPENAME(T));
+        _CAST_("boxed: "<<obj.get()<<" of type "<<TYPENAME(T));
         return X10NEW(x10::lang::Box<T>)(obj);
     }
 
     template<class T> T unbox(ref<x10::lang::Box<T> > obj) {
-        _CAST_("unboxed: "<<TYPENAME(T));
+        _CAST_("unboxed: "<<obj.get()<<" of type "<<TYPENAME(T));
         return obj->get();
     }
 
@@ -89,6 +89,7 @@ namespace x10aux {
 
     template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
         static ref<T> _(ref<F> obj) {
+            _CAST_("Ref to ref cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
             return ClassCastBothRef<T,F>::_(obj);
         }
     };
@@ -96,6 +97,7 @@ namespace x10aux {
     // This is the second level that recognises primitive casts
     template<class T, class F> struct ClassCastPrimitive { static T _(F obj) {
         // if we get here it's not a primitive cast
+        _CAST_("Not a primitive cast "<<TYPENAME(T)<<" to "<<TYPENAME(T));
         return ClassCastNotPrimitive<T,F>::_(obj);
     } };
 

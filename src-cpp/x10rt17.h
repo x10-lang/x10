@@ -4,21 +4,20 @@
 // include everything from this file
 
 #include <x10aux/config.h>
+
+// has to be first to ensure initialisation of pgas occurs before uses of x10aux::alloc
+#include <x10aux/pgas.h>
+
+#include <x10aux/bootstrap.h>
 #include <x10aux/class_cast.h>
-#include <x10aux/runtime.h>
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
 #include <x10aux/throw.h>
 #include <x10aux/RTT.h>
-#include <x10aux/place.h>
-#include <x10aux/finish.h>
-#include <x10aux/exit_code.h>
-#include <x10aux/finish.h>
 #include <x10aux/closure.h>
 #include <x10aux/assert.h>
 #include <x10aux/init_dispatcher.h>
-#include <x10aux/async_poll.h>
 
 #include <x10aux/boolean_utils.h>
 #include <x10aux/byte_utils.h>

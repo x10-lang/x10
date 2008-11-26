@@ -18,8 +18,7 @@ namespace x10 {
 
         template<class P1, class R> class Fun_0_1;
 
-        template<class T> class ValRail : public virtual Value,
-                                          public x10aux::AnyRail<T> {
+        template<class T> class ValRail : public Value, public x10aux::AnyRail<T> {
 
             public:
 

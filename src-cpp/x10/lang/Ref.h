@@ -15,9 +15,6 @@ namespace x10 {
 
         class Ref : public virtual Object {
         public:
-#ifdef REF_COUNTING
-            int __count; // Ref counting implementation
-#endif
             class RTT : public x10aux::RuntimeType { 
                 public:
                 static RTT* const it; 
@@ -36,17 +33,7 @@ namespace x10 {
                 return x10aux::getRTT<Ref>();
             }
 
-            explicit Ref()
-#ifdef REF_COUNTING
-                : __count(0)
-#endif
-            {
-                _T_("Creating Ref "<<this<<" of type "<<_type()->name());
-            }
-
-            virtual ~Ref() {
-                _T_("Destroying Ref "<<this<<" of type "<<_type()->name());
-            }
+            virtual ~Ref() { }
 
             template<class T> friend class x10aux::ref;
 

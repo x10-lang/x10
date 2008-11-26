@@ -3,6 +3,8 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
 #include <x10/lang/Object.h>
 
 namespace x10 {
@@ -18,6 +20,11 @@ namespace x10 {
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<VoidFun_0_0>();
             }
+
+/*
+            virtual void _serialize(x10aux::serialization_buffer&, x10aux::addr_map&) = 0;
+*/
+
             virtual ~VoidFun_0_0() { }
             virtual void apply() = 0;
         };

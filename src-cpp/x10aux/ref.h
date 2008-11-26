@@ -115,7 +115,7 @@ namespace x10aux {
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
-                                     << " into " << this);
+                                     << " into " << this << "("<<_val<<")");
             INC(_val);
         }
         
@@ -126,7 +126,7 @@ namespace x10aux {
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
-                                     << " into " << this);
+                                     << " into " << this << "("<<_val<<")");
             INC(_val);
             return *this;
         }
@@ -142,6 +142,10 @@ namespace x10aux {
                                       << ") of type " << TYPENAME(T));
             assertNonNull();
             return *(T*)_val;
+        }
+
+        T* get() const { 
+            return (T*)_val;
         }
 
         T* operator->() const { 
@@ -176,6 +180,17 @@ namespace x10aux {
 #endif
 
     };
+
+#ifndef NO_IOSTREAM
+    template<class T> std::ostream& operator<<(std::ostream& o, ref<T> s) {
+        if (s.isNull()) {
+            o << "null";
+        } else {
+            o << *s;
+        }
+        return o;
+    }
+#endif
 
     // will be initialised to null
     typedef ref<x10::lang::Object> NullType;
