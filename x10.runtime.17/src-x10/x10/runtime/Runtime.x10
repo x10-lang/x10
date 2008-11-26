@@ -8,7 +8,7 @@
 
 package x10.runtime;
 
-import x10.util.ArrayList;
+import x10.util.GrowableRail;
 
 import x10.io.Console;
 
@@ -105,7 +105,7 @@ public value Runtime {
 	 */
     public static def evalAt[T](place:Place, eval:()=>T):T {
     	val ret = here;
-    	val box = new ArrayList[T]();
+    	val box = new GrowableRail[T]();
     	finish async (place) {
     		val result = eval();
     		async (ret) box.add(result); 
@@ -141,7 +141,7 @@ public value Runtime {
 
     public static def newMonitor(place:Place):Monitor {
     	val ret = here;
-    	val box = new ArrayList[Monitor]();
+    	val box = new GrowableRail[Monitor]();
         val c = ()=>{
     		val monitor = new Monitor();
     		NativeRuntime.runAtLocal(ret.id, ()=>{ box.add(monitor); });

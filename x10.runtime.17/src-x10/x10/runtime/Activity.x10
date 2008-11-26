@@ -8,19 +8,17 @@
 
 package x10.runtime;
 
-import x10.util.Stack;
-
 /**
  * @author tardieu
  */
-class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:String) {
+class Activity(clockPhases:ClockPhases, finishStack:StackFinishState, name:String) {
 	private val body:()=>Void;
 	
 	/**
 	 * Create an activity.
 	 */
 	def this(body:()=>Void, name:String) {
-	    property(new ClockPhases(), new Stack[FinishState](), name);
+	    property(new ClockPhases(), new StackFinishState(), name);
 	    this.body = body;
 	}
 
