@@ -4,7 +4,7 @@ CXX?=g++
 AR?=ar
 
 X10LIB?=../../pgas/common/work
-CXXFLAGS+=-g -ansi -pedantic -Wall -Wextra -Wno-long-long -pthread
+CXXFLAGS+=-g
 INCLUDE_DIRS+=-I$(X10LIB)/include -I.
 ifdef ENABLE_GC
 CXXFLAGS+=-DX10_USE_BDWGC
@@ -14,11 +14,14 @@ CXXFLAGS+=$(INCLUDE_DIRS)
 ifneq ($(wildcard /usr/include/lapi.h),) # AIX
 CXX = mpCC_r
 override CXXFLAGS -= -g
+override CXXFLAGS -= -ansi -pedantic -Wall -Wextra -Wno-long-long -pthread
 override CXXFLAGS += -q64
 override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
 override CXXFLAGS += -qrtti=all -DNDEBUG
 # FIXME
 ARFLAGS := -X64 $(ARFLAGS)
+else
+override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -pthread
 endif
 
 
