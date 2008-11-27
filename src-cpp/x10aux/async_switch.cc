@@ -15,24 +15,30 @@ AsyncSwitch *AsyncSwitch::it;
 extern "C" {
     void __x10_callback_asyncswitch(x10_async_closure_t *cl, x10_clock_t *, int) {
 
-
 #ifndef NO_EXCEPTIONS
         try {
 #endif
 
-        x10aux::serialization_buffer buf;
+            // init XRX info for this internal pgas thread if it's not already done
+            if (x10::runtime::Thread::currentThread()==x10aux::null) {
+                // should happen first time we dispatch on an async or never for lapi
+                (void) X10NEW(x10::runtime::Thread)(x10aux::null,
+                                                    String::Lit("async dispatch thread"));
+            }
 
-        buf.set(reinterpret_cast<char*>(cl));
+            x10aux::serialization_buffer buf;
 
-        x10aux::AsyncSwitch::dispatch(buf);
+            buf.set(reinterpret_cast<char*>(cl));
 
-        buf.set(NULL); // hack since the memory was allocated by pgas, not by buf
+            x10aux::AsyncSwitch::dispatch(buf);
+
+            buf.set(NULL); // hack since the memory was allocated by pgas, not by buf
 
 #ifndef NO_EXCEPTIONS
-/* TODO: need some other mechanism for calling exit() from another place
+        /* TODO: need some other mechanism for calling exit() from another place
         } catch(int exitCode) {
             x10aux::exitCode = exitCode;
-*/
+        */
 
         } catch(x10aux::__ref& e) {
 

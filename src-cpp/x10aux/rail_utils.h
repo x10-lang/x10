@@ -89,6 +89,9 @@ namespace x10aux {
 namespace x10aux {
 
     template<class T> ref<x10::lang::String> AnyRail<T>::toString() {
+        if (this->FMGL(length)==0) {
+            return x10::lang::String::Lit("[]");
+        }
         std::stringstream ss;
         const char *prefix = "[";
         for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {

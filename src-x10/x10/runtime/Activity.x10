@@ -63,3 +63,5 @@ class Activity(clockPhases:ClockPhases, finishStack:StackFinishState, name:Strin
 	
 	public def toString():String = name; 
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab

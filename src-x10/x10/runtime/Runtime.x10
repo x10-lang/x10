@@ -89,13 +89,18 @@ public value Runtime {
 	 * Run async
 	 */
 	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, name:String):Void {
+        NativeRuntime.println("Runtime.runAsync place:"+place+" clocks:"+clocks+
+                              " body:"+body+" name:"+name);
 		val state = current().finishStack.peek();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
 		if (place == here) {
 			pool.execute(new Activity(body, state, clocks, phases, name));
 		} else {
-            val c = ()=>pool.execute(new Activity(body, state, clocks, phases, name));
+            val c = ()=>{
+                NativeRuntime.println("pool: "+pool);
+                pool.execute(new Activity(body, state, clocks, phases, name));
+            };
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
@@ -244,3 +249,5 @@ public value Runtime {
 		current().finishStack.peek().pushException(t);
 	}
 }
+
+// vim:shiftwidth=4:tabstop=4:expandtab
