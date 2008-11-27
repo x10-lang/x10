@@ -9,6 +9,9 @@
  * Implementation file for the low level thread interface.
  */
 
+#include <x10aux/config.h>
+#include <x10aux/alloc.h>
+
 #include <x10/runtime/Thread.h>
 
 #include <x10/lang/String.h>
@@ -69,6 +72,9 @@ x10::runtime::Thread::thread_start_routine(void *arg)
     return NULL; // quell compiler warning
 }
 
+
+
+
 // Helper method to initialize a Thread object.
 void
 Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
@@ -84,7 +90,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     __thread_already_started = false;
     __thread_running = false;
 
-    __thread_name = ref<String>(new (alloc<String>())String(*name));
+    __thread_name = X10NEW(String)(*name);
     __taskBody = task;
 
     
@@ -143,8 +149,13 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     //pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
 
     // create a new execution thread ??in suspended state??
-    (void)pthread_create(&__xthread, &__xthread_attr,
-                         thread_start_routine, (void *)this);
+    if (__taskBody!=x10aux::null) {
+        (void)pthread_create(&__xthread, &__xthread_attr,
+                             thread_start_routine, (void *)this);
+    } else {
+        pthread_setspecific(__thread_mapper, this);
+        __thread_running = true;
+    }
     // create this thread's permit object
     thread_permit_init(&__thread_permit);
 
