@@ -116,17 +116,21 @@ namespace x10aux {
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
                                      << " into " << this << "("<<_val<<")");
+            // assert that the above dynamic_cast was successful
+            assert(isNull() == _ref.isNull());
             INC(_val);
         }
         
         // Allow the assignment of a ref<S> to a ref<T>
-        template<class S> const ref<T>& operator=(const ref<S>& _ref) {
+        template<class S> const ref<T> &operator=(const ref<S>& _ref) {
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
             _val = dynamic_cast<T*>((S*)_ref._val);
             _R_("Casting reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(S)
                                      << " to type " << TYPENAME(T)
                                      << " into " << this << "("<<_val<<")");
+            // assert that the above dynamic_cast was successful
+            assert(isNull() == (_val==NULL));
             INC(_val);
             return *this;
         }
