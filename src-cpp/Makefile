@@ -14,14 +14,16 @@ CXXFLAGS+=$(INCLUDE_DIRS)
 ifneq ($(wildcard /usr/include/lapi.h),) # AIX
 CXX = mpCC_r
 override CXXFLAGS -= -g
-override CXXFLAGS -= -ansi -pedantic -Wall -Wextra -Wno-long-long -pthread
 override CXXFLAGS += -q64
 override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
 override CXXFLAGS += -qrtti=all -DNDEBUG
 # FIXME
 ARFLAGS := -X64 $(ARFLAGS)
 else
-override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -pthread
+override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long
+ifeq ($(shell uname -s),Linux)
+override CXXFLAGS += -pthread
+endif
 endif
 
 
