@@ -42,8 +42,8 @@ namespace x10 {
             x10_int _len;
             
         public:
-            GrowableRail() : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(1)) { }
-            GrowableRail(x10_int size) : x10::lang::Ref(), _len(0), _array(x10::lang::Rail<T>::make(size)) { }
+            GrowableRail() : _array(x10::lang::Rail<T>::make(1)), _len(0)  { }
+            GrowableRail(x10_int size) : _array(x10::lang::Rail<T>::make(size)), _len(0)  { }
 
             T set(T v, x10_int i) {
                 grow(i+1);

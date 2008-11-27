@@ -185,7 +185,8 @@ namespace x10 {
 
         protected:
             // Helper method to initialize a Thread object.
-            void thread_init(x10aux::ref<x10::lang::VoidFun_0_0> task, const x10aux::ref<x10::lang::String> name);
+            void thread_init(x10aux::ref<x10::lang::VoidFun_0_0> task,
+                             const x10aux::ref<x10::lang::String> name);
             // Thread start routine.
             static void *thread_start_routine(void *arg);
             // Clean-up routine for sleep method call.
