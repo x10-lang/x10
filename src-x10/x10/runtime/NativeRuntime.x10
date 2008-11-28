@@ -17,6 +17,7 @@ import x10.compiler.NativeRep;
 //@NativeRep("java", "x10.runtime.impl.java.Runtime", null, null)
 public value NativeRuntime {
 
+  @Native("java", "System.out.println(#1)")
   @Native("c++", "fprintf(stderr,\"%s\\n\",(#1)->toString()->c_str())")
   public native static def println(o:Object) : Void;
 
