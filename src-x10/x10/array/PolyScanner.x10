@@ -112,25 +112,25 @@ final public class PolyScanner implements Region.Scanner {
 
     public def printInfo(ps: Printer): void {
         for (var k: int = 0; k<min.r.length; k++) {
-            ps.printf("axis %d\n", k to Box[Int]);
+            ps.printf("axis %d\n", k);
             ps.printf("  min\n");
             for (var l: int = 0; l<min.r(k).r.length; l++) {
                 ps.printf("  ");
                 for (var m: int = 0; m<min.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", min.r(k).r(l).r(m) to Box[Int]);
+                    ps.printf(" %3d", min.r(k).r(l).r(m));
                 ps.printf("  sum");
                 for (var m: int = 0; m<minSum.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", minSum.r(k).r(l).r(m) to Box[Int]);
+                    ps.printf(" %3d", minSum.r(k).r(l).r(m));
                 ps.printf("\n");
             }
             ps.printf("  max\n");
             for (var l: int = 0; l<max.r(k).r.length; l++) {
                 ps.printf("  ");
                 for (var m: int = 0; m<max.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", max.r(k).r(l).r(m) to Box[Int]);
+                    ps.printf(" %3d", max.r(k).r(l).r(m));
                 ps.printf("  sum");
                 for (var m: int = 0; m<maxSum.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", maxSum.r(k).r(l).r(m) to Box[Int]);
+                    ps.printf(" %3d", maxSum.r(k).r(l).r(m));
                 ps.printf("\n");
             }
         }
