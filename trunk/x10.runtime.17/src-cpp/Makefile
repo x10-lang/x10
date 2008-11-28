@@ -90,15 +90,15 @@ $(ARCHIVE): $(ALL_OBJECTS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 depend:
-	find -name '*.cc' -o -name '*.h' | xargs makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
+	find -name '*.cc' -o -name '*.h' -print0 | xargs -r0 makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
 
 
 clean:
-	find -name '*.h.gch' -o -name '*.o' | xargs rm -vf
-	rm -fv $(ARCHIVE)
+	find -name '*.h.gch' -o -name '*.o' -print0 | xargs -r0 -t rm -f
+	rm -f $(ARCHIVE)
 
 squeakyclean: clean
-	find -name '*~' -o -name '*.bak' | xargs rm -vf
+	find -name '*~' -o -name '*.bak' -print0 | xargs -r0 -t rm -f
 
 .PHONY: all clean squeakyclean
 
