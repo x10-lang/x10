@@ -109,14 +109,6 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     }
     
     public def indexOf(index: Int, v: T):Int = 
-    	(T <: Value) ? indexOfVal(index, v) : indexOfref(index, v);
-    private def indexOfVal(index: Int, v:Value):Int {
-        for (var i: Int = index; i < a.length(); i++) {
-            if (v==a(i)) return i;
-        }
-        return -1;
-    }
-    private def indexOfRef(index: Int, v:Ref):Int {
         for (var i: Int = index; i < a.length(); i++) {
             if (v==null ? a(i)==v : v.equals(a(i)))
             	return i;
