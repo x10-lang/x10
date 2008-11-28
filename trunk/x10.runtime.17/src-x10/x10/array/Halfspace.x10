@@ -131,7 +131,7 @@ value class Halfspace(rank:nat) implements Comparable[Halfspace] {
     public def printInfo(ps: Printer): void {
         ps.printf("[");
         for (var i: int = 0; i<as.length; i++) {
-            ps.printf("%4d", as(i) to Box[Int]);
+            ps.printf("%4d", as(i));
             if (i==as.length-2) ps.printf(" |");
         }
         ps.printf(" ]   ");
@@ -156,22 +156,22 @@ value class Halfspace(rank:nat) implements Comparable[Halfspace] {
             val c = sgn*as(i);
             if (c==1) {
                 if (first)
-                    ps.printf("x%d", i to Box[Int]);
+                    ps.printf("x%d", i);
                 else
-                    ps.printf("+x%d", i to Box[Int]);
+                    ps.printf("+x%d", i);
             } else if (c==-1)
-                ps.printf("-x%d", i to Box[Int]);
+                ps.printf("-x%d", i);
             else if (c!=0)
-                ps.printf("%+d*x%d ", c to Box[Int], i to Box[Int]);
+                ps.printf("%+d*x%d ", c, i);
             if (c!=0)
                 first = false;
         }
         if (first)
             ps.printf("0");
         if (sgn>0)
-            ps.printf("%s<=%s%d", spc, spc, (-as(as.length-1)) to Box[Int]);
+            ps.printf("%s<=%s%d", spc, spc, (-as(as.length-1)));
         else
-            ps.printf("%s>=%s%d", spc, spc, (as(as.length-1)) to Box[Int]);
+            ps.printf("%s>=%s%d", spc, spc, (as(as.length-1)));
     }
 
     public def toString(): String {
