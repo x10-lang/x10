@@ -10,25 +10,25 @@ using namespace x10aux;
 const ref<String> x10aux::int_utils::toString(x10_int value, x10_int radix) {
     (void) value; (void) radix;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return NULL;
+    return null;
 }
 
 const ref<String> x10aux::int_utils::toHexString(x10_int value) {
     (void) value;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return NULL;
+    return null;
 }
 
 const ref<String> x10aux::int_utils::toOctalString(x10_int value) {
     (void) value;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return NULL;
+    return null;
 }
 
 const ref<String> x10aux::int_utils::toBinaryString(x10_int value) {
     (void) value;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return NULL;
+    return null;
 }
 
 const ref<String> x10aux::int_utils::toString(x10_int value) {

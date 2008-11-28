@@ -23,13 +23,13 @@ using namespace x10aux;
 typedef Throwable::Cause Cause;
 
 Throwable::Throwable() : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = NULL;
+    this->FMGL(cause) = null;
     this->FMGL(message) = to_string("");
 }
 
 
 Throwable::Throwable(ref<String> message) : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = NULL;
+    this->FMGL(cause) = null;
     this->FMGL(message) = message;
 }
 
