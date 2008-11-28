@@ -200,6 +200,26 @@ namespace x10aux {
     typedef ref<x10::lang::Object> NullType;
     extern NullType null;
 
+    template<class F, class T> bool operator!=(F f, T t) { return !(f == t); }
+    // comparison of a primitive with a ref
+    template<class T> bool operator==(x10_boolean b, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_byte b, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_char c, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_short s, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_int i, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_long l, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_float f, const ref<T>& _ref) { return false; }
+    template<class T> bool operator==(x10_double d, const ref<T>& _ref) { return false; }
+    // comparison of a ref with a primitive
+    template<class T> bool operator==(const ref<T>& _ref, x10_boolean b) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_byte b) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_char c) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_short s) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_int i) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_long l) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_float f) { return false; }
+    template<class T> bool operator==(const ref<T>& _ref, x10_double d) { return false; }
+
 } //namespace x10
 
 

@@ -30,6 +30,31 @@ namespace x10aux {
         // All possibilities accounted for, if you got here something has gone wrong
     };
 
+    // Box primitives on casting to interfaces
+    #define PRIMITIVE_INTERFACE_CAST(T,F) \
+    template<> struct ClassCastNotBothRef<ref<T>,F> { \
+        static ref<T> _ (F obj) { \
+            _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(ref<T>)); \
+            return ref<T>(box(obj)); \
+        } \
+    }
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_boolean);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_byte);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_char);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_short);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_int);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_long);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_float);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_double);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_byte);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_short);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_int);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_long);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_byte);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_short);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_int);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_long);
+
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
         static ref<T> _(F* obj) {
             return ref<T>(ref<F>(obj));
@@ -47,7 +72,6 @@ namespace x10aux {
             return unbox(obj);
         }
     };
-
 
     // ClassCastBothRef
     template<class T, class F> struct ClassCastBothRef { static ref<T> _(ref<F> obj) {
