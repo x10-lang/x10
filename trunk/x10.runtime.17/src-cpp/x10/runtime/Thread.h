@@ -204,7 +204,7 @@ namespace x10 {
 
         private:
             // the current activity
-            static x10aux::ref<x10::lang::Object> __current_activity;
+            x10aux::ref<x10::lang::Object> __current_activity;
             // the current thread
             static x10aux::ref<Thread> __current_thread;
             // internal thread id counter (monotonically increasing only)
