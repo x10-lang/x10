@@ -40,7 +40,7 @@ using namespace std;
 
 
 // initialize static data members
-ref<Thread> Thread::__current_thread = NULL;
+ref<Thread> Thread::__current_thread = null;
 long x10::runtime::Thread::__thread_cnt = 0;
 pthread_key_t Thread::__thread_mapper = 0;
 x10_boolean Thread::__thread_mapper_inited = false;
@@ -90,7 +90,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     __thread_already_started = false;
     __thread_running = false;
 
-	__current_activity = NULL;
+	__current_activity = null;
     __thread_name = X10NEW(String)(*name);
     __taskBody = task;
 

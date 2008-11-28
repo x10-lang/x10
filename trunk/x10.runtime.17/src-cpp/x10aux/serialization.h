@@ -289,7 +289,7 @@ namespace x10aux {
             int id = buf.read<int>();
             // TODO
             //if (id == NULL_SERIALIZATION_ID)
-            //    return NULL;
+            //    return null;
             assert (id == T::SERIALIZATION_ID);
             _S_("Deserializing " << TYPENAME(T));
             ref<T> rv = ref<T>(new (alloc<T>()) T(SERIALIZATION_MARKER()));
@@ -356,7 +356,7 @@ namespace x10aux {
 //        assert ((size_t)id < S::_registered_subclasses._length);
 //        ref<S>(*deserialize_func)(serialization_buffer&) = S::_registered_subclasses._subclasses[id];
 //        if (deserialize_func == NULL) {
-//            assert(false); return NULL;
+//            assert(false); return null;
 //        }
 //        return deserialize_func(buf);
     }
