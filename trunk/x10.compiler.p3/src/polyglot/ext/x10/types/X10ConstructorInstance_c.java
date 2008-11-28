@@ -21,6 +21,7 @@ import polyglot.types.ConstructorInstance_c;
 import polyglot.types.DerefTransform;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
@@ -49,6 +50,11 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         super(ts, pos, def);
     }
     
+    @Override
+    public boolean moreSpecific(ProcedureInstance<ConstructorDef> p) {
+        return X10MethodInstance_c.moreSpecificImpl(this, p);
+    }
+
     public X10ConstructorDef x10Def() {
         return (X10ConstructorDef) def();
     }

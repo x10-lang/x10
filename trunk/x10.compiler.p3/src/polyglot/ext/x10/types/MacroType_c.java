@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.types.ConstructorDef;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -336,37 +337,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
 	}
 	
-	public boolean moreSpecific(ProcedureInstance<TypeDef> pi) {
-	        ProcedureInstance<TypeDef> p1 = this;
-	        ProcedureInstance<TypeDef> p2 = pi;
-
-	        // rule 1:
-	        Type t1 = null;
-	        Type t2 = null;
-	        
-	        if (p1 instanceof MemberInstance) {
-	            t1 = ((MemberInstance<TypeDef>) p1).container();
-	        }
-	        if (p2 instanceof MemberInstance) {
-	            t2 = ((MemberInstance<TypeDef>) p2).container();
-	        }
-	        
-	        if (t1 != null && t2 != null) {
-	            if (t1.isClass() && t2.isClass()) {
-	                if (! t1.isSubtype(t2) &&
-	                        ! t1.toClass().isEnclosed(t2.toClass())) {
-	                    return false;
-	                }
-	            }
-	            else {
-	                if (! t1.isSubtype(t2)) {
-	                    return false;
-	                }
-	            }
-	        }
-
-	        // rule 2:
-	        return p2.callValid(t1, p1.formalTypes());
+	public boolean moreSpecific(ProcedureInstance<TypeDef> p) {
+	    return X10MethodInstance_c.moreSpecificImpl(this, p);
 	}
 	
 	public Type returnType() {

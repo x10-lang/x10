@@ -21,6 +21,7 @@ import polyglot.types.DerefTransform;
 import polyglot.types.FunctionInstance_c;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -67,6 +68,10 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     
     public boolean callValid(Type thisType, List<Type> actualTypes) {
         return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
+    }
+
+    public boolean moreSpecific(ProcedureInstance<ClosureDef> p) {
+        return X10MethodInstance_c.moreSpecificImpl(this, p);
     }
 
     public String signature() {

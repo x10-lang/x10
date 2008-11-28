@@ -28,11 +28,14 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.MethodInstance_c;
 import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.PrimitiveType;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -68,6 +71,54 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 
     public X10MethodInstance_c(TypeSystem ts, Position pos, Ref<? extends X10MethodDef> def) {
         super(ts, pos, def);
+    }
+    
+    @Override
+    public boolean moreSpecific(ProcedureInstance<MethodDef> p) {
+        return moreSpecificImpl(this, p);
+    }
+    
+    public static boolean moreSpecificImpl(ProcedureInstance<?> p1, ProcedureInstance<?> p2) {
+        X10TypeSystem ts = (X10TypeSystem) p1.typeSystem();
+
+        // rule 1:
+        Type t1 = null;
+        Type t2 = null;
+        
+        t1 = p1 instanceof MethodInstance ? ((MethodInstance)  p1).container() : null;
+        t1 = p2 instanceof MethodInstance ? ((MethodInstance)  p2).container() : null;
+
+        if (t1 != null && t2 != null) {
+            t1 = X10TypeMixin.baseType(t1);
+            t2 = X10TypeMixin.baseType(t2);
+            
+            if (t1.isClass() && t2.isClass()) {
+                if (! t1.descendsFrom(t2) &&
+                        ! t1.toClass().isEnclosed(t2.toClass())) {
+                    return false;
+                }
+            }
+            else {
+                if (! t1.descendsFrom(t2)) {
+                    return false;
+                }
+            }
+        }
+
+        // rule 2:
+        // if the formal params of p1 can be used to call p2, p1 is more specific
+
+        if (p1.formalTypes().size() == p2.formalTypes().size() ) {
+            for (int i = 0; i < p1.formalTypes().size(); i++) {
+                Type f1 = p1.formalTypes().get(i);
+                Type f2 = p2.formalTypes().get(i);
+                if (! ts.isImplicitCastValid(f1, f2))
+                    return false;
+            }
+            return true;
+        }
+        
+        return false;
     }
 
     @Override
