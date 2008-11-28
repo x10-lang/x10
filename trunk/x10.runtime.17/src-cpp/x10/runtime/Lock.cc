@@ -10,7 +10,12 @@
  * interface.
  */
 
+#include <x10aux/config.h>
+#include <x10aux/throw.h>
+
 #include <x10/runtime/Lock.h>
+
+#include <x10/runtime/IllegalMonitorStateException.h>
 
 #include <errno.h>
 #ifdef XRX_DEBUG
@@ -20,8 +25,6 @@
 using namespace x10::lang;
 using namespace x10::runtime;
 using namespace x10aux;
-
-#include <x10/runtime/IllegalMonitorStateException.h>
 
 
 void Lock::initialize()
@@ -72,11 +75,9 @@ Lock::lock()
 void
 Lock::unlock()
 {
-	IllegalMonitorStateException imse;
-
 	// calling thread doesn't own the lock
 	if (pthread_mutex_unlock(&__lock) == EPERM) {
-		throw imse;
+        throwException<IllegalMonitorStateException>();
 	}
 }
 

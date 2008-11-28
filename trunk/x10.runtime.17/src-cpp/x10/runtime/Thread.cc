@@ -11,6 +11,7 @@
 
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
+#include <x10aux/throw.h>
 
 #include <x10/runtime/Thread.h>
 
@@ -189,11 +190,9 @@ Thread::currentThread(void)
 void
 Thread::start(void)
 {
-    IllegalThreadStateException itse;
-
     __xrxDPrStart();
     if (__thread_already_started) {
-        throw itse;
+        throwException<IllegalThreadStateException>();
     }
     pthread_mutex_lock(&__thread_start_lock);
     __thread_already_started = true;
@@ -281,7 +280,6 @@ Thread::sleep(x10_long millis, x10_int nanos)
     struct timespec tout;
     long sleep_usec;
     int rc;
-    InterruptedException ie;
 
     __xrxDPrStart();
     signal(SIGINT, intr_hndlr);
@@ -302,7 +300,7 @@ Thread::sleep(x10_long millis, x10_int nanos)
             done = true;
         } else {
             // might be a spurious wakeup
-            throw ie;
+            throwException<InterruptedException>();
             break;
             /*
             struct timeval cval;
@@ -310,7 +308,7 @@ Thread::sleep(x10_long millis, x10_int nanos)
             gettimeofday(&cval, NULL);
             cur_usec = (cval.tv_sec * 1000 * 1000) + cval.tv_usec;
             if (cur_usec < sleep_usec) {
-                throw ie;
+                throwException<InterruptedException>();
                 done = false;
                 continue;
             }
