@@ -66,6 +66,12 @@ public class Desugarer extends ContextVisitor {
         xnf = (X10NodeFactory) nf;
     }
 
+    private static int count;
+
+    private static Name getTmp() {
+        return Name.make("__desugarer__var__" + (count++) + "__");
+    }
+
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name EVAL_FUTURE = Name.make("evalFuture");
     private static final Name RUN_ASYNC = Name.make("runAsync");
@@ -213,13 +219,14 @@ public class Desugarer extends ContextVisitor {
 
     private Node visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
+        Name tmp = getTmp();
 
         MethodInstance mi = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
                 PUSH_EXCEPTION, Collections.singletonList(xts.Throwable())), context.currentClassDef());
-        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), Name.make("t"));
+        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp);
         Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
-                xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, "t")).localDef(lDef);
-        Expr local = xnf.Local(pos, xnf.Id(pos, "t")).localInstance(lDef.asInstance()).type(xts.Throwable());
+                xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, tmp)).localDef(lDef);
+        Expr local = xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(xts.Throwable());
         Expr call = xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, PUSH_EXCEPTION), Collections.EMPTY_LIST,
                 Collections.singletonList(local)).methodInstance(mi).type(xts.Void());
