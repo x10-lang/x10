@@ -7,6 +7,7 @@
 #include <x10aux/RTT.h>
 #include <x10aux/ref.h>
 
+#include <x10/lang/Object.h>
 #include <x10/lang/Box.h>
 
 #include <x10/lang/ClassCastException.h>
@@ -46,6 +47,7 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_long);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_float);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_double);
+    /* TODO
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_byte);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_short);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_int);
@@ -54,6 +56,7 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_short);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_int);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_long);
+    */
 
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
         static ref<T> _(F* obj) {
