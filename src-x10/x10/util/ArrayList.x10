@@ -108,7 +108,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return indexOf(0, v);
     }
     
-    public def indexOf(index: Int, v: T):Int = 
+    public def indexOf(index: Int, v: T):Int {
         for (var i: Int = index; i < a.length(); i++) {
             if (v==null ? a(i)==v : v.equals(a(i)))
             	return i;
