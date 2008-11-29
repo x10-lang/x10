@@ -42,8 +42,9 @@ public class NQueensPar {
     		}
     		if (q.length==0) {
     		  val R = DistUtil.block(0..N-1, P);
-    		  foreach ((q) in 0..P-1) 
-    		    search(R(q));
+    		  //foreach ((q) in 0..P-1) 
+		  for (var q:Int=0; q < P; ++q) 
+    		    async (here) search(R(q));
     		} else search(0..N-1);
     	}
     }
