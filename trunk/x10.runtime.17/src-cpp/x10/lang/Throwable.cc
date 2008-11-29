@@ -223,7 +223,7 @@ void *__init_bfd() {
     return NULL;
 }
 
-static void *__init = __init_bfd();
+static void *__init_bfd_ = __init_bfd();
 
 #endif // USE_BFD
 
@@ -265,25 +265,6 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     const char *msg = "No stacktrace available for your compiler.  So cry your heart out.";
     return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String::Lit(msg));
 #endif
-}
-
-
-void Throwable::_serialize_fields(serialization_buffer& buf, addr_map& m) {
-    (void)buf; (void)m; abort();
-/*
-    buf.write(this->FMGL(cause)); 
-    _S_("Written reference cause");
-    if (!m.ensure_unique(this->FMGL(message))) assert (false);
-    this->message->_serialize(buf, m);
-    _S_("Serialized message");
-*/
-}
-void Throwable::_deserialize_fields(serialization_buffer& buf) {
-    (void)buf; abort();
-/*
-    this->cause = buf.read<ref<Box < ref<Throwable> > > >();
-    this->message = _deserialize_value_ref<String >(buf);
-*/
 }
 
 

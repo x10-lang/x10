@@ -6,9 +6,6 @@
 #include <x10aux/config.h>
 
 #include <x10/lang/Value.h>
-//#include <x10aux/string_utils.h>
-#include <x10aux/RTT.h>
-#include <x10aux/ref.h>
 
 namespace x10 {
 
@@ -30,6 +27,7 @@ namespace x10 {
 
             virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<String>(); }
 
+
             // These are our 2 workhorses - the first one is for literals
             explicit String(const std::string& content = std::string()) : std::string(content) { }
             explicit String(const x10aux::ref<String>& s) : std::string(*s) { }
@@ -37,17 +35,6 @@ namespace x10 {
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
             static x10aux::ref<String> Lit(const char *s) { return X10NEW(String)(std::string(s)); }
-
-/*
-            String(x10_boolean v);
-            String(x10_byte v);
-            String(x10_char v);
-            String(x10_short v);
-            String(x10_int v);
-            String(x10_long v);
-            String(x10_float v);
-            String(x10_double v);
-*/
 
             operator x10aux::ref<Value> () {
                 return x10aux::ref<String>(this);
@@ -76,16 +63,42 @@ namespace x10 {
 
             x10_char charAt(x10_int i);
 
-            x10aux::ref<Rail<x10_char> > chars();
+            x10aux::ref<ValRail<x10_char> > chars();
 
-            x10aux::ref<Rail<x10_byte> > bytes();
+            x10aux::ref<ValRail<x10_byte> > bytes();
 
-            virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                (void)buf; (void)m; abort();
-                //x10aux::_serialize_ref(this, buf, m);
+            static void _serialize(x10aux::ref<String> this_,
+                                   x10aux::serialization_buffer &buf,
+                                   x10aux::addr_map &m)
+            {
+                this_->_serialize_fields(buf, m);
             }
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
-            virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
+
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
+                x10_int sz = buf.read<x10_int>();
+                x10aux::ref<String> this_ = X10NEW(String)(std::string(sz,'x'));
+                for (x10_int i=0 ; i<sz ; ++i) {
+                    (*this_)[i] = (char)buf.read<x10_char>();
+                }
+                // there are no fields
+                _S_("Deserialized string was: \""<<this_<<"\"");
+                return this_;
+            }
+
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual void _serialize_id(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id, m);
+            }
+
+            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
+                // only support strings that are shorter than 4billion chars
+                x10_int sz = size();
+                buf.write(sz,m);
+                for (x10_int i=0 ; i<sz ; ++i) {
+                    buf.write((x10_char)at(i),m);
+                }
+            }
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
@@ -166,50 +179,9 @@ namespace x10 {
         }
 
 
-/*
-        template<typename T> String operator+(T v, const String& s);
-        template<typename T> String operator+(x10aux::ref<T> v, const String& s);
-        template<typename T> String operator+(x10aux::ref<String> v, T v);
-        template<> String operator+(x10aux::ref<String> v, String s);
-
-        template<typename T> String operator+(T v, const String& s) {
-            return String(v) + s;
-        }
-
-        template<typename T> String operator+(x10aux::ref<T> v, const String& s) {
-            return *(v->toString()) + s;
-        }
-
-        template<typename T> String operator+(x10aux::ref<String> s, T v) {
-            return *s + v;
-        }
-
-        template<> String operator+(x10aux::ref<String> s, String v) {
-            return *s + v;
-        }
-*/
-
-
     } // namespace x10::lang
 
 } // namespace x10
-
-
-// these are optimisations to avoid malloc / gc / leaks
-/*
-x10::lang::String operator+(const x10::lang::String &s1, const x10::lang::String& s2);
-x10::lang::String operator+(const x10::lang::String &s1, x10aux::ref<x10::lang::Object> s2);
-x10::lang::String operator+(x10aux::ref<x10::lang::Object> s1, const x10::lang::String& s2);
-*/
-
-/*
-// rewrite the ref so it points to a new string, return the new string
-
-// rewrite the first argument so it points to a new string, return the new string
-x10aux::ref<x10::lang::String> operator+=(x10aux::ref<x10::lang::String> &s1,
-                                          x10aux::ref<x10::lang::Object> s2);
-
-*/
 
 
 #endif

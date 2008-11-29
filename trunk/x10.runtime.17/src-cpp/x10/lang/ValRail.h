@@ -26,7 +26,8 @@ namespace x10 {
                 public:
                 static RTT * const it;
 
-                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
+                virtual void init() { initParents(2,x10aux::getRTT<Value>(),
+                                                    x10aux::getRTT<Fun_0_1<x10_int,T> >()); }
 
                 virtual std::string name() const {
                     std::stringstream ss;
@@ -50,7 +51,7 @@ namespace x10 {
 
             ~ValRail() { }
 
-            class Iterator : public x10::lang::Iterator<T> {
+            class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
 
                 protected:
 
@@ -64,7 +65,8 @@ namespace x10 {
                     static RTT * const it;
 
                     virtual void init() {
-                       initParents(1,x10aux::getRTT<x10::lang::Iterator<T> >());
+                       initParents(2,x10aux::getRTT<x10::lang::Iterator<T> >(),
+                                     x10aux::getRTT<Ref>());
                     }
 
                     virtual std::string name() const {
@@ -81,6 +83,8 @@ namespace x10 {
 
                 Iterator (const x10aux::ref<ValRail> &rail_)
                         : i(0), rail(rail_) { }
+
+                Iterator (x10aux::SERIALIZATION_MARKER) { }
 
                 virtual x10_boolean hasNext() {
                     return i < rail->FMGL(length);
@@ -103,11 +107,50 @@ namespace x10 {
                     if (other_i->i != i) return false;
                     return true;
                 }
+
+                static const x10aux::serialization_id_t _serialization_id;
+
+                static void _serialize(x10aux::ref<Iterator> this_,
+                                       x10aux::serialization_buffer &buf,
+                                       x10aux::addr_map &m)
+                {
+                    this_->_serialize_body(buf,m);
+                }
+                void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                    buf.write(_serialization_id, m);
+                }
+                void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                    buf.write(i, m);
+                    buf.write(rail, m);
+                }
+
+                template<class S>
+                static x10aux::ref<S> _deserialize(x10aux::serialization_buffer &buf) {
+                    x10aux::ref<Iterator> this_ = X10NEW(Iterator)(x10aux::SERIALIZATION_MARKER());
+                    this_->i = buf.read<x10_int>();
+                    this_->rail = buf.read<x10aux::ref<Rail<T> > >();
+                    return this_;
+                }
+
             };
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
                 return new (x10aux::alloc<Iterator>()) Iterator(this);
             }
+
+            virtual bool equals(x10aux::ref<Object> other) {
+                if (!_type()->concreteInstanceOf(other)) return false;
+                x10aux::ref<ValRail> other_rail = other;
+                // different sizes so false
+                if (other_rail->FMGL(length)!=this->FMGL(length)) return false;
+                for (x10_int index=0 ; index<this->FMGL(length) ; ++index) {
+                    if ((*other_rail)[index]!=this->raw()[index])
+                        return false;
+                }
+                return true;
+            }
+
+            virtual x10_int hashCode() { return 0; }
 
             virtual x10aux::ref<String> toString() {
                 return x10aux::AnyRail<T>::toString();
@@ -142,17 +185,42 @@ namespace x10 {
                 return rail;
             }
 
-            virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                (void)buf; (void)m; abort();
+            static const x10aux::serialization_id_t _serialization_id;
+
+            static void _serialize(x10aux::ref<ValRail<T> > this_,
+                                   x10aux::serialization_buffer &buf,
+                                   x10aux::addr_map &m)
+            {
+                this_->_serialize_body(buf,m);
             }
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                (void)buf; (void)m; abort();
+            void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id, m);
             }
-            virtual void _deserialize_fields(x10aux::serialization_buffer& buf) {
-                (void)buf; abort();
+            void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(this->FMGL(length),m);
+                for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
+                    buf.write(this->raw()[i], m); // avoid bounds check
+                }
+            }
+            template<class S> static x10aux::ref<S> _deserialize(x10aux::serialization_buffer &buf)
+            {
+                x10_int length = buf.read<x10_int>();
+                x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
+                for (x10_int i=0 ; i<length ; ++i) {
+                    this_->raw()[i] = buf.read<T>(); // avoid bounds check
+                }
+                return this_;
             }
 
         };
+
+        template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
+            x10aux::DeserializationDispatcher
+                ::addDeserializer(ValRail<T>::template _deserialize<Object>);
+
+        template<class T> const x10aux::serialization_id_t ValRail<T>::Iterator::_serialization_id =
+            x10aux::DeserializationDispatcher
+                ::addDeserializer(ValRail<T>::Iterator::template _deserialize<Object>);
 
         template<class T> typename ValRail<T>::RTT * const ValRail<T>::RTT::it =
             new (x10aux::alloc<typename ValRail<T>::RTT>()) typename ValRail<T>::RTT();

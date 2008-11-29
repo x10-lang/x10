@@ -144,19 +144,19 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-ref<Rail<x10_char> > String::chars() {
+ref<ValRail<x10_char> > String::chars() {
     x10_int sz = size();
-    Rail<x10_char> *rail = alloc_rail<x10_char,Rail<x10_char> > (sz);
+    ValRail<x10_char> *rail = alloc_rail<x10_char,ValRail<x10_char> > (sz);
     for (int i=0 ; i<sz ; i++)
-        (*rail)[i] = (x10_char)at(i);
+        rail->raw()[i] = (x10_char)at(i); // avoid bounds check
     return rail;
 }
 
-ref<Rail<x10_byte> > String::bytes() {
+ref<ValRail<x10_byte> > String::bytes() {
     x10_int sz = size();
-    Rail<x10_byte> *rail = alloc_rail<x10_byte,Rail<x10_byte> > (sz);
+    ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
     for (int i=0 ; i<sz ; i++)
-        (*rail)[i] = (x10_byte)at(i);
+        rail->raw()[i] = (x10_byte)at(i); // avoid bounds check
     return rail;
 }
 
@@ -218,14 +218,8 @@ ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
     return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
 }
 
-void String::_serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-    (void)buf; (void)m;
-    abort();
-}
-
-void String::_deserialize_fields(x10aux::serialization_buffer& buf) {
-    (void)buf;
-}
+const serialization_id_t String::_serialization_id =
+    DeserializationDispatcher::addDeserializer(String::_deserialize<Object>);
 
 DEFINE_RTT(String);
 // vim:tabstop=4:shiftwidth=4:expandtab

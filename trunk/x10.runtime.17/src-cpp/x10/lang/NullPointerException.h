@@ -1,5 +1,5 @@
-#ifndef X10_LANG_CLASSCASTEXCEPTION_H
-#define X10_LANG_CLASSCASTEXCEPTION_H
+#ifndef X10_LANG_NULLPOINTEREXCEPTION_H
+#define X10_LANG_NULLPOINTEREXCEPTION_H
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
@@ -24,6 +24,8 @@ namespace x10 {
             }
 
             NullPointerException() : RuntimeException() { }
+            NullPointerException(x10aux::ref<String> message) : RuntimeException(message) {   }
+
 
             NullPointerException(x10aux::SERIALIZATION_MARKER m) : RuntimeException(m) { }
 

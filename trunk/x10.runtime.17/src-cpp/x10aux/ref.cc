@@ -3,6 +3,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/throw.h>
 #include <x10/lang/NullPointerException.h>
+#include <x10/lang/BadPlaceException.h>
 
 
 using namespace x10aux;
@@ -14,7 +15,9 @@ void x10aux::throwNPE() {
     throwException<NullPointerException>();
 }
 
-x10aux::NullType x10aux::null;
+void x10aux::throwBPE() {
+    throwException<BadPlaceException>();
+}
 
 /*
 template<> x10aux::ref<x10::lang::String>::ref(const x10::lang::String& val)

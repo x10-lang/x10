@@ -39,7 +39,6 @@ all: $(X10LIB)/include/x10/x10.h $(ARCHIVE)
 
 ALL_OBJECTS = \
 	x10aux/assert.o \
-	x10aux/async_switch.o \
 	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \
 	x10aux/byte_utils.o \
@@ -57,7 +56,7 @@ ALL_OBJECTS = \
 	x10aux/ref.o \
 	x10aux/RTT.o \
 	x10aux/rail_utils.o \
-	x10aux/serialization.o \
+	x10aux/deserialization_dispatcher.o \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
@@ -69,6 +68,7 @@ ALL_OBJECTS = \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
 	x10/lang/ArrayIndexOutOfBoundsException.o \
+	x10/lang/BadPlaceException.o \
 	x10/lang/ClassCastException.o \
 	x10/lang/Exception.o \
 	x10/lang/VoidFun_0_0.o \
@@ -90,19 +90,20 @@ $(ARCHIVE): $(ALL_OBJECTS)
 
 #Standard stuff:
 
-%.o: %.cc $(wildcard %.h)
+%.o: %.cc %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 depend:
-	find -name '*.cc' -o -name '*.h' -print0 | xargs -r0 makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
+	#print0 does not work, suspect a bug in gnu find
+	find . -name '*.cc' -o -name '*.h' | xargs -r makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
 
 
 clean:
-	find -name '*.h.gch' -o -name '*.o' -print0 | xargs -r0 -t rm -f
+	find . -name '*.h.gch' -o -name '*.o' -print0 | xargs -r0 -t rm -f
 	rm -f $(ARCHIVE)
 
 squeakyclean: clean
-	find -name '*~' -o -name '*.bak' -print0 | xargs -r0 -t rm -f
+	find . -name '*~' -o -name '*.bak' -print0 | xargs -r0 -t rm -f
 
 .PHONY: all clean squeakyclean
 
