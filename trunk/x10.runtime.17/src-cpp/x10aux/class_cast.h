@@ -14,13 +14,27 @@
 
 namespace x10aux {
 
+    template<class T> struct CAST_TRACER {
+        CAST_TRACER(T val_) : val(val_) { }
+        T val;
+        T get() { return val; }
+    };
+    template<class T> struct CAST_TRACER<ref<T> > {
+        CAST_TRACER(ref<T> val_) : val(val_) { }
+        ref<T> val;
+        T* get() { return val.get(); }
+    };
+    template<class T> std::ostream& operator<<(std::ostream& o, CAST_TRACER<T> t) {
+        return o << t.get();
+    }
+
     template<class T> ref<x10::lang::Box<T> > box(T obj) {
-        _CAST_("boxed: "<<obj.get()<<" of type "<<TYPENAME(T));
+        _CAST_("boxed: "<<CAST_TRACER<T>(obj)<<" of type "<<TYPENAME(T));
         return X10NEW(x10::lang::Box<T>)(obj);
     }
 
     template<class T> T unbox(ref<x10::lang::Box<T> > obj) {
-        _CAST_("unboxed: "<<obj.get()<<" of type "<<TYPENAME(T));
+        _CAST_("unboxed: "<<CAST_TRACER<ref<x10::lang::Box<T> > >(obj)<<" of type "<<TYPENAME(T));
         return obj->get();
     }
 
@@ -64,21 +78,23 @@ namespace x10aux {
         }
     };
 
-    template<class T, class F> struct ClassCastNotBothRef<ref<x10::lang::Box<T> >,F> {
-        static ref<x10::lang::Box<T> > _(F obj) {
+    // Boxing of primitives
+    template<class T> struct ClassCastNotBothRef<ref<x10::lang::Box<T> >,T> {
+        static ref<x10::lang::Box<T> > _(T obj) {
             return box(obj);
         }
     };
 
-    template<class T, class F> struct ClassCastNotBothRef<T,ref<x10::lang::Box<F> > > {
-        static T _(ref<x10::lang::Box<F> > obj) {
+    // Unboxing of primitives
+    template<class T> struct ClassCastNotBothRef<T,ref<x10::lang::Box<T> > > {
+        static T _(ref<x10::lang::Box<T> > obj) {
             return unbox(obj);
         }
     };
 
     // ClassCastBothRef
     template<class T, class F> struct ClassCastBothRef { static ref<T> _(ref<F> obj) {
-        if (obj==x10aux::null) {
+        if (obj == x10aux::null) {
             // NULL passes any class cast check and remains NULL
             _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));
             return obj;
@@ -96,14 +112,16 @@ namespace x10aux {
         return static_cast<ref<T> >(obj);
     } };
 
-    template<class T> struct ClassCastBothRef<x10::lang::Box<T>,T> {
-        static ref<x10::lang::Box<T> > _(ref<T> obj) {
+    // Boxing of ref types
+    template<class T> struct ClassCastBothRef<x10::lang::Box<ref<T> >,T> {
+        static ref<x10::lang::Box<ref<T> > > _(ref<T> obj) {
             return box(obj);
         }
     };
 
-    template<class T> struct ClassCastBothRef<T,x10::lang::Box<T> > {
-        static ref<T> _(ref<x10::lang::Box<T> > obj) {
+    // Unboxing of ref types
+    template<class T> struct ClassCastBothRef<T,x10::lang::Box<ref<T> > > {
+        static ref<T> _(ref<x10::lang::Box<ref<T> > > obj) {
             return unbox(obj);
         }
     };
@@ -181,7 +199,7 @@ namespace x10aux {
         return obj;
     } };
 
-    template<typename T, typename F> T class_cast (F obj) {
+    template<typename T, typename F> T class_cast(F obj) {
         return ClassCast<T,F>::_(obj);
     }
 
