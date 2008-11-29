@@ -65,6 +65,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
 		this.annotations = TypedList.<Ref<? extends Type>> copyAndCheck(annotations, Ref.class, true);
+        this.asType = null;
 	}
 
 	public List<Type> annotations() {
@@ -98,6 +99,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setPackage(Ref<? extends Package> p) {
 		this.package_ = p;
+        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -119,6 +121,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
 		this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -133,6 +136,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setGuard(Ref<XConstraint> guard) {
 		this.guard = guard;
+        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -140,6 +144,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setContainer(Ref<? extends StructType> container) {
 		this.container = container;
+        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -155,6 +160,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	public void setType(Ref<? extends Type> type) {
 		assert type != null;
 		this.type = type;
+        this.asType = null;
 	}
 	
 	public List<LocalDef> formalNames() {
@@ -163,6 +169,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	
 	public void setFormalNames(List<LocalDef> formalNames) {
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+        this.asType = null;
 	}
 	
 	/* (non-Javadoc)
@@ -177,6 +184,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
+        this.asType = null;
 	}
 
 	public String toString() {
@@ -190,6 +198,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	
 	public void setName(Name name) {
 		this.name = name;
+        this.asType = null;
 	}
 	
 	public Flags flags() {
@@ -198,6 +207,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setFlags(Flags flags) {
 		this.flags = flags;
+        this.asType = null;
 	}
 
 	public String designator() {

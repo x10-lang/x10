@@ -73,7 +73,8 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 
     public void setFormalNames(List<LocalDef> formalNames) {
-	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+        this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
+        this.asInstance = null;
     }
 
     public Ref<XTerm> body() {
@@ -98,6 +99,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     
     public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
         this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
+        this.asInstance = null;
     }
     
     public List<Type> annotations() {
@@ -120,6 +122,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 
     public void setGuard(Ref<XConstraint> s) {
         this.guard = s;
+        this.asInstance = null;
     }
     
     public List<Ref<? extends Type>> typeParameters() {
@@ -127,7 +130,8 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     }
 
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+        this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+        this.asInstance = null;
     }
 	
     public String signature() {
