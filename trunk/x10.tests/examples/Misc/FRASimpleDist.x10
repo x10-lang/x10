@@ -8,6 +8,10 @@ value LocalTable {
     val a: Rail[long];
     val mask: int;
     
+    @Native("java", "System.out.println(#1)")
+    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
+    public static native def println(x:String):void;
+
     def this(size:int) {
         mask = size-1;
         a = Rail.makeVar[long](size, (i:nat)=>i to long);
@@ -15,6 +19,7 @@ value LocalTable {
     
     public def update(ran:long) {
         //a(ran&mask to int) ^= ran;
+        println("xxx updating table at " + here + " ran " + ran);
         val index = ran&mask to int;
         a(index) = a(index) ^ ran;
     }
@@ -75,12 +80,15 @@ class FRASimpleDist {
                     val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
                     val valran = ran;
                     val table = tables(placeId);
-                    async (Place.places(placeId))
+                    println("xxx sending request to " + placeId + " valran " + valran);
+                    async (Place.places(placeId)) {
                         table.update(valran);
+                    }
                     ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
                 }
             }
         }
+        println("xxx finished");
     }
 
 
