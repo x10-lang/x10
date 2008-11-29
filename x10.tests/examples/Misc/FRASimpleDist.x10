@@ -86,6 +86,8 @@ class FRASimpleDist {
 
     public static def main(args:Rail[String]) {
 
+        async {
+
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;
@@ -93,17 +95,22 @@ class FRASimpleDist {
 
         // calculate the size of update array (must be a power of 2)
         val logLocalTableSize = /*args.length > 1 && args(0).equals("-m")?
-            int.parseInt(args(1)) :*/ 10;
+            int.parseInt(args(1)) :*/ 12;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*NUM_PLACES;
         val NUM_UPDATES = 4*tableSize;
 
         // create local tables
-        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, (i:nat)=> {
-            val p = Place.places(i);
-            val f = future(p) new LocalTable(localTableSize);
-            return f.force();
-        });
+        val varTables = Rail.makeVar[LocalTable](Place.MAX_PLACES);
+        finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
+            val pp = p;
+            async (Place.places(p)) {
+                val t = new LocalTable(localTableSize);
+                async (Place.places(0))
+                    varTables(pp) = t;
+            }
+        }
+        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, varTables);
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
@@ -130,6 +137,8 @@ class FRASimpleDist {
                     if (table.a(j) != j) err++;
                 println("Found " + err + " errors.");
             }
+        }
+
         }
     }
 
