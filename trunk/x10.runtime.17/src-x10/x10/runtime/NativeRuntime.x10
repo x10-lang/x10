@@ -59,5 +59,8 @@ public value NativeRuntime {
    * Return true if place(id) is in the current node.
    */
    @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
-   public static def local(id:Int):Boolean = true;
+   public static def local(id:Int):Boolean = id == here.id;
+
+  @Native("c++", "x10_wait()")
+  public static def x10_wait():Void {}
 }

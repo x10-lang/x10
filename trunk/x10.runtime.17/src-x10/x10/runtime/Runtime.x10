@@ -63,11 +63,18 @@ public value Runtime {
 	public static def start(body:()=>Void):Void {
 // temporary: printStackTrace call moved to Main template (native code) 
 //		try {
-			val activity = new Activity(body, "root");
-			Thread.currentThread().activity(activity);
-			finish {
-				activity.finishStack.peek().notifySubActivitySpawn();
-				activity.run();
+			if (here.id == 0) {
+				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
+					new Thread(()=>NativeRuntime.x10_wait(), "x10_wait").start();
+				}
+				val activity = new Activity(body, "root");
+				Thread.currentThread().activity(activity);
+				finish {
+					activity.finishStack.peek().notifySubActivitySpawn();
+					activity.run();
+				}
+			} else {
+				NativeRuntime.x10_wait();
 			}
 //		} catch (t:Throwable) {
 //			t.printStackTrace();
