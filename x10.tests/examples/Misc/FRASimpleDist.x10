@@ -2,6 +2,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 import x10.util.Timer;
+import x10.runtime.NativeRuntime;
 
 value LocalTable {
     
@@ -19,7 +20,7 @@ value LocalTable {
     
     public def update(ran:long) {
         //a(ran&mask to int) ^= ran;
-        println("xxx updating table at " + here + " ran " + ran);
+        //println("xxx updating table at " + here + " ran " + ran);
         val index = ran&mask to int;
         a(index) = a(index) ^ ran;
     }
@@ -38,7 +39,7 @@ class FRASimpleDist {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
-    const NUM_PLACES = Place.MAX_PLACES;
+    const NUM_PLACES = NativeRuntime.MAX_PLACES;
     const PLACE_ID_MASK = NUM_PLACES-1;
 
     // Utility routine to start random number generator at Nth step
@@ -80,7 +81,7 @@ class FRASimpleDist {
                     val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
                     val valran = ran;
                     val table = tables(placeId);
-                    println("xxx sending request to " + placeId + " valran " + valran);
+                    //println("xxx sending request to " + placeId + " valran " + valran);
                     async (Place.places(placeId)) {
                         table.update(valran);
                     }
@@ -100,8 +101,8 @@ class FRASimpleDist {
         }
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = /*args.length > 1 && args(0).equals("-m")?
-            int.parseInt(args(1)) :*/ 12;
+        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?
+            int.parseInt(args(1)) : 12;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*NUM_PLACES;
         val NUM_UPDATES = 4*tableSize;
