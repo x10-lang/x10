@@ -12,6 +12,8 @@ namespace x10aux {
 
     void throwNPE();
 
+    void throwBPE();
+
     class __ref {
         protected:
         #ifndef REF_STRIP_TYPE
@@ -141,10 +143,17 @@ namespace x10aux {
             #endif
         }
 
+        inline void assertLocal() const {
+            #ifndef NO_EXCEPTIONS
+            if (isRemote()) throwBPE();
+            #endif
+        }
+
         T& operator*() const {
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
             assertNonNull();
+            assertLocal();
             return *(T*)_val;
         }
 
@@ -156,7 +165,16 @@ namespace x10aux {
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
             assertNonNull();
+            assertLocal();
             return (T*)_val;
+        }
+
+        bool isLocal() const { return !isRemote(); }
+
+        bool isRemote() const {
+            _R_("Remotecheck reference " << this << "(" << _val
+                                      << ") of type " << TYPENAME(T));
+            return reinterpret_cast<size_t>(_val) & 0x3;
         }
 
         bool isNull() const {
@@ -198,7 +216,7 @@ namespace x10aux {
 
     // will be initialised to null
     typedef ref<x10::lang::Object> NullType;
-    extern NullType null;
+    static NullType null;
 
     template<class F, class T> bool operator!=(F f, T t) { return !(f == t); }
     // comparison of a primitive with a ref

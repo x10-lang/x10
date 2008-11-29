@@ -141,11 +141,10 @@ namespace x10aux {
     DECLARE_PRIMITIVE_RTT(Float, float);
     DECLARE_PRIMITIVE_RTT(Double, double);
 
-    #define TYPENAME(T) typeName<T>()
+    #define TYPENAME(T) x10aux::typeName<T>()
     class place;
     template<> inline std::string typeName<place>() { return "place"; }
-    class AnyClosure;
-    template<> inline std::string typeName<AnyClosure>() { return "AnyClosure"; }
+    template<> inline std::string typeName<x10_remote_ref_t>() { return "x10_remote_ref_t"; }
     class InitDispatcher;
     template<> inline std::string typeName<InitDispatcher>() { return "InitDispatcher"; }
     template<> inline std::string typeName<void (*)()>() { return "void (*)()"; }

@@ -11,6 +11,7 @@
 #include <x10/lang/Box.h>
 
 #include <x10/lang/ClassCastException.h>
+#include <x10/lang/BadPlaceException.h>
 
 namespace x10aux {
 
@@ -99,6 +100,20 @@ namespace x10aux {
             _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));
             return obj;
         }
+        if (obj.isRemote()) {
+            //compare static types as we can't get at the dynamic type
+            const RuntimeType *from = getRTT<ref<F> >();
+            const RuntimeType *to = getRTT<ref<T> >();
+            #ifndef NO_EXCEPTIONS
+            if (!from->subtypeOf(to)) {
+                // can only upcast remote refs
+                throwException<x10::lang::BadPlaceException>();
+            }
+            #endif
+            _CAST_("Special case: remote reference gets upcast to "<<TYPENAME(ref<T>));
+            return ref<T>(reinterpret_cast<T*>(obj.get()));
+        }
+            
         const RuntimeType *from = obj->_type();
         const RuntimeType *to = getRTT<ref<T> >();
         #ifndef NO_EXCEPTIONS

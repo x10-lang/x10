@@ -35,10 +35,6 @@ namespace x10 {
 
             // Serialization
             //static const int SERIALIZATION_ID = 16;
-            virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                (void)buf; (void)m; abort();
-                //x10aux::_serialize_ref(this, buf, m);
-            }
             virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
             virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
 

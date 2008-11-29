@@ -37,6 +37,12 @@ namespace x10aux {
         }
 
     };
+
+#ifndef NO_IOSTREAM
+    inline std::ostream &operator<<(std::ostream &o, const x10_remote_ref_t &rr) {
+        return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
+    }
+#endif
 }
 
 
@@ -59,6 +65,7 @@ namespace x10aux {
     }
 
     void run_at(x10_int place, ref<x10::lang::VoidFun_0_0> body);
+
 }
 
 namespace {

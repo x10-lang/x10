@@ -32,20 +32,40 @@ namespace x10 {
                 return x10aux::getRTT<Value>();
             }
 
-
-            //static const int SERIALIZATION_ID = -1;
-
-            virtual void _serialize_fields(x10aux::serialization_buffer&, x10aux::addr_map&) { };
-
-            virtual void _deserialize_fields(x10aux::serialization_buffer&, x10aux::addr_map&) { };
-
             explicit Value() { }
 
             explicit Value(x10aux::SERIALIZATION_MARKER) { }
 
-            template<class T> friend class x10aux::ref;
 
-            virtual x10_int hashCode();
+            static const x10aux::serialization_id_t _serialization_id;
+
+
+
+            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id,m);
+            };
+
+            virtual void _serialize_body(x10aux::serialization_buffer &, x10aux::addr_map &) {
+                // there are no fields
+            };
+
+
+            template<class T>
+            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &){
+                x10aux::ref<Value> this_ = X10NEW(Value)(x10aux::SERIALIZATION_MARKER());
+                return this_;
+            }
+
+            void _deserialize_body(x10aux::serialization_buffer &){
+                // there are no fields
+            }
+
+
+
+            virtual x10_int hashCode() {
+                // All instances of Value are equal, so their hashcodes can be too.
+                return 0;
+            }
 
             virtual x10aux::ref<String> toString();
 

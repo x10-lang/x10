@@ -6,7 +6,8 @@
 #include <x10/lang/Iterator.h>
 
 namespace x10aux {
-    template<class T, class F> class IteratorAdapter : public x10::lang::Iterator<T> {
+    template<class T, class F> class IteratorAdapter : public x10::lang::Ref,
+                                                       public x10::lang::Iterator<T> {
         x10::lang::Iterator<F>* _from;
     public:
         IteratorAdapter(ref<x10::lang::Iterator<F> > from) : _from(from.get()) { }
@@ -22,6 +23,8 @@ namespace x10aux {
         x10_int hashCode() { return _from->hashCode(); }
 
         ref<x10::lang::String> toString() { return _from->toString(); }
+
+        const RuntimeType * _type() const { return _from->_type(); }
     };
 
     template<class T, class F> struct _convert_iterator {

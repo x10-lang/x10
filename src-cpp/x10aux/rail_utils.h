@@ -11,13 +11,15 @@ namespace x10 { namespace lang {
 } }
 #include <x10/lang/Iterator.h>
 
+#include <x10/lang/Fun_0_1.h>
 #include <x10/lang/ArrayIndexOutOfBoundsException.h>
 
 namespace x10aux {
 
     void _check_bounds(x10_int index, x10_int length);
 
-    template<class T> class AnyRail {
+    template<class T> class AnyRail :
+                public virtual x10::lang::Fun_0_1<x10_int,T> {
 
         public:
 
@@ -44,26 +46,19 @@ namespace x10aux {
             x10aux::_check_bounds(index, FMGL(length));
         }
 
-        virtual bool equals(ref<x10::lang::Object> other) {
-            if (!_type()->concreteInstanceOf(other)) return false;
-            const AnyRail &other_rail = (AnyRail&)(*other);
-            // different sizes so false
-            if (other_rail.FMGL(length)!=FMGL(length)) return false;
-            for (x10_int index=0 ; index<FMGL(length) ; ++index) {
-                if (other_rail[index]!=this->operator[](index))
-                    return false;
-            }
-            return true;
-        }
-
-        virtual x10_int hashCode() { return 0; }
-
         virtual ref<x10::lang::String> toString();
 
+        T apply(x10_int index) {
+            // do bounds check
+            return operator[](index);
+        }   
+
+/* [DC] I suspect this is not needed as we don't have any const AnyRails
         const T& operator[](x10_int index) const {
             _check_bounds(index);
             return data[index];
         }   
+*/
 
         T& operator[](x10_int index) {
             _check_bounds(index);

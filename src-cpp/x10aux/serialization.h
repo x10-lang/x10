@@ -1,60 +1,22 @@
 #ifndef X10AUX_SERIALIZATION_H
 #define X10AUX_SERIALIZATION_H
 
+
 #include <x10aux/config.h>
+
+#include <x10/x10.h> // pgas
+
+#include <x10aux/pgas.h> // pgas
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
+#include <x10aux/deserialization_dispatcher.h>
 
-#include <x10/x10.h>
 
 /*
  * Serialization support.
  *
- * Only value classes need to be serialized.
- * The serialization mechanism is implemented as follows:
- *
- *   For every value class hierarchy, a set of serialization ids are
- *   defined.  Each serialization id has to be unique within that
- *   hierarchy.  Serialization ids should be small, as they are
- *   used by default to index into a table.
- *
- *   Each class knows how to deserialize values of its own type.
- *   It also knows how to deserialize its fields, and delegates
- *   to the superclass for superclass' fields.
- *   In addition, each base class knows how to dispatch deserialization
- *   to all of its subclasses.
- *
- *   Each client class must implement _serialize (the addr_map
- *   parameter can be used to keep track of reference sharing and
- *   cycles during serialization), and a virtual _serialize_fields.
- *   A helper function _serialize_ref with default functionality
- *   (write the id, then fields) is provided.
- *   Each client must implement a constructor with a
- *   SERIALIZATION_MARKER argument (to construct empty values of
- *   that type), and a virtual _deserialize_fields method to fill
- *   in the fields from a buffer.  Clients that want to override
- *   default behavior should specialize the _reference_serializer
- *   and the _reference_deserializer templates.
- *
- *   When serializing members of reference types, the appropriate
- *   _serialize_value_ref should be invoked.  When deserializing, the
- *   appropriate _deserialize_ref should be invoked, with the
- *   static type of the member being deserialized.  Not all members
- *   need to be serialized, but those that are must also be
- *   deserialized.
- *
- *   Each base class must define a virtual _serialize.  There should
- *   be a template specialization of _deserialize_value_ref for each
- *   base class in the hierarchy that invokes _deserialize_superclass.
- *   Each base class must also contain a field _registered_subclasses
- *   of type x10::subclass_vector parameterized by the base class.
- *   Each subclass must invoke _register_subclass (parameterized by
- *   the base class and the actual class) in its static initializer.
- *   It is recommended that subclasses first invoke the base class
- *   implementation in _serialize_fields and _deserialize_fields.
- *
- *   The buffer argument's cursor is modified on both serialization
- *   and deserialization.
+ * [DC] I will soon add documentation that is based on the old documentation but reflects the
+ * changes I have made.  The only reason I haven't done it already is I'm too tired.
  */
 
 
@@ -71,112 +33,7 @@ namespace x10aux {
 
     class SERIALIZATION_MARKER { };
 
-
-    template<class T> struct _serializer {
-        static void _(char*& buf, T val) {
-            // FIXME: endianness
-            *(T*) buf = val;
-            buf += sizeof(T);
-        }
-    };
-
-    template<class T> struct _deserializer {
-        static T _(const char*& buf) {
-            // FIXME: endianness
-            T val = *(T*) buf;
-            buf += sizeof(T);
-            return val;
-        }
-    };
-
-    // If the helper class is used on a ref, treat as remote
-    template<class T> struct _serializer<ref<T> > {
-        static void _(char*& buf, ref<T> val) {
-            x10_remote_ref_t rr = x10_ref_serialize((x10_addr_t) val.get());
-            *(x10_remote_ref_t*) buf = rr;
-            buf += sizeof(x10_remote_ref_t);
-        }
-    };
-
-    // If the helper class is used on a ref, treat as remote
-    template<class T> struct _deserializer<ref<T> > {
-        static ref<T> _(const char*& buf) {
-            x10_remote_ref_t rr = *(x10_remote_ref_t*) buf;
-            buf += sizeof(x10_remote_ref_t);
-            return ref<T>((T*) x10_ref_deserialize(rr));
-        }
-    };
-
-
-    /* A growable buffer */
-    class serialization_buffer {
-    private:
-        static const double FACTOR;
-        static const size_t INITIAL_SIZE = 16;
-        char* buffer;
-        char* limit;
-        char* cursor;
-        static char* alloc(size_t size) { return x10aux::alloc<char>(size); }
-        static void dealloc(char* buf) { x10aux::dealloc<char>(buf); }
-        char* grow() {
-            assert (limit != NULL);
-            char* saved_buf = buffer;
-            size_t length = cursor - buffer;
-            size_t allocated = limit - buffer;
-            size_t new_size = (size_t) (allocated * FACTOR);
-            buffer = alloc(new_size);
-            ::memcpy(buffer, saved_buf, length);
-            limit = buffer + new_size;
-            cursor = buffer + length;
-            dealloc(saved_buf);
-            return buffer;
-        }
-    public:
-        serialization_buffer()
-            : buffer(alloc(INITIAL_SIZE)), limit(buffer + INITIAL_SIZE), cursor(buffer)
-        { }
-        ~serialization_buffer() { dealloc(buffer); }
-        operator const char*() const { return buffer; }
-        /* To be used for primitive types */
-        template<typename T> serialization_buffer& write(T val) {
-            if (cursor + sizeof(T) >= limit)
-                grow();
-            x10aux::_serializer<T>::_(cursor, val);
-            return *this;
-        }
-        /* To be used for primitive types */
-        template<typename T> T read() {
-            return x10aux::_deserializer<T>::_(const_cast<const char*&>(cursor));
-        }
-        template<typename T> serialization_buffer& read(T& val) {
-            val = x10aux::_deserializer<T>::_(const_cast<const char*&>(cursor));
-            return *this;
-        }
-        /* To be used for primitive types */
-        template<typename T> T peek() {
-            const char* tmp = (const char*) cursor;
-            return x10aux::_deserializer<T>::_(tmp);
-        }
-        template<typename T> serialization_buffer& peek(T& val) {
-            const char* tmp = (const char*) cursor;
-            val = x10aux::_deserializer<T>::_(tmp);
-            return *this;
-        }
-        void clean() {
-            dealloc(buffer);
-            buffer = alloc(INITIAL_SIZE);
-            limit = buffer + INITIAL_SIZE;
-            cursor = buffer;
-        }
-        void set(const char* buf) {
-            buffer = cursor = const_cast<char*>(buf);
-            limit = NULL;
-        }
-        size_t length() { return cursor - buffer; }
-    };
-
-
-    /* Address tracking */
+    // Allows runtime detection of Value cycles
     class addr_map {
         int _size;
         const void** _ptrs;
@@ -211,6 +68,117 @@ namespace x10aux {
     };
 
 
+
+    // A growable buffer for serialising into and out of
+    class serialization_buffer {
+    private:
+        static const int GROW_PERCENT = 200; // can't use float but don't want extra .cc file
+        static const size_t INITIAL_SIZE = 16;
+        char* buffer;
+        char* limit;
+        char* cursor;
+        static char* alloc(size_t size) { return x10aux::alloc<char>(size); }
+        static void dealloc(char* buf) { x10aux::dealloc<char>(buf); }
+        char* grow() {
+            assert (limit != NULL);
+            char* saved_buf = buffer;
+            size_t length = cursor - buffer;
+            size_t allocated = limit - buffer;
+            size_t new_size = (size_t) (allocated * GROW_PERCENT/100.0);
+            buffer = alloc(new_size);
+            ::memcpy(buffer, saved_buf, length);
+            limit = buffer + new_size;
+            cursor = buffer + length;
+            dealloc(saved_buf);
+            return buffer;
+        }
+    public:
+
+        serialization_buffer()
+            : buffer(alloc(INITIAL_SIZE)), limit(buffer + INITIAL_SIZE), cursor(buffer)
+        { }
+
+        ~serialization_buffer() {
+            if (limit!=NULL)
+                dealloc(buffer);
+        }
+
+        const char *get() const { return buffer; }
+
+        // we use the same buffers for serializing and deserializing so the
+        // const cast is necessary
+        void set(const char* buf) { set(const_cast<char*>(buf)); }
+        void set(char* buf) {
+            buffer = cursor = buf;
+            limit = NULL;
+        }
+
+        size_t length() { return cursor - buffer; }
+
+
+        // default case for primitives and other things that never contain pointers
+        template<class T> struct Write {
+            static void _(serialization_buffer &buf, const T &val, addr_map &) {
+                // FIXME: assumes all places are same endian
+                _S_("Serializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
+                *(T*) buf.cursor = val;
+                buf.cursor += sizeof(T);
+            }
+        };
+
+        // case for references e.g. ref<Object>, 
+        template<class T> struct Write<ref<T> > {
+            static void _(serialization_buffer &buf, ref<T> val, addr_map &m) {
+                _S_("Serializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET
+                    " into buf: "<<&buf);
+                //depends what T is (interface/Ref/Value/FinalValue/Closure)
+                T::_serialize(val,buf,m);
+            }
+        };
+
+        template<typename T> void write(const T &val, addr_map &m) {
+            if (cursor + sizeof(T) >= limit) grow();
+            Write<T>::_(*this,val,m);
+        }
+
+
+        // default case for primitives and other things that never contain pointers
+        template<class T> struct Read {
+            static T &_(serialization_buffer &buf) {
+                // FIXME: assumes all places are same endian
+                T &val = *(T*) buf.cursor;
+                buf.cursor += sizeof(T);
+                _S_("Deserializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
+                return val;
+            }
+        };
+
+        // case for references e.g. ref<Object>, 
+        template<class T> struct Read<ref<T> > {
+            static ref<T> _(serialization_buffer &buf) {
+                //dispatch because we don't know what it is
+                _S_("Deserializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET" from buf: "<<&buf);
+                return T::template _deserialize<T>(buf);
+            }
+        };
+
+        template<typename T> T read() {
+            return Read<T>::_(*this);
+        }
+
+/*
+        void clean() {
+            dealloc(buffer);
+            buffer = alloc(INITIAL_SIZE);
+            limit = buffer + INITIAL_SIZE;
+            cursor = buffer;
+        }
+*/
+
+    };
+
+
+#if 0
 
 #ifndef NO_IOSTREAM
     // Debug helper; usage: o << _dump_chars(b, l)
@@ -361,13 +329,16 @@ namespace x10aux {
 //        return deserialize_func(buf);
     }
 
+/*
     template<class S> inline ref<S> _deserialize_superclass(serialization_buffer& buf) {
         _S_("Deserializing " << TYPENAME(S) << " from ' " << _dump_chars(buf, 40) << " '");
         int id = buf.peek<int>();
         _S_("Id = " << id);
         return _deserialize_subclass<S>(id, buf);
     }
+*/
 
+/*
     extern "C" x10aux::AnyClosure *__x10_callback_closureswitch(int id, serialization_buffer& s);
     template<> struct _reference_deserializer<x10aux::AnyClosure> { 
         // can't have a ref of things that don't have RTTs
@@ -376,8 +347,12 @@ namespace x10aux {
             return __x10_callback_closureswitch(id,s);
         }
     };
+*/
+
+#endif
 
 }
 
 #endif
-// vim:tabstop=4:shiftwidth=4:expandtab
+// vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
+
