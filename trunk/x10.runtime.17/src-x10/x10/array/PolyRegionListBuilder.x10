@@ -28,9 +28,9 @@ class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==r
     }
 
     def add(r:Region(rank)) {
-        if (r instanceof PolyRegion(rank)) {
+        if (r instanceof PolyRegion{self.rank==rank}) {
             if (!r.isEmpty())
-                add(r as PolyRegion(rank));
+                add(r as PolyRegion{self.rank==rank});
         } else if (r instanceof UnionRegion(rank)) {
             u: UnionRegion(rank) = r as UnionRegion(rank);
             for (var j:int=0; j<u.regions.length; j++)
