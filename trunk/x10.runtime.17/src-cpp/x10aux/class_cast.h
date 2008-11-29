@@ -96,14 +96,14 @@ namespace x10aux {
         return static_cast<ref<T> >(obj);
     } };
 
-    template<class T, class F> struct ClassCastBothRef<x10::lang::Box<T>,F> {
-        static ref<x10::lang::Box<T> > _(ref<F> obj) {
+    template<class T> struct ClassCastBothRef<x10::lang::Box<T>,T> {
+        static ref<x10::lang::Box<T> > _(ref<T> obj) {
             return box(obj);
         }
     };
 
-    template<class T, class F> struct ClassCastBothRef<T,x10::lang::Box<F> > {
-        static ref<T> _(ref<x10::lang::Box<F> > obj) {
+    template<class T> struct ClassCastBothRef<T,x10::lang::Box<T> > {
+        static ref<T> _(ref<x10::lang::Box<T> > obj) {
             return unbox(obj);
         }
     };
