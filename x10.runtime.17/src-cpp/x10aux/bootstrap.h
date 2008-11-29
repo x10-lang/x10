@@ -26,6 +26,7 @@ namespace x10aux {
             if (x10_here()==0) {
                 // At the first node, execute the user's "main" method
                 main(args);
+                x10_wait();
             } else {
                 // At all other nodes, wait for asynchronous messages
                 x10_wait();
