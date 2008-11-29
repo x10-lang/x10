@@ -1,3 +1,5 @@
+import x10.io.Console;
+
 public class NQueensPar {
 	var nSolutions:int;
 	
@@ -43,14 +45,16 @@ public class NQueensPar {
     		if (q.length==0) {
     		  val R = DistUtil.block(0..N-1, P);
     		  //foreach ((q) in 0..P-1) 
-		  for (var q:Int=0; q < P; ++q) 
-    		    async (here) search(R(q));
+		  for (var q:Int=0; q < P; ++q) {
+                    val q_ = q;
+    		    async (here) search(R(q_));
+                  }
     		} else search(0..N-1);
     	}
     }
     public static def main(args: Rail[String])  {
       val n = args.length > 0 ? Int.parseInt(args(0)) : 10;
-    	System.err.println("N=" + n);
+    	Console.ERR.println("N=" + n);
     	//warmup
     	finish new NQueensPar(12, 1).start();
     	val ps= [1,2,4];
