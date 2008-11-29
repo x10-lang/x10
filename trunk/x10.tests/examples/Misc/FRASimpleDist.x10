@@ -86,8 +86,6 @@ class FRASimpleDist {
 
     public static def main(args:Rail[String]) {
 
-        async {
-
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
             return;
@@ -137,8 +135,6 @@ class FRASimpleDist {
                     if (table.a(j) != j) err++;
                 println("Found " + err + " errors.");
             }
-        }
-
         }
     }
 
