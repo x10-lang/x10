@@ -11,12 +11,16 @@ CXXFLAGS+=-DX10_USE_BDWGC
 INCLUDE_DIRS+=-Ibdwgc/install/include
 endif
 CXXFLAGS+=$(INCLUDE_DIRS)
-ifneq ($(wildcard /usr/include/lapi.h),) # AIX
+ifeq ($(shell uname -s),AIX)
+ifndef USE_GCC
 CXX = mpCC_r
 override CXXFLAGS -= -g
 override CXXFLAGS += -q64
 override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
-override CXXFLAGS += -qrtti=all -DNDEBUG
+override CXXFLAGS += -qrtti=all
+else
+override CXXFLAGS += -maix64
+endif
 # FIXME
 ARFLAGS := -X64 $(ARFLAGS)
 else
