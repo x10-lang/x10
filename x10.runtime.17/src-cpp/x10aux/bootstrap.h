@@ -23,14 +23,7 @@ namespace x10aux {
 
         // closure body
         void apply () {
-            if (x10_here()==0) {
-                // At the first node, execute the user's "main" method
-                main(args);
-                x10_wait();
-            } else {
-                // At all other nodes, wait for asynchronous messages
-                x10_wait();
-            }
+            main(args);
         }
 
         BootStrapClosure(ApplicationMainFunction main_,
