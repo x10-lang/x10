@@ -2,7 +2,6 @@
 #define X10AUX_EXIT_CODE_H
 
 #include <x10aux/config.h>
-#include <x10aux/closure.h>
 
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h>
@@ -13,7 +12,7 @@ namespace x10aux {
 
     typedef void (*ApplicationMainFunction)(ref<x10::lang::Rail<ref<x10::lang::String> > >);
 
-    class BootStrapClosure : public x10aux::AnyClosure,
+    class BootStrapClosure : public x10::lang::Value,
                              public virtual x10::lang::VoidFun_0_0
     {
         protected:
@@ -32,10 +31,6 @@ namespace x10aux {
                 x10_wait();
             }
         }
-
-        void _serialize_fields(x10aux::serialization_buffer &, x10aux::addr_map&) { abort();}
-
-        void _deserialize_fields(x10aux::serialization_buffer &) { abort(); }
 
         BootStrapClosure(ApplicationMainFunction main_,
                          ref<x10::lang::Rail<ref<x10::lang::String> > > args_)

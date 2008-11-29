@@ -21,10 +21,6 @@ namespace x10 {
                 return x10aux::getRTT<VoidFun_0_0>();
             }
 
-/*
-            virtual void _serialize(x10aux::serialization_buffer&, x10aux::addr_map&) = 0;
-*/
-
             virtual ~VoidFun_0_0() { }
             virtual void apply() = 0;
         };

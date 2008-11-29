@@ -45,6 +45,10 @@ namespace x10 {
             Cause FMGL(cause);
             x10aux::ref<String> FMGL(message);
 
+            //any longer than this and stacktrace will be truncated
+            void *FMGL(trace)[MAX_TRACE_SIZE]; 
+            int FMGL(trace_size);
+
             Throwable();
             Throwable(x10aux::ref<String> message);
             Throwable(x10aux::ref<Throwable> cause);
@@ -59,18 +63,13 @@ namespace x10 {
 
             explicit Throwable(x10aux::SERIALIZATION_MARKER m) : Value(m) { }
 
-            //any longer than this and stacktrace will be truncated
-            void *FMGL(trace)[MAX_TRACE_SIZE]; 
-            int FMGL(trace_size);
 
-            // Serialization
-            //static const int SERIALIZATION_ID = 17;
-            virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                (void)buf; (void)m; abort();
-                //x10aux::_serialize_ref(this, buf, m);
+            virtual void _serialize_fields(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(FMGL(cause),m);
+                buf.write(FMGL(message),m);
             }
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
-            virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
+
+            virtual void _deserialize_fields(x10aux::serialization_buffer&) { }
 
         };
 

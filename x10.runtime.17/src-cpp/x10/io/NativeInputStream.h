@@ -1,7 +1,7 @@
 #ifndef X10_IO_NATIVEINPUTSTREAM_H
 #define X10_IO_NATIVEINPUTSTREAM_H
 
-#include <x10/lang/Value.h>
+#include <x10/lang/Ref.h>
 
 namespace x10 {
 
@@ -11,14 +11,14 @@ namespace x10 {
 
     namespace io {
 
-        class NativeInputStream : public x10::lang::Value {
+        class NativeInputStream : public x10::lang::Ref {
             public:
             class RTT : public x10aux::RuntimeType {
                 public: 
                     static RTT* const it;
                     
                     virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Value>());
+                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
                     }
                     
                     virtual std::string name() const {
@@ -33,7 +33,7 @@ namespace x10 {
 
         protected:
 
-            explicit NativeInputStream() : Value() { }
+            explicit NativeInputStream() : Ref() { }
 
             virtual char* gets(char* s, int num) = 0;
 
@@ -61,27 +61,6 @@ namespace x10 {
 
             virtual x10_boolean markSupported() { return false; }
 
-            virtual void _serialize(x10aux::serialization_buffer& buf,
-                                    x10aux::addr_map& m) {
-                (void) buf;
-                (void) m;
-                ::fprintf(stderr,"Why are we serializing streams?");
-                ::abort();
-            }
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf,
-                                           x10aux::addr_map& m) {
-                (void)buf;
-                (void)m;
-                ::fprintf(stderr,"Why are we serializing streams?");
-                ::abort();
-            }
-            virtual void _deserialize_fields(x10aux::serialization_buffer& buf){
-                (void)buf;
-                ::fprintf(stderr,"Why are we serializing streams?");
-                ::abort();
-            }
-
-            //friend class FilterInputStream;
         };
 
     }

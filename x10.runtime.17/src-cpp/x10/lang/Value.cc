@@ -9,14 +9,11 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-x10_int x10::lang::Value::hashCode() {
-    //FIXME: no idea what to do here
-    return 0;
-}
+const serialization_id_t Value::_serialization_id =
+    DeserializationDispatcher::addDeserializer(Value::_deserializer<Object>);
 
 x10aux::ref<x10::lang::String> x10::lang::Value::toString() {
-    //FIXME: no idea what to do here
-    return new (x10aux::alloc<x10::lang::String>()) x10::lang::String("Vacant");
+    return String::Lit("The empty value");
 }
 
 DEFINE_RTT(Value);

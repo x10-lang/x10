@@ -64,40 +64,53 @@
 
 #ifndef NO_IOSTREAM
 #  include <iostream>
+#  include <sstream>
 #endif
 #include <stdint.h>
 
 #include <x10/x10.h> //pgas
 
-#define _DEBUG_MSG(col,type,msg) \
-    std::cerr << ANSI_BOLD << x10_here() << ": " col << type << ": " ANSI_RESET << msg << std::endl;
+#define _DEBUG_MSG(col,type,msg) do { \
+    std::stringstream ss; \
+    ss << ANSI_BOLD << x10_here() << ": " col << type << ": " ANSI_RESET << msg; \
+    fprintf(stderr,"%s\n",ss.str().c_str()); \
+} while (0)
+
+#define ANSI_ALLOC ANSI_WHITE
+#define ANSI_CAST ANSI_RED
+#define ANSI_CONSTR ANSI_WHITE
+#define ANSI_INIT ANSI_MAGENTA
+#define ANSI_REF ANSI_YELLOW
+#define ANSI_RTT ANSI_GREEN
+#define ANSI_SER ANSI_CYAN
+#define ANSI_PGAS ANSI_BLUE
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_ALLOC)
-#define _M_(x) _DEBUG_MSG(ANSI_WHITE,"MM",x)
+#define _M_(x) _DEBUG_MSG(ANSI_ALLOC,"MM",x)
 #else
 #define _M_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_CAST)
-#define _CAST_(x) _DEBUG_MSG(ANSI_RED,"CAST",x)
+#define _CAST_(x) _DEBUG_MSG(ANSI_CAST,"CAST",x)
 #else
 #define _CAST_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_CONSTR)
-#define _T_(x) _DEBUG_MSG(ANSI_WHITE,"CC",x)
+#define _T_(x) _DEBUG_MSG(ANSI_CONSTR,"CC",x)
 #else
 #define _T_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_INIT)
-#define _I_(x) _DEBUG_MSG(ANSI_MAGENTA,"INIT",x)
+#define _I_(x) _DEBUG_MSG(ANSI_INIT,"INIT",x)
 #else
 #define _I_(x)
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_REF)
-#define _R_(x) _DEBUG_MSG(ANSI_YELLOW,"RR",x)
+#define _R_(x) _DEBUG_MSG(ANSI_REF,"RR",x)
 #else
 #define _R_(x)
 #endif
@@ -109,7 +122,7 @@
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_SER)
-#define _S_(x) _DEBUG_MSG(ANSI_CYAN,"SS",x)
+#define _S_(x) _DEBUG_MSG(ANSI_SER,"SS",x)
 #define _Sd_(x) x
 #else
 #define _S_(x)
@@ -117,7 +130,7 @@
 #endif
 
 #if !defined(NO_IOSTREAM) && defined(TRACE_PGAS)
-#define _X_(x) _DEBUG_MSG(ANSI_BLUE,"XX",x)
+#define _X_(x) _DEBUG_MSG(ANSI_PGAS,"XX",x)
 #else
 #define _X_(x)
 #endif

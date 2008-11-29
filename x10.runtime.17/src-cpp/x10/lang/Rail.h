@@ -27,9 +27,8 @@ namespace x10 {
                 public:
                 static RTT * const it;
 
-                virtual void init() {
-                    initParents(1,x10aux::getRTT<Ref>());
-                }
+                virtual void init() { initParents(2,x10aux::getRTT<Ref>(),
+                                                    x10aux::getRTT<Fun_0_1<x10_int,T> >()); }
 
                 virtual std::string name() const {
                     std::stringstream ss;
@@ -67,7 +66,8 @@ namespace x10 {
                     static RTT * const it;
 
                     virtual void init() {
-                       initParents(1,x10aux::getRTT<x10::lang::Iterator<T> >());
+                       initParents(2,x10aux::getRTT<Ref>(),
+                                     x10aux::getRTT<x10::lang::Iterator<T> >());
                     }
 
                     virtual std::string name() const {
