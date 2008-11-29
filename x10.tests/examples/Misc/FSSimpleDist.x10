@@ -27,8 +27,8 @@ public class FSSimpleDist {
     const MEG = 1024*1024;
     const alpha = 3.0D;
 
-    //const NUM_TIMES = 10;
-    const NUM_TIMES = 1;
+    const NUM_TIMES = 10;
+    //const NUM_TIMES = 1;
 
     //const DEFAULT_SIZE = 2*MEG;
     const DEFAULT_SIZE = MEG / 8;
@@ -51,9 +51,9 @@ public class FSSimpleDist {
             for (var pp:int=0; pp<NUM_PLACES; pp++) {
 
                 val p = pp;
-
+                
                 async(Place.places(p)) {
-
+                    
                     val a = Rail.makeVar[double](localSize);
                     val b = Rail.makeVar[double](localSize);
                     val c = Rail.makeVar[double](localSize);
