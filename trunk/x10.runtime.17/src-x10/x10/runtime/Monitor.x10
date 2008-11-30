@@ -14,6 +14,11 @@ package x10.runtime;
  */
 class Monitor {
  	/**
+ 	 * Set to false to interrupt listener thread
+ 	 */
+   	var park:Boolean = true;
+
+ 	/**
  	 * Instance lock
  	 */
  	private val lock = new Lock();
@@ -38,11 +43,18 @@ class Monitor {
 	 */
     def park(): void {
     	val thread = Thread.currentThread();
-    	stack.push(thread);
-    	while (stack.search(thread) != -1) {
-       		unlock();
-    		Thread.park();
-       		lock();
+   		if (thread == Runtime.listener) {
+	   		unlock();
+   			while (park) NativeRuntime.event_probe();
+   			lock();
+   			park = true;
+		} else {
+	    	stack.push(thread);
+	    	while (stack.search(thread) != -1) {
+		   		unlock();
+	   			Thread.park();
+	   			lock();
+			}
 		}
     }
 
@@ -75,6 +87,7 @@ class Monitor {
 	 * Must be called while holding the lock
 	 */
     def unparkAll(): void {
+    	park = false;
     	while (!stack.isEmpty()) Thread.unpark(stack.pop());
     }
     
