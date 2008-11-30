@@ -30,11 +30,6 @@ namespace x10aux {
             }
         }
 
-        ~PGASInitializer() {
-            if (--count == 0) {
-            }
-        }
-
     };
 
 #ifndef NO_IOSTREAM
