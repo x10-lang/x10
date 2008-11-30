@@ -14,6 +14,8 @@ using namespace x10aux;
 
 int PGASInitializer::count = 0;
 
+volatile bool x10aux::place_terminated = false;
+
 void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
     assert(place!=x10_here()); // this case should be handled earlier
@@ -29,6 +31,15 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
     const x10_async_closure_t *cl = reinterpret_cast<const x10_async_closure_t*>(buf.get());
     x10_comm_handle_t handle = x10_async_spawn((x10_place_t)place, cl, buf.length(), NULL, 0);
     x10_async_spawn_wait(handle);
+
+}
+
+
+void x10aux::event_loop() {
+
+    while (!place_terminated) {
+        x10_probe();
+    }
 
 }
 

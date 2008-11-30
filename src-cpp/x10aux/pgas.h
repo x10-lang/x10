@@ -66,6 +66,13 @@ namespace x10aux {
 
     void run_at(x10_int place, ref<x10::lang::VoidFun_0_0> body);
 
+    extern volatile bool place_terminated;
+
+    void terminate_place();
+
+    // busy wait and wait for remote asyncs
+    void event_loop();
+
 }
 
 namespace {
