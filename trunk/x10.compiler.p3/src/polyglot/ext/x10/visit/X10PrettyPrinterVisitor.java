@@ -1157,6 +1157,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 
 		w.write("{");
+        w.newline(4); w.begin(0);
 
 		if (isValueType) {
 		w.write("public ");
@@ -1214,6 +1215,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            generateBoxType(mt.x10Def());
 	        }
 		
+        w.end(); w.newline();
         w.write("}");
         w.newline();
 
@@ -1382,6 +1384,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    w.write(");");
 	    w.allowBreak(0, " ");
 	    w.write("}");
+        w.newline();
 	}
 
 	private String mangle(QName name) {
@@ -2588,24 +2591,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	private void processClockedLoop(String template, X10ClockedLoop l) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
 		new Template(template,
-						 l.formal().flags(),
-						 l.formal().type(),
-						 l.formal().name(),
-						 l.domain(),
-						 new Join("\n", new Join("\n", l.locals()), l.body()),
-						 processClocks(l),
-						 new Join("\n", l.locals()),
-						 new TypeExpander(l.formal().type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES),
-						 l.position().nameAndLineString().replace("\\", "\\\\")
+						 /* #0 */ l.formal().flags(),
+                         /* #1 */ l.formal().type(),
+                         /* #2 */ l.formal().name(),
+                         /* #3 */ l.domain(),
+                         /* #4 */ new Join("\n", new Join("\n", l.locals()), l.body()),
+                         /* #5 */ processClocks(l),
+                         /* #6 */ new Join("\n", l.locals()),
+                         /* #7 */ new TypeExpander(l.formal().type().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES),
+                         /* #8 */ l.position().nameAndLineString().replace("\\", "\\\\")
 					 ).expand(tr2);
 	}
 
 	public void visit(ForEach_c f) {
+        assert (false);
 		// System.out.println("X10PrettyPrinter.visit(ForEach c): |" + f.formal().flags().translate() + "|");
 		processClockedLoop("foreach", f);
 	}
 
 	public void visit(AtEach_c f) {
+        assert (false);
 		processClockedLoop("ateach", f);
 	}
 
