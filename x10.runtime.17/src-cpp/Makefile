@@ -12,7 +12,7 @@ INCLUDE_DIRS+=-Ibdwgc/install/include
 endif
 CXXFLAGS+=$(INCLUDE_DIRS)
 ifeq ($(shell uname -s),AIX)
-ifndef USE_GCC
+ifdef USE_XLC
 CXX = mpCC_r
 override CXXFLAGS -= -g
 override CXXFLAGS += -q64
