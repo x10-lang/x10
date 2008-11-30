@@ -72,13 +72,13 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	boolean unnamed;
 
 	public X10Formal_c(Position pos, FlagsNode flags, TypeNode type,
-	                   Id name, List<Formal> vars)
+	                   Id name, List<Formal> vars, boolean unnamed)
 	{
 		super(pos, flags, type,
 				name == null ? new Id_c(pos, X10PrettyPrinterVisitor.getId()) : name);
 		if (vars == null) vars = Collections.EMPTY_LIST;
 		this.vars = TypedList.copyAndCheck(vars, Formal.class, true);
-		this.unnamed = name == null;
+		this.unnamed = unnamed;
 		assert vars != null;
 	}
 	

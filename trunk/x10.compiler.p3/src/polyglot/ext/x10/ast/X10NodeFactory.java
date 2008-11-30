@@ -129,7 +129,7 @@ public interface X10NodeFactory extends NodeFactory {
 	Tuple Tuple(Position pos, List<Expr> args);
 	Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name);
 	X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
-				  List<Formal> vars);
+				  List<Formal> vars, boolean unnamed);
 	ParExpr ParExpr(Position pos, Expr e);
 	PlaceCast PlaceCast(Position pos, Expr place, Expr target);
     
