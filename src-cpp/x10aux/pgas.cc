@@ -11,6 +11,9 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+// keep a counter for the session.
+x10_long x10aux::serialized_bytes = 0;
+x10_long x10aux::deserialized_bytes = 0;
 
 int PGASInitializer::count = 0;
 
@@ -25,6 +28,7 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
     _X_(ANSI_BOLD ANSI_PGAS"Transmitting an async: "ANSI_RESET<<body->toString()->c_str()
         <<" to place: "<<place);
     buf.write(body,m);
+    serialized_bytes += buf.length();
 
     const x10_async_closure_t *cl = reinterpret_cast<const x10_async_closure_t*>(buf.get());
     x10_comm_handle_t handle = x10_async_spawn((x10_place_t)place, cl, buf.length(), NULL, 0);
@@ -51,6 +55,7 @@ extern "C" {
             buf.set(reinterpret_cast<const char*>(cl));
             ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
             _X_("The deserialised async was: "<<async->toString()->c_str());
+            deserialized_bytes += buf.length();
             async->apply();
     }
 #endif
