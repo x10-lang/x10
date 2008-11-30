@@ -132,6 +132,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     pthread_attr_setschedpolicy(&__xthread_attr, policy);
     // detachstate
     int detachstate = PTHREAD_CREATE_JOINABLE;
+    //int detachstate = PTHREAD_CREATE_DETACHED;
     pthread_attr_setdetachstate(&__xthread_attr, detachstate);
     // contentionscope
     int contentionscope = PTHREAD_SCOPE_PROCESS;
