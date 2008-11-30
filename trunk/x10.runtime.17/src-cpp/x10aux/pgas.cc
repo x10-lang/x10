@@ -12,8 +12,8 @@ using namespace x10::lang;
 using namespace x10aux;
 
 // keep a counter for the session.
-x10_long x10aux::serialized_bytes = 0;
-x10_long x10aux::deserialized_bytes = 0;
+volatile x10_long x10aux::serialized_bytes = 0;
+volatile x10_long x10aux::deserialized_bytes = 0;
 
 int PGASInitializer::count = 0;
 
