@@ -37,8 +37,12 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
 void x10aux::event_loop() {
 
-    while (!place_terminated) {
-        x10_probe();
+    if (x10_here()) {
+        x10_wait();
+    } else {
+        while (!place_terminated) {
+            x10_probe();
+        }
     }
 
 }
