@@ -29,6 +29,7 @@ namespace x10aux {
             explicit FILEPtrStream(FILE* stream)
               : _stream(check_stream(stream)) { }
 
+            virtual ~FILEPtrStream() { }
 
         public:
 
