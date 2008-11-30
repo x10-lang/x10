@@ -14,8 +14,6 @@ using namespace x10aux;
 
 int PGASInitializer::count = 0;
 
-volatile bool x10aux::place_terminated = false;
-
 void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
     assert(place!=x10_here()); // this case should be handled earlier
@@ -35,26 +33,17 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 }
 
 
-void x10aux::event_loop() {
-
-    if (x10_here()) {
-        x10_wait();
-    } else {
-        while (!place_terminated) {
-            x10_probe();
-        }
-    }
-
-}
-
-
-void x10aux::terminate_place() {
-    place_terminated = true;
-}
-
+#include <pthread.h>
+#include <x10/lang/Iterator.h>
+#include <x10/lang/String.h>
+#include <x10/lang/Throwable.h>
+#include <x10/lang/Rail.h>
+#include <x10/lang/ValRail.h>
+#include <x10/runtime/Thread.h>
 
 extern "C" {
 
+#if 1
     // this one for when pgas does not use an internal thread
     void __x10_callback_asyncswitch(const x10_async_closure_t *cl, x10_clock_t *, int) {
             _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
@@ -64,8 +53,7 @@ extern "C" {
             _X_("The deserialised async was: "<<async->toString()->c_str());
             async->apply();
     }
-
-
+#endif
 #if 0
     // this one otherwise (might have to be rewritten -- contacts are Sreedhar Kodali & Dave C)
     void __x10_callback_asyncswitch(x10_async_closure_t *cl, x10_clock_t *, int) {
@@ -83,13 +71,12 @@ extern "C" {
                                                     String::Lit("async dispatch thread"));
             }
 
+            _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
             x10aux::serialization_buffer buf;
-
-            buf.set(reinterpret_cast<char*>(cl));
-
-            x10aux::AsyncSwitch::dispatch(buf);
-
-            buf.set(NULL); // hack since the memory was allocated by pgas, not by buf
+            buf.set(reinterpret_cast<const char*>(cl));
+            ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
+            _X_("The deserialised async was: "<<async->toString()->c_str());
+            async->apply();
 
 #ifndef NO_EXCEPTIONS
         /* TODO: need some other mechanism for calling exit() from another place
@@ -99,6 +86,7 @@ extern "C" {
 
         } catch(x10aux::__ref& e) {
 
+            using namespace x10::lang;
             // Assume that only throwables can be thrown
             x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
 

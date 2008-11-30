@@ -24,6 +24,7 @@ namespace x10aux {
 #ifdef X10_USE_BDWGC
                 GC_INIT();
 #endif                
+                _X_("PGAS initialization starting");
                 x10_init();
                 _X_("PGAS initialization complete");
             }
@@ -31,8 +32,6 @@ namespace x10aux {
 
         ~PGASInitializer() {
             if (--count == 0) {
-                x10_finalize();
-                _X_("PGAS shutdown complete");
             }
         }
 
@@ -66,12 +65,15 @@ namespace x10aux {
 
     void run_at(x10_int place, ref<x10::lang::VoidFun_0_0> body);
 
-    extern volatile bool place_terminated;
+    inline void shutdown() {
+        _X_("PGAS shutdown starting");
+        x10_finalize();
+        _X_("PGAS shutdown complete");
+    }
 
-    void terminate_place();
-
-    // busy wait and wait for remote asyncs
-    void event_loop();
+    inline void event_loop() {
+        x10_wait();
+    }
 
 }
 
