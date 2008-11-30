@@ -529,9 +529,9 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	public X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
-						 List<Formal> vars)
+						 List<Formal> vars, boolean unnamed)
 	{
-		X10Formal n = new X10Formal_c(pos, flags, type, name, vars);
+		X10Formal n = new X10Formal_c(pos, flags, type, name, vars, unnamed);
 		n = (X10Formal) n.ext(extFactory().extFormal());
 		n = (X10Formal) n.del(delFactory().delFormal());
 		return n;
@@ -539,7 +539,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 
 	public Formal Formal(Position pos, FlagsNode flags, TypeNode type, Id name)
 	{
-		return X10Formal(pos, flags, type, name, null);
+		return X10Formal(pos, flags, type, name, null, false);
 	}
 
 	public ParExpr ParExpr(Position pos, Expr expr) {

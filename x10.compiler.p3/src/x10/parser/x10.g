@@ -2591,6 +2591,7 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = LoopIndexDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
+                boolean unnamed = name == null;
                 if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
@@ -2601,7 +2602,7 @@ public static class MessageHandler implements IMessageHandler {
                             	Id id = (Id) i.next();
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
-                f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+                f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
                 setResult(f);
           $EndJava
@@ -2613,7 +2614,8 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = LoopIndexDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
-                                if (name == null) name = nf.Id(pos, Name.makeFresh());
+                boolean unnamed = name == null;
+                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2623,7 +2625,7 @@ public static class MessageHandler implements IMessageHandler {
                             	Id id = (Id) i.next();
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
-                f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+                f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
                 setResult(f);
           $EndJava
@@ -2636,7 +2638,8 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = FormalDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
-                                if (name == null) name = nf.Id(pos, Name.makeFresh());
+                boolean unnamed = name == null;
+                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2647,7 +2650,7 @@ public static class MessageHandler implements IMessageHandler {
                             	Id id = (Id) i.next();
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
-                f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+                f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
                 setResult(f);
           $EndJava
@@ -2659,7 +2662,8 @@ public static class MessageHandler implements IMessageHandler {
                 Object[] o = FormalDeclarator;
                 Position pos = (Position) o[0];
                 Id name = (Id) o[1];
-                                if (name == null) name = nf.Id(pos, Name.makeFresh());
+                boolean unnamed = name == null;
+                if (name == null) name = nf.Id(pos, Name.makeFresh());
                    List exploded = (List) o[2];
                             DepParameterExpr guard = (DepParameterExpr) o[3];
                             TypeNode type = (TypeNode) o[4];
@@ -2670,7 +2674,7 @@ public static class MessageHandler implements IMessageHandler {
                             	Id id = (Id) i.next();
                             	explodedFormals.add(nf.Formal(id.position(), fn, nf.UnknownTypeNode(id.position()), id));
                             }
-                f = nf.X10Formal(pos(), fn, type, name, explodedFormals);
+                f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
                 f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(VariableModifiersopt));
                 setResult(f);
           $EndJava
@@ -2678,7 +2682,7 @@ public static class MessageHandler implements IMessageHandler {
                       | Type
         /.$BeginJava
                 Formal f;
-                f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST);
+                f = nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), Type, nf.Id(pos(), Name.makeFresh()), Collections.EMPTY_LIST, true);
                 setResult(f);
           $EndJava
         ./
