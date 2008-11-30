@@ -16,6 +16,7 @@ import polyglot.ast.Block;
 import polyglot.ast.Catch;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
@@ -24,6 +25,7 @@ import polyglot.ast.Try;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ext.x10.ast.Async;
+import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.AtExpr;
 import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.AtStmt;
@@ -37,6 +39,7 @@ import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -83,6 +86,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name START_FINISH = Name.make("startFinish");
     private static final Name PUSH_EXCEPTION = Name.make("pushException");
     private static final Name STOP_FINISH = Name.make("stopFinish");
+    private static final Name APPLY = Name.make("apply");
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Future)
@@ -107,20 +111,22 @@ public class Desugarer extends ContextVisitor {
             return visitWhen((When) n);
         if (n instanceof Finish)
             return visitFinish((Finish) n);
-//        if (n instanceof ForEach)
-//            return visitForEach((ForEach) n);
+        if (n instanceof ForEach)
+            return visitForEach((ForEach) n);
+        if (n instanceof AtEach)
+            return visitAtEach((AtEach) n);
         return n;
     }
 
-    private Node visitFuture(Future f) throws SemanticException {
+    private Expr visitFuture(Future f) throws SemanticException {
         return visitRemoteClosure(f, EVAL_FUTURE, f.place(), true);
     }
 
-    private Node visitAtExpr(AtExpr e) throws SemanticException {
+    private Expr visitAtExpr(AtExpr e) throws SemanticException {
         return visitRemoteClosure(e, EVAL_AT, e.place(), false);
     }
 
-    private Node visitRemoteClosure(Closure c, Name implName, Expr place, boolean named) throws SemanticException {
+    private Expr visitRemoteClosure(Closure c, Name implName, Expr place, boolean named) throws SemanticException {
         Position pos = c.position();
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         ClosureDef fDef = c.closureDef();
@@ -144,47 +150,54 @@ public class Desugarer extends ContextVisitor {
                 xnf.Id(pos, implName), typeArgs, args).methodInstance(implMI).type(c.type());
     }
 
-    private Node visitAsync(Async a) throws SemanticException {
-        Position pos = a.position();
-        ClosureDef cDef = xts.closureDef(a.body().position(), Types.ref(context.currentClass()),
+    private Stmt async(Position pos, Stmt body, List clocks, Expr place, String prefix) throws SemanticException {
+        ClosureDef cDef = xts.closureDef(body.position(), Types.ref(context.currentClass()),
                 Types.ref(context.currentCode().asInstance()),
                 Types.ref(xts.Void()), Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST, Collections.EMPTY_LIST, null,
                 Collections.EMPTY_LIST);
-        Type clockRail = xts.ValRail(xts.Clock());
-        Tuple clocks = (Tuple) xnf.Tuple(pos, a.clocks()).type(clockRail);
-        Closure closure = (Closure_c) ((Closure_c) xnf.Closure(a.body().position(), Collections.EMPTY_LIST,
+        Type clockRailType = xts.ValRail(xts.Clock());
+        Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
+        Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+        Closure closure = (Closure_c) ((Closure_c) xnf.Closure(body.position(), Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST, null, xnf.CanonicalTypeNode(pos, xts.Void()),
-                Collections.EMPTY_LIST, xnf.Block(a.body().position(), a.body()))).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
-        StringLit pString = xnf.StringLit(pos, pos.nameAndLineString());
-        List<Expr> args = Arrays.asList(new Expr[] { a.place(), clocks, closure, pString });
-        List<Type> mArgs = Arrays.asList(new Type[] { xts.Place(), clockRail,
-                cDef.asType(), xts.String() });
-        MethodInstance implMI = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(), RUN_ASYNC, mArgs),
+                Collections.EMPTY_LIST, block)).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
+        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        List<Expr> args = Arrays.asList(new Expr[] { place, clockRail, closure, pString });
+        List<Type> mArgs = Arrays.asList(new Type[] {
+            xts.Place(), clockRailType, cDef.asType(), xts.String()
+        });
+        MethodInstance implMI = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), RUN_ASYNC, mArgs),
                 context.currentClassDef());
         return xnf.Eval(pos, xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, RUN_ASYNC), Collections.EMPTY_LIST,
                 args).methodInstance(implMI).type(xts.Void()));
     }
 
-    private Node visitHere(Here h) throws SemanticException {
+    private Stmt visitAsync(Async a) throws SemanticException {
+        Position pos = a.position();
+        return async(pos, a.body(), a.clocks(), a.place(), "async-");
+    }
+
+    private Expr visitHere(Here h) throws SemanticException {
         Position pos = h.position();
         return call(pos, HERE, xts.Place());
     }
 
-    private Node visitNext(Next n) throws SemanticException {
+    private Stmt visitNext(Next n) throws SemanticException {
         Position pos = n.position();
         return xnf.Eval(pos, call(pos, NEXT, xts.Void()));
     }
 
-    private Node visitAtomic(Atomic a) throws SemanticException {
+    private Stmt visitAtomic(Atomic a) throws SemanticException {
         Position pos = a.position();
         Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), a.body());
         Block finallyBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, RELEASE, xts.Void())));
         return xnf.Try(pos, tryBlock, Collections.EMPTY_LIST, finallyBlock);
     }
     
-    private Node visitAwait(Await a) throws SemanticException {
+    private Stmt visitAwait(Await a) throws SemanticException {
         Position pos = a.position();
         Block tryBlock = xnf.Block(pos, xnf.Eval(pos, call(pos, LOCK, xts.Void())), 
                 xnf.While(pos, xnf.Unary(pos, a.expr(), Unary.NOT), xnf.Eval(pos, call(pos, AWAIT, xts.Void()))));
@@ -196,7 +209,7 @@ public class Desugarer extends ContextVisitor {
         return s.reachable() ? xnf.Block(pos, s, xnf.Break(pos)) : s;
     }
     
-    private Node visitWhen(When w) throws SemanticException {
+    private Stmt visitWhen(When w) throws SemanticException {
         Position pos = w.position();
         Block body = xnf.Block(pos, xnf.If(pos, w.expr(), wrap(pos, w.stmt())));
         for(int i=0; i<w.stmts().size(); i++) {
@@ -217,7 +230,7 @@ public class Desugarer extends ContextVisitor {
                 Collections.EMPTY_LIST).methodInstance(mi).type(t);
     }
 
-    private Node visitFinish(Finish f) throws SemanticException {
+    private Stmt visitFinish(Finish f) throws SemanticException {
         Position pos = f.position();
         Name tmp = getTmp();
 
@@ -238,7 +251,32 @@ public class Desugarer extends ContextVisitor {
         return xnf.Try(pos, tryBlock, Collections.singletonList(catchBlock), finallyBlock);
     }
 
-//    private Node visitForEach(ForEach f) throws SemanticException {
-//        Position pos = f.position();
-//    }
+    private Stmt visitForEach(ForEach f) throws SemanticException {
+        Position pos = f.position();
+        // Have to desugar some newly-created nodes
+        Expr here = visitHere(xnf.Here(f.body().position()));
+        Stmt body = async(f.body().position(), f.body(), f.clocks(), here, "foreach-");
+        X10Formal formal = (X10Formal) f.formal();
+        return xnf.ForLoop(pos, formal, f.domain(), body).locals(formal.explode(this));
+    }
+
+    private Stmt visitAtEach(AtEach a) throws SemanticException {
+        Position pos = a.position();
+        Position bpos = a.body().position();
+        Name tmp = getTmp();
+
+        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(a.domain().type()), tmp);
+        LocalDecl local = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
+                xnf.CanonicalTypeNode(pos, a.domain().type()), xnf.Id(pos, tmp),
+                a.domain()).localDef(lDef);
+        X10Formal formal = (X10Formal) a.formal();
+        Expr place = xnf.Call(bpos, xnf.Id(bpos, APPLY),
+                xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).type(formal.type().type())).type(xts.Place());
+        Stmt body = async(bpos, a.body(), a.clocks(), place, "ateach-");
+        return xnf.Block(pos,
+                local,
+                xnf.ForLoop(pos, formal,
+                        nf.Local(pos, nf.Id(pos, tmp)).type(a.domain().type()),
+                        body).locals(formal.explode(this)));
+    }
 }
