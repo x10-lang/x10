@@ -44,6 +44,11 @@ void x10aux::event_loop() {
 }
 
 
+void x10aux::terminate_place() {
+    place_terminated = true;
+}
+
+
 extern "C" {
 
     // this one for when pgas does not use an internal thread
