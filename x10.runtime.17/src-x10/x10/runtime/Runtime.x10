@@ -20,6 +20,14 @@ public value Runtime {
 	// TODO runNow
 	
 	
+	// x10_probe
+	
+	/**
+	 * Listener thread should process incoming messages instead of parking
+	 */
+	const listener = (here.id == 0 && !NativeRuntime.local(Place.MAX_PLACES - 1)) ? Thread.currentThread() : null;
+	
+
 	// thread pool
 	
 	/**
@@ -64,15 +72,13 @@ public value Runtime {
 // temporary: printStackTrace call moved to Main template (native code) 
 //		try {
 			if (here.id == 0) {
-				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
-					new Thread(()=>NativeRuntime.event_loop(), "event loop").start();
-				}
 				val activity = new Activity(body, "root");
 				Thread.currentThread().activity(activity);
 				finish {
 					activity.finishStack.peek().notifySubActivitySpawn();
 					activity.run();
 				}
+				pool.destruct();
 				//NativeRuntime.println("Root activity completed");
 			} else {
 				//NativeRuntime.println("Child activity started "+here.id);

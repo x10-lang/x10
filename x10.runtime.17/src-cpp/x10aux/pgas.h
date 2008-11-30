@@ -73,6 +73,9 @@ namespace x10aux {
         x10_wait();
     }
 
+    inline void event_probe() {
+        x10_probe();
+    }
 }
 
 namespace {

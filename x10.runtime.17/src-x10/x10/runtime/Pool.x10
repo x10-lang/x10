@@ -28,6 +28,11 @@ value Pool {
 	 */
 	private val counters = Rail.makeVar[Int](2, (nat)=>0);
 	
+	/**
+	 * Set by pool destructor to stop worker threads.
+	 */
+	private val stop = Rail.makeVar[Boolean](1, (nat)=>false);
+	
 	/** 
 	 * Start count threads
 	 */
@@ -47,6 +52,18 @@ value Pool {
 			// wake up available worker if any
 			monitor.unpark();
 	
+			monitor.unlock();
+		});
+	}
+		
+	/**
+	 * Destruct the thread pool 
+	 */
+	def destruct():Void {
+		NativeRuntime.runAtLocal(activities.location.id, ()=>{ 
+			monitor.lock();
+			stop(0) = true;
+			monitor.unparkAll();
 			monitor.unlock();
 		});
 	}
@@ -92,7 +109,13 @@ value Pool {
 			monitor.lock();
 
 			// park worker until one activity can be executed
-			while (activities.isEmpty()) monitor.park();
+			while (activities.isEmpty()) {
+				if (stop(0)) {
+					monitor.unlock();
+					return;
+				}
+				monitor.park();
+			}
 
 			// pop activity
 			val activity = activities.pop();

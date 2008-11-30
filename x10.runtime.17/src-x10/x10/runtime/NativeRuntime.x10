@@ -61,6 +61,17 @@ public value NativeRuntime {
   @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
   public static def local(id:Int):Boolean = id == here.id;
 
+  /**
+   * Process one incoming message if any (non-blocking).
+   */
+  @Native("c++", "x10aux::event_probe()")
+  public static def event_probe():Void {}
+
+  /**
+   * Process all incoming messages (busy wait).
+   * Only to be used if here != FIRST_PLACE.
+   * Return when FIRST_PLACE trigger app finalizer.
+   */
   @Native("c++", "x10aux::event_loop()")
   public static def event_loop():Void {}
 }
