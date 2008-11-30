@@ -65,7 +65,7 @@ public value Runtime {
 //		try {
 			if (here.id == 0) {
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
-					new Thread(()=>NativeRuntime.x10_wait(), "x10_wait").start();
+					new Thread(()=>NativeRuntime.event_loop(), "event loop").start();
 				}
 				val activity = new Activity(body, "root");
 				Thread.currentThread().activity(activity);
@@ -73,8 +73,11 @@ public value Runtime {
 					activity.finishStack.peek().notifySubActivitySpawn();
 					activity.run();
 				}
+				//NativeRuntime.println("Root activity completed");
 			} else {
-				NativeRuntime.x10_wait();
+				//NativeRuntime.println("Child activity started "+here.id);
+				NativeRuntime.event_loop();
+				//NativeRuntime.println("Child activity completed "+here.id);
 			}
 //		} catch (t:Throwable) {
 //			t.printStackTrace();
