@@ -66,8 +66,8 @@ namespace x10aux {
         _X_("PGAS shutdown complete");
     }
 
-    extern x10_long serialized_bytes;
-    extern x10_long deserialized_bytes;
+    extern volatile x10_long serialized_bytes;
+    extern volatile x10_long deserialized_bytes;
 
     inline void event_loop() {
         x10_wait();
