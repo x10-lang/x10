@@ -18,11 +18,11 @@ DIRECTORIES
 
 We now have a directory structure:
 
-x10/package/File.{cc,inc}  -  for c++ classes whose interfaces are compatible
-                              with the x10/c++ object model
+x10/package/File.{cc,h}  -  for c++ classes whose interfaces are compatible
+                            with the x10/c++ object model
 
-x10aux/                    -  for auxiliary utilities needed to implement the
-                              above
+x10aux/                  -  for auxiliary utilities needed to implement the
+                            above
 
 
 

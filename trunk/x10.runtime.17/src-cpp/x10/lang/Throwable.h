@@ -40,9 +40,7 @@ namespace x10 {
                 return x10aux::getRTT<Throwable>();
             }
 
-            typedef x10aux::ref<Box<x10aux::ref<Throwable> > > Cause;
-
-            Cause FMGL(cause);
+            x10aux::ref<Box<x10aux::ref<Throwable> > > FMGL(cause);
             x10aux::ref<String> FMGL(message);
 
             //any longer than this and stacktrace will be truncated
@@ -54,8 +52,10 @@ namespace x10 {
             Throwable(x10aux::ref<Throwable> cause);
             Throwable(x10aux::ref<String> message, x10aux::ref<Throwable> cause);
 
+            static const x10aux::serialization_id_t _serialization_id;
+
             virtual x10aux::ref<String> getMessage();
-            virtual Cause getCause();
+            virtual x10aux::ref<Box<x10aux::ref<Throwable> > > getCause();
             virtual x10aux::ref<String> toString();
             virtual x10aux::ref<Throwable> fillInStackTrace();
             typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
@@ -64,12 +64,26 @@ namespace x10 {
             explicit Throwable(x10aux::SERIALIZATION_MARKER m) : Value(m) { }
 
 
-            virtual void _serialize_fields(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id,m);
+            }
+
+            virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(FMGL(cause),m);
                 buf.write(FMGL(message),m);
             }
 
-            virtual void _deserialize_fields(x10aux::serialization_buffer&) { }
+            template<class T>
+            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
+                x10aux::ref<Throwable> this_ = X10NEW(Throwable)(x10aux::SERIALIZATION_MARKER());
+                this_->_deserialize_body(buf);
+                return this_;
+            }
+
+            void _deserialize_body(x10aux::serialization_buffer &buf) {
+                FMGL(cause) = buf.read<x10aux::ref<Box<x10aux::ref<Throwable> > > >();
+                FMGL(message) = buf.read<x10aux::ref<String> >();
+            }
 
         };
 

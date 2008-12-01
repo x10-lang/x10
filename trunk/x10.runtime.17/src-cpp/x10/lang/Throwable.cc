@@ -20,7 +20,9 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-typedef Throwable::Cause Cause;
+const serialization_id_t Throwable::_serialization_id =
+    DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Object>);
+
 
 Throwable::Throwable() : Value(), FMGL(trace_size)(-1) {
     this->FMGL(cause) = null;
@@ -51,7 +53,7 @@ ref<String> Throwable::getMessage() {
     return FMGL(message);
 }
 
-Cause Throwable::getCause() {
+x10aux::ref<Box<x10aux::ref<Throwable> > > Throwable::getCause() {
     return FMGL(cause);
 }
 
