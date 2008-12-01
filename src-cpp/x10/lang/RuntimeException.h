@@ -23,8 +23,6 @@ namespace x10 {
                 return x10aux::getRTT<RuntimeException>();
             }
 
-            typedef x10aux::ref<Box<x10aux::ref<Throwable> > > Cause;
-
             RuntimeException() : Exception() { }
             RuntimeException(x10aux::ref<String> message) : Exception(message) {   }
             RuntimeException(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
@@ -33,10 +31,27 @@ namespace x10 {
 
             RuntimeException(x10aux::SERIALIZATION_MARKER m) : Exception(m) { }
 
-            // Serialization
-            //static const int SERIALIZATION_ID = 16;
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
-            virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id,m);
+            }
+
+            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
+                Exception::_serialize_body(buf,m);
+            }
+
+            void _deserialize_body(x10aux::serialization_buffer& buf) {
+                Exception::_deserialize_body(buf);
+            }
+
+            template<class T>
+            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
+                x10aux::ref<RuntimeException> this_ =
+                    X10NEW(RuntimeException)(x10aux::SERIALIZATION_MARKER());
+                this_->_deserialize_body(buf);
+                return this_;
+            }
 
 
         };

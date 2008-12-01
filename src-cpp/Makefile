@@ -95,15 +95,15 @@ $(ARCHIVE): $(ALL_OBJECTS)
 
 depend:
 	#print0 does not work, suspect a bug in gnu find
-	find . -name '*.cc' -o -name '*.h' | xargs -r makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
+	find . \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
 
 
 clean:
-	find . -name '*.h.gch' -o -name '*.o' -print0 | xargs -r0 -t rm -f
+	find . \( -name '*.h.gch' -o -name '*.o' \) -print0 | xargs -r0 -t rm -f
 	rm -f $(ARCHIVE)
 
 squeakyclean: clean
-	find . -name '*~' -o -name '*.bak' -print0 | xargs -r0 -t rm -f
+	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
 
 .PHONY: all clean squeakyclean
 

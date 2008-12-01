@@ -69,6 +69,10 @@ namespace x10aux {
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
 
+    inline x10_int num_places() {
+        return x10_nplaces();
+    }
+
     inline void event_loop() {
         x10_wait();
     }
