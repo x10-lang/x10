@@ -1,7 +1,9 @@
 package x10.io;
 
-public value ByteValRailWriter extends ByteWriter[ValRail[T]] {
-    public def this() { super(new ValRailBuilder()); }
+import x10.util.ValRailBuilder;
+
+public value ByteValRailWriter extends ByteWriter[ValRail[Byte]] {
+    public def this() { super(new ValRailBuilder[Byte]()); }
     public def toValRail() = result();
 }
 

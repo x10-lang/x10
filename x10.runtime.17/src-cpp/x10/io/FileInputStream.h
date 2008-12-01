@@ -21,7 +21,7 @@ namespace x10 {
                     }
                     
                     virtual std::string name() const {
-                        return "x10.io.FileWriter.FileInputStream";
+                        return "x10.io.FileReader.FileInputStream";
                     }
 
             };

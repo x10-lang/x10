@@ -15,19 +15,19 @@
 package x10.io;
 
 public abstract class FileSystem {
-    const SEPARATOR_CHAR: Char = System.getProperty("x10.io.fileSeparator")(0);
-    const SEPARATOR: String = System.getProperty("x10.io.fileSeparator");
-    const PATH_SEPARATOR_CHAR: Char = System.getProperty("x10.io.pathSeparator")(0);
-    const PATH_SEPARATOR: String = System.getProperty("x10.io.pathSeparator");
+    const SEPARATOR_CHAR: Char = '/'; // System.getProperty("x10.io.fileSeparator")(0);
+    const SEPARATOR: String = "/"; // System.getProperty("x10.io.fileSeparator");
+    const PATH_SEPARATOR_CHAR: Char = ':'; // System.getProperty("x10.io.pathSeparator")(0);
+    const PATH_SEPARATOR: String = ":"; // System.getProperty("x10.io.pathSeparator");
 
-    incomplete def delete(File);
-    incomplete def deleteOnExit(File);
-    incomplete def rename(from: File, to: File);
-    incomplete def mkdir(File);
-    incomplete def mkdirs(File);
-    incomplete def exists(File);
-    incomplete def size(File);
+    incomplete def delete(File) : Void throws IOException;
+    incomplete def deleteOnExit(File) : Void throws IOException;
+    incomplete def rename(f: File, t: File) : Void throws IOException;
+    incomplete def mkdir(File) : Void throws IOException;
+    incomplete def mkdirs(File) : Void throws IOException;
+    incomplete def exists(File) : Boolean;
+    incomplete def size(File) : Long throws IOException;
 
-    incomplete def listFiles(File): ValRail[File];
-    incomplete def listFiles(File, (File) => Boolean): ValRail[File];
+    incomplete def listFiles(File): ValRail[File] throws IOException;
+    incomplete def listFiles(File, (File) => Boolean): ValRail[File] throws IOException;
 }

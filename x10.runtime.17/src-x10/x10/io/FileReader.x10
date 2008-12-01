@@ -7,7 +7,7 @@ public value FileReader extends InputStreamReader {
     val file: File;
 
     @NativeRep("java", "java.io.FileInputStream", null, null)
-    @NativeRep("c++", "x10aux::ref<x10::io::NativeFileInputStream>", "x10::io::NativeFileInputStream", null)
+    @NativeRep("c++", "x10aux::ref<x10::io::FileInputStream>", "x10::io::FileInputStream", null)
     protected static value FileInputStream extends InputStream {
         public native def this(String);
     }

@@ -1,16 +1,17 @@
-#Configurable:
+# Configurable:
 
-CXX?=g++
-AR?=ar
+CXX ?= g++
+AR ?= ar
 
-X10LIB?=../../pgas/common/work
-CXXFLAGS+=-g
-INCLUDE_DIRS+=-I$(X10LIB)/include -I.
+X10LIB ?= ../../pgas/common/work
+X10CPP ?= ../../x10.cppbackend.17
+CXXFLAGS += -g
+INCLUDE_DIRS += -I$(X10LIB)/include -I.
 ifdef ENABLE_GC
-CXXFLAGS+=-DX10_USE_BDWGC
-INCLUDE_DIRS+=-Ibdwgc/install/include
+CXXFLAGS += -DX10_USE_BDWGC
+INCLUDE_DIRS += -Ibdwgc/install/include
 endif
-CXXFLAGS+=$(INCLUDE_DIRS)
+CXXFLAGS += $(INCLUDE_DIRS)
 ifeq ($(shell uname -s),AIX)
 ifdef USE_XLC
 CXX = mpCC_r
@@ -33,7 +34,9 @@ endif
 
 #Target:
 
-ARCHIVE=libx10rt17.a
+ARCHIVE = libx10rt17.a
+
+XRX_ARCHIVE = libx10lib17.a
 
 all: $(X10LIB)/include/x10/x10.h $(ARCHIVE) 
 
@@ -87,8 +90,30 @@ ALL_OBJECTS = \
 $(ARCHIVE): $(ALL_OBJECTS)
 	$(AR) $(ARFLAGS) $@ $^
 
+# Generated files:
 
-#Standard stuff:
+gen/MANIFEST-x10:
+	mkdir -p gen
+	(cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print) > gen/MANIFEST-x10
+
+gen/MANIFEST: gen/MANIFEST-x10
+	sed -e 's@.x10$$@.cc@' gen/MANIFEST-x10 > gen/MANIFEST
+
+all-src-generated: gen/MANIFEST
+	cd ../src-x10 && "$(X10CPP)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c `cat ../src-cpp/gen/MANIFEST-x10`
+
+generated: all-src-generated gen/MANIFEST
+	cd gen && CXXFLAGS="-I.. $(CXXFLAGS)" $(MAKE) -k $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
+
+$(XRX_ARCHIVE): generated
+	cd gen && $(AR) $(ARFLAGS) $@ $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
+	@-cp gen/$@ .
+
+.PRECIOUS: gen/MANIFEST
+
+.PHONY: all-cpp-generated generated
+
+# Standard stuff:
 
 %.o: %.cc %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@
