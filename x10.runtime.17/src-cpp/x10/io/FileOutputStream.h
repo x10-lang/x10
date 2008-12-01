@@ -37,6 +37,10 @@ namespace x10 {
                 x10aux::io::FILEPtrOutputStream::write(i);
             }
 
+            virtual void flush() {
+                x10aux::io::FILEPtrOutputStream::flush();
+            }
+
             explicit FileOutputStream(x10aux::ref<x10::lang::String> name)
               : FILEPtrOutputStream(FILEPtrStream::open_file(name, "w")) { }
 
