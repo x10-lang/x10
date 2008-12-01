@@ -14,7 +14,7 @@ package x10.array;
 value class FullRegion extends PolyRegion {
 
     def this(val rank: int): FullRegion{self.rank==rank} {
-        super((new HalfspaceListBuilder(rank)).toHalfspaceList());
+        super((new HalfspaceListBuilder(rank)).toHalfspaceList(), true);
     }
 
     protected def computeBoundingBox(): Region(rank) {

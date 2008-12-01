@@ -238,17 +238,21 @@ abstract public value class BaseRegion extends Region {
 // XXX should be an inner class and Region should be Region(rank) and
 // this(Region) should be this(), but XTENLANG-163 prevents that
 //
+// XXX added hack198 (see also hack198 in other x10 files!) to work
+// around issue with virtual method calls in constructor (XTENLANG-198)
+//
 
 value class Cache {
 
     val boundingBox: Box[Region];
     val boundingBoxException: Box[RuntimeException];
 
-    def this(r:BaseRegion) {
+    def this(r:BaseRegion, hack198:boolean) {
         var boundingBox: Box[Region] = null;
         var boundingBoxException: Box[RuntimeException] = null;
         try {
-            boundingBox = r.computeBoundingBox() to Box[Region];
+            // XTENLANG-198
+            boundingBox = hack198? r : r.computeBoundingBox() to Box[Region];
         } catch (e:RuntimeException) {
             boundingBoxException = e to Box[RuntimeException];
         }
@@ -262,4 +266,3 @@ value class Cache {
         return boundingBox to Region;
     }
 }
-
