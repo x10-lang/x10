@@ -277,8 +277,9 @@ public class Desugarer extends ContextVisitor {
                 xts.MethodMatcher(a.domain().type(), APPLY, Collections.singletonList(xts.Int())),
                 context.currentClassDef());
         Expr place = xnf.Call(bpos,
-                xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(formal.type().type()),
-                xnf.Id(bpos, APPLY)).methodInstance(mi).type(xts.Place());
+                a.domain(),
+                xnf.Id(bpos, APPLY),
+                xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(formal.type().type())).methodInstance(mi).type(xts.Place());
         Stmt body = async(bpos, a.body(), a.clocks(), place, "ateach-");
         return xnf.Block(pos,
                 local,
