@@ -160,14 +160,14 @@ public value Runtime {
 
 	// atomic, await, when
 
-    public static def newMonitor(place:Place):Monitor {
-    	val ret = here;
+    public static def newMonitor(id:Int):Monitor {
+    	val ret = Thread.currentThread().loc();
     	val box = new GrowableRail[Monitor]();
         val c = ()=>{
     		val monitor = new Monitor();
-    		NativeRuntime.runAtLocal(ret.id, ()=>{ box.add(monitor); });
+    		NativeRuntime.runAtLocal(ret, ()=>{ box.add(monitor); });
     	};
-    	NativeRuntime.runAtLocal(place.id, c);
+    	NativeRuntime.runAtLocal(id, c);
     	return box(0);
     }
 
@@ -175,7 +175,7 @@ public value Runtime {
 	 * One monitor per place in the current node
 	 */
 	private const monitors = Rail.makeVal[Monitor](NativeRuntime.MAX_PLACES,
-		(id:Nat)=> NativeRuntime.local(id) ? newMonitor(Place.place(id)) : null); 
+		(id:Nat)=> NativeRuntime.local(id) ? newMonitor(id) : null); 
  	 		
 	/**
 	 * Lock current place
