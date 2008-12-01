@@ -76,4 +76,8 @@ public class Thread {
     @Native("java", "#0.setName(#1)")
     @Native("c++", "(#0)->setName(#1)")
     public native def name(name:String):void;
+    
+    @Native("java", "#0.location()")
+    @Native("c++", "x10aux::location(#0)")
+    public native def loc():Int;
 }
