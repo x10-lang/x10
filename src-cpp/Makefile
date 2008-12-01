@@ -95,7 +95,7 @@ $(ARCHIVE): $(ALL_OBJECTS)
 
 depend:
 	#print0 does not work, suspect a bug in gnu find
-	find . \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
+	find . \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
 
 
 clean:
