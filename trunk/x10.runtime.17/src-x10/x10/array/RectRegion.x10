@@ -33,7 +33,7 @@ final value class RectRegion extends PolyRegion {
 
     def this(val hl: HalfspaceList): RectRegion{rank==hl.rank && rect} {
 
-        super(hl);
+        super(hl, true);
 
         size = hl.isBounded()? computeSize() : -1;
 

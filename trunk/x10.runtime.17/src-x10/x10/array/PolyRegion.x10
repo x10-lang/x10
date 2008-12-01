@@ -389,10 +389,10 @@ value class PolyRegion extends BaseRegion {
         } else  if (hl.isRect() && hl.isBounded())
             return new RectRegion(hl);
         else
-            return new PolyRegion(hl);
+            return new PolyRegion(hl, false);
     }
 
-    protected def this(val hl: HalfspaceList): PolyRegion{rank==hl.rank} {
+    protected def this(val hl: HalfspaceList, hack198:boolean): PolyRegion{rank==hl.rank} {
 
         super(hl.rank, hl.isRect(), hl.isZeroBased());
 
@@ -401,7 +401,7 @@ value class PolyRegion extends BaseRegion {
         this.halfspaces = hl.simplifyAll();
 
         // cache stuff up front
-        cache = new Cache(this);
+        cache = new Cache(this, hack198);
     }
 
     public def min(): ValRail[int] {
