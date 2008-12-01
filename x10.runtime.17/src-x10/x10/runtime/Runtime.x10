@@ -25,7 +25,7 @@ public value Runtime {
 	/**
 	 * Listener thread should process incoming messages instead of parking
 	 */
-	const listener = (here.id == 0 && !NativeRuntime.local(Place.MAX_PLACES - 1)) ? Thread.currentThread() : null;
+	const listener = (NativeRuntime.local(0) && !NativeRuntime.local(NativeRuntime.MAX_PLACES - 1)) ? Thread.currentThread() : null;
 	
 
 	// thread pool
@@ -174,7 +174,7 @@ public value Runtime {
 	/**
 	 * One monitor per place in the current node
 	 */
-	private const monitors = Rail.makeVal[Monitor](Place.MAX_PLACES,
+	private const monitors = Rail.makeVal[Monitor](NativeRuntime.MAX_PLACES,
 		(id:Nat)=> NativeRuntime.local(id) ? newMonitor(Place.place(id)) : null); 
  	 		
 	/**

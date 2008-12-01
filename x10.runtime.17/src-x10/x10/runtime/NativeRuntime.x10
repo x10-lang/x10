@@ -33,7 +33,7 @@ public value NativeRuntime {
   public const PLACE_CHECKS = true;
 
   @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
-  @Native("c++", "(x10_int)x10_nplaces()")
+  @Native("c++", "x10aux::num_places()")
   public const MAX_PLACES = 4;
 
   @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
@@ -59,6 +59,7 @@ public value NativeRuntime {
    * Return true if place(id) is in the current node.
    */
   @Native("java", "x10.runtime.impl.java.Runtime.local(#1)")
+  @Native("c++", "x10aux::local(#1)")
   public static def local(id:Int):Boolean = id == here.id;
 
   /**
