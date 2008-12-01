@@ -144,7 +144,8 @@ public class Desugarer extends ContextVisitor {
             mArgs.add(xts.String());
         }
         List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
-        MethodInstance implMI = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(), implName, mArgs),
+        MethodInstance implMI = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), implName, mArgs),
                 context.currentClassDef());
         return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, implName), typeArgs, args).methodInstance(implMI).type(c.type());
@@ -223,8 +224,9 @@ public class Desugarer extends ContextVisitor {
     }
     
     private Expr call(Position pos, Name name, Type t) throws SemanticException {
-        MethodInstance mi = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
-                name, Collections.EMPTY_LIST), context.currentClassDef());
+        MethodInstance mi = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), name, Collections.EMPTY_LIST),
+                context.currentClassDef());
         return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, name), Collections.EMPTY_LIST,
                 Collections.EMPTY_LIST).methodInstance(mi).type(t);
@@ -234,8 +236,9 @@ public class Desugarer extends ContextVisitor {
         Position pos = f.position();
         Name tmp = getTmp();
 
-        MethodInstance mi = xts.findMethod(xts.Runtime(), xts.MethodMatcher(xts.Runtime(),
-                PUSH_EXCEPTION, Collections.singletonList(xts.Throwable())), context.currentClassDef());
+        MethodInstance mi = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(xts.Throwable())),
+                context.currentClassDef());
         LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(xts.Throwable()), tmp);
         Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
                 xnf.CanonicalTypeNode(pos, xts.Throwable()), xnf.Id(pos, tmp)).localDef(lDef);
@@ -270,13 +273,17 @@ public class Desugarer extends ContextVisitor {
                 xnf.CanonicalTypeNode(pos, a.domain().type()), xnf.Id(pos, tmp),
                 a.domain()).localDef(lDef);
         X10Formal formal = (X10Formal) a.formal();
-        Expr place = xnf.Call(bpos, xnf.Id(bpos, APPLY),
-                xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).type(formal.type().type())).type(xts.Place());
+        MethodInstance mi = xts.findMethod(a.domain().type(),
+                xts.MethodMatcher(a.domain().type(), APPLY, Collections.singletonList(xts.Int())),
+                context.currentClassDef());
+        Expr place = xnf.Call(bpos,
+                xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(formal.type().type()),
+                xnf.Id(bpos, APPLY)).methodInstance(mi).type(xts.Place());
         Stmt body = async(bpos, a.body(), a.clocks(), place, "ateach-");
         return xnf.Block(pos,
                 local,
                 xnf.ForLoop(pos, formal,
-                        nf.Local(pos, nf.Id(pos, tmp)).type(a.domain().type()),
+                        nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(a.domain().type()),
                         body).locals(formal.explode(this)));
     }
 }
