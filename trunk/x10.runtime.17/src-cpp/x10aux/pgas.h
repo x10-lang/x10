@@ -81,7 +81,9 @@ namespace x10aux {
         x10_probe();
     }
 
-    inline x10_boolean local(x10_int place) { return (x10_boolean) x10_here() == place; }
+    inline x10_boolean local(x10_int place) {
+    	return (x10_boolean) (x10_here() == place);
+    }
 }
 
 namespace {
