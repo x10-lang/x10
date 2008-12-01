@@ -71,7 +71,7 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
-                this_->_serialize_fields(buf, m);
+                this_->_serialize_body(buf, m);
             }
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
@@ -91,7 +91,7 @@ namespace x10 {
                 buf.write(_serialization_id, m);
             }
 
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
+            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
                 // only support strings that are shorter than 4billion chars
                 x10_int sz = size();
                 buf.write(sz,m);

@@ -9,12 +9,17 @@
 #include <x10aux/deserialization_dispatcher.h>
 
 namespace x10 {
+
     namespace lang {
+
 
         class String;
 
+
         class Object {
+
             public:
+
 #ifdef REF_COUNTING
             int __count; // Ref counting implementation
 #endif
@@ -74,8 +79,11 @@ namespace x10 {
             virtual x10_boolean equals(x10aux::ref<Object> id0) = 0;
             virtual x10_int hashCode() = 0;
             virtual x10aux::ref<String> toString() = 0;
+
         };
+
     }
+
 }
 
 #endif

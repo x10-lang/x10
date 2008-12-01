@@ -32,15 +32,26 @@ namespace x10 {
 
             Exception(x10aux::SERIALIZATION_MARKER m) : Throwable(m) { }
 
-            // Serialization
-            //static const int SERIALIZATION_ID = 16;
-            virtual void _serialize(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                (void)buf; (void)m; abort();
-                //x10aux::_serialize_ref(this, buf, m);
-            }
-            virtual void _serialize_fields(x10aux::serialization_buffer& buf, x10aux::addr_map& m);
-            virtual void _deserialize_fields(x10aux::serialization_buffer& buf);
+            static const x10aux::serialization_id_t _serialization_id;
 
+            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id,m);
+            }
+
+            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
+                Throwable::_serialize_body(buf,m);
+            }
+
+            void _deserialize_body(x10aux::serialization_buffer& buf) {
+                Throwable::_deserialize_body(buf);
+            }
+
+            template<class T>
+            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
+                x10aux::ref<Exception> this_ = X10NEW(Exception)(x10aux::SERIALIZATION_MARKER());
+                this_->_deserialize_body(buf);
+                return this_;
+            }
 
         };
 

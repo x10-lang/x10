@@ -1,5 +1,5 @@
-#ifndef X10AUX_EXIT_CODE_H
-#define X10AUX_EXIT_CODE_H
+#ifndef X10AUX_BOOTSTRAP_H
+#define X10AUX_BOOTSTRAP_H
 
 #include <x10aux/config.h>
 
