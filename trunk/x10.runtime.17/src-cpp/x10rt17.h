@@ -41,6 +41,7 @@
 #include <x10/io/FileOutputStream.h>
 #include <x10/io/FileNotFoundException.h>
 #include <x10/io/IOException.h>
+#include <x10/io/NativeFile.h>
 #include <x10/io/NativeInputStream.h>
 #include <x10/io/NativeOutputStream.h>
 

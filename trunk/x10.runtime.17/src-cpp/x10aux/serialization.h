@@ -29,8 +29,6 @@ namespace x10 {
 
 namespace x10aux {
 
-    class AnyClosure;
-
     class SERIALIZATION_MARKER { };
 
     // Allows runtime detection of Value cycles
