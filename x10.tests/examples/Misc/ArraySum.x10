@@ -1,8 +1,5 @@
 import x10.io.Console;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 public class ArraySum {
 
     var sum: int;
@@ -38,22 +35,22 @@ public class ArraySum {
         if (args.length >=1)
             size = Int.parseInt(args(0));
 
-        println("initializing");
+        Console.OUT.println("initializing");
         var a: ArraySum = new ArraySum(size);
         val numThreads = [1,2,4];
 
         //warmup loop
-        println("doing warmup");
+        Console.OUT.println("doing warmup");
         for (var i: int = 0; i < numThreads.length; i++) 
             a.sum(numThreads(i));
         
         for (var i: int = 0; i < numThreads.length; i++) {
-            println("starting with " + i + " threads");
+            Console.OUT.println("starting with " + i + " threads");
             a.sum=0;
             var time: long = - System.nanoTime();
             a.sum(numThreads(i));
             time += System.nanoTime();
-            println("For p=" + numThreads(i) 
+            Console.OUT.println("For p=" + numThreads(i) 
                     + " result: " + a.sum 
                     + ((size==a.sum)? " ok" : "  bad") 
                     + " (time=" + (time/(1000*1000)) + " ms)");
@@ -61,8 +58,4 @@ public class ArraySum {
         
         
     }
-
-    @Native("java", "System.out.println(#1)")
-    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
-    static native def println(x:String):void;
 }
