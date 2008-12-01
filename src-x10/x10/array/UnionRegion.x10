@@ -38,7 +38,7 @@ value class UnionRegion extends BaseRegion {
     protected def this(rs: PolyRegionListBuilder): UnionRegion(rs.rank) {
         super(rs.rank, false, false);
         this.regions = (rs as PolyRegionListBuilder(rank)).toValRail();
-        cache = new Cache(this);
+        cache = new Cache(this, false);
     }
 
     static def make(rs: PolyRegionListBuilder): Region(rs.rank) {
