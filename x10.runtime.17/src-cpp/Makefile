@@ -97,7 +97,9 @@ gen/MANIFEST-x10:
 	(cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print) > gen/MANIFEST-x10
 
 gen/MANIFEST: all-src-generated
-	(cd gen && find * -name \*.cc -print) > gen/MANIFEST
+	(cd gen && find * -name \*.cc -print) > gen/MANIFEST.raw
+	grep -f DEPENDENCIES.txt -v gen/MANIFEST.raw > gen/MANIFEST.raw2
+	cat DEPENDENCIES.txt gen/MANIFEST.raw2 > gen/MANIFEST
 
 all-src-generated: gen/MANIFEST-x10
 	cd ../src-x10 && "$(X10CPP)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c `cat ../src-cpp/gen/MANIFEST-x10`
