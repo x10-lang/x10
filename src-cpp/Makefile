@@ -25,7 +25,7 @@ endif
 # FIXME
 ARFLAGS := -X64 $(ARFLAGS)
 else
-override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long
+override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
 ifeq ($(shell uname -s),Linux)
 override CXXFLAGS += -pthread
 endif
@@ -37,6 +37,7 @@ endif
 ARCHIVE = libx10rt17.a
 
 XRX_ARCHIVE = libx10lib17.a
+XRX_MANIFEST = libx10lib17.mft
 
 all: $(X10LIB)/include/x10/x10.h $(ARCHIVE) 
 
@@ -97,17 +98,20 @@ gen/MANIFEST-x10:
 	(cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print) > gen/MANIFEST-x10
 
 gen/MANIFEST: all-src-generated
-	(cd gen && find * -name \*.cc -print) > gen/MANIFEST.raw
-	grep -f DEPENDENCIES.txt -v gen/MANIFEST.raw > gen/MANIFEST.raw2
-	cat DEPENDENCIES.txt gen/MANIFEST.raw2 > gen/MANIFEST
+	(cd gen && find * -name \*.cc -print) | grep -f DEPENDENCIES.txt -v > gen/MANIFEST.raw
+	cat DEPENDENCIES.txt gen/MANIFEST.raw > gen/MANIFEST
+	rm gen/MANIFEST.raw
 
 all-src-generated: gen/MANIFEST-x10
-	cd ../src-x10 && "$(X10CPP)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c `cat ../src-cpp/gen/MANIFEST-x10`
+	cd ../src-x10 && "$(X10CPP)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c $(shell cat ../src-cpp/gen/MANIFEST-x10)
 
 generated: all-src-generated gen/MANIFEST
 	cd gen && CXXFLAGS="-I.. $(CXXFLAGS)" $(MAKE) -k $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
 
-$(XRX_ARCHIVE): generated
+$(XRX_MANIFEST): gen/MANIFEST
+	@-cp $^ $@
+
+$(XRX_ARCHIVE): generated $(XRX_MANIFEST)
 	cd gen && $(AR) $(ARFLAGS) $@ $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
 	@-cp gen/$@ .
 
@@ -121,8 +125,8 @@ $(XRX_ARCHIVE): generated
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 depend:
-	#print0 does not work, suspect a bug in gnu find
-	find . \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -Y $(INCLUDE_DIRS) -f- > depend.mk 
+	find . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -Y $(INCLUDE_DIRS) -I/usr/include -f- > depend.mk 
+	echo './gen/MANIFEST-x10: $(shell find ../src-x10 -name .svn -prune -o -name \*.x10 -print)' >> depend.mk
 
 
 clean:
@@ -131,6 +135,8 @@ clean:
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
+	rm -rf gen
+	rm -f $(XRX_ARCHIVE)
 
 .PHONY: all clean squeakyclean
 
