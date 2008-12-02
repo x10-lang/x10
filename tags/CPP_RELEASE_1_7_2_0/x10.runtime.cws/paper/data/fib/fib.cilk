@@ -1,0 +1,55 @@
+
+#include <cilk.h>
+#include <cilk-lib.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+
+long long nanoTime() {
+  struct timespec ts;
+  clock_gettime(CLOCK_REALTIME, &ts);
+  return (long long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
+}
+
+cilk int fib(int n)
+{
+     if (n < 2)
+	  return (n);
+     else {
+	  int x, y;
+	  x = spawn fib(n - 1);
+	  y = spawn fib(n - 2);
+	  sync;
+	  return (x + y);
+     }
+}
+
+cilk int main(int argc, char *argv[])
+{
+     int n, i, result, ni;
+     long long s, t, minT;
+     int nReps;
+
+     if (argc != 3) {
+	  fprintf(stderr, "Usage: fib [<cilk options>] <nReps> <input-number>\n");
+	  Cilk_exit(1);
+     }
+     nReps = atoi(argv[1]);
+     ni = atoi(argv[2]);
+     
+     n= ni;
+
+     for(i=0; i<nReps; i++) {
+       s = nanoTime();
+       result = spawn fib(n);
+       sync;
+       t = nanoTime();
+       minT = (i>0 && minT<(t-s) ? minT : (t-s));
+     }
+
+     
+     printf("n=%d\t Result: %d\t Time=%.3lf us\n", 
+	      n, result, minT/1000.0);
+
+     return 0;
+}

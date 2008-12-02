@@ -1,0 +1,1664 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/18/2008 - 03:10:37
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.412587 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.318014 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.397309 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.380495 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.424366 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.332061 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.257191 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.923096 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.962545 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.944916 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 15.608070 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 11.850948 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 7.937326 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 7.337285 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 9.311892 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 57.037531 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 29.823214 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 21.292163 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 23.726044 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 18.044345 s
+Work = 0.000000 s
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.413643 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.315909 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.370137 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.366677 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.352245 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.308963 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.211401 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.069909 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.988516 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.935222 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 15.694802 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 9.547573 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.920925 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.108293 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.859994 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 51.048994 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 29.746398 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 19.539996 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 18.141542 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 17.861795 s
+Work = 0.000000 s
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.425304 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.282622 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.381896 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.346889 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 250000 1000000 64
+n_vertics=250000, n_edges=1000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 1000000
+     finished generating the matrix, the current number of edges is 999987
+     checking if is connected
+     checking done, connected compoments = 82
+     removing duplicated edges succeeded! number of edges = 999987
+     the final number of edges is 1000068
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.428440 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.492072 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.205446 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.062176 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.282266 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 1000000 4000000 64
+n_vertics=1000000, n_edges=4000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 4000000
+     finished generating the matrix, the current number of edges is 3999985
+     checking if is connected
+     checking done, connected compoments = 341
+     removing duplicated edges succeeded! number of edges = 3999985
+     the final number of edges is 4000325
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.954097 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 15.554850 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 9.672838 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 6.019354 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.177335 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 4000000 16000000 64
+n_vertics=4000000, n_edges=16000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 16000000
+     finished generating the matrix, the current number of edges is 15999984
+     checking if is connected
+     checking done, connected compoments = 1388
+     removing duplicated edges succeeded! number of edges = 15999984
+     the final number of edges is 16001371
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 4.872530 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../SVBlock.amd64 --nproc 1 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 59.620449 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.amd64 --nproc 2 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 28.247202 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.amd64 --nproc 4 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 19.370718 s
+Work = 0.000000 s
+
+### nproc: 6
+../../../../SVBlock.amd64 --nproc 6 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 6 processor(s)
+
+options: number of elements = 111
+
+Running time = 17.878906 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.amd64 --nproc 8 0 9000000 36000000 64
+n_vertics=9000000, n_edges=36000000, n_partitions=64 
+random graph generator
+     number of edges got randomly is 36000000
+     finished generating the matrix, the current number of edges is 35999988
+     checking if is connected
+     checking done, connected compoments = 3038
+     removing duplicated edges succeeded! number of edges = 35999988
+     the final number of edges is 36003025
+r_graph finished 
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 18.375399 s
+Work = 0.000000 s
+
+############################################################
+# End Time: 02/18/2008 - 03:43:31
+############################################################

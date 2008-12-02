@@ -1,0 +1,71 @@
+\chapter{Lexical structure}
+
+In general, \Xten{} follows \java{} rules \cite[Chapter 3]{jls2} for
+lexical structure.
+
+Lexically a program consists of a stream of white space, comments,
+identifiers, keywords, literals, separators and operators.
+
+\paragraph{Whitespace}
+Whitespace \index{whitespace} follows \java{} rules
+\cite[Chapter 3.6]{jls2}. ASCII space, horizontal tab (HT), form feed (FF) and line terminators constitute white space.
+
+
+\paragraph{Comments}
+Comments \index{comments} follows \java{} rules
+\cite[Chapter 3.7]{jls2}. 
+All text included within the ASCII characters ``/*'' and ``*/'' is
+considered a comment and ignored. All text from the ASCII character
+``//'' to the end of line is considered a comment and ignored.
+
+\paragraph{Identifiers}
+Identifiers \index{identifier} are defined as in \java.
+
+\paragraph{Keywords}
+\Xten{} reserves the following keywords \index{keyword} from \java:
+\begin{x10}
+abstract   break  case       catch
+class      const  continue   default    
+do         else   extends    final
+finally    for    goto       if            
+implements import instanceof interface
+native     new    package    private      
+protected  public return     static
+super      switch this       throw
+throws     try    void       while
+\end{x10}
+(Note that the primitive types are no longer considered keywords.)
+
+\Xten{}  introduces the following keywords:
+\begin{x10}
+async     ateach       atomic   clock
+clocked   distribution flow     foreach
+future    here         nullable place  
+reference region       value
+\end{x10}
+
+\paragraph{Literals}
+
+\note{We have to figure out the syntax for literals, since we do not wish to build knowledge of any type into the language. For now, assume Java style literals.}
+
+\paragraph{Separators}
+\Xten{} has the following separators:
+\begin{x10}
+(	)	\{	\}	[	
+]	;	,	.
+\end{x10}
+
+\paragraph{Operators}
+\Xten{} has the following operators:
+{\footnotesize
+\begin{verbatim}
+  =>  <    !   ~   ?   :   ==  <=  
+  >=  !=   &&  ||  ++  --  +   - 
+  *   /    &   |   ^   %   <<  >> 
+  >>> +=   -=  *=  /=  &=  |=  ^=  
+  %=  <<=  >>= >>> =
+\end{verbatim}}
+
+
+
+

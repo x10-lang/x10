@@ -1,0 +1,189 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * RandomAccess benchmark.
+ *
+ * Based on HPCC 0.5beta
+ *
+ * @author kemal
+ * @author vj approx 7/2004
+ * New version, 11/2004
+ */
+public class RandomAccess_long extends x10Test {
+	// Set places.MAX_PLACES to 128 to match original
+	// Set LOG2_TABLE_SIZE to 25 to match original
+
+	public const MAX_PLACES: int = x10.lang.place.MAX_PLACES;
+	public const LOG2_TABLE_SIZE: int = 5;
+	public const LOG2_S_TABLE_SIZE: int = 4;
+	public const TABLE_SIZE: int = (1 << LOG2_TABLE_SIZE);
+	public const S_TABLE_SIZE: int = (1 << LOG2_S_TABLE_SIZE);
+	public const N_UPDATES: int = (4*TABLE_SIZE);
+	public const N_UPDATES_PER_PLACE: int = (N_UPDATES/MAX_PLACES);
+	public const WORD_SIZE: int = 64;
+	public const POLY: long = 7;
+	public const S_TABLE_INIT: long = 0x0123456789abcdefL;
+	// expected result with LOG2_S_TABLE_SIZE = 5, MAX_PLACES = 2
+	// LOG2_S_TABLE_SIZE = 4
+	public const EXPECTED_RESULT: long = 1973902911463121104L;
+
+	/**
+	 * Get the value as a table index.
+	 */
+	def f(var val: long): int = {
+		return (int) (val & (TABLE_SIZE-1));
+	}
+
+	/**
+	 * Get the value as an index into the small table.
+	 */
+	def g(var val: long): int = {
+		return (int)(val >>>
+				(WORD_SIZE-LOG2_S_TABLE_SIZE)); }
+
+	/**
+	 * Return the next number following this one.
+	 * Actually the next item in the sequence generated
+	 * by a primitive polynomial over GF(2).)
+	 */
+	def nextRandom(var val: long): long = {
+		return
+			((val<<1) ^ (val < 0 ? POLY : 0)); }
+
+	/*
+	 * Utility routines to create simple common dists
+	 */
+
+	/**
+	 * create a simple 1D blocked dist
+	 */
+	def block(var arraySize: int): dist = {
+		return distmakeBlock([0..(arraySize-1)]);
+	}
+
+	/**
+	 * create a unique dist (mapping each i to place i)
+	 */
+	def unique(): dist = {
+		return distmakeUnique(x10.lang.place.places);
+	}
+
+	val tableDist: dist = block(TABLE_SIZE); // same as table.dist
+
+	/**
+	 * main RandomAccess routine
+	 */
+	public def run(): boolean = {
+		// A small value table that will be copied to all processors
+		final val smallTable: Array[long] = new Array[long](Dist.makeConstant([0..S_TABLE_SIZE-1], here), (var p: point[i]): long => { return i*S_TABLE_INIT; });
+		// distributed histogram table
+		final val table: Array[long] = new Array[long](block(TABLE_SIZE), (var p: point[i]): long => { return i; });
+		// random number starting seeds for each place
+		final val ranStarts: Array[long] = new Array[long](unique(), (var p: point[i]): long => { return C.starts(N_UPDATES_PER_PLACE*i); });
+
+		// In all places in parallel, repeatedly generate random indices
+		// and do remote atomic updates on corresponding table elements
+		finish ateach (val p: point[i] in ranStarts.dist) {
+			var ran: long = nextRandom(ranStarts(i));
+			for (val count: point in [1..N_UPDATES_PER_PLACE]) {
+				final val j: int = f(ran);
+				final val k: long = smallTable(g(ran));
+				async(table.dist(j))
+					atomic {
+						table(j) = table(j) ^ k;
+					}
+				ran = nextRandom(ran);
+			}
+		}
+
+		final val sum: long = table.sum();
+		System.out.println("Check sum = "+sum);
+		return sum == EXPECTED_RESULT;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new RandomAccess_long().execute();
+	}
+
+	def msg(var i: int, var j: int): void = {
+		System.out.println("Place "+i+" updating table index "+j+" in place "+tableDist(j).id);
+	}
+
+	/**
+	 * C routines to be linked with X10, written in X10 for now
+	 */
+	static class C {
+		// self contained constants for C routines
+
+		private const POLY: long = 0x0000000000000007L;
+		private const PERIOD: long = 1317624576693539401L;
+
+		private static def nextRandom(var temp: long): long = {
+			return (temp << 1) ^ (temp < 0 ? POLY : 0);
+		}
+
+		private static def getBit(var n: long, var i: int): boolean = {
+			return ((n>>>i)&1) != 0;
+		}
+
+		/**
+		 * Utility routine to start random number generator at Nth step
+		 * (original "starts" routine from RandomAccess).
+		 * <code>
+		 Functional synopsis:
+		 long starts(long n) : =
+		 long n1 = for (long t = n; t < 0 return t; next t = t+PERIOD) { };
+		 long n2 = for (long t = n1; t > PERIOD return t; next t = t-PERIOD) { };
+		 if (n2 == 0) return 0x1;
+		 long m2[] = new long[0..63](i) { i == 0 ? 1 : (nextRandom**2)(m2[i-1]); }
+		 int lastSetBit = findFirstSatisfying(int j: 62..0)(getBit(n2, j));
+		 mutable long ran = 2;
+		 for (int i = lastSetBit..1) {
+			 long ranXor = Xor(int j: 0..63 where getBit(ran, j))(m2[j]);
+			 ran = getBit(n2, i-1) ? nextRandom(ranXor) : ranXor; }
+		 return ran;
+		 * </code>
+		 */
+		public static def starts(var n: long): long = {
+			var i: intvar j: int;
+			var m2: Array[long] = new Array[long](64);
+			var temp: longvar ran: long;
+
+			while (n < 0) n += PERIOD;
+			while (n > PERIOD) n -= PERIOD;
+			if (n == 0) return 1;
+
+			temp = 1;
+			for (i = 0; i < 64; i++) {
+				m2(i) = temp;
+				temp = nextRandom(temp);
+				temp = nextRandom(temp);
+			}
+
+			for (i = 62; i >= 0; i--)
+				if (getBit(n, i))
+					break;
+
+			ran = 2;
+			while (i > 0) {
+				temp = 0;
+				for (j = 0; j < 64; j++)
+					if (getBit(ran, j))
+						temp ^= m2(j);
+				ran = temp;
+				i -= 1;
+				if (getBit(n, i))
+					ran = nextRandom(ran);
+			}
+
+			return ran;
+		}
+	} // end C
+}

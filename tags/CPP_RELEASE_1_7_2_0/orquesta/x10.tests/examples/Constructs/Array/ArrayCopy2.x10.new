@@ -1,0 +1,151 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Test for arrays, regions and dists.
+ * Based on original arraycopy2 by vj.
+ *
+ * @author kemal 1/2005
+ */
+public class ArrayCopy2 extends x10Test {
+
+	/**
+	 * Returns true iff point x is not in the domain of
+	 * dist D
+	 */
+	static def outOfRange(val D: dist, val x: point): boolean = {
+		var gotException: boolean = false;
+		try {
+			async(D(x)) {}; // dummy op just to use D[x]
+		} catch (var e: Throwable) {
+			gotException = true;
+		}
+		return gotException;
+	}
+
+	/**
+	 * Does not throw an error iff A[i] == B[i] for all points i.
+	 */
+	public def arrayEqual(val A: Array[int], val B: Array[int]): void = {
+		final val D: dist = A.dist;
+		final val E: dist = B.dist;
+		// Spawn an activity for each index to
+		// fetch the B[i] value
+		// Then compare it to the A[i] value
+		finish
+			ateach (val p: point in D) chk(A(p) == future(E(p)){B(p)}.force());
+	}
+
+	/**
+	 * Set A[i] = B[i] for all points i.
+	 * A and B can have different dists whose
+	 * regions are equal.
+	 * Throws an error iff some assertion failed.
+	 */
+	public def arrayCopy(val A: Array[int], val B: Array[int]): void = {
+		final val D: dist = A.dist;
+		final val E: dist = B.dist;
+		// Spawn one activity per place
+
+		final val D_1: dist = distmakeUnique(D.places());
+		// number of times elems of A are accessed
+		final val accessed_a: Array[int] = new Array[int](D);
+		// number of times elems of B are accessed
+		final val accessed_b: Array[int] = new Array[int](E);
+
+		finish
+			ateach (val x: point in D_1) {
+				final val px: place = D_1(x);
+				chk(px == here);
+				final val D_local: dist{rank==D.rank} = (D | px);
+				for (val i: point in D_local) {
+					// assignment to A[i] may need to be atomic
+					// unless disambiguator has high level
+					// knowledge about dists
+					async (E(i)) {
+						chk(E(i) == here);
+						atomic accessed_b(i) += 1;
+					}
+					A(i) = future(E(i)){B(i)}.force();
+					atomic accessed_a(i) += 1;
+				}
+				// check if dist ops are working
+
+				final val D_nonlocal: dist{rank==D.rank} = D - D_local;
+				chk((D_local || D_nonlocal).equals(D));
+				for (val k: point in D_local) {
+					chk(outOfRange(D_nonlocal, k));
+					chk(D_local(k) == px);
+				}
+				for (val k: point in D_nonlocal) {
+					chk(outOfRange(D_local, k));
+					chk(D_nonlocal(k) != px);
+				}
+			}
+		// ensure each A[i] was accessed exactly once
+		finish ateach (val i: point in D) chk(accessed_a(i) == 1);
+		// ensure each B[i] was accessed exactly once
+		finish ateach (val i: point in E) chk(accessed_b(i) == 1);
+	}
+
+	public const N: int = 3;
+
+	/**
+	 * For all combinations of dists of arrays B and A,
+	 * do an array copy from B to A, and verify.
+	 */
+	public def run(): boolean = {
+		final val R: region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
+		final val TestDists: region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
+
+		for (val distP: point[dX,dY] in TestDists) {
+			final val D: dist = dist2.getDist(dX, R);
+			final val E: dist = dist2.getDist(dY, R);
+			chk(D.region.equals(E.region) && D.region.equals(R));
+			final val A: Array[int] = new Array[int](D);
+			final val B: Array[int] = new Array[int](E, (var p: point[i,j,k,l]): int => { var x: int = ((i*N+j)*N+k)*N+l; return x*x+1; });
+			arrayCopy(A, B);
+			arrayEqual(A, B);
+		}
+		return true;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new ArrayCopy2().execute();
+	}
+
+	/**
+	 * utility for creating a dist from a
+	 * a dist type int value and a region
+	 */
+	static class dist2 {
+		public const BLOCK: int = 0;
+		public const CYCLIC: int = 1;
+		public const BLOCKCYCLIC: int = 2;
+		public const CONSTANT: int = 3;
+		public const RANDOM: int = 4;
+		public const ARBITRARY: int = 5;
+		public const N_DIST_TYPES: int = 6;
+
+		/**
+		 * Return a dist with region r, of type disttype
+		 */
+		public static def getDist(var distType: int, var r: region): dist = {
+			switch(distType) {
+				case BLOCK:case BLOCK: return distmakeBlock(r);
+				case CYCLIC:case CYCLIC: return dist.factory.cyclic(r);
+				case BLOCKCYCLIC:case BLOCKCYCLIC: return distmakeBlockCyclic(r, 3);
+				case CONSTANT:case CONSTANT: return r->here;
+				case RANDOM:case RANDOM: return dist.factory.random(r);
+				case ARBITRARY:case ARBITRARY: return dist.factory.arbitrary(r);
+				default:default: throw new Error();
+			}
+		}
+	}
+}

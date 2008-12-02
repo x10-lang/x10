@@ -1,0 +1,259 @@
+
+
+\paragraph{Constraint-based type systems.}
+
+The use of constraints in type systems has a history
+going back to Mitchell~\cite{mitchell84} and
+Reynolds~\cite{reynolds85}.  These and subsequent systems
+are based on
+constraints over types, but not over values.
+Constraint-based type systems for ML-like
+languages~\cite{trifonov96,pottier96simplifying}
+% Trifonov and
+% Smith~\cite{trifonov96} proposed a type system in which types are
+% refined using subtyping constraints.
+% Pottier~\cite{pottier96simplifying} presents a constraint-based type
+% system for an ML-like language with subtyping.  These developments
+lead to \hmx~\cite{sulzmann97type}, a constraint-based framework for
+Hindley--Milner-style type systems.
+The framework is parametrized on
+the specific constraint system $X$; instantiating $X$ yields
+extensions of the HM type system.
+The \hmx{} approach is an important precursor to
+our constrained types approach. The principal difference is that
+\hmx{} applies to functional languages and does not integrate
+dependent types.
+
+Sulzmann and Stuckey~\cite{sulzmann-hmx-clpx} showed that the
+type inference algorithm for \hmx can be encoded as a
+constraint logic program parametrized by the constraint system
+$X$. This is very much in spirit with our approach.
+Constrained types permit {\em user-defined}
+predicates and functions, allowing the user to enrich
+the constraint system, and hence the power of the compile-time type-checker,
+with application-specific constraints using a constraint
+programming language such as CLP($\cal C$)~\cite{clp} or 
+RCC($\cal C$)~\cite{DBLP:conf/fsttcs/JagadeesanNS05}.
+
+\paragraph{Dependent types.}
+
+Dependent type
+systems~\cite{xi99dependent,calc-constructions,epigram,cayenne}
+param\-etrize types on values.  Constrained types are a form of refinement
+type~\cite{refinement-types,conditional-types,jones94,sized-types,flanagan-popl06,flanagan-fool06,liquid-types}.
+Introduced by Freeman and Pfenning~\cite{refinement-types},
+refinement types
+are dependent types that extend a base type system through constraints on values.
+
+Our work is closely related to DML, \cite{xi99dependent}, an
+extension of ML with dependent types. DML is also built
+parametrically on a constraint solver. Types are refinement types;
+they do not affect the operational semantics and erasing the
+constraints yields a legal DML program.
+%
+The most obvious distinction between DML and constrained types
+lies in the target
+domain: DML is designed for functional programming
+whereas constrained types are designed for imperative, concurrent
+object-oriented languages. 
+But there are several other
+crucial differences as well.
+
+DML achieves its separation between compile-time and run-time processing
+by not permitting program
+variables to be used in types. Instead, a parallel set of (universally
+or existentially quantified) ``index'' variables are
+introduced.
+%
+Second, DML permits only variables of basic index sorts known to
+the constraint solver (e.g., \xcd{bool}, \xcd{int}, \xcd{nat}) to
+occur in types. In contrast, constrained types permit program
+variables at any type to occur in constrained types. As with DML
+only operations specified by the constraint system are permitted in
+types. However, these operations always include field selection and
+equality on object references.  Note that DML-style constraints are easily
+encoded in constrained types.
+
+% {\em Conditional
+% types}~\cite{conditional-types} extend refinement types to
+% encode control-flow information in the types.
+% %
+% Jones introduced {\em qualified types}, which permit
+% types to be constrained by a finite set of
+% predicates~\cite{jones94}.
+% %
+% {\em Sized types}~\cite{sized-types}
+% annotate types with the sizes of recursive data structures.
+% Sizes are linear functions of size variables.
+% Size inference is performed using a constraint solver for
+% Presburger arithmetic~\cite{omega}.
+% % constraints on types, support primitive recursion only
+
+% Index objects must be pure.
+% Singleton types int(n).
+% ML$^{\Pi}_0$:
+% Refinement of the ML type system: does not affect the
+% operational semantics.  Can erase to ML$_0$.
+
+% Jay and Sekanina 1996: array bounds checking based on shape
+% types.
+
+% Ada dependent types.
+% Ada has constrained array definitions.  A constraint
+% \cite{ada-ref-man}.  Not clear if they're dependent.  Are
+% there other dependent types?  Generics are dependent?
+
+        % Used for array bounds by Morrisett et al (I think--need
+        % to find paper)
+
+% Singleton types~\cite{aspinall-singletons}.
+
+Logically qualified types, or liquid types~\cite{liquid-types},
+permit types in a base Hindley--Milner-style type system to be refined with
+conjunctions of logical qualifiers.  The subtyping relation is similar to
+\Xten{}'s: two liquid types are in the subtyping relation if their base
+types are and if one type's qualifier implies the other's.
+The Hindley--Milner type
+inference algorithm is used to infer base types; these types are used as templates for inference of the liquid types.
+The types of certain expressions are over-approximated to ensure inference
+is decidable.
+To improve precision of the inference algorithm, and hence
+to reduce the annotation burden on the programmer, 
+the type system is path sensitive.  \Xten{} does not (yet) support type
+inference.
+
+Hybrid type-checking~\cite{flanagan-popl06,flanagan-fool06}
+introduced another refinement type system.
+While typing is undecidable, dynamic checks are inserted into
+the program when necessary if the type-checker (which
+includes a constraint solver) cannot determine
+type safety statically.
+In \Xten{}, dynamic type checks, including tests of dependent
+constraints, are inserted only at explicit casts or
+\xcd{instanceof} expressions; constraint solving is performed at compile time.
+
+% Where clauses for F-bounded polymorphism~\cite{where-clauses}
+% Bounded quantification: Cardelli and Wegner.  Bound T with T'
+% In F-bounded polymorphism~\cite{f-bounds}, type variables are bounded by a function of 
+% the type variable. 
+% Not dependent types.
+
+Theorem provers have also been integrated into the programming language.
+For instance,
+Concoqtion~\cite{concoqtion} extends types in OCaml~\cite{ocaml}
+with constraints written as Coq~\cite{coq} rules.
+Constraints thus have a different
+syntax, representation, and behavior than the rest of the language.
+Proofs must be provided to satisfy the type checker.
+In contrast, 
+\Xten{} supports a more limited constraint language 
+that can be checked by a
+constraint solver during compilation.
+
+ESC/Java~\cite{esc-java}
+allow programmers to write object invariants and pre- and
+post-conditions that are enforced statically
+by the compiler using an automated theorem prover.
+Static checking is undecidable and, in the presence of loops,
+is unsound (but still useful) unless the programmer supplies loop invariants.
+Unlike \Xten{},
+ESC/Java can enforce invariants on mutable state.
+
+Constraints in \Xten{} are over final access paths.  Several other languages
+have dependent types defined over final access paths~\cite{ernst99-gbeta,scala-overview,scala-oopsla05,nqm06,oz01,ocrz-ecoop03,cdnw07-tribe,dependent-classes}.
+In many of these languages, dependent path types are used to
+enforce type soundness for virtual
+classes~\cite{beta,mp89-virtual-classes,ernst06-virtual} or
+similar mechanisms.  Jif~\cite{myers-popl99,jif3}
+uses dependent types over final access paths to enforce
+security properties: the security policy of an expression may depend on the
+policies of other variables in the program.
+Aspects of these type systems can be encoded using equality
+constraints in \Xten{}.
+% Two dependent types indexed by the same
+% access path are guaranteed to have the same run-time type.
+For example,
+for a final access path \xcd{p}, {\tt p}.{\tt type}
+in Scala is the singleton type containing the object \xcd{p}.
+% In J\&, {\tt p.class} is a type containing all objects
+% whose run-time class is the same as \xcd{p}'s.
+Scala's {\tt p}.{\tt type} can be encoded in \Xten{} using an equality
+constraint \xcd{C\{self == p\}}, where \xcd{C} is a supertype of
+\xcd{p}'s static type.
+
+\eat{
+These types can be encoded in CFJ by introducing a
+\xcd{type} property.
+\rn{T-constr}, as
+described in Section~\ref{sec:examples}.
+}
+
+
+\eat{
+Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
+There is no distinction between static and dynamic types.
+Type-checking is undecidable.
+There is no notion of datatype refinement as in DML.
+
+Epigram~\cite{epigram,epigram-matter}
+is a dependently typed functional programming language based on
+a type theory with inductive families.
+Epigram does not have a phase distinction between values and
+types.
+}
+
+\eat{
+$\lambda^{\sf Con}$ is a lambda calculus with assertions.
+Findler, Felleisen, Contracts for higher-order functions (ICFP02)
+
+  example: int[> 9]
+
+contracts are either simple predicates or function contracts.
+defined by (define/contract ...)
+
+enforced at run-time.
+}
+
+% Jif~\cite{jif,jflow} is an extension of Java in which
+% types are labeled with security policies enforced by the
+% compiler.
+
+% and Spec$\sharp$~\cite{specsharp}
+
+\paragraph{Pluggable types.}
+
+In \Xten{}, constraint system plugins can provide a constraint
+solver to check consistency and entailment of the extended
+constraint language.
+
+Pluggable and optional type systems were proposed by
+Bracha~\cite{bracha04-pluggable} and provide a means of
+extending the base language's type system.
+In Bracha's proposal, type annotations, implemented in compiler plugins,
+may only reject programs statically that might otherwise have dynamic
+type errors; they may not change the run-time semantics of the
+language.
+Java annotations~\cite{Java3,jsr308}
+may be used to extend the Java type system with compiler plugins.
+
+Other approaches, such as user-defined type
+qualifiers~\cite{foster-popl02,chin05-qualifiers}
+or JavaCOP~\cite{javacop-oopsla06}
+allow programmers to 
+declaratively specify new typing rules in a meta language rather
+than through plugins.
+We have focused on defining
+constraint-checking rules for the control constructs in the basic language;
+additional rules can be defined for type-checking additional control constructs
+in the language.  For instance, rules can be defined to ensure that distributed constructs in \Xten{} are place-type safe.
+Such type-checking rules may be
+implemented in JavaCOP, provided that it is extended with the underlying
+constraint solver.
+
+
+% Holt, Cordy, the Turing programming language
+
+% Ou, Tan, Mandelbaum, Walker, Dynamic typing with dependent types
+% Separate dependent and simple parts of the program.
+% Statically type the dependent parts.
+% Dynamic checks when passing values into dependent part.

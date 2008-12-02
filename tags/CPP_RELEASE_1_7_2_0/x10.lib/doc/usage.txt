@@ -1,0 +1,284 @@
+
+
+                    X10Lib : The X10 Runtime System
+
+                              Version 0.6
+
+
+                         U S A G E  N O T E S
+                         --------------------
+
+                  (c) Copyright IBM Corporation 2007
+
+
+
+This is a brief document detailing the steps that an X10 programmer
+should follow to successfully link against the X10Lib and run the
+resulting executable.
+
+If you haven't installed X10Lib yet, follow the instructions given
+in INSTALL file and do the same.
+
+After proper installation, X10LIB_HOME refers to the directory
+prefix under which the include files and library are available.
+Accordingly, X10LIB_INCLUDE is set to ${X10LIB_HOME}/include and
+X10LIB_LIBPATH to ${X10LIB_HOME}/lib.
+
+
+PROGRAM COMPOSITION
+-------------------
+
+Every X10Lib program should include <x10/x10lib.h> before
+making any of the below mentioned calls.  This header file is
+the only one that should be included by the program as it
+provides the public interface for linking against the X10Lib.
+
+#include <x10/x10lib.h>
+
+An X10 program calling X10Lib should start with its Initialization.
+This step is mandatory before issuing any other X10Lib call,
+except processing error codes that may be returned when the
+initialization fails. During this phase, the X10Lib allocates
+and initializes several data structures that are necessary
+for communication.
+
+For initialization, use the following routine:
+
+[C++]	x10_err_t x10lib::Init(handlers, n)
+[C]		x10_err_t x10_init(handlers, n)
+			x10_async_handler_t *handlers;
+			int n;
+
+Note: Currently async handler registration is done through other
+	  methods.  As such, always pass NULL for arg 'handlers'
+	  and 0 for 'n'.
+
+Likewise, when a programmer completes calling X10Lib, he should
+terminate its context by doing Finalization.  This step deallocates
+all data structures that are allocated during initialization and
+runtime. Once this call is made, an X10 programmer is not allowed
+to issue further calls to X10Lib.  However, he can do the same
+by initializing the library once again (this facility will be
+made available in the subsequent releases).
+
+For finalization, use the following routine:
+
+[C++]	x10_err_t x10lib::Finalize()
+[C]		x10_err_t x10_finalize()
+
+When ever an X10Lib call returns the error code other than
+X10_OK, the corresponding error message can be obtained by
+calling error messaging routine with a buffer of length
+X10_MAX_ERR_STRING for returning it.  This constant is
+defined in the main include file <x10/x10lib.h>.
+
+For error processing, use the following routine:
+
+[C++]	x10_err_t x10lib::ErrMsg(err_code, buf, len)
+[C]		x10_err_t x10_err_msg(err_code, buf, len)
+			x10_err_t err_code;
+			char *buf;
+			int len;
+
+If an error is encountered during X10Lib call processing and
+the X10 program which made that call decides that further execution
+is impossible, then it must call Cleanup method to
+orderly shutdown the runtime context.
+[In future, Finalize() and Cleanup() methods will be merged
+into one.]
+
+For cleanup, use the following routine:
+
+[C++]	void x10lib::Cleanup()
+[C]		void x10_cleanup()
+
+Between the X10Lib initialization and finalization, the program
+can make any calls listed in the X10Lib's Application Programming
+Interface (API).  Refer to 'api.txt' document for further details
+on the services offered by the current version.  It's available
+under 'doc/' subdirectory.  After installation it can be located
+under '${INSTALL_PREFIX}/share/X10Lib/doc/'.
+
+
+EXAMPLE PROGRAMS
+----------------
+
+The distribution is accompanied by some well tested example
+programs which an X10 programmer can use as the basis for writing
+programs that use X10Lib calls.  Within the distribution, these
+are available under 'examples/' subdirectory.  After installation,
+they can be located under '${INSTALL_PREFIX}/share/X10Lib/examples/'.
+
+For example, the parallel version of 'hello' program is written
+as illustrated:
+
+In C++:
+
+// hello_cc.cc
+
+#include <x10/x10lib.h>
+#include <iostream>
+
+using namespace std;
+
+int
+main(int argc, char *argv[])
+{
+	x10lib::Init(NULL, 0);
+	cout << "Hello, X10 World!" << endl;
+	x10lib::Finalize();
+	return 0;
+}
+
+
+In C:
+
+/* hello_c.c */
+
+#include <x10/x10lib.h>
+#include <stdio.h>
+
+int
+main(int argc, char *argv[])
+{
+	x10_init(NULL, 0);
+	printf("Hello, X10 World!\n");
+	x10_finalize();
+	return 0;
+}
+
+DEVELOPMENT REQUIREMENTS
+------------------------
+
+The following software components should be available before an X10
+program can be successfully linked against the library and executed:
+
+OS/Machine: AIX ver 5.3 / Power5
+Mode: 64-bit (always)
+Software Components:
+[Both Runtime and Development]
+	BOS (Base Operatig System) ver 5.3.0.40 (including Pthreads)
+	POE (Parallel Operating Environment) ver 4.2.2.4
+	RSCT (Reliable Scalable Cluster Technology)/LAPI ver 2.4.2.6
+	IBM XL C/C++ Compiler ver 8.0.0.0
+	LoadLeveler ver 3.3.2.4
+
+
+PROGRAM COMPILATION & BUILDING
+------------------------------
+
+To compile the program, either manually use the following command
+line:
+[Add '-g' command line compiler option to build debuggable executables.]
+	
+[C++]
+	mpCC_r -q64 -qarch=pwr5 -qtune=pwr5 -O3 -qhot \
+			-I. -I${X10LIB_INCLUDE} hello.cc \
+	 		-L${X10LIB_LIBPATH} -lx10 -o hello
+[C]
+	mpCC_r -q64 -qarch=pwr5 -qtune=pwr5 -O3 -qhot \
+			-I. -I${X10LIB_INCLUDE} hello.c \
+			-L${X10LIB_LIBPATH} -lx10 -o hello
+Note:
+	As the entire library functionality is realized in C++ language with
+C wrappers, it's always safe to compile even C-style code using C++ compiler.
+
+or use the 'x10libCC/x10libcc' script that is provided along with
+the distribution:
+(You can find it under 'bin/' subdir before installation or
+'${X10LIB_HOME}/bin' after installation.)
+
+[C++]
+	x10libCC hello.cc -o hello
+
+[C]
+	x10libcc hello.c -o hello
+
+
+RUNNING PROGRAMS
+----------------
+
+The programs that have been successfully build as previously
+stated can be run in POE/LAPI environment as follows:
+
+On AIX/Power5 Real Clusters with Federation Switch (like V20 and V80):
+
+$ export MP_MSG_API=lapi
+$ export MP_EUILIB=us (or) export MP_EUILIB=ip
+
+[depending on whether you want to use 'User Space' protocol or
+'Internet' protocol respectively for communication]
+
+$ poe ${PATH_TO_PROGRAM}/hello -procs n -hostfile hostfile_name
+
+On AIX/Power5 SMP Machines (like rlsecomp1 and r28n01):
+
+$ export MP_MSG_API=lapi
+$ export MP_EUILIB=ip
+$ poe ${PATH_TO_PROGRAM}/hello -procs n -hostfile hostfile_name
+
+
+SPECIFYING HOST FILES
+---------------------
+
+To construct the hostfile that is required for running the
+produced executable, do the following:
+
+Note down the node names of the machine (cluster or smp) you are
+using and the processors each node having:
+
+	node_name1	--	16
+	node_name2	--	16
+	.....
+	node_namei	--	16
+
+In the hostfile, repeat the node name as many times either
+sequentially or alternatively as you wish [as per the job
+distribution requirements]:
+
+	node_name1
+	node_name2
+	.....
+	node_namei
+	node_name1
+	node_name2
+	.....
+	node_namei
+	..... 16 times, if all the nodes have equal number of
+processors. Otherwise, repeat a particular only certain number
+of times.
+
+For example, on V20 machine at Poughkeepsie Benchmarking Center
+using two of its shared nodes:
+
+The names of the first two shared nodes are 'v20n17.pbm.ihost.com'
+and	'v20n18.pbm.ihost.com'; and each of them have 16 processors
+to use.
+
+The hostfile can then be written as follows:
+
+	v20n17.pbm.ihost.com
+	v20n18.pbm.ihost.com
+	v20n17.pbm.ihost.com
+	v20n18.pbm.ihost.com
+	..... 16 times
+
+In this case, you have 2 X 16 simultaneous tasks running.
+
+Similarly, for an SMP machine like 'rlsecomp1.watson.ibm.com'
+with 8 processors, the hostfile can look like:
+
+	rlsecomp1.watson.ibm.com
+	rlsecomp1.watson.ibm.com
+	rlsecomp1.watson.ibm.com
+	..... 8 times
+
+In this case, you can have 1 x 8 simultaneous tasks running.
+
+If SMT option is turned on then the number of simultaneous
+tasks can be doubled.
+
+Please go through the sample hostfiles that are provided
+along with the distribution.  They are available under
+'hostfiles/' before installation and
+${X10LIB_HOME}/share/X10Lib/hostfiles/ after installation.

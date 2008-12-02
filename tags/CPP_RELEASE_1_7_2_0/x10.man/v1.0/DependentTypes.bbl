@@ -1,0 +1,15 @@
+\begin{thebibliography}{1}
+
+\bibitem{my-thesis-book}
+V.~Saraswat.
+\newblock {\em Concurrent Constraint Programming}.
+\newblock Doctoral Dissertation Award and Logic Programming. MIT Press, 1993.
+
+\bibitem{xi99dependent}
+Howgwei Xi and Frank Pfenning.
+\newblock Dependent types in practical programming.
+\newblock In {\em Conference Record of {POPL} 99: The 26th {ACM}
+  {SIGPLAN}-{SIGACT} Symposium on Principles of Programming Languages, San
+  Antonio, Texas}, pages 214--227, New York, NY, 1999.
+
+\end{thebibliography}

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="x10.runtime" default="dist" basedir=".">
+    &buildfile;
+    <property name="x10.home" value="${basedir}/.."/>
+    <property name="x10.dist.location" value="${x10.home}/x10.dist"/>
+    <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
+    <property name="x10.common.location" location="${x10.home}/x10.common.17"/>
+    <property name="build" location="${basedir}/classes"/>
+    <property name="src" location="${basedir}/src-java"/>
+    <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="jar" value="x10.jar"/>
+    <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
+    <property name="make.exe" value="make"/>
+    <property name="cvs.exe" value="cvs"/>
+    <path id="project.classpath">
+        <path refid="mainproject.classpath"/>
+        <path refid="x10.constraints.classpath"/>
+        <path refid="x10.common.classpath"/>
+    </path>
+    <path id="mainproject.classpath">
+        <pathelement location="${build}"/>
+    </path>
+    <path id="x10.constraints.classpath">
+        <pathelement location="${x10.constraints.location}/classes"/>
+    </path>
+    <path id="x10.common.classpath">
+        <pathelement location="${x10.common.location}/classes"/>
+    </path>
+    <!-- get the environment variables -->
+    <property environment="env"/>
+
+    <!-- Determine whether or not we should be building with GC enabled -->
+    <condition property="bdwgc.enabled">
+        <!--<os family="unix" name="linux"/>-->
+        <istrue value="false"/>
+    </condition>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+    </target>
+    <target name="clean">
+        <delete dir="${build}"/>
+        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
+	    <arg value="clean"/>
+	</exec>
+    </target>
+    <target name="clean-bdwgc" depends="clean">
+        <delete dir="${bdwgc.dir}/install"/>
+        <exec executable="${make.exe}" failonerror="true" dir ="${bdwgc.dir}/src">
+	    <arg value="distclean"/>
+	</exec>
+    </target>
+    <target name="dist-java" depends="jar">
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}">
+            <fileset dir="${build}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="dist-cpp" depends="build-cpp">
+    </target>
+    <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
+    </target>
+    <target name="jar" depends="build-java">
+        <jar jarfile="${build}/${jar}">
+            <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
+            <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
+            <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
+            <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
+        </jar>
+    </target>
+    <target name="build-java" depends="init">
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+            <src path="${src}"/>
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="build-cpp" depends="init,build-bdwgc">
+      <sequential>
+        <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
+	    <isset property="bdwgc.enabled" />
+        </condition>
+        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
+	  <arg value="${cppmake.gcarg}" />
+        </exec>
+      </sequential>
+    </target>
+
+    <target name="build" depends="build-java,build-cpp">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+    </target>
+
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.skip.build">
+        <sequential>
+	   <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
+	      <arg value="-enable-threads=posix" />
+	      <arg value="--prefix=${bdwgc.dir}/install" />
+	   </exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true"></exec>
+	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+	       <arg value="install" />
+           </exec>
+        </sequential>
+    </target>
+
+    <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.skip.download">
+        <sequential>
+	    <cvs cvsRoot=":pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc"
+	         package="bdwgc"
+                 tag="gc7_1"
+                 dest="${bdwgc.dir}"
+	         failonerror="true"
+            />
+	    <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
+        </sequential>
+	
+    </target>
+
+    <target name="check-bdwgc">
+        <sequential>
+            <condition property="bdwgc.skip.download">
+	      <or>
+	        <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
+		<isfalse value="${bdwgc.enabled}" />
+	      </or>
+            </condition>
+            <condition property="bdwgc.skip.build">
+	      <or>
+	        <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+		<isfalse value="${bdwgc.enabled}" />
+	      </or>
+            </condition>
+        </sequential>
+    </target>
+
+</project>

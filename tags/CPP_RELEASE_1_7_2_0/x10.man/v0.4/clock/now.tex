@@ -1,0 +1,35 @@
+\subsection{Posting statements on a clock}\index{clock!now}\label{sec:clock:now}
+\Xten{} provides syntactic support for a common idiom. Often it may be
+necessary for an activity $A$ to require that a certain set of
+statements be executed to completion before a clock $c$ can move
+forward, without $A$ actually waiting for the completion
+of the statement. We introduce the syntax:
+\begin{x10}
+461 Statement ::= NowStatement
+471 StatementNoShortIf ::= 
+       NowStatementNoShortIf
+479 NowStatement ::= 
+       now ( Clock ) Statement
+489 NowStatementNoShortIf ::= 
+       now ( Clock ) StatementNoShortIf
+\end{x10}
+\noindent 
+
+A statement {\tt now (c) s} may be considered as shorthand for
+\begin{x10}
+  async clocked(c) \{ 
+     finish async s; 
+  \}
+\end{x10}
+
+\paragraph{Note.} Because of the static semantics of {\tt finish}
+it is not possible to nest {\cf now} statements. Instead if it proves
+useful, we may introduce a multi-clocked {\tt now} statement,
+which permits the statement to be posted on multiple clocks
+simultaneously.
+\begin{x10}
+479' NowStatement ::= 
+       now ( ClockList ) Statement
+489' NowStatementNoShortIf ::= 
+       now ( ClockList ) StatementNoShortIf  
+\end{x10}

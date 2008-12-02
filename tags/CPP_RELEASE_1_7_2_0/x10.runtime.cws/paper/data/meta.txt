@@ -1,0 +1,8 @@
+Sat Aug 18 18:48:58 2007
+
+Top-level questions
+
+-- CWS vs FJ
+
+-- recursive join networks, how to implement them.
+Cilk-style: polling on inlets.

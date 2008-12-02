@@ -1,0 +1,102 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * A distributed binary tree.
+ * @author Satish Chandra 4/6/2006
+ * @author vj
+ *
+ *       ____P0
+ *      |     |
+ *      |     |
+ *    _P2  __P0
+ *   |  | |   |
+ *   |  | |   |
+ *  P3 P2 P1 P0
+ *   *  *  *  *
+ *
+ * Right child is always on the same place as its parent;
+ * left child is at a different place at the top few levels of the tree,
+ * but at the same place as its parent at the lower levels
+ */
+public class Tree extends x10Test {
+	var left: nullable<Tree>; // depending on localleft
+	var right: nullable<Tree>; // always current
+	var next: nullable<Tree>; // mixed for lists
+	var size: int;
+	var localLeft: boolean; // if true then left child is at current
+
+	private def this(): Tree = { }
+
+	public def this(var ll: boolean, var l: nullable<Tree>, var r: nullable<Tree>, var s: int): Tree = {
+		left = l; right = r; next = null; localLeft = ll; size = s;
+	}
+
+	/**
+	 * Thread all the nodes together in a post-ordered list,
+	 * returning the first node in the list.
+	 */
+	public def postOrder(): Tree = {
+		var result: Tree = this;
+		if (right != null) {
+			result = right.postOrder();
+			right.next = this;
+		}
+		if (left != null) {
+			final val tt: Tree = result;
+			result = localLeft? left.postOrder(tt)
+				: future(left) { left.postOrder(tt) }.force();
+		}
+		return result;
+	}
+
+	def postOrder(var rest: Tree): Tree = {
+		next = rest;
+		return postOrder();
+	}
+
+	// Create a binary tree on span places
+	public static def build(val count: int, val span: int): nullable<Tree> = {
+		if (count == 0) return null;
+		var ll: boolean = (span/2 == 0);
+		return new Tree(ll, (ll? build(count/2, span/2) :
+					future(place.places(here.id+span/2)) { build(count/2, span/2) }.force()),
+				build(count/2, span/2), count);
+	}
+
+	public def print(val prefix: String, val suffix: String): void = {
+		System.out.print(prefix + "{" + size);
+		if (left != null) {
+			System.out.println("");
+			if (localLeft)
+				left.print(prefix+" ", ",");
+			else finish async(left) { left.print(prefix+" ", ","); };
+		}
+		if (right != null) {
+			if (left == null)	System.out.println("");
+			right.print(prefix+" ", "}"+suffix);
+		} else
+			System.out.println((left != null ? prefix : "")+"}"+suffix);
+	}
+
+	public def sum(): int = {
+		return size+((right == null) ? 0 : right.sum())
+			+((left == null) ? 0 : (localLeft ? left.sum() :
+						future(left) { left.sum() }.force()));
+	}
+
+	public def run(): boolean = {
+		return build(10, 5).sum() == 36;
+	}
+
+	// Test should be run with number of places >= 5.
+	public static def main(var args: Rail[String]): void = {
+		new Tree().execute();
+	}
+}

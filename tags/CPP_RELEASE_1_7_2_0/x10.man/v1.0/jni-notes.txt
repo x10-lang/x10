@@ -1,0 +1,25 @@
+17 Feb 2005
+
+X10 native interface design goals
+
+ -- make it easy to use native code to work on multidimensional X10
+    arrays.
+
+JNI permits instance methods to be native as well.
+
+Java objects passed by reference.
+Vm tracks objects passed to native code.
+
+Native code has to access Java objects through opaque references (Java
+object layout is not exposed).
+
+Working with arrays.  X10 needs to provide array descriptor info to
+the native side.
+
+Registry for local references created on every transfer of control
+from Java to native method.
+
+Native code can access Java objet fields, and invoke java methods on
+java objets.
+
+Native code may throw Java exceptions.
