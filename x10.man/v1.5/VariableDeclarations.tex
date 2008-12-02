@@ -93,7 +93,18 @@ Fields are declared either \xcd"var" (non-final, non-static),
 the default is \xcd"val".
 Field declarations may have optional
 initializer expressions.  The initializer must be a subtype of
-the declared type of the variable.  If the variable is final,
+the declared type of the variable.
+For \xcd"var" fields,
+if the initializer is omitted, the constructor must initialize
+the field, or else the field is initialized with
+\xcd"null" if a reference type \xcd"0" if an \xcd"Int", \xcd"0L"
+if a \xcd"Long",
+\xcd"0.0F" if a \xcd"Float", \xcd"0.0" if a \xcd"Double", or
+\xcd"false" if a \xcd"Boolean".  It is a static error if the
+default value is not a member of the type (e.g., it is a static
+error to elide the initializer for \xcd"int{self==1}").
+
+If the variable is final,
 the type may be omitted and
 inferred from the initializer type (\Sref{TypeInference}).
 Mutable fields must be declared with a type.
