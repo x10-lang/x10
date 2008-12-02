@@ -1,0 +1,385 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 2
+# Start Time: 01/21/2008 - 06:08:48
+############################################################
+#
+# Run: 1
+#
+
+## Size: 300
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049195 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.035794 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039236 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.038911 s
+
+## Size: 900
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.557839 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.361934 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.368583 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.417180 s
+
+## Size: 1500
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.041042 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.319795 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.254806 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.412787 s
+
+## Size: 2100
+
+### nproc: 1
+./ST --nproc 1 --stack 50000000 --pthread-stacksize 400000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 4.657831 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.968190 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.859530 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.156673 s
+#
+# Run: 2
+#
+
+## Size: 300
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049964 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.034465 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039296 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 300
+opt = 1 
+graph gen done, n_vertices = 90000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.038242 s
+
+## Size: 900
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.570891 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.372180 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.379457 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 900
+opt = 1 
+graph gen done, n_vertices = 810000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.427546 s
+
+## Size: 1500
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.082748 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.235858 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.221685 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 1500
+opt = 1 
+graph gen done, n_vertices = 2250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.314112 s
+
+## Size: 2100
+
+### nproc: 1
+./ST --nproc 1 --stack 50000000 --pthread-stacksize 400000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 4.842629 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.803027 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.032121 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 1 2100
+opt = 1 
+graph gen done, n_vertices = 4410000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.797615 s
+
+############################################################
+# End Time: 01/21/2008 - 06:19:47
+############################################################

@@ -1,0 +1,32 @@
+
+
+                    X10Lib : The X10 Runtime System
+
+                              Version 0.6
+
+
+                              R E A D M E
+                              -----------
+
+
+This is the Readme file for X10 Runtime System Documentation.
+
+* coding_standards.txt
+
+  This document contains the guidelines that a programmer should adhere to
+  while contributing code to the X10 Runtime System.
+
+* api.txt
+
+  This document details the X10Lib Application Programmer's Interface
+  (API) for the X10 Programmers for using the runtime system.
+
+* test_harness.txt
+
+  This document gives guidlines for developers submitting code to
+  the X10Lib's test harness mechanism.
+
+* x10lib-design.pdf
+
+  Thid documents explains the internal architecture of the X10
+  runtime system.

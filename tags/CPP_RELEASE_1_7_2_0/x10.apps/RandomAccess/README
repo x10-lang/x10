@@ -1,0 +1,38 @@
+INSTALL:
+========
+
+1. Copy make.def.template to make.def
+2. Change the values in make.def to suit your environment
+3. Type "make".
+
+root directory:
+==============
+There are 3 versions of RandomAccess in this directory:
+
+RandomAccess_Dist.x10  - x10 version  (Author: Tong Wen)
+RandomAccess_spmd.cc/h - C++ + x10lib version (Author: Ganesh Bikshandi)
+gups.cc                - C++ only version (Author: Hanhong Xue)
+
+The other files in the root directory are:
+
+Makefile - Makes only RandomAccess_spmd.exe and gups.exe
+timer.h - Contains a timing utility
+run.sh - a script to run the RandomAccess_spmd.exe, its variants (see below) and gups.exe using POE.
+
+@versions sub-directory:
+=======================
+
+This contains various versions of the RandomAccess_spmd.cc. The version are numbered as v01, v02 etc in the 
+.cc source files (RandomAccess_spmd.v01.cc, .v02.cc & .v03.cc).  Each of these versions is obtained from the 
+ROOT version (../RandomAccess_spmd.cc) thru following sequence of changes:
+
+    o .v01 - Replaced finishStart/End with Gfence from ROOT version
+    o .v02 - Replaced struct args with plain args in .v01.
+    o .v03 - Replaced one async invocation (the one in the main update loop) by functor version in .v02.
+
+To build them goto @versions and then type MAKE.
+
+deprecated sub-directory:
+========================
+
+Contains the deprecated versions of RandomAccess_spmd.cc. Being preseved for experimental reference purposes.

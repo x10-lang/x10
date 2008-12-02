@@ -1,0 +1,81 @@
+cilk results on rand graphs:
+1000000 4000000 16 processor
+n_vertics=1000000, n_edges=4000000
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.357145 s
+2000000 8000000 16 processor
+n_vertics=2000000, n_edges=8000000
+ number of edges got is 8000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 2000000
+checking done,tail is 658
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.630836 s
+3000000 12000000 16 processor
+n_vertics=3000000, n_edges=12000000
+ number of edges got is 12000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 3000000
+checking done,tail is 1018
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.957080 s
+4000000 16000000 16 processor
+n_vertics=4000000, n_edges=16000000
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.247820 s
+5000000 20000000 16 processor
+n_vertics=5000000, n_edges=20000000
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.565760 s

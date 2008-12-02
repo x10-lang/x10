@@ -1,0 +1,13 @@
+06/30/08
+Replaced calls in AdaptiveDFS to w.popFrameAndReset() with calls to w.popFrame. 
+Added a call to cache.reset() in the loop in the scheduler which pops tasks and executes them.
+
+I believe these are correct changes. There should be no need for the victim to reset
+exception if all it is doing is pushing tasks onto the queue. A reset in the loop (as above)
+should do the job. 
+
+-- Get rid of closures if the job is globally quiescent. (done)
+-- SpanF is leaving garbage behind. Prolly closure needs to be cleaned out?
+
+06/16/07
+-- Removed references to lock.unlock() from Worker. Should only call this.unlock().

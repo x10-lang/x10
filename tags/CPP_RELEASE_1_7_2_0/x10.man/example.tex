@@ -1,0 +1,62 @@
+\extrapart{Example}
+
+This example illustrates Jacobi Iteration over a generic field.
+
+This program assumes that the user will supply the distribution. No
+assumptions are made about the distribution. For instance, the
+distribution may allocate each item of the array to a different place.
+
+Start with an array {\cf a[1..N,1..N]} of some arithmetic type.  Extend
+with {\cf 0} boundary elements on all sides of the square array.  At
+each step of the iteration, replace the value of a cell with the
+average of its adjacent cells in the {\cf (i,j)} dimensions.  Compute the
+error at each iteration as the max of the changes in value across the
+whole array.  Continue the iteration until the error falls below a
+pre-given bound.
+
+Assume that {\cf Field} defines {\cf 0}, {\cf 1}, {\cf +}, {\cf /} and
+a max operation.
+
+\begin{x10}
+public 
+    class Jacobi<T implements Field, 
+                 distribution D[1..N,1..N]> \{
+  final T epsilon;
+  final T four = 1'T + 1'T + 1'T + 1'T;
+  public Jacobi(T eps) \{
+    this.epsilon = eps;
+  \}
+  void T[D] jacobi(final T[D] a) \{
+    clock l = new clock();
+    clocked(l) final D[0..N+1,0..N+1] b 
+       = (D[0,1..N]0'T
+         || D[N+1,1..N]0'T
+         || D[1..N,0] 0'T 
+         || D[1..N,N+1] 0'T 
+         || D[1..N,1..N]a);
+
+     do \{
+       next l;
+       final \_ temp 
+         = new T[D[1..N,1..N]] (i,j) \{
+           now (l) \{
+                 return
+                   ! future \{b[i+1,j]\}
+                 + ! future \{b[i-1,j]\}
+                 + ! future \{b[i,j-1]\} 
+                 + ! future \{b[i,j+1]\} /four;
+          \}
+        \};
+       next l;
+       // Use a reduce operation over the given 
+       // distribution to compute error.
+       T err = (b-temp) >> max();
+
+      // Set up the value of the clocked final
+      // variable b for the next phase of the clock
+      next(l) b = temp;
+     \} while (err >= delta);
+     return a;
+   \}
+\}
+\end{x10}

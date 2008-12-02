@@ -1,0 +1,395 @@
+\def\TConstr{\mbox{\sc T-Constr}}
+\def\TInv{\mbox{\sc T-Inv}}
+\def\TVar{\mbox{\sc T-Var}}
+\def\TField{\mbox{\sc T-Field}}
+\def\TInvk{\mbox{\sc T-Invk}}
+\def\TNew{\mbox{\sc T-New}}
+\def\TCast{\mbox{\sc T-Cast}}
+\def\TUCast{\mbox{\sc T-UCast}}
+\def\TDCast{\mbox{\sc T-DCast}}
+\def\TSCast{\mbox{\sc T-SCast}}
+
+\def\RField{\mbox{\sc R-Field}}
+\def\RCField{\mbox{\sc RC-Field}}
+\def\RInvk{\mbox{\sc R-Invk}}
+\def\RCInvkRecv{\mbox{\sc RC-Invk-Recv}}
+\def\RCInvkArg{\mbox{\sc RC-Invk-Arg}}
+\def\RCNewArg{\mbox{\sc RC-New-Arg}}
+\def\RCast{\mbox{\sc R-Cast}}
+\def\RCCast{\mbox{\sc RC-Cast}}
+
+In this section we formalize a small fragment of \Xten{}---an extension
+of Featherweight Java (\FJ{})~\cite{FJ} with constrained
+types---to illustrate
+the basic concepts behind constrained type-checking.
+A proof of
+soundness is given in the appendix.
+
+The language is functional in that assignment is not
+admitted. However, it is not difficult to introduce the notion of
+mutable fields, and assignment to such fields. Since constrained types
+may only refer to immutable state, the validity of these types is not
+compromised by the introduction of state.
+%
+Further, we do not formalize overloading of methods. Rather, as
+with \FJ{}, we simply require that the input program be such that the class
+name {\tt C} and method name {\tt m} uniquely select the associated
+method on the class. 
+%
+We do model properties, constrained clauses, class invariants,
+methods and constructor preconditions, and dependent type casts.
+
+\subsection{Constraint system}
+
+Constraints are assumed to be drawn from a fixed constraint system,
+$\cal C$, with inference relation $\vdash_{\cal C}$ \cite{cccc}.
+All
+constraint systems are required to support the trivial constraint
+\true, conjunction, existential quantification and equality on
+constraint terms. Constraint terms include {\tt final} variables
+(including \this), the
+special variable \self\ (which may occur only in constraints {\tt
+c} and not in expressions {\tt e}), and field selections {\tt t.f}. 
+
+The syntax for the language is specified in Figure~\ref{CFJ-syntax}.
+In the syntax, ``,'' binds tighter than ``;''. We use the syntax {\tt
+{\tt T\;x};\;c} for the constraint obtained by existentially quantifying the
+variable {\tt x} of type {\tt T} in {\tt c}. {\tt p} ranges over
+the collection of predicates supplied by the underlying constraint
+system, and {\tt g} over the collection of functions.
+
+A {\em class declaration} $\tt\class \ C(\bar{T}\ \bar{f}:c)\ \extends\ D(:d)\
+\{\bar{M}\}$ is declares a class {\tt C} with the
+fields $\bar{\tt f}$ (of type $\bar{\tt T}$), a {\em declared class
+invariant} {\tt c}, a {\em superclass invariant} {\tt d} and a
+collection of methods $\bar{\tt M}$. The constraints {\tt c} and {\tt
+d} are true for all instances of the class {\tt C} (this is verified
+in the rule for type-checking constructors, \rn{T-New}).  In these
+constraints, \this\ may be used to reference the current object;
+\self{} does not have any meaning and must not be used.
+
+A {\em method declaration} ${\tt T}_0\ {\tt m(\bar{\tt T}\ \bar{\tt x} :
+c)\{\ldots\}}$ specifies the type of the arguments and the result, as
+usual.  The method arguments $\bar{\tt x}$ may occur in the argument
+types $\bar{\tt T}$ and the return type ${\tt T}_0$.  The constraint
+{\tt c} specifies additional constraints on the arguments $\bar{\tt
+x}$ and
+\this{} that must hold for a method invocation to be legal. Note that
+\self{} does not make sense in {\tt c} (no type is being
+defined), and must not occur in {\tt c}.
+
+A type is taken to be of the form {\tt C(:c)} where {\tt C} is the
+name of a class or interface and {\tt c} is a constraint; we say that
+{\tt C} is the {\em base} of the type {\tt C(:c)}.
+We use the following shorthand for types: For a
+type {\tt T} equal to {\tt C(:c)}, we will write {\tt S\ x; T} for
+{\tt C(:S\ x; c)}, and {\tt d,T} for {\tt C(:d,c)}.
+
+We denote the application of the
+substitution $\theta=[\bar{{\tt t}}/\bar{{\tt x}}]$ to a
+constraint ${\tt c}$ by ${\tt c}[\bar{{\tt t}}/\bar{{\tt x}}]$. 
+Application of substitutions is extended to
+types by: ${\tt C(:c)\theta}={\tt C(:c\theta)}$.
+
+We summarize here properties of constraint systems described in
+\cite{CCCC} that are needed for the proofs: constraint systems may be
+thought of as presented via an intuitionistic Gentzen proof system
+supporting identity; affine and exchange on the left; existential
+quantification and conjunction on the left and right; and closure
+under substitution of terms.
+%
+All constraint systems are required to satisfy: $\new\ {\tt
+C(\bar{\tt t})}.{\tt f}_i={\tt t}_i $ provided that
+$\fields({\tt C})=\bar{\tt T}\ \bar{\tt f}$ (for some sequence
+of types $\bar{\tt T}$).
+
+\begin{figure}[t]
+
+\begin{center}
+\footnotesize
+
+\begin{tabular}{r@{\quad}rcl}
+(C Term) & {\tt t} &{::=}& {\tt x}\alt \self 
+ \alt {\tt t.f} \alt \new\ {\tt C}($\bar{\tt t}) \alt{\tt g}(\bar{\tt t})$ \\
+(Constraint) & {\tt c},{\tt d} &{::=}&$\true\alt {\tt p}(\bar{\tt t}) \alt {\tt t=t}\alt {\tt c,c}\alt{\tt  T\,x;~c}$\\
+(Class) & {\tt L} &{::=}& $\tt\class \ C(\bar{T}\ \bar{f}:c)\  \extends\ T\ \{\bar{M}\}$ \\
+(Method)& {\tt M} &{::=}& $\tt T\ m(\bar{T}\ \bar{x}:c)\{\return\ e;\}$\\
+(Expression)& {\tt e} &{::=}& $\tt x \alt e.f \alt e.m(\bar{e})\alt \new\ C(\bar{e})\alt (T)~e$ \\
+(Type)& {\tt S},{\tt T},{\tt U},{\tt Z}&{::=}& $\tt C(:d)$\\
+\end{tabular}
+\end{center}
+
+\caption{CFJ Syntax}
+\label{CFJ-syntax}
+\end{figure}
+
+\subsection{Static semantics}
+
+Typing judgments, shown in Figure~\ref{CFJ-typing}
+are of the form $\Gamma \vdash {\tt T}\ {\tt e}$
+where $\Gamma$ is a multiset of type assertions ${\tt T}\ {\tt x}$
+and constraints ${\tt c}$.\footnote{We use the non-standard
+notation ${\tt T\ x}$
+rather than the more familiar ${\tt x} : {\tt T}$ since {\tt :}
+is
+used in the syntax of a type.}
+When $\Gamma$ is empty, it is
+omitted. 
+
+A type assertion {\tt C(:c) x} constrains the variable {\tt x} to
+contain references to only those objects {\tt o} that are instances of
+(subclasses of) {\tt C} and for which the constraint {\tt c} is true
+provided that occurrences of \self\ in {\tt c} are replaced by
+{\tt o}. Thus in the constraint {\tt c} of a constrained type {\tt
+C(:c)}, \self\ may be used to reference the object whose type is
+being specified. Note that \self\ is distinct from
+\this---\this\ is permitted to occur in the clause of
+a type {\tt T} only
+if {\tt T} occurs in an instance field declaration or instance method
+declaration of a class; as usual, \this{} is considered bound to the
+instance of the class to which the field or method declaration
+applies.
+
+\renewcommand\andalso\quad
+
+\begin{figure*}
+\footnotesize
+
+\tabcolsep=0pt
+
+\begin{tabular}{p{0.25\textwidth}p{0.25\textwidth}p{0.47\textwidth}}
+
+\infrule[\TVar]
+{\sigma(\Gamma, {\tt C(:c)}\ {\tt x}) \vdash_{\cal C} {\tt d}[{\tt x}/\self]}
+{\Gamma, {\tt C(:c)\ x} \vdash {\tt C(:d)}\ {\tt x}}
+
+&
+
+\infrule[\TCast]
+{\Gamma \vdash {\tt U}\ {\tt e}}
+{\Gamma \vdash {\tt T}\ {\tt (T) e}}
+
+&
+
+\infrule[\TField]
+{\Gamma \vdash {\tt T}_0\ {\tt e} \andalso
+ \fields({\tt T}_0,{\tt z}_0)= \bar{\tt U}\ \bar{\tt f} \andalso
+ \mbox{(${\tt z}_0$ fresh)}} 
+{\Gamma \vdash ({\tt T}_0\ {\tt z}_0; {\tt z}_0.{\tt f}_i=\self;{\tt U}_i)\ {\tt e.f}_i} 
+
+\end{tabular}
+
+\vspace{-12pt}
+
+\begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
+
+\infrule[\TInvk]
+{\Gamma \vdash {\tt T}_{0:n} \ {\tt e}_{0:n}  \andalso
+ \mtype({\tt T}_0,{\tt m},{\tt z}_0)= \tt {\tt Z}_{1:n}\ {\tt z}_{1:n}:c \rightarrow {\tt U} \\
+\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt Z}_{1:n} \andalso
+\sigma(\Gamma, {\tt T}_{0:n}\ {\tt z}_{0:n}) \vdash_{\cal C} {\tt c} \andalso
+\mbox {(${\tt z}_{0:n}$ fresh)}
+}
+{\Gamma \vdash ({\tt T}_{0:n}\ {\tt z}_{0:n}; U)\ {\tt e}_0.{\tt m({\tt e}_{1:n})}}
+
+&
+
+\infrule[\TNew]%
+{ \Gamma \vdash \bar{\tt T}\ \bar{\tt e} \andalso
+  \theta=[\bar{\tt f}/\this.\bar{\tt f}] \andalso
+    \fields(C,\theta)=\bar{\tt Z}\ \bar{\tt f} \\
+  \Gamma, \bar{\tt T}\ \bar{\tt f} \vdash \bar{\tt T} \subtype \bar{\tt Z} \andalso
+    \sigma(\Gamma, \bar{\tt T}\ \bar{\tt f}) \vdash_{\cal C} \inv({\tt C},\theta) }
+{\Gamma \vdash {\tt C(:\bar{T}\ \bar{\tt f}{\tt ;\self.\bar{f}}=\bar{\tt f})\ \new\ {\tt C(\bar{\tt e})}}}
+
+\end{tabular}
+
+\vspace{-12pt}
+
+\begin{tabular}{p{0.50\textwidth}p{0.47\textwidth}}
+
+\infrule
+{ \bar{\tt T}\ \bar{\tt x}, {\tt C}\ \this, {\tt c} \vdash {\tt U}\ {\tt e}, {\tt U} \subtype {\tt T} }   
+{\tt T\ m(\bar{\tt T}\,\bar{\tt x} : c)\{\return\ e;\}\ \mbox{OK in}\ C}
+
+&
+
+\infrule{\bar{M}\ \mbox{OK in}\ C}
+{\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ \extends\ D(:d)\ \{\bar{M}\}\ \mbox{OK}} 
+
+\end{tabular}
+
+\vspace{-12pt}
+
+\begin{tabular}{p{0.1\textwidth}p{0.27\textwidth}p{0.27\textwidth}p{0.3\textwidth}}
+
+\infax{
+{\tt C} \subtype {\tt C}
+}
+
+&
+
+\infrule
+{\class\ {\tt C(\ldots)}\ \extends\ {\tt D(\ldots)}\{\ldots\}}
+{{\tt C} \subtype {\tt D}}
+
+&
+
+\infrule
+{{\tt C} \subtype {\tt D} \ \ \ {\tt D} \subtype {\tt E}}
+{{\tt C} \subtype {\tt E}}
+
+&
+
+\infrule{
+{\tt C} \subtype {\tt D} \andalso
+\sigma(\Gamma, {\tt C(:c)}\ {\tt x}) \vdash_{\cal C} {\tt
+d}[{\tt x}/\self] \andalso \mbox{({\tt x} fresh)}
+}
+{\Gamma \vdash {\tt C(:c) \subtype D(:d)}}
+
+\end{tabular}
+
+\vspace{-12pt}
+
+\begin{tabular}{p{0.43\textwidth}@{\quad}p{0.54\textwidth}}
+
+\typicallabel{RC-Field}
+
+\infrule[\RField]%
+{\fields(C)=\bar{C}\ \bar{f}}
+{(\new\ {\tt C}(\bar{\tt e})).{\tt f}_i \derives {\tt e}_i}
+
+\infrule[\RCast]%
+{\vdash C \subtype T[\new\ C(\bar{\tt d})/\self]}
+{{\tt (T)(\new\ C(\bar{\tt d}))} \derives \new\ C(\bar{\tt d})}
+
+\infrule[\RCField]%
+{{\tt e} \derives {{\tt e}}'}
+{{\tt e}.{\tt f}_i \derives {{\tt e}}'.{\tt f}_i}
+
+\infrule[\RCCast]%
+{{\tt e} \derives {{\tt e}}'}
+{{\tt (T) e} \derives {{\tt (T) e}}'}
+
+&
+
+\typicallabel{R-Invk-Recv}
+
+\infrule[\RInvk]
+{\mathit{mbody}({\tt m},{\tt C})=\bar{x}. {\tt e}_0}
+{(\new\ {\tt C}(\bar{\tt e})).{\tt m}(\bar{\tt d}) \derives 
+[\bar{d}/\bar{x},\new\ C(\bar{e})/\this]{\tt e}_0}
+
+\infrule[\RCInvkRecv]%
+{{\tt e}_0 \derives {{\tt e}_0}'}
+{{\tt e}_0.{\tt m}(\bar{\tt e}) \derives {{\tt e}_0}'.{\tt m}(\bar{\tt e})}
+
+\infrule[\RCInvkArg]%
+{{\tt e}_i \derives {{\tt e}_i}'}
+{{\tt e}_0.{\tt m}(\ldots,{\tt e}_i,\ldots) \derives {{\tt e}_0}.{\tt m}(\ldots,{\tt e}_i',\ldots)} 
+
+\infrule[\RCNewArg]%
+{{\tt e}_i \derives {{\tt e}_i}'}
+{\new\ {\tt C}(\ldots,{\tt e}_i,\ldots) \derives \new\ {\tt C}(\ldots,{\tt e}_i',\ldots)}
+
+\end{tabular}
+
+\caption{CFJ semantics}
+\label{CFJ-typing}
+\label{CFJ-red-rules}
+\end{figure*}
+
+
+The definition of {\mtype({\tt C},{\tt m})} (the signature of a method
+named {\tt m} in class {\tt C}), {\mbody({\tt C},{\tt m})}, (the body
+associated with method {\tt m} in type {\tt C}) and \fields(C) (the
+sequence of fields and their types inherited or defined at {\tt C}) is
+essentially as specified in \FJ{} ~\cite{FJ} with the difference that the
+method of a signature is taken to be of the form $\bar{\tt S}\ \bar{\tt
+x}: {\tt c} \rightarrow {\tt T}$.  The variables {\tt x} are permitted
+to occur in the types $\bar{\tt S},{\tt T}$, and are considered bound,
+and subject to alpha-renaming.  The definitions of \mtype, \mbody,
+\fields{} are extended to apply to constrained types by ignoring the
+constraint.  For a substitution $\theta$ we define $\mtype({\tt
+T},{\tt m},\theta)$ as the signature obtained by applying $\theta$ to
+$\mtype({\tt T},{\tt m})$, renaming bound variables as necessary.
+Similarly, for a substitution $\theta$ we define $\fields({\tt
+T},\theta)$ to be $\bar{S}\theta\ \bar{f}$, if the sequence of
+inherited and defined fields of the class underlying the type {\tt T}
+is $\bar{S}\ \bar{f}$. We let $\fields({\tt T},{\tt x})$ stand for
+$\fields({\tt T},[{\tt x}/\self]))$.
+
+We define $\sigma(\Gamma)$ to be the set of
+constraints obtained from $\Gamma$ by replacing each type assertion
+${\tt C(:d)\ x}$ in $\Gamma$ with ${\tt d}[{\tt x}/\self],\inv(C,x)$
+and retaining any constraint in $\Gamma$.
+
+\TVar{} extends the identity rule ($\Gamma, x:C \vdash x:C$) of
+\FJ{} to take into account the constraint entailment relation.
+
+\TCast{} encapsulates the three inference rules of \FJ{}:
+\TUCast{}, \TDCast{} and \TSCast{} for upwards cast, downwards cast, and ``stupid'' cast respectively. 
+
+%\TInv{} is a form of contraction that permits the class invariant {\tt c}
+%of a class {\tt C} to enrich the type of any variable of type {\tt C}.
+
+In \TField, we postulate the existence of a receiver object
+${\tt z}_{\tt 0}$ of
+the given static type (${\tt T}_0$). $\fields({\tt T}_0,{\tt o})$ is
+the set of typed fields for ${\tt T}_0$ with all occurrences of 
+\this{} replaced  by {\tt o}. We record in the resulting
+constraint that ${\tt o.f}_i=\self$.\footnote{A new name {\tt o} is
+necessary to name this object since {\tt e} cannot be used. Arbitrary
+term expressions {\tt e} are not permitted in constraints; the
+functions used in {\tt e} may not be known to the constraint system,
+and {\tt e} may have side-effects.}  This permits transfer of
+information that may have been recorded in ${\tt T}_0$ about the field
+${\tt f}_i$. 
+
+Similarly, in \TInvk{} we postulate the existence of a receiver object
+{\tt o} of the given static type. For any type $T$, object {\tt o} of
+type $T$ and method name {\tt m}, let $\mtype({\tt T},{\tt m},{\tt
+o})$ be a copy of the signature of the method with \this{} replaced by
+{\tt o}. We establish (under the assumption that the formals
+($\bar{\tt z}$) have the static type of the actuals)\footnote{This is
+stronger than assuming $\bar{\tt Z}$.}  that actual types are subtypes
+of the formal types, and the method constraint is satisfied. This
+permits us to record the constraint {\tt d} on the return type, with
+the formal variables $\bar{\tt z}$ existentially
+quantified.\footnote{Recall that the $\bar{\tt z}$ may occur in {\tt
+d} but must not occur in a type in the calling environment; hence they
+must be existentially quantified in the resulting constraint.}
+
+In \TNew, similarly, we establish that the static types of the actual
+arguments to the constructor are subtypes of the declared types of the
+field, and contain enough information to satisfy the class invariant,
+{\tt c}. The declared types (and {\tt c}) contain references to ${\tt
+this.\bar{\tt f}}$; these must be replaced by the formals $\bar{\tt
+f}$, which carry information about the static type of the
+actuals. Note that the object {\tt o} we hypothesized in an analogous
+situation in \TInvk{} does not exist; it will exist on successful
+invocation of the constructor. The constrained clause of the \new{}
+expression contains all the information that can be gleaned from the
+static types of the actuals by assigning them to the corresponding
+fields of the object being created.
+
+Let {\tt C} be a class declared as
+$${\tt \class\ C(\bar{\tt T}\ \bar{\tt f}:c)\ extends\
+D(:d)\{\bar{\tt M}\}}.$$
+Let
+$\theta$ be a substitution and the type {\tt T} be based on {\tt C}.
+We define $\inv(T,\theta)$
+as the conjunction ${\tt c\theta,d\theta}$ and (recursively)
+$\inv({\tt D},\theta)$.  We bottom out with $\inv({\tt
+Object},\theta)=\true$. For a variable {\tt x}, we use the shorthand
+$\inv({\tt C},{\tt x})$ to mean $\inv({\tt C},[{\tt x}/\self])$.
+
+We add a single subtyping rule to the rules of \FJ{} to require
+that the subtype constraint entail the supertype constraint.
+Whenever we state an assumption of the form ``{\tt x} is
+fresh'' in a rule we mean it is not free in the consequent of the
+rule.
+
+The operational semantics are essentially those of \FJ{}.
+

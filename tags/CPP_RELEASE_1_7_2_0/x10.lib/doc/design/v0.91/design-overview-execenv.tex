@@ -1,0 +1,30 @@
+\subsection{Execution Environment}
+There are two modes of using the \Xtenlib{}. In the first mode, the
+compiler compiles the \Xten{} source program and links it with the
+\Xtenlib{}.  The programmer issues a command to execute the resulting
+executable using a script.  The script is responsible for sending the
+executable across the network to each of the SMP nodes. The script
+also reads a configuration file.  The contents of the file will
+specify how many processes need to be created for this computation,
+the hosts on which these processes need to be run, the number of
+places to be created in each process, and the number of threads to be
+created for each place.  The root activity will be run by a master
+thread.  The other threads in each process will suspend waiting for
+incoming asyncs. By a thread, we refer to the application level
+threads, which may or may not be the same as a {\tt pthread}.
+
+\Xtenlib{} is available for direct use by programmer too, following MPI style operation.
+The programmer is responsible for writing an SPMD-like code that uses
+the \Xtenlib{} intrinsics. {\tt X10::Initialize()} initializes the
+runtime system in each MPI process, and {\tt X10::finalize()} performs
+any necessary clean-up. All invocations of X10 API must be after
+initialization and before clean-up.  The X10 runtime object at the
+current place is implemented as a singleton, and is accessible by the
+{\tt TheX10()} method.  A place is identified by an integer. The
+number of places is fixed and does not change during the
+execution. Methods {\tt TheX10::here()} and {\tt TheX10::maxPlaces()}
+return the current place id and the number of places.
+
+
+
+

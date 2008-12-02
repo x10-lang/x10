@@ -1,0 +1,848 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 02/24/2008 - 08:28:50
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.204558 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.134966 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.107507 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 1000000 --pthread-stacksize 42666666 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.080167 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.102285 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.016902 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.612358 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.371326 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 4000000 --pthread-stacksize 42666666 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.379267 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.388693 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 16000000 --pthread-stacksize 256000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 5.035312 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 16000000 --pthread-stacksize 128000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.937714 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 16000000 --pthread-stacksize 64000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.855962 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 16000000 --pthread-stacksize 42666666 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.728796 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 16000000 --pthread-stacksize 32000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.080287 s
+#
+# Run: 2
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.215630 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.133061 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.121633 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 1000000 --pthread-stacksize 42666666 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.102316 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.081596 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.018608 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.610852 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.409680 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 4000000 --pthread-stacksize 42666666 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.409766 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.353072 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 16000000 --pthread-stacksize 256000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 5.764347 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 16000000 --pthread-stacksize 128000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.143907 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 16000000 --pthread-stacksize 64000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.705506 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 16000000 --pthread-stacksize 42666666 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.281754 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 16000000 --pthread-stacksize 32000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.075074 s
+#
+# Run: 3
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 1000000 --pthread-stacksize 256000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.201784 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 1000000 --pthread-stacksize 128000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.126982 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 1000000 --pthread-stacksize 64000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.086426 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 1000000 --pthread-stacksize 42666666 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.088882 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 1000000 --pthread-stacksize 32000000 0 250000 1000000
+opt = 0 
+ number of edges got is 1000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 250000
+checking done,tail is 82
+done generating graph structure
+graph gen done, n_vertices = 250000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099153 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 4000000 --pthread-stacksize 256000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.102503 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 4000000 --pthread-stacksize 128000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.656589 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 4000000 --pthread-stacksize 64000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.428421 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 4000000 --pthread-stacksize 42666666 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.396810 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 4000000 --pthread-stacksize 32000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.337266 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../ST.amd64 --nproc 1 --stack 16000000 --pthread-stacksize 256000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 4.975588 s
+
+### nproc: 2
+../../../../ST.amd64 --nproc 2 --stack 16000000 --pthread-stacksize 128000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.942833 s
+
+### nproc: 4
+../../../../ST.amd64 --nproc 4 --stack 16000000 --pthread-stacksize 64000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.880459 s
+
+### nproc: 6
+../../../../ST.amd64 --nproc 6 --stack 16000000 --pthread-stacksize 42666666 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.718313 s
+
+### nproc: 8
+../../../../ST.amd64 --nproc 8 --stack 16000000 --pthread-stacksize 32000000 0 4000000 16000000
+opt = 0 
+ number of edges got is 16000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 4000000
+checking done,tail is 1388
+done generating graph structure
+graph gen done, n_vertices = 4000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.078813 s
+
+############################################################
+# End Time: 02/24/2008 - 08:48:42
+############################################################

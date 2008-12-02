@@ -1,0 +1,4 @@
+// SYNOPSIS: #0=generated_index_var #1=region_var #2=index #3=limit_var
+
+for (int #0 = #1.rank(#2).low(), #3 = #1.rank(#2).high(); #0 <= #3; #0++)
+

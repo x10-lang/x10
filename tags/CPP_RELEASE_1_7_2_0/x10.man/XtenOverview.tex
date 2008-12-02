@@ -1,0 +1,239 @@
+\chapter{Overview of \Xten}
+\section{Semantics}
+\Xten{} may be thought of as (generic) \java{} less concurrency, arrays and built-in types,  plus {\em places}, {\em activities}, {\em clocks}, (distributed,
+multi-dimensional) {\em arrays} and {\em value} types. All these changes are
+motivated by the desire to use the new language for high-end,
+high-performance, high-productivity computing.
+
+\subsection{Places and activities}
+The central new concept in \Xten{} is that of a {\em place}
+(\S~\ref{XtenPlaces}).  A place may be thought of conceptually as a
+``virtual shared-memory multi-processor'': a computational unit with a
+finite, though perhaps dynamically varying, number of hardware threads
+and a bounded amount of shared memory uniformly accessible by all
+threads.  An \Xten{} program is intended to run on a computer capable
+of supporting millions of places.
+
+An \Xten{} computation acts on {\em data
+objects}(\S~\ref{XtenObjects}) through the execution of lightweight
+threads called {\em activities}(\S~\ref{XtenActivities}).  Objects are
+of two kinds. A {\em scalar} object has a small, statically fixed set
+of fields, each of which has a distinct name. A scalar object is
+located at a single place and stays at that place throughout its
+lifetime.  An {\em aggregate} object has many fields (the number may
+be known only when the object is created), uniformly accessed through
+an index (e.g.{} an integer) and may be distributed across many
+places. The distribution of an aggregate object remains unchanged
+throughout the computation. \Xten{} assumes an underlying garbage
+collector will dispose of (scalar and aggregate) objects and reclaim
+the memory associated with them once it can be determined that these
+objects are no longer accessible from the current state of the
+computation. (There are no operations in the language to allow a
+programmer to explicitly release memory.)
+
+{}\Xten{} has a {\em unified} or {\em global address space}. This
+means that an activity can reference objects at other places.
+However, an activity may synchronously access data items only in the
+current place (the place in which the activity is running). It may
+atomically update one or more data items, but only in the current
+place.  Indeed, all accesses to mutable shared data must occur from
+within an {\em atomic section}. To read a remote location, an activity
+must spawn another activitiy {\em asynchronously}
+(\S~\ref{AsynchronousActivity}). This operation returns immediately,
+leaving the spawning activity with a {\em future}
+(\S~\ref{XtenFutures}) for the result. Similarly, remote location can
+be written into only by asynchronously spawning an activity to run at
+that location.
+
+Throughout its lifetime an activity executes at the same place. An
+activity may dynamically spawn activities in the current or remote
+places.
+
+\paragraph{Atomic sections}
+
+\Xten{} introduces statements of the form {\cf atomic S} where {\cf S}
+is a statement.  The type system ensures that such a statement will
+dynamically access only local data. (The statement may throw
+a {\cf BadPlaceException} -- but only because of a failed place cast.)
+Such a statement is executed by the activity as if in a single step
+during which all other activities are frozen.
+
+\paragraph{Asynch activities}
+
+An asynch activity is a statement of the form {\cf async (P) S} where
+{\cf P} is a place expression and {\cf S} is a statement.  Such a
+statement is executed by spawning an activity at the place designated
+by {\cf P} to execute statement {\cf S}.
+
+An async expression of type {\cf future T}} has the form {\cf future
+(P) E} where {\tt E} is an expression of type {\tt T}. It executess
+the expression {\tt E} at the place {\tt P} as an async activity,
+immediately returning with a future. The future may later be forced
+causing the activity to be blocked until the return value has been
+computed by the async activity.
+
+\subsection{Clocks}
+The MPI style of coordinating the activity of multiple processes with
+a single barrier is not suitable for the dynamic, asynchronous network
+of activities in an \Xten{} computation. Instead, it becomes necessary
+to allow a computation to use multiple barriers. \Xten{} {\em clocks}
+(\S~\ref{XtenClocks}) are designed to offer the functionality of
+multiple barriers in a dynamic context while still supporting
+determinate, deadlock-free parallel computation.
+
+Activities may use clocks to repeatedly detect quiescence of arbitrary
+programmer-specified, data-dependent set of activities. Each activity
+is spawned with a known set of clocks and may dynamically create new
+clocks. At any given time an activity is {\em registered} with zero or
+more clocks. It may register newly created activities with a clock,
+un-register itself with a clock, suspend on a clock or require that a
+statement (possibly involving execution of new async activities) be
+executed to completion before the clock can advance.  At any given
+step of the execution a clock is in a given phase. It advances to the
+next phase only when all its registered activities have {\em quiesced}
+(by executing a {\tt continue} operation on the clock), and all
+statements scheduled for execution in this phase have terminated.
+When a clock advances, all its activities may now resume execution.
+
+Thus clocks act as {\em barriers} for a dynamically varying collection
+of activities. They generalize the barriers found in MPI style program
+in that an activity may use multiple clocks simultaneously. Yet
+programs using clocks are guaranteed not to suffer from
+deadlock. Clocks are also integrated into the \Xten{} type system,
+permitting variables to be declared so that they are {\tt final} in each
+phase of a clock.
+
+\subsection{Interfaces and Classes}
+Programmers write \Xten{} code by writing {\em generic interfaces}
+(\S~\ref{XtenInterfaces}) and {\em generic classes}
+(\S~\ref{XtenClasses}). Generic interfaces and classes may be
+defined over a collection of {\em type parameters}. Instances can be
+created only from {\em concrete} classes; such a class has all its
+type parameters (if any) instantiated with concrete classes and
+concrete interfaces.
+
+\subsection{Scalar classes}
+An \Xten{} scalar class (\S~\ref{XtenClasses}) has fields, methods and
+inner types (interfaces, classes), subclasses another class, and
+implements one or more interfaces. Thus \Xten{} classes live in a
+single-inheritance code hierarchy.  \Xten{} allows the programmer to
+define literals for classes, and overload infix/prefix/postfix
+operators.
+
+There are two kinds of scalar classes: {\em reference} classes
+(\S~\ref{ReferenceClasses}) and {\em value} classes
+(\S~\ref{ValueClasses}).
+
+A reference class typically has updatable fields. Objects of such a
+class may not be freely copied from place to place. Methods may be
+invoked on such an object only by an activity in the same place.
+
+A value class (\S~\ref{ValueClasses}) has no updatable fields (defined
+directly or through inheritance), and allows no reference
+subclasses. (Fields may be typed at reference classes, so may contain
+references to objects with mutable state.) Objects of such a class may
+be freely copied from place to place, and may be implemented very
+efficiently. Methods may be invoked on such an object from any place.
+
+\Xten{} has no primitive classes. However, the standard library {\cf x10.lang} supplies (final) value classes {\cf boolean}, {\cf byte}, {\cf short}, {\cf char}, {\cf int}, {\cf long}, {\cf float}, {\cf complex} and {\cf string}. The user may defined additional arithmetic value classes using the facilities of the language.
+
+\subsection{Arrays, Regions and Distributions}
+An \Xten{} array is a function from a {\em distribution}
+(\S~\ref{XtenDistributions}) to a base type (which may itself be an
+array type).
+
+A distribution is a map from a {\em region} (\S~\ref{XtenRegions}) to a
+subset of places.  A region is a collection of indices.
+
+Operations are provided to construct regions from other regions, and
+to iterate over regions. Standard set operations, such as union,
+disjunction and set difference are available for regions.
+
+A primitive set of distributions is provided, together with operations
+on distributions. A {\em sub-distribution} of a distribution is one
+which is defined on a smaller region and agrees with the distribution
+at all points.  The standard operations on regions are extended to
+distributions.
+
+In future versions of the language, a programmer may specify new
+distributions, and new operations on distributions.
+
+A new array can be created by restricting an existing array to a
+sub-distribution, by combining multiple arrays, and by performing
+pointwise operations on arrays with the same distribution.
+
+\Xten{} allows array constructors to iterate over the underlying
+distribution and specify a value at each item in the underlying
+region. Such a constructor may spawn activities at multiple places.
+
+
+\subsection{Nullable type constructor}
+
+\Xten{} has a {\cf nullable} type constructor which can be applied uniformly to
+scalar (value or reference) and array types. This type constructor
+returns a new type which adds a special value {\cf null} to the set of
+values of its argument type, unless the argument type already has this
+value.
+
+\subsection{Statements and expressions}
+\Xten{} supports the standard set of primitive operations (assignment, classcasts) and sequential control constructs (conditionals, looping, method
+invocation, exception raising/catching) etc.
+
+\paragraph{Place casts}
+The programmer may use the standard classcast mechanism
+(\S~\ref{ClassCast}) to cast a value to a located type. A {\cf
+BadPlaceException} is thrown if the value is not of the given
+type. This is the only language construct that throws a {\cf
+BadPlaceException}.
+
+\subsection{Translating MPI programs to \Xten{}}
+
+While \Xten{} permits considerably greater flexibility in writing
+distributed programs and data structures than MPI, it is instructive
+to examine how to translate MPI programs to \Xten.
+
+Each separate MPI process can be translated into an \Xten{}
+place. Async activities may be used to read and write variables
+located at different processes. A single clock may be used for barrier
+synchronization between multiple MPI processes. \Xten{} collective
+operations may be used to implement MPI collective operations.
+\Xten{} is more general than MPI in (a)~not requiring synchronization
+between two processes in order to enable one to read and write the
+other's values, (b)~permitting the use of high-level atomic sections
+within a process to obtain mutual exclusion between multiple
+activities running in the same node (c)~permitting the use of multiple
+clocks to combine the expression of different physics (e.g.{}
+computations modeling blood coagulation together with computations
+involving the flow of blood), (d)~not requiring an SPMD style of
+computation.
+
+%\note{Relaxed exception model}
+\subsection{Summary and future work}
+
+{}\Xten{} is considerably higher-level than thread-based languages in
+that it supports dynamically spawning very lightweight activities, the
+use of atomic operations for mutual exclusion, and the use of clocks
+for repeated quiescence detection of a data-dependent set of
+activities. Yet it is much more concrete than languages like HPF in
+that it forces the programmer to explicitly deal with distribution of
+data objects. In this the language reflects the designers belief that
+issues of locality and distribution cannot be hidden from the
+programmer of high-performance code in high-end computing.  A
+performance model that distinguishes between computation and
+communication must be made explicit and transparent.\footnote{In this
+\Xten{} is similar to more modern languages such as ZPL \cite{zpl}.} At
+the same time we believe that the place-based type system and support
+for generic programming will allow the \Xten{} programmer to be highly
+productive; many of the tedious details of distribution-specific code
+can be handled in a generic fashion.
+
+We expect the next version of the language to be significantly
+informed by experience in implementing and using the language. We
+expect it to have constructs to support continuous program
+optimization, and allow the programmer to provide guidance on
+clustering places to (hardware) nodes. For instance, we may introduce
+a notion of hierarchical clustering of places.
+
+
+
+

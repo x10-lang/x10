@@ -1,0 +1,29 @@
+Sat Aug 18 14:45:06 2007
+
+From Doug: 05/03/2007
+
+Try /home/dl/cilk/ (a new install of 5.4.3)
+You need to
+  setenv LD_LIBRARY_PATH /home/dl/cilk/lib
+to run stuff (like in cilk/5.4.3/examples)
+
+I can't get clean runs with all 32 procs right now because of
+all the AI students running their projects, but with 8
+I get they within a few percent (discounting warmup with Java)
+
+moxie % ptime ./fib --nproc 8 40
+Result: 102334155
+
+real       10.205
+user     1:20.113
+sys         0.061
+moxie %
+moxie % java Fib 8 40
+Fib: Size: 40 Answer: 102334155 Time: 11.265
+Fib: Size: 40 Answer: 102334155 Time: 10.627
+Fib: Size: 40 Answer: 102334155 Time: 10.59
+Fib: Size: 40 Answer: 102334155 Time: 10.602
+Fib: Size: 40 Answer: 102334155 Time: 10.605
+Fib: Size: 40 Answer: 102334155 Time: 10.64
+Fib: Size: 40 Answer: 102334155 Time: 10.612
+

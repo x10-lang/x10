@@ -1,0 +1,910 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 01/17/2008 - 05:01:29
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 2 100000 3
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.058296 s
+Best time used on BFS is 0.046673 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:4
+number of iterations:7
+Time used on SV is 0.285241 s
+./span -t 1 -- 2 100000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.064759 s
+Best time used on BFS is 0.049127 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:4
+number of iterations:6
+Time used on SV is 0.342710 s
+
+### nproc: 2
+./span -t 2 -- 2 100000 3
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.029432 s
+Best time used on BFS is 0.024897 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:8
+Time used on SV is 0.167026 s
+./span -t 2 -- 2 100000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.032973 s
+Best time used on BFS is 0.026249 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.203213 s
+
+### nproc: 4
+./span -t 4 -- 2 100000 3
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.015730 s
+Best time used on BFS is 0.016756 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:6
+number of iterations:7
+Time used on SV is 0.080836 s
+./span -t 4 -- 2 100000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.018274 s
+Best time used on BFS is 0.017251 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:4
+number of iterations:6
+Time used on SV is 0.095265 s
+
+### nproc: 8
+./span -t 8 -- 2 100000 3
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.010117 s
+Best time used on BFS is 0.016617 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:6
+number of iterations:7
+Time used on SV is 0.048325 s
+./span -t 8 -- 2 100000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.011460 s
+Best time used on BFS is 0.014875 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.055680 s
+
+### nproc: 16
+./span -t 16 -- 2 100000 3
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.012426 s
+Best time used on BFS is 0.025251 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.036436 s
+./span -t 16 -- 2 100000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.017338 s
+Best time used on BFS is 0.020616 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:4
+number of iterations:8
+Time used on SV is 0.049430 s
+
+### nproc: 32
+./span -t 32 -- 2 100000 3
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.099728 s
+Best time used on BFS is 0.046360 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:9
+Time used on SV is 0.043691 s
+./span -t 32 -- 2 100000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.105447 s
+Best time used on BFS is 0.037376 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.041524 s
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 2 1000000 3
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.188097 s
+Best time used on BFS is 1.043239 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 4.597638 s
+./span -t 1 -- 2 1000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.376147 s
+Best time used on BFS is 1.145881 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:4
+number of iterations:6
+Time used on SV is 5.011766 s
+
+### nproc: 2
+./span -t 2 -- 2 1000000 3
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.595933 s
+Best time used on BFS is 0.521085 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 2.495386 s
+./span -t 2 -- 2 1000000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.689093 s
+Best time used on BFS is 0.577085 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:12
+Time used on SV is 4.923523 s
+
+### nproc: 4
+./span -t 4 -- 2 1000000 3
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.303994 s
+Best time used on BFS is 0.276629 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 1.392501 s
+./span -t 4 -- 2 1000000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.349198 s
+Best time used on BFS is 0.299143 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:4
+number of iterations:7
+Time used on SV is 1.642728 s
+
+### nproc: 8
+./span -t 8 -- 2 1000000 3
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.167722 s
+Best time used on BFS is 0.154388 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:6
+number of iterations:7
+Time used on SV is 0.684758 s
+./span -t 8 -- 2 1000000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.187768 s
+Best time used on BFS is 0.169796 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.936133 s
+
+### nproc: 16
+./span -t 16 -- 2 1000000 3
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.103739 s
+Best time used on BFS is 0.113567 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:9
+Time used on SV is 0.507049 s
+./span -t 16 -- 2 1000000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.124308 s
+Best time used on BFS is 0.112681 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.552423 s
+
+### nproc: 32
+./span -t 32 -- 2 1000000 3
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.120691 s
+Best time used on BFS is 0.122883 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 0.345842 s
+./span -t 32 -- 2 1000000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.148952 s
+Best time used on BFS is 0.121596 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 0.476899 s
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 2 10000000 3
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 18.196685 s
+Best time used on BFS is 16.918911 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 91.631451 s
+./span -t 1 -- 2 10000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 21.765384 s
+Best time used on BFS is 20.412608 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 106.644577 s
+
+### nproc: 2
+./span -t 2 -- 2 10000000 3
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 9.993007 s
+Best time used on BFS is 8.872157 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 50.077434 s
+./span -t 2 -- 2 10000000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 11.536693 s
+Best time used on BFS is 9.905277 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:6
+number of iterations:6
+Time used on SV is 56.479984 s
+
+### nproc: 4
+./span -t 4 -- 2 10000000 3
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 4.938599 s
+Best time used on BFS is 4.378588 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 28.044835 s
+./span -t 4 -- 2 10000000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 6.004271 s
+Best time used on BFS is 5.034349 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 34.375091 s
+
+### nproc: 8
+./span -t 8 -- 2 10000000 3
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 2.626540 s
+Best time used on BFS is 2.319098 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:6
+number of iterations:9
+Time used on SV is 17.359101 s
+./span -t 8 -- 2 10000000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 2.998925 s
+Best time used on BFS is 2.673964 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 19.270410 s
+
+### nproc: 16
+./span -t 16 -- 2 10000000 3
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.449478 s
+Best time used on BFS is 1.364765 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:6
+number of iterations:8
+Time used on SV is 8.933012 s
+./span -t 16 -- 2 10000000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.735988 s
+Best time used on BFS is 1.530049 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 9.573756 s
+
+### nproc: 32
+./span -t 32 -- 2 10000000 3
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.068505 s
+Best time used on BFS is 1.197680 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:7
+number of iterations:8
+Time used on SV is 5.933814 s
+./span -t 32 -- 2 10000000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.223623 s
+Best time used on BFS is 1.203618 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 7.446112 s
+#
+# Run: 2
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 2 100000 3
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.061071 s
+Best time used on BFS is 0.048833 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:4
+number of iterations:7
+Time used on SV is 0.289656 s
+./span -t 1 -- 2 100000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.065353 s
+Best time used on BFS is 0.050925 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:4
+number of iterations:6
+Time used on SV is 0.346624 s
+
+### nproc: 2
+./span -t 2 -- 2 100000 3
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.029615 s
+Best time used on BFS is 0.024626 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:8
+Time used on SV is 0.166975 s
+./span -t 2 -- 2 100000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.032866 s
+Best time used on BFS is 0.026423 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:4
+number of iterations:6
+Time used on SV is 0.176620 s
+
+### nproc: 4
+./span -t 4 -- 2 100000 3
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.015602 s
+Best time used on BFS is 0.017057 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:6
+number of iterations:7
+Time used on SV is 0.083361 s
+./span -t 4 -- 2 100000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.018067 s
+Best time used on BFS is 0.017134 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:4
+number of iterations:7
+Time used on SV is 0.109648 s
+
+### nproc: 8
+./span -t 8 -- 2 100000 3
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.010615 s
+Best time used on BFS is 0.017369 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.043339 s
+./span -t 8 -- 2 100000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.011990 s
+Best time used on BFS is 0.015498 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.055956 s
+
+### nproc: 16
+./span -t 16 -- 2 100000 3
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.012324 s
+Best time used on BFS is 0.025951 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.036274 s
+./span -t 16 -- 2 100000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.016753 s
+Best time used on BFS is 0.020701 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:5
+number of iterations:10
+Time used on SV is 0.059948 s
+
+### nproc: 32
+./span -t 32 -- 2 100000 3
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.099403 s
+Best time used on BFS is 0.046976 s
+init edge list done, n_edge = 324538, n_vertices=100000
+number of iterations:5
+number of iterations:8
+Time used on SV is 0.039083 s
+./span -t 32 -- 2 100000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.105306 s
+Best time used on BFS is 0.037463 s
+init edge list done, n_edge = 425820, n_vertices=100000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.041628 s
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 2 1000000 3
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.188947 s
+Best time used on BFS is 1.034191 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 4.591353 s
+./span -t 1 -- 2 1000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 1.378327 s
+Best time used on BFS is 1.142218 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:4
+number of iterations:6
+Time used on SV is 5.015306 s
+
+### nproc: 2
+./span -t 2 -- 2 1000000 3
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.597393 s
+Best time used on BFS is 0.522991 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 2.499867 s
+./span -t 2 -- 2 1000000 4
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.690281 s
+Best time used on BFS is 0.577883 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:10
+Time used on SV is 4.185623 s
+
+### nproc: 4
+./span -t 4 -- 2 1000000 3
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.301817 s
+Best time used on BFS is 0.275567 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 1.414151 s
+./span -t 4 -- 2 1000000 4
+THREADS: 4
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.347603 s
+Best time used on BFS is 0.291807 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:4
+number of iterations:7
+Time used on SV is 1.645319 s
+
+### nproc: 8
+./span -t 8 -- 2 1000000 3
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.172330 s
+Best time used on BFS is 0.166624 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:6
+number of iterations:8
+Time used on SV is 0.794284 s
+./span -t 8 -- 2 1000000 4
+THREADS: 8
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.187659 s
+Best time used on BFS is 0.167335 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:6
+number of iterations:8
+Time used on SV is 1.040512 s
+
+### nproc: 16
+./span -t 16 -- 2 1000000 3
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.105890 s
+Best time used on BFS is 0.112152 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:6
+number of iterations:8
+Time used on SV is 0.472189 s
+./span -t 16 -- 2 1000000 4
+THREADS: 16
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.119130 s
+Best time used on BFS is 0.112777 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 0.593978 s
+
+### nproc: 32
+./span -t 32 -- 2 1000000 3
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.118566 s
+Best time used on BFS is 0.126293 s
+init edge list done, n_edge = 3243586, n_vertices=1000000
+number of iterations:6
+number of iterations:9
+Time used on SV is 0.372250 s
+./span -t 32 -- 2 1000000 4
+THREADS: 32
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 0.149355 s
+Best time used on BFS is 0.115788 s
+init edge list done, n_edge = 4254792, n_vertices=1000000
+number of iterations:5
+number of iterations:7
+Time used on SV is 0.427368 s
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 2 10000000 3
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 18.221710 s
+Best time used on BFS is 17.773562 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 91.605583 s
+./span -t 1 -- 2 10000000 4
+THREADS: 1
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 21.810135 s
+Best time used on BFS is 20.458453 s
+init edge list done, n_edge = 42545860, n_vertices=10000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 106.711853 s
+
+### nproc: 2
+./span -t 2 -- 2 10000000 3
+THREADS: 2
+check if it is connected
+checking done
+making connected done
+generating graph done
+generating graph done
+Best time used on DFS is 9.990009 s
+Best time used on BFS is 8.888561 s
+init edge list done, n_edge = 32442598, n_vertices=10000000
+number of iterations:5
+number of iterations:8
+Time used on SV is 50.099011 s
+./span -t 2 -- 2 10000000 4
+THREADS: 2
