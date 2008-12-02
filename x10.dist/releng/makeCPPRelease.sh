@@ -19,7 +19,10 @@ revision="$1"
 
 tarfile="x10-$revision.tgz"
 
-top="`dirname "$0"`"
-top="`cd "$top" && pwd`"
-tar -C "$top" -cvzf "$tarfile" *-c++ bin/{runx10,setupX10,x10,x10c,x10c++} epl-v10.html include lib/{lib*,*.jar} samples/*.x10
+mydir="`dirname "$0"`"
+top="`cd "$mydir"/.. && pwd`"
+cdir="`pwd`"
+[ "$cdir" = "/" ] && cdir="$cdir."
+cd "$top"
+tar -cvzf "$cdir/$tarfile" *-c++ bin/{runx10,setupX10,x10,x10c,x10c++} epl-v10.html include lib/{lib*,*.jar} samples/*.x10
 
