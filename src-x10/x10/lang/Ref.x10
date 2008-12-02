@@ -39,6 +39,6 @@ public class Ref(
     public native def toString() : String;
 
     @Native("java", "#0.getClass().toString()")
-    @Native("c++", "x10aux::getRTT<x10::lang::Value>()->name()")
+    @Native("c++", "x10::lang::String::Lit((#0)->_type()->name())")
     public native def className() : String;
 }

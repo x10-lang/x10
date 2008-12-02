@@ -31,7 +31,7 @@ public final value String implements (nat) => Char {
     public native def toString(): String;
     
     @Native("java", "\"x10.lang.String\"")
-    @Native("c++", "(#0)->_type()->name()")
+    @Native("c++", "x10::lang::String::Lit((#0)->_type()->name())")
     public native def className():String;
     
     @Native("java", "#0.length()")

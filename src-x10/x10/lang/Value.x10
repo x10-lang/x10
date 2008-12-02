@@ -30,6 +30,6 @@ public value Value {
     public native def toString() : String;
     
     @Native("java", "#0.getClass().toString()")
-    @Native("c++", "(#0)->_type()->name()")
+    @Native("c++", "x10::lang::String::Lit((#0)->_type()->name())")
     public native def className() : String;
 }
