@@ -196,7 +196,7 @@ final public class PolyScanner implements Region.Scanner {
     }
 
     final public def min(axis: int): int {
-        var result: int = int.MIN_VALUE;
+        var result: int = Int.MIN_VALUE;
         for (var k: int = 0; k<min.r(axis).r.length; k++) {
             val a = min.r(axis).r(k).r(axis);
             var b: int = minSum.r(axis).r(k).r(axis);
@@ -207,7 +207,7 @@ final public class PolyScanner implements Region.Scanner {
     }
 
     final public def max(axis: int): int {
-        var result: int = int.MAX_VALUE;
+        var result: int = Int.MAX_VALUE;
         for (var k: int = 0; k<max.r(axis).r.length; k++) {
             val a = max.r(axis).r(k).r(axis);
             val b = maxSum.r(axis).r(k).r(axis);
