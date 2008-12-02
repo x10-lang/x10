@@ -9,6 +9,7 @@ import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAPlaceOfPointInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterNextInstruction;
@@ -153,20 +154,24 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     protected boolean visitAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveAsyncInvoke(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	CAstEntity bodyEntity = (CAstEntity) n.getChild(1).getChild(0).getValue();
+	CAstEntity bodyEntity = (CAstEntity) n.getChild(n.getChildCount()-1).getChild(0).getValue();
 	CAstNode placeExpr = n.getChild(0);
 	// Figure out whether this is a future or an async
 	int exceptValue = context.currentScope().allocateTempValue();
 	AsyncCallSiteReference acsr = new AsyncCallSiteReference(asyncEntityToMethodReference(bodyEntity), context.cfg().getCurrentInstruction());
-        int rcvrValue = translator.getValue(n.getChild(1));
-        int placeValue = translator.getValue(placeExpr);
-
+    int rcvrValue = translator.getValue(n.getChild(n.getChildCount()-1));
+    int placeValue = translator.getValue(placeExpr);
+    int clockValues[] = new int[ n.getChildCount() - 2];
+    for(int i = 0; i < clockValues.length; i++) {
+    	clockValues[i] = translator.getValue(n.getChild(i+1));
+    }
+    
 	if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-	    context.cfg().addInstruction(new AsyncInvokeInstruction(new int[] { rcvrValue }, exceptValue, acsr, placeValue));
+	    context.cfg().addInstruction(new AsyncInvokeInstruction(new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
 	else {
 	    int retValue = context.currentScope().allocateTempValue();
 
-	    context.cfg().addInstruction(new AsyncInvokeInstruction(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue));
+	    context.cfg().addInstruction(new AsyncInvokeInstruction(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
 	    translator.setValue(n, retValue);
 	}
     }
@@ -241,6 +246,15 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	WalkContext context = (WalkContext)c;
 	int retValue = context.currentScope().allocateTempValue();
 	context.cfg().addInstruction(new SSAHereInstruction(retValue));
+	translator.setValue(n, retValue);
+    }
+
+    protected boolean visitPlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
+    protected void leavePlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) {
+	WalkContext context = (WalkContext)c;
+	int retValue = context.currentScope().allocateTempValue();
+	int targetValue = translator.getValue(n.getChild(0));
+	context.cfg().addInstruction(new SSAPlaceOfPointInstruction(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
 

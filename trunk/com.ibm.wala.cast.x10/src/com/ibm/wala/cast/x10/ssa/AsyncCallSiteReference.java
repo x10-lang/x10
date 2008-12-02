@@ -31,4 +31,9 @@ public class AsyncCallSiteReference extends CallSiteReference {
     public String toString() {
       return "Async@" + getProgramCounter();
     }
+    
+    public CallSiteReference cloneReference(int pc) {
+      return new AsyncCallSiteReference(getDeclaredTarget(), pc);
+    }
+
 }

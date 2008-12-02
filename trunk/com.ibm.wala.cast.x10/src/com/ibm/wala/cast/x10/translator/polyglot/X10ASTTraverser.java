@@ -7,6 +7,8 @@ import polyglot.ast.Node;
 import polyglot.ext.x10.ast.ArrayConstructor;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
+import polyglot.ext.x10.ast.Atomic;
+import polyglot.ext.x10.ast.Await;
 import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.ForEach;
@@ -34,6 +36,10 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((Async) n, wc);
 	else if (n instanceof AtEach)
 	    return xtv.visit((AtEach) n, wc);
+	else if (n instanceof Atomic)
+	    return xtv.visit((Atomic) n, wc);
+	else if (n instanceof Await)
+	    return xtv.visit((Await) n, wc);
 	else if (n instanceof Closure)
 	    return xtv.visit((Closure) n, wc);
 	else if (n instanceof Finish)

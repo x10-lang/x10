@@ -11,6 +11,7 @@ import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAPlaceOfPointInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterNextInstruction;
@@ -107,10 +108,14 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 
 	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
 	    if (!instruction.typeIsPrimitive() && (instruction.getArrayRef() == vn || instruction.getStoreValue() == vn)) {
-		bingo= true;
+	    	bingo = true;
 	    }
 	}
-    }
+	    
+	public void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction) {
+		// not interesting for now	
+	}
+    }	
 
     @Override
     protected InterestingVisitor makeInterestingVisitor(CGNode node, int vn) {
@@ -182,6 +187,10 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 		return;
 	    }
 	    doVisitArrayStore(instruction.getArrayRef(), instruction.getStoreValue());
+	}
+
+	public void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction) {
+		// not interesting for now	
 	}
     }
 

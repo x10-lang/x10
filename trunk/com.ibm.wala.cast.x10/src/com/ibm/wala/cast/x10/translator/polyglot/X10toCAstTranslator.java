@@ -21,6 +21,7 @@ import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.FutureType;
+import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -33,6 +34,8 @@ import com.ibm.wala.cast.ir.translator.AstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
 import com.ibm.wala.cast.java.translator.polyglot.TranslatingVisitor;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.LoopContext;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator.WalkContext;
 import com.ibm.wala.cast.tree.CAstControlFlowMap;
 import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.cast.tree.CAstNode;
@@ -198,11 +201,20 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
     class X10TranslatingVisitorImpl extends JavaTranslatingVisitorImpl implements X10TranslatorVisitor {
 	public CAstNode visit(Async a, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(a, a.body(), context);
+	    List clocks = a.clocks();
 
-	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC_INVOKE,
-		    walkNodes(a.place(), context),
-		    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-		    makeNode(context, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+	    CAstNode args[] = new CAstNode[ clocks.size()+2 ];
+
+	    args[0] = walkNodes(a.place(), context);
+
+	    for(int i = 0; i < clocks.size(); i++) {
+	    	args[i+1] = walkNodes((Node)clocks.get(i), context);
+	    }
+
+	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+	    args[args.length-1] = makeNode(context, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
+
+	    CAstNode asyncNode= makeNode(context, a, X10CastNode.ASYNC_INVOKE, args);
 
 	    context.addScopedEntity(asyncNode, bodyEntity);
 	    return asyncNode;
@@ -218,11 +230,20 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	public CAstNode visit(ForEach f, WalkContext context) {
 	    CAstEntity bodyEntity= walkAsyncEntity(f, f.body(), context);
+	    List clocks = f.clocks();
+	    
+	    CAstNode args[] = new CAstNode[ clocks.size() + 2 ];
+	    
+	    args[0] = makeNode(context, f.domain(), X10CastNode.HERE);
+	    
+	    for(int i = 0; i < clocks.size(); i++) {
+	    	args[i+1] = walkNodes((Node)clocks.get(i), context);
+	    }
 
-	    final CAstNode bodyNode= makeNode(context, f, X10CastNode.ASYNC_INVOKE,
-					    makeNode(context, f.domain(), X10CastNode.HERE),
-					    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-					    makeNode(context, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+	    args[ args.length-1 ] = makeNode(context, f.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
+	    
+	    final CAstNode bodyNode= makeNode(context, f, X10CastNode.ASYNC_INVOKE, args);
 
 	    context.addScopedEntity(bodyNode, bodyEntity);
 	    return walkRegionIterator(f, bodyNode, context);
@@ -244,7 +265,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 		    fFactory.makeConstant(TypeReference.Int),
 		    fFactory.makeConstant(i)));
 	    bodyStmts[vars.length] = bodyNode;
-
+	    
 	    return makeNode(wc, bodyPos, CAstNode.LOCAL_SCOPE,
 		makeNode(wc, bodyPos, CAstNode.BLOCK_STMT,
 		    makeNode(wc, formal, CAstNode.DECL_STMT, fFactory.makeConstant(new CAstSymbolImpl("iter tmp", false)),
@@ -270,11 +291,20 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    else
 		dist= walkNodes(domain, wc);
 
-	    final CAstNode bodyNode=
-		makeNode(wc, a, X10CastNode.ASYNC_INVOKE,
-			makeNode(wc, a.domain(), X10CastNode.PLACE_OF_POINT, makeNode(wc, a.domain(), CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), wc)),
-			    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
-			makeNode(wc, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity)));
+	    List clocks = a.clocks();
+	    
+	    CAstNode args[] = new CAstNode[ clocks.size() + 2 ];
+	    
+	    args[0] = makeNode(wc, a.domain(), X10CastNode.PLACE_OF_POINT, makeNode(wc, a.domain(), CAstNode.VAR, fFactory.makeConstant("dist temp")), walkNodes(a.formal(), wc));
+
+	    for(int i = 0; i < clocks.size(); i++) {
+	    	args[i+1] = walkNodes((Node)clocks.get(i), wc);
+	    }
+
+	    // FUNCTION_EXPR will translate to a type wrapping the single method with the given body
+	    args[ args.length - 1] = makeNode(wc, a.body(), CAstNode.FUNCTION_EXPR, fFactory.makeConstant(bodyEntity));
+
+	    final CAstNode bodyNode= makeNode(wc, a, X10CastNode.ASYNC_INVOKE, args);
 
 	    wc.addScopedEntity(bodyNode, bodyEntity);
 	    return makeNode(wc, a, CAstNode.LOCAL_SCOPE,
@@ -398,13 +428,12 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(Clocked c, WalkContext context) {
-	    // TODO Auto-generated method stub
+		Assertions.UNREACHABLE();
 	    return null;
 	}
 
 	public CAstNode visit(Await a, WalkContext context) {
-	    // TODO Auto-generated method stub
-	    return null;
+	    return fFactory.makeNode(CAstNode.EMPTY);
 	}
 
 	public CAstNode visit(Atomic a, WalkContext context) {
@@ -463,6 +492,15 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    Type arrayType= ac.type();
 	    // TODO Filter arrayType so that e.g. x10.lang.IntReferenceArray becomes int[] so
 	    // that WALA doesn't complain that an array type doesn't seem to be an array type.
+	   /* if (arrayType instanceof X10ParsedClassType_c) {
+	    	X10ParsedClassType_c t = ((X10ParsedClassType_c)arrayType);
+	    	List<Type> ps = t.typeParameters();
+	    	if (ps.size() == 1) {
+	    		arrayType = ps.get(0).arrayOf();
+	    	}
+	    }
+	    // ugly hackish attempt to find array type.  unlikely to be right all the time
+	    */
 	    TypeReference arrayTypeRef= fIdentityMapper.getTypeRef(arrayType);
 	    Type baseType= ac.arrayBaseType().type();
 	    TypeReference baseTypeRef= fIdentityMapper.getTypeRef(baseType);
@@ -567,7 +605,18 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(ForLoop f, WalkContext context) {
-	    return walkRegionIterator(f, walkNodes(f.body(), context), context);
+		Node breakTarget = makeBreakTarget(f);
+		Node continueTarget = makeContinueTarget(f);
+		String loopLabel = (String) context.getLabelMap().get(f);
+		WalkContext lc = new LoopContext(context, loopLabel, breakTarget, continueTarget);
+
+	    return makeNode(context, f, CAstNode.BLOCK_STMT,
+	    		walkNodes(breakTarget, context),
+	    		walkRegionIterator(f, 
+	    				makeNode(context, f, CAstNode.BLOCK_STMT,
+	    						walkNodes(f.body(), lc),
+	    						walkNodes(continueTarget, lc)),
+	    				lc));
 	}
 
 	public CAstNode visit(Closure closure, WalkContext wc) {
