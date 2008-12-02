@@ -1,0 +1,191 @@
+.TH "async.cc" 3 "20 May 2008" "Version 1.0" "X10LIB" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+async.cc \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <assert.h>\fP
+.br
+\fC#include 'rts_messaging.h'\fP
+.br
+\fC#include 'queue.h'\fP
+.br
+\fC#include 'x10.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fB__x10_normal_async_descr_t\fP"
+.br
+.ti -1c
+.RI "struct \fB__x10_global_async_descr_t\fP"
+.br
+.ti -1c
+.RI "struct \fB__x10_async_descr_t\fP"
+.br
+.in -1c
+.SS "Enumerations"
+
+.in +1c
+.ti -1c
+.RI "enum \fB__x10_async_type_t\fP { \fBNORMAL_ASYNC\fP, \fBGLOBAL_ASYNC\fP, \fBCLOCKED_NORMAL_ASYNC\fP, \fBCLOCKED_GLOBAL_ASYNC\fP }"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "EXTERN void \fB__x10_callback_asyncswitch\fP (\fBx10_async_closure_t\fP *closure, \fBx10_finish_record_t\fP *frecord, \fBx10_clock_t\fP *clocks, int num_clocks)"
+.br
+.ti -1c
+.RI "void \fB__x10_finish_bookeeping_outgoing\fP (const \fBx10_finish_record_t\fP *finish_record, \fBx10_place_t\fP tgt)"
+.br
+.ti -1c
+.RI "void \fB__x10_finish_bookeeping_incoming\fP (\fBx10_finish_record_t\fP *finish_record)"
+.br
+.ti -1c
+.RI "void \fB__x10_async_dispatch\fP (\fB__x10_async_descr_t\fP *)"
+.br
+.ti -1c
+.RI "void \fB__x10_flush\fP ()"
+.br
+.ti -1c
+.RI "void \fB__x10_async_queue_add\fP (void *async_descr)"
+.br
+.RI "\fIAM handlers (internal). \fP"
+.ti -1c
+.RI "__xlupc_local_addr_t \fB__x10_normal_async_handler\fP (const __upcrt_AMHeader_t *header, __upcrt_AMComplHandler_t **comp_h, void **arg)"
+.br
+.ti -1c
+.RI "__xlupc_local_addr_t \fB__x10_global_async_handler\fP (const __upcrt_AMHeader_t *header, __upcrt_AMComplHandler_t **comp_h, void **arg)"
+.br
+.ti -1c
+.RI "void \fB__x10_async_init\fP ()"
+.br
+.ti -1c
+.RI "\fBx10_comm_handle_t\fP \fBx10_async_spawn\fP (const \fBx10_place_t\fP tgt, const \fBx10_async_closure_t\fP *closure, const size_t cl_size, const \fBx10_finish_record_t\fP *frecord, const \fBx10_clock_t\fP *clocks, const int num_clocks)"
+.br
+.RI "\fIasyncs spawn an async on given target (NON-BLOCKING). x10lib assumes SPMD programming model; code is replicated everywhere \fP"
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_async_spawn_wait\fP (\fBx10_comm_handle_t\fP req)"
+.br
+.RI "\fIwait for the async_spawn to complete locally (BLOCKING) \fP"
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_probe\fP ()"
+.br
+.RI "\fIcheck for any asyncs in the internal async queue and execute them. This method should be used on the receiver side to make progress (NON-BLOCKING) \fP"
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBx10_place_t\fP \fB__x10_here\fP"
+.br
+.ti -1c
+.RI "unsigned int \fB__x10_numplaces\fP"
+.br
+.ti -1c
+.RI "\fBx10_finish_record_t\fP \fB__x10_global_frecord\fP = {0, 0}"
+.br
+.ti -1c
+.RI "\fBx10_async_queue_t\fP \fB__x10_async_queue\fP"
+.br
+.in -1c
+.SH "Enumeration Type Documentation"
+.PP 
+.SS "enum \fB__x10_async_type_t\fP"
+.PP
+\fBEnumeration values: \fP
+.in +1c
+.TP
+\fB\fINORMAL_ASYNC \fP\fP
+.TP
+\fB\fIGLOBAL_ASYNC \fP\fP
+.TP
+\fB\fICLOCKED_NORMAL_ASYNC \fP\fP
+.TP
+\fB\fICLOCKED_GLOBAL_ASYNC \fP\fP
+
+.SH "Function Documentation"
+.PP 
+.SS "void __x10_async_dispatch (\fB__x10_async_descr_t\fP *)"
+.PP
+.SS "void __x10_async_init ()"
+.PP
+.SS "void __x10_async_queue_add (void * async_descr)\fC [static]\fP"
+.PP
+AM handlers (internal). 
+.PP
+.SS "EXTERN void __x10_callback_asyncswitch (\fBx10_async_closure_t\fP * closure, \fBx10_finish_record_t\fP * frecord, \fBx10_clock_t\fP * clocks, int num_clocks)"
+.PP
+.SS "void __x10_finish_bookeeping_incoming (\fBx10_finish_record_t\fP * finish_record)"
+.PP
+.SS "void __x10_finish_bookeeping_outgoing (const \fBx10_finish_record_t\fP * finish_record, \fBx10_place_t\fP tgt)"
+.PP
+.SS "void __x10_flush ()"
+.PP
+.SS "__xlupc_local_addr_t __x10_global_async_handler (const __upcrt_AMHeader_t * header, __upcrt_AMComplHandler_t ** comp_h, void ** arg)\fC [static]\fP"
+.PP
+.SS "__xlupc_local_addr_t __x10_normal_async_handler (const __upcrt_AMHeader_t * header, __upcrt_AMComplHandler_t ** comp_h, void ** arg)\fC [static]\fP"
+.PP
+.SS "\fBx10_comm_handle_t\fP x10_async_spawn (const \fBx10_place_t\fP tgt, const \fBx10_async_closure_t\fP * closure, const size_t cl_size, const \fBx10_finish_record_t\fP * frecord, const \fBx10_clock_t\fP * clocks, const int num_clocks)"
+.PP
+asyncs spawn an async on given target (NON-BLOCKING). x10lib assumes SPMD programming model; code is replicated everywhere 
+.PP
+\fBParameters:\fP
+.RS 4
+\fItgt\fP target place 
+.br
+\fIclosure\fP pointer to async closure (see \fBx10_types.h\fP) 
+.br
+\fIcl_size\fP size of the async closure 
+.br
+\fIfrecord\fP pointer to the finish record (see \fBx10_types.h\fP) 
+.br
+\fIclocks\fP clock set for the async (see \fBx10_types.h\fP) 
+.br
+\fInum_clocks\fP number of clocks in the clock set
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+handle to wait for 
+.RE
+.PP
+
+.SS "\fBx10_err_t\fP x10_async_spawn_wait (\fBx10_comm_handle_t\fP handle)"
+.PP
+wait for the async_spawn to complete locally (BLOCKING) 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIhandle\fP handle returned by x10_async_spawn (see \fBx10_types.h\fP)
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+returns an error or success 
+.RE
+.PP
+
+.SS "\fBx10_err_t\fP x10_probe ()"
+.PP
+check for any asyncs in the internal async queue and execute them. This method should be used on the receiver side to make progress (NON-BLOCKING) 
+.PP
+.SH "Variable Documentation"
+.PP 
+.SS "\fBx10_async_queue_t\fP \fB__x10_async_queue\fP"
+.PP
+.SS "\fBx10_finish_record_t\fP \fB__x10_global_frecord\fP = {0, 0}\fC [static]\fP"
+.PP
+.SS "\fBx10_place_t\fP \fB__x10_here\fP"
+.PP
+.SS "unsigned int \fB__x10_numplaces\fP"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for X10LIB from the source code.

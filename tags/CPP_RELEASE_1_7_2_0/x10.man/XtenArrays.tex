@@ -1,0 +1,156 @@
+\chapter{Arrays}\label{XtenArrays}\index{arrays}
+
+An array is a mapping from a distribution to a range data
+type. Multiple arrays may be declared with the same underlying
+distribution. 
+
+Each array has a field {\tt a.distribution} which may be used to
+obtain the underlying distribution.\index{arrays!distribution@\tt distribution}
+
+The distribution underlying an array {\tt a} may be obtained 
+
+\input{XtenRegions}
+\input{XtenDistributions}
+\section{Array initializer}\label{ArrayInitializer}\label{array!creation}
+An array initializer creating a new array with distribution {\cf D} may
+optionally take a parametrized block of the form {\cf (ind1,...,
+indk)\{S\}}. Here, {\cf k} may be zero; in this case the statement is written
+as just {\cf \{S\}}. For instance:
+\begin{x10}
+\_ data = new int value [1000] 
+    (i)\{ return i*i; \};
+\_ data2 = new int[1000->current]@threadlocal 
+    \{ return 1; \};
+\end{x10}
+
+{}\noindent The first declaration stores in {\tt data} an (immutable)
+array whose distribution is {\tt (1..1000)-> here}, which is created
+{\tt here}, and which is initialized with the value {\tt i*i} at index
+{\tt i}. 
+
+The second declaration stores in {\tt data2} a reference to a mutable
+array (allocated in the {\tt threadlocal} region of the current
+activity) with {\tt 1000} elements each of which is located in the
+same place as the array (hence is {\tt threadlocal}). Each array
+component is initialized to {\tt 1}.
+
+
+In general the expression
+\begin{x10}
+    \_ data =  new T[D]@P (ind1, ..., indk) \{ S \}
+\end{x10}
+
+\noindent should be thought of as creating a new array located at {\tt P} with a {\tt k}-dimensional distribution {\tt D} such that the elements of 
+the array are initialized as if by execution of the code:
+
+\begin{x10}
+   ateach(ind1, ..., indk : D) \{
+       A[ind1, ..., indk] = 
+     (new Object \{ T val(D ind1,...,indk) \{S\}\})
+     .val(ind1, ..., indk);
+   \}
+\end{x10}
+
+Notice that in the method declaration {\cf D} is used as a type. 
+
+Other examples:
+\begin{x10}
+\_ data = new int[1000](i)\{return i*i; \};
+float[D] d = new float[D] (i)\{return 10.0*i; \}; 
+float[D] d2 = new float[D] (i)\{return i*i; \};
+float[D] result = new float[D] 
+      (i) \{return d[i] + d2[i]; \};
+\end{x10}
+
+\section{Operations on arrays}
+In the following let {\tt a} be an array with distribution {\tt D} and
+base type {\tt T}. {\tt a} may be mutable or immutable, unless
+indicated otherwise.
+
+\subsection{Element operations}\index{array!access}
+The value of {\tt a} at a point {\tt p} in its region of definition is
+obtained by using the indexing operation {\tt a[p]}. This operation
+may be used on the left hand side of an assignment operation to update
+the value.
+
+\subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
+
+For a distribution {\tt D} and a constant or final variable {\tt v} of
+type {\tt T} the expression {\tt D v} denotes the mutable array with
+distribution {\tt D} and base type {\tt T} initialized with {\tt v}.
+
+\subsection{Restriction of an array}\index{array!restriction}
+
+Let {\tt D1} be a sub-distribution of {\tt D}. Then {\tt a[D1]}
+represents the sub-array of {\tt a} with the distribution {\tt D1}.
+
+Recall that a rich set of operators are available on distributions
+(\S~\ref{XtenDistributions}) to obtain sub-distributions
+(e.g. restricting to a sub-region, to a specific place etc).
+
+\subsection{Assembling an array}
+Let {\tt a1,a2} be arrays of the same base type {\tt T} defined over
+distributions {\tt D1} and {\tt D2} respectively. Assume that both
+arrays are value or reference arrays. 
+\paragraph{Assembling arrays over disjoint regions}\index{array!union!disjoint}
+
+If {\tt D1} and {\tt D2} are disjoint then the expression {\tt a1 ||
+a2} denotes the unique array of base type {\tt T} defined over the
+distribution {\tt D1 || D2} such that its value at point {\tt p} is
+{\tt a1[p]} if {\tt p} lies in {\tt D1} and {\tt a2[p]}
+otherwise. This array is a reference (value) array if {\tt a1} is.
+
+\paragraph{Overlaying an array on another}\index{array!union!asymmetric}
+The expression
+{\tt a1.over(a2)} (read: the array {\tt a1} {\em overlaid on} {\tt a2})
+represents an array whose underlying region is the union of that of
+{\tt a1} and {\tt a2} and whose distribution maps each point {\tt p}
+in this region to {\tt D1[p]} if that is defined and to {\tt D2[p]}
+otherwise. The value {\tt a1.over(a2)[p]} is {\tt a1[p]} if it is defined and {\tt a2[p]} otherwise.
+
+This array is a reference (value) array if {\tt a1} is.
+
+\todo{Define Flooding of arrays}
+
+\todo{Wrapping an array}
+
+\todo{Extending an array in a given direction.}
+
+\subsection{Global operations }
+\paragraph{Pointwise operations}\label{ArrayPointwise}\index{array!pointwise operations}
+Suppose that {\tt m} is an operation defined on type {\tt T} that
+takes an argument of type {\tt S} and returns a value of type {\tt
+R}. Such an operation can be lifted pointwise to operate on a {\tt T}
+array and an {\tt S} array defined over the same distribution {\tt D}
+to return an {\tt R} array defined over {\tt D}.
+
+The syntax for such pointwise application is {\tt a.m(b)} where {\tt a} and
+{\tt b} are {\tt D} arrays.
+
+\paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
+
+Let {\tt m} be a reduction operator (\S~\ref{ReductionOperator})
+defined on type {\tt T}. Let {\tt a} be a value or reference array
+over base type {\tt T}. Then the operation {\tt a>>m()} returns a
+value of type {\tt T} obtained by performing {\tt m} on all points in
+{\tt a} in some order.
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation guarantees that
+only one value of type {\tt T} is communicated from a place as part of
+this reduction process.
+
+\paragraph{Scans}\label{ArrayScans}\index{array!scans}
+
+Let {\tt m} be a reduction operator (\S~\ref{ReductionOperator})
+defined on type {\tt T}. Let {\tt a} be a value or reference array
+over base type {\tt T} and distribution {\tt D}. Then the operation
+{\tt a||m()} returns an array of base type {\tt T} and distribution
+{\tt D} whose {\tt i}th element (in canonical order) is obtained by
+performing the reduction {\tt m} on the first {\tt i} elements of {\tt
+a} (in canonical order).
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation will endeavour to
+minimize the communication between places to implement this operation.
+

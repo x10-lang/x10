@@ -1,0 +1,165 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import java.util.Random;
+import harness.x10Test;;
+
+/**
+ * Parallel version of Edmiston's algorithm for Sequence Alignment
+ * This code is an X10 port of the Edmiston_Parallel.c program written by
+ * Sirisha Muppavarapu (sirisham@cs.unm.edu), U. New Mexico.
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
+ * @author Kemal Ebcioglu (kemal@us.ibm.com)
+ *
+ * This version uses futures for data flow synchronization.
+ */
+public class Edmiston_Parallel6 extends x10Test {
+	public const gapPen: int = 2;
+	public const match: int = 0;
+	public const misMatch: int = -1;
+	public const EXPECTED_CHECKSUM: int = 549;
+	public const aminoAcids: Array[char] = { 'A', 'C', 'G', 'T' };
+
+	/**
+	 * Edmiston's algorithm
+	 */
+	public def run(): boolean = {
+
+		final val N: int = 10;
+		final val M: int = 10;
+		final val c1: Array[char] = new Array[char](Dist.makeConstant([0..N], here), (var point[i]: point): char => { return (i == 0) ? '-' : randomChar(i); });
+		final val c2: Array[char] = new Array[char](Dist.makeConstant([0..M], here), (var point[i]: point): char => { return (i == 0) ? '-' : randomChar(N+i); });
+		final val D: dist = distmakeBlock([0..N, 0..M]);
+		final val Dinner: dist{rank==D.rank} = D|[1..N, 1..M];
+		final val Dboundary: dist = D-Dinner;
+		//  The boundary of e is initialized to:
+		//  0     1*gapPen     2*gapPen     3*gapPen ...
+		//  1*gapPen ...
+		//  2*gapPen ...
+		//  3*gapPen ...
+		//  ...
+		// This is a workaround. Arrays of future<int>'s do not work
+
+		final val e: Array[boxedFutureInt] = new Array[boxedFutureInt](D, (var point [i,j]: point): boxedFutureInt => { return new boxedFutureInt(); });
+		for (val (i,j): point in Dboundary) finish async(e.dist(i, j))
+				e(i, j).val = future(here) { gapPen*(i+j) };
+
+		// There is a race condition in the sense that
+		// e[i,j].val must be assigned with the correct future, before
+		// e[i+1,j+1].val's future computation
+		// tries to do e[i,j].val.force() remotely.
+		// Hence the serial computation below.
+		// Once the "future linking" is done by the for loop below,
+		// the actual computation will occur in parallel,
+		// in data flow order.
+
+		for (val (i,j): point in Dinner) finish async(e.dist(i, j))
+				e(i, j).val =
+				future(here) {
+					min(rd(e, i-1, j)+gapPen,
+							rd(e, i, j-1)+gapPen,
+							rd(e, i-1, j-1)+(c1(i) == c2(j) ? match : misMatch)) };
+
+		rd(e, N, M); // ensure all computations end.
+
+		pr(c1, c2, e, "Edit distance matrix:");
+
+		return checkSum(e) == EXPECTED_CHECKSUM;
+	}
+
+	static def rd(val e: Array[boxedFutureInt], val i: int, val j: int): int = {
+		return
+			future(e.dist(i, j)) { e(i, j).val.force() }.force();
+	}
+
+	/**
+	 * returns the minimum of x y and z.
+	 */
+	static def min(var x: int, var y: int, var z: int): int = {
+		var t: int = (x < y) ? x : y;
+		return (t < z) ? t : z;
+	}
+
+	/**
+	 * Function to generate the i'th random character
+	 */
+	static def randomChar(var i: int): char = {
+		// Randomly select one of 'A', 'C', 'G', 'T'
+		var n: int = 0;
+		final val rand: Random = new Random(1L);
+		// find i'th random number.
+		// TODO: need parallel version of this
+		for (val (k): point in [1..i]) n = nextChoice(rand);
+		return aminoAcids(n);
+	}
+
+	static def nextChoice(var rand: Random): int = {
+		var k1: int = rand.nextBoolean() ? 0 : 1;
+		var k2: int = rand.nextBoolean() ? 0 : 1;
+		return k1*2+k2;
+	}
+
+	/**
+	 * Find the sum of an array
+	 */
+	static def checkSum(val e: Array[boxedFutureInt]): int = {
+		var sum: int = 0;
+		for (val (i,j): point in e) {
+			sum += rd(e, i, j);
+		}
+		return sum;
+	}
+
+	/**
+	 * Print the Edit Distance Matrix
+	 */
+	static def pr(val c1: Array[char], val c2: Array[char], val e: Array[boxedFutureInt], val s: String): void = {
+		final val N: int = c1.region.high();
+		final val M: int = c2.region.high();
+		final val K: int = 4; // padding amount
+
+		System.out.println(s);
+
+		System.out.print(" "+pad(' ', K));
+		for (val (j): point in c2) System.out.print(" "+pad(c2(j), K));
+		System.out.println();
+
+		for (val (i): point in [0..N]) {
+			System.out.print(" "+pad(c1(i), K));
+			for (val (j): point in [0..M]) System.out.print(" "+pad(rd(e, i, j), K));
+			System.out.println();
+		}
+	}
+
+	/**
+	 * right justify an integer in a field of n blanks
+	 */
+	static def pad(var x: int, var n: int): String = {
+		var s: String = ""+x;
+		while (s.length() < n) s = " "+s;
+		return s;
+	}
+
+	/**
+	 * right justify a character in a field of n blanks
+	 */
+	static def pad(var x: char, var n: int): String = {
+		var s: String = ""+x;
+		while (s.length() < n) s = " "+s;
+		return s;
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Edmiston_Parallel6().execute();
+	}
+
+	// workaround, arrays of future<int>'s do not work.
+	static class boxedFutureInt {
+		var val: future<int> = future(this) { 0 };
+	}
+}

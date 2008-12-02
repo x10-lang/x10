@@ -1,0 +1,585 @@
+--- Test01
+x10.array.RectRegion
+    [  -1   0   0 |   1 ]   x0 >= 1
+    [   0  -1   0 |   2 ]   x1 >= 2
+    [   0   0  -1 |   3 ]   x2 >= 3
+    [   0   0   1 |  -6 ]   x2 <= 6
+    [   0   1   0 |  -4 ]   x1 <= 4
+    [   1   0   0 |  -2 ]   x0 <= 2
+--- Test02
+x10.array.PolyRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0   1 |  -4 ]   x1 <= 4
+    [   1  -1 |   0 ]   x0-x1 <= 0
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -4
+axis 1
+  min
+     1  -1  sum   0   0
+  max
+     0   1  sum  -4   0
+--- Test03
+x10.array.PolyRegion
+    [  -1   0 |   2 ]   x0 >= 2
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1  -1 |  -1 ]   x0-x1 <= 1
+axis 0
+  min
+    -1  sum   2
+  max
+     1  sum  -8
+axis 1
+  min
+     1  -1  sum  -1   0
+  max
+     0   1  sum  -7   0
+x10.array.RectRegion
+    [  -1   0 |   3 ]   x0 >= 3
+    [   0  -1 |   3 ]   x1 >= 3
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -6 ]   x0 <= 6
+x10.array.PolyRegion
+    [  -1   0 |   3 ]   x0 >= 3
+    [   0  -1 |   3 ]   x1 >= 3
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1  -1 |  -1 ]   x0-x1 <= 1
+    [   1   0 |  -6 ]   x0 <= 6
+axis 0
+  min
+    -1  sum   3
+  max
+     1  sum  -6
+axis 1
+  min
+     0  -1  sum   3   0
+     1  -1  sum  -1   0
+  max
+     0   1  sum  -7   0
+--- Test04
+x10.array.RectRegion
+    [  -1 |   0 ]   x0 >= 0
+    [   1 |  -4 ]   x0 <= 4
+--- Test05
+x10.array.RectRegion
+    [  -1   0 |   3 ]   x0 >= 3
+    [   0  -1 |   3 ]   x1 >= 3
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -5 ]   x0 <= 5
+--- Test06
+x10.array.PolyRegion
+    [  -1   0   0 |   1 ]   x0 >= 1
+    [   0  -1   1 |   0 ]   x1-x2 >= 0
+    [   0   0  -1 |   0 ]   x2 >= 0
+    [   0   1   0 |  -2 ]   x1 <= 2
+    [   1   0   0 |  -2 ]   x0 <= 2
+axis 0
+  min
+    -1  sum   1
+  max
+     1  sum  -2
+axis 1
+  min
+     0  -1  sum   0   0
+  max
+     0   1  sum  -2   0
+axis 2
+  min
+     0   0  -1  sum   0   0   0
+  max
+     0  -1   1  sum   0   0   0
+--- Test07
+x10.array.RectRegion
+    [  -1   0   0 |   1 ]   x0 >= 1
+    [   0  -1   0 |   3 ]   x1 >= 3
+    [   0   0  -1 |   5 ]   x2 >= 5
+    [   0   0   1 |  -6 ]   x2 <= 6
+    [   0   1   0 |  -4 ]   x1 <= 4
+    [   1   0   0 |  -2 ]   x0 <= 2
+--- Test08
+x10.array.PolyRegion
+    [  -1  -1 |   3 ]   x0+x1 >= 3
+    [  -1   1 |  -1 ]   x0-x1 >= -1
+    [   1  -1 |  -1 ]   x0-x1 <= 1
+    [   1   1 |  -7 ]   x0+x1 <= 7
+axis 0
+  min
+    -2  sum   2
+  max
+     2  sum  -8
+axis 1
+  min
+    -1  -1  sum   3   0
+     1  -1  sum  -1   0
+  max
+    -1   1  sum  -1   0
+     1   1  sum  -7   0
+--- Test09
+x10.array.PolyRegion
+    [  -1  -1 |   3 ]   x0+x1 >= 3
+    [  -1   1 |  -1 ]   x0-x1 >= -1
+    [   1   1 |  -7 ]   x0+x1 <= 7
+--- Test10
+x10.array.PolyRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0   1 |  -1 ]   x1 <= 1
+    [   1   0 |  -3 ]   x0 <= 3
+--- Test11
+x10.array.FullRegion
+--- Test12
+x10.array.RectRegion
+    [  -1   0 |   1 ]   x0 >= 1
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -4 ]   x1 <= 4
+    [   1   0 |  -3 ]   x0 <= 3
+--- Test13
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -5 ]   x0 <= 5
+x10.array.RectRegion
+    [  -1   0 |   1 ]   x0 >= 1
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -4 ]   x1 <= 4
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -5 ]   x0 <= 5
+--- Test14
+--- Test15
+--- Test16
+--- Test17
+x10.array.PolyRegion
+    [  -1   1 |   0 ]   x0-x1 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   1  -1 |   0 ]   x0-x1 <= 0
+    [   1   0 |  -4 ]   x0 <= 4
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -4
+axis 1
+  min
+     0  -1  sum   0   0
+     1  -1  sum   0   0
+  max
+    -1   1  sum   0   0
+x10.array.PolyRegion
+    [  -1   1 |   0 ]   x0-x1 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   1  -1 |  -1 ]   x0-x1 <= 1
+    [   1   0 |  -4 ]   x0 <= 4
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -4
+axis 1
+  min
+     0  -1  sum   0   0
+     1  -1  sum  -1   0
+  max
+    -1   1  sum   0   0
+x10.array.PolyRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [  -1   1 |  -1 ]   x0-x1 >= -1
+    [   0   1 |  -4 ]   x1 <= 4
+    [   1  -1 |   0 ]   x0-x1 <= 0
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -4
+axis 1
+  min
+     1  -1  sum   0   0
+  max
+    -1   1  sum  -1   0
+     0   1  sum  -4   0
+--- Test18
+x10.array.PolyRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1  -1 |   0 ]   x0-x1 <= 0
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -3
+axis 1
+  min
+     1  -1  sum   0   0
+  max
+     0   1  sum  -3   0
+x10.array.PolyRegion
+    [  -1   1 |   0 ]   x0-x1 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   1   0 |  -3 ]   x0 <= 3
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -3
+axis 1
+  min
+     0  -1  sum   0   0
+  max
+    -1   1  sum   0   0
+--- Test19
+--- Test20
+x10.array.RectRegion
+    [  -1   0 |   2 ]   x0 >= 2
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -4 ]   x1 <= 4
+    [   1   0 |  -3 ]   x0 <= 3
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   2 ]   x0 >= 2
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -7 ]   x0 <= 7
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   2 ]   x0 >= 2
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -4 ]   x0 <= 4
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   4 ]   x0 >= 4
+    [   0  -1 |   1 ]   x1 >= 1
+    [   0   1 |  -2 ]   x1 <= 2
+    [   1   0 |  -5 ]   x0 <= 5
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+--- Test21
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -5 ]   x0 <= 5
+x10.array.PolyRegion
+    [  -1  -1 |   3 ]   x0+x1 >= 3
+    [  -1   1 |  -1 ]   x0-x1 >= -1
+    [   1  -1 |  -1 ]   x0-x1 <= 1
+    [   1   1 |  -7 ]   x0+x1 <= 7
+axis 0
+  min
+    -2  sum   2
+  max
+     2  sum  -8
+axis 1
+  min
+    -1  -1  sum   3   0
+     1  -1  sum  -1   0
+  max
+    -1   1  sum  -1   0
+     1   1  sum  -7   0
+x10.array.PolyRegion
+    [  -1   0 |   1 ]   x0 >= 1
+    [   0   1 |  -4 ]   x1 <= 4
+    [   1  -1 |   0 ]   x0-x1 <= 0
+axis 0
+  min
+    -1  sum   1
+  max
+     1  sum  -4
+axis 1
+  min
+     1  -1  sum   0   0
+  max
+     0   1  sum  -4   0
+Region x10.array.EmptyRegion
+Region x10.array.UnionRegion
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -2
+axis 1
+  min
+     0  -1  sum   0   0
+  max
+     1   1  sum  -2   0
+axis 0
+  min
+    -1  sum   0
+  max
+     1  sum  -3
+axis 1
+  min
+    -1  -1  sum   3   0
+     1  -1  sum   2   0
+  max
+     0   1  sum  -5   0
+axis 0
+  min
+    -2  sum   5
+    -1  sum   2
+  max
+     1  sum  -5
+axis 1
+  min
+    -1  -1  sum   3   0
+     0  -1  sum   0   0
+  max
+    -1   1  sum   2   0
+axis 0
+  min
+    -2  sum   7
+    -1  sum   3
+  max
+     1  sum  -5
+axis 1
+  min
+    -1  -1  sum   8   0
+     1  -1  sum  -1   0
+  max
+    -1   1  sum  -1   0
+     0   1  sum  -5   0
+Region x10.array.UnionRegion
+axis 0
+  min
+    -1  sum   1
+  max
+     1  sum  -5
+axis 1
+  min
+     0  -1  sum   0   0
+  max
+    -1   1  sum   1   0
+Region x10.array.EmptyRegion
+Region x10.array.EmptyRegion
+x10.array.PolyRegion
+    [  -1  -1 |   3 ]   x0+x1 >= 3
+    [  -1   1 |   1 ]   x0-x1 >= 1
+    [   1  -1 |  -1 ]   x0-x1 <= 1
+    [   1   1 |  -7 ]   x0+x1 <= 7
+axis 0
+  min
+    -2  sum   4
+  max
+     2  sum  -8
+axis 1
+  min
+    -1  -1  sum   3   0
+     1  -1  sum  -1   0
+  max
+    -1   1  sum   1   0
+     1   1  sum  -7   0
+Region x10.array.EmptyRegion
+Region x10.array.UnionRegion
+axis 0
+  min
+    -1  sum   1
+  max
+     2  sum  -2
+axis 1
+  min
+     1  -1  sum   0   0
+  max
+     1   1  sum  -2   0
+axis 0
+  min
+    -1  sum   1
+  max
+     1  sum  -2
+axis 1
+  min
+     1  -1  sum   2   0
+  max
+     0   1  sum  -4   0
+axis 0
+  min
+    -1  sum   4
+  max
+     1  sum  -4
+axis 1
+  min
+    -1  -1  sum   8   0
+     1  -1  sum   0   0
+  max
+     0   1  sum  -4   0
+Region x10.array.EmptyRegion
+--- Test22
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -1 ]   x0 <= 1
+x10.array.RectRegion
+    [  -1   0 |   4 ]   x0 >= 4
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -5 ]   x0 <= 5
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   4 ]   x1 >= 4
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -7 ]   x0 <= 7
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -5 ]   x0 <= 5
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   4 ]   x1 >= 4
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -5 ]   x0 <= 5
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -7 ]   x0 <= 7
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -5 ]   x0 <= 5
+Region x10.array.UnionRegion
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -6 ]   x1 <= 6
+    [   1   0 |  -5 ]   x0 <= 5
+Region x10.array.EmptyRegion
+--- Test23
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -1 ]   x0 <= 1
+x10.array.RectRegion
+    [  -1   0 |   4 ]   x0 >= 4
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -5 ]   x0 <= 5
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   4 ]   x1 >= 4
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -7 ]   x0 <= 7
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+Region x10.array.UnionRegion
+--- Test24
+--- Test25
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |   0 ]   x0 <= 0
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |   0 ]   x0 <= 0
+x10.array.RectRegion
+    [  -1   0 |   1 ]   x0 >= 1
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -1 ]   x0 <= 1
+x10.array.RectRegion
+    [  -1   0 |   1 ]   x0 >= 1
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -1 ]   x0 <= 1
+x10.array.RectRegion
+    [  -1   0 |   2 ]   x0 >= 2
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -2 ]   x0 <= 2
+x10.array.RectRegion
+    [  -1   0 |   2 ]   x0 >= 2
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -2 ]   x0 <= 2
+x10.array.RectRegion
+    [  -1   0 |   3 ]   x0 >= 3
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   3 ]   x0 >= 3
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |   0 ]   x1 <= 0
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |   0 ]   x1 <= 0
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   1 ]   x1 >= 1
+    [   0   1 |  -1 ]   x1 <= 1
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   1 ]   x1 >= 1
+    [   0   1 |  -1 ]   x1 <= 1
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -2 ]   x1 <= 2
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   2 ]   x1 >= 2
+    [   0   1 |  -2 ]   x1 <= 2
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   3 ]   x1 >= 3
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -3 ]   x0 <= 3
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   3 ]   x1 >= 3
+    [   0   1 |  -3 ]   x1 <= 3
+    [   1   0 |  -3 ]   x0 <= 3
+--- Test26
+--- Test27
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -1 ]   x0 <= 1
+x10.array.RectRegion
+    [  -1   0 |   4 ]   x0 >= 4
+    [   0  -1 |   0 ]   x1 >= 0
+    [   0   1 |  -7 ]   x1 <= 7
+    [   1   0 |  -5 ]   x0 <= 5
+x10.array.RectRegion
+    [  -1   0 |   0 ]   x0 >= 0
+    [   0  -1 |   4 ]   x1 >= 4
+    [   0   1 |  -5 ]   x1 <= 5
+    [   1   0 |  -7 ]   x0 <= 7
+--- CG

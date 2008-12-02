@@ -1,0 +1,622 @@
+#include "cilk.h"
+#include "cilk-lib.cilkh"
+#include <stdio.h>
+#include <stdlib.h>
+#include "graph.h"
+//#define BASE
+#define abs(A) ((A) > 0 ? (A): - (A))
+E * EL;
+int ELSize, numVertices, numWorkers;
+
+volatile int * Color;
+volatile int * D1, * ID;
+
+Cilk_lockvar lock;
+
+/*Nov 7,03: the previous random graph generator may create repeated edges between two vertices, fixed*/
+/*Jun 4, 04: m 's value can be changed as we add edges to make it a connected graph*/
+/*Aug 17, 07: BSF added by Tong Wen @ IBM*/
+/*Oct 07, 07: BSF modified by T.W. @ IBM; The previous version is in BT.cilk
+ *            Added the blocked version.*/
+/*Jan 29, 08: The Cilk SV version*/
+
+void r_graph(int n,int m)
+{
+    int i,j,v1,v2,v,top,tail,r, numEdges=0;
+    E *L;
+    char * color;
+    int * * M;
+    int * D,*info,*stack;
+    //V* graph;
+
+printf("random graph generator\n");
+    L=(E *) malloc(sizeof(E)*m);
+    j=0; 
+    for(i=0;i<m;i++)
+     {
+	v1=(int)(drand48()*n)%n;
+	v2=(int)(drand48()*n)%n;
+	while(v2==v1) v2=(int)(drand48()*n) %n;
+        L[j].v1=v1;
+	L[j++].v2=v2;
+     } 
+    printf("     number of edges got randomly is %d\n",j);
+
+    M = malloc(sizeof(int *)*n);
+    D = malloc(sizeof(int)*n);
+
+    for(i=0;i<n;i++) D[i]=0;
+
+    for(i=0;i<m;i++) {
+	D[L[i].v1]++;
+	D[L[i].v2]++;
+    }
+
+    for(i=0;i<n;i++) {
+	M[i]=malloc(sizeof(int)*(D[i]+2)); /*+2 leaves space for making connected*/
+    }
+    //printf("finished allocating structures\n");
+
+    for(i=0;i<n;i++) D[i]=0;
+
+    for(i=0;i<m;i++)
+    {
+	r=0;
+	for(j=0;j<D[L[i].v1];j++)
+		if(L[i].v2==M[L[i].v1][j]) r=1; 
+	if(r==1){
+		L[i].v1=L[i].v2=-1;
+		continue;
+	}
+	numEdges++;	
+	M[L[i].v1][D[L[i].v1]]=L[i].v2;
+        M[L[i].v2][D[L[i].v2]]=L[i].v1;
+        D[L[i].v1]++;
+        D[L[i].v2]++;
+    }   
+    
+    printf("     finished generating the matrix, the current number of edges is %d\n", numEdges);
+    printf("     checking if is connected\n");
+    
+    color = malloc(sizeof(char)*n);
+    stack = malloc(sizeof(int)*n);
+    info  = malloc(sizeof(int)*n);
+    
+    if(!color || ! stack || ! info ){
+      printf("error allocating memory\n");
+      exit(0);
+    }
+
+    for(i=0;i<n;i++)  color[i]=0;
+    top=-1;
+    tail=0;
+    
+    for(i=0;i<n;i++)
+    {
+      if(color[i]==1) continue;
+      else info[tail++]=i;
+      
+      stack[++top]=i;
+      color[i]=1;
+      while(top!=-1) {
+      v = stack[top];
+      top--;
+     
+      for(j=0;j<D[v];j++)
+        if(color[M[v][j]]==0){
+	         top++;
+		 stack[top]=M[v][j];
+		 color[M[v][j]]=1;
+         }
+      }
+    }
+
+    printf("     checking done, connected compoments = %d\n",tail);
+	
+	EL = (E *) malloc(sizeof(E)*(numEdges+tail-1));
+	top=0; //use j here will lead to segmentation fault! Compiler bug!
+	for (i=0;i<m; i++){
+		if (L[i].v1!=-1) {
+			EL[top].v1=L[i].v1; EL[top].v2=L[i].v2; EL[top++].is_in_tree =0;}
+	}
+		
+	if (top!=numEdges) {printf("Removing duplicated edges failed! top = %d\n", top); exit(0);}
+	else printf("     removing duplicated edges succeeded! number of edges = %d\n",numEdges);
+
+    for(i=0;i<tail-1;i++)
+    {
+       M[info[i]][D[info[i]]++]=info[i+1];
+       M[info[i+1]][D[info[i+1]]++]=info[i];
+	EL[numEdges].v1=info[i]; EL[numEdges].v2=info[i+1]; EL[numEdges++].is_in_tree =0;
+    } 
+	ELSize=numEdges;
+#if 0   	
+   graph = (V*)malloc(n *sizeof (V));
+   if(graph==NULL)
+   {
+        printf("1 mem alloc error\n");
+        return (NULL);
+   }
+   for(i=0;i<n;i++)
+   {
+        /*there should be n neighbors for this vertex*/
+		/*graph[i].self=i;*/
+ 		graph[i].n_neighbors=D[i];
+        graph[i].my_neighbors=(int *)malloc(D[i]*sizeof(int));
+		/*graph[i].is_tree_edge=(int *)malloc(D[i]*sizeof(int));*/
+        if(graph[i].my_neighbors==NULL) {
+                printf("2 mem alloc error\n");
+                return(NULL);
+        }
+        for(j=0;j<D[i];j++)
+        {
+            graph[i].my_neighbors[j]=M[i][j];
+	   /* graph[i].is_tree_edge[j]=0; */
+        }
+	numEdges+=graph[i].n_neighbors;
+   }
+#endif
+    
+    printf("     the final number of edges is %d\n",numEdges);
+    free(L);	
+    for(i=0;i<n;i++) free(M[i]);
+    free(M);
+    free(D);   
+    free(stack);
+    free(info);
+    free(color);	
+printf("r_graph finished \n"); 
+ }
+
+void torus(int k)
+{
+  int *Buff, numEdges=0, v1, v2;
+  //int ** Adj;
+  int i,j,l,s; 
+  //V* graph;
+  int n = k*k; 
+  
+printf("2D torus graph generator\n");
+
+  Buff = malloc(sizeof(int)*n);
+  //Adj  = malloc(sizeof(int*)*n);
+  //for(i=0;i<n;i++) Adj[i]=malloc(sizeof(int)*4);
+
+
+  for(i=0;i<n;i++) {Buff[i]=i;}
+
+  for(i=0;i<n/2;i++){
+	l=(int)(drand48()*n)%n;
+ 	s=(int)(drand48()*n)%n;
+	j=Buff[l];
+	Buff[l]=Buff[s];
+	Buff[s]=j;
+  }
+	
+#if 0
+  for(i=0;i<k;i++)
+    {
+      for(j=0;j<k;j++)
+	{
+		v1=Buff[i*k+j];
+	  Adj[v1][0]= Buff[((k+i-1)%k)*k+j];//North
+	  Adj[v1][1]= Buff[((i+1)%k)*k+j];//South
+	  Adj[v1][2]= Buff[i*k+((k+j-1)%k)];//West
+	  Adj[v1][3]= Buff[i*k+((j+1)%k)]; //East
+	}
+  
+    }
+#endif	
+	EL = (E*) malloc(sizeof(E)*(n*2));
+	numEdges=0;
+    for(i=0;i<k;i++)
+    {
+      for(j=0;j<k;j++)
+	{
+		v1=Buff[i*k+j];
+		v2=Buff[((i+1)%k)*k+j]; //South
+		EL[numEdges].v1=v1; EL[numEdges].v2=v2; EL[numEdges++].is_in_tree=0;
+		v2= Buff[i*k+((j+1)%k)]; //East
+		EL[numEdges].v1=v1; EL[numEdges].v2=v2; EL[numEdges++].is_in_tree=0;		
+	}
+  
+    }
+	if (numEdges != n*2) {printf("Error in generating the torus graph\n"); exit(-1);}
+	ELSize = numEdges;	
+
+#if 0
+
+	for(i=0;i<k;i++)
+    {
+      for(j=0;j<k;j++)
+	{
+	  Adj[i*k+j][0]= ((k+i-1)%k)*k+j;
+	  Adj[i*k+j][1]= ((i+1)%k)*k+j;
+	  Adj[i*k+j][2]= i*k+((k+j-1)%k);
+	  Adj[i*k+j][3]= i*k+((j+1)%k);
+	}
+  
+    }
+	
+#endif
+#if 0	  
+   graph = (V*)malloc(n *sizeof (V));
+   if(graph==NULL)
+   {
+        printf("1 mem alloc error\n");
+        return (NULL);
+   }
+   for(i=0;i<n;i++)
+   {
+        /*there should be n neighbors for this vertex*/
+		/*graph[i].self=i;*/
+ 		graph[i].n_neighbors=4;
+        graph[i].my_neighbors=(int *)malloc(4*sizeof(int));	
+	/*graph[i].is_tree_edge=(int *)malloc(4*sizeof(int));*/	
+        if(graph[i].my_neighbors==NULL) {
+                printf("2 mem alloc error\n");
+                return(NULL);
+        }
+        for(j=0;j<4;j++)
+        {
+            graph[i].my_neighbors[j]=Adj[i][j];
+	    /*graph[i].is_tree_edge[j]=0;*/
+        }
+   }
+ #endif 
+ // for(i=0;i<n;i++) free(Adj[i]);
+ // free(Adj);
+  free(Buff);
+  printf("t_graph returning \n");
+  //return(graph);
+
+ }
+
+/*the old versino (nonworking) is stored in k_graph.old*/
+void k_graph(int n, int k)
+{
+  int neighbor, numEdges=0;
+  char * visited;
+  int * stack,*super;
+  int i,j,u,v,nextn,top=-1,n_comp=0,rep,s;
+  int ** array,*counter; 
+  //V* graph;
+  
+  int TIMES=5;
+  int THRESHOLD=100;
+printf("k_graph generator:\n");
+  array = malloc(sizeof(int *)*n);
+  visited = malloc(sizeof(char)*n);
+  counter = malloc(sizeof(int )*n);
+EL = (E*) malloc(sizeof(E)*(n*k));
+
+  if(array==NULL || visited==NULL || counter==NULL) 
+    {
+      printf("not enough mem\n");
+      exit(-1);
+    }
+
+  for(i=0;i<n;i++)
+  {
+    array[i]=malloc(sizeof(int)*k*TIMES);
+    if(array[i]==NULL) { 
+      printf("not enough mem\n");
+      exit(-1);
+    }
+    counter[i]=0;
+    visited[i]=0;
+  }
+
+ 
+  stack = malloc(sizeof(int)*(n));
+  super = malloc(sizeof(int)*(n));
+  
+  if(stack==NULL || super==NULL)
+    {
+      printf("not enough mem\n");
+      exit(-1);
+    }
+
+  for(i=0;i<n;i++)
+  {
+     for(j=counter[i];j<k;j++)
+     {
+    	if(i<n-THRESHOLD)
+       		neighbor=(int)(drand48()*(n-i))%(n-i)+i;
+       	else neighbor=(int)(drand48()*THRESHOLD)%(THRESHOLD);
+	rep=0;
+	for(s=0;s<counter[i];s++) 
+   		if(array[i][s]==neighbor) rep=1;
+	while(rep==1)
+	{
+		rep=0;
+		if(i<n-THRESHOLD)
+       			neighbor=(int)(drand48()*(n-i))%(n-i)+i;
+       		else neighbor=(int)(drand48()*THRESHOLD)%(THRESHOLD);
+		for(s=0;s<counter[i];s++) 
+   			if(array[i][s]==neighbor) rep=1;
+	}
+#if 0
+        neighbor=rand()%(n-i)+i;
+       else neighbor=rand()%THRESHOLD;
+#endif
+	while(counter[neighbor]>TIMES*k-1 || neighbor==i) neighbor=(neighbor+1)%n;
+        array[i][counter[i]]=neighbor;
+        counter[i]++;
+        array[neighbor][counter[neighbor]]=i;
+        counter[neighbor]++;
+	EL[numEdges].v1=i; EL[numEdges].v2=neighbor; EL[numEdges++].is_in_tree=0;
+     }
+  }
+
+  printf("    checking if it is connected, the current number of edges is %d\n", numEdges);
+
+  /* now make the graph connected if it is not*/
+  for(i=0;i<n;i++)
+    {
+      if(!visited[i]){
+	visited[i]=1;
+	stack[++top]=i;
+	super[n_comp++]=i;
+
+	while(top!=-1)
+	  {
+	    v = stack[top];
+	    top--;
+
+	    for (j=0; j<counter[v]; j++) {
+	      nextn = array[v][j];
+	      if(!visited[nextn]) {  /* not seen yet */
+		visited[nextn]=1;
+		stack[++top]=nextn;
+	      }
+	    }
+	  }
+      }
+    }
+ 
+  printf("    checking done, connected components are %d\n", n_comp);
+ 
+  for(i=1;i<n_comp;i++)
+    {
+      u = super[i];
+      v = super[i-1];
+      array[u][counter[u]++]=v;
+      array[v][counter[v]++]=u;
+	EL[numEdges].v1=u; EL[numEdges].v2=v; EL[numEdges++].is_in_tree=0;
+    }
+  printf("    making connected done, there are finanlly %d edges \n", numEdges);
+	ELSize=numEdges;
+#if 0  
+   graph = (V*)malloc(n *sizeof (V));
+   if(graph==NULL)
+   {
+        printf("1 mem alloc error\n");
+        return (NULL);
+   }
+   for(i=0;i<n;i++)
+   {
+        /*there should be n neighbors for this vertex*/
+	/*graph[i].self=i;*/
+ 	graph[i].n_neighbors=counter[i];
+        graph[i].my_neighbors=(int *)malloc(counter[i]*sizeof(int));
+	/*graph[i].is_tree_edge=(int *)malloc(counter[i]*sizeof(int));*/
+        if(graph[i].my_neighbors==NULL) {
+                printf("2 mem alloc error\n");
+                return(NULL);
+        }
+        for(j=0;j<counter[i];j++)
+        {
+            graph[i].my_neighbors[j]=array[i][j];
+	 /*graph[i].is_tree_edge[j]=0;*/
+        }
+   }
+#endif
+  printf("k_graph finished\n");
+
+  for(i=0;i<n;i++) 
+	if(array[i]) free(array[i]);
+  free(array);
+  free(counter);
+  free(stack);
+  free(super);
+  free(visited);
+  //return(graph);
+}
+
+cilk void SV_phaseOne(int start, int end){
+	int i, partitionSize, idx1, idx2, numEdges = ELSize;
+	if (start==end){
+		partitionSize = numEdges/numWorkers; idx1 = (start-1) * partitionSize; idx2 = start*partitionSize;
+		if (end == numWorkers) idx2 = numEdges; 
+		for (i =idx1; i<idx2; i++){
+			int v1 = EL[i].v1, v2 = EL[i].v2;
+			if(D1[v1] < D1[v2]) {	
+	    			ID[D1[v2]]=i;
+	    		}  			
+	    		if(D1[v2] < D1[v1]) {			
+	    			ID[D1[v1]]=i;
+	    		}
+		}
+	}
+	else{
+		int midpoint = start+(end - start)/2;
+		spawn SV_phaseOne(start, midpoint);
+		spawn SV_phaseOne(midpoint+1, end);
+	}
+}
+
+cilk int SV_phaseTwo(int start, int end){
+	int changed = 0, partitionSize, idx1, idx2, numEdges = ELSize, i,j, midpoint, v1, v2;
+	if (start==end){
+		//return changed;
+		partitionSize = numEdges/numWorkers; idx1 = (start-1) * partitionSize; idx2 = start*partitionSize;
+		if (end == numWorkers) idx2 = numEdges; 
+		for (i =idx1; i<idx2; i++){
+			v1 = EL[i].v1; v2 = EL[i].v2;
+			if(D1[v1] < D1[v2] && ID[D1[v2]]==i) {
+    				D1[D1[v2]]=D1[v1];
+    				EL[i].is_in_tree=1;
+    				changed=1;
+	    		}
+	    		if(D1[v2] < D1[v1] && ID[D1[v1]]==i) {
+	    			D1[D1[v1]]=D1[v2];
+	    			EL[i].is_in_tree=1;
+	    			changed=1;
+	    		}
+		}
+		return changed;
+	}
+	else{
+		midpoint = start+(end - start)/2;
+		i = spawn SV_phaseTwo(start, midpoint);
+		j = spawn SV_phaseTwo(midpoint+1, end);
+		sync;
+		if ((i+j)>0) return 1; else return 0;
+	}
+}
+
+cilk void SV_superNode(int start, int end){
+	int i, partitionSize, idx1, idx2;
+	if (start==end){
+		partitionSize = numVertices/numWorkers; idx1 = (start-1) * partitionSize; idx2 = start*partitionSize;
+		if (end == numWorkers) idx2 = numVertices; 
+		for (i =idx1; i<idx2; i++){
+			while (D1[D1[i]]!=D1[i]) D1[i]=D1[D1[i]];
+		}
+	}
+	else{
+		int midpoint = start+(end - start)/2;
+		spawn SV_superNode(start, midpoint);
+		spawn SV_superNode(midpoint+1, end);
+	}
+}
+
+cilk void SV_twoPhase(){
+	int changed = 1, i;
+	printf("enter SV\n");
+	while (changed ==1){
+		spawn SV_phaseOne(1, numWorkers);
+		sync;
+		changed = spawn SV_phaseTwo(1, numWorkers);
+		sync;
+		/*for (i =0; i<numVertices; i++){
+			while (D1[D1[i]]!=D1[i]) D1[i]=D1[D1[i]];
+		}*/
+		spawn SV_superNode(1, numWorkers);
+		sync;
+	}
+	printf("out of SV\n");
+}
+
+
+cilk void TEST(int i){
+	if (i==0)
+		printf("leaving TEST i=%d\n",i);
+	else{
+		spawn TEST(--i);
+		printf("leaving TEST i=%d\n",i);
+	}
+	sync;
+}
+
+void SV_verify(){
+	int i,sum=0, numEdges=ELSize;
+	for(i=0;i<numEdges;i++) if(EL[i].is_in_tree ==1) sum++;
+	printf(" sum = %d and N = %d",sum, numVertices);
+	if(sum<numVertices-1){
+	    printf("  verify_SV failed! \n");
+	}else{
+		 printf(" verify_SV succeeded! \n");
+	}
+}
+
+
+cilk int main(int argc, char *argv[])
+{
+	int n_vertices=100000, n_edges=400000, n_workers=1, n_degree=1, CLASS=0,i,size=111;
+
+	Cilk_time tm_begin, tm_elapsed;
+	Cilk_time wk_begin, wk_elapsed;
+	Cilk_time cp_begin, cp_elapsed;
+
+	if(argc==1) {printf("usage: ST <class> <n> <m> <partitions>\n"); return(0);}
+	else{
+		CLASS = atoi(argv[1]);
+		switch (CLASS){
+			case 0: 
+				if (argc!=5) {printf("usage for random graph input: ST <0> <n> [<m>] <partitions>\n"); return(0);}
+				else{
+					n_vertices = atoi(argv[2]);
+					n_edges = atoi(argv[3]);
+					n_workers = atoi(argv[4]);
+					numWorkers = (n_workers>0)?n_workers:1;
+					printf("n_vertics=%d, n_edges=%d, n_partitions=%d \n", n_vertices, n_edges, n_workers);
+					r_graph(n_vertices,n_edges);
+				}
+				break;
+			case 1: 
+				if (argc!=4) {printf("usage for 2D torus input: ST <1> <k> <partitions>\n"); return(0);}
+				else{
+					i = atoi(argv[2]);  
+					n_vertices = i*i;
+					n_edges = n_vertices*4;
+					n_workers = atoi(argv[3]);
+					numWorkers = (n_workers>0)?n_workers:1;
+					printf("n_vertics=%d (k=%d), n_edges=%d n_workers=%d \n", n_vertices, i, n_edges, n_workers);
+					torus(i);
+				}
+				break;
+			case 2:
+				if (argc!=5) {printf("usage for fixed-degree input: ST <2> <n> <k> <partitions>\n"); return(0);}
+				else{
+					n_vertices = atoi(argv[2]);
+					n_degree = atoi(argv[3]);
+					n_edges = n_vertices*n_degree;
+					n_workers = atoi(argv[4]);
+					numWorkers = (n_workers>0)?n_workers:1;
+					printf("n_vertics=%d, estimated n_edges=%d n_workers=%d\n", n_vertices, n_edges, n_workers);
+					k_graph(n_vertices, n_degree);
+				}	
+				break;
+			default: 
+				printf("usage: class has to be {0, 1, 2}!\n");
+				return (0);
+		}
+	}
+	printf("graph is generated\n");
+	printf("allocating auxiliary arrays \n");
+	Color = (int *) malloc(sizeof(int)*n_vertices);
+	D1 = (int *) malloc(sizeof(int)*n_vertices);
+	ID = (int *) malloc(sizeof(int)*n_vertices); 
+	for(i=0;i<n_vertices;i++) {Color[i]=0; D1[i]=i; ID[i]=-1;} 
+	numVertices=n_vertices;
+	Cilk_lock_init(lock);
+	/* Timing. "Start" timers */
+	printf("Starting timing session \n");
+	sync;
+	cp_begin = Cilk_user_critical_path;
+	wk_begin = Cilk_user_work;
+	tm_begin = Cilk_get_wall_time();
+	
+spawn SV_twoPhase();
+	//spawn TEST(3);
+	sync;
+	/* Timing. "Stop" timers */
+	tm_elapsed = Cilk_get_wall_time() - tm_begin;
+	wk_elapsed = Cilk_user_work - wk_begin;
+	cp_elapsed = Cilk_user_critical_path - cp_begin;
+	 printf("Computation finished and starting verification \n");
+	SV_verify();
+	printf("Critical path = %4f s\n\n", Cilk_time_to_sec(cp_elapsed));
+	printf(" running on %d processor(s)\n\n", Cilk_active_size);
+	printf("options: number of elements = %ld\n\n", size);
+	printf("Running time = %4f s\n", Cilk_wall_time_to_sec(tm_elapsed));
+	printf("Work = %4f s\n", Cilk_time_to_sec(wk_elapsed));
+	free(EL);
+	free(Color);
+	free(D1);
+	free(ID);
+
+	return(0);
+}

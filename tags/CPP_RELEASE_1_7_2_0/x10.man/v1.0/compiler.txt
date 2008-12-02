@@ -1,0 +1,56 @@
+Parser translates Java source into C++ + OpenMP.
+
+We have threading, scheduling... SMP run time.
+
+Memory in regions?
+
+Constraint pages to be mapped onto different processors.
+
+Do scientific apps more incrementally. Port some to X10, and then use the rest of the compiler. they are using the same threaded library.
+
+How easy is it to write in X10. Wouldnt worry that much about where data is placed in memory?
+
+plus
+
+OpenMP .. run it on the biggest Regatta processor.. 32/64 processors.
+
+Could be attractive..
+
+-- a translator to C++. 
+-- CPO 
+
+X10 runtime system...implementing them atop OpenMP should be easy.
+asyncs mapping to regions.
+atomic --> atomic critical sections.
+places? ---> slightly more involved.
+
+  TRIL 
+  Java dynamic environment..
+
+Allan
+ 
+ There is no risk. 
+ Not have to worry about nulls.
+
+ Do a real implementation in an existing jvm. 
+ 2 PMs worth of work.
+
+ Linear algebra and matrix classes. They rely on value types.
+
+ In the JIT not the 
+
+ Many more person months.
+
+Sell Java as a programming language for high performance
+
+GC. 
+
+Will make it much easier..? 
+
+One-way JNI...Direct natives?
+
+value classes, much faster messaging.
+
+a month.. finish the inte
+
+two months...

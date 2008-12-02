@@ -1,0 +1,461 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 2
+# Start Time: 01/21/2008 - 05:41:05
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.064063 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039807 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039843 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.045590 s
+
+## Size: 1000000
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.024956 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.653244 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.414906 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.380181 s
+
+## Size: 5000000
+
+### nproc: 1
+./ST --nproc 1 --stack 50000000 --pthread-stacksize 400000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 6.484707 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.780868 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.411897 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.162644 s
+#
+# Run: 2
+#
+
+## Size: 100000
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.064208 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.044686 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040271 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 0 100000 400000
+opt = 0 
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+graph gen done, n_vertices = 100000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.044363 s
+
+## Size: 1000000
+
+### nproc: 1
+./ST --nproc 1 --stack 80000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.019098 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.651239 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.401432 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 0 1000000 4000000
+opt = 0 
+ number of edges got is 4000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 1000000
+checking done,tail is 341
+done generating graph structure
+graph gen done, n_vertices = 1000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.377362 s
+
+## Size: 5000000
+
+### nproc: 1
+./ST --nproc 1 --stack 50000000 --pthread-stacksize 400000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 6.407827 s
+
+### nproc: 2
+./ST --nproc 2 --stack 40000000 --pthread-stacksize 250000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.807342 s
+
+### nproc: 4
+./ST --nproc 4 --stack 20000000 --pthread-stacksize 250000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.380248 s
+
+### nproc: 8
+./ST --nproc 8 --stack 10000000 --pthread-stacksize 250000000 0 5000000 20000000
+opt = 0 
+ number of edges got is 20000000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 5000000
+checking done,tail is 1727
+done generating graph structure
+graph gen done, n_vertices = 5000000
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.145079 s
+
+############################################################
+# End Time: 01/21/2008 - 05:51:50
+############################################################

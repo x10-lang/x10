@@ -1,0 +1,38 @@
+'''Sundry Issues'''
+
+* [kemal] Multiple value returns from a method.
+
+**[vj] A method returning a value type could return the value in registers. There is extra complexity here which does not seem to me warranted by any gain. Our core focus is getting performance at scale -- hence places, distribution, concurrency, clocks. How does this help us demonstrate performance at scale?
+
+* [kemal] Componentization -- ability to use existing commercial  (Java,...) and scientific (CCA) components  -- approach to designing parallel components on a scale out system. Trusted dynamic optimizers that cross component boundaries to eliminate redundancies and memory wall problems systemwide, across components. This may be extremely important for productivity and performance.
+
+**[vj] I would really like to understand how X10 should be designed to facilitate interop with Fortran and C at this stage. Maybe Allan/Bob can help with a design. There should be lessons to learn from some of our other research projects on this topic, but so far I have not seen a proposal/design from anyone yet (though I have asked...).
+
+**X10 is going to have significant design challenges for efficient parallel implementation. The style of programming we are advocating in X10 leads to many fine-grained activities that will need to be coalesced. Need some parallel compiler people involved. Will be discussing with Vivek later today.
+
+*[kemal] A hierarchy of high level aggregate operations for HPC as components (reduce token count for the programmer) and their interaction with parallel asynch operations -- right now we have some problems unless automatic parallelization is introduced.
+
+**[vj] Please see JacobiIteration. I have introduced syntax, after ZPL, for performing operations on an array across a subset of its region (ateach, application of reduction operations). There is more thought and work needed on these ideas, and I will be checking with Alland and Vivek to see whether this level of compiler support is warranted. But I think this basic direction will work and we can leave things at this level and not have the programmer overspecify. The compiler should be able to do standard things (organize places in a tree, apply the operation to all elements of the distribution in the current place, bubble up the tree etc) given that the high level operation specifies the data operations that need to be performed (but not their order), as well as the clock on which they should be performed. 
+
+**The real question here is what kind of performance issues might lie buried in the application of such aggregate operations and how should the appropriate hooks be surfaced in the language to address them.
+
+
+*[kemal]Ability to provide high level optimization information to the compiler not inferable through first principles,  through rewriting rules (e.g. push(x) ... x=pop() =>  ...,  when ... satisfies some constraints )
+
+**[vj] We need new syntax in interfaces  to specify that certain operations at a given type T (e.g. at a mathematical Field) are required to be associative and commutative and pure (so that they can be lifted to reduction operations on distributed arrays).  (We want the user to be able to specify that  a certain operation can be used for reduction/scanning.)
+
+**So then there is the issue about how the compiler can check that the implementation of such a class possesses the given properties. The question is how much mathematical reasoning we should require the X10 compiler to do. We need to do some background work here to determine the state of the art. Term rewriting is one technique that can be used, but there are lot of other powerful symbolic techniques too. For the first go around (v 0.5) we could simply use interfaces to document the mathematical requirements, and allow the programmer to use asserts in code to specify properties that he believes hold at that point in the code and then leave it to v 0.7 to work out what kind of verification technology (if any) we will require all X10 implementations to possess. 
+
+*[kemal] Separation of concerns as an integral part of the language.
+
+**[vj]Do you have specific concrete thoughts here. Our focus on ensuring that the user can write distribution-generic code is very helpful in allowing late binding decisions to be made about actual distributions. Plus we have agreed that there will be some kind of "config" parameter language construct (as in ZPL) to specify that certain static variables will obtain their values from the command line. 
+
+**This helps in ensuring that the concerns of the programmer actually running the code on a real supercomputer are separated out from the concerns of the programmer/library-writer writing the code in the first place.
+
+**Other than that we have not done anything specific about separating out concerns.
+
+*[kemal]IBM commercial story
+
+**[vj] Yes we need to do a lot more work on this.
+
+

@@ -1,0 +1,357 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface interface I(public val i: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public public def a()(): void;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int iint i) {
+      public void  a();
+	}
+	interface interface J(public val k: int, ) /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public public def a()(): void;/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int kint k) {
+      public void  a();
+	}
+	class E(public val m: int, public val k: int, ) extends D implements J /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public def this(var mm: int, var nn: int, var ii: int, var kk: int): E = { super(nn,ii); m = mm; k = kk;}
+      public def a(): void = {
+        var x: int;
+      }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int mint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int kint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public E(int mm, int nn, int ii, int kk) { super(nn,ii); m = mm; k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	class D(public val n: int, public val i: int, ) implements I /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public E(int mm, int nn, int ii, int kk) { super(nn,ii); m = mm; k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	class D(int n, int i) implements I {
+      public def this(var nn: int, var ii: int): D = { n = nn; i=ii; }
+      public def a(): void = {
+        var x: int;
+      }/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public E(int mm, int nn, int ii, int kk) { super(nn,ii); m = mm; k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	class D(int nint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public E(int mm, int nn, int ii, int kk) { super(nn,ii); m = mm; k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	class D(int n/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public E(int mm, int nn, int ii, int kk) { super(nn,ii); m = mm; k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	class D(int n, int iint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+ * Check that properties may be declared on interfaces.
+ *
+ * @author raj
+ */
+public class InterfaceProp extends x10Test {
+	interface  I(int i) {
+      public void  a();
+	}
+	interface  J(int k) {
+      public void  a();
+	}
+	class E(int m, int k) extends D implements J{
+      public E(int mm, int nn, int ii, int kk) { super(nn,ii); m = mm; k = kk;}
+      public void a() {
+        int x;
+      }
+	}
+	class D(int n, int i) implements I {
+      public D(int nn, int ii) { n = nn; i=ii; }
+      public void a() {
+        int x;
+      }
+	}
+	public def run(): boolean = {
+        new E(1,2,3,4);
+	    return true;
+	}
+	public static def main(var args: Rail[String]): void = {
+		new InterfaceProp().execute();
+	}
+}

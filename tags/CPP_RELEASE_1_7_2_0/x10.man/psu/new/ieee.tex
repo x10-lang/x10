@@ -1,0 +1,57 @@
+\documentstyle[twoside]{algol60}
+
+\pagestyle{headings}
+\showboxdepth=0
+\makeindex
+\input{commands}
+\def\theevenhead{Draft Standard for the Scheme Programming Language}
+
+\gdef\foot{{\large \hfil--- unapproved draft published for comment
+	only --- \hfil}}
+
+\begin{document}
+
+%\special{twoside}
+\hbadness=10000         %don't complain about underfull lines.
+
+\onecolumn
+\pagestyle{empty}
+\input{first}   \par
+
+\twocolumn
+\pagestyle{headings}
+\input{intro}   \par
+
+\vskip 2ex
+\clearchapterstar{Description of the language} %\unskip\vskip -2ex
+% \chapter*{Description of the language}\unskip\vskip -2ex
+\input{struct}  \par
+\input{lex}	\par
+\input{basic}	\par
+\input{expr}	\par
+\input{prog}	\par
+\input{procs}	\par
+\input{syn}	\par
+\input{derive}	\par
+
+\vskip 2ex
+\clearchapterstar{Appendices}
+\appendix
+\input{sem}	\par
+%\input{usrint}	\par
+\input{subset}	\par
+\input{nimpl}	\par  \cleardoublepage
+%\input{bib}	\par
+
+\newpage
+\begin{theindex}
+
+The principal entry for each term, procedure, or keyword is listed
+first, separated from the other entries by a semicolon.
+
+\bigskip
+
+\input{index}
+\end{theindex}
+
+\end{document}

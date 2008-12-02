@@ -1,0 +1,50 @@
+Wed Jun 27 13:00:55 2007
+
+Release 1.5
+
+This release of the Experimental Concurrent Programming Language (X10)
+supports the following additional features (since Release 1.0):
+
+* User-level annotations. X10 now supports a comprehensive
+  user-specified annotation system. Programmers may define new kinds of
+  annotations and use them to decorate almost any syntactic element
+  in X10 programs. An annotation is an interface type. Recall that X10
+  supports a very rich class of dependent types -- types that can depend
+  on values. Therefore an annotation in X10 can have a rich structure.
+
+  Annotations are type-checked by the base X10 compiler (x10c). The
+  user may also extend the compiler by implementing additional passes
+  ("plugins") to process these annotations. Plugins may perform whatever 
+  code transformation they wish. See 
+
+      x10.common/examples/Constructs/Annotations/dims
+
+  for a system of annotations for extending types with dimensions
+  (e.g. meters, lumens, seconds). A compiler plug-in that performs
+  dimension checking is also supplied.
+
+  Also see 
+
+      x10.common/docs/stickies.pdf
+
+  for a technical report describing the X10 annotation system.
+
+* Externalized AST syntax. 
+
+  To better support the development of third-party tools that
+  transform X10 source programs, we have implemented an externalization
+  syntax for X10 programs. Please read
+  
+    x10.compiler/README-externalize-ASTs.txt.
+
+* We have implemented extensions to the IBM J9 Virtual Machine to
+  better support X10 through Java annotations that are recognized by
+  the JIT. See 
+
+     x10.runtime/src/x10/annotations
+
+  These annotations are intended for use by the X10 compiler to
+  communicate information to the VM for improved performance.
+
+
+Additionally, bug fixes have been made throughout the system.

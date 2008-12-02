@@ -1,0 +1,44 @@
+
+
+                    X10Lib : The X10 Runtime System
+
+                              Version 0.6
+
+
+                         R E L E A S E  N O T E S
+                         ------------------------
+
+Mon Dec 10 23:30:00 2007 Release 0.6
+
+This release of X10Lib contains the following major additions/
+changes compared to the earlier release (ver 0.5):
+
+01) Elaborate functionality provided for creating points,
+rectangular regions, distributions, region iterators,
+local arrays, and distributed arrays.
+
+02) New array copy mechanism for copying local section of
+arrays to a remote section.
+
+03) New reduction operation for uniquely distributed arrays.
+
+04) Extended x10 language/compiler support during runtime.
+
+05) Inclusion of the two standard benchmarks (RandomAccess
+and FFT) which are written purely in X10Lib.
+
+06) More examples demonstrating the use of X10Lib for
+writing LAPI style programs.
+
+Please look into 'RELEASE.NOTES_05' for details associating
+the earlier release.
+
+
+-- X10Lib team
+
+
+Ganesh Bikshandi
+Sreedhar B Kodali
+Igor Peshansky
+Sayantan Sur
+Vijay Saraswat

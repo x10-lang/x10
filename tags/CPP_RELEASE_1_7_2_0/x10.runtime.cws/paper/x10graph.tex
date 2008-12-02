@@ -1,0 +1,212 @@
+
+\documentclass{llncs}
+\special{papersize=8.5in,11in}
+\usepackage{epsfig}
+%\usepackage{doublespace}
+\usepackage{xspace}
+\usepackage[noend,boxed]{algorithm2e}
+% \usepackage{array}
+\usepackage{url}
+\usepackage{pslatex}
+\usepackage{latexsym}
+\usepackage{multirow}
+
+\newcommand{\uu}{\accent'27u}
+\newcommand{\UU}{\accent'27U}
+
+\newcommand{\parent}{\mbox{\emph{parent}}\xspace}
+\newcommand{\color}{\mbox{\emph{color}}\xspace}
+\newcommand{\ROOT}{\mbox{\emph{root}}\xspace}
+% \newcommand{\LOOSE}{\looseness=-1}
+\newcommand{\LOOSE}{}
+\newcommand{\PARENT}{\mbox{\emph{parent}}\xspace}
+\newcommand{\paren}[1]{\left(  #1 \right)}
+\newcommand{\littleL}[1]{\mbox{\mbox{$\omega$}$\paren{#1}$}}
+\newcommand{\littleO}[1]{\mbox{\mbox{o}$\paren{#1}$}}
+\newcommand{\bigT}[1]{\mbox{\mbox{$\Theta$}$\paren{#1}$}}
+\newcommand{\bigL}[1]{\mbox{\mbox{$\Omega$}$\paren{#1}$}}
+\newcommand{\bigO}[1]{\mbox{\mbox{O}$\paren{#1}$}\xspace}
+\newcommand{\MCB}[3]{\mbox{$\left< #1 \;;\; #2 \;;\; #3 \right>$}\xspace}
+\newcommand{\TRIPLET}{\MCB{T_{M}(n,p)}{T_{C}(n,p)}{B(p)}}
+\newcommand{\IND}{\indent\indent}
+
+%% \newtheorem{theorem}{Theorem}
+%% \newtheorem{lemma}{Lemma}
+%% \newenvironment{proof}{\textbf{Proof}: }{$\Box$ \\ }
+
+%% \setlength{\textheight}{8.25in}
+%% \setlength{\voffset}{0in}
+%% \setlength{\topmargin}{0in}
+
+%% \setlength{\oddsidemargin}{0in}
+%% \setlength{\evensidemargin}{0in}
+%% \setlength{\textwidth}{6.5in}
+
+%\begin{document}
+%\pagestyle{plain}
+
+\begin{document}
+%\begin{spacing}{1}
+
+\title{Solving Large-scale Graph Problems in X10}
+\titlerunning{}
+\author{ }
+\institute{}
+\maketitle
+
+\begin{abstract}
+  Graph problems are finding increasing applications in high
+performance computing disciplines. Although many regular problems 
+can be solved efficiently in parallel, obtaining efficient
+  implementations for large, irregular graph instances remains a challenge.
+ There exisit a large body of theoretically fast parallel graph algorithms, however, 
+ experimental studies show that they often times fail to achieve good parallel speedups 
+ in practice. 
+ In this paper we present the language and runtime support of X10 that help 
+ bridge the gap between theory and practice for large scale graph problems. 
+ The problems we study represent a wide range of irregular problems that have fast
+  theoretic parallel algorithms but no known efficient
+  parallel implementations that achieve speedup without serious restricting assumptions about the inputs.
+We believe our techniques will be of  practical impact in solving large-scale graph problems.
+\end{abstract}
+
+\noindent
+\textbf{Keywords:}
+ parallel algorithms, graph problems, runtime.
+
+\section{Introduction}
+\label{s:intr}
+ Graph theoretic problems arise in several traditional and emerging scientific disciplines such as VLSI design, optimization, databases, and computational biology. There are plenty of theoretically fast parallel algorithms, for example, optimal PRAM algorithms, for graph problems; however, in
+ practice few parallel implementations beat the best sequential implementations for arbitrary, sparse
+ graphs. The mismatch between theory and practice suggests a large gap between algorithm model and the actual architecture. Advances in programming language and runtime support can effectively reduces the gap.
+ X10 is part of the DARPA HPCS project that solves this problem.  In this paper we focus on X10 support on one single SMP node.
+ 
+ Modern symmetric multiprocessors (SMPs) and chip multiprocessors (CMPs) 
+ are becoming very powerful and common place. Most of the high performance
+ computers are clusters of SMPs and/or CMPs. PRAM algorithms for graph problems can be emulated much easier and more
+ efficiently on SMPs than on distributed memory platforms because shared memory allows for fast, concurrent access
+to an irregular data structure that is often difficult to partition well for distributed memory systems. 
+ Unfortunately, emulation -- even with aggressive algorithm engineering efforts --
+ oftentimes does not produce parallel implementations that beat the
+ best sequential implementation. One of the major problems is to do load-balancing, another is synchronization. Both are addressed in X10.
+ 
+ {TONG: can you please provide the introduction to X10}? X10 is a language .... Introduction to X10.  For combinatorial algorithms support, X10 provides many constructs and ...
+ In a.   
+
+ The rest of the paper is organized as follows. Sections~\ref{s:design} describes algorithm design with the X10 language.
+ Section~\ref{s:runtime} presents the workstealing runtime support for load-balancing in X10, and compare with other runtime systems, for example, CILK. 
+ Section~\ref{s:results} provides our experimental results on current main-stream SMPs.
+ In Section~\ref{s:concl} we conclude and give future work. 
+ Throughout the paper, we
+ use $n$ and $m$ to denote the number of vertices and the number of
+ edges of an input graph $G=(V,E)$, respectively. 
+  
+
+\section{Designing Parallel Graph Algorithms in X10}
+\label{s:design}
+
+ Invariably algorithms are designed, although sometimes implicitly, with an abstract algorithmic model. Programming languages play an important role in the translation of an algorithm to an executable program on the target system. When there is a large gap between model and architecture, programming languages and efficient runtime support can be immensely helpful in achieving high perofrmance with relatively ease of programming. 
+
+ Large scale graph problems with irregular instances are challenging to solve in parallel. Despite the existing large body of theoretically-fast PRAM algorithms and communication-optimal BSP alorithms, there are few implementations that achieve good parallel performance. With the PRAM model, synchronous processors are available in an unlimited amount, and accesses to memory locations are of uniform distance. PRAM is highly idealistic and helps explore maximum parallelism in a problem. At the same time,  PRAM does not reflect many features of main-stream architectures that are crictical to performance. Significant effort is necessary to produce efficient implementations on even shared-memory systems, for example, SMPs. More practical models (e.g., BSP and LogP), on the other hand, parameterize communication, synchronization, and even memory access costs. As a result, algorithms may be mapped onto real machines with reasonable performance, yet design choices are also limited. Designing and implementing parallel graph algorithms for large, irregular inputs on either class of models are challenging. 
+
+ One major challenge of translating a PRAM algorithm into an efficient program on modern architectures is to run the algorithms designed for $n$ processors on $pn$ ($p\ll n$) processors in a load-balanced fashion. Consider a graph algorithm with adjacency list as the input. A PRAM algorithm may assign for each edge (in this case each neighbor $v$ in each vertex $u$'s adjacency list) a processor. When simulating on $p$ processors, $\frac{n}{p}$ vertices are assigned to one processor. As the graph is irregular with potentially huge difference among the number of neighbors for each processor, load-imbalance is a serious performance problem. It can get even worse as many algorithms compact the graph as they proceed. Keeping track of workload distribution on the algorithmic level becomes even cumbersome. With popular distributed-memory models such as BSP, the graph has first to be partitioned and for irregular instances there is no known practical algorithm.  
+
+ With expressive programming constructs and efficient runtime support, X10 provides a programming model that allows flexible expression of parallelism and at the same time good runtime efficiency guarantee. It enables an algorithm designer to focus on expressing the appropriate parallelism of a problem, and leaves to the runtime system the mapping of tasks on to the processors in a load-balanced fashion. Of course with X10 an algorithm may also take advantage of the various features of an architecture that impact performance, for example, the affinity of data to processor.
+
+ X10 is designed for applications that run on a cluster of SMPs. First note that similar to PGAS languages, a global virtual space is provided and this is critical in solving sparse, irregular graph instances as no graph partitioning techniques are available. Also X10 provides a notion of affinity that helps. X10 also provides various task constructs that is critical in expressing various kinds of parallelism. 
+
+ We next present two algorithms that are progammed in X10 and showcase its expressiveness. X10 has a large collection of fetures that improve the productivity, and we show two samples that enable elegant algorithm design of new parallel algorithms. We take the spanning tree problem as example. Finding a spanning tree of a graph is an important building
+block for many graph algorithms, for example, biconnected components
+and ear decomposition \cite{MR86}, and can be used in graph planarity
+testing \cite{KR88}.Section~\ref{s:trav} describes a new algorithm on SMP, and section~\ref{s:trav-dist} is the algorithm
+for distributed environment.
+
+
+ 
+The Shiloach-Vishkin algorithm, representative of the ``graft-and-shortcut'' parallel approach,
+ runs in \bigO{\log n} & \bigO{(m+n) \log n} on priority CRCW PRAM.
+
+\subsection{A Parallel Spanning Tree Algorithm based on graph traversal in X10}
+\label{s:trav}
+
+Many fast PRAM algorithms have been proposed, and they 
+are drastically different from the sequential depth-first search (DFS) or breadth-first search (BFS) approaches.
+BFS and BFS are efficient with very low overhead, and for quite a long time no parallel implementations beat the
+best sequential implementation for irregular inputs. 
+
+Bader and Cong \cite{BC04} presented the first fast parallel spanning tree algorithm that achieved good 
+speedups on SMPs. Their algorithm is based on graph traversal and similar to the DFS and BFS approaches. 
+The algorithm has two steps. First a stub tree is generated with its vertices distributed to the queue of each 
+processor. The processors then traverse the graph in a fashion similar to the sequential approach. When a thread runs out
+of work, it checks for some other thread's queue for unfinished work.
+
+With X10 a similar algorithm can be easily expressed in a few lines. The runtime system takes care of the creation of threads, scheduling of tasks, and load-balancing.  Algorithm~\ref{alg:st-x10} is an recursive algorithm that traverses the graph and computes a spanning tree. It looks very much like the recursive DFS with few yet important diffeences.
+
+\begin{algorithm}
+\begin{verbatim} 
+   void traverse(int u) {
+        int k,v;
+        finish for(k=0;k<G[u].degree;k++)
+        {
+            v=G[u].neighbors[k];
+            if(atmInts[v].compareAndSet(0,1)) {
+                G[v].parent=u;
+                final int V=v;
+                async traverse(V);
+            }
+        }
+   }
+\end{verbatim}
+\caption{A spanning tree algorithm on an SMP node in X10}
+\label{alg:st-x10}
+\end{algorithm}
+The \async keyword creates parallel activities. While visiting each neighbor $v$ of vertex $u$, a new traversal activity is created. Imagine a graph with millions of vertices, at any time the amount of parallelism is potentially huge. It puts great pressure on the runtime system for task scheduling.  The correctness of the algorithm can be similarly reasoned as in Theorem in \cite{BC04}.  We leave the discussion. Just for a simple comparison, the origianl C code without considering 
+hundreds of lines of code. 
+
+\subsection{DFS in a distributed-memory setting}
+\label{s:trav-dist}
+
+ When the target architecture does not provide uniform memory access, for example, a cluster of SMPs, Alg.~\ref{alg:st-x10} can be easily extended to take care of memory afffinity. Alg.~\ref{alg:st-dist-x10} computes a spanning tree for a graph distributed on several SMP nodes. In Alg.~\ref{alg:st-dist-x10}, again \async creates parallel activities. Compared with Alg.~\ref{alg:st-x10}, here \async creates an activity on a potentially remote node that owns vertex $v$ in the hope that the activity accesses data mostly on that node. 
+ 
+\begin{algorithm}
+\begin{verbatim} 
+
+        void traverse(int u) {
+            int k,v;
+            finish for(k=0;k<G[u].degree;k++)
+            {
+                    v=G[u].neighbors[k];
+                    if(color[v]==0) {
+                            color[v]=1;
+                            final int U=u, V=v;
+                            async (G.distribution[v]){
+                                    G[V].parent=U;
+                                    traverse(V);
+                            }
+                    }
+            }
+        }
+
+\end{verbatim}
+\caption{A spanning tree algorithm on a cluster of SMPs in X10}
+\label{alg:st-dist-x10}
+\end{algorithm}
+
+We see from this example that X10 provides programming constructs that can 
+
+
+\section{X10  Workstealing runtime support}
+\label{s:runtime}
+
+\section{Implementation and Runtime support }
+\label{s:results}
+
+\section{Conclusion and Future Work}
+\label{s:concl}
+%\clearpage
+%\begin{spacing}{1}
+\bibliographystyle{splncs}
+\bibliography{../../parallel}
+%\end{spacing}
+
+\end{document}

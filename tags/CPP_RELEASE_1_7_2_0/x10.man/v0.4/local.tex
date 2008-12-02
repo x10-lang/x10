@@ -1,0 +1,19 @@
+BadPlaceException checks
+
+The compiler will perform the following translation in this phase.
+
+Unless the compiler can establish that the place type of o is here, or
+is definitely not here (in which case it emits a static error) the
+compiler will
+
+o Translate each field access o.f to ((@here) o).f. 
+o Each field write o.f = e to 
+
+  F olocal = (@here) o;
+  olocal.f = e;
+
+
+The compiler uses the following rules in order to determine the static
+place type of an object o.
+
+o The static place type of this is 

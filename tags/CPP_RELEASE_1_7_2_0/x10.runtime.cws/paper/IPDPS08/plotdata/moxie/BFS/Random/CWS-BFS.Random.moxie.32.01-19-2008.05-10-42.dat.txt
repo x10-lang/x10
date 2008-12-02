@@ -1,0 +1,122 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 01/19/2008 - 05:10:42
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 24 E 100000
+Number of procs=24
+graphType=E
+N=100000
+N=100000 t=922458571 ns 0.000 GE/s
+N=100000 t=69232546 ns 0.006 GE/s
+N=100000 t=86841080 ns 0.005 GE/s
+N=100000 t=57636406 ns 0.007 GE/s
+N=100000 t=40625447 ns 0.010 GE/s
+N=100000 t=52505753 ns 0.008 GE/s
+N=100000 t=44960226 ns 0.009 GE/s
+N=100000 t=35389104 ns 0.011 GE/s
+N=100000 t=45139660 ns 0.009 GE/s
+N=100000 t=27976990 ns 0.014 GE/s
+Completed iterations for N=100000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms1G -Xmx1G BFSRef 30 E 100000
+Number of procs=30
+graphType=E
+N=100000
+N=100000 t=1243453849 ns 0.000 GE/s
+N=100000 t=95132930 ns 0.004 GE/s
+N=100000 t=82425670 ns 0.005 GE/s
+N=100000 t=53794476 ns 0.007 GE/s
+N=100000 t=59066267 ns 0.007 GE/s
+N=100000 t=45738632 ns 0.009 GE/s
+N=100000 t=48684619 ns 0.008 GE/s
+N=100000 t=44982490 ns 0.009 GE/s
+N=100000 t=49562050 ns 0.008 GE/s
+N=100000 t=48233406 ns 0.008 GE/s
+Completed iterations for N=100000
+
+## Size: 1000000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 24 E 1000000
+Number of procs=24
+graphType=E
+N=1000000
+N=1000000 t=635471856 ns 0.006 GE/s
+N=1000000 t=236262521 ns 0.017 GE/s
+N=1000000 t=202391629 ns 0.020 GE/s
+N=1000000 t=207720949 ns 0.019 GE/s
+N=1000000 t=227167369 ns 0.018 GE/s
+N=1000000 t=226786791 ns 0.018 GE/s
+N=1000000 t=218221232 ns 0.018 GE/s
+N=1000000 t=210385746 ns 0.019 GE/s
+N=1000000 t=227432744 ns 0.018 GE/s
+N=1000000 t=196930870 ns 0.020 GE/s
+Completed iterations for N=1000000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms4G -Xmx4G BFSRef 30 E 1000000
+Number of procs=30
+graphType=E
+N=1000000
+N=1000000 t=2253134041 ns 0.002 GE/s
+N=1000000 t=207972519 ns 0.019 GE/s
+N=1000000 t=207304549 ns 0.019 GE/s
+N=1000000 t=197580928 ns 0.020 GE/s
+N=1000000 t=218308965 ns 0.018 GE/s
+N=1000000 t=195097579 ns 0.021 GE/s
+N=1000000 t=193655356 ns 0.021 GE/s
+N=1000000 t=208113045 ns 0.019 GE/s
+N=1000000 t=199501374 ns 0.020 GE/s
+N=1000000 t=206339835 ns 0.019 GE/s
+Completed iterations for N=1000000
+
+## Size: 10000000
+
+### nproc: 24
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 24 E 10000000
+Number of procs=24
+graphType=E
+N=10000000
+N=10000000 t=2914226762 ns 0.014 GE/s
+N=10000000 t=2377890261 ns 0.017 GE/s
+N=10000000 t=2334619236 ns 0.017 GE/s
+N=10000000 t=2331645046 ns 0.017 GE/s
+N=10000000 t=2310037319 ns 0.017 GE/s
+N=10000000 t=2389747733 ns 0.017 GE/s
+N=10000000 t=2257708223 ns 0.018 GE/s
+N=10000000 t=2328010180 ns 0.017 GE/s
+N=10000000 t=2325070590 ns 0.017 GE/s
+N=10000000 t=2372240770 ns 0.017 GE/s
+Completed iterations for N=10000000
+
+### nproc: 30
+java -d64 -cp xws.jar -Xms16G -Xmx16G BFSRef 30 E 10000000
+Number of procs=30
+graphType=E
+N=10000000
+N=10000000 t=2575599098 ns 0.016 GE/s
+N=10000000 t=2131285924 ns 0.019 GE/s
+N=10000000 t=2196076930 ns 0.018 GE/s
+N=10000000 t=2150348513 ns 0.019 GE/s
+N=10000000 t=2134588444 ns 0.019 GE/s
+N=10000000 t=2076190185 ns 0.019 GE/s
+N=10000000 t=2148704583 ns 0.019 GE/s
+N=10000000 t=2062143664 ns 0.019 GE/s
+N=10000000 t=2148942230 ns 0.019 GE/s
+N=10000000 t=2147893804 ns 0.019 GE/s
+Completed iterations for N=10000000
+
+############################################################
+# End Time: 01/19/2008 - 05:33:40
+############################################################

@@ -1,0 +1,9 @@
+// SYNOPSIS: atomic #0
+
+synchronized (x10.runtime.Runtime.here()) {
+	try {
+		#0
+	} finally {
+		x10.runtime.Runtime.here().notifyAll();
+	}
+}

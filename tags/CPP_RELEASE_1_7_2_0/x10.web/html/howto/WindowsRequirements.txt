@@ -1,0 +1,11 @@
+To run under windows, you'll need:
+
+cygwin tools. 
+
+The installation information is available from www.cygwin.com.
+
+You'll need cygwin's version of perl, time and shall as well as the default installation package.
+
+ant
+In order to build x10.
+http://ant.apache.org/
