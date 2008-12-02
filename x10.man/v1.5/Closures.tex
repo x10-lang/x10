@@ -56,7 +56,7 @@ The following method takes a function parameter and uses it to
 test each element of the list, returning the first matching
 element.
 \begin{xten}
-def find[T](f: T => Boolean, xs: List[T]): T = {
+def find[T](f: (T) => Boolean, xs: List[T]): T = {
   for (x: T in xs)
     if (f(x)) return x;
   null

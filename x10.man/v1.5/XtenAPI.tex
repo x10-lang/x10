@@ -9,22 +9,21 @@ classes in the package \xcd"x10.lang".
 package x10.lang;
 
 /** The top of the type hierarchy. */
-public class Object {
-    public def equals(o: Object) = (this == o);
-    public native def hashCode();
-    public def toString() = "x10.lang.Object";
+public interface Object {
+    public def equals(o: Object): Boolean;
+    public def hashCode(): Int;
+    public def toString(): String;
 }
 
 /**
  * Base class of all value classes; implemented by any class
  * declared value; a Ref class cannot implement Value.
  */
-public interface Value { }
+public value Value { }
 
 /** Base class of all reference classes, except Object. */
-public value Ref(loc: Place) extends Object {
+public class Ref(location: Place) {
     public def this() { property(here); }
-    public def toString() = "x10.lang.Ref(" + loc + ")";
 }
 \end{xten}
 
@@ -276,6 +275,7 @@ public value Place { }
 public class Box[T](value: T) { }
 \end{xten}
 
+\if 0
 \section{Function types}
 
 The library contains the following family of interfaces.
@@ -292,3 +292,4 @@ is equivalent to the interface \xcdmath"Fun_$k$_$n$".
 
 A closure call \xcd"e1(e2)" is equivalent to 
 the method call \xcd"e1.apply(e2)".
+\fi

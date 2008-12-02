@@ -647,7 +647,7 @@ Latches, \xcd"aync" operations and \xcd"finish" operations may be used
 to implement futures as follows. The expression \xcd"future(P) e"
 can be translated to:
 \begin{xten}
-(=> {
+(() => {
     L: Latch = new Latch();
     async (P) {
       X: Object;

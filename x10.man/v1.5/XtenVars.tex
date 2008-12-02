@@ -18,10 +18,8 @@ of a reference class (possibly with type arguments) always holds a
 reference to an instance of the class \xcd"T" or a class that is a
 subclass of \xcd"T", or a \xcd"null" reference.
 
-A variable of a reference array type \xcd"Array[T](D)" always an
-array which has as many variables as the size of the region underlying
-the distribution \xcd"D". These variables are distributed across
-places as specified by \xcd"D" and have the type \xcd"T".
+A variable of a reference rail type \xcd"Rail[T]" has
+as many variables as the size of the rail.
 
 %XXX
 %A variable of a nullable (reference or value) data type \xcd"nullable[T]"
@@ -39,8 +37,11 @@ class that is a subclass of \xcd"T") or to an instance of \xcd"T" (or a
 class that is a subclass of \xcd"T"). No program can distinguish
 between the two cases.
 
-A variable of a value array data type \xcd"ValArray[T](R)" is always an
-array which has as many variables as the size of the region \xcd"R".
+A variable of an function type always holds an instance
+of a value class with implementing the function type.
+
+A variable of a reference rail type \xcd"ValRail[T]" has
+as many variables as the size of the rail.
 Each of these variables is immutable and has the type \xcd"T".
 
 \Xten{} supports seven kinds of variables: constant {\em class
