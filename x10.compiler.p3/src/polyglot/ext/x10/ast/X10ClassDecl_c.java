@@ -254,6 +254,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         }
         else if (interfaces.isEmpty() && flags().flags().isInterface()) {
+            thisType.addInterface(Types.ref(ts.Object()));
         }
         else {
             super.setInterfaces(ts, thisType);
