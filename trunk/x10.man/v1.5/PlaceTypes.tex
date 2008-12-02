@@ -22,12 +22,12 @@ syntactic support is provided for constrained types involving places.
 
 All \Xten{} reference classes extend the class
 \xcd"x10.lang.Ref", which defines a property
-\xcd"loc" of type
+\xcd"location" of type
 \xcd"Place".
 
 \begin{xten}
 package x10.lang;
-public class Ref(loc: place) { ... }  
+public class Ref(location: place) { ... }  
 \end{xten}
 
 If a constrained reference type \xcd"T" has an \xcd"!p" suffix,
