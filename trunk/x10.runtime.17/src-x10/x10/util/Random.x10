@@ -13,11 +13,11 @@ import x10.compiler.NativeRep;
 
 /** Random number generator. */
 public class Random {
-    public def this(): Random {
+    public def this() {
         this(Timer.milliTime());
     }
     
-    public def this(seed: Long): Random {
+    public def this(seed: Long) {
         setSeed(seed);
     }
     
@@ -34,7 +34,7 @@ public class Random {
         if (maxPlus1 <= 0)
             return 0;
         
-        var n = maxPlus1;
+        var n: int = maxPlus1;
 
         if ((n & -n) == n) {
             // If a power of 2, just mask nextInt
@@ -60,8 +60,8 @@ public class Random {
     public def nextBytes(buf: Rail[Byte]): Void {
         var i: int = 0;
         while (true) {
-            val x = nextInt();
-            for (var j = 0; j < 4; j++) {
+            var x: int = nextInt();
+            for (var j: int = 0; j < 4; j++) {
                 if (i > buf.length)
                     return;
                 buf(i) = (x & 0xff) to Byte;
@@ -78,7 +78,7 @@ public class Random {
         if (maxPlus1 <= 0)
             return 0;
         
-        var n = maxPlus1;
+        var n: long = maxPlus1;
 
         if ((n & -n) == n) {
             // If a power of 2, just mask nextInt
@@ -86,13 +86,13 @@ public class Random {
         }
 
         // Get the next power of 2 greater than n
-        var pow2: int = 1;
+        var pow2: long = 1;
         while (pow2 < n)
             pow2 <<= 1;
 
         // Keep generating numbers of the right size until we get
         // one in range.  The expected number of iterations is 2.
-        var x: int;
+        var x: long;
 
         do {
             x = nextLong() & (pow2-1);
@@ -124,16 +124,18 @@ public class Random {
  * Modeling and Computer Simulation, 8(1), January, pp. 3--30 (1998)
  */
 
-    private const int N = 624;
-    private const int M = 397;
+    private const N: int = 624;
+    private const M: int = 397;
 
     private var index: int;
     private var MT: Rail[int] = Rail.makeVar[int](N);
 
     public def init(seed: long): Void {
         // Ensure the seed is nonzero.
-        if (seed == 0L)
-            seed = 4357L;
+        if (seed == 0L) {
+            init(4357L);
+            return;
+        }
 
         // Set the initial buffer using a PRNG from
         // Knuth, vol 2, 2nd ed, p. 102
@@ -156,8 +158,8 @@ public class Random {
     }
 
     private def twist(): void {
-        int i = 0;
-        int s;
+        var i: int = 0;
+        var s: int;
         for (; i < N - M; i++) {
             s = (MT(i) & 0x80000000) | (MT(i+1) & 0x7FFFFFFF);
             MT(i) = MT(i+M) ^ (s >> 1) ^ ((s & 1) * 0x9908B0DF);
