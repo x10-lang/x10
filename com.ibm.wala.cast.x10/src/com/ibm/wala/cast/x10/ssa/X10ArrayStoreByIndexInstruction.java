@@ -25,7 +25,7 @@ public class X10ArrayStoreByIndexInstruction extends X10ArrayReferenceByIndexIns
 	int newValue = uses == null ? getStoreValue() : uses[uses.length - 1];
 
 	for(int i= 0; i < newIndices.length; i++) {
-	    newIndices[i]= uses[i-1];
+	    newIndices[i]= uses[i+1];
 	}
 	return new X10ArrayStoreByIndexInstruction(newArray, newIndices, newValue, declaredType);
     }
@@ -49,5 +49,19 @@ public class X10ArrayStoreByIndexInstruction extends X10ArrayReferenceByIndexIns
     @Override
     public int hashCode() {
         return 5779 + 7411 * value + 2819 * super.hashCode();
+    }
+
+    @Override
+    public int getNumberOfUses() {
+    	return 1 + super.getNumberOfUses();
+    }
+
+    @Override
+    public int getUse(int j) throws UnsupportedOperationException {
+    	if (j == super.getNumberOfUses()) {
+    		return getStoreValue();
+    	} else {
+    		return super.getUse(j);
+    	}
     }
 }

@@ -11,17 +11,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 
-import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
-import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.test.IRTests;
+import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.JarFileModule;
 import com.ibm.wala.classLoader.SourceFileModule;
 import com.ibm.wala.core.tests.callGraph.CallGraphTestUtil;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.ipa.callgraph.CallGraph;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.Util;
+import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
+import com.ibm.wala.types.ClassLoaderReference;
+import com.ibm.wala.util.collections.Pair;
 
 public class X10IRTests extends IRTests {
     protected static List<String> x10SystemModules;
@@ -42,6 +46,10 @@ public class X10IRTests extends IRTests {
 
     public X10IRTests(String name) {
 	super(name,  null);
+    }
+
+    protected ClassLoaderReference getSourceLoader() {
+        return X10SourceLoaderImpl.X10SourceLoader;
     }
 
     protected JavaSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {
@@ -123,15 +131,15 @@ public class X10IRTests extends IRTests {
     public void testArrayCtor1() {
 	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
-
-//    public void testArrayUpdate2D() {
-//	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(), emptyList, true);
-//    }
     
     public void testPlaces() {
     	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
-       
+
+    public void testx10ForLoopBreakTest() {
+    	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+    }
+
     public void testHashTable() {
     	runTest(singlePkgTestSrc("p"), rtJar, simplePkgTestEntryPoint("p"), emptyList, false);
     }

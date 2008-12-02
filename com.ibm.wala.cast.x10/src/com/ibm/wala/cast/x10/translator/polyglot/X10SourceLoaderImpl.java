@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.ibm.wala.cast.x10.loader.X10Language;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
+import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
@@ -63,7 +64,7 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
      * IMethod here inside the loader, where we can actually trap defineFunction().
      * Gack.
      */
-    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, LexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
+    public void defineFunction(CAstEntity n, IClass owner, AbstractCFG cfg, SymbolTable symtab, boolean hasCatchBlock, TypeReference[][] catchTypes, AstLexicalInformation lexicalInfo, DebuggingInformation debugInfo) {
 	if (n.getKind() == X10CAstEntity.ASYNC_BODY) {
 	    X10AsyncObject asyncObject= (X10AsyncObject) fTypeMap.get(n);
 

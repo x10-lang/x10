@@ -20,6 +20,7 @@ public class X10CASTGoal extends AbstractGoal {
 	super(job);
 	fSourceLoaderRef= sourceLoader;
 
+	
 	try {
 	    Scheduler scheduler= job.extensionInfo().scheduler();
 
@@ -28,6 +29,7 @@ public class X10CASTGoal extends AbstractGoal {
 	    job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR, "Cycle encountered in goal graph?");
 	    throw new IllegalStateException(e.getMessage());
 	}
+	
     }
 
     public Pass createPass(ExtensionInfo extInfo) {

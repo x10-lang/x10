@@ -114,9 +114,10 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 	    case X10CastNode.ASYNC_INVOKE: {
 		if (visitor.visitAsyncInvoke(n, context, visitor))
 		    break;
-		visitor.visit(n.getChild(0), context, visitor);
-                visitor.visit(n.getChild(1), context, visitor);
-                visitor.leaveAsyncInvoke(n, context, visitor);
+		for(int i = 0; i < n.getChildCount(); i++) {
+			visitor.visit(n.getChild(i), context, visitor);
+		}
+		visitor.leaveAsyncInvoke(n, context, visitor);
 		break;
 	    }
 	    case X10CastNode.ATOMIC_ENTER: {
@@ -190,6 +191,13 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 		visitor.leaveArrayRef(n, context, visitor);
 		break;
 	    }
+	    case X10CastNode.PLACE_OF_POINT: {
+			if (visitor.visitPlaceOfPoint(n, context, visitor))
+			    break;
+			visitor.visit(n.getChild(0), context, visitor); // the point expr
+			visitor.leavePlaceOfPoint(n, context, visitor);
+			break;
+		    }
 	    default:
 		return super.doVisit(n, context, visitor);
 	}
@@ -321,16 +329,29 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
      */
     protected boolean visitHere(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
     /**
-     * Leave an Async node.
+     * Leave a here node.
      * @param n the node to process
      * @param c a visitor-specific context
      */
     protected void leaveHere(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
     /**
-     * Visit a Next node.
+     * Visit an Async node.
+     * @param n the node to process
+     * @param c a visitor-specific context
+     * @return true if no further processing is needed
+     */
+    protected boolean visitNext(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
+    /**
+     * Leave a PLACE_OF_POINT node.
      * @param n the node to process
      * @param c a visitor-specific context
      */
-    protected void visitNext(CAstNode n, Context c, CAstVisitor visitor) { visitor.visitNode(n, c, visitor); }
+    protected void leavePlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
+    /**
+     * Visit a PLACE_OF_POINT node.
+     * @param n the node to process
+     * @param c a visitor-specific context
+     */
+    protected boolean visitPlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
 }
 
