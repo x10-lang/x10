@@ -32,11 +32,11 @@ public class Ref(location: place) { ... }
 
 If a constrained reference type \xcd"T" has an \xcd"!p" suffix,
 the constraint for \xcd"T" is implicitly assumed to contain the clause
-\xcd"self.loc==p"; that is,
-\xcd"C{c}!p" is equivalent to \xcd"C{self.loc==p && c}".
+\xcd"self.location==p"; that is,
+\xcd"C{c}!p" is equivalent to \xcd"C{self.location==p && c}".
 
 If the place \xcd"p" is ommitted, \xcd"here" is assumed; that is,
-\xcd"C{c}!" is equivalent to \xcd"C{self.loc==here && c}".
+\xcd"C{c}!" is equivalent to \xcd"C{self.location==here && c}".
 
 % The place specifier \xcd"any" specifies that the object can be
 % located anywhere.  Thus, the location is unconstrained; that is,

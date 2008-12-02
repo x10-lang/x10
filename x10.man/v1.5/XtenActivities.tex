@@ -80,7 +80,7 @@ the activity terminates (based on the semantics of the statement being
 executed by the activity).\footnote{In \XtenCurrVer{} the \xcd"finish"
 statement is the only statement that marks its activity as a root
 activity. Future versions of the language may introduce more such
-statements.}  Thus, unlike concurrent languages such as \java{} no
+statements.}  Thus, unlike concurrent languages such as \java{}, no
 exception is ``thrown on the floor''.
 
 \section{Spawning an activity}\label{AsynchronousActivity}\label{AsyncActivity}
@@ -104,11 +104,11 @@ The place expression \xcd"e" is expected to be of type \xcd"Place",
 e.g., \xcd"here" or \xcd"d(p)" for some
 distribution \xcd"d" and point \xcd"p" (\Sref{XtenPlaces}).  
 If not, the compiler replaces
-\xcd"e" with \xcd"e.loc" if
+\xcd"e" with \xcd"e.location" if
 \xcd"e" is of type \xcd"x10.lang.Ref". Otherwise the compiler reports a type error. 
 
 Note specifically that the expression \xcd"a(i)" when used as a place
-expression may evaluate to \xcd"a(i).loc", which may not be
+expression may evaluate to \xcd"a(i).location", which may not be
 the same place as \xcd"a.dist(i)". The programmer must be 
 careful to choose the right expression, appropriate for the statement.
 Accesses to \xcd"a(i)" within \grammarrule{Statement} should typically be guarded 
@@ -155,6 +155,24 @@ variables in lexically enclosing scopes (including \xcd"clock"
 variables, \Sref{XtenClocks}) provided that such variables are
 (implicitly or explicitly) \xcd"final".
 \end{staticrule*}
+
+\section{Place changes}\label{AtStatement}
+
+An activity may change place using the \xcd"at" statement or
+\xcd"at" expression:
+
+\begin{grammar}
+Statement \: AtStatement \\
+AtStatement \: \xcd"at" PlaceExpressionSingleList Statement \\
+Expression \: AtExpression \\
+AtExpression \: \xcd"at" PlaceExpressionSingleList ClosureBody \\
+\end{grammar}
+
+The statement \xcd"at (p) S" executes the statement \xcd"S"
+synchronously at place \xcd"p".
+The expression \xcd"at (p) E" executes the statement \xcd"E"
+synchronously at place \xcd"p", returning the result to the
+originating place.
 
 \section{Finish}\index{finish}\label{finish}
 The statement \xcd"finish S" converts global termination to local
