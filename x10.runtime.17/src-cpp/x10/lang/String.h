@@ -34,7 +34,8 @@ namespace x10 {
 
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
-            static x10aux::ref<String> Lit(const char *s) { return X10NEW(String)(std::string(s)); }
+            static x10aux::ref<String> Lit(const char *s) { return Lit(std::string(s)); }
+            static x10aux::ref<String> Lit(const std::string& s) { return X10NEW(String)(s); }
 
             operator x10aux::ref<Value> () {
                 return x10aux::ref<String>(this);
