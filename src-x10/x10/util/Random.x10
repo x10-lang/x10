@@ -72,7 +72,7 @@ public class Random {
     }
      
     /** Return a 64-bit random (long) integer */
-    public def nextLong(): long = (nextInt() << 32) | nextInt();
+    public def nextLong(): long = ((nextInt() to Long) << 32) | nextInt();
 
     public def nextLong(maxPlus1: long): long {
         if (maxPlus1 <= 0)
