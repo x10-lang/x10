@@ -1,6 +1,8 @@
+import x10.io.Console;
+
 class HelloWorld {
   public static def main(args:Rail[String]):void {
-     System.out.println("Hello World");
+     Console.OUT.println("Hello World");
   }
 }
 
