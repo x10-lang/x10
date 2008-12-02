@@ -2,6 +2,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 import x10.util.Timer;
+import x10.runtime.NativeRuntime;
 
 value LocalTable {
     
@@ -35,7 +36,7 @@ class FRASimple {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
-    const NUM_PLACES = 4; // Place.MAX_PLACES; TEMP hack to avoid static init issue
+    const NUM_PLACES = NativeRuntime.MAX_PLACES;
     const PLACE_ID_MASK = NUM_PLACES-1;
 
     // Utility routine to start random number generator at Nth step

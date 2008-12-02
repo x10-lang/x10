@@ -1,6 +1,8 @@
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
+import x10.io.Console;
+
 import x10.util.Timer;
 import x10.runtime.NativeRuntime;
 
@@ -23,14 +25,6 @@ value LocalTable {
 
 
 class FRASimpleDist {
-
-    @Native("java", "System.out.println(#1)")
-    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
-    public static native def println(x:String):void;
-
-    @Native("java", "System.out.printf(#1,#2)")
-    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
-    public static native def printf(x:String, o:Object):void;
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
@@ -142,4 +136,9 @@ class FRASimpleDist {
 
     static def now() = Timer.nanoTime() * 1e-9D;
 
+    static def println(s:String) = Console.OUT.println(s);
+
+    @Native("java", "System.out.printf(#1,#2)")
+    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
+    public static native def printf(x:String, o:Object):void;
 }

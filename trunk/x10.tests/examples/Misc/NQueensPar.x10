@@ -1,8 +1,5 @@
 import x10.io.Console;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 public class NQueensPar {
 
     var nSolutions:int;
@@ -86,7 +83,5 @@ public class NQueensPar {
     	}
     }
 
-    @Native("java", "System.out.println(#1)")
-    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
-    static native def println(x:String):void;
+    static def println(s:String) = Console.OUT.println(s);
 }
