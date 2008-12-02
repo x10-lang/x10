@@ -71,6 +71,7 @@ ALL_OBJECTS = \
 	x10/io/FileOutputStream.o \
 	x10/io/FileNotFoundException.o \
 	x10/io/IOException.o \
+	x10/io/NativeFile.o \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
 	x10/lang/ArrayIndexOutOfBoundsException.o \
