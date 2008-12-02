@@ -15,11 +15,11 @@ import java.util.Map;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.FlagsNode;
-import polyglot.ast.Formal;
+import polyglot.ast.FloatLit;
 import polyglot.ast.Id;
+import polyglot.ast.IntLit;
 import polyglot.ast.Node;
 import polyglot.ast.StringLit;
-import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
@@ -29,16 +29,13 @@ import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
-import polyglot.types.LocalDef;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.SemanticException;
 import polyglot.types.Name;
+import polyglot.types.Ref;
+import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -212,8 +209,49 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	            if (this.type().type().isVoid())
 	                throw new SemanticException("Field cannot have type " + this.type().type() + ".", position());
-	            return super.typeCheck(tc);
+
+	            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	            
+	            X10FieldDecl_c n = this;
+
+	            // Add an initializer to uninitialized var fields.
+                    if (! n.flags().flags().isFinal() && n.init() == null) {
+                        Type t = n.type().type();
+                        Expr e = null;
+                        if (t.isBoolean()) {
+                            e = (Expr) nf.BooleanLit(position(), false).del().typeCheck(tc).checkConstants(tc);
+                        }
+                        if (t.isIntOrLess()) {
+                            e = (Expr) nf.IntLit(position(), IntLit.INT, 0L).del().typeCheck(tc).checkConstants(tc);
+                        }
+                        if (t.isLong()) {
+                            e = (Expr) nf.IntLit(position(), IntLit.LONG, 0L).del().typeCheck(tc).checkConstants(tc);
+                        }
+                        if (t.isFloat()) {
+                            e = (Expr) nf.FloatLit(position(), FloatLit.FLOAT, 0.0).del().typeCheck(tc).checkConstants(tc);
+                        }
+                        if (t.isDouble()) {
+                            e = (Expr) nf.FloatLit(position(), FloatLit.DOUBLE, 0.0).del().typeCheck(tc).checkConstants(tc);
+                        }
+                        if (ts.isSubtype(t, ts.String())) {
+                            e = (Expr) nf.StringLit(position(), "").del().typeCheck(tc).checkConstants(tc);
+                        }
+                        if (ts.isReferenceType(t)) {
+                            e = (Expr) nf.NullLit(position()).del().typeCheck(tc).checkConstants(tc);
+                        }
+                        
+                        if (e != null) {
+                            n = (X10FieldDecl_c) n.init(e);
+                        }
+                    }
+
+                    return n.superTypeCheck(tc);
 	        }
+
+        private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
+            return (X10FieldDecl_c) super.typeCheck(tc);
+        }
 
 	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
 	        if (child == init) {
