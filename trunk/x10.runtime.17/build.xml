@@ -32,7 +32,8 @@
 
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
-        <os family="unix" name="linux"/>
+        <!--<os family="unix" name="linux"/>-->
+        <istrue value="false"/>
     </condition>
 
     <target name="init">
