@@ -31,6 +31,8 @@ override CXXFLAGS += -pthread
 endif
 endif
 
+INSTDIR = $(abspath ../../x10.dist)
+
 
 # Target:
 
@@ -121,6 +123,20 @@ $(XRX_ARCHIVE): generated $(XRX_MANIFEST)
 .PRECIOUS: gen/MANIFEST
 
 .PHONY: all-cpp-generated generated
+
+
+# Install targets:
+
+install: $(ARCHIVE) $(XRX_ARCHIVE)
+	mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
+	(cd gen && find . -name \*.h | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
+	find . -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
+	cp -p $(ARCHIVE) $(INSTDIR)/lib
+	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
+	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
+
+.PHONY: install
+
 
 # Standard stuff:
 
