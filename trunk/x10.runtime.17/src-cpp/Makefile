@@ -127,12 +127,13 @@ $(XRX_ARCHIVE): generated $(XRX_MANIFEST)
 # Install targets:
 
 # FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
-install: # $(ARCHIVE) $(XRX_ARCHIVE)
+install: $(ARCHIVE) $(XRX_ARCHIVE)
 	mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
 	(cd gen && find . -name \*.h | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
 	(cd gen && find . -name \*.inc | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
 	find x10 -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
 	find x10aux -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
+	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
