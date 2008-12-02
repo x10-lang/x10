@@ -164,9 +164,9 @@ value class UnionRegion extends BaseRegion {
         val min = Rail.makeVar[int](rank);
         val max = Rail.makeVar[int](rank);
         for (var axis: int = 0; axis<rank; axis++)
-            min(axis) = int.MAX_VALUE;
+            min(axis) = Int.MAX_VALUE;
         for (var axis: int = 0; axis<rank; axis++)
-            max(axis) = int.MIN_VALUE;
+            max(axis) = Int.MIN_VALUE;
         for (r:Region in regions) {
             val rmin = r.min();
             val rmax = r.max();
