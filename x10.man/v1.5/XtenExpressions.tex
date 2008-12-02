@@ -619,13 +619,13 @@ Expressions \: Expression ( \xcd"," Expression )\star \\
 \end{grammar}
 
 The rail constructor \xcdmath"[a$_0$, $\dots$, a$_{k-1}$]"
-creates an instance of \xcd"ValRail" with region
-\xcdmath"(0..$k$-1)" where the $i$th element is
+creates an instance of \xcd"ValRail" with length $k$
+where the $i$th element is
 \xcdmath"a$_i$".  The element type of the array (\xcd"T") is
 bound to the least common ancestor of the types of the
 \xcdmath"a$_i$" (\Sref{LCA}).
 
-Since arrays are subtypes of \xcd"Point => T",
+Since arrays are subtypes of \xcd"(Point) => T",
 rail constructors can be passed into the \xcd"Array" and
 \xcd"ValArray" constructors as initializer functions.
 
