@@ -76,7 +76,7 @@ public class Random {
 
     public def nextLong(maxPlus1: long): long {
         if (maxPlus1 <= 0)
-            return 0;
+            return 0L;
         
         var n: long = maxPlus1;
 
@@ -139,7 +139,7 @@ public class Random {
 
         // Set the initial buffer using a PRNG from
         // Knuth, vol 2, 2nd ed, p. 102
-        MT(0) = seed to Int;
+        MT(0) = (seed to Long) to Int;
         for (var i: int = 1; i < N; i++) {
             MT(i) = (69069L * MT(i-1)) to Int;
         }
