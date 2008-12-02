@@ -7,22 +7,11 @@
  * @author bdlucas
  */
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 import x10.runtime.NativeRuntime;
-
 import x10.util.Timer;
+import x10.io.Console;
 
 public class FSSimpleDist {
-
-    @Native("java", "System.out.println(#1)")
-    @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
-    public static native def println(x:String):void;
-
-    @Native("java", "System.out.printf(#1,#2)")
-    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
-    public static native def printf(x:String, o:Object):void;
 
     const MEG = 1024*1024;
     const alpha = 3.0D;
@@ -44,7 +33,7 @@ public class FSSimpleDist {
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
 
-        println("localSize=" + localSize);
+        Console.OUT.println("localSize=" + localSize);
 
         finish {
 
@@ -91,9 +80,9 @@ public class FSSimpleDist {
     static def printStats(N:int, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
-        println("Number of places=" + NUM_PLACES);
-        println("Size of arrays: " + size +" MB (total)" + size/NUM_PLACES + " MB (per place)");
-        println("Min time: " + time + " rate=" + rate + " GB/s");
-        println("Result is " + (verified ? "verified." : "NOT verified."));
+        Console.OUT.println("Number of places=" + NUM_PLACES);
+        Console.OUT.println("Size of arrays: " + size +" MB (total)" + size/NUM_PLACES + " MB (per place)");
+        Console.OUT.println("Min time: " + time + " rate=" + rate + " GB/s");
+        Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
     }                                
 }
