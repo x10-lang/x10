@@ -4,7 +4,6 @@ CXX ?= g++
 AR ?= ar
 
 X10LIB ?= $(abspath ../../pgas/common/work)
-X10CPP ?= $(abspath ../../x10.cppbackend.17)
 CXXFLAGS += -g
 INCLUDE_DIRS += -I$(X10LIB)/include -I.
 ifdef ENABLE_GC
@@ -108,7 +107,7 @@ gen/MANIFEST: all-src-generated
 	rm gen/MANIFEST.raw
 
 all-src-generated: gen/MANIFEST-x10
-	cd ../src-x10 && "$(X10CPP)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c $(shell cat ../src-cpp/gen/MANIFEST-x10)
+	cd ../src-x10 && "$(INSTDIR)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c $(shell cat ../src-cpp/gen/MANIFEST-x10)
 
 generated: all-src-generated gen/MANIFEST
 	cd gen && CXXFLAGS="-I.. $(CXXFLAGS)" $(MAKE) -k $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
@@ -127,10 +126,13 @@ $(XRX_ARCHIVE): generated $(XRX_MANIFEST)
 
 # Install targets:
 
-install: $(ARCHIVE) $(XRX_ARCHIVE)
+# FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
+install: # $(ARCHIVE) $(XRX_ARCHIVE)
 	mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
 	(cd gen && find . -name \*.h | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
-	find . -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
+	(cd gen && find . -name \*.inc | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
+	find x10 -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
+	find x10aux -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
 	cp -p $(ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
