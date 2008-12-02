@@ -16,8 +16,10 @@ the field \xcd"a.dist".
 Arrays are indexed by points--$n$-dimensional tuples of
 integers, implemented by the value class \xcd"x10.lang.Point".
 \Xten{} specifies a simple syntax for the construction of points.
-A rail constructor (\Sref{RailConstructors}) of a \xcd"ValRail[Int]" or
-\xcd"ValRail[Long]" array of length $n$
+A rail constructor (\Sref{RailConstructors}) of type \xcd"ValRail[Int]"
+%or
+%\xcd"ValRail[Long]" array
+of length $n$
 can be implicitly coerced to a \xcd"Point" of rank $n$.  For
 example, the following code initializes \xcd"p" to a point of
 rank two using a rail constructor:
