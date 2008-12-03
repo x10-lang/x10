@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,7 +91,7 @@ public class XPromise_c implements XPromise, Serializable {
         this.var = var;
         this.value = value;
         if (fields != null)
-            this.fields = new HashMap<XName, XPromise>(fields);
+            this.fields = new LinkedHashMap<XName, XPromise>(fields);
     }
 
     /*
@@ -166,7 +167,7 @@ public class XPromise_c implements XPromise, Serializable {
             clone.value = valueClone;
         }
         if (this.fields != null) {
-            HashMap<XName, XPromise> cloneFields = new HashMap<XName, XPromise>();
+            HashMap<XName, XPromise> cloneFields = new LinkedHashMap<XName, XPromise>();
             for (Iterator<Map.Entry<XName, XPromise>> it = fields.entrySet().iterator(); it.hasNext();) {
                 Map.Entry<XName, XPromise> entry = it.next();
                 XName key = entry.getKey();
@@ -242,7 +243,7 @@ public class XPromise_c implements XPromise, Serializable {
             return this;
         // if not, we need to add this path here. Ensure fields is initialized.
         if (fields == null)
-            fields = new HashMap<XName, XPromise>();
+            fields = new LinkedHashMap<XName, XPromise>();
         assert vars[index] instanceof XField;
         XField f = (XField) vars[index];
         XName s = f.field();
@@ -266,7 +267,7 @@ public class XPromise_c implements XPromise, Serializable {
         }
 
         if (fields == null)
-            fields = new HashMap<XName, XPromise>();
+            fields = new LinkedHashMap<XName, XPromise>();
         XPromise child = (XPromise) fields.get(s);
 
         if (child != null) {
