@@ -1,4 +1,0 @@
-// SYNOPSIS: #0 (#1, #0 dummy) #2  #0 = return Type, #1 = formals, #2 = body
-new x10.core.fun.Fun_0_2<#1,#0,#0> {
-	public #0 apply(#1, #0 dummy) { #2 }
-}
