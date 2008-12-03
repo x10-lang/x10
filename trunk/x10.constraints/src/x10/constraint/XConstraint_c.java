@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -200,7 +201,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
 
     public XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure {
         if (roots == null)
-            roots = new HashMap<XTerm, XPromise>();
+            roots = new LinkedHashMap<XTerm, XPromise>();
         XPromise p = (XPromise) roots.get(baseVar);
         if (p == null) {
             p = (replaceP && last != null) ? last : new XPromise_c(baseVar);
@@ -211,7 +212,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
     
     public void addPromise(XTerm p, XPromise node) {
         if (roots == null)
-            roots = new HashMap<XTerm, XPromise>();
+            roots = new LinkedHashMap<XTerm, XPromise>();
         roots.put(p, node);
     }
 
@@ -276,7 +277,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return;
         
         if (roots == null)
-            roots = new HashMap<XTerm, XPromise>();
+            roots = new LinkedHashMap<XTerm, XPromise>();
 
         XPromise p1 = intern(left);
         XPromise p2 = intern(right);
@@ -295,7 +296,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return;
         
         if (roots == null)
-            roots = new HashMap<XTerm, XPromise>();
+            roots = new LinkedHashMap<XTerm, XPromise>();
 
         XPromise p = lookup(t);
         
@@ -321,7 +322,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             if (!consistent)
                 return this;
             if (roots == null)
-                roots = new HashMap<XTerm, XPromise>();
+                roots = new LinkedHashMap<XTerm, XPromise>();
             XPromise p1 = intern(t1);
             boolean modified = p1.bind(p);
         }
@@ -454,7 +455,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             
             /** Compute all possible bindings for EQVs in the terms list by unifying with the terms in c.  This should over-approximate the set of bindings. */
             Map<XTerm, List<XTerm>> eqvBindings(XConstraint c, List<XTerm> terms) {
-                Map<XTerm,List<XTerm>> m = new HashMap<XTerm,List<XTerm>>();
+                Map<XTerm,List<XTerm>> m = new LinkedHashMap<XTerm,List<XTerm>>();
                 for (XTerm term : terms) {
                     if (term instanceof XEquals) {
                         XEquals eq = (XEquals) term;
@@ -489,7 +490,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
                     XTerm v = e.getKey();
                     List<XTerm> ts = e.getValue();
                     
-                    Map<XTerm,List<XTerm>> m = new HashMap<XTerm, List<XTerm>>(eqvBindings);
+                    Map<XTerm,List<XTerm>> m = new LinkedHashMap<XTerm, List<XTerm>>(eqvBindings);
                     m.remove(v);
 
                     if (ts == null || ts.size() == 0) {
@@ -860,7 +861,7 @@ if (false) {
 
             // Clone the root map, with the renaming map primed
             // with x -> v
-            HashMap<XPromise, XPromise> renaming = new HashMap<XPromise,XPromise>();
+            HashMap<XPromise, XPromise> renaming = new LinkedHashMap<XPromise,XPromise>();
             renaming.put(q, new XPromise_c(v));
 
             for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
@@ -942,7 +943,7 @@ if (false) {
      * @param c TODO
      */
     private void replace(XPromise y, XPromise x) throws XFailure {
-        //		HashMap<XPromise, XPromise> renaming = new HashMap<XPromise,XPromise>();
+        //		HashMap<XPromise, XPromise> renaming = new LinkedHashMap<XPromise,XPromise>();
         //		renaming.put(x, y);
         //
         //		for (Map.Entry<XTerm, XPromise> m : roots.entrySet()) {
