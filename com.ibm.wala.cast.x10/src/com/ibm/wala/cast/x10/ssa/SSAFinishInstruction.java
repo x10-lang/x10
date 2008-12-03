@@ -21,7 +21,7 @@ public class SSAFinishInstruction extends SSAInstruction {
     }
 
     public String toString(SymbolTable symbolTable) {
-      return isEnter ? "atomic enter" : "atomic exit";
+      return isEnter ? "finish enter" : "finish exit";
     }
 
     /**

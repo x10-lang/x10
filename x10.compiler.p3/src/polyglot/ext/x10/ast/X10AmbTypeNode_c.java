@@ -1,12 +1,4 @@
 /*
- * This file is part of the Polyglot extensible compiler framework.
- *
- * Copyright (c) 2000-2007 Polyglot project group, Cornell University
- * Copyright (c) 2006-2007 IBM Corporation
- * 
- */
-
-/*
  *
  * (C) Copyright IBM Corporation 2006-2008.
  *

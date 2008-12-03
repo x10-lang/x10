@@ -3,6 +3,7 @@ package com.ibm.wala.cast.x10.analysis;
 import java.io.IOException;
 import java.util.jar.JarFile;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -17,7 +18,7 @@ import com.ibm.wala.eclipse.util.EclipseProjectPath;
  */
 public class X10EclipseProjectPath extends EclipseProjectPath {
 
-    public X10EclipseProjectPath(IJavaProject project) throws JavaModelException, IOException {
+    public X10EclipseProjectPath(IJavaProject project) throws IOException, CoreException {
 	super(project);
     }
 

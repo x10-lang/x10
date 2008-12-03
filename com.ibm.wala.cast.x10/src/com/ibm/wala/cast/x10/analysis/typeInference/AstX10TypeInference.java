@@ -3,11 +3,13 @@ package com.ibm.wala.cast.x10.analysis.typeInference;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
+import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
 import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAHereInstruction;
+import com.ibm.wala.cast.x10.ssa.SSAPlaceOfPointInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterHasNextInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterInitInstruction;
 import com.ibm.wala.cast.x10.ssa.SSARegionIterNextInstruction;
@@ -106,6 +108,13 @@ public class AstX10TypeInference extends AstJavaTypeInference {
 	public void visitArrayStoreByPoint(X10ArrayStoreByPointInstruction instruction) {
 	    result = null; // ??? is this correct ???
 	}
+	
+ 	public void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction) {
+ 		 		TypeReference placeType = TypeReference.findOrCreate(X10PrimordialClassLoader.X10Primordial, "Lx10/lang/place");
+ 		 		IClass placeClass = cha.lookupClass(placeType);
+ 		 		result = new DeclaredTypeOperator(new ConeType(placeClass));
+ 	}
+ 	
     }
 
     protected void initialize() {

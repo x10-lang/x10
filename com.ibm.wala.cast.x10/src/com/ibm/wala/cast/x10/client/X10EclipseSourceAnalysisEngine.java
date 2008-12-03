@@ -1,5 +1,6 @@
 package com.ibm.wala.cast.x10.client;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 
 import com.ibm.wala.cast.x10.analysis.X10EclipseProjectPath;
@@ -41,7 +42,7 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
     private final Set<Module> x10SourceEntries = HashSetFactory.make();
 
     public X10EclipseSourceAnalysisEngine(IJavaProject javaProject) 
-	throws JavaModelException, IOException
+	throws IOException, CoreException
     {
 	super(javaProject, "x10");
 	fX10ExtInfo = new X10IRTranslatorExtension();
@@ -66,9 +67,10 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
     /**
      * Create a variant of EclipseProjectPath that prevents the Primordial loader from
      * handling the X10 runtime, which is handled instead by the X10PrimordialClassLoader.
+     * @throws CoreException 
      */
     @Override
-    protected EclipseProjectPath createProjectPath(IJavaProject project) throws JavaModelException, IOException {
+    protected EclipseProjectPath createProjectPath(IJavaProject project) throws IOException, CoreException {
         return new X10EclipseProjectPath(project);
     }
 

@@ -152,7 +152,7 @@ depend:
 
 
 clean:
-	find . \( -name '*.h.gch' -o -name '*.o' \) -print0 | xargs -r0 -t rm -f
+	find . -name gen -prune -o \( -name '*.h.gch' -o -name '*.o' \) -print0 | xargs -r0 -t rm -f
 	rm -f $(ARCHIVE)
 
 squeakyclean: clean

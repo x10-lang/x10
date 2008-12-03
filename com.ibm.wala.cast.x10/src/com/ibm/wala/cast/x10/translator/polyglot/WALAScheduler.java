@@ -3,22 +3,16 @@
  */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
-import polyglot.frontend.ExtensionInfo;
-import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
-public abstract class WALAScheduler extends JLScheduler {
+public interface WALAScheduler {
 
-    public WALAScheduler(ExtensionInfo extInfo) {
-	super(extInfo);
-    }
+    public Goal CAstDumped(Job job);
 
-    public abstract Goal CAstDumped(Job job);
+    public Goal CAstGenerated(Job job);
 
-    public abstract Goal CAstGenerated(Job job);
+    public Goal IRGenerated(Job job);
 
-    public abstract Goal IRGenerated(Job job);
-
-    public abstract Goal AsyncsAnalyzed(Job job);
+    public Goal AsyncsAnalyzed(Job job);
 }

@@ -3,16 +3,16 @@
  */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
-import polyglot.frontend.ExtensionInfo;
+import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 
 import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
 import com.ibm.wala.types.ClassLoaderReference;
 
-public class X10WALAScheduler extends WALAScheduler {
-    public X10WALAScheduler(ExtensionInfo extInfo) {
-	super(extInfo);
+public class X10WALAScheduler extends X10Scheduler implements WALAScheduler {	
+    public X10WALAScheduler(X10ExtensionInfo extInfo) {
+    	super(extInfo);
     }
 
     public Goal CAstGenerated(Job job) {

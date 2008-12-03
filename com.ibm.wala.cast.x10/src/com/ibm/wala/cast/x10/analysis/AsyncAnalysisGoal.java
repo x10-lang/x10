@@ -7,6 +7,7 @@ import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.Pass;
+import polyglot.frontend.Scheduler;
 import polyglot.frontend.goals.AbstractGoal;
 import polyglot.util.ErrorInfo;
 
@@ -19,9 +20,9 @@ public class AsyncAnalysisGoal extends AbstractGoal {
 	try {
 	    WALAScheduler scheduler= (WALAScheduler) job.extensionInfo().scheduler();
 
-	    addPrerequisiteGoal(scheduler.CAstGenerated(job), scheduler);
-	    addPrerequisiteGoal(scheduler.CAstDumped(job), scheduler);
-	} catch (CyclicDependencyException e) {
+	    addPrerequisiteGoal(scheduler.CAstGenerated(job), (Scheduler)scheduler);
+	    addPrerequisiteGoal(scheduler.CAstDumped(job), (Scheduler)scheduler);
+} catch (CyclicDependencyException e) {
 	    job.compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR, "Cycle encountered in goal graph?");
 	    throw new IllegalStateException(e.getMessage());
 	}
