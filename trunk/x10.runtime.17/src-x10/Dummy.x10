@@ -133,12 +133,6 @@ class Dummy {
     var f126 : x10.runtime.StackThread;
     var f127 : x10.runtime.StackThrowable;
     var f128 : x10.runtime.Thread;
-    var f129 : x10.runtime.xws.Closure;
-    var f130 : x10.runtime.xws.Frame;
-    var f131 : x10.runtime.xws.Job;
-    var f132 : x10.runtime.xws.Pool;
-    var f133 : x10.runtime.xws.StealAbort;
-    var f134 : x10.runtime.xws.XWSWorker;
     var f135 : x10.util.AbstractCollection[Dummy];
     var f136 : x10.util.AbstractContainer[Dummy];
     var f137 : x10.util.ArrayList[Dummy];
