@@ -1,0 +1,27 @@
+// SYNOPSIS: main(#0) #1
+
+public static class Main extends x10.runtime.Activity {
+	private final x10.core.Rail<java.lang.String> form;
+	public Main(java.lang.String[] args) {
+		super("Main Activity");
+		this.form = x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args);
+	}
+	public void runX10Task() {
+		main(form);
+	}
+}
+
+public static void main(java.lang.String[] args) {
+        java.lang.System.err.println("Please use the 'x10' script to invoke X10 programs, or see the generated");
+        java.lang.System.err.println("Java code for alternate invocation instructions.");
+        java.lang.System.exit(128);
+}
+
+// the original app-main method
+public static void main(#0) {
+#1
+}
+
+// How to invoke?  Use the following general command:
+// java $(javaArgs) x10.runtime.Runtime $(x10Args) ClassName $(x10AppArgs)
+

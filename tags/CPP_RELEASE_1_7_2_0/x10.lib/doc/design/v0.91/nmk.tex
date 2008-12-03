@@ -1,0 +1,43 @@
+As mentioned in Section~\ref{sec:deploy}, several possible ways of
+deployment are possible.  In the first version of the library, there
+will be one or more MPI process per SMP node, and one or more X10
+places per process. At a given time, each thread will execute one
+activity at a given place (See Figure~\ref{fig:deploy1}). The most
+general configuration is N processes per SMP node, M places per
+process and K threads per place (N/M/K). However, using appropriate
+inputs in the configuration file, the programmer can create different
+schemes of mapping. For example, the RandomAccess code of
+Section~\ref{sec:deploy:example}, can be executed in at least three
+different modes :
+
+\begin{itemize}
+\item {\bf N/M/1} - This is the default configuration. M places are
+executed in each of the N processes per SMP node. Each place has one
+thread of execution. This scheme has 2 disadvantages. LAPI uses only
+thread for handling incoming and outgoing communication requests. This
+thread could become a bottleneck, as the communication of M places are
+serialized by this thread. Another disadvantage is that the naive
+execution of an ateach statement will cause multiple messages to be
+sent to one process, one per place hosted by the process. This
+drawback can be eliminated by using the compiler to restructure the
+ateach loop and forcing the compiled code to use an
+"atEachPlaceInProcess" intrinsic.
+
+\item {\bf 1/1/K} - In this setting, one process executes in an SMP
+node and 1 place is hosted by it. In each place, K threads can
+executed. This method also posses the drawback of single thread being
+responsible for all the communication.
+
+\item {\bf N/1/1} - In this configuration, N processes are mapped to a
+given SMP node. Each process hosts exactly one place, and each place
+has exactly one thread. This method does not have the drawback of
+single communication thread. Additionally, within a node the processes
+can communicate using shared memory. The key drawback is that an async
+activity might lead to several repeated messages to the same node.
+\end{itemize}
+
+More schemes are possible for the RandomAccess benchmark. Programmer
+can also control the batching of send and receives. If batching is
+used, the communication requests are queued for a maximum of up to
+BATCHSIZE, a programmer defined variable. Finally, all the queued
+requests are completed together.

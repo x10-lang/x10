@@ -1,0 +1,8 @@
+This is TeX, Version 3.141592 (MiKTeX 2.4) (preloaded format=plain 2004.7.11)  11 JUL 2004 18:30
+**ieee
+(ieee.tex
+! Undefined control sequence.
+l.1 \documentstyle
+                  [twoside]{algol60}
+? x
+No pages of output.

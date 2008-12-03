@@ -1,0 +1,111 @@
+******************************************************************************
+NAS Parallel Benchmark: FT
+
+Berkeley UPC Implementation:
+by 
+Christian Bell (csbell@cs.berkeley.edu), 
+Dan Bonachea (bonachea@cs.berkeley.edu), 
+and Rajesh Nishtala (rajeshn@cs.berkeley.edu)
+
+For licensing and usage terms, see license.txt
+******************************************************************************
+
+Quick Start: 
+
+The fastest way to build the benchmarks is to first set the following environment variables:
+
+FFT_HOME: Location of the FFTW (perferebly version 3) library
+UPCC: Location of the UPC compiler
+MPI_CC: Location of the MPI compiler
+CC: Location of the local C compiler (use the same one that was used to build UPC)
+(optional) FFTW2_HOME: Location of the FFTW2 library for the benchmark written using FFTW's built-in
+distributed memory implementation. 
+
+and then type:
+$ make 
+
+Example:
+$ export FFT_HOME=/usr/local/fftw3
+$ export UPCC=/usr/local/upc/bin/upcc
+$ export MPI_CC=/usr/local/mpi/bin/mpicc
+$ export CC=gcc
+$ make
+
+******************************************************************************
+General Information:
+
+This is the Berkeley UPC implementation of the NAS Parallel Benchmark: FT
+
+The description of the benchmark can be found here:
+http://www.nas.nasa.gov/News/Techreports/1994/PDF/RNR-94-007.pdf
+
+A full description of our work and results can be found in the corresponding paper 
+published at IPDPS'06:
+Optimizing Bandwidth Limited Problems Using One-Sided Communication and Overlap 
+( International Parallel and Distributed Processing Symposium 2006 , Rhodes, Greece, April 2006)
+Christian Bell, Dan Bonachaea, Rajesh Nishtala, Katherine Yelick
+Paper: http://upc.lbl.gov/publications/upc_bisection_IPDPS06.pdf (PDF)
+Presentation: http://upc.lbl.gov/publications/upc-ipdps06-talk.ppt (PPT)
+              -or-
+	      http://upc.lbl.gov/publications/upc-ipdps06-talk.pdf (PDF)
+
+
+Our main perfomance benefits were achieved using the nonblocking communication available
+in the Berkeley UPC compiler and our runtime system, GASNet. 
+UPC: http://upc.lbl.gov
+GASNet: http://gasnet.cs.berkeley.edu
+
+For completeness we have also implemented these algorithms in MPI using MPI_Isend and MPI_Irecv. 
+The code for this is available in the contrib/ directory. 
+
+For the local serial computation we use FFTW: (http://www.fftw.org).
+
+Please send questions and comments to upc@lbl.gov .
+
+******************************************************************************
+Versions: 
+
+There are three versions of the benchmark. Please see the paper above for a full description
+of the differences between the various versions.
+
+The first is a version that does not overlap communication and computation. This uses 
+a large all-to-all (or exchnage) in the middle of the 3-D FFT.
+To build a CLASS A version of these versions use:  
+"make ft-upc-bulk CLASS=AA" for the UPC version w/o pthreads support
+"make ft-upc-bulk-pthreads CLASS=AA" for the UPC versison w/ pthreads support
+"make ft-mpi-bulk CLASS=AA" for our MPI implementation
+"make ft-fftw-mpi CLASS=AA" for an implementation that uses FFTW's distributed memory transform.
+
+The second is a version that uses a moderate level of overlap between communication and computation.
+We call this version "slabs". 
+To build a CLASS A version of these versions use:  
+"make ft-upc-pthreads CLASS=AA" for the UPC versison w/ pthreads support and w/ nonblocking commmunication
+"make ft-upc-block-pthreads CLASS=AA" for the UPC version w/ ptheads and w/o nonblocking communication
+"make ft-upc CLASS=AA" for the UPC version w/o pthreads support and w/ nonblocking commmunication
+"make ft-upc-block CLASS=AA" for the UPC version w/o ptheads and w/o nonblocking communication
+"make ft-mpi CLASS=AA" for our MPI implementation
+
+The final version that uses aggressive overlap of communication and computation is called "pencils".
+"make ft-upc-pencils CLASS=AA" for the UPC version w/o pthreads support
+"make ft-upc-pencils-pthreads CLASS=AA" for the UPC versison w/ pthreads support
+"make ft-mpi-pencils CLASS=AA" for our MPI implementation
+"make ft-mpi2-pencils CLASS=AA" for our MPI2 implementation
+
+The recognized class variables are (SS, WW, AA, BB, CC, DD) which correspond to class (S,W,A,B,C,D) 
+respectively.
+
+Class | NX   | NY   | NZ   | total iterations
+--------------------------------------------
+S     | 64   | 64   | 64   | 6
+W     | 128  | 128  | 32   | 6
+A     | 256  | 256  | 128  | 6
+B     | 512  | 256  | 256  | 20
+C     | 512  | 512  | 512  | 20
+D     | 2048 | 1024 | 1024 | 25
+
+******************************************************************************
+Known Limitiations and Bugs:
+
+We currently only support a 1-D partitioning of the domain. This implies that the minimum dimension 
+of the domain (i.e. min(NX, NY, NZ)) has to be greater than or equal to the number of UPC Threads 
+used in the benchmark.  

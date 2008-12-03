@@ -1,0 +1,162 @@
+
+\subsection{Activities}
+
+Activities (and futures) are the basic units of execution within the
+X10 framework. Activities define a run() method that is used to
+execute the activity object. The activities are required to be
+non-blocking. This enables execution of multiple activities on a
+single thread. The return value from the run() method is used to
+indicate whether it is done processing, or waiting on a clock, finish,
+or communication. 
+
+\paragraph{Functionality}
+
+\begin{itemize}
+\item Spawn activities (on same or new finish scope)
+\item Destroy activities
+\item Execute the run() method
+\item Maintain a list of activities.
+\item Enable blocking activities on relevant clock quiescence or finish
+  termination. 
+\item Clock operations - resume a clock, wait on all clocks, register a
+  new clock with the activity, deregister with an existing activity. 
+\end{itemize}
+
+Activities are not directly instantiated in other activities. A {\tt Maker}
+object is created that can be serialized and deserialized. At the
+remote node, a {\tt make()} method implemented by this object returns a
+constructed activity. This allows the activities themselves to be
+non-serializable. In addition, they allow construction of minimal
+objects to be serialized. This is especially useful in the context of
+an activity utilizing the blocking pre-processor macros to manipulate
+activities, as will be explained below.
+
+\begin{verbatim}
+Activity* ActivityMaker::make()=0; //should be implemented for all activities 
+\end{verbatim}
+
+The X10 execution environment is entered when the {\tt process()} method is
+collectively invoked by all the MPI processes. 
+
+A {\tt main()} method is predefined for convenience, and the user
+defines a main activity maker ({\tt class MainActivityMaker}) that
+will be processed until the activity and all its descendants
+terminate. This implies that all user code is organized in terms of
+activities, precluding SPMD code. Alternatively, the user can write a
+{\tt main()} to execute X10 execution within an MPI program, with SPMD and
+X10 phases.
+
+The activities are required to be non-blocking in order to ensure X10
+progress guarantees without resorting to one thread per activity.
+Programmers can write code in a continuation-passing style, in which
+an activity once ready, always runs to completion. 
+
+Blocking macros ({\tt NEXT} and {\tt FINISH}) are provided as pre-processing
+directives to block on quiescence clocks or termination of a
+registered finish scope, within the non-blocking framework. These are
+similar in spirit to protothreads (http://www.sics.se/~adam/pt/) and
+the implementation of co-routines in C
+(http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html). This
+requires the adherence to certain guidelines.
+
+\begin{itemize}
+\item The local variables in an activity's run() method are not
+  retained across calls to a blocking macro. If needed, users will
+  have to save (and restore) local variables before (and after)
+  blocking macros.  
+\item The method's body is enclosed within START and END.  
+\item Invocation of blocking macros cannot be enclosed in a switch
+  statement. 
+\item Invocation of blocking macros can be only at the "top-level",
+  i.e., lexically in the run() method.
+\end{itemize}
+
+Activities will be executed in the main thread of the process, not
+within the ARMCI communication thread. The spawning of activities
+requires a buffer at the remote node. This is supported by the Global
+Procedure Calls (GPCs) in ARMCI. Activities requiring larger buffers
+are implemented by remote memory allocation, contiguous transfer of
+data, and a GPC invocation.
+
+There is no decision yet on the need for priorities for activities.
+
+\subsection{Implementation of clock quiescence and finish termination
+      detection}
+
+\subsubsection{Data structure}
+
+A type, {\tt SemiCounter}, implements the core ideas behind distributed
+quiescence and termination detection in X10. It is used by the
+implementation of finish and clock. In brief, here are the operations
+on it. Please see [PODC88] for more details.
+
+A {\tt SemiCounter} manages a counter in a distributed way. This object can
+be referenced remotely. It has an associated int counter and has the
+property that this counter starts at one can increase and decrease but
+once it reaches zero it stays stuck at zero.  The operations are
+
+\begin{verbatim}
+  public SemiCounter(); // create and return a new SemiCounter, 
+                        // this is remotely addressable.
+  public void inc(int k);
+  public void dec(int k);
+  public SemiCounter split();
+  public void drop();
+\end{verbatim}
+
+Each client should respect the property that it does not invoke any
+method on the SemiCounter after it has called {\tt drop()}. Further at
+all times its ``account'' -- the sum of $k$ for each {\tt inc(k)} it
+has called and $-k$ for each {\tt dec(k)} it has called -- is always
+non-negative.  {\tt p.split()} returns a non-null SemiCounter $q$ precisely
+when {\tt p.drop()} has not yet been called. Internally, $q$ contains a
+reference to $p$, and is called a child {\tt SemiCounter}.  The counter
+associated with each {\tt SemiCounter} is the number of children
+{\tt SemiCounter}'s that have been created so far which have not yet had
+{\tt drop()} invoked on them.
+
+Each {\tt SemiCounter} has an associated {\tt CallDescriptor}. This
+{\tt CallDescriptor} is invoked whenever the count reaches zero. The
+correct use of the {\tt SemiCounter} by its clients will ensure that each
+{\tt SemiCounter} will reach zero at most once, and once it reaches zero,
+will stay stuck at zero. Thus, ``the {\tt SemiCounter} has reached zero'' is a
+stable property. All other stable properties in the system -- e.g. all
+the activities associated with a finish have terminated, all the
+activities associated with a clock have quiesced -- are implemented by
+translation into ``the SemiCounter has reached zero'' stable property.
+
+\subsubsection{Asyncs and futures}
+
+\textbf{FinishRecord:}
+ A {\tt FinishRecord} keeps track of a set of activities ``controlled'' by the
+ finish through a {\tt SemiCounter}. Each local activity launched under a
+ finish is given a reference to the {\tt SemiCounter}, after an inc(1)
+ method has been invoked. Each activity to be invoked remotely is given
+ a child {\tt SemiCounter}.  
+
+ Each {\tt FinishRecord} also records a set of exceptions that may
+ have been thrown by its activities. It is the responsibility of the
+ {\tt CallDescriptor} associated with the {\tt FinishRecord} to check
+ if there are any exceptions and to process them appropriately.
+
+The code running in an async may invoke a terminate operation,
+optionally returning a value. This causes the parent {\tt FinishRecord} to
+record that this activity has terminated (by decreasing the
+count). The value is recorded in the {\tt FinishRecord}.
+
+The code running in an async may also invoke an exception
+operation. The exception is a value, and is recorded in the
+{\tt FinishRecord} as discussed above.
+
+A future is implemented as a thin wrapper around a finish async and is
+used to mask latency of access.  It returns a handle immediately.  The
+{\tt forced()} method may be invoked on the handle to determine if the
+future's value has been computed. If so, a call may be made to value()
+to get the value. It is also possible to register a {\tt CallDescriptor}
+which should be invoked once the future's value has been determined.
+
+\subsubsection{Clocks}
+Operations are provided to create a clock, perform a next operation on
+a clock, resume a clock and drop a clock. A clock is implemented in a
+fashion very similar to a {\tt SemiCounter}. See the implementation of clock
+in the X10 runtime.

@@ -1,0 +1,87 @@
+\section{Expressions}\label{XtenExpressions}\index{expressions}
+
+{}\Xten{} inherits all the standard expressions of \Java{}
+\cite[\S~15]{jls2} -- as modified to permit generics \cite{gjspec} --
+with the expected semantics, unless otherwise mentioned below:
+
+\begin{x10}
+Assignment MethodInvocation 
+Cast Class
+ClassInstanceCreationExpression FieldAccessExpression   
+ArrayCreationExpression ArrayAccessExpression
+PostfixExpression PrefixExpression 
+InfixExpression UnaryOperators
+MultiplicativeOperators AdditiveOperators 
+ShiftOperators RelationalOperators  
+EqualityOperators BitwiseOperators
+ConditionalOperators AssignmentOperators
+\end{x10}
+
+Expressions are evaluated in the same order as they would in \java{}
+(primarily
+left-to-right).\label{FieldAccess}\label{ClassCreation}\label{MethodInvocation}
+
+We focus on the expressions in \Xten{} which have a different
+semantics.
+
+\subsection{The classcast operator}\label{ClassCast}\index{classcast}
+The classcast operation may be used to cast an expression to a given type:
+\begin{x10}
+306 UnaryExpressionNotPlusMinus ::= 
+      CastExpression
+506 CastExpression ::= 
+      ( Type ) UnaryExpressionNotPlusMinus
+\end{x10}
+
+The result of this operation is a value of the given type if the cast
+is permissible at runtime. Both the data type and place type of the
+value are checked. Data type conversion is checked according to the
+rules of the \java{} language (e.g.{}\cite[\S 5.5]{jls2}). If the
+value cannot be cast to the appropriate data type, a {\tt ClassCast}
+exception is thrown. Otherwise, if the value cannot be cast to the
+appropriate place type a {\tt BadPlaceException} is thrown. 
+
+Any attempt to cast an expression of a reference type to a value type
+(or vice versa) results in a compile-time error. Some casts -- such as
+those that seek to cast a value of a subtype to a supertype -- are
+known to succeed at compile-time. Such casts should not cause extra
+computational overhead at runtime.
+
+\subsection{{\tt instanceof} operator}\label{instanceOf}\index{instanceof@{\tt instanceof}}
+
+This operator takes two arguments; the first should be a {\tt
+RelationalExpression} and the second a {\tt Type}. At run time, the
+result of this operator is {\tt true} if the {\tt
+RelationalExpression} can be cast to {\tt Type} without a {\tt
+ClassCastException} being thrown. Otherwise the result is {\tt false}.
+
+\subsection{Stable equality.}\label{StableEquality}\index{==}\index{!=}
+
+\cbstart
+Reference equality ({\tt ==}, {\tt !=}) is replaced in \Xten{} by the
+notion of {\em stable equality} so that it can apply uniformly to value and
+reference types.
+
+Two values may be compared with the infix predicate {\tt ==}. The call
+returns the value {\tt true} if and only if no action taken by any
+user program can distinguish between the two values.  In more detail
+the rules are as follows.
+
+If the values have a reference type, then both must be references to
+the same object (even if the object has no mutable fields). 
+
+If the values have a value type then they must be structurally equal,
+that is, they must be instances of the same value class or value array
+data type and all their fields or components must be {\tt ==}. 
+
+If one of the values is {\tt null} then the predicate succeeds iff the
+other value is also {\tt null}.
+
+The predicate {\tt !=} returns {\tt true} ({\tt false}) on two
+arguments if and only if the predicate {\tt ==} returns {\tt false}
+({\tt true}) on the same arguments.
+
+The predicates {\cf ==} and {\cf !=} may not be overridden by the
+programmer.
+
+\cbend

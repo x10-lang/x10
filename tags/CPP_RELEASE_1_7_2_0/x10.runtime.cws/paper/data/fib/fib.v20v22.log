@@ -1,0 +1,169 @@
+C++ cws numbers
+
+xlc compiler:
+
+bash-2.05a$ for p in 16 12 8 6 4 2 1
+> do
+> for n in 20 25 30 35 40
+> do
+> ./FibStack.x $p 5 $n
+> done
+> done
+nprocs=16 FibStack(20)  771 us  ok       steals=15      stealAttemps=186
+nprocs=16 FibStack(25)  13651 us        ok       steals=5       stealAttemps=56
+nprocs=16 FibStack(30)  69867 us        ok       steals=234     stealAttemps=137      2
+nprocs=16 FibStack(35)  181295 us       ok       steals=309     stealAttemps=272      5
+nprocs=16 FibStack(40)  1771523 us      ok       steals=405     stealAttemps=129      2
+nprocs=12 FibStack(20)  980 us  ok       steals=40      stealAttemps=1383
+nprocs=12 FibStack(25)  2815 us ok       steals=84      stealAttemps=1440
+nprocs=12 FibStack(30)  17529 us        ok       steals=120     stealAttemps=276      7
+nprocs=12 FibStack(35)  179468 us       ok       steals=176     stealAttemps=327      3
+nprocs=12 FibStack(40)  2268849 us      ok       steals=277     stealAttemps=565      8
+nprocs=8 FibStack(20)   596 us  ok       steals=20      stealAttemps=330
+nprocs=8 FibStack(25)   2926 us ok       steals=70      stealAttemps=721
+nprocs=8 FibStack(30)   27853 us        ok       steals=107     stealAttemps=212      7
+nprocs=8 FibStack(35)   277879 us       ok       steals=182     stealAttemps=131      9
+nprocs=8 FibStack(40)   3060265 us      ok       steals=219     stealAttemps=213      8
+nprocs=6 FibStack(20)   567 us  ok       steals=32      stealAttemps=217
+nprocs=6 FibStack(25)   3803 us ok       steals=63      stealAttemps=441
+nprocs=6 FibStack(30)   35465 us        ok       steals=52      stealAttemps=365
+nprocs=6 FibStack(35)   387377 us       ok       steals=105     stealAttemps=121      0
+nprocs=6 FibStack(40)   5200084 us      ok       steals=215     stealAttemps=187      5
+nprocs=4 FibStack(20)   593 us  ok       steals=16      stealAttemps=114
+nprocs=4 FibStack(25)   4345 us ok       steals=31      stealAttemps=194
+nprocs=4 FibStack(30)   44580 us        ok       steals=48      stealAttemps=410
+nprocs=4 FibStack(35)   485261 us       ok       steals=59      stealAttemps=365
+nprocs=4 FibStack(40)   5351699 us      ok       steals=94      stealAttemps=461
+nprocs=2 FibStack(20)   873 us  ok       steals=8       stealAttemps=52
+nprocs=2 FibStack(25)   8006 us ok       steals=10      stealAttemps=60
+nprocs=2 FibStack(30)   87514 us        ok       steals=16      stealAttemps=103
+nprocs=2 FibStack(35)   972799 us       ok       steals=18      stealAttemps=116
+nprocs=2 FibStack(40)   10662833 us     ok       steals=22      stealAttemps=142
+nprocs=1 FibStack(20)   1410 us ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(25)   15474 us        ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(30)   178776 us       ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(35)   1957836 us      ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(40)   21220758 us     ok       steals=0       stealAttemps=0
+bash-2.05a$ date
+Sun Aug 19 15:53:40 EDT 2007
+
+bash-2.05a$ for p in 16 12 8 6 4 2 1
+> do
+> for n in 20 25 30 35 40
+> do
+> ./FibStack.x $p 5 $n
+> done
+> done
+nprocs=16 FibStack(20)  684 us  ok       steals=14      stealAttemps=149
+nprocs=16 FibStack(25)  15575 us        ok       steals=0       stealAttemps=50
+nprocs=16 FibStack(30)  239721 us       ok       steals=162     stealAttemps=4448
+nprocs=16 FibStack(35)  349676 us       ok       steals=289     stealAttemps=2601
+nprocs=16 FibStack(40)  1741601 us      ok       steals=421     stealAttemps=1269
+nprocs=12 FibStack(20)  1285 us ok       steals=51      stealAttemps=1622
+nprocs=12 FibStack(25)  2619 us ok       steals=89      stealAttemps=1669
+nprocs=12 FibStack(30)  16681 us        ok       steals=201     stealAttemps=801
+nprocs=12 FibStack(35)  180834 us       ok       steals=269     stealAttemps=3216
+nprocs=12 FibStack(40)  2265850 us      ok       steals=318     stealAttemps=4913
+nprocs=8 FibStack(20)   494 us  ok       steals=26      stealAttemps=231
+nprocs=8 FibStack(25)   3610 us ok       steals=62      stealAttemps=1204
+nprocs=8 FibStack(30)   26869 us        ok       steals=112     stealAttemps=1706
+nprocs=8 FibStack(35)   245957 us       ok       steals=179     stealAttemps=1877
+nprocs=8 FibStack(40)   3095140 us      ok       steals=267     stealAttemps=2958
+nprocs=6 FibStack(20)   911 us  ok       steals=22      stealAttemps=447
+nprocs=6 FibStack(25)   4274 us ok       steals=82      stealAttemps=755
+nprocs=6 FibStack(30)   35906 us        ok       steals=92      stealAttemps=892
+nprocs=6 FibStack(35)   383823 us       ok       steals=109     stealAttemps=491
+nprocs=6 FibStack(40)   5268587 us      ok       steals=144     stealAttemps=1179
+nprocs=4 FibStack(20)   648 us  ok       steals=12      stealAttemps=139
+nprocs=4 FibStack(25)   4235 us ok       steals=33      stealAttemps=105
+nprocs=4 FibStack(30)   44744 us        ok       steals=48      stealAttemps=364
+nprocs=4 FibStack(35)   483507 us       ok       steals=71      stealAttemps=434
+nprocs=4 FibStack(40)   5363424 us      ok       steals=85      stealAttemps=372
+nprocs=2 FibStack(20)   924 us  ok       steals=10      stealAttemps=69
+nprocs=2 FibStack(25)   8055 us ok       steals=9       stealAttemps=55
+nprocs=2 FibStack(30)   87592 us        ok       steals=16      stealAttemps=99
+nprocs=2 FibStack(35)   969039 us       ok       steals=19      stealAttemps=132
+nprocs=2 FibStack(40)   10644901 us     ok       steals=22      stealAttemps=132
+nprocs=1 FibStack(20)   1447 us ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(25)   15579 us        ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(30)   175243 us       ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(35)   1956148 us      ok       steals=0       stealAttemps=0
+nprocs=1 FibStack(40)   21326391 us     ok       steals=0       stealAttemps=0
+bash-2.05a$
+
+
+bash-2.05ash-2.05a$ for p in 16 in 16; do for n in 20 25 30 35 40; do ./FibStack.x $p 5 $n; donn; do$n; d $n; 5 $n; 5 $np 5 $$p 5  $p 5x $p .x $pk.x $ck.x
+nprocs=16 FibStack(20)  100208 us       ok       steals=14      stealAttemps=941x
+nprocs=16 FibStack(25)  16421 us        ok       steals=0       stealAttemps=17
+nprocs=16 FibStack(30)  181107 us       ok       steals=215     stealAttemps=2284
+nprocs=16 FibStack(35)  197964 us       ok       steals=355     stealAttemps=1708
+nprocs=16 FibStack(40)  1727386 us      ok       steals=443     stealAttemps=1045
+ne; done5a$ for p in 16; do for n in 20 25 30 35 40; do ./FibStack.x $p 5 $n; don
+nprocs=16 FibStack(20)  8824 us ok       steals=4       stealAttemps=74
+nprocs=16 FibStack(25)  49285 us        ok       steals=29      stealAttemps=785
+nprocs=16 FibStack(30)  90223 us        ok       steals=177     stealAttemps=1436
+nprocs=16 FibStack(35)  213079 us       ok       steals=273     stealAttemps=984
+nprocs=16 FibStack(40)  1849949 us      ok       steals=491     stealAttemps=1657
+ne; done5a$ for p in 16; do for n in 20 25 30 35 40; do ./FibStack.x $p 5 $n; don
+nprocs=16 FibStack(20)  11829 us        ok       steals=2       stealAttemps=420
+nprocs=16 FibStack(25)  6020 us ok       steals=11      stealAttemps=152
+nprocs=16 FibStack(30)  55910 us        ok       steals=215     stealAttemps=1446
+nprocs=16 FibStack(35)  155107 us       ok       steals=337     stealAttemps=925
+nprocs=16 FibStack(40)  2028843 us      ok       steals=453     stealAttemps=3106
+bash-2.05a$
+
+
+gcc numbers:
+
+
+
+_________________________________________________________________________________
+
+
+cilk numbers
+
+bash-2.05a$ for p in 16 12 8 6 4  2 1
+> do
+> for n in 20 25 30 35 40
+> do
+> ./fib -nproc $p 5 $n
+> done
+> done
+n=20     Result: 6765    Time=798.000 us
+n=25     Result: 75025   Time=7430.000 us
+n=30     Result: 832040  Time=80274.000 us
+n=35     Result: 9227465         Time=879673.000 us
+n=40     Result: 102334155       Time=9778336.000 us
+n=20     Result: 6765    Time=992.000 us
+n=25     Result: 75025   Time=9760.000 us
+n=30     Result: 832040  Time=106237.000 us
+n=35     Result: 9227465         Time=1172057.000 us
+n=40     Result: 102334155       Time=12997072.000 us
+n=20     Result: 6765    Time=1413.000 us
+n=25     Result: 75025   Time=14494.000 us
+n=30     Result: 832040  Time=158296.000 us
+n=35     Result: 9227465         Time=1748140.000 us
+n=40     Result: 102334155       Time=19376546.000 us
+n=20     Result: 6765    Time=1834.000 us
+n=25     Result: 75025   Time=19249.000 us
+n=30     Result: 832040  Time=211213.000 us
+n=35     Result: 9227465         Time=2334077.000 us
+n=40     Result: 102334155       Time=25973743.000 us
+n=20     Result: 6765    Time=2685.000 us
+n=25     Result: 75025   Time=28669.000 us
+n=30     Result: 832040  Time=314894.000 us
+n=35     Result: 9227465         Time=3504601.000 us
+n=40     Result: 102334155       Time=38908098.000 us
+n=20     Result: 6765    Time=5182.000 us
+n=25     Result: 75025   Time=56768.000 us
+n=30     Result: 832040  Time=629419.000 us
+n=35     Result: 9227465         Time=6976746.000 us
+n=40     Result: 102334155       Time=77079836.000 us
+n=20     Result: 6765    Time=10183.000 us
+n=25     Result: 75025   Time=112867.000 us
+n=30     Result: 832040  Time=1253603.000 us
+n=35     Result: 9227465         Time=13934809.000 us
+n=40     Result: 102334155       Time=156865059.000 us
+bash-2.05a$ date
+Sun Aug 19 16:32:05 EDT 2007
+

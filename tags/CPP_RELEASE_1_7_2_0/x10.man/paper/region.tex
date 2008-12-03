@@ -1,0 +1,98 @@
+\begin{tightcode}
+\quad\num{1}package x10.lang;
+\quad\num{2}
+\quad\num{3}/** A region represents a k-dimensional space of points. A region is a
+\quad\num{4} * dependent class, with the value parameter specifying the dimension
+\quad\num{5} * of the region.
+\quad\num{6} * @author vj
+\quad\num{7} * @date 12/24/2004
+\quad\num{8} */
+\quad\num{9}
+\quad\num{10}public final value class region( int dimension : dimension >= 0 )  \{
+\quad\num{11}
+\quad\num{12}    /** Construct a 1-dimensional region, if low <= high. Otherwise
+\quad\num{13}     * through a MalformedRegionException.
+\quad\num{14}     */
+\quad\num{15}    extern public region (: dimension==1) (int low, int high)
+\quad\num{16}        throws MalformedRegionException;
+\quad\num{17}
+\quad\num{18}    /** Construct a region, using the list of region(1)'s passed as
+\quad\num{19}     * arguments to the constructor.
+\quad\num{20}     */
+\quad\num{21}    extern public region( List(dimension)<region(1)> regions );
+\quad\num{22}
+\quad\num{23}    /** Throws IndexOutOfBoundException if i > dimension. Returns the
+\quad\num{24}        region(1) associated with the i'th dimension of this otherwise.
+\quad\num{25}     */
+\quad\num{26}    extern public region(1) dimension( int i )
+\quad\num{27}        throws IndexOutOfBoundException;
+\quad\num{28}
+\quad\num{29}
+\quad\num{30}    /** Returns true iff the region contains every point between two
+\quad\num{31}     * points in the region.
+\quad\num{32}     */
+\quad\num{33}    extern public boolean isConvex();
+\quad\num{34}
+\quad\num{35}    /** Return the low bound for a 1-dimensional region.
+\quad\num{36}     */
+\quad\num{37}    extern public (:dimension=1) int low();
+\quad\num{38}
+\quad\num{39}    /** Return the high bound for a 1-dimensional region.
+\quad\num{40}     */
+\quad\num{41}    extern public (:dimension=1) int high();
+\quad\num{42}
+\quad\num{43}    /** Return the next element for a 1-dimensional region, if any.
+\quad\num{44}     */
+\quad\num{45}    extern public (:dimension=1) int next( int current )
+\quad\num{46}        throws IndexOutOfBoundException;
+\quad\num{47}
+\quad\num{48}    extern public region(dimension) union( region(dimension) r);
+\quad\num{49}    extern public region(dimension) intersection( region(dimension) r);
+\quad\num{50}    extern public region(dimension) difference( region(dimension) r);
+\quad\num{51}    extern public region(dimension) convexHull();
+\quad\num{52}
+\quad\num{53}    /**
+\quad\num{54}       Returns true iff this is a superset of r.
+\quad\num{55}     */
+\quad\num{56}    extern public boolean contains( region(dimension) r);
+\quad\num{57}    /**
+\quad\num{58}       Returns true iff this is disjoint from r.
+\quad\num{59}     */
+\quad\num{60}    extern public boolean disjoint( region(dimension) r);
+\quad\num{61}
+\quad\num{62}    /** Returns true iff the set of points in r and this are equal.
+\quad\num{63}     */
+\quad\num{64}    public boolean equal( region(dimension) r) \{
+\quad\num{65}        return this.contains(r) && r.contains(this);
+\quad\num{66}    \}
+\quad\num{67}
+\quad\num{68}    \emph{// Static methods follow.}
+\quad\num{69}
+\quad\num{70}    public static region(2) upperTriangular(int size) \{
+\quad\num{71}        return upperTriangular(2)( size );
+\quad\num{72}    \}
+\quad\num{73}    public static region(2) lowerTriangular(int size) \{
+\quad\num{74}        return lowerTriangular(2)( size );
+\quad\num{75}    \}
+\quad\num{76}    public static region(2) banded(int size, int width) \{
+\quad\num{77}        return banded(2)( size );
+\quad\num{78}    \}
+\quad\num{79}
+\quad\num{80}    /** Return an \code\{upperTriangular\} region for a dim-dimensional
+\quad\num{81}     * space of size \code\{size\} in each dimension.
+\quad\num{82}     */
+\quad\num{83}    extern public static (int dim) region(dim) upperTriangular(int size);
+\quad\num{84}
+\quad\num{85}    /** Return a lowerTriangular region for a dim-dimensional space of
+\quad\num{86}     * size \code\{size\} in each dimension.
+\quad\num{87}     */
+\quad\num{88}    extern public static (int dim) region(dim) lowerTriangular(int size);
+\quad\num{89}
+\quad\num{90}    /** Return a banded region of width \{\code width\} for a
+\quad\num{91}     * dim-dimensional space of size \{\code size\} in each dimension.
+\quad\num{92}     */
+\quad\num{93}    extern public static (int dim) region(dim) banded(int size, int width);
+\quad\num{94}
+\quad\num{95}
+\quad\num{96}\}
+\end{tightcode}
