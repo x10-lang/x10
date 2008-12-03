@@ -1,0 +1,157 @@
+############################################################
+# Benchmark Host: altair
+# Number Of Processors: 8
+#
+# Number Of Scheduled Runs: 2
+# Start Time: 01/19/2008 - 06:28:25
+############################################################
+#
+# Run: 1
+#
+
+## Size: 5000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 1 E 5000000
+Number of procs=1
+graphType=E
+N=5000000
+N=5000000 t=7532254432 ns 0.003 GE/s
+N=5000000 t=7475422436 ns 0.003 GE/s
+N=5000000 t=7415969563 ns 0.003 GE/s
+N=5000000 t=7407369321 ns 0.003 GE/s
+N=5000000 t=7411127631 ns 0.003 GE/s
+N=5000000 t=7410338722 ns 0.003 GE/s
+N=5000000 t=7400578993 ns 0.003 GE/s
+N=5000000 t=7413995195 ns 0.003 GE/s
+N=5000000 t=7398491452 ns 0.003 GE/s
+N=5000000 t=7400459708 ns 0.003 GE/s
+Completed iterations for N=5000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 2 E 5000000
+Number of procs=2
+graphType=E
+N=5000000
+N=5000000 t=4348812103 ns 0.005 GE/s
+N=5000000 t=4218856944 ns 0.005 GE/s
+N=5000000 t=4215962318 ns 0.005 GE/s
+N=5000000 t=4188918301 ns 0.005 GE/s
+N=5000000 t=4194406070 ns 0.005 GE/s
+N=5000000 t=4195638246 ns 0.005 GE/s
+N=5000000 t=4176963981 ns 0.005 GE/s
+N=5000000 t=4165587173 ns 0.005 GE/s
+N=5000000 t=4171440116 ns 0.005 GE/s
+N=5000000 t=4196238264 ns 0.005 GE/s
+Completed iterations for N=5000000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 4 E 5000000
+Number of procs=4
+graphType=E
+N=5000000
+N=5000000 t=2667962633 ns 0.007 GE/s
+N=5000000 t=2517532066 ns 0.008 GE/s
+N=5000000 t=2518536637 ns 0.008 GE/s
+N=5000000 t=2567174420 ns 0.008 GE/s
+N=5000000 t=2482926110 ns 0.008 GE/s
+N=5000000 t=2498919398 ns 0.008 GE/s
+N=5000000 t=2390983247 ns 0.008 GE/s
+N=5000000 t=2382196027 ns 0.008 GE/s
+N=5000000 t=2415247020 ns 0.008 GE/s
+N=5000000 t=2324625839 ns 0.009 GE/s
+Completed iterations for N=5000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 8 E 5000000
+Number of procs=8
+graphType=E
+N=5000000
+N=5000000 t=1697753522 ns 0.012 GE/s
+N=5000000 t=1470344677 ns 0.014 GE/s
+N=5000000 t=1477997979 ns 0.014 GE/s
+N=5000000 t=1355724370 ns 0.015 GE/s
+N=5000000 t=1373667311 ns 0.015 GE/s
+N=5000000 t=1414954926 ns 0.014 GE/s
+N=5000000 t=1360444539 ns 0.015 GE/s
+N=5000000 t=1434111514 ns 0.014 GE/s
+N=5000000 t=1384675352 ns 0.014 GE/s
+N=5000000 t=1469941379 ns 0.014 GE/s
+Completed iterations for N=5000000
+#
+# Run: 2
+#
+
+## Size: 5000000
+
+### nproc: 1
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 1 E 5000000
+Number of procs=1
+graphType=E
+N=5000000
+N=5000000 t=7578095381 ns 0.003 GE/s
+N=5000000 t=7488270209 ns 0.003 GE/s
+N=5000000 t=7524705877 ns 0.003 GE/s
+N=5000000 t=7510742592 ns 0.003 GE/s
+N=5000000 t=7525596781 ns 0.003 GE/s
+N=5000000 t=7510819550 ns 0.003 GE/s
+N=5000000 t=7465703851 ns 0.003 GE/s
+N=5000000 t=7450000366 ns 0.003 GE/s
+N=5000000 t=7455196360 ns 0.003 GE/s
+N=5000000 t=7458052635 ns 0.003 GE/s
+Completed iterations for N=5000000
+
+### nproc: 2
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 2 E 5000000
+Number of procs=2
+graphType=E
+N=5000000
+N=5000000 t=4320279991 ns 0.005 GE/s
+N=5000000 t=4176344916 ns 0.005 GE/s
+N=5000000 t=4176213116 ns 0.005 GE/s
+N=5000000 t=4187177552 ns 0.005 GE/s
+N=5000000 t=4182593606 ns 0.005 GE/s
+N=5000000 t=4212736332 ns 0.005 GE/s
+N=5000000 t=4141753755 ns 0.005 GE/s
+N=5000000 t=4149970059 ns 0.005 GE/s
+N=5000000 t=4166187925 ns 0.005 GE/s
+N=5000000 t=4142791691 ns 0.005 GE/s
+Completed iterations for N=5000000
+
+### nproc: 4
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 4 E 5000000
+Number of procs=4
+graphType=E
+N=5000000
+N=5000000 t=2708538265 ns 0.007 GE/s
+N=5000000 t=2575542638 ns 0.008 GE/s
+N=5000000 t=2497226320 ns 0.008 GE/s
+N=5000000 t=2506570830 ns 0.008 GE/s
+N=5000000 t=2445445362 ns 0.008 GE/s
+N=5000000 t=2436856913 ns 0.008 GE/s
+N=5000000 t=2429756133 ns 0.008 GE/s
+N=5000000 t=2519163494 ns 0.008 GE/s
+N=5000000 t=2432425616 ns 0.008 GE/s
+N=5000000 t=2427801197 ns 0.008 GE/s
+Completed iterations for N=5000000
+
+### nproc: 8
+java -d64 -cp xws.jar -Xms8G -Xmx8G BFSRef 8 E 5000000
+Number of procs=8
+graphType=E
+N=5000000
+N=5000000 t=1771076030 ns 0.011 GE/s
+N=5000000 t=1434422211 ns 0.014 GE/s
+N=5000000 t=1496108728 ns 0.013 GE/s
+N=5000000 t=1451569309 ns 0.014 GE/s
+N=5000000 t=1447744688 ns 0.014 GE/s
+N=5000000 t=1399529237 ns 0.014 GE/s
+N=5000000 t=1452979057 ns 0.014 GE/s
+N=5000000 t=1385213865 ns 0.014 GE/s
+N=5000000 t=1403509377 ns 0.014 GE/s
+N=5000000 t=1399620308 ns 0.014 GE/s
+Completed iterations for N=5000000
+
+############################################################
+# End Time: 01/19/2008 - 07:02:26
+############################################################

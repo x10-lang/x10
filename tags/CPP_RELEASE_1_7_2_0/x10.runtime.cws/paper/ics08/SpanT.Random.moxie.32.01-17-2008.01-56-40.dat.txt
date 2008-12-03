@@ -1,0 +1,650 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 3
+# Start Time: 01/17/2008 - 01:56:40
+############################################################
+#
+# Run: 1
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 0 100000 400000
+THREADS: 1
+generating graph done
+Best time used on DFS is 0.097466 s
+Best time used on BFS is 0.069482 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:3
+number of iterations:4
+Time used on SV is 0.457911 s
+
+### nproc: 2
+./span -t 2 -- 0 100000 400000
+THREADS: 2
+generating graph done
+Best time used on DFS is 0.049002 s
+Best time used on BFS is 0.038167 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.239432 s
+
+### nproc: 4
+./span -t 4 -- 0 100000 400000
+THREADS: 4
+generating graph done
+Best time used on DFS is 0.026225 s
+Best time used on BFS is 0.025961 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.124836 s
+
+### nproc: 8
+./span -t 8 -- 0 100000 400000
+THREADS: 8
+generating graph done
+Best time used on DFS is 0.016792 s
+Best time used on BFS is 0.028065 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:5
+Time used on SV is 0.084639 s
+
+### nproc: 16
+./span -t 16 -- 0 100000 400000
+THREADS: 16
+generating graph done
+Best time used on DFS is 0.018680 s
+Best time used on BFS is 0.040009 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:5
+number of iterations:4
+Time used on SV is 0.043876 s
+
+### nproc: 32
+./span -t 32 -- 0 100000 400000
+THREADS: 32
+generating graph done
+Best time used on DFS is 0.105195 s
+Best time used on BFS is 0.076075 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:5
+Time used on SV is 0.050458 s
+
+
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 0 1000000 4000000
+THREADS: 1
+generating graph done
+Best time used on DFS is 2.020931 s
+Best time used on BFS is 1.567207 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Time used on SV is 7.004720 s
+
+### nproc: 2
+./span -t 2 -- 0 1000000 4000000
+THREADS: 2
+generating graph done
+Best time used on DFS is 1.002851 s
+Best time used on BFS is 0.816091 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Time used on SV is 3.773626 s
+
+### nproc: 4
+./span -t 4 -- 0 1000000 4000000
+THREADS: 4
+generating graph done
+Best time used on DFS is 0.519987 s
+Best time used on BFS is 0.499152 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 2.377301 s
+
+### nproc: 8
+./span -t 8 -- 0 1000000 4000000
+THREADS: 8
+generating graph done
+Best time used on DFS is 0.264614 s
+Best time used on BFS is 0.382772 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 1.347067 s
+
+### nproc: 16
+./span -t 16 -- 0 1000000 4000000
+THREADS: 16
+generating graph done
+Best time used on DFS is 0.165129 s
+Best time used on BFS is 0.482691 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 0.747563 s
+
+### nproc: 32
+./span -t 32 -- 0 1000000 4000000
+THREADS: 32
+generating graph done
+Best time used on DFS is 0.142491 s
+Best time used on BFS is 0.839666 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 0.656451 s
+
+
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 0 10000000 40000000
+THREADS: 1
+generating graph done
+Best time used on DFS is 40.403426 s
+Best time used on BFS is 32.760290 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 192.777695 s
+
+### nproc: 2
+./span -t 2 -- 0 10000000 40000000
+THREADS: 2
+generating graph done
+Best time used on DFS is 18.661319 s
+Best time used on BFS is 16.775158 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 99.900033 s
+
+### nproc: 4
+./span -t 4 -- 0 10000000 40000000
+THREADS: 4
+generating graph done
+Best time used on DFS is 10.154558 s
+Best time used on BFS is 9.081795 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:6
+Time used on SV is 60.939025 s
+
+### nproc: 8
+./span -t 8 -- 0 10000000 40000000
+THREADS: 8
+generating graph done
+Best time used on DFS is 5.514824 s
+Best time used on BFS is 6.274498 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 28.102807 s
+
+### nproc: 16
+./span -t 16 -- 0 10000000 40000000
+THREADS: 16
+generating graph done
+Best time used on DFS is 2.764853 s
+Best time used on BFS is 6.081281 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 15.728110 s
+
+### nproc: 32
+./span -t 32 -- 0 10000000 40000000
+THREADS: 32
+generating graph done
+Best time used on DFS is 1.912373 s
+Best time used on BFS is 8.997060 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 10.662850 s
+
+
+#
+# Run: 2
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 0 100000 400000
+THREADS: 1
+generating graph done
+Best time used on DFS is 0.097530 s
+Best time used on BFS is 0.070007 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:3
+number of iterations:4
+Time used on SV is 0.456892 s
+
+### nproc: 2
+./span -t 2 -- 0 100000 400000
+THREADS: 2
+generating graph done
+Best time used on DFS is 0.049199 s
+Best time used on BFS is 0.038367 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.241538 s
+
+### nproc: 4
+./span -t 4 -- 0 100000 400000
+THREADS: 4
+generating graph done
+Best time used on DFS is 0.026647 s
+Best time used on BFS is 0.026556 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.124572 s
+
+### nproc: 8
+./span -t 8 -- 0 100000 400000
+THREADS: 8
+generating graph done
+Best time used on DFS is 0.015792 s
+Best time used on BFS is 0.027454 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:5
+Time used on SV is 0.082589 s
+
+### nproc: 16
+./span -t 16 -- 0 100000 400000
+THREADS: 16
+generating graph done
+Best time used on DFS is 0.019084 s
+Best time used on BFS is 0.040946 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:5
+Time used on SV is 0.054270 s
+
+### nproc: 32
+./span -t 32 -- 0 100000 400000
+THREADS: 32
+generating graph done
+Best time used on DFS is 0.111586 s
+Best time used on BFS is 0.077323 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:5
+Time used on SV is 0.051166 s
+
+
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 0 1000000 4000000
+THREADS: 1
+generating graph done
+Best time used on DFS is 2.013579 s
+Best time used on BFS is 1.571681 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Time used on SV is 7.046109 s
+
+### nproc: 2
+./span -t 2 -- 0 1000000 4000000
+THREADS: 2
+generating graph done
+Best time used on DFS is 1.004508 s
+Best time used on BFS is 0.819976 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Time used on SV is 3.786547 s
+
+### nproc: 4
+./span -t 4 -- 0 1000000 4000000
+THREADS: 4
+generating graph done
+Best time used on DFS is 0.504007 s
+Best time used on BFS is 0.476558 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 2.349276 s
+
+### nproc: 8
+./span -t 8 -- 0 1000000 4000000
+THREADS: 8
+generating graph done
+Best time used on DFS is 0.268692 s
+Best time used on BFS is 0.376288 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 1.352041 s
+
+### nproc: 16
+./span -t 16 -- 0 1000000 4000000
+THREADS: 16
+generating graph done
+Best time used on DFS is 0.169753 s
+Best time used on BFS is 0.484511 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 0.771793 s
+
+### nproc: 32
+./span -t 32 -- 0 1000000 4000000
+THREADS: 32
+generating graph done
+Best time used on DFS is 0.138289 s
+Best time used on BFS is 0.846764 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 0.647753 s
+
+
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 0 10000000 40000000
+THREADS: 1
+generating graph done
+Best time used on DFS is 40.448652 s
+Best time used on BFS is 32.816321 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 192.725052 s
+
+### nproc: 2
+./span -t 2 -- 0 10000000 40000000
+THREADS: 2
+generating graph done
+Best time used on DFS is 18.650751 s
+Best time used on BFS is 16.718039 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 99.858113 s
+
+### nproc: 4
+./span -t 4 -- 0 10000000 40000000
+THREADS: 4
+generating graph done
+Best time used on DFS is 10.154727 s
+Best time used on BFS is 9.183117 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:6
+Time used on SV is 60.834660 s
+
+### nproc: 8
+./span -t 8 -- 0 10000000 40000000
+THREADS: 8
+generating graph done
+Best time used on DFS is 5.519717 s
+Best time used on BFS is 6.273134 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 27.822068 s
+
+### nproc: 16
+./span -t 16 -- 0 10000000 40000000
+THREADS: 16
+generating graph done
+Best time used on DFS is 2.818840 s
+Best time used on BFS is 6.065633 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 15.638223 s
+
+### nproc: 32
+./span -t 32 -- 0 10000000 40000000
+THREADS: 32
+generating graph done
+Best time used on DFS is 2.016424 s
+Best time used on BFS is 8.912952 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 10.308549 s
+
+
+#
+# Run: 3
+#
+
+## Size: 100000
+
+### nproc: 1
+./span -t 1 -- 0 100000 400000
+THREADS: 1
+generating graph done
+Best time used on DFS is 0.098071 s
+Best time used on BFS is 0.069867 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:3
+number of iterations:4
+Time used on SV is 0.456990 s
+
+### nproc: 2
+./span -t 2 -- 0 100000 400000
+THREADS: 2
+generating graph done
+Best time used on DFS is 0.049284 s
+Best time used on BFS is 0.037649 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.238807 s
+
+### nproc: 4
+./span -t 4 -- 0 100000 400000
+THREADS: 4
+generating graph done
+Best time used on DFS is 0.025545 s
+Best time used on BFS is 0.025339 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.124008 s
+
+### nproc: 8
+./span -t 8 -- 0 100000 400000
+THREADS: 8
+generating graph done
+Best time used on DFS is 0.015540 s
+Best time used on BFS is 0.025786 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:4
+Time used on SV is 0.067839 s
+
+### nproc: 16
+./span -t 16 -- 0 100000 400000
+THREADS: 16
+generating graph done
+Best time used on DFS is 0.019170 s
+Best time used on BFS is 0.040453 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:5
+number of iterations:5
+Time used on SV is 0.053328 s
+
+### nproc: 32
+./span -t 32 -- 0 100000 400000
+THREADS: 32
+generating graph done
+Best time used on DFS is 0.104779 s
+Best time used on BFS is 0.077291 s
+init edge list done, n_edge = 800026, n_vertices=100000
+number of iterations:4
+number of iterations:5
+Time used on SV is 0.049807 s
+
+
+
+## Size: 1000000
+
+### nproc: 1
+./span -t 1 -- 0 1000000 4000000
+THREADS: 1
+generating graph done
+Best time used on DFS is 2.020956 s
+Best time used on BFS is 1.588142 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Time used on SV is 7.020060 s
+
+### nproc: 2
+./span -t 2 -- 0 1000000 4000000
+THREADS: 2
+generating graph done
+Best time used on DFS is 1.003071 s
+Best time used on BFS is 0.809336 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:4
+Time used on SV is 3.771567 s
+
+### nproc: 4
+./span -t 4 -- 0 1000000 4000000
+THREADS: 4
+generating graph done
+Best time used on DFS is 0.521652 s
+Best time used on BFS is 0.478093 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 2.345745 s
+
+### nproc: 8
+./span -t 8 -- 0 1000000 4000000
+THREADS: 8
+generating graph done
+Best time used on DFS is 0.274117 s
+Best time used on BFS is 0.390540 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 1.318482 s
+
+### nproc: 16
+./span -t 16 -- 0 1000000 4000000
+THREADS: 16
+generating graph done
+Best time used on DFS is 0.159252 s
+Best time used on BFS is 0.478437 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:6
+Time used on SV is 0.891470 s
+
+### nproc: 32
+./span -t 32 -- 0 1000000 4000000
+THREADS: 32
+generating graph done
+Best time used on DFS is 0.137454 s
+Best time used on BFS is 0.846142 s
+init edge list done, n_edge = 8000650, n_vertices=1000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 0.661576 s
+
+
+
+## Size: 10000000
+
+### nproc: 1
+./span -t 1 -- 0 10000000 40000000
+THREADS: 1
+generating graph done
+Best time used on DFS is 40.509745 s
+Best time used on BFS is 32.856377 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 192.764684 s
+
+### nproc: 2
+./span -t 2 -- 0 10000000 40000000
+THREADS: 2
+generating graph done
+Best time used on DFS is 18.666213 s
+Best time used on BFS is 16.729904 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:5
+Time used on SV is 99.926946 s
+
+### nproc: 4
+./span -t 4 -- 0 10000000 40000000
+THREADS: 4
+generating graph done
+Best time used on DFS is 10.169872 s
+Best time used on BFS is 9.120473 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:4
+number of iterations:6
+Time used on SV is 61.072939 s
+
+### nproc: 8
+./span -t 8 -- 0 10000000 40000000
+THREADS: 8
+generating graph done
+Best time used on DFS is 5.400680 s
+Best time used on BFS is 6.184928 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 27.589090 s
+
+### nproc: 16
+./span -t 16 -- 0 10000000 40000000
+THREADS: 16
+generating graph done
+Best time used on DFS is 2.768615 s
+Best time used on BFS is 6.029451 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 15.426471 s
+
+### nproc: 32
+./span -t 32 -- 0 10000000 40000000
+THREADS: 32
+generating graph done
+Best time used on DFS is 1.921268 s
+Best time used on BFS is 8.989889 s
+init edge list done, n_edge = 80006578, n_vertices=10000000
+number of iterations:5
+number of iterations:5
+Time used on SV is 10.470053 s
+
+
+
+############################################################
+# End Time: 01/17/2008 - 04:21:38
+############################################################

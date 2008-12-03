@@ -1,0 +1,240 @@
+/* Copyright 2006 Keith Randall and Bradley C. Kuszmaul. */
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <sys/time.h>
+#include <assert.h>
+
+//#include <cilk-lib.cilkh>
+#include <cilk-lib.h>
+
+#define BASE 32
+
+#include "palu-kernels.h"
+
+cilk void lu(REAL *A, int *P, int n, int m, long rowsep);
+cilk void mulsub(REAL *A, REAL *B, REAL *C, int n, int k, int m, long rowsep);
+cilk void backsolve(REAL *A, REAL *L, REAL *M, int n, int m, long rowsep);
+cilk void permute(REAL *A, int n, int m, int *P, long rowsep);
+
+// assumes n >= m
+// A and L are n*m. U is m*m. P is n.
+cilk void lu(REAL *A, int *P, int n, int m, long rowsep) {
+  REAL *AORIG;
+  if (TEST) {
+    AORIG = malloc(n * rowsep * sizeof(*AORIG));
+    memcpy(AORIG, A, n * rowsep * sizeof(*AORIG));
+  }
+  if (m == 1 || (long long)n * m * m <= BASE*BASE*BASE) {
+    lu_ser(A, P, n, m, rowsep);
+  } else {
+    int i;
+    int k = m >> 1;
+
+    REAL *A_00 = &A_(0,0); // k x k
+    REAL *A_10 = &A_(k,0); // n-k x k
+    REAL *A_01 = &A_(0,k); // k x m-k
+    REAL *A_11 = &A_(k,k); // n-k x m-k
+    Cilk_time cp = Cilk_user_critical_path;
+    int *Q = Cilk_alloca(n * sizeof(*Q));
+    int *R = Cilk_alloca((n - k) * sizeof(*Q));
+    sync;
+
+    // compute L_00, L_10, and U_00 from A_00 and A_10. Also
+    // permute A_00, A_10, and generate P[0..n).
+    spawn lu(A_00, Q, n, k, rowsep); sync;
+
+    // permute A_01 and A_11
+    spawn permute(A_01, n, m - k, Q, rowsep); sync;
+
+    // backsolve for U_01 in A_01 = L_00 U_01
+    spawn backsolve(A_01, A_00, A_01, k, m - k, rowsep); sync;
+
+
+    // compute A_11 -= L_10 U_01
+    spawn mulsub(A_10, A_01, A_11, n - k, k, m - k, rowsep); sync;
+
+    // compute L_11 and U_11 by recursing on A_11 - L_10 U_01 = L_11 U_11
+    spawn lu(A_11, R, n - k, m - k, rowsep); sync;
+
+    // permute L_10
+    spawn permute(A_10, n - k, k, R, rowsep); sync;
+
+    // combine permutations: Q first, then R (P = RQ)
+    for (i = 0; i < n; i++) {
+      int j = Q[i];
+      if (j >= k) {
+	j = R[j - k] + k;
+      }
+      P[i] = j;
+    }
+  }
+}
+
+// Given A and L, solve for M in A=LM. L is lower triangular, 1 on diagonal.
+// A is n*m
+// L is n*n
+// M is n*m
+cilk void backsolve(REAL *A, REAL *L, REAL *M, int n, int m, long rowsep) {
+  REAL *AORIG;
+  if (TEST) {
+    AORIG = malloc(n * rowsep * sizeof(*AORIG));
+    memcpy(AORIG, A, n*rowsep*sizeof(*AORIG));
+  }
+  if ((long long)n * n * m <= BASE*BASE*BASE) { // base case
+    backsolve_ser(A, L, M, n, m, rowsep);
+  } else {
+    int k = m >> 1;
+    REAL *A_00 = &A_(0, 0); // k x k
+    REAL *A_10 = &A_(k, 0); // n-k x k
+    REAL *A_01 = &A_(0, k); // k x m-k
+    REAL *A_11 = &A_(k, k); // n-k x m-k
+    REAL *L_00 = &L_(0, 0); // k x k
+    REAL *L_10 = &L_(k, 0); // n-k x k
+    REAL *L_11 = &L_(k, k); // n-k x n-k
+    REAL *M_00 = &M_(0, 0); // k x k
+    REAL *M_01 = &M_(0, k); // k x m-k
+    REAL *M_10 = &M_(k, 0); // n-k x k
+    REAL *M_11 = &M_(k, k); // n-k x m-k
+
+    spawn backsolve(A_00, L_00, M_00, k, k, rowsep);
+    spawn backsolve(A_01, L_00, M_01, k, m - k, rowsep);
+    sync;
+    spawn mulsub(L_10, M_00, A_10, n - k, k, k, rowsep);
+    spawn mulsub(L_10, M_01, A_11, n - k, k, m - k, rowsep);
+    sync;
+    spawn backsolve(A_10, L_11, M_10, n - k, k, rowsep);
+    spawn backsolve(A_11, L_11, M_11, n - k, m - k, rowsep);
+    sync;
+  }
+  if (TEST) { // Compute LM and compare to AORIG
+    int i,j,k;
+
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < m; j++) {
+	REAL z = 0.0;
+	for (k = 0; k < i; k++) {
+	  z += L_(i,k) * M_(k, j);
+	}
+	z += M_(i, j);
+	if (fabs(z - AORIG_(i,j)) > 1e-5) {
+	  exit(1);
+	}
+      }
+    }
+    free(AORIG);
+  }
+}
+
+// This lock table is used to avoid conflicts between to threads both trying
+// to do -= on the same matrix chunk at the same time.
+#define LOCK_HASH_SIZE 10007
+Cilk_lockvar lock_hashtable[LOCK_HASH_SIZE];
+
+// compute C -= AB.
+// A is n*k
+// B is k*m
+// C is n*m
+
+cilk void mulsub(REAL *A, REAL *B, REAL *C, int n, int k, int m, long rowsep) {
+  if ((long long)n * k * m <= BASE*BASE*BASE) { // base case
+    Cilk_lock(lock_hashtable[((unsigned long)C) % LOCK_HASH_SIZE]);
+    mulsub_ser(A, B, C, n, k, m, rowsep);
+    Cilk_unlock(lock_hashtable[((unsigned long)C) % LOCK_HASH_SIZE]);
+  } else if (n >= k && n >= m) {
+    int n2 = n >> 1;
+    spawn mulsub(A, B, C, n2, k, m, rowsep);
+    spawn mulsub(&A_(n2, 0), B, &C_(n2, 0), n - n2, k, m, rowsep);
+    sync;
+  } else if (m >= k) {
+    int m2 = m >> 1;
+    spawn mulsub(A, B, C, n, k, m2, rowsep);
+    spawn mulsub(A, &B_(0, m2), &C_(0, m2), n, k, m - m2, rowsep);
+    sync;
+  } else {
+    int k2 = k >> 1;
+    spawn mulsub(A, B, C, n, k2, m, rowsep);
+    //sync; // handled with locks around the basecase above.
+    spawn mulsub(&A_(0, k2), &B_(k2, 0), C, n, k - k2, m, rowsep);
+    sync;
+  }
+}
+
+cilk void permute(REAL *A, int n, int m, int *P, long rowsep) {
+  if (m <= BASE) {
+    permute_ser(A, n, m, P, rowsep);
+  } else {
+    int m2 = m >> 1;
+    spawn permute(A, n, m2, P, rowsep);
+    spawn permute(&A_(0, m2), n, m - m2, P, rowsep);
+    sync;
+
+  }
+}
+
+static double count_flops(int n)
+{
+     return ((4.0 * (double) n - 3.0) * (double) n -
+	     1.0) * (double) n / 6.0;
+}
+
+
+cilk int main(int argc, char *argv[]) {
+  int n, m, rowsep;
+
+  if(argc != 3) {
+    printf("Usage: %s <n> <m> \n", argv[0]);
+    return 0;
+  }
+
+  n = atoi(argv[1]);
+  m = atoi(argv[2]);
+   rowsep = m;
+  printf("PALU factoring %d x %d\n", n, m);
+  {
+    int i;
+    for (i = 0; i < LOCK_HASH_SIZE; i++) {
+      Cilk_lock_init(lock_hashtable[i]);
+    }
+  }
+  {
+    REAL *A = malloc(n * (long)m * sizeof(*A));
+    int *P = malloc(n * sizeof(*P));
+    REAL *AORIG=0;
+    int i, j;
+    Cilk_time tm_begin, tm_elapsed;
+    Cilk_time wk_begin, wk_elapsed;
+    Cilk_time cp_begin, cp_elapsed;
+
+    assert(A);
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < m; j++) {
+	A_(i, j) = ((double)random()) / RAND_MAX;
+      }
+    }
+
+    /* Timing. "Start" timers */
+    sync;
+    cp_begin = Cilk_user_critical_path;
+    wk_begin = Cilk_user_work;
+    tm_begin = Cilk_get_wall_time();
+
+    spawn lu(A, P, n, m, rowsep); sync;
+
+    /* Timing. "Stop" timers */
+    tm_elapsed = Cilk_get_wall_time() - tm_begin;
+    wk_elapsed = Cilk_user_work - wk_begin;
+    cp_elapsed = Cilk_user_critical_path - cp_begin;
+
+    printf("PALU(%d,%d) on %d processors\n", n, m, Cilk_active_size);
+    printf("Running time = %4f ms\n", 1000*Cilk_wall_time_to_sec(tm_elapsed));
+    printf("Work = %4f ms\n", 1000*Cilk_time_to_sec(wk_elapsed));
+    printf("Critical path = %4f ms\n", 1000*Cilk_time_to_sec(cp_elapsed));
+    printf("Parallelism = %4f\n", (double)wk_elapsed/(double)cp_elapsed);
+    printf("gflops = %g\n", (2.0e-9*n*m*m)/3.0 / Cilk_wall_time_to_sec(tm_elapsed));
+    printf("adjusted gflops = %g\n", count_flops(n) / Cilk_wall_time_to_sec(tm_elapsed));
+  }
+  return 0;
+}
+

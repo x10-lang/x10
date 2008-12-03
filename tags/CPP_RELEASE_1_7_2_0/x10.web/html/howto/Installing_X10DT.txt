@@ -1,0 +1,36 @@
+From Bob Fuhrer.
+
+Note: orquesta.watson.ibm.com is visible only from within IBM.
+============================================================
+To install X10DT for the first time:
+
+1. From Eclipse, invoke "Help" => "Software Updates" => "Find and Install"
+2. In the dialog that shows up, select "Search for new features to install" and click "Next"
+3. In the "Name" field type "SAFARI" (this can be anything you want, really).
+	In the "URL" field type "http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"
+	(note the trailing '/' character; it's significant)
+4. Click "Ok"
+5. Click "Finish"
+6. On the "Search Results" page, check the "SAFARI" checkbox, and click "Next"
+7. Click "I accept the terms..." and Click "Next"
+8. Click "Finish"; the dialog will disappear, and the status bar will show progress as the
+	Update Manager queries the update server for all available updates
+9. Click "Install All"
+10. Click "Yes" when asked whether to restart Eclipse.
+
+To update (only if you've installed a previous version):
+
+1. From Eclipse, invoke "Help" => "Software Updates" => "Find and Install"
+	http://orquesta.watson.ibm.com:1
+2. Select "Search for updates of currently installed features"; click "Finish"
+3. When prompted for update site mirrors, just click "Cancel" to accept the main site.
+4. It often takes several minutes for Eclipse to contact the update sites and determine
+	what updates are available.
+5. If the SAFARI site shows updates, select the new version and click "Next".
+	5a. Accept the license agreement and click "Finish"/"Next"
+	5b. Click "Install All"
+	5c. Click "Yes" when asked whether to restart Eclipse
+
+If the SAFARI site doesn't show up in step 5 (not yet sure why it doesn't sometimes),
+cancel and try to install as though you hadn't previously installed (see above).
+

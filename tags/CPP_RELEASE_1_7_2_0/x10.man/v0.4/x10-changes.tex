@@ -1,0 +1,57 @@
+\extrapart{Changes from v0.32}
+
+This is the first reference manual that corresponds to a working
+implementation. As such a number of details missing from v0.32 have
+been spelt out. A number of mistakes have been corrected, and
+clarifications added.
+
+The semantics of exception handling across asynchronous activities has
+been clarified.
+
+Exploded syntax has been introduced to make it convenient to
+destructure points. 
+
+Arrays are implemented at all built-in types as well as at all
+user-defined types.
+
+\subsection{Limitations}
+
+\begin{itemize}
+\item All the static semantics rules are not yet implemented. 
+Thus if your program is already correct, it will execute correctly. If
+it is not correct, it may still execute and give a
+result. Specifically, the implementation does not yet check {\tt
+local} annotations.
+
+\item The implementation does not support a way to specify just the rank of
+an array in its type.
+
+\item Arrays of arrays (``jagged'' arrays) are not yet implemented.
+
+\item Local, 1-d, 0-based arrays do not currently support all the
+functionality of more general arrays. (They are optimized through to
+\Java{} arrays.)
+
+\end{itemize}
+
+\XtenCurrVer{} does not formally define a model for interoperability with
+Java. The following guidelines may be used temporarily:
+
+\begin{itemize}
+  \item \Java{} classes may be imported.
+  \item Confine the use of \Java{} to system classes, e.g.{}
+{\tt  System.out} for I/O.
+  \item Do not use synchronized keyword, or create new {\tt java.lang.Threads}. 
+  \item \Java{} objects may be created. These are ``placeless''. Do not use
+     such an object as an argument to async, or wherever a placeful
+     value is expectd.
+\end{itemize}
+
+\subsection{Future work}
+
+Language needs to be extended to support generic types, with
+type and value parameters.
+
+Language needs to be extended to support type inference.
+
+Language needs to be extended to support implicit syntax.

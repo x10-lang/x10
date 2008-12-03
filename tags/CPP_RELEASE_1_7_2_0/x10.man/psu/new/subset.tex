@@ -1,0 +1,161 @@
+\chapter{Number System Subsets}
+
+(This appendix is not a part of P1178/D4, Draft Standard for the
+Scheme Programming Language, but is included for information only.)
+
+\vest The Scheme number system (see~\ref{numbersection}) is typically
+implemented using several internal representations.  A complete
+implementation of Scheme numbers is both large and complex.  For this
+reason, it may be undesirable to implement the entire functionality
+and the Standard specifically allows implementations to provide
+subsets of the full functionality.  This appendix is a guide to Scheme
+implementors suggesting reasonable and consistent subsets.
+
+\vest The appendix is organized into three parts.  The first part
+describes a minimal subset, known as the \tupe{fixnum} subset.
+Following this there are two sections discussing two distinct classes
+of extensions: \tupe{exact} and \tupe{inexact} arithmetic.  Either or
+both may be compatibly added to the \tupe{fixnum} base.  The addition
+of any other numeric representation transforms simple \tupe{fixnum}
+arithmetic into a more complicated ``generic'' system.  This is
+usually accompanied by an additional performance cost associated with
+the determination (usually at run-time) of the representation used for
+the arguments.
+
+\section{Minimal Subset}
+
+\vest We believe that the minimum practical Scheme implementation
+includes signed \tupe{exact} \tupe{integer}s of a fixed limited
+precision.  (Even more restrictive subsets of the integers, e.g. the
+omission of negative integers, are consistent with this Standard.
+Such subsets are significantly less useful and we discourage their
+implementation.)  In such an implementation, when the mathematically
+expected result of a computation is not representable as an integer
+within the appropriate range, the computation is considered to have
+violated an implementation restriction.  In general when such a
+situation occurs, the implementation may choose either to coerce the
+result to an inexact number or to report the violation; in this case,
+since there are no inexact numbers, the implementation must report the
+violation.
+
+\vest This representation choice is traditionally known as
+{\em fixnum}\index{fixnum}, and has two primary advantages.  First, the
+precision is usually chosen to correspond to the natural word size of
+the machine, thus allowing the implementation to use the built-in
+integer arithmetic hardware.  (This advantage is not fully realizable
+on many machines because of the need to test for overflow.)  Second,
+the size of the \tupe{fixnum} representation is typically chosen so
+that fixnums need not be allocated in the heap.
+
+\section{Exact Arithmetic}
+
+\vest The first (obvious) extension is to eliminate the precision
+restriction on \tupe{integer}s.  The traditional way is to implement
+{\em bignum}\index{bignum} arithmetic, also known as extended (or infinite)
+precision arithmetic (see~\cite{Knuth}).  Implementation of these
+operations, along with the coercion between \tupe{fixnum} and
+\tupe{bignum} representations, is a time-consuming and exacting task;
+but most implementations have found the benefits outweigh the costs.
+The algorithms are rather slow, and space for these numbers is
+allocated in the heap.
+
+\vest The next logical extension is the implementation of \tupe{exact}
+\tupe{rational} arithmetic, sometimes referred to as \defining{ratnum}
+arithmetic; the advantages of \tupe{exact} \tupe{rational} arithmetic
+are significant, and given \tupe{bignum} arithmetic, the
+implementation cost is small.  While it is possible to provide an
+implementation of \tupe{exact} \tupe{rational} numbers based on a
+\tupe{fixnum} (rather than \tupe{bignum}) representation, experience
+has shown that the limitations of such implementations are unintuitive
+and consequently hard to use.
+
+% \vest Note that the performance of \tupe{rational}s depends heavily on
+% the performance of the \ide{gcd} algorithms to maintain the rational
+% number in lowest terms.  This Standard does not mandate whether the
+% \ide{gcd} is taken when a \tupe{rational} number is constructed or
+% whether it is performed at the time that the \ide{numerator} and
+% \ide{denominator} procedures are called.
+
+\vest If the implementation provides \tupe{rational} numbers, it should
+supply the following procedures in addition to those required
+in~\ref{numbersection}:
+
+\begin{scheme}
+/
+numerator
+denominator
+rationalize
+\end{scheme}
+
+\vest The final extension to exact arithmetic is to implement
+\tupe{exact} \tupe{real} arithmetic.  This is usually not done despite
+the existence of at least one example implementation~\cite{Vuillemin}.
+Probably this is because of the relative inefficiency of the
+algorithms (compared to those for \tupe{inexact} \tupe{real} numbers),
+and the lack of hardware support for them.
+
+\section{Inexact Arithmetic}
+
+\vest The usual representation employed to implement \tupe{inexact}
+\tupe{real} numbers is a well-established one: floating-point.  We
+strongly urge implementors using this representation to adhere to the
+IEEE 32-bit and 64-bit floating-point standards.  A simple
+implementation might support only one format (preferably the 64-bit
+format) while a more elaborate one might support multiple formats,
+carefully observing the restrictions of this Standard
+(see~\ref{numbersection}).
+
+\vest An interesting alternative to floating-point is \tupe{rational}
+numbers whose denominator never exceeds a pre-determined maximum value
+but whose numerator is unbounded.  This conveniently allows the
+representation of arbitrarily large numbers but has a fixed smallest
+increment (and hence a fixed smallest representable positive value).
+The algorithms for this representation are virtually identical to
+those used for \tupe{exact} \tupe{rational} arithmetic, and they have
+mathematically acceptable behavior under error conditions.
+% [Actually these are much more dense than fixed point -- CPH]
+% They are
+% an extension of the more widely known ``fixed point'' number
+% representation.
+
+\vest We do not recommend implementation of more restrictive forms of
+\tupe{inexact} arithmetic, such as \tupe{inexact} \tupe{integer}
+arithmetic, because \tupe{inexact} arithmetic is primarily useful for
+approximations to the real number system, and the more restrictive
+forms are not very useful.  Also, a good implementation of
+\tupe{inexact} \tupe{real} arithmetic will to a large extent subsume
+the other representations.
+
+\vest If \tupe{inexact} \tupe{real} numbers are implemented, the
+following operations should be supported in addition to those required
+in~\ref{numbersection}:
+
+\begin{scheme}
+/            numerator     denominator
+rationalize  exp           log
+sin          cos           tan
+asin         acos          atan
+sqrt         expt
+exact->inexact
+inexact->exact%
+\end{scheme}
+
+\vest The final step in the number tree is to \tupe{complex}
+arithmetic.  The usual implementation of these numbers is as pairs of
+\tupe{real} numbers in a simple rectangular coordinate representation
+($x+iy$).  We suggest implementors provide \tupe{complex} arithmetic
+only if \tupe{real} arithmetic is also provided.  Without a reasonable
+approximation to the real numbers the usefulness of \tupe{complex}
+numbers is suspect and it is preferable to omit them entirely.
+
+\vest The operations that should be provided to support complex numbers
+(in addition to those of \tupe{inexact} \tupe{real} arithmetic) are:
+
+\begin{scheme}
+make-rectangular
+make-polar
+real-part
+imag-part
+magnitude
+angle
+\end{scheme}

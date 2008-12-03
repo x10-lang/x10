@@ -1,0 +1,26 @@
+--- Test06: extrusion
+rank 3
+rect false
+zeroBased false
+rail false
+isConvex() true
+size() x10.array.PolyRegion does not support size
+region: (x0>=1 && x1-x2>=0 && x2>=0 && x1<=2 && x0<=2)
+  poly
+    --- 1
+    0  0 . . . . . . . . . 
+    1  0 1 . . . . . . . . 
+    2  0 2 4 . . . . . . . 
+    --- 2
+    0  0 . . . . . . . . . 
+    1  0 2 . . . . . . . . 
+    2  0 4 8 . . . . . . . 
+  iterator
+    --- 1
+    0  0 . . . . . . . . . 
+    1  0 1 . . . . . . . . 
+    2  0 2 4 . . . . . . . 
+    --- 2
+    0  0 . . . . . . . . . 
+    1  0 2 . . . . . . . . 
+    2  0 4 8 . . . . . . . 

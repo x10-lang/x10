@@ -1,0 +1,13 @@
+#
+# (c) IBM Corportation 2007
+#
+# $Id: run.footer,v 1.1 2008-02-01 10:57:12 srkodali Exp $
+# Common footer for running benchmarks on Power5.
+#
+
+printf "\n############################################################\n" \
+	2>&1| tee -a $OUT_FILE
+date_time=`date +"%m/%d/%Y - %H:%M:%S"`
+printf "# End Time: ${date_time}\n" 2>&1| tee -a $OUT_FILE
+printf "############################################################\n" \
+	2>&1| tee -a $OUT_FILE

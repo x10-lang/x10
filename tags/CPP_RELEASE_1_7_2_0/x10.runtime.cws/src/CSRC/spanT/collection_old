@@ -1,0 +1,11 @@
+#!/bin/sh
+i=1
+M=1048576
+while [ $i -lt 6 ]
+do
+    V=`expr $i \* $M`
+    E=`expr $V \* 4`
+    echo V $V E $E
+    ./span -t 16 -- 0 $V $E >> output
+    i=`expr $i + 1`
+done

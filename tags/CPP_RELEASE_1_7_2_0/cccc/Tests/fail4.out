@@ -1,0 +1,105 @@
+Warning: lines: 12/15: Double downstream write dependency
+Warning: lines: 13/15: Double upstream write dependency
+Warning: line: 16: Dependent write to different variable
+Warning: lines: 13/16: Double downstream write dependency
+Warning: line: 16: Variable a has non-linear write chain
+0.0 w a 1
+1.0 w a 2
+2.0 w a 3
+3.0 w a 4
+4.0 w a 5
+4.1 w b 1
+# Manually specified dependencies
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+2.0 -> 4.0
+3.0 -> 4.0
+3.0 -> 4.1
+4.0 -> 0.0
+# Program-order dependencies
+4.0 -> 4.1
+# Propagated dependencies
+2.0 -> 4.1
+3.0 -> 4.1
+Happens-before dependencies for task 0
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+2.0 -> 4.0
+3.0 -> 4.0
+4.0 -> 0.0
+4.0 -> 4.1
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 0 sees cycle
+Happens-before dependencies for task 1
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+2.0 -> 4.0
+3.0 -> 4.0
+4.0 -> 0.0
+4.0 -> 4.1
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 1 sees cycle
+Happens-before dependencies for task 2
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+2.0 -> 4.0
+2.0 -> 4.1
+3.0 -> 4.0
+4.0 -> 0.0
+4.0 -> 4.1
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 2 sees cycle
+Happens-before dependencies for task 3
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+2.0 -> 4.0
+3.0 -> 4.0
+3.0 -> 4.1
+4.0 -> 0.0
+4.0 -> 4.1
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 3 sees cycle
+Happens-before dependencies for task 4
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+2.0 -> 4.0
+2.0 -> 4.1
+3.0 -> 4.0
+3.0 -> 4.1
+4.0 -> 0.0
+4.0 -> 4.1
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 4 sees cycle
+Cycle found: illegal CCCC execution
+5 warnings issued, please fix and rerun
