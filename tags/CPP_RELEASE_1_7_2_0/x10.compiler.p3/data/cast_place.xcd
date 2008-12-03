@@ -1,2 +1,0 @@
-// SYNOPSIS: (#2)((#0)@#1) #0=object #1=place #2=type
-((#2) x10.runtime.Runtime.placeCheck(#1, #0))
