@@ -40,14 +40,10 @@ public class ParameterType_c extends Type_c implements ParameterType {
 	public Name name() {
 		return name;
 	}
-	
+
 	@Override
 	public String toString() {
-	    String old = null;
-	    if (def != null && def.getCached() instanceof Named) {
-		old = ((Named) def.getCached()).toString();
-	    }
-	    return name + (old == null ? "" : " (in " + old + ")");
+	    return name.toString();
 	}
 
 	@Override
