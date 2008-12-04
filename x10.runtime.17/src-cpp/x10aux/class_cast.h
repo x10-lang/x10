@@ -6,6 +6,7 @@
 
 #include <x10aux/RTT.h>
 #include <x10aux/ref.h>
+#include <x10aux/string_utils.h>
 
 #include <x10/lang/Object.h>
 #include <x10/lang/Box.h>
@@ -90,6 +91,38 @@ namespace x10aux {
     template<class T> struct ClassCastNotBothRef<T,ref<x10::lang::Box<T> > > {
         static T _(ref<x10::lang::Box<T> > obj) {
             return unbox(obj);
+        }
+    };
+
+    template<class T> struct ValueBox : public x10::lang::Value {
+        T v;
+        ValueBox(T v_) : v(v_) { }
+        //virtual x10_int hashCode() { return x10aux::hashCode(v); } // TODO
+        //virtual x10_boolean equals(x10aux::ref<Object> other) { return x10aux::equals(v, other); } // TODO
+        virtual x10aux::ref<x10::lang::String> toString() { return x10aux::to_string(v); }
+    };
+
+    template<class T> ref<x10::lang::Value> toValue(T obj) {
+        _CAST_("converted to value: "<<CAST_TRACER<T>(obj)<<" of type "<<TYPENAME(T));
+        return ref<x10::lang::Value>(X10NEW(ValueBox<T>)(obj));
+    }
+
+    template<class T> T fromValue(ref<x10::lang::Value> obj) {
+        _CAST_("converted from value: "<<CAST_TRACER<ref<x10::lang::Value> >(obj)<<" of type "<<TYPENAME(T));
+        return ref<ValueBox<T> >(obj)->v;
+    }
+
+    // Primitive -> Value
+    template<class T> struct ClassCastNotBothRef<ref<x10::lang::Value>,T> {
+        static ref<x10::lang::Value> _(T obj) {
+            return toValue<T>(obj);
+        }
+    };
+
+    // Value -> primitive
+    template<class T> struct ClassCastNotBothRef<T,ref<x10::lang::Value> > {
+        static T _(ref<x10::lang::Value> obj) {
+            return fromValue<T>(obj);
         }
     };
 
