@@ -16,6 +16,8 @@
 
 namespace x10aux {
 
+    template<typename T, typename F> T class_cast(F obj);
+
     template<class T> struct CAST_TRACER {
         CAST_TRACER(T val_) : val(val_) { }
         T val;
@@ -52,7 +54,7 @@ namespace x10aux {
     template<> struct ClassCastNotBothRef<ref<T>,F> { \
         static ref<T> _ (F obj) { \
             _CAST_(TYPENAME(F) <<" converted to "<<TYPENAME(ref<T>)); \
-            return ref<T>(box(obj)); \
+            return class_cast<ref<T> >(box(obj)); \
         } \
     }
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_boolean);
@@ -63,7 +65,7 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_long);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_float);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_double);
-    /* TODO
+    /* FIXME this won't work: Box<T> does not implement Integer or Signed
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_byte);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_short);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_int);
@@ -72,6 +74,33 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_short);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_int);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Signed, x10_long);
+    */
+
+    // Unbox primitives on down-casting from interfaces
+    #define INTERFACE_PRIMITIVE_CAST(T,F) \
+    template<> struct ClassCastNotBothRef<T,ref<F> > { \
+        static T _ (ref<F> obj) { \
+            _CAST_(TYPENAME(ref<F>) <<" converted to "<<TYPENAME(T)); \
+            return unbox(class_cast<ref<x10::lang::Box<T> > >(obj)); \
+        } \
+    }
+    INTERFACE_PRIMITIVE_CAST(x10_boolean, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_byte, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_char, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_short, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_int, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_long, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_float, x10::lang::Object);
+    INTERFACE_PRIMITIVE_CAST(x10_double, x10::lang::Object);
+    /* FIXME this won't work: Box<T> does not implement Integer or Signed
+    INTERFACE_PRIMITIVE_CAST(x10_byte, x10::lang::Integer);
+    INTERFACE_PRIMITIVE_CAST(x10_short, x10::lang::Integer);
+    INTERFACE_PRIMITIVE_CAST(x10_int, x10::lang::Integer);
+    INTERFACE_PRIMITIVE_CAST(x10_long, x10::lang::Integer);
+    INTERFACE_PRIMITIVE_CAST(x10_byte, x10::lang::Signed);
+    INTERFACE_PRIMITIVE_CAST(x10_short, x10::lang::Signed);
+    INTERFACE_PRIMITIVE_CAST(x10_int, x10::lang::Signed);
+    INTERFACE_PRIMITIVE_CAST(x10_long, x10::lang::Signed);
     */
 
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F*> {
@@ -99,23 +128,25 @@ namespace x10aux {
         ValueBox(T v_) : v(v_) { }
         //virtual x10_int hashCode() { return x10aux::hashCode(v); } // TODO
         //virtual x10_boolean equals(x10aux::ref<Object> other) { return x10aux::equals(v, other); } // TODO
-        virtual x10aux::ref<x10::lang::String> toString() { return x10aux::to_string(v); }
+        virtual ref<x10::lang::String> toString() { return to_string(v); }
     };
 
     // Primitive -> Value; Value -> Primitive
-    #define PRIMITIVE_VALUE_CAST2(P) \
+    #define PRIMITIVE_VALUE_CAST(P) \
     template<> struct ClassCastNotBothRef<ref<x10::lang::Value>,P> { \
         static ref<x10::lang::Value> _(P obj) { \
             _CAST_("converted to value: "<<CAST_TRACER<P>(obj)<<" of type "<<TYPENAME(P)); \
             return ref<x10::lang::Value>(X10NEW(ValueBox<P>)(obj)); \
         } \
-    }; \
+    }
+    #define VALUE_PRIMITIVE_CAST(P) \
     template<> struct ClassCastNotBothRef<P,ref<x10::lang::Value> > { \
         static P _(ref<x10::lang::Value> obj) { \
             _CAST_("converted from value: "<<CAST_TRACER<ref<x10::lang::Value> >(obj)<<" of type "<<TYPENAME(P)); \
             return ref<ValueBox<P> >(obj)->v; \
         } \
     }
+    #define PRIMITIVE_VALUE_CAST2(P) PRIMITIVE_VALUE_CAST(P); VALUE_PRIMITIVE_CAST(P)
     PRIMITIVE_VALUE_CAST2(x10_boolean);
     PRIMITIVE_VALUE_CAST2(x10_byte);
     PRIMITIVE_VALUE_CAST2(x10_char);
@@ -141,11 +172,12 @@ namespace x10aux {
                 // can only upcast remote refs
                 throwException<x10::lang::BadPlaceException>();
             }
+            #else
+            _CAST_("REMOTE! "<<from->name()<<" to "<<to->name());
             #endif
             _CAST_("Special case: remote reference gets upcast to "<<TYPENAME(ref<T>));
             return ref<T>(reinterpret_cast<T*>(obj.get()));
         }
-            
         const RuntimeType *from = obj->_type();
         const RuntimeType *to = getRTT<ref<T> >();
         #ifndef NO_EXCEPTIONS
