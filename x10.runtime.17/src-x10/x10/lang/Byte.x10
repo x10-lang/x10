@@ -17,12 +17,12 @@ public final value Byte implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
     @Native("java", "java.lang.Byte.MIN_VALUE")
-    @Native("c++", "0x8000")
-    public const MIN_VALUE = 0x8000 to Byte;
+    @Native("c++", "(x10_byte)0x80")
+    public const MIN_VALUE = 0x80 to Byte;
     
     @Native("java", "java.lang.Byte.MAX_VALUE")
-    @Native("c++", "0x7fff")
-    public const MAX_VALUE = 0x7fff to Byte;
+    @Native("c++", "(x10_byte)0x7f")
+    public const MAX_VALUE = 0x7f to Byte;
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")

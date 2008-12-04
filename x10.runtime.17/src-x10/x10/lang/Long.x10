@@ -17,11 +17,11 @@ public final value Long implements Integer, Signed {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
     @Native("java", "java.lang.Long.MIN_VALUE")
-    @Native("c++", "0x8000000000000000LL")
+    @Native("c++", "(x10_long)0x8000000000000000LL")
     public const MIN_VALUE = 0x8000000000000000L;
     
     @Native("java", "java.lang.Long.MAX_VALUE")
-    @Native("c++", "0x7fffffffffffffffLL")
+    @Native("c++", "(x10_long)0x7fffffffffffffffLL")
     public const MAX_VALUE = 0x7fffffffffffffffL;
 
     @Native("java", "java.lang.Long.toString(#0, #1)")
