@@ -16,14 +16,6 @@ import x10.compiler.NativeRep;
 public final value Char {
     // Binary and unary operations and conversions are built-in.  No need to declare them here.
     
-    @Native("java", "java.lang.Character.MIN_VALUE")
-    @Native("c++", "0")
-    public const MIN_VALUE = '0';
-    
-    @Native("java", "java.lang.Character.MAX_VALUE")
-    @Native("c++", "0xffff")
-    public const MAX_VALUE = '\uffff';
-    
     // Duplicate the methods from java.lang.Character, changing static methods to non-static.
     // We'll ignore the code point methods for now and just include the isXXX ones.
     
