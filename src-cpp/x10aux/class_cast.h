@@ -102,29 +102,28 @@ namespace x10aux {
         virtual x10aux::ref<x10::lang::String> toString() { return x10aux::to_string(v); }
     };
 
-    template<class T> ref<x10::lang::Value> toValue(T obj) {
-        _CAST_("converted to value: "<<CAST_TRACER<T>(obj)<<" of type "<<TYPENAME(T));
-        return ref<x10::lang::Value>(X10NEW(ValueBox<T>)(obj));
+    // Primitive -> Value; Value -> Primitive
+    #define PRIMITIVE_VALUE_CAST2(P) \
+    template<> struct ClassCastNotBothRef<ref<x10::lang::Value>,P> { \
+        static ref<x10::lang::Value> _(P obj) { \
+            _CAST_("converted to value: "<<CAST_TRACER<P>(obj)<<" of type "<<TYPENAME(P)); \
+            return ref<x10::lang::Value>(X10NEW(ValueBox<P>)(obj)); \
+        } \
+    }; \
+    template<> struct ClassCastNotBothRef<P,ref<x10::lang::Value> > { \
+        static P _(ref<x10::lang::Value> obj) { \
+            _CAST_("converted from value: "<<CAST_TRACER<ref<x10::lang::Value> >(obj)<<" of type "<<TYPENAME(P)); \
+            return ref<ValueBox<P> >(obj)->v; \
+        } \
     }
-
-    template<class T> T fromValue(ref<x10::lang::Value> obj) {
-        _CAST_("converted from value: "<<CAST_TRACER<ref<x10::lang::Value> >(obj)<<" of type "<<TYPENAME(T));
-        return ref<ValueBox<T> >(obj)->v;
-    }
-
-    // Primitive -> Value
-    template<class T> struct ClassCastNotBothRef<ref<x10::lang::Value>,T> {
-        static ref<x10::lang::Value> _(T obj) {
-            return toValue<T>(obj);
-        }
-    };
-
-    // Value -> primitive
-    template<class T> struct ClassCastNotBothRef<T,ref<x10::lang::Value> > {
-        static T _(ref<x10::lang::Value> obj) {
-            return fromValue<T>(obj);
-        }
-    };
+    PRIMITIVE_VALUE_CAST2(x10_boolean);
+    PRIMITIVE_VALUE_CAST2(x10_byte);
+    PRIMITIVE_VALUE_CAST2(x10_char);
+    PRIMITIVE_VALUE_CAST2(x10_short);
+    PRIMITIVE_VALUE_CAST2(x10_int);
+    PRIMITIVE_VALUE_CAST2(x10_long);
+    PRIMITIVE_VALUE_CAST2(x10_float);
+    PRIMITIVE_VALUE_CAST2(x10_double);
 
     // ClassCastBothRef
     template<class T, class F> struct ClassCastBothRef { static ref<T> _(ref<F> obj) {
