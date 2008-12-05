@@ -31,9 +31,6 @@ namespace x10 {
                 return x10aux::getRTT<NativeOutputStream>();
             }
 
-            protected:
-            explicit NativeOutputStream() : x10::lang::Ref() { }
-
             virtual void write(const char* str) = 0;
 
             public:

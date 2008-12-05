@@ -16,7 +16,7 @@ x10_int x10::lang::Ref::hashCode() {
 x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
     std::stringstream ss;
     ss << this->_type()->name() << "@" << std::hex << (std::size_t)this;
-    return new (x10aux::alloc<x10::lang::String>()) x10::lang::String(ss.str());
+    return String::Lit(ss.str().c_str());
 }
 
 const serialization_id_t Ref::serialization_id =

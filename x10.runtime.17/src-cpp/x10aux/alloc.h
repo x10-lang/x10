@@ -10,9 +10,6 @@
 #include "gc.h"
 #endif
 
-// hopefully this should make generated x10 code more readable
-#define X10NEW(C) (x10aux::ref< C >) new (x10aux::alloc< C >()) C
-
 #include <cstdlib>
 #include <cstring>
 
@@ -36,7 +33,7 @@ namespace x10aux {
         return ret;
     }
 
-    // there should probably be an optimise x10_realloc function but never mind
+    // there should probably be an optimised x10_realloc function but never mind
     // FIXME:  There is a GC_REALLOC macro, which we could use when this is actually calling realloc..
     template<class T> T* realloc(T* src, size_t ssz = sizeof(T), size_t dsz = sizeof(T)) {
         T *dest = alloc<T>(dsz);

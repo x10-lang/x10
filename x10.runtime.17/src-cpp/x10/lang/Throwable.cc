@@ -23,39 +23,23 @@ using namespace x10aux;
 const serialization_id_t Throwable::_serialization_id =
     DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Object>);
 
-
-Throwable::Throwable() : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = null;
-    this->FMGL(message) = to_string("");
+x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
+                                               x10aux::ref<Throwable> cause)
+{
+    if (message==x10aux::null) { //hack, value types aren't supposed to be null
+        this->FMGL(message) = String::Lit("");
+    } else {
+        this->FMGL(message) = message;
+    }
+    if (cause==x10aux::null) { //hack, value types aren't supposed to be null
+        this->FMGL(cause) = x10aux::null;
+    } else {
+        this->FMGL(cause) = x10aux::box(cause);
+    }
+    this->FMGL(trace_size) = -1;
+    return this;
 }
 
-
-Throwable::Throwable(ref<String> message) : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = null;
-    this->FMGL(message) = message;
-}
-
-
-Throwable::Throwable(x10aux::ref<Throwable> cause) : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = x10aux::box(cause);
-    this->FMGL(message) = to_string("");
-}
-
-
-Throwable::Throwable(ref<String> message, x10aux::ref<Throwable> cause)
-  : Value(), FMGL(trace_size)(-1) {
-    this->FMGL(cause) = x10aux::box(cause);
-    this->FMGL(message) = message;
-}
-
-
-ref<String> Throwable::getMessage() {
-    return FMGL(message);
-}
-
-x10aux::ref<Box<x10aux::ref<Throwable> > > Throwable::getCause() {
-    return FMGL(cause);
-}
 
 ref<String> Throwable::toString() {
     std::stringstream ss;
@@ -236,7 +220,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 #ifdef __GLIBC__
     if (FMGL(trace_size)<=0) {
         const char *msg = "No stacktrace recorded.";
-        return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String(msg));
+        return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String::Lit(msg));
     }
     ref<ValRail<ref<String> > > rail =
         alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
@@ -257,7 +241,7 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
             ::free(srcfile);
         }
         #endif
-        (*rail)[i] = String(msg);
+        (*rail)[i] = String::Lit(msg);
         ::free(msg);
         ::free(filename);
     }

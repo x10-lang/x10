@@ -23,19 +23,49 @@ namespace x10 {
                 return x10aux::getRTT<ArrayIndexOutOfBoundsException>();
             }
 
-            ArrayIndexOutOfBoundsException() : RuntimeException() { }
+            static x10aux::ref<ArrayIndexOutOfBoundsException> _make()
+            {
+                return (new (x10aux::alloc<ArrayIndexOutOfBoundsException>())
+                    ArrayIndexOutOfBoundsException())
+                        ->_constructor();
+            }
 
-            ArrayIndexOutOfBoundsException(x10aux::ref<String> message)
-              : RuntimeException(message) { }
+            static x10aux::ref<ArrayIndexOutOfBoundsException> _make(x10aux::ref<String> message) {
+                return (new (x10aux::alloc<ArrayIndexOutOfBoundsException>())
+                    ArrayIndexOutOfBoundsException())
+                        ->_constructor(message);
+            }
 
-            ArrayIndexOutOfBoundsException(x10aux::ref<String> message,
-                                           x10aux::ref<Throwable> cause)
-              : RuntimeException(message,cause) {}
+            static x10aux::ref<ArrayIndexOutOfBoundsException> _make(x10aux::ref<Throwable> cause) {
+                return (new (x10aux::alloc<ArrayIndexOutOfBoundsException>())
+                    ArrayIndexOutOfBoundsException())
+                        ->_constructor(cause);
+            }
+    
+            static x10aux::ref<ArrayIndexOutOfBoundsException> _make(x10aux::ref<String> message,
+                                                                     x10aux::ref<Throwable> cause)
+            {
+                return (new (x10aux::alloc<ArrayIndexOutOfBoundsException>())
+                    ArrayIndexOutOfBoundsException())
+                        ->_constructor(message, cause);
+            }
 
-            ArrayIndexOutOfBoundsException(x10aux::ref<Throwable> cause)
-              : RuntimeException(cause) { }
+            
+            static const x10aux::serialization_id_t _serialization_id;
+            
+            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id,m);
+            }
+            
+            template<class T>
+            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
+                x10aux::ref<ArrayIndexOutOfBoundsException> this_ =
+                    new (x10aux::alloc<ArrayIndexOutOfBoundsException>())
+                        ArrayIndexOutOfBoundsException();
+                this_->_deserialize_body(buf);
+                return this_;
+            }
 
-            ArrayIndexOutOfBoundsException(x10aux::SERIALIZATION_MARKER m) : RuntimeException(m) { }
 
         };
 

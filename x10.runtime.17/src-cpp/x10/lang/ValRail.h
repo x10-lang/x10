@@ -84,8 +84,6 @@ namespace x10 {
                 Iterator (const x10aux::ref<ValRail> &rail_)
                         : i(0), rail(rail_) { }
 
-                Iterator (x10aux::SERIALIZATION_MARKER) { }
-
                 virtual x10_boolean hasNext() {
                     return i < rail->FMGL(length);
                 }
@@ -106,30 +104,6 @@ namespace x10 {
                     if (other_i->rail != rail) return false;
                     if (other_i->i != i) return false;
                     return true;
-                }
-
-                static const x10aux::serialization_id_t _serialization_id;
-
-                static void _serialize(x10aux::ref<Iterator> this_,
-                                       x10aux::serialization_buffer &buf,
-                                       x10aux::addr_map &m)
-                {
-                    this_->_serialize_body(buf,m);
-                }
-                void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                    buf.write(_serialization_id, m);
-                }
-                void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                    buf.write(i, m);
-                    buf.write(rail, m);
-                }
-
-                template<class S>
-                static x10aux::ref<S> _deserialize(x10aux::serialization_buffer &buf) {
-                    x10aux::ref<Iterator> this_ = X10NEW(Iterator)(x10aux::SERIALIZATION_MARKER());
-                    this_->i = buf.read<x10_int>();
-                    this_->rail = buf.read<x10aux::ref<Rail<T> > >();
-                    return this_;
                 }
 
             };
@@ -217,10 +191,6 @@ namespace x10 {
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
             x10aux::DeserializationDispatcher
                 ::addDeserializer(ValRail<T>::template _deserialize<Object>);
-
-        template<class T> const x10aux::serialization_id_t ValRail<T>::Iterator::_serialization_id =
-            x10aux::DeserializationDispatcher
-                ::addDeserializer(ValRail<T>::Iterator::template _deserialize<Object>);
 
         template<class T> typename ValRail<T>::RTT * const ValRail<T>::RTT::it =
             new (x10aux::alloc<typename ValRail<T>::RTT>()) typename ValRail<T>::RTT();

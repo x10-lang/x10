@@ -26,7 +26,7 @@ namespace x10aux {
     }
 
     template<class T> void throwException() {
-        throwException(new (alloc<T>()) T());
+        throwException(T::_make());
     }
 
 }
