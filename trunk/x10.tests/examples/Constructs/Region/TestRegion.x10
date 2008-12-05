@@ -155,16 +155,6 @@ abstract public class TestRegion extends x10Test {
 
         pr("--- " + testName() + ": " + test);
 
-        /*
-        new R("rank")		{def run(): String = {return "" + r.rank;}};
-        new R("rect")		{def run(): String = {return "" + r.rect;}};
-        new R("zeroBased")	{def run(): String = {return "" + r.zeroBased;}};
-        new R("rail")		{def run(): String = {return "" + r.rail;}};
-
-        new R("isConvex()")	{def run(): String = {return "" + r.isConvex();}};
-        new R("size()")		{def run(): String = {return "" + r.size();}};
-        */
-
         pr("rank",       () => r.rank.toString());
         pr("rect",       () => r.rect.toString());
         pr("zeroBased",  () => r.zeroBased.toString());
