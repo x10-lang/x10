@@ -258,12 +258,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 			(dec.formals().size() == 1) &&
 			((Formal)dec.formals().get(0)).type().type().equals(ts.arrayOf(ts.String())))
 		{
+			String filepathname = dec.position().file();
+			String[] fp = filepathname.split("/");
+			String filename = fp[fp.length-1]+ " Line "+dec.position().line();
 			new Template("Main", new Object[] {
 					dec.flags().translate(),
 					new Join(",", dec.formals()),
 					dec.throwTypes().isEmpty() ? null :
 						new Join("", "throws", new Join(",", dec.throwTypes())),
-					dec.body()
+					dec.body(),
+					filename
 			}).expand();
 		} else
 			// WARNING: it's important to delegate to the appropriate visit() here!
@@ -297,10 +301,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 	public void visit(Async_c a) {
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		String filepathname = a.position().file();
+		String[] fp = filepathname.split("/");
+		String filename = fp[fp.length-1];
+		Object args[] = new Object[] {a.place(), processClocks(a), a.body(), filename+", Line "+a.position().line()};
 		new Template("Async",
-					 a.place(),
-					 processClocks(a),
-					 a.body()).expand(tr2);
+//					 a.place(),
+//					 processClocks(a),
+//					 a.body()
+					 args
+					 ).expand(tr2);
 	}
 
 	public void visit(Atomic_c a) {
@@ -389,7 +399,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	}
 
 	private void processClockedLoop(String template, X10ClockedLoop l) {
+		String filepathname = l.position().file();
+		String[] fp = filepathname.split("/");
+		String filename = fp[fp.length-1];
+		int line = l.position().line();
+
 		Translator tr2 = ((X10Translator) tr).inInnerClass(true);
+		Template ct = processClocks(l);
 		new Template(template,
 					 new Object[] {
 						 l.formal().flags().translate(),
@@ -398,7 +414,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 						 l.domain(),
 						 l.body(),
 						 processClocks(l),
-						 new Join("\n", l.locals())
+						 new Join("\n", l.locals()),
+						 (ct==null ? "" : ", ")+"\""+filename+" Line "+line+"\""
 					 }).expand(tr2);
 	}
 

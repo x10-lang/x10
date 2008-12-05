@@ -39,7 +39,14 @@ public class X10Translator extends Translator {
             w.write("\n//#line " + n.position().line() + "\n");
 
         super.print(parent, n, w);
-    }
+        if (n != null && n.position().line() > 0 &&
+                ((n instanceof Stmt && (! (n instanceof Block))) ||
+                 (n instanceof FieldDecl) ||
+                 (n instanceof MethodDecl) ||
+                 (n instanceof ConstructorDecl) ||
+                 (n instanceof ClassDecl)))
+            w.write("\n//#line " + n.position().endLine() + "\n");
+   }
 
 
 	public boolean inInnerClass() {
