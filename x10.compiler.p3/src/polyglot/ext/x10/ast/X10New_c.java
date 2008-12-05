@@ -98,7 +98,8 @@ public class X10New_c extends New_c implements X10New {
 
 		    if (! ct.get().toClass().flags().isInterface()) {
 		        anonType.superType(ct);
-		        anonType.addInterface(Types.<Type>ref(ts.Object()));
+		        if (anonType.interfaces().isEmpty())
+		            anonType.addInterface(Types.<Type>ref(ts.Object()));
 		    }
 		    else {
 		        anonType.superType(Types.<Type>ref(ts.Ref()));
