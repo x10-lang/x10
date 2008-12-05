@@ -10,7 +10,14 @@ abstract public class TestRegion extends x10Test {
     
     var os: StringWriter;
     var out: Printer;
-    val testName = className().substring(6,className().length());
+
+    def testName() {
+        var cn:String = className();
+        val init = cn.substring(0,6); // XTENLANG-???
+        if (init.equals("class "))
+            cn = cn.substring(6, cn.length());
+        return cn;
+    }
 
     def this() {
         System.setProperty("line.separator", "\n");
@@ -46,7 +53,7 @@ abstract public class TestRegion extends x10Test {
         var os: Rail[Object] = Rail.makeVar[Object](10);
 
         def set(i0: int, vue: double): void = {
-            os(i0) = vue;
+            os(i0) = vue to Object; // XTENLANG-210
         }
 
         def set(i0: int, i1: int, vue: double): void = {
@@ -89,8 +96,9 @@ abstract public class TestRegion extends x10Test {
                         out.print(" " + i + "\n");
                     }
                     (o as Grid).pr(rank-1);
-                } else if (o instanceof Double) {
-                    val d = o to double; // XTENLANG-34
+                } else {
+                    //val d = o to double; // XTENLANG-34
+                    val d = (o to Box[double]) to double; // XTENLANG-211
                     out.print((d to int)+"");
                 }
 
@@ -133,26 +141,21 @@ abstract public class TestRegion extends x10Test {
         }
     }
 
-    abstract class R {
-
-        def this(test: String): R = {
-            var r: String;
-            try {
-                r = run();
-            } catch (e: Throwable) {
-                r = e.getMessage();
-            }
-            pr(test + " " + r);
+    def pr(test: String, run: ()=>String) {
+        var r: String;
+        try {
+            r = run();
+        } catch (e: Throwable) {
+            r = e.getMessage();
         }
-
-        abstract def run(): String;
-
+        pr(test + " " + r);
     }
             
     def prRegion(test: String, r: Region): void = {
 
-        pr("--- " + testName + ": " + test);
+        pr("--- " + testName() + ": " + test);
 
+        /*
         new R("rank")		{def run(): String = {return "" + r.rank;}};
         new R("rect")		{def run(): String = {return "" + r.rect;}};
         new R("zeroBased")	{def run(): String = {return "" + r.zeroBased;}};
@@ -160,9 +163,17 @@ abstract public class TestRegion extends x10Test {
 
         new R("isConvex()")	{def run(): String = {return "" + r.isConvex();}};
         new R("size()")		{def run(): String = {return "" + r.size();}};
+        */
+
+        pr("rank",       () => r.rank.toString());
+        pr("rect",       () => r.rect.toString());
+        pr("zeroBased",  () => r.zeroBased.toString());
+        pr("rail",       () => r.rail.toString());
+
+        pr("isConvex()", () => r.isConvex().toString());
+        pr("size()",     () => r.size().toString());
 
         pr("region: " + r);
-
     }
 
     def prArray(test: String, a: Array[double]): void = {
