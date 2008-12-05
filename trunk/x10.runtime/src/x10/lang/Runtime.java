@@ -97,9 +97,25 @@ public abstract class Runtime {
 	protected abstract void initialize();
 
 	public static void main(String[] args) {
+		Thread th=null;
 		try {
 			String[] args_stripped = Configuration.parseCommandLine(args);
 			init();
+			//Shivali: Debugger Start
+			th = new Thread(new Runnable(){
+		    	public void run() {
+		    		Thread.setDefaultUncaughtExceptionHandler(runtime.new UncaughtExceptionHandler());
+//		    		System.out.println("Shivali: Inside run of thread "+ Thread.currentThread().getName()+ "in state "+Thread.currentThread().getState().toString());
+		    		try {
+		    		PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
+		    		} catch (ClassCastException e) {
+		    			PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
+		    		}
+		    	}
+		    });	
+			th.setName("InvokeMethods");
+		    th.start();
+		  //Shivali :Debugger End
 			runtime.run(args_stripped);
 		} catch (ShowUsageNotification e) {
 			usage(System.out, null);
@@ -107,7 +123,12 @@ public abstract class Runtime {
 			usage(System.err, e);
 		} catch (Exception e) {
 			Runtime.java.error("Unexpected Exception in X10 Runtime.", e);
+		} //Shivali: Debugger Start
+		finally {
+			//System.out.println("Setting Exception Handler");
+			
 		}
+		//Shivali:Debugger end
 		// vj: The return from this method does not signal termination of the VM
 		// because a separate non-daemon thread has been spawned to execute Boot Activity.
 	}
@@ -260,6 +281,17 @@ public abstract class Runtime {
 	protected Runtime() {
 	}
 
+	//Shivali:Debugger Start
+	class UncaughtExceptionHandler implements Thread.UncaughtExceptionHandler {
+
+	    //Implements Thread.UncaughtExceptionHandler.uncaughtException()
+	    public void uncaughtException(Thread th, Throwable ex) {
+	        //System.out.println("You crashed thread " + th.getName());
+	        //System.out.println("Exception was: " + ex.toString());
+	    }
+	}
+	//Shivali:Debugger End
+	
 	public static abstract class Factory {
 		public abstract region.factory getRegionFactory();
 
@@ -446,7 +478,9 @@ public abstract class Runtime {
 		return runtime.getPlaces()[0];
 	}
 
-	
+	public static DefaultRuntime_c getDefaultRuntime() {
+		return (DefaultRuntime_c)runtime;
+	}
 	/**
 	 * @deprecated
 	 */

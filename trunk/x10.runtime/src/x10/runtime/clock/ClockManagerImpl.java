@@ -61,11 +61,23 @@ public class ClockManagerImpl implements ClockManager {
 		}
 		this.singleClock = clock;
 	}
-
+	
 	/**
 	 * Switch from a single clock strategy to a clock list one.
 	 *
 	 */
+	
+	//Shivali :Begin Debug
+	public List getClocks() {
+		if (singleClock==null)
+		   return clockList;
+		else {
+			List cl=null;
+		    cl.add(singleClock);
+		    return cl;
+		}    
+	}
+	//Shivali :End Debug
 	private void switchFromSingleToListStrategy()
 	{
 		this.clockList = new LinkedList();

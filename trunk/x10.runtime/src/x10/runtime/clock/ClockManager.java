@@ -10,6 +10,7 @@ package x10.runtime.clock;
 import x10.lang.ClockUseException;
 import x10.runtime.Activity;
 import x10.runtime.Clock;
+import java.util.List;
 /**
  * Defines the interface between: 
  * - An Activity and his Clock Manager.
@@ -33,7 +34,18 @@ public interface ClockManager {
 	 * @param c
 	 */
 	public abstract void dropClock(Clock c);
+//<<<<<<< ClockManager.java
+//	
+//	//Shivali
+//	public abstract List getClocks();
+//    //Shivali
+//=======
+	
+	//Shivali
+	public abstract List getClocks();
+    //Shivali
 
+//>>>>>>> 1.3
 	/**
 	 * Drop all clocks associated with this activity, and deregister this
 	 * activity from all these clocks.
