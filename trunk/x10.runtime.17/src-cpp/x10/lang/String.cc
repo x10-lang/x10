@@ -135,8 +135,8 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
     return (x10_int) res;
 }
 
-String String::substring(x10_int start, x10_int end) {
-    return String(this->substr(start, end-start));
+ref<String> String::substring(x10_int start, x10_int end) {
+    return X10NEW(String)(this->substr(start, end-start));
 }
 
 x10_char String::charAt(x10_int i) {
