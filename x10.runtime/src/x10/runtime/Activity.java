@@ -8,6 +8,7 @@
 package x10.runtime;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Stack;
 import x10.lang.ClockUseException;
 import x10.lang.MultipleExceptions;
@@ -15,6 +16,7 @@ import x10.runtime.abstractmetrics.AbstractMetrics;
 import x10.runtime.abstractmetrics.AbstractMetricsFactory;
 import x10.runtime.clock.ClockManager;
 import x10.runtime.clock.ClockManagerFactory;
+
 
 /** The representation of an X10 async activity.
  * <p>The code below uses myThread/someThread annotations on methods. 
@@ -80,7 +82,12 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	private InvocationStrategy invocationStrategy = InvocationStrategy.ASYNC;
 
 	private final String name;
-
+	
+    //Shivali: Debug Runtime
+	
+	protected List childList;
+	private int clocked=0;
+	//Shivali: Debug Runtime
 	/********** ACTIVITY CREATION AND INITIALIZATION **********/
 
 	/**
@@ -164,6 +171,9 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 		
 		if(this.activityClockManager != null)
 			this.activityClockManager.registerClocks();
+		//Shivali: Debug Runtime
+		childList = new ArrayList();
+		//Shivali: Debug Runtime
 		
 		if (VMInterface.ABSTRACT_EXECUTION_TIMES)
 			// Record time at which activity was started
@@ -179,6 +189,11 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	 */
 	public void run() {
 		PoolRunner activityRunner = (PoolRunner) Thread.currentThread();
+	
+//		System.out.println("Thread name is "+Thread.currentThread().getName());
+//		System.out.println("Thread group is "+Thread.currentThread().getThreadGroup().getName());
+//		System.out.println("Activity name is "+ this.name);
+		
 		if (Report.should_report(Report.ACTIVITY, 5)) {
 			Report.report(5, activityRunner + " is running " + this);
 		}
@@ -188,6 +203,9 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 		// TODO Remove this next line later <-- who wrote this comment ?
  		// binding current thread to the activity place
 		activityRunner.setPlace(this.getPlace());
+		//Shivali: Debugger start
+		clocked=this.getNbRegisteredClocks();
+		//Shivali: Debugger start
 		try { 
 		this.invocationStrategy.invokeX10Task(this);
 		} catch (Throwable t) {
@@ -200,6 +218,9 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 		} finally {
 			// this activity has terminated, updating its status.
 			this.setFinished();
+			//Shivali:Debug to trigger event on Thread's name field
+			activityRunner.setName(activityRunner.getName()+"Finished");
+			//Shivali:Debug End
 		}
 	}
 
@@ -226,6 +247,19 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 		this.notFinished = false;
 		this.notifyAll();
 	}
+	
+	//Shivali:Debug
+	public synchronized boolean notFinished(){
+		return this.notFinished;
+	}
+	
+	public String hasChildren() {
+		if (childList.size()>0) {
+			return "true";
+		}
+		else return "false";
+	}
+	//Shivali:Debug
 	
 	/**
 	 * Set the root FinishState of this activity.
@@ -442,7 +476,26 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 			throw new ClockUseException("Finish cannot spawn clocked async.");
 		return c;
 	}
-
+     
+	//Shivali:Debugger Start
+	public String getRegisteredClocks(){
+		List clks;
+		String clkname="";
+		if(this.activityClockManager != null) {
+			clks = this.activityClockManager.getClocks();
+			if (clks.size()>0){
+				clkname="< Clocked: ";
+			    for (Object c:clks){
+				     if (c instanceof Clock) clkname=clkname+((Clock)c).toString().substring(5,5);
+			    clkname = clkname+">";
+			    }
+			}
+		}
+		if (clkname.equals("")) 
+		    clkname=" < Clocked: none > ";
+		return clkname;
+	}
+	//Shivali:Debugger End
 	/* (non-Javadoc)
 	 * @see x10.runtime.clock.ClockManager#getNbRegisteredClocks
 	 */
@@ -601,7 +654,9 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 		// set where the child should refer when is activity is over
 		// i.e. the first finish when going ip in the activation tree 
 		child.setRootActivityFinishState(target);
-		
+		//Shivali: Debug Runtime
+		target.parent.childList.add(child);
+		//Shivali: Debug Runtime
 		// increment the number of spawned activities in the parent
 		target.notifySubActivitySpawn();
 		if (VMInterface.ABSTRACT_EXECUTION_STATS) {
@@ -625,6 +680,9 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 		finalizeTerminationCleanup();
         if (rootNode_ != null)
            rootNode_.notifySubActivityTermination();
+        //Shivali: Debug Runtime
+        rootNode_.parent.childList.remove(this);
+        //Shivali: Debug Runtime
 //        this.setFinished();
 	}
 
@@ -696,6 +754,20 @@ public abstract class Activity implements X10Runnable, AbstractMetrics {
 	public String shortString() {
 		return "<" + myName() + ">";
 	}
+	
+	//Shivali:Debugger Start
+	public String shortStringPlain() {
+		return myName();
+	}
+	
+	public /*synchronized*/ String debuggerString() {
+	    //return myName() + "< parent:"+rootNode_.parent.shortStringPlain()+" >" + getRegisteredClocks();
+		if (clocked>0)
+		    return myName() + "< parent:"+rootNode_.parent.shortStringPlain()+" >" + "<Clocked>";
+		else
+			return myName() + "< parent:"+rootNode_.parent.shortStringPlain()+" >" + "<Clocked:none>";
+	}
+    //Shivali:Debugger End
 
 	public void setInvocationStrategy(InvocationStrategy async_in_finish) {
 		this.invocationStrategy = async_in_finish;

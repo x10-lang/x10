@@ -9,6 +9,9 @@ package x10.runtime;
 
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.lang.Runnable;
 
 import x10.array.ArrayFactory;
 import x10.array.DistributionFactory;
@@ -21,6 +24,8 @@ import x10.lang.dist;
 import x10.lang.place;
 import x10.lang.point;
 import x10.lang.region;
+import x10.runtime.X10ThreadPoolExecutor;
+import x10.runtime.Activity;
 
 /**
  * Default implementation of Runtime. Considerably revised 5/16 by vj
@@ -43,6 +48,10 @@ public class DefaultRuntime_c extends Runtime {
 	 */
 	private Place[] places_;
 	
+	//Shivali: Debug Runtime
+	private Activity mainAct;
+	//Shivali: Debug Runtime
+	
 	public DefaultRuntime_c() {
 	}
 
@@ -53,16 +62,57 @@ public class DefaultRuntime_c extends Runtime {
 		int pc = Configuration.NUMBER_OF_LOCAL_PLACES;
 		this.places_ = new Place[pc];
 		x10.lang.place.MAX_PLACES = pc;
-		for (int i=0;i<pc;i++)
+		for (int i=0;i<pc;i++){
 			places_[i] = new LocalPlace_c();
+		}	
 		place.initialize();
 	}
+	
+	//Shivali : Debugger Start
+	private synchronized Object[] getWorkerPool(){
+		X10ThreadPoolExecutor worker_q;
+		ArrayList<Activity> activities_=new ArrayList();
+		int j=0;
+		for (int i=0;i<places_.length;i++){
+			worker_q=places_[i].getThreadPool();
+			//System.out.println("place "+i+" has quesue size "+worker_q.getQueue().size());
+			Iterator queue = worker_q.getQueue().iterator();
+			while (queue.hasNext()) {
+				Activity actvty = (Activity)queue.next();
+				activities_.add(actvty);
+				//System.out.println("Activity name is " + actvty.myName());
+			}
+		}	
+		return activities_.toArray();
+	}
+	//Shivali : Debugger End
 
+//	//Shivali
+//	public synchronized Object[] getWorkerPool(){
+////		System.out.println("Entered getWorkerPool");
+//		X10ThreadPoolExecutor worker_q;
+//		ArrayList<Activity> activities_=new ArrayList();
+//		int j=0;
+//		for (int i=0;i<places_.length;i++){
+//			worker_q=places_[i].getThreadPool();
+////			System.out.println("place "+i+" has quesue size "+worker_q.getQueue().size());
+//			Iterator queue = worker_q.getQueue().iterator();
+//			while (queue.hasNext()) {
+//				Activity actvty = (Activity)queue.next();
+//				activities_.add(actvty);
+////				System.out.println("Activity name is " + actvty.myName());
+//			}
+//		}	
+////		System.out.println("Exited getWorkerPool");
+//		return activities_.toArray(new Object[0]);
+//	}
+	//Shivali
 	/**
 	 * Initialize the default runtime by creating X10 places.
 	 */
 	protected synchronized void initialize() {
-	    createPlaces();
+//		System.out.println("Shivali: Entered DefaultRnutime_c");
+		createPlaces();
 	}
 
 	/**
@@ -160,7 +210,9 @@ public class DefaultRuntime_c extends Runtime {
 		// submit the main activity to the X10 Runtime
 		// and wait for completion by wrapping it into a finish
 		Runtime.getDefaultPlace().runAsyncInFinish(mainActivity);
-		
+		//Shivali: Debug Runtime
+		mainAct=mainActivity;
+		//Shivali: Debug Runtime
     	if (Report.should_report(Report.ACTIVITY, 5)) {
     	    Report.report(5, PoolRunner.logString() + " finished running the Boot Activity.");
     	}
@@ -247,6 +299,15 @@ public class DefaultRuntime_c extends Runtime {
 		return places_;
 	}
 
+	//Shivali: Debug Runtime
+	protected Activity getMainActivity() {
+			return mainAct;
+	}
+	
+	protected ArrayList getChildActivities(Activity parent) {
+		return (ArrayList)(parent.childList);
+	}
+	//Shivali: Debug Runtime
 	/**
 	 * @deprecated
 	 * @return
