@@ -56,9 +56,9 @@ namespace x10 {
             x10_int indexOf(x10_char c, x10_int i = 0);
             x10_int lastIndexOf(x10aux::ref<String> s, x10_int i = 0);
             x10_int lastIndexOf(x10_char c, x10_int i = 0);
-            String substring(x10_int start, x10_int end);
+            x10aux::ref<String> substring(x10_int start, x10_int end);
 
-            String substring(x10_int start) {
+            x10aux::ref<String> substring(x10_int start) {
                 return substring(start, this->length());
             }
 
