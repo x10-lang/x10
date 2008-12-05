@@ -77,7 +77,7 @@ abstract public class TestArray extends x10Test {
         var os: Rail[Object] = Rail.makeVar[Object](10);
 
         def set(i0: int, vue: double): void = {
-            os(i0) = vue;
+            os(i0) = vue to Object; // XTENLANG-210
         }
 
         def set(i0: int, i1: int, vue: double): void = {
