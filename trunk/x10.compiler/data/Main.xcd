@@ -1,9 +1,9 @@
-// SYNOPSIS: #0 main(#1) #2 #3
+// SYNOPSIS: #0 main(#1) #2 #3 #4=filename/line#
 
 public static class Main extends x10.runtime.Activity {
 	private final String[] form;
 	public Main(String[] args) {
-		super("Main Activity");
+		super("Main Activity: #4");
 		this.form = args;
 	}
 	public void runX10Task() throws Throwable {

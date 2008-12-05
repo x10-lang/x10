@@ -1,6 +1,6 @@
-// SYNOPSIS: async(#0) clocked(#1) #2
+// SYNOPSIS: async(#0) clocked(#1) #2 #3="fileName lineNo"
 (x10.lang.Runtime.asPlace(#0)).runAsync
-	(new x10.runtime.Activity(#1) {
+	(new x10.runtime.Activity("#3") {
 		public void runX10Task() {
 			#2
 		}
