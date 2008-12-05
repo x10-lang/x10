@@ -34,7 +34,7 @@ namespace x10aux {
 
     template<class T> ref<x10::lang::Box<T> > box(T obj) {
         _CAST_("boxed: "<<CAST_TRACER<T>(obj)<<" of type "<<TYPENAME(T));
-        return X10NEW(x10::lang::Box<T>)(obj);
+        return x10::lang::Box<T>::_make(obj);
     }
 
     template<class T> T unbox(ref<x10::lang::Box<T> > obj) {
@@ -136,7 +136,7 @@ namespace x10aux {
     template<> struct ClassCastNotBothRef<ref<x10::lang::Value>,P> { \
         static ref<x10::lang::Value> _(P obj) { \
             _CAST_("converted to value: "<<CAST_TRACER<P>(obj)<<" of type "<<TYPENAME(P)); \
-            return ref<x10::lang::Value>(X10NEW(ValueBox<P>)(obj)); \
+            return ref<x10::lang::Value>(new (x10aux::alloc<ValueBox<P> >()) ValueBox<P>(obj)); \
         } \
     }
     #define VALUE_PRIMITIVE_CAST(P) \

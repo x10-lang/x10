@@ -6,17 +6,109 @@
 
 #include <x10/x10.h> // pgas
 
-#include <x10aux/pgas.h> // pgas
+#include <x10aux/pgas.h>
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
 #include <x10aux/deserialization_dispatcher.h>
 
 
-/*
- * Serialization support.
+/* --------------------- 
+ * Serialisation support
+ * ---------------------
  *
- * [DC] I will soon add documentation that is based on the old documentation but reflects the
- * changes I have made.  The only reason I haven't done it already is I'm too tired.
+ * There are two separate mechanisms for (de)serialisation --
+ *
+ * 1) Instances of ref<T>
+ *
+ * 2) Everything else (primitives)
+ *
+ *
+ * The mechanism (2) copies raw implementation-dependent bytes into the stream and we will discuss
+ * it no further.
+ *
+ *
+ * The mechanism (1) is designed for 5 cases:
+ *
+ * a) Subclasses of Ref (local)
+ *
+ * b) Subclasses of Ref (remote)
+ *
+ * c) Polymorphic Values (whose concrete type is not known at compile time)
+ *
+ * d) Final Values (whose concrete type is known at compile time)
+ *
+ * e) Interfaces (unknown(*) whether they are a Ref or a Value)
+ *
+ *
+ * (*) We are autoboxing but rightly not in the case of function types.
+ *
+ *
+ * The mechanism is used in exactly the same way by hand-written c++ classes and by c++ code that is
+ * generated from X10 classes by the X10 compiler.
+ *
+ *
+ * 'Object' declares a static function _serialize which behaves the same way regardless of the
+ * concrete type of the target.  Object::_serialize will emit an id (via a virtual function
+ * _serialize_id) that is unique to each class, and then serialise the objects representation (via
+ * another virtual function _serialize_body).  For the special case of a remote reference (b) it
+ * does not defer to these virtual functions since the object's vtable is not located at the current
+ * place.  For all other cases, assuming all classes implement _serialize_id and _serialize_body
+ * properly, this is sufficient.
+ *
+ * Unique ids are generated at runtime in a place-independent fashion.  Classes obtain their id by
+ * registering a deserialisation function with DeserializationDispatcher at initialisation time, and
+ * storing this id in a static field.  Every non-abstract value class has its own id, but all Refs
+ * are represented by the same id.  The virtual _serialize_id function writes this id into the
+ * buffer provided.
+ *
+ * To write data (of any kind) we use the method serialization_buffer::write(data) which does the
+ * right thing, no matter which of the 5 categories (a-e) it is given.  An internal cursor is
+ * incremented ready for the next write().  Note that a class's _serialize_body function should also
+ * serialise its super class's representation, e.g. by deferring to the super class's
+ * _serialize_body function.
+ *
+ * To implement (a) we have Ref provide a _serialize_body that serialises the address of the object
+ * so that other places can use it as a remote reference.
+ *
+ * In the case where the object is statically known to be a particular class at deserialisation time
+ * (e.g. if we are deserialising into a variable whose type is final), we would like to omit the id
+ * from the communication, as it is not required.  This is achieved through a final value class C
+ * providing its own _serialize function that does not call _serialize_id.  The write() function
+ * will call C::_serialize() instead of resolving the call to Object::_serialize().  This does not
+ * affect the behaviour of _serialize when invoked on an instance of C that has been up-cast to
+ * Object because _serialize is a static function.  In this case the id would still be emitted.
+ * This strategy is used to omit the id in the cases of (a,b,d), above.  In the case of (b),
+ * Ref::_serialize does not invoke _serialize_body but just encodes the address.
+ *
+ *
+ * Deserialisation is more complicated as an object has to be constructed.  In the case where we are
+ * deserialising into a variable of non-final or interface type, the DeserializationDispatcher is
+ * invoked to read an id from the stream and decide what to do.  Note that in such cases, the value
+ * has always been serialised from a matching variable on the sending side, so an id will always be
+ * present.  During initialisation time, classes register deserialisation functions with the
+ * DeserializationDispatcher, which hands out the unique ids.  Thus the DeserializationDispatcher
+ * can look up the id in its internal table and dispatch to the appropriate static function which
+ * will construct the right kind of object and initialise it by deserialising the object's
+ * representation from the stream (provided as a serialization_buffer).
+ *
+ * Object::_deserialize is the complement of Object::_serialize and defers deserialisation to
+ * DeserializationDispatcher.  Ref and final value classes can provide their own static _deserialize
+ * functions that do not use DeserializationDispatcher and assume that no id is found in the stream.
+ * Thus classes should either define both _serialize and _deserialize or define neither.
+ *
+ * Classes define a _deserialize_body function that extracts the object's representation from the
+ * stream.  The DeserializationDispatcher callback and _deserialize (if present) should usually just
+ * create an object of the right type and then call _deserialize_body to handle the rest.  Arbitrary
+ * data can be extracted from a serialization_buffer via its read<T>() function.  An internal cursor
+ * is incremented so the buffer is ready for the next read().  This function will do the right thing
+ * no matter what T is supplied.  Note that classes need to deserialise their parent class's
+ * representation too, e.g. by calling their parent's _deserialize_body function.  The two functions
+ * _serialize_body and _deserialize_body are dual, and obviously they should be written to match
+ * each other.
+ *
+ * Deserialisation of Ref instances is handled through special casing in Ref::_deserialize.  The
+ * address is read from the stream, and either the local address, a remote proxy, or null is
+ * returned as appropriate.
  */
 
 
@@ -176,178 +268,6 @@ namespace x10aux {
     };
 
 
-#if 0
-
-#ifndef NO_IOSTREAM
-    // Debug helper; usage: o << _dump_chars(b, l)
-    class _dump_chars {
-        const char* _buf;
-        int _len;
-        const char* _delim;
-    public:
-        _dump_chars(const char* buf, int len, const char* delim=" ") :
-            _buf(buf), _len(len), _delim(delim) { }
-        friend std::ostream& operator<<(std::ostream& os, const _dump_chars d) {
-            for (int i = 0; i < d._len; i++)
-                os << (i==0?"":d._delim) << (int)(unsigned char)d._buf[i];
-            return os;
-        }
-    };
-#endif
-
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    //SERIALIZATION/////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Specialize for classes without SERIALIZATION_ID (e.g., final classes)
-    template<class T> struct _reference_serializer {
-        static void _(ref<T> v, serialization_buffer& buf, addr_map& m) {
-            _Sd_(size_t len = buf.length());
-            _S_("Serializing " << TYPENAME(T) << "...");
-            buf.write(T::SERIALIZATION_ID);
-            _S_("Wrote " << T::SERIALIZATION_ID);
-            v->_serialize_fields(buf, m);
-            _S_(x10aux::_dump_chars(((const char*)buf) + len, buf.length() - len));
-        }
-    };
-
-
-
-    template<class T> inline void _serialize_ref(ref<T> v, serialization_buffer& buf, addr_map& m) {
-        _reference_serializer<T>::_(v, buf, m);
-    }
-
-    template<class T> inline void _serialize_ref(T* p, serialization_buffer& buf, addr_map& m) {
-        _serialize_ref(ref<T>(p), buf, m);
-    }
-
-
-    // assume that T implements a (not necessarily virtual) member function _serialize
-    template<class T> inline void _serialize_value_ref(serialization_buffer& buf,
-                                                       addr_map& m,
-                                                       const ref<T>& v)
-    {
-        v->_serialize(buf, m);
-    }
-
-    template<class T> inline void _serialize_value_ref(serialization_buffer& buf,
-                                                       addr_map& m,
-                                                       T* p)
-    {
-        _serialize_value_ref(buf, m, ref<T>(p));
-    }
-
-
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    //DESERIALIZATION///////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////
-
-    // Specialize for classes without SERIALIZATION_ID (e.g., final classes)
-    template<class T> struct _reference_deserializer {
-        static ref<T> _(serialization_buffer& buf) {
-            /*
-            int id = buf.read<int>();
-            // TODO
-            //if (id == NULL_SERIALIZATION_ID)
-            //    return null;
-            assert (id == T::SERIALIZATION_ID);
-            _S_("Deserializing " << TYPENAME(T));
-            ref<T> rv = ref<T>(new (alloc<T>()) T(SERIALIZATION_MARKER()));
-            rv->_deserialize_fields(buf);
-            return rv;
-            */
-            // [DC] this doesn't work when T is an abstract class
-            // not sure whether it should be called in these cases at all
-            // but commenting it out seems like the best option right now
-            (void) buf;
-            return 0;
-        }
-    };
-
-    template<class T> inline ref<T> _deserialize_ref(serialization_buffer& buf) {
-        return _reference_deserializer<T>::_(buf);
-    }
-
-    template<class T> inline ref<T> _deserialize_value_ref(serialization_buffer& buf) {
-        return _deserialize_ref<T>(buf);
-    }
-
-    template<class T> inline void serialize_value_type(serialization_buffer& buf, const ref<T>& v) {
-        addr_map m;
-        _serialize_value_ref(buf, m, v);
-    }
-
-    template<class T> inline x10aux::ref<T> deserialize_value_type(serialization_buffer& buf) {
-        return _deserialize_value_ref<T>(buf);
-    }
-
-    // TODO: Specialize x10::lang::Object serialization/deserialization
-    template<> void serialize_value_type<x10::lang::Object>(serialization_buffer& buf, const x10aux::ref<x10::lang::Object>& v);
-
-    template<> x10aux::ref<x10::lang::Object> _deserialize_value_ref<x10::lang::Object>(serialization_buffer& buf);
-
-    struct subclass_vector {
-        size_t _length;
-        void* (**_subclasses)(serialization_buffer&);
-    };
-
-    void _register_subclass_impl(int id, subclass_vector& registered_subclasses, void* (*deserialize_func)(serialization_buffer&));
-
-    template<class S, class T> inline void _register_subclass() {
-        //_S_("Registering " << TYPENAME(T) << " as a subclass of " << TYPENAME(S) << " (id=" << id << ")");
-        ref<T>(*deserialize_func)(serialization_buffer&) = _deserialize_ref<T>;
-        _register_subclass_impl(T::SERIALIZATION_ID, S::_registered_subclasses, reinterpret_cast<void*(*)(serialization_buffer&)>(deserialize_func));
-//        int id = T::SERIALIZATION_ID;
-//        assert (id >= 0);
-//        if (S::_registered_subclasses._length <= (size_t)id) {
-//            S::_registered_subclasses._subclasses = (ref<S>(**)(serialization_buffer&)) realloc(S::_registered_subclasses._subclasses, (id+1) * sizeof(ref<S>(*)(serialization_buffer&)));
-//            S::_registered_subclasses._length = id+1;
-//        }
-//        //extern ref<T> _deserialize_ref<T>(serialization_buffer& buf);
-//        ref<T>(*deserialize_func)(serialization_buffer&) = _deserialize_ref<T>;
-//        S::_registered_subclasses._subclasses[id] = reinterpret_cast<ref<S>(*)(serialization_buffer&)>(deserialize_func);
-    }
-
-    void* _deserialize_subclass_impl(int id, serialization_buffer& buf, const subclass_vector& registered_subclasses);
-
-    template<class S> inline ref<S> _deserialize_subclass(int id, serialization_buffer& buf) {
-        return ref<S>(reinterpret_cast<S*>(_deserialize_subclass_impl(id, buf, S::_registered_subclasses)));
-//        assert (id >= 0);
-//        assert ((size_t)id < S::_registered_subclasses._length);
-//        ref<S>(*deserialize_func)(serialization_buffer&) = S::_registered_subclasses._subclasses[id];
-//        if (deserialize_func == NULL) {
-//            assert(false); return null;
-//        }
-//        return deserialize_func(buf);
-    }
-
-/*
-    template<class S> inline ref<S> _deserialize_superclass(serialization_buffer& buf) {
-        _S_("Deserializing " << TYPENAME(S) << " from ' " << _dump_chars(buf, 40) << " '");
-        int id = buf.peek<int>();
-        _S_("Id = " << id);
-        return _deserialize_subclass<S>(id, buf);
-    }
-*/
-
-/*
-    extern "C" x10aux::AnyClosure *__x10_callback_closureswitch(int id, serialization_buffer& s);
-    template<> struct _reference_deserializer<x10aux::AnyClosure> { 
-        // can't have a ref of things that don't have RTTs
-        static x10aux::AnyClosure *_(serialization_buffer& s) {
-            int id = s.read<int>();
-            return __x10_callback_closureswitch(id,s);
-        }
-    };
-*/
-
-#endif
 
 }
 

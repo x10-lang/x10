@@ -33,7 +33,6 @@ namespace x10 {
 
         protected:
 
-            explicit NativeInputStream() : Ref() { }
 
             virtual char* gets(char* s, int num) = 0;
 

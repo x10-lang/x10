@@ -43,7 +43,11 @@ namespace x10 {
                 return x10aux::getRTT<Lock>();
             }
 
-            explicit Lock() : Ref() { initialize(); }
+            static x10aux::ref<Lock> _make() {
+                x10aux::ref<Lock> this_ = new (x10aux::alloc<Lock>()) Lock();
+                this_->initialize();
+                return this_;
+            }
             ~Lock() { teardown(); }
 
         private:

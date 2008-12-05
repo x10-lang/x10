@@ -91,7 +91,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     __thread_running = false;
 
 	__current_activity = null;
-    __thread_name = X10NEW(String)(*name);
+    __thread_name = String::_make(name);
     __taskBody = task;
 
     

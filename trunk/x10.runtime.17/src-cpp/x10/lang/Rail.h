@@ -110,7 +110,7 @@ namespace x10 {
             };  
 
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
-                return X10NEW(Iterator)(this);
+                return new (x10aux::alloc<Iterator>()) Iterator (this);
             }   
 
 

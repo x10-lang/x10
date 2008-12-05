@@ -42,8 +42,21 @@ namespace x10 {
             x10_int _len;
             
         public:
-            GrowableRail() : _array(x10::lang::Rail<T>::make(1)), _len(0)  { }
-            GrowableRail(x10_int size) : _array(x10::lang::Rail<T>::make(size)), _len(0)  { }
+            static x10aux::ref<GrowableRail<T> > _make() {
+                return (new (x10aux::alloc<GrowableRail<T> >()) GrowableRail<T>())->_constructor();
+            }
+            static x10aux::ref<GrowableRail<T> > _make(x10_int sz) {
+                return (new (x10aux::alloc<GrowableRail<T> >())GrowableRail<T>())->_constructor(sz);
+            }
+            x10aux::ref<GrowableRail> _constructor() {
+                return this->_constructor(1);
+            }
+            x10aux::ref<GrowableRail> _constructor(x10_int size) {
+                this->Ref::_constructor();
+                _array = x10::lang::Rail<T>::make(size);
+                _len = 0;
+                return this;
+            }
 
             T set(T v, x10_int i) {
                 grow(i+1);
@@ -147,3 +160,5 @@ namespace x10 {
 
 
 #endif /* X10_LANG_GROWABLE_RAIL */
+
+// vim: shiftwidth=4:tabstop=4:expandtab

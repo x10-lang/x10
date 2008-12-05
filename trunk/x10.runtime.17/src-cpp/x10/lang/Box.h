@@ -38,10 +38,14 @@ namespace x10 {
                 return x10aux::getRTT<Box<T> >();
             }
 
-            Box(T contents_)
-              : Ref(), contents(contents_) { }
+            static x10aux::ref<Box<T> > _make(T contents_) {
+                return (new (x10aux::alloc<Box<T> >())Box<T>())->_constructor(contents_);
+            }
 
-            ~Box() { }
+            x10aux::ref<Box<T> > _constructor(T contents_) {
+                contents = contents_;
+                return this;
+            }
 
             virtual T get() {
                 return contents;

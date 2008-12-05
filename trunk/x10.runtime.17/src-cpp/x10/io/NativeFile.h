@@ -40,37 +40,43 @@ namespace x10 {
 
         public:
 
-            explicit NativeFile(x10aux::ref<x10::lang::String> s) : Ref(), name(s) { }
+            static x10aux::ref<NativeFile> _make(x10aux::ref<x10::lang::String> s) {
+                return (new (x10aux::alloc<NativeFile>()) NativeFile())->_constructor(s);
+            }
+            x10aux::ref<NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
+                name = s;
+                return this;
+            }
 
             virtual x10aux::ref<x10::lang::String> getName() { return name; }
 
-            virtual x10aux::ref<x10::lang::String> getParent() { assert(false); return name; }
+            virtual x10aux::ref<x10::lang::String> getParent() { abort(); return name; }
 
-            virtual x10aux::ref<x10::lang::String> getPath() { assert(false); return name; }
+            virtual x10aux::ref<x10::lang::String> getPath() { abort(); return name; }
 
-            virtual x10_boolean isAbsolute() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean isAbsolute() { abort(); return (x10_boolean)false; }
 
-            virtual x10aux::ref<x10::lang::String> getAbsolutePath() { assert(false); return name; }
+            virtual x10aux::ref<x10::lang::String> getAbsolutePath() { abort(); return name; }
 
-            virtual x10aux::ref<x10::lang::String> getCanonicalPath() { assert(false); return name; }
+            virtual x10aux::ref<x10::lang::String> getCanonicalPath() { abort(); return name; }
 
-            virtual x10_boolean canRead() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean canRead() { abort(); return (x10_boolean)false; }
 
-            virtual x10_boolean canWrite() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean canWrite() { abort(); return (x10_boolean)false; }
 
-            virtual x10_boolean exists() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean exists() { abort(); return (x10_boolean)false; }
 
-            virtual x10_boolean isDirectory() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean isDirectory() { abort(); return (x10_boolean)false; }
 
-            virtual x10_boolean isFile() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean isFile() { abort(); return (x10_boolean)false; }
 
-            virtual x10_boolean isHidden() { assert(false); return (x10_boolean)false; }
+            virtual x10_boolean isHidden() { abort(); return (x10_boolean)false; }
 
-            virtual x10_long lastModified() { assert(false); return (x10_long)0; }
+            virtual x10_long lastModified() { abort(); return (x10_long)0; }
 
-            virtual x10_long length() { assert(false); return (x10_long)0; }
+            virtual x10_long length() { abort(); return (x10_long)0; }
 
-            virtual x10_boolean setLastModified(x10_long t) { (void)t; assert(false); return (x10_boolean)false; }
+            virtual x10_boolean setLastModified(x10_long t) { (void)t; abort(); return (x10_boolean)false; }
 
         };
 

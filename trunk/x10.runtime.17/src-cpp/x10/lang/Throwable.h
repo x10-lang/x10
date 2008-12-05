@@ -7,7 +7,6 @@
 #else
 #define MAX_TRACE_SIZE 1
 #endif
-#include <x10aux/RTT.h>
 
 #include <x10/lang/Value.h>
 
@@ -29,7 +28,7 @@ namespace x10 {
 
             public:
 
-            class RTT : public x10aux::RuntimeType { 
+            class RTT : public x10aux::RuntimeType {
                 public:
                 static RTT* const it; 
                 virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
@@ -47,22 +46,46 @@ namespace x10 {
             void *FMGL(trace)[MAX_TRACE_SIZE]; 
             int FMGL(trace_size);
 
-            Throwable();
-            Throwable(x10aux::ref<String> message);
-            Throwable(x10aux::ref<Throwable> cause);
-            Throwable(x10aux::ref<String> message, x10aux::ref<Throwable> cause);
 
-            static const x10aux::serialization_id_t _serialization_id;
+            static x10aux::ref<Throwable> _make()
+            { return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(); }
 
-            virtual x10aux::ref<String> getMessage();
-            virtual x10aux::ref<Box<x10aux::ref<Throwable> > > getCause();
+            static x10aux::ref<Throwable> _make(x10aux::ref<String> message)
+            { return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(message); }
+
+            static x10aux::ref<Throwable> _make(x10aux::ref<Throwable> cause)
+            { return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(cause); }
+
+            static x10aux::ref<Throwable> _make(x10aux::ref<String> message,
+                                                x10aux::ref<Throwable> cause)
+            { return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(message, cause); }
+
+        protected:
+            x10aux::ref<Throwable> _constructor() {
+                return _constructor(x10aux::null, x10aux::null);
+            }
+
+            x10aux::ref<Throwable> _constructor(x10aux::ref<String> message) {
+                return _constructor(message, x10aux::null);
+            }
+
+            x10aux::ref<Throwable> _constructor(x10aux::ref<Throwable> cause) {
+                return _constructor(x10aux::null, cause);
+            }
+
+            x10aux::ref<Throwable> _constructor(x10aux::ref<String> message,
+                                                x10aux::ref<Throwable> cause);
+
+        public:
+            virtual x10aux::ref<String> getMessage() { return FMGL(message); }
+            virtual x10aux::ref<Box<x10aux::ref<Throwable> > > getCause() { return FMGL(cause); }
             virtual x10aux::ref<String> toString();
             virtual x10aux::ref<Throwable> fillInStackTrace();
             typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
             virtual StringRail getStackTrace();
 
-            explicit Throwable(x10aux::SERIALIZATION_MARKER m) : Value(m) { }
 
+            static const x10aux::serialization_id_t _serialization_id;
 
             virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(_serialization_id,m);
@@ -75,7 +98,7 @@ namespace x10 {
 
             template<class T>
             static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
-                x10aux::ref<Throwable> this_ = X10NEW(Throwable)(x10aux::SERIALIZATION_MARKER());
+                x10aux::ref<Throwable> this_ = new (x10aux::alloc<Throwable>()) Throwable();
                 this_->_deserialize_body(buf);
                 return this_;
             }

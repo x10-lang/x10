@@ -40,16 +40,6 @@ namespace x10 {
                 return x10aux::getRTT<Iterator<T> >();
             }
 
-            Iterator() { }
-
-            private:
-
-            Iterator(const Iterator<T>& arr); // disabled
-
-            public:
-
-            ~Iterator() { }
-
             virtual x10_boolean hasNext() = 0;
 
             virtual T next() = 0;

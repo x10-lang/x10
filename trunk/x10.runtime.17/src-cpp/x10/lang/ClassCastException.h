@@ -23,16 +23,45 @@ namespace x10 {
                 return x10aux::getRTT<ClassCastException>();
             }
 
-            ClassCastException() : RuntimeException() { }
 
-            ClassCastException(x10aux::ref<String> message) : RuntimeException(message) { }
+            static x10aux::ref<ClassCastException> _make()
+            {
+                return (new (x10aux::alloc<ClassCastException>()) ClassCastException())
+                    ->_constructor();
+            }
 
-            ClassCastException(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
-              : RuntimeException(message,cause) {}
+            static x10aux::ref<ClassCastException> _make(x10aux::ref<String> message) {
+                return (new (x10aux::alloc<ClassCastException>()) ClassCastException())
+                    ->_constructor(message);
+            }
 
-            ClassCastException(x10aux::ref<Throwable> cause) : RuntimeException(cause) { }
+            static x10aux::ref<ClassCastException> _make(x10aux::ref<Throwable> cause) {
+                return (new (x10aux::alloc<ClassCastException>()) ClassCastException())
+                    ->_constructor(cause);
+            }
+    
+            static x10aux::ref<ClassCastException> _make(x10aux::ref<String> message,
+                                                         x10aux::ref<Throwable> cause)
+            {
+                return (new (x10aux::alloc<ClassCastException>()) ClassCastException())
+                    ->_constructor(message, cause);
+            }
 
-            ClassCastException(x10aux::SERIALIZATION_MARKER m) : RuntimeException(m) { }
+
+
+            static const x10aux::serialization_id_t _serialization_id;
+
+            virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+                buf.write(_serialization_id,m);
+            }
+
+            template<class T>
+            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
+                x10aux::ref<ClassCastException> this_ =
+                    new (x10aux::alloc<ClassCastException>()) ClassCastException();
+                this_->_deserialize_body(buf);
+                return this_;
+            }
 
         };
 

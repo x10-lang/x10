@@ -10,17 +10,6 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-/*
-String::String(x10_boolean v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_byte v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_char v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_short v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_int v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_long v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_float v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-String::String(x10_double v) : Value(), std::string(static_cast<std::string&>(*to_string(v))) { }
-*/
-
 x10_int String::hashCode() {
     //FIXME:
     //presumably this needs a general hashcode implementation
@@ -43,39 +32,39 @@ x10_boolean String::equals(ref<Object> other) {
 
 // postfix primitive operator+
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_boolean v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_byte v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_char v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_short v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_int v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_long v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_float v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_double v)
-    { return X10NEW(String)(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+x10aux::to_string(v)); }
 
 // prefix primitive operator+
 ref<String> x10::lang::operator+(x10_boolean v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_byte v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_char v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_short v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_int v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_long v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_float v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_double v, x10aux::ref<String> s)
-    { return X10NEW(String)(x10aux::to_string(v)+*s); }
+    { return String::_make(x10aux::to_string(v)+*s); }
 
 
 /*
@@ -136,7 +125,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 }
 
 ref<String> String::substring(x10_int start, x10_int end) {
-    return X10NEW(String)(this->substr(start, end-start));
+    return String::_make(this->substr(start, end-start));
 }
 
 x10_char String::charAt(x10_int i) {

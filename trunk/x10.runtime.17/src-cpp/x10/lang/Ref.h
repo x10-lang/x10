@@ -33,7 +33,11 @@ namespace x10 {
                 return x10aux::getRTT<Ref>();
             }
 
-            Ref() { }
+            static x10aux::ref<Ref> _make() {
+                return (new (x10aux::alloc<Ref>()) Ref())->_constructor();
+            }
+
+            x10aux::ref<Ref> _constructor() { return this; }
 
             static const x10aux::serialization_id_t serialization_id;
 
