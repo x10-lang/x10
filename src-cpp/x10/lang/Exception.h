@@ -24,31 +24,37 @@ namespace x10 {
                 return x10aux::getRTT<Exception>();
             }
 
-            Exception() : Throwable() { }
-            Exception(x10aux::ref<String> message) : Throwable(message) {   }
-            Exception(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
-                : Throwable(message, cause) { }
-            Exception(x10aux::ref<Throwable> cause) : Throwable(cause) { }
 
-            Exception(x10aux::SERIALIZATION_MARKER m) : Throwable(m) { }
+            static x10aux::ref<Exception> _make()
+            { return (new (x10aux::alloc<Exception>()) Exception())->_constructor(); }
 
+            static x10aux::ref<Exception> _make(x10aux::ref<String> message) {
+                return (new (x10aux::alloc<Exception>()) Exception())
+                    ->_constructor(message);
+            }
+
+            static x10aux::ref<Exception> _make(x10aux::ref<Throwable> cause) {
+                return (new (x10aux::alloc<Exception>()) Exception())
+                    ->_constructor(cause);
+            }
+    
+            static x10aux::ref<Exception> _make(x10aux::ref<String> message,
+                                                x10aux::ref<Throwable> cause)
+            {
+                return (new (x10aux::alloc<Exception>()) Exception())
+                    ->_constructor(message, cause);
+            }
+
+                
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(_serialization_id,m);
             }
 
-            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                Throwable::_serialize_body(buf,m);
-            }
-
-            void _deserialize_body(x10aux::serialization_buffer& buf) {
-                Throwable::_deserialize_body(buf);
-            }
-
             template<class T>
             static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
-                x10aux::ref<Exception> this_ = X10NEW(Exception)(x10aux::SERIALIZATION_MARKER());
+                x10aux::ref<Exception> this_ = new (x10aux::alloc<Exception>()) Exception();
                 this_->_deserialize_body(buf);
                 return this_;
             }

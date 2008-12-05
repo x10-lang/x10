@@ -29,14 +29,13 @@ namespace x10 {
                 return x10aux::getRTT<FileInputStream>();
             }   
 
+            FileInputStream(FILE *f)
+              : FILEPtrInputStream(f) { }
 
-
-        public:
-            explicit FileInputStream(const x10aux::ref<x10::lang::String>& name)
-              : FILEPtrInputStream(FILEPtrStream::open_file(name, "r")) { }
-
-            explicit FileInputStream(FILE *file)
-              : FILEPtrInputStream(file) { }
+            static x10aux::ref<FileInputStream> _make(x10aux::ref<x10::lang::String> name) {
+                return new (x10aux::alloc<FileInputStream>())
+                    FileInputStream (FILEPtrStream::open_file(name, "r"));
+            }
 
             virtual char * gets(char *buf, int sz) {
                 return x10aux::io::FILEPtrInputStream::gets(buf,sz);

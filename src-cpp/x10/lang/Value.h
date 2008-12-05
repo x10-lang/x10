@@ -32,9 +32,10 @@ namespace x10 {
                 return x10aux::getRTT<Value>();
             }
 
-            explicit Value() { }
+            static x10aux::ref<Value> _make()
+            { return (new (x10aux::alloc<Value>()) Value())->_constructor(); }
 
-            explicit Value(x10aux::SERIALIZATION_MARKER) { }
+            x10aux::ref<Value> _constructor() { return this; }
 
 
             static const x10aux::serialization_id_t _serialization_id;
@@ -51,7 +52,7 @@ namespace x10 {
 
             template<class T>
             static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &) {
-                x10aux::ref<Value> this_ = X10NEW(Value)(x10aux::SERIALIZATION_MARKER());
+                x10aux::ref<Value> this_ = new (x10aux::alloc<Value>())Value();
                 return this_;
             }
 

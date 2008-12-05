@@ -9,17 +9,12 @@ using namespace x10::lang;
 using namespace x10aux;
 
 Rail<ref<String> > *x10aux::convert_args(int ac, char **av) {
-    // TODO: assert that ac >= 1
+    assert(ac>=1);
     x10_int x10_argc = ac  - 1;
-    Rail<ref<String> > *arr =
-            alloc_rail<ref<String>, Rail<ref<String> > > (x10_argc);
-    //std::cerr<<"convert_args: allocated "<<arr->length<<" elements"<<std::endl;
+    Rail<ref<String> > *arr = alloc_rail<ref<String>, Rail<ref<String> > > (x10_argc);
     for (int i = 1; i < ac; i++) {
-        //std::cerr<<"convert_args: allocating arg "<<i<<": "<<av[i]<<std::endl;
-        ref<String> val = X10NEW(String)(av[i]);
-        //std::cerr<<"convert_args: allocated arg "<<i<<": "<<val._content<<std::endl;
+        ref<String> val = String::Lit(av[i]);
         (*arr)[i-1] = val;
-        //std::cerr<<"convert_args: assigned arg "<<i<<": "<<(*arr)[i-1]._content<<std::endl;
     }
     return arr;
 }
@@ -46,11 +41,15 @@ template<class T> T x10aux::from_string(const ref<String> &s) {
 template<class T> String to_string_general(T v) {
     std::ostringstream ss;
     ss << v;
-    return String(ss.str());
+    String r;
+    r._constructor(ss.str());
+    return r;
 }
 
 String x10aux::to_string(x10_boolean v) {
-    return to_string_general((bool)v);
+    String r;
+    r._constructor(v?"true":"false");
+    return r;
 }
     
 String x10aux::to_string(x10_byte v) {
@@ -89,7 +88,9 @@ String x10aux::to_string(ref<ValRail<x10_char> > v) {
     std::string str(v->FMGL(length), '\0');
     for (int i = 0; i < v->FMGL(length); ++i)
         str[i] = (*v)[i];
-    return String(str);
+    String r;
+    r._constructor(str);
+    return r;
 }
 
     

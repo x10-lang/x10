@@ -35,7 +35,7 @@ namespace x10aux {
     x10::lang::String to_string(x10aux::ref<x10::lang::ValRail<x10_char> > v);
 
     template<class T> ref<x10::lang::String> to_stringp(T v) {
-        return X10NEW(x10::lang::String)(to_string(v));
+        return to_string(v);
     }
 
     template<class T> T from_string(const ref<x10::lang::String> &s);

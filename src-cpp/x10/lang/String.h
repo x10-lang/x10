@@ -29,20 +29,29 @@ namespace x10 {
 
 
             // These are our 2 workhorses - the first one is for literals
-            explicit String(const std::string& content = std::string()) : std::string(content) { }
-            explicit String(const x10aux::ref<String>& s) : std::string(*s) { }
+            static x10aux::ref<String> _make(const std::string& content = std::string()) {
+                return (new (x10aux::alloc<String>()) String())->_constructor(content);
+            }
+            x10aux::ref<String> _constructor(const std::string& content = std::string()) {
+                std::string::operator=(content);
+                return this;
+            }
+            static x10aux::ref<String> _make(const x10aux::ref<String>& s) {
+                return (new (x10aux::alloc<String>()) String())->_constructor(*s);
+            }
 
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
             static x10aux::ref<String> Lit(const char *s) { return Lit(std::string(s)); }
-            static x10aux::ref<String> Lit(const std::string& s) { return X10NEW(String)(s); }
+            static x10aux::ref<String> Lit(const std::string& s)
+            { return _make(s); }
 
             operator x10aux::ref<Value> () {
                 return x10aux::ref<String>(this);
             }
 
             operator x10aux::ref<String> () {
-                return new (x10aux::alloc<String>()) String(static_cast<std::string&>(*this));
+                return _make(*this);
             }
 
             x10aux::ref<String> toString();
@@ -77,7 +86,7 @@ namespace x10 {
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
                 x10_int sz = buf.read<x10_int>();
-                x10aux::ref<String> this_ = X10NEW(String)(std::string(sz,'x'));
+                x10aux::ref<String> this_ = _make(std::string(sz,'x'));
                 for (x10_int i=0 ; i<sz ; ++i) {
                     (*this_)[i] = (char)buf.read<x10_char>();
                 }
@@ -123,27 +132,27 @@ namespace x10 {
         template<> struct OpPlus<String,String> {
             static x10aux::ref<String> _(x10aux::ref<String> s1, x10aux::ref<String> s2) {
                 //strings can't be null!
-                //if (s1 == x10aux::null) s1 = X10NEW(String)("null");
-                //if (s2 == x10aux::null) s2 = X10NEW(String)("null");
-                return X10NEW(String)(*s1+*s2);
+                //if (s1 == x10aux::null) s1 = _make("null");
+                //if (s2 == x10aux::null) s2 = _make("null");
+                return String::_make(*s1+*s2);
             }
         };
         // String+Object
         template<class T> struct OpPlus<String,T> {
             static x10aux::ref<String> _(x10aux::ref<String> s, x10aux::ref<T> o) {
                 //strings can't be null!
-                //if (s == x10aux::null) s = X10NEW(String)("null");
-                if (o == x10aux::null) o = X10NEW(String)("null");
-                return X10NEW(String)(*s+*o->toString());
+                //if (s == x10aux::null) s = _make("null");
+                if (o == x10aux::null) return String::_make(*s+std::string("null"));
+                return String::_make(*s+*o->toString());
             }
         };
         //Object+String
         template<class T> struct OpPlus<T,String> {
             static x10aux::ref<String> _(x10aux::ref<T> o, x10aux::ref<String> s) {
-                if (o == x10aux::null) o = X10NEW(String)("null"); 
+                if (o == x10aux::null) return String::_make(std::string("null")+*s);
                 //strings can't be null!
-                //if (s == x10aux::null) s = X10NEW(String)("null"); 
-                return X10NEW(String)(*o->toString()+*s);
+                //if (s == x10aux::null) s = _make("null"); 
+                return String::_make(*o->toString()+*s);
             }
         };
 

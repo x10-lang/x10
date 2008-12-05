@@ -1,6 +1,12 @@
 #include <x10aux/config.h>
 
 #include <x10aux/rail_utils.h>
+#include <x10aux/throw.h>
+
+#include <x10/lang/String.h>
+
+using namespace x10::lang;
+using namespace x10aux;
 
 void x10aux::_check_bounds(x10_int index, x10_int length) {
     (void)index;
@@ -10,9 +16,8 @@ void x10aux::_check_bounds(x10_int index, x10_int length) {
     if (index<0 || index>length) {
         std::stringstream msg;
         msg<<index<<" not in [0,"<<length<<")";
-        x10::lang::String msg_str(msg.str());
         typedef x10::lang::ArrayIndexOutOfBoundsException Err;
-        throwException(new (alloc<Err>()) Err(msg_str));
+        throwException(Err::_make(String::Lit(msg.str().c_str())));
     }
     #endif
     #endif

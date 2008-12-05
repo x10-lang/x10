@@ -12,7 +12,8 @@ void Object::_serialize(x10aux::ref<Object> this_,
                         x10aux::serialization_buffer &buf,
                         x10aux::addr_map &m) 
 {
-    if (this_.isRemote()) {
+    if (this_.isRemote() || this_.isNull()) {
+        // cannot dispatch for these "addresses", handle here
         buf.write(Ref::serialization_id,m);
         buf.write(x10_ref_serialize(reinterpret_cast<x10_addr_t>(this_.get())),m);
         return;

@@ -29,6 +29,14 @@ namespace x10 {
                 return x10aux::getRTT<FileOutputStream>();
             }   
 
+            FileOutputStream(FILE *f)
+              : FILEPtrOutputStream(f) { }
+
+            static x10aux::ref<FileOutputStream> _make(x10aux::ref<x10::lang::String> name) {
+                return new (x10aux::alloc<FileOutputStream>())
+                    FileOutputStream (FILEPtrStream::open_file(name, "w"));
+            }
+            
             virtual void write(const char *str) {
                 x10aux::io::FILEPtrOutputStream::write(str);
             }
@@ -41,11 +49,13 @@ namespace x10 {
                 x10aux::io::FILEPtrOutputStream::flush();
             }
 
-            explicit FileOutputStream(x10aux::ref<x10::lang::String> name)
-              : FILEPtrOutputStream(FILEPtrStream::open_file(name, "w")) { }
+            /* [DC] Not sure these are needed now
+            x10aux::ref<FileOutputStream> _constructor(x10aux::ref<x10::lang::String> name)
+            { return this->FILEPtrOutputStream::_constructor(FILEPtrStream::open_file(name, "w")); }
 
-            explicit FileOutputStream(FILE *file)
-              : FILEPtrOutputStream(file) { }
+            x10aux::ref<FileOutputStream> _constructor(FILE *file)
+            { return this->FILEPtrOutputStream::_constructor(file); }
+            */
 
             static x10aux::ref<FileOutputStream> STANDARD_OUT;
 

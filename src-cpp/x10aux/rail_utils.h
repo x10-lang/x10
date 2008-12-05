@@ -95,7 +95,7 @@ namespace x10aux {
             prefix = ",";
         }
         ss << "]";
-        return x10::lang::String(ss.str().c_str());
+        return x10::lang::String::Lit(ss.str().c_str());
     }
 
     template<class T, class R> R* alloc_rail(x10_int length) {

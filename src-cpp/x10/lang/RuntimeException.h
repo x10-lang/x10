@@ -18,18 +18,31 @@ namespace x10 {
                 virtual void init() { initParents(1,x10aux::getRTT<Exception>()); }
                 virtual std::string name() const { return "x10.lang.RuntimeException"; }
             };
-
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<RuntimeException>();
             }
 
-            RuntimeException() : Exception() { }
-            RuntimeException(x10aux::ref<String> message) : Exception(message) {   }
-            RuntimeException(x10aux::ref<String> message, x10aux::ref<Throwable> cause)
-              : Exception(message,cause) {}
-            RuntimeException(x10aux::ref<Throwable> cause) : Exception(cause) { }
 
-            RuntimeException(x10aux::SERIALIZATION_MARKER m) : Exception(m) { }
+            static x10aux::ref<RuntimeException> _make()
+            { return (new (x10aux::alloc<RuntimeException>()) RuntimeException())->_constructor(); }
+
+            static x10aux::ref<RuntimeException> _make(x10aux::ref<String> message) {
+                return (new (x10aux::alloc<RuntimeException>()) RuntimeException())
+                    ->_constructor(message);
+            }
+
+            static x10aux::ref<RuntimeException> _make(x10aux::ref<Throwable> cause) {
+                return (new (x10aux::alloc<RuntimeException>()) RuntimeException())
+                    ->_constructor(cause);
+            }
+    
+            static x10aux::ref<RuntimeException> _make(x10aux::ref<String> message,
+                                                       x10aux::ref<Throwable> cause)
+            {
+                return (new (x10aux::alloc<RuntimeException>()) RuntimeException())
+                    ->_constructor(message, cause);
+            }
+                
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -37,18 +50,10 @@ namespace x10 {
                 buf.write(_serialization_id,m);
             }
 
-            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map& m) {
-                Exception::_serialize_body(buf,m);
-            }
-
-            void _deserialize_body(x10aux::serialization_buffer& buf) {
-                Exception::_deserialize_body(buf);
-            }
-
             template<class T>
             static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
                 x10aux::ref<RuntimeException> this_ =
-                    X10NEW(RuntimeException)(x10aux::SERIALIZATION_MARKER());
+                    new (x10aux::alloc<RuntimeException>()) RuntimeException();
                 this_->_deserialize_body(buf);
                 return this_;
             }

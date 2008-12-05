@@ -61,9 +61,15 @@ namespace x10 {
 
 
             // [constructors] Allocates a new Thread object.
-            explicit Thread(x10aux::ref<x10::lang::VoidFun_0_0> task,
-                            x10aux::ref<x10::lang::String> name) {
+            static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::VoidFun_0_0> task,
+                                             x10aux::ref<x10::lang::String> name) {
+                return (new (x10aux::alloc<Thread>()) Thread())->_constructor(task,name);
+            }
+            
+            x10aux::ref<Thread> _constructor(x10aux::ref<x10::lang::VoidFun_0_0> task,
+                                             x10aux::ref<x10::lang::String> name) {
                 thread_init(task, name);
+                return this;
             } 
 
             // destructor

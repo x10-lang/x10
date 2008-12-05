@@ -11,8 +11,8 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
-ref<String> x10aux::boolean_utils::_trueString = new (alloc<String>())String("true");
-ref<String> x10aux::boolean_utils::_falseString = new (alloc<String>())String("false");
+ref<String> x10aux::boolean_utils::_trueString = String::Lit("true");
+ref<String> x10aux::boolean_utils::_falseString = String::Lit("false");
 
 const ref<String> x10aux::boolean_utils::toString(x10_boolean value) {
     return value ? _trueString : _falseString;
