@@ -1,11 +1,15 @@
 #include <x10aux/config.h>
 
 #include <x10aux/alloc.h>
+#include <x10aux/class_cast.h>
 #include <x10aux/serialization.h>
 #include <x10aux/string_utils.h>
+#include <x10aux/throw.h>
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+
+#include <stdarg.h>
 
 using namespace x10::lang;
 using namespace x10aux;
@@ -149,10 +153,25 @@ ref<ValRail<x10_byte> > String::bytes() {
     return rail;
 }
 
+extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
+// Note: allocates the return buffer
+static char* vformat_to_buf(char* fmt, ...) {
+    va_list args;
+    char try_buf[1];
+    va_start(args, fmt);
+    int sz = vsnprintf(try_buf, 0, fmt, args);
+    va_end(args);
+    char* buf = alloc<char>(sz+1);
+    va_start(args, fmt);
+    int s1 = vsnprintf(buf, sz+1, fmt, args);
+    assert (s1 == sz);
+    va_end(args);
+    return buf;
+}
+
+// [IP] I'm sure I will hate this but it will do for now.
 static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > parms) {
-    (void) parms;
-    return format;
-/* TODO: fix this up (if you dare)
+    std::ostringstream ss;
     char* fmt = const_cast<char*>(format->c_str());
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; i++, fmt = next) {
@@ -160,43 +179,52 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
         if (next != NULL)
             *next = '\0';
         if (*fmt != '%') {
-            this->_printf(fmt);
+            ss << fmt;
             if (next != NULL)
                 *next = '%';
             i--;
             continue;
         }
 #ifndef NO_EXCEPTIONS
-        if (i >= parms->x10__length)
-            throw x10::ref<x10::lang::RuntimeException>(new (x10::alloc<x10::lang::RuntimeException>()) x10::lang::RuntimeException(x10::lang::String("Index out of bounds: ") + i + x10::lang::String(" out of (") + (x10_int)0 + x10::lang::String(",") + parms->x10__length + x10::lang::String(")")));
+        if (i >= parms->FMGL(length))
+            throwException(RuntimeException::_make(String::Lit("Index out of bounds: ") +
+                                                   i +
+                                                   String::Lit(" out of (") +
+                                                   (x10_int)0 +
+                                                   String::Lit(",") +
+                                                   parms->FMGL(length) +
+                                                   String::Lit(")")));
 #endif
-        const x10::ref<x10::lang::Object>& p = parms->operator[](i);
-        if (p.isNull()) { } // Ignore nulls
-        else if (INSTANCEOF(p, x10::ref<x10::lang::String>))
-            this->_printf(fmt, ((const string&)(*((x10::ref<x10::lang::String>)p))).c_str());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedBoolean>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedBoolean>)p)).booleanValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedByte>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedByte>)p)).byteValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedCharacter>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedCharacter>)p)).charValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedShort>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedShort>)p)).shortValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedInteger>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedInteger>)p)).intValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedLong>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedLong>)p)).longValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedFloat>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedFloat>)p)).floatValue());
-        else if (INSTANCEOF(p, x10::ref<x10::compilergenerated::BoxedDouble>))
-            this->_printf(fmt, (*((x10::ref<x10::compilergenerated::BoxedDouble>)p)).doubleValue());
+        const ref<Object> p = parms->operator[](i);
+        char* buf = NULL;
+        if (p.isNull())
+            ss << (buf = vformat_to_buf(fmt, "null")); // FIXME: Ignore nulls for now
+        else if (INSTANCEOF(p, ref<String>))
+            ss << (buf = vformat_to_buf(fmt, class_cast<ref<String> >(p)->c_str()));
+        else if (INSTANCEOF(p, ref<Box<x10_boolean> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_boolean>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_byte> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_byte>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_char> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_char>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_short> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_short>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_int> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_int>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_long> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_long>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_float> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_float>(p)));
+        else if (INSTANCEOF(p, ref<Box<x10_double> >))
+            ss << (buf = vformat_to_buf(fmt, class_cast<x10_double>(p)));
         else
-            this->_printf(fmt, p.get());
+            ss << (buf = vformat_to_buf(fmt, p->toString()->c_str()));
+        if (buf != NULL)
+            dealloc(buf);
         if (next != NULL)
             *next = '%';
     }
-    this->flush(); // FIXME [IP] temp
-*/
+    return String::Lit(ss.str());
 }
 
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
