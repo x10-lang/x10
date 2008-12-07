@@ -1,5 +1,7 @@
 #include <x10aux/config.h>
 
+#include <x10aux/throw.h>
+
 #include <x10aux/io/FILEPtrStream.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/String.h>

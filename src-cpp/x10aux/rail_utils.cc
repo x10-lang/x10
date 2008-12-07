@@ -13,9 +13,9 @@ void x10aux::_check_bounds(x10_int index, x10_int length) {
     (void)length;
     #ifndef NO_BOUNDS_CHECKS
     #ifndef NO_EXCEPTIONS
-    if (index<0 || index>length) {
+    if (index < 0 || index > length) {
         std::stringstream msg;
-        msg<<index<<" not in [0,"<<length<<")";
+        msg << index << " not in [0," << length << ")";
         typedef x10::lang::ArrayIndexOutOfBoundsException Err;
         throwException(Err::_make(String::Lit(msg.str().c_str())));
     }
