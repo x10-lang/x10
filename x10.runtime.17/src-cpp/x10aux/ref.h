@@ -152,8 +152,12 @@ namespace x10aux {
         T& operator*() const {
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
+            #ifndef NO_NULL_CHECKS
             assertNonNull();
+            #endif
+            #ifndef NO_PLACE_CHECKS
             assertLocal();
+            #endif
             return *(T*)_val;
         }
 
@@ -164,8 +168,12 @@ namespace x10aux {
         T* operator->() const { 
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
+            #ifndef NO_NULL_CHECKS
             assertNonNull();
+            #endif
+            #ifndef NO_PLACE_CHECKS
             assertLocal();
+            #endif
             return (T*)_val;
         }
 

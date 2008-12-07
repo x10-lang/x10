@@ -4,7 +4,10 @@
 /*
  * The following performance macros are supported:
  *   NO_EXCEPTIONS     - remove all exception-related code
+ *   NO_CHECKS         - same as NO_BOUNDS_CHECKS NO_NULL_CHECKS NO_PLACE_CHECKS
  *   NO_BOUNDS_CHECKS  - remove all bounds-checking code
+ *   NO_NULL_CHECKS    - remove all null-checking code
+ *   NO_PLACE_CHECKS   - remove all place-checking code
  *   NO_IOSTREAM       - remove all iostream-related code
  *
  * The following #defines make be specified by the enclosing build
@@ -141,8 +144,10 @@
 #define _D_(x)
 #endif
 
-#ifdef IGNORE_EXCEPTIONS
-#define NO_EXCEPTIONS
+#ifdef NO_CHECKS
+#define NO_BOUNDS_CHECKS
+#define NO_NULL_CHECKS
+#define NO_PLACE_CHECKS
 #endif
 
 

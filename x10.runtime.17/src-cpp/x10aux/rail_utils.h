@@ -4,7 +4,6 @@
 #include <stdarg.h>
 
 #include <x10aux/config.h>
-#include <x10aux/throw.h>
 
 namespace x10 { namespace lang {
     class String;
