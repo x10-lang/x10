@@ -185,16 +185,6 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
             i--;
             continue;
         }
-#ifndef NO_EXCEPTIONS
-        if (i >= parms->FMGL(length))
-            throwException(RuntimeException::_make(String::Lit("Index out of bounds: ") +
-                                                   i +
-                                                   String::Lit(" out of (") +
-                                                   (x10_int)0 +
-                                                   String::Lit(",") +
-                                                   parms->FMGL(length) +
-                                                   String::Lit(")")));
-#endif
         const ref<Object> p = parms->operator[](i);
         char* buf = NULL;
         if (p.isNull())

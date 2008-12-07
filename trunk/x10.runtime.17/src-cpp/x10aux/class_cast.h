@@ -167,6 +167,7 @@ namespace x10aux {
             //compare static types as we can't get at the dynamic type
             const RuntimeType *from = getRTT<ref<F> >();
             const RuntimeType *to = getRTT<ref<T> >();
+            #ifndef NO_PLACE_CHECKS
             #ifndef NO_EXCEPTIONS
             if (!from->subtypeOf(to)) {
                 // can only upcast remote refs
@@ -174,6 +175,7 @@ namespace x10aux {
             }
             #else
             _CAST_("REMOTE! "<<from->name()<<" to "<<to->name());
+            #endif
             #endif
             _CAST_("Special case: remote reference gets upcast to "<<TYPENAME(ref<T>));
             return ref<T>(reinterpret_cast<T*>(obj.get()));
