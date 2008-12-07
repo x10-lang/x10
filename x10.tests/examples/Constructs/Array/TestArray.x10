@@ -57,21 +57,6 @@ abstract public class TestArray extends x10Test {
 
     }
             
-    abstract class E {
-
-        def this(test: String): E = {
-            try {
-                run();
-            } catch (e: Throwable) {
-                pr(test + ": " + e.getMessage());
-                return;
-            }
-            pr(test + ": expected exception not thrown");
-        }
-
-        abstract def run(): void;
-    }
-            
     class Grid {
 
         var os: Rail[Object] = Rail.makeVar[Object](10);
@@ -120,8 +105,9 @@ abstract public class TestArray extends x10Test {
                         out.print(" " + i + "\n");
                     }
                     (o as Grid).pr(rank-1);
-                } else if (o instanceof Double) {
-                    val d = o to double; // XTENLANG-34
+                } else {
+                    // XTENLANG-34, XTENLANG-211
+                    val d = (o to Box[double]) to double;
                     out.print((d to int)+"");
                 }
 
