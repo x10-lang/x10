@@ -10,7 +10,7 @@ abstract public class TestDist extends x10Test {
     
     var os: StringWriter;
     var out: Printer;
-    val testName = className().substring(6,className().length());
+    val testName = className();
 
     def this() {
         System.setProperty("line.separator", "\n");
@@ -77,7 +77,7 @@ abstract public class TestDist extends x10Test {
         var os: Rail[Object] = Rail.makeVar[Object](10);
 
         def set(i0: int, vue: double): void = {
-            os(i0) = vue;
+            os(i0) = vue to Object; // XTENLANG-210
         }
 
         def set(i0: int, i1: int, vue: double): void = {
@@ -120,8 +120,9 @@ abstract public class TestDist extends x10Test {
                         out.print(" " + i + "\n");
                     }
                     (o as Grid).pr(rank-1);
-                } else if (o instanceof Double) {
-                    val d = o to double; // XTENLANG-34
+                } else {
+                    // XTENLANG-34, XTENLANG-211
+                    val d = (o to Box[double]) to double;
                     out.print((d to int)+"");
                 }
 

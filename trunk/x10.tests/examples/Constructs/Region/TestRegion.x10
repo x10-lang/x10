@@ -97,8 +97,8 @@ abstract public class TestRegion extends x10Test {
                     }
                     (o as Grid).pr(rank-1);
                 } else {
-                    //val d = o to double; // XTENLANG-34
-                    val d = (o to Box[double]) to double; // XTENLANG-211
+                    // XTENLANG-34, XTENLANG-211
+                    val d = (o to Box[double]) to double;
                     out.print((d to int)+"");
                 }
 
