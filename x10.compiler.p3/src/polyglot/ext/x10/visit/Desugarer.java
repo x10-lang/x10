@@ -39,6 +39,7 @@ import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10Binary;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ClosureDef;
@@ -116,6 +117,8 @@ public class Desugarer extends ContextVisitor {
             return visitForEach((ForEach) n);
         if (n instanceof AtEach)
             return visitAtEach((AtEach) n);
+        if (n instanceof X10Binary)
+            return visitBinary((X10Binary) n);
         return n;
     }
 
@@ -274,23 +277,24 @@ public class Desugarer extends ContextVisitor {
                 xnf.CanonicalTypeNode(pos, a.domain().type()), xnf.Id(pos, tmp),
                 a.domain()).localDef(lDef);
         X10Formal formal = (X10Formal) a.formal();
+        Type fType = formal.type().type();
         MethodInstance mi = xts.findMethod(a.domain().type(),
-                xts.MethodMatcher(a.domain().type(), APPLY, Collections.singletonList(xts.Int())),
+                xts.MethodMatcher(a.domain().type(), APPLY, Collections.singletonList(fType)),
                 context.currentClassDef());
-        Expr index = xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(formal.type().type());
+        Expr index = xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(fType);
         if (formal.isUnnamed()) {
             ArrayList<Expr> vars = new ArrayList<Expr>();
             for (LocalDef ld : formal.localInstances()) {
                 vars.add(xnf.Local(bpos, nf.Id(bpos, ld.name())).localInstance(ld.asInstance()).type(ld.type().get()));
             }
             Type intRail = xts.ValRail(xts.Int());
-            MethodInstance cnv = xts.findMethod(xts.Point(),
-                    xts.MethodMatcher(xts.Point(), CONVERT, Collections.singletonList(intRail), false),
+            MethodInstance cnv = xts.findMethod(fType,
+                    xts.MethodMatcher(fType, CONVERT, Collections.singletonList(intRail), false),
                     context.currentClassDef());
             assert (cnv.flags().isStatic());
             index =
-                xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, xts.Point()), xnf.Id(bpos, CONVERT),
-                        xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(xts.Point());
+                xnf.Call(bpos, xnf.CanonicalTypeNode(bpos, fType), xnf.Id(bpos, CONVERT),
+                        xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(fType);
         }
         Expr place = xnf.Call(bpos,
                 xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(a.domain().type()),
@@ -302,5 +306,11 @@ public class Desugarer extends ContextVisitor {
                 xnf.ForLoop(pos, formal,
                         xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(a.domain().type()),
                         body).locals(formal.explode(this)));
+    }
+
+    private Expr visitBinary(X10Binary n) throws SemanticException {
+        Position pos = n.position();
+        // TODO
+        return n;
     }
 }
