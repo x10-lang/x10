@@ -22,6 +22,11 @@ namespace x10aux {
         static x10_long toRawLongBits(x10_double value);
         static x10_double fromLongBits(x10_long value);
     };
+
+    inline x10_double div(x10_double a, x10_double b) {
+        x10_double d = a / b; // Store in a variable to force rounding
+        return d;
+    }
 }
 
 #endif
