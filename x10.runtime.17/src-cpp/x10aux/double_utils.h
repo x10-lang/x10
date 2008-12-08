@@ -10,6 +10,7 @@ namespace x10 {
     }
 }
 
+extern "C" double fmod(double, double); // don't include math.h because of baggage
 namespace x10aux {
     class double_utils {
     public:
@@ -24,7 +25,11 @@ namespace x10aux {
     };
 
     inline x10_double div(x10_double a, x10_double b) {
-        x10_double d = a / b; // Store in a variable to force rounding
+        x10_double d = (x10_double)(a / b); // Store in a variable to force rounding
+        return d;
+    }
+    inline x10_double mod(x10_double a, x10_double b) {
+        x10_double d = (x10_double)::fmod(a, b);
         return d;
     }
 }
