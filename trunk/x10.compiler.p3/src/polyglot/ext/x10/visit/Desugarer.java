@@ -44,7 +44,9 @@ import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.frontend.Job;
+import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
@@ -89,6 +91,7 @@ public class Desugarer extends ContextVisitor {
     private static final Name STOP_FINISH = Name.make("stopFinish");
     private static final Name APPLY = Name.make("apply");
     private static final Name CONVERT = Name.make("$convert");
+    private static final Name DIST = Name.make("dist");
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Future)
@@ -272,20 +275,30 @@ public class Desugarer extends ContextVisitor {
         Position bpos = a.body().position();
         Name tmp = getTmp();
 
-        LocalDef lDef = xts.localDef(pos, xts.NoFlags(), Types.ref(a.domain().type()), tmp);
-        LocalDecl local = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.NoFlags()), 
-                xnf.CanonicalTypeNode(pos, a.domain().type()), xnf.Id(pos, tmp),
-                a.domain()).localDef(lDef);
+        Expr domain = a.domain();
+        Type dType = domain.type();
+        if (((X10TypeSystem_c) xts).isX10Array(dType)) {
+            FieldInstance fDist = dType.toClass().fieldNamed(DIST);
+            dType = fDist.type();
+            domain = xnf.Field(pos, domain, xnf.Id(pos, DIST)).fieldInstance(fDist).type(dType);
+        }
+        LocalDef lDef = xts.localDef(pos, xts.Final(), Types.ref(dType), tmp);
+        LocalDecl local = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), 
+                xnf.CanonicalTypeNode(pos, dType), xnf.Id(pos, tmp), domain).localDef(lDef);
         X10Formal formal = (X10Formal) a.formal();
         Type fType = formal.type().type();
-        MethodInstance mi = xts.findMethod(a.domain().type(),
-                xts.MethodMatcher(a.domain().type(), APPLY, Collections.singletonList(fType)),
+        assert (xts.isPoint(fType));
+        assert (((X10TypeSystem_c) xts).isDistribution(dType));
+        MethodInstance mi = xts.findMethod(dType,
+                xts.MethodMatcher(dType, APPLY, Collections.singletonList(fType)),
                 context.currentClassDef());
-        Expr index = xnf.Local(bpos, xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(fType);
+        Expr index = xnf.Local(bpos,
+                xnf.Id(bpos, formal.name().id())).localInstance(formal.localDef().asInstance()).type(fType);
         if (formal.isUnnamed()) {
             ArrayList<Expr> vars = new ArrayList<Expr>();
             for (LocalDef ld : formal.localInstances()) {
-                vars.add(xnf.Local(bpos, nf.Id(bpos, ld.name())).localInstance(ld.asInstance()).type(ld.type().get()));
+                vars.add(xnf.Local(bpos,
+                        nf.Id(bpos, ld.name())).localInstance(ld.asInstance()).type(ld.type().get()));
             }
             Type intRail = xts.ValRail(xts.Int());
             MethodInstance cnv = xts.findMethod(fType,
@@ -297,14 +310,14 @@ public class Desugarer extends ContextVisitor {
                         xnf.Tuple(bpos, vars).type(intRail)).methodInstance(cnv).type(fType);
         }
         Expr place = xnf.Call(bpos,
-                xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(a.domain().type()),
+                xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
                 xnf.Id(bpos, APPLY),
                 index).methodInstance(mi).type(xts.Place());
         Stmt body = async(bpos, a.body(), a.clocks(), place, "ateach-");
         return xnf.Block(pos,
                 local,
                 xnf.ForLoop(pos, formal,
-                        xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(a.domain().type()),
+                        xnf.Local(pos, xnf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(dType),
                         body).locals(formal.explode(this)));
     }
 
