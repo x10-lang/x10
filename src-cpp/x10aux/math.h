@@ -180,29 +180,31 @@ namespace x10aux {
         RESTORE_MATH_CONST(int, UNDERFLOW);
         RESTORE_MATH_CONST(int, TLOSS);
         RESTORE_MATH_CONST(int, PLOSS);
-        RESTORE_MATH_CONST(float, MAXFLOAT);
         RESTORE_MATH_CONST(double, M_E);
         RESTORE_MATH_CONST(double, M_LOG2E);
         RESTORE_MATH_CONST(double, M_LOG10E);
         RESTORE_MATH_CONST(double, M_LN2);
         RESTORE_MATH_CONST(double, M_LN10);
         RESTORE_MATH_CONST(double, M_PI);
-        RESTORE_MATH_CONST(double, M_TWOPI);
         RESTORE_MATH_CONST(double, M_PI_2);
         RESTORE_MATH_CONST(double, M_PI_4);
-        RESTORE_MATH_CONST(double, M_3PI_4);
-        RESTORE_MATH_CONST(double, M_SQRTPI);
         RESTORE_MATH_CONST(double, M_1_PI);
         RESTORE_MATH_CONST(double, M_2_PI);
         RESTORE_MATH_CONST(double, M_2_SQRTPI);
         RESTORE_MATH_CONST(double, M_SQRT2);
         RESTORE_MATH_CONST(double, M_SQRT1_2);
+        #ifdef SAVE_EXTRA_CONSTANTS
+        RESTORE_MATH_CONST(float, MAXFLOAT);
+        RESTORE_MATH_CONST(double, M_TWOPI);
+        RESTORE_MATH_CONST(double, M_3PI_4);
+        RESTORE_MATH_CONST(double, M_SQRTPI);
         RESTORE_MATH_CONST(double, M_LN2LO);
         RESTORE_MATH_CONST(double, M_LN2HI);
         RESTORE_MATH_CONST(double, M_SQRT3);
         RESTORE_MATH_CONST(double, M_IVLN10);
         RESTORE_MATH_CONST(double, M_LOG2_E);
         RESTORE_MATH_CONST(double, M_INVLN2);
+        #endif
         #endif
         #undef RESTORE_MATH_CONST
         #undef RESTORE_MATH_FUNC2
