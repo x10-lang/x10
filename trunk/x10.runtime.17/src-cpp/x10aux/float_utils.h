@@ -10,6 +10,7 @@ namespace x10 {
     }
 }
 
+extern "C" float fmodf(float, float); // don't include math.h because of baggage
 namespace x10aux {
     class float_utils {
     public:
@@ -24,7 +25,11 @@ namespace x10aux {
     };
 
     inline x10_float div(x10_float a, x10_float b) {
-        x10_float d = a / b; // Store in a variable to force rounding
+        x10_float d = (x10_float)(a / b); // Store in a variable to force rounding
+        return d;
+    }
+    inline x10_float mod(x10_float a, x10_float b) {
+        x10_float d = (x10_float)::fmodf(a, b);
         return d;
     }
 }
