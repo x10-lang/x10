@@ -22,6 +22,11 @@ namespace x10aux {
         static x10_int toRawIntBits(x10_float value);
         static x10_float fromIntBits(x10_int value);
     };
+
+    inline x10_float div(x10_float a, x10_float b) {
+        x10_float d = a / b; // Store in a variable to force rounding
+        return d;
+    }
 }
 
 #endif
