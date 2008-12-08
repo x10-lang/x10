@@ -24,10 +24,6 @@ namespace x10aux {
         static x10_double fromLongBits(x10_long value);
     };
 
-    inline x10_double div(x10_double a, x10_double b) {
-        x10_double d = (x10_double)(a / b); // Store in a variable to force rounding
-        return d;
-    }
     inline x10_double mod(x10_double a, x10_double b) {
         x10_double d = (x10_double)::fmod(a, b);
         return d;
