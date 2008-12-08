@@ -8,6 +8,9 @@
 #ifdef M_E
 #  define SAVE_CONSTANTS
 #endif
+#ifdef M_LOG2_E
+#  define SAVE_EXTRA_CONSTANTS
+#endif
 #ifdef signgam
 #  define SAVE_SIGNGAM
 #endif
@@ -54,29 +57,31 @@ namespace x10aux {
         SAVE_MATH_CONST(int, UNDERFLOW);
         SAVE_MATH_CONST(int, TLOSS);
         SAVE_MATH_CONST(int, PLOSS);
-        SAVE_MATH_CONST(float, MAXFLOAT);
         SAVE_MATH_CONST(double, M_E);
         SAVE_MATH_CONST(double, M_LOG2E);
         SAVE_MATH_CONST(double, M_LOG10E);
         SAVE_MATH_CONST(double, M_LN2);
         SAVE_MATH_CONST(double, M_LN10);
         SAVE_MATH_CONST(double, M_PI);
-        SAVE_MATH_CONST(double, M_TWOPI);
         SAVE_MATH_CONST(double, M_PI_2);
         SAVE_MATH_CONST(double, M_PI_4);
-        SAVE_MATH_CONST(double, M_3PI_4);
-        SAVE_MATH_CONST(double, M_SQRTPI);
         SAVE_MATH_CONST(double, M_1_PI);
         SAVE_MATH_CONST(double, M_2_PI);
         SAVE_MATH_CONST(double, M_2_SQRTPI);
         SAVE_MATH_CONST(double, M_SQRT2);
         SAVE_MATH_CONST(double, M_SQRT1_2);
+        #ifdef SAVE_EXTRA_CONSTANTS
+        SAVE_MATH_CONST(float, MAXFLOAT);
+        SAVE_MATH_CONST(double, M_TWOPI);
+        SAVE_MATH_CONST(double, M_3PI_4);
+        SAVE_MATH_CONST(double, M_SQRTPI);
         SAVE_MATH_CONST(double, M_LN2LO);
         SAVE_MATH_CONST(double, M_LN2HI);
         SAVE_MATH_CONST(double, M_SQRT3);
         SAVE_MATH_CONST(double, M_IVLN10);
         SAVE_MATH_CONST(double, M_LOG2_E);
         SAVE_MATH_CONST(double, M_INVLN2);
+        #endif
         #endif
         #undef SAVE_MATH_CONST
         #undef SAVE_MATH_FUNC2
