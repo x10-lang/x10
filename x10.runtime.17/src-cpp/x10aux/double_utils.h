@@ -2,6 +2,7 @@
 #define X10AUX_DOUBLE_UTILS_H
 
 #include <x10aux/config.h>
+#include <x10aux/math.h>
 #include <x10aux/ref.h>
 
 namespace x10 {
@@ -10,7 +11,6 @@ namespace x10 {
     }
 }
 
-extern "C" double fmod(double, double); // don't include math.h because of baggage
 namespace x10aux {
     class double_utils {
     public:
