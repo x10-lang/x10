@@ -120,7 +120,6 @@ class Dummy {
     var f113 : x10.runtime.Clock_c;
     var f114 : x10.runtime.FinishState;
     var f115 : x10.runtime.Future_c[Dummy];
-    var f116 : x10.runtime.HashMapKV;
     var f117 : x10.runtime.InterruptedException;
     var f118 : x10.runtime.Lock;
     var f119 : x10.runtime.ModCountDownLatch;
@@ -128,10 +127,6 @@ class Dummy {
     var f121 : x10.runtime.NativeRuntime;
     var f122 : x10.runtime.Pool;
     var f123 : x10.runtime.Runtime;
-    var f124 : x10.runtime.StackActivity;
-    var f125 : x10.runtime.StackFinishState;
-    var f126 : x10.runtime.StackThread;
-    var f127 : x10.runtime.StackThrowable;
     var f128 : x10.runtime.Thread;
     var f135 : x10.util.AbstractCollection[Dummy];
     var f136 : x10.util.AbstractContainer[Dummy];
