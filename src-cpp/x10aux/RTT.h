@@ -54,32 +54,32 @@ namespace x10aux {
 
         virtual ~RuntimeType();
 
-        virtual std::string name () const = 0;
+        virtual std::string name() const = 0;
 
-        virtual bool subtypeOf (const RuntimeType * const other) const {
+        virtual bool subtypeOf(const RuntimeType * const other) const {
             if (equals(other)) return true; // trivial case
-            for (int i=0 ; i<parentsc ; ++i) {
+            for (int i = 0; i < parentsc; ++i) {
                 if (parents[i]->subtypeOf(other)) return true;
             }
             return false;
         }
 
         // use "const ref<t> &" here to break circular dependency
-        virtual bool instanceOf (const x10aux::ref<x10::lang::Object> &other) const;
+        virtual bool instanceOf(const x10aux::ref<x10::lang::Object> &other) const;
 
         // use "const ref<t> &" here to break circular dependency
-        virtual bool concreteInstanceOf (const x10aux::ref<x10::lang::Object> &other) const;
+        virtual bool concreteInstanceOf(const x10aux::ref<x10::lang::Object> &other) const;
 
-        virtual bool equals (const RuntimeType * const other) const {
-            if (other==this) return true;
+        virtual bool equals(const RuntimeType * const other) const {
+            if (other == this) return true;
             return false;
         }
-            
+
     };
 
     template<class T> struct RTT_WRAP { static const RuntimeType *_() {
         RuntimeType *it = T::RTT::it;
-        if (it==NULL) return NULL;
+        if (it == NULL) return NULL;
         if (!it->initialized()) {
             it->init();
         }
@@ -99,13 +99,13 @@ namespace x10aux {
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static std::string _() {
         const RuntimeType *t = getRTT<T>();
-        if (t==NULL) return "Uninitialised RTT";
+        if (t == NULL) return "Uninitialised RTT";
         return t->name();
     } };
 
     template<class T> struct TypeName<ref<T> > { static std::string  _() {
         const RuntimeType *t = getRTT<T>();
-        if (t==NULL) return "Uninitialised RTT";
+        if (t == NULL) return "Uninitialised RTT";
         return t->name()+"*";
     } };
 
@@ -121,7 +121,7 @@ namespace x10aux {
         static C##Type * const it; \
         virtual void init() { primitive_init(this); } \
         virtual ~C##Type() { } \
-        virtual std::string name () const { return "x10.lang."#C; } \
+        virtual std::string name() const { return "x10.lang."#C; } \
     }; \
     template<> struct RTT_WRAP<C##Type> { static RuntimeType *_() { \
         return C##Type::it; \
