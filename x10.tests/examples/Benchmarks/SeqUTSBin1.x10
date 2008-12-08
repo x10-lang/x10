@@ -84,8 +84,11 @@ class SeqUTSBin1 extends Benchmark {
             val expSize = b0 / (1.0 - q*m);
             val obsBranch = (sumb to double) / size;
             val expBranch = q * m;
-            System.out.printf("exp size / obs size: %.3f\n", expSize/size);
-            System.out.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
+            //System.out.printf("exp size / obs size: %.3f\n", expSize/size);
+            //System.out.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
+            System.out.println("size " + size);
+            System.out.println("exp size / obs size: " + (expSize/size));
+            System.out.println("exp branching / obs branching " + (expBranch / obsBranch));
         } 
         first = false;
 
@@ -98,14 +101,8 @@ class SeqUTSBin1 extends Benchmark {
     // boilerplate
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "java", 4.41421e+06);
-        reference("snakehead", "x10-opt-java", 2.87638e+06);
-    }
-
-    public static def main(args:Rail[String]) {
-        new SeqUTSBin1(args).execute();
+    public static def main(Rail[String]) {
+        new SeqUTSBin1().execute();
     }
 
 }

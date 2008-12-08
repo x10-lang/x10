@@ -54,13 +54,7 @@ public class SeqPseudoArray1 extends Benchmark {
     // boilerplate
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "java",             1.48288e+08);
-        reference("snakehead", "x10-opt-java",     5.67438e+06);
-    }
-
-    public static def main(args:Rail[String]) {
-        new SeqPseudoArray1(args).execute();
+    public static def main(Rail[String]) {
+        new SeqPseudoArray1().execute();
     }
 }

@@ -31,13 +31,7 @@ public class SeqMatMultAdd1b extends Benchmark {
     //
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "java",             3.88914e+07);
-        reference("snakehead", "x10-opt-java",     1.60570e+06);
-    }
-
-    public static def main(args:Rail[String]) {
-        new SeqMatMultAdd1b(args).execute();
+    public static def main(Rail[String]) {
+        new SeqMatMultAdd1b().execute();
     }
 }
