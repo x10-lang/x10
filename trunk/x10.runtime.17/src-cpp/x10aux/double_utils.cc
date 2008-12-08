@@ -31,11 +31,11 @@ x10_double x10aux::double_utils::parseDouble(const ref<String>& s) {
 }
 
 x10_boolean x10aux::double_utils::isNaN(x10_double x) {
-    return isnan(x);
+    return x10aux::math::isnan(x);
 }
 
 x10_boolean x10aux::double_utils::isInfinite(x10_double x) {
-    return isinf(x);
+    return x10aux::math::isinf(x);
 }
 
 x10_long x10aux::double_utils::toLongBits(x10_double x) {

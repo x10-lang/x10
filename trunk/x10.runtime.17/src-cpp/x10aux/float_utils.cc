@@ -31,11 +31,11 @@ x10_float x10aux::float_utils::parseFloat(const ref<String>& s) {
 }
 
 x10_boolean x10aux::float_utils::isNaN(x10_float x) {
-    return isnan(x);
+    return x10aux::math::isnan(x);
 }
 
 x10_boolean x10aux::float_utils::isInfinite(x10_float x) {
-    return isinf(x);
+    return x10aux::math::isinf(x);
 }
 
 x10_int x10aux::float_utils::toIntBits(x10_float x) {
