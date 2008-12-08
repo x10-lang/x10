@@ -24,10 +24,6 @@ namespace x10aux {
         static x10_float fromIntBits(x10_int value);
     };
 
-    inline x10_float div(x10_float a, x10_float b) {
-        x10_float d = (x10_float)(a / b); // Store in a variable to force rounding
-        return d;
-    }
     inline x10_float mod(x10_float a, x10_float b) {
         x10_float d = (x10_float)::fmodf(a, b);
         return d;
