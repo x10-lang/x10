@@ -8,15 +8,15 @@
  
 package x10.lang;
 
-import x10.runtime.StackThrowable;
+import x10.util.Stack;
 
 /**
  * @author Christian Grothoff
  * @author tardieu
  */
 public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeException {
-    public def this(stack: StackThrowable) {
-        val s = new StackThrowable();
+    public def this(stack: Stack[Throwable]) {
+        val s = new Stack[Throwable]();
         // flatten MultipleExceptions in the stack
         for (t: Throwable in stack.toValRail()) {
             if (t instanceof MultipleExceptions) {
@@ -29,7 +29,7 @@ public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeE
     }
 
     public def this(t: Throwable) {
-        val s = new StackThrowable();
+        val s = new Stack[Throwable]();
         if (t instanceof MultipleExceptions) {
          	for (u: Throwable in (t as MultipleExceptions).exceptions) s.push(u); 
         } else {
