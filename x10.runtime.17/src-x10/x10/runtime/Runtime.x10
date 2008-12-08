@@ -91,15 +91,8 @@ public value Runtime {
 	}
 
 
-	// async -> at expression -> future
+	// async -> at statement -> at expression -> future
 	// do not introduce cycles!!!
-
-	/**
-	 * Run at statement
-	 */
-	public static def runAt(place:Place, body:()=>Void):Void {
-		throw new RuntimeException("at statement is deprecated");
-	}
 
 	/**
 	 * Run async
@@ -122,14 +115,21 @@ public value Runtime {
 	}
 
 	/**
+	 * Run at statement
+	 */
+	public static def runAt(place:Place, body:()=>Void):Void {
+		finish async (place) body();
+	}
+
+	/**
 	 * Eval at expression
 	 */
     public static def evalAt[T](place:Place, eval:()=>T):T {
     	val ret = here;
     	val box = new GrowableRail[T]();
-    	finish async (place) {
+    	at (place) {
     		val result = eval();
-    		async (ret) box.add(result); 
+    		at (ret) box.add(result); 
     	}
     	return box(0);
     }
