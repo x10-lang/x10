@@ -35,14 +35,7 @@ public class SeqRail1 extends Benchmark {
     // boilerplate
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "java",             2.71974e+08);
-        reference("snakehead", "x10-opt-java",     3.91420e+07);
-        reference("snakehead", "x10-dbg-java",     1.64563e+05);
-    }
-
-    public static def main(args:Rail[String]) {
-        new SeqRail1(args).execute();
+    public static def main(Rail[String]) {
+        new SeqRail1().execute();
     }
 }

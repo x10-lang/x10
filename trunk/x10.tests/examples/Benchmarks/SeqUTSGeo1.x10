@@ -93,13 +93,8 @@ class SeqUTSGeo1 extends Benchmark {
     // boilerplate
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "x10-opt-java", 2.18199e+06);
-    }
-
-    public static def main(args:Rail[String]) {
-        new SeqUTSGeo1(args).execute();
+    public static def main(Rail[String]) {
+        new SeqUTSGeo1().execute();
     }
 
 }

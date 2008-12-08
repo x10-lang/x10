@@ -58,7 +58,7 @@ class ParUTSBin1 extends Benchmark {
     val asumb = new AtomicInteger(0);
 
     def visit(r:UTSRand.descriptor) {
-        val x = UTSRand(r);
+        val x = UTSRand.number(r);
         val b = x<q? m : 0; // binomial distribution
         asumb.addAndGet(b);
         asize.incrementAndGet();
@@ -104,14 +104,8 @@ class ParUTSBin1 extends Benchmark {
     // boilerplate
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "(sequential)", 8.82437e+06); // from SeqUTSBin1.x10, x10-opt-java
-        reference("snakehead", "x10-opt-java", 1.69435e+05);
-    }
-
-    public static def main(args:Rail[String]) {
-        new ParUTSBin1(args).execute();
+    public static def main(Rail[String]) {
+        new ParUTSBin1().execute();
     }
 
 }

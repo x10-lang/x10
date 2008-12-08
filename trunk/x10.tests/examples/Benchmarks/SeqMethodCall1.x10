@@ -44,15 +44,8 @@ public class SeqMethodCall1 extends Benchmark {
     //
     //
 
-    def this(args:Rail[String]) {
-        super(args);
-        reference("snakehead", "java",             1.60307e+08);
-        reference("snakehead", "x10-opt-java",     1.56158e+07);
-        reference("snakehead", "x10-dbg-java",     1.99430e+05);
-    }
-
-    public static def main(args:Rail[String]) {
-        new SeqMethodCall1(args).execute();
+    public static def main(Rail[String]) {
+        new SeqMethodCall1().execute();
     }
 }
 
