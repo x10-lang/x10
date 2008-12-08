@@ -8,6 +8,8 @@
 
 package x10.runtime;
 
+import x10.util.Stack;
+
 /**
  * Lock with wait/notify capability implemented using park/unpark
  * @author tardieu
@@ -26,7 +28,7 @@ class Monitor {
  	/**
  	 * Parked threads
  	 */
- 	private val stack = new StackThread();
+ 	private val stack = new Stack[Thread]();
 
 	/**
 	 * Lock
