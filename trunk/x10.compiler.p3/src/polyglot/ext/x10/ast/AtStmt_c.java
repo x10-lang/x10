@@ -21,9 +21,11 @@ import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Stmt_c;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
 import polyglot.types.Context;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -115,9 +117,18 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 	public Context enterScope(Context c) {
 		if (Report.should_report(TOPICS, 5))
 			Report.report(5, "enter at scope");
-		X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
-		c = c.pushCode(ts.asyncCodeInstance(c.inStaticContext()));
-		return c;
+        X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
+        if (c.currentCode() instanceof X10MethodDef) {
+            X10MethodDef outer = (X10MethodDef) c.currentCode();
+            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+            if (!capturedTypes.isEmpty()) {
+                asyncInstance = ((X10MethodDef) asyncInstance.copy());
+                asyncInstance.setTypeParameters(capturedTypes);
+            }
+        }
+        c = c.pushCode(asyncInstance);
+        return c;
 	}
 
 	public Context enterChildScope(Node child, Context c) {

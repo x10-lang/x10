@@ -78,6 +78,7 @@ public class Desugarer extends ContextVisitor {
         return Name.make("__desugarer__var__" + (count++) + "__");
     }
 
+    private static final Name RUN_AT = Name.make("runAt");
     private static final Name EVAL_AT = Name.make("evalAt");
     private static final Name EVAL_FUTURE = Name.make("evalFuture");
     private static final Name RUN_ASYNC = Name.make("runAsync");
@@ -98,10 +99,8 @@ public class Desugarer extends ContextVisitor {
             return visitFuture((Future) n);
         if (n instanceof Async)
             return visitAsync((Async) n);
-        if (n instanceof AtStmt) {
-            assert (false) : ("At statements are deprecated");
-            return n;
-        }
+        if (n instanceof AtStmt)
+            return visitAtStmt((AtStmt) n);
         if (n instanceof AtExpr)
             return visitAtExpr((AtExpr) n);
         if (n instanceof Here)
@@ -156,6 +155,31 @@ public class Desugarer extends ContextVisitor {
                 context.currentClassDef());
         return xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
                 xnf.Id(pos, implName), typeArgs, args).methodInstance(implMI).type(c.type());
+    }
+
+    private Stmt atStmt(Position pos, Stmt body, Expr place) throws SemanticException {
+        ClosureDef cDef = xts.closureDef(body.position(), Types.ref(context.currentClass()),
+                Types.ref(context.currentCode().asInstance()),
+                Types.ref(xts.Void()), Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST, Collections.EMPTY_LIST, null,
+                Collections.EMPTY_LIST);
+        Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+        Closure closure = (Closure_c) ((Closure_c) xnf.Closure(body.position(), Collections.EMPTY_LIST,
+                Collections.EMPTY_LIST, null, xnf.CanonicalTypeNode(pos, xts.Void()),
+                Collections.EMPTY_LIST, block)).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
+        List<Expr> args = Arrays.asList(new Expr[] { place, closure });
+        List<Type> mArgs = Arrays.asList(new Type[] { xts.Place(), cDef.asType() });
+        MethodInstance implMI = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), RUN_AT, mArgs),
+                context.currentClassDef());
+        return xnf.Eval(pos, xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, RUN_AT), Collections.EMPTY_LIST,
+                args).methodInstance(implMI).type(xts.Void()));
+    }
+
+    private Stmt visitAtStmt(AtStmt a) throws SemanticException {
+        Position pos = a.position();
+        return atStmt(pos, a.body(), a.place());
     }
 
     private Stmt async(Position pos, Stmt body, List clocks, Expr place, String prefix) throws SemanticException {
