@@ -3,6 +3,8 @@
 
 #include <x10aux/config.h>
 
+#include <x10aux/RTT.h>
+
 #include <x10/lang/Iterator.h>
 
 namespace x10aux {
@@ -29,6 +31,7 @@ namespace x10aux {
 
     template<class T, class F> struct _convert_iterator {
         static ref<x10::lang::Iterator<T> > _(ref<x10::lang::Iterator<F> > _from) {
+            assert (getRTT<F>()->subtypeOf(getRTT<T>()) && "Invalid iterator conversion");
             return (ref<x10::lang::Iterator<T> >)
                 (new (alloc<IteratorAdapter<T, F> >())
                     IteratorAdapter<T, F>(_from.get()));
