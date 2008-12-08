@@ -18,7 +18,19 @@ class XTENLANG_260 extends x10Test {
         System.out.println("c==(a/b) " + (c==(a/b)));
         System.out.println("c-(a/b) " + (c-(a/b)));
         
-        return c==(a/b);
+        val d = 1.0293402938409823;
+        val e = 2.0932840928340983;
+        val f = d * e;
+
+        val g = 1.02934029384098230093423;
+        val h = 2.0932840928340983309243;
+        val i = g + h;
+
+        val k = 1.02934029384098230093423;
+        val j = -2.0932840928340983309243;
+        val l = k - j;
+
+        return c==(a/b) && f==(d*e) && i==(g+h) && l==(k-j);
     }
 
     public static def main(Rail[String]) {
