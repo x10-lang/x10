@@ -15,9 +15,6 @@ class XTENLANG_265 extends x10Test {
         ateach (p:Point in d)
             ;
 
-        ateach (p:Place in Place.places)
-            ;
-
         return true;
     }
 
