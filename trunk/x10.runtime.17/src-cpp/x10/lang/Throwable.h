@@ -9,6 +9,7 @@
 #endif
 
 #include <x10/lang/Value.h>
+#include <x10/lang/Box.h>
 
 namespace x10 {
 
@@ -22,7 +23,6 @@ namespace x10 {
 
         class String;
         template<class T> class ValRail;
-        template<class T> class Box;
 
         class Throwable : public virtual Value {
 
