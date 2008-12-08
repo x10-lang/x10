@@ -153,7 +153,9 @@ ref<ValRail<x10_byte> > String::bytes() {
     return rail;
 }
 
+#ifdef __CYGWIN__
 extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
+#endif
 // Note: allocates the return buffer
 static char* vformat_to_buf(char* fmt, ...) {
     va_list args;
