@@ -161,24 +161,24 @@ typedef int64_t  x10_long;
 typedef float    x10_float;
 typedef double   x10_double;
 
-typedef void   x10_void;
-
 // We must use the same mangling rules as the compiler backend uses.
 // The c++ target has to mangle fields because c++ does not allow fields
 // and methods to have the same name.
 #define FMGL(x) x10__##x
 
 //needed if you want to concat from another macro
-#define CONCAT(x,y) x##y
+#ifndef __CONCAT
+#define __CONCAT(__x,__y) __x##__y
+#endif
 
 //if you want to turn a token into a string
-#define TOKEN_STRING(X) #X
+#define __TOKEN_STRING(X) #X
 
 //if you want to do the above but the token is hidden behind a macro
-#define TOKEN_STRING_DEREF(X) TOKEN_STRING(X)
+#define __TOKEN_STRING_DEREF(X) __TOKEN_STRING(X)
 
 //combine __FILE__ and __LINE__ without using sprintf or other junk
-#define __FILELINE__ __FILE__ ":" TOKEN_STRING_DEREF(__LINE__) 
+#define __FILELINE__ __FILE__ ":" __TOKEN_STRING_DEREF(__LINE__) 
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

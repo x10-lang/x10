@@ -31,5 +31,7 @@ namespace x10aux {
 
 }
 
+#undef NORETURN
+
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
