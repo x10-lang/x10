@@ -23,11 +23,11 @@ abstract class Benchmark extends x10Test {
     def now() = (System.nanoTime() to double) * 1e-9;
     val out = System.out;
 
-    @Native("java", "\"Java\"")
-    @Native("c++", "String::Lit(\"C++\")")
-    const TYPE = "";
+    @Native("java", "\"java\"")
+    @Native("c++", "String::Lit(\"cpp\")")
+    const lg = "";
 
-    const WARMUP = 10.0;  // Java warmup time in secs
+    const WARMUP = 10.0;  // java warmup time in secs
     const TIMING = 10.0;  // how long to run tests in secs
 
     public def run():boolean {
@@ -41,8 +41,8 @@ abstract class Benchmark extends x10Test {
             return false;
         }
 
-        // if Java do warmup
-        if (TYPE.equals("Java")) {
+        // if java do warmup
+        if (lg.equals("java")) {
             out.println("warmup for >" + WARMUP + "s");
             while (now()-warmup < WARMUP)
                 once();
@@ -50,27 +50,27 @@ abstract class Benchmark extends x10Test {
         
         // run tests
         out.println("timing for >" + TIMING + "s");
-        var time:double = 0.0;
+        var avg:double = 0.0;
         var min:double = double.POSITIVE_INFINITY;
-        var reps:int = 0;
-        while (time < TIMING) {
+        var count:int = 0;
+        while (avg < TIMING) {
             val start = now();
             once();
             val t = now() - start;
             if (t<min)
                 min = t;
-            time += t;
-            reps++;
+            avg += t;
+            count++;
         }
-        time /= reps;
+        avg /= count;
 
         // print info
-        val ops = operations() / time;
-        out.printf("time: %.3f; reps: %d; min/time: %.2f\n", time, reps, min/time);
+        val ops = operations() / avg;
+        out.printf("time: %.3f; count: %d; min/time: %.2f\n", avg, count, min/avg);
         if (ops<1e6)      out.printf("%.3g kop/s\n", ops/1e3);
         else if (ops<1e9) out.printf("%.3g Mop/s\n", ops/1e6);
         else              out.printf("%.3g Gop/s\n", ops/1e9);
-        out.printf("test=%s perf=%g\n", className(), ops);
+        out.printf("test=%s lg=x10-%s ops=%g\n", className(), lg, ops);
             
         // test succeeded
         return true;
