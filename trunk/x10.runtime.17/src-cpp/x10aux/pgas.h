@@ -12,6 +12,9 @@
 
 #include <x10/x10.h> //pgas
 
+void __pgasrt_tsp_barrier(int,int);
+
+
 // Has to be first (aside from config.h which is inert and pgas itself)
 
 namespace x10aux {
@@ -68,6 +71,11 @@ namespace x10aux {
 
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
+
+    // all places must reach the barrier before any may continue
+    inline void barrier() {
+        __pgasrt_tsp_barrier(0,1);
+    }
 
     inline x10_int num_places() {
         return x10_nplaces();
