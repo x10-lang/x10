@@ -12,7 +12,9 @@
 
 #include <x10/x10.h> //pgas
 
-void __pgasrt_tsp_barrier(int,int);
+extern "C" {
+    void __pgasrt_tsp_barrier(int,int);
+}
 
 
 // Has to be first (aside from config.h which is inert and pgas itself)
