@@ -1,3 +1,24 @@
+----- C++ performance status as of 12/09/2008
+
+                    cpp-opt        x10-cpp-opt    
+SeqRail2            a: 256  Mop/s  b: 146  Mop/s
+SeqPseudoArray2a    c: 256  Mop/s  d: 71.5 Mop/s
+SeqPseudoArray2b                   e: 2.15 Mop/s
+SeqArray2                          f: 323  kop/s
+
+a/b: basic rail code is a little less than 2x slower than C++ equivalent
+
+a/c: C++ pays no performance penalty for wrapping array access in a class
+
+b/d: X10 pays ~2x performance penalty for wrapping rail access in a class
+
+d/e: X10 pays >30x performance penalty for use of generic class
+
+e/f: additional >6x performance penalty for Array class
+
+
+----- Java performance status as of 11/20/2008
+
 Test conditions changed to tend to include rather than exclude GC:
 remove explicit calls to GC, start with small JVM size, re-execute
 until reaching steady state, then take average over 10 executions.
