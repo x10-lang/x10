@@ -2,13 +2,10 @@
 #define X10AUX_RTT_H
 
 #define INSTANCEOF(v,T) \
-    (x10aux::getRTT< T >()->instanceOf(v))
-
-#define CONCRETE_INSTANCEOF(v,T) \
-    (x10aux::getRTT< T >()->concreteInstanceOf(v))
+    (x10aux::instanceof< T >(v))
 
 #define SUBTYPEOF(T1,T2) \
-    (x10aux::getRTT< T1 >()->subTypeOf(x10aux::getRTT< T2 >()))
+    (x10aux::subtypeof< T1,T2 >())
 
 #define DEFINE_RTT(T) \
     DEFINE_SPECIAL_RTT(T::RTT)
@@ -141,6 +138,8 @@ namespace x10aux {
     DECLARE_PRIMITIVE_RTT(Float, float);
     DECLARE_PRIMITIVE_RTT(Double, double);
 
+#undef DECLARE_PRIMITIVE_RTT
+
     #define TYPENAME(T) x10aux::typeName<T>()
     class place;
     template<> inline std::string typeName<place>() { return "place"; }
@@ -152,6 +151,17 @@ namespace x10aux {
     template<> inline std::string typeName<char>() { return "char"; }
     template<> inline std::string typeName<const RuntimeType*>() { return "const RuntimeType *"; }
 
+    template<class T> inline x10_boolean instanceof(const x10aux::ref<x10::lang::Object> &v) {
+        return x10aux::getRTT<T>()->instanceOf(v);
+    }
+
+    template<class T> inline x10_boolean concrete_instanceof(const x10aux::ref<x10::lang::Object> &v) {
+        return x10aux::getRTT<T>()->concreteInstanceOf(v);
+    }
+
+    template<class T1,class T2> inline x10_boolean subtypeof() {
+        return x10aux::getRTT<T1>()->subtypeOf(x10aux::getRTT<T2>());
+    }
 
 }
 

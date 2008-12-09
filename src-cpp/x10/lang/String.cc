@@ -26,7 +26,7 @@ ref<String> String::toString() {
 }
 
 x10_boolean String::equals(ref<Object> other) {
-    if (!CONCRETE_INSTANCEOF(other,String)) return false;
+    if (!x10aux::concrete_instanceof<String>(other)) return false;
     // now we can downcast the Object to String
     ref<String> other_str = other;
     // defer to std::string::compare to check string contents
