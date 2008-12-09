@@ -96,7 +96,7 @@ namespace x10 {
                 virtual x10_int hashCode() { return 0; }
 
                 virtual x10_boolean equals(x10aux::ref<Object> other) {
-                    if (!CONCRETE_INSTANCEOF(other,Iterator)) return false;
+                    if (!x10aux::concrete_instanceof<Iterator>(other)) return false;
                     x10aux::ref<Iterator> other_i = other;
                     if (other_i->rail != rail) return false;
                     if (other_i->i != i) return false;
