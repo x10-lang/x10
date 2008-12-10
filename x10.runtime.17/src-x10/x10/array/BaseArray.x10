@@ -3,6 +3,9 @@
 
 package x10.array;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 /**
  * The BaseArray class is the base of the hierarchy of classes that
  * implement Array. BaseArray provides a set of factory methods, and
@@ -18,7 +21,6 @@ public abstract value class BaseArray[T] extends Array[T] {
 
     // XTENLANG-49
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
-
 
     //
     // factories
@@ -84,13 +86,20 @@ public abstract value class BaseArray[T] extends Array[T] {
 
     //
     // bounds and place checking
+    // set env variable X10_NO_CHECKS to disable checks
     //
 
-    //const checkBounds = false;
-    const checkBounds = true;
+    @Native("java", "System.getenv(#1)")
+    @Native("c++", "x10::lang::String::Lit(getenv((#1)->c_str()))")
+    public native static def getenv(String): String;
 
-    //const checkPlace = false;
-    const checkPlace = true;
+    @Native("java", "(System.getenv(#1)!=null)")
+    @Native("c++", "((x10_boolean)(getenv((#1)->c_str())!=NULL))")
+    public native static def hasenv(String): boolean;
+
+    const x10NoChecks = hasenv("X10_NO_CHECKS");
+    const checkBounds = !x10NoChecks;
+    const checkPlace = !x10NoChecks;
 
     val bounds = (pt:Point):RuntimeException =>
         new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
@@ -163,34 +172,35 @@ public abstract value class BaseArray[T] extends Array[T] {
     public def lift(op:(T)=>T): Array[T](dist)
         = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
 
-    incomplete public def reduce(op:(T,T)=>T, unit:T):T;
+    //incomplete public def reduce(op:(T,T)=>T, unit:T):T;
 
-//
-// seems to be causing non-deterministic typechecking failures in a(pt).
-// perhaps related to XTENLANG-128 and/or XTENLANG-135
-//
-//    public def reduce(op:(T,T)=>T, unit:T):T {
-//
-//        // scatter
-//        val ps = dist.places();
-//        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
-//            future (ps(p)) {
-//                var result: T = unit;
-//                val a = (this | here) as Array[T](rank);
-//                for (pt:Point(rank) in a)
-//                    result = op(result, a(pt));
-//                return result;
-//            }
-//        });
-//
-//        // gather
-//        var result: T = unit;
-//        for (var i:int=0; i<results.length; i++)
-//            result = op(result, results(i).force());
-//
-//        return result;
-//    }            
-//
+    //
+    // may be causing non-deterministic typechecking failures in
+    // a(pt).  perhaps related to XTENLANG-128 and/or XTENLANG-135
+    //
+
+    public def reduce(op:(T,T)=>T, unit:T):T {
+
+        // scatter
+        val ps = dist.places();
+        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
+            future (ps(p)) {
+                var result: T = unit;
+                val a = (this | here) as Array[T](rank);
+                for (pt:Point(rank) in a)
+                    result = op(result, a(pt));
+                return result;
+            }
+        });
+
+        // gather
+        var result: T = unit;
+        for (var i:int=0; i<results.length; i++)
+            result = op(result, results(i).force());
+
+        return result;
+    }            
+
 
     // LocalArray only for now!
     incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
