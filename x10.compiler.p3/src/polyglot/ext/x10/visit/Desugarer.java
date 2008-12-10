@@ -39,9 +39,10 @@ import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.When;
-import polyglot.ext.x10.ast.X10Binary;
+import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -119,8 +120,13 @@ public class Desugarer extends ContextVisitor {
             return visitForEach((ForEach) n);
         if (n instanceof AtEach)
             return visitAtEach((AtEach) n);
-        if (n instanceof X10Binary)
-            return visitBinary((X10Binary) n);
+        // We should be using interfaces (e.g., X10Binary, X10Unary) instead, but
+        // (a) there is no X10Unary, and (b) the method name functions are only
+        // available on concrete classes anyway.
+        if (n instanceof X10Binary_c)
+            return visitBinary((X10Binary_c) n);
+        if (n instanceof X10Unary_c)
+            return visitUnary((X10Unary_c) n);
         return n;
     }
 
@@ -345,9 +351,66 @@ public class Desugarer extends ContextVisitor {
                         body).locals(formal.explode(this)));
     }
 
-    private Expr visitBinary(X10Binary n) throws SemanticException {
+    private Expr visitBinary(X10Binary_c n) throws SemanticException {
         Position pos = n.position();
-        // TODO
-        return n;
+
+        Expr left = n.left();
+        Type l = left.type();
+        Expr right = n.right();
+        Type r = right.type();
+        X10Binary_c.Operator op = n.operator();
+
+        if (op == X10Binary_c.EQ || op == X10Binary_c.NE) { // TODO
+            return n;
+        }
+        if (l.isNumeric() && r.isNumeric()) { // TODO: get rid of this special case by defining native operators
+            return n;
+        }
+        if (l.isBoolean() && r.isBoolean()) { // TODO: get rid of this special case by defining native operators
+            return n;
+        }
+        if (op == X10Binary_c.ADD && (l.isSubtype(xts.String()) || r.isSubtype(xts.String()))) { // TODO: get rid of this special case by defining native operators
+            return n;
+        }
+
+        boolean inv = n.invert();
+        Name methodName = inv ? X10Binary_c.invBinaryMethodName(op) : X10Binary_c.binaryMethodName(op);
+        assert (methodName != null) : ("No method to implement at " + pos);
+        Expr receiver = inv ? right : left;
+        Expr arg = inv ? left : right;
+        List<Type> types = Arrays.asList(new Type[] { arg.type() });
+        MethodInstance mi = xts.findMethod(receiver.type(),
+                xts.MethodMatcher(receiver.type(), methodName, types), context.currentClassDef());
+        return xnf.Call(pos, receiver, xnf.Id(pos, methodName),
+                arg).methodInstance(mi).type(mi.returnType());
+    }
+
+    private Expr visitUnary(X10Unary_c n) throws SemanticException {
+        Position pos = n.position();
+
+        Expr left = n.expr();
+        Type l = left.type();
+        X10Unary_c.Operator op = n.operator();
+
+        if (op == X10Unary_c.PRE_DEC || op == X10Unary_c.PRE_INC) { // TODO
+            return n;
+        }
+        if (op == X10Unary_c.POST_DEC || op == X10Unary_c.POST_INC) { // TODO
+            return n;
+        }
+        if (l.isNumeric()) { // TODO: get rid of this special case by defining native operators
+            return n;
+        }
+        if (l.isBoolean()) { // TODO: get rid of this special case by defining native operators
+            return n;
+        }
+
+        Name methodName = X10Unary_c.unaryMethodName(op);
+        assert (methodName != null) : ("No method to implement at " + pos);
+        Expr receiver = left;
+        List<Type> types = Arrays.asList(new Type[] { });
+        MethodInstance mi = xts.findMethod(receiver.type(),
+                xts.MethodMatcher(receiver.type(), methodName, types), context.currentClassDef());
+        return xnf.Call(pos, receiver, xnf.Id(pos, methodName)).methodInstance(mi).type(mi.returnType());
     }
 }
