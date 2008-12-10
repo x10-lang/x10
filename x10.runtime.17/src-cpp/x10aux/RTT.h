@@ -1,12 +1,6 @@
 #ifndef X10AUX_RTT_H
 #define X10AUX_RTT_H
 
-#define INSTANCEOF(v,T) \
-    (x10aux::instanceof< T >(v))
-
-#define SUBTYPEOF(T1,T2) \
-    (x10aux::subtypeof< T1,T2 >())
-
 #define DEFINE_RTT(T) \
     DEFINE_SPECIAL_RTT(T::RTT)
 
