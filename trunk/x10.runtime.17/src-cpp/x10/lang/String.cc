@@ -191,23 +191,23 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
         char* buf = NULL;
         if (p.isNull())
             ss << (buf = vformat_to_buf(fmt, "null")); // FIXME: Ignore nulls for now
-        else if (INSTANCEOF(p, ref<String>))
+        else if (x10aux::instanceof<ref<String> >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<ref<String> >(p)->c_str()));
-        else if (INSTANCEOF(p, ref<Box<x10_boolean> >))
+        else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_boolean>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_byte> >))
+        else if (x10aux::instanceof<ref<Box<x10_byte> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_byte>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_char> >))
+        else if (x10aux::instanceof<ref<Box<x10_char> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_char>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_short> >))
+        else if (x10aux::instanceof<ref<Box<x10_short> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_short>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_int> >))
+        else if (x10aux::instanceof<ref<Box<x10_int> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_int>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_long> >))
+        else if (x10aux::instanceof<ref<Box<x10_long> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_long>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_float> >))
+        else if (x10aux::instanceof<ref<Box<x10_float> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_float>(p)));
-        else if (INSTANCEOF(p, ref<Box<x10_double> >))
+        else if (x10aux::instanceof<ref<Box<x10_double> > >(p))
             ss << (buf = vformat_to_buf(fmt, class_cast<x10_double>(p)));
         else
             ss << (buf = vformat_to_buf(fmt, p->toString()->c_str()));
