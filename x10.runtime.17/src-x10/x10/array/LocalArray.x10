@@ -111,13 +111,33 @@ final value class LocalArray[T] extends BaseArray[T] {
 
         super(dist);
 
-        layout = layout(region);
-        val n = layout.size();
-        raw = Rail.makeVar[T](n);
-        if (init!=null) {
-            for (p:Point in region)
-                raw(layout.offset(p)) = init(p);
+        /* might be more efficient but gives the compiler heartburn
+        val there = here;
+        finish async (dist.onePlace) {
+            val layout = layout(region);
+            val n = layout.size();
+            val raw = Rail.makeVar[T](n);
+            if (init!=null) {
+                for (p:Point in region)
+                    raw(layout.offset(p)) = init(p);
+            }
+            async (there) {
+                this.layout = layout;
+                this.raw = raw;
+            }
         }
+        */
+
+        layout = at (dist.onePlace) layout(region);
+        raw = at (dist.onePlace) {
+            val n = layout.size();
+            val raw = Rail.makeVar[T](n);
+            if (init!=null) {
+                for (p:Point in region)
+                    raw(layout.offset(p)) = init(p);
+            }
+            return raw;
+        };
     }
 
 
