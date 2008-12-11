@@ -161,6 +161,7 @@ typedef int64_t  x10_long;
 typedef float    x10_float;
 typedef double   x10_double;
 
+
 // We must use the same mangling rules as the compiler backend uses.
 // The c++ target has to mangle fields because c++ does not allow fields
 // and methods to have the same name.

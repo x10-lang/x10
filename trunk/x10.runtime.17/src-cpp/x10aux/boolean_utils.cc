@@ -1,4 +1,6 @@
+#include <x10aux/config.h>
 #include <x10aux/boolean_utils.h>
+#include <x10aux/string_utils.h>
 
 #include <x10/lang/String.h>                    \
 
@@ -11,11 +13,8 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
-ref<String> x10aux::boolean_utils::_trueString = String::Lit("true");
-ref<String> x10aux::boolean_utils::_falseString = String::Lit("false");
-
 const ref<String> x10aux::boolean_utils::toString(x10_boolean value) {
-    return value ? _trueString : _falseString;
+    return x10aux::to_string(value);
 }
 
 x10_boolean x10aux::boolean_utils::parseBoolean(const ref<String>& s) {

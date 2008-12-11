@@ -17,16 +17,9 @@ public class StringBuilder implements Builder[Object,String] {
     }
     
     protected def addString(s: String): Builder[Object,String]  {
-        for (var i: int = 0; i < s.length(); i++) {
-            val ch = s(i);
-            buf.add(ch);
-        }
-        // BROKEN code gen
-        /*
         for (ch in s.chars()) {
             buf.add(ch);
         }
-        */
         return this;
     }
     
@@ -35,7 +28,7 @@ public class StringBuilder implements Builder[Object,String] {
     }
     
     @Native("java", "new String(#1.getCharArray())")
-    @Native("c++", "x10aux::to_string(#1)")
+    @Native("c++", "x10aux::vrc_to_string(#1)")
     private static native def makeString(ValRail[Char]): String;
 
     public def result(): String {
