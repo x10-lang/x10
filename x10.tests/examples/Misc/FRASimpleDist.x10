@@ -118,8 +118,8 @@ class FRASimpleDist {
 
         // print statistics
         val GUPs = (cpuTime > 0.0 ? 1.0 / cpuTime : -1.0) * NUM_UPDATES / 1e9;
-        printf("CPU time used  = %.2f seconds\n", cpuTime);
-        printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
+        println("CPU time used  = "+cpuTime+" seconds");
+        println(GUPs+" Billion(10^9) Updates per second (GUP/s)");
 
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
@@ -138,7 +138,4 @@ class FRASimpleDist {
 
     static def println(s:String) = Console.OUT.println(s);
 
-    @Native("java", "System.out.printf(#1,#2)")
-    @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
-    public static native def printf(x:String, o:Object):void;
 }

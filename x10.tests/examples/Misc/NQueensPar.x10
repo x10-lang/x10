@@ -15,6 +15,16 @@ public class NQueensPar {
         new Board().search();
     }
 
+    public static def block(R: Region(1), P:Int):ValRail[Region(1)](P) = {
+            assert P >=0;
+            val low = R.min()(0), high = R.max()(0), count = high-low+1;
+            val baseSize = count/P, extra = count - baseSize*P;
+            ValRail.make[Region(1)](P, (i:Nat):Region(1) => {
+              val start = low+i*baseSize+ (i < extra? i:extra);
+              start..start+baseSize+(i < extra?0:-1)
+              })
+    }
+
     class Board { 
 
     	val q: Rail[Int];
@@ -52,7 +62,7 @@ public class NQueensPar {
                 return; 
             }
             if (q.length==0) {
-                val R = DistUtil.block(0..N-1, P);
+                val R = block(0..N-1, P);
                 //foreach ((q) in 0..P-1) 
                 //  search(R(q));
                 for (var q:Int=0; q < P; ++q) {

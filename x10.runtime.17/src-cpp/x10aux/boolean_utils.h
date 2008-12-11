@@ -17,9 +17,6 @@ namespace x10aux {
         static const ref<x10::lang::String> toString(x10_boolean value);
         static x10_boolean parseBoolean(const ref<x10::lang::String>& s);
 
-    private:
-        static ref<x10::lang::String> _trueString;
-        static ref<x10::lang::String> _falseString;
     };
 }
 
