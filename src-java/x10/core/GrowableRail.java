@@ -12,6 +12,18 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	private Object array;
 	private int length;
 	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		for (int i = 0; i < length; i++) {
+			if (i > 0)
+				sb.append(", ");
+			sb.append(apply(i));
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+	
 	public GrowableRail(Type<T> t) {
 		this(t, 1);
 	}
@@ -36,7 +48,8 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	}
 	
 	public void removeLast() {
-		set(null, length-1);
+		if (array instanceof Object[])
+			set(null, length-1);
 		length--;
 		shrink(length+1);
 	}
