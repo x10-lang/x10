@@ -1,7 +1,7 @@
 // (C) Copyright IBM Corporation 2006
 // This file is part of X10 Test.
 
-class UTSRand {
+final class UTSRand {
 
     //
     // For now use util.Random instead of SHA. To substitute SHA
@@ -11,9 +11,9 @@ class UTSRand {
     // function here to avoid allocating a Random object.
     //
 
-    static type descriptor = long;
+    final static type descriptor = long;
 
-    static def next(r:descriptor, i:nat) {
+    final static def next(r:descriptor, i:nat) {
         var seed: long = r+i;
         seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
         for (var k:int=0; k<11; k++)
@@ -26,6 +26,6 @@ class UTSRand {
 
     const scale = (long.MAX_VALUE to double) - (long.MIN_VALUE to double);
 
-    static def number(r:descriptor) = (r / scale) - (long.MIN_VALUE / scale);
+    final static def number(r:descriptor) = (r / scale) - (long.MIN_VALUE / scale);
 
 }
