@@ -27,7 +27,7 @@ abstract class Benchmark extends x10Test {
     @Native("c++", "String::Lit(\"cpp\")")
     const lg = "";
 
-    const WARMUP = 10.0;  // java warmup time in secs
+    const WARMUP = 30.0;  // java warmup time in secs
     const TIMING = 10.0;  // how long to run tests in secs
 
     public def run():boolean {

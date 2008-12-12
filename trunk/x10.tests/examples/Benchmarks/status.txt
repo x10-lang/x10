@@ -5,11 +5,11 @@ end. (Parallel version does not yet work with C++ back end). Probably
 due to excessive memory allocation.
 
 Using generic classes vs non-generic costs 30x in peformance with C++
-back end. Probably due to 16 extra method calls per update (=apply/set
-pair) in generic vs non-generic.
+back end. Profiling shows probably due to 16 extra method calls per
+update (=apply/set pair) in generic vs non-generic.
 
-Rail access is 7x slower than hand-coded with Java back end. Likely
-due to boxing.
+Rail access is 6x slower than hand-coded with Java back end. Profiling
+shows likely due to boxing.
 
 Sequential UTS is 4.5x slower than hand-coded with C++ back end.
 
@@ -26,13 +26,13 @@ array, sequential UTS).
 
                     cpp-opt        x10-cpp-opt    java-opt       x10-java-opt
 
-SeqRail2            a: 261  Mop/s  b: 117  Mop/s  c: 243  Mop/s  d: 34.6 Mop/s
-SeqPseudoArray2a    e: 259  Mop/s  f: 62.2 Mop/s  g: 242  Mop/s  h: 19.6 Mop/s
-SeqPseudoArray2b                   i: 2.16 Mop/s                 j: 20.7 Mop/s
-SeqArray2                          k: 2.09 Mop/s                 l: 7.08 Mop/s
+SeqRail2            a: 261  Mop/s  b: 117  Mop/s  c: 249  Mop/s  d: 39.8 Mop/s
+SeqPseudoArray2a    e: 259  Mop/s  f: 62.2 Mop/s  g: 251  Mop/s  h: 20.8 Mop/s
+SeqPseudoArray2b                   i: 2.16 Mop/s                 j: 20.6 Mop/s
+SeqArray2                          k: 2.09 Mop/s                 l: 12.4 Mop/s
 
-SeqUTSBin1          m: 7.15 Mop/s  n: 1.60 Mop/s  o: 9.74 Mop/s  p: 7.05 Mop/s
-ParUTSBin1                                                       q: 197  kop/s
+SeqUTSBin1          m: 7.15 Mop/s  n: 1.60 Mop/s  o: 9.52 Mop/s  p: 6.55 Mop/s
+ParUTSBin1                                                       q: 184  kop/s
 
 ------- COMPARISONS:
 
@@ -44,22 +44,22 @@ C++ back end relative to hand-coded
     sequential UTS               4.5x slower (m/n)
 
 Java back end relative to hand-coded
-    rail access                  7.0x slower (c/d)
-    non-generic pseudo-array    12.3x slower (g/h)
-    generic pseudo-array        11.7x slower (g/j)
-    array                       34.1x slower (g/l)
-    sequential UTS               1.4x slower (o/p)
+    rail access                  6.3x slower (c/d)
+    non-generic pseudo-array    12.1x slower (g/h)
+    generic pseudo-array        12.1x slower (g/j)
+    array                       20.2x slower (g/l)
+    sequential UTS               1.5x slower (o/p)
 
 C++ back end relative to Java back end
-    rail access                  3.4x faster (b/d)
-    non-generic pseudo-array     3.2x faster (f/h)
+    rail access                  2.9x faster (b/d)
+    non-generic pseudo-array     3.0x faster (f/h)
     generic pseudo-array         9.6x slower (j/i)
-    array                        3.4x slower (l/k)
-    sequential UTS               4.4x slower (p/n)
+    array                        5.9x slower (l/k)
+    sequential UTS               4.1x slower (p/n)
 
 C++ generic vs non-generic      28.9x slower (f/i)
 
-UTS parallel vs sequential      35.9x slower (p/q)
+UTS parallel vs sequential      35.7x slower (p/q)
 
 ------- COLUMNS:
 

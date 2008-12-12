@@ -35,3 +35,12 @@ test=SeqPseudoArray2a lg=x10-java ops=1.95794e+07 code=opt date=2008-12-12 time=
 test=SeqPseudoArray2b lg=x10-java ops=2.06634e+07 code=opt date=2008-12-12 time=12:04:26 host=snakehead
 test=SeqArray2 lg=x10-java ops=7.08302e+06 code=opt date=2008-12-12 time=12:05:02 host=snakehead
 test=SeqUTSBin1 lg=x10-java ops=7.05078e+06 code=opt date=2008-12-12 time=12:05:32 host=snakehead
+test=SeqRail2 lg=java ops=2.48655e+08 code=opt date=2008-12-12 time=15:34:52 host=snakehead
+test=SeqPseudoArray2a lg=java ops=2.50603e+08 code=opt date=2008-12-12 time=15:35:34 host=snakehead
+test=SeqUTSBin1 lg=java ops=9.51823e+06 code=opt date=2008-12-12 time=15:36:17 host=snakehead
+test=SeqRail2 lg=x10-java ops=3.97646e+07 code=opt date=2008-12-12 time=15:37:07 host=snakehead
+test=SeqPseudoArray2a lg=x10-java ops=2.07523e+07 code=opt date=2008-12-12 time=15:37:57 host=snakehead
+test=SeqPseudoArray2b lg=x10-java ops=2.06290e+07 code=opt date=2008-12-12 time=15:38:47 host=snakehead
+test=SeqArray2 lg=x10-java ops=1.23847e+07 code=opt date=2008-12-12 time=15:39:44 host=snakehead
+test=SeqUTSBin1 lg=x10-java ops=6.55378e+06 code=opt date=2008-12-12 time=15:40:33 host=snakehead
+test=ParUTSBin1 lg=x10-java ops=183728 code=opt date=2008-12-12 time=15:41:31 host=snakehead
