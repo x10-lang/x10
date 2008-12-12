@@ -15,7 +15,7 @@ abstract public class Benchmark {
     abstract double operations();
 
     double TIMING = 10.0;
-    double WARMUP = 10.0;
+    double WARMUP = 30.0;
 
     void run() {
 
