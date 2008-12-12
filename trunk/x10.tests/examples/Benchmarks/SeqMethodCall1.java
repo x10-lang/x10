@@ -40,6 +40,10 @@ public class SeqMethodCall1 extends Benchmark {
     }
 
 
+    //
+    // boilerplate
+    //
+
     public static void main(String [] args) {
         new SeqMethodCall1().run();
     }
