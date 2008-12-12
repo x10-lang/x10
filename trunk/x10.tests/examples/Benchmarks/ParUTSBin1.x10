@@ -45,7 +45,7 @@ class ParUTSBin1 extends Benchmark {
     const m = 8;                       // branching factor is m with prob q
     def expected() = 1234872.0;        // expected size given above params 
 
-    def operations() = asize.doubleValue();
+    def operations() = asize.intValue() to double;
 
 
     //
@@ -53,6 +53,40 @@ class ParUTSBin1 extends Benchmark {
     //
     // node visitor
     //
+
+    /*
+
+    // can use this in place of AtomicInteger until that's implemented
+    // in C++ back-end
+
+    final static class AI {
+
+        var v:int;
+
+        def this(v:int) {
+            this.v = v;
+        }
+
+        atomic def set(v:int) {
+            this.v = v;
+        }
+
+        atomic def addAndGet(i:int) {
+            return this.v += i;
+        }
+
+        atomic def incrementAndGet() {
+            return this.v += 1;
+        }
+
+        atomic def intValue() {
+            return v;
+        }
+    }        
+
+    val asize = new AI(0);
+    val asumb = new AI(0);
+    */
 
     val asize = new AtomicInteger(0);
     val asumb = new AtomicInteger(0);

@@ -36,7 +36,7 @@ public class SeqRail2 extends Benchmark {
     def once() {
         for (var i:int=0; i<N; i++)
             for (var j:int=0; j<N; j++)
-                a(i*N+j) = i+j;
+                a(i*N+j) = (i+j) to double;
         var sum:double = 0.0;
         for (var i:int=0; i<N; i++)
             for (var j:int=0; j<N; j++)

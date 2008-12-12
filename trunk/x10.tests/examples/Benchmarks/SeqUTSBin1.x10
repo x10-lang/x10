@@ -24,8 +24,6 @@
  * @author bdlucas
  */
 
-import x10.util.Random;
-
 class SeqUTSBin1 extends Benchmark {
 
     //
@@ -33,11 +31,6 @@ class SeqUTSBin1 extends Benchmark {
     //
 
     const r0 = 0;                      // seed for root
-
-    //const b0 = 1000000;
-    //const q = 0.2;
-    //const m = 4;
-    //def expected() = 4993764.0;
 
     const b0 = 50000;                  // branching factor of root node
     const q = 0.12;                    // prob of non-zero branching factor
@@ -84,11 +77,8 @@ class SeqUTSBin1 extends Benchmark {
             val expSize = b0 / (1.0 - q*m);
             val obsBranch = (sumb to double) / size;
             val expBranch = q * m;
-            //System.out.printf("exp size / obs size: %.3f\n", expSize/size);
-            //System.out.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
-            System.out.println("size " + size);
-            System.out.println("exp size / obs size: " + (expSize/size));
-            System.out.println("exp branching / obs branching " + (expBranch / obsBranch));
+            System.out.printf("exp size / obs size: %.3f\n", expSize/size);
+            System.out.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
         } 
         first = false;
 
