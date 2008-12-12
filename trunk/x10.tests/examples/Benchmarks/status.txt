@@ -1,84 +1,110 @@
------ C++ performance status as of 12/09/2008
+------- KEY ISSUES:
 
-                    cpp-opt        x10-cpp-opt    
-SeqRail2            a: 256  Mop/s  b: 146  Mop/s
-SeqPseudoArray2a    c: 256  Mop/s  d: 71.5 Mop/s
-SeqPseudoArray2b                   e: 2.15 Mop/s
-SeqArray2                          f: 323  kop/s
+Parallel UTS is 35x slower than sequential UTS with Java back
+end. (Parallel version does not yet work with C++ back end). Probably
+due to excessive memory allocation.
 
-a/b: basic rail code is a little less than 2x slower than C++ equivalent
+Using generic classes vs non-generic costs 30x in peformance with C++
+back end. Probably due to 16 extra method calls per update (=apply/set
+pair) in generic vs non-generic.
 
-a/c: C++ pays no performance penalty for wrapping array access in a class
+Rail access is 7x slower than hand-coded with Java back end. Likely
+due to boxing.
 
-b/d: X10 pays ~2x performance penalty for wrapping rail access in a class
+Sequential UTS is 4.5x slower than hand-coded with C++ back end.
 
-d/e: X10 pays >30x performance penalty for use of generic class
+Rail access is 2x slower than hand-coded with C++ back-end. 
 
-e/f: additional >6x performance penalty for Array class
+Wrapping rail access in a minimal array-like class (with apply and
+set) costs 2x in peformance with both Java and C++ back end.
 
+C++ back-end is faster than Java back-end for the simple tests (rail,
+non-generic pseudo-array), slower for the more complex tests (generic
+array, sequential UTS).
 
------ Java performance status as of 11/20/2008
+------- PERFORMANCE DATA:
 
-Test conditions changed to tend to include rather than exclude GC:
-remove explicit calls to GC, start with small JVM size, re-execute
-until reaching steady state, then take average over 10 executions.
+                    cpp-opt        x10-cpp-opt    java-opt       x10-java-opt
 
-1. Place checking is very expensive: 60x-200x performance penalty
-   relative to X10 code without place checking. (See x10-opt-java vs
-   x10-dbg-java.)
+SeqRail2            a: 261  Mop/s  b: 117  Mop/s  c: 243  Mop/s  d: 34.6 Mop/s
+SeqPseudoArray2a    e: 259  Mop/s  f: 62.2 Mop/s  g: 242  Mop/s  h: 19.6 Mop/s
+SeqPseudoArray2b                   i: 2.16 Mop/s                 j: 20.7 Mop/s
+SeqArray2                          k: 2.09 Mop/s                 l: 7.08 Mop/s
 
-2. Basic X10 method calls are 10x worse than Java. (SeqMethodCall1)
+SeqUTSBin1          m: 7.15 Mop/s  n: 1.60 Mop/s  o: 9.74 Mop/s  p: 7.05 Mop/s
+ParUTSBin1                                                       q: 197  kop/s
 
-3. X10 Rails are about 7x more expensive than Java arrays. (SeqRail1)
+------- COMPARISONS:
 
-4. Simple recursive code calling util.Random also is 4-5x more
-   expensive than equivalent Java. (SeqUTSBin1)
+C++ back end relative to hand-coded
+    rail access                  2.2x slower (a/b)
+    non-generic pseudo-array     4.2x slower (e/f)
+    generic pseudo-array       120.2x slower (e/i)
+    array                      124.0x slower (e/k)
+    sequential UTS               4.5x slower (m/n)
 
-5. Dead simple array-like X10 code is 26x worse than the
-   hand-translation into Java. Likely due to
-   boxing/unboxing. (SeqPseudoArray1)
+Java back end relative to hand-coded
+    rail access                  7.0x slower (c/d)
+    non-generic pseudo-array    12.3x slower (g/h)
+    generic pseudo-array        11.7x slower (g/j)
+    array                       34.1x slower (g/l)
+    sequential UTS               1.4x slower (o/p)
 
-6. Actual X10 Arrays are about 13x slower than equivalent Java code.
+C++ back end relative to Java back end
+    rail access                  3.4x faster (b/d)
+    non-generic pseudo-array     3.2x faster (f/h)
+    generic pseudo-array         9.6x slower (j/i)
+    array                        3.4x slower (l/k)
+    sequential UTS               4.4x slower (p/n)
 
-7. Using "for ((i,j):Point in r)" loops is an additional 2x more
-   expensive than traditional C/Java loops. Likely due to unnecessary
-   allocation of Point. (SeqMatMultAdd1b)
+C++ generic vs non-generic      28.9x slower (f/i)
 
-8. Performance of parallel UTS benchmark using X10 async/AtomicInteger
-   on a dual-core x86 is about 50x worse than the equivalent
-   sequential X10 code. (ParUTSBin1 vs SeqUTSBin1).
+UTS parallel vs sequential      35.9x slower (p/q)
 
-Benchmarks run on snakehead (x86 Thinkpad Windows IBM Java 6):
+------- COLUMNS:
 
---- SeqMethodCall1
-java                 160 Mop/s
-x10-opt-java         15.6 Mop/s =java/10.3
-x10-dbg-java         199 kop/s =java/803.8 =x10-opt-java/78.3
+cpp-opt       hand coded C++, compiled g++ -O3
 
---- SeqRail1
-java                 272 Mop/s
-x10-opt-java         39.1 Mop/s =java/6.9
-x10-dbg-java         165 kop/s =java/1652.7 =x10-opt-java/237.9
+x10-cpp-opt   X10 with C++ back end, compiled g++ -O3 with checking off
 
---- SeqUTSBin1
-java                 4.41 Mop/s
-x10-opt-java         2.88 Mop/s =java/1.5
+java-opt      hand coded Java
 
---- ParUTSBin1
-(sequential)         8.82 Mop/s
-x10-opt-java         169 kop/s =(sequential)/52.1
+x10-java-opt  X10 with Java back end, checking off
 
---- SeqPseudoArray1
-java                 148 Mop/s
-x10-opt-java         5.67 Mop/s =java/26.1
+------- ROWS (TESTS):
 
---- SeqMatMultAdd1a
-java                 38.9 Mop/s
-x10-opt-java         2.97 Mop/s =java/13.1
-x10-dbg-java         51.4 kop/s =java/757.4 =x10-opt-java/57.9
+The first four tests are grouped together because they do essentially
+the same work (from the application perspective) and so should ideally
+perform the same.
 
---- SeqMatMultAdd1b
-java                 38.9 Mop/s
-x10-opt-java         1.61 Mop/s =java/24.2
+SeqRail2
 
+    Basic rail performance test. Allocate a rail, assign values to
+    each element, read it back. Test is written to simulate treating
+    the rail as a 2-d array in order (nested loop with index
+    calculation) to facilitate comparisons with array performance
+    tests SeqPseudoArray2{a,b} and SeqArray2
 
+SeqPseudoArray2a
+
+    Does the same work as SeqRail2, but wrapped in a class with an
+    apply and set method to simulate the "best possible" X10 code for
+    a 2-d double (non-generic) array class.
+
+SeqPseudoArray2b
+
+    Like SeqPseudoArray2a, but generic instead of double.
+
+SeqArray2
+
+    The actual x10.lang.Array code.
+
+SeqUTSBin1
+
+    Sequential version of an the Unbalanced Tree Search
+    benchmark. Recursively visits nodes of a randomly generated tree.
+
+ParUTSBin1
+
+    Parallel version of an the Unbalanced Tree Search
+    benchmark. Recursively visits nodes of a randomly generated tree.
