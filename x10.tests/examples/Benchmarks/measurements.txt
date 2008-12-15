@@ -67,3 +67,7 @@ test=SeqMatMultAdd1a lg=cpp ops=2.3539e+08 code=opt date=2008-12-15 time=15:47:3
 test=SeqMatMultAdd1a lg=x10-java ops=4.18762e+06 code=opt date=2008-12-15 time=15:48:45 host=snakehead
 test=SeqMatMultAdd1a lg=x10-cpp ops=524975 code=opt date=2008-12-15 time=15:51:10 host=snakehead
 test=SeqMatMultAdd1a lg=java ops=3.32669e+08 code=opt date=2008-12-15 time=15:51:52 host=snakehead
+test=SeqStream1 lg=cpp ops=1.10619e+08 code=opt date=2008-12-15 time=17:35:40 host=snakehead
+test=SeqStream1 lg=x10-cpp ops=4.43046e+07 code=opt date=2008-12-15 time=17:36:21 host=snakehead
+test=SeqStream1 lg=x10-java ops=1.60050e+07 code=opt date=2008-12-15 time=17:37:17 host=snakehead
+test=SeqStream1 lg=java ops=1.10850e+08 code=opt date=2008-12-15 time=17:37:59 host=snakehead

@@ -46,6 +46,8 @@ ParUTSBin1                                                       r: 172  kop/s  
 
 SeqMatMultAdd1a     s: 235  Mop/s  t: 525  kop/s  u: 333  Mop/s  v: 4.19 Mop/s  2008-12-15 
 
+SeqStream1          w: 111  Mop/s  x: 44.3 Mop/s  y: 111  Mop/s  z: 16.0 Mop/s  2008-12-15 
+
 ------- COMPARISONS:
 
 C++ back end relative to hand-coded
@@ -55,6 +57,7 @@ C++ back end relative to hand-coded
     array w/ c-style loop      117.9x slower (e/k)
     sequential UTS               4.4x slower (n/o)
     matrix multiply            448.4x slower (s/t)
+    sequential frag. stream      2.5x slower (w/x)
 
 Java back end relative to hand-coded
     rail access                  5.3x slower (c/d)
@@ -64,6 +67,7 @@ Java back end relative to hand-coded
     array w/ x10-style loop     28.6x slower (g/m)
     sequential UTS               1.1x slower (p/q)
     matrix multiply             79.4x slower (u/v)
+    sequential frag. stream      6.9x slower (y/z)
 
 C++ back end relative to Java back end
     rail access                  2.5x faster (b/d)
@@ -72,6 +76,7 @@ C++ back end relative to Java back end
     array w/ c-style loop       10.5x slower (l/k)
     sequential UTS               5.3x slower (q/o)
     matrix multiply              8.0x slower (v/t)
+    sequential frag. stream      2.8x faster (x/z)
 
 C++ generic vs non-generic      28.6x slower (f/i)
 
@@ -111,9 +116,14 @@ SeqPseudoArray2b
 
     Like SeqPseudoArray2a, but generic instead of double.
 
-SeqArray2
+SeqArray2a
 
-    The actual x10.lang.Array code.
+    The actual x10.lang.Array code, using a C-style loop.
+
+SeqArray2b
+
+    The actual x10.lang.Array code, using an X10-style loop with
+    destructured points.
 
 SeqUTSBin1
 
@@ -124,3 +134,7 @@ ParUTSBin1
 
     Parallel version of an the Unbalanced Tree Search
     benchmark. Recursively visits nodes of a randomly generated tree.
+
+SeqStream1
+
+    Sequential simplified (rail-only) fragmented stream.
