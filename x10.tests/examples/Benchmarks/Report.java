@@ -178,13 +178,16 @@ class Report {
         compare("    matrix multiply",          "SeqMatMultAdd1a", "x10-cpp-opt", "SeqMatMultAdd1a", "x10-java-opt");
         compare("    sequential frag. stream",  "SeqStream1",      "x10-cpp-opt", "SeqStream1",      "x10-java-opt");
 
-        compare("C++ generic vs non-generic", "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2a","x10-cpp-opt");
+        compare("C++ generic vs non-generic",   "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2a","x10-cpp-opt");
         //compare("Java generic vs non-generic", "SeqPseudoArray2b","x10-java-opt", "SeqPseudoArray2a","x10-java-opt");
 
-        compare("UTS parallel speedup (Java)", "ParUTSBin1","x10-java-opt", "SeqUTSBin1","x10-java-opt");
+        compare("UTS par. speedup (Java)", "ParUTSBin1","x10-java-opt", "SeqUTSBin1","x10-java-opt");
 
-        compare("Stream parallel speedup (Java)",    "ParStream1", "x10-java-opt", "SeqStream1", "x10-java-opt");
-        compare("Stream parallel speedup (C++)",    "ParStream1", "x10-cpp-opt", "SeqStream1", "x10-cpp-opt");
+        compare("Stream par. speedup (Java)",   "ParStream1",  "x10-java-opt", "SeqStream1", "x10-java-opt");
+        compare("Stream par. speedup (C++)",    "ParStream1",  "x10-cpp-opt",  "SeqStream1", "x10-cpp-opt");
+
+        compare("Stream dist. speedup (Java)",  "DistStream1", "x10-java-opt", "SeqStream1", "x10-java-opt");
+        compare("Stream dist. speedup (C++)",   "DistStream1", "x10-cpp-opt",  "SeqStream1", "x10-cpp-opt");
 
         String s = changes.toString();
         if (s.length()>0)
