@@ -11,6 +11,7 @@ import java.io.*;
 class Report {
 
     static PrintStream out = System.out;
+    static PrintWriter changed;
 
     static Set<String> tests = new LinkedHashSet();
     static Set<String> lgcs = new LinkedHashSet();
@@ -81,10 +82,14 @@ class Report {
 
     public static void main(String args[]) throws Exception {
 
+        StringWriter changes = new StringWriter();
+        changed = new PrintWriter(changes);
+
         tests.add("SeqRail2");
         tests.add("SeqPseudoArray2a");
         tests.add("SeqPseudoArray2b");
-        tests.add("SeqArray2");
+        tests.add("SeqArray2a");
+        tests.add("SeqArray2b");
         tests.add("SeqUTSBin1");
 
         lgcs.add("cpp-opt");
@@ -111,15 +116,23 @@ class Report {
             for (String lgc : lgcs) {
                 Collection<Entry> l = entries.get(test, lgc);
                 Entry show = null;
+                Entry prev = null;
                 if (l!=null) {
                     for (Entry e : l) {
-                        dates.add(e.get("date"));
+                        if (prev!=null) {
+                            double ratio = e.ops() / prev.ops();
+                            if (ratio>1.1 || ratio <0.9)
+                                changed.printf("    %-20s %-14s %.2fx from %s to %s\n",
+                                    e.get("test"), lgc, ratio, prev.get("date-time"), e.get("date-time"));
+                        }
                         show = e;
+                        prev = e;
                     }
                 }
                 if (show!=null) {
                     double ops = show.ops();
                     entries.putShown(show);
+                    dates.add(show.get("date"));
                     if (ops<1e6)      out.printf("%c: %-4.3g kop/s  ", letter, ops/1e3);
                     else if (ops<1e9) out.printf("%c: %-4.3g Mop/s  ", letter, ops/1e6);
                     else              out.printf("%c: %-4.3g Gop/s  ", letter, ops/1e9);
@@ -136,21 +149,24 @@ class Report {
         compare("    rail access",              "SeqRail2",        "x10-cpp-opt", "SeqRail2",        "cpp-opt");
         compare("    non-generic pseudo-array", "SeqPseudoArray2a","x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
         compare("    generic pseudo-array",     "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
-        compare("    array",                    "SeqArray2",       "x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
+        compare("    array w/ c-style loop",    "SeqArray2a",      "x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
+        //compare("    array w/ x10-style loop",  "SeqArray2b",      "x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
         compare("    sequential UTS",           "SeqUTSBin1",      "x10-cpp-opt", "SeqUTSBin1",      "cpp-opt");
 
         pr("Java back end relative to hand-coded");
         compare("    rail access",              "SeqRail2",        "x10-java-opt", "SeqRail2",        "java-opt");
         compare("    non-generic pseudo-array", "SeqPseudoArray2a","x10-java-opt", "SeqPseudoArray2a","java-opt");
         compare("    generic pseudo-array",     "SeqPseudoArray2b","x10-java-opt", "SeqPseudoArray2a","java-opt");
-        compare("    array",                    "SeqArray2",       "x10-java-opt", "SeqPseudoArray2a","java-opt");
+        compare("    array w/ c-style loop",    "SeqArray2a",      "x10-java-opt", "SeqPseudoArray2a","java-opt");
+        compare("    array w/ x10-style loop",  "SeqArray2b",      "x10-java-opt", "SeqPseudoArray2a","java-opt");
         compare("    sequential UTS",           "SeqUTSBin1",      "x10-java-opt", "SeqUTSBin1",      "java-opt");
 
         pr("C++ back end relative to Java back end");
         compare("    rail access",              "SeqRail2",        "x10-cpp-opt", "SeqRail2",        "x10-java-opt");
         compare("    non-generic pseudo-array", "SeqPseudoArray2a","x10-cpp-opt", "SeqPseudoArray2a","x10-java-opt");
         compare("    generic pseudo-array",     "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2b","x10-java-opt");
-        compare("    array",                    "SeqArray2",       "x10-cpp-opt", "SeqArray2",       "x10-java-opt");
+        compare("    array w/ c-style loop",    "SeqArray2a",      "x10-cpp-opt", "SeqArray2a",      "x10-java-opt");
+        //compare("    array w/ x10-style loop",  "SeqArray2b",      "x10-cpp-opt", "SeqArray2a",      "x10-java-opt");
         compare("    sequential UTS",           "SeqUTSBin1",      "x10-cpp-opt", "SeqUTSBin1",      "x10-java-opt");
 
         compare("C++ generic vs non-generic", "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2a","x10-cpp-opt");
@@ -158,6 +174,10 @@ class Report {
 
         compare("UTS parallel vs sequential", "ParUTSBin1","x10-java-opt", "SeqUTSBin1","x10-java-opt");
 
+
+        String s = changes.toString();
+        if (s.length()>0)
+            out.println("significant changes:\n" + s);
     }
 
     static void compare(String name, String t1, String l1, String t2, String l2) {
