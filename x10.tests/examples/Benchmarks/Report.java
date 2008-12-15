@@ -152,6 +152,7 @@ class Report {
         compare("    array w/ c-style loop",    "SeqArray2a",      "x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
         //compare("    array w/ x10-style loop",  "SeqArray2b",      "x10-cpp-opt", "SeqPseudoArray2a","cpp-opt");
         compare("    sequential UTS",           "SeqUTSBin1",      "x10-cpp-opt", "SeqUTSBin1",      "cpp-opt");
+        compare("    matrix multiply",          "SeqMatMultAdd1a", "x10-cpp-opt", "SeqMatMultAdd1a", "cpp-opt");
 
         pr("Java back end relative to hand-coded");
         compare("    rail access",              "SeqRail2",        "x10-java-opt", "SeqRail2",        "java-opt");
@@ -160,6 +161,7 @@ class Report {
         compare("    array w/ c-style loop",    "SeqArray2a",      "x10-java-opt", "SeqPseudoArray2a","java-opt");
         compare("    array w/ x10-style loop",  "SeqArray2b",      "x10-java-opt", "SeqPseudoArray2a","java-opt");
         compare("    sequential UTS",           "SeqUTSBin1",      "x10-java-opt", "SeqUTSBin1",      "java-opt");
+        compare("    matrix multiply",          "SeqMatMultAdd1a", "x10-java-opt", "SeqMatMultAdd1a", "java-opt");
 
         pr("C++ back end relative to Java back end");
         compare("    rail access",              "SeqRail2",        "x10-cpp-opt", "SeqRail2",        "x10-java-opt");
@@ -168,6 +170,7 @@ class Report {
         compare("    array w/ c-style loop",    "SeqArray2a",      "x10-cpp-opt", "SeqArray2a",      "x10-java-opt");
         //compare("    array w/ x10-style loop",  "SeqArray2b",      "x10-cpp-opt", "SeqArray2a",      "x10-java-opt");
         compare("    sequential UTS",           "SeqUTSBin1",      "x10-cpp-opt", "SeqUTSBin1",      "x10-java-opt");
+        compare("    matrix multiply",          "SeqMatMultAdd1a", "x10-cpp-opt", "SeqMatMultAdd1a", "x10-java-opt");
 
         compare("C++ generic vs non-generic", "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2a","x10-cpp-opt");
         //compare("Java generic vs non-generic", "SeqPseudoArray2b","x10-java-opt", "SeqPseudoArray2a","x10-java-opt");

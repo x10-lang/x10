@@ -38,6 +38,8 @@ SeqArray2b                                                       m: 8.69 Mop/s  
 SeqUTSBin1          n: 7.16 Mop/s  o: 1.61 Mop/s  p: 9.72 Mop/s  q: 8.52 Mop/s  2008-12-15 
 ParUTSBin1                                                       r: 172  kop/s  2008-12-15 
 
+SeqMatMultAdd1a     s: 235  Mop/s  t: 525  kop/s  u: 333  Mop/s  v: 4.19 Mop/s  2008-12-15 
+
 ------- COMPARISONS:
 
 C++ back end relative to hand-coded
@@ -46,6 +48,7 @@ C++ back end relative to hand-coded
     generic pseudo-array       116.3x slower (e/i)
     array w/ c-style loop      117.9x slower (e/k)
     sequential UTS               4.4x slower (n/o)
+    matrix multiply            448.4x slower (s/t)
 
 Java back end relative to hand-coded
     rail access                  5.3x slower (c/d)
@@ -54,6 +57,7 @@ Java back end relative to hand-coded
     array w/ c-style loop       11.1x slower (g/l)
     array w/ x10-style loop     28.6x slower (g/m)
     sequential UTS               1.1x slower (p/q)
+    matrix multiply             79.4x slower (u/v)
 
 C++ back end relative to Java back end
     rail access                  2.5x faster (b/d)
@@ -61,6 +65,7 @@ C++ back end relative to Java back end
     generic pseudo-array        11.5x slower (j/i)
     array w/ c-style loop       10.5x slower (l/k)
     sequential UTS               5.3x slower (q/o)
+    matrix multiply              8.0x slower (v/t)
 
 C++ generic vs non-generic      28.6x slower (f/i)
 
