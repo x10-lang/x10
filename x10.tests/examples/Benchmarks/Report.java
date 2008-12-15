@@ -181,8 +181,10 @@ class Report {
         compare("C++ generic vs non-generic", "SeqPseudoArray2b","x10-cpp-opt", "SeqPseudoArray2a","x10-cpp-opt");
         //compare("Java generic vs non-generic", "SeqPseudoArray2b","x10-java-opt", "SeqPseudoArray2a","x10-java-opt");
 
-        compare("UTS parallel vs sequential", "ParUTSBin1","x10-java-opt", "SeqUTSBin1","x10-java-opt");
+        compare("UTS parallel speedup (Java)", "ParUTSBin1","x10-java-opt", "SeqUTSBin1","x10-java-opt");
 
+        compare("Stream parallel speedup (Java)",    "ParStream1", "x10-java-opt", "SeqStream1", "x10-java-opt");
+        compare("Stream parallel speedup (C++)",    "ParStream1", "x10-cpp-opt", "SeqStream1", "x10-cpp-opt");
 
         String s = changes.toString();
         if (s.length()>0)
