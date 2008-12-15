@@ -30,6 +30,11 @@ Matrix multiply is 450x slower than hand-coded with C++ back-end and
 to show any additional sources of inefficiency besides those already
 revealed by the above more focussed tests.
 
+With C++ back-end distributed stream shows a slowdown relative to
+sequential. (Two processes, sockets, Cygwin.) A little surprising even
+given the issues with the implementation of distribution because this
+app does very coarse-grained operations. Needs more investigation.
+
 
 ------- PERFORMANCE DATA:
 
@@ -48,6 +53,7 @@ SeqMatMultAdd1a     s: 235  Mop/s  t: 525  kop/s  u: 333  Mop/s  v: 4.19 Mop/s  
 
 SeqStream1          w: 111  Mop/s  x: 44.3 Mop/s  y: 111  Mop/s  z: 16.0 Mop/s  2008-12-15 
 ParStream1                         {: 101  Mop/s                 |: 37.8 Mop/s  2008-12-15 
+DistStream1                        }: 37.2 Mop/s                 ~: 38.1 Mop/s  2008-12-15 
 
 
 ------- COMPARISONS:
@@ -82,10 +88,14 @@ C++ back end relative to Java back end
 
 C++ generic vs non-generic      28.6x slower (f/i)
 
-UTS parallel speedup (Java)     49.4x slower (q/r)
+UTS par. speedup (Java)         49.4x slower (q/r)
 
-Stream parallel speedup (Java)   2.4x faster (|/z)
-Stream parallel speedup (C++)    2.3x faster ({/x)
+Stream par. speedup (Java)       2.4x faster (|/z)
+Stream par. speedup (C++)        2.3x faster ({/x)
+
+Stream dist. speedup (Java)      2.4x faster (~/z)
+Stream dist. speedup (C++)       1.2x slower (x/})
+
 
 ------- COLUMNS:
 
