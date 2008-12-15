@@ -2,12 +2,12 @@
 // This file is part of X10 Test.
 
 /**
- * Basic array
+ * Basic array, X10-style loop
  *
  * @author bdlucas
  */
 
-public class SeqArray2 extends Benchmark {
+public class SeqArray2b extends Benchmark {
 
     //
     // parameters
@@ -24,13 +24,11 @@ public class SeqArray2 extends Benchmark {
     val a = Array.makeVar[double]([0..N-1, 0..N-1], (Point)=>0.0) to Array[double](2);
 
     def once() {
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
-                a(i,j) = (i+j) to double;
+        for ((i,j):Point in a)
+            a(i,j) = (i+j) to double;
         var sum:double = 0.0;
-        for (var i:int=0; i<N; i++)
-            for (var j:int=0; j<N; j++)
-                sum += a(i,j);
+        for ((i,j):Point in a)
+            sum += a(i,j);
         return sum;
     }
 
@@ -39,6 +37,6 @@ public class SeqArray2 extends Benchmark {
     //
 
     public static def main(Rail[String]) {
-        new SeqArray2().execute();
+        new SeqArray2b().execute();
     }
 }
