@@ -7,8 +7,8 @@
 
 public class SeqMatMultAdd1b extends Benchmark {
 
-    val N = 100;
-    def expected() = -288346.0;
+    val N = 55*5;
+    def expected() = -6.78452e+06;
     def operations() = N*N*N to double;
 
     //
