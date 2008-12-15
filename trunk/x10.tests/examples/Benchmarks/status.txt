@@ -25,6 +25,12 @@ C++ back-end is faster than Java back-end for the simple tests (rail,
 non-generic pseudo-array), slower for the more complex tests (generic
 array, sequential UTS).
 
+Matrix multiply is 450x slower than hand-coded with C++ back-end and
+80x slower than hand-coded with Java back-end. Profiling doesn't seem
+to show any additional sources of inefficiency besides those already
+revealed by the above more focussed tests.
+
+
 ------- PERFORMANCE DATA:
 
                     cpp-opt        x10-cpp-opt    java-opt       x10-java-opt   
