@@ -47,6 +47,8 @@ ParUTSBin1                                                       r: 172  kop/s  
 SeqMatMultAdd1a     s: 235  Mop/s  t: 525  kop/s  u: 333  Mop/s  v: 4.19 Mop/s  2008-12-15 
 
 SeqStream1          w: 111  Mop/s  x: 44.3 Mop/s  y: 111  Mop/s  z: 16.0 Mop/s  2008-12-15 
+ParStream1                         {: 101  Mop/s                 |: 37.8 Mop/s  2008-12-15 
+
 
 ------- COMPARISONS:
 
@@ -80,7 +82,10 @@ C++ back end relative to Java back end
 
 C++ generic vs non-generic      28.6x slower (f/i)
 
-UTS parallel vs sequential      49.4x slower (q/r)
+UTS parallel speedup (Java)     49.4x slower (q/r)
+
+Stream parallel speedup (Java)   2.4x faster (|/z)
+Stream parallel speedup (C++)    2.3x faster ({/x)
 
 ------- COLUMNS:
 

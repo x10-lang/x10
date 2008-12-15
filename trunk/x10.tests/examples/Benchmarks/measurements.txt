@@ -71,3 +71,5 @@ test=SeqStream1 lg=cpp ops=1.10619e+08 code=opt date=2008-12-15 time=17:35:40 ho
 test=SeqStream1 lg=x10-cpp ops=4.43046e+07 code=opt date=2008-12-15 time=17:36:21 host=snakehead
 test=SeqStream1 lg=x10-java ops=1.60050e+07 code=opt date=2008-12-15 time=17:37:17 host=snakehead
 test=SeqStream1 lg=java ops=1.10850e+08 code=opt date=2008-12-15 time=17:37:59 host=snakehead
+test=ParStream1 lg=x10-cpp ops=1.00523e+08 code=opt date=2008-12-15 time=18:00:12 host=snakehead
+test=ParStream1 lg=x10-java ops=3.77801e+07 code=opt date=2008-12-15 time=18:01:05 host=snakehead
