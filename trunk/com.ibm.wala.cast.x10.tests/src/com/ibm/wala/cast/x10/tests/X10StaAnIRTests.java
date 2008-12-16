@@ -132,6 +132,7 @@ public class X10StaAnIRTests extends IRTests {
 
 	public X10StaAnIRTests(String name) {
 		super(name, null);
+    	setTestSrcPath("." + File.separator + "testSrc");
 	}
 
 	protected ClassLoaderReference getSourceLoader() {
