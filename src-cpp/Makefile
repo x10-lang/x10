@@ -24,7 +24,7 @@ endif
 # FIXME
 ARFLAGS := -X64 $(ARFLAGS)
 else
-override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
+override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter -fpermissive
 ifeq ($(shell uname -s),Linux)
 override CXXFLAGS += -pthread
 endif

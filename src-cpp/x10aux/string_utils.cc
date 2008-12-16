@@ -1,9 +1,8 @@
-#include <cmath>
-
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/rail_utils.h>
 #include <x10aux/alloc.h>
+#include <x10aux/math.h>
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
@@ -53,11 +52,15 @@ template<class T> String to_string_general(T v) {
     return r;
 }
 
+#ifdef __CYGWIN__
+extern "C" int snprintf(char *, size_t, const char *, ...); 
+#endif
+
 #define TO_STRING(SZ,T,FMT) \
 String x10aux::to_string(T v) { \
     char buf[SZ]; \
-    int amt = ::snprintf(buf, sizeof buf, FMT, v); \
-    assert((size_t)amt<sizeof buf && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
+    int amt = ::snprintf(buf, sizeof(buf), FMT, v); \
+    assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
     String r; \
     r._constructor(buf); \
     return r; \
@@ -93,33 +96,33 @@ void kill_excess_zeroes(char *buf, size_t sz) {
 
 String x10aux::to_string(double v) {
     char buf[120] = "";
-    if (::isnan(v)) {
-        ::snprintf(buf, sizeof buf, "NaN");
-    } else if (v==INFINITY) {
-        ::snprintf(buf, sizeof buf, "Infinity");
-    } else if (v==-INFINITY) {
-        ::snprintf(buf, sizeof buf, "-Infinity");
-    } else if (fabs(v)>=1E-3 && fabs(v)<1E7) {
-        ::snprintf(buf, sizeof buf, "%.15f", v);
-        kill_excess_zeroes(buf, sizeof buf);
-    } else if (v==0) {
-        ::snprintf(buf, sizeof buf, "%.1f", v);
+    if (x10aux::math::isnan(v)) {
+        ::snprintf(buf, sizeof(buf), "NaN");
+    } else if (x10aux::math::isinf(v) && v > 0.0) {
+        ::snprintf(buf, sizeof(buf), "Infinity");
+    } else if (x10aux::math::isinf(v) && v < 0.0) {
+        ::snprintf(buf, sizeof(buf), "-Infinity");
+    } else if (::fabs(v) >= 1E-3 && ::fabs(v) < 1E7) {
+        ::snprintf(buf, sizeof(buf), "%.15f", v);
+        kill_excess_zeroes(buf, sizeof(buf));
+    } else if (v == 0.0) {
+        ::snprintf(buf, sizeof(buf), "%.1f", v);
     } else {
         // scientific notation
-        int e = ::floor(::log(::fabs(v))/::log(10)); //exponent
+        int e = (int)::floor(::log(::fabs(v))/::log(10.0)); //exponent
         // volatile because reordering could change computed floating point value
-        volatile double m = v / pow(10,e); //mantissa
-        if (e<-10) {
+        volatile double m = v / ::pow(10, e); //mantissa
+        if (e < -10) {
             // avoid touching -Infinity
             m = v * 1E10;
-            m /= pow(10,e+10);
+            m /= ::pow(10, e+10);
         }
-        if (e<0) {
-            ::snprintf(buf, sizeof buf, "%.1f", m);
+        if (e < 0) {
+            ::snprintf(buf, sizeof(buf), "%.1f", m);
         } else {
-            ::snprintf(buf, sizeof buf, "%.16f", m);
+            ::snprintf(buf, sizeof(buf), "%.16f", m);
         }
-        kill_excess_zeroes(buf, sizeof buf);
+        kill_excess_zeroes(buf, sizeof(buf));
         char *rest = buf + strlen(buf);
         ::snprintf(rest, sizeof(buf) + buf - rest, "E%d", e);
     }
