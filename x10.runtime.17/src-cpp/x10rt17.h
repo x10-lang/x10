@@ -53,6 +53,7 @@
 #include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Fun_0_2.h>
+#include <x10/lang/Fun_0_3.h>
 #include <x10/lang/Iterator.h>
 #include <x10/lang/NullPointerException.h>
 #include <x10/lang/Object.h>
@@ -65,6 +66,8 @@
 #include <x10/lang/Value.h>
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/VoidFun_0_1.h>
+#include <x10/lang/VoidFun_0_2.h>
+#include <x10/lang/VoidFun_0_3.h>
 
 #include <x10/runtime/Lock.h>
 #include <x10/runtime/Thread.h>
