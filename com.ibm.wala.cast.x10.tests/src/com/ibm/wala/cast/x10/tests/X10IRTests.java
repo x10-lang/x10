@@ -45,7 +45,8 @@ public class X10IRTests extends IRTests {
     }
 
     public X10IRTests(String name) {
-	super(name,  null);
+    	super(name,  null);
+    	setTestSrcPath("." + File.separator + "testSrc");
     }
 
     protected ClassLoaderReference getSourceLoader() {

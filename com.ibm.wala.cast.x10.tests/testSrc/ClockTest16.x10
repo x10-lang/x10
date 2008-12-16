@@ -48,7 +48,7 @@ import java.util.Iterator;
 	 *
 	 * // free variables
 	 */
-	interface foo {
+	interface fooC16 {
 		public void apply();
 	}
 
@@ -67,7 +67,7 @@ import java.util.Iterator;
 	 * A class to invoke a 'function pointer' inside of async
 	 */
 	class Y {
-		static void test(final foo f, final clock c) {
+		static void test(final fooC16 f, final clock c) {
 			// Compiler analysis may not be possible here
 			async clocked(c) {
 				f.apply(); // it is hard to determine f does an async clocked(c2) S, where c2 != c
@@ -118,7 +118,7 @@ public class ClockTest16  {
 					next;
 				}
 
-				final foo f0 = new foo() {
+				final fooC16 f0 = new fooC16() {
 					public void apply() {
 						final clock cx = ca[x.zero()];
 						async clocked(cx) { // clock use error
@@ -127,7 +127,7 @@ public class ClockTest16  {
 					}
 				};
 
-				final foo f1 = new foo() {
+				final fooC16 f1 = new fooC16() {
 					public void apply() {
 						final clock cx = ca[x.one()];
 						async clocked(cx) { // no clock use error
@@ -136,7 +136,7 @@ public class ClockTest16  {
 					}
 				};
 
-				final foo[] fooArray = new foo[] { f0, f1 };
+				final fooC16[] fooArray = new fooC16[] { f0, f1 };
 
 				// Compiler: MAYBE, Actual: NO
 				Y.test(fooArray[x.one()], c1);
