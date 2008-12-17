@@ -66,7 +66,7 @@ final public class PolyScanner implements Region.Scanner {
 
         private val r: Rail[int];
 
-        public def this(cols: int) {
+        public def this(cols: nat) {
             property(cols);
             r = Rail.makeVar[int](cols);
         }
@@ -75,17 +75,17 @@ final public class PolyScanner implements Region.Scanner {
         public def set(v:int, i:nat) = (r(i) = v);
     }
 
-    static final class Mat(rows:nat) implements (nat)=>Row {
+    // XXX xcols is workaround for XTENLANG-299
+    static final class Mat(rows:nat, xcols:nat) implements (nat)=>Row {
 
         private val r: Rail[Row];
 
-        public def this(rows: int) {
-            property(rows);
-            r = Rail.makeVar[Row](rows);
+        public def this(rs: nat, cs: nat) {
+            property(rs, cs);
+            r = Rail.makeVar[Row](rs, (nat)=>new Row(cs));
         }
 
         public def apply(i:nat) = r(i);
-        public def set(v:Row, i:nat) = (r(i) = v);
     }
 
 
@@ -115,33 +115,6 @@ final public class PolyScanner implements Region.Scanner {
         //printInfo(Console.OUT);
     }
 
-    public def printInfo(ps: Printer): void {
-        for (var k: int = 0; k<min.length; k++) {
-            ps.printf("axis %d\n", k);
-            ps.printf("  min\n");
-            for (var l: int = 0; l<min(k).rows; l++) {
-                ps.printf("  ");
-                for (var m: int = 0; m<min(k)(l).cols; m++)
-                    ps.printf(" %3d", min(k)(l)(m));
-                ps.printf("  sum");
-                for (var m: int = 0; m<minSum(k)(l).cols; m++)
-                    ps.printf(" %3d", minSum(k)(l)(m));
-                ps.printf("\n");
-            }
-            ps.printf("  max\n");
-            for (var l: int = 0; l<max(k).rows; l++) {
-                ps.printf("  ");
-                for (var m: int = 0; m<max(k)(l).cols; m++)
-                    ps.printf(" %3d", max(k)(l)(m));
-                ps.printf("  sum");
-                for (var m: int = 0; m<maxSum(k)(l).cols; m++)
-                    ps.printf(" %3d", maxSum(k)(l)(m));
-                ps.printf("\n");
-            }
-        }
-    }
-
-
     final private def init(hl: HalfspaceList, axis: int): void {
 
         // count
@@ -161,25 +134,21 @@ final public class PolyScanner implements Region.Scanner {
         }
 
         // allocate
-        min(axis) = new Mat(imin);
-        max(axis) = new Mat(imax);
-        minSum(axis) = new Mat(imin);
-        maxSum(axis) = new Mat(imax);
+        min(axis) = new Mat(imin, axis+1);
+        max(axis) = new Mat(imax, axis+1);
+        minSum(axis) = new Mat(imin, axis+1);
+        maxSum(axis) = new Mat(imax, axis+1);
 
         // fill in
         imin=0; imax=0;
         for (h:Halfspace in hl) {
             if (h.as(axis)<0) {
-                min(axis)(imin) = new Row(axis+1);
-                minSum(axis)(imin) = new Row(axis+1);
                 for (var i: int = 0; i<=axis; i++)
                     min(axis)(imin)(i) = h.as(i);
                 minSum(axis)(imin)(0) = h.as(rank);
                 imin++;
             }
             if (h.as(axis)>0) {
-                max(axis)(imax) = new Row(axis+1);
-                maxSum(axis)(imax) = new Row(axis+1);
                 for (var i: int = 0; i<=axis; i++)
                     max(axis)(imax)(i) = h.as(i);
                 maxSum(axis)(imax)(0) = h.as(rank);
@@ -221,4 +190,29 @@ final public class PolyScanner implements Region.Scanner {
         return result;
     }
 
+    public def printInfo(ps: Printer): void {
+        for (var k: int = 0; k<min.length; k++) {
+            ps.printf("axis %d\n", k);
+            ps.printf("  min\n");
+            for (var l: int = 0; l<min(k).rows; l++) {
+                ps.printf("  ");
+                for (var m: int = 0; m<min(k)(l).cols; m++)
+                    ps.printf(" %3d", min(k)(l)(m));
+                ps.printf("  sum");
+                for (var m: int = 0; m<minSum(k)(l).cols; m++)
+                    ps.printf(" %3d", minSum(k)(l)(m));
+                ps.printf("\n");
+            }
+            ps.printf("  max\n");
+            for (var l: int = 0; l<max(k).rows; l++) {
+                ps.printf("  ");
+                for (var m: int = 0; m<max(k)(l).cols; m++)
+                    ps.printf(" %3d", max(k)(l)(m));
+                ps.printf("  sum");
+                for (var m: int = 0; m<maxSum(k)(l).cols; m++)
+                    ps.printf(" %3d", maxSum(k)(l)(m));
+                ps.printf("\n");
+            }
+        }
+    }
 }
