@@ -4,21 +4,22 @@
 package x10.array;
 
 import x10.io.Printer;
+import x10.array.mat.*;
 
 
 /**
- * A HalfspaceList is essentially a set of linear inequalisty
- * constraints represented as a constraint matrix. Each row is
- * represented as a Halfspace object. The constraint matrix represents
- * a set of points defined as the intersection of the halfspaces
- * represented by each Halfspace in the list, or equivalently, as the
- * set of points satisfying the conjunction of the linear inequalities
- * represented by each Halfspace object.
+ * A HalfspaceList is a set of linear inequalisty constraints
+ * represented as a constraint matrix. Each row is represented as a
+ * Halfspace object. The constraint matrix represents a set of points
+ * defined as the intersection of the halfspaces represented by each
+ * Halfspace in the list, or equivalently, as the set of points
+ * satisfying the conjunction of the linear inequalities represented
+ * by each Halfspace object.
  *
  * @author bdlucas
  */
 
-value class HalfspaceList(rank: int) {
+value class HalfspaceList(rank: int) extends Mat[Halfspace] {
 
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
     static type HalfspaceListBuilder(rank:nat) = HalfspaceListBuilder{self.rank==rank};
@@ -27,10 +28,7 @@ value class HalfspaceList(rank: int) {
     // value
     //
 
-    val halfspaces: ValRail[Halfspace];
     val isSimplified: boolean;
-
-    def iterator() = halfspaces.iterator();
 
 
     /**
@@ -40,12 +38,10 @@ value class HalfspaceList(rank: int) {
     def this(rank:nat, halfspaces: ValRail[Halfspace], isSimplified:boolean):
         HalfspaceList(rank)
     {
+        super(rank+1, halfspaces);
         property(rank);
-        this.halfspaces = halfspaces;
         this.isSimplified = isSimplified;
     }
-
-    public def size():int = halfspaces.length;
 
 
     /**
@@ -58,7 +54,7 @@ value class HalfspaceList(rank: int) {
 
     def simplifyParallel(): HalfspaceList {
 
-        if (size()==0)
+        if (rows==0)
             return this;
 
         val hlb = new HalfspaceListBuilder(rank);
@@ -89,14 +85,14 @@ value class HalfspaceList(rank: int) {
             return this;
 
         val hlb = new HalfspaceListBuilder(rank);
-        var removed: Rail[boolean] = Rail.makeVar[boolean](size(), (nat)=>false); // XTENLANG-39 workaround
+        var removed: Rail[boolean] = Rail.makeVar[boolean](rows, (nat)=>false); // XTENLANG-39 workaround
 
-        for (var i: int = 0; i<size(); i++) {
-            val h = halfspaces(i);
+        for (var i: int = 0; i<rows; i++) {
+            val h = this(i);
             val trial = new HalfspaceListBuilder(rank);
-            for (var j: int = 0; j<size(); j++)
+            for (var j: int = 0; j<rows; j++)
                 if (!removed(j))
-                    trial.add(i==j? h.complement() : halfspaces(j));
+                    trial.add(i==j? h.complement() : this(j));
             if (!trial.toHalfspaceList().isEmpty())
                 hlb.add(h);
             else
