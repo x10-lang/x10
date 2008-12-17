@@ -17,9 +17,16 @@ public class StringBuilder implements Builder[Object,String] {
     }
     
     protected def addString(s: String): Builder[Object,String]  {
+        for (var i: int = 0; i < s.length(); i++) {
+            val ch = s(i);
+            buf.add(ch);
+        }
+        // BROKEN code gen
+        /*
         for (ch in s.chars()) {
             buf.add(ch);
         }
+        */
         return this;
     }
     
