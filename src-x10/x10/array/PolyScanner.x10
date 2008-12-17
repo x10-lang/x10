@@ -64,19 +64,19 @@ final public class PolyScanner implements Region.Scanner {
 
     private val rank: int;
 
-    private val min: Rail[Mat];
-    private val max: Rail[Mat];
-    private val minSum: Rail[Mat];
-    private val maxSum: Rail[Mat];
+    private val min: Rail[VarMat];
+    private val max: Rail[VarMat];
+    private val minSum: Rail[VarMat];
+    private val maxSum: Rail[VarMat];
 
     def this(var hl: HalfspaceList): PolyScanner {
 
         this.rank = hl.rank;
 
-        min = Rail.makeVar[Mat](rank);
-        max = Rail.makeVar[Mat](rank);
-        minSum = Rail.makeVar[Mat](rank);
-        maxSum = Rail.makeVar[Mat](rank);
+        min = Rail.makeVar[VarMat](rank);
+        max = Rail.makeVar[VarMat](rank);
+        minSum = Rail.makeVar[VarMat](rank);
+        maxSum = Rail.makeVar[VarMat](rank);
 
         //hl.printInfo(Console.OUT, "axis " + (rank-1));
         init(hl, rank-1);
@@ -107,10 +107,10 @@ final public class PolyScanner implements Region.Scanner {
         }
 
         // allocate
-        min(axis) = new Mat(imin, axis+1);
-        max(axis) = new Mat(imax, axis+1);
-        minSum(axis) = new Mat(imin, axis+1);
-        maxSum(axis) = new Mat(imax, axis+1);
+        min(axis) = new VarMat(imin, axis+1);
+        max(axis) = new VarMat(imax, axis+1);
+        minSum(axis) = new VarMat(imin, axis+1);
+        maxSum(axis) = new VarMat(imax, axis+1);
 
         // fill in
         imin=0; imax=0;
