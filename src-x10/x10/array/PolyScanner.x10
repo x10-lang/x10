@@ -4,7 +4,7 @@
 package x10.array;
 
 import x10.io.Printer;
-
+import x10.array.mat.*;
 
 /**
  * Here's the general scheme for the information used in scanning,
@@ -62,33 +62,6 @@ import x10.io.Printer;
 
 final public class PolyScanner implements Region.Scanner {
 
-    static final class Row(cols:nat) implements (nat)=>int {
-
-        private val r: Rail[int];
-
-        public def this(cols: nat) {
-            property(cols);
-            r = Rail.makeVar[int](cols);
-        }
-
-        public def apply(i:nat) = r(i);
-        public def set(v:int, i:nat) = (r(i) = v);
-    }
-
-    // XXX xcols is workaround for XTENLANG-299
-    static final class Mat(rows:nat, xcols:nat) implements (nat)=>Row {
-
-        private val r: Rail[Row];
-
-        public def this(rs: nat, cs: nat) {
-            property(rs, cs);
-            r = Rail.makeVar[Row](rs, (nat)=>new Row(cs));
-        }
-
-        public def apply(i:nat) = r(i);
-    }
-
-
     private val rank: int;
 
     private val min: Rail[Mat];
@@ -122,8 +95,8 @@ final public class PolyScanner implements Region.Scanner {
         var imax: int = 0;
 
         for (h:Halfspace in hl) {
-            if (h.as(axis)<0) imin++;
-            if (h.as(axis)>0) imax++;
+            if (h(axis)<0) imin++;
+            if (h(axis)>0) imax++;
         }
 
         // complain if unbounded
@@ -142,16 +115,16 @@ final public class PolyScanner implements Region.Scanner {
         // fill in
         imin=0; imax=0;
         for (h:Halfspace in hl) {
-            if (h.as(axis)<0) {
+            if (h(axis)<0) {
                 for (var i: int = 0; i<=axis; i++)
-                    min(axis)(imin)(i) = h.as(i);
-                minSum(axis)(imin)(0) = h.as(rank);
+                    min(axis)(imin)(i) = h(i);
+                minSum(axis)(imin)(0) = h(rank);
                 imin++;
             }
-            if (h.as(axis)>0) {
+            if (h(axis)>0) {
                 for (var i: int = 0; i<=axis; i++)
-                    max(axis)(imax)(i) = h.as(i);
-                maxSum(axis)(imax)(0) = h.as(rank);
+                    max(axis)(imax)(i) = h(i);
+                maxSum(axis)(imax)(0) = h(rank);
                 imax++;
             }
         }

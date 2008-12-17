@@ -126,19 +126,19 @@ value class HalfspaceList(rank: int) {
     def eliminate(k: int, simplifyDegenerate: boolean): HalfspaceList {
         val hlb = new HalfspaceListBuilder(rank);
         for (ih:Halfspace in this) {
-            val ia = ih.as(k);
+            val ia = ih(k);
             if (ia==0) {
                 hlb.add(ih);
             } else {
                 for (jh:Halfspace in this) {
-                    val ja = jh.as(k);
+                    val ja = jh(k);
                     val as = Rail.makeVar[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
-                            as(l) = ia*jh.as(l) - ja*ih.as(l);
+                            as(l) = ia*jh(l) - ja*ih(l);
                     } else if (ia<0 && ja>0) {
                         for (var l: int = 0; l<=rank; l++)
-                            as(l) = ja*ih.as(l) - ia*jh.as(l);
+                            as(l) = ja*ih(l) - ia*jh(l);
                     }
                     val lim = simplifyDegenerate? rank : rank+1;
                     var degenerate: boolean = true;
@@ -178,9 +178,9 @@ value class HalfspaceList(rank: int) {
     def rectMin(axis: int): int {
 
         for (h:Halfspace in this) {
-            val a = h.as(axis);
+            val a = h(axis);
             if (a < 0)
-                return -h.as(rank()) / a;
+                return -h(rank()) / a;
         }
 
         var msg: String = "axis " + axis + " has no minimum";
@@ -190,9 +190,9 @@ value class HalfspaceList(rank: int) {
     def rectMax(axis: int): int {
 
         for (h:Halfspace in this) {
-            val a = h.as(axis);
+            val a = h(axis);
             if (a > 0)
-                return -h.as(rank()) / a;
+                return -h(rank()) / a;
         }
 
         val msg = "axis " + axis + " has no maximum";
@@ -246,7 +246,7 @@ value class HalfspaceList(rank: int) {
     
         // look for contradictions
         for (h:Halfspace in hl)
-            if (h.as(rank)>0)
+            if (h(rank)>0)
                 return true;
         return false;
     }
