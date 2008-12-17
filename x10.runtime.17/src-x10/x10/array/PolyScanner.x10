@@ -41,7 +41,7 @@ import x10.io.Printer;
  * substituting the known values of X0 through X2 into each
  * halfspace. However, part of that computation can be pulled out of
  * the inner loop by keeping track for each halfspace in in min[k]
- * and each constraing in max[k] a set of partial sums of the form
+ * and each constraint in max[k] a set of partial sums of the form
  *
  *     minSum[0] = B
  *     minSum[1] = B+A0*X0
@@ -62,43 +62,48 @@ import x10.io.Printer;
 
 final public class PolyScanner implements Region.Scanner {
 
-    static class Rail1 {
-        val r: Rail[int];
-        def this(n:int) {
-            r = Rail.makeVar[int](n);
+    static final class Row(cols:nat) implements (nat)=>int {
+
+        private val r: Rail[int];
+
+        public def this(cols: int) {
+            property(cols);
+            r = Rail.makeVar[int](cols);
         }
+
+        public def apply(i:nat) = r(i);
+        public def set(v:int, i:nat) = (r(i) = v);
     }
 
-    static class Rail2 {
-        val r: Rail[Rail1];
-        def this(n:int) {
-            r = Rail.makeVar[Rail1](n);
-        }
-    }
+    static final class Mat(rows:nat) implements (nat)=>Row {
 
-    static class Rail3 {
-        val r: Rail[Rail2];
-        def this(n:int) {
-            r = Rail.makeVar[Rail2](n);
+        private val r: Rail[Row];
+
+        public def this(rows: int) {
+            property(rows);
+            r = Rail.makeVar[Row](rows);
         }
+
+        public def apply(i:nat) = r(i);
+        public def set(v:Row, i:nat) = (r(i) = v);
     }
 
 
     private val rank: int;
 
-    private val min: Rail3;
-    private val max: Rail3;
-    private val minSum: Rail3;
-    private val maxSum: Rail3;
+    private val min: Rail[Mat];
+    private val max: Rail[Mat];
+    private val minSum: Rail[Mat];
+    private val maxSum: Rail[Mat];
 
     def this(var hl: HalfspaceList): PolyScanner {
 
         this.rank = hl.rank;
 
-        min = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
-        max = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
-        minSum = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
-        maxSum = /*Rail.makeVar[Rail2](rank)*/ new Rail3(rank);
+        min = Rail.makeVar[Mat](rank);
+        max = Rail.makeVar[Mat](rank);
+        minSum = Rail.makeVar[Mat](rank);
+        maxSum = Rail.makeVar[Mat](rank);
 
         //hl.printInfo(Console.OUT, "axis " + (rank-1));
         init(hl, rank-1);
@@ -111,26 +116,26 @@ final public class PolyScanner implements Region.Scanner {
     }
 
     public def printInfo(ps: Printer): void {
-        for (var k: int = 0; k<min.r.length; k++) {
+        for (var k: int = 0; k<min.length; k++) {
             ps.printf("axis %d\n", k);
             ps.printf("  min\n");
-            for (var l: int = 0; l<min.r(k).r.length; l++) {
+            for (var l: int = 0; l<min(k).rows; l++) {
                 ps.printf("  ");
-                for (var m: int = 0; m<min.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", min.r(k).r(l).r(m));
+                for (var m: int = 0; m<min(k)(l).cols; m++)
+                    ps.printf(" %3d", min(k)(l)(m));
                 ps.printf("  sum");
-                for (var m: int = 0; m<minSum.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", minSum.r(k).r(l).r(m));
+                for (var m: int = 0; m<minSum(k)(l).cols; m++)
+                    ps.printf(" %3d", minSum(k)(l)(m));
                 ps.printf("\n");
             }
             ps.printf("  max\n");
-            for (var l: int = 0; l<max.r(k).r.length; l++) {
+            for (var l: int = 0; l<max(k).rows; l++) {
                 ps.printf("  ");
-                for (var m: int = 0; m<max.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", max.r(k).r(l).r(m));
+                for (var m: int = 0; m<max(k)(l).cols; m++)
+                    ps.printf(" %3d", max(k)(l)(m));
                 ps.printf("  sum");
-                for (var m: int = 0; m<maxSum.r(k).r(l).r.length; m++)
-                    ps.printf(" %3d", maxSum.r(k).r(l).r(m));
+                for (var m: int = 0; m<maxSum(k)(l).cols; m++)
+                    ps.printf(" %3d", maxSum(k)(l)(m));
                 ps.printf("\n");
             }
         }
@@ -156,28 +161,28 @@ final public class PolyScanner implements Region.Scanner {
         }
 
         // allocate
-        min.r(axis) = /*Rail.makeVar[Rail1](imin);*/ new Rail2(imin);
-        max.r(axis) = /*Rail.makeVar[Rail1](imax);*/ new Rail2(imax);
-        minSum.r(axis) = /*Rail.makeVar[Rail1](imin);*/ new Rail2(imin);
-        maxSum.r(axis) = /*Rail.makeVar[Rail1](imax);*/ new Rail2(imax);
+        min(axis) = new Mat(imin);
+        max(axis) = new Mat(imax);
+        minSum(axis) = new Mat(imin);
+        maxSum(axis) = new Mat(imax);
 
         // fill in
         imin=0; imax=0;
         for (h:Halfspace in hl) {
             if (h.as(axis)<0) {
-                min.r(axis).r(imin) = /*Rail.makeVar[int](axis+1)*/ new Rail1(axis+1);
-                minSum.r(axis).r(imin) = /*Rail.makeVar[int](axis+1)*/ new Rail1(axis+1);
+                min(axis)(imin) = new Row(axis+1);
+                minSum(axis)(imin) = new Row(axis+1);
                 for (var i: int = 0; i<=axis; i++)
-                    min.r(axis).r(imin).r(i) = h.as(i);
-                minSum.r(axis).r(imin).r(0) = h.as(rank);
+                    min(axis)(imin)(i) = h.as(i);
+                minSum(axis)(imin)(0) = h.as(rank);
                 imin++;
             }
             if (h.as(axis)>0) {
-                max.r(axis).r(imax) = /*Rail.makeVar[int](axis+1)*/ new Rail1(axis+1);
-                maxSum.r(axis).r(imax) = /*Rail.makeVar[int](axis+1);*/ new Rail1(axis+1);
+                max(axis)(imax) = new Row(axis+1);
+                maxSum(axis)(imax) = new Row(axis+1);
                 for (var i: int = 0; i<=axis; i++)
-                    max.r(axis).r(imax).r(i) = h.as(i);
-                maxSum.r(axis).r(imax).r(0) = h.as(rank);
+                    max(axis)(imax)(i) = h.as(i);
+                maxSum(axis)(imax)(0) = h.as(rank);
                 imax++;
             }
         }
@@ -185,21 +190,20 @@ final public class PolyScanner implements Region.Scanner {
 
     }
 
-
     final public def set(axis: int, position: int): void {
         for (var k: int = axis+1; k<rank; k++)
-            for (var l: int = 0; l<minSum.r(k).r.length; l++)
-                minSum.r(k).r(l).r(axis+1) = min.r(k).r(l).r(axis)*position + minSum.r(k).r(l).r(axis);
+            for (var l: int = 0; l<minSum(k).rows; l++)
+                minSum(k)(l)(axis+1) = min(k)(l)(axis)*position + minSum(k)(l)(axis);
         for (var k: int = axis+1; k<rank; k++)
-            for (var l: int = 0; l<maxSum.r(k).r.length; l++)
-                maxSum.r(k).r(l).r(axis+1) = max.r(k).r(l).r(axis)*position + maxSum.r(k).r(l).r(axis);
+            for (var l: int = 0; l<maxSum(k).rows; l++)
+                maxSum(k)(l)(axis+1) = max(k)(l)(axis)*position + maxSum(k)(l)(axis);
     }
 
     final public def min(axis: int): int {
         var result: int = Int.MIN_VALUE;
-        for (var k: int = 0; k<min.r(axis).r.length; k++) {
-            val a = min.r(axis).r(k).r(axis);
-            var b: int = minSum.r(axis).r(k).r(axis);
+        for (var k: int = 0; k<min(axis).rows; k++) {
+            val a = min(axis)(k)(axis);
+            var b: int = minSum(axis)(k)(axis);
             val m = -b / a;
             if (m > result) result = m;
         }
@@ -208,9 +212,9 @@ final public class PolyScanner implements Region.Scanner {
 
     final public def max(axis: int): int {
         var result: int = Int.MAX_VALUE;
-        for (var k: int = 0; k<max.r(axis).r.length; k++) {
-            val a = max.r(axis).r(k).r(axis);
-            val b = maxSum.r(axis).r(k).r(axis);
+        for (var k: int = 0; k<max(axis).rows; k++) {
+            val a = max(axis)(k)(axis);
+            val b = maxSum(axis)(k)(axis);
             val m = -b / a;
             if (m < result) result = m;
         }
