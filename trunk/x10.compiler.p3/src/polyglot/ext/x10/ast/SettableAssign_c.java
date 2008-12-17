@@ -22,8 +22,10 @@ import java.util.Map;
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Binary;
+import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode_c;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
@@ -90,7 +92,24 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 	@Override
 	public Expr left(NodeFactory nf) {
-	    return nf.Call(position(), array, nf.Id(position(), "get"), index);
+	    Name apply = Name.make("apply");
+	    Call c = nf.Call(position(), array, nf.Id(position(), apply), index);
+	    if (mi != null) {
+	        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
+	        List<Type> argTypes = new ArrayList<Type>(mi.formalTypes());
+	        argTypes.remove(0);
+	        MethodInstance ami = null;
+	        try {
+	            ami = xts.findMethod(mi.container(),
+	                    xts.MethodMatcher(mi.container(), apply, argTypes),
+	                    mi.container().toClass().def());
+	        } catch (SemanticException e) {
+	            assert (false);
+	        }
+	        c = c.methodInstance(ami);
+	    }
+	    if (type != null && mi != null) c = (Call) c.type(mi.returnType());
+	    return c;
 	}
 	
    	/** Get the precedence of the expression. */
@@ -163,7 +182,7 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	public MethodInstance methodInstance() {
 	    return mi;
 	}
-	SettableAssign_c methodInstance(MethodInstance mi) {
+	public SettableAssign methodInstance(MethodInstance mi) {
 	    SettableAssign_c n = (SettableAssign_c) copy();
 	    n.mi = mi;
 	    return n;

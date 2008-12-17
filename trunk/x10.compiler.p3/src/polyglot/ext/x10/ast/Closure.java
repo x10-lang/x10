@@ -43,4 +43,5 @@ public interface Closure extends Expr, CodeBlock {
     public Closure guard(DepParameterExpr guard);
 
     ClosureDef closureDef();
+    Closure closureDef(ClosureDef ci);
 }
