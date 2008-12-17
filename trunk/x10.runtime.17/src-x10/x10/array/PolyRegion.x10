@@ -243,7 +243,7 @@ value class PolyRegion extends BaseRegion {
 
     private static def copy(tt: HalfspaceListBuilder, ff: HalfspaceList, offset: int): void {
         for (h:Halfspace in ff) {
-            val f = h.as;
+            val f = h;
             val t = Rail.makeVar[int](tt.rank+1);
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
