@@ -13,6 +13,7 @@ import java.util.List;
 import polyglot.ast.Assign;
 import polyglot.ast.Expr;
 import polyglot.types.ClassDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.util.TypedList;
 
@@ -34,4 +35,7 @@ public interface SettableAssign extends Assign {
 	 * @return
 	 */
 	public ClassDef invokingClass();
+
+	public MethodInstance methodInstance();
+	SettableAssign methodInstance(MethodInstance mi);
 }

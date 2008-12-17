@@ -2394,6 +2394,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		w.write(") { ");
 		tr2.print(n, n.body(), w);
 		w.write("}");
+		w.newline();
 		
 		Type t = n.type();
 		t = X10TypeMixin.baseType(t);
