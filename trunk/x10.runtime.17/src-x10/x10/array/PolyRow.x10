@@ -23,19 +23,19 @@ import x10.array.mat.*;
  * @author bdlucas
  */
 
-public value class Halfspace(rank:nat) extends ValRow implements Comparable[Halfspace] {
+public value class PolyRow(rank:nat) extends ValRow implements Comparable[PolyRow] {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
-    static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
+    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
 
-    def this(as: ValRail[int]): Halfspace(as.length-1) {
+    def this(as: ValRail[int]): PolyRow(as.length-1) {
         super(as);
         property(as.length-1);
     }
 
-    def this(as: Rail[int]): Halfspace(as.length-1) {
+    def this(as: Rail[int]): PolyRow(as.length-1) {
         super(as);
         property(as.length-1);
     }
@@ -57,7 +57,7 @@ public value class Halfspace(rank:nat) extends ValRow implements Comparable[Half
      * least siginficant part of key
      */
 
-    public def compareTo(that: Halfspace): int {
+    public def compareTo(that: PolyRow): int {
         for (var i: int = 0; i<cols; i++) {
             if (this(i) < that(i))
                 return -1;
@@ -76,7 +76,7 @@ public value class Halfspace(rank:nat) extends ValRow implements Comparable[Half
      * allow for multiplication by positive constant
      */
 
-    def isParallel(that: Halfspace): boolean {
+    def isParallel(that: PolyRow): boolean {
         for (var i: int = 0; i<cols-1; i++)
             if (this(i)!=that(i))
                 return false;
@@ -122,10 +122,10 @@ public value class Halfspace(rank:nat) extends ValRow implements Comparable[Half
      *   -a0*x0 - ... -ar+1 <=  0
      */
 
-    def complement(): Halfspace {
+    def complement(): PolyRow {
         val init = (i:nat) => i<rank? -this(i) : -this(rank)+1;
         val as = Rail.makeVal[int](rank+1, init);
-        return new Halfspace(as);
+        return new PolyRow(as);
     }
 
 

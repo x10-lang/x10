@@ -10,9 +10,6 @@ class Dummy {
     var f3 : x10.array.DistArray[Dummy];
     var f4 : x10.array.EmptyRegion;
     var f5 : x10.array.FullRegion;
-    var f6 : x10.array.Halfspace;
-    var f7 : x10.array.HalfspaceList;
-    var f8 : x10.array.HalfspaceListBuilder;
     var f9 : x10.array.Layout;
     var f10 : x10.array.LocalArray[Dummy];
     var f11 : x10.array.NoSuchElementException;

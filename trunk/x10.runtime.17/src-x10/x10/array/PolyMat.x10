@@ -8,21 +8,21 @@ import x10.array.mat.*;
 
 
 /**
- * A HalfspaceList is a set of linear inequalisty constraints
- * represented as a constraint matrix. Each row is represented as a
- * Halfspace object. The constraint matrix represents a set of points
- * defined as the intersection of the halfspaces represented by each
- * Halfspace in the list, or equivalently, as the set of points
- * satisfying the conjunction of the linear inequalities represented
- * by each Halfspace object.
+ * A PolyMat is a set of linear inequalisty constraints represented as
+ * a constraint matrix. Each row is represented as a PolyRow
+ * object. The constraint matrix represents a set of points defined as
+ * the intersection of the halfspaces represented by each PolyRow in
+ * the PolyMat, or equivalently, as the set of points satisfying the
+ * conjunction of the linear inequalities represented by each PolyRow
+ * object.
  *
  * @author bdlucas
  */
 
-public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
+public value class PolyMat(rank: int) extends Mat[PolyRow] {
 
-    static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
-    static type HalfspaceListBuilder(rank:nat) = HalfspaceListBuilder{self.rank==rank};
+    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
+    static type PolyMatBuilder(rank:nat) = PolyMatBuilder{self.rank==rank};
 
     //
     // value
@@ -32,11 +32,11 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
 
 
     /**
-     * Low-level constructor. For greater convenience use HalfspaceListBuilder.
+     * Low-level constructor. For greater convenience use PolyMatBuilder.
      */
 
-    public def this(rank:nat, halfspaces: ValRail[Halfspace], isSimplified:boolean):
-        HalfspaceList(rank)
+    public def this(rank:nat, halfspaces: ValRail[PolyRow], isSimplified:boolean):
+        PolyMat(rank)
     {
         super(rank+1, halfspaces);
         property(rank);
@@ -44,7 +44,7 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
     }
 
     public def this(rows:nat, cols:nat, init:(i:nat,j:nat)=>int) {
-        super(rows, cols, (i:nat)=>new Halfspace(cols, (j:nat)=>init(i,j)));
+        super(rows, cols, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j)));
         property(cols-1);
         this.isSimplified = true; // XXX
     }
@@ -62,21 +62,21 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      * captures the strongest halfspace.
      */
 
-    def simplifyParallel(): HalfspaceList {
+    def simplifyParallel(): PolyMat {
 
         if (rows==0)
             return this;
 
-        val hlb = new HalfspaceListBuilder(rank);
-        var last: Box[Halfspace] = null as Box[Halfspace];
-        for (next:Halfspace in this) {
-            if (last!=null && !next.isParallel(last to Halfspace))
-                hlb.add(last to Halfspace);
-            last = next to Box[Halfspace];
+        val hlb = new PolyMatBuilder(rank);
+        var last: Box[PolyRow] = null as Box[PolyRow];
+        for (next:PolyRow in this) {
+            if (last!=null && !next.isParallel(last to PolyRow))
+                hlb.add(last to PolyRow);
+            last = next to Box[PolyRow];
         }
-        hlb.add(last to Halfspace);
+        hlb.add(last to PolyRow);
 
-        return hlb.toHalfspaceList();
+        return hlb.toPolyMat();
     }
 
 
@@ -89,27 +89,27 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      * be expensive.
      */
 
-    def simplifyAll(): HalfspaceList {
+    def simplifyAll(): PolyMat {
 
         if (isSimplified)
             return this;
 
-        val hlb = new HalfspaceListBuilder(rank);
+        val hlb = new PolyMatBuilder(rank);
         var removed: Rail[boolean] = Rail.makeVar[boolean](rows, (nat)=>false); // XTENLANG-39 workaround
 
         for (var i: int = 0; i<rows; i++) {
             val h = this(i);
-            val trial = new HalfspaceListBuilder(rank);
+            val trial = new PolyMatBuilder(rank);
             for (var j: int = 0; j<rows; j++)
                 if (!removed(j))
                     trial.add(i==j? h.complement() : this(j));
-            if (!trial.toHalfspaceList().isEmpty())
+            if (!trial.toPolyMat().isEmpty())
                 hlb.add(h);
             else
                 removed(i) = true;
         }
 
-        return hlb.toHalfspaceList(true);
+        return hlb.toPolyMat(true);
     }
 
 
@@ -129,14 +129,14 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      * by eliminating axis k
      */
 
-    def eliminate(k: int, simplifyDegenerate: boolean): HalfspaceList {
-        val hlb = new HalfspaceListBuilder(rank);
-        for (ih:Halfspace in this) {
+    def eliminate(k: int, simplifyDegenerate: boolean): PolyMat {
+        val hlb = new PolyMatBuilder(rank);
+        for (ih:PolyRow in this) {
             val ia = ih(k);
             if (ia==0) {
                 hlb.add(ih);
             } else {
-                for (jh:Halfspace in this) {
+                for (jh:PolyRow in this) {
                     val ja = jh(k);
                     val as = Rail.makeVar[int](rank+1);
                     if (ia>0 && ja<0) {
@@ -152,13 +152,13 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
                         if (as(l)!=0)
                             degenerate = false;
                     if (!degenerate) {
-                        var h: Halfspace = new Halfspace(as);
+                        var h: PolyRow = new PolyRow(as);
                         hlb.add(h);
                     }
                 }
             }
         }
-        return hlb.toHalfspaceList().simplifyParallel();
+        return hlb.toPolyMat().simplifyParallel();
     }
 
 
@@ -174,7 +174,7 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      */
 
     def isRect(): boolean {
-        for (h:Halfspace in this) {
+        for (h:PolyRow in this) {
             if (!h.isRect())
                 return false;
         }
@@ -183,7 +183,7 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
 
     def rectMin(axis: int): int {
 
-        for (h:Halfspace in this) {
+        for (h:PolyRow in this) {
             val a = h(axis);
             if (a < 0)
                 return -h(rank()) / a;
@@ -195,7 +195,7 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
     
     def rectMax(axis: int): int {
 
-        for (h:Halfspace in this) {
+        for (h:PolyRow in this) {
             val a = h(axis);
             if (a > 0)
                 return -h(rank()) / a;
@@ -246,12 +246,12 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
     def isEmpty(): boolean {
 
         // eliminate all variables
-        var hl: HalfspaceList = this;
+        var hl: PolyMat = this;
         for (var i: int = 0; i<rank; i++)
             hl = hl.eliminate(i, false);
     
         // look for contradictions
-        for (h:Halfspace in hl)
+        for (h:PolyRow in hl)
             if (h(rank)>0)
                 return true;
         return false;
@@ -262,8 +262,8 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      * Matrix multiplication.
      */
 
-    public def $times(that: HalfspaceList) {
-        return new HalfspaceList(this.rows, that.cols, (i:nat,j:nat) => {
+    public def $times(that: PolyMat) {
+        return new PolyMat(this.rows, that.cols, (i:nat,j:nat) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
                 sum += this(i)(k)*that(k)(j);
@@ -289,8 +289,8 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      * Concatenate matrices
      */
 
-    public def $or(that: HalfspaceList) {
-        return new HalfspaceList(this.rows+that.rows, this.cols, (i:nat,j:nat) =>
+    public def $or(that: PolyMat) {
+        return new PolyMat(this.rows+that.rows, this.cols, (i:nat,j:nat) =>
             i<this.rows? this(i)(j) : that(i-this.rows)(j)
         );
     }
@@ -302,7 +302,7 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
 
     public def printInfo(ps: Printer, label: String): void {
         ps.printf("%s\n", label);
-        for (h:Halfspace in this) {
+        for (h:PolyRow in this) {
             ps.printf("    ");
             h.printInfo(ps);
         }
@@ -314,7 +314,7 @@ public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
         var s: String = "(";
         var first: boolean = true;
 
-        for (h:Halfspace in this) {
+        for (h:PolyRow in this) {
             if (!first) s += " && ";
             s += h.toString();
             first = false;

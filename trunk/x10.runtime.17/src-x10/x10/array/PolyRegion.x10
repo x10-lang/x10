@@ -7,12 +7,12 @@ import x10.io.Printer;
 
 /**
  * A PolyRegion represents a polyhedral region represented as the
- * intersection of a list of Halfspaces. The halfspaces are stored in
- * a HalfspaceList object, which is essentially a constraint matrix
+ * intersection of a list of PolyRows. The halfspaces are stored in
+ * a PolyMat object, which is essentially a constraint matrix
  * that defines the region. The PolyRegion object wraps a
  * HalfpaceList, adding some static factory methods for PolyRegions
  * and some methods such as region algebra that operate on
- * HalfspaceList objects.
+ * PolyMat objects.
  *
  * @author bdlucas
  */
@@ -22,15 +22,15 @@ value class PolyRegion extends BaseRegion {
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
-    static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
+    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
     static type UnionRegion(rank:nat) = UnionRegion{self.rank==rank};
 
     //
     // value
     //
 
-    protected val halfspaces: HalfspaceList;
+    protected val halfspaces: PolyMat;
 
 
     //
@@ -95,18 +95,18 @@ value class PolyRegion extends BaseRegion {
 
             // start
             val that = t as PolyRegion; // XXX
-            val hlb = new HalfspaceListBuilder(rank);
+            val hlb = new PolyMatBuilder(rank);
 
             // these halfspaces
-            for (h:Halfspace in this.halfspaces)
+            for (h:PolyRow in this.halfspaces)
                 hlb.add(h);
 
             // those halfspaces
-            for (h:Halfspace in that.halfspaces)
+            for (h:PolyRow in that.halfspaces)
                 hlb.add(h);
 
             // done
-            val hl = hlb.toHalfspaceList();
+            val hl = hlb.toPolyMat();
             return PolyRegion.make(hl) as Region(rank); // XXXX why?
 
         } else if (t instanceof UnionRegion) {
@@ -125,7 +125,7 @@ value class PolyRegion extends BaseRegion {
      */
 
     public def projection(axis: int): Region(1) {
-        var hl: HalfspaceList = halfspaces;
+        var hl: PolyMat = halfspaces;
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
                 hl = hl.eliminate(k, true);
@@ -152,21 +152,21 @@ value class PolyRegion extends BaseRegion {
         if (!(r instanceof PolyRegion))
             throw U.unsupported(this, "product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
-        val hlb = new HalfspaceListBuilder(this.rank + that.rank);
+        val hlb = new PolyMatBuilder(this.rank + that.rank);
         copy(hlb, this.halfspaces, 0);         // padded w/ 0s on the right
         copy(hlb, that.halfspaces, this.rank); // padded w/ 0s on the left
-        val hl = hlb.toHalfspaceList();
+        val hl = hlb.toPolyMat();
         return PolyRegion.make(hl);
     }
 
-    private static def copy(tt: HalfspaceListBuilder, ff: HalfspaceList, offset: int): void {
-        for (h:Halfspace in ff) {
+    private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset: int): void {
+        for (h:PolyRow in ff) {
             val f = h;
             val t = Rail.makeVar[int](tt.rank+1);
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
             t(tt.rank) = f(ff.rank);
-            tt.add(new Halfspace(t));
+            tt.add(new PolyRow(t));
         }
     }
 
@@ -179,16 +179,16 @@ value class PolyRegion extends BaseRegion {
         
         val rl = new PolyRegionListBuilder(rank);
 
-        for (h:Halfspace in halfspaces) {
-            val hi = h as Halfspace(rank); // XXXX
-            val hlb = new HalfspaceListBuilder(rank);
+        for (h:PolyRow in halfspaces) {
+            val hi = h as PolyRow(rank); // XXXX
+            val hlb = new PolyMatBuilder(rank);
             hlb.add(hi.complement());
-            for (hj:Halfspace in halfspaces) {
+            for (hj:PolyRow in halfspaces) {
                 if (hj==hi)
                     break;
                 hlb.add(hj);
             }
-            val hl = hlb.toHalfspaceList();
+            val hl = hlb.toPolyMat();
             val r = PolyRegion.make(hl);
             rl.add(r as Region(rank)); // XXXX
         }
@@ -217,9 +217,9 @@ value class PolyRegion extends BaseRegion {
     protected def computeBoundingBox(): Region(rank) {
         val min = Rail.makeVar[int](rank);
         val max = Rail.makeVar[int](rank);
-        var hl: HalfspaceList = halfspaces;
+        var hl: PolyMat = halfspaces;
         for (var axis: int = 0; axis<rank; axis++) {
-            var x: HalfspaceList = hl;
+            var x: PolyMat = hl;
             for (var k: int = axis+1; k<rank; k++)
                 x = x.eliminate(k, true);
             min(axis) = x.rectMin(axis);
@@ -236,7 +236,7 @@ value class PolyRegion extends BaseRegion {
 
     public def contains(p: Point): boolean {
 
-        for (h:Halfspace in halfspaces) {
+        for (h:PolyRow in halfspaces) {
             if (!h.contains(p))
                 return false;
         }
@@ -257,18 +257,18 @@ value class PolyRegion extends BaseRegion {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    private const ROW: int = HalfspaceListBuilder.X(0);
-    private const COL: int = HalfspaceListBuilder.X(1);
+    private const ROW: int = PolyMatBuilder.X(0);
+    private const COL: int = PolyMatBuilder.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
-        val hlb = new HalfspaceListBuilder(2);
+        val hlb = new PolyMatBuilder(2);
         hlb.add(ROW, hlb.GE, rowMin);
         hlb.add(ROW, hlb.LE, rowMax);
         hlb.add(COL, hlb.GE, colMin);
         hlb.add(COL, hlb.LE, colMax);
         hlb.add(COL-ROW, hlb.GE, colMin-rowMin-(lower-1));
         hlb.add(COL-ROW, hlb.LE, colMin-rowMin+(upper-1));
-        val hl = hlb.toHalfspaceList();
+        val hl = hlb.toPolyMat();
         return PolyRegion.make(hl);
     }
 
@@ -277,20 +277,20 @@ value class PolyRegion extends BaseRegion {
     }
 
     public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        var hlb: HalfspaceListBuilder{rank==2} = new HalfspaceListBuilder(2);
+        var hlb: PolyMatBuilder{rank==2} = new PolyMatBuilder(2);
         hlb.add(ROW, hlb.GE, rowMin);
         hlb.add(COL, hlb.LE, colMin+size-1);
         hlb.add(COL-ROW, hlb.GE, colMin-rowMin);
-        val hl = hlb.toHalfspaceList(true);
+        val hl = hlb.toPolyMat(true);
         return PolyRegion.make(hl);
     }
 
     public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        val hlb = new HalfspaceListBuilder(2);
+        val hlb = new PolyMatBuilder(2);
         hlb.add(COL, hlb.GE, colMin);
         hlb.add(ROW, hlb.LE, rowMin+size-1);
         hlb.add(ROW-COL, hlb.GE, rowMin-colMin);
-        val hl = hlb.toHalfspaceList(true);
+        val hl = hlb.toPolyMat(true);
         return PolyRegion.make(hl);
     }
 
@@ -301,7 +301,7 @@ value class PolyRegion extends BaseRegion {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static def make(hl: HalfspaceList): Region(hl.rank) {
+    public static def make(hl: PolyMat): Region(hl.rank) {
         if (hl.isEmpty()) {
             return new EmptyRegion(hl.rank);
         } else  if (hl.isRect() && hl.isBounded())
@@ -310,7 +310,7 @@ value class PolyRegion extends BaseRegion {
             return new PolyRegion(hl, false);
     }
 
-    protected def this(val hl: HalfspaceList, hack198:boolean): PolyRegion{rank==hl.rank} {
+    protected def this(val hl: PolyMat, hack198:boolean): PolyRegion{rank==hl.rank} {
 
         super(hl.rank, hl.isRect(), hl.isZeroBased());
 
