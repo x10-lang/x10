@@ -19,7 +19,7 @@ import x10.array.mat.*;
  * @author bdlucas
  */
 
-value class HalfspaceList(rank: int) extends Mat[Halfspace] {
+public value class HalfspaceList(rank: int) extends Mat[Halfspace] {
 
     static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
     static type HalfspaceListBuilder(rank:nat) = HalfspaceListBuilder{self.rank==rank};
@@ -35,12 +35,22 @@ value class HalfspaceList(rank: int) extends Mat[Halfspace] {
      * Low-level constructor. For greater convenience use HalfspaceListBuilder.
      */
 
-    def this(rank:nat, halfspaces: ValRail[Halfspace], isSimplified:boolean):
+    public def this(rank:nat, halfspaces: ValRail[Halfspace], isSimplified:boolean):
         HalfspaceList(rank)
     {
         super(rank+1, halfspaces);
         property(rank);
         this.isSimplified = isSimplified;
+    }
+
+    public def this(rows:nat, cols:nat, init:(i:nat,j:nat)=>int) {
+        super(rows, cols, (i:nat)=>new Halfspace(cols, (j:nat)=>init(i,j)));
+        property(cols-1);
+        this.isSimplified = true; // XXX
+    }
+
+    public def this(rows:nat, cols:nat, init:ValRail[ValRail[int]]) {
+        this(rows, cols, (i:nat,j:nat)=>init(i)(j));
     }
 
 
@@ -245,6 +255,44 @@ value class HalfspaceList(rank: int) extends Mat[Halfspace] {
             if (h(rank)>0)
                 return true;
         return false;
+    }
+
+
+    /**
+     * Matrix multiplication.
+     */
+
+    public def $times(that: HalfspaceList) {
+        return new HalfspaceList(this.rows, that.cols, (i:nat,j:nat) => {
+            var sum:int = 0;
+            for (var k:int=0; k<this.cols; k++)
+                sum += this(i)(k)*that(k)(j);
+            return sum;
+        });
+    }
+
+
+    /**
+     * Matrix times vector.
+     */
+
+    public def $times(p:Point):Point {
+        return Point.make(p.rank, (i:nat)=> {
+            var sum:int = this(i)(p.rank);
+            for (var j:int=0; j<p.rank; j++)
+                sum += p(j)*this(i)(j);
+            return sum;
+        });
+    }
+
+    /**
+     * Concatenate matrices
+     */
+
+    public def $or(that: HalfspaceList) {
+        return new HalfspaceList(this.rows+that.rows, this.cols, (i:nat,j:nat) =>
+            i<this.rows? this(i)(j) : that(i-this.rows)(j)
+        );
     }
 
 

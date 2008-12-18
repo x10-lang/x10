@@ -60,7 +60,7 @@ import x10.array.mat.*;
  * @author bdlucas
  */
 
-final public class PolyScanner implements Region.Scanner {
+public /*final*/ public class PolyScanner implements Region.Scanner {
 
     private val rank: int;
 
@@ -69,7 +69,7 @@ final public class PolyScanner implements Region.Scanner {
     private val minSum: Rail[VarMat];
     private val maxSum: Rail[VarMat];
 
-    def this(var hl: HalfspaceList): PolyScanner {
+    public def this(var hl: HalfspaceList): PolyScanner {
 
         this.rank = hl.rank;
 
@@ -93,7 +93,6 @@ final public class PolyScanner implements Region.Scanner {
         // count
         var imin: int = 0;
         var imax: int = 0;
-
         for (h:Halfspace in hl) {
             if (h(axis)<0) imin++;
             if (h(axis)>0) imax++;
@@ -132,13 +131,13 @@ final public class PolyScanner implements Region.Scanner {
 
     }
 
-    final public def set(axis: int, position: int): void {
+    final public def set(axis: int, v: int): void {
         for (var k: int = axis+1; k<rank; k++)
             for (var l: int = 0; l<minSum(k).rows; l++)
-                minSum(k)(l)(axis+1) = min(k)(l)(axis)*position + minSum(k)(l)(axis);
+                minSum(k)(l)(axis+1) = min(k)(l)(axis)*v + minSum(k)(l)(axis);
         for (var k: int = axis+1; k<rank; k++)
             for (var l: int = 0; l<maxSum(k).rows; l++)
-                maxSum(k)(l)(axis+1) = max(k)(l)(axis)*position + maxSum(k)(l)(axis);
+                maxSum(k)(l)(axis+1) = max(k)(l)(axis)*v + maxSum(k)(l)(axis);
     }
 
     final public def min(axis: int): int {
@@ -162,6 +161,99 @@ final public class PolyScanner implements Region.Scanner {
         }
         return result;
     }
+
+
+    /**
+     * odometer-style iterator for this scanner
+     *
+     * hasNext() computes the k that is the axis to be bumped:
+     *
+     * axis    0    1         k        k+1
+     * now   x[0] x[1] ...  x[k]   max[k+1] ...  max[rank-1]
+     * next  x[0] x[1] ...  x[k]+1 min[k+1] ...  min[rank-1]
+     *
+     * i.e. bump k, reset k+1 through rank-1
+     * finished if k<0
+     *
+     * next() does the bumping and resetting
+     */
+
+    final private class RailIt implements Iterator[Rail[int]] {
+        
+        private val rank: int = PolyScanner.this.rank;
+        private val s: Region.Scanner = PolyScanner.this;
+
+        private val x = Rail.makeVar[int](rank);
+        private val min = Rail.makeVar[int](rank);
+        private val max = Rail.makeVar[int](rank);
+
+        private var k: int;
+
+        def this() {
+            min(0) = s.min(0);
+            max(0) = s.max(0);
+            x(0) = min(0);
+            for (k=1; k<rank; k++) {
+                s.set(k-1, x(k-1));
+                val m = s.min(k);
+                x(k) = m;
+                min(k) = m;
+                max(k) = s.max(k);
+            }
+            x(rank-1)--;
+        }
+
+        final public def hasNext(): boolean {
+            k = rank-1;
+            while (x(k)>=max(k))
+                if (--k<0)
+                    return false;
+            return true;
+        }
+
+        final public def next() {
+            x(k)++;
+            for (k=k+1; k<rank; k++) {
+                s.set(k-1, x(k-1));
+                val m = s.min(k);
+                x(k) = m;
+                min(k) = m;
+                max(k) = s.max(k);
+            }
+            return x;
+        }
+
+        public def remove() {}
+    }
+
+    /**
+     * required by API, but less efficient b/c of allocation
+     * XXX figure out how to expose
+     *   1. Any/Var/ValPoint?
+     *   2. hide inside iterator(body:(Point)=>void)?
+     */
+
+    final private class PointIt implements Iterator[Point(PolyScanner.this.rank)] {
+
+        val it: RailIt;
+
+        def this() {
+            it = new RailIt();
+        }
+
+        public final def hasNext() = it.hasNext();
+        public final def next(): Point(rank) = it.next() to Point(rank);
+        public final def remove() = it.remove();
+    }
+
+    public def iterator(): Iterator[Point(rank)] {
+        return new PointIt();
+    }
+
+
+    //
+    // debugging info
+    //
 
     public def printInfo(ps: Printer): void {
         for (var k: int = 0; k<min.length; k++) {
