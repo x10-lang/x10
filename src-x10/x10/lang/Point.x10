@@ -50,6 +50,17 @@ final public value class Point(rank: nat) implements Indexable[nat,int] {
         return make(a);
     }
 
+    /**
+     * Constructs a Point from a closure that computes the points
+     * coordinates.
+     */
+
+    public static def make(rank:nat, init:(i:nat)=>int) {
+        val a = Rail.makeVal[int](rank, init);
+        return make(a);
+    }
+
+
     public static def make(i0:int) = make([i0]);
     public static def make(i0:int, i1:int) = make([i0,i1]);
     public static def make(i0:int, i1:int, i2:int) = make([i0,i1,i2]);
