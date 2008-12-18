@@ -72,9 +72,9 @@ public class HashMap[-K,V] implements Map[K,V] {
         return k == null ? 0 : (k.hashCode() * 17);
     }
     
-    public def apply(k: K): Box[V] = get(k);
+    public safe def apply(k: K): Box[V] = get(k);
     
-    public def get(k: K): Box[V] {
+    public safe def get(k: K): Box[V] {
         val e = getEntry(k);
         if (e == null) return null;
         return e.value to Box[V];
@@ -111,7 +111,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         }
     }
     
-    public def put(k: K, v: V): Box[V] {
+    public safe def put(k: K, v: V): Box[V] {
         if (size == table.length || shouldRehash)
             rehash();
         
