@@ -422,7 +422,8 @@ public class X10Flags extends Flags {
                  
 
                       sb.append(s);
-                      sb.append(" ");
+                      if (i.hasNext())
+                          sb.append(" ");
                   }
 
                   return sb.toString();
