@@ -31,7 +31,7 @@ final value class RectRegion extends PolyRegion {
      * allow unbounded regions
      */
 
-    def this(val hl: HalfspaceList): RectRegion{rank==hl.rank && rect} {
+    def this(val hl: PolyMat): RectRegion{rank==hl.rank && rect} {
 
         super(hl, true);
 
@@ -53,13 +53,13 @@ final value class RectRegion extends PolyRegion {
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        val hlb = new HalfspaceListBuilder(min.length);
+        val hlb = new PolyMatBuilder(min.length);
         for (var i: int = 0; i<min.length; i++) {
             hlb.add(hlb.X(i), hlb.GE, min(i));
             hlb.add(hlb.X(i), hlb.LE, max(i));
         }
 
-        val hl = hlb.toHalfspaceList(true);
+        val hl = hlb.toPolyMat(true);
         return new RectRegion(hl);
     }
 

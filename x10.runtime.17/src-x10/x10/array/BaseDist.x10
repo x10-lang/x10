@@ -22,8 +22,8 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
-    static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
+    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
 
     //
     // factories - place is all applicable places
