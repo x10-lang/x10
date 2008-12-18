@@ -78,92 +78,10 @@ value class PolyRegion extends BaseRegion {
     }
 
 
-    /**
-     * odometer-style iterator
-     *
-     * hasNext() computes the k that is the axis to be bumped:
-     *
-     * axis    0    1         k        k+1
-     * now   x[0] x[1] ...  x[k]   max[k+1] ...  max[rank-1]
-     * next  x[0] x[1] ...  x[k]+1 min[k+1] ...  min[rank-1]
-     *
-     * i.e. bump k, reset k+1 through rank-1
-     * finished if k<0
-     *
-     * next() does the bumping and resetting
-     */
-
-    final private class RailIt implements Iterator[Rail[int]] {
-        
-        private val rank: int = PolyRegion.this.rank;
-        private val s: Region.Scanner = scanner();
-
-        private val x = Rail.makeVar[int](rank);
-        private val min = Rail.makeVar[int](rank);
-        private val max = Rail.makeVar[int](rank);
-
-        private var k: int;
-
-        def this() {
-            min(0) = s.min(0);
-            max(0) = s.max(0);
-            x(0) = min(0);
-            for (k=1; k<rank; k++) {
-                s.set(k-1, x(k-1));
-                val m = s.min(k);
-                x(k) = m;
-                min(k) = m;
-                max(k) = s.max(k);
-            }
-            x(rank-1)--;
-        }
-
-        final public def hasNext(): boolean {
-            k = rank-1;
-            while (x(k)>=max(k))
-                if (--k<0)
-                    return false;
-            return true;
-        }
-
-        final public def next() {
-            x(k)++;
-            for (k=k+1; k<rank; k++) {
-                s.set(k-1, x(k-1));
-                val m = s.min(k);
-                x(k) = m;
-                min(k) = m;
-                max(k) = s.max(k);
-            }
-            return x;
-        }
-
-        public def remove() {}
-    }
-
-    /**
-     * required by API, but less efficient b/c of allocation
-     * XXX figure out how to expose
-     *   1. Any/Var/ValPoint?
-     *   2. hide inside iterator(body:(Point)=>void)?
-     */
-
-    public class PointIt implements Iterator[Point(PolyRegion.this.rank)] {
-
-        val it: RailIt;
-
-        def this() {
-            it = new RailIt();
-        }
-
-        public final def hasNext() = it.hasNext();
-        public final def next(): Point(rank) = it.next() to Point(rank);
-        public final def remove() = it.remove();
-    }
-
-
     public def iterator(): Iterator[Point(rank)] {
-        return new PointIt();
+        //return new PointIt();
+        //return scanner().iterator();
+        return new PolyScanner(halfspaces).iterator() to Iterator[Point(rank)]; // XXXX cast
     }
 
 
