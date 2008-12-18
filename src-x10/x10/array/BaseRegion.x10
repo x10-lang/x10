@@ -21,8 +21,8 @@ abstract public value class BaseRegion extends Region {
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
-    static type Halfspace(rank:nat) = Halfspace{self.rank==rank};
-    static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
+    static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
+    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
     static type BaseRegion(rank:int) = BaseRegion{self.rank==rank};
 
 
@@ -44,10 +44,10 @@ abstract public value class BaseRegion extends Region {
 
     public static def makeHalfspace1(normal:Point, k:int): Region(normal.rank) {
         val rank = normal.rank;
-        val hlb = new HalfspaceListBuilder(rank);
-        val h = new Halfspace(normal, k);
+        val hlb = new PolyMatBuilder(rank);
+        val h = new PolyRow(normal, k);
         hlb.add(h);
-        val hl = hlb.toHalfspaceList();
+        val hl = hlb.toPolyMat();
         return PolyRegion.make(hl) as Region(normal.rank); // XXXX
     }
 

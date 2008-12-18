@@ -9,23 +9,23 @@ import x10.io.Printer;
 
 
 /**
- * A utility class for constructing a list of Halfspaces, to
- * eventually be turned into a HalfspaceList.
+ * A utility class for constructing a list of PolyRows, to
+ * eventually be turned into a PolyMat.
  *
  * @author bdlucas
  */
 
-class HalfspaceListBuilder(rank: int) extends ArrayList[Halfspace] {
+class PolyMatBuilder(rank: int) extends ArrayList[PolyRow] {
 
     // XTENLANG-49
-    static type HalfspaceList(rank:nat) = HalfspaceList{self.rank==rank};
-    static type HalfspaceListBuilder(rank:nat) = HalfspaceListBuilder{self.rank==rank};
+    static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
+    static type PolyMatBuilder(rank:nat) = PolyMatBuilder{self.rank==rank};
 
     /**
      * Create a new empty builder.
      */
 
-    public def this(val rank: int): HalfspaceListBuilder{self.rank==rank} {
+    public def this(val rank: int): PolyMatBuilder{self.rank==rank} {
         this.rank = rank;
     }
 
@@ -33,19 +33,19 @@ class HalfspaceListBuilder(rank: int) extends ArrayList[Halfspace] {
      * Get the result.
      */
 
-    def toHalfspaceList(): HalfspaceList(rank) = toHalfspaceList(false);
+    def toPolyMat(): PolyMat(rank) = toPolyMat(false);
 
-    def toHalfspaceList(isSimplified:boolean): HalfspaceList(rank) {
+    def toPolyMat(isSimplified:boolean): PolyMat(rank) {
         sort();
-        val result = new HalfspaceList(rank, toValRail(), isSimplified);
-        return result as HalfspaceList(rank); // XXXX
+        val result = new PolyMat(rank, toValRail(), isSimplified);
+        return result as PolyMat(rank); // XXXX
     }
 
 
     /**
      * a simple mechanism of somewhat dubious utility to allow
      * semi-symbolic specification of halfspaces. For example
-     * X0-Y1 >= n is specified as addHalfspace(X(0)-Y(1), GE, n)
+     * X0-Y1 >= n is specified as addPolyRow(X(0)-Y(1), GE, n)
      *
      * XXX coefficients must be -1,0,+1; can allow larger coefficients
      * by increasing # bits per coeff
@@ -69,7 +69,7 @@ class HalfspaceListBuilder(rank: int) extends ArrayList[Halfspace] {
             coeff = coeff >> 2;
         }
         as(rank) = op==LE? -k : k;
-        add(new Halfspace(as));
+        add(new PolyRow(as));
     }
 
 }
