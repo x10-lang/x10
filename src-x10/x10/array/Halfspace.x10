@@ -23,7 +23,7 @@ import x10.array.mat.*;
  * @author bdlucas
  */
 
-value class Halfspace(rank:nat) extends ValRow implements Comparable[Halfspace] {
+public value class Halfspace(rank:nat) extends ValRow implements Comparable[Halfspace] {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
@@ -43,6 +43,11 @@ value class Halfspace(rank:nat) extends ValRow implements Comparable[Halfspace] 
     def this(p:Point, k:int) {
         super(p.rank+1, (i:nat) => i<p.rank? p(i) : k);
         property(p.rank);
+    }
+
+    def this(cols:int, init: (i:nat)=>int) {
+        super(cols, init);
+        property(cols-1);
     }
 
 
