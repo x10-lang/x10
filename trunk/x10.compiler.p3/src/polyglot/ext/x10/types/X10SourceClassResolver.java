@@ -8,44 +8,221 @@
 
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.StringTokenizer;
 
+import polyglot.frontend.ClassPathResourceLoader;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.LazyRef;
-import polyglot.types.Matcher;
-import polyglot.types.MethodDef;
+import polyglot.frontend.FileSource;
+import polyglot.frontend.Goal;
+import polyglot.frontend.Job;
+import polyglot.frontend.Resource;
+import polyglot.frontend.ResourceLoader;
+import polyglot.frontend.Scheduler;
+import polyglot.main.Report;
+import polyglot.main.Version;
 import polyglot.types.Named;
+import polyglot.types.NoClassException;
 import polyglot.types.QName;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
-import polyglot.types.SourceClassResolver;
-import polyglot.types.Type;
-import polyglot.types.Types;
-import polyglot.types.TypeSystem_c.TypeMatcher;
-import polyglot.types.reflect.ClassFileLoader;
-import polyglot.util.StringUtil;
+import polyglot.types.TopLevelResolver;
+import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.TypeEncoder;
 
-public class X10SourceClassResolver extends SourceClassResolver {
-	public X10SourceClassResolver(Compiler compiler, ExtensionInfo ext, String classpath, ClassFileLoader loader, boolean allowRawClasses,
-			boolean compileCommandLineOnly, boolean ignoreModTimes) {
-		super(compiler, ext, classpath, loader, allowRawClasses, compileCommandLineOnly, ignoreModTimes);
-	}
+/**
+ * Loads class information from class files, or serialized class infomation from
+ * within class files. It does not load from source files.
+ */
+public class X10SourceClassResolver implements TopLevelResolver {
+    protected final static int NOT_COMPATIBLE = -1;
+    protected final static int MINOR_NOT_COMPATIBLE = 1;
+    protected final static int COMPATIBLE = 0;
 
-	@Override
-	public Named find(QName name) throws SemanticException {
-		X10TypeSystem ts = (X10TypeSystem) this.ts;
-		
-		if (name.equals(QName.make("x10.lang.Box"))) return (Named) ts.Box();
-		if (name.equals(QName.make("x10.lang.Void"))) return (Named) ts.Void();
+    protected X10TypeSystem ts;
+    protected TypeEncoder te;
+    protected String classpath;
+    protected Version version;
+    protected Set<QName> nocache;
 
-		return super.find(name);
-	}
+    protected final static Collection<String> report_topics = CollectionUtil.list(Report.types, Report.resolver, Report.loader);
+
+    protected Compiler compiler;
+    protected ExtensionInfo ext;
+    protected boolean compileCommandLineOnly;
+    protected boolean ignoreModTimes;
+
+    /**
+     * Create a loaded class resolver.
+     * 
+     * @param compiler
+     *            The compiler.
+     * @param ext
+     *            The extension to load sources for.
+     * @param classpath
+     *            The class path.
+     * @param compileCommandLineOnly
+     *            TODO
+     * @param ignoreModTimes
+     *            TODO
+     */
+    public X10SourceClassResolver(Compiler compiler, ExtensionInfo ext, String classpath, boolean compileCommandLineOnly, boolean ignoreModTimes) {
+
+        this.ts = (X10TypeSystem) ext.typeSystem();
+        this.te = new TypeEncoder(this.ts);
+        this.classpath = classpath;
+        this.version = ext.version();
+        this.nocache = new HashSet<QName>();
+
+        this.compiler = compiler;
+        this.ext = ext;
+        this.compileCommandLineOnly = compileCommandLineOnly;
+        this.ignoreModTimes = ignoreModTimes;
+    }
+
+    ClassPathResourceLoader loader;
+    
+    /**
+     * Load a class file for class <code>name</code>.
+     */
+    protected Resource loadFile(QName name) {
+        if (nocache.contains(name)) {
+            return null;
+        }
+        
+        if (loader == null)
+            loader = new ClassPathResourceLoader(classpath);
+
+        try {
+            Resource clazz = loader.loadResource(name.toString());
+
+            if (clazz == null) {
+                if (Report.should_report(report_topics, 4)) {
+                    Report.report(4, "Class " + name + " not found in classpath " + loader.classpath());
+                }
+            }
+            else {
+                if (Report.should_report(report_topics, 4)) {
+                    Report.report(4, "Class " + name + " found in classpath " + loader.classpath());
+                }
+                return clazz;
+            }
+        }
+        catch (ClassFormatError e) {
+            if (Report.should_report(report_topics, 4))
+                Report.report(4, "Class " + name + " format error");
+        }
+
+        nocache.add(name);
+
+        return null;
+    }
+
+    public Named find(QName name) throws SemanticException {
+        X10TypeSystem ts = (X10TypeSystem) this.ts;
+
+        if (name.equals(QName.make("x10.lang.Void")))
+            return (Named) ts.Void();
+        if (name.equals(QName.make("x10.lang.Box")))
+            return (Named) ts.Box();
+
+        if (Report.should_report(report_topics, 3))
+            Report.report(3, "SourceCR.find(" + name + ")");
+
+        Resource clazz = null;
+        FileSource source = null;
+
+        // First try the class file.
+        clazz = loadFile(name);
+        
+        // Now, try to find the source file.
+        source = ext.sourceLoader().classSource(name);
+
+        // Check if a job for the source already exists.
+        if (source != null && ext.scheduler().sourceHasJob(source)) {
+            // the source has already been compiled; what are we doing here?
+            return getTypeFromSource(source, name, !compileCommandLineOnly);
+        }
+        
+        if (source == null) {
+            throw new NoClassException(name.toString());
+        }
+
+        // Check if the .class file exists; if so we don't need to compile the source completely.
+        // We decide which to use based on modification times.
+        if (clazz != null) {
+            long classModTime = clazz.file().lastModified();
+            long sourceModTime = source.lastModified().getTime();
+
+            if (!ignoreModTimes && classModTime < sourceModTime) {
+                if (Report.should_report(report_topics, 3))
+                    Report.report(3, "Source file version is newer than compiled for " + name + ".");
+                clazz = null;
+            }
+        }
+
+        Named result = null;
+        
+        if (source != null) {
+            if (Report.should_report(report_topics, 4))
+                Report.report(4, "Using source file for " + name);
+            result = getTypeFromSource(source, name, !compileCommandLineOnly && clazz == null);
+        }
+
+        // Verify that the type we loaded has the right name. This prevents,
+        // for example, requesting a type through its mangled (class file) name.
+        if (result != null) {
+            return result;
+        }
+
+        throw new NoClassException(name.toString());
+    }
+    
+    public boolean packageExists(QName name) {
+        if (ext.sourceLoader().packageExists(name)) {
+            return true;
+        }
+        return false;
+    }
+    
+    protected Named getTypeFromSource(FileSource source, QName name, boolean compile) throws SemanticException {
+        Scheduler scheduler = ext.scheduler();
+        Job job = scheduler.loadSource(source, compile);
+        
+        if (Report.should_report("sourceloader", 3))
+            new Exception("loaded " + source).printStackTrace();
+        
+        if (job != null) {
+            Named n = ts.systemResolver().check(name);
+        
+            if (n != null) {
+                return n;
+            }
+        
+            Goal g = scheduler.PreTypeCheck(job);
+        
+            if (!scheduler.reached(g)) {
+                try {
+                    scheduler.attempt(g);
+                }
+                catch (CyclicDependencyException e) {
+                    throw new InternalCompilerError("Could not initialize symbol table for " + source + "; cyclic dependency found.", e);
+                }
+            }
+        
+            n = ts.systemResolver().check(name);
+        
+            if (n != null) {
+                return n;
+            }
+        }
+        
+        // The source has already been compiled, but the type was not created
+        // there.
+        throw new NoClassException("Could not find \"" + name + "\" in " + source + ".");
+    }
 }

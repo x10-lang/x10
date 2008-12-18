@@ -24,6 +24,7 @@ import polyglot.ext.x10.plugin.LoadPlugins;
 import polyglot.ext.x10.plugin.RegisterPlugins;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10SourceClassResolver;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.AssignPropertyChecker;
 import polyglot.ext.x10.visit.CastRewriter;
@@ -40,6 +41,7 @@ import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -48,10 +50,11 @@ import polyglot.frontend.Job;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.SourceGoal_c;
+import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
-import polyglot.types.LoadedClassResolver;
 import polyglot.types.MemberClassResolver;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -137,7 +140,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //          if (reader instanceof polyglot.lex.EscapedUnicodeReader)
 //              reader = ((polyglot.lex.EscapedUnicodeReader)reader).getSource();
             X10Lexer x10_lexer =
-                source.getClass()==FileSource.class ? // Optimization: it's faster to read from a file
+                // Optimization: it's faster to read from a file
+                source instanceof FileSource && ((FileSource) source).resource().getClass() == FileResource.class ?
                                 new X10Lexer(source.path()) :
                                 new X10Lexer(reader, source.toString());
             X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
@@ -151,17 +155,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
     protected void initTypeSystem() {
 	        try {
-	            LoadedClassResolver lr;
-	            lr = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-	                                         compiler.loader(), false,
-	                                         getOptions().compile_command_line_only,
-	                                         getOptions().ignore_mod_times);
+	            TopLevelResolver r = new X10SourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+	                                                            getOptions().compile_command_line_only,
+	                                                            getOptions().ignore_mod_times);
 
-	            TopLevelResolver r = lr;
 
 	            // Resolver to handle lookups of member classes.
 	            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-	                MemberClassResolver mcr = new MemberClassResolver(ts, lr, true);
+	                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
 	                r = mcr;
 	            }
 
@@ -270,6 +271,19 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     		    };
     	    }
        }
+       
+       public Goal Serialized(Job job) {
+           Compiler compiler = job.extensionInfo().compiler();
+           X10TypeSystem ts = (X10TypeSystem) job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           TargetFactory tf = job.extensionInfo().targetFactory();
+           return new SourceGoal_c("Serialized", job) {
+                public boolean runTask() {
+                   return true;
+                }
+           }.intern(this);
+       }
+
 
 //       @Override
 //       public Goal ImportTableInitialized(Job job) {
