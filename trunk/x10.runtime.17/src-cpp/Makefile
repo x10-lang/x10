@@ -8,7 +8,8 @@ CXXFLAGS += -g
 INCLUDE_DIRS += -I$(X10LIB)/include -I.
 ifdef ENABLE_GC
 CXXFLAGS += -DX10_USE_BDWGC
-INCLUDE_DIRS += -Ibdwgc/install/include
+BDWGC_INCLUDE_DIR= $(abspath ./bdwgc/install/include)
+INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 CXXFLAGS += $(INCLUDE_DIRS)
 ifeq ($(shell uname -s),AIX)
