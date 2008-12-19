@@ -17,7 +17,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-value class PolyRegion extends BaseRegion {
+public value class PolyRegion extends BaseRegion {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
@@ -30,7 +30,7 @@ value class PolyRegion extends BaseRegion {
     // value
     //
 
-    protected val halfspaces: PolyMat;
+    public val mat: PolyMat;
 
 
     //
@@ -74,14 +74,14 @@ value class PolyRegion extends BaseRegion {
     }
 
     protected def scanner(): Region.Scanner {
-        return new PolyScanner(halfspaces);
+        return new PolyScanner(mat);
     }
 
 
     public def iterator(): Iterator[Point(rank)] {
         //return new PointIt();
         //return scanner().iterator();
-        return new PolyScanner(halfspaces).iterator() to Iterator[Point(rank)]; // XXXX cast
+        return new PolyScanner(mat).iterator() to Iterator[Point(rank)]; // XXXX cast
     }
 
 
@@ -95,19 +95,19 @@ value class PolyRegion extends BaseRegion {
 
             // start
             val that = t as PolyRegion; // XXX
-            val hlb = new PolyMatBuilder(rank);
+            val pmb = new PolyMatBuilder(rank);
 
             // these halfspaces
-            for (h:PolyRow in this.halfspaces)
-                hlb.add(h);
+            for (r:PolyRow in this.mat)
+                pmb.add(r);
 
             // those halfspaces
-            for (h:PolyRow in that.halfspaces)
-                hlb.add(h);
+            for (r:PolyRow in that.mat)
+                pmb.add(r);
 
             // done
-            val hl = hlb.toPolyMat();
-            return PolyRegion.make(hl) as Region(rank); // XXXX why?
+            val pm = pmb.toSortedPolyMat(false);
+            return PolyRegion.make(pm) as Region(rank); // XXXX why?
 
         } else if (t instanceof UnionRegion) {
 
@@ -125,11 +125,11 @@ value class PolyRegion extends BaseRegion {
      */
 
     public def projection(axis: int): Region(1) {
-        var hl: PolyMat = halfspaces;
+        var pm: PolyMat = mat;
         for (var k: int = 0; k<rank; k++)
             if (k!=axis)
-                hl = hl.eliminate(k, true);
-        return Region.makeRectangular(hl.rectMin(axis), hl.rectMax(axis)) as Region(1);
+                pm = pm.eliminate(k, true);
+        return Region.makeRectangular(pm.rectMin(axis), pm.rectMax(axis)) as Region(1);
     }
 
     /**
@@ -138,8 +138,8 @@ value class PolyRegion extends BaseRegion {
 
     // XXX add a test case for this; also for projection!
     public def eliminate(axis: int): Region(rank-1) {
-        val hl = halfspaces.eliminate(axis, true); 
-        val result = PolyRegion.make(hl);
+        val pm = mat.eliminate(axis, true); 
+        val result = PolyRegion.make(pm);
         return result as Region(rank-1);
     }
 
@@ -152,16 +152,16 @@ value class PolyRegion extends BaseRegion {
         if (!(r instanceof PolyRegion))
             throw U.unsupported(this, "product(" + r/*.getClass().getName()*/ + ")");
         val that = r as PolyRegion;
-        val hlb = new PolyMatBuilder(this.rank + that.rank);
-        copy(hlb, this.halfspaces, 0);         // padded w/ 0s on the right
-        copy(hlb, that.halfspaces, this.rank); // padded w/ 0s on the left
-        val hl = hlb.toPolyMat();
-        return PolyRegion.make(hl);
+        val pmb = new PolyMatBuilder(this.rank + that.rank);
+        copy(pmb, this.mat, 0);         // padded w/ 0s on the right
+        copy(pmb, that.mat, this.rank); // padded w/ 0s on the left
+        val pm = pmb.toSortedPolyMat(false);
+        return PolyRegion.make(pm);
     }
 
     private static def copy(tt: PolyMatBuilder, ff: PolyMat, offset: int): void {
-        for (h:PolyRow in ff) {
-            val f = h;
+        for (r:PolyRow in ff) {
+            val f = r;
             val t = Rail.makeVar[int](tt.rank+1);
             for (var i: int = 0; i<ff.rank; i++)
                 t(offset+i) = f(i);
@@ -177,28 +177,27 @@ value class PolyRegion extends BaseRegion {
 
     public def complement(): Region(rank) {
         
-        val rl = new PolyRegionListBuilder(rank);
+        val prlb = new PolyRegionListBuilder(rank);
 
-        for (h:PolyRow in halfspaces) {
-            val hi = h as PolyRow(rank); // XXXX
-            val hlb = new PolyMatBuilder(rank);
-            hlb.add(hi.complement());
-            for (hj:PolyRow in halfspaces) {
-                if (hj==hi)
+        for (r:PolyRow in mat) {
+            val ri = r as PolyRow(rank); // XXXX
+            val pmb = new PolyMatBuilder(rank);
+            pmb.add(ri.complement());
+            for (rj:PolyRow in mat) {
+                if (rj==ri)
                     break;
-                hlb.add(hj);
+                pmb.add(rj);
             }
-            val hl = hlb.toPolyMat();
-            val r = PolyRegion.make(hl);
-            rl.add(r as Region(rank)); // XXXX
+            val pm = pmb.toSortedPolyMat(false);
+            val region = PolyRegion.make(pm);
+            prlb.add(region as Region(rank)); // XXXX
         }
 
-
-        return new UnionRegion(rl);
+        return new UnionRegion(prlb);
     }
 
     public def isEmpty(): boolean {
-        return halfspaces.isEmpty();
+        return mat.isEmpty();
     }
 
 
@@ -217,14 +216,14 @@ value class PolyRegion extends BaseRegion {
     protected def computeBoundingBox(): Region(rank) {
         val min = Rail.makeVar[int](rank);
         val max = Rail.makeVar[int](rank);
-        var hl: PolyMat = halfspaces;
+        var pm: PolyMat = mat;
         for (var axis: int = 0; axis<rank; axis++) {
-            var x: PolyMat = hl;
+            var x: PolyMat = pm;
             for (var k: int = axis+1; k<rank; k++)
                 x = x.eliminate(k, true);
             min(axis) = x.rectMin(axis);
             max(axis) = x.rectMax(axis);
-            hl = hl.eliminate(axis, true);
+            pm = pm.eliminate(axis, true);
         }
         return Region.makeRectangular(min, max);
     }
@@ -236,8 +235,8 @@ value class PolyRegion extends BaseRegion {
 
     public def contains(p: Point): boolean {
 
-        for (h:PolyRow in halfspaces) {
-            if (!h.contains(p))
+        for (r:PolyRow in mat) {
+            if (!r.contains(p))
                 return false;
         }
 
@@ -261,15 +260,15 @@ value class PolyRegion extends BaseRegion {
     private const COL: int = PolyMatBuilder.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
-        val hlb = new PolyMatBuilder(2);
-        hlb.add(ROW, hlb.GE, rowMin);
-        hlb.add(ROW, hlb.LE, rowMax);
-        hlb.add(COL, hlb.GE, colMin);
-        hlb.add(COL, hlb.LE, colMax);
-        hlb.add(COL-ROW, hlb.GE, colMin-rowMin-(lower-1));
-        hlb.add(COL-ROW, hlb.LE, colMin-rowMin+(upper-1));
-        val hl = hlb.toPolyMat();
-        return PolyRegion.make(hl);
+        val pmb = new PolyMatBuilder(2);
+        pmb.add(ROW, pmb.GE, rowMin);
+        pmb.add(ROW, pmb.LE, rowMax);
+        pmb.add(COL, pmb.GE, colMin);
+        pmb.add(COL, pmb.LE, colMax);
+        pmb.add(COL-ROW, pmb.GE, colMin-rowMin-(lower-1));
+        pmb.add(COL-ROW, pmb.LE, colMin-rowMin+(upper-1));
+        val pm = pmb.toSortedPolyMat(false);
+        return PolyRegion.make(pm);
     }
 
     public static def makeBanded(size: int, upper: int, lower: int): Region(2) {
@@ -277,21 +276,21 @@ value class PolyRegion extends BaseRegion {
     }
 
     public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        var hlb: PolyMatBuilder{rank==2} = new PolyMatBuilder(2);
-        hlb.add(ROW, hlb.GE, rowMin);
-        hlb.add(COL, hlb.LE, colMin+size-1);
-        hlb.add(COL-ROW, hlb.GE, colMin-rowMin);
-        val hl = hlb.toPolyMat(true);
-        return PolyRegion.make(hl);
+        var pmb: PolyMatBuilder{rank==2} = new PolyMatBuilder(2);
+        pmb.add(ROW, pmb.GE, rowMin);
+        pmb.add(COL, pmb.LE, colMin+size-1);
+        pmb.add(COL-ROW, pmb.GE, colMin-rowMin);
+        val pm = pmb.toSortedPolyMat(true);
+        return PolyRegion.make(pm);
     }
 
     public static def makeLowerTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        val hlb = new PolyMatBuilder(2);
-        hlb.add(COL, hlb.GE, colMin);
-        hlb.add(ROW, hlb.LE, rowMin+size-1);
-        hlb.add(ROW-COL, hlb.GE, rowMin-colMin);
-        val hl = hlb.toPolyMat(true);
-        return PolyRegion.make(hl);
+        val pmb = new PolyMatBuilder(2);
+        pmb.add(COL, pmb.GE, colMin);
+        pmb.add(ROW, pmb.LE, rowMin+size-1);
+        pmb.add(ROW-COL, pmb.GE, rowMin-colMin);
+        val pm = pmb.toSortedPolyMat(true);
+        return PolyRegion.make(pm);
     }
 
 
@@ -301,22 +300,22 @@ value class PolyRegion extends BaseRegion {
      * special-case subclasses, such as RectRegion, for efficiency
      */
 
-    public static def make(hl: PolyMat): Region(hl.rank) {
-        if (hl.isEmpty()) {
-            return new EmptyRegion(hl.rank);
-        } else  if (hl.isRect() && hl.isBounded())
-            return new RectRegion(hl);
+    public static def make(pm: PolyMat): Region(pm.rank) {
+        if (pm.isEmpty()) {
+            return new EmptyRegion(pm.rank);
+        } else  if (pm.isRect() && pm.isBounded())
+            return new RectRegion(pm);
         else
-            return new PolyRegion(hl, false);
+            return new PolyRegion(pm, false);
     }
 
-    protected def this(val hl: PolyMat, hack198:boolean): PolyRegion{rank==hl.rank} {
+    protected def this(val pm: PolyMat, hack198:boolean): PolyRegion{rank==pm.rank} {
 
-        super(hl.rank, hl.isRect(), hl.isZeroBased());
+        super(pm.rank, pm.isRect(), pm.isZeroBased());
 
         // simplifyAll catches more (all) stuff, but may be expensive.
-        //this.halfspaces = hl.simplifyParallel();
-        this.halfspaces = hl.simplifyAll();
+        //this.mat = pm.simplifyParallel();
+        this.mat = pm.simplifyAll();
 
         // cache stuff up front
         cache = new Cache(this, hack198);
@@ -336,11 +335,11 @@ value class PolyRegion extends BaseRegion {
     //
 
     public def printInfo(out: Printer): void {
-        halfspaces.printInfo(out, /*this.getClass().getName()*/this.toString());
+        mat.printInfo(out, /*this.getClass().getName()*/this.toString());
     }
 
     public def toString(): String {
-        return halfspaces.toString();
+        return mat.toString();
     }
 
 }

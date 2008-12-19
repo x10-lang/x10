@@ -28,30 +28,42 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
     // value
     //
 
-    val isSimplified: boolean;
+    private val isSimplified: boolean;
+    private val r: ValRail[PolyRow];
 
 
     /**
-     * Low-level constructor. For greater convenience use PolyMatBuilder.
+     * Low-level constructors. For greater convenience use PolyMatBuilder.
      */
 
-    public def this(rank:nat, halfspaces: ValRail[PolyRow], isSimplified:boolean):
-        PolyMat(rank)
-    {
-        super(rank+1, halfspaces);
+
+    /*
+    public def this(rank:nat, r: ValRail[PolyRow], isSimplified:boolean): PolyMat(rank) {
+        super(r.length, rank+1);
         property(rank);
+        this.r = r;
         this.isSimplified = isSimplified;
     }
+    */
 
-    public def this(rows:nat, cols:nat, init:(i:nat,j:nat)=>int) {
-        super(rows, cols, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j)));
+    private def this(rows: nat, cols: nat, init:(nat)=>PolyRow, isSimplified:boolean) {
+        super(rows, cols);
         property(cols-1);
-        this.isSimplified = true; // XXX
+        this.isSimplified = isSimplified;
+        r = Rail.makeVal[PolyRow](rows, init);
     }
 
-    public def this(rows:nat, cols:nat, init:ValRail[ValRail[int]]) {
-        this(rows, cols, (i:nat,j:nat)=>init(i)(j));
-    }
+    public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int, isSimplified:boolean)
+        = this(rows, cols, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j)), isSimplified);
+
+    /*
+    public def this(rows:nat, cols:nat, init:ValRail[ValRail[int]], isSimplified:boolean)
+        = this(rows, cols, (i:nat,j:nat)=>init(i)(j), isSimplified);
+    */
+
+    public def apply(i:nat) = r(i);
+
+    public def iterator() = r.iterator();
 
 
     /**
@@ -67,16 +79,16 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
         if (rows==0)
             return this;
 
-        val hlb = new PolyMatBuilder(rank);
+        val pmb = new PolyMatBuilder(rank);
         var last: Box[PolyRow] = null as Box[PolyRow];
         for (next:PolyRow in this) {
             if (last!=null && !next.isParallel(last to PolyRow))
-                hlb.add(last to PolyRow);
+                pmb.add(last to PolyRow);
             last = next to Box[PolyRow];
         }
-        hlb.add(last to PolyRow);
+        pmb.add(last to PolyRow);
 
-        return hlb.toPolyMat();
+        return pmb.toSortedPolyMat(false);
     }
 
 
@@ -94,22 +106,22 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
         if (isSimplified)
             return this;
 
-        val hlb = new PolyMatBuilder(rank);
+        val pmb = new PolyMatBuilder(rank);
         var removed: Rail[boolean] = Rail.makeVar[boolean](rows, (nat)=>false); // XTENLANG-39 workaround
 
         for (var i: int = 0; i<rows; i++) {
-            val h = this(i);
+            val r = this(i);
             val trial = new PolyMatBuilder(rank);
             for (var j: int = 0; j<rows; j++)
                 if (!removed(j))
-                    trial.add(i==j? h.complement() : this(j));
-            if (!trial.toPolyMat().isEmpty())
-                hlb.add(h);
+                    trial.add(i==j? r.complement() : this(j));
+            if (!trial.toSortedPolyMat(false).isEmpty())
+                pmb.add(r);
             else
                 removed(i) = true;
         }
 
-        return hlb.toPolyMat(true);
+        return pmb.toSortedPolyMat(true);
     }
 
 
@@ -130,21 +142,21 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      */
 
     def eliminate(k: int, simplifyDegenerate: boolean): PolyMat {
-        val hlb = new PolyMatBuilder(rank);
-        for (ih:PolyRow in this) {
-            val ia = ih(k);
+        val pmb = new PolyMatBuilder(rank);
+        for (ir:PolyRow in this) {
+            val ia = ir(k);
             if (ia==0) {
-                hlb.add(ih);
+                pmb.add(ir);
             } else {
-                for (jh:PolyRow in this) {
-                    val ja = jh(k);
+                for (jr:PolyRow in this) {
+                    val ja = jr(k);
                     val as = Rail.makeVar[int](rank+1);
                     if (ia>0 && ja<0) {
                         for (var l: int = 0; l<=rank; l++)
-                            as(l) = ia*jh(l) - ja*ih(l);
+                            as(l) = ia*jr(l) - ja*ir(l);
                     } else if (ia<0 && ja>0) {
                         for (var l: int = 0; l<=rank; l++)
-                            as(l) = ja*ih(l) - ia*jh(l);
+                            as(l) = ja*ir(l) - ia*jr(l);
                     }
                     val lim = simplifyDegenerate? rank : rank+1;
                     var degenerate: boolean = true;
@@ -152,13 +164,13 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
                         if (as(l)!=0)
                             degenerate = false;
                     if (!degenerate) {
-                        var h: PolyRow = new PolyRow(as);
-                        hlb.add(h);
+                        var r: PolyRow = new PolyRow(as);
+                        pmb.add(r);
                     }
                 }
             }
         }
-        return hlb.toPolyMat().simplifyParallel();
+        return pmb.toSortedPolyMat(false).simplifyParallel();
     }
 
 
@@ -174,8 +186,8 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      */
 
     def isRect(): boolean {
-        for (h:PolyRow in this) {
-            if (!h.isRect())
+        for (r:PolyRow in this) {
+            if (!r.isRect())
                 return false;
         }
         return true;
@@ -183,10 +195,10 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
 
     def rectMin(axis: int): int {
 
-        for (h:PolyRow in this) {
-            val a = h(axis);
+        for (r:PolyRow in this) {
+            val a = r(axis);
             if (a < 0)
-                return -h(rank()) / a;
+                return -r(rank()) / a;
         }
 
         var msg: String = "axis " + axis + " has no minimum";
@@ -195,10 +207,10 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
     
     def rectMax(axis: int): int {
 
-        for (h:PolyRow in this) {
-            val a = h(axis);
+        for (r:PolyRow in this) {
+            val a = r(axis);
             if (a > 0)
-                return -h(rank()) / a;
+                return -r(rank()) / a;
         }
 
         val msg = "axis " + axis + " has no maximum";
@@ -246,13 +258,13 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
     def isEmpty(): boolean {
 
         // eliminate all variables
-        var hl: PolyMat = this;
+        var pm: PolyMat = this;
         for (var i: int = 0; i<rank; i++)
-            hl = hl.eliminate(i, false);
+            pm = pm.eliminate(i, false);
     
         // look for contradictions
-        for (h:PolyRow in hl)
-            if (h(rank)>0)
+        for (r:PolyRow in pm)
+            if (r(rank)>0)
                 return true;
         return false;
     }
@@ -262,13 +274,13 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * Matrix multiplication.
      */
 
-    public def $times(that: PolyMat) {
+    public def $times(that: ValMat): PolyMat {
         return new PolyMat(this.rows, that.cols, (i:nat,j:nat) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
                 sum += this(i)(k)*that(k)(j);
             return sum;
-        });
+        }, true);
     }
 
 
@@ -291,9 +303,16 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
 
     public def $or(that: PolyMat) {
         return new PolyMat(this.rows+that.rows, this.cols, (i:nat,j:nat) =>
-            i<this.rows? this(i)(j) : that(i-this.rows)(j)
+             i<this.rows? this(i)(j) : that(i-this.rows)(j), true
         );
     }
+
+
+    /**
+     * Identity matrix
+     */
+
+    public static def identity(rank:int) = new PolyMat(rank+1, rank+1, (i:nat,j:nat)=>(i==j?1:0), true);
 
 
     /**
@@ -302,9 +321,9 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
 
     public def printInfo(ps: Printer, label: String): void {
         ps.printf("%s\n", label);
-        for (h:PolyRow in this) {
+        for (r:PolyRow in this) {
             ps.printf("    ");
-            h.printInfo(ps);
+            r.printInfo(ps);
         }
 
     }
@@ -314,9 +333,9 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
         var s: String = "(";
         var first: boolean = true;
 
-        for (h:PolyRow in this) {
+        for (r:PolyRow in this) {
             if (!first) s += " && ";
-            s += h.toString();
+            s += r.toString();
             first = false;
         }
 

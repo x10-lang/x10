@@ -14,8 +14,8 @@ import x10.array.mat.*;
  *
  *     a0*x0 + a1*x1 + ... + constant <= 0
  *
- * The as are stored in the first rank elements of the as[] array; the
- * constant is stored in as[rank()] (using homogeneous coordinates).
+ * The as are stored in the first rank elements of ValRow.this; the
+ * constant is stored in this(rank) (using homogeneous coordinates).
  *
  * Equivalently, this class may be considered to represent a linear
  * inequality constraint, or a row in a constraint matrix.
@@ -23,7 +23,7 @@ import x10.array.mat.*;
  * @author bdlucas
  */
 
-public value class PolyRow(rank:nat) extends ValRow implements Comparable[PolyRow] {
+public value class PolyRow(rank:nat) extends ValRow implements Comparable[Row] {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
@@ -57,7 +57,7 @@ public value class PolyRow(rank:nat) extends ValRow implements Comparable[PolyRo
      * least siginficant part of key
      */
 
-    public def compareTo(that: PolyRow): int {
+    public def compareTo(that: Row): int {
         for (var i: int = 0; i<cols; i++) {
             if (this(i) < that(i))
                 return -1;
@@ -111,6 +111,7 @@ public value class PolyRow(rank:nat) extends ValRow implements Comparable[PolyRo
             sum += this(i)*p(i);
         return sum <= 0;
     }
+
 
     /**
      * given
