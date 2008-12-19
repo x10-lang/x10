@@ -6,6 +6,7 @@
     <property name="builddir" value="classes"/>
     <property name="bin" location="${basedir}/bin"/>
     <property name="etc" location="${basedir}/etc"/>
+    <property name="incdir" location="${basedir}/include"/>
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
@@ -45,25 +46,16 @@
                 <include name="x10"/>
                 <include name="x10c"/>
             </fileset>
-            <fileset dir="${etc}">
-                <include name="${config}"/>
-            </fileset>
         </delete>
     </target>
 
     <target name="distclean" depends="clean">
-        <delete>
-            <fileset dir="${lib}">
-                <include name="${polyglot.jar}"/>
-                <include name="${lpg.jar}"/>
-                <include name="${runtime.jar}"/>
-                <!--
-                <include name="${constraints.jar}"/>
-                <include name="${common.jar}"/>
-                -->
-                <include name="${compiler.jar}"/>
-            </fileset>
-        </delete>
+        <delete dir="${etc}" />
+	<mkdir dir="${etc}" />	
+        <delete dir="${incdir}" />
+	<mkdir dir="${incdir}" />	
+        <delete dir="${lib}" />
+	<mkdir dir="${lib}" />	
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
