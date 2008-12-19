@@ -44,11 +44,11 @@ abstract public value class BaseRegion extends Region {
 
     public static def makeHalfspace1(normal:Point, k:int): Region(normal.rank) {
         val rank = normal.rank;
-        val hlb = new PolyMatBuilder(rank);
-        val h = new PolyRow(normal, k);
-        hlb.add(h);
-        val hl = hlb.toPolyMat();
-        return PolyRegion.make(hl) as Region(normal.rank); // XXXX
+        val pmb = new PolyMatBuilder(rank);
+        val r = new PolyRow(normal, k);
+        pmb.add(r);
+        val pm = pmb.toSortedPolyMat(false);
+        return PolyRegion.make(pm) as Region(normal.rank); // XXXX
     }
 
     public static def makeRectangular1(min: Rail[int], max: Rail[int]): RectRegion(min.length) { // XTENLANG-4
