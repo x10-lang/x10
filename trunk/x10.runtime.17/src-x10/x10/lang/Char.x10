@@ -83,16 +83,16 @@ public final value Char {
     @Native("c++", "x10aux::char_utils::toTitleCase(#0)")
     public native def toTitleCase(): Char;
     
-    @Native("java", "((int) #0)")
-    @Native("c++", "((x10_int) #0)")
+    @Native("java", "((int) (#0))")
+    @Native("c++", "((x10_int) (#0))")
     public native def ord(): Int;
 
-    @Native("java", "((char) #1)")
-    @Native("c++", "((x10_char) #1)")
+    @Native("java", "((char) (#1))")
+    @Native("c++", "((x10_char) (#1))")
     public native static def ord(Char): Int;
 
-    @Native("java", "((char) #1)")
-    @Native("c++", "((x10_char) #1)")
+    @Native("java", "((char) (#1))")
+    @Native("c++", "((x10_char) (#1))")
     public native static def chr(Int): Char;
         
     @Native("java", "java.lang.Character.reverseBytes(#0)")
