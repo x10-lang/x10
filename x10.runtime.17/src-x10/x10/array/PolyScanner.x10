@@ -69,33 +69,33 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
     private val minSum: Rail[VarMat];
     private val maxSum: Rail[VarMat];
 
-    public def this(var hl: PolyMat): PolyScanner {
+    public def this(var pm: PolyMat): PolyScanner {
 
-        this.rank = hl.rank;
+        this.rank = pm.rank;
 
         min = Rail.makeVar[VarMat](rank);
         max = Rail.makeVar[VarMat](rank);
         minSum = Rail.makeVar[VarMat](rank);
         maxSum = Rail.makeVar[VarMat](rank);
 
-        //hl.printInfo(Console.OUT, "axis " + (rank-1));
-        init(hl, rank-1);
+        //pm.printInfo(Console.OUT, "axis " + (rank-1));
+        init(pm, rank-1);
         for (var k: int = rank-2; k>=0; k--) {
-            hl = hl.eliminate(k+1, true);
-            //hl.printInfo(Console.OUT, "axis " + k);
-            init(hl, k);
+            pm = pm.eliminate(k+1, true);
+            //pm.printInfo(Console.OUT, "axis " + k);
+            init(pm, k);
         }
         //printInfo(Console.OUT);
     }
 
-    final private def init(hl: PolyMat, axis: int): void {
+    final private def init(pm: PolyMat, axis: int): void {
 
         // count
         var imin: int = 0;
         var imax: int = 0;
-        for (h:PolyRow in hl) {
-            if (h(axis)<0) imin++;
-            if (h(axis)>0) imax++;
+        for (r:PolyRow in pm) {
+            if (r(axis)<0) imin++;
+            if (r(axis)>0) imax++;
         }
 
         // complain if unbounded
@@ -113,17 +113,17 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
 
         // fill in
         imin=0; imax=0;
-        for (h:PolyRow in hl) {
-            if (h(axis)<0) {
+        for (r:PolyRow in pm) {
+            if (r(axis)<0) {
                 for (var i: int = 0; i<=axis; i++)
-                    min(axis)(imin)(i) = h(i);
-                minSum(axis)(imin)(0) = h(rank);
+                    min(axis)(imin)(i) = r(i);
+                minSum(axis)(imin)(0) = r(rank);
                 imin++;
             }
-            if (h(axis)>0) {
+            if (r(axis)>0) {
                 for (var i: int = 0; i<=axis; i++)
-                    max(axis)(imax)(i) = h(i);
-                maxSum(axis)(imax)(0) = h(rank);
+                    max(axis)(imax)(i) = r(i);
+                maxSum(axis)(imax)(0) = r(rank);
                 imax++;
             }
         }

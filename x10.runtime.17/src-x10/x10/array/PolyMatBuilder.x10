@@ -4,8 +4,8 @@
 package x10.array;
 
 import x10.util.ArrayList;
-
 import x10.io.Printer;
+import x10.array.mat.*;
 
 
 /**
@@ -15,7 +15,7 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-class PolyMatBuilder(rank: int) extends ArrayList[PolyRow] {
+public class PolyMatBuilder(rank: int) extends MatBuilder {
 
     // XTENLANG-49
     static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
@@ -26,6 +26,7 @@ class PolyMatBuilder(rank: int) extends ArrayList[PolyRow] {
      */
 
     public def this(val rank: int): PolyMatBuilder{self.rank==rank} {
+        super(rank+1);
         this.rank = rank;
     }
 
@@ -33,19 +34,22 @@ class PolyMatBuilder(rank: int) extends ArrayList[PolyRow] {
      * Get the result.
      */
 
-    def toPolyMat(): PolyMat(rank) = toPolyMat(false);
-
-    def toPolyMat(isSimplified:boolean): PolyMat(rank) {
-        sort();
-        val result = new PolyMat(rank, toValRail(), isSimplified);
+    def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
+        r.sort();
+        val result = new PolyMat(r.size(), rank+1, (i:nat,j:nat)=>r(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
+
+    public def toPolyMat(): PolyMat(rank) {
+        val result = new PolyMat(r.size(), rank+1, (i:nat,j:nat)=>r(i)(j), true);
+        return result as PolyMat(rank); // XXXX
+    }        
 
 
     /**
      * a simple mechanism of somewhat dubious utility to allow
      * semi-symbolic specification of halfspaces. For example
-     * X0-Y1 >= n is specified as addPolyRow(X(0)-Y(1), GE, n)
+     * X0-Y1 >= n is specified as add(X(0)-Y(1), GE, n)
      *
      * XXX coefficients must be -1,0,+1; can allow larger coefficients
      * by increasing # bits per coeff
@@ -69,7 +73,19 @@ class PolyMatBuilder(rank: int) extends ArrayList[PolyRow] {
             coeff = coeff >> 2;
         }
         as(rank) = op==LE? -k : k;
-        add(new PolyRow(as));
+        add(as);
+    }
+
+    public def add(row:PolyRow) {
+        r.add(row);
+    }
+
+    public def add(row:Row) {
+        r.add(new PolyRow(cols, row));
+    }
+
+    public def add(row:(nat)=>int) {
+        r.add(new PolyRow(cols, row));
     }
 
 }

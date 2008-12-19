@@ -31,21 +31,21 @@ final value class RectRegion extends PolyRegion {
      * allow unbounded regions
      */
 
-    def this(val hl: PolyMat): RectRegion{rank==hl.rank && rect} {
+    def this(val pm: PolyMat): RectRegion{rank==pm.rank && rect} {
 
-        super(hl, true);
+        super(pm, true);
 
-        size = hl.isBounded()? computeSize() : -1;
+        size = pm.isBounded()? computeSize() : -1;
 
-        min0 = rank>=1 && hl.isBounded()? min(0) : 0;
-        min1 = rank>=2 && hl.isBounded()? min(1) : 0;
-        min2 = rank>=3 && hl.isBounded()? min(2) : 0;
-        min3 = rank>=4 && hl.isBounded()? min(3) : 0;
+        min0 = rank>=1 && pm.isBounded()? min(0) : 0;
+        min1 = rank>=2 && pm.isBounded()? min(1) : 0;
+        min2 = rank>=3 && pm.isBounded()? min(2) : 0;
+        min3 = rank>=4 && pm.isBounded()? min(3) : 0;
 
-        max0 = rank>=1 && hl.isBounded()? max(0) : 0;
-        max1 = rank>=2 && hl.isBounded()? max(1) : 0;
-        max2 = rank>=3 && hl.isBounded()? max(2) : 0;
-        max3 = rank>=4 && hl.isBounded()? max(3) : 0;
+        max0 = rank>=1 && pm.isBounded()? max(0) : 0;
+        max1 = rank>=2 && pm.isBounded()? max(1) : 0;
+        max2 = rank>=3 && pm.isBounded()? max(2) : 0;
+        max3 = rank>=4 && pm.isBounded()? max(3) : 0;
     }
 
     public static def make1(val min: Rail[int], val max: Rail[int]): Region{rank==min.length&&rect} { // XTENLANG-4
@@ -53,14 +53,14 @@ final value class RectRegion extends PolyRegion {
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
 
-        val hlb = new PolyMatBuilder(min.length);
+        val pmb = new PolyMatBuilder(min.length);
         for (var i: int = 0; i<min.length; i++) {
-            hlb.add(hlb.X(i), hlb.GE, min(i));
-            hlb.add(hlb.X(i), hlb.LE, max(i));
+            pmb.add(pmb.X(i), pmb.GE, min(i));
+            pmb.add(pmb.X(i), pmb.LE, max(i));
         }
 
-        val hl = hlb.toPolyMat(true);
-        return new RectRegion(hl);
+        val pm = pmb.toSortedPolyMat(true);
+        return new RectRegion(pm);
     }
 
 
@@ -70,8 +70,8 @@ final value class RectRegion extends PolyRegion {
     }
 
     private def computeSize(): int {
-        val min = halfspaces.rectMin();
-        val max = halfspaces.rectMax();
+        val min = mat.rectMin();
+        val max = mat.rectMax();
         var size:int = 1;
         for (var i: int = 0; i<rank; i++)
             size *= max(i) - min(i) + 1;
@@ -96,8 +96,8 @@ final value class RectRegion extends PolyRegion {
         private val max: ValRail[int];
 
         def this(r: PolyRegion): Scanner {
-            min = r.halfspaces.rectMin();
-            max = r.halfspaces.rectMax();
+            min = r.mat.rectMin();
+            max = r.mat.rectMax();
         }
 
         final public def set(axis: int, position: int): void {
@@ -138,8 +138,8 @@ final value class RectRegion extends PolyRegion {
 
         def this(val r: RectRegion): It {
             rank = r.rank;
-            min = r.halfspaces.rectMin();
-            max = r.halfspaces.rectMax();
+            min = r.mat.rectMin();
+            max = r.mat.rectMax();
             x = Rail.makeVar[int](rank, (i:nat)=>min(i));
             x(rank-1)--;
         }
@@ -221,11 +221,11 @@ final value class RectRegion extends PolyRegion {
     }
 
     public def min(): ValRail[int] {
-        return halfspaces.rectMin();
+        return mat.rectMin();
     }
 
     public def max(): ValRail[int] {
-        return halfspaces.rectMax();
+        return mat.rectMax();
     }
 
 
