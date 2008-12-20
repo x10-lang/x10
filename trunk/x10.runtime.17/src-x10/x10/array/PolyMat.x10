@@ -4,7 +4,6 @@
 package x10.array;
 
 import x10.io.Printer;
-import x10.array.mat.*;
 
 
 /**
@@ -29,41 +28,17 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
     //
 
     private val isSimplified: boolean;
-    private val r: ValRail[PolyRow];
 
 
     /**
-     * Low-level constructors. For greater convenience use PolyMatBuilder.
+     * Low-level constructor. For greater convenience use PolyMatBuilder.
      */
 
-
-    /*
-    public def this(rank:nat, r: ValRail[PolyRow], isSimplified:boolean): PolyMat(rank) {
-        super(r.length, rank+1);
-        property(rank);
-        this.r = r;
-        this.isSimplified = isSimplified;
-    }
-    */
-
-    private def this(rows: nat, cols: nat, init:(nat)=>PolyRow, isSimplified:boolean) {
-        super(rows, cols);
+    public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int, isSimplified:boolean) {
+        super(rows, cols, Rail.makeVal[PolyRow](rows, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j))));
         property(cols-1);
         this.isSimplified = isSimplified;
-        r = Rail.makeVal[PolyRow](rows, init);
     }
-
-    public def this(rows: nat, cols: nat, init: (i:nat,j:nat)=>int, isSimplified:boolean)
-        = this(rows, cols, (i:nat)=>new PolyRow(cols, (j:nat)=>init(i,j)), isSimplified);
-
-    /*
-    public def this(rows:nat, cols:nat, init:ValRail[ValRail[int]], isSimplified:boolean)
-        = this(rows, cols, (i:nat,j:nat)=>init(i)(j), isSimplified);
-    */
-
-    public def apply(i:nat) = r(i);
-
-    public def iterator() = r.iterator();
 
 
     /**
@@ -101,7 +76,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * be expensive.
      */
 
-    def simplifyAll(): PolyMat {
+    public def simplifyAll(): PolyMat {
 
         if (isSimplified)
             return this;
@@ -274,7 +249,7 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
      * Matrix multiplication.
      */
 
-    public def $times(that: ValMat): PolyMat {
+    public def $times(that: XformMat): PolyMat {
         return new PolyMat(this.rows, that.cols, (i:nat,j:nat) => {
             var sum:int = 0;
             for (var k:int=0; k<this.cols; k++)
@@ -285,48 +260,18 @@ public value class PolyMat(rank: int) extends Mat[PolyRow] {
 
 
     /**
-     * Matrix times vector.
-     */
-
-    public def $times(p:Point):Point {
-        return Point.make(p.rank, (i:nat)=> {
-            var sum:int = this(i)(p.rank);
-            for (var j:int=0; j<p.rank; j++)
-                sum += p(j)*this(i)(j);
-            return sum;
-        });
-    }
-
-    /**
      * Concatenate matrices
      */
 
     public def $or(that: PolyMat) {
-        return new PolyMat(this.rows+that.rows, this.cols, (i:nat,j:nat) =>
-             i<this.rows? this(i)(j) : that(i-this.rows)(j), true
-        );
+        val pmb = new PolyMatBuilder(rank);
+        for (r:PolyRow in this)
+            pmb.add(r);
+        for (r:PolyRow in that)
+            pmb.add(r);
+        return pmb.toSortedPolyMat(false);
     }
 
-
-    /**
-     * Identity matrix
-     */
-
-    public static def identity(rank:int) = new PolyMat(rank+1, rank+1, (i:nat,j:nat)=>(i==j?1:0), true);
-
-
-    /**
-     *
-     */
-
-    public def printInfo(ps: Printer, label: String): void {
-        ps.printf("%s\n", label);
-        for (r:PolyRow in this) {
-            ps.printf("    ");
-            r.printInfo(ps);
-        }
-
-    }
 
     public def toString(): String {
 
