@@ -349,6 +349,7 @@ public abstract value class Region(
 
     public abstract def scanners(): Iterator[Scanner];
 
+    public def scan() = new x10.array.PolyScanner(this);
 
 
     //

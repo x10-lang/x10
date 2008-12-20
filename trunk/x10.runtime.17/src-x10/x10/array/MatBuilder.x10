@@ -3,7 +3,6 @@
 
 package x10.array;
 
-import x10.array.U;
 import x10.util.ArrayList;
 
 public class MatBuilder {
