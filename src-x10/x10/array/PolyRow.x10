@@ -6,8 +6,6 @@ package x10.array;
 import x10.io.Printer;
 import x10.io.StringWriter;
 
-import x10.array.mat.*;
-
 
 /**
  * This class represents a single polyhedral halfspace of the form
@@ -23,12 +21,16 @@ import x10.array.mat.*;
  * @author bdlucas
  */
 
-public value class PolyRow(rank:nat) extends ValRow implements Comparable[Row] {
+public value class PolyRow(rank:nat) extends ValRow {
 
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};
     static type PolyRegionListBuilder(rank:nat) = PolyRegionListBuilder{self.rank==rank};
     static type PolyRow(rank:nat) = PolyRow{self.rank==rank};
     static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
+
+    //
+    //
+    //
 
     def this(as: ValRail[int]): PolyRow(as.length-1) {
         super(as);
@@ -57,11 +59,11 @@ public value class PolyRow(rank:nat) extends ValRow implements Comparable[Row] {
      * least siginficant part of key
      */
 
-    public def compareTo(that: Row): int {
-        for (var i: int = 0; i<cols; i++) {
-            if (this(i) < that(i))
+    static def compare(a: Row, b: Row): int {
+        for (var i: int = 0; i<a.cols; i++) {
+            if (a(i) < b(i))
                 return -1;
-            else if (this(i) > that(i))
+            else if (a(i) > b(i))
                 return 1;
         }
         return 0;
@@ -131,25 +133,10 @@ public value class PolyRow(rank:nat) extends ValRow implements Comparable[Row] {
 
 
     /**
-     * print a halfspace in both matrix and equation form
-     */
-
-    public def printInfo(ps: Printer): void {
-        ps.printf("[");
-        for (var i: int = 0; i<cols; i++) {
-            ps.printf("%4d", this(i));
-            if (i==cols-2) ps.printf(" |");
-        }
-        ps.printf(" ]   ");
-        printEqn(ps, " ");
-        ps.printf("\n");
-    }
-
-    /**
      * print a halfspace in equation form
      */
 
-    private def printEqn(ps: Printer, spc: String): void {
+    def printEqn(ps: Printer, spc: String, row: int) {
         var sgn: int = 0;
         var first: boolean = true;
         for (var i: int = 0; i<cols-1; i++) {
@@ -168,7 +155,7 @@ public value class PolyRow(rank:nat) extends ValRow implements Comparable[Row] {
             } else if (c==-1)
                 ps.print("-x" + i);
             else if (c!=0)
-                ps.print((c>=0?"+":"") + c + "*x" + i + " ");
+                ps.print((c>=0&&!first?"+":"") + c + "*x" + i + " ");
             if (c!=0)
                 first = false;
         }
@@ -180,11 +167,4 @@ public value class PolyRow(rank:nat) extends ValRow implements Comparable[Row] {
             ps.print(spc + ">=" + spc + (this(cols-1)));
     }
 
-    public def toString(): String {
-        val os = new StringWriter();
-        val ps = new Printer(os);
-        //printInfo(ps);
-        printEqn(ps, "");
-        return os.toString();
-    }
 }
