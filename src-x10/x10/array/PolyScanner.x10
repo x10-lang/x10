@@ -60,7 +60,10 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-final public class PolyScanner(A:PolyMat, B:XformMat) implements Region.Scanner {
+final public class PolyScanner/*(A:PolyMat, B:XformMat)*/ implements Region.Scanner {
+
+    val A: PolyMat;
+    val B: XformMat;
 
     protected val rank: int;
 
@@ -76,7 +79,10 @@ final public class PolyScanner(A:PolyMat, B:XformMat) implements Region.Scanner 
     public def this(var pm: PolyMat, B: XformMat) {
 
         pm = pm.simplifyAll();
-        property(pm, B);
+
+        //property(pm, B);
+        this.A = pm;
+        this.B = B;
 
         this.rank = pm.rank;
 
