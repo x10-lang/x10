@@ -5,12 +5,11 @@ package x10.array;
 
 import x10.util.ArrayList;
 import x10.io.Printer;
-import x10.array.mat.*;
 
 
 /**
- * A utility class for constructing a list of PolyRows, to
- * eventually be turned into a PolyMat.
+ * Additional builder utility functions for Mats destined to become
+ * PolyMats.
  *
  * @author bdlucas
  */
@@ -21,6 +20,7 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
     static type PolyMat(rank:nat) = PolyMat{self.rank==rank};
     static type PolyMatBuilder(rank:nat) = PolyMatBuilder{self.rank==rank};
 
+
     /**
      * Create a new empty builder.
      */
@@ -30,20 +30,16 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
         this.rank = rank;
     }
 
+
     /**
      * Get the result.
      */
 
-    def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
-        r.sort();
-        val result = new PolyMat(r.size(), rank+1, (i:nat,j:nat)=>r(i)(j), isSimplified);
+    public def toSortedPolyMat(isSimplified:boolean): PolyMat(rank) {
+        mat.sort(PolyRow.compare.(Row,Row));
+        val result = new PolyMat(mat.size(), rank+1, (i:nat,j:nat)=>mat(i)(j), isSimplified);
         return result as PolyMat(rank); // XXXX
     }
-
-    public def toPolyMat(): PolyMat(rank) {
-        val result = new PolyMat(r.size(), rank+1, (i:nat,j:nat)=>r(i)(j), true);
-        return result as PolyMat(rank); // XXXX
-    }        
 
 
     /**
@@ -75,17 +71,4 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
         as(rank) = op==LE? -k : k;
         add(as);
     }
-
-    public def add(row:PolyRow) {
-        r.add(row);
-    }
-
-    public def add(row:Row) {
-        r.add(new PolyRow(cols, row));
-    }
-
-    public def add(row:(nat)=>int) {
-        r.add(new PolyRow(cols, row));
-    }
-
 }

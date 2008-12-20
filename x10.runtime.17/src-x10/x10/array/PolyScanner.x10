@@ -4,7 +4,7 @@
 package x10.array;
 
 import x10.io.Printer;
-import x10.array.mat.*;
+
 
 /**
  * Here's the general scheme for the information used in scanning,
@@ -62,7 +62,7 @@ import x10.array.mat.*;
 
 public /*final*/ public class PolyScanner implements Region.Scanner {
 
-    private val rank: int;
+    protected val rank: int;
 
     private val min: Rail[VarMat];
     private val max: Rail[VarMat];
@@ -70,6 +70,8 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
     private val maxSum: Rail[VarMat];
 
     public def this(var pm: PolyMat): PolyScanner {
+
+        //pm.printInfo(System.out, "pm");
 
         this.rank = pm.rank;
 

@@ -5,7 +5,7 @@ package x10.array;
 
 import x10.io.Console;
 
-class U {
+public class U {
 
     public static def pr(s: String): void {
         Console.OUT.println(s);
