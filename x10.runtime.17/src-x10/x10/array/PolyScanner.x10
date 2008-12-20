@@ -5,9 +5,6 @@ package x10.array;
 
 import x10.io.Printer;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 
 /**
  * Here's the general scheme for the information used in scanning,
@@ -63,7 +60,7 @@ import x10.compiler.NativeRep;
  * @author bdlucas
  */
 
-public /*final*/ public class PolyScanner implements Region.Scanner {
+final public class PolyScanner(A:PolyMat, B:XformMat) implements Region.Scanner {
 
     protected val rank: int;
 
@@ -72,9 +69,14 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
     private val minSum: Rail[VarMat];
     private val maxSum: Rail[VarMat];
 
-    public def this(var pm: PolyMat): PolyScanner {
+    public def this(pm: PolyMat): PolyScanner {
+        this(pm, XformMat.identity(pm.rank));
+    }
 
-        //pm.printInfo(System.out, "pm");
+    public def this(var pm: PolyMat, B: XformMat) {
+
+        pm = pm.simplifyAll();
+        property(pm, B);
 
         this.rank = pm.rank;
 
@@ -259,10 +261,39 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
 
 
     //
+    // Xform support
+    // XXX move to Scanner
+    //
+
+    public def this(r:Region) = this((r to PolyRegion).mat);
+
+    public def $for(body:(p:Point)=>void) {
+        for (p:Point in this)
+            body(B*p);
+    }
+
+    public def $times(that:Xform): PolyScanner {
+        if (that instanceof PolyXform) {
+            val p = that to PolyXform;
+            return new PolyScanner((A*p.V)||p.C, B*p.V);
+        } else {
+            throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");
+        }
+    }
+
+
+
+    //
     // debugging info
     //
 
-    public def printInfo(ps: Printer): void {
+    public def printInfo(ps: Printer) {
+        ps.println("PolyScanner");
+        A.printInfo(ps, "  A");
+        B.printInfo(ps, "  B");
+    }
+
+    public def printInfo2(ps: Printer): void {
         for (var k: int = 0; k<min.length; k++) {
             ps.printf("axis %d\n", k);
             ps.printf("  min\n");
