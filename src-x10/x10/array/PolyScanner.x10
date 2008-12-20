@@ -5,6 +5,9 @@ package x10.array;
 
 import x10.io.Printer;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 
 /**
  * Here's the general scheme for the information used in scanning,
@@ -129,8 +132,6 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
                 imax++;
             }
         }
-
-
     }
 
     final public def set(axis: int, v: int): void {
@@ -147,7 +148,8 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
         for (var k: int = 0; k<min(axis).rows; k++) {
             val a = min(axis)(k)(axis);
             var b: int = minSum(axis)(k)(axis);
-            val m = -b / a;
+            // ax+b<=0 where a<0 => x>=ceil(-b/a)
+            val m = b>0? (-b+a+1)/a : -b/a;
             if (m > result) result = m;
         }
         return result;
@@ -158,7 +160,8 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
         for (var k: int = 0; k<max(axis).rows; k++) {
             val a = max(axis)(k)(axis);
             val b = maxSum(axis)(k)(axis);
-            val m = -b / a;
+            // ax+b<=0 where a>0 => x<=floor(-b/a)
+            val m = b>0? (-b-a+1)/a : -b/a;
             if (m < result) result = m;
         }
         return result;
@@ -178,6 +181,8 @@ public /*final*/ public class PolyScanner implements Region.Scanner {
      * finished if k<0
      *
      * next() does the bumping and resetting
+     *
+     * assumes no degenerate axes, which is guaranteeed by Scanner API
      */
 
     final private class RailIt implements Iterator[Rail[int]] {
