@@ -30,6 +30,9 @@
 
     <target name="init">
         <tstamp/>
+	<mkdir dir="${etc}" />	
+	<mkdir dir="${incdir}" />	
+	<mkdir dir="${lib}" />	
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
