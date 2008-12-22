@@ -266,14 +266,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 	        Name methodName = X10Binary_c.binaryMethodName(op);
-	        w.write("new java.lang.Object() { ");
+	        w.write("new java.lang.Object() {");
+	        w.allowBreak(0, " ");
+	        w.write("final ");
 	        printType(n.type(), PRINT_TYPE_PARAMS);
 	        w.write(" eval(");
 	        printType(n.target().type(), PRINT_TYPE_PARAMS);
 	        w.write(" target, ");
 	        printType(n.right().type(), PRINT_TYPE_PARAMS);
 	        w.write(" right) {");
-	        w.newline();
+	        w.allowBreak(0, " ");
 	        w.write("return (target.");
 	        w.write(n.name().id().toString());
 	        w.write(" = ");
@@ -282,7 +284,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(".");
 	        w.write(methodName.toString());
 	        w.write("(right));");
-	        w.newline();
+	        w.allowBreak(0, " ");
 	        w.write("} }.eval(");
 	        tr.print(n, n.target(), w);
 	        w.write(", ");
@@ -2302,7 +2304,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		
 		w.write(".");
 
-		if (mi.typeParameters().size() > 0 && !mi.flags().isStatic()) {
+		if (mi.typeParameters().size() > 0) {
 		    w.write("<");
 		    for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
 		        final Type at = i.next();
@@ -2387,7 +2389,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		}
 		
 		w.write("() {");
-		w.write("public ");
+		w.write("public final ");
 		ret.expand(tr2);
 		w.write(" apply(");
 		new Join(", ", formals).expand(tr2);
@@ -2886,7 +2888,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 	        Name methodName = X10Binary_c.binaryMethodName(op);
-	        w.write("new java.lang.Object() { ");
+	        w.write("new java.lang.Object() {");
+	        w.allowBreak(0, " ");
+	        w.write("final ");
 	        printType(n.type(), PRINT_TYPE_PARAMS);
 	        w.write(" eval(");
 	        printType(array.type(), PRINT_TYPE_PARAMS);
@@ -2904,7 +2908,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	        w.write(", ");
 	        printType(n.right().type(), PRINT_TYPE_PARAMS);
 	        w.write(" right) {");
-	        w.newline();
+	        w.allowBreak(0, " ");
 	        if (! n.type().isVoid()) {
 	            w.write("return ");
 	        }
@@ -2944,7 +2948,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	            }
 	        }
 	        w.write(");");
-	        w.newline();
+	        w.allowBreak(0, " ");
 	        w.write("} }.eval(");
 	        arrayPrint(n, array, w, tmp);
 	        if (index.size() > 0)
@@ -3266,8 +3270,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         // TODO: handle type args
                         // TODO: handle setter method
                         
-                        w.write("new Object() {");
+                        w.write("new java.lang.Object() {");
                         w.allowBreak(0, " ");
+                        w.write("final ");
                         printType(t, PRINT_TYPE_PARAMS);
                         w.write(" eval(");
                         printType(target.type(), PRINT_TYPE_PARAMS);
