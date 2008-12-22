@@ -31,6 +31,7 @@ import polyglot.ext.x10.visit.CastRewriter;
 import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
 import polyglot.ext.x10.visit.Desugarer;
 import polyglot.ext.x10.visit.ExprFlattener;
+import polyglot.ext.x10.visit.FieldInitializerMover;
 import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
 import polyglot.ext.x10.visit.X10Boxer;
@@ -223,9 +224,11 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(TypeChecked(job));
            goals.add(ReassembleAST(job));
            
-           goals.add(ConformanceChecked(job));
-           
            goals.add(X10Boxed(job));
+           goals.add(MoveFieldInitializers(job));
+
+           goals.add(ConformanceChecked(job));
+
            goals.add(X10RewriteExtern(job));
            goals.add(X10RewriteAtomicMethods(job));
            
@@ -344,7 +347,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10Boxed", job, new X10Boxer(job, ts, nf)).intern(this);
        }
-       
+
+       public Goal MoveFieldInitializers(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("MoveFieldInitializers", job, new FieldInitializerMover(job, ts, nf)).intern(this);
+       }
+
        public Goal X10RewriteExtern(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
