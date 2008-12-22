@@ -11,7 +11,6 @@ package polyglot.ext.x10.types;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import polyglot.frontend.ClassPathResourceLoader;
 import polyglot.frontend.Compiler;
@@ -21,10 +20,8 @@ import polyglot.frontend.FileSource;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Resource;
-import polyglot.frontend.ResourceLoader;
 import polyglot.frontend.Scheduler;
 import polyglot.main.Report;
-import polyglot.main.Version;
 import polyglot.types.Named;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
@@ -32,21 +29,14 @@ import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.TypeEncoder;
 
 /**
  * Loads class information from class files, or serialized class infomation from
  * within class files. It does not load from source files.
  */
 public class X10SourceClassResolver implements TopLevelResolver {
-    protected final static int NOT_COMPATIBLE = -1;
-    protected final static int MINOR_NOT_COMPATIBLE = 1;
-    protected final static int COMPATIBLE = 0;
-
     protected X10TypeSystem ts;
-    protected TypeEncoder te;
     protected String classpath;
-    protected Version version;
     protected Set<QName> nocache;
 
     protected final static Collection<String> report_topics = CollectionUtil.list(Report.types, Report.resolver, Report.loader);
@@ -73,9 +63,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
     public X10SourceClassResolver(Compiler compiler, ExtensionInfo ext, String classpath, boolean compileCommandLineOnly, boolean ignoreModTimes) {
 
         this.ts = (X10TypeSystem) ext.typeSystem();
-        this.te = new TypeEncoder(this.ts);
         this.classpath = classpath;
-        this.version = ext.version();
         this.nocache = new HashSet<QName>();
 
         this.compiler = compiler;
