@@ -42,7 +42,9 @@ namespace x10aux {
         }
 
         void _check_bounds(x10_int index) const {
+            #ifndef NO_BOUNDS_CHECKS
             x10aux::_check_bounds(index, FMGL(length));
+            #endif
         }
 
         virtual ref<x10::lang::String> toString();
