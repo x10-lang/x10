@@ -153,11 +153,11 @@ public class X10StaAnIRTests extends IRTests {
 		return engine;
 	}
 
-	protected String singleInputForTest() {
+	protected String singleJavaInputForTest() {
 		return getName().substring(4) + ".x10";
 	}
 
-	protected String singlePkgInputForTest(String pkgName) {
+	protected String singleJavaPkgInputForTest(String pkgName) {
 		return pkgName + File.separator + getName().substring(4) + ".x10";
 	}
 
