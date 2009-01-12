@@ -38,7 +38,7 @@ public class DistStream1 extends Benchmark {
             val b = bs(p);
             val c = cs(p);
             async (Place.place(p)) {
-                for (var t:int=0; t<NUM_TIMES; t++)
+                for (var tt:int=0; tt<NUM_TIMES; tt++) // XTENLANG-311
                     for (var i:int=0; i<localSize; i++)
                         a(i) = b(i) + gamma*c(i);
             }

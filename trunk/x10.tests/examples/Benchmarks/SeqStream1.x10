@@ -34,10 +34,11 @@ public class SeqStream1 extends Benchmark {
 
     public def once() {
         for (var p:int=0; p<PARALLELISM; p++) {
+            System.out.println("p " + p);
             val a = as(p);
             val b = bs(p);
             val c = cs(p);
-            for (var t:int=0; t<NUM_TIMES; t++)
+            for (var tt:int=0; tt<NUM_TIMES; tt++) // XTENLANG-311
                 for (var i:int=0; i<localSize; i++)
                     a(i) = b(i) + gamma*c(i);
         }
