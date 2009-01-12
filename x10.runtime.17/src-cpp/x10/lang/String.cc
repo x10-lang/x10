@@ -5,6 +5,7 @@
 #include <x10aux/serialization.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/throw.h>
+#include <x10aux/hash.h>
 
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
@@ -18,7 +19,7 @@ x10_int String::hashCode() {
     //FIXME:
     //presumably this needs a general hashcode implementation
     //that is centralised and used everywhere
-    return 0;
+    return x10aux::hash(reinterpret_cast<const unsigned char*>(c_str()), length());
 }
 
 ref<String> String::toString() {
