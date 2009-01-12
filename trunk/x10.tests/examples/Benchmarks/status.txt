@@ -1,30 +1,25 @@
 ------- KEY ISSUES:
 
-Parallel UTS is 42x slower than sequential UTS with Java back
+Java back-end is considerably slower (typically 10-20x) than
+hand-coded Java on most tests. Two recent changes (generated code for
+++, final methods for closures) has made this worse for some tests,
+better for others.
+
+Parallel UTS is 30x slower than sequential UTS with Java back
 end. (Parallel version does not yet work with C++ back end). Probably
 due to excessive memory allocation.
-
-Using generic classes vs non-generic costs 30x in peformance with C++
-back end. Profiling shows probably due to 16 extra method calls per
-update (=apply/set pair) in generic vs non-generic.
 
 C++ back-end X10-style loop test without GC fails by running out of
 memory due to unnecessary allocation of Point.
 
-Rail access is 5x slower than hand-coded with Java back end. Profiling
-shows likely due to boxing.
-
 Sequential UTS is 4.5x slower than hand-coded with C++ back
 end. Profiling shows likely due to handling of primitive casts.
 
-Sequential random access is 3.6x slower than hand-coded with C++ back
-end. Profiling shows likely due to handling of primitive casts and
-slower rail access.
-
-Rail access is 2x slower than hand-coded with C++ back-end. 
+Sequential random access is 3.3x slower than hand-coded with C++ back
+end. Profiling shows likely due to handling of primitive casts.
 
 Wrapping rail access in a minimal array-like class (with apply and
-set) costs 2x in peformance with both Java and C++ back end.
+set) costs 2-3x in peformance with both Java and C++ back end.
 
 C++ back-end is faster than Java back-end for the simple tests (rail,
 non-generic pseudo-array), slower for the more complex tests (generic
@@ -50,75 +45,73 @@ sockets for this test.
 
                     cpp-opt        x10-cpp-opt    java-opt       x10-java-opt   
 
-SeqRail2            a: 248  Mop/s  b: 115  Mop/s  c: 250  Mop/s  d: 45.2 Mop/s
-SeqPseudoArray2a    e: 250  Mop/s  f: 61.3 Mop/s  g: 248  Mop/s  h: 24.5 Mop/s
-SeqPseudoArray2b                   i: 2.15 Mop/s                 j: 25.2 Mop/s
-SeqArray2a                         k: 2.12 Mop/s                 l: 15.9 Mop/s
-SeqArray2b                                                       m: 9.95 Mop/s
+SeqRail2            a: 266  Mop/s  b: 216  Mop/s  c: 267  Mop/s  d: 12.2 Mop/s
+SeqPseudoArray2a    e: 267  Mop/s  f: 76.2 Mop/s  g: 265  Mop/s  h: 25.5 Mop/s
+SeqPseudoArray2b                   i: 76.0 Mop/s                 j: 25.5 Mop/s
+SeqArray2a                         k: 2.15 Mop/s                 l: 8.26 Mop/s
+SeqArray2b                                                       m: 12.3 Mop/s
 
-SeqUTSBin1          n: 7.16 Mop/s  o: 1.61 Mop/s  p: 9.72 Mop/s  q: 7.96 Mop/s
-ParUTSBin1                                                       r: 190  kop/s
+SeqUTSBin1          n: 7.10 Mop/s  o: 1.61 Mop/s  p: 9.03 Mop/s  q: 5.05 Mop/s
+ParUTSBin1                                                       r: 176  kop/s
 
-SeqMatMultAdd1a     s: 235  Mop/s  t: 525  kop/s  u: 333  Mop/s  v: 3.30 Mop/s
+SeqMatMultAdd1a     s: 239  Mop/s  t: 535  kop/s  u: 352  Mop/s  v: 5.18 Mop/s
 
-SeqStream1          w: 111  Mop/s  x: 44.3 Mop/s  y: 111  Mop/s  z: 16.6 Mop/s
-ParStream1                         A: 101  Mop/s                 B: 37.6 Mop/s
-DistStream1                        C: 37.2 Mop/s                 D: 38.4 Mop/s
+SeqStream1          w: 116  Mop/s  x: 114  Mop/s  y: 117  Mop/s  z: 3.56 Mop/s
+ParStream1                         A: 122  Mop/s                 B: 39.2 Mop/s
+DistStream1                        C: 48.8 Mop/s                 D: 37.6 Mop/s
 
-SeqRandomAccess1    E: 51.8 Mop/s  F: 14.2 Mop/s  G: 34.2 Mop/s  H: 4.35 Mop/s
-ParRandomAccess1                   I: 24.1 Mop/s                 J: 3.07 Mop/s
-DistRandomAccess1                  K: 2.96 kop/s                 L: 193  kop/s
-
+SeqRandomAccess1    E: 54.5 Mop/s  F: 16.8 Mop/s  G: 35.6 Mop/s  H: 7.36 Mop/s
+ParRandomAccess1                   I: 29.4 Mop/s                 J: 6.32 Mop/s
+DistRandomAccess1                  K: 3.32 kop/s                 L: 120  kop/s
 
 ------- COMPARISONS:
 
 C++ back end relative to hand-coded
-    rail access                  2.2x slower (b/c)
-    non-generic pseudo-array     4.1x slower (f/g)
-    generic pseudo-array       116.3x slower (f/j)
-    array w/ c-style loop      117.9x slower (f/l)
-    sequential UTS               4.4x slower (o/p)
-    matrix multiply            448.4x slower (t/u)
-    sequential frag. stream      2.5x slower (x/y)
-    sequential random access     3.6x slower (F/G)
+    rail access                  1.2x slower (a/b)
+    non-generic pseudo-array     3.5x slower (e/f)
+    generic pseudo-array         3.5x slower (e/i)
+    array w/ c-style loop      124.5x slower (e/k)
+    sequential UTS               4.4x slower (n/o)
+    matrix multiply            447.0x slower (s/t)
+    sequential frag. stream      1.0x slower (w/x)
+    sequential random access     3.3x slower (E/F)
 
 Java back end relative to hand-coded
-    rail access                  5.5x slower (d/e)
-    non-generic pseudo-array    10.1x slower (h/i)
-    generic pseudo-array         9.8x slower (h/k)
-    array w/ c-style loop       15.6x slower (h/m)
-    array w/ x10-style loop     24.9x slower (h/n)
-    sequential UTS               1.2x slower (q/r)
-    matrix multiply            100.7x slower (v/w)
-    sequential frag. stream      6.7x slower (z/A)
-    sequential random access     7.9x slower (H/I)
+    rail access                 21.8x slower (c/d)
+    non-generic pseudo-array    10.4x slower (g/h)
+    generic pseudo-array        10.4x slower (g/j)
+    array w/ c-style loop       32.1x slower (g/l)
+    array w/ x10-style loop     21.5x slower (g/m)
+    sequential UTS               1.8x slower (p/q)
+    matrix multiply             67.9x slower (u/v)
+    sequential frag. stream     32.9x slower (y/z)
+    sequential random access     4.8x slower (G/H)
 
 C++ back end relative to Java back end
-    rail access                  2.5x faster (c/e)
-    non-generic pseudo-array     2.5x faster (g/i)
-    generic pseudo-array        11.7x slower (k/j)
-    array w/ c-style loop        7.5x slower (m/l)
-    sequential UTS               4.9x slower (r/p)
-    matrix multiply              6.3x slower (w/u)
-    sequential frag. stream      2.7x faster (y/A)
-    sequential random access     3.3x faster (G/I)
+    rail access                 17.7x faster (b/d)
+    non-generic pseudo-array     3.0x faster (f/h)
+    generic pseudo-array         3.0x faster (i/j)
+    array w/ c-style loop        3.8x slower (l/k)
+    sequential UTS               3.1x slower (q/o)
+    matrix multiply              9.7x slower (v/t)
+    sequential frag. stream     32.1x faster (x/z)
+    sequential random access     2.3x faster (F/H)
 
-C++ generic vs non-generic      28.6x slower (g/j)
+C++ generic vs non-generic       1.0x slower (f/i)
 
-UTS par. speedup (Java)         41.9x slower (r/s)
+UTS par. speedup (Java)         28.6x slower (q/r)
 
-Stream par. speedup (Java)       2.3x faster (C/A)
-Stream par. speedup (C++)        2.3x faster (B/y)
+Stream par. speedup (Java)      11.0x faster (B/z)
+Stream par. speedup (C++)        1.1x faster (A/x)
 
-Stream dist. speedup (Java)      2.3x faster (E/A)
-Stream dist. speedup (C++)       1.2x slower (y/D)
+Stream dist. speedup (Java)     10.6x faster (D/z)
+Stream dist. speedup (C++)       2.3x slower (x/C)
 
-Rand. access par. speedup (Java)   1.4x slower (I/K)
-Rand. access par. speedup (C++)   1.7x faster (J/G)
+Rand. access par. speedup (Java)   1.2x slower (H/J)
+Rand. access par. speedup (C++)   1.8x faster (I/F)
 
-Rand. access dist. speedup (Java)  22.5x slower (I/M)
-Rand. access dist. speedup (C++) 4802.1x slower (G/L)
-
+Rand. access dist. speedup (Java)  61.5x slower (H/L)
+Rand. access dist. speedup (C++) 5044.1x slower (F/K)
 
 ------- COLUMNS:
 

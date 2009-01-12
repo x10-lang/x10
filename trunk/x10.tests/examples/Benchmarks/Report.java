@@ -80,6 +80,10 @@ class Report {
         public int compareTo(Entry that) {
             return this.get("date-time").compareTo(that.get("date-time"));
         }
+
+        public String toString() {
+            return "[" + letter + "," + get("test") + "," + get("lg-code") + "]";
+        }
     }
 
     public static void main(String args[]) throws Exception {
@@ -173,7 +177,8 @@ class Report {
                     if (ops<1e6)      out.printf("%c: %-4.3g kop/s  ", letter, ops/1e3);
                     else if (ops<1e9) out.printf("%c: %-4.3g Mop/s  ", letter, ops/1e6);
                     else              out.printf("%c: %-4.3g Gop/s  ", letter, ops/1e9);
-                    show.letter = (letter=letters.charAt(letterCount++));
+                    show.letter = letter;
+                    letter = letters.charAt(letterCount++);
                 } else
                     out.printf("%15s", "");
 
