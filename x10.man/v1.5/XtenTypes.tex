@@ -170,6 +170,7 @@ public interface Object {
     public def toString(): String;
     public def equals(Object): Boolean;
     public def hashCode(): Int;
+    public def className(): String;
 }
 \end{xten}
 
@@ -614,6 +615,7 @@ the path type \xcd"T.this.X".
 
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
+\if 0
 \iftypeparams
 A type may also be constrained using argument lists.
 The syntax 
@@ -641,6 +643,7 @@ if \xcd"X" is a type property, then
 the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
 \xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
 \xcd"C[T]" is sugar \xcd"C{X==T}".
+\fi
 \fi
 
 Constraints on properties induce a natural subtyping relationship:
