@@ -147,7 +147,9 @@ until it terminates, drops \xcd"c" or executes a \xcd"next".
 \begin{staticrule*}
 The compiler should issue an error if any activity has a potentially
 live execution path from a \xcd"resume" statement on a clock \xcd"c"
-to a \xcd"now" or async spawn statement (which registers the new
+to a
+%\xcd"now" or
+async spawn statement (which registers the new
 activity on \xcd"c") unless the path goes through a \xcd"next"
 statement. (A \xcd"c.drop()" following a \xcd"c.resume()" is legal,
 as is \xcd"c.resume()" following a \xcd"c.resume()".)
