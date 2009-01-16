@@ -25,7 +25,7 @@ public final value Boolean {
     public const FALSE = false;
 
     @Native("java", "java.lang.Boolean.toString(#0)")
-    @Native("c++", "x10aux::boolean_utils::toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Boolean.parseBoolean(#1)")

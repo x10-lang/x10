@@ -41,7 +41,7 @@ public final value Long implements Integer, Signed {
     public native def toBinaryString(): String;    
     
     @Native("java", "java.lang.Long.toString(#0)")
-    @Native("c++", "x10aux::long_utils::toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Long.parseLong(#1, #2)")

@@ -41,7 +41,7 @@ public final value Short implements Integer, Signed {
     public native def toBinaryString(): String;    
     
     @Native("java", "java.lang.Short.toString(#0)")
-    @Native("c++", "x10aux::short_utils::toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Short.parseShort(#1, #2)")

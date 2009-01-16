@@ -1,7 +1,7 @@
 #include <sstream>
 
 #include <x10aux/config.h>
-#include <x10aux/string_utils.h>
+#include <x10aux/basic_functions.h>
 #include <x10aux/class_cast.h>
 
 #include <x10/lang/Throwable.h>
@@ -44,7 +44,7 @@ x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
 ref<String> Throwable::toString() {
     std::stringstream ss;
     ss << this->_type()->name() << ": " << *this->getMessage();
-    return to_string(ss.str().c_str());
+    return String::Lit(ss.str());
 }
 
 

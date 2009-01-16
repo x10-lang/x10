@@ -27,18 +27,18 @@ public class Ref(
     public native def this();
 
     @Native("java", "#0.equals(#1)")
-    @Native("c++", "(#0)->equals(#1)")
+    @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(other : Object) : Boolean;
 
     @Native("java", "#0.hashCode()")
-    @Native("c++", "(#0)->hashCode()")
+    @Native("c++", "x10aux::hash_code(#0)")
     public native def hashCode() : Int;
 
     @Native("java", "#0.toString()")
-    @Native("c++", "(#0)->toString()")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString() : String;
 
     @Native("java", "#0.getClass().getName()")
-    @Native("c++", "x10::lang::String::Lit((#0)->_type()->name())")
+    @Native("c++", "x10aux::class_name(#0)")
     public native def className() : String;
 }

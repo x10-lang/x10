@@ -19,15 +19,15 @@ public final value String implements (nat) => Char {
     public native def this(String): String;
     
     @Native("java", "(#0).equals(#1)")
-    @Native("c++", "(#0)->equals(#1)")
+    @Native("c++", "x10aux::equals(#0,#1)")
     public native def equals(Object): boolean;
     
     @Native("java", "(#0).hashCode()")
-    @Native("c++", "(#0)->hashCode()")
+    @Native("c++", "x10aux::hash_code(#0)")
     public native def hashCode(): int;
     
     @Native("java", "(#0).toString()")
-    @Native("c++", "(#0)->toString()")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "\"x10.lang.String\"")

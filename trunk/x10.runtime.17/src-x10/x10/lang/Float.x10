@@ -41,7 +41,7 @@ public final value Float {
     public native def toHexString(): String;    
     
     @Native("java", "java.lang.Float.toString(#0)")
-    @Native("c++", "x10aux::float_utils::toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Float.parseFloat(#1)")
