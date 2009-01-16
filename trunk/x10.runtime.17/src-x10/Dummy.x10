@@ -133,11 +133,8 @@ class Dummy {
     var f140 : x10.util.CollectionIterator[Dummy];
     var f141 : x10.util.concurrent.atomic.AtomicBoolean;
     var f142 : x10.util.concurrent.atomic.AtomicInteger;
-    var f143 : x10.util.concurrent.atomic.AtomicIntegerFieldUpdater[Dummy];
     var f144 : x10.util.concurrent.atomic.AtomicLong;
-    var f145 : x10.util.concurrent.atomic.AtomicLongFieldUpdater[Dummy];
     var f146 : x10.util.concurrent.atomic.AtomicReference[Dummy];
-    var f147 : x10.util.concurrent.atomic.AtomicReferenceFieldUpdater[Dummy,Dummy];
     var f148 : x10.util.Container[Dummy];
     var f149 : x10.util.GrowableRail[Dummy];
     var f150 : x10.util.HashMap[Dummy,Dummy];
