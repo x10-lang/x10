@@ -167,6 +167,8 @@ namespace x10aux {
             //compare static types as we can't get at the dynamic type
             const RuntimeType *from = getRTT<ref<F> >();
             const RuntimeType *to = getRTT<ref<T> >();
+            (void) from;
+            (void) to;
             #ifndef NO_PLACE_CHECKS
             #ifndef NO_EXCEPTIONS
             if (!from->subtypeOf(to)) {
