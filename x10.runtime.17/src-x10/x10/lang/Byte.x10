@@ -41,7 +41,7 @@ public final value Byte implements Integer, Signed {
     public native def toBinaryString(): String;    
     
     @Native("java", "java.lang.Byte.toString(#0)")
-    @Native("c++", "x10aux::byte_utils::toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Byte.parseByte(#1, #2)")

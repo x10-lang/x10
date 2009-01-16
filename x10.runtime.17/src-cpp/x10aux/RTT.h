@@ -90,13 +90,13 @@ namespace x10aux {
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static std::string _() {
         const RuntimeType *t = getRTT<T>();
-        if (t == NULL) return "Uninitialised RTT";
+        if (t == NULL) return "Uninitialized RTT";
         return t->name();
     } };
 
     template<class T> struct TypeName<ref<T> > { static std::string  _() {
         const RuntimeType *t = getRTT<T>();
-        if (t == NULL) return "Uninitialised RTT";
+        if (t == NULL) return "Uninitialized RTT";
         return t->name()+"*";
     } };
 

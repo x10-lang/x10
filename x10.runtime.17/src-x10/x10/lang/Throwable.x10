@@ -48,7 +48,7 @@ public value Throwable {
     public final def getCause(): Box[Throwable] = cause;
     
     @Native("java", "#0.toString()")
-    @Native("c++", "(#0)->toString()")
+    @Native("c++", "x10aux::to_string(#0)")
     public def toString() = className() + ": " + getMessage();
    
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#0)")
