@@ -25,7 +25,7 @@ namespace x10aux {
         // 32 bit array indexes
         const x10_int FMGL(length);
 
-        T data[1];
+        T data[1] __attribute__ ((aligned(8)));
 
         private: AnyRail(const AnyRail<T> &arr); // disabled
 
