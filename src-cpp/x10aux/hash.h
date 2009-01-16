@@ -2,7 +2,6 @@
 #define X10AUX_HASH_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10aux {
 

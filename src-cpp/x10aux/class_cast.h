@@ -6,7 +6,7 @@
 
 #include <x10aux/RTT.h>
 #include <x10aux/ref.h>
-#include <x10aux/string_utils.h>
+#include <x10aux/basic_functions.h>
 
 #include <x10/lang/Object.h>
 #include <x10/lang/Box.h>
@@ -126,9 +126,9 @@ namespace x10aux {
     template<class T> struct ValueBox : public x10::lang::Value {
         T v;
         ValueBox(T v_) : v(v_) { }
-        //virtual x10_int hashCode() { return x10aux::hashCode(v); } // TODO
-        //virtual x10_boolean equals(x10aux::ref<Object> other) { return x10aux::equals(v, other); } // TODO
-        virtual ref<x10::lang::String> toString() { return to_string(v); }
+        virtual x10_int hashCode() { return x10aux::hash_code(v); }
+        virtual x10_boolean equals(x10aux::ref<Object> other) { return x10aux::equals(v, other); }
+        virtual ref<x10::lang::String> toString() { return x10aux::to_string(v); }
     };
 
     // Primitive -> Value; Value -> Primitive

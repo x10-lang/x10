@@ -3,7 +3,7 @@
 #include <x10aux/alloc.h>
 #include <x10aux/class_cast.h>
 #include <x10aux/serialization.h>
-#include <x10aux/string_utils.h>
+#include <x10aux/basic_functions.h>
 #include <x10aux/throw.h>
 #include <x10aux/hash.h>
 
@@ -37,39 +37,39 @@ x10_boolean String::equals(ref<Object> other) {
 
 // postfix primitive operator+
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_boolean v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_byte v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_char v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_short v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_int v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_long v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_float v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_double v)
-    { return String::_make(*s+x10aux::to_string(v)); }
+    { return String::_make(*s+*x10aux::to_string(v)); }
 
 // prefix primitive operator+
 ref<String> x10::lang::operator+(x10_boolean v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_byte v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_char v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_short v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_int v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_long v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_float v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 ref<String> x10::lang::operator+(x10_double v, x10aux::ref<String> s)
-    { return String::_make(x10aux::to_string(v)+*s); }
+    { return String::_make(*x10aux::to_string(v)+*s); }
 
 
 /*

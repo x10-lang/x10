@@ -47,6 +47,7 @@ xrx: $(XRX_ARCHIVE)
 
 ALL_OBJECTS = \
 	x10aux/assert.o \
+	x10aux/basic_functions.o \
 	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \
 	x10aux/byte_utils.o \

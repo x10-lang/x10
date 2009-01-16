@@ -41,7 +41,7 @@ public final value Double {
     public native def toHexString(): String;    
     
     @Native("java", "java.lang.Double.toString(#0)")
-    @Native("c++", "x10aux::double_utils::toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
     
     @Native("java", "java.lang.Double.parseDouble(#1)")

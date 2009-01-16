@@ -26,6 +26,10 @@ public final value Int implements Integer, Signed {
     @Native("c++", "(x10_int)0x7fffffff")
     public const MAX_VALUE = 0x7fffffff;
 
+    @Native("java", "java.lang.Integer.toString(#0)")
+    @Native("c++", "x10aux::to_string(#0)")
+    public native def toString(): String;
+    
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
     public native def toString(radix: Int): String;
@@ -41,10 +45,6 @@ public final value Int implements Integer, Signed {
     @Native("java", "java.lang.Integer.toBinaryString(#0)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
     public native def toBinaryString(): String;    
-    
-    @Native("java", "java.lang.Integer.toString(#0)")
-    @Native("c++", "x10aux::int_utils::toString(#0)")
-    public native def toString(): String;
     
     @Native("java", "java.lang.Integer.parseInt(#1, #2)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
