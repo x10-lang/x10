@@ -118,7 +118,7 @@ namespace x10 {
                 x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
                 for (x10_int i=0 ; i<length ; ++i) {
                         // Initialise to zero, which should work for
-                        // numeric types and x10aux:;ref<T> which I think
+                        // numeric types and x10aux::ref<T> which I think
                         // covers everything.
                         (*rail)[i] = 0;
                 }
