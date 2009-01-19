@@ -13,7 +13,7 @@ class XTENLANG_112 extends x10Test {
     
     static class A[T](d:D) {
         static type A[T](d:D) = A[T]{self.d==d};
-        incomplete static def make[T](d:D): A[T](d);
+        static def make[T](d:D): A[T](d) {return null;}
         def this(d:D) = property(d);
     }
     
