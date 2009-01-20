@@ -188,3 +188,4 @@ test=SeqStream1 lg=x10-cpp ops=1.07571e+08 code=opt date=2009-01-19 time=19:29:5
 test=ParStream1 lg=x10-cpp ops=1.03497e+08 code=opt date=2009-01-19 time=19:30:09 host=snakehead
 test=SeqRandomAccess1 lg=x10-cpp ops=2.76296e+07 code=opt date=2009-01-19 time=19:30:23 host=snakehead
 test=DistStream1 lg=x10-cpp ops=8.56356e+06 code=opt date=2009-01-20 time=09:39:24 host=snakehead
+test=SeqArray2a lg=x10-cpp ops=2.3656e+08 code=opt date=2009-01-20 time=11:20:58 host=snakehead
