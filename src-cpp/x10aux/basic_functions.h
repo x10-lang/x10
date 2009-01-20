@@ -9,8 +9,33 @@
 namespace x10aux {
 
     template<class T> static inline ref<x10::lang::String> class_name(ref<T> x) {
-        return x10::lang::String::Lit(getRTT<T>()->name());
-        
+        return x10::lang::String::Lit(x->_type()->name());
+    }
+
+    static inline ref<x10::lang::String> class_name(const x10_double x) {
+        return x10::lang::String::Lit(getRTT<x10_double>()->name());
+    }
+    static inline ref<x10::lang::String> class_name(const x10_float x) {
+        return x10::lang::String::Lit(getRTT<x10_float>()->name());
+    }
+    static inline ref<x10::lang::String> class_name(const x10_long x) {
+        return x10::lang::String::Lit(getRTT<x10_long>()->name());
+    }
+
+    static inline ref<x10::lang::String> class_name(const x10_int x) {
+        return x10::lang::String::Lit(getRTT<x10_int>()->name());
+    }
+    static inline ref<x10::lang::String> class_name(const x10_short x) {
+        return x10::lang::String::Lit(getRTT<x10_short>()->name());
+    }
+    static inline ref<x10::lang::String> class_name(const x10_byte x) {
+        return x10::lang::String::Lit(getRTT<x10_byte>()->name());
+    }
+    static inline ref<x10::lang::String> class_name(const x10_char x) {
+        return x10::lang::String::Lit(getRTT<x10_char>()->name());
+    }
+    static inline ref<x10::lang::String> class_name(const x10_boolean x) {
+        return x10::lang::String::Lit(getRTT<x10_boolean>()->name());
     }
 
     template<class T, class U>
