@@ -157,6 +157,10 @@ namespace x10aux {
         return x10aux::getRTT<T1>()->subtypeOf(x10aux::getRTT<T2>());
     }
 
+    template<class T1,class T2> inline x10_boolean sametype() {
+        return x10aux::getRTT<T1>()->equals(x10aux::getRTT<T2>());
+    }
+
 }
 
 #endif
