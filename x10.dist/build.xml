@@ -11,6 +11,10 @@
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
     <property name="lpg.jar.url" value="${lpg.url}/lpg2.jar"/>
+    <property name="ecj.jar" value="ecj.jar"/>
+    <!-- NOTE: Eventually, the 3.4 stream will get moved to archive.eclipse.org. When that happens, move to 3.5 or get 3.4 from the archive -->
+    <property name="ecj.url" value="http://download.eclipse.org/eclipse/downloads/drops/R-3.4.1-200809111700"/>
+    <property name="ecj.jar.url" value="${ecj.url}/ecj-3.4.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
     <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_latest.jar"/>
@@ -38,6 +42,9 @@
         </condition>
         <condition property="local.lpg.jar" value="${env.LOCAL_LPG_JAR}">
             <isset property="env.LOCAL_LPG_JAR"/>
+        </condition>
+        <condition property="local.ecj.jar" value="${env.LOCAL_ECJ_JAR}">
+            <isset property="env.LOCAL_ECJ_JAR"/>
         </condition>
     </target>
 
@@ -81,6 +88,20 @@
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to find ${lpg.jar}" unless="lpg.jar.present"/>
     </target>
+
+    <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
+        <mkdir dir="${lib}"/>
+        <get usetimestamp="true" ignoreerrors="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <fail message="Unable to get ${ecj.jar}" unless="ecj.jar.present"/>
+    </target>
+    <target name="ecj-local-jar" depends="init" if="local.ecj.jar">
+        <mkdir dir="${lib}"/>
+        <copy file="${local.ecj.jar}" tofile="${lib}/${ecj.jar}"/>
+        <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
+        <fail message="Unable to find ${ecj.jar}" unless="ecj.jar.present"/>
+    </target>
+
     <target name="polyglot-jar" depends="init,polyglot-local-jar" unless="local.polyglot.jar">
         <mkdir dir="${lib}"/>
         <get usetimestamp="true" ignoreerrors="true" src="${polyglot.jar.url}" dest="${lib}/${polyglot.jar}"/>
@@ -94,7 +115,7 @@
         <fail message="Unable to find ${polyglot.jar}" unless="polyglot.jar.present"/>
     </target>
 
-    <target name="build" depends="init,bin,etc,lpg-jar,polyglot-jar">
+    <target name="build" depends="init,bin,etc,lpg-jar,ecj-jar,polyglot-jar">
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
@@ -245,8 +266,10 @@ JRE_HOME='${java.home}'
 #CONFIG_FILE='${config}'
 POLYGLOT_JAR='${polyglot.jar}'
 LPG_JAR='${lpg.jar}'
+ECJ_JAR='${ecj.jar}'
 POLYGLOT_URL='${polyglot.jar.url}'
 LPG_URL='${lpg.jar.url}'
+ECJ_URL='${ecj.jar.url}'
 
 UNAME=`uname -s -p | sed -e 's/ /,/g'`
 FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
@@ -381,7 +404,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar}"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar}"/>
             <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
