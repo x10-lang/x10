@@ -41,9 +41,12 @@ public abstract value class BaseArray[T] extends Array[T] {
     }
 
     public static def makeVar1[T](dist: Dist, init: (Point)=>T): Array[T](dist) {
-        if (dist.constant)
-            return new LocalArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
-        else
+        if (dist.constant) {
+            if (checkBounds || checkPlace)
+                return new LocalArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+            else
+                return new FastArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+        } else
             return new DistArray[T](dist, init);
     }
 
