@@ -87,7 +87,13 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post \"java -jar ${LIB_DIR}${FILE_SEP}${ECJ_JAR} -1.5 -nowarn\" $extargs $args"
+if [[ "$DEXT" = "x10cpp" ]]; then
+  # C++ backend
+  command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} $MAIN $extargs $args"
+else
+  # Java backend
+  command="\"$JAVA\" -Xmx128m $config $profile -classpath \"$classpath\" ${java_args} $MAIN -post \"java -jar ${LIB_DIR}${FILE_SEP}${ECJ_JAR} -1.5 -nowarn\" $extargs $args"
+fi
 
 [ -n "$verbose" ] && echo "$command"
 
