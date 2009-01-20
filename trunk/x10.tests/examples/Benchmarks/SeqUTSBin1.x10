@@ -24,6 +24,8 @@
  * @author bdlucas
  */
 
+import x10.io.Console;
+
 class SeqUTSBin1 extends Benchmark {
 
     //
@@ -77,8 +79,8 @@ class SeqUTSBin1 extends Benchmark {
             val expSize = b0 / (1.0 - q*m);
             val obsBranch = (sumb to double) / size;
             val expBranch = q * m;
-            System.out.printf("exp size / obs size: %.3f\n", expSize/size);
-            System.out.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
+            Console.OUT.printf("exp size / obs size: %.3f\n", expSize/size);
+            Console.OUT.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
         } 
         first = false;
 

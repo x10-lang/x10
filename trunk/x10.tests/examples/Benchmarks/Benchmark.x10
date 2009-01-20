@@ -14,6 +14,9 @@ import x10.compiler.NativeRep;
  * @author bdlucas
  */
 
+import x10.io.Printer;
+import x10.io.Console;
+
 abstract class Benchmark extends x10Test {
 
     abstract def once(): double;
@@ -21,7 +24,7 @@ abstract class Benchmark extends x10Test {
     abstract def operations(): double;
 
     def now() = (System.nanoTime() to double) * 1e-9;
-    val out = System.out;
+    val out:Printer;
 
     @Native("java", "\"java\"")
     @Native("c++", "String::Lit(\"cpp\")")
@@ -29,6 +32,10 @@ abstract class Benchmark extends x10Test {
 
     const WARMUP = 30.0;  // java warmup time in secs
     const TIMING = 10.0;  // how long to run tests in secs
+
+    def this() {
+        out = Console.OUT;
+    }
 
     public def run():boolean {
 
