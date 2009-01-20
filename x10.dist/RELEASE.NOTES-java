@@ -28,7 +28,7 @@ work and will be fixed in the next release:
 There is a pre-req of using ecj (Eclipse Java Compiler) as the postcompiler
 to compile the generated Java code. This is to work around a bug in javac.
 
-The ant build files are capabable of downloading and installing ecj.jar
+The ant build files are capable of downloading and installing ecj.jar
 in the expected place in x10.dist for you.  In x10.dist execute the command
 "ant ecj-jar"
 
