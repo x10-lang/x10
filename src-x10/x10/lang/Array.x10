@@ -5,6 +5,8 @@ package x10.lang;
 
 import x10.compiler.ArithmeticOps;
 import x10.array.BaseArray;
+import x10.array.FastArray;
+
 
 /**
  * An array defines a mapping from points to data of some type T. An
@@ -83,6 +85,18 @@ public abstract value class Array[T](dist:Dist)
 
     public static def make[T](size: nat, init: (Point)=>T): Array[T](1)
         = makeVar[T](0..size-1, init) as Array[T](1);
+
+    public static def makeFast[T](region: Region): FastArray[T]
+        = makeVar[T](region, null as (Point)=>T) as FastArray[T];
+
+    public static def makeFast[T](dist: Dist): FastArray[T]
+        = makeVar[T](dist, null as (Point)=>T) as FastArray[T];
+
+    public static def makeFast[T](region: Region, init: (Point)=>T): FastArray[T]
+        = BaseArray.makeVar1[T](region, init) as FastArray[T];
+
+    public static def makeFast[T](dist: Dist, init: (Point)=>T): FastArray[T]
+        = BaseArray.makeVar1[T](dist, init) as FastArray[T];
 
 
     //

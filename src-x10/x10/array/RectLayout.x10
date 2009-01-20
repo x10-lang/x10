@@ -8,24 +8,27 @@ package x10.array;
  * region. It provides efficient access but wastes storage for
  * non-rectangular regions.
  *
+ * Artificially generic to work around XTENLANG-327 (allows methods to
+ * be inlined).
+ *
  * @author bdlucas
  */
 
 final value class RectLayout(rank: int) extends Layout {
 
-    private val size: int;
+    val size: int;
 
-    private val min: ValRail[int];
-    private val min0: int;
-    private val min1: int;
-    private val min2: int;
-    private val min3: int;
+    val min: ValRail[int];
+    val min0: int;
+    val min1: int;
+    val min2: int;
+    val min3: int;
 
-    private val delta: ValRail[int];
-    private val delta0: int;
-    private val delta1: int;
-    private val delta2: int;
-    private val delta3: int;
+    val delta: ValRail[int];
+    val delta0: int;
+    val delta1: int;
+    val delta2: int;
+    val delta3: int;
 
     def this(min: ValRail[int], max: ValRail[int]) {
         
