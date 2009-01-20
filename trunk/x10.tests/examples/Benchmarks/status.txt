@@ -41,7 +41,7 @@ arrays due to lack of inlining support for non-generic classes.
 SeqRail2            a: 242  Mop/s  b: 248  Mop/s  c: 267  Mop/s  d: 12.2 Mop/s
 SeqPseudoArray2a    e: 231  Mop/s  f: 101  Mop/s  g: 265  Mop/s  h: 25.5 Mop/s
 SeqPseudoArray2b                   i: 239  Mop/s                 j: 25.5 Mop/s
-SeqArray2a                         k: 98.9 Mop/s                 l: 8.26 Mop/s
+SeqArray2a                         k: 237  Mop/s                 l: 8.26 Mop/s
 SeqArray2b                                                       m: 12.3 Mop/s
 
 SeqUTSBin1          n: 8.57 Mop/s  o: 7.77 Mop/s  p: 9.03 Mop/s  q: 5.05 Mop/s
@@ -63,7 +63,7 @@ C++ back end relative to hand-coded
     rail access                  1.0x faster (b/a)
     non-generic pseudo-array     2.3x slower (e/f)
     generic pseudo-array         1.0x faster (i/e)
-    array w/ c-style loop        2.3x slower (e/k)
+    array w/ c-style loop        1.0x faster (k/e)
     sequential UTS               1.1x slower (n/o)
     matrix multiply              1.1x slower (s/t)
     sequential frag. stream      1.0x slower (w/x)
@@ -84,7 +84,7 @@ C++ back end relative to Java back end
     rail access                 20.3x faster (b/d)
     non-generic pseudo-array     3.9x faster (f/h)
     generic pseudo-array         9.4x faster (i/j)
-    array w/ c-style loop       12.0x faster (k/l)
+    array w/ c-style loop       28.7x faster (k/l)
     sequential UTS               1.5x faster (o/q)
     matrix multiply             59.8x faster (t/v)
     sequential frag. stream     30.2x faster (x/z)
