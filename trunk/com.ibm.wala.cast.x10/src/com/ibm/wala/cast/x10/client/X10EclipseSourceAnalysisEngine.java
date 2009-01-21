@@ -7,6 +7,7 @@ import com.ibm.wala.cast.x10.analysis.X10EclipseProjectPath;
 import com.ibm.wala.cast.x10.loader.*;
 import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.wala.cast.x10.translator.polyglot.X10IRTranslatorExtension;
+import com.ibm.wala.cast.java.client.polyglot.EclipseProjectSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.JavaIRTranslatorExtension;
 import com.ibm.wala.classLoader.ClassLoaderFactory;
@@ -20,7 +21,6 @@ import com.ibm.wala.ipa.callgraph.propagation.PointerAnalysis;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.util.collections.HashSetFactory;
 import com.ibm.wala.eclipse.util.EclipseProjectPath;
-import com.ibm.wala.eclipse.util.EclipseProjectSourceAnalysisEngine;
 
 import java.io.*;
 import java.util.Set;
