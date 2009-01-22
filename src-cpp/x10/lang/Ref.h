@@ -8,7 +8,10 @@
 #include <x10/lang/Object.h>
 
 namespace x10 {
-
+    namespace runtime {
+        class Lock;
+    }
+    
     namespace lang {
 
         class String;
@@ -28,7 +31,22 @@ namespace x10 {
                 }
 
             };
+#if X10_USE_BDWGC
+            /* References that have been shipped to remote Places,
+             * and therefore must be treated as roots for local GCs
+             */
+            class ReferenceLogger {
+                Ref*** escapedReferences;
+                int nextSlot;
+            public:
+                ReferenceLogger();
+                void log(x10aux::ref<Ref> x);
+                x10aux::ref<x10::runtime::Lock> lock;
+            };
 
+            static ReferenceLogger* refLogger;
+#endif
+            
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<Ref>();
             }
@@ -45,6 +63,10 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
+
+#if X10_USE_BDWGC
+                refLogger->log(this_);
+#endif                
                 // don't send an id, just serialise the ref (null/local/remote -- we don't care)
                 buf.write(x10_ref_serialize(reinterpret_cast<x10_addr_t>(this_.get())),m);
             }
