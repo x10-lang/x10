@@ -88,6 +88,7 @@ namespace x10aux {
         if (this->FMGL(length)==0) {
             return x10::lang::String::Lit("[]");
         }
+        #ifndef NO_IOSTREAM
         std::stringstream ss;
         const char *prefix = "[";
         for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
@@ -97,6 +98,9 @@ namespace x10aux {
         }
         ss << "]";
         return x10::lang::String::Lit(ss.str().c_str());
+        #else
+        return x10::lang::String::Lit("[NO_IOSTREAM so no contents]");
+        #endif
     }
 
     template<class T, class R> R* alloc_rail(x10_int length) {

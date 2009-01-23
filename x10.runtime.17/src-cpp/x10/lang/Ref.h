@@ -31,7 +31,7 @@ namespace x10 {
                 }
 
             };
-#if X10_USE_BDWGC
+#ifdef X10_USE_BDWGC
             /* References that have been shipped to remote Places,
              * and therefore must be treated as roots for local GCs
              */
@@ -64,7 +64,7 @@ namespace x10 {
                                    x10aux::addr_map &m)
             {
 
-#if X10_USE_BDWGC
+#ifdef X10_USE_BDWGC
                 refLogger->log(this_);
 #endif                
                 // don't send an id, just serialise the ref (null/local/remote -- we don't care)
