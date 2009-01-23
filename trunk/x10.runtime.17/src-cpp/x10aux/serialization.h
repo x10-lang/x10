@@ -174,7 +174,8 @@ namespace x10aux {
             char* saved_buf = buffer;
             size_t length = cursor - buffer;
             size_t allocated = limit - buffer;
-            size_t new_size = (size_t) (allocated * GROW_PERCENT/100.0);
+            float grow_factor = GROW_PERCENT / 100.0;
+            size_t new_size = (size_t) (allocated * grow_factor);
             buffer = alloc(new_size);
             ::memcpy(buffer, saved_buf, length);
             limit = buffer + new_size;

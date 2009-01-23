@@ -12,7 +12,7 @@ using namespace x10::lang;
 using namespace x10::runtime;
 using namespace x10aux;
 
-#if X10_USE_BDWGC
+#ifdef X10_USE_BDWGC
 Ref::ReferenceLogger* Ref::refLogger = new (x10aux::alloc<Ref::ReferenceLogger>()) ReferenceLogger();
 
 #define SPINE_SIZE 1024

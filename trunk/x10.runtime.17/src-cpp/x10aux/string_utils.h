@@ -10,6 +10,7 @@ namespace x10 {
     namespace lang {
         template<class T> class Rail;
         template<class T> class ValRail;
+        class String;
     }
 }
 

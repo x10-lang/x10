@@ -26,7 +26,7 @@ namespace x10aux {
 #else        
         T* ret = (T*)x10_alloc(size);
 #endif        
-        _M_("\t-> " << ret);
+        _M_("\t-> " << (void*)ret);
         if (ret == NULL && size > 0) {
             _M_("Out of memory allocating " << size << " bytes");
         }
@@ -44,7 +44,7 @@ namespace x10aux {
     }
 
     template<class T> void dealloc(T* obj) {
-        _M_("Freeing chunk " << obj << " of type " << TYPENAME(T));
+        _M_("Freeing chunk " << (void*)obj << " of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC
         GC_FREE((x10_addr_t) obj);
 #else        

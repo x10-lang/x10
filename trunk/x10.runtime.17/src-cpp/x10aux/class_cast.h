@@ -190,6 +190,7 @@ namespace x10aux {
             throwException<x10::lang::ClassCastException>();
         }
         #else
+        (void) from; (void) to;
         _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
         #endif
         return static_cast<ref<T> >(obj);
