@@ -10,11 +10,9 @@
 // [DC] can't do RTT macros for generic classes because they would have to be
 // variadic to handle the varying number of type parameters
 
-#include <string>
-#include <stdarg.h>
 
 #include <x10aux/config.h>
-//#include <x10aux/ref.h>
+#include <x10aux/alloc.h>
 
 namespace x10 {
     namespace lang {
@@ -45,7 +43,7 @@ namespace x10aux {
 
         virtual ~RuntimeType();
 
-        virtual std::string name() const = 0;
+        virtual const char *name() const = 0;
 
         virtual bool subtypeOf(const RuntimeType * const other) const {
             if (equals(other)) return true; // trivial case
@@ -88,19 +86,20 @@ namespace x10aux {
 
 
     // This is different to getRTT because it distinguishes between T and ref<T>
-    template<class T> struct TypeName { static std::string _() {
+    template<class T> struct TypeName { static const char *_() {
         const RuntimeType *t = getRTT<T>();
         if (t == NULL) return "Uninitialized RTT";
         return t->name();
     } };
 
-    template<class T> struct TypeName<ref<T> > { static std::string  _() {
+    template<class T> struct TypeName<ref<T> > { static const char *_() {
         const RuntimeType *t = getRTT<T>();
         if (t == NULL) return "Uninitialized RTT";
-        return t->name()+"*";
+        static const char *with_star = alloc_printf("%s*",t->name());
+        return with_star;
     } };
 
-    template<class T> std::string typeName() {
+    template<class T> const char *typeName() {
         return TypeName<T>::_();
     }
 
@@ -112,7 +111,7 @@ namespace x10aux {
         static C##Type * const it; \
         virtual void init() { primitive_init(this); } \
         virtual ~C##Type() { } \
-        virtual std::string name() const { return "x10.lang."#C; } \
+        virtual const char *name() const { return "x10.lang."#C; } \
     }; \
     template<> struct RTT_WRAP<C##Type> { static RuntimeType *_() { \
         return C##Type::it; \
@@ -136,14 +135,14 @@ namespace x10aux {
 
     #define TYPENAME(T) x10aux::typeName<T>()
     class place;
-    template<> inline std::string typeName<place>() { return "place"; }
-    template<> inline std::string typeName<x10_remote_ref_t>() { return "x10_remote_ref_t"; }
+    template<> inline const char *typeName<place>() { return "place"; }
+    template<> inline const char *typeName<x10_remote_ref_t>() { return "x10_remote_ref_t"; }
     class InitDispatcher;
-    template<> inline std::string typeName<InitDispatcher>() { return "InitDispatcher"; }
-    template<> inline std::string typeName<void (*)()>() { return "void (*)()"; }
-    template<> inline std::string typeName<const void*>() { return "const void *"; }
-    template<> inline std::string typeName<char>() { return "char"; }
-    template<> inline std::string typeName<const RuntimeType*>() { return "const RuntimeType *"; }
+    template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
+    template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
+    template<> inline const char *typeName<const void*>() { return "const void *"; }
+    template<> inline const char *typeName<char>() { return "char"; }
+    template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
 
     template<class T> inline x10_boolean instanceof(const x10aux::ref<x10::lang::Object> &v) {
         return x10aux::getRTT<T>()->instanceOf(v);

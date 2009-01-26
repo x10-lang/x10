@@ -54,7 +54,7 @@ namespace x10 {
                 public:
                 static RTT* const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
-                virtual std::string name() const { return "x10.runtime.Thread"; }
+                virtual const char *name() const { return "x10.runtime.Thread"; }
             };
 
             virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<Thread>(); }

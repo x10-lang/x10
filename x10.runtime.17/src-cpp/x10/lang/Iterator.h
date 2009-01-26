@@ -1,8 +1,6 @@
 #ifndef X10_LANG_ITERATOR_H
 #define X10_LANG_ITERATOR_H
 
-#include <sstream>
-
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
@@ -28,10 +26,11 @@ namespace x10 {
                     initParents(1,x10aux::getRTT<Object>());
                 }
 
-                virtual std::string name() const {
-                    std::stringstream ss;
-                    ss<<"x10.lang.Iterator["<<x10aux::getRTT<T>()->name()<<"]";
-                    return ss.str();
+                virtual const char *name() const {
+                    static const char *name =
+                        x10aux::alloc_printf("x10.lang.Iterator[%s]",
+                                             x10aux::getRTT<T>()->name());
+                    return name;
                 }
                  
             };

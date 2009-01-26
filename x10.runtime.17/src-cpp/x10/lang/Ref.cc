@@ -1,5 +1,3 @@
-#include <sstream>
-
 #include <x10aux/ref.h>
 #include <x10aux/alloc.h>
 
@@ -51,9 +49,7 @@ x10_int x10::lang::Ref::hashCode() {
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
-    std::stringstream ss;
-    ss << this->_type()->name() << "@" << std::hex << (std::size_t)this;
-    return String::Lit(ss.str().c_str());
+    return String::Lit(alloc_printf("%s@%x",this->_type()->name(),(std::size_t)this));
 }
 
 const serialization_id_t Ref::serialization_id =

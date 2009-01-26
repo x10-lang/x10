@@ -13,10 +13,9 @@ extern "C" int snprintf(char *, size_t, const char *, ...);
 ref<String> x10aux::to_string(T v) { \
     char buf[SZ]; \
     int amt = ::snprintf(buf, sizeof(buf), FMT, v); \
+    (void)amt; \
     assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
-    String r; \
-    r._constructor(buf); \
-    return r; \
+    return String::Lit(buf); \
 }
 
 // hh is C99, not ansi c, so we use h instead.
@@ -80,23 +79,19 @@ ref<String> x10aux::to_string(double v) {
         char *rest = buf + strlen(buf);
         ::snprintf(rest, sizeof(buf) + buf - rest, "E%d", e);
     }   
-    String r;
-    r._constructor(buf);
-    return r;
+    return String::Lit(buf);
 }   
     
 
 ref<String> x10aux::to_string(bool v) {
-    String r;
-    r._constructor(v?"true":"false");
-    return r;
+    static ref<String> t = String::Lit("true");
+    static ref<String> f = String::Lit("false");
+    return v ? t : f;
 }   
     
 ref<String> x10aux::to_string(x10_char v) {
     char v_[] = {(char)v,'\0'};
-    String r; 
-    r._constructor(v_);
-    return r;
+    return String::Lit(v_);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

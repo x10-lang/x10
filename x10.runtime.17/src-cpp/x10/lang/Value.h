@@ -22,7 +22,7 @@ namespace x10 {
             
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
                 
-                virtual std::string name() const {
+                virtual const char *name() const {
                     return "x10.lang.Value";
                 }
 

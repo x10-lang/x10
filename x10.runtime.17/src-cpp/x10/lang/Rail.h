@@ -1,8 +1,6 @@
 #ifndef X10_LANG_RAIL_H
 #define X10_LANG_RAIL_H
 
-#include <sstream>
-
 
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
@@ -30,10 +28,11 @@ namespace x10 {
                 virtual void init() { initParents(2,x10aux::getRTT<Ref>(),
                                                     x10aux::getRTT<Fun_0_1<x10_int,T> >()); }
 
-                virtual std::string name() const {
-                    std::stringstream ss;
-                    ss<<"x10.lang.Rail["<<x10aux::getRTT<T>()->name()<<"]";
-                    return ss.str();
+                virtual const char *name() const {
+                    static const char *name =
+                        x10aux::alloc_printf("x10.lang.Rail[%s]",
+                                             x10aux::getRTT<T>()->name());
+                    return name;
                 }
                  
             };
@@ -70,11 +69,11 @@ namespace x10 {
                                      x10aux::getRTT<x10::lang::Iterator<T> >());
                     }
 
-                    virtual std::string name() const {
-                        std::stringstream ss;
-                        ss<<"x10.lang.Rail.Iterator["
-                          <<x10aux::getRTT<T>()->name()<<"]";
-                        return ss.str();
+                    virtual const char *name() const {
+                        static const char *name =
+                            x10aux::alloc_printf("x10.lang.Rail.Iterator[%s]",
+                                                 x10aux::getRTT<T>()->name());
+                        return name;
                     }
 
                 };

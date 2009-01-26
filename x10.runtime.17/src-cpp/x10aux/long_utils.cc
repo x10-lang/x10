@@ -49,7 +49,7 @@ x10_long x10aux::long_utils::parseLong(const ref<String>& s, x10_int radix) {
 x10_long x10aux::long_utils::parseLong(const ref<String>& s) {
     // FIXME: what about null?
     // FIXME: NumberFormatException
-    return atoll(((const string&)(*s)).c_str());
+    return atoll(s->c_str());
 }
 
 x10_long x10aux::long_utils::highestOneBit(x10_long x) {

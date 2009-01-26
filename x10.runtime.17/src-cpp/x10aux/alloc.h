@@ -12,10 +12,9 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <new> // [DC] took me an hour to work out that we needed this for placement new
 
 #include <x10/x10.h> // pgas
-
-#include <x10aux/RTT.h>
 
 namespace x10aux {
 
@@ -51,6 +50,8 @@ namespace x10aux {
         x10_free((x10_addr_t) obj);
 #endif        
     }
+
+    const char *alloc_printf(const char *fmt, ...);
 
 }
 
