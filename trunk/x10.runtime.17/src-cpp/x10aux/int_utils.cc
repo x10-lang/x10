@@ -44,7 +44,7 @@ x10_int x10aux::int_utils::parseInt(ref<String> s, x10_int radix) {
 x10_int x10aux::int_utils::parseInt(ref<String> s) {
     // FIXME: what about null?
     // FIXME: NumberFormatException?
-    return atoi(((const string&)(*s)).c_str());
+    return atoi(s->c_str());
 }
 
 x10_int x10aux::int_utils::highestOneBit(x10_int x) {

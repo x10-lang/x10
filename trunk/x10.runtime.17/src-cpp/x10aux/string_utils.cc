@@ -10,6 +10,9 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+ref<String> x10aux::nullString = String::Lit("null");
+
+
 Rail<ref<String> > *x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
@@ -29,13 +32,12 @@ void x10aux::free_args(const ref<Rail<ref<String> > > &arr) {
     //cerr << "free_args: freed array " << arr << endl;
 }
 
-String x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {
-    std::string str(v->FMGL(length), '\0');
+ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {
+    char *str = alloc<char>(v->FMGL(length)+1);
     for (int i = 0; i < v->FMGL(length); ++i)
         str[i] = (*v)[i];
-    String r;
-    r._constructor(str);
-    return r;
+    str[v->FMGL(length)] = '\0';
+    return String::Steal(str);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -34,7 +34,7 @@ namespace x10 {
                         initParents(1,x10aux::getRTT<x10::lang::Ref>());
                     }
                     
-                    virtual std::string name() const {
+                    virtual const char *name() const {
                         return "x10.runtime.Lock";
                     }   
                     

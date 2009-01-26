@@ -46,6 +46,7 @@ all: $(X10LIB)/include/x10/x10.h $(ARCHIVE)
 xrx: $(XRX_ARCHIVE)
 
 ALL_OBJECTS = \
+	x10aux/alloc.o \
 	x10aux/assert.o \
 	x10aux/basic_functions.o \
 	x10aux/boolean_utils.o \

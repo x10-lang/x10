@@ -30,7 +30,7 @@ namespace x10 {
             
                 virtual void init() { initParents(0); }
 
-                virtual std::string name() const {
+                virtual const char *name() const {
                     return "x10.lang.Object";
                 }
 

@@ -13,12 +13,12 @@ namespace x10aux {
         x10::lang::Iterator<F>* _from;
     public:
 
-        class RTT {
+        class RTT : public RuntimeType {
             public:
             static RuntimeType *it;
             bool _initialized() { return true; }
             void _init() { }
-            std::string name() { return "IteratorAdapter<...>"; }
+            virtual const char *name() const { return "IteratorAdapter<...>"; }
         };
 
         IteratorAdapter(ref<x10::lang::Iterator<F> > from) : _from(from.get()) { }

@@ -15,7 +15,7 @@ namespace x10 {
                 public:
                 static RTT * const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
-                virtual std::string name() const { return "x10.lang.VoidFun"; }
+                virtual const char *name() const { return "x10.lang.VoidFun"; }
             };
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<VoidFun_0_0>();

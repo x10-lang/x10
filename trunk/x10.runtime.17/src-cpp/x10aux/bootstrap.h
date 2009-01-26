@@ -50,7 +50,7 @@ namespace x10aux {
 
     };
 
-    template<class Runtime, class T> int main(int ac, char **av) {
+    template<class Runtime, class T> int template_main(int ac, char **av) {
     
         x10aux::ref<x10::lang::Rail<x10aux::ref<x10::lang::String> > > args =
             x10aux::convert_args(ac, av);
@@ -90,7 +90,7 @@ namespace x10aux {
                 static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
 
             fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
-                                (int)x10_here(), e_->_type()->name().c_str());
+                                (int)x10_here(), e_->_type()->name());
             fprintf(stderr, "%s\n", e_->toString()->c_str());
 
             x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > trace =

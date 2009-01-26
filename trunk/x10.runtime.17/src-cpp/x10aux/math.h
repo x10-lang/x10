@@ -29,18 +29,18 @@ namespace x10aux {
             extern void __m_()
         #define SAVE_MATH_CONST(type, name) \
             static const type __m_##name = name
-        SAVE_MATH_FUNC1(int, fpclassify);
+        //SAVE_MATH_FUNC1(int, fpclassify);
         SAVE_MATH_FUNC1(bool, isfinite);
         SAVE_MATH_FUNC1(bool, isinf);
         SAVE_MATH_FUNC1(bool, isnan);
-        SAVE_MATH_FUNC1(bool, isnormal);
+        //SAVE_MATH_FUNC1(bool, isnormal);
         SAVE_MATH_FUNC1(int, signbit);
-        SAVE_MATH_FUNC2(bool, isgreater);
-        SAVE_MATH_FUNC2(bool, isgreaterequal);
-        SAVE_MATH_FUNC2(bool, isless);
-        SAVE_MATH_FUNC2(bool, islessequal);
-        SAVE_MATH_FUNC2(bool, islessgreater);
-        SAVE_MATH_FUNC2(bool, isunordered);
+        //SAVE_MATH_FUNC2(bool, isgreater);
+        //SAVE_MATH_FUNC2(bool, isgreaterequal);
+        //SAVE_MATH_FUNC2(bool, isless);
+        //SAVE_MATH_FUNC2(bool, islessequal);
+        //SAVE_MATH_FUNC2(bool, islessgreater);
+        //SAVE_MATH_FUNC2(bool, isunordered);
         #ifdef SAVE_CONSTANTS
         #ifdef SAVE_LOG2
         inline double __m_log2(double v) { return log2(v); }
@@ -152,18 +152,18 @@ namespace x10aux {
             extern void __m_()
         #define RESTORE_MATH_CONST(type, name) \
             static const type name = __m_##name
-        RESTORE_MATH_FUNC1(int, fpclassify);
+        //RESTORE_MATH_FUNC1(int, fpclassify);
         RESTORE_MATH_FUNC1(bool, isfinite);
         RESTORE_MATH_FUNC1(bool, isinf);
         RESTORE_MATH_FUNC1(bool, isnan);
-        RESTORE_MATH_FUNC1(bool, isnormal);
+        //RESTORE_MATH_FUNC1(bool, isnormal);
         RESTORE_MATH_FUNC1(int, signbit);
-        RESTORE_MATH_FUNC2(bool, isgreater);
-        RESTORE_MATH_FUNC2(bool, isgreaterequal);
-        RESTORE_MATH_FUNC2(bool, isless);
-        RESTORE_MATH_FUNC2(bool, islessequal);
-        RESTORE_MATH_FUNC2(bool, islessgreater);
-        RESTORE_MATH_FUNC2(bool, isunordered);
+        //RESTORE_MATH_FUNC2(bool, isgreater);
+        //RESTORE_MATH_FUNC2(bool, isgreaterequal);
+        //RESTORE_MATH_FUNC2(bool, isless);
+        //RESTORE_MATH_FUNC2(bool, islessequal);
+        //RESTORE_MATH_FUNC2(bool, islessgreater);
+        //RESTORE_MATH_FUNC2(bool, isunordered);
         #ifdef SAVE_CONSTANTS
         #ifdef SAVE_LOG2
         inline double log2(double v) { return __m_log2(v); }

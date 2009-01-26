@@ -207,8 +207,7 @@ void
 Thread::join(void)
 {
     __xrxDPrStart();
-    int status;
-    pthread_join(__xthread, (void **)&status);
+    pthread_join(__xthread, NULL);
     __xrxDPrEnd();
 }
 

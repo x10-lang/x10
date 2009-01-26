@@ -10,147 +10,115 @@
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
 
-#include <stdarg.h>
+#include <cstdarg>
+#include <sstream>
 
 using namespace x10::lang;
 using namespace x10aux;
 
 x10_int String::hashCode() {
-    //FIXME:
-    //presumably this needs a general hashcode implementation
-    //that is centralised and used everywhere
-    return x10aux::hash(reinterpret_cast<const unsigned char*>(c_str()), length());
-}
-
-ref<String> String::toString() {
-    return this;
+    return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
 }
 
 x10_boolean String::equals(ref<Object> other) {
     if (!x10aux::concrete_instanceof<String>(other)) return false;
     // now we can downcast the Object to String
     ref<String> other_str = other;
-    // defer to std::string::compare to check string contents
-    return !compare(*other_str);
+    return !strcmp(FMGL(content),other_str->FMGL(content));
 }
-
-
-// postfix primitive operator+
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_boolean v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_byte v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_char v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_short v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_int v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_long v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_float v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-ref<String> x10::lang::operator+(x10aux::ref<String> s, x10_double v)
-    { return String::_make(*s+*x10aux::to_string(v)); }
-
-// prefix primitive operator+
-ref<String> x10::lang::operator+(x10_boolean v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_byte v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_char v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_short v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_int v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_long v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_float v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-ref<String> x10::lang::operator+(x10_double v, x10aux::ref<String> s)
-    { return String::_make(*x10aux::to_string(v)+*s); }
-
-
-/*
-String operator+(const String &s1, const String& s2) {
-    return static_cast<const std::string&>(s1)
-         + static_cast<const std::string&>(s2);
-}
-String operator+(const String &s1, ref<Object> s2) {
-    return static_cast<const std::string&>(s1)
-         + static_cast<const std::string&>(*s2->toString());
-}
-String operator+(ref<Object> s1, const String& s2) {
-    return static_cast<const std::string&>(*s1->toString())
-         + static_cast<const std::string&>(s2);
-}
-String operator+(ref<Object> s1, ref<Object> s2) {
-    return static_cast<const std::string&>(*s1->toString())
-         + static_cast<const std::string&>(*s2->toString());
-}
-
-ref<String> operator+=(ref<String> &s1, const String& s2) {
-    s1 = s1 + s2;
-    return s1;
-}
-ref<String> operator+=(ref<String> &s1, ref<Object> s2) {
-    s1 = s1 + s2;
-    return s1;
-}
-*/
 
 
 x10_int String::indexOf(ref<String> str, x10_int i) {
-    size_type res = find(*str, (size_type)i);
-    if (res == std::string::npos)
+    const char *needle = str->FMGL(content);
+    // TODO: bounds check
+    const char *haystack = &FMGL(content)[i];
+    const char *pos = strstr(haystack, needle);
+    if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) res;
+    return (x10_int) (pos - needle);
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
-    size_type res = find((char)c, (size_type)i);
-    if (res == std::string::npos)
+    int needle = (int)c;
+    // TODO: bounds check
+    const char *haystack = &FMGL(content)[i];
+    const char *pos = strchr(haystack, needle);
+    if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) res;
+    return (x10_int) (pos - needle);
+}
+
+
+static const char *my_strrstr(const char *haystack, const char *needle, int give_up) {
+    const char *last_find = NULL;
+    for (int i=0 ; i<=give_up && haystack[i]!='\0' ; ++i) {
+        for (int j=0 ; needle[j]!='\0' ; ++j) {
+            if (haystack[i+j] != needle[j]) goto nonmatch;
+        }
+        last_find = &haystack[i];
+        nonmatch: {}
+    }
+    return last_find;
 }
 
 x10_int String::lastIndexOf(ref<String> str, x10_int i) {
-    size_type res = rfind(*str, (size_type)i);
-    if (res == std::string::npos)
+    const char *needle = str->FMGL(content);
+    const char *haystack = FMGL(content);
+    // TODO: bounds check
+    const char *pos = my_strrstr(haystack, needle, i);
+    if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) res;
+    return (x10_int) (pos - needle);
+}
+
+
+static const char *my_strrchr(const char *haystack, int needle, int give_up) {
+    const char *last_find = NULL;
+    for (int i=0 ; i<=give_up && haystack[i]!='\0' ; ++i) {
+        if (haystack[i] == needle) last_find = &haystack[i];
+    }
+    return last_find;
 }
 
 x10_int String::lastIndexOf(x10_char c, x10_int i) {
-    size_type res = rfind((char)c, (size_type)i);
-    if (res == std::string::npos)
+    int needle = (int)c;
+    const char *haystack = FMGL(content);
+    // TODO: bounds check
+    const char *pos = my_strrchr(haystack, needle, i);
+    if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) res;
+    return (x10_int) (pos - needle);
 }
 
 ref<String> String::substring(x10_int start, x10_int end) {
-    return String::_make(this->substr(start, end-start));
+    assert(end>=start); // TODO: proper bounds check
+    std::size_t sz = end - start;
+    char *str = (char *)malloc(sz+1);
+    for (std::size_t i=0 ; i<sz ; ++i)
+        str[i] = FMGL(content)[start+i];
+    str[sz] = '\0';
+    return String::Steal(str);
 }
 
 x10_char String::charAt(x10_int i) {
-    return (x10_char) at(i);
+    // TODO: bounds check
+    return (x10_char) FMGL(content)[i];
 }
 
 
 ref<ValRail<x10_char> > String::chars() {
-    x10_int sz = size();
+    x10_int sz = length();
     ValRail<x10_char> *rail = alloc_rail<x10_char,ValRail<x10_char> > (sz);
     for (int i=0 ; i<sz ; i++)
-        rail->raw()[i] = (x10_char)at(i); // avoid bounds check
+        rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
     return rail;
 }
 
 ref<ValRail<x10_byte> > String::bytes() {
-    x10_int sz = size();
+    x10_int sz = length();
     ValRail<x10_byte> *rail = alloc_rail<x10_byte,ValRail<x10_byte> > (sz);
     for (int i=0 ; i<sz ; i++)
-        rail->raw()[i] = (x10_byte)at(i); // avoid bounds check
+        rail->raw()[i] = (x10_char) FMGL(content)[i]; // avoid bounds check
     return rail;
 }
 
@@ -167,6 +135,7 @@ static char* vformat_to_buf(char* fmt, ...) {
     char* buf = alloc<char>(sz+1);
     va_start(args, fmt);
     int s1 = vsnprintf(buf, sz+1, fmt, args);
+    (void) s1;
     assert (s1 == sz);
     va_end(args);
     return buf;
@@ -217,7 +186,7 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
         if (next != NULL)
             *next = '%';
     }
-    return String::Lit(ss.str());
+    return String::Lit(ss.str().c_str());
 }
 
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {

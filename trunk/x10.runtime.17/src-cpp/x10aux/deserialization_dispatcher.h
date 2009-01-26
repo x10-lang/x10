@@ -14,11 +14,11 @@ namespace x10aux {
 
     typedef ref<x10::lang::Object> (*Deserializer)(serialization_buffer &buf);
 
-    template<> inline std::string typeName<Deserializer>() { return "Deserializer"; }
+    template<> inline const char *typeName<Deserializer>() { return "Deserializer"; }
 
     typedef x10_short serialization_id_t;
 
-    template<> inline std::string typeName<serialization_id_t>() { return "serialization_id_t"; }
+    template<> inline const char *typeName<serialization_id_t>() { return "serialization_id_t"; }
 
     // TODO: factor out common code from here and init_dispatcher to some common superclass
     class DeserializationDispatcher {
@@ -65,7 +65,7 @@ namespace x10aux {
         }
     };
 
-    template<> inline std::string typeName<DeserializationDispatcher>()
+    template<> inline const char *typeName<DeserializationDispatcher>()
     { return "DeserializationDispatcher"; }
 }
 
