@@ -13,11 +13,12 @@ namespace x10 {
                 public:
                 static RTT * const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
-                virtual std::string name() const {
-                    std::stringstream ss;
-                    ss<<"x10.lang.Fun_0_1["<<x10aux::getRTT<P1>()->name()<<","
-                                           <<x10aux::getRTT<R>()->name()<<"]";
-                    return ss.str();
+                virtual const char *name() const {
+                    static const char *name =
+                        x10aux::alloc_printf("x10.lang.Fun_0_1[%s,%s]",
+                                             x10aux::getRTT<P1>()->name(),
+                                             x10aux::getRTT<R>()->name());
+                    return name;
                 }
             };
             virtual const x10aux::RuntimeType *_type() const {

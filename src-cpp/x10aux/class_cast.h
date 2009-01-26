@@ -28,9 +28,11 @@ namespace x10aux {
         ref<T> val;
         T* get() { return val.get(); }
     };
+    #ifndef NO_IOSTREAM
     template<class T> std::ostream& operator<<(std::ostream& o, CAST_TRACER<T> t) {
         return o << t.get();
     }
+    #endif
 
     template<class T> ref<x10::lang::Box<T> > box(T obj) {
         _CAST_("boxed: "<<CAST_TRACER<T>(obj)<<" of type "<<TYPENAME(T));

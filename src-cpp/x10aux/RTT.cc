@@ -4,6 +4,8 @@
 
 #include <x10/lang/Object.h>
 
+#include <cstdarg>
+
 using namespace x10aux;
 using namespace x10::lang;
 

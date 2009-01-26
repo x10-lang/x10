@@ -27,7 +27,7 @@ const ref<String> x10aux::float_utils::toString(x10_float value) {
 x10_float x10aux::float_utils::parseFloat(const ref<String>& s) {
     // FIXME: what about null?
     // FIXME: NumberFormatException
-    return atof(((const string&)(*s)).c_str());
+    return atof(s->c_str());
 }
 
 x10_boolean x10aux::float_utils::isNaN(x10_float x) {

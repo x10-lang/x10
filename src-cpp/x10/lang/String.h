@@ -1,9 +1,10 @@
 #ifndef X10_LANG_STRING_H
 #define X10_LANG_STRING_H
 
-#include <string>
+#include <cstring>
 
 #include <x10aux/config.h>
+#include <x10aux/string_utils.h>
 
 #include <x10/lang/Value.h>
 
@@ -14,39 +15,57 @@ namespace x10 {
         template<class T> class Rail;
         template<class T> class ValRail;
 
-        class String : public Value, public std::string {
+        class String : public Value {
+
+            const char *FMGL(content);
+            std::size_t FMGL(content_length);
 
             public:
+
+            const char *c_str() const { return FMGL(content); }
 
             class RTT : public x10aux::RuntimeType {
                 public:
                 static RTT* const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
-                virtual std::string name() const { return "x10.lang.String"; }
+                virtual const char *name() const { return "x10.lang.String"; }
             };
 
             virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<String>(); }
 
 
-            // These are our 2 workhorses - the first one is for literals
-            static x10aux::ref<String> _make(const std::string& content = std::string()) {
-                return (new (x10aux::alloc<String>()) String())->_constructor(content);
+            // Set steal to true if you have just allocated the char * with
+            // alloc_printf or it's otherwise OK if the String frees it.  Leave
+            // steal false for string literals which ought not to be freed.
+            // Leave it false for 'static' malloced char* such as the RTT type
+            // names that also ought not to be freed.
+            static x10aux::ref<String> _make(const char *content, bool steal=false) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                if (!steal) content = strdup(content);
+                this_->_constructor(content,strlen(content));
+                return this_;
             }
-            x10aux::ref<String> _constructor(const std::string& content = std::string()) {
-                std::string::operator=(content);
+            x10aux::ref<String> _constructor(const char *content, std::size_t content_length) {
+                this->FMGL(content) = content;
+                this->FMGL(content_length) = content_length;
                 return this;
             }
-            static x10aux::ref<String> _make(const x10aux::ref<String>& s) {
-                return (new (x10aux::alloc<String>()) String())->_constructor(*s);
+            static x10aux::ref<String> _make(x10aux::ref<String> s) {
+                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+                this_->_constructor(s->FMGL(content), s->FMGL(content_length));
+                return this_;
             }
 
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
             static x10aux::ref<String> Lit(const char *s)
-            { return s == NULL ? x10aux::ref<String>(x10aux::null) : Lit(std::string(s)); }
-            static x10aux::ref<String> Lit(const std::string& s)
             { return _make(s); }
 
+            // Useful when we have a malloced char* instead of a literal
+            static x10aux::ref<String> Steal(const char *s)
+            { return _make(s, true); }
+
+            /*
             operator x10aux::ref<Value> () {
                 return x10aux::ref<String>(this);
             }
@@ -54,14 +73,15 @@ namespace x10 {
             operator x10aux::ref<String> () {
                 return _make(*this);
             }
+            */
 
-            x10aux::ref<String> toString();
+            x10aux::ref<String> toString() { return this; }
 
             x10_int hashCode();
 
             x10_boolean equals(x10aux::ref<Object> s);
 
-            x10_int length() { return (x10_int) std::string::length(); }
+            x10_int length() { return (x10_int) FMGL(content_length); }
             x10_int indexOf(x10aux::ref<String> s, x10_int i = 0);
             x10_int indexOf(x10_char c, x10_int i = 0);
             x10_int lastIndexOf(x10aux::ref<String> s, x10_int i = 0);
@@ -87,11 +107,13 @@ namespace x10 {
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
                 x10_int sz = buf.read<x10_int>();
-                x10aux::ref<String> this_ = _make(std::string(sz,'x'));
+                char *content = x10aux::alloc<char>(sz+1);
                 for (x10_int i=0 ; i<sz ; ++i) {
-                    (*this_)[i] = (char)buf.read<x10_char>();
+                    content[i] = (char)buf.read<x10_char>();
                 }
+                content[sz] = '\0';
                 // there are no fields
+                x10aux::ref<String> this_ = Steal(content);
                 _S_("Deserialized string was: \""<<this_<<"\"");
                 return this_;
             }
@@ -104,10 +126,10 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
                 // only support strings that are shorter than 4billion chars
-                x10_int sz = size();
+                x10_int sz = FMGL(content_length);
                 buf.write(sz,m);
                 for (x10_int i=0 ; i<sz ; ++i) {
-                    buf.write((x10_char)at(i),m);
+                    buf.write((x10_char)FMGL(content)[i],m);
                 }
             }
 
@@ -117,78 +139,31 @@ namespace x10 {
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<Rail<x10aux::ref<Object> > > parms);
 
-        };
-
-
-        // Catch all default case that gives an error that we can identify while debugging
-        // If you get this case then you are adding things other than the categories below
-        template<class T1, class T2> struct OpPlus {
-            static x10aux::ref<String> _(x10aux::ref<T1> p1, x10aux::ref<T2> p2) {
-                return stringOpNotImplementedForTheseTwoTypes(p1,p2);
-            }
-        };
-
-
-        // String + String
-        template<> struct OpPlus<String,String> {
-            static x10aux::ref<String> _(x10aux::ref<String> s1, x10aux::ref<String> s2) {
-                //strings can't be null!
-                //if (s1 == x10aux::null) s1 = _make("null");
-                //if (s2 == x10aux::null) s2 = _make("null");
-                return String::_make(*s1+*s2);
-            }
-        };
-        // String+Object
-        template<class T> struct OpPlus<String,T> {
-            static x10aux::ref<String> _(x10aux::ref<String> s, x10aux::ref<T> o) {
-                //strings can't be null!
-                //if (s == x10aux::null) s = _make("null");
-                if (o == x10aux::null) return String::_make(*s+std::string("null"));
-                return String::_make(*s+*o->toString());
-            }
-        };
-        //Object+String
-        template<class T> struct OpPlus<T,String> {
-            static x10aux::ref<String> _(x10aux::ref<T> o, x10aux::ref<String> s) {
-                if (o == x10aux::null) return String::_make(std::string("null")+*s);
-                //strings can't be null!
-                //if (s == x10aux::null) s = _make("null"); 
-                return String::_make(*o->toString()+*s);
+            String () : FMGL(content)(NULL) { }
+            virtual ~String () {
+                x10aux::dealloc(FMGL(content));
             }
         };
 
 
         // Adding reference classes (String+String) (String+Object) (Object+String)
         template<class T1, class T2>
-        x10aux::ref<String> operator+(x10aux::ref<T1> p1, x10aux::ref<T2> p2) {
-            return OpPlus<T1,T2>::_(p1,p2);
+        x10aux::ref<String> operator+(T1 p1, T2 p2) {
+            return String::Steal(x10aux::alloc_printf("%s%s",
+                                                      x10aux::safe_to_string(p1)->c_str(),
+                                                      x10aux::safe_to_string(p2)->c_str()));
         }
             
-        // Postfixing primitives
-        x10aux::ref<String> operator+(x10_boolean v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_byte v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_char v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_short v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_int v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_long v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_float v, x10aux::ref<String> s);
-        x10aux::ref<String> operator+(x10_double v, x10aux::ref<String> s);
-
-        // Prefixing primitives
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_boolean v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_byte v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_char v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_short v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_int v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_long v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_float v);
-        x10aux::ref<String> operator+(x10aux::ref<String> s, x10_double v);
-
         template<class T>
         x10aux::ref<String> operator+=(x10aux::ref<String> &s1, T v) {
             return s1 = s1 + v;
         }
 
+        #ifndef NO_IOSTREAM
+        inline std::ostream &operator<<(std::ostream &o, String &v) {
+            return o << v.c_str();
+        }
+        #endif
 
     } // namespace x10::lang
 
@@ -196,4 +171,4 @@ namespace x10 {
 
 
 #endif
-// vim:tabstop=4:shiftwidth=4:expandtab
+// vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100

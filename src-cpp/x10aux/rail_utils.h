@@ -1,7 +1,11 @@
 #ifndef X10AUX_RAIL_UTILS_H
 #define X10AUX_RAIL_UTILS_H
 
-#include <stdarg.h>
+#ifndef NO_IOSTREAM
+#include <sstream>
+#endif
+
+#include <cstdarg>
 
 #include <x10aux/config.h>
 
@@ -93,7 +97,7 @@ namespace x10aux {
         const char *prefix = "[";
         for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
             T element = (*this)[i];
-            ss << prefix << (x10::lang::String::Lit("")+element);
+            ss << prefix << x10aux::safe_to_string(element);
             prefix = ",";
         }
         ss << "]";

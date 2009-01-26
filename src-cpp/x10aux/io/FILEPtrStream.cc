@@ -14,7 +14,7 @@ using namespace x10::io;
 
 
 FILE* FILEPtrStream::open_file(const ref<String>& name, const char* mode) {
-    const char *filename = ((const std::string&)(*name)).c_str();
+    const char *filename = name->c_str();
     FILE* res = fopen(filename, mode);
 #ifndef NO_EXCEPTIONS
     if (res == NULL)

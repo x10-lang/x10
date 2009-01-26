@@ -1,20 +1,20 @@
 #ifndef X10_LANG_BOX_H
 #define X10_LANG_BOX_H
 
-#include <sstream>
-
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
+#include <x10aux/basic_functions.h>
 
 
 #include <x10/lang/Ref.h>
-#include <x10/lang/String.h>
 
 
 namespace x10 {
 
     namespace lang {
+
+        class String;
 
         template<class T> class Box : public Ref {
 
@@ -26,10 +26,10 @@ namespace x10 {
 
                 virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
 
-                virtual std::string name() const {
-                    std::stringstream ss;
-                    ss<<"x10.lang.Box["<<x10aux::getRTT<T>()->name()<<"]";
-                    return ss.str();
+                virtual const char *name() const {
+                    static const char *name =
+                        x10aux::alloc_printf("x10.lang.Box[%s]",x10aux::getRTT<T>()->name());
+                    return name;
                 }
                  
             };
@@ -52,7 +52,7 @@ namespace x10 {
             }
 
             virtual x10aux::ref<String> toString() {
-                 return String::Lit("")+contents;
+                 return x10aux::to_string(contents);
             }
 
             protected:

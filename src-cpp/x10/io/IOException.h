@@ -20,7 +20,7 @@ namespace x10 {
                     initParents(1,x10aux::getRTT<x10::lang::Exception>());
                 }
                 
-                virtual std::string name() const { return "x10.io.IOException"; }
+                virtual const char *name() const { return "x10.io.IOException"; }
             };
 
             virtual const x10aux::RuntimeType *_type() const {

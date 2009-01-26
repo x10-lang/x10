@@ -20,7 +20,7 @@ namespace x10 {
                         initParents(1,x10aux::getRTT<NativeInputStream>());
                     }
                     
-                    virtual std::string name() const {
+                    virtual const char *name() const {
                         return "x10.io.FileReader.FileInputStream";
                     }
 

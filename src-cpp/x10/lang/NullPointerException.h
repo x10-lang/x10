@@ -16,7 +16,7 @@ namespace x10 {
                 public:
                 static RTT* const it; 
                 virtual void init() { initParents(1,x10aux::getRTT<x10::lang::RuntimeException>());}
-                virtual std::string name() const { return "x10.lang.NullPointerException"; } 
+                virtual const char *name() const { return "x10.lang.NullPointerException"; } 
             };
 
             virtual const x10aux::RuntimeType *_type() const {
