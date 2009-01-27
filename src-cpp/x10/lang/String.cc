@@ -35,7 +35,7 @@ x10_int String::indexOf(ref<String> str, x10_int i) {
     const char *pos = strstr(haystack, needle);
     if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) (pos - needle);
+    return (x10_int) (pos - haystack);
 }
 
 x10_int String::indexOf(x10_char c, x10_int i) {
@@ -45,7 +45,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
     const char *pos = strchr(haystack, needle);
     if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) (pos - needle);
+    return (x10_int) (pos - haystack);
 }
 
 
@@ -68,7 +68,7 @@ x10_int String::lastIndexOf(ref<String> str, x10_int i) {
     const char *pos = my_strrstr(haystack, needle, i);
     if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) (pos - needle);
+    return (x10_int) (pos - haystack);
 }
 
 
@@ -87,7 +87,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
     const char *pos = my_strrchr(haystack, needle, i);
     if (pos == NULL)
         return (x10_int) -1;
-    return (x10_int) (pos - needle);
+    return (x10_int) (pos - haystack);
 }
 
 ref<String> String::substring(x10_int start, x10_int end) {
