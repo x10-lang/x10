@@ -71,7 +71,7 @@ public value Runtime {
 	public static def start(body:()=>Void):Void {
 // temporary: printStackTrace call moved to Main template (native code) 
 //		try {
-			if (here.id == 0) {
+			if (Thread.currentThread().loc() == 0) {
 				val activity = new Activity(body, "root");
 				Thread.currentThread().activity(activity);
 				finish {
@@ -98,22 +98,41 @@ public value Runtime {
 	 * Run async
 	 */
 	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, name:String):Void {
-//        NativeRuntime.println("Runtime.runAsync place:"+place+" clocks:"+clocks+
-//                              " body:"+body+" name:"+name);
 		val state = current().finishStack.peek();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
-		if (place == here) {
+		if (place.id == Thread.currentThread().loc()) {
 			pool.execute(new Activity(body, state, clocks, phases, name));
 		} else {
-            val c = ()=>{
-//                NativeRuntime.println("pool: "+pool);
-                pool.execute(new Activity(body, state, clocks, phases, name));
-            };
+            val c = ()=>pool.execute(new Activity(body, state, clocks, phases, name));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
 
+	public static def runAsync(place:Place, body:()=>Void, name:String):Void {
+		val state = current().finishStack.peek();
+		state.notifySubActivitySpawn();
+		if (place.id == Thread.currentThread().loc()) {
+			pool.execute(new Activity(body, state, name));
+		} else {
+            val c = ()=>pool.execute(new Activity(body, state, name));
+			NativeRuntime.runAt(place.id, c);
+		}
+	}
+
+	public static def runAsync(clocks:ValRail[Clock], body:()=>Void, name:String):Void {
+		val state = current().finishStack.peek();
+		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
+		state.notifySubActivitySpawn();
+		pool.execute(new Activity(body, state, clocks, phases, name));
+	}
+
+	public static def runAsync(body:()=>Void, name:String):Void {
+		val state = current().finishStack.peek();
+		state.notifySubActivitySpawn();
+		pool.execute(new Activity(body, state, name));
+	}
+	
 	/**
 	 * Run at statement
 	 */
@@ -182,7 +201,7 @@ public value Runtime {
 	 * not reentrant!
 	 */
     public static def lock():Void {
-    	monitors(here().id).lock();
+    	monitors(Thread.currentThread().loc()).lock();
     }
 
 	/**
@@ -190,7 +209,7 @@ public value Runtime {
 	 * Must be called while holding the place lock
 	 */	 
     public static def await():Void {
-    	monitors(here().id).await();
+    	monitors(Thread.currentThread().loc()).await();
     }
 	
 	/**
@@ -198,8 +217,9 @@ public value Runtime {
 	 * Notify all
 	 */
     public static def release():Void {
-		monitors(here().id).unparkAll();
-		monitors(here().id).unlock();
+    	val loc = Thread.currentThread().loc();
+		monitors(loc).unparkAll();
+		monitors(loc).unlock();
     }
 
 

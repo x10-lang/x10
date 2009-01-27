@@ -17,7 +17,7 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 	private val body:()=>Void;
 	
 	/**
-	 * Create an activity.
+	 * Create root activity.
 	 */
 	def this(body:()=>Void, name:String) {
 	    property(new ClockPhases(), new Stack[FinishState](), name);
@@ -25,7 +25,15 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 	}
 
 	/**
-	 * Create a clocked activity.
+	 * Create spawned activity.
+	 */
+	def this(body:()=>Void, state:FinishState, name:String) {
+		this(body, name);
+	    finishStack.push(state);
+	}
+
+	/**
+	 * Create clocked spawned activity.
 	 */
 	def this(body:()=>Void, state:FinishState, clocks:ValRail[Clock], phases:ValRail[Int], name:String) {
 		this(body, name);
@@ -38,7 +46,7 @@ class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:Str
 	 */
 	def run():Void {
 		val state = finishStack.peek();
-		if (location == state.location) {
+		if (location.id == state.location.id) {
 			// local async
 			try {
 				body();

@@ -108,7 +108,7 @@ public class Desugarer extends ContextVisitor {
         if (n instanceof Future)
             return visitFuture((Future) n);
         if (n instanceof Async)
-            return visitAsync((Async) n);
+            return visitAsync(old, (Async) n);
         if (n instanceof AtStmt)
             return visitAtStmt((AtStmt) n);
         if (n instanceof AtExpr)
@@ -217,6 +217,7 @@ public class Desugarer extends ContextVisitor {
     }
 
     private Stmt async(Position pos, Stmt body, List clocks, Expr place, String prefix) throws SemanticException {
+        if (clocks.size() == 0) return async(pos, body, place, prefix);
         Type clockRailType = xts.ValRail(xts.Clock());
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
@@ -235,8 +236,64 @@ public class Desugarer extends ContextVisitor {
                 args).methodInstance(implMI).type(xts.Void()));
     }
 
-    private Stmt visitAsync(Async a) throws SemanticException {
+    private Stmt async(Position pos, Stmt body, Expr place, String prefix) throws SemanticException {
+        Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+        Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
+        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        List<Expr> args = Arrays.asList(new Expr[] { place, closure, pString });
+        List<Type> mArgs = Arrays.asList(new Type[] {
+            xts.Place(), closure.closureDef().asType(), xts.String()
+        });
+        // TODO: merge with the call() function
+        MethodInstance implMI = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), RUN_ASYNC, mArgs),
+                context.currentClassDef());
+        return xnf.Eval(pos, xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, RUN_ASYNC), Collections.EMPTY_LIST,
+                args).methodInstance(implMI).type(xts.Void()));
+    }
+
+    private Stmt async(Position pos, Stmt body, List clocks, String prefix) throws SemanticException {
+        if (clocks.size() == 0) return async(pos, body, prefix);
+        Type clockRailType = xts.ValRail(xts.Clock());
+        Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
+        Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+        Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
+        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        List<Expr> args = Arrays.asList(new Expr[] { clockRail, closure, pString });
+        List<Type> mArgs = Arrays.asList(new Type[] {
+            clockRailType, closure.closureDef().asType(), xts.String()
+        });
+        // TODO: merge with the call() function
+        MethodInstance implMI = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), RUN_ASYNC, mArgs),
+                context.currentClassDef());
+        return xnf.Eval(pos, xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, RUN_ASYNC), Collections.EMPTY_LIST,
+                args).methodInstance(implMI).type(xts.Void()));
+    }
+
+    private Stmt async(Position pos, Stmt body, String prefix) throws SemanticException {
+        Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
+        Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
+        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        List<Expr> args = Arrays.asList(new Expr[] { closure, pString });
+        List<Type> mArgs = Arrays.asList(new Type[] {
+            closure.closureDef().asType(), xts.String()
+        });
+        // TODO: merge with the call() function
+        MethodInstance implMI = xts.findMethod(xts.Runtime(),
+                xts.MethodMatcher(xts.Runtime(), RUN_ASYNC, mArgs),
+                context.currentClassDef());
+        return xnf.Eval(pos, xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, xts.Runtime()),
+                xnf.Id(pos, RUN_ASYNC), Collections.EMPTY_LIST,
+                args).methodInstance(implMI).type(xts.Void()));
+    }
+
+    private Stmt visitAsync(Node old, Async a) throws SemanticException {
         Position pos = a.position();
+        if (old instanceof Async && ((Async) old).place() instanceof Here)
+            return async(pos, a.body(), a.clocks(), "async-");
         return async(pos, a.body(), a.clocks(), a.place(), "async-");
     }
 
