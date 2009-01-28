@@ -77,7 +77,7 @@ public abstract class Runtime implements Runnable {
 	/**
 	 * The number of threads to allocate in the thread pool
 	 */
-	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS_PER_PLACE", 3);
+	public static final int INIT_THREADS = Integer.getInteger("x10.INIT_THREADS_PER_PLACE", java.lang.Runtime.getRuntime().availableProcessors());
 
 	/**
 	 * Synchronously executes body at place(id)

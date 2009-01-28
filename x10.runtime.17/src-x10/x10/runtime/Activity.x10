@@ -13,69 +13,88 @@ import x10.util.Stack;
 /**
  * @author tardieu
  */
-class Activity(clockPhases:ClockPhases, finishStack:Stack[FinishState], name:String) {
+class Activity(finishState:FinishState, name:String) {
+	// the finish state governing the execution of this activity
+
+	/**
+	 * The user-specified code for this activity.
+	 */
 	private val body:()=>Void;
 	
 	/**
-	 * Create root activity.
+	 * The mapping from registered clocks to phases for this activity.
+	 * Lazily created.
 	 */
-	def this(body:()=>Void, name:String) {
-	    property(new ClockPhases(), new Stack[FinishState](), name);
+	var clockPhases:ClockPhases;
+	
+	/**
+	 * The finish states for the finish statements currently executed by this activity.  
+	 * Lazily created.
+	 */
+	var finishStack:Stack[FinishState];
+	
+	/**
+	 * Create activity.
+	 */
+	def this(body:()=>Void, finishState:FinishState, name:String) {
+		property(finishState, name);
 	    this.body = body;
 	}
 
 	/**
-	 * Create spawned activity.
+	 * Create clocked activity.
 	 */
-	def this(body:()=>Void, state:FinishState, name:String) {
-		this(body, name);
-	    finishStack.push(state);
-	}
-
-	/**
-	 * Create clocked spawned activity.
-	 */
-	def this(body:()=>Void, state:FinishState, clocks:ValRail[Clock], phases:ValRail[Int], name:String) {
-		this(body, name);
-	    finishStack.push(state);
+	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int], name:String) {
+		this(body, finishState, name);
+	    clockPhases = new ClockPhases();
 		clockPhases.register(clocks, phases);
 	}
 
 	/**
-	 * Run the activity.
+	 * Run asynchronous activity.
 	 */
 	def run():Void {
-		val state = finishStack.peek();
-		if (location.id == state.location.id) {
+		if (location.id == finishState.location.id) {
 			// local async
-			try {
-				body();
-				clockPhases.drop();
-				state.notifySubActivityTermination();
-			} catch (t:Throwable) {
-				clockPhases.drop();
-				state.notifySubActivityTermination(t);
-			}
+			now();
+			finishState.notifySubActivityTermination();
 		} else {
 			// remote async
+			val state = finishState;
 			try {
+				// enclose computation in local finish to minimize traffic
 				Runtime.startFinish();
-				try {
-					body();
-				} catch (t:Throwable) {
-					Runtime.pushException(t);
-				}
-				clockPhases.drop();
+				now();
 				Runtime.stopFinish();
                 val c = ()=>state.notifySubActivityTermination();
 				NativeRuntime.runAt(state.location.id, c);
 			} catch (t:Throwable) {
+				// report exception & termination atomically
                 val c = ()=>state.notifySubActivityTermination(t);
 				NativeRuntime.runAt(state.location.id, c);
 	    	}
 		}
 	}
 	
+	/**
+	 * Run synchronous activity.
+	 */
+	def now():Void {
+		try {
+			body();
+		} catch (t:Throwable) {
+			Runtime.pushException(t);
+		}
+		drop();
+	}
+
+	/**
+	 * Drop all clocks.
+	 */
+	private def drop():Void {
+		if (null != clockPhases) clockPhases.drop();
+	}
+
 	public def toString():String = name; 
 }
 
