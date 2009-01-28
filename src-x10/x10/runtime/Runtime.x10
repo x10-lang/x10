@@ -9,6 +9,7 @@
 package x10.runtime;
 
 import x10.util.GrowableRail;
+import x10.util.Stack;
 
 import x10.io.Console;
 
@@ -17,15 +18,20 @@ import x10.io.Console;
  */
 public value Runtime {
 	// TODO place-cast of null?
-	// TODO runNow
 	
+	private def this():Runtime {}
+	
+	/**
+	 * Master thread running the runtime/pool/root activity
+	 */
+	private const master = Thread.currentThread();
 	
 	// x10_probe
 	
 	/**
 	 * Listener thread should process incoming messages instead of parking
 	 */
-	const listener = (NativeRuntime.local(0) && !NativeRuntime.local(NativeRuntime.MAX_PLACES - 1)) ? Thread.currentThread() : null;
+	const listener = (NativeRuntime.local(0) && !NativeRuntime.local(NativeRuntime.MAX_PLACES - 1)) ? master : null;
 	
 
 	// thread pool
@@ -33,7 +39,7 @@ public value Runtime {
 	/**
 	 * One thread pool per node
 	 */
-	private const pool = new Pool(NativeRuntime.INIT_THREADS);
+	private const pool = new Pool(NativeRuntime.INIT_THREADS - 1);
 
 	/**
 	 * Notify the thread pool that one activity is about to block
@@ -48,8 +54,8 @@ public value Runtime {
 	static def threadUnblockedNotification():Void {
 		pool.decrease();
     }
-
-
+    
+    
 	// current activity, current place
 
 	/**
@@ -71,19 +77,16 @@ public value Runtime {
 	public static def start(body:()=>Void):Void {
 // temporary: printStackTrace call moved to Main template (native code) 
 //		try {
-			if (Thread.currentThread().loc() == 0) {
-				val activity = new Activity(body, "root");
-				Thread.currentThread().activity(activity);
-				finish {
-					activity.finishStack.peek().notifySubActivitySpawn();
-					activity.run();
-				}
+			if (master.loc() == 0) {
+				val rootFinish = new FinishState();
+				val activity = new Activity(body, rootFinish, "root");
+				master.activity(activity);
+				activity.now();
+				rootFinish.waitForFinish();
 				pool.destruct();
 				//NativeRuntime.println("Root activity completed");
 			} else {
-				//NativeRuntime.println("Child activity started "+here.id);
 				NativeRuntime.event_loop();
-				//NativeRuntime.println("Child activity completed "+here.id);
 			}
 //		} catch (t:Throwable) {
 //			t.printStackTrace();
@@ -98,7 +101,7 @@ public value Runtime {
 	 * Run async
 	 */
 	public static def runAsync(place:Place, clocks:ValRail[Clock], body:()=>Void, name:String):Void {
-		val state = current().finishStack.peek();
+		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
 		if (place.id == Thread.currentThread().loc()) {
@@ -110,7 +113,7 @@ public value Runtime {
 	}
 
 	public static def runAsync(place:Place, body:()=>Void, name:String):Void {
-		val state = current().finishStack.peek();
+		val state = currentState();
 		state.notifySubActivitySpawn();
 		if (place.id == Thread.currentThread().loc()) {
 			pool.execute(new Activity(body, state, name));
@@ -121,14 +124,14 @@ public value Runtime {
 	}
 
 	public static def runAsync(clocks:ValRail[Clock], body:()=>Void, name:String):Void {
-		val state = current().finishStack.peek();
+		val state = currentState();
 		val phases = Rail.makeVal[Int](clocks.length, (i:Nat)=>(clocks(i) as Clock_c).register_c());
 		state.notifySubActivitySpawn();
 		pool.execute(new Activity(body, state, clocks, phases, name));
 	}
 
 	public static def runAsync(body:()=>Void, name:String):Void {
-		val state = current().finishStack.peek();
+		val state = currentState();
 		state.notifySubActivitySpawn();
 		pool.execute(new Activity(body, state, name));
 	}
@@ -169,8 +172,7 @@ public value Runtime {
 	 * Place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (NativeRuntime.PLACE_CHECKS &&
-				null != o && o instanceof Ref && (o to Ref).location != p) {
+		if (NativeRuntime.PLACE_CHECKS && null != o && o instanceof Ref && (o to Ref).location.id != p.id) {
 			throw new BadPlaceException("object=" + (at ((o to Ref).location) o.toString()) + " access at place=" + p);
 		}
 		return o;
@@ -180,11 +182,11 @@ public value Runtime {
 	// atomic, await, when
 
     public static def newMonitor(id:Int):Monitor {
-    	val ret = Thread.currentThread().loc();
+    	val loc = master.loc();
     	val box = new GrowableRail[Monitor]();
         val c = ()=>{
     		val monitor = new Monitor();
-    		NativeRuntime.runAtLocal(ret, ()=>{ box.add(monitor); });
+    		NativeRuntime.runAtLocal(loc, ()=>box.add(monitor));
     	};
     	NativeRuntime.runAtLocal(id, c);
     	return box(0);
@@ -233,12 +235,12 @@ public value Runtime {
 	 */
 	public static def sleep(millis:long):Boolean {
 		try {
-			threadBlockedNotification();
+			pool.increase();
 			Thread.sleep(millis);
-			threadUnblockedNotification();
+			pool.decrease();
 			return true;
 		} catch (e:InterruptedException) {
-			threadUnblockedNotification();
+			pool.decrease();
 			return false;
 		}
 	}
@@ -247,9 +249,13 @@ public value Runtime {
 	// clocks
 
 	/**
-	 * Return the clock phases of the current activity
+	 * Return the clock phases for the current activity
 	 */
-	static def clockPhases():ClockPhases = current().clockPhases();
+	static def clockPhases():ClockPhases {
+		val activity = current();
+		if (null == activity.clockPhases) activity.clockPhases = new ClockPhases();
+		return activity.clockPhases;
+	}
 
 	/**
 	 * Next statement = next on all clocks in parallel.
@@ -260,11 +266,22 @@ public value Runtime {
 	// finish
 
 	/**
+	 * Return the innermost finish state for the current activity
+	 */
+	private static def currentState():FinishState {
+		val activity = current();
+		if (null == activity.finishStack || activity.finishStack.isEmpty()) return activity.finishState;
+		return activity.finishStack.peek();	
+	}
+
+	/**
 	 * Start executing current activity synchronously 
 	 * (i.e. within a finish statement).
 	 */
 	public static def startFinish():Void {
-		current().finishStack.push(new FinishState());
+		val activity = current();
+		if (null == activity.finishStack) activity.finishStack = new Stack[FinishState]();
+		activity.finishStack.push(new FinishState());
 	}
 
 	/**
@@ -282,7 +299,7 @@ public value Runtime {
 	 * onto the finish state.
 	 */
 	public static def pushException(t:Throwable):Void  {
-		current().finishStack.peek().pushException(t);
+		currentState().pushException(t);
 	}
 }
 
