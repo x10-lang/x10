@@ -45,6 +45,16 @@ namespace x10 {
                 return x10aux::io::FILEPtrInputStream::read();
             }
 
+            virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b) {
+                return x10::io::FileInputStream::read(b);
+            }
+
+            virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b,
+                                 x10_int off,
+                                 x10_int len) {
+                return x10::io::FileInputStream::read(b, off, len);
+            }
+
             virtual void skip(x10_int bytes) {
                 return x10aux::io::FILEPtrInputStream::skip(bytes);
             }

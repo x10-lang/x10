@@ -93,7 +93,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
 ref<String> String::substring(x10_int start, x10_int end) {
     assert(end>=start); // TODO: proper bounds check
     std::size_t sz = end - start;
-    char *str = (char *)malloc(sz+1);
+    char *str = x10aux::alloc<char>(sz+1);
     for (std::size_t i=0 ; i<sz ; ++i)
         str[i] = FMGL(content)[start+i];
     str[sz] = '\0';
