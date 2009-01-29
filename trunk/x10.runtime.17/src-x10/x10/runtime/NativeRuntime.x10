@@ -25,6 +25,7 @@ public value NativeRuntime {
    * Set system exit code
    */
   @Native("java", "x10.runtime.impl.java.Runtime.setExitCode(#1)")
+  @Native("c++", "(x10aux::exitCode = (#1))")
   public static def setExitCode(code: int): void {}
 
   // Configuration options
