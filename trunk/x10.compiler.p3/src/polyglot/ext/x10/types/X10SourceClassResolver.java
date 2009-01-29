@@ -86,7 +86,9 @@ public class X10SourceClassResolver implements TopLevelResolver {
             loader = new ClassPathResourceLoader(classpath);
 
         try {
-            Resource clazz = loader.loadResource(name.toString());
+            String fileName = name.toString().replace('.', '/');
+            fileName += ".class";
+            Resource clazz = loader.loadResource(fileName);
 
             if (clazz == null) {
                 if (Report.should_report(report_topics, 4)) {
