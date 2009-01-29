@@ -167,8 +167,8 @@ namespace x10aux {
         char* buffer;
         char* limit;
         char* cursor;
-        static char* alloc(size_t size) { return x10aux::alloc<char>(size); }
-        static void dealloc(char* buf) { x10aux::dealloc<char>(buf); }
+        static char* alloc(size_t size) { return x10aux::alloc_non_gc<char>(size); }
+        static void dealloc(char* buf) { x10aux::dealloc_non_gc<char>(buf); }
         char* grow() {
             assert (limit != NULL);
             char* saved_buf = buffer;

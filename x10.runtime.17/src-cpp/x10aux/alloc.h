@@ -32,6 +32,18 @@ namespace x10aux {
         return ret;
     }
 
+    // for use in special contexts where we may need to pass the allocated memory
+    // down into lower-levels of pgasrt, which is not aware of the gc managed heap.
+    template<class T> T* alloc_non_gc(size_t size = sizeof(T)) {
+        _M_("Allocating NGC" << size << " bytes of type " << TYPENAME(T));
+        T* ret = (T*)x10_alloc(size);
+        _M_("\t-> " << (void*)ret);
+        if (ret == NULL && size > 0) {
+            _M_("Out of memory allocating " << size << " bytes");
+        }
+        return ret;
+    }
+
     // there should probably be an optimised x10_realloc function but never mind
     // FIXME:  There is a GC_REALLOC macro, which we could use when this is actually calling realloc..
     template<class T> T* realloc(T* src, size_t ssz = sizeof(T), size_t dsz = sizeof(T)) {
@@ -49,6 +61,13 @@ namespace x10aux {
 #else        
         x10_free((x10_addr_t) obj);
 #endif        
+    }
+
+    // for use in special contexts where we may need to pass the allocated memory
+    // down into lower-levels of pgasrt, which is not aware of the gc managed heap.
+    template<class T> void dealloc_non_gc(T* obj) {
+        _M_("Freeing NGC chunk " << (void*)obj << " of type " << TYPENAME(T));
+        x10_free((x10_addr_t) obj);
     }
 
     const char *alloc_printf(const char *fmt, ...);
