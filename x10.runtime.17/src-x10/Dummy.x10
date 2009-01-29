@@ -125,6 +125,8 @@ class Dummy {
     var f122 : x10.runtime.Pool;
     var f123 : x10.runtime.Runtime;
     var f128 : x10.runtime.Thread;
+    var f129 : x10.tuningfork.Logger;
+    var f130 : x10.tuningfork.LoggerFactory;
     var f135 : x10.util.AbstractCollection[Dummy];
     var f136 : x10.util.AbstractContainer[Dummy];
     var f137 : x10.util.ArrayList[Dummy];
