@@ -18,7 +18,7 @@ class Monitor {
  	/**
  	 * Set to false to interrupt listener thread
  	 */
-   	var park:Boolean = true;
+   	var park:Boolean;
 
  	/**
  	 * Instance lock
@@ -45,14 +45,14 @@ class Monitor {
 	 */
     def park(): void {
     	val thread = Thread.currentThread();
-   		if (thread == Runtime.listener) {
-	   		unlock();
-   			while (park) NativeRuntime.event_probe();
-   			lock();
-   			park = true;
-		} else {
-	    	stack.push(thread);
-	    	while (stack.search(thread) != -1) {
+    	stack.push(thread);
+    	while (stack.search(thread) != -1) {
+	   		if (thread == Runtime.listener) {
+	   			park = true;
+		   		unlock();
+	   			while (park) NativeRuntime.event_probe();
+	   			lock();
+			} else {
 		   		unlock();
 	   			Thread.park();
 	   			lock();
@@ -81,7 +81,14 @@ class Monitor {
 	 * Must be called while holding the lock
 	 */
     def unpark(): void {
-    	if (!stack.isEmpty()) Thread.unpark(stack.pop());
+    	if (!stack.isEmpty()) {
+    		val thread = stack.pop();
+    		if (thread == Runtime.listener) {
+    			park = false;
+	    	} else {
+    			Thread.unpark(thread);
+    		}	
+    	}
     }
     
  	/**
@@ -92,6 +99,12 @@ class Monitor {
     	park = false;
     	while (!stack.isEmpty()) Thread.unpark(stack.pop());
     }
+
+	/**
+	 * Return the number of parked threads 
+	 * Must be called while holding the lock
+	 */
+  	def size(): int = stack.size();
     
 	/**
 	 * Unlock
