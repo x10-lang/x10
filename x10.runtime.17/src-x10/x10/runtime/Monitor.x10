@@ -28,25 +28,26 @@ class Monitor {
  	/**
  	 * Parked threads
  	 */
- 	private val stack = new Stack[Thread]();
+ 	private val threads = new Stack[Thread]();
 
 	/**
 	 * Lock
 	 */
-    def lock(): void {
+    def lock():Void {
     	lock.lock();
     }
 
     /**
      * Park calling thread
-     * Does not increment blocked thread count
+     * Increment blocked thread count
 	 * Must be called while holding the lock
 	 * Must not be called while holding the lock more than once
 	 */
-    def park(): void {
+    def park():Void {
+    	Runtime.pool.increase();
     	val thread = Thread.currentThread();
-    	stack.push(thread);
-    	while (stack.search(thread) != -1) {
+    	threads.push(thread);
+    	while (threads.search(thread) != -1) {
 	   		if (thread == Runtime.listener) {
 	   			park = true;
 		   		unlock();
@@ -60,56 +61,24 @@ class Monitor {
 		}
     }
 
-    /**
-     * Park calling thread
-     * Increment blocked thread count
-	 * Must be called while holding the lock
-	 * Must not be called while holding the lock more than once
-	 */
-    def await(): void {
-		// notify runtime thread is about to block
-    	Runtime.threadBlockedNotification();
-
-		park();
-		
-		// notify runtime thread is running again
-    	Runtime.threadUnblockedNotification();
-    }
-
-	/**
-	 * Unpark one thread
-	 * Must be called while holding the lock
-	 */
-    def unpark(): void {
-    	if (!stack.isEmpty()) {
-    		val thread = stack.pop();
-    		if (thread == Runtime.listener) {
-    			park = false;
-	    	} else {
-    			Thread.unpark(thread);
-    		}	
-    	}
-    }
-    
  	/**
 	 * Unpark every thread
+     * Decrement blocked thread count
 	 * Must be called while holding the lock
 	 */
-    def unparkAll(): void {
-    	park = false;
-    	while (!stack.isEmpty()) Thread.unpark(stack.pop());
+    def unpark():Void {
+    	val size = threads.size();
+    	if (size > 0) {
+	    	Runtime.pool.decrease(size);
+	    	park = false;
+	    	for (var i:Int = 0; i<size; i++) Thread.unpark(threads.pop());
+	    }
     }
 
-	/**
-	 * Return the number of parked threads 
-	 * Must be called while holding the lock
-	 */
-  	def size(): int = stack.size();
-    
 	/**
 	 * Unlock
 	 */
-    def unlock(): void {
+    def unlock():Void {
     	lock.unlock();
     }
 }

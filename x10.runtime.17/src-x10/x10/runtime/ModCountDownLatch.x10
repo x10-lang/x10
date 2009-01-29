@@ -49,7 +49,7 @@ class ModCountDownLatch {
     	if (count > 0) {
 	    	monitor.lock();
 		   	if (count > 0) --count;
-		   	if (count == 0) monitor.unparkAll();
+		   	if (count == 0) monitor.unpark();
 	   		monitor.unlock();
 	   	}
     }
@@ -61,7 +61,7 @@ class ModCountDownLatch {
     	// avoid locking if count == 0
     	if (count > 0) {
 	    	monitor.lock();
-	    	while (count > 0) monitor.await();
+	    	while (count > 0) monitor.park();
     		monitor.unlock();
 		}
     }
