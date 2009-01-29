@@ -39,22 +39,8 @@ public value Runtime {
 	/**
 	 * One thread pool per node
 	 */
-	private const pool = new Pool(NativeRuntime.INIT_THREADS - 1);
+	const pool = new Pool(NativeRuntime.INIT_THREADS - 1);
 
-	/**
-	 * Notify the thread pool that one activity is about to block
-	 */
-	static def threadBlockedNotification():Void {
-		pool.increase();
-    }
-
-	/**
-	 * Notify the thread pool that one activity has unblocked
-	 */
-	static def threadUnblockedNotification():Void {
-		pool.decrease();
-    }
-    
     
 	// current activity, current place
 
@@ -83,7 +69,7 @@ public value Runtime {
 				master.activity(activity);
 				activity.now();
 				rootFinish.waitForFinish();
-				pool.destruct();
+				pool.quit();
 				//NativeRuntime.println("Root activity completed");
 			} else {
 				NativeRuntime.event_loop();
@@ -211,7 +197,7 @@ public value Runtime {
 	 * Must be called while holding the place lock
 	 */	 
     public static def await():Void {
-    	monitors(Thread.currentThread().loc()).await();
+    	monitors(Thread.currentThread().loc()).park();
     }
 	
 	/**
@@ -220,7 +206,7 @@ public value Runtime {
 	 */
     public static def release():Void {
     	val loc = Thread.currentThread().loc();
-		monitors(loc).unparkAll();
+		monitors(loc).unpark();
 		monitors(loc).unlock();
     }
 
@@ -237,10 +223,10 @@ public value Runtime {
 		try {
 			pool.increase();
 			Thread.sleep(millis);
-			pool.decrease();
+			pool.decrease(1);
 			return true;
 		} catch (e:InterruptedException) {
-			pool.decrease();
+			pool.decrease(1);
 			return false;
 		}
 	}
