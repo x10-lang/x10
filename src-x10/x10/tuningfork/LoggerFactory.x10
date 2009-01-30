@@ -21,4 +21,19 @@ public class LoggerFactory {
 	
 	@Native("java", "#0.makeFileLogger(#1)")
 	public native static def makeFileLogger(fileName:String):Logger throws IOException;
+
+	@Native("java", "#0.makeFileLogger(#1, new com.ibm.tuningfork.tracegen.types.EventTypeSpaceVersion[] {#2})")
+	public native static def makeFileLogger(fileName:String, etsv:EventTypeSpaceVersion):Logger throws IOException;
+
+	@Native("java", "#0.makeFileLogger(#1, ((com.ibm.tuningfork.tracegen.types.EventTypeSpaceVersion[])((#2).value)))")
+	public native static def makeFileLogger(fileName:String, etsv:Rail[EventTypeSpaceVersion]):Logger throws IOException;
+
+	@Native("java", "#0.makeServerLogger(#1)")
+	public native static def makeServerLogger(port:int):Logger throws IOException;
+
+	@Native("java", "#0.makeServerLogger(#1, new com.ibm.tuningfork.tracegen.types.EventTypeSpaceVersion[] {#2})")
+	public native static def makeServerLogger(port:int, etsv:EventTypeSpaceVersion):Logger throws IOException;
+
+	@Native("java", "#0.makeServerLogger(#1, ((com.ibm.tuningfork.tracegen.types.EventTypeSpaceVersion[])((#2).value)))")
+	public native static def makeServerLogger(port:int, etsv:Rail[EventTypeSpaceVersion]):Logger throws IOException;
 }
