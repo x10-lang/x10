@@ -16,7 +16,7 @@ import x10.compiler.NativeRep;
  * 
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.IBookmarkEvent", null, null)
-public class BookmarkEvent {
+public value BookmarkEvent {
 	
 	@Native("java", "#0.addBookmark(#1,#2)")
 	public native def addValue(feedlet:Feedlet, value:String):void;
