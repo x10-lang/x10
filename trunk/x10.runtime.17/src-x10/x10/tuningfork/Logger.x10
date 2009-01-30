@@ -21,7 +21,7 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "com.ibm.tuningfork.tracegen.ILogger", null, null)
 public class Logger {
-	
+
 	@Native("java", "#0.makeTimerEvent(#1)")
 	public native def makeTimerEvent(name:String):TimerEvent;
 
@@ -31,9 +31,14 @@ public class Logger {
 	@Native("java", "#0.makeValueEvent(#1)")
 	public native def makeValueEvent(name:String):ValueEvent;
 
+	@Native("java", "#0.addEventType(#1)")
+	public native def addEventType(et:EventType):void;
+	
 	@Native("java", "#0.addProperty(#1, #2)")
 	public native def addProperty(propertyName:String, value:String):void;
 
 	@Native("java", "#0.makeFeedlet(#1,#2)")
 	public native def makeFeedlet(name:String, description:String):Feedlet;
+
+	
 }
