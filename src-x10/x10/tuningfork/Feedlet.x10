@@ -25,12 +25,39 @@ public class Feedlet {
 	@Native("java", "#0.addEvent(#1,#2)")
 	public native def addEvent(eventType:EventType, value:int):void;
 
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:int, v2:int):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3,#4)")
+	public native def addEvent(eventType:EventType, v1:int, v2:int, v3:int):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3,#4,#5)")
+	public native def addEvent(eventType:EventType, v1:int, v2:int, v3:int, v4:int):void;
+
 	@Native("java", "#0.addEvent(#1,#2)")
 	public native def addEvent(eventType:EventType, value:long):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:long, v2:long):void;
 
 	@Native("java", "#0.addEvent(#1,#2)")
 	public native def addEvent(eventType:EventType, value:double):void;
 
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:double, v2:double):void;
+
 	@Native("java", "#0.addEvent(#1,#2)")
 	public native def addEvent(eventType:EventType, value:String):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:int, v2:long):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:int, v2:double):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:int, v2:String):void;
+
+	@Native("java", "#0.addEvent(#1,#2,#3)")
+	public native def addEvent(eventType:EventType, v1:long, v2:double):void;
 }
