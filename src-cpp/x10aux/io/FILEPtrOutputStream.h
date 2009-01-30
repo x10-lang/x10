@@ -2,6 +2,7 @@
 #define X10AUX_IO_FILEPTROUTPUTSTREAM_H
 
 #include <x10aux/io/FILEPtrStream.h>
+#include <cstdarg>
 
 namespace x10 {
     namespace lang {

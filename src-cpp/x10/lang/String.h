@@ -8,6 +8,9 @@
 
 #include <x10/lang/Value.h>
 
+#ifdef __CYGWIN__
+extern "C" char *strdup (const char *);
+#endif
 namespace x10 {
 
     namespace lang {
@@ -39,7 +42,7 @@ namespace x10 {
             // steal false for string literals which ought not to be freed.
             // Leave it false for 'static' malloced char* such as the RTT type
             // names that also ought not to be freed.
-            static x10aux::ref<String> _make(const char *content, bool steal=false) {
+            static x10aux::ref<String> _make(const char *content, bool steal = false) {
                 x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
                 if (!steal) content = strdup(content);
                 this_->_constructor(content,strlen(content));
