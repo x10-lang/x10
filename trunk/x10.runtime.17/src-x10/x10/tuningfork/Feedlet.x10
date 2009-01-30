@@ -60,4 +60,7 @@ public class Feedlet {
 
 	@Native("java", "#0.addEvent(#1,#2,#3)")
 	public native def addEvent(eventType:EventType, v1:long, v2:double):void;
+
+	@Native("java", "#0.addEvent(#1, (int[])((#2).value), (long[])((#3).value), (double[])((#4).value), (String[])((#5).value))")
+	public native def addEvent(eventType:EventType, ints:Rail[int], longs:Rail[long], doubles:Rail[double], strings:Rail[String]):void;
 }
