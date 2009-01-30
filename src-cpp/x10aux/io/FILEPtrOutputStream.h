@@ -3,6 +3,13 @@
 
 #include <x10aux/io/FILEPtrStream.h>
 
+namespace x10 {
+    namespace lang {
+        template<class T> class ValRail;
+        template<class T> class Rail;
+    }
+}
+
 namespace x10aux {
 
     namespace io {
@@ -16,6 +23,7 @@ namespace x10aux {
             explicit FILEPtrOutputStream(FILE* stream)
                 : FILEPtrStream(stream) { }
             virtual void flush();
+            virtual void write(const x10aux::ref<x10::lang::ValRail<x10_byte> >& b, x10_int off, x10_int len);
             virtual void write(const x10aux::ref<x10::lang::Rail<x10_byte> >& b, x10_int off, x10_int len);
             virtual void write(x10_int b);
             //friend class PrintStream;

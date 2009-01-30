@@ -46,13 +46,13 @@ namespace x10 {
             }
 
             virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b) {
-                return x10::io::FileInputStream::read(b);
+                return x10::io::NativeInputStream::read(b);
             }
 
             virtual x10_int read(x10aux::ref<x10::lang::Rail<x10_byte> > b,
                                  x10_int off,
                                  x10_int len) {
-                return x10::io::FileInputStream::read(b, off, len);
+                return x10aux::io::FILEPtrInputStream::read(b, off, len);
             }
 
             virtual void skip(x10_int bytes) {

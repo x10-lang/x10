@@ -55,9 +55,9 @@ namespace x10 {
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b)
             { x10::io::NativeOutputStream::write(b); }
             virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len)
-            { x10::io::NativeOutputStream::write(b, off, len); }
+            { x10aux::io::FILEPtrOutputStream::write(b, off, len); }
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b,x10_int off,x10_int len)
-            { x10::io::NativeOutputStream::write(b, off, len); }
+            { x10aux::io::FILEPtrOutputStream::write(b, off, len); }
 
             virtual void flush() {
                 x10aux::io::FILEPtrOutputStream::flush();
