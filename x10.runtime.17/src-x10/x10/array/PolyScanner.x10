@@ -60,12 +60,12 @@ import x10.io.Printer;
  * @author bdlucas
  */
 
-final public class PolyScanner/*(A:PolyMat, B:XformMat)*/ implements Region.Scanner {
+final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scanner {
 
-    val A: PolyMat;
-    val B: XformMat;
+    /*private*/ public val C: PolyMat;
+    /*private*/ public val X: XformMat;
 
-    protected val rank: int;
+    /*protected*/ public val rank: int;
 
     private val min: Rail[VarMat];
     private val max: Rail[VarMat];
@@ -76,13 +76,13 @@ final public class PolyScanner/*(A:PolyMat, B:XformMat)*/ implements Region.Scan
         this(pm, XformMat.identity(pm.rank));
     }
 
-    public def this(var pm: PolyMat, B: XformMat) {
+    public def this(var pm: PolyMat, X: XformMat) {
 
         pm = pm.simplifyAll();
 
-        //property(pm, B);
-        this.A = pm;
-        this.B = B;
+        //property(pm, X);
+        this.C = pm;
+        this.X = X;
 
         this.rank = pm.rank;
 
@@ -275,13 +275,41 @@ final public class PolyScanner/*(A:PolyMat, B:XformMat)*/ implements Region.Scan
 
     public def $for(body:(p:Point)=>void) {
         for (p:Point in this)
-            body(B*p);
+            body(X*p);
+    }
+
+    public def loop(body:(Rail[int])=>void) {
+        val p = Rail.makeVar[int](X.rows);
+        val q = Rail.makeVar[int](X.cols);
+        loop(body, p, q, 0);
+    }
+
+    public def loop(body:(Rail[int])=>void, p:Rail[int], q:Rail[int], r:int) {
+        if (r<rank) {
+            val s = this to Region.Scanner;
+            val max = s.max(r);
+            val min = s.min(r);
+            //U.xxx("r=" + r + " min=" + min + " max=" + max);
+            for (var i:int=min; i<=max; i++) {
+                set(r, i);
+                q(r) = i;
+                loop(body, p, q, r+1);
+            }
+        } else {
+            for (var i:int=0; i<X.rows; i++) {
+                var x:int = 0;
+                for (var j:int=0; j<X.cols; j++)
+                    x += X(i)(j)*q(j);
+                p(i) = x;
+            }
+            body(p);
+        }
     }
 
     public def $times(that:Xform): PolyScanner {
         if (that instanceof PolyXform) {
             val p = that to PolyXform;
-            return new PolyScanner((A*p.V)||p.C, B*p.V);
+            return new PolyScanner((C*p.T)||p.E, X*p.T);
         } else {
             throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");
         }
@@ -295,8 +323,8 @@ final public class PolyScanner/*(A:PolyMat, B:XformMat)*/ implements Region.Scan
 
     public def printInfo(ps: Printer) {
         ps.println("PolyScanner");
-        A.printInfo(ps, "  A");
-        B.printInfo(ps, "  B");
+        C.printInfo(ps, "  C");
+        X.printInfo(ps, "  X");
     }
 
     public def printInfo2(ps: Printer): void {

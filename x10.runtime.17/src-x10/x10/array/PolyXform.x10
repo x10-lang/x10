@@ -3,16 +3,16 @@
 
 package x10.array;
 
-public class PolyXform(V:XformMat, C:PolyMat) extends Xform {
+public class PolyXform(E:PolyMat, T:XformMat) extends Xform {
 
-    public def this(V:XformMat, C:PolyMat) {
-        property(V, C);
+    public def this(E:PolyMat, T:XformMat) {
+        property(E, T);
     }
 
     public def $times(that:Xform):Xform {
         if (that instanceof PolyXform) {
             val p = that to PolyXform;
-            return new PolyXform(this.V*p.V, this.C||p.C);
+            return new PolyXform(this.E||p.E, this.T*p.T);
         } else {
             throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");
         }
