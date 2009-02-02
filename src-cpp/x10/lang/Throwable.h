@@ -83,7 +83,7 @@ namespace x10 {
             virtual x10aux::ref<Throwable> fillInStackTrace();
             typedef x10aux::ref<x10::lang::ValRail<x10aux::ref<x10::lang::String> > > StringRail;
             virtual StringRail getStackTrace();
-
+            virtual void printStackTrace();
 
             static const x10aux::serialization_id_t _serialization_id;
 

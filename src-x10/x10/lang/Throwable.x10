@@ -20,7 +20,7 @@ public value Throwable {
     @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     @Native("c++", "(#0)->getCause()")
     // Box is to make it nullable
-	val cause: Box[Throwable];
+    val cause: Box[Throwable];
 
     @Native("java", "#0.getMessage()")
     @Native("c++", "(#0)->getMessage()")
@@ -28,15 +28,15 @@ public value Throwable {
 
     public def this() = this("");
     public def this(message: String) {
-    	super();
-    	this.cause = null;
-    	this.message = message;
+        super();
+        this.cause = null;
+        this.message = message;
     }
     public def this(cause: Throwable) = this("", cause);
     public def this(message: String, cause: Throwable): Throwable {
-    	super();
-    	this.cause = cause to Box[Throwable]; // BUG: should autobox
-    	this.message = message;
+        super();
+        this.cause = cause to Box[Throwable]; // BUG: should autobox
+        this.message = message;
     }
     
     @Native("java", "#0.getMessage()")
@@ -56,11 +56,18 @@ public value Throwable {
     public native def getStackTrace() : ValRail[String];
 
     @Native("java", "#0.printStackTrace()")
-    @Native("c++", "do { fprintf(stdout,\"%s\\n\",(#0)->toString()->c_str()); x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace(); for (int i=0 ; i<trace->FMGL(length) ; ++i) fprintf(stdout,\"        at %s\\n\",(*trace)[i]->c_str()); } while (0)")
+    @Native("c++", "(#0)->printStackTrace()")
     public native def printStackTrace() : Void;
     
     @Native("java", "#0.printStackTrace(new java.io.PrintStream((#1).getNativeOutputStream()))")
-    @Native("c++", "do {    (#1)->println((#0)->toString());    x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace();    for (int i=0 ; i<trace->FMGL(length) ; ++i) {        (#1)->print(String(\"        at \");        (#1)->println((*trace)[i]);    }} while (0)")
+    @Native("c++", "do {\n"+
+                   "    (#1)->println((#0)->toString());\n"+
+                   "    x10aux::ref<ValRail<x10aux::ref<String> > > trace = (#0)->getStackTrace();\n"+
+                   "    for (int i=0 ; i<trace->FMGL(length) ; ++i) {\n"+
+                   "        (#1)->print(String::Lit(\"\\tat \"));\n"+
+                   "        (#1)->println((*trace)[i]);\n"+
+                   "    }\n"+
+                   "} while (0)")
     public native def printStackTrace(p: Printer) : Void;
 
     /*
@@ -68,5 +75,4 @@ public value Throwable {
     public java.lang.StackTraceElement[] getStackTrace();
     public void setStackTrace(java.lang.StackTraceElement[]);
     */
-
 }
