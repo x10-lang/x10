@@ -72,7 +72,7 @@ public class Random {
     }
      
     /** Return a 64-bit random (long) integer */
-    public def nextLong(): long = ((nextInt() to Long) << 32) | nextInt();
+    public def nextLong(): long = ((nextInt() to Long) << 32) | nextInt() & 0xFFFFFFFFL;
 
     public def nextLong(maxPlus1: long): long {
         if (maxPlus1 <= 0)
@@ -102,13 +102,13 @@ public class Random {
     }
 
     /** Return a random boolean. */
-    public def nextBoolean(): boolean = (nextInt() & 1) != 0;
+    public def nextBoolean(): boolean = nextInt() < 0;
 
     /** Return a random float. */
-    public def nextFloat(): float = Float.fromIntBits(nextInt());
+    public def nextFloat(): float = (nextInt() >>> (32-24)) / (1<<24 to Float);
 
     /** Return a random double. */
-    public def nextDouble(): double = Double.fromLongBits(nextLong());
+    public def nextDouble(): double = (nextLong() >>> (64-53)) / (1L<<53 to Double);
 
 /**
  * Mersenne twister.
