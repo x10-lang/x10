@@ -1,7 +1,7 @@
 #ifndef X10AUX_ALLOC_H
 #define X10AUX_ALLOC_H
 
-#include<x10aux/config.h>
+#include <x10aux/config.h>
 
 #ifdef X10_USE_BDWGC
 #ifdef __linux__
