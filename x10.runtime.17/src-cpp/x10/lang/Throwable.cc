@@ -68,8 +68,8 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
         symbol = strdup(start);
         addr = 0;
         return;
-    }   
- 
+    }
+
     filename = (char*)malloc(lparen-start+1);
     strncpy(filename,start,lparen-start);
     filename[lparen-start] = '\0';
@@ -77,21 +77,21 @@ void extract_frame (const char *start, char * &filename, char * &symbol, size_t 
     char *mangled = (char*)malloc(plus-lparen);
     strncpy(mangled,lparen+1,plus-lparen-1);
     mangled[plus-lparen-1] = '\0';
- 
+
     size_t offset = strtol(plus+3, NULL, 16);
     addr = strtol(x+1, NULL, 16);
     (void)offset;
     //addr += offset;
- 
+
     // don't free symbol, it's persistant
     symbol = NULL;
     symbol = abi::__cxa_demangle(mangled, NULL, NULL, NULL);
     if (symbol==NULL) {
         symbol = mangled;
-    } else { 
+    } else {
         free(mangled);
-    } 
-} 
+    }
+}
 
 #ifdef USE_BFD
 // This one opens up the executable file (filename) and looks for addr,
@@ -183,7 +183,7 @@ void extract_src_file_line_num (const char *filename, size_t addr,
                 // skip over the '/' to leave just the file name
                 srcfile_++;
             }
-            
+
             srcfile = strdup(srcfile_); // return value;
 
             ::free(syms);
@@ -214,9 +214,9 @@ static void *__init_bfd_ = __init_bfd();
 
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 #ifdef __GLIBC__
-    if (FMGL(trace_size)<=0) {
+    if (FMGL(trace_size) <= 0) {
         const char *msg = "No stacktrace recorded.";
-        return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String::Lit(msg));
+        return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
     }
     ref<ValRail<ref<String> > > rail =
         alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
@@ -226,13 +226,13 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
         extract_frame(messages[i],filename,symbol,addr);
         char *msg = symbol;
         #ifdef USE_BFD
-        if (addr!=0) {
+        if (addr != 0) {
             char *srcfile; size_t srcline;
             extract_src_file_line_num(filename, addr, srcfile, srcline);
             // I hate writing C.
-            size_t msgsz = 1+snprintf(NULL,0,"%s (%s:%d)",symbol,srcfile,srcline);
+            size_t msgsz = 1 + snprintf(NULL, 0, "%s (%s:%d)", symbol, srcfile, srcline);
             msg = (char*)malloc(msgsz);
-            snprintf(msg,msgsz,"%s (%s:%d)",symbol,srcfile,srcline);
+            snprintf(msg, msgsz, "%s (%s:%d)", symbol, srcfile, srcline);
             ::free(symbol);
             ::free(srcfile);
         }
@@ -245,8 +245,15 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     return rail;
 #else
     const char *msg = "No stacktrace available for your compiler.  So cry your heart out.";
-    return alloc_rail<ref<String>,ValRail<ref<String> > >(1,String::Lit(msg));
+    return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
 #endif
+}
+
+void Throwable::printStackTrace() {
+    fprintf(stderr, "%s\n", this->toString()->c_str());
+    x10aux::ref<ValRail<x10aux::ref<String> > > trace = this->getStackTrace();
+    for (int i = 0; i < trace->FMGL(length); ++i)
+        fprintf(stderr, "\tat %s\n", (*trace)[i]->c_str());
 }
 
 
