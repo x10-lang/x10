@@ -14,7 +14,18 @@ import x10.util.Stack;
  * @author tardieu
  */
 value Pool(count:Int) {
-	// number of hardware threads available to the pool 
+	// count: number of hardware threads available to the pool 
+
+	// the mutable state of the pool
+	private final static class That {
+		var size:Int = 0; // number of threads in the thread pool
+		var blocked:Int = 0; // number of blocked threads in the thread pool
+		var live:Boolean = true; // reset to force threads to return
+	}
+	private val that = new That();
+
+	// invariant: size >= blocked + count
+	// goal: size ~ blocked + count + threads.size()
 
  	/**
  	 * Pool lock
@@ -31,31 +42,20 @@ value Pool(count:Int) {
 	 */
 	private val activities = new Stack[Activity]();
 	
-	/**
-	 * invariant: size >= block + count
-	 * goal: size ~ block + count + threads.size()
-	 */
-	private val size = Rail.makeVar[Int](1, (nat)=>0);
-	private val block = Rail.makeVar[Int](1, (nat)=>0);;
 
-	/**
-	 * Reset by pool destructor to stop worker threads.
-	 */
-	private val go = Rail.makeVar[Boolean](1, (nat)=>true);
-	
 	/** 
 	 * Start count threads
 	 */
 	def this(count:Int) {
 		property(count);
-		while (size(0) < count) allocate(size(0)++);
+		while (that.size < count) allocate(that.size++);
 	}
 	
 	/**
 	 * Submit a new activity to the pool
 	 */
 	def execute(activity:Activity):Void {
-		NativeRuntime.runAtLocal(activities.location.id, ()=>{ 
+		NativeRuntime.runAtLocal(that.location.id, ()=>{
 			lock.lock();
 			activities.push(activity);
 			unpark();
@@ -68,9 +68,9 @@ value Pool(count:Int) {
 	 */
 	def quit():Void {
 		lock.lock();
-		go(0) = false;
+		that.live = false;
     	while (!threads.isEmpty()) Thread.unpark(threads.pop());
-		lock.unlock();
+    	lock.unlock();
 	}
 		
 	/**
@@ -85,10 +85,10 @@ value Pool(count:Int) {
 	 */
 	def increase():Void {
 //		NativeRuntime.println("INCREASE");
-		NativeRuntime.runAtLocal(activities.location.id, ()=>{ 
+		NativeRuntime.runAtLocal(that.location.id, ()=>{ 
 			lock.lock();
-			if (size(0) < ++block(0) + count) {
-				allocate(size(0)++);
+			if (that.size < ++that.blocked + count) {
+				allocate(that.size++);
 			} else {
 				unpark();
 			}
@@ -101,16 +101,16 @@ value Pool(count:Int) {
 	 */
 	def decrease(n:Int):Void {
 //		NativeRuntime.println("DECREASE " + n.toString());
-		NativeRuntime.runAtLocal(activities.location.id, ()=>{ 
+		NativeRuntime.runAtLocal(that.location.id, ()=>{ 
 			lock.lock();
-			block(0) = block(0) - n;
-			assert (block(0) >= 0);
+			that.blocked = that.blocked - n;
+			assert (that.blocked >= 0);
 			lock.unlock();
 		});
     }
 
 	private def unpark():Void {
-		if (threads.size() + block(0) + count > size(0)) {
+		if (threads.size() + that.blocked + count > that.size) {
 //			NativeRuntime.println("UNPARK");
 	    	Thread.unpark(threads.pop());
 		}
@@ -122,9 +122,20 @@ value Pool(count:Int) {
 	private def run():Void {
 		val thread = Thread.currentThread();
 		lock.lock();
-		while (go(0)) {
-			if (threads.size() + block(0) + count < size(0) || activities.isEmpty()) {
-//				NativeRuntime.println("PARK");
+		while (that.live) loop(thread);
+		lock.unlock();
+//		NativeRuntime.println("DONE");
+	}
+	
+	// must keep the run and loop methods appart
+	// must keep the two nested loop with the upper bound on the inner loop
+	// to get consistent jit performance on j9
+
+	private def loop(thread:Thread):Void {
+		var i:Int = 0;
+		while (that.live && i++ < 1000) {
+			if (threads.size() + that.blocked + count < that.size || activities.isEmpty()) {
+	//			NativeRuntime.println("PARK");
 		    	threads.push(thread);
 		    	while (threads.search(thread) != -1) {
 			   		lock.unlock();
@@ -133,37 +144,13 @@ value Pool(count:Int) {
 				}
 			} else {
 				val activity = activities.pop();
-
 				lock.unlock();
-			
 				// attach thread to activity
 				thread.activity(activity);
-				
 				// run activity
 				NativeRuntime.runAtLocal(activity.location.id, ()=>activity.run());
-
 				lock.lock();
 			}
 		}
-		lock.unlock();
-//		NativeRuntime.println("DONE");
-	}
-
-
-	// debugging code
-
-	def flush():Void {
-		val thread = Thread.currentThread();
-		val parent = thread.activity();
-		while (!activities.isEmpty()) {
-			val activity = activities.pop();
-
-			// attach thread to activity
-			thread.activity(activity);
-			
-			// run activity
-			NativeRuntime.runAtLocal(activity.location.id, ()=>activity.run());
-		}
-		thread.activity(parent);
 	}
 }
