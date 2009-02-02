@@ -113,7 +113,7 @@ all-src-generated: gen/MANIFEST-x10
 	cd ../src-x10 && "$(INSTDIR)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c $(shell cat ../src-cpp/gen/MANIFEST-x10)
 
 generated: all-src-generated gen/MANIFEST
-	cd gen && CXXFLAGS="-I.. $(CXXFLAGS)" $(MAKE) -k $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
+	cd gen && CXXFLAGS="-I.. $(CXXFLAGS)" $(MAKE) $(shell sed -e 's@.cc$$@.o@' gen/MANIFEST)
 
 $(XRX_MANIFEST): gen/MANIFEST
 	@-cp $^ $@
