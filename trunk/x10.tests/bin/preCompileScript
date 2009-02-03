@@ -27,22 +27,6 @@ if [[ ! -f $X10C ]]; then
 	exit 1
 fi
 
-EJC=$EJC
-if [[ -z "$EJC" ]]; then
-	EJC=$X10_HOME/x10.tests/bin/ejc
-	status=0
-	if [[ -f $EJC ]]; then
-		$EJC -version >/dev/null
-		if (( $? == 0 )); then
-			status=1
-		fi
-	fi
-	if (( $status == 0 )); then
-		printf "[$prog: err]: eclipse java compiler not available!\n"
-		exit 1
-	fi
-fi
-
 SRC_X10=$X10_RUNTIME/src-x10
 CWD=$(pwd)
 cd $SRC_X10
@@ -78,8 +62,8 @@ do
 	then
 		printf "class file already exists -- skipping! <<\n\n"
 	else
-		printf "$X10C -post $EJC -v -classpath $XRX_CLASS_PATH -d $XRX_CLASS_PATH $file\n\n"
-		$X10C -post $EJC -v -classpath $XRX_CLASS_PATH -d $XRX_CLASS_PATH $file
+		printf "$X10C -v -classpath $XRX_CLASS_PATH -d $XRX_CLASS_PATH $file\n\n"
+		$X10C -v -classpath $XRX_CLASS_PATH -d $XRX_CLASS_PATH $file
 		printf "done. <<\n\n"
 	fi
 done
