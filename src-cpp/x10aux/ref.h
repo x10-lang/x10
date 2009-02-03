@@ -17,9 +17,9 @@ namespace x10aux {
     class __ref {
         protected:
         #ifndef REF_STRIP_TYPE
-        __ref(void* = NULL) { }
+        GPUSAFE __ref(void* = NULL) { }
         #else
-        __ref(void* val = NULL) : _val(val) { }
+        GPUSAFE __ref(void* val = NULL) : _val(val) { }
         public: // [IP] temporary
         void* _val;
         #endif
@@ -63,10 +63,10 @@ namespace x10aux {
 
         public:
 
-        ~ref() { DEC(_val); }
+        GPUSAFE ~ref() { DEC(_val); }
 
         // Copy between refs of the same type
-        ref(const ref<T>& _ref) : REF_INIT(_ref._val) {
+        GPUSAFE ref(const ref<T>& _ref) : REF_INIT(_ref._val) {
             _R_("Copying reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(T)
                                      << " to " << this);
@@ -76,7 +76,7 @@ namespace x10aux {
         // Copy between refs of the same type
         // FIXME: something is wrong with the return value;
         // r1 = r2 = r3 doesn't work in xlC
-        const ref<T>& operator=(const ref<T>& _ref) {
+        GPUSAFE const ref<T>& operator=(const ref<T>& _ref) {
             _val = _ref._val;
             _R_("Assigning reference " << &_ref << "(" << _ref._val
                                        << ") of type " << TYPENAME(T)
@@ -87,7 +87,7 @@ namespace x10aux {
 
         // This is the big one -- turns a pointer into a ref
         // currently an implicit conversion
-        ref(T* const val = NULL) : REF_INIT(val) {
+        GPUSAFE ref(T* const val = NULL) : REF_INIT(val) {
             INC(_val);
         }
 
@@ -111,7 +111,7 @@ namespace x10aux {
 
 
         // Allow the construction of a ref<T> from a ref<S>
-        template<class S> ref(const ref<S>& _ref)
+        template<class S> GPUSAFE ref(const ref<S>& _ref)
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
           : REF_INIT(dynamic_cast<T*>((S*)_ref._val)) {
             _R_("Casting reference " << &_ref << "(" << _ref._val
@@ -124,7 +124,7 @@ namespace x10aux {
         }
         
         // Allow the assignment of a ref<S> to a ref<T>
-        template<class S> const ref<T> &operator=(const ref<S>& _ref) {
+        template<class S> GPUSAFE const ref<T> &operator=(const ref<S>& _ref) {
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
             _val = dynamic_cast<T*>((S*)_ref._val);
             _R_("Casting reference " << &_ref << "(" << _ref._val
@@ -149,7 +149,7 @@ namespace x10aux {
             #endif
         }
 
-        T& operator*() const {
+        T& GPUSAFE operator*() const {
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
             #ifndef NO_NULL_CHECKS
@@ -161,11 +161,11 @@ namespace x10aux {
             return *(T*)_val;
         }
 
-        T* get() const { 
+        T* GPUSAFE get() const { 
             return (T*)_val;
         }
 
-        T* operator->() const { 
+        T* GPUSAFE operator->() const { 
             _R_("Accessing object (*) via reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
             #ifndef NO_NULL_CHECKS
@@ -185,7 +185,7 @@ namespace x10aux {
             return reinterpret_cast<size_t>(_val) & 0x3;
         }
 
-        bool isNull() const {
+        bool GPUSAFE isNull() const {
             _R_("Nullcheck reference " << this << "(" << _val
                                       << ") of type " << TYPENAME(T));
             return _val == NULL;

@@ -29,6 +29,16 @@
  * 
  */
 
+#ifdef __CUDA_ARCH__
+    #define X10_CUDA
+    #define NO_IOSTREAM // this apparently will be fixed in a future release of cuda
+    #define GPUSAFE __host__ __device__
+    #define NO_CHECKS // can't abort() assert() or throw exception on the gpu
+    #define NDEBUG // as above
+#else
+    #define GPUSAFE
+#endif
+
 #ifndef USE_ANSI_COLORS
 #define ANSI_RESET ""
 #define ANSI_BOLD ""
