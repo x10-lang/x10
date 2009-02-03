@@ -41,11 +41,6 @@ namespace x10 {
                 x10aux::io::FILEPtrOutputStream::write(str);
             }
 
-            virtual void write(const x10aux::ref<x10::lang::Rail<x10_byte> >& b,
-                               x10_int off, x10_int len) {
-                x10aux::io::FILEPtrOutputStream::write(b, off, len);
-            }
-
             virtual void write(x10_int i) {
                 x10aux::io::FILEPtrOutputStream::write(i);
             }
