@@ -268,7 +268,7 @@ testForMain() {
     local f="$1"
     local tail="$2"
     if [[ "$tail" != *.x10 ]] ; then return 1; fi
-    egrep 'public[[:space:]]+static[[:space:]]+def[[:space:]]+main\b' "$f" >/dev/null
+    egrep -E 'public[[:space:]]+static[[:space:]]+def[[:space:]]+main\b' "$f" >/dev/null
     return $?
 }
 
