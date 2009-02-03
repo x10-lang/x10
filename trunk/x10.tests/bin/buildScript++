@@ -72,28 +72,28 @@ buildX10Module() {
 		"polyglot")
 			( \
 				cd $1; \
-				ant -q clean jar >/dev/null 2>&1; \
+				ant clean jar; \
 				exit $?; \
 			)
 			;;
 		"x10c")
 			( \
 				cd $1; \
-				ant -q clean grammar dist; \
+				ant clean grammar dist; \
 				exit $?; \
 			)
 			;;
 		"x10j")
 			( \
 				cd $1; \
-				ant -q clean dist-java; \
+				ant clean dist-java; \
 				exit $?; \
 			)
 			;;
 		"x10")
 			( \
 				cd $1; \
-				ant -q clean dist; \
+				ant clean dist; \
 				exit $?; \
 			)
 			;;
@@ -123,7 +123,7 @@ export CVS_RSH=ssh
 export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
 export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
 #export X10CPP_CVSROOT=":ext:userid@orquesta.watson.ibm.com:/usr/src/cvs/X10_FLASH"
-export X10CPP_CVSROOT=":ext:localhost:/usr/src/cvs/X10_FLASH"
+export X10CPP_CVSROOT=":ext:sreedhar@localhost:/usr/src/cvs/X10_FLASH"
 
 POLYGLOT_HOME=$X10_HOME/polyglot3-dev
 cvsUpdate $POLYGLOT_HOME $POLYGLOT_CVSROOT
@@ -151,5 +151,15 @@ buildX10Module $X10_DIST x10j
 buildX10Module $X10_COMPILER x10
 buildX10Module $X10_TESTS x10
 buildX10Module $X10_CPP x10
+
+if [[ -z "$X10LIB" ]]; then
+	X10LIB=$(X10_HOME)/pgas/common/work
+fi
+export X10LIB
+(cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake all; gmake xrx)
+if [[ $? != 0 ]]; then
+	printf "\n[$prog: err]: x10rt/x10lib library build failed!\n"
+	exit 1
+fi
 
 cleanUpExit 0
