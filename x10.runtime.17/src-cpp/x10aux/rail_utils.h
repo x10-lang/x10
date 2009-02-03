@@ -53,7 +53,7 @@ namespace x10aux {
 
         virtual ref<x10::lang::String> toString();
 
-        T apply(x10_int index) {
+        GPUSAFE T apply(x10_int index) {
             // do bounds check
             return operator[](index);
         }   
@@ -65,7 +65,7 @@ namespace x10aux {
         }   
 */
 
-        T& operator[](x10_int index) {
+        GPUSAFE T& operator[](x10_int index) {
             _check_bounds(index);
             return data[index];
         }

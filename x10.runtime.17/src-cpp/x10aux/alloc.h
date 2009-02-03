@@ -70,7 +70,22 @@ namespace x10aux {
         x10_free((x10_addr_t) obj);
     }
 
-    const char *alloc_printf(const char *fmt, ...);
+#ifdef __GNUC__
+    char *alloc_printf(const char *fmt, ...) 
+                __attribute__ ((format (printf, 1, 2)));
+#else
+    char *alloc_printf(const char *fmt, ...);
+#endif
+
+    // if char *bob points to some allocated "bob", then realloc_printf(bob," likes %s","cats")
+    // will yield either the same buffer or a replacement buffer containing "bob likes cats".
+    // Any dangling pointers to the original buffer will be invalid as is standard with realloc.
+#ifdef __GNUC__
+    char *realloc_printf(char *buf, const char *fmt, ...) 
+                __attribute__ ((format (printf, 2, 3)));
+#else
+    char *realloc_printf(char *buf, const char *fmt, ...);
+#endif
 
 }
 
