@@ -173,7 +173,7 @@ public class Desugarer extends ContextVisitor {
         ClosureDef cDef = xts.closureDef(c.body().position(), fDef.typeContainer(),
                 fDef.methodContainer(), fDef.returnType(),
                 fDef.typeParameters(), fDef.formalTypes(),
-                fDef.formalNames(), fDef.guard(), fDef.typeGuard(), fDef.throwTypes());
+                fDef.formalNames(), fDef.guard(), fDef.throwTypes());
         Closure closure = (Closure) xnf.Closure(c.body().position(), c.typeParameters(),
                 c.formals(), c.guard(), c.returnType(),
                 c.throwTypes(), c.body()).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
