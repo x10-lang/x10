@@ -104,6 +104,20 @@ public class Desugarer extends ContextVisitor {
     private static final Name CONVERT = Name.make("$convert");
     private static final Name DIST = Name.make("dist");
 
+    public Node override(Node parent, Node n) {
+        if (n instanceof Eval) {
+            try {
+                Stmt s = visitEval((Eval) n);
+                return visitEdgeNoOverride(parent, s);
+            }
+            catch (SemanticException e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof Future)
             return visitFuture((Future) n);
@@ -159,7 +173,7 @@ public class Desugarer extends ContextVisitor {
         ClosureDef cDef = xts.closureDef(c.body().position(), fDef.typeContainer(),
                 fDef.methodContainer(), fDef.returnType(),
                 fDef.typeParameters(), fDef.formalTypes(),
-                fDef.formalNames(), fDef.guard(), fDef.throwTypes());
+                fDef.formalNames(), fDef.guard(), fDef.typeGuard(), fDef.throwTypes());
         Closure closure = (Closure) xnf.Closure(c.body().position(), c.typeParameters(),
                 c.formals(), c.guard(), c.returnType(),
                 c.throwTypes(), c.body()).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
@@ -209,7 +223,7 @@ public class Desugarer extends ContextVisitor {
         ClosureDef cDef = xts.closureDef(pos, Types.ref(context.currentClass()),
                 Types.ref(context.currentCode().asInstance()),
                 Types.ref(retType), Collections.EMPTY_LIST,
-                fTypes, fNames, null, Collections.EMPTY_LIST);
+                fTypes, fNames, null, null, Collections.EMPTY_LIST);
         Closure closure = (Closure) xnf.Closure(pos, Collections.EMPTY_LIST,
                 parms, null, xnf.CanonicalTypeNode(pos, retType),
                 Collections.EMPTY_LIST, body).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
@@ -475,6 +489,7 @@ public class Desugarer extends ContextVisitor {
         Assign a = (Assign) xnf.Assign(pos, e, asgn, val).type(e.type());
         if (a instanceof FieldAssign) {
             assert (e instanceof Field);
+            assert ((Field) e).fieldInstance() != null;
             a = ((FieldAssign) a).fieldInstance(((Field)e).fieldInstance());
         } else if (a instanceof SettableAssign_c) {
             assert (e instanceof X10Call);
