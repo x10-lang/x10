@@ -59,6 +59,27 @@ public class Tuple_c extends Expr_c implements Tuple {
     }
     
     @Override
+    public boolean isConstant() {
+        for (Expr e : elements) {
+            if (!e.isConstant())
+                return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public Object constantValue() {
+        Object[] a = new Object[elements.size()];
+        int i = 0;
+        for (Expr e : elements) {
+            if (!e.isConstant())
+                return null;
+            a[i++] = e.constantValue();
+        }
+        return a;
+    }
+    
+    @Override
     public Precedence precedence() {
         return Precedence.LITERAL;
     }
