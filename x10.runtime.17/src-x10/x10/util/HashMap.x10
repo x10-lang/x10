@@ -186,9 +186,9 @@ public class HashMap[-K,V] implements Map[K,V] {
 	
 	protected static class EntriesIterator[-Key,Value] implements Iterator[HashEntry[Key,Value]] {
 	    val map: HashMap[Key,Value];
-	    var i: Int = 0;
+	    var i: Int;
 	    
-	    def this(map: HashMap[Key,Value]) { this.map = map; advance(); }
+	    def this(map: HashMap[Key,Value]) { this.map = map; this.i = 0; advance(); }
 
         def advance(): void {
             while (i < map.table.length) {
@@ -199,11 +199,17 @@ public class HashMap[-K,V] implements Map[K,V] {
         }
 	    
 	    public def hasNext(): Boolean {
-	        return i < map.table.length;
+	        if (i < map.table.length) {
+                assert map.table(i) != null && ! map.table(i).removed : "map entry " + i + " is not null or removed";
+	            return true;
+	        }
+	        return false;
 	    }
 	    
 	    public def next(): HashEntry[Key,Value] {
-	        val j = i++;
+	        val j = i;
+	        assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is not null or removed";
+	        i++;
 	        advance();
 	        return map.table(j);
 	    }
