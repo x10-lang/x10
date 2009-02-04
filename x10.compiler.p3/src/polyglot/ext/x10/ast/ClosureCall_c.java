@@ -70,6 +70,37 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }
     
     @Override
+    public boolean isConstant() {
+        Expr t = target;
+        if (t.isConstant()) {
+            X10TypeSystem ts = (X10TypeSystem) t.type().typeSystem();
+            if (ts.isValRail(t.type()) && arguments.size() == 1) {
+                Expr e = arguments.get(0);
+                return e.isConstant();
+            }
+        }
+        return super.isConstant();
+    }
+
+    @Override
+    public Object constantValue() {
+        Expr t = target;
+        if (t.isConstant()) {
+            X10TypeSystem ts = (X10TypeSystem) t.type().typeSystem();
+            if (ts.isValRail(t.type()) && arguments.size() == 1) {
+                Expr e = arguments.get(0);
+                Object a = t.constantValue();
+                Object i = e.constantValue();
+                if (a instanceof Object[] && i instanceof Integer) {
+                    return ((Object[]) a)[(Integer) i];
+                }
+            }
+        }
+        return super.constantValue();
+    }
+
+    
+    @Override
     public Precedence precedence() {
         return Precedence.LITERAL;
     }

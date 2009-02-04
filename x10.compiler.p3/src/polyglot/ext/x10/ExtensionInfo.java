@@ -32,6 +32,7 @@ import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
 import polyglot.ext.x10.visit.Desugarer;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.FieldInitializerMover;
+import polyglot.ext.x10.visit.Inliner;
 import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
 import polyglot.ext.x10.visit.X10Boxer;
@@ -39,6 +40,7 @@ import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10InitChecker;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
+import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
 import polyglot.frontend.Compiler;
@@ -57,6 +59,7 @@ import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.MemberClassResolver;
+import polyglot.types.MethodDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
@@ -246,6 +249,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 //           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
            goals.add(Desugarer(job));
+           goals.add(Inlined(job));
            goals.add(CodeGenerated(job));
            goals.add(End(job));
            
@@ -389,6 +393,22 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new VisitorGoal("X10Expanded", job, new X10ImplicitDeclarationExpander(job, ts, nf)).intern(this);
+       }
+       
+       public Goal Inlined(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           if (polyglot.ext.x10.Configuration.INLINE_OPTIMIZATIONS) {
+               return new VisitorGoal("Inlined", job, new Inliner(job, ts, nf)).intern(this);
+           }
+           else {
+               return new SourceGoal_c("Inlined", job) {
+                   @Override
+                   public boolean runTask() {
+                       return true;
+                   }
+               }.intern(this);
+           }
        }
        
        public Goal CheckNativeAnnotations(Job job) {

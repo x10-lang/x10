@@ -37,6 +37,7 @@ public final class Configuration extends x10.config.Configuration {
 	public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
 	private static final String COMPILER_FRAGMENT_DATA_DIRECTORY_desc = "Advanced functionality: Directory for compiler templates";
 
+
 	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
     
@@ -45,6 +46,9 @@ public final class Configuration extends x10.config.Configuration {
 
 	public static boolean ARRAY_OPTIMIZATIONS = true;
 	private static final String ARRAY_OPTIMIZATIONS_desc = "Generate allocation of specialized Java array classes";
+
+	public static boolean INLINE_OPTIMIZATIONS = false;
+	private static final String INLINE_OPTIMIZATIONS_desc = "Perform inlining optimizatios";
 
 	public static String PLUGINS = "";
 	private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";

@@ -87,7 +87,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
     }
     
-    <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
+    public static <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
         return (T) n.del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
     }
     
