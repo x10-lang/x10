@@ -261,6 +261,12 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return p.lookup(vars, 1);
         }
         
+        {
+        	XPromise p = roots.get(term);
+        	if (p != null)
+        		return p;
+        }
+        
         return null;
     }
 
@@ -349,6 +355,8 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return true;
         if (other == null || other.valid())
             return true;
+//        if (other.toString().equals(toString()))
+//        	return true;
         List<XTerm> otherConstraints = other.constraints();
         XRoot otherSelf = other.self();
         return entails(otherConstraints, otherSelf);
@@ -560,9 +568,15 @@ if (false) {
     /** Traverse the terms in the constraint, adding in their self constraints. */
     public XConstraint_c saturate() throws XFailure {
         XConstraint_c c = (XConstraint_c) copy();
+        if (false) c.self = self();
         Set<XTerm> visited = new HashSet<XTerm>();
         for (XTerm term : constraints()) {
-            term.subst(c.self(), self()).saturate(c, visited);
+            XTerm t;
+            if (!false)
+				t = term.subst(c.self(), self());
+            else
+            	t = term;
+            t.saturate(c, visited);
         }
         return c;
     }
@@ -689,7 +703,7 @@ if (false) {
         }
         
         try {
-            XConstraint c2 = this.substitute(this.genEQV(XTerms.makeName("xyzzy"), false), this.self());
+//            XConstraint c2 = this.substitute(this.genEQV(XTerms.makeName("xyzzy"), false), this.self());
             c = saturate();
         }
         catch (XFailure z) {
@@ -729,47 +743,62 @@ if (false) {
         return result;
     }
 
-    public XConstraint substitute(XTerm y, XRoot x) throws XFailure {
-        assert (y != null && x != null);
-        
-        if (y.equals(x))
-            return this;
-        
-        if (! consistent)
-            return this;
+    public XConstraint substitute(XTerm[] ys, XRoot[] xs) throws XFailure {
+    	assert (ys != null && xs != null);
+    	assert xs.length == ys.length;
+    	
+    	boolean eq = true;
+		for (int i = 0; i < ys.length; i++) {
+			XTerm y = ys[i];
+			XRoot x = xs[i];
 
-        // Don't do the quick occurrence check; x might occur in a self constraint.
-        //		XPromise last = lookupPartialOk(x);
-        //		if (last == null) return this; 	// x does not occur in this
+			if (! y.equals(x))
+				eq = false;
+		}
+		if (eq)
+			return this;
+    	
+    	if (! consistent)
+    		return this;
+    	
+    	// Don't do the quick occurrence check; x might occur in a self constraint.
+    	//		XPromise last = lookupPartialOk(x);
+    	//		if (last == null) return this; 	// x does not occur in this
+    	
+    	XConstraint result = new XConstraint_c();
+    	
+    	for (XTerm term : constraints()) {
+    		XTerm t = term;
+    		
+    		// if term is y==x.f, the subst will produce y==y.f, which is a cycle--bad!
+    		//		    if (term instanceof XEquals_c) {
+    		//		        XEquals_c eq = (XEquals_c) term;
+    		//		        XTerm l = eq.left();
+    		//		        XTerm r = eq.right();
+    		//		        if (y.equals(l) || y.equals(r))
+    		//		            continue;
+    		//		    }
+    		for (int i = 0; i < ys.length; i++) {
+    			XTerm y = ys[i];
+    			XRoot x = xs[i];
+    			t = t.subst(y, x, true);
+    		}
+    		
+    		t = t.subst(result.self(), self(), true);
 
-        XConstraint result = new XConstraint_c();
-        
-        for (XTerm term : constraints()) {
-            // if term is y==x.f, the subst will produce y==y.f, which is a cycle--bad!
-            //		    if (term instanceof XEquals_c) {
-            //		        XEquals_c eq = (XEquals_c) term;
-            //		        XTerm l = eq.left();
-            //		        XTerm r = eq.right();
-            //		        if (y.equals(l) || y.equals(r))
-            //		            continue;
-            //		    }
-            XTerm t = term.subst(y, x, true);
-            
-            try {
-                XConstraint c = result.copy();
-                t = t.subst(c.self(), self(), true);
-                c.addTerm(t);
-                result = c;
-            }
-            catch (XFailure z) {
-                throw z;
-            }
-        }
-        //		XConstraint_c result = clone();
-        //		result.valid = true;
-        //		result.applySubstitution(y,x);
-        return result;
+    		try {
+    			result.addTerm(t);
+    		}
+    		catch (XFailure z) {
+    			throw z;
+    		}
+    	}
+    	//		XConstraint_c result = clone();
+    	//		result.valid = true;
+    	//		result.applySubstitution(y,x);
+    	return result;
     }
+    
     public XConstraint substitute(HashMap<XRoot, XTerm> subs) throws XFailure {
         XConstraint c = this;
         for (Map.Entry<XRoot,XTerm> e : subs.entrySet()) {
@@ -779,19 +808,11 @@ if (false) {
         }
         return c;
     }
-    public XConstraint substitute(XTerm[] ys, XRoot[] xs) throws XFailure {
-        return substitute(ys, xs, true);
+    public XConstraint substitute(XTerm y, XRoot x) throws XFailure {
+        return substitute(new XTerm[] { y }, new XRoot[] { x });
     }
     public XConstraint substitute(XTerm[] ys, XRoot[] xs, boolean propagate) throws XFailure {
-        assert xs.length == ys.length;
-        final int n = xs.length;
-        XConstraint result = this;
-        for (int i=0; i < n; i++) {
-            XRoot x = xs[i];
-            XTerm y = ys[i];
-            result = result.substitute(y, x);
-        }
-        return result;
+    	return substitute(ys, xs);
     }
     public void applySubstitution(HashMap<XRoot, XTerm> subs) throws XFailure {
         for (Map.Entry<XRoot, XTerm> e : subs.entrySet()) {

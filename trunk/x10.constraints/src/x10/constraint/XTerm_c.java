@@ -53,28 +53,8 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 */
 	        t = clone();
 	        
-	        final XTerm yy = y;
-	        
 	        // Wrap the self constraint in a substitution.
-	        t.setSelfConstraint(new XRef_c<XConstraint>() {
-	            @Override
-	            public XConstraint compute() {
-	                XConstraint c = selfConstraint != null ? selfConstraint.get() : null;
-	                if (c != null) {
-	                    try {
-	                        c = c.substitute(yy, x);
-	                    }
-	                    catch (XFailure e) {
-	                        // fatal error
-	                        XConstraint c2 = new XConstraint_c();
-	                        c2.setInconsistent();
-	                        return c2;
-	                        //				    throw new RuntimeException("Cannot perform substitution on self constraint: " + e.getMessage()); 
-	                    }
-	                }
-	                return c;
-	            }
-	        });
+	        t.setSelfConstraint(new XSubst_c(selfConstraint, y, x));
 	    }
 	    return t;
 	}
