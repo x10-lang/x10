@@ -9,14 +9,14 @@ public class StringBuilder implements Builder[Object,String] {
         buf = new ValRailBuilder[Char]();
     }
 
-    public def add(o: Object): Builder[Object,String] {
+    public def add(o: Object): StringBuilder {
         if (o == null)
             return addString("null");
         else
             return addString(o.toString());
     }
     
-    protected def addString(s: String): Builder[Object,String]  {
+    protected def addString(s: String): StringBuilder {
         for (var i: int = 0; i < s.length(); i++) {
             val ch = s(i);
             buf.add(ch);
