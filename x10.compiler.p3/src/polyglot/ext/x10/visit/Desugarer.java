@@ -223,7 +223,7 @@ public class Desugarer extends ContextVisitor {
         ClosureDef cDef = xts.closureDef(pos, Types.ref(context.currentClass()),
                 Types.ref(context.currentCode().asInstance()),
                 Types.ref(retType), Collections.EMPTY_LIST,
-                fTypes, fNames, null, null, Collections.EMPTY_LIST);
+                fTypes, fNames, null, Collections.EMPTY_LIST);
         Closure closure = (Closure) xnf.Closure(pos, Collections.EMPTY_LIST,
                 parms, null, xnf.CanonicalTypeNode(pos, retType),
                 Collections.EMPTY_LIST, body).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
