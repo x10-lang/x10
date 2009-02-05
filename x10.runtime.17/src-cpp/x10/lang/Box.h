@@ -43,21 +43,21 @@ namespace x10 {
             }
 
             x10aux::ref<Box<T> > _constructor(T contents_) {
-                contents = contents_;
+                FMGL(value) = contents_;
                 return this;
             }
 
             virtual T get() {
-                return contents;
+                return FMGL(value);
             }
 
             virtual x10aux::ref<String> toString() {
-                 return x10aux::to_string(contents);
+                 return x10aux::to_string(FMGL(value));
             }
 
-            protected:
+            public:
 
-            T contents;
+            T FMGL(value);
 
         };
 
