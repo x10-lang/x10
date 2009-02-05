@@ -61,4 +61,20 @@ public value Printer extends FilterWriter {
     
     public def printf(fmt: String, args: Rail[Object]): Void { print(String.format(fmt, args)); }
     public def printf(fmt: String, args: ValRail[Object]): Void { print(String.format(fmt, args)); }
+    
+        
+    public def flush(): Void {
+        try {
+            super.flush();
+        }
+        catch (IOException) { }
+    }
+    
+    public def close(): Void {
+        try {
+            super.close();
+        }
+        catch (IOException) { }
+    }
+    
 }
