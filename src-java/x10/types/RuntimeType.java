@@ -26,6 +26,10 @@ public class RuntimeType<T> implements Type<T> {
         this.c = c;
     }
     
+    public String toString() {
+    	return c.getName();
+    }
+    
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof RuntimeType) {
