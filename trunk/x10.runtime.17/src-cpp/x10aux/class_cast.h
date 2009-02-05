@@ -51,6 +51,20 @@ namespace x10aux {
         // All possibilities accounted for, if you got here something has gone wrong
     };
 
+    template<class T, class F> struct ClassCastNotBothRef<ref<T>,F> {
+        // All possibilities accounted for, if you got here something has gone wrong
+        static ref<T> _ (F obj) {
+            throwException<x10::lang::ClassCastException>();
+        }
+    };
+
+    template<class T, class F> struct ClassCastNotBothRef<T,ref<F> > {
+      // All possibilities accounted for, if you got here something has gone wrong
+        static T _ (ref<F> obj) {
+            throwException<x10::lang::ClassCastException>();
+        }
+    };
+
     // Box primitives on casting to interfaces
     #define PRIMITIVE_INTERFACE_CAST(T,F) \
     template<> struct ClassCastNotBothRef<ref<T>,F> { \
@@ -67,6 +81,16 @@ namespace x10aux {
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_long);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_float);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Object, x10_double);
+
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_boolean);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_byte);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_char);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_short);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_int);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_long);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_float);
+    PRIMITIVE_INTERFACE_CAST(x10::lang::Ref, x10_double);
+
     /* FIXME this won't work: Box<T> does not implement Integer or Signed
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_byte);
     PRIMITIVE_INTERFACE_CAST(x10::lang::Integer, x10_short);
