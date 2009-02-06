@@ -38,6 +38,7 @@ import polyglot.ext.x10.ast.ClosureCall;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10Call;
+import polyglot.ext.x10.ast.X10Cast;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
@@ -225,12 +226,12 @@ public class Inliner extends ContextVisitor {
         return "tmp";
     }
 
-    public LocalDecl makeFreshLocal(Expr e) {
+    public LocalDecl makeFreshLocal(Expr e, Flags flags) {
         Type t = e.type();
         Name name = Name.makeFresh(nameOf(e));
         Position pos = e.position();
-        LocalDef def = ts.localDef(pos, Flags.FINAL, Types.ref(t), name);
-        if (staticTypeIsExact(e))
+        LocalDef def = ts.localDef(pos, flags, Types.ref(t), name);
+        if (staticTypeIsExact(e) && flags.isFinal())
             known.add(def);
         if (e.isConstant())
             def.setConstantValue(e.constantValue());
@@ -261,7 +262,7 @@ public class Inliner extends ContextVisitor {
             if (simple(e))
                 vars.add(e);
             else {
-                LocalDecl self = makeFreshLocal(e);
+                LocalDecl self = makeFreshLocal(e, Flags.FINAL);
                 decls.add(self);
                 vars.add(makeLocal(self));
             }
@@ -269,10 +270,11 @@ public class Inliner extends ContextVisitor {
         }
         for (int i = 0; i < args.size(); i++) {
             Expr e = args.get(i);
+            Formal f = formals.get(i);
             if (simple(e))
                 vars.add(e);
             else {
-                LocalDecl self = makeFreshLocal(e);
+                LocalDecl self = makeFreshLocal(e, f.flags().flags());
                 decls.add(self);
                 vars.add(makeLocal(self));
             }
@@ -377,7 +379,7 @@ public class Inliner extends ContextVisitor {
                     }
                     else {
                         if (result == null) {
-                            LocalDecl d = makeFreshLocal(r.expr());
+                            LocalDecl d = makeFreshLocal(r.expr(), Flags.FINAL);
                             return nf.Block(r.position(), d, break_);
                         }
                         else {
@@ -477,11 +479,37 @@ public class Inliner extends ContextVisitor {
         cp = (ConstantPropagator) cp.context(context());
         return n.visit(cp);
     }
+    
+    @Override
+    protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
+        if (n instanceof LocalDecl) {
+            LocalDecl d = (LocalDecl) n;
+            LocalDef def = d.localDef();
+            if (def.flags().isFinal() && d.init() != null && staticTypeIsExact(d.init())) {
+                known.add(def);
+            }
+        }
+        return this;
+    }
 
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         if (InlineType == null)
             return n;
 
+        if (n instanceof Return) {
+            Return r = (Return) n;
+
+            if (r.expr() != null) {
+                Expr call = r.expr();
+                LocalDecl d = makeFreshLocal(call, Flags.FINAL);
+                d = d.init(null);
+                Assign a = nf.LocalAssign(r.position(), makeLocal(d), Assign.ASSIGN, call);
+                Eval eval = nf.Eval(r.position(), a);
+                r = r.expr(makeLocal(d));
+                return nf.Block(r.position(), d, (Stmt) leaveCall(parent, old, eval, v), r);
+            }
+        }
+        
         if (n instanceof Eval) {
             Eval eval = (Eval) n;
             Stmt s = eval;
@@ -550,6 +578,22 @@ public class Inliner extends ContextVisitor {
                 X10ClassType ct = (X10ClassType) t;
                 if (ct.flags().isFinal()) {
                     return true;
+                }
+            }
+            if (target instanceof Special && ((Special) target).kind() == Special.SUPER)
+                return true;
+            if (target instanceof X10Cast) {
+                X10Cast c = (X10Cast) target;
+                switch (c.conversionType()) {
+                case COERCION:
+                    return staticTypeIsExact(c.expr());
+                case BOXING:
+                case CALL:
+                case PRIMITIVE:
+                case TRUNCATION:
+                case UNBOXING:
+                case UNKNOWN_CONVERSION:
+                    return false;
                 }
             }
             if (target instanceof New) {
