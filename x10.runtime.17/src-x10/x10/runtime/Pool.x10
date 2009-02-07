@@ -137,7 +137,7 @@ value Pool(count:Int) {
 			if (threads.size() + that.blocked + count < that.size || activities.isEmpty()) {
 	//			NativeRuntime.println("PARK");
 		    	threads.push(thread);
-		    	while (threads.search(thread) != -1) {
+		    	while (threads.contains(thread)) {
 			   		lock.unlock();
 		   			Thread.park();
 		   			lock.lock();

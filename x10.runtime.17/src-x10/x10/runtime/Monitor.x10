@@ -47,7 +47,7 @@ class Monitor {
     	Runtime.pool.increase();
     	val thread = Thread.currentThread();
     	threads.push(thread);
-    	while (threads.search(thread) != -1) {
+    	while (threads.contains(thread)) {
 	   		if (thread == Runtime.listener) {
 	   			park = true;
 		   		unlock();
