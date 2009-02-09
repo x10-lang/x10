@@ -36,6 +36,7 @@
 #include <x10aux/system_utils.h>
 #include <x10aux/iterator_utils.h>
 
+#include <x10aux/cuda.h>
 
 #include <x10/io/EOFException.h>
 //#include <x10/io/File.h>
