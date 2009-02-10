@@ -17,7 +17,7 @@ public class PointRebinding extends x10Test {
 
     public def run(): boolean = {
 
-        val p: Point = [1, 2] to Point;
+        val p: Point = [1, 2] as Point;
         val (i, j): Point = p;
 
         return (i == 1 && j == 2);

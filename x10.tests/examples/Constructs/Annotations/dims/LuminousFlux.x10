@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface LuminousFlux extends Measure { 
-    @DerivedUnit(SI.lumen) var lumen: double = _, lm = _var lm: double = _;
+public interface LuminousFlux extends Measure { 
+    @DerivedUnit(SI.lumen) const lumen: double = _, lm: double = _;
 }

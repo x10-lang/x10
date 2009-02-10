@@ -29,12 +29,12 @@ public class ArrayTypeCheck2_MustFailCompile extends x10Test {
         System.out.println("1");
 
         val E = Dist.makeConstant(-1..-2, here);
-        val a2  = a1 to Array[int](E);
+        val a2  = a1 as Array[int](E);
 
         System.out.println("2");
 
         val D = Dist.makeUnique();
-        val a3  = a2 to Array[int](D);
+        val a3  = a2 as Array[int](D);
 
         System.out.println("3");
 
@@ -42,9 +42,9 @@ public class ArrayTypeCheck2_MustFailCompile extends x10Test {
         var j: int = 2;
         var k: int = 0;
 
-        val p = [i, j, k] to Point;
-        val q = [i, j] to Point;
-        val r = [i] to Point;
+        val p = [i, j, k] as Point;
+        val q = [i, j] as Point;
+        val r = [i] as Point;
 
         // should be a compile time error. a Point(3) can never equal a Point(2)
         if (p == q)  

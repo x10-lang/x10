@@ -25,7 +25,7 @@ public class SelfFieldsMustBeProperties_MustFailCompile extends x10Test {
 	}
 	
 	public def run(): boolean = {
-	   var a: Test{i==52} = new Test(52) to Test{i==52 && bad} ;
+	   var a: Test{i==52} = new Test(52) as Test{i==52 && bad} ;
 	    return true;
 	}
 	public static def main(var args: Rail[String]): void = {

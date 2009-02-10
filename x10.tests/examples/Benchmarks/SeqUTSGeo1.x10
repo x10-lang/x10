@@ -40,7 +40,7 @@ class SeqUTSGeo1 extends Benchmark {
     const d = 10;                      // max depth
     def expected() = 906930.0;         // expected size given above params 
 
-    def operations() = size to double; // work is proportional to size
+    def operations() = size as double; // work is proportional to size
 
     //
     // the benchmark
@@ -54,7 +54,7 @@ class SeqUTSGeo1 extends Benchmark {
     def visit(r:UTSRand.descriptor, depth:int) {
         val x = UTSRand.number(r);
         val q = b0 / (1.0 + b0);
-        val b = (Math.log(x) / Math.log(q)) to int; // geometric distribution
+        val b = (Math.log(x) / Math.log(q)) as int; // geometric distribution
         size++;
         sumb += b;
         if (depth<d)
@@ -77,7 +77,7 @@ class SeqUTSGeo1 extends Benchmark {
 
         // sanity check on size and branching factor
         if (first) {
-            val obsBranch = (sumb to double) / size;
+            val obsBranch = (sumb as double) / size;
             val balancedSize = (Math.pow(b0, d+1)-1) / (obsBranch-1);
             System.out.printf("balancedSize / size %.2f\n", balancedSize / size);
             System.out.printf("obsBranch / b0 %.2f\n", obsBranch / b0);
@@ -85,7 +85,7 @@ class SeqUTSGeo1 extends Benchmark {
         first = false;
 
         // should always get same size tree
-        return size to double;
+        return size as double;
     }
 
 

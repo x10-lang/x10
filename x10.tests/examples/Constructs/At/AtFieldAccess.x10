@@ -22,7 +22,7 @@ public class AtFieldAccess extends x10Test {
 			at (D(p)) { t = NewT; }
 		}
 		at (t.location) { t.i = 3; }
-		return 3 == (future(t) t.i).force();
+		return 3 == (future(t.location) t.i).force();
 	}
 
 	public static def main(var args: Rail[String]): void = {

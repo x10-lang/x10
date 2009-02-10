@@ -28,7 +28,7 @@ import harness.x10Test;;
  */
 public class BlockDistWithPlaceSet extends x10Test {
 
-	public const P: Dist = distmakeUnique();
+	public const P: Dist = Dist.makeUnique();
 	public const COUNT: int = 200;
 	public const L: int = 5;
 
@@ -45,7 +45,7 @@ public class BlockDistWithPlaceSet extends x10Test {
 			val placeNums: Array[int] = r.placeNums;
 			val placeSet: Set = r.placeSet;
 
-			val DBlock: Dist = distmakeBlock(R, placeSet);
+			val DBlock: Dist = Dist.makeBlock(R, 0, placeSet);
 			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
 			val p: int = totalPoints/np;
 			val q: int = totalPoints%np;

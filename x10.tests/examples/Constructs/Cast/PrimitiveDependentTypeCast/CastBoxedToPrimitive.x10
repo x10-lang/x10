@@ -17,7 +17,7 @@ import harness.x10Test;
 		// boxed to new BoxedInteger(3)
 		var obj: x10.lang.Object = 3;
 		// unboxed as : ((BoxedInteger) obj).intValue()
-		var i: int = obj to int;
+		var i: int = obj as int;
 		return true;
 	}
 

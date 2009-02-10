@@ -19,13 +19,13 @@ public class Long_ConstraintDeclaredAsIntegerOverFlow2_MustFailCompile extends x
 	 public def run(): boolean = {
 		var result: boolean = false;
 		val notAnInt: long = 2147493648L ;
-		val b: int{self == -2147473648} = notAnInt to int{self== -2147473648};
+		val b: int{self == -2147473648} = notAnInt as int{self== -2147473648};
 		System.out.println("" + " bound=" + b
 				+ " notAnInt=" + notAnInt);
 		try {
 		//  this time constraint is a long but value to assign is an overflowed integer
 		// Hence at compile time we can state contraint value is != from constant.
-		var l3: long{self==2147493648L} = b to long{self==2147493648L};
+		var l3: long{self==2147493648L} = b as long{self==2147493648L};
 		} catch (e: ClassCastException) {
 			return true;
 		}

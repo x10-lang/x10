@@ -17,16 +17,16 @@ public class Array1Exploded extends x10Test {
 
     public def run(): boolean = {
 
-        val d = Dist.makeConstant([1..10, 1..10] to Region, here);
+        val d = Dist.makeConstant([1..10, 1..10] as Region, here);
         val ia = Array.make[int](d);
 
-        for (val p(i,j): Point(2) in [1..10, 1..10] to Region) {
+        for (val p(i,j): Point(2) in [1..10, 1..10] as Region) {
             chk(ia(p) == 0);
             ia(p) = i+j;
         }
 
         for (val p(i,j): Point(2) in d) {
-            val q1(m,n)  = [i, j] to Point;
+            val q1(m,n)  = [i, j] as Point;
             chk(i == m);
             chk(j == n);
             chk(ia(i, j) == i+j);

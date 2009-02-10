@@ -18,7 +18,7 @@ public value class ClassCast1 extends x10Test {
 		try {
 			val A: Rail[Box[ClassCast1]] = [ null, new ClassCast1() ];
 			var v: Box[ClassCast1] = (A(0) == null) ? null : A(1);
-			return new ClassCast1() == v to ClassCast1; // should throw a ClassCastException
+			return new ClassCast1() == v as ClassCast1; // should throw a ClassCastException
 		} catch (e: ClassCastException) { // Per Sec 11.4.1, v 0.409 of the manual
 			return true;
 		}

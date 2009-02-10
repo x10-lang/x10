@@ -13,7 +13,7 @@ public class ArrayScan extends TestArray {
 
     public def run(): boolean {
 
-        val a = Array.make[double](0..N, (p:Point)=>p(0) to double);
+        val a = Array.make[double](0..N, (p:Point)=>p(0) as double);
         pr("original", a);
 
         val sum = (a:double,b:double) => a+b;

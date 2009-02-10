@@ -26,7 +26,7 @@ public class ArrayAlgebraWithDType extends x10Test {
     public def run(): boolean = {
 
         val R=0..N-1;
-        val D:Dist(1)= Dist.makeBlockCyclic(R, 2);
+        val D:Dist(1)= Dist.makeBlockCyclic(R, 0, 2);
         val D01 = D | 0..N/2-1;
         val D23 = D | (N/2)..N-1;
         val D0  = D | 0..N/4-1;

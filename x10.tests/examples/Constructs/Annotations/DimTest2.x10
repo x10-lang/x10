@@ -12,10 +12,10 @@ public class DimTest2 extends harness.x10Test {
 	var meltF: double = 32;
 	var boilF: double = 212;
 	
-	var a: boolean = (int) (@Unit(Temperature.F)) meltC == (int) meltF;
-	var b: boolean = (int) (@Unit(Temperature.F)) boilC == (int) boilF;
-	var c: boolean = (int) (@Unit(Temperature.C)) meltF == (int) meltC;
-	var d: boolean = (int) (@Unit(Temperature.C)) boilF == (int) boilC;
+	var a: boolean = meltC as @Unit(Temperature.F) as int == meltF as int;
+	var b: boolean = boilC as @Unit(Temperature.F) as int == boilF as int;
+	var c: boolean = meltF as @Unit(Temperature.C) as int == meltC as int;
+	var d: boolean = boilF as @Unit(Temperature.C) as int == boilC as int;
 
 	return a && b && c && d;
     }

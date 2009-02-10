@@ -30,36 +30,36 @@ public class ArrayDecl extends x10Test {
         chk(v_ia2.dist.equals(Dist.makeConstant(0..N-1, here)));
         for (val (i): Point in v_ia2.region) chk(v_ia2(i) == i);
 
-        val ia2: Array[byte] = Array.make[byte](Dist.makeConstant(0..N-1, (here).prev().prev()), (Point)=> (0 to byte));
+        val ia2: Array[byte] = Array.make[byte](Dist.makeConstant(0..N-1, (here).prev().prev()), (Point)=> (0 as byte));
         chk(ia2.dist.equals(Dist.makeConstant(0..N-1, (here).prev().prev())));
-        finish ateach ((i): Point in ia2.dist) chk(ia2(i) == (0 to byte));
+        finish ateach ((i): Point in ia2.dist) chk(ia2(i) == (0 as byte));
 
         //Examples similar to section 10.3 of X10 reference manual
 
-        val data1: Array[double] = Array.make[double](Dist.makeConstant(0..16, here), ((i):Point)=> i to  Double);
+        val data1: Array[double] = Array.make[double](Dist.makeConstant(0..16, here), ((i):Point)=> i as  Double);
         chk(data1.dist.equals(Dist.makeConstant(0..16, here)));
-        for (val (i): Point in data1.region) chk(data1(i) == (i to Double));
+        for (val (i): Point in data1.region) chk(data1(i) == (i as Double));
 
         val myStr: String = "abcdefghijklmnop";
-        val data2 = Array.make[char](Dist.makeConstant([1..2, 1..3] to Region, here), ((i,j): Point)=> myStr.charAt(i*j));
+        val data2 = Array.make[char](Dist.makeConstant([1..2, 1..3] as Region, here), ((i,j): Point)=> myStr.charAt(i*j));
         chk(data2.dist.equals(Dist.makeConstant([1..2, 1..3], here)));
         for (val (i,j): Point in data2.region) chk(data2(i, j) == myStr.charAt(i*j));
 
         // is a region R converted to R->here in a dist context?
         //final long[.] data3 = new long[1:11]
-        val data3: Array[long] = Array.make[long](Dist.makeConstant(1..11, here), ((i) : Point)=> i*i to Long);
+        val data3: Array[long] = Array.make[long](Dist.makeConstant(1..11, here), ((i) : Point)=> i*i as Long);
         chk(data3.dist.equals(Dist.makeConstant(1..11, here)));
-        for (val (i): Point in data3.region) chk(data3(i) == (i*i to Long));
+        for (val (i): Point in data3.region) chk(data3(i) == (i*i as Long));
 
         val D: Dist = Dist.makeCyclic(0..9, 0);
-        val d = Array.make[float](D, ((i):Point) => (10.0*i to Float));
+        val d = Array.make[float](D, ((i):Point) => (10.0*i as Float));
         chk(d.dist.equals(D));
-        finish ateach (val (i): Point in D) chk(d(i) == (10.0*i to Float));
+        finish ateach (val (i): Point in D) chk(d(i) == (10.0*i as Float));
 
         val E = Dist.makeCyclic([1..7, 0..1], 1);
-        val result1  = Array.make[Short](E, ((i,j): Point) => (i+j to Short));
+        val result1  = Array.make[Short](E, ((i,j): Point) => (i+j as Short));
         chk(result1.dist.equals(E));
-        finish ateach (val (i,j): Point in E) chk(result1(i, j) == (i+j to Short));
+        finish ateach (val (i,j): Point in E) chk(result1(i, j) == (i+j as Short));
 
         val result2 = Array.make[complex](Dist.makeConstant(0..N-1, here), ((i) : Point) =>  new complex(i*N,-i));
         chk(result2.dist.equals(Dist.makeConstant(0..N-1, here)));

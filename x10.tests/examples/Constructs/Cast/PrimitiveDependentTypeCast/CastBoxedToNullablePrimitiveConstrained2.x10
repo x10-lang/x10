@@ -27,7 +27,7 @@ import harness.x10Test;
 	}
 	
 	public def mth(): x10.lang.Object = {
-		// boxed to BoxedInteger(5);		
+		// boxed as BoxedInteger(5);		
 		return 5;
 	}
 	public static def main(var args: Rail[String]): void = {

@@ -29,7 +29,7 @@ public class FlattenCondAndAnd extends x10Test {
     val a: Array[Boolean](2);
 
     public def this(): FlattenCondAndAnd = {
-        a = Array.make[Boolean](([1..10, 1..10] to Region)->here, ((i,j): Point) => false);
+        a = Array.make[Boolean](([1..10, 1..10] as Region)->here, ((i,j): Point) => false);
     }
 
     def m(x: boolean)= x;

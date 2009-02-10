@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface Inductance extends Measure { 
-    @DerivedUnit(SI.henry) var henry: double = _, H = _var H: double = _;
+public interface Inductance extends Measure { 
+    @DerivedUnit(SI.henry) const henry: double = _, H: double = _;
 }

@@ -21,7 +21,7 @@ import harness.x10Test;;
 
 		try {
 			// (nullable<int(:self==3)>) <-- nullable<int(:c)>
-			var case4a: Box[int{self==3}] = ni to Box[int{self==3}];
+			var case4a: Box[int{self==3}] = ni as Box[int{self==3}];
 		} catch (var e: ClassCastException) {
 			res4 = true;
 		}

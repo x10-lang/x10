@@ -12,7 +12,7 @@ import harness.x10Test;
  */
 public class Block2 extends x10Test {
 	public def run(): boolean = {
-		var d: Dist{rect&&zeroBased&&rank==1} = Dist.makeBlock();
+		var d: Dist{rect&&zeroBased&&rank==1} = Dist.makeBlock(0..1, 0);
 		return true;
 	}
 

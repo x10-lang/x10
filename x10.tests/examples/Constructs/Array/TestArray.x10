@@ -62,7 +62,7 @@ abstract public class TestArray extends x10Test {
         var os: Rail[Object] = Rail.makeVar[Object](10);
 
         def set(i0: int, vue: double): void = {
-            os(i0) = vue to Object; // XTENLANG-210
+            os(i0) = vue as Object; // XTENLANG-210
         }
 
         def set(i0: int, i1: int, vue: double): void = {
@@ -107,8 +107,8 @@ abstract public class TestArray extends x10Test {
                     (o as Grid).pr(rank-1);
                 } else {
                     // XTENLANG-34, XTENLANG-211
-                    val d = (o to Box[double]) to double;
-                    out.print((d to int)+"");
+                    val d = (o as Box[double]) as double;
+                    out.print((d as int)+"");
                 }
 
                 if (rank==1)
@@ -129,7 +129,7 @@ abstract public class TestArray extends x10Test {
             var v: int = 1;
             for (var i: int = 0; i<pt.rank; i++)
                 v *= pt(i);
-            return v%10 to double;
+            return v%10 as double;
         };
 
         val init0 = (Point) => 0.0D;

@@ -58,8 +58,8 @@ public class DistBounds3D extends x10Test {
         try {
             chk(a.dist(i, j, k).id< Place.MAX_PLACES && a.dist(i, j, k).id >= 0);
             finish async(a.dist(i, j, k)) {
-                a(i, j, k) = ( 0xabcdef07L to Int);
-                chk(a(i, j, k) == (0xabcdef07L to Int));
+                a(i, j, k) = ( 0xabcdef07L as Int);
+                chk(a(i, j, k) == (0xabcdef07L as Int));
             }
         } catch (var e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;

@@ -51,8 +51,8 @@ public class ArrayBounds2D extends x10Test {
         var withinBounds: boolean = true;
 
         try {
-            a(i, j) = (0xabcdef07L to int);
-            chk(a(i, j) == (0xabcdef07L to int));
+            a(i, j) = (0xabcdef07L as int);
+            chk(a(i, j) == (0xabcdef07L as int));
         } catch (e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }

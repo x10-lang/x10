@@ -14,8 +14,8 @@ import harness.x10Test;;
  */
 public class PropertyPropagationTest extends x10Test {
 	public def run(): boolean = {
-		val R = [1..10, 1..10] to Region;
-	    val R2 = [1..101, 1..101] to Region;
+		val R = [1..10, 1..10] as Region;
+	    val R2 = [1..101, 1..101] as Region;
 		val D = Dist.makeCyclic(R);
 		val E = Dist.makeCyclic(R2);
 		val F = D || E;

@@ -16,9 +16,9 @@ public class PropertyPropagationTest2 extends x10Test {
     def nothing()={}
 	public def run(): boolean = {
 	    val P  = Dist.makeUnique();
-		val R1  = [0..1, 0..7] to Region; // horizontal strip
-		val R2  = [4..5, 0..7] to Region; // horizontal strip
-		val R3 = [0..7, 4..5] to Region; // vertical strip
+		val R1  = [0..1, 0..7] as Region; // horizontal strip
+		val R2  = [4..5, 0..7] as Region; // horizontal strip
+		val R3 = [0..7, 4..5] as Region; // vertical strip
 		val R1orR2 = (R1 || R2);
 		val R1orR2andR3  = R1orR2 && R3;
 		val R1orR2orR3  = R1 || R2 || R3;
@@ -58,7 +58,7 @@ public class PropertyPropagationTest2 extends x10Test {
 		val TD9  = Dist.makeConstant(R1orR2andR3, P(0));
 		val Doverlay =  (DR1orR2orR3.overlay(TD9));
 		for (val (i,j): Point in Doverlay) {
-			if (R1orR2andR3.contains([i, j] to Point)) {
+			if (R1orR2andR3.contains([i, j] as Point)) {
 				chk(Doverlay(i, j) == P(0) && TD9(i, j) == P(0));
 			} else {
 				chk(Doverlay(i, j) == DR1orR2orR3(i, j));
@@ -66,7 +66,7 @@ public class PropertyPropagationTest2 extends x10Test {
 		}
 
 		val Dintersect = DR1orR2orR3 && Doverlay;
-		for (val (i,j): Point(2) in ([0..7, 0..7] to Region)) {
+		for (val (i,j): Point(2) in ([0..7, 0..7] as Region)) {
 			nothing();
 		}
 	    return true;

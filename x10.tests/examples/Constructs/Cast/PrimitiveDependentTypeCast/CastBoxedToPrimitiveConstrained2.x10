@@ -19,7 +19,7 @@ import harness.x10Test;
 			var obj: x10.lang.Object = 2;
 			// At runtime, cast checking code detects unboxed object does
 			// not meet constraint.
-			var i: int = obj to int{self==3};
+			var i: int = obj as int{self==3};
 		} catch (e: ClassCastException) {
 			return true;
 		}

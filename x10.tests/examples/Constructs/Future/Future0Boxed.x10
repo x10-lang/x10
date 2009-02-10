@@ -13,7 +13,7 @@ import harness.x10Test;;
  */
 public class Future0Boxed extends x10Test {
 	public def run(): boolean = {
-	    val fx = future 42 to Box[Int];
+	    val fx = future 42 as Box[Int];
 		return fx() == 42;
 	}
 

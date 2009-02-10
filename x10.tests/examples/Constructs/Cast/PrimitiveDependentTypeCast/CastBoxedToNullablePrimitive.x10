@@ -15,12 +15,12 @@ import harness.x10Test;
 
 	public def run(): boolean = {
 		// transformed to (nullable<int>) ((BoxedInteger) obj).intValue();
-		var i: Box[int] = mth() to Box[int];
+		var i: Box[int] = mth() as Box[int];
 		return true;
 	}
 	
 	public def mth(): x10.lang.Object = {
-		// boxed to Box[int];
+		// boxed as Box[int];
 		return 3;
 	}
 	public static def main(var args: Rail[String]): void = {

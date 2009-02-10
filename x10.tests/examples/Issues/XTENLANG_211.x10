@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_211 extends x10Test {
 
     def foo(o:Object) {
-        val d = o to double;
+        val d = o as double;
     }
 
     public def run(): boolean {

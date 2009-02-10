@@ -16,7 +16,7 @@ import harness.x10Test;
 	public def run(): boolean = {
 		var obj: x10.lang.Object = 3;
 		// an additionnal check is needed to ensure unboxed primitive meet constraints.
-		var i: int = obj to int{self==3};
+		var i: int = obj as int{self==3};
 		return true;
 	}
 

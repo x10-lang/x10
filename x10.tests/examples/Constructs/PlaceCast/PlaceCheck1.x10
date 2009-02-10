@@ -39,7 +39,7 @@ public class PlaceCheck1 extends x10Test {
 				break;
 			}
 		}
-		return ret to Place;
+		return ret as Place;
 	}
 
 	public var foo: int;

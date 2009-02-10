@@ -7,7 +7,7 @@ class BlockDist extends TestDist {
 
     public def run() {
 
-        val r = [1..4, 1..7] to Region;
+        val r = [1..4, 1..7] as Region;
         pr("r " + r);
 
         prDist("block 0", Dist.makeBlock(r, 0));

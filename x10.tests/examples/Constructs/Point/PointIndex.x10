@@ -19,7 +19,7 @@ public class PointIndex extends x10Test {
 
         var sum:int = 0;
         var gotException: boolean;
-        var p: Point = [1, 2] to Point;
+        var p: Point = [1, 2] as Point;
 
         gotException = false;
         try {

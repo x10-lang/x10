@@ -8,8 +8,7 @@
 import harness.x10Test;
 
 /**
- * Tests that a value stored in a variable of type Box[C], for C a reference class, 
- * is in fact an instanceof C.
+ * Tests that a value stored in a variable of type Box[C], is a Box[C] not a C.
  */
 public class Boxing6 extends x10Test {
 
@@ -17,8 +16,8 @@ public class Boxing6 extends x10Test {
 
         public def run(): boolean = {
                 val x = new C();
-                val y = x to Box[C];
-                return y instanceof C;
+                val y = x as Box[C];
+                return y instanceof Box[C];
         }
 
 	public static def main(var args: Rail[String]): void = {

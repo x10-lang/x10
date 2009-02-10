@@ -18,7 +18,7 @@ import harness.x10Test;
 	public def run(): boolean = {
 		try {
 			var obj: x10.lang.Object = new CastBoxedToPrimitive2();
-			var i: int = obj to int;
+			var i: int = obj as int;
 		} catch (var e: ClassCastException) {
 			return true;
 		}

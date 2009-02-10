@@ -8,6 +8,7 @@
 //LIMITATION:
 //This test case will not meet expectations. It is a limitation of the current release.
 //Interface invariants are not currently implemented.
+// Cannot constrain super-properties in the class invariant
 /** Tests that invariants due to a super constraint and a sub constraint are 
  * consistent with each other.
  *@author pvarma

@@ -29,12 +29,12 @@ class ParRandomAccess1 extends Benchmark {
         
         def this(size:int) {
             mask = size-1;
-            a = Rail.makeVar[long](size, (i:int) => i to long);
+            a = Rail.makeVar[long](size, (i:int) => i as long);
         }
         
         final def update(ran:long) {
-            //a(ran&mask to int) ^= ran;
-            val index = ran&mask to int;
+            //a(ran&mask as int) ^= ran;
+            val index = ran&mask as int;
             a(index) = a(index) ^ ran;
         }
     }
@@ -73,7 +73,7 @@ class ParRandomAccess1 extends Benchmark {
             async {
                 var ran:long = HPCCStarts(valp * (numUpdates/PARALLELISM));
                 for (var i:long=0; i<numUpdates/PARALLELISM; i++) {
-                    val placeId = ((ran>>logLocalTableSize) & placeMask) to int;
+                    val placeId = ((ran>>logLocalTableSize) & placeMask) as int;
                     val valran = ran;
                     val table = tables(placeId);
                     table.update(valran);
@@ -103,7 +103,7 @@ class ParRandomAccess1 extends Benchmark {
             }
             first = false;
             System.out.printf("%d error(s); allowed %d\n", errors, tableSize/100);
-            return (errors * 100 / tableSize) to double; // <.01*tableSize counts as 0
+            return (errors * 100 / tableSize) as double; // <.01*tableSize counts as 0
         } else
             return 0.0;
 

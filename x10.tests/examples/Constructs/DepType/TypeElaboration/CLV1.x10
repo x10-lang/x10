@@ -19,7 +19,7 @@
 	    property(i,j);
      }
      public def m():void = {
-	 var f: CircularLV{k==3} = new CircularLV(3) to CircularLV{k==3} ;
+	 var f: CircularLV{k==3} = new CircularLV(3) as CircularLV{k==3} ;
      }
  
  }

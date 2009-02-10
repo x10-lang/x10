@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface Frequency extends Measure { 
-    @DerivedUnit(SI.hertz) var hertz: double = _, Hz = _var Hz: double = _;
+public interface Frequency extends Measure { 
+    @DerivedUnit(SI.hertz) const hertz: double = _, Hz: double = _;
 }

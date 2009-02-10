@@ -28,7 +28,7 @@ public class Initialization extends x10Test {
 		System.out.println("creating java array size "+OneDSize);
 		x_javaArray = Array.make[double](OneDSize);
 		stop = System.currentTimeMillis();
-		System.out.println("Created array in "+(((stop-start) to double)/1000)+" seconds");
+		System.out.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
 		start = System.currentTimeMillis();
 		System.out.println("creating array size "+OneDSize);
@@ -36,7 +36,7 @@ public class Initialization extends x10Test {
 		val D: Dist = Dist.makeBlock(r);
 		x_doubleArray1D = Array.make[double](D);
 		stop = System.currentTimeMillis();
-		System.out.println("Created array in "+(((stop-start) to double)/1000)+" seconds");
+		System.out.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
 		System.out.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
 		var r2: Region = [0..kArraySize, 0..kArraySize];
@@ -45,13 +45,13 @@ public class Initialization extends x10Test {
 		start = System.currentTimeMillis();
 		x_doubleArray2D = Array.make[double](D2);
 		stop = System.currentTimeMillis();
-		System.out.println("Created array in "+(((stop-start) to double)/1000)+" seconds");
+		System.out.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 		System.out.println("finished allocating");
 
 		start = System.currentTimeMillis();
 		x_intArray1D = Array.make[int](D);
 		stop = System.currentTimeMillis();
-		System.out.println("Created int array in "+(((stop-start) to double)/1000)+" seconds");
+		System.out.println("Created int array in "+(((stop-start) as double)/1000)+" seconds");
 		System.out.println("finished allocating");
 		return true;
 	}

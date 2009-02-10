@@ -26,7 +26,7 @@ public class EncapsulatedArray2D extends x10Test {
     public def run(): boolean = {
 
         val size: int = 5;
-        val R = [0..size-1, 0..size-1] to Region;
+        val R = [0..size-1, 0..size-1] as Region;
         val D  = Dist.makeCyclic(R, 0); 
         
         val A = Array.make[Wrapper](D, (Point) => new Wrapper(Array.make[double](R->here, (Point)=>0.0D)));
@@ -35,7 +35,7 @@ public class EncapsulatedArray2D extends x10Test {
         //for (int i=0;i<numOfPlaces;i++){    
         finish ateach (val (i,j): Point in D) { 
             val temp = A(i, j).m_array; 
-            for (val p: Point(2) in temp) temp(p)=(i+j to Double);
+            for (val p: Point(2) in temp) temp(p)=(i+j as Double);
         }
         
         return true;

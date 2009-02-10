@@ -13,7 +13,7 @@ import harness.x10Test;
 public class DefaultValueTypeDefTest extends x10Test {
 
     static value Foo[T](n:int, s:T) {
-       def this(n:int, s:T):Foo[T](n,s) = {
+       def this(n:int, s:T):Foo[T]{self.n==n,self.s==s} {
          property(n,s);
        }
     }

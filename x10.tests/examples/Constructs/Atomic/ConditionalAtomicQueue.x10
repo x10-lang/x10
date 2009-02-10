@@ -23,7 +23,7 @@ public class ConditionalAtomicQueue extends x10Test {
 	private var head: int; // pointer to item to remove from the front
 
 	public def this(): ConditionalAtomicQueue = {
-		Q = Array.make[T](siz);
+		Q = Rail.makeVar[T](siz);
 		nelems = 0;
 		tail = 0;
 		head = 0;
@@ -75,7 +75,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		val N: int = T.N;
 		val NP: int = Place.MAX_PLACES;
 		val D2: Dist = MyDist.val(N*NP);
-		val received: Array[int] = new Array[int](D2);
+		val received: Array[int] = Array.make[int](D2);
 
 		finish {
 			// spawn producer activities on each place
@@ -90,12 +90,12 @@ public class ConditionalAtomicQueue extends x10Test {
 				}
 			// spawn a single consumer activity in place P0
 			async( this.location ) {
-				for (val p: Point in D2) {
+				for (val p in D2.region) {
 					var t: Box[T];
 					when (!empty()) { t = remove(); }
-					val t1: T = t to T;
+					val t1: T = t as T;
 					async(t1.location) { t1.consume(); } // consume the T
-					val m: int = (future(t1) t1.getval()).force();
+					val m: int = (future(t1.location) t1.getval()).force();
 					received(m) += 1;
 					// remember how many times
 					// we received this item
@@ -143,7 +143,7 @@ public class ConditionalAtomicQueue extends x10Test {
 		 * create a simple 1D blocked dist
 		 */
 		static def block(var arraySize: int): Dist = {
-			return Dist.makeBlock([0..(arraySize-1)]);
+			return Dist.makeBlock(0..(arraySize-1), 0);
 		}
 		/**
 		 * create a unique dist (mapping each i to place i)

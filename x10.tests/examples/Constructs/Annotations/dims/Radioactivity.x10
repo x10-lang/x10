@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface Frequency extends Measure { 
-    @DerivedUnit(SI.becquerel) var becquerel: double = _, Bq = _var Bq: double = _;
+public interface Frequency extends Measure { 
+    @DerivedUnit(SI.becquerel) const becquerel: double = _, Bq: double = _;
 }

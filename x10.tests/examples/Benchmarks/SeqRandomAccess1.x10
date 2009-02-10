@@ -31,12 +31,12 @@ class SeqRandomAccess1 extends Benchmark {
         
         def this(size:int) {
             mask = size-1;
-            a = Rail.makeVar[long](size, (i:int) => i to long);
+            a = Rail.makeVar[long](size, (i:int) => i as long);
         }
         
         final def update(ran:long) {
-            //a(ran&mask to int) ^= ran;
-            val index = ran&mask to int;
+            //a(ran&mask as int) ^= ran;
+            val index = ran&mask as int;
             a(index) = a(index) ^ ran;
         }
     }
@@ -73,7 +73,7 @@ class SeqRandomAccess1 extends Benchmark {
         for (var p:int=0; p<PARALLELISM; p++) {
             var ran:long = HPCCStarts(p* (numUpdates/PARALLELISM));
             for (var i:long=0; i<numUpdates/PARALLELISM; i++) {
-                val placeId = ((ran>>logLocalTableSize) & placeMask) to int;
+                val placeId = ((ran>>logLocalTableSize) & placeMask) as int;
                 tables(placeId).update(ran);
                 ran = (ran << 1) ^ (ran<0L ? POLY : 0L);
             }
@@ -100,7 +100,7 @@ class SeqRandomAccess1 extends Benchmark {
             }
             first = false;
             Console.OUT.printf("%d error(s); allowed %d\n", errors, tableSize/100);
-            return (errors * 100 / tableSize) to double; // <.01*tableSize counts as 0
+            return (errors * 100 / tableSize) as double; // <.01*tableSize counts as 0
         } else
             return 0.0;
 

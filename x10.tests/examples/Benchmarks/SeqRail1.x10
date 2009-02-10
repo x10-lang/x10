@@ -13,8 +13,8 @@ public class SeqRail1 extends Benchmark {
 
     val N = 1000000;
     val M = 20;
-    def expected() = N*M to double;
-    def operations() = N*M to double;
+    def expected() = N*M as double;
+    def operations() = N*M as double;
 
 
     //

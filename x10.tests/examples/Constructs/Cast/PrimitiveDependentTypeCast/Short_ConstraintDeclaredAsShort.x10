@@ -19,25 +19,25 @@ public class Short_ConstraintDeclaredAsShort extends x10Test {
 		
 		// UPDATE COMMENT WHEN FIXED
 		// not valid: because constraint constant and assigned one have different type
-		var s0: short{self == 0} = 0 to short{self==0};
+		var s0: short{self == 0} = 0 as short{self==0};
 
 		// UPDATE COMMENT WHEN FIXED
 		// not valid: as constraint on self is a short and the other is an integer
-		var s1: short{self == sconstraint} = 0 to short{self==0};
+		var s1: short{self == sconstraint} = 0 as short{self==0};
 
 		// UPDATE COMMENT WHEN FIXED
-		// not valid: because cannot cast 0 which is of type int(:self==int) to short(:self==short)
-		var s2: short{self == sconstraint} = 0 to short{self==sconstraint};
+		// not valid: because cannot cast 0 which is of type int(:self==int) as short(:self==short)
+		var s2: short{self == sconstraint} = 0 as short{self==sconstraint};
 		
 		// UPDATE COMMENT WHEN FIXED
 		// not valid: as constraint on self is a short (self==sconstraint) and the other is an integer (self==0)
-		var s3: short{self == sconstraint} = (0 to short) to short{self==0};
+		var s3: short{self == sconstraint} = (0 as short) as short{self==0};
 
 		// valid
-		var s4: short{self == sconstraint} = (0 to short) to short{self==sconstraint};
+		var s4: short{self == sconstraint} = (0 as short) as short{self==sconstraint};
 
 		var j: short = -1;
-		var i: short{self == sconstraint} = (++j) to short{self == sconstraint};
+		var i: short{self == sconstraint} = (++j) as short{self == sconstraint};
 		return ((j==sconstraint) && (i==sconstraint));
 
 	}

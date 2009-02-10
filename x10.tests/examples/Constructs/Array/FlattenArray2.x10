@@ -24,7 +24,7 @@ public class FlattenArray2 extends x10Test {
     var a: Array[int](2);
 
     public def this(): FlattenArray2 = {
-        a = Array.make[int](([1..10, 1..10] to Region)->here, ((i,j): Point) => { return i+j;});
+        a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point) => { return i+j;});
     }
 
     def m(var x: int): int = {

@@ -9,7 +9,7 @@ import harness.x10Test;
 
 /**
  * Purpose: Check primitive variable assignment to primitive dependent type.
- * Issue: Variable j is statically known as an int. Conversion from int to int(:c) is forbidden.
+ * Issue: Variable j is statically known as an int. Conversion from int as int(:c) is forbidden.
  * @author vcave
  **/
 public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x10Test {

@@ -8,11 +8,11 @@
 import harness.x10Test;
 
 /**
- * Check that a float literal can be cast to float.
+ * Check that a float literal can be cast as float.
  */
 public class FloatLit extends x10Test {
 	public def run(): boolean = {
-		var f: float = 0.001 to float;
+		var f: float = 0.001 as float;
 		return true;
 	}
 

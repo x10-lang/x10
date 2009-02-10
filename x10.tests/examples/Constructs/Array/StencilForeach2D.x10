@@ -16,12 +16,12 @@ import harness.x10Test;
 public class StencilForeach2D extends x10Test {
     
     public def run(): boolean = {
-        val R = [-1..256, -1..256] to Region;
-        val r = [0..255, 0..255] to Region;
-        val north = [0, 1] to Point;
-        val south = [0, -1] to Point;
-        val west = [-1, 0] to Point;
-        val east  = [1, 0] to Point;
+        val R = [-1..256, -1..256] as Region;
+        val r = [0..255, 0..255] as Region;
+        val north = [0, 1] as Point;
+        val south = [0, -1] as Point;
+        val west = [-1, 0] as Point;
+        val east  = [1, 0] as Point;
         val A = Array.make[double](R->here, (Point)=>0.0D);
         val h  = 0.1;
             

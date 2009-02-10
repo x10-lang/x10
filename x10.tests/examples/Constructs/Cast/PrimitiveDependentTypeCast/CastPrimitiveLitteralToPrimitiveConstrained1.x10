@@ -9,7 +9,7 @@ import harness.x10Test;;
 
 /**
  * Purpose: Checks constant promotion works.
- * Note: The compiler promotes constant's type from int to int(:self==0)
+ * Note: The compiler promotes constant's type from int as int(:self==0)
  * @author vcave
  **/
 public class CastPrimitiveLitteralToPrimitiveConstrained1 extends x10Test {

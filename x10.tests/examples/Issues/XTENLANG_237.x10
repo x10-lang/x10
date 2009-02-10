@@ -9,9 +9,9 @@ import harness.x10Test;
 
 class XTENLANG_237 extends x10Test {
 
-    const a = long.MAX_VALUE to double;
-    const b = long.MIN_VALUE to double;
-    const c = 123L to double;
+    const a = long.MAX_VALUE as double;
+    const b = long.MIN_VALUE as double;
+    const c = 123L as double;
 
     public def run(): boolean {
         return true;

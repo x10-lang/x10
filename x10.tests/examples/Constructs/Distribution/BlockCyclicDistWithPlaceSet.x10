@@ -35,7 +35,7 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 			val lb2: int = ranInt(-L, L);
 			val ub1: int = ranInt(lb1, L);
 			val ub2: int = ranInt(lb2, L);
-			val R = [lb1..ub1, lb2..ub2] to Region;
+			val R = [lb1..ub1, lb2..ub2] as Region;
 			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
 			val bSize: int = ranInt(1, totalPoints+1);
 			val r = createRandPlaceSet();

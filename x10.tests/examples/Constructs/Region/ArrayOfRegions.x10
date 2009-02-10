@@ -24,7 +24,7 @@ public class ArrayOfRegions extends x10Test {
 
         val N = 3;
         // XTENLANG-129
-        val ra = Array.make[Region(1)]([0..N-1], (Point) => [1..0] to Region(1));
+        val ra = Array.make[Region(1)]([0..N-1], (Point) => [1..0] as Region(1));
 
         for ((i): Point in ra) {
             ra(i) = ra(i) || [10*i..10*i+9];

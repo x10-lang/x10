@@ -45,7 +45,7 @@ class ParUTSBin1 extends Benchmark {
     const m = 8;                       // branching factor is m with prob q
     def expected() = 1234872.0;        // expected size given above params 
 
-    def operations() = asize.intValue() to double;
+    def operations() = asize.intValue() as double;
 
 
     //
@@ -122,7 +122,7 @@ class ParUTSBin1 extends Benchmark {
         // sanity check on size and branching factor
         if (first) {
             val expSize = b0 / (1.0 - q*m);
-            val obsBranch = (sumb to double) / size;
+            val obsBranch = (sumb as double) / size;
             val expBranch = q * m;
             System.out.printf("exp size / obs size: %.3f\n", expSize/size);
             System.out.printf("exp branching / obs branching: %.3f\n", expBranch / obsBranch);
@@ -130,7 +130,7 @@ class ParUTSBin1 extends Benchmark {
         first = false;
 
         // should always get same size tree
-        return size to double;
+        return size as double;
     }
 
 

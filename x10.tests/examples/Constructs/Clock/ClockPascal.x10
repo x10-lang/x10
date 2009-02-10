@@ -75,7 +75,7 @@ public class ClockPascal extends x10Test {
 	public const DELAY: int = 2000;
 	public def run(): boolean = {
 		val D = Dist.makeConstant([0..N-1, 0..N-1], here);
-		val Dinner = D|([1..N-1, 1..N-1] to Region);
+		val Dinner = D|([1..N-1, 1..N-1] as Region);
 		val Dboundary = D-Dinner;
 		val A: Array[int] = Array.make[int](D, ((i,j):Point)=>Dboundary.contains([i, j]) ? 1 : 0);
 		finish async {
@@ -124,7 +124,7 @@ public class ClockPascal extends x10Test {
 
 	static def tim(): double = {
 		var x: long = System.currentTimeMillis();
-		return ((x-startTime)/1000.00) to double;
+		return ((x-startTime)/1000.00) as double;
 	}
 
 	static def pr1(var i: int, var j: int, var n: int): void = {

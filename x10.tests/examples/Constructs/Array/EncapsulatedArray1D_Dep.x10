@@ -25,7 +25,7 @@ public class EncapsulatedArray1D_Dep extends x10Test {
     public def run(): boolean = {
 
         val size: int = 5;
-        val R  = [0..size-1, 0..size-1] to Region;
+        val R  = [0..size-1, 0..size-1] as Region;
         val D  = Dist.makeUnique(); 
         val numOfPlaces = Place.MAX_PLACES;
         
@@ -36,7 +36,7 @@ public class EncapsulatedArray1D_Dep extends x10Test {
         //for (int i=0;i<numOfPlaces;i++){    
         finish ateach (val (i): Point in D) { 
             val temp  =   A(i).m_array;
-            for (val p: Point(2) in temp.region) temp(p)=(i to Double);
+            for (val p: Point(2) in temp.region) temp(p)=(i as Double);
         }
         
         return true;

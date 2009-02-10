@@ -20,7 +20,7 @@ import harness.x10Test;;
 		
 		// test 1 to primitive
 		// (int) <-- int(:c)
-		var case1b: int = ni to int;
+		var case1b: int = ni as int;
 
 		// test 2 to primitive constrained
 		// must fail compile @see
@@ -34,7 +34,7 @@ import harness.x10Test;;
 
 		// test 3 to nullable primitive
 		// (nullable<int>) <-- int(:c)
-		var case3a: Box[int] = ni to Box[int]; // no check
+		var case3a: Box[int] = ni as Box[int]; // no check
 
 		// test 4 to nullable primitive constrained
 		// must fail compile @see	

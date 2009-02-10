@@ -62,7 +62,7 @@ public class ArrayIndexing extends x10Test {
 		_doubleArray3D = Array.make[double](range3D->here);
 		_doubleArray4D = Array.make[double](range4D->here);
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Double arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("Double arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
 		_intArray1D = Array.make[int](range1D->here);
@@ -70,31 +70,31 @@ public class ArrayIndexing extends x10Test {
 		_intArray3D = Array.make[int](range3D->here);
 		_intArray4D = Array.make[int](range4D->here);
 		stop = System.currentTimeMillis();
-		System.out.println("int arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("int arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
 		_longArray3D = Array.make[long](range3D->here);
 		_longArray4D = Array.make[long](range4D->here);
 		stop = System.currentTimeMillis();
-		System.out.println("long arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("long arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
 		_floatArray3D = Array.make[float](range3D->here);
 		_floatArray4D = Array.make[float](range4D->here);
 		stop = System.currentTimeMillis();
-		System.out.println("float arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("float arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
 		_charArray3D = Array.make[char](range3D->here);
 		_charArray4D = Array.make[char](range4D->here);
 		stop = System.currentTimeMillis();
-		System.out.println("char arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("char arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
 		_byteArray3D = Array.make[byte](range3D->here);
 		_byteArray4D = Array.make[byte](range4D->here);
 		stop = System.currentTimeMillis();
-		System.out.println("byte arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("byte arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 
 		start = System.currentTimeMillis();
 		_genericArray1D = Array.make[Generic](range1D->here);
@@ -102,7 +102,7 @@ public class ArrayIndexing extends x10Test {
 		_genericArray3D = Array.make[Generic](range3D->here);
 		_genericArray4D = Array.make[Generic](range4D->here);
 		stop = System.currentTimeMillis();
-		System.out.println("Generic arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("Generic arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
 	def verify1D(var array: Array[Generic]): boolean = {
@@ -334,9 +334,9 @@ public class ArrayIndexing extends x10Test {
 			for (var j: int = l2; j <= h2; ++j)
 				for (var k: int = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
-					if (verbose) System.out.println("a["+i+","+j+","+k+"] = "+ (count to char));
-					if (array(i, j, k) != (count to char)) {
-						System.out.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+(count to char));
+					if (verbose) System.out.println("a["+i+","+j+","+k+"] = "+ (count as char));
+					if (array(i, j, k) != (count as char)) {
+						System.out.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+(count as char));
 						return false;
 					}
 					++count;
@@ -358,9 +358,9 @@ public class ArrayIndexing extends x10Test {
 				for (var k: int = l3; k <= h3; ++k)
 					for (var l: int = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
-						if (verbose) System.out.println("a["+i+","+j+","+k+","+l+"] = "+(count to char));
-						if (array(i, j, k, l) != (count to char)) {
-							System.out.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+(count to char));
+						if (verbose) System.out.println("a["+i+","+j+","+k+","+l+"] = "+(count as char));
+						if (array(i, j, k, l) != (count as char)) {
+							System.out.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+(count as char));
 							return false;
 						}
 						++count;
@@ -380,9 +380,9 @@ public class ArrayIndexing extends x10Test {
 			for (var j: int = l2; j <= h2; ++j)
 				for (var k: int = l3; k <= h3; ++k) {
 					array(i, j, k) = array(i, j, k);
-					if (verbose) System.out.println("a["+i+","+j+","+k+"] = "+(count to byte));
-					if (array(i, j, k) != (count to byte)) {
-						System.out.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+(count to byte));
+					if (verbose) System.out.println("a["+i+","+j+","+k+"] = "+(count as byte));
+					if (array(i, j, k) != (count as byte)) {
+						System.out.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+(count as byte));
 						return false;
 					}
 					++count;
@@ -404,9 +404,9 @@ public class ArrayIndexing extends x10Test {
 				for (var k: int = l3; k <= h3; ++k)
 					for (var l: int = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
-						if (verbose) System.out.println("a["+i+","+j+","+k+","+l+"] = "+(count to byte));
-						if (array(i, j, k, l) != (count to byte)) {
-							System.out.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+(count to byte));
+						if (verbose) System.out.println("a["+i+","+j+","+k+","+l+"] = "+(count as byte));
+						if (array(i, j, k, l) != (count as byte)) {
+							System.out.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+(count as byte));
 							return false;
 						}
 						++count;
@@ -506,16 +506,16 @@ public class ArrayIndexing extends x10Test {
 		var arrayDist: Dist = array.dist;
 		var count: int = 0;
 		for (val p: Point in array.dist.region) {
-			array(p) = (count++) to byte;
-			if (verbose) System.out.println("init:"+p+" = "+(count to byte));
+			array(p) = (count++) as byte;
+			if (verbose) System.out.println("init:"+p+" = "+(count as byte));
 		}
 	}
 	def initialize(var array: Array[char]): void = {
 		var arrayDist: Dist = array.dist;
 		var count: int = 0;
 		for (val p: Point in array.dist.region) {
-			array(p) = (count++) to char;
-			if (verbose) System.out.println("init:"+p+" = "+(count to char));
+			array(p) = (count++) as char;
+			if (verbose) System.out.println("init:"+p+" = "+(count as char));
 		}
 	}
 	def initialize(var array: Array[boolean]): void = {
@@ -538,7 +538,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_doubleArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of double arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of double arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -553,7 +553,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_floatArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of float arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of float arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -568,7 +568,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_intArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of int arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of int arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -583,7 +583,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_longArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of long arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of long arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -598,7 +598,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_byteArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of byte arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of byte arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -613,7 +613,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_charArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of char arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of char arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -639,7 +639,7 @@ public class ArrayIndexing extends x10Test {
 			if (!verify4D(_genericArray4D)) return false;
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of generic arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of generic arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 
@@ -667,7 +667,7 @@ public class ArrayIndexing extends x10Test {
 				_doubleArray2D(i, j) = _doubleArray2D(i, j) + i+j;
 			}
 		stop = System.currentTimeMillis();
-		if (verbose)System.out.println("testDouble2d("+iterations+") elapsed time:"+(((stop-start) to double)/1000));
+		if (verbose)System.out.println("testDouble2d("+iterations+") elapsed time:"+(((stop-start) as double)/1000));
 	}
 
 	def testDouble1D(iterations: int, verbose: boolean): void = {
@@ -679,7 +679,7 @@ public class ArrayIndexing extends x10Test {
 			_doubleArray1D(i) = _doubleArray1D(i) + i;
 		}
 		stop = System.currentTimeMillis();
-		if (verbose)System.out.println("testDouble1d("+iterations+") elapsed time:"+(((stop-start) to double)/1000));
+		if (verbose)System.out.println("testDouble1d("+iterations+") elapsed time:"+(((stop-start) as double)/1000));
 	}
 
 	public static def main(var args: Rail[String]): void = {

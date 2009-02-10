@@ -14,9 +14,9 @@ public class ConstructDist2D extends x10Test {
 
     public def run(): boolean = {
         val e = 1..10;
-        val r = [e, e] to Region;
+        val r = [e, e] as Region;
         val d= Dist.makeConstant(r, here);
-        return d.equals(Dist.makeConstant([1..10, 1..10] to Region, here));
+        return d.equals(Dist.makeConstant([1..10, 1..10] as Region, here));
     }
 
     public static def main(var args: Rail[String]): void = {

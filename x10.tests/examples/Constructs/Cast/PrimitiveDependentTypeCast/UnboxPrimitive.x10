@@ -21,26 +21,26 @@ import harness.x10Test;
 		
 		// test 1 to primitive
 		// (int) <-- int
-		var case1a: int = ni to int; // no check
+		var case1a: int = ni as int; // no check
 		
 		// test 2 to primitive constrained
 		try {
 			// (int(:self==3)) <-- int
 			// check deptype is valid
-			var case2a: int{self==3} = ni to int{self==3};
+			var case2a: int{self==3} = ni as int{self==3};
 		} catch (var e: ClassCastException) {
 			res2 = true;
 		}
 		
 		// test 3 to nullable primitive
 		// (nullable<int>) <-- int
-		var case3a: Box[int] = ni to Box[int]; // no check
+		var case3a: Box[int] = ni as Box[int]; // no check
 
 		// test 4 to nullable primitive constrained
 		try {
 			// (nullable<int(:self==3)>) <-- int
 			// check deptype
-			var case4b: Box[int{self==3}] = ni to Box[int{self==3}]; //deptype check
+			var case4b: Box[int{self==3}] = ni as Box[int{self==3}]; //deptype check
 		} catch (var e: ClassCastException) {
 			res4 = true;
 		}

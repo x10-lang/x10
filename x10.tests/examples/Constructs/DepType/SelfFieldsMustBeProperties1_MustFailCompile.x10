@@ -24,7 +24,7 @@ class Test(i:int) {
 	
 	
 	public def run(): boolean = {
-	   var a: Test{i==52} = new Test(52) to Test{i==52 && self.bad};
+	   var a: Test{i==52} = new Test(52) as Test{i==52 && self.bad};
 	    return true;
 	}
 	public static def main(var args: Rail[String]): void = {

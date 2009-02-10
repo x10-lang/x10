@@ -58,8 +58,8 @@ public class UserArrayBounds3D extends x10Test {
 
         var withinBounds: boolean = true;
         try {
-            a(i, j, k) = new boxedInt(0xabcdef07L to Int);
-            chk(a(i, j, k).equals(new boxedInt( 0xabcdef07L to Int)));
+            a(i, j, k) = new boxedInt(0xabcdef07L as Int);
+            chk(a(i, j, k).equals(new boxedInt( 0xabcdef07L as Int)));
         } catch (var e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }

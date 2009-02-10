@@ -5,11 +5,11 @@ value LocalTable {
     
     def this(size:int) {
         mask = size-1;
-        a = Array.make[long](0..size-1, ((i):Point) => i to long);
+        a = Array.make[long](0..size-1, ((i):Point) => i as long);
     }
     
     public def update(ran:long) {
-        a(ran&mask to int) ^= ran;
+        a(ran&mask as int) ^= ran;
     }
 }
 
@@ -55,7 +55,7 @@ class FRA {
         finish ateach((p):Point in Dist.makeUnique()) {
             var ran:long = HPCC_starts(p*(NUM_UPDATES/NUM_PLACES));
             for (var i:long=0; i<NUM_UPDATES/NUM_PLACES; i++) {
-                val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
+                val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) as int;
                 val temp = ran;
                 async (Place.places(placeId))
                     tables(here.id).update(temp);

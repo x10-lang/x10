@@ -14,7 +14,7 @@ class XTENLANG_38 extends x10Test {
 
     public def run():boolean {
 
-        val b = 'a' to byte;
+        val b = 'a' as byte;
 
         // the bug as originally reported was that this would output
         // the string "97" instead of the byte "a", but that's not

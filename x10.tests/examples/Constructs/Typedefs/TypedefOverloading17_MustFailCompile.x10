@@ -28,4 +28,3 @@ public class TypedefOverloading17_MustFailCompile extends TypedefTest {
         new TypedefOverloading17_MustFailCompile().execute();
     }
 }
-

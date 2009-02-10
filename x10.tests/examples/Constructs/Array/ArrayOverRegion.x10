@@ -15,8 +15,8 @@ public class ArrayOverRegion extends x10Test {
 
     public def run(): boolean = {
 
-        val r = [1..10, 1..10] to Region;
-        val ia = Array.make[double](r->here, (var (i,j): Point)=> i+j to Double);
+        val r = [1..10, 1..10] as Region;
+        val ia = Array.make[double](r->here, (var (i,j): Point)=> i+j as Double);
 
         chk(ia.dist.equals(Dist.makeConstant(r, here)));
 

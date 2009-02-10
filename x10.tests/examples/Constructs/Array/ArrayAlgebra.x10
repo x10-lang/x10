@@ -26,7 +26,7 @@ public class ArrayAlgebra extends x10Test {
     public def run(): boolean = {
 
         val R=0..N-1;
-        val D = Dist.makeBlockCyclic(R, 2);
+        val D = Dist.makeBlockCyclic(R, 0, 2);
         val D01 = D | 0..N/2-1;
         val D23 = D | (N/2)..N-1;
         val D0  = D | 0..N/4-1;
@@ -48,7 +48,7 @@ public class ArrayAlgebra extends x10Test {
         chk(ia1.sum() == 9*N/4);
 
         arrEq(ia1.scan(Int.+, 0),
-              Array.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+)));
+              Array.make[Int](D, (var Point (i): Point): int => (ia1 | 0..i).reduce(Int.+, 0)));
 
         arrEq(makeArray(D01, 1).lift(Int.+, makeArray(D01, -4)),
                 makeArray(D01, -3));
