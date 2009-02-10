@@ -263,12 +263,23 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                             n = (X10FieldDecl_c) n.init(e);
                         }
                     }
+                    
+                    if (init != null) {
+                        try {
+                            Expr newInit = X10New_c.attemptCoercion(tc, init, this.type().type());
+                            return this.init(newInit);
+                        }
+                        catch (SemanticException e) {
+                            throw new SemanticException("The type of the variable " +
+                                                        "initializer \"" + init.type() +
+                                                        "\" does not match that of " +
+                                                        "the declaration \"" +
+                                                        type.type() + "\".",
+                                                        init.position());
+                        }
+                    }
 
-                    return n.superTypeCheck(tc);
-	        }
-
-        private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
-            return (X10FieldDecl_c) super.typeCheck(tc);
+                    return this;
         }
 
 	    public Type childExpectedType(Expr child, AscriptionVisitor av) {
