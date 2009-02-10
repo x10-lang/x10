@@ -77,7 +77,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     public safe def get(k: K): Box[V] {
         val e = getEntry(k);
         if (e == null) return null;
-        return e.value to Box[V];
+        return e.value as Box[V];
     }    
     
     protected def getEntry(k: K): HashEntry[K,V] {
@@ -137,7 +137,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                 e.value = v;
                 if (e.removed)
                     return null;
-                return (old to V) to Box[V];
+                return (old as V) as Box[V];
             }
         }
     }
@@ -169,7 +169,7 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    if (e != null && ! e.removed) {
 	        size--;
 	        e.removed = true;
-	        return e.value to Box[V];
+	        return e.value as Box[V];
 	    }
 	    return null;
     }

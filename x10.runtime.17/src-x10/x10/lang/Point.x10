@@ -15,7 +15,7 @@ import x10.compiler.ComparisonOps;
  * @author bdlucas
  */
 
-final public value class Point(rank: nat) implements Indexable[nat,int] {
+final public value class Point(rank: nat) implements (nat) => int {
 
     /**
      * Returns the value of the ith coordinate.

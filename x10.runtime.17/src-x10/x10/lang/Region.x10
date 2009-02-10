@@ -23,7 +23,7 @@ public abstract value class Region(
     rank: int,
     rect: boolean,
     zeroBased: boolean
-) implements Iterable[Point] {
+) implements Iterable[Point{self.rank==this.rank}] {
 
     property rail = rank==1 && rect && zeroBased;
     property region = this; // structural affinity w/ Dist, Array for compiler
@@ -320,7 +320,7 @@ public abstract value class Region(
      *        ... p ...
      */
 
-    public abstract def iterator(): Iterator[Point(rank)];
+    public abstract def iterator(): Iterator[Point{self.rank==this.rank}];
 
 
     /**

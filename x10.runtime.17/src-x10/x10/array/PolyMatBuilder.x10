@@ -69,6 +69,6 @@ public class PolyMatBuilder(rank: int) extends MatBuilder {
             coeff = coeff >> 2;
         }
         as(rank) = op==LE? -k : k;
-        add(as);
+        add((i:nat) => at (as.location) { as(i) });
     }
 }

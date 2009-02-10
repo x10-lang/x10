@@ -18,11 +18,11 @@ public final value Byte implements Integer, Signed {
     
     @Native("java", "java.lang.Byte.MIN_VALUE")
     @Native("c++", "(x10_byte)0x80")
-    public const MIN_VALUE = 0x80 to Byte;
+    public const MIN_VALUE = 0x80 as Byte;
     
     @Native("java", "java.lang.Byte.MAX_VALUE")
     @Native("c++", "(x10_byte)0x7f")
-    public const MAX_VALUE = 0x7f to Byte;
+    public const MAX_VALUE = 0x7f as Byte;
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")

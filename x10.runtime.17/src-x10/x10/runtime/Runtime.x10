@@ -158,8 +158,8 @@ public value Runtime {
 	 * Place check
 	 */
 	public static def placeCheck(p:Place, o:Object):Object {
-		if (NativeRuntime.PLACE_CHECKS && null != o && o instanceof Ref && (o to Ref).location.id != p.id) {
-			throw new BadPlaceException("object=" + (at ((o to Ref).location) o.toString()) + " access at place=" + p);
+		if (NativeRuntime.PLACE_CHECKS && null != o && o instanceof Ref && (o as Ref).location.id != p.id) {
+			throw new BadPlaceException("object=" + (at ((o as Ref).location) o.toString()) + " access at place=" + p);
 		}
 		return o;
 	}
