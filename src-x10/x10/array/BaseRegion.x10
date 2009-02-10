@@ -261,8 +261,12 @@ value class Cache {
     }
 
     def boundingBox(): Region {
-        if (boundingBoxException!=null)
-            throw boundingBoxException as RuntimeException;
-        return boundingBox as Region;
+        if (boundingBoxException!=null) {
+            val e: RuntimeException =
+                at (boundingBoxException.location)
+                    boundingBoxException as RuntimeException;
+            throw e;
+        }
+        return at (boundingBox.location) boundingBox as Region;
     }
 }
