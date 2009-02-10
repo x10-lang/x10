@@ -102,7 +102,7 @@ public class X10Local_c extends Local_c {
 //        			dep.addSelfBinding((XVar) resultTerm);
         			dep.addIn(c);
         			
-        			t = X10TypeMixin.xclause(t, dep);
+        			t = X10TypeMixin.xclause(X10TypeMixin.baseType(t), dep);
         			
 					return result.type(t);
 				}

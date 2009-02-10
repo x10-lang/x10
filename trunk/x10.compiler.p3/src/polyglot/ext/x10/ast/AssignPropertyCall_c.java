@@ -22,9 +22,11 @@ import polyglot.ast.Stmt_c;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10ConstructorDef;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.frontend.Job;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
@@ -203,6 +205,10 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 			known = (known==null ? new XConstraint_c() : known.copy());
 			try {
 		            known.addIn(Types.get(thisConstructor.guard()));
+
+		            XRoot thisVar = thisConstructor.thisVar();
+		            if (! XTypeTranslator.THIS_VAR)
+		                thisVar = ts.xtypeTranslator().transThisWithoutTypeConstraint();
 		            
 		            for (int i = 0; i < arguments.size(); i++) {
 		        	Expr initializer = arguments.get(i);
@@ -218,7 +224,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	    known.addIn(c.substitute(prop, c.self()));
 		        	
 		        	try {
-		        	    XTerm initVar = ts.xtypeTranslator().trans(known, initializer);
+		        	    XTerm initVar = ts.xtypeTranslator().trans(known, initializer, (X10Context) ctx);
 		        	    known.addBinding(prop, initVar);
 		        	}
 		        	catch (SemanticException e) {
@@ -232,12 +238,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	prop = (XVar) prop.subst(known.self(), (XRoot) prop.rootVar());
 
 		        	// Add in the real clause of the initializer with [self.prop/self]
-		        	XTerm t = ts.xtypeTranslator().trans(known, tn);
+		        	XTerm t = ts.xtypeTranslator().trans(known, tn, (X10Context) ctx);
 		        	known.addBinding(prop, t);
 		            }
 		            
+
 		            // bind this==self; sup clause may constrain this.
-		            known.addSelfBinding(ts.xtypeTranslator().transThisWithoutTypeConstraint());
+		            if (thisVar != null)
+		                known.addSelfBinding(thisVar);
 
 		            if (! known.entails(result)) {
 		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 

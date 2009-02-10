@@ -29,6 +29,8 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends X10TypeObj
     // Constructors, methods, and closures all have return types.
     Type returnType();
     ProcedureInstance<T> returnType(Type t);
+    Ref<? extends Type> returnTypeRef();
+    ProcedureInstance<T> returnTypeRef(Ref<? extends Type> t);
     
     List<Type> typeParameters();
     X10ProcedureInstance<T> typeParameters(List<Type> typeParameters);

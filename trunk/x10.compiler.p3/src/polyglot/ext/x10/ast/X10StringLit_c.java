@@ -12,9 +12,11 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.Node;
 import polyglot.ast.StringLit_c;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -42,7 +44,7 @@ public class X10StringLit_c extends StringLit_c {
 		X10Type Type = (X10Type) xts.String();
 		
 			  XConstraint c = new XConstraint_c();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type));
+			  XTerm term = xts.xtypeTranslator().trans(c, this.type(Type), (X10Context) tc.context());
 			  try {
 				 c.addSelfBinding(term);
 			  }

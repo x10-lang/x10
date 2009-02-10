@@ -34,6 +34,7 @@ import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.ExtFactory;
 import polyglot.ast.Field;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.FloatLit;
@@ -45,6 +46,8 @@ import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.If;
 import polyglot.ast.Import;
+import polyglot.ast.Initializer;
+import polyglot.ast.Initializer_c;
 import polyglot.ast.Instanceof;
 import polyglot.ast.IntLit;
 import polyglot.ast.Local;
@@ -68,6 +71,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.While;
 import polyglot.ast.Assign.Operator;
 import polyglot.ext.x10.ExtensionInfo;
+import polyglot.ext.x10.ast.X10Cast.ConversionType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.types.FieldInstance;
@@ -110,10 +114,25 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return new X10Disamb_c();
 	}
 	
+	@Override
+	public polyglot.ast.Initializer Initializer(Position pos, FlagsNode flags, Block body) {
+	    Initializer n = new X10Initializer_c(pos, flags, body);
+	    n = (Initializer)n.ext(extFactory().extInitializer());
+	    n = (Initializer)n.del(delFactory().delInitializer());
+	    return n;
+	}
+	
 	    public LocalAssign LocalAssign(Position pos, Local left, Assign.Operator op, Expr right) {
 	        LocalAssign n = new X10LocalAssign_c(pos, left, op, right);
 	        n = (LocalAssign)n.ext(extFactory().extLocalAssign());
 	        n = (LocalAssign)n.del(delFactory().delLocalAssign());
+	        return n;
+	    }
+	    @Override
+	    public FieldAssign FieldAssign(Position pos, Receiver target, Id field, Assign.Operator op, Expr right) {
+	        FieldAssign n = new X10FieldAssign_c(pos, target, field, op, right);
+	        n = (FieldAssign)n.ext(extFactory().extFieldAssign());
+	        n = (FieldAssign)n.del(delFactory().delFieldAssign());
 	        return n;
 	    }
 
@@ -217,13 +236,22 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		 return n;
 	}
 	
-	public AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
-		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, prefix, name, typeArgs, args, dep);
+	public AmbMacroTypeNode AmbMacroTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args) {
+	    AmbMacroTypeNode n = new AmbMacroTypeNode_c(pos, prefix, name, typeArgs, args);
+	    n = (AmbMacroTypeNode)n.ext(extFactory().extTypeNode());
+	    n = (AmbMacroTypeNode)n.del(delFactory().delTypeNode());
+	    return n;
+	}
+	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep) {
+	    if (dep == null) {
+	        return AmbMacroTypeNode(pos, prefix, name, typeArgs, args);
+	    }
+		AmbDepTypeNode n = new AmbDepTypeNode_c(pos, AmbMacroTypeNode(pos, prefix, name, typeArgs, args), dep);
 		n = (AmbDepTypeNode)n.ext(extFactory().extTypeNode());
 		n = (AmbDepTypeNode)n.del(delFactory().delTypeNode());
 		return n;
 	}
-	public AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep) {
+	public TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep) {
 		return AmbDepTypeNode(pos, prefix, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, dep);
 	}
 
@@ -477,7 +505,7 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	    n = (AmbAssign)n.del(delFactory().delAmbAssign());
 	    return n;
 	}
-	public polyglot.ext.x10.ast.SettableAssign SettableAssign(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
+	public SettableAssign SettableAssign(Position pos, Expr array, List<Expr> index, Operator op, Expr right) {
 	    SettableAssign n = new SettableAssign_c(pos, array, index, op, right);
 	    n = (SettableAssign)n.ext(extFactory().extAssign());
 	    n = (SettableAssign)n.del(delFactory().delAssign());
@@ -571,16 +599,19 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 	}
 
 	
-	public Cast X10Cast(Position pos, TypeNode castType, Expr expr, boolean convert) {
-	    Cast n = new X10Cast_c(pos, castType, expr, convert ? X10Cast.ConversionType.UNKNOWN_CONVERSION : X10Cast.ConversionType.COERCION);
-	    n = (Cast)n.ext(extFactory().extCast());
-	    n = (Cast)n.del(delFactory().delCast());
+	public X10Cast X10Cast(Position pos, TypeNode castType, Expr expr) {
+	    return X10Cast(pos, castType, expr, X10Cast.ConversionType.UNKNOWN_CONVERSION);
+	}
+	public X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, ConversionType conversionType) {
+	    X10Cast n = new X10Cast_c(pos, castType, expr, conversionType);
+	    n = (X10Cast)n.ext(extFactory().extCast());
+	    n = (X10Cast)n.del(delFactory().delCast());
 	    return n;
 	}
 
 	@Override
 	public Cast Cast(Position pos, TypeNode castType, Expr expr) {
-	    return X10Cast(pos, castType, expr, false);
+	    return X10Cast(pos, castType, expr, X10Cast.ConversionType.UNKNOWN_CONVERSION);
 	}
 
 	@Override

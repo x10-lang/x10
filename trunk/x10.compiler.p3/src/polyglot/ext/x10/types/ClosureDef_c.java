@@ -8,7 +8,6 @@
 
 package polyglot.ext.x10.types;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +24,8 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 public class ClosureDef_c extends Def_c implements ClosureDef {
 
@@ -44,15 +45,16 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             Ref<? extends Type> returnType,
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
-            List<LocalDef> formalNames,
-            Ref<XConstraint> guard, 
-            List<Ref<? extends Type>> throwTypes) {
+            XRoot thisVar,
+            List<LocalDef> formalNames, 
+            Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
 
         super(ts, pos);
         this.typeContainer = typeContainer;
         this.methodContainer = methodContainer;
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
+        this.thisVar = thisVar;
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
@@ -83,7 +85,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
         this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
-        this.asInstance = null;
     }
     
     public List<Type> annotations() {
@@ -115,17 +116,24 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     }
 
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-        this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
-        this.asInstance = null;
+	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
     
+    XRoot thisVar;
+    public XRoot thisVar() {
+        return this.thisVar;
+    }
+    
+    public void setThisVar(XRoot thisVar) {
+        this.thisVar = thisVar;
+    }
+
     public List<LocalDef> formalNames() {
-        return Collections.unmodifiableList(formalNames);
+	return Collections.unmodifiableList(formalNames);
     }
 
     public void setFormalNames(List<LocalDef> formalNames) {
-        this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
-        this.asInstance = null;
+	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
     }
 
     public Ref<XConstraint> guard() {
@@ -134,7 +142,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public void setGuard(Ref<XConstraint> s) {
 	    this.guard = s;
-        this.asInstance = null;
     }
     
     /**
@@ -142,7 +149,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      */
     public void setTypeContainer(Ref<? extends ClassType> container) {
         this.typeContainer = container;
-        this.asInstance = null;
     }
 
     public Ref<? extends CodeInstance<?>> methodContainer() {
@@ -150,8 +156,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     }
 
     public void setMethodContainer(Ref<? extends CodeInstance<?>> container) {
-        methodContainer = container;
-        this.asInstance = null;
+        methodContainer= container;
     }
 
     public Ref<? extends Type> returnType() {
@@ -161,7 +166,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public void setReturnType(Ref<? extends Type> returnType) {
         assert returnType != null;
         this.returnType = returnType;
-        this.asInstance = null;
     }
 
 
@@ -174,7 +178,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      */
      public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
          this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
-         this.asInstance = null;
      }
 
      public List<Ref<? extends Type>> throwTypes() {
@@ -186,7 +189,6 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
       */
      public void setThrowTypes(List<Ref<? extends Type>> throwTypes) {
          this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
-         this.asInstance = null;
      }
 
      public String signature() {

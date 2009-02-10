@@ -31,20 +31,38 @@ import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected List<Variance> variances;
-
+    XRoot thisVar;
+    
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
         this.variances = new ArrayList<TypeProperty.Variance>();
         this.typeParameters = new ArrayList<ParameterType>();
         this.typeProperties = new ArrayList<TypeProperty>();
         this.typeMembers = new ArrayList<TypeDef>();
+        this.thisVar = null;
     }
     
+    public XRoot thisVar() {
+        if (thisVar == null) {
+            String fullNameWithThis = fullName() + "#this";
+            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+            thisVar = XTerms.makeLocal(thisName);
+        }
+        return this.thisVar;
+    }
+
+    public void setThisVar(XRoot thisVar) {
+        this.thisVar = thisVar;
+    }
+
     // BEGIN ANNOTATION MIXIN
     List<Ref<? extends Type>> annotations;
 
@@ -142,7 +160,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    if (type != null) {
 						XConstraint rs = X10TypeMixin.realX(type);
 						if (rs != null) {
-						    rs = rs.substitute(rs.self(), oldThis);
+//						    rs = rs.substitute(rs.self(), oldThis);
 						    result.addIn(rs);
 						}
 					    }
@@ -155,7 +173,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    // no need to change self, and no occurrence of this is possible in 
 					    // a type's base constraint.
 					    if (rs != null) {
-						    rs = rs.substitute(rs.self(), oldThis);
+//						    rs = rs.substitute(rs.self(), oldThis);
 						    result.addIn(rs);
 					    }
 				    }
@@ -163,13 +181,18 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 				    // add in the bindings from the property declarations.
 				    for (X10FieldDef fi : properties) {
 					    Type type = fi.asInstance().type();   // ### check for recursive call here
+					    XRoot fiThis = fi.thisVar();
 					    XConstraint rs = X10TypeMixin.realX(type);
 					    if (rs != null) {
 						    // Given: C(:c) f
 						    // Add in: c[self.f/self,self/this]
 						    XTerm newSelf = xts.xtypeTranslator().trans(rs, rs.self(), fi.asInstance());
 						    XConstraint rs1 = rs.substitute(newSelf, rs.self());
-						    XConstraint rs2 = rs1.substitute(rs1.self(), oldThis);
+						    XConstraint rs2;
+						    if (fiThis != null)
+						        rs2 = rs1.substitute(rs1.self(), fiThis);
+						    else
+						        rs2 = rs1;
 						    result.addIn(rs2);
 					    }
 				    }

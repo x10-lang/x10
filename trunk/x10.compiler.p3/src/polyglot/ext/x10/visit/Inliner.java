@@ -585,14 +585,9 @@ public class Inliner extends ContextVisitor {
             if (target instanceof X10Cast) {
                 X10Cast c = (X10Cast) target;
                 switch (c.conversionType()) {
-                case COERCION:
+                case CHECKED:
                     return staticTypeIsExact(c.expr());
-                case BOXING:
-                case CALL:
-                case PRIMITIVE:
-                case TRUNCATION:
-                case UNBOXING:
-                case UNKNOWN_CONVERSION:
+                default:
                     return false;
                 }
             }

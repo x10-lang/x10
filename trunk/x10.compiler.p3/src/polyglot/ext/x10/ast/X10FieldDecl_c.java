@@ -28,10 +28,13 @@ import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldDef;
+import polyglot.ext.x10.types.X10InitializerDef;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
+import polyglot.types.InitializerDef;
 import polyglot.types.LazyRef;
 import polyglot.types.Name;
 import polyglot.types.Ref;
@@ -39,6 +42,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
@@ -62,7 +66,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             Id name, Expr init) {
         this(pos, null, flags, type, name, init);
     }
-    
     
     public DepParameterExpr guard() {
         return guard;
@@ -141,6 +144,19 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         }
     }
 
+    protected FieldDef createFieldDef(TypeSystem ts, ClassDef ct, Flags flags) {
+        X10FieldDef fi = (X10FieldDef) ts.fieldDef(position(), Types.ref(ct.asType()), flags, type.typeRef(), name.id());
+        fi.setThisVar(((X10ClassDef) ct).thisVar());
+        return fi;
+    }
+    
+    protected InitializerDef createInitializerDef(TypeSystem ts, ClassDef ct, Flags iflags) {
+        X10InitializerDef ii;
+        ii = (X10InitializerDef) super.createInitializerDef(ts, ct , iflags);
+        ii.setThisVar(((X10ClassDef) ct).thisVar());
+        return ii;
+    }
+
     @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
@@ -148,6 +164,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         X10FieldDecl_c n = (X10FieldDecl_c) super.buildTypesOverride(tb);
         
         X10FieldDef fi = (X10FieldDef) n.fieldDef();
+        
+        final ClassDef container = tb.currentClass();
 
         n = (X10FieldDecl_c) X10Del_c.visitAnnotations(n, tb);
 

@@ -117,8 +117,6 @@ public class X10SourceClassResolver implements TopLevelResolver {
 
         if (name.equals(QName.make("x10.lang.Void")))
             return (Named) ts.Void();
-        if (name.equals(QName.make("x10.lang.Box")))
-            return (Named) ts.Box();
 
         if (Report.should_report(report_topics, 3))
             Report.report(3, "SourceCR.find(" + name + ")");

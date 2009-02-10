@@ -8,6 +8,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Block;
@@ -20,19 +21,27 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
+import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -43,7 +52,12 @@ import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
+import x10.constraint.XRef_c;
+import x10.constraint.XRoot;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 /**
  * An X10ConstructorDecl differs from a ConstructorDecl in that it has a returnType.
@@ -100,6 +114,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return this;
     }
 
+    protected ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags) {
+        X10ConstructorDef ci = (X10ConstructorDef) super.createConstructorDef(ts, ct, flags);
+        ci.setThisVar(((X10ClassDef) ct).thisVar());
+        return ci;
+    }
+
     @Override
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
 	NodeFactory nf = tb.nodeFactory();
@@ -150,7 +170,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             formalNames.add(f.localDef());
         }
         ci.setFormalNames(formalNames);
-        
+
         return n;
     }
 
@@ -288,9 +308,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			X10Type t = (X10Type) tc.context().currentClass();
             			XConstraint dep = X10TypeMixin.xclause(t);
             			if (c != null && dep != null) {
-            				dep = dep.copy();
-            				XPromise p = dep.intern(xts.xtypeTranslator().transThis(t));
-            				dep = dep.substitute(p.term(), c.self());
+            				XRoot thisVar = ((X10MemberDef) constructorDef()).thisVar();
+            				if (thisVar != null)
+            				    dep = dep.substitute(thisVar, c.self());
+//            				dep = dep.copy();
+//            				XPromise p = dep.intern(xts.xtypeTranslator().transThis(t));
+//            				dep = dep.substitute(p.term(), c.self());
             				c.addIn(dep);
             			}
             		}

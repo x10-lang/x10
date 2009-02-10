@@ -13,6 +13,7 @@ import java.util.List;
 import polyglot.types.MemberInstance;
 import polyglot.types.Named;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Name;
 import polyglot.types.StructType;
@@ -23,7 +24,8 @@ import x10.constraint.XVar;
 
 public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X10ProcedureInstance<TypeDef>, Named {
 	Type definedType();
-	MacroType definedType(Type t);
+	Ref<? extends Type> definedTypeRef();
+	MacroType definedTypeRef(Ref<? extends Type> t);
 	
 	TypeDef def();
 	

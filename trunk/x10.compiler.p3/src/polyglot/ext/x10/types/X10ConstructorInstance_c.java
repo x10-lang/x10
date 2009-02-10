@@ -72,16 +72,26 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
      */
     public XConstraint constraint() { return X10TypeMixin.realX(returnType()); }
 
-    public Type returnType;
+    public Ref<? extends Type> returnType;
     
-    public Type returnType() { 
+    public Ref<? extends Type> returnTypeRef() { 
         if (returnType == null) {
-            returnType = x10Def().returnType().get();
+            return x10Def().returnType();
         }
 	return returnType;
     }
     
+    public Type returnType() { 
+        if (returnType == null) {
+            return x10Def().returnType().get();
+        }
+        return Types.get(returnType);
+    }
+    
     public X10ConstructorInstance returnType(Type retType) {
+        return returnTypeRef(Types.ref(retType));
+    }
+    public X10ConstructorInstance returnTypeRef(Ref<? extends Type> retType) {
         X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
         n.returnType = retType;
         return n;
@@ -97,7 +107,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     /** Constraint on formal parameters. */
     public XConstraint guard() {
         if (guard == null) 
-            guard = Types.get(x10Def().guard());
+            return Types.get(x10Def().guard());
         return guard;
     }
 
@@ -125,7 +135,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 
     public List<Type> typeParameters() {
 	    if (this.typeParameters == null) {
-		    this.typeParameters = new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+		    return new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
 	    }
 
 	    return typeParameters;
@@ -141,7 +151,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     
     public List<LocalInstance> formalNames() {
 	if (this.formalNames == null) {
-	    this.formalNames = new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
+	    return new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
 		public LocalInstance transform(LocalDef o) {
 		    return o.asInstance();
 		}
@@ -158,7 +168,7 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
 
     public String toString() {
-	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature() + (guard() != null ? guard() : "") + ": " + returnType();
+	    String s = designator() + " " + X10Flags.toX10Flags(flags()).prettyPrint() + container() + "." + signature();
 	
 	    if (! throwTypes().isEmpty()) {
 		    s += " throws " + CollectionUtil.listToString(throwTypes());
@@ -214,6 +224,10 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
 	sb.append(")");
 	if (guard != null)
 	    sb.append(guard);
+	if (returnType != null && returnType.known()) {
+	    sb.append(": ");
+	    sb.append(returnType);
+	}
 	return sb.toString();
     }
 }

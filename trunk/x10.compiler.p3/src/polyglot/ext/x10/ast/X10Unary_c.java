@@ -72,19 +72,23 @@ public class X10Unary_c extends Unary_c {
 	 */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-
+	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	        Type t = expr.type();
 		
 	        Name methodName = unaryMethodName(op);
-		if (methodName != null) {
-		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-		    try {
-			X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, methodName, Collections.EMPTY_LIST), tc.context().currentClassDef());
-			return type(mi.returnType());
-		    }
-		    catch (SemanticException e) {
-			// Cannot find the method.  Fall through.
-		    }
+	        
+	        
+	        // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+	        if (methodName != null) {
+	            X10Call_c n = (X10Call_c) nf.X10Call(position(), expr, nf.Id(position(), methodName), Collections.EMPTY_LIST, Collections.EMPTY_LIST);
+
+	            try {
+	                n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	                return type(n.methodInstance().returnType());
+	            }
+	            catch (SemanticException e) {
+	                // Cannot find the method.  Fall through.
+	            }
 		}
 		
 		if (op == POST_INC || op == POST_DEC || op == PRE_INC || op == PRE_DEC) {
@@ -129,24 +133,29 @@ public class X10Unary_c extends Unary_c {
 		        }
 		        
 		        if (target != null) {
-		            List<Type> setArgTypes = new ArrayList<Type>();
-		            List<Type> setTypeArgs = new ArrayList<Type>();
+		            List<Expr> setArgTypes = new ArrayList<Expr>();
+		            List<TypeNode> setTypeArgs = new ArrayList<TypeNode>();
 		            
 		            // RHS goes before index
-		            setArgTypes.add(expr.type());
+		            setArgTypes.add(expr);
 		            for (Expr e : args) {
-		                setArgTypes.add(e.type());
+		                setArgTypes.add(e);
 		            }
 		            for (TypeNode tn : typeArgs) {
-		                setTypeArgs.add(tn.type());
+		                setTypeArgs.add(tn);
 		            }
-		            try {
-		                X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(t, Name.make("set"), setTypeArgs, setArgTypes), tc.context().currentClassDef());
-		                return type(mi.returnType());
+
+		            X10Call_c n = (X10Call_c) nf.X10Call(position(), target, nf.Id(position(), Name.make("set")), setTypeArgs, setArgTypes);
+
+		            n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+
+		            // Make sure we don't coerce here.
+		            for (int i = 0; i < setArgTypes.size(); i++) {
+		                if (setArgTypes.get(i) != n.arguments().get(i))
+		                    throw new SemanticException("Cannot find method set in " + target.type());
 		            }
-		            catch (SemanticException e) {
-		                throw e;
-		            }
+		            
+		            return type(n.methodInstance().returnType());
 		        }
 		    }
 		}

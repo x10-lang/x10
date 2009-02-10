@@ -22,6 +22,7 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
+import polyglot.types.LazyRef_c;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -83,7 +84,7 @@ public class X10TypeMixin {
 	// TODO: should not deref now, since could be called by class loader
 	return instantiate(t, Types.get(typeArg));
     }
-
+    
     public static XConstraint realX(Type t) {
 	if (t instanceof ParameterType) {
 	    return new XConstraint_c();
@@ -210,20 +211,75 @@ public class X10TypeMixin {
 	        }
 	        return xclause(Types.ref(t), Types.ref(c));
 	}
-	public static Type xclause(Ref<? extends Type> t, Ref<XConstraint> c) {
-	    if (c == null) {
-		c = Types.<XConstraint>ref(new XConstraint_c());
-	    }
+	public static Type xclause(final Ref<? extends Type> t, final Ref<XConstraint> c) {
 	    if (t == null) {
 	        return null;
 	    }
-	    if (t.known() && t.get() instanceof ConstrainedType) {
-		ConstrainedType ct = (ConstrainedType) t.get();
-		return xclause(ct.baseType(), c);
+
+	    if (t.known() && c != null && c.known()) {
+	        Type tx = Types.get(t);
+	        X10TypeSystem ts = (X10TypeSystem) tx.typeSystem();
+	        tx = ts.expandMacros(tx);
+
+	        XConstraint oldc = X10TypeMixin.xclause(tx);
+	        XConstraint newc = Types.get(c);
+
+	        if (newc == null)
+	            return tx;
+	        
+	        if (oldc == null) {
+	            return new ConstrainedType_c(ts, tx.position(), t, c);
+	        }
+	        else {
+	            newc = newc.copy();
+	            try {
+	                newc.addIn(oldc);
+	            }
+	            catch (XFailure e) {
+	                newc.setInconsistent();
+	            }
+	            assert tx != null;
+	            return new ConstrainedType_c(ts, tx.position(), Types.ref(X10TypeMixin.baseType(tx)), Types.ref(newc));
+	        }
 	    }
+	    
+	    final LazyRef_c<Type> tref = new LazyRef_c<Type>(null);
+	    tref.setResolver(new Runnable() {
+	        public void run() {
+	            Type oldt = X10TypeMixin.baseType(Types.get(t));
+	            tref.update(oldt);
+	        }
+	    });
+	    
+	    final LazyRef_c<XConstraint> cref = new LazyRef_c<XConstraint>(null);
+	    cref.setResolver(new Runnable() { 
+	        public void run() {
+	            XConstraint oldc = X10TypeMixin.xclause(Types.get(t));
+	            if (oldc != null) {
+	                XConstraint newc = Types.get(c);
+	                if (newc != null) {
+	                    newc = newc.copy();
+	                    try {
+	                        newc.addIn(oldc);
+	                    }
+	                    catch (XFailure e) {
+	                        newc.setInconsistent();
+	                    }
+	                    cref.update(newc);
+	                }
+	                else {
+	                    cref.update(oldc);
+	                }
+	            }
+	            else {
+	                cref.update(oldc);
+	            }		                
+	        }
+	    });
+
 	    Type tx = t.getCached();
 	    assert tx != null;
-	    return new ConstrainedType_c((X10TypeSystem) tx.typeSystem(), tx.position(), t, c);
+	    return new ConstrainedType_c((X10TypeSystem) tx.typeSystem(), tx.position(), tref, cref);
 	}
 
     public static boolean isConstrained(Type t) {
@@ -240,7 +296,7 @@ public class X10TypeMixin {
                 c = c.copy();
             }
             c.addBinding(t1, t2);
-            return xclause(t, c);
+            return xclause(X10TypeMixin.baseType(t), c);
         }
         catch (XFailure f) {
             throw new InternalCompilerError("Cannot bind " + t1 + " to " + t2 + ".", f);
@@ -277,7 +333,7 @@ public class X10TypeMixin {
 	catch (XFailure e) {
 		throw new SemanticException(e.getMessage(), t.position());
 	}
-        return xclause(t, c);
+        return xclause(X10TypeMixin.baseType(t), c);
     }
 
     /**
@@ -320,7 +376,7 @@ public class X10TypeMixin {
     public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
         TypeSystem ts = t.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
-        return (X10PrimitiveType) xclause(pt, promoteClause(op, xclause(t)));
+        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), promoteClause(op, xclause(t)));
     }
 
     public static XConstraint promoteClause(polyglot.ast.Unary.Operator op, XConstraint c) {
@@ -333,7 +389,7 @@ public class X10TypeMixin {
     public static X10PrimitiveType promote(Binary.Operator op, X10PrimitiveType t1, X10PrimitiveType t2) throws SemanticException {
         TypeSystem ts = t1.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t1, t2);
-        return (X10PrimitiveType) xclause(pt, promoteClause(op, xclause(t1), xclause(t2)));
+        return (X10PrimitiveType) xclause(X10TypeMixin.baseType(pt), promoteClause(op, xclause(t1), xclause(t2)));
     }
 
     public static XConstraint promoteClause(Operator op, XConstraint c1, XConstraint c2) {

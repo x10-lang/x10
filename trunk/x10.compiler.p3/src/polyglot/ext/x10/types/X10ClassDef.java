@@ -17,7 +17,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import x10.constraint.XConstraint;
 
-public interface X10ClassDef extends X10Def, ClassDef {
+public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     /** Conjunction of the class invariant and property invariants. */
     XConstraint getRootClause();
     void setRootClause(Ref<XConstraint> c);

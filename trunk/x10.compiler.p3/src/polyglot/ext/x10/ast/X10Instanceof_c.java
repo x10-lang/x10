@@ -14,6 +14,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
@@ -29,9 +30,6 @@ import polyglot.visit.ContextVisitor;
  */
 public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10CastInfo{
 
-	protected boolean toTypeNullable = false;
-	protected boolean notNullRequired = false;
-	
 	public X10Instanceof_c(Position pos, Expr expr, TypeNode compareType) {
     	super(pos,expr,compareType);
 	}
@@ -42,45 +40,18 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
         Type toType = n.compareType().type();
         Type fromType = n.expr().type();
 
-        n.toTypeNullable = false;
-        n.notNullRequired = false;
-        
-        if (! tc.typeSystem().isCastValid(fromType, toType)) {
+        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+
+        if (! xts.isCastValid(fromType, toType)) {
             throw new SemanticException(
                       "Left operand of \"instanceof\", " + fromType + ", must be castable to "
                       + "the right operand " + toType + ".");
         }
         
-        X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-        
-        n.toTypeNullable = !xts.isValueType(n.compareType.type());
 
-        // is conversion from a nullable type to a non nullable one.        
-        // not Null is required if toType is notNullable or toType is nullable but has constraints
-        n.notNullRequired = !n.toTypeNullable;
-
-        return n.type(tc.typeSystem().Boolean());
+        return n.type(xts.Boolean());
 	}
 
-    public boolean isDepTypeCheckingNeeded() {
-    	return false;
-    }
-    
-	public boolean isPrimitiveCast() {
-		return false;
-	}
-
-	/**
-	 * Always return false as if we are dealing with a non nullable
-	 * then the (null instanceof T) code generated will return false.   
-	 */
-	public boolean notNullRequired() {
-		return this.notNullRequired;
-	}
-
-	public boolean isToTypeNullable() {
-		return this.toTypeNullable;
-	}
 
     public TypeNode getTypeNode() {
     	return this.compareType();

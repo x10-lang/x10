@@ -8,33 +8,52 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.ClassBody;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.TypeParamSubst;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10ProcedureInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
+import polyglot.types.Def;
+import polyglot.types.Matcher;
+import polyglot.types.MemberInstance;
 import polyglot.types.Name;
+import polyglot.types.NoMemberException;
+import polyglot.types.ProcedureDef;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
@@ -48,7 +67,11 @@ import x10.constraint.XConstraint;
  * @author Igor
  */
 public class X10New_c extends New_c implements X10New {
-	public X10New_c(Position pos, Expr qualifier, TypeNode tn, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
+    public static interface MatcherMaker<PI> {
+        public Matcher<PI> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes);
+    }
+
+    public X10New_c(Position pos, Expr qualifier, TypeNode tn, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
 		super(pos, qualifier, tn, arguments, body);
 		this.typeArguments = TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
 	}
@@ -96,17 +119,21 @@ public class X10New_c extends New_c implements X10New {
 
 		    X10TypeSystem ts = (X10TypeSystem) childtc.typeSystem();
 
-		    if (! ct.get().toClass().flags().isInterface()) {
+		    X10Flags flags = X10Flags.toX10Flags(ct.get().toClass().flags());
+		    if (!flags.isInterface()) {
 		        anonType.superType(ct);
-		        if (anonType.interfaces().isEmpty())
-		            anonType.addInterface(Types.<Type>ref(ts.Object()));
+		    }
+		    else if (flags.isValue()) {
+		        anonType.superType(Types.<Type> ref(ts.Value()));
+		        anonType.setInterfaces(Collections.<Ref<? extends Type>>singletonList(ct));
 		    }
 		    else {
-		        anonType.superType(Types.<Type>ref(ts.Ref()));
+		        anonType.superType(Types.<Type> ref(ts.Ref()));
+		        anonType.setInterfaces(Collections.<Ref<? extends Type>>singletonList(ct));
 		    }
 
 		    assert anonType.superType() != null;
-		    assert anonType.interfaces().size() == 1;
+		    assert anonType.interfaces().size() <= 1;
 		}
 
 		return n;
@@ -234,12 +261,170 @@ public class X10New_c extends New_c implements X10New {
 	        }
 	    }
 	    
+	    public static Expr attemptCoercion(ContextVisitor tc, Expr e, Type toType) throws SemanticException {
+	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	        
+	        if (ts.isSubtype(e.type(), toType)) {
+	            return e;
+	        }
+	        
+	        Expr e2;
+	        if (ts.numericConversionValid(toType, e.constantValue())) {
+	            e2 = nf.X10Cast(e.position(), nf.CanonicalTypeNode(e.position(), toType), e, X10Cast.ConversionType.UNKNOWN_CONVERSION);
+	        }
+	        else {
+	            e2 = nf.X10Cast(e.position(), nf.CanonicalTypeNode(e.position(), toType), e, X10Cast.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
+	        }
+	        
+	        e2 = (Expr) e2.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        return e2;
+	    }
+	    
+            public static <PD extends ProcedureDef, PI extends ProcedureInstance<PD>> Pair<PI,List<Expr>> tryImplicitConversions(X10ProcedureCall n, ContextVisitor tc, Type targetType, List<PI> methods, MatcherMaker<PI> maker) throws SemanticException {
+                X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+                X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+                ClassDef currentClassDef = tc.context().currentClassDef();
+
+                List<PI> acceptable = new ArrayList<PI>();
+                Map<Def, List<Expr>> newArgs = new HashMap<Def, List<Expr>>();
+
+                List<Type> typeArgs = new ArrayList<Type>(n.typeArguments().size());
+
+                for (TypeNode tn : n.typeArguments()) {
+                    typeArgs.add(tn.type());
+                }
+
+                METHOD:
+                    for (Iterator<PI> i = methods.iterator(); i.hasNext(); ) {
+                        PI smi = (PI) i.next();
+
+                        if (Report.should_report(Report.types, 3))
+                            Report.report(3, "Trying " + smi);
+
+                        List<Expr> transformedArgs = new ArrayList<Expr>();
+                        List<Type> transformedArgTypes = new ArrayList<Type>();
+
+                        List<Type> formals = smi.formalTypes();
+                        if (smi instanceof X10ProcedureInstance) {
+                            List<ParameterType> params = ((X10ProcedureInstance) smi).typeParameters();
+                            if (params.size() == typeArgs.size())
+                                formals = new TypeParamSubst(ts, typeArgs, params).reinstantiate(smi.formalTypes());
+                            else
+                                continue METHOD;
+                        }
+                        
+                        for (int j = 0; j < n.arguments().size(); j++) {
+                            Expr e = n.arguments().get(j);
+                            Type toType = formals.get(j);
+                            
+
+                            try {
+                                Expr e2 = attemptCoercion(tc, e, toType);
+                                transformedArgs.add(e2);
+                                transformedArgTypes.add(e2.type());
+                            }
+                            catch (SemanticException ex) {
+                                // Implicit cast not allowed here.
+                                continue METHOD;
+                            }
+                        }
+
+                        try {
+                            Matcher<PI> matcher = maker.matcher(targetType, typeArgs, transformedArgTypes);
+                            smi = (PI) matcher.instantiate(smi);
+                            acceptable.add(smi);
+                            newArgs.put(smi.def(), transformedArgs);
+                        }
+                        catch (SemanticException e) {
+                        }
+                    }
+
+                if (acceptable.size() == 0) {
+                    if (n instanceof New || n instanceof ConstructorCall)
+                        throw new NoMemberException(NoMemberException.CONSTRUCTOR,
+                                                    "Could not find matching constructor in " + targetType + ".", n.position());
+                    else
+                        throw new NoMemberException(NoMemberException.METHOD,
+                                                    "Could not find matching method in " + targetType + ".", n.position());
+                }
+                
+                Collection<PI> maximal =
+                    ts. <PD,PI>findMostSpecificProcedures(acceptable, (Matcher<PI>) null);
+
+                if (maximal.size() > 1) {
+                    StringBuffer sb = new StringBuffer();
+                    for (Iterator<PI> i = maximal.iterator(); i.hasNext();) {
+                        PI ma = (PI) i.next();
+                        if (ma instanceof MemberInstance) {
+                            sb.append(((MemberInstance) ma).container());
+                            sb.append(".");
+                        }
+                        sb.append(ma.signature());
+                        if (i.hasNext()) {
+                            if (maximal.size() == 2) {
+                                sb.append(" and ");
+                            }
+                            else {
+                                sb.append(", ");
+                            }
+                        }
+                    }
+
+                    throw new NoMemberException(NoMemberException.CONSTRUCTOR,
+                                                "Reference to " + targetType + " is ambiguous, multiple " +
+                                                "constructors match: " + sb.toString(), n.position());
+                }
+
+                PI mi;
+                mi = (PI) maximal.iterator().next();
+
+                List<Expr> args = newArgs.get(mi.def());
+                assert args != null;
+                
+                return new Pair<PI, List<Expr>>(mi, args);
+            }
+
+	    
+            static class DumbConstructorMatcher extends X10TypeSystem_c. X10ConstructorMatcher {
+                public DumbConstructorMatcher(Type container, List<Type> argTypes) {
+                    super(container, argTypes);
+                }
+                
+                public DumbConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes) {
+                    super(container, typeArgs, argTypes);
+                }
+                
+                @Override
+                public ConstructorInstance instantiate(ConstructorInstance mi) throws SemanticException {
+                    X10ConstructorInstance xmi = (X10ConstructorInstance) mi;
+                    if (xmi.formalTypes().size() != argTypes.size())
+                        return null;
+                    if (typeArgs.size() != 0 && typeArgs.size() != xmi.typeParameters().size())
+                        return null;
+                    return xmi;
+                }
+            }
+
+            static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10New_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+                final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+                ClassDef currentClassDef = tc.context().currentClassDef();
+
+                List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, typeArgs, argTypes), currentClassDef);
+                return tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
+                    public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
+                        return ts.ConstructorMatcher(ct, typeArgs, argTypes);
+                    }
+                });
+            }
+
+	    
 	/**
 	 * Rewrite pointwiseOp construction to use Operator.Pointwise, otherwise
 	 * leave alone.
 	 */
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+		final X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		
         	/////////////////////////////////////////////////////////////////////
         	// Inline the super call here and handle type arguments.
@@ -269,23 +454,39 @@ public class X10New_c extends New_c implements X10New {
 		X10ClassType ct = (X10ClassType) X10TypeMixin.baseType(t);
 		
 		X10ConstructorInstance ci;
-		
-		if (! ct.flags().isInterface()) {
-		    Context c = tc.context();
-		    if (anonType != null) {
-		        c = c.pushClass(anonType, anonType.asType());
-		    }
-		    ClassDef currentClassDef = c.currentClassDef();
-		    if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
-		        ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, argTypes), currentClassDef);
+		List<Expr> args;
+
+		try {
+		    if (! ct.flags().isInterface()) {
+		        Context c = tc.context();
+		        if (anonType != null) {
+		            c = c.pushClass(anonType, anonType.asType());
+		        }
+		        ClassDef currentClassDef = c.currentClassDef();
+		        if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
+		            ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, Collections.EMPTY_LIST, argTypes), currentClassDef);
+		        }
+		        else {
+		            ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, typeArgs, argTypes), currentClassDef);
+		        }
 		    }
 		    else {
-		        ci = (X10ConstructorInstance) xts.findConstructor(ct, xts.ConstructorMatcher(ct, typeArgs, argTypes), currentClassDef);
+		        ConstructorDef dci = xts.defaultConstructor(this.position(), Types.<ClassType>ref(ct));
+		        ci = (X10ConstructorInstance) dci.asInstance();
 		    }
+
+		    args = this.arguments;
 		}
-		else {
-		    ConstructorDef dci = xts.defaultConstructor(this.position(), Types.<ClassType>ref(ct));
-		    ci = (X10ConstructorInstance) dci.asInstance();
+		catch (SemanticException e) {
+		    // Now, try to find the method with implicit conversions, making them explicit.
+		    try {
+		        Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(this, tc, ct, typeArgs, argTypes);
+		        ci = (X10ConstructorInstance) p.fst();
+		        args = p.snd();
+		    }
+		    catch (SemanticException e2) {
+		        throw e;
+		    }
 		}
 		
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
@@ -300,6 +501,7 @@ public class X10New_c extends New_c implements X10New {
 		
         	// Copy the method instance so we can modify it.
         	X10New_c result = (X10New_c) this.constructorInstance(ci);
+        	result = (X10New_c) result.arguments(args);
 
         	/////////////////////////////////////////////////////////////////////
         	// End inlined super call.
@@ -340,7 +542,7 @@ public class X10New_c extends New_c implements X10New {
     		// to be based on anonType rather than on the supertype.
     		ClassDef anonTypeDef = anonType();
     		Type anonType = anonTypeDef.asType();
-    		type = X10TypeMixin.xclause(anonType, X10TypeMixin.xclause(type));
+    		type = X10TypeMixin.xclause(X10TypeMixin.baseType(anonType), X10TypeMixin.xclause(type));
     		xci = (X10ConstructorInstance) xci.returnType(type);
     	}
     	

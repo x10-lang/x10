@@ -16,9 +16,13 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return_c;
 import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10MethodDef;
-import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10MethodInstance_c;
+import polyglot.ext.x10.types.X10ProcedureDef;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
@@ -27,18 +31,13 @@ import polyglot.types.InitializerDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XConstraint;
-import x10.constraint.XConstraint_c;
-import x10.constraint.XFailure;
-import x10.constraint.XFormula;
-import x10.constraint.XLocal;
-import x10.constraint.XTerm;
+import x10.constraint.XRoot;
+import x10.constraint.XVar;
 
 public class X10Return_c extends Return_c {
 
@@ -51,7 +50,7 @@ public class X10Return_c extends Return_c {
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		TypeSystem ts = tc.typeSystem();
+		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 		Context c = tc.context();
 	
 		CodeDef ci = c.currentCode();
@@ -109,12 +108,102 @@ public class X10Return_c extends Return_c {
 		    }
 
 		    if (expr != null && merge) {
-			// Merge the types
-			Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
-			typeRef.update(t);
+		        // Merge the types
+		        Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
+		        typeRef.update(t);
 		    }
 		}
 		
-		return super.typeCheck(tc);
+		X10Return_c n = this;
+		
+		if (expr != null) {
+		    if (ci instanceof FunctionDef) {
+		        FunctionDef fi = (FunctionDef) ci;
+		        Type returnType = Types.get(fi.returnType());
+		        
+//		        if (fi instanceof X10MemberDef) {
+//		            XRoot classThisVar = ((X10ClassDef) c.currentClassDef()).thisVar();
+//		            XRoot methodThisVar = ((X10MemberDef) fi).thisVar();
+//		            if (classThisVar != null && methodThisVar != null) {
+//		                returnType = X10MethodInstance_c.subst(returnType, new XVar[] { classThisVar }, new XRoot[] { methodThisVar });
+//		                Type t = expr.type();
+//		                t = X10MethodInstance_c.subst(t, new XVar[] { classThisVar }, new XRoot[] { methodThisVar });
+//		                Expr e = X10New_c.attemptCoercion(tc, expr.type(t), returnType);
+//		                n = (X10Return_c) n.expr(e);
+//		                return n.superTypeCheck(tc);
+//		            }
+//		        }
+		        Expr e = X10New_c.attemptCoercion(tc, expr, returnType);
+		        n = (X10Return_c) n.expr(e);
+		    }
+		}
+		
+		return n.superTypeCheck(tc);
 	}
+
+	private Node superTypeCheck(ContextVisitor tc) throws SemanticException {
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        Context c = tc.context();
+        
+        CodeDef ci = c.currentCode();
+        
+        if (ci instanceof InitializerDef) {
+            throw new SemanticException(
+        	"Cannot return from an initializer block.", position());
+        }
+        
+        if (ci instanceof ConstructorDef) {
+            if (expr != null) {
+        	throw new SemanticException(
+        	    "Cannot return a value from " + ci + ".",
+        	    position());
+            }
+        
+            return this;
+        }
+        
+        if (ci instanceof FunctionDef) {
+            FunctionDef fi = (FunctionDef) ci;
+            Type returnType = Types.get(fi.returnType());
+
+            if (returnType == null) {
+                throw new InternalCompilerError("Null return type for " + fi);
+            }
+            
+            if (returnType instanceof UnknownType) {
+                throw new SemanticException();
+            }
+
+//            if (fi instanceof X10MemberDef) {
+//                XRoot classThisVar = ((X10ClassDef) c.currentClassDef()).thisVar();
+//                XRoot methodThisVar = ((X10MemberDef) fi).thisVar();
+//                if (classThisVar != null && methodThisVar != null) {
+//                    returnType = X10MethodInstance_c.subst(returnType, new XVar[] { classThisVar }, new XRoot[] { methodThisVar });
+//                }
+//            }
+        
+            if (returnType.isVoid()) {
+                if (expr != null) {
+                    throw new SemanticException("Cannot return a value from " +
+                        fi + ".", position());
+                }
+                else {
+                    return this;
+                }
+            }
+            else if (expr == null) {
+                throw new SemanticException("Must return a value from " +
+                    fi + ".", position());
+            }
+        
+            if (ts.isImplicitCastValid(expr.type(), returnType)) {
+                return this;
+            }
+        
+            throw new SemanticException("Cannot return expression of type " +
+        	expr.type() + " from " + fi + ".", expr.position());
+        }
+        
+        throw new SemanticException("Cannot return from this context.", position());
+    }
 }

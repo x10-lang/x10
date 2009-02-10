@@ -44,6 +44,7 @@ public class TypeProperty_c extends TypeObject_c implements TypeProperty {
 	        X10TypeSystem ts = (X10TypeSystem) this.ts;
 	        StructType container = Types.get(container());
 	        try {
+	            assert false : "transThis should be thisVar";
 	            asType = new PathType_c(ts, position, ts.xtypeTranslator().transThis(container), container, this);
 	        }
 	        catch (SemanticException e) {

@@ -9,6 +9,7 @@ package polyglot.ext.x10.types;
 
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraint;
 
@@ -21,6 +22,8 @@ public interface X10ConstructorInstance extends ConstructorInstance, X10Procedur
 	
 	Type returnType();
 	ConstructorInstance returnType(Type retType);
+	Ref<? extends Type> returnTypeRef();
+	ConstructorInstance returnTypeRef(Ref<? extends Type> returnType);
 	
 	/** Return the constraint on properties, if any,
 	 * obtained from the return type of the call

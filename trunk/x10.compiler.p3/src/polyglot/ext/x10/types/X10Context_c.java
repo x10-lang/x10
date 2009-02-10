@@ -69,11 +69,28 @@ import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import x10.constraint.XConstraint;
+import x10.constraint.XRoot;
 
 public class X10Context_c extends Context_c implements X10Context {
 
 	public X10Context_c(TypeSystem ts) {
 		super(ts);
+	}
+	
+	public XRoot thisVar() {
+	    if (this.inSuperTypeDeclaration()) {
+	        X10ClassDef t = this.supertypeDeclarationType();
+	        return t.thisVar();
+	    }
+	    CodeDef cd = this.currentCode();
+	    if (cd instanceof X10MemberDef) {
+	        return ((X10MemberDef) cd).thisVar();
+	    }
+	    X10ClassDef t = (X10ClassDef) this.currentClassDef();
+	    if (t != null) {
+	        return t.thisVar();
+	    }
+	    return null;
 	}
 	
 	protected XConstraint currentConstraint;
@@ -180,9 +197,22 @@ public class X10Context_c extends Context_c implements X10Context {
 	            // Override to change the type from C to C{self==this}.
 	            Type t = currentClass;
 	            X10TypeSystem xts = (X10TypeSystem) ts;
-//	            t = X10TypeMixin.setSelfVar(t, xts.xtypeTranslator().transThis(currentClass));
-	            t = X10TypeMixin.setSelfVar(t, xts.xtypeTranslator().transThisWithoutTypeConstraint());
 	            
+	            XRoot thisVar = null;
+	            if (XTypeTranslator.THIS_VAR) {
+	                CodeDef cd = this.currentCode();
+	                if (cd instanceof X10MemberDef) {
+	                    thisVar = ((X10MemberDef) cd).thisVar();
+	                }
+	            }
+	            else {
+	                //	                  thisVar = xts.xtypeTranslator().transThis(currentClass);
+	                thisVar = xts.xtypeTranslator().transThisWithoutTypeConstraint();
+	            }
+
+	            if (thisVar != null)
+	                t = X10TypeMixin.setSelfVar(t, thisVar);
+
 	            // Found a class that has a method of the right name.
 	            // Now need to check if the method is of the correct type.
 	            return ts.findMethod(t, matcher.container(t), this.currentClassDef());

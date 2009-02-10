@@ -14,6 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.tools.javac.tree.Tree.TypeParameter;
+
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.CanonicalTypeNode;
@@ -84,6 +86,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRef_c;
 /**
  * The same as a Java class, except that it needs to handle properties.
  * Properties are converted into public final instance fields immediately.
@@ -170,11 +173,15 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	    public Node leave(Node old, Node n, NodeVisitor v) {
 		if (n instanceof AmbDepTypeNode) {
 		    AmbDepTypeNode adtn = (AmbDepTypeNode) n;
+		    return adtn.constraint(null);
+		}
+		if (n instanceof AmbMacroTypeNode) {
+		    AmbMacroTypeNode adtn = (AmbMacroTypeNode) n;
 		    if (CLASS_TYPE_PARAMETERS) {
-			if (adtn.typeArgs().size() > 0) {
-			    // Just remove the value args and constraint; keep the type args.
-			    return adtn.args(Collections.EMPTY_LIST).constraint(null);
-			}
+		        if (adtn.typeArgs().size() > 0) {
+		            // Just remove the value args and constraint; keep the type args.
+		            return adtn.args(Collections.EMPTY_LIST);
+		        }
 		    }
 		    // Remove the type args, value args, and constraint.
 		    X10AmbTypeNode atn = ((X10NodeFactory) Globals.NF()).X10AmbTypeNode(n.position(), adtn.prefix(), adtn.name());
@@ -221,7 +228,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             thisType.superType(null);
         }
         else if (superClass == null && X10Flags.toX10Flags(flags().flags()).isValue()) {
-//            thisType.superType(Types.<Type>ref(xts.Value()));
             superRef.setResolver(new Runnable() {
         	public void run() {
         	    superRef.update(xts.Value());
@@ -230,7 +236,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             thisType.superType(superRef);
         }
         else if (superClass == null) {
-//            thisType.superType(Types.<Type>ref(xts.Ref()));
             superRef.setResolver(new Runnable() {
         	public void run() {
         	    superRef.update(xts.Ref());
@@ -245,16 +250,49 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     @Override
     protected void setInterfaces(TypeSystem ts, ClassDef thisType) throws SemanticException {
-        if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
-            thisType.addInterface(Types.ref(ts.Object()));
-        }
-        else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
-            thisType.addInterface(Types.ref(ts.Object()));
-        }
-        else if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
+        final X10TypeSystem xts = (X10TypeSystem) ts;
+
+//        if (thisType.fullName().equals(QName.make("x10.lang.Ref"))) {
+//            // We need to lazily set the superclass, otherwise we go into an infinite loop
+//            // during bootstrapping: Object, refers to Int, refers to Object, ...
+//            final LazyRef<Type> superRef = Types.lazyRef(null);
+//            superRef.setResolver(new Runnable() {
+//                public void run() {
+//                    superRef.update(xts.Object());
+//                }
+//            });
+//            thisType.addInterface(superRef);
+//            if (! interfaces.isEmpty()) {
+//                super.setInterfaces(ts, thisType);
+//            }
+//        }
+//        else if (thisType.fullName().equals(QName.make("x10.lang.Value"))) {
+//            // We need to lazily set the superclass, otherwise we go into an infinite loop
+//            // during bootstrapping: Object, refers to Int, refers to Object, ...
+//            final LazyRef<Type> superRef = Types.lazyRef(null);
+//            superRef.setResolver(new Runnable() {
+//                public void run() {
+//                    superRef.update(xts.Object());
+//                }
+//            });
+//            thisType.addInterface(superRef);
+//            if (! interfaces.isEmpty()) {
+//                super.setInterfaces(ts, thisType);
+//            }
+//        }
+//        else 
+        if (thisType.fullName().equals(QName.make("x10.lang.Object"))) {
         }
         else if (interfaces.isEmpty() && flags().flags().isInterface()) {
-            thisType.addInterface(Types.ref(ts.Object()));
+            // We need to lazily set the superclass, otherwise we go into an infinite loop
+            // during bootstrapping: Object, refers to Int, refers to Object, ...
+            final LazyRef<Type> superRef = Types.lazyRef(null);
+            superRef.setResolver(new Runnable() {
+                public void run() {
+                    superRef.update(xts.Object());
+                }
+            });
+            thisType.addInterface(superRef);
         }
         else {
             super.setInterfaces(ts, thisType);
@@ -263,24 +301,24 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     public Node disambiguate(ContextVisitor ar) throws SemanticException {
     	ClassDecl n = (ClassDecl) super.disambiguate(ar);
-    	// Now we have successfully performed the base disambiguation.
+
+    	// If the class is safe, mark all the methods safe.
     	X10Flags xf = X10Flags.toX10Flags(n.flags().flags());
     	if (xf.isSafe()) {
-    		ClassBody b = n.body();
-    		List<ClassMember> m = b.members();
-    		final int count = m.size();
-    		List<ClassMember> newM = new ArrayList<ClassMember>(count);
-    		for(int i=0; i < count; i++) {
-    			ClassMember mem = m.get(i);
-        		if (mem instanceof MethodDecl) {
-        			MethodDecl decl = (MethodDecl) mem;
-        			X10Flags mxf = X10Flags.toX10Flags(decl.flags().flags()).Safe();
-        			mem = decl.flags(decl.flags().flags(mxf));
-        		} 
-        		newM.add(mem);
-    		}
-    		n = n.body(b.members(newM));
+    	    ClassBody b = n.body();
+    	    List<ClassMember> m = b.members();
+    	    List<ClassMember> newM = new ArrayList<ClassMember>(m.size());
+    	    for (ClassMember mem : m) {
+    	        if (mem instanceof MethodDecl) {
+    	            MethodDecl decl = (MethodDecl) mem;
+    	            X10Flags mxf = X10Flags.toX10Flags(decl.flags().flags()).Safe();
+    	            mem = decl.flags(decl.flags().flags(mxf));
+    	        } 
+    	        newM.add(mem);
+    	    }
+    	    n = n.body(b.members(newM));
     	}
+
     	return n;
     }
     
@@ -368,10 +406,58 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
-        X10ClassDecl_c n = (X10ClassDecl_c) super.buildTypesOverride(tb);
+    public ClassDecl_c preBuildTypes(TypeBuilder tb) throws SemanticException {
+        X10ClassDecl_c n = (X10ClassDecl_c) super.preBuildTypes(tb);
         
-        X10ClassDef def = (X10ClassDef) n.type;
+        final X10ClassDef def = (X10ClassDef) n.type;
+        
+        TypeBuilder childTb = tb.pushClass(def);
+        
+        List<TypeParamNode> pas = (List<TypeParamNode>) n.visitList(n.typeParameters, childTb);
+        
+        if (def.isMember() && ! def.flags().isStatic()) {
+            X10ClassDef outer = (X10ClassDef) Types.get(def.outer());
+            while (outer != null) {
+                X10NodeFactory nf = (X10NodeFactory) tb.nodeFactory();
+                for (int i = 0; i < outer.typeParameters().size(); i++) {
+                    ParameterType pt = outer.typeParameters().get(i);
+                    TypeParamNode tpn = nf.TypeParamNode(pt.position(), nf.Id(pt.position(), pt.name()));
+                    tpn = tpn.variance(outer.variances().get(i));
+                    tpn = (TypeParamNode) n.visitChild(tpn, childTb);
+                    pas.add(tpn);
+                }
+                
+                if (outer.isMember())
+                    outer = (X10ClassDef) Types.get(outer.outer());
+                else
+                    outer = null;
+            }
+        }
+        
+        n = (X10ClassDecl_c) n.typeParameters(pas);
+        
+        for (TypeParamNode tpn : n.typeParameters()) {
+            def.addTypeParameter(tpn.type(), tpn.variance());
+        }
+        
+        return n;
+    }
+    
+    @Override
+    public ClassDecl_c postBuildTypes(TypeBuilder tb) throws SemanticException {
+        X10ClassDecl_c n = (X10ClassDecl_c) super.postBuildTypes(tb);
+        
+        final X10ClassDef def = (X10ClassDef) n.type;
+
+        def.thisVar().setSelfConstraint(new XRef_c<XConstraint>() {
+            @Override
+            public XConstraint compute() {
+                Type t = def.asType();
+                if (t == null)
+                    return null;
+                return X10TypeMixin.realX(t);
+            }
+        });
         
         TypeBuilder childTb = tb.pushClass(def);
         
@@ -384,13 +470,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	ats.add(an.annotationType().typeRef());
             }
             ((X10ClassDef) n.type).setDefAnnotations(ats);
-        }
-        
-	List<TypeParamNode> pas = (List<TypeParamNode>) n.visitList(n.typeParameters, childTb);
-        n = (X10ClassDecl_c) n.typeParameters(pas);
-        
-        for (TypeParamNode tpn : n.typeParameters()) {
-            def.addTypeParameter(tpn.type(), tpn.variance());
         }
         
         List<TypePropertyNode> tps = (List<TypePropertyNode>) n.visitList(n.typeProperties, childTb);
@@ -628,11 +707,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	}
     	else {
             if (superClass != null) {
-        	throw new SemanticException("Interface \"" + this.type + "\" cannot have a superclass.",
+        	throw new SemanticException("Interface " + this.type + " cannot have a superclass.",
         	                            superClass.position());
             }
     	}
-    	
+
     	if (superClass != null) {
     	    for (PropertyDecl pd : properties()) {
     	        SemanticException ex = null;

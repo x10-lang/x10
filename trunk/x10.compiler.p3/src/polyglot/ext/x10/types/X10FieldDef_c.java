@@ -16,15 +16,15 @@ import java.util.List;
 
 import polyglot.types.FieldDef_c;
 import polyglot.types.Flags;
+import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
+import x10.constraint.XRoot;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
@@ -35,14 +35,24 @@ import polyglot.util.TypedList;
  */
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     boolean isProperty;
+    XRoot thisVar;
     
     public X10FieldDef_c(TypeSystem ts, Position pos,
             Ref<? extends StructType> container,
             Flags flags, 
             Ref<? extends Type> type,
-            Name name) {
+            Name name, XRoot thisVar) {
         super(ts, pos, container, flags, type, name);
-        isProperty = false;
+        this.isProperty = false;
+        this.thisVar = thisVar;
+    }
+    
+    public XRoot thisVar() {
+        return this.thisVar;
+    }
+
+    public void setThisVar(XRoot thisVar) {
+        this.thisVar = thisVar;
     }
 
     // BEGIN ANNOTATION MIXIN

@@ -12,6 +12,8 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ClassBody;
@@ -19,20 +21,28 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.ast.X10New_c.DumbConstructorMatcher;
+import polyglot.ext.x10.ast.X10New_c.MatcherMaker;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.Matcher;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -98,29 +108,134 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-		X10ConstructorCall_c n = (X10ConstructorCall_c) super.typeCheck(tc);
-		if (kind().equals(ConstructorCall.SUPER)) {
+
+	    X10ConstructorInstance ci;
+	    List<Expr> args;
+	    X10ConstructorCall_c n = this;
+	    
+	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+
+	        ClassType ct = tc.context().currentClass();
+	        Type superType = ct.superClass();
+
+	        // The qualifier specifies the enclosing instance of this inner class.
+	        // The type of the qualifier must be the outer class of this
+	        // inner class or one of its super types.
+	        //
+	        // Example:
+	        //
+	        // class Outer {
+	        //     class Inner { }
+	        // }
+	        //
+	        // class ChildOfInner extends Outer.Inner {
+	        //     ChildOfInner() { (new Outer()).super(); }
+	        // }
+	        if (qualifier != null) {
+	            if (kind != SUPER) {
+	                throw new SemanticException("Can only qualify a \"super\"" +
+	                                            "constructor invocation.",
+	                                            position());
+	            }
+
+	            if (!superType.isClass() || !superType.toClass().isInnerClass() ||
+	                    superType.toClass().inStaticContext()) {
+	                throw new SemanticException("The class \"" + superType + "\"" +
+	                                            " is not an inner class, or was declared in a static " +
+	                                            "context; a qualified constructor invocation cannot " +
+	                                            "be used.", position());
+	            }
+
+	            Type qt = qualifier.type();
+
+	            if (! qt.isClass() || !qt.isSubtype(superType.toClass().outer())) {
+	                throw new SemanticException("The type of the qualifier " +
+	                                            "\"" + qt + "\" does not match the immediately enclosing " +
+	                                            "class  of the super class \"" +
+	                                            superType.toClass().outer() + "\".", qualifier.position());
+	            }
+	        }
+
+	        if (kind == SUPER) {
+	            if (! superType.isClass()) {
+	                throw new SemanticException("Super type of " + ct +
+	                                            " is not a class.", position());
+	            }
+
+	            Expr q = qualifier;
+
+	            // If the super class is an inner class (i.e., has an enclosing
+	            // instance of its container class), then either a qualifier 
+	            // must be provided, or ct must have an enclosing instance of the
+	            // super class's container class, or a subclass thereof.
+	            if (q == null && superType.isClass() && superType.toClass().isInnerClass()) {
+	                ClassType superContainer = superType.toClass().outer();
+	                // ct needs an enclosing instance of superContainer, 
+	                // or a subclass of superContainer.
+	                ClassType e = ct;
+
+	                while (e != null) {
+	                    if (e.isSubtype(superContainer) && ct.hasEnclosingInstance(e)) {
+	                        NodeFactory nf = tc.nodeFactory();
+	                        q = nf.This(position(), nf.CanonicalTypeNode(position(), e)).type(e);
+
+	                        break; 
+	                    }
+	                    e = e.outer();
+	                }
+
+	                if (e == null) {
+	                    throw new SemanticException(ct + " must have an enclosing instance" +
+	                                                " that is a subtype of " + superContainer, position());
+	                }               
+	                if (e == ct) {
+	                    throw new SemanticException(ct + " is a subtype of " + superContainer + 
+	                                                "; an enclosing instance that is a subtype of " + superContainer +
+	                                                " must be specified in the super constructor call.", position());
+	                }
+	            }
+
+	            if (qualifier != q)
+	                n = (X10ConstructorCall_c) n.qualifier(q);
+	        }
+
+	        List<Type> argTypes = new ArrayList<Type>();
+
+	        for (Iterator<Expr> iter = n.arguments().iterator(); iter.hasNext();) {
+	            Expr e = iter.next();
+	            argTypes.add(e.type());
+	        }
+
+	        if (kind == SUPER) {
+	            ct = ct.superClass().toClass();
+	        }
+	    
+	    try {
+	        ci = (X10ConstructorInstance) ts.findConstructor(ct, ts.ConstructorMatcher(ct, Collections.EMPTY_LIST, argTypes), tc.context().currentClassDef());
+	        args = n.arguments();
+	    }
+	    catch (SemanticException e) {
+	        // Now, try to find the method with implicit conversions, making them explicit.
+	        try {
+	            Pair<ConstructorInstance,List<Expr>> p = tryImplicitConversions(this, tc, ct, Collections.<Type>emptyList(), argTypes);
+	            ci = (X10ConstructorInstance) p.fst();
+	            args = p.snd();
+	        }
+	        catch (SemanticException e2) {
+	            throw e;
+	        }
+	    }
+
+	    n = (X10ConstructorCall_c) n.constructorInstance(ci);
+	    n = (X10ConstructorCall_c) n.arguments(args);
+
+	    if (n.kind().equals(ConstructorCall.SUPER)) {
 			Context ctx = tc.context();
 			if (! (ctx.inCode()) || ! (ctx.currentCode() instanceof X10ConstructorDef))
 				throw new SemanticException("A call to super must occur only in the body of a constructor.",
 						position());
 			
-			//	The constructorinstance for this super call.
-			
-			X10ConstructorInstance ci = (X10ConstructorInstance) n.constructorInstance();
-//			Type type = ci.returnType();
-//			
-//			
-//			// Now construct from this generic return type the instance obtained by substituting 
-//			// the actual parameters for the formals.
-//			Type retType = X10New_c.instantiateType(ci, type, typeArguments, arguments);
-//			XConstraint c = X10TypeMixin.realX(retType);
-//			
-//		    	if (ci.guard() != null) {
-//		    		XConstraint guard = X10New_c.instantiateConstraint(ci, ci.guard(), null, typeArguments, arguments);
-//		    		ci = (X10ConstructorInstance) ci.guard(guard);
-//		    	}
-			
+
 			// The constructor *within which this super call happens*.
 			X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
 			XConstraint c = X10TypeMixin.realX(ci.returnType());
@@ -129,6 +244,19 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	
 		return n;
 	}
+	
+        static Pair<ConstructorInstance,List<Expr>> tryImplicitConversions(X10ConstructorCall_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+            final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+            ClassDef currentClassDef = tc.context().currentClassDef();
+
+            List<ConstructorInstance> methods = ts.findAcceptableConstructors(targetType, new DumbConstructorMatcher(targetType, typeArgs, argTypes), currentClassDef);
+            return X10New_c.tryImplicitConversions(n, tc, targetType, methods, new MatcherMaker<ConstructorInstance>() {
+                public Matcher<ConstructorInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
+                    return ts.ConstructorMatcher(ct, typeArgs, argTypes);
+                }
+            });
+        }
+
 	 public String toString() {
 			return (qualifier != null ? qualifier + "." : "") + kind + arguments;
 		    }

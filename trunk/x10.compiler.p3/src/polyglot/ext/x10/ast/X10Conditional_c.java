@@ -87,7 +87,7 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        	return type(t1);
 	        
 	        if (ts.typeBaseEquals(t1, t2)) {
-	            return type(X10TypeMixin.xclause(t1, (XConstraint) null));
+	            return type(X10TypeMixin.baseType(t1));
 	        }
 	        
 	        // Otherwise, if the second and third operands have numeric type, then

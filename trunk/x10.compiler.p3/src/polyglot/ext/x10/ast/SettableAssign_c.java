@@ -46,6 +46,7 @@ import polyglot.types.Types;
 import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.AscriptionVisitor;
@@ -191,36 +192,39 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	@Override
 	public Assign typeCheckLeft(ContextVisitor tc) throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	    X10TypeSystem xts = ts;
 
-	    List<Type> argTypes = new ArrayList<Type>();
-	   // argTypes.add(array.type());
-	    argTypes.add(right.type());
-	    for (Expr e : index) {
-		argTypes.add(e.type());
-	    }
-
 	    Name methodName = Name.make("set");
+	    
+	    List<Expr> args = new ArrayList<Expr>();
+	    args.add(right);
+	    args.addAll(index);
+	    X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
 
-	    MethodMatcher methodMatcher = xts.MethodMatcher(array.type(), methodName, argTypes);
-
-	    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
 	    try {
-	    	// array.type()
-	        X10MethodInstance mi = xts.findMethod(array.type(), methodMatcher, tc.context().currentClassDef());
-	        if (! mi.flags().isStatic() )
-	            return (Assign) methodInstance(mi);
-	        throw new SemanticException("Cannot assign to element of " + array.type() + "; " + mi + " cannot be static.", position()); 
+	        n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
 	    }
 	    catch (SemanticException e) {
-	        // Cannot find the method.  Fall through.
 	        throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
 	    }
+
+	    X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+
+	    if (! mi.flags().isStatic() ) {
+	        SettableAssign_c a = this;
+	        a = (SettableAssign_c) a.methodInstance(mi);
+	        a = (SettableAssign_c) a.right(n.arguments().get(0));
+	        a = (SettableAssign_c) a.index(n.arguments().subList(1, n.arguments().size()));
+	        return a;
+	    }
+	    
+	    throw new SemanticException("Cannot assign to element of " + array.type() + "; " + mi + " cannot be static.", position()); 
 	}	
 	
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
-	    SettableAssign_c a = (SettableAssign_c) super.typeCheck(tc);
+	    SettableAssign_c a = (SettableAssign_c) X10LocalAssign_c.typeCheckAssign(this, tc);
 	    return a.type(a.mi.returnType());
 	}
 	

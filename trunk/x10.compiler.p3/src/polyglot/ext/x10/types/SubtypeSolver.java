@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import polyglot.ext.x10.types.XTypeTranslator.XTypeLit_c;
+import polyglot.types.ClassType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -67,14 +68,16 @@ public class SubtypeSolver implements Solver {
             Type l = subtype();
             Type r = supertype();
             if (l instanceof X10ClassType && r instanceof X10ClassType) {
-                TypeSystem ts = l.typeSystem();
+                X10TypeSystem ts = (X10TypeSystem) l.typeSystem();
                 // Check that l descends from r.
                 // We cannot do a subtype test yet since more constraints may be needed to
                 // test this.  TODO: add a method to check consistency to be called after the constraint
                 // is constructed.
-                if (! ts.descendsFrom(l, r)) {
-                    throw new XFailure("Interning " + this + " makes constraint inconsistent.");
-                }
+//                if (!ts.hasSameClassDef(r, ((ClassType) ts.Ref()).interfaces().get(0))) { // HACK: ignore Equals[T]
+                    if (!ts.descendsFrom(l, r)) {
+                        throw new XFailure("Interning " + this + " makes constraint inconsistent.");
+                    }
+//                }
             }
             return super.internIntoConstraint(c, last);
         }
@@ -212,6 +215,7 @@ public class SubtypeSolver implements Solver {
 //        }
     }
 
+    static int depth = 0;
     public boolean entails(List<XTerm> atoms, XTerm t) {
         if (isSubtypeAtom(t)) {
             XSubtype_c f = (XSubtype_c) t;
@@ -228,9 +232,16 @@ public class SubtypeSolver implements Solver {
 //            }
             Type t1 = f.subtype();
             Type t2 = f.supertype();
-            if (t1 != null && t2 != null && ts.isSubtype(t1, t2, atoms)) {
+            if (depth++ > 20) {
+                System.out.println(depth + " t1 = " + t1);
+                System.out.println(depth + " t2 = " + t2);
+                System.out.print("");
+            }
+            if (t1 != null && t2 != null && ts.isSubtypeWithValueInterfaces(t1, t2, atoms)) {
+                depth--;
                 return true;
             }
+            depth--;
         }
         return false;
     }

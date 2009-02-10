@@ -23,13 +23,16 @@ import polyglot.ast.Precedence;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.ast.X10Call_c.DumbMethodMatcher;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.types.ClassDef;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureInstance;
@@ -43,6 +46,7 @@ import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
@@ -63,7 +67,9 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
     public ClosureCall_c(Position pos, Expr target, List<TypeNode> typeArgs, List<Expr> arguments) {
 	super(pos);
-	assert (target != null && arguments != null);
+	assert target != null;
+	assert typeArgs != null;
+        assert arguments != null;
 	this.target= target;
 	this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
@@ -136,6 +142,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     }
 
     public ClosureCall target(Expr target) {
+        assert target != null;
 	ClosureCall_c n= (ClosureCall_c) copy();
 	n.target= target;
 	return n;
@@ -166,6 +173,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
     /** Set the actual arguments of the call. */
     public ProcedureCall arguments(List<Expr> arguments) {
+        assert arguments != null;
 	ClosureCall_c n= (ClosureCall_c) copy();
 	n.arguments= TypedList.copyAndCheck(arguments, Expr.class, true);
 	return n;
@@ -178,9 +186,14 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     
     /** Set the actual arguments of the call. */
     public ClosureCall typeArgs(List<TypeNode> typeArgs) {
+        assert typeArgs != null;
 	    ClosureCall_c n= (ClosureCall_c) copy();
 	    n.typeArgs= TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 	    return n;
+    }
+    
+    public List<TypeNode> typeArguments() {
+        return typeArgs();
     }
 
     /** Reconstruct the call. */
@@ -212,15 +225,32 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	return n.closureInstance(mi);
     }
     
+    static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final ClosureCall_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
+        final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        ClassDef currentClassDef = tc.context().currentClassDef();
+
+        List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, Name.make("apply"), typeArgs, argTypes), currentClassDef);
+
+        Pair<MethodInstance,List<Expr>> p = X10New_c.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
+            public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
+                return ts.MethodMatcher(ct, Name.make("apply"), typeArgs, argTypes);
+            }
+        });
+        
+        return p;
+    }
+
     @Override
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	Type targetType = target.type();
 
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
+	/*
 	if (! ts.isFunction(targetType)) {
 	    throw new SemanticException("The target of a closure call must be a function type, not " + targetType + ".", target.position());
 	}
+	*/
 	
 	List<Type> typeArgs = new ArrayList<Type>(this.typeArgs.size());
 
@@ -233,12 +263,35 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 	    actualTypes.add(ei.type());
 	}
 	
+	X10TypeSystem xts = ts;
+
+	X10MethodInstance mi = null;
+	List<Expr> args = null;
+
+	// First try to find the method without implicit conversions.
+	try {
+	    mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes), tc.context().currentClassDef());
+	    args = this.arguments;
+	}
+	catch (SemanticException e) {
+	    // Now, try to find the method with implicit conversions, making them explicit.
+	    try {
+	        Pair<MethodInstance,List<Expr>> p = tryImplicitConversions(this, tc, targetType, typeArgs, actualTypes);
+	        mi = (X10MethodInstance) p.fst();
+	        args = p.snd();
+	    }
+	    catch (SemanticException e2) {
+	        throw e;
+	    }
+	}
+
 	// Find the most-specific closure type.
-	X10MethodInstance mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes), tc.context().currentClassDef());
 	
 	if (mi.container() instanceof ClosureType) {
 	    X10MethodInstance ci = ((ClosureType) mi.container()).applyMethod();
-	    return this.closureInstance(ci).type(ci.returnType());
+	    ClosureCall_c n = this;
+	    n = (ClosureCall_c) n.arguments(args);
+	    return n.closureInstance(ci).type(ci.returnType());
 	}
 	else {
 	    // TODO: add ts.Function and uncomment this.
@@ -248,7 +301,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 //	    if (! targetType.isSubtype(ct))
 //		throw new SemanticException("Invalid closure call; target does not implement " + ct + ".", position());
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), nf.Id(position(), mi.name().toString()), typeArgs(), arguments());
+	    X10Call_c n = (X10Call_c) nf.X10Call(position(), target(), nf.Id(position(), mi.name().toString()), typeArgs(), args);
 	    n = (X10Call_c) n.methodInstance(mi);
 	    n = (X10Call_c) n.type(mi.returnType());
 	    return n;
