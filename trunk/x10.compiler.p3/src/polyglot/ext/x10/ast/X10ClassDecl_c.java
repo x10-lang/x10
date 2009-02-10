@@ -14,8 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.tools.javac.tree.Tree.TypeParameter;
-
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.CanonicalTypeNode;
