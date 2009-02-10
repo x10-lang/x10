@@ -123,7 +123,7 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist{constant}, init: (Point)=>T): FastArray[T]{self.dist==dist} {
+    def this(dist: Dist{constant}, init: Box[(Point)=>T]): FastArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -134,8 +134,9 @@ public final value class FastArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
+                val f = at (init.location) { init as (Point) => T };
                 for (p:Point in region)
-                    raw(layout.offset(p)) = init(p);
+                    raw(layout.offset(p)) = f(p);
             }
             async (there) {
                 this.layout = layout;
@@ -149,8 +150,9 @@ public final value class FastArray[T] extends BaseArray[T] {
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
             if (init!=null) {
+                val f = at (init.location) { init as (Point) => T };
                 for (p:Point in region)
-                    raw(layout.offset(p)) = init(p);
+                    raw(layout.offset(p)) = f(p);
             }
             return raw;
         };

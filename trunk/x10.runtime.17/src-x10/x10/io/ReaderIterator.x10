@@ -27,12 +27,13 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
        this.next = null;
     }
     
+    /** Allow the iterator to be used in a for loop. */
     public def iterator(): Iterator[T] = this;
 
     public def next(): T = {
         if (! hasNext())
             throw new NoSuchElementException();
-        val x: T = next to T;
+        val x: T = next as T;
         next = null;
         return x;
     }
@@ -41,7 +42,7 @@ public class ReaderIterator[T] implements Iterator[T], Iterable[T] {
         if (next == null) {
             try {
                 val x: T = r.read[T](m);
-                next = x to Box[T];
+                next = x as Box[T];
             }
             catch (IOException) {
                 return false;

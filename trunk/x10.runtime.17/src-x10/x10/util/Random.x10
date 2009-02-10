@@ -64,7 +64,7 @@ public class Random {
             for (var j: int = 0; j < 4; j++) {
                 if (i > buf.length)
                     return;
-                buf(i) = (x & 0xff) to Byte;
+                buf(i) = (x & 0xff) as Byte;
                 i++;
                 x >>= 8;
             }
@@ -72,7 +72,7 @@ public class Random {
     }
      
     /** Return a 64-bit random (long) integer */
-    public def nextLong(): long = ((nextInt() to Long) << 32) | nextInt() & 0xFFFFFFFFL;
+    public def nextLong(): long = ((nextInt() as Long) << 32) | nextInt() & 0xFFFFFFFFL;
 
     public def nextLong(maxPlus1: long): long {
         if (maxPlus1 <= 0)
@@ -105,10 +105,10 @@ public class Random {
     public def nextBoolean(): boolean = nextInt() < 0;
 
     /** Return a random float. */
-    public def nextFloat(): float = (nextInt() >>> (32-24)) / (1<<24 to Float);
+    public def nextFloat(): float = (nextInt() >>> (32-24)) / (1<<24 as Float);
 
     /** Return a random double. */
-    public def nextDouble(): double = (nextLong() >>> (64-53)) / (1L<<53 to Double);
+    public def nextDouble(): double = (nextLong() >>> (64-53)) / (1L<<53 as Double);
 
 /**
  * Mersenne twister.
@@ -139,9 +139,9 @@ public class Random {
 
         // Set the initial buffer using a PRNG from
         // Knuth, vol 2, 2nd ed, p. 102
-        MT(0) = (seed to Long) to Int;
+        MT(0) = (seed as Long) as Int;
         for (var i: int = 1; i < N; i++) {
-            MT(i) = (69069L * MT(i-1)) to Int;
+            MT(i) = (69069L * MT(i-1)) as Int;
         }
 
         // make sure we twist once.

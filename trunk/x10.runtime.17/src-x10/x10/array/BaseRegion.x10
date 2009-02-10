@@ -147,19 +147,19 @@ abstract public value class BaseRegion extends Region {
     }
 
     def check(err:(Point)=>RuntimeException, i0: int) {rank==1} {
-        (this as BaseRegion(1)).check(err, [i0] to Point(1)); // XXXX cast?
+        (this as BaseRegion(1)).check(err, [i0] as Point(1)); // XXXX cast?
     }
 
     def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
-        (this as BaseRegion(2)).check(err, [i0,i1] to Point(2)); // XXXX cast?
+        (this as BaseRegion(2)).check(err, [i0,i1] as Point(2)); // XXXX cast?
     }
 
     def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
-        (this as BaseRegion(3)).check(err, [i0,i1,i2] to Point(3)); // XXXX cast?
+        (this as BaseRegion(3)).check(err, [i0,i1,i2] as Point(3)); // XXXX cast?
     }
 
     def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
-        (this as BaseRegion(4)).check(err, [i0,i1,i2,i3] to Point(4)); // XXXX cast?
+        (this as BaseRegion(4)).check(err, [i0,i1,i2,i3] as Point(4)); // XXXX cast?
     }
 
 
@@ -252,9 +252,9 @@ value class Cache {
         var boundingBoxException: Box[RuntimeException] = null;
         try {
             // XTENLANG-198
-            boundingBox = hack198? r : r.computeBoundingBox() to Box[Region];
+            boundingBox = hack198? r : r.computeBoundingBox() as Box[Region];
         } catch (e:RuntimeException) {
-            boundingBoxException = e to Box[RuntimeException];
+            boundingBoxException = e as Box[RuntimeException];
         }
         this.boundingBox = boundingBox;
         this.boundingBoxException = boundingBoxException;
@@ -262,7 +262,7 @@ value class Cache {
 
     def boundingBox(): Region {
         if (boundingBoxException!=null)
-            throw boundingBoxException to RuntimeException;
-        return boundingBox to Region;
+            throw boundingBoxException as RuntimeException;
+        return boundingBox as Region;
     }
 }

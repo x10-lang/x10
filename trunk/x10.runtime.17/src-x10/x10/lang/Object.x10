@@ -16,8 +16,12 @@ import x10.compiler.NativeRep;
 public interface Object {
     @Native("java", "#0.equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(Object): Boolean;
-
+    public def equals(Ref): Boolean;
+    
+    @Native("java", "#0.equals(#1)")
+    @Native("c++", "x10aux::equals(#0,#1)")
+    public def equals(Value): Boolean;
+    
     @Native("java", "#0.hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
     public def hashCode(): Int;

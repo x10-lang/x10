@@ -13,7 +13,7 @@ import x10.util.ArrayList;
  * @author bdlucas
  */
 
-class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==rank}] {
+class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==this.rank}] {
 
     // XTENLANG-49
     static type PolyRegion(rank:nat) = PolyRegion{self.rank==rank};

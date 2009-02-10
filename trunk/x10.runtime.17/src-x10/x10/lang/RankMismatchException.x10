@@ -20,7 +20,7 @@ public value RankMismatchException extends x10.lang.Exception {
 	private val n: int;
 
 	public def this(p_: Point, n_:int)  = {
-		p = p_ to Box[Point];
+		p = p_ as Box[Point];
 		r = null;
 		d = null;
 		n = n_;
@@ -28,7 +28,7 @@ public value RankMismatchException extends x10.lang.Exception {
 
 	public def this(r_: Region, n_:int) = {
 		p = null;
-		r = r_ to Box[Region];
+		r = r_ as Box[Region];
 		d = null;
 		n = n_;
 	}
@@ -36,7 +36,7 @@ public value RankMismatchException extends x10.lang.Exception {
     public def this(d_: Dist, n_:Int) = {
 		p = null;
 		r = null;
-		d = d_ to Box[Dist];
+		d = d_ as Box[Dist];
 		n = n_;
 	}
 

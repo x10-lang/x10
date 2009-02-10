@@ -20,7 +20,11 @@ public final value String implements (nat) => Char {
     
     @Native("java", "(#0).equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(Object): boolean;
+    public native def equals(Ref): boolean;
+    
+    @Native("java", "(#0).equals(#1)")
+    @Native("c++", "x10aux::equals(#0,#1)")
+    public native def equals(Value): boolean;
     
     @Native("java", "(#0).hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")
@@ -66,11 +70,11 @@ public final value String implements (nat) => Char {
     @Native("c++", "(#0)->lastIndexOf(#1)")
     public native def lastIndexOf(Char): Int;
 
-    @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
+    @Native("java", "java.lang.String.format(#1, new Object() { final Object[] unbox(Object[] a) { Object[] b = new Object[a.length]; for (int i = 0; i < a.length; i++) { if (a[i] instanceof x10.lang.Box) b[i] = ((x10.lang.Box) a[i]).value(); else b[i] = a[i]; } return b; } }.unbox(#2.getBoxedArray()))")
     @Native("c++", "x10::lang::String::format(#1,#2)")
     public native static def format(fmt: String, Rail[Object]): String;
     
-    @Native("java", "java.lang.String.format(#1, #2.getBoxedArray())")
+    @Native("java", "java.lang.String.format(#1, new Object() { final Object[] unbox(Object[] a) { Object[] b = new Object[a.length]; for (int i = 0; i < a.length; i++) { if (a[i] instanceof x10.lang.Box) b[i] = ((x10.lang.Box) a[i]).value(); else b[i] = a[i]; } return b; } }.unbox(#2.getBoxedArray()))")
     @Native("c++", "x10::lang::String::format(#1,#2)")
     public native static def format(fmt: String, ValRail[Object]): String;
 }

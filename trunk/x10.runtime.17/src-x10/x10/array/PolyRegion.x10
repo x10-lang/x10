@@ -81,7 +81,7 @@ public value class PolyRegion extends BaseRegion {
     public def iterator(): Iterator[Point(rank)] {
         //return new PointIt();
         //return scanner().iterator();
-        return new PolyScanner(mat).iterator() to Iterator[Point(rank)]; // XXXX cast
+        return new PolyScanner(mat).iterator() as Iterator[Point(rank)]; // XXXX cast
     }
 
 

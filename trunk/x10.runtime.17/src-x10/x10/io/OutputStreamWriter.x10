@@ -48,7 +48,7 @@ public value OutputStreamWriter extends Writer {
 
     public def close(): Void throws IOException = out.close();
     
-    public def write(x: Byte): Void throws IOException = out.write(x to Int);
+    public def write(x: Byte): Void throws IOException = out.write(x as Int);
     
     public def write(buf: ValRail[Byte]): Void throws IOException {
         out.write(buf);
@@ -59,10 +59,10 @@ public value OutputStreamWriter extends Writer {
     }
 
     public def write(buf: Rail[Byte], off: Int, len: Int): Void throws IOException {
-        out.write(buf as Rail[Byte], off, len);
+        out.write(buf, off, len);
     }
 
     public def write(buf: ValRail[Byte], off: Int, len: Int): Void throws IOException {
-        out.write(buf as ValRail[Byte], off, len);
+        out.write(buf, off, len);
     }
 }

@@ -40,19 +40,28 @@ public class Value {
 		}
 	}
     
-    
 	public Ref box$() {
 		return new BoxedValue(this);
 	}
 	
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
+        if (o instanceof Value)
+            return this.equals((Value) o);
+        return false;
+    }
+	
+    public boolean equals(Ref o) {
+        return false;
+    }
+
+    public boolean equals(Value o) {
         return structEquals(o);
     }
     
     public int hashCode() {
         return structHash();
     }
-
+	
     public final int structHash() {
         Class<?> c = this.getClass();
         Object o = this;
@@ -63,6 +72,8 @@ public class Value {
                 for (int i = fs.length - 1; i >= 0; i--) {
                     Field f = fs[i];
                     if (Modifier.isStatic(f.getModifiers()))
+                        continue;
+                    if (Type.class.isAssignableFrom(f.getType()))
                         continue;
                     f.setAccessible(true);
                     if (f.getType().isPrimitive()) {
@@ -95,6 +106,8 @@ public class Value {
     public final boolean structEquals(Object o) {
         if (o == null)
             return false;
+        if (o == this)
+        	return true;
         Class<?> c = this.getClass();
         Object o1 = this;
         Object o2 = o;
@@ -108,18 +121,18 @@ public class Value {
                     if (Modifier.isStatic(f.getModifiers()))
                         continue;
                     f.setAccessible(true);
-                    if (f.getType().isPrimitive()) {
-                        if (!f.get(o1).equals(f.get(o2)))
+                    Object a1 = f.get(o1);
+                    Object a2 = f.get(o2);
+					if (f.getType().isPrimitive()) {
+						if (!Equality.equalsequals(a1, a2))
                             return false;
                     }
                     else if (f.getType().isArray()) {
-                        java.lang.Object a1 = f.get(o1);
-                        java.lang.Object a2 = f.get(o2);
                         int len = Array.getLength(a1);
                         if (len != Array.getLength(a2))
                             return false;
                         for (int j = 0; j < len; j++)
-                            if (!Array.get(a1, j).equals(Array.get(a2, j)))
+                        	if (!Equality.equalsequals(Array.get(a1, j), Array.get(a2, j)))
                                 return false;
                     }
                     else {
@@ -127,7 +140,7 @@ public class Value {
                         // and can thus not contain mutually recursive
                         // structures.  If that is wrong, we would have to do
                         // more work here to avoid dying with a StackOverflow.
-                        if (!Equality.equalsequals(f.get(o1), f.get(o2)))
+                        if (!Equality.equalsequals(a1, a2))
                             return false;
                     }
                 }
