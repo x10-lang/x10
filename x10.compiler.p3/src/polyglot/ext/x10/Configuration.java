@@ -40,7 +40,7 @@ public final class Configuration extends x10.config.Configuration {
 
 	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
-    
+
 	public static boolean LOOP_OPTIMIZATIONS = true;
 	private static final String LOOP_OPTIMIZATIONS_desc = "Generate specialized Java version of for-loop X10 code";
 

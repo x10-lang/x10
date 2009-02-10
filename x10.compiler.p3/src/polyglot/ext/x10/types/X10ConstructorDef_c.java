@@ -26,6 +26,8 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 /**
  * An X10ConstructorInstance_c varies from a ConstructorInstance_c only in that it
@@ -46,11 +48,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             Ref<? extends ClassType> returnType,
             List<Ref<? extends Type>> typeParameters,
             List<Ref<? extends Type>> formalTypes, 
-            List<LocalDef> formalNames, Ref<XConstraint> guard,
-            List<Ref<? extends Type>> throwTypes) {
+            XRoot thisVar, List<LocalDef> formalNames,
+            Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
+        this.thisVar = thisVar;
 	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 	this.guard = guard;
     }
@@ -65,7 +68,6 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     
     public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
         this.annotations = TypedList.<Ref<? extends Type>>copyAndCheck(annotations, Ref.class, true);
-        this.asInstance = null;
     }
     
     public List<Type> annotations() {
@@ -87,16 +89,23 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
 
     public void setReturnType(Ref<? extends ClassType> r) {
         this.returnType = r;
-        this.asInstance = null;
     }
-	
+
+    XRoot thisVar;
+    public XRoot thisVar() {
+        return this.thisVar;
+    }
+    
+    public void setThisVar(XRoot thisVar) {
+        this.thisVar = thisVar;
+    }
+
     public List<LocalDef> formalNames() {
 	return Collections.unmodifiableList(formalNames);
     }
 
     public void setFormalNames(List<LocalDef> formalNames) {
-        this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
-        this.asInstance = null;
+	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
     }
     
     /** Constraint on superclass constructor call return type. */
@@ -105,8 +114,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
     
     public void setSupClause(Ref<XConstraint> s) {
-        this.supClause = s;
-        this.asInstance = null;
+	this.supClause = s;
     }
 
     /** Constraint on formal parameters. */
@@ -116,7 +124,6 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
 
     public void setGuard(Ref<XConstraint> s) {
         this.guard = s;
-        this.asInstance = null;
     }
 	
     List<Ref<? extends Type>> typeParameters;
@@ -125,8 +132,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     }
 
     public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
-        this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
-        this.asInstance = null;
+	    this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
     }
 
     public String toString() {

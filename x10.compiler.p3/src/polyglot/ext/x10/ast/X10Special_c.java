@@ -15,6 +15,7 @@ import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.SemanticException;
@@ -26,6 +27,7 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRoot;
 import x10.constraint.XVar;
 
 public class X10Special_c extends Special_c implements X10Special {
@@ -121,7 +123,7 @@ public class X10Special_c extends Special_c implements X10Special {
             XConstraint cc = X10TypeMixin.xclause(t);
             cc = cc == null ? new XConstraint_c() : cc.copy();
             try {
-                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this));
+                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this, c));
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on this is inconsistent; " + e.getMessage(), position());
@@ -134,7 +136,7 @@ public class X10Special_c extends Special_c implements X10Special {
             XConstraint cc = X10TypeMixin.xclause(t.superClass());
             cc = cc == null ? new XConstraint_c() : cc.copy();
             try {
-                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this));
+                cc.addSelfBinding((XVar) xts.xtypeTranslator().trans(cc, this, c));
             }
             catch (XFailure e) {
                 throw new SemanticException("Constraint on super is inconsistent; " + e.getMessage(), position());

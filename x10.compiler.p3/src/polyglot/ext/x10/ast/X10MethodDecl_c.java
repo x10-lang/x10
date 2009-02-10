@@ -43,18 +43,22 @@ import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.Def;
@@ -68,8 +72,10 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.Package;
+import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -86,8 +92,13 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
+import x10.constraint.XRef_c;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 /** A representation of a method declaration.
@@ -108,6 +119,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         super(pos, flags, returnType, name, formals, throwTypes, body);
         this.guard = guard;
         this.typeParameters = TypedList.copyAndCheck(typeParams, TypeParamNode.class, true);
+    }
+    
+
+    protected MethodDef createMethodDef(TypeSystem ts, ClassDef ct, Flags flags) {
+        X10MethodDef mi = (X10MethodDef) super.createMethodDef(ts, ct, flags);
+        mi.setThisVar(((X10ClassDef) ct).thisVar());
+        return mi;
     }
     
     @Override
@@ -147,7 +165,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             formalNames.add(f.localDef());
         }
         mi.setFormalNames(formalNames);
-        
+
         if (returnType instanceof UnknownTypeNode && body == null)
         	throw new SemanticException("Cannot infer method return type; method has no body.", position());
 
@@ -226,7 +244,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                     f.addDecls(c);
                 }
             }
-
+            
             return super.enterChildScope(child, c);
         }
 
@@ -342,7 +360,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         	    if (s instanceof Return) {
         		Return r = (Return) s;
         		if (r.expr() != null) {
-        		    XTerm v = ts.xtypeTranslator().trans((XConstraint) null, r.expr());
+        		    XTerm v = ts.xtypeTranslator().trans((XConstraint) null, r.expr(), (X10Context) tc.context());
         		    ok = true;
         		    X10MethodDef mi = (X10MethodDef) this.mi;
         		    if (mi.body() instanceof LazyRef) {
@@ -808,12 +826,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             		{
             			X10Type t = (X10Type) tc.context().currentClass();
             			XConstraint dep = X10TypeMixin.xclause(t);
-            			if (c != null && dep != null) {
-            				dep = dep.copy();
-            				XPromise p = dep.intern(xts.xtypeTranslator().transThis(t));
-            				dep = dep.substitute(p.term(), c.self());
-            				c.addIn(dep);
-            			}
+                                if (c != null && dep != null) {
+                                    XRoot thisVar = ((X10MemberDef) methodDef()).thisVar();
+                                    if (thisVar != null)
+                                        dep = dep.substitute(thisVar, c.self());
+//                                  dep = dep.copy();
+//                                  XPromise p = dep.intern(xts.xtypeTranslator().transThis(t));
+//                                  dep = dep.substitute(p.term(), c.self());
+                                    c.addIn(dep);
+                                }
             		}
             	}
             	catch (XFailure e) {

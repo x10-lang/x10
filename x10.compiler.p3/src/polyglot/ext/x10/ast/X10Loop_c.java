@@ -41,6 +41,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
+import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
@@ -106,45 +107,45 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		return this;
 	}
 	
-	Formal setClauses(Formal formal, Expr domain, X10NodeFactory nf) {
-	    X10Type domainType = (X10Type) domain.type();
-	    X10TypeSystem ts = (X10TypeSystem) domainType.typeSystem();
-	    
-	    if (formal.type().type().isInt() && domain instanceof RegionMaker) {
-	        List<Expr> args = ((RegionMaker) domain).arguments();
-	        if (args.size() == 2) {
-	            Expr lo = args.get(0);
-	            Expr hi = args.get(1);
-	            if (lo.type().isIntOrLess() && hi.type().isIntOrLess()) {
-	                X10Type t = (X10Type) formal.type().type();
-					XConstraint c = X10TypeMixin.xclause(t);
-	                if (c == null) c = new XConstraint_c();
-	                else c = c.copy();
-
-	                Expr lbound = nf.Binary(lo.position(), nf.Self(lo.position()).type(ts.Int()), Binary.GE, lo).type(ts.Boolean());
-	                Expr ubound = nf.Binary(hi.position(), nf.Self(hi.position()).type(ts.Int()), Binary.LE, hi).type(ts.Boolean());
-	                
-	                try {
-	                    XConstraint lc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, lbound);
-	                    c.addIn(lc);
-
-	                    XConstraint uc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, ubound);
-	                    c.addIn(uc);
-	                }
-	                catch (SemanticException e) {
-	                }
-	                catch (XFailure e) {
-	                }
-	                
-	                Type newType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
-	                formal.localDef().setType(Types.ref(newType));
-	                return formal.type(nf.CanonicalTypeNode(formal.type().position(), Types.ref(newType)));
-	            }
-	        }
-	    }
-
-	    return formal;
-	}
+//	Formal setClauses(Formal formal, Expr domain, X10NodeFactory nf) {
+//	    X10Type domainType = (X10Type) domain.type();
+//	    X10TypeSystem ts = (X10TypeSystem) domainType.typeSystem();
+//	    
+//	    if (formal.type().type().isInt() && domain instanceof RegionMaker) {
+//	        List<Expr> args = ((RegionMaker) domain).arguments();
+//	        if (args.size() == 2) {
+//	            Expr lo = args.get(0);
+//	            Expr hi = args.get(1);
+//	            if (lo.type().isIntOrLess() && hi.type().isIntOrLess()) {
+//	                X10Type t = (X10Type) formal.type().type();
+//					XConstraint c = X10TypeMixin.xclause(t);
+//	                if (c == null) c = new XConstraint_c();
+//	                else c = c.copy();
+//
+//	                Expr lbound = nf.Binary(lo.position(), nf.Self(lo.position()).type(ts.Int()), Binary.GE, lo).type(ts.Boolean());
+//	                Expr ubound = nf.Binary(hi.position(), nf.Self(hi.position()).type(ts.Int()), Binary.LE, hi).type(ts.Boolean());
+//	                
+//	                try {
+//	                    XConstraint lc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, lbound, thisVar);
+//	                    c.addIn(lc);
+//
+//	                    XConstraint uc = ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, ubound, thisVar);
+//	                    c.addIn(uc);
+//	                }
+//	                catch (SemanticException e) {
+//	                }
+//	                catch (XFailure e) {
+//	                }
+//	                
+//	                Type newType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
+//	                formal.localDef().setType(Types.ref(newType));
+//	                return formal.type(nf.CanonicalTypeNode(formal.type().position(), Types.ref(newType)));
+//	            }
+//	        }
+//	    }
+//
+//	    return formal;
+//	}
 	
 	public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
 	    TypeChecker tc1 = (TypeChecker) tc.enter(parent, this);
@@ -160,10 +161,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    
-	    if (ts.isPoint(formal.type().type())) {
-	        X10Type point = (X10Type) formal.type().type();
-	        formal = setClauses(formal, domain, nf);
-	    }
+//	    if (ts.isPoint(formal.type().type())) {
+//	        X10Type point = (X10Type) formal.type().type();
+//	        formal = setClauses(formal, domain, nf);
+//	    }
 	    
 	    return tc.visitEdgeNoOverride(parent, this.domain(domain).formal(formal));
 	}
@@ -175,21 +176,45 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		X10Type domainType = (X10Type) domain.type();
 		
 		Type formalType = formal.declType();
+		Type Iterable = ts.Iterable(formalType);
 		
-                    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
-                    try {
-                        X10MethodInstance mi = ts.findMethod(domainType, ts.MethodMatcher(domainType, Name.make("iterator"), Collections.singletonList(formalType)), tc.context().currentClassDef());
-                        return this;
-                    }
-                    catch (SemanticException e) {
-                        // Cannot find the method.  Fall through.
-                }
+		if (ts.isSubtypeWithValueInterfaces(domainType, Iterable, Collections.EMPTY_LIST)) {
+		    return this;
+		}
 
-                return this;
-//                Expr newDomain = domain;
-//		if (ts.isX10Array(domainType))
-//			newDomain = (Expr) nf.Field(position(), domain, nf.Id(position(), "distribution")).del().typeCheck(tc);
-//		return domain(newDomain);
+//		// Check if there is a method with the appropriate name and type with the left operand as receiver.   
+//		X10MethodInstance mi = ts.findMethod(domainType, ts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST), tc.context().currentClassDef());
+//		Type rt = mi.returnType();
+//		if (! mi.flags().isStatic() && ts.isSubtype(rt, Iterator))
+//		    return this;
+
+		if (ts.isSubtype(formalType, ts.Point())) {
+		    try {
+		        Expr newDomain = X10New_c.attemptCoercion(tc, domain, ts.Region());
+		        if (newDomain != domain)
+		            return this.domain(newDomain).del().typeCheck(tc);
+		    }
+		    catch (SemanticException e) {
+		    }
+		    try {
+		        Expr newDomain = X10New_c.attemptCoercion(tc, domain, ts.Dist());
+		        if (newDomain != domain)
+		            return this.domain(newDomain).del().typeCheck(tc);
+		    }
+		    catch (SemanticException e) {
+		    }
+		}
+		
+		if (true)
+		    return this;
+		
+		try {
+		    throw new SemanticException("Loop domain " + domainType + " is not Iterable[" + formalType + "].", position());
+		}
+		catch (SemanticException e) {
+		    tc.errorQueue().enqueue(ErrorInfo.WARNING, "WARNING (should be error, but type-checker is broken): " + e.getMessage(), position());
+		    return this;
+		}
 	}
 
 	/* (non-Javadoc)

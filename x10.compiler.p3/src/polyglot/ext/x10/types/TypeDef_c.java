@@ -15,11 +15,10 @@ import polyglot.types.CodeInstance;
 import polyglot.types.Def_c;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.Name;
 import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -28,6 +27,8 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 public class TypeDef_c extends Def_c implements TypeDef {
 	protected Ref<? extends StructType> container;
@@ -42,13 +43,14 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected MacroType asType;
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
-			List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<? extends Type> type) {
+	        XRoot thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
 		this.name = name;
 		this.flags = flags;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
+		this.thisVar = thisVar;
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
 		this.guard = guard;
@@ -65,7 +67,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setDefAnnotations(List<Ref<? extends Type>> annotations) {
 		this.annotations = TypedList.<Ref<? extends Type>> copyAndCheck(annotations, Ref.class, true);
-        this.asType = null;
 	}
 
 	public List<Type> annotations() {
@@ -99,7 +100,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setPackage(Ref<? extends Package> p) {
 		this.package_ = p;
-        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -121,7 +121,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setTypeParameters(List<Ref<? extends Type>> typeParameters) {
 		this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
-        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -136,7 +135,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setGuard(Ref<XConstraint> guard) {
 		this.guard = guard;
-        this.asType = null;
 	}
 
 	/* (non-Javadoc)
@@ -144,14 +142,17 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setContainer(Ref<? extends StructType> container) {
 		this.container = container;
-        this.asType = null;
 	}
 
+	
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.TypeDef#type()
 	 */
 	public Ref<? extends Type> definedType() {
 		return type;
+	}
+	public Ref<? extends Type> returnType() {
+	    return definedType();
 	}
 
 	/* (non-Javadoc)
@@ -160,16 +161,23 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	public void setType(Ref<? extends Type> type) {
 		assert type != null;
 		this.type = type;
-        this.asType = null;
 	}
-	
+
+	XRoot thisVar;
+	public XRoot thisVar() {
+	    return this.thisVar;
+	}
+
+	public void setThisVar(XRoot thisVar) {
+	    this.thisVar = thisVar;
+	}
+
 	public List<LocalDef> formalNames() {
 		return Collections.unmodifiableList(formalNames);
 	}
 	
 	public void setFormalNames(List<LocalDef> formalNames) {
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
-        this.asType = null;
 	}
 	
 	/* (non-Javadoc)
@@ -184,7 +192,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	 */
 	public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
-        this.asType = null;
 	}
 
 	public String toString() {
@@ -198,7 +205,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	
 	public void setName(Name name) {
 		this.name = name;
-        this.asType = null;
 	}
 	
 	public Flags flags() {
@@ -207,7 +213,6 @@ public class TypeDef_c extends Def_c implements TypeDef {
 
 	public void setFlags(Flags flags) {
 		this.flags = flags;
-        this.asType = null;
 	}
 
 	public String designator() {

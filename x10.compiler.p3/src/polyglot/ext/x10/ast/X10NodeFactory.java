@@ -33,6 +33,7 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.ast.X10Cast.ConversionType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.TypeProperty.Variance;
@@ -69,7 +70,8 @@ public interface X10NodeFactory extends NodeFactory {
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Type t, DepParameterExpr e);
     X10CanonicalTypeNode X10CanonicalTypeNode(Position pos, Ref<? extends Type> t, DepParameterExpr e);
 
-    Cast X10Cast(Position pos, TypeNode castType, Expr expr, boolean convert);
+    X10Cast X10Cast(Position pos, TypeNode castType, Expr expr);
+    X10Cast X10Cast(Position pos, TypeNode castType, Expr expr, X10Cast.ConversionType conversionType);
     Return X10Return(Position pos, Expr expr, boolean implicit);
 
     UnknownTypeNode UnknownTypeNode(Position pos);
@@ -150,8 +152,8 @@ public interface X10NodeFactory extends NodeFactory {
 
     AnnotationNode AnnotationNode(Position pos, TypeNode tn);
     
-    AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
-    AmbDepTypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
+    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, List<TypeNode> typeArgs, List<Expr> args, DepParameterExpr dep);
+    TypeNode AmbDepTypeNode(Position pos, Prefix prefix, Id name, DepParameterExpr dep);
 
 	AssignPropertyBody AssignPropertyBody(Position position, List<Stmt> statements, X10ConstructorDef ci, List<FieldInstance> fi);
 

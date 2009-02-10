@@ -18,7 +18,7 @@ import polyglot.ast.ProcedureCall;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.X10MethodInstance;
 
-public interface ClosureCall extends Expr, ProcedureCall {
+public interface ClosureCall extends Expr, X10ProcedureCall {
     /**
      * @return the target of this closure invocation, which should be an expression
      * of type <code>ClosureType</code>.

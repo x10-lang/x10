@@ -32,6 +32,7 @@ import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -76,26 +77,31 @@ public class X10Disamb_c extends Disamb_c {
 	    		    e = e.type(t);
 	    		    return e;
 	    		}
-	    		
-	    		if (vi instanceof LocalInstance) {
-	    			Node n = disambiguateVarInstance(vi);
-	    			if (n != null) return n;
-	    		}
 
+	    		if (vi instanceof LocalInstance) {
+	    		    Node n = disambiguateVarInstance(vi);
+	    		    if (n != null) 
+	    		        return n;
+	    		}
+	    		
 	    		// Now try properties.
 	    		FieldInstance fi = null;
 	    		try {
 	    		     fi = ts.findField(t, ts.FieldMatcher(t, this.name.id()), c.currentClassDef());
 	    		}
-	    		catch (SemanticException e) {
+	    		catch (SemanticException ex) {
 	    		}
+	    		
+	    		Expr prop = null;
 
 	    		if (fi instanceof X10FieldInstance) {
 	    		    X10FieldInstance xfi = (X10FieldInstance) fi;
 	    		    if (xfi.isProperty()) {
 	    		        Field f = nf.Field(pos, makeMissingPropertyTarget(xfi, t), this.name);
 	    		        f = f.fieldInstance(xfi);
-	    		        f = (Field) f.type(xfi.rightType());
+	    		        Type ftype = X10Field_c.rightType(xfi.rightType(), xfi.x10Def(), f.target(), c);
+	    		        f = (Field) f.type(ftype);
+	    		        prop = f;
 	    		        return f;
 	    		    }
 	    		    else {
@@ -104,27 +110,35 @@ public class X10Disamb_c extends Disamb_c {
 	    		        }
 	    		        else {
 	    		            // found it as a field of an enclosing class, not of self.
+	    		            // fall thru to lookup
 	    		        }
 	    		    }
 	    		}
 
 	    		if (vi != null) {
-	    		    Node n = disambiguateVarInstance(vi);
-	    		    if (n != null) return n;
-	    		}
+                            Node n = disambiguateVarInstance(vi);
+                            if (n != null && prop != null)
+                                throw new SemanticException("Reference to field or property " + name + " is ambiguous; both " + prop + " and " + n + " match.", pos);
+                            if (n != null)
+                                return n;
+                        }
 	    		
-	    		// Now try 0-ary property methods.
-	    		try {
-	    		    X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST), c.currentClassDef());
-	    		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
-	    			Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
-	    			call = call.methodInstance(mi);
-	    			call = (Call) call.type(mi.rightType());
-	    			return call;
-	    		    }
-	    		}
-	    		catch (SemanticException e) {
-	    		}
+	    		if (prop != null)
+	    		    return prop;
+
+                        // Now try 0-ary property methods.
+                        try {
+                            X10MethodInstance mi = ts.findMethod(t, ts.MethodMatcher(t, this.name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+                            if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
+                                Call call = nf.Call(pos, makeMissingPropertyTarget(mi, t), this.name);
+                                call = call.methodInstance(mi);
+                                Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+                                call = (Call) call.type(ftype);
+                                return call;
+                            }
+                        }
+                        catch (SemanticException e) {
+                        }
 	    	}
 	    	
 	        if (typeOK()) {
@@ -170,7 +184,8 @@ public class X10Disamb_c extends Disamb_c {
     		    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
     			Call call = nf.Call(pos, makeMissingMethodTarget(mi), this.name);
     			call = call.methodInstance(mi);
-    			call = (Call) call.type(mi.rightType());
+                        Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+                        call = (Call) call.type(ftype);
     			return call;
     		    }
     		}
@@ -203,6 +218,7 @@ public class X10Disamb_c extends Disamb_c {
 			X10TypeSystem xts = (X10TypeSystem) ts;
 			PathType pt = xts.findTypeProperty((ClassType) t, this.name.id(), c.currentClassDef());
 			Type pt2;
+			assert false : "transThis should be thisVar";
 			if (c.inSuperTypeDeclaration())
 			    pt2 = PathType_c.pathBase(pt, xts.xtypeTranslator().transThisWithoutTypeConstraint(), t);
 			else
@@ -259,7 +275,7 @@ public class X10Disamb_c extends Disamb_c {
 					PathType pt = p.asType();
 					XTerm term = null;
 					try {
-						term = xts.xtypeTranslator().trans((XConstraint) null, e);
+						term = xts.xtypeTranslator().trans((XConstraint) null, e, xc);
 					}
 					catch (SemanticException ex) {
 					}
@@ -309,7 +325,7 @@ public class X10Disamb_c extends Disamb_c {
 					PathType pt = xts.findTypeProperty(ct, this.name.id(), xc.currentClassDef());
 					XTerm term = null;
 					try {
-						term = xts.xtypeTranslator().trans((XConstraint) null, e);
+						term = xts.xtypeTranslator().trans((XConstraint) null, e, xc);
 					}
 					catch (SemanticException ex) {
 					}
@@ -341,7 +357,8 @@ public class X10Disamb_c extends Disamb_c {
 			if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
 			    Call call = nf.Call(pos, e, this.name);
 			    call = call.methodInstance(mi);
-			    call = (Call) call.type(mi.rightType());
+			    Type ftype = X10Field_c.rightType(mi.rightType(), mi.x10Def(), call.target(), c);
+			    call = (Call) call.type(ftype);
 			    return call;
 			}
 		    }

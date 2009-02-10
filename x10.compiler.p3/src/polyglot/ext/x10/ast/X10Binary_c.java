@@ -26,6 +26,7 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Precedence;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
@@ -95,9 +96,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		if (lt == null || rt == null)
 			return false;
 		if (operator() == Binary.EQ || operator() == Binary.NE) {
-		    if (xts.isValueType(lt) && xts.isReferenceType(rt))
+		    if (xts.isValueType(lt) && xts.isReferenceOrInterfaceType(rt))
 			return true;
-		    if (xts.isReferenceType(lt) && xts.isValueType(rt))
+		    if (xts.isReferenceOrInterfaceType(lt) && xts.isValueType(rt))
 			return true;
 		    if ( xts.isValueType(lt) && rt.isNull())
 			return true;
@@ -124,9 +125,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		
 		// [IP] An optimization: an value and null can never be equal
 		if (op == EQ) {
-		    if (xts.isValueType(lt) && xts.isReferenceType(rt))
+		    if (xts.isValueType(lt) && xts.isReferenceOrInterfaceType(rt))
 			return Boolean.FALSE;
-		    if (xts.isReferenceType(lt) && xts.isValueType(rt))
+		    if (xts.isReferenceOrInterfaceType(lt) && xts.isValueType(rt))
 			return Boolean.FALSE;
 		    if ( xts.isValueType(lt) && rt.isNull())
 			return Boolean.FALSE;
@@ -134,9 +135,9 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 			return Boolean.FALSE;
 		}
 		if (op == NE) {
-		    if (xts.isValueType(lt) && xts.isReferenceType(rt))
+		    if (xts.isValueType(lt) && xts.isReferenceOrInterfaceType(rt))
 			return Boolean.TRUE;
-		    if (xts.isReferenceType(lt) && xts.isValueType(rt))
+		    if (xts.isReferenceOrInterfaceType(lt) && xts.isValueType(rt))
 			return Boolean.TRUE;
 		    if ( xts.isValueType(lt) && rt.isNull())
 			return Boolean.TRUE;
@@ -298,16 +299,19 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		                                position());
 		}
 		
+		X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 		Name methodName = binaryMethodName(op);
 		
 		if (methodName != null) {
 		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+		    X10Call_c n = (X10Call_c) nf.X10Call(position(), left, nf.Id(position(), methodName), Collections.EMPTY_LIST, Collections.singletonList(right));
+
 		    try {
-			X10MethodInstance mi = xts.findMethod(l, xts.MethodMatcher(l, methodName, Collections.singletonList(r)), tc.context().currentClassDef());
-			return type(mi.returnType());
+		        n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+		        return type(n.methodInstance().returnType());
 		    }
-		    catch (SemanticException e) {
-			// Cannot find the method.  Fall through.
+		    catch (SemanticException e2) {
+		        // Cannot find the method.  Fall through.
 		    }
 		}
 		
@@ -315,16 +319,18 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		
 		if (invMethodName != null) {
 		    // Check if there is a method with the appropriate name and type with the left operand as receiver.   
+		    X10Call_c n = (X10Call_c) nf.X10Call(position(), right, nf.Id(position(), invMethodName), Collections.EMPTY_LIST, Collections.singletonList(left));
+
 		    try {
-		        X10MethodInstance mi = xts.findMethod(r, xts.MethodMatcher(r, invMethodName, Collections.singletonList(l)), tc.context().currentClassDef());
-		        return invert(true).type(mi.returnType());
+		        n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+		        return invert(true).type(n.methodInstance().returnType());
 		    }
-		    catch (SemanticException e) {
+		    catch (SemanticException e2) {
 		        // Cannot find the method.  Fall through.
 		    }
 		}
 		
-		X10Binary_c n = (X10Binary_c) super.typeCheck(tc);
+		X10Binary_c n = (X10Binary_c) superTypeCheck(tc);
 
 		Type resultType = n.type();
 		resultType = xts.performBinaryOperation(resultType, l, r, op);
@@ -334,6 +340,147 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 
 		return n;
 	}
+
+	// Override to insert explicit coercions.
+    private Expr superTypeCheck(ContextVisitor tc) throws SemanticException {
+        Type l = left.type();
+        Type r = right.type();
+        
+        TypeSystem ts = tc.typeSystem();
+        
+        if (op == GT || op == LT || op == GE || op == LE) {
+            if (! l.isNumeric()) {
+        	throw new SemanticException("The " + op +
+        	    " operator must have numeric operands, not type " +
+                    l + ".", left.position());
+            }
+        
+            if (! r.isNumeric()) {
+        	throw new SemanticException("The " + op +
+        	    " operator must have numeric operands, not type " +
+                    r + ".", right.position());
+            }
+        
+            return type(ts.Boolean());
+        }
+        
+        if (op == EQ || op == NE) {
+            if (! ts.isCastValid(l, r) && ! ts.isCastValid(r, l)) {
+        	throw new SemanticException("The " + op +
+        	    " operator must have operands of similar type.",
+        	    position());
+            }
+        
+            return type(ts.Boolean());
+        }
+        
+        if (op == COND_OR || op == COND_AND) {
+            if (! l.isBoolean()) {
+        	throw new SemanticException("The " + op +
+        	    " operator must have boolean operands, not type " +
+                    l + ".", left.position());
+            }
+        
+            if (! r.isBoolean()) {
+        	throw new SemanticException("The " + op +
+        	    " operator must have boolean operands, not type " +
+                    r + ".", right.position());
+            }
+        
+            return type(ts.Boolean());
+        }
+        
+        if (op == ADD) {
+            if (ts.isSubtype(l, ts.String()) || ts.isSubtype(r, ts.String())) {
+                if (!ts.canCoerceToString(r, tc.context())) {
+                    throw new SemanticException("Cannot coerce an expression " + 
+                                "of type " + r + " to a String.", 
+                                right.position());
+                }
+                if (!ts.canCoerceToString(l, tc.context())) {
+                    throw new SemanticException("Cannot coerce an expression " + 
+                                "of type " + l + " to a String.", 
+                                left.position());
+                }
+        
+                return precedence(Precedence.STRING_ADD).type(ts.String());
+            }
+        }
+        
+        if (op == ADD) {
+            if (! l.isNumeric()) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric or String operands, not type " +
+                    l + ".", left.position());
+            }
+        
+            if (! r.isNumeric()) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric or String operands, not type " +
+                    r + ".", right.position());
+            }
+        }
+        
+        if (op == BIT_AND || op == BIT_OR || op == BIT_XOR) {
+            if (l.isBoolean() && r.isBoolean()) {
+                return type(ts.Boolean());
+            }
+        }
+
+        if (op == BIT_AND || op == BIT_OR || op == BIT_XOR) {
+            if (! ts.isLongOrLess(l)) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric or boolean operands, not type " +
+                    l + ".", left.position());
+            }
+        
+            if (! ts.isLongOrLess(r)) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric or boolean operands, not type " +
+                    r + ".", right.position());
+            }
+        }
+        
+        if (op == SUB || op == MUL || op == DIV || op == MOD) {
+            if (! l.isNumeric()) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric operands, not type " +
+                    l + ".", left.position());
+            }
+        
+            if (! r.isNumeric()) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric operands, not type " +
+                    r + ".", right.position());
+            }
+        }
+        
+        if (op == SHL || op == SHR || op == USHR) {
+            if (! ts.isLongOrLess(l)) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric operands, not type " +
+                    l + ".", left.position());
+            }
+        
+            if (! ts.isLongOrLess(r)) {
+                throw new SemanticException("The " + op +
+                    " operator must have numeric operands, not type " +
+                    r + ".", right.position());
+            }
+        }
+        
+        if (op == SHL || op == SHR || op == USHR) {
+            // For shift, only promote the left operand.
+            Type t = ts.promote(l);
+            Expr le = X10New_c.attemptCoercion(tc, left, t);
+            return left(le).type(t);
+        }
+        
+        Type t = ts.promote(l, r);
+        Expr le = X10New_c.attemptCoercion(tc, left, t);
+        Expr re = X10New_c.attemptCoercion(tc, right, t);
+        return left(le).right(re).type(t);
+    }
 	
 	public boolean invert() {
 	    return invert;

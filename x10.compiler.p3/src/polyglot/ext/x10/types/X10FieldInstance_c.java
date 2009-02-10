@@ -78,7 +78,6 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
     public X10FieldInstance type(Type type, Type rightType) {
         X10FieldInstance_c fi =  (X10FieldInstance_c) super.type(type);
         assert fi != this;
-        // clear the right type so we recompute it.
         fi.rightType = rightType;
         return fi;
     }
@@ -103,16 +102,17 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                     if (rc == null)
                         rc = new XConstraint_c();
 
+                    XTerm receiver;
+
+                    if (flags.isStatic()) {
+                        receiver = xts.xtypeTranslator().trans(container());
+                    }
+                    else {
+                        receiver = x10Def().thisVar();
+                        assert receiver != null;
+                    }
+
                     try {
-                        XTerm receiver;
-
-                        if (flags.isStatic()) {
-                            receiver = xts.xtypeTranslator().trans(container());
-                        }
-                        else {
-                            receiver = xts.xtypeTranslator().transThis(container());
-                        }
-
                         XConstraint c = rc.copy();
 
                         // ### pass in the type rather than letting XField call fi.type();
@@ -123,10 +123,10 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
                     }
                     catch (XFailure f) {
-                        throw new InternalCompilerError("Could not add self binding.", f);
+                        throw new InternalCompilerError("Could not add self binding: " + f.getMessage(), f);
                     }
                     catch (SemanticException f) {
-                        throw new InternalCompilerError("Could not add self binding.", f);
+                        throw new InternalCompilerError(f);
                     }
                 }
             }

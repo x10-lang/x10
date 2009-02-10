@@ -26,16 +26,20 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10MethodInstance;
+import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
+import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -43,6 +47,9 @@ import polyglot.visit.ContextVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
+import x10.constraint.XVar;
 
 
 /**
@@ -94,7 +101,8 @@ public class X10Field_c extends Field_c {
 				    if (fi != null) {
 					// Found!
 					X10Field_c result = this;
-					result = (X10Field_c) result.fieldInstance(fi).type(fi.rightType());
+					Type t = rightType(fi.rightType(), fi.x10Def(), target, c);
+					result = (X10Field_c) result.fieldInstance(fi).type(t);
 					return result;
 				    }
 				}
@@ -115,7 +123,7 @@ public class X10Field_c extends Field_c {
 						position());
 			}
 			X10Field_c result = this;
-			Type type = fi.rightType();
+			Type type = rightType(fi.rightType(), fi.x10Def(), target, c);
 			if (type instanceof UnknownType) {
 			    throw new SemanticException();
 			}
@@ -156,7 +164,7 @@ public class X10Field_c extends Field_c {
         	    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
         		Call call = nf.Call(pos, target, this.name);
         		call = call.methodInstance(mi);
-        		call = (Call) call.type(mi.rightType());
+        		call = (Call) call.type(rightType(mi.rightType(), mi.x10Def(), target, c));
         		return call;
         	    }
         	}
@@ -168,6 +176,28 @@ public class X10Field_c extends Field_c {
         catch (XFailure e) {
             throw new SemanticException(e.getMessage(), position());
         }
+	}
+	
+	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c) throws SemanticException {
+	    XConstraint x = X10TypeMixin.xclause(t);
+	    if (x != null && fi.thisVar() != null) {
+	        if (target instanceof Expr) {
+	            XVar receiver = null;
+	            try {
+	                X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
+	                XTerm r = ts.xtypeTranslator().trans((XConstraint) null, target, (X10Context) c);
+	                if (r instanceof XVar) {
+	                    receiver = (XVar) r;
+	                }
+	            }
+	            catch (SemanticException e) {
+	            }
+	            if (receiver == null)
+	                receiver = x.genEQV();
+	            t = X10MethodInstance_c.subst(t, new XVar[] { receiver }, new XRoot[] { fi.thisVar() });
+	        }
+	    }
+	    return t;
 	}
 
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 

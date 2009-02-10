@@ -11,16 +11,15 @@ import polyglot.ast.Cast;
 
 public interface X10Cast extends Cast {
     public static enum ConversionType {
-        COERCION,
         UNKNOWN_CONVERSION,
-        CALL,
-        BOXING,
-        UNBOXING,
+        UNKNOWN_IMPLICIT_CONVERSION,
         PRIMITIVE,
-        TRUNCATION,
+        CHECKED,
+        SUBTYPE,
+        UNBOXING,
+        BOXING,
     }
     
     public ConversionType conversionType();
     public X10Cast conversionType(ConversionType convert);
-    public boolean isConversion();
 }

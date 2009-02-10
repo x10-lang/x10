@@ -10,7 +10,7 @@ package polyglot.ext.x10.types;
 
 import polyglot.types.FieldDef;
 
-public interface X10FieldDef extends FieldDef, X10Def {
+public interface X10FieldDef extends FieldDef, X10Def, X10MemberDef {
     boolean isProperty();
     void setProperty();
 }

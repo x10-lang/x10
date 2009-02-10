@@ -98,7 +98,6 @@
     foreach
     future
     in
-    to
     goto
     has
     here
@@ -193,11 +192,6 @@
               | a s
         /.$BeginAction
                 $setResult($_as);
-          $EndAction
-        ./
-              | t o
-        /.$BeginAction
-                $setResult($_to);
           $EndAction
         ./
               | h a s

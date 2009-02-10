@@ -35,9 +35,12 @@ import polyglot.ext.x10.visit.FieldInitializerMover;
 import polyglot.ext.x10.visit.Inliner;
 import polyglot.ext.x10.visit.RewriteAtomicMethodVisitor;
 import polyglot.ext.x10.visit.RewriteExternVisitor;
+import polyglot.ext.x10.visit.StaticNestedClassRemover;
 import polyglot.ext.x10.visit.X10Boxer;
+import polyglot.ext.x10.visit.X10Caster;
 import polyglot.ext.x10.visit.X10ImplicitDeclarationExpander;
 import polyglot.ext.x10.visit.X10InitChecker;
+import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10.visit.X10MLVerifier;
 import polyglot.ext.x10.visit.X10Translator;
 import polyglot.frontend.AbstractGoal_c;
@@ -163,7 +166,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 	                                                            getOptions().compile_command_line_only,
 	                                                            getOptions().ignore_mod_times);
 
-
 	            // Resolver to handle lookups of member classes.
 	            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
 	                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
@@ -228,8 +230,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(ReassembleAST(job));
            
            goals.add(X10Boxed(job));
+           goals.add(X10Casted(job));
            goals.add(MoveFieldInitializers(job));
-
            goals.add(ConformanceChecked(job));
 
            goals.add(X10RewriteExtern(job));
@@ -248,6 +250,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(Serialized(job));
 //           goals.add(CodeGenBarrier());
            goals.add(CheckNativeAnnotations(job));
+           goals.add(InnerClassRemover(job));
            goals.add(Desugarer(job));
            goals.add(Inlined(job));
            goals.add(CodeGenerated(job));
@@ -352,6 +355,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new VisitorGoal("X10Boxed", job, new X10Boxer(job, ts, nf)).intern(this);
        }
 
+       public Goal X10Casted(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("X10Casted", job, new X10Caster(job, ts, nf)).intern(this);
+       }
+
        public Goal MoveFieldInitializers(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
@@ -421,6 +430,17 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
     	   return new VisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+       }
+       
+       public Goal InnerClassRemover(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
+       }
+       public Goal StaticNestedClassRemover(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
        }
     }
     

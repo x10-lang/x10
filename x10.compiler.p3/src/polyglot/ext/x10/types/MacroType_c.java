@@ -32,6 +32,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
@@ -52,7 +53,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	List<XVar> formals;
 	List<Type> formalTypes;
 	XConstraint guard;
-	Type definedType;
+	Ref<? extends Type> definedType;
 
 	public MacroType_c(TypeSystem ts, Position pos, Ref<TypeDef> def) {
 		super(ts, pos);
@@ -86,12 +87,12 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public String translate(Resolver c) {
-		return definedType.translate(c);
+		return definedType().translate(c);
 	}
 
 	public Name name() {
 		if (this.name == null) { 
-			this.name = def().name();
+			return def().name();
 		}
 		return name;
 	}
@@ -102,7 +103,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public List<Type> typeParameters() {
 		if (typeParams == null) {
-			typeParams = new TransformingList<Ref<? extends Type>, Type>(def().typeParameters(), new DerefTransform<Type>());
+			return new TransformingList<Ref<? extends Type>, Type>(def().typeParameters(), new DerefTransform<Type>());
 		}
 		return typeParams;
 	}
@@ -121,7 +122,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    
 	    public List<LocalInstance> formalNames() {
 		if (this.formalNames == null) {
-		    this.formalNames = new TransformingList(def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
+		    return new TransformingList(def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
 			public LocalInstance transform(LocalDef o) {
 			    return o.asInstance();
 			}
@@ -147,7 +148,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			for (int i = 0; i < def().formalNames().size(); i++) {
 				indices.add(i);
 			}
-			formals = new TransformingList<Integer, XVar>(indices, new FormalToVarTransform(def().formalNames(), def().formalTypes()));
+			return new TransformingList<Integer, XVar>(indices, new FormalToVarTransform(def().formalNames(), def().formalTypes()));
 		}
 		return formals;
 	}
@@ -160,7 +161,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public List<Type> formalTypes() {
 		if (formalTypes == null) {
-			formalTypes = new TransformingList<Ref<? extends Type>, Type>(def().formalTypes(),
+			return new TransformingList<Ref<? extends Type>, Type>(def().formalTypes(),
 										      new DerefTransform<Type>());
 		}
 		return formalTypes;
@@ -178,7 +179,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	
 	public XConstraint guard() {
 		if (guard == null)
-			guard = Types.get(def().guard());
+			return Types.get(def().guard());
 		return guard;
 	}
 	
@@ -190,11 +191,16 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	public Type definedType() {
 		if (definedType == null)
-			definedType = Types.get(def().definedType());
-		return definedType;
+			return Types.get(def().definedType());
+		return Types.get(definedType);
+	}
+	public Ref<? extends Type> definedTypeRef() {
+	    if (definedType == null)
+	        return def().definedType();
+	    return definedType;
 	}
 
-	public MacroType definedType(Type definedType) {
+	public MacroType definedTypeRef(Ref<? extends Type> definedType) {
 		MacroType_c t = (MacroType_c) copy();
 		t.definedType = definedType;
 		return t;
@@ -236,8 +242,13 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	}
 	
 	public String toString() {
-	    return signature();
-//	        return signature() + " = " + definedType();
+	    StringBuilder sb = new StringBuilder();
+	    sb.append(signature());
+	    if (definedType != null && definedType.known()) {
+	        sb.append(" = ");
+	        sb.append(definedType);
+	    }
+	    return sb.toString();
 	}
 
 	public String signature() {
@@ -262,21 +273,18 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		}
 	    }
 	    sb.append(d.name());
-	    if (typeParams != null) {
+	    if (typeParams != null && typeParams.size() > 0) {
+	        sb.append("[");
 		for (int i = 0; i < typeParams.size(); i++) {
-		    if (i == 0)
-			sb.append("[");
 		    if (i != 0)
 			sb.append(", ");
 		    sb.append(typeParams.get(i));
-		    if (i == typeParams.size()-1)
-			sb.append("]");
 		}
+		sb.append("]");
 	    }
-	    if (formals != null && formalTypes != null) {
+	    if (formals != null && formalTypes != null && formals.size() > 0) {
+	        sb.append("(");
 		for (int i = 0; i < formals.size(); i++) {
-		    if (i == 0)
-			sb.append("(");
 		    if (i != 0)
 			sb.append(", ");
 		    if (! formals.get(i).equals("")) {
@@ -284,9 +292,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			sb.append(": ");
 		    }
 		    sb.append(formalTypes.get(i));
-		    if (i == formals.size()-1)
-			sb.append(")");
 		}
+		sb.append(")");
 	    }
 	    if (guard != null)
 	    	sb.append(guard);
@@ -295,7 +302,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	@Override
 	public List<FieldInstance> fields() {
-		Type base = definedType;
+		Type base = definedType();
 		if (base instanceof StructType) {
 			return ((StructType) base).fields();
 		}
@@ -304,7 +311,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	@Override
 	public List<Type> interfaces() {
-		Type base = definedType;
+		Type base = definedType();
 		if (base instanceof ObjectType) {
 			return ((ObjectType) base).interfaces();
 		}
@@ -313,7 +320,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	@Override
 	public List<MethodInstance> methods() {
-		Type base = definedType;
+		Type base = definedType();
 		if (base instanceof StructType) {
 			return ((StructType) base).methods();
 		}
@@ -322,7 +329,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 
 	@Override
 	public Type superClass() {
-		Type base = definedType;
+		Type base = definedType();
 		if (base instanceof ObjectType) {
 			return ((ObjectType) base).superClass();
 		}
@@ -337,6 +344,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
 	}
 	
+
 	public boolean moreSpecific(ProcedureInstance<TypeDef> p) {
 	    return X10MethodInstance_c.moreSpecificImpl(this, p);
 	}
@@ -344,9 +352,16 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	public Type returnType() {
 	    return definedType();
 	}
+	public Ref<? extends Type> returnTypeRef() {
+	    return definedTypeRef();
+	}
 	
 	public MacroType returnType(Type t) {
-	    return definedType(t);
+	    return definedTypeRef(Types.ref(t));
+	}
+	
+	public MacroType returnTypeRef(Ref<? extends Type> t) {
+	    return definedTypeRef(t);
 	}
 	
 	public MacroType throwTypes(List<Type> throwTypes) {

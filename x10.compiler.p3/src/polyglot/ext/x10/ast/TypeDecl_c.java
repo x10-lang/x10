@@ -26,16 +26,19 @@ import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
 import polyglot.ext.x10.types.X10ClassDef;
+import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
+import polyglot.types.Def;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.QName;
@@ -52,6 +55,11 @@ import polyglot.visit.TypeBuilder;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
+import x10.constraint.XRef_c;
+import x10.constraint.XRoot;
+import x10.constraint.XTerms;
 
 public class TypeDecl_c extends Term_c implements TypeDecl {
 	private TypeNode type;
@@ -217,19 +225,21 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 			ct.kind(ClassDef.TOP_LEVEL);
 			ct.setPackage(package_ != null ? Types.ref(package_) : null);
 			ct.name(X10TypeSystem.DUMMY_PACKAGE_CLASS_NAME);
-			ct.superType(Types.ref(ts.Object()));
+			ct.superType(Types.ref(ts.Value()));
 			ct.flags(Flags.PUBLIC.Abstract());
 			ts.systemResolver().install(dummyClass, ct.asType());
 		    }
 		}
 		
 		TypeDef typeDef;
+
+		XRoot thisVar = ct != null ? ct.thisVar() : null;
 		
 		if (local) {
 		    typeDef = new TypeDef_c(ts, position(), Flags.NONE, name.id(), null,
 		                            Collections.EMPTY_LIST,
-		                            Collections.EMPTY_LIST,
-		                            Collections.EMPTY_LIST, null, null);
+		                            thisVar,
+		                            Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null);
 		}
 		else {		
 		    if (ct == null)
@@ -237,8 +247,8 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 
 		    typeDef = new TypeDef_c(ts, position(), topLevel ? flags.flags().Static() : flags.flags(), name.id(), Types.ref(ct.asType()),
 		                                                     Collections.EMPTY_LIST,
-		                                                     Collections.EMPTY_LIST,
-		                                                     Collections.EMPTY_LIST, null, null);
+		                                                     thisVar,
+		                                                     Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null);
 		    ct.addMemberType(typeDef);
 		}
 		

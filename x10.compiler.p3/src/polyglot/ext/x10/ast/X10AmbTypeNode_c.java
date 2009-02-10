@@ -8,40 +8,34 @@
 
 package polyglot.ext.x10.ast;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import polyglot.ast.AmbTypeNode_c;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.Prefix;
-import polyglot.ast.QualifierNode;
 import polyglot.ast.TypeNode;
-import polyglot.ast.TypeNode_c;
+import polyglot.ext.x10.extension.X10Del;
+import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.MacroType;
-import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.types.LazyRef;
-import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
-import polyglot.visit.TypeChecker;
 
 /**
  * An <code>AmbTypeNode</code> is an ambiguous AST node composed of
@@ -80,7 +74,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
 	      if (t instanceof X10ParsedClassType) {
 		  X10ParsedClassType ct = (X10ParsedClassType) t;
 		  if (ct.flags().isInterface()) {
-		      return tn;
+		      return postprocess((CanonicalTypeNode) tn, this, (ContextVisitor) tc.enter(this));
 		  }
 	      }
 
@@ -152,7 +146,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
 
-              return nf.CanonicalTypeNode(pos, sym);
+              return postprocess(nf.CanonicalTypeNode(pos, sym), this, ar);   
           }
       }
       catch (SemanticException e) {
@@ -179,7 +173,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
               Goal resolver = Globals.Scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
-              return tn;
+              return postprocess((CanonicalTypeNode) tn, this, ar);   
           }
     
           ex = new SemanticException("Could not find type \"" +
@@ -197,6 +191,10 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
       throw ex;
   }
   
+  static TypeNode postprocess(CanonicalTypeNode result, TypeNode n, ContextVisitor childtc) throws SemanticException {
+      return AmbDepTypeNode_c.postprocess(result, n, childtc);
+  }
+
   public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
     if (prefix != null) {
         print(prefix, w, tr);

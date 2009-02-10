@@ -14,6 +14,7 @@ import java.util.List;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Catch;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
@@ -44,12 +45,15 @@ import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.When;
+import polyglot.ext.x10.ast.X10Cast;
+import polyglot.ext.x10.ast.X10New_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
@@ -67,6 +71,7 @@ import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.constraint.XRoot;
 
 /**
  * Visitor to desugar the AST before code gen.
@@ -172,7 +177,7 @@ public class Desugarer extends ContextVisitor {
         // TODO: factor out common functionality with the closure() method
         ClosureDef cDef = xts.closureDef(c.body().position(), fDef.typeContainer(),
                 fDef.methodContainer(), fDef.returnType(),
-                fDef.typeParameters(), fDef.formalTypes(),
+                fDef.typeParameters(), fDef.formalTypes(), fDef.thisVar(),
                 fDef.formalNames(), fDef.guard(), fDef.throwTypes());
         Closure closure = (Closure) xnf.Closure(c.body().position(), c.typeParameters(),
                 c.formals(), c.guard(), c.returnType(),
@@ -223,7 +228,7 @@ public class Desugarer extends ContextVisitor {
         ClosureDef cDef = xts.closureDef(pos, Types.ref(context.currentClass()),
                 Types.ref(context.currentCode().asInstance()),
                 Types.ref(retType), Collections.EMPTY_LIST,
-                fTypes, fNames, null, Collections.EMPTY_LIST);
+                fTypes, (XRoot) null, fNames, null, Collections.EMPTY_LIST);
         Closure closure = (Closure) xnf.Closure(pos, Collections.EMPTY_LIST,
                 parms, null, xnf.CanonicalTypeNode(pos, retType),
                 Collections.EMPTY_LIST, body).closureDef(cDef).type(xts.closureAnonymousClassDef(cDef).asType());
@@ -427,7 +432,7 @@ public class Desugarer extends ContextVisitor {
             }
             Type intRail = xts.ValRail(xts.Int());
             MethodInstance cnv = xts.findMethod(fType,
-                    xts.MethodMatcher(fType, CONVERT, Collections.singletonList(intRail), false),
+                    xts.MethodMatcher(fType, CONVERT, Collections.singletonList(intRail)),
                     context.currentClassDef());
             assert (cnv.flags().isStatic());
             index =
@@ -507,8 +512,8 @@ public class Desugarer extends ContextVisitor {
     // ++x -> x+=1 or --x -> x-=1
     private Expr unaryPre(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
-        Expr one = xnf.Cast(pos, xnf.CanonicalTypeNode(pos, ret),
-                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this)).type(ret);
+        Expr one = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, ret),
+                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), X10Cast.ConversionType.PRIMITIVE).type(ret);
         Assign.Operator asgn = (op == X10Unary_c.PRE_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         Expr a = assign(pos, e, asgn, one);
         if (e instanceof X10Call)
@@ -519,20 +524,19 @@ public class Desugarer extends ContextVisitor {
     // x++ -> ((t:Int)=>t-1)(x+=1) or x-- -> ((t:Int)=>t+1)(x-=1)
     private Expr unaryPost(Position pos, X10Unary_c.Operator op, Expr e) throws SemanticException {
         Type ret = e.type();
-        Expr one = xnf.Cast(pos, xnf.CanonicalTypeNode(pos, ret),
-                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this)).type(ret);
+        CanonicalTypeNode retTN = xnf.CanonicalTypeNode(pos, ret);
+        Expr one = xnf.X10Cast(pos, retTN,
+                (Expr) xnf.IntLit(pos, IntLit.INT, 1).typeCheck(this), X10Cast.ConversionType.PRIMITIVE).type(ret);
         Assign.Operator asgn = (op == X10Unary_c.POST_INC) ? Assign.ADD_ASSIGN : Assign.SUB_ASSIGN;
         X10Binary_c.Operator bin = (op == X10Unary_c.POST_INC) ? X10Binary_c.SUB : X10Binary_c.ADD;
         Name t = Name.make("t");
         LocalDef fDef = xts.localDef(pos, xts.NoFlags(), Types.ref(ret), t);
         Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, xts.NoFlags()),
-                xnf.CanonicalTypeNode(pos, ret), xnf.Id(pos, t)).localDef(fDef);
+                retTN, xnf.Id(pos, t)).localDef(fDef);
         List<Formal> parms = Arrays.asList(new Formal[] { formal });
-        Block block = xnf.Block(pos, xnf.Return(pos,
-                xnf.Cast(pos, xnf.CanonicalTypeNode(pos, ret),
-                        xnf.Binary(pos,
-                                xnf.Local(pos, xnf.Id(pos, t)).localInstance(fDef.asInstance()).type(ret),
-                                bin, one).type(ret)).type(ret)));
+        Expr tLocal = xnf.Local(pos, xnf.Id(pos, t)).localInstance(fDef.asInstance()).type(ret);
+        X10Cast cast = (X10Cast) xnf.X10Cast(pos, retTN, xnf.Binary(pos, tLocal, bin, one).type(ret), X10Cast.ConversionType.PRIMITIVE).type(ret);
+        Block block = xnf.Block(pos, xnf.Return(pos, cast));
         Closure c = closure(pos, e.type(), parms, block);
         X10MethodInstance ci = c.closureDef().asType().applyMethod();
         Expr incr = assign(pos, e, asgn, one);

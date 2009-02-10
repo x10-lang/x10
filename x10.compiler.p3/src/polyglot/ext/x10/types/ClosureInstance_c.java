@@ -135,6 +135,11 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     }
     
     @Override
+    public ClosureInstance returnTypeRef(Ref<? extends Type> returnType) {
+        return (ClosureInstance) super.returnTypeRef(returnType);
+    }
+    
+    @Override
     public ClosureInstance formalTypes(List<Type> formalTypes) {
         return (ClosureInstance) super.formalTypes(formalTypes);
     }
@@ -165,7 +170,7 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
 
     public List<Type> typeParameters() {
 	    if (this.typeParameters == null) {
-		    this.typeParameters = new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
+		    return new TransformingList<Ref<? extends Type>, Type>(x10Def().typeParameters(), new DerefTransform<Type>());
 	    }
 
 	    return typeParameters;
@@ -181,7 +186,7 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
     
     public List<LocalInstance> formalNames() {
 	if (this.formalNames == null) {
-	    this.formalNames = new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
+	    return new TransformingList(x10Def().formalNames(), new Transformation<LocalDef,LocalInstance>() {
 		public LocalInstance transform(LocalDef o) {
 		    return o.asInstance();
 		}

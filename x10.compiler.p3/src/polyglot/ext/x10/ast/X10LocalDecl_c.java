@@ -10,6 +10,7 @@ package polyglot.ext.x10.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.ArrayInit;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
@@ -75,7 +76,32 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	    if (this.type().type().isVoid())
 	        throw new SemanticException("Local variable cannot have type " + this.type().type() + ".", position());
-	    return super.typeCheck(tc);
+
+	    TypeSystem ts = tc.typeSystem();
+
+	    try {
+	        ts.checkLocalFlags(flags.flags());
+	    }
+	    catch (SemanticException e) {
+	        throw new SemanticException(e.getMessage(), position());
+	    }
+
+	    if (init != null) {
+	            try {
+	                Expr newInit = X10New_c.attemptCoercion(tc, init, this.type().type());
+	                return this.init(newInit);
+	            }
+	            catch (SemanticException e) {
+	                throw new SemanticException("The type of the variable " +
+	                                            "initializer \"" + init.type() +
+	                                            "\" does not match that of " +
+	                                            "the declaration \"" +
+	                                            type.type() + "\".",
+	                                            init.position());
+	            }
+	    }
+
+	    return this;
 	}
 
 	    @Override

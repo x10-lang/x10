@@ -14,18 +14,15 @@ import java.util.List;
 
 import polyglot.ast.Binary;
 import polyglot.ast.Unary;
-import polyglot.ext.x10.types.X10TypeSystem_c.TypeDefMatcher;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
-import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.PrimitiveType;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -36,6 +33,7 @@ import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
 import x10.constraint.XLit;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
 /**
@@ -62,8 +60,8 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
-    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes);
-    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, boolean tryCoercionFunction);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes);
 
     ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes);
 
@@ -110,9 +108,6 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type Ref();
 
-    // Type X10Object(); // x10.lang.Object
-    Type Object(); // java.lang.Object -- not really visible to programmers
-
     XLit FALSE();
 
     XLit TRUE();
@@ -133,25 +128,25 @@ public interface X10TypeSystem extends TypeSystem {
 
     /**
      * Create a closure instance.
-     * 
-     * @param pos
-     *                Position of the closure.
-     * @param container
-     *                Containing type of the closure.
      * @param returnType
      *                The closure's return type.
      * @param argTypes
      *                The closure's formal parameter types.
+     * @param thisVar TODO
+     * @param pos
+     *                Position of the closure.
+     * @param container
+     *                Containing type of the closure.
      * @param excTypes
      *                The closure's exception throw types.
      */
     ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer, Ref<? extends Type> returnType,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard,
-	    List<Ref<? extends Type>> throwTypes);
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
+	    Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes);
 
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard,
-	    List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
+	    Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
     /**
      * Return the ClassType object for the x10.lang.Array interface.
@@ -272,8 +267,8 @@ public interface X10TypeSystem extends TypeSystem {
     boolean equalTypeParameters(List<Type> a, List<Type> b);
 
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
-	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard,
-	    List<Ref<? extends Type>> excTypes);
+	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
+	    Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 
@@ -308,15 +303,13 @@ public interface X10TypeSystem extends TypeSystem {
 
     List<ClosureType> getFunctionSupertypes(Type type);
 
-    boolean isImplicitCastValid(Type fromType, Type toType, boolean tryCoercionFunction);
-
     boolean isInterfaceType(Type toType);
 
     ClosureType closureType(Position position, Ref<? extends Type> typeRef, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> formalTypes,
             List<LocalDef> formalNames, Ref<XConstraint> ref, List<Ref<? extends Type>> throwTypes);
 
     
-    List<Type> upperBounds(Type t);
+    List<Type> upperBounds(Type t, boolean includeObject);
     List<Type> lowerBounds(Type t);
 
     Type expandMacros(Type arg);
@@ -326,11 +319,6 @@ public interface X10TypeSystem extends TypeSystem {
 
 //    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
 //    Type coerceType(Type fromType, Type toType);
-    
-    /**
-     * Run fromType through a coercion functions to toType, if possible, returning each stepwise conversion along the way.  If the result is non-empty, the first element is the fromType and the last element is the toType.
-     */
-    List<Type> converterChain(Type fromType, Type toType);
 
     boolean clausesConsistent(XConstraint c1, XConstraint c2);
 
@@ -341,5 +329,22 @@ public interface X10TypeSystem extends TypeSystem {
     boolean consistent(Type t);
 
 	SubtypeSolver subtypeSolver();
+
+    boolean isReferenceOrInterfaceType(Type t);
+
+    boolean isSubtypeWithValueInterfaces(Type t1, Type t2, List<XTerm> atoms);
+
+    boolean isParameterType(Type toType);
+
+    boolean isImplicitNumericCastValid(Type fromType, Type toType);
+
+    Type Region();
+
+    Type Iterator(Type formalType);
+    
+    X10FieldDef fieldDef(Position pos,
+            Ref<? extends StructType> container, Flags flags,
+            Ref<? extends Type> type, Name name, XRoot thisVar);
+    
 
 }

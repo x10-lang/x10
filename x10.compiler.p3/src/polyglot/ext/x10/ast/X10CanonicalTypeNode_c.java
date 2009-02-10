@@ -129,9 +129,9 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    ConstrainedType ct = (ConstrainedType) t;
 	    Type base = Types.get(ct.baseType());
 	    
-	    if (base instanceof ParameterType) {
-	        throw new SemanticException("Invalid type; cannot constrained a type parameter.", position());
-	    }
+//	    if (base instanceof ParameterType) {
+//	        throw new SemanticException("Invalid type; cannot constrain a type parameter.", position());
+//	    }
 	    
 	    checkType(base);
 	}

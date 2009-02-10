@@ -20,9 +20,13 @@ import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Node_c;
 import polyglot.ast.TypeCheckFragmentGoal;
+import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.frontend.SetResolverGoal;
+import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
@@ -40,6 +44,8 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 /** An immutable representation of a dependent type constraint.
  * The corresponding syntax is [T](e){x: T; c}
@@ -186,7 +192,10 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
         	throw new SemanticError("The type of the dependent clause, "+ condition 
         			+ ", must be boolean and not " + t + ".", position());
 
-        XConstraint xc = ts.xtypeTranslator().constraint(formals, condition);
+//        if (cd instanceof ClosureDef) {
+//            thisVar = null;
+//        }
+        XConstraint xc = ts.xtypeTranslator().constraint(formals, condition, (X10Context) tc.context());
         ((LazyRef<XConstraint>) xconstraint).update(xc);
         
         return this;

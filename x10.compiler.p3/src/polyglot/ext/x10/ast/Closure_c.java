@@ -25,9 +25,10 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Precedence;
 import polyglot.ast.Term;
-import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.X10ClassDef;
+import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.main.Report;
@@ -58,6 +59,8 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XRoot;
+import x10.constraint.XTerms;
 
 public class Closure_c extends Expr_c implements Closure {
     List<TypeParamNode> typeParameters;
@@ -206,7 +209,7 @@ public class Closure_c extends Expr_c implements Closure {
     public Node buildTypesOverride(TypeBuilder tb) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tb.typeSystem();
 
-        ClassDef ct = tb.currentClass();
+        X10ClassDef ct = (X10ClassDef) tb.currentClass();
         assert ct != null;
 
         Def def = tb.def();
@@ -222,11 +225,21 @@ public class Closure_c extends Expr_c implements Closure {
         
         CodeDef code = (CodeDef) def;
         
+        // Get the enclosing this variable.
+        XRoot thisVar; // = XTerms.makeLocal(XTerms.makeFreshName("this"));
+        
+        if (code instanceof X10MemberDef) {
+            thisVar = ((X10MemberDef) code).thisVar();
+        }
+        else {
+            thisVar = ct.thisVar();
+        }
+        
         ClosureDef mi = ts.closureDef(position(), Types.ref(ct.asType()), Types.ref(code.asInstance()), returnType.typeRef(),
                                       Collections.<Ref<? extends Type>>emptyList(),
                                          Collections.<Ref<? extends Type>>emptyList(),
-                                         Collections.<LocalDef>emptyList(),
-                                         null, Collections.<Ref<? extends Type>>emptyList());
+                                         thisVar,
+                                         Collections.<LocalDef>emptyList(), null, Collections.<Ref<? extends Type>>emptyList());
 
         if (returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
@@ -266,6 +279,9 @@ public class Closure_c extends Expr_c implements Closure {
         mi.setTypeParameters(typeParameters);
         mi.setFormalTypes(formalTypes);
         mi.setThrowTypes(throwTypes);
+        
+        if (code instanceof X10MemberDef)
+        assert mi.thisVar() == ((X10MemberDef) code).thisVar();
 
         if (returnType instanceof UnknownTypeNode && body == null)
         	throw new SemanticException("Cannot infer return type; closure has no body.", position());
@@ -284,7 +300,7 @@ public class Closure_c extends Expr_c implements Closure {
     @Override
     public Context enterChildScope(Node child, Context c) {
         // We should have entered the method scope already.
-        assert c.currentCode() == this.closureDef() : child.position().nameAndLineString();
+        assert c.currentCode() == this.closureDef();
         
         if (child != body()) {
             // Push formals so they're in scope in the types of the other formals.

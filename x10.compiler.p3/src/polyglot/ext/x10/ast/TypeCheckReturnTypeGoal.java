@@ -17,10 +17,14 @@ public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal {
 
 	@Override
 	public boolean runTask() {
+	    TypeSystem ts = v.typeSystem();
+	    if (r.locked()) {
+	        ((Ref<Type>) r).update(ts.unknownType(n.position()));
+	        return mightFail;
+	    }
 		boolean result = super.runTask();
 		if (result) {
 			if (r.getCached() instanceof UnknownType) {
-				TypeSystem ts = v.typeSystem();
 				// Body had no return statement.  Set to void.
 				((Ref<Type>) r).update(ts.Void());
 			}

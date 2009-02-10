@@ -11,14 +11,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Binary;
-import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.types.SubtypeSolver.XSubtype_c;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
@@ -38,6 +39,7 @@ import polyglot.types.DerefTransform;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
@@ -68,13 +70,15 @@ import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.Predicate2;
 import polyglot.util.TransformingList;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -89,9 +93,238 @@ import x10.constraint.XVar;
  */
 public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
+        Map<Object,Type> tcache = new HashMap<Object,Type>();
+    
 	public X10TypeSystem_c() {
 		super();
 	}
+	
+	@Override
+	public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
+            String fullNameWithThis = "<init>#this";
+            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+            XRoot thisVar = XTerms.makeLocal(thisName);
+
+	    return initializerDef(pos, container, flags, thisVar);
+	}
+	
+	public InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XRoot thisVar) {
+	    assert_(container);
+	    return new X10InitializerDef_c(this, pos, container, flags, thisVar);
+	}
+	
+	public List<MethodInstance> methods(StructType t, Name name, List<Type> typeParams, List<Type> argTypes, XRoot thisVar) {
+	        List<MethodInstance> l = new ArrayList<MethodInstance>();
+	        for (Iterator<MethodInstance> i = t.methodsNamed(name).iterator(); i.hasNext(); ) {
+	           X10MethodInstance mi = (X10MethodInstance) i.next();
+	            
+	            List<XVar> ys = new ArrayList<XVar>(2);
+	            List<XRoot> xs = new ArrayList<XRoot>(2);
+	            
+	            X10MethodInstance_c. buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
+	            final XVar[] y = ys.toArray(new XVar[ys.size()]);
+	            final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+	            
+	            mi = X10MethodInstance_c. fixThis((X10MethodInstance) mi, y, x);
+	            
+	            if (mi.typeParameters().size() != typeParams.size()) {
+	                continue;
+	            }
+	            
+	            List<XTerm> env = new ArrayList<XTerm>();
+	            for (int j = 0; j < mi.typeParameters().size(); j++) {
+	                Type p1 = mi.typeParameters().get(j);
+	                Type p2 = typeParams.get(j);
+	                env.add(XTerms.makeEquals(xtypeTranslator().trans(p1), xtypeTranslator().trans(p2)));
+//	                env.add(xtypeTranslator().transSubtype(p1, p2));
+//	                env.add(xtypeTranslator().transSubtype(p2, p1));
+	            }
+	            
+	            if (CollectionUtil.allElementwise(mi.formalTypes(), argTypes, new X10TypeEquals(env))) {
+	                l.add(mi);
+	            }
+	        }
+	        
+	        return l;
+	    }
+	
+	       public static class X10TypeEquals implements Predicate2<Type> {
+	           List<XTerm> env;
+	           X10TypeEquals(List<XTerm> env) {
+	               this.env = env;
+	           }
+	           public boolean isTrue(Type o, Type p) {
+	               X10TypeSystem_c xts = (X10TypeSystem_c) o.typeSystem();
+	               return xts.typeEquals(o, p, env);
+	           }
+	       }
+
+
+	    /**
+	          * Assert that <code>ct</code> implements all abstract methods required;
+	          * that is, if it is a concrete class, then it must implement all
+	          * interfaces and abstract methods that it or it's superclasses declare, and if 
+	          * it is an abstract class then any methods that it overrides are overridden 
+	          * correctly.
+	          */
+	         public void checkClassConformance(ClassType ct) throws SemanticException {
+	                 if (ct.flags().isAbstract()) {
+	                         // don't need to check interfaces or abstract classes           
+	                         return;
+	                 }
+
+	                 // build up a list of superclasses and interfaces that ct 
+	                 // extends/implements that may contain abstract methods that 
+	                 // ct must define.
+	                 List<Type> superInterfaces = abstractSuperInterfaces(ct);
+
+	                 // check each abstract method of the classes and interfaces in
+	                 // superInterfaces
+	                 for (Iterator<Type> i = superInterfaces.iterator(); i.hasNext(); ) {
+	                     Type it = i.next();
+	                     if (it instanceof StructType) {
+	                         StructType rt = (StructType) it;
+	                         for (Iterator<MethodInstance> j = rt.methods().iterator(); j.hasNext(); ) {
+	                             MethodInstance mi = j.next();
+	                             if (!mi.flags().isAbstract()) {
+	                                 // the method isn't abstract, so ct doesn't have to
+	                                 // implement it.
+	                                 continue;
+	                             }
+
+	                             MethodInstance mj = findImplementingMethod(ct, mi);
+	                             if (mj == null) {
+	                                 if (!ct.flags().isAbstract()) {
+	                                     throw new SemanticException(ct.fullName() + " should be " +
+	                                                                 "declared abstract; it does not define " +
+	                                                                 mi.signature() + ", which is declared in " +
+	                                                                 rt.toClass().fullName(), ct.position());
+	                                 }
+	                                 else { 
+	                                     // no implementation, but that's ok, the class is abstract.
+	                                 }
+	                             }
+	                             else if (!typeEquals(ct, mj.container()) && !typeEquals(ct, mi.container())) {
+	                                 try {
+	                                     // check that mj can override mi, which
+	                                     // includes access protection checks.
+	                                     checkOverride((MethodInstance) mj.container(ct), (MethodInstance) mi.container(ct));
+//	                                     checkOverride(ct, mj, mi);
+	                                 }
+	                                 catch (SemanticException e) {
+	                                     // change the position of the semantic
+	                                     // exception to be the class that we
+	                                     // are checking.
+	                                     throw new SemanticException(e.getMessage(),
+	                                                                 ct.position());
+	                                 }
+	                             }
+	                             else {
+	                                 // the method implementation mj or mi was
+	                                 // declared in ct. So other checks will take
+	                                 // care of access issues
+	                             }
+	                         }
+	                     }
+	                 }
+	         }
+	         
+	         public void
+	         checkOverride(ClassType ct, MethodInstance mi0, MethodInstance mj0) throws SemanticException {
+                    X10MethodInstance mi = (X10MethodInstance) mi0;
+                    X10MethodInstance mj = (X10MethodInstance) mj0;
+                    
+                    XRoot thisVar = XTerms.makeLocal(XTerms.makeFreshName("this"));
+                    
+                    List<XVar> ys = new ArrayList<XVar>(2);
+                    List<XRoot> xs = new ArrayList<XRoot>(2);
+                    
+                    X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
+                    X10MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+                    X10MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+                    final XVar[] y = ys.toArray(new XVar[ys.size()]);
+                    final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+                    
+                    mi = X10MethodInstance_c.fixThis(mi, y, x);
+                    mj = X10MethodInstance_c.fixThis(mj, y, x);
+                    
+                    // Force evaluation to help debugging.
+                    mi.returnType();
+                    mj.returnType();
+                    
+                    ((X10MethodInstance_c) mi).checkOverride(mj, true);
+                    
+                    X10Flags miF = X10Flags.toX10Flags(mi.flags());
+                    X10Flags mjF = X10Flags.toX10Flags(mj.flags());
+                    
+                    // Report.report(1, "X10MethodInstance_c: " + this + " canOVerrideImpl " + mj);
+                    if (! miF.hasAllAnnotationsOf(mjF)) {
+                        if (Report.should_report(Report.types, 3))
+                            Report.report(3, mi.flags() + " is more liberal than " +
+                                          mj.flags());
+                        throw new SemanticException(mi.signature() + " in " + mi.container() +
+                                                    " cannot override " + 
+                                                    mj.signature() + " in " + mj.container() + 
+                                                    "; attempting to assign weaker " + 
+                                                    "behavioral annotations", 
+                                                    mi.position());
+                    }
+	         }
+
+        public MethodInstance findImplementingMethod(ClassType ct, MethodInstance jmi, boolean includeAbstract) {
+            X10MethodInstance mi = (X10MethodInstance) jmi;
+            XRoot thisVar = ((X10ClassDef) ct.def()).thisVar(); //  XTerms.makeLocal(XTerms.makeFreshName("this"));
+            
+            List<XVar> ys = new ArrayList<XVar>(2);
+            List<XRoot> xs = new ArrayList<XRoot>(2);
+            X10MethodInstance_c.buildSubst((X10MethodInstance) mi, ys, xs, thisVar);
+            X10MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
+            final XVar[] y = ys.toArray(new XVar[ys.size()]);
+            final XRoot[] x = xs.toArray(new XRoot[ys.size()]);
+
+            mi = X10MethodInstance_c.fixThis((X10MethodInstance) mi, y, x);
+
+            StructType curr = ct;
+                while (curr != null) {
+                        List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalTypes(), thisVar);
+                        for (Iterator<MethodInstance> k = possible.iterator(); k.hasNext(); ) {
+                                MethodInstance mj = k.next();
+                                if ((includeAbstract || !mj.flags().isAbstract()) && 
+                                                ((isAccessible(mi, ct.def()) && isAccessible(mj, ct.def())) || 
+                                                                isAccessible(mi, mj.container().toClass().def()))) {
+                                        // The method mj may be a suitable implementation of mi.
+                                        // mj is not abstract, and either mj's container 
+                                        // can access mi (thus mj can really override mi), or
+                                        // mi and mj are both accessible from ct (e.g.,
+                                        // mi is declared in an interface that ct implements,
+                                        // and mj is defined in a superclass of ct).
+                                        return mj;                    
+                                }
+                        }
+                        if (curr.typeEquals(mi.container())) {
+                                // we've reached the definition of the abstract 
+                                // method. We don't want to look higher in the 
+                                // hierarchy; this is not an optimization, but is 
+                                // required for correctness. 
+                                break;
+                        }
+                        
+                        if (curr instanceof ObjectType) {
+                            ObjectType ot = (ObjectType) curr;
+                            if (ot.superClass() instanceof StructType) {
+                                curr = (StructType) ot.superClass();
+                            }
+                            else {
+                                curr = null;
+                            }
+                        }
+                        else {
+                            curr = null;
+                        }
+                }
+                return null;
+        }
+
 	
 	public AnnotatedType AnnotatedType(Position pos, Type baseType, List<Type> annotations) {
 	    return new AnnotatedType_c(this, pos, baseType, annotations);
@@ -197,18 +430,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         UPPER, LOWER, EQUAL
     }
     
-    public List<Type> upperBounds(Type t) {
-        return bounds(t, Bound.UPPER);
+    public List<Type> upperBounds(Type t, boolean includeObject) {
+        return bounds(t, Bound.UPPER, includeObject);
     }
     public List<Type> lowerBounds(Type t) {
-        return bounds(t, Bound.LOWER);
+        return bounds(t, Bound.LOWER, false);
     }
     public List<Type> equalBounds(Type t) {
-        return bounds(t, Bound.EQUAL);
+        return bounds(t, Bound.EQUAL, false);
     }
 
-	/** List the statically known supertypes or subtypes. */
-	protected List<Type> bounds(Type t, Bound dir) {
+	/** List the statically known supertypes or subtypes. 
+	 * @param includeObject TODO*/
+	protected List<Type> bounds(Type t, Bound dir, boolean includeObject) {
 	    List<Type> result = new ArrayList<Type>();
 	    Set<Type> visited = new HashSet<Type>();
 	    
@@ -297,8 +531,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    }
 	    
 	    if (dir == Bound.UPPER && result.isEmpty())
-	        return Collections.singletonList(Object());
-	    
+	        if (includeObject)
+	            return Collections.<Type>singletonList(Object());
+	        else
+	            return Collections.<Type>emptyList();
+
 	    return new ArrayList<Type>(result);
 	}
 	
@@ -308,7 +545,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	    Set<FieldInstance> candidates = new HashSet<FieldInstance>();
 
-	    for (Type t : upperBounds(container)) {
+	    for (Type t : upperBounds(container, true)) {
 	        Set<FieldInstance> fs = super.findFields(t, matcher);
 	        candidates.addAll(fs);
 	    }
@@ -323,7 +560,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	@Override
 	public Type findMemberType(Type container, Name name, ClassDef currClass) throws SemanticException {
 	    // FIXME: check for ambiguities
-	    for (Type t : upperBounds(container)) {
+	    for (Type t : upperBounds(container, true)) {
 	        try {
 	            return super.findMemberType(t, name, currClass);
 	        }
@@ -376,7 +613,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    assert sup.x10Def().typeParameters().size() == typeArgs.size() : def + ", " + sup + ", " + typeArgs;
 	    sup = sup.typeArguments(typeArgs);
 	    
-	    cd.superType(Types.ref(Ref())); // Closures are ref types.
+	    cd.superType(Types.ref(Value())); // Closures are values.
 	    cd.addInterface(Types.ref(sup));
 	    
 	    return cd;
@@ -423,7 +660,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    
 	    cd.kind(ClassDef.TOP_LEVEL);
 	    cd.superType(null); // interfaces have no superclass
-	    cd.flags(Flags.PUBLIC.Abstract().Interface());
+	    cd.flags(X10Flags.toX10Flags(Flags.PUBLIC.Abstract().Interface()).Value());
 
 	    final List<Ref<? extends Type>> typeParams = new ArrayList<Ref<? extends Type>>();
 	    final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
@@ -454,9 +691,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
             ClosureType ct = (ClosureType) cd.asType();
             xts.systemResolver().install(fullName, ct);
 	    
+            String fullNameWithThis = fullName + "#this";
+            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+            XRoot thisVar = XTerms.makeLocal(thisName);
+
 	    X10MethodDef mi = methodDef(pos, Types.ref(ct), Flags.PUBLIC.Abstract(),
 	                                Types.ref(rt), Name.make("apply"), typeParams, argTypes,
-	                                dummyLocalDefs(argTypes), null, Collections.EMPTY_LIST, null);
+	                                thisVar, dummyLocalDefs(argTypes), null, Collections.EMPTY_LIST, null);
 	    cd.addMethod(mi);
 	    
 	    return cd;
@@ -517,8 +758,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	            if (mi instanceof MacroType) {
 	                MacroType xmi = (MacroType) mi;
 	                Type c = container != null ? container : xmi.container();
-	                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-	                    return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, false); // no implicit coercions!
+	                if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size()) {
+	                    // no implicit coercions!
+	                    MacroType result = X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes);
+	                    return result; 
+	                }
 	            }
 	        }
 	        return null;
@@ -529,7 +773,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    }
 	}
 	
-	protected List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher, ClassDef currClass)
+	public List<MacroType> findAcceptableTypeDefs(Type container, TypeDefMatcher matcher, ClassDef currClass)
 	    throws SemanticException {
 	    assert_(container);
 	    
@@ -551,7 +795,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    LinkedList<Type> typeQueue = new LinkedList<Type>();
 	    
 	    // Get the upper bound of the container.
-	    typeQueue.addAll(upperBounds(container));
+	    typeQueue.addAll(upperBounds(container, true));
 
 	    while (! typeQueue.isEmpty()) {
 	        Type t = typeQueue.removeFirst();
@@ -566,8 +810,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	            visitedTypes.add(type);
 
 	            if (Report.should_report(Report.types, 2))
-	                Report.report(2, "Searching type " + type + " for method " +
-	                              matcher.signature());
+	                Report.report(2, "Searching type " + type + " for method " + matcher.signature());
 
 	            for (Iterator<Type> i = type.typeMembers().iterator(); i.hasNext(); ) {
 	                Type ti = i.next();
@@ -590,8 +833,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	                    if (isAccessible(mi, currClass)) {
 	                        if (Report.should_report(Report.types, 3)) {
-	                            Report.report(3, "->acceptable: " + mi + " in "
-	                                          + mi.container());
+	                            Report.report(3, "->acceptable: " + mi + " in " + mi.container());
 	                        }
 
 	                        acceptable.add(mi);
@@ -602,9 +844,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                        unacceptable.add(mi);
 	                        if (error == null) {
 	                            error = new NoMemberException(NoMemberException.METHOD,
-	                                                          "Method " + mi.signature() +
-	                                                          " in " + container +
-	                            " is inaccessible."); 
+	                                                          "Method " + mi.signature() + " in " + container + " is inaccessible."); 
 	                        }
 	                    }
 
@@ -614,8 +854,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                }
 
 	                if (error == null) {
-	                    error = new SemanticException("Type definition " + mi.name() +
-	                                                  " in " + container +
+	                    error = new SemanticException("Type definition " + mi.name() + " in " + container +
 	                                                  " cannot be instantiated with arguments " + matcher.argumentString() + ".");
 	                }
 	            }
@@ -631,13 +870,11 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	            typeQueue.addAll(ot.interfaces());
 	        }
 	    }
-	    
+
 	    if (error == null) {
-		error = new SemanticException("No type defintion found in "
-		                            + container +
-		                              " for " + matcher.signature() + ".");
+	        error = new SemanticException("No type defintion found in " + container + " for " + matcher.signature() + ".");
 	    }
-	    
+
 	    if (acceptable.size() == 0) {
 	    	throw error;
 	    }
@@ -667,6 +904,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    
 	    public int compare(T p1, T p2) {
 	        int cmp = super.compare(p1, p2);
+	        
+	        if (true)
+	        return cmp;
+	        
 	        if (cmp == 0)
 	            return 0;
 
@@ -681,21 +922,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 if (((Matcher) matcher) instanceof X10MethodMatcher) {
                     actuals = ((X10MethodMatcher) (Matcher) matcher).arguments();
                 }
-                
+
                 // Check if conversions are needed.
-                
-                for (int i = 0; i < p1.formalTypes().size(); i++) {
-                    Type t0 = actuals.get(i);
-                    Type t1 = p1.formalTypes().get(i);
-                    Type t2 = p2.formalTypes().get(i);
-                    if (! t0.isSubtype(t1)) {
-                        convert1 = true;
-                    }
-                    if (! t0.isSubtype(t2)) {
-                        convert2 = true;
+                if (actuals != null) {
+                    for (int i = 0; i < p1.formalTypes().size(); i++) {
+                        Type t0 = actuals.get(i);
+                        Type t1 = p1.formalTypes().get(i);
+                        Type t2 = p2.formalTypes().get(i);
+                        if (! t0.isSubtype(t1)) {
+                            convert1 = true;
+                        }
+                        if (! t0.isSubtype(t2)) {
+                            convert2 = true;
+                        }
                     }
                 }
-                
+
                 if (convert1 && convert2)
                     // Both need a coercion.
                     return cmp;
@@ -823,7 +1065,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    assert_(container);
 
 	    // FIXME: look for ambiguities.
-	    for (Type bound : upperBounds(container)) {
+	    for (Type bound : upperBounds(container, true)) {
 	        Named n = classContextResolver(bound, currClass).find(MemberTypeMatcher(container, name));
 
 	        if (n instanceof PathType) {
@@ -910,59 +1152,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return refType_;
 	}
 
-	private BoxType boxType_;
+	private X10ParsedClassType boxType_;
 	public Type Box() {
 		if (boxType_ == null)
-			boxType_ = createBoxType();
+		    boxType_ = (X10ParsedClassType) load("x10.lang.Box"); 
 		return boxType_;
 	}
 	
-	public BoxType createBoxType() {
-	    X10ClassDef cd = new X10ClassDef_c(this, null) {
-		{
-		    // Initialize asType to BoxType so we don't return a X10ParsedClassType instead.
-		    asType = new BoxType_c(this);
-		}
-	    };
-
-	    cd.name(Name.make("Box"));
-	    cd.position(Position.COMPILER_GENERATED);
-	    cd.kind(ClassDef.TOP_LEVEL);
-	    cd.flags(Flags.PUBLIC.Final());
-	    try {
-		cd.setPackage(Types.ref(packageForName(QName.make("x10.lang"))));
-	    }
-	    catch (SemanticException e) {
-		throw new InternalCompilerError(e);
-	    }
-	    
-	    if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
-		ParameterType param = new ParameterType_c(this, Position.COMPILER_GENERATED, Name.make("T"), Types.ref(cd));
-		cd.addTypeParameter(param, TypeProperty.Variance.COVARIANT);
-	    }
-	    else {
-		TypeProperty prop = new TypeProperty_c(this, Position.COMPILER_GENERATED, Types.ref((X10ClassType) cd.asType()), Name.make("T"), TypeProperty.Variance.INVARIANT);
-		cd.addTypeProperty(prop);
-	    }
-
-//	    X10FieldDef fi = (X10FieldDef) fieldDef(Position.COMPILER_GENERATED, Types.ref(cd.asType()), Flags.FINAL.Public(), Types.ref(pt), "value");
-//	    fi.setProperty();
-//	    cd.addField(fi);
-
-//	    ParameterType pt = new ParameterType_c(this, Position.COMPILER_GENERATED, "T", null);
-//	    XConstraint c = new XConstraint_c();
-//	    c.addBinding(prop.asVar(), param);
-//	    c.addBinding(xtypeTranslator().trans(c.self(), fi), value);
-//	    Type returnType = X10TypeMixin.xclause(Types.ref(cd.asType()), c);
-//	    X10ConstructorDef ci = constructorDef(Position.COMPILER_GENERATED, Types.ref(cd.asType()), Flags.PUBLIC, Types.ref(returnType), params, formals, Collections.EMPTY_LIST);
-//	    cd.addConstructor(ci);
-	    
-	    systemResolver().install(QName.make(cd.fullName()), cd.asType());
-
-	    return (BoxType) cd.asType();
-	}
-	
-
 	protected ClassType valueType_;
 	public Type Value() {
 		if (valueType_ == null)
@@ -970,79 +1166,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return valueType_;
 	}
 
-	@Deprecated
-	private X10ParsedClassType createRefType() {
-	    X10ClassDef cd = (X10ClassDef) createClassDef();
-	    
-	    cd.name(Name.make("Ref"));
-	    cd.position(Position.COMPILER_GENERATED);
-	    cd.kind(ClassDef.TOP_LEVEL);
-	    cd.flags(Flags.PUBLIC);
-	    
-	    cd.superType(null);
-	    
-	    X10ParsedClassType O = (X10ParsedClassType) Object();
-	    cd.addInterface(Types.ref(O));
-	    
-	    cd.addConstructor(defaultConstructor(Position.COMPILER_GENERATED, Types.ref(cd.asType())));
-
-	    // Copy the methods from x10.lang.Object, making them native
-	    for (MethodInstance mi : O.methods()) {
-		MethodDef md = mi.def();
-		md = (MethodDef) md.copy();
-		md.setFlags(md.flags().clearAbstract().Native());
-		md.setContainer(Types.ref(cd.asType()));
-		cd.addMethod(md);
-	    }
-
-	    try {
-		cd.setPackage(Types.ref(packageForName(QName.make("x10.lang"))));
-	    }
-	    catch (SemanticException e) {
-	    }
-	    
-	    systemResolver().install(QName.make(cd.fullName()), cd.asType());
-
-	    return (X10ParsedClassType) cd.asType();
-	}
-	
-	@Deprecated
-	private X10ParsedClassType createValueType() {
-	    X10ClassDef cd = (X10ClassDef) createClassDef();
-	    
-	    cd.name(Name.make("Value"));
-	    cd.position(Position.COMPILER_GENERATED);
-	    cd.kind(ClassDef.TOP_LEVEL);
-	    cd.flags(X10Flags.VALUE.Public());
-	    
-	    cd.superType(null);
-	    
-	    X10ParsedClassType O = (X10ParsedClassType) Object();
-	    cd.addInterface(Types.ref(O));
-	    
-	    cd.addConstructor(defaultConstructor(Position.COMPILER_GENERATED, Types.ref(cd.asType())));
-	    
-	    // Copy the methods from x10.lang.Object, making them native
-	    for (MethodInstance mi : O.methods()) {
-		MethodDef md = mi.def();
-		md = (MethodDef) md.copy();
-		md.setFlags(md.flags().clearAbstract().Native());
-		md.setContainer(Types.ref(cd.asType()));
-		cd.addMethod(md);
-	    }
-
-	    try {
-		cd.setPackage(Types.ref(packageForName(QName.make("x10.lang"))));
-	    }
-	    catch (SemanticException e) {
-		throw new InternalCompilerError(e);
-	    }
-	    
-	    systemResolver().install(QName.make(cd.fullName()), cd.asType());
-	    
-	    return (X10ParsedClassType) cd.asType();
-	}
-	
 	public Type boxOf(Ref<? extends Type> base) {
 		return boxOf(Position.COMPILER_GENERATED, base);
 	}
@@ -1063,7 +1186,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	    List<ClosureType> l = new ArrayList<ClosureType>();
 	    
-	    for (Type bound : upperBounds(t)) {
+	    for (Type bound : upperBounds(t, false)) {
 	        if (bound instanceof ClosureType)
 	            l.add((ClosureType) bound);
 
@@ -1084,8 +1207,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 
 	public boolean isBox(Type t) {
-	    return X10TypeMixin.baseType(t) instanceof BoxType;
-//	    return hasSameClassDef(t, this.Box());
+	    return hasSameClassDef(t, this.Box());
 	}
 	
 	public boolean isInterfaceType(Type t) {
@@ -1096,12 +1218,110 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return false;
 	}
 	
-	public boolean isReferenceType(Type t) {
-	    return isX10BaseSubtype(t, Ref()) ;
+	static enum Kind {
+	    NEITHER,
+	    EITHER,
+	    REFERENCE,
+	    VALUE,
 	}
 	
-	public boolean isValueType(Type t) {
-	    return isX10BaseSubtype(t, Value());
+	public Kind kind(Type t) {
+	    t = X10TypeMixin.baseType(t);
+            if (t instanceof ClosureType)
+                return Kind.VALUE;
+            if (t instanceof ClassType) {
+                ClassType ct = (ClassType) t;
+                if (ct.isAnonymous()) {
+                    if (ct.superClass() != null)
+                        return kind(ct.superClass());
+                    else if (ct.interfaces().size() > 0)
+                        return kind(ct.interfaces().get(0));
+                    else
+                        throw new InternalCompilerError(t + " must have either a superclass or a single superinterface.");
+                }
+                if (X10Flags.toX10Flags(ct.flags()).isValue())
+                    return Kind.VALUE;
+                if (X10Flags.toX10Flags(ct.flags()).isInterface())
+                    return Kind.EITHER;
+                else
+                    return Kind.REFERENCE;
+            }
+            if (t instanceof ParameterType) {
+                Kind k = Kind.EITHER;
+                for (Type t2 : bounds(t, Bound.UPPER, false)) {
+                    Kind k2 = kind(t2);
+                    if (k == Kind.NEITHER)
+                        ;
+                    else if (k == k2)
+                        ;
+                    else if (k2 == Kind.EITHER)
+                        ;
+                    else if (k == Kind.EITHER && k2 == Kind.VALUE)
+                        k = Kind.VALUE;
+                    else if (k == Kind.EITHER && k2 == Kind.REFERENCE)
+                        k = Kind.REFERENCE;
+                    else
+                        k = Kind.NEITHER;
+                }
+                return k;
+            }
+            return Kind.NEITHER;
+	}
+	
+	public boolean isParameterType(Type t) {
+	    t = X10TypeMixin.baseType(t);
+	    return t instanceof ParameterType;
+	}
+	
+	public boolean isReferenceOrInterfaceType(Type t) {
+            Kind kind = kind(t);
+            return kind == Kind.REFERENCE || kind == Kind.EITHER;
+//	    t = X10TypeMixin.baseType(t);
+//            if (t instanceof ClosureType)
+//                return false;
+//	    return isReferenceType(t) || isInterfaceType(t);
+	}
+	
+	public boolean isReferenceType(Type t) {
+	    return kind(t) == Kind.REFERENCE;
+//	    t = X10TypeMixin.baseType(t);
+//	    if (t instanceof ClosureType)
+//	        return false;
+//	    if (t instanceof ClassType) {
+//	        ClassType ct = (ClassType) t;
+//	        if (ct.isAnonymous()) {
+//	            if (ct.superClass() != null)
+//	                return isReferenceType(ct.superClass());
+//	            else if (ct.interfaces().size() > 0)
+//	                return isReferenceType(ct.interfaces().get(0));
+//	            else
+//	                return false;
+//	        }
+//	        return !X10Flags.toX10Flags(ct.flags()).isValue();
+//	    }
+//	    return false;
+//	    return isX10BaseSubtype(t, Ref());
+	}
+	
+	public  boolean isValueType(Type t) {
+	    return kind(t) == Kind.VALUE;
+//	    t = X10TypeMixin.baseType(t);
+////	    if (t instanceof ClosureType)
+////	        return true;
+//	    if (t instanceof ClassType) {
+//	        ClassType ct = (ClassType) t;
+//	        if (ct.isAnonymous()) {
+//	            if (ct.superClass() != null)
+//	                return isValueType(ct.superClass());
+//	            else if (ct.interfaces().size() > 0)
+//	                return isValueType(ct.interfaces().get(0));
+//	            else
+//	                return false;
+//	        }
+//	        return X10Flags.toX10Flags(ct.flags()).isValue();
+//	    }
+//	    return false;
+//	    return isX10BaseSubtype(t, Value());
 	}
 	
 //	public TypeDef BoxRefTypeDef() {
@@ -1227,7 +1447,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	
 	/** All flags allowed for an interface. */
 	public Flags legalInterfaceFlags() {
-		return X10Flags.toX10Flags(super.legalInterfaceFlags()).Safe();
+		return X10Flags.toX10Flags(super.legalInterfaceFlags()).Safe().Value();
 	}
 	
 	protected final X10Flags X10_INTERFACE_FLAGS = (X10Flags) legalInterfaceFlags();
@@ -1257,22 +1477,27 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	public MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 			List<Ref<? extends Type>> argTypes,
 			List<Ref<? extends Type>> excTypes) {
-		return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, dummyLocalDefs(argTypes), null, excTypes, null);
+	    
+            String fullNameWithThis = name + "#this";
+            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+            XRoot thisVar = XTerms.makeLocal(thisName);
+
+		return methodDef(pos, container, flags, returnType, name, Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, excTypes, null);
 	}
 	
 	public X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	        List<Ref<? extends Type>> typeParams,
 	        List<Ref<? extends Type>> argTypes,
+	        XRoot thisVar,
 	        List<LocalDef> formalNames,
-	        Ref<XConstraint> guard,
-	        List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
+	        Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
 	    assert_(container);
 	    assert_(returnType);
 	    assert_(typeParams);
 	    assert_(argTypes);
 	    assert_(excTypes);
 	    return new X10MethodDef_c(this, pos, container, flags,
-	                              returnType, name, typeParams, argTypes, formalNames, guard, excTypes, body);
+	                              returnType, name, typeParams, argTypes, thisVar, formalNames, guard, excTypes, body);
 	}
 	
 	/**
@@ -1312,8 +1537,8 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		}
 	}
 
-	public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
-	    return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, typeParams, argTypes, formalNames, guard, throwTypes);
+	public ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
+	    return new ClosureDef_c(this, p, typeContainer, methodContainer, returnType, typeParams, argTypes, thisVar, formalNames, guard, throwTypes);
 	}
 	
 	public ClosureType closureType(Position p, Ref<? extends Type> returnType, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
@@ -1499,6 +1724,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return X10TypeMixin.instantiate(Iterable(), index);
 	}
 	
+	public Type Iterator(Type index) {
+	    return X10TypeMixin.instantiate(Iterator(), index);
+	}
+	
 	protected ClassType iteratorType_;
 	public Type Iterator() {
 	    if (iteratorType_ == null)
@@ -1579,33 +1808,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return null;
 	}
 	
-//	private Type fixGenericType(Ref<? extends Type> base, X10ParsedClassType ct, boolean covariant) {
-//		X10ClassDef cd = (X10ClassDef) ct.def();
-//		
-//		if (base != null) {
-//			TypeProperty p = getFirstTypeProperty(cd);
-//			assert p != null;
-//			
-//			XConstraint c = new XConstraint_c();
-//			try {
-//				X10TypeSystem_c xts = this;
-//				if (covariant) {
-//					c.addAtom(xts.xtypeTranslator().transSubtype(p.asType(), base.get()));
-//				}
-//				else {
-//					c.addBinding(p.asVar(), xts.xtypeTranslator().trans(base.get()));
-//				}
-//			}
-//			catch (XFailure e) {
-//				throw new InternalCompilerError(e);
-//			}
-//			
-//			return X10TypeMixin.xclause(ct, c);
-//		}
-//		
-//		return ct;
-//	}
-	
 	protected ClassType arrayType_ = null;
 	public Type Array() {
 		if (arrayType_ == null)
@@ -1636,17 +1838,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			Ref<? extends Type> type, Name name) {
 		assert_(container);
 		assert_(type);
-		return new X10FieldDef_c(this, pos, container, flags, type, name);
+		
+	            String fullNameWithThis = name + "#this";
+	            XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+	            XRoot thisVar = XTerms.makeLocal(thisName);
+
+		return fieldDef(pos, container, flags, type, name, thisVar);
 	}
-	
-	public X10FieldDef propertyInstance(Position pos,
+
+	public X10FieldDef fieldDef(Position pos,
 	        Ref<? extends StructType> container, Flags flags,
-	        Ref<? extends Type> type, Name name) {
-		assert_(container);
-		assert_(type);
-		X10FieldDef fd = new X10FieldDef_c(this, pos, container, flags, type, name);
-		fd.setProperty();
-		return fd;
+	        Ref<? extends Type> type, Name name, XRoot thisVar) {
+	    assert_(container);
+	    assert_(type);
+	    return new X10FieldDef_c(this, pos, container, flags, type, name, thisVar);
 	}
 	
 	public static final boolean SUPPORT_UNSIGNED = false;
@@ -1687,82 +1892,20 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return super.isLongOrLess(t) || isUByte(t) || isUShort(t) || isUInt(t);
 	}
 
-	/** Return true if Box[t1] is a subtype of t2.  t1 must be a value type */
-	public boolean isUnboxedSubtype(Type t1, Type t2) {
-	    t1 = expandMacros(t1);
-	    t2 = expandMacros(t2);
-	    
-		if (t1 instanceof ConstrainedType && t2 instanceof ConstrainedType) {
-			ConstrainedType ct1 = (ConstrainedType) t1;
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			XConstraint c1 = ct1.constraint().get();
-			XConstraint c2 = ct2.constraint().get();
-			Type baseType1 = ct1.baseType().get();
-			Type baseType2 = ct2.baseType().get();
-
-			boolean result = true;
-			result &= isUnboxedSubtype(baseType1, baseType2);
-			try {
-				result &= c1.entails(c2);
-			}
-			catch (XFailure e) {
-				result = false;
-			}
-			
-			if (result)
-				return true;
-		}
-		else if (t1 instanceof ConstrainedType) {
-			ConstrainedType ct1 = (ConstrainedType) t1;
-			Type baseType1 = ct1.baseType().get();
-			
-			boolean result = true;
-			result &= isUnboxedSubtype(baseType1, t2);
-			if (result)
-				return true;
-		}
-		else if (t2 instanceof ConstrainedType) {
-			ConstrainedType ct2 = (ConstrainedType) t2;
-			Type baseType2 = ct2.baseType().get();
-			XConstraint c2 = ct2.constraint().get();
-			
-			boolean result = true;
-			result &= isUnboxedSubtype(t1, baseType2);
-			result &= c2.valid();
-			if (result)
-				return true;
-		}
-
-		if (t2.typeEquals(Object()) || t2.typeEquals(Ref())) {
-		    return true;
-		}
-		
-		if (isInterfaceType(t2))
-		    if (isSubtype(t1, t2))
-		        return true;
-		
-                if (t1 instanceof ParameterType || t1 instanceof PathType) {
-                    for (Type s1 : upperBounds(t1)) {
-                        if (isUnboxedSubtype(s1, t2))
-                            return true;
-                    }
-                }
-                if (t2 instanceof ParameterType || t2 instanceof PathType) {
-                    for (Type s2 : lowerBounds(t2)) {
-                        if (isUnboxedSubtype(t1, s2))
-                            return true;
-                    }
-                }
-		
-                return false;
-	}
-	
 	@Override
 	public boolean isSubtype(Type t1, Type t2) {
 	    return isSubtype(t1, t2, Collections.EMPTY_LIST);
 	}
-
+	
 	public boolean isSubtype(Type t1, Type t2, List<XTerm> env) {
+	    return isSubtype(t1, t2, env, false);
+	}
+	
+	public boolean isSubtypeWithValueInterfaces(Type t1, Type t2, List<XTerm> env) {
+	    return isSubtype(t1, t2, env, true);
+	}
+
+	public boolean isSubtype(Type t1, Type t2, List<XTerm> env, boolean allowValueInterfaces) {
 	    assert t1 != null;
 	    assert t2 != null;
 	    t1 = expandMacros(t1);
@@ -1771,7 +1914,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (t1 == t2)
 			return true;
 
-		if (t1.isNull() && (t2.isNull() || isReferenceType(t2) || isInterfaceType(t2))) {
+		if (t1.isVoid() || t2.isVoid())
+		    return false;
+
+		if (t1.isNull() && (t2.isNull() || isReferenceOrInterfaceType(t2))) {
 		    return true;
 		}
 		
@@ -1779,7 +1925,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    return false;
 		}
 		
-	        // DO NOT check if env.entails(t1 <: t2); it would be recursive
+		if (isValueType(t1) && isReferenceType(t2))
+		    return false;
+		
+		if (isValueType(t2) && isReferenceType(t1))
+		    return false;
+		
+		if (! allowValueInterfaces) {
+		    if (isValueType(t1) && isReferenceOrInterfaceType(t2))
+		        return false;
+		    
+		    if (isValueType(t2) && isReferenceOrInterfaceType(t1))
+		        return false;
+		}
+		
+		if (typeEquals(t1, t2))
+		    return true;
+
+		// DO NOT check if env.entails(t1 <: t2); it would be recursive
 		// Instead, iterate through the environment.
                 for (int i = 0; i < env.size(); i++) {
                     XTerm term = env.get(i);
@@ -1793,7 +1956,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                         XSubtype_c s = (XSubtype_c) term;
                         Type l = s.subtype();
                         Type r = s.supertype();
-                        if (isSubtype(t1, l, newEnv) && isSubtype(r, t2, newEnv)) {
+//                        if (typeEquals(t1, l) && typeEquals(t2, r)) {
+//                            return true;
+//                        }
+                        if (isSubtype(t1, l, newEnv, allowValueInterfaces) && isSubtype(r, t2, newEnv, allowValueInterfaces)) {
                             return true;
                         }
                     }
@@ -1804,10 +1970,16 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                         Type r = SubtypeSolver.getType(eq.right());
                         if (l == null || r == null)
                             continue;
-                        if (isSubtype(t1, l, newEnv) && isSubtype(r, t2, newEnv)) {
+//                        if (typeEquals(t1, l) && typeEquals(t2, r)) {
+//                            return true;
+//                        }
+//                        if (typeEquals(t1, r) && typeEquals(t2, l)) {
+//                            return true;
+//                        }
+                        if (isSubtype(t1, l, newEnv, allowValueInterfaces) && isSubtype(r, t2, newEnv, allowValueInterfaces)) {
                             return true;
                         }
-                        if (isSubtype(t1, r, newEnv) && isSubtype(l, t2, newEnv)) {
+                        if (isSubtype(t1, r, newEnv, allowValueInterfaces) && isSubtype(l, t2, newEnv, allowValueInterfaces)) {
                             return true;
                         }
                     }
@@ -1835,26 +2007,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
                 }
 
                 if (baseType1 != t1 || baseType2 != t2)
-                    if (isSubtype(baseType1, baseType2, env))
+                    if (isSubtype(baseType1, baseType2, env, allowValueInterfaces))
                         return true;
 
-		// if T implements I, Box[T] is a subtype of I
-		if (isBox(t1)) {
-		    Type boxed1 = X10TypeMixin.getParameterType(t1, 0);
-		    if (isValueType(boxed1)) {
-			if (isUnboxedSubtype(boxed1, t2))
-			    return true;
-		    }
-		    else {
-			if (isSubtype(boxed1, t2, env))
-			    return true;
-		    }
-		}
-
-		if (t1 instanceof PrimitiveType && typeEquals(t2, Object(), env)) {
-		    return true;
-		}
-		
 		if (t1 instanceof PrimitiveType && typeEquals(t2, Value(), env)) {
 		    return true;
 		}
@@ -1878,10 +2033,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			    TypeProperty.Variance v = def.variances().get(i);
 			    switch (v) {
 			    case COVARIANT:
-				if (! isSubtype(a1, a2, env)) return false;
+				if (! isSubtype(a1, a2, env, allowValueInterfaces)) return false;
 				break;
 			    case CONTRAVARIANT:
-				if (! isSubtype(a2, a1, env)) return false;
+				if (! isSubtype(a2, a1, env, allowValueInterfaces)) return false;
 				break;
 			    case INVARIANT:
 				if (! typeEquals(a1, a2, env)) return false;
@@ -1891,18 +2046,58 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			return true;
 		    }
 
-		    return descendsFrom(t1, t2);
+	                Type child = t1;
+	                Type ancestor = t2;
+
+//	                if (child instanceof ClassType) {
+//	                    if (X10Flags.toX10Flags(((ClassType) child).flags()).isValue())
+//	                        if (typeEquals(ancestor, Value())) {
+//	                            return true;
+//	                        }
+//	                    if (! X10Flags.toX10Flags(((ClassType) child).flags()).isValue())
+//	                        if (typeEquals(ancestor, Ref())) {
+//	                            return true;
+//	                        }
+//	                }
+
+	                if (child instanceof ObjectType) {
+	                    ObjectType childRT = (ObjectType) child;
+	                    
+	                    // Check subclass relation.
+	                    if (childRT.superClass() != null) {
+	                        if (isSubtype(childRT.superClass(), ancestor, env, allowValueInterfaces)) {
+	                            return true;
+	                        }
+	                    }
+	                    
+//	                    if (baseType2 instanceof ClosureType && baseType1 instanceof ClassType && ((ClassType) baseType1).isAnonymous())
+//	                        System.out.println("closure " + baseType2);
+	                    boolean allowValueInterfacesHere = allowValueInterfaces;
+	                    
+	                    if (isReferenceOrInterfaceType(childRT))
+	                        allowValueInterfacesHere = true;
+	                    
+	                    // Next check interfaces.
+	                    for (Type parentType : childRT.interfaces()) {
+	                        boolean tryIt = false;
+	                        if (allowValueInterfacesHere || isValueType(parentType)) {
+	                            if (isSubtype(parentType, ancestor, env, allowValueInterfaces)) {
+	                                return true;
+	                            }
+	                        }
+	                    }
+	                }
 		}
 		
                 if (t1 instanceof ParameterType || t1 instanceof PathType) {
-                    for (Type s1 : upperBounds(t1)) {
-                        if (isSubtype(s1, t2, env))
+                    for (Type s1 : upperBounds(t1, allowValueInterfaces)) {
+                        if (isSubtype(s1, t2, env, allowValueInterfaces))
                             return true;
                     }
                 }
                 if (t2 instanceof ParameterType || t2 instanceof PathType) {
                     for (Type s2 : lowerBounds(t2)) {
-                        if (isSubtype(t1, s2, env))
+                        if (isSubtype(t1, s2, env, allowValueInterfaces))
                             return true;
                     }
                 }
@@ -2050,9 +2245,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		}
 		
 		// For now, can always cast to or from a parameter type.
-		if (fromType instanceof ParameterType || toType instanceof ParameterType) {
-		    return true;
-		}
+//		if (fromType instanceof ParameterType || toType instanceof ParameterType) {
+//		    return true;
+//		}
 		
 		Type t1 = X10TypeMixin.baseType(fromType);
 		Type t2 = X10TypeMixin.baseType(toType);
@@ -2077,162 +2272,68 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		if (isReferenceType(baseType1) && isValueType(baseType2))
 		    return false;
 		
+		if (isParameterType(baseType1) || isParameterType(baseType2))
+		    return true;
+		
 		return super.isCastValid(baseType1, baseType2);
 	}
 
 	@Override
 	public boolean descendsFrom(Type child, Type ancestor) {
-		// Strip off the constraints, expand macros.
-	        child = X10TypeMixin.baseType(child);
-	        ancestor = X10TypeMixin.baseType(ancestor);
-		
-		if (child instanceof PrimitiveType) {
-		    if (typeEquals(ancestor, Object()) || typeEquals(ancestor, Value()))
-			return true;
-		}
-		
-		return super.descendsFrom(child, ancestor);
-	}
-	
-	/** Return list of conversion functions needed to convert from fromType to toType */
-	public List<Type> converterChain(Type fromType, Type toType) {
-	    X10TypeSystem ts = this;
-	    
-	    Type coerced = coerceType(fromType, toType);
-	    if (coerced != null) {
-	        return CollectionUtil.list(fromType, coerced);
+	    // Strip off the constraints, expand macros.
+	    child = X10TypeMixin.baseType(child);
+	    ancestor = X10TypeMixin.baseType(ancestor);
+
+	    if (child.isVoid())
+	        return false;
+
+	    if (child instanceof PrimitiveType) {
+	        if (hasSameClassDef(ancestor, Value()))
+	            return true;
 	    }
-            
-            class Helper {
-                List<Type> attempt(X10ClassType ct, int i, List<Type>[] alternatives, Type fromType, List<Type> accum, Type toType, boolean changed) {
-                    if (i < alternatives.length) {
-                        accum.add(ct.typeArguments().get(i));
-                        {
-                            List<Type> result = attempt(ct, i+1, alternatives, fromType, accum, toType, changed);
-                            if (result.size() > 0)
-                                return result;
-                        }
-                        for (Type ti : alternatives[i]) {
-                            accum.set(i, ti);
-                            List<Type> result = attempt(ct, i+1, alternatives, fromType, accum, toType, true);
-                            if (result.size() > 0)
-                                return result;
-                        }
-                    }
-                    else if (changed) {
-                        X10ClassType ct2 = ct.typeArguments(accum);
-                        Type newFrom = X10TypeMixin.xclause(ct2, X10TypeMixin.xclause(fromType));
-                        List<Type> result = converterChain(newFrom, toType);
-                        if (result.size() > 0) {
-                            List<Type> l = new ArrayList<Type>();
-                            l.add(fromType);
-                            l.addAll(result);
-                            return l;
-                        }
-                    }
-                    
-                    return Collections.EMPTY_LIST;
-                }
 
-                void addSuperTypes(List<Type> l, Type t) {
-                    Type b = X10TypeMixin.baseType(t);
-                    if (b != t)
-                        l.add(b);
-                    if (t instanceof ObjectType) {
-                        ObjectType o = (ObjectType) t;
-                        if (o.superClass() != null) {
-                            l.add(o.superClass());
-                            addSuperTypes(l, o.superClass());
-                        }
-                        for (Type ti : o.interfaces()) {
-                            l.add(ti);
-                            addSuperTypes(l, ti);
-                        }
-                    }
-                }
-            }
-            
-            // If the fromType has a covariant parameter,
-            // try supertypes of the corresponding argument type.
-            Type baseFrom = X10TypeMixin.baseType(fromType);
-            
-            if (baseFrom instanceof X10ClassType) {
-                X10ClassType ct = (X10ClassType) baseFrom;
-                if (ct.typeArguments().size() > 0) {
-                    List<Type>[] alternatives = new List[ct.typeArguments().size()];
-                    List<Type> newArgs = new ArrayList<Type>(ct.typeArguments().size());
-                    for (int i = 0; i < ct.typeArguments().size(); i++) {
-                        TypeProperty.Variance v = ct.x10Def().variances().get(i);
-                        Type ti = ct.typeArguments().get(i);
-                        switch (v) {
-                        case COVARIANT:
-                            alternatives[i] = new ArrayList<Type>();
-                            new Helper().addSuperTypes(alternatives[i], ti);
-                            break;
-                        default:
-                            alternatives[i] = Collections.EMPTY_LIST;
-                            break;                              
-                        }
-                    }
-                    // Now, try all possible combinations of the alternative type arguments.
-                    List<Type> l = new Helper().attempt(ct, 0, alternatives, fromType, new ArrayList<Type>(ct.typeArguments().size()), toType, false);
-                    if (l.size() > 0)
-                        return l;
-                }
-            }
-
-            return Collections.EMPTY_LIST;
-	}
-
-	private Type coerceType(Type fromType, Type toType) {
-	    X10TypeSystem ts = this;
-
-	    if (ts.isPrimitiveConversionValid(fromType, toType)) {
-	        return toType;
+	    if (hasSameClassDef(child, ancestor)) {
+	        return true;
 	    }
-	    
-	    if (isBox(toType) && isValueType(fromType)) {
-	        BoxType box = (BoxType) X10TypeMixin.baseType(toType);
-	        Type t = coerceType(fromType, box.arg());
-	        
-	        // Don't create box of an anonymous type.
-	        if (t instanceof X10ClassType) {
-	            X10ClassType fromCT = (X10ClassType) t;
-	            if (fromCT.isAnonymous()) {
-	                if (fromCT.superClass() != null)
-	                    return boxOf(Types.ref(fromCT.superClass()));
-	                else if (fromCT.interfaces().size() > 0)
-	                    return boxOf(Types.ref(fromCT.interfaces().get(0)));
-	                else
-	                    return ts.Object();
+
+	    if (child instanceof ObjectType) {
+	        ObjectType childRT = (ObjectType) child;
+
+	        if (hasSameClassDef(ancestor, Object())) {
+	            return true;
+	        }
+
+	        if (hasSameClassDef(childRT, Object())) {
+	            return false;
+	        }
+
+	        // Check subclass relation.
+	        if (childRT.superClass() != null) {
+	            if (descendsFrom(childRT.superClass(), ancestor)) {
+	                return true;
 	            }
 	        }
 
-	        if (t != null) {
-	            return boxOf(Types.ref(t));
+	        // Next check interfaces.
+	        for (Type parentType : childRT.interfaces()) {
+	            if (descendsFrom(parentType, ancestor)) {
+	                return true;
+	            }
 	        }
+
+	        return false;
 	    }
 
-            // Can convert if there is a static method toType.make(fromType)
-            try {
-                MethodInstance mi = ts.findMethod(toType, ts.MethodMatcher(toType, Name.make("$convert"), Collections.singletonList(fromType), false),
-                                                  (ClassDef) null);
-                if (mi.flags().isStatic() && mi.returnType().isSubtype(toType)) {
-                    return mi.returnType();
-                }
-//                System.out.println("no match " + mi);
-            }
-            catch (SemanticException e) {
-//                System.out.println(e);
-            }
-
-	    return null;
+	    return false;
 	}
-	
+
+	public boolean isImplicitNumericCastValid(Type fromType, Type toType) {
+	    return isPrimitiveConversionValid(fromType, toType);
+	}
 
 	@Override
 	public boolean isImplicitCastValid(Type fromType, Type toType) {
-	    return isImplicitCastValid(fromType, toType, true);
+	    return isSubtype(fromType, toType);
 	}
 	
 	public Type expandMacros(Type t) {
@@ -2250,24 +2351,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        return X10TypeMixin.xclause(ebase, c);
 	    }
 	    return t;
-	}
-	
-	public boolean isImplicitCastValid(Type fromType, Type toType, boolean tryCoercionFunction) {
-	    if (fromType.isVoid() || toType.isVoid()) {
-	        return false;
-	    }
-	    
-	    if (isSubtype(fromType, toType)) {
-	        return true;
-	    }
-	    
-	    if (tryCoercionFunction) {
-	        List<Type> l = converterChain(fromType, toType);
-	        if (l.size() > 0)
-	            return true;
-	    }
-	    
-	    return false;
 	}
 	
 	public boolean entails(XConstraint c1, XConstraint c2) {
@@ -2331,9 +2414,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	    // Do not allow conversions to change signedness.
 	    if (isLong(baseType1))
-	        return isLong(baseType2);
+	        return isLong(baseType2) || isDouble(baseType2);
 	    if (isInt(baseType1))
-	        return isInt(baseType2) || isLong(baseType2) || isDouble(baseType2);
+	        return isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
 	    if (isShort(baseType1))
 	        return isShort(baseType2) || isInt(baseType2) || isLong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
 	    if (isByte(baseType1))
@@ -2341,9 +2424,9 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 	    if (SUPPORT_UNSIGNED) {
 	        if (isULong(baseType1))
-	            return isULong(baseType2);
+	            return isULong(baseType2) || isDouble(baseType2);
 	        if (isUInt(baseType1))
-	            return isUInt(baseType2) || isULong(baseType2) || isDouble(baseType2);
+	            return isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
 	        if (isUShort(baseType1))
 	            return isUShort(baseType2) || isUInt(baseType2) || isULong(baseType2) || isFloat(baseType2) || isDouble(baseType2);
 	        if (isUByte(baseType1))
@@ -2472,18 +2555,18 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    return X10TypeMixin.instantiate(Rail(), arg);
 	}
 	
-	public Type ValRail(Type arg) {
+	public	Type ValRail(Type arg) {
 	    return X10TypeMixin.instantiate(ValRail(), arg);
 	}
 
-	public Type Settable(Type domain, Type range) {
+	public	Type Settable(Type domain, Type range) {
 	    return X10TypeMixin.instantiate(Settable(), domain, range);
 	}
 	
-	public boolean isSettable(Type me) { 
+	public  boolean isSettable(Type me) { 
 	    return hasSameClassDef(me, Settable()); 
 	}
-	public boolean isX10Array(Type me) { 
+	public  boolean isX10Array(Type me) { 
 		return hasSameClassDef(me, Array()); 
 	}
 	
@@ -2491,37 +2574,37 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		return me instanceof ConstrainedType;
 	}
 
-	public boolean isClock(Type me) {
+	public  boolean isClock(Type me) {
 		return isSubtype(me, Clock()); 
 	}
-	public boolean isPoint(Type me) {
+	public  boolean isPoint(Type me) {
 		return isSubtype(me, Point()); 
 	}
-	public boolean isPlace(Type me) {
+	public  boolean isPlace(Type me) {
 		return isSubtype(me, Place());
 	}
-	public boolean isRegion(Type me) {
+	public  boolean isRegion(Type me) {
 		return isSubtype(me, Region());
 	}
-	public boolean isDistribution(Type me) {
+	public  boolean isDistribution(Type me) {
 		return isSubtype(me, Dist());
 	}
-	public boolean isDistributedArray(Type me) {
+	public  boolean isDistributedArray(Type me) {
 		return isX10Array(me);
 	}
-	public boolean isComparable(Type me) {
+	public  boolean isComparable(Type me) {
 	    return isSubtype(me, Comparable());
 	}
-	public boolean isIterable(Type me) {
+	public  boolean isIterable(Type me) {
 	    return isSubtype(me, Iterable());
 	}
-	public boolean isIterator(Type me) {
+	public  boolean isIterator(Type me) {
 	    return isSubtype(me, Iterator());
 	}
-	public boolean isContains(Type me) {
+	public  boolean isContains(Type me) {
 	    return isSubtype(me, Contains());
 	}
-	public boolean isContainsAll(Type me) {
+	public  boolean isContainsAll(Type me) {
 	    return isSubtype(me, ContainsAll());
 	}
 	
@@ -2609,37 +2692,37 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	protected XLit NEG_ONE;
 	public XLit NEG_ONE() {
 	    if (NEG_ONE == null)
-		NEG_ONE = xtypeTranslator().trans(-1);
+		NEG_ONE=  xtypeTranslator().trans(-1);
 	    return NEG_ONE;
 	}
 	protected XLit ZERO;
 	public XLit ZERO() {
 	    if (ZERO == null)
-		ZERO = xtypeTranslator().trans(0);
+		ZERO=  xtypeTranslator().trans(0);
 	    return ZERO;
 	}
 	protected XLit ONE;
 	public XLit ONE() {
 	    if (ONE == null)
-		ONE = xtypeTranslator().trans(1);
+		ONE=  xtypeTranslator().trans(1);
 	    return ONE;
 	}
 	protected XLit TWO;
 	public XLit TWO() {
 	    if (TWO == null)
-		TWO = xtypeTranslator().trans(2);
+		TWO=  xtypeTranslator().trans(2);
 	    return TWO;
 	}
 	protected XLit THREE;
 	public XLit THREE() {
 	    if (THREE == null)
-		THREE = xtypeTranslator().trans(3);
+		THREE=  xtypeTranslator().trans(3);
 	    return THREE;
 	}
 	protected XLit NULL;
 	public XLit NULL() {
 	    if (NULL == null)
-		NULL = xtypeTranslator().transNull();
+		NULL=  xtypeTranslator().transNull();
 	    return NULL;
 	}
 
@@ -2807,12 +2890,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	@Override
 	public Type promote(Type t) throws SemanticException {
 	    Type pt = promote2(t);
-	    return X10TypeMixin.xclause(pt, (XConstraint) null);
+	    return X10TypeMixin.baseType(pt);
 	}
 	@Override
 	public Type promote(Type t1, Type t2) throws SemanticException {
 		Type pt = promote2(t1, t2);
-		return X10TypeMixin.xclause(pt, (XConstraint) null);
+		return X10TypeMixin.baseType(pt);
 	}
 	@Override
 	public Type leastCommonAncestor(Type type1, Type type2)
@@ -2822,7 +2905,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    assert_(type2);
 	    try { 
 	        if (typeBaseEquals(type1, type2)) {
-	            Type base1 = X10TypeMixin.xclause(type1, (XConstraint) null);
+	            Type base1 = X10TypeMixin.baseType(type1);
 	            return base1;
 	        }
 
@@ -2890,7 +2973,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        }
 	    }
 	    finally {
-	        //Report.report(1, "X10TypeSystem_c: The LCA of " + type1 + " " + type2 + " is " + result + ".");
+	        //Report.report(1, "X10TypeSystem_c: The LCA of "  + type1 + " " + type2 + " is " + result + ".");
 	    }
 	    
 	    throw new SemanticException("No least common ancestor found for types \"" + type1 +
@@ -2902,7 +2985,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        assert_(type2);
 		if (type1 == type2) return true;
 		if (type1 == null || type2 == null) return false;
-	        return typeEquals(X10TypeMixin.xclause(type1, (XConstraint) null), X10TypeMixin.xclause(type2, (XConstraint) null));
+	        return typeEquals(X10TypeMixin.baseType(type1), X10TypeMixin.baseType(type2));
 	    }
 
 	 public boolean typeDeepBaseEquals(Type type1, Type type2) {
@@ -2938,7 +3021,12 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		 assert_(container);
 		 assert_(argTypes);
 		 assert_(throwTypes);
-		 return constructorDef(pos, container, flags, container, Collections.EMPTY_LIST, argTypes, dummyLocalDefs(argTypes), null, throwTypes);
+
+		 String fullNameWithThis = "this#this";
+		 XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
+		 XRoot thisVar = XTerms.makeLocal(thisName);
+
+		 return constructorDef(pos, container, flags, container, Collections.EMPTY_LIST, argTypes, thisVar, dummyLocalDefs(argTypes), null, throwTypes);
 	 }
 	
 	 public X10ConstructorDef constructorDef(Position pos,
@@ -2946,14 +3034,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 			 Flags flags, Ref<? extends ClassType> returnType, 
 			 List<Ref<? extends Type>> typeParams,
 			 List<Ref<? extends Type>> argTypes,
-			 List<LocalDef> formalNames,
-			 Ref<XConstraint> guard, 
-			 List<Ref<? extends Type>> excTypes) {
+			 XRoot thisVar,
+			 List<LocalDef> formalNames, 
+			 Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes) {
 		 assert_(container);
 		 assert_(argTypes);
 		 assert_(excTypes);
 		 return new X10ConstructorDef_c(this, pos, container, flags,
-				 returnType, typeParams, argTypes, formalNames, guard, excTypes);
+				 returnType, typeParams, argTypes, thisVar, formalNames, guard, excTypes);
 	 }
 
 	public void addAnnotation(X10Def o, Type annoType, boolean replace) {
@@ -3010,14 +3098,14 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
         XConstraint cr = X10TypeMixin.realX(r);
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
         XConstraint c = xts.xtypeTranslator().binaryOp(op, cl, cr);
-        return X10TypeMixin.xclause(t, c);
+        return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
     }
 
     public Type performUnaryOperation(Type t, Type a, polyglot.ast.Unary.Operator op) {
         XConstraint ca = X10TypeMixin.realX(a);
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
         XConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
-        return X10TypeMixin.xclause(t, c);
+        return X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
     }
 
 	/**
@@ -3047,19 +3135,21 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	@Override
-	protected List<MethodInstance> findAcceptableMethods(Type container, MethodMatcher matcher, ClassDef currClass)
+	public List<MethodInstance> findAcceptableMethods(Type container, MethodMatcher matcher, ClassDef currClass)
                throws SemanticException {
+	    
+	    X10MethodMatcher m = (X10MethodMatcher) matcher;
 
 	    List<MethodInstance> candidates = new ArrayList<MethodInstance>();
 
-	    for (Type t : upperBounds(container)) {
+	    for (Type t : upperBounds(container, true)) {
 	        List<MethodInstance> ms = super.findAcceptableMethods(t, matcher, currClass);
 	        candidates.addAll(ms);
 	    }
 
 	    return candidates;
 	}
-
+	
 	@Override
 	public X10MethodInstance findMethod(Type container, MethodMatcher matcher, ClassDef currClass) throws SemanticException {
 	    return (X10MethodInstance) super.findMethod(container, matcher, currClass);
@@ -3072,21 +3162,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes) {
-		return new X10MethodMatcher(container, name, argTypes, true);
-	    }
-
-	    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, boolean tryCoercionFunction) {
-		return new X10MethodMatcher(container, name, argTypes, tryCoercionFunction);
+		return new X10MethodMatcher(container, name, argTypes);
 	    }
 
 	    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
-		return new X10MethodMatcher(container, name, typeArgs, argTypes, true);
+		return new X10MethodMatcher(container, name, typeArgs, argTypes);
 	    }
 
-	    public X10MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, boolean tryCoercionFunction) {
-		return new X10MethodMatcher(container, name, typeArgs, argTypes, tryCoercionFunction);
-	    }
-	    
 	    public X10ConstructorMatcher ConstructorMatcher(Type container, List<Type> argTypes) {
 		return new X10ConstructorMatcher(container, argTypes);
 	    }
@@ -3098,7 +3180,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    }
 
 	    public static class X10FieldMatcher extends TypeSystem_c.FieldMatcher {
-		private X10FieldMatcher(Type container, Name name) {
+		protected X10FieldMatcher(Type container, Name name) {
 		    super(container, name);
 		}
 
@@ -3112,13 +3194,15 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    XVar v = X10TypeMixin.selfVar(c);
 		    if (v == null) v = new XConstraint_c().genEQV();
 		    X10TypeSystem ts = (X10TypeSystem) fi.typeSystem();
-		    XLocal oldThis = ts.xtypeTranslator().transThisWithoutTypeConstraint();
+		    XRoot oldThis = ts.xtypeTranslator().transThisWithoutTypeConstraint();
+		    if (XTypeTranslator.THIS_VAR)
+		        oldThis = fi.x10Def().thisVar();
 
 		    Type t = fi.type();
-		    Type newT = X10MethodInstance_c.subst(t, new XVar[] { v }, new XRoot[] { oldThis });
+		    Type newT = oldThis == null ? t : X10MethodInstance_c.subst(t, new XVar[] { v }, new XRoot[] { oldThis });
 		    
 		    Type rt = fi.rightType();
-		    Type newRT = X10MethodInstance_c.subst(rt, new XVar[] { v }, new XRoot[] { oldThis });
+		    Type newRT = oldThis == null ? rt : X10MethodInstance_c.subst(rt, new XVar[] { v }, new XRoot[] { oldThis });
 		    
 		    if (! ts.consistent(newT) || ! ts.consistent(newRT)) {
 		        throw new SemanticException("Type of field access is not consistent.");
@@ -3130,24 +3214,24 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 
 
 	public static class X10MethodMatcher extends TypeSystem_c.MethodMatcher {
-	    List<Type> typeArgs;
-	    boolean tryCoercionFunction;
+	    protected List<Type> typeArgs;
 
-	    private X10MethodMatcher(Type container, Name name, List<Type> argTypes, boolean tryCoercionFunction) {
-		this(container, name, Collections.EMPTY_LIST, argTypes, tryCoercionFunction);
+	    protected X10MethodMatcher(Type container, Name name, List<Type> argTypes) {
+	        this(container, name, Collections.EMPTY_LIST, argTypes);
 	    }
-            public List<Type> arguments() {
-                return argTypes;
-            }
-        private X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, boolean tryCoercionFunction) {
-		super(container, name, argTypes);
-		this.typeArgs = typeArgs;
-		this.tryCoercionFunction = tryCoercionFunction;
+
+	    protected X10MethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
+	        super(container, name, argTypes);
+	        this.typeArgs = typeArgs;
 	    }
-	    
+
+	    public List<Type> arguments() {
+	        return argTypes;
+	    }
+
 	    @Override
 	    public String argumentString() {
-		return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
+	        return (typeArgs.isEmpty() ? "" : "[" + CollectionUtil.listToString(typeArgs) + "]") + "(" + CollectionUtil.listToString(argTypes) + ")";
 	    }
 	    
 	    @Override
@@ -3160,7 +3244,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    X10MethodInstance xmi = (X10MethodInstance) mi;
 		    Type c = container != null ? container : xmi.container();
 		    if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, tryCoercionFunction);
+			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes);
 		}
 		return null;
 	    }
@@ -3191,19 +3275,19 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	}
 	
 	public static class X10ConstructorMatcher extends TypeSystem_c.ConstructorMatcher {
-	    List<Type> typeArgs;
-	    boolean tryCoercionFunction;
+	    protected List<Type> typeArgs;
 	    
-	    private X10ConstructorMatcher(Type container, List<Type> argTypes) {
+	    protected X10ConstructorMatcher(Type container, List<Type> argTypes) {
 		this(container, Collections.EMPTY_LIST, argTypes);
 	    }
-	    public List<Type> arguments() {
-	        return argTypes;
-	    }
-        private X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes) {
+	    
+	    protected X10ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes) {
 		super(container, argTypes);
 		this.typeArgs = typeArgs;
-		this.tryCoercionFunction = true;
+	    }
+	    
+	    public List<Type> arguments() {
+	        return argTypes;
 	    }
 	    
 	    @Override
@@ -3219,7 +3303,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		    X10ConstructorInstance xmi = (X10ConstructorInstance) ci;
 		    Type c = container != null ? container : xmi.container();
 		    if (typeArgs.isEmpty() || typeArgs.size() == xmi.typeParameters().size())
-			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes, tryCoercionFunction);
+			return X10MethodInstance_c.instantiate(xmi, c, typeArgs, argTypes);
 		}
 		return null;
 	    }

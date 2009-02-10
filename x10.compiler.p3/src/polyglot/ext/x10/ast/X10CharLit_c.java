@@ -12,8 +12,10 @@ package polyglot.ext.x10.ast;
 
 import polyglot.ast.CharLit_c;
 import polyglot.ast.Node;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.Position;
@@ -43,7 +45,7 @@ public class X10CharLit_c extends CharLit_c {
 		Type charType = xts.Char();
 			 
 			  XConstraint c = new XConstraint_c();
-			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType));
+			  XTerm term = xts.xtypeTranslator().trans(c, this.type(charType), (X10Context) tc.context());
 			  try {
 				  c.addSelfBinding(term);
 			  }

@@ -24,6 +24,7 @@ public class TypePropertyAsPathTypeTransform implements
 	public Type transform(TypeProperty def) {
 		X10TypeSystem xts = (X10TypeSystem) def.typeSystem();
 		try {
+		   assert false : "transThis should be thisVar";
 			XVar this_ = xts.xtypeTranslator().transThis(def.container().get());
 			return PathType_c.pathBase(def.asType(), this_, Types.get(def.container()));
 		}

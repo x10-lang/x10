@@ -21,12 +21,6 @@ import x10.constraint.XTerm;
  */
 public interface X10MethodInstance extends MethodInstance, X10ProcedureInstance<MethodDef>, X10Use<X10MethodDef> {
 	/**
-	 * Does this method instance represent a method on a java class?
-	 * @return
-	 */
-	boolean isJavaMethod();
-	
-	/**
 	 * Is this a method in a safe class, or a method marked as safe?
 	 * @return
 	 */
