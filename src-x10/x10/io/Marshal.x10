@@ -30,13 +30,13 @@ public interface Marshal[T] {
     public const DOUBLE: DoubleMarshal = new DoubleMarshal();
     public const LINE: LineMarshal = new LineMarshal();
     
-    public static value LineMarshal implements Marshal[String] {
+    public static class LineMarshal implements Marshal[String] {
         public def read(r: Reader): String throws IOException {
             val sb = new StringBuilder();
             var ch: Char;
             do {
                 ch = CHAR.read(r);
-            	sb.add(ch to Box[Char]);
+            	sb.add(ch);
             } while (ch != '\n');
             return sb.result();
         }
@@ -54,66 +54,95 @@ public interface Marshal[T] {
         }
     }
     
-    public static value BooleanMarshal implements Marshal[Boolean] {
+    public static class BooleanMarshal implements Marshal[Boolean] {
         public def read(r: Reader): Boolean throws IOException = r.read() != 0;
-        public def write(w: Writer, b: Boolean): Void throws IOException = w.write((b ? 0 : 1) to Byte);
+        public def write(w: Writer, b: Boolean): Void throws IOException = w.write((b ? 0 : 1) as Byte);
     }
     
-    public static value ByteMarshal implements Marshal[Byte] {
+    public static class ByteMarshal implements Marshal[Byte] {
         public def read(r: Reader): Byte throws IOException = r.read();
         public def write(w: Writer, b: Byte): Void throws IOException = w.write(b);
     }
 
-    public static value CharMarshal implements Marshal[Char] {
+    public static class CharMarshal implements Marshal[Char] {
         public def read(r: Reader): Char throws IOException {
             val b1 = r.read();
             if (b1 == -1) throw new EOFException();
-            if ((b1 & 0x80) == 0)
-                return b1 to Char;
-            val b2 = r.read();
-            return ((b2 << 8) | b1) to Char;
+            if ((b1 & 0xf8) == 0xf0) {
+                val b2 = r.read();
+                val b3 = r.read();
+                val b4 = r.read();
+                return (((b1 & 0x03) << 18) | ((b2 & 0x3f) << 12) | ((b3 & 0x3f) << 6) | (b4 & 0x3f)) as Char;
+            }
+            if ((b1 & 0xf0) == 0xe0) {
+                val b2 = r.read();
+                val b3 = r.read();
+                return (((b1 & 0x1f) << 12) | ((b2 & 0x3f) << 6) | (b3 & 0x3f)) as Char;
+            }
+            if ((b1 & 0xe0) == 0xc0) {
+                val b2 = r.read();
+                return (((b1 & 0x1f) << 6) | (b2 & 0x3f)) as Char;
+            }
+//            if ((b1 & 0x80) == 0)
+                return b1 as Char;
         }
         public def write(w: Writer, c: Char): Void throws IOException {
-            val i = c to Int;
-            val b2 = ((i >>> 8) & 0xff) to Byte;
-            val b1 = ((i & 0xff) to Byte) to Byte;
-            w.write(b1);
-            if ((b1 & 0x80) == 0 && b2 == 0)
+            val i = c as Int;
+            if ((i & 0xffffff80) == 0) {
+                w.write(i as Byte);
                 return;
-            w.write(b2);
+            }
+            if ((i & 0xfffff800) == 0) {
+                w.write(((i >>> 6) & 0x0000001f) | 0x000000c0 as Byte);
+                w.write((i & 0x0000003f) | 0x00000080 as Byte);
+                return;
+            }
+            if ((i & 0xffff0000) == 0) {
+                w.write(((i >>> 12) & 0x0000000f) | 0x000000e0 as Byte);
+                w.write(((i >>> 6) & 0x0000003f) | 0x00000080 as Byte);
+                w.write((i & 0x0000003f) | 0x00000080 as Byte);
+                return;
+            }
+            if ((i & 0xffe00000) == 0) {
+                w.write(((i >>> 18) & 0x00000007) | 0x000000f0 as Byte);
+                w.write(((i >>> 12) & 0x0000003f) | 0x00000080 as Byte);
+                w.write(((i >>> 6) & 0x0000003f) | 0x00000080 as Byte);
+                w.write((i & 0x0000003f) | 0x00000080 as Byte);
+                return;
+            }
         }
     }
     
-    public static value ShortMarshal implements Marshal[Short] {
+    public static class ShortMarshal implements Marshal[Short] {
         public def read(r: Reader): Short throws IOException {
             val b1 = r.read();
             val b2 = r.read();
-            return ((b1 << 8) | b2) to Short;
+            return ((b1 << 8) | b2) as Short;
         }
 
         public def write(w: Writer, s: Short): Void throws IOException {
-            val i = s to Int;
-            val b1 = ((i >>> 8) & 0xff) to Byte;
-            val b2 = (i & 0xff) to Byte;
+            val i = s as Int;
+            val b1 = ((i >>> 8) & 0xff) as Byte;
+            val b2 = (i & 0xff) as Byte;
             w.write(b1);
             w.write(b2);
         }
     }
     
-    public static value IntMarshal implements Marshal[Int] {
+    public static class IntMarshal implements Marshal[Int] {
         public def read(r: Reader): Int throws IOException {
             val b1 = r.read();
             val b2 = r.read();
             val b3 = r.read();
             val b4 = r.read();
-            return ((b1 << 24) | (b2 << 16) | (b3 << 8) | b4) to Int;
+            return ((b1 << 24) | (b2 << 16) | (b3 << 8) | b4) as Int;
         }
         
         public def write(w: Writer, i: Int): Void throws IOException {
-            val b1 = ((i >>> 24) & 0xff) to Byte;
-            val b2 = ((i >>> 16) & 0xff) to Byte;
-            val b3 = ((i >>> 8) & 0xff) to Byte;
-            val b4 = (i & 0xff) to Byte;
+            val b1 = ((i >>> 24) & 0xff) as Byte;
+            val b2 = ((i >>> 16) & 0xff) as Byte;
+            val b3 = ((i >>> 8) & 0xff) as Byte;
+            val b4 = (i & 0xff) as Byte;
             w.write(b1);
             w.write(b2);
             w.write(b3);
@@ -121,7 +150,7 @@ public interface Marshal[T] {
         }
     }
     
-    public static value LongMarshal implements Marshal[Long] {
+    public static class LongMarshal implements Marshal[Long] {
         public def read(r: Reader): Long throws IOException {
             var l: Long = 0l;
             for (var i: Int = 0; i < 8; i++) {
@@ -136,13 +165,13 @@ public interface Marshal[T] {
             var shift: int = 64;
             while (shift > 0) {
                 shift -= 8;
-                val b = ((l >>> shift) & 0xffL) to Byte;
+                val b = ((l >>> shift) & 0xffL) as Byte;
                 w.write(b);
             }
         }
     }
 
-    public static value FloatMarshal implements Marshal[Float] {
+    public static class FloatMarshal implements Marshal[Float] {
         public def read(r: Reader): Float throws IOException {
             val i = INT.read(r);
             return Float.fromIntBits(i);
@@ -153,7 +182,7 @@ public interface Marshal[T] {
         }
     }
     
-    public static value DoubleMarshal implements Marshal[Double] {
+    public static class DoubleMarshal implements Marshal[Double] {
         public def read(r: Reader): Double throws IOException {
             val l = LONG.read(r);
             return Double.fromLongBits(l);

@@ -21,7 +21,7 @@ public value Printer extends FilterWriter {
 
     private const NEWLINE = '\n'; // System.getProperty("line.separator");
 
-    public def println(): Void = print(NEWLINE to Box[Char]);
+    public def println(): Void = print(NEWLINE as Box[Char]);
     
     public def print(o: Object): Void {
         if (o == null)

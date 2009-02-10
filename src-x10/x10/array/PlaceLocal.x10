@@ -53,7 +53,7 @@ final value class PlaceLocal[T] implements ()=>T {
         }
 
         // make an immutable value copy
-        this.local = Rail.makeVal[T](rail.length, rail);
+        this.local = Rail.makeVal[T](rail.length, (i:Int) => rail(i));
     }
 
 }

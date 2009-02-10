@@ -6,12 +6,12 @@ package x10.array;
 
 /**
  * This class provides special-case efficient operations for
- * rectangluar regions, such as bounds checking and scanning.
+ * rectangular regions, such as bounds checking and scanning.
  *
  * @author bdlucas
  */
 
-final value class RectRegion extends PolyRegion {
+final value class RectRegion extends PolyRegion{rect} {
 
     val size: int;
 
@@ -180,7 +180,7 @@ final value class RectRegion extends PolyRegion {
         if (doChecks && (
             i0<min0 || i0>max0
         ))
-            throw err([i0] to Point);
+            throw err([i0] as Point);
     }
 
     def check(err:(Point)=>RuntimeException, i0: int, i1: int) {rank==2} {
@@ -188,7 +188,7 @@ final value class RectRegion extends PolyRegion {
             i0<min0 || i0>max0 ||
             i1<min1 || i1>max1
         ))
-            throw err([i0,i1] to Point);
+            throw err([i0,i1] as Point);
     }
 
     def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int) {rank==3} {
@@ -197,7 +197,7 @@ final value class RectRegion extends PolyRegion {
             i1<min1 || i1>max1 ||
             i2<min2 || i2>max2
         ))
-            throw err([i0,i1,i2] to Point);
+            throw err([i0,i1,i2] as Point);
     }
 
     def check(err:(Point)=>RuntimeException, i0: int, i1: int, i2: int, i3: int) {rank==4} {
@@ -207,7 +207,7 @@ final value class RectRegion extends PolyRegion {
             i2<min2 || i2>max2 ||
             i3<min3 || i3>max3
         ))
-            throw err([i0,i1,i2,i3] to Point);
+            throw err([i0,i1,i2,i3] as Point);
 
     }
 

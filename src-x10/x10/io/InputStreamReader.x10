@@ -54,7 +54,7 @@ value InputStreamReader extends Reader {
     public def read(): Byte throws IOException {
         val n: Int = stream.read();
         if (n == -1) throw new EOFException();
-        return n to Byte;
+        return n as Byte;
     }
     
     public def available(): Int throws IOException = stream.available();

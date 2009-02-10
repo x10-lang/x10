@@ -25,7 +25,7 @@ public abstract value class Dist(
 ) implements
     (Point/*(region.rank)*/)=>Place
     // (Place)=>Region XTENLANG-60
-    //, Iterable[Point(region.rank)]
+    , Iterable[Point(region.rank)]
 {
 
     property rank: int = region.rank;
@@ -212,7 +212,7 @@ public abstract value class Dist(
      *       ... p ...
      */
 
-    public def iterator(): Iterator[Point(rank)] = region.iterator();
+    public def iterator(): Iterator[Point{rank==region.rank}] = region.iterator() as Iterator[Point{rank==region.rank}];
 
 
     //

@@ -102,7 +102,6 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     }
 
     final private def init(pm: PolyMat, axis: int): void {
-
         // count
         var imin: int = 0;
         var imax: int = 0;
@@ -257,7 +256,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
         }
 
         public final def hasNext() = it.hasNext();
-        public final def next(): Point(rank) = it.next() to Point(rank);
+        public final def next(): Point(rank) = it.next() as Point(rank);
         public final def remove() = it.remove();
     }
 
@@ -271,7 +270,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
     // XXX move to Scanner
     //
 
-    public def this(r:Region) = this((r to PolyRegion).mat);
+    public def this(r:Region) = this((r as PolyRegion).mat);
 
     public def $for(body:(p:Point)=>void) {
         for (p:Point in this)
@@ -286,7 +285,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     public def loop(body:(Rail[int])=>void, p:Rail[int], q:Rail[int], r:int) {
         if (r<rank) {
-            val s = this to Region.Scanner;
+            val s = this as Region.Scanner;
             val max = s.max(r);
             val min = s.min(r);
             //U.xxx("r=" + r + " min=" + min + " max=" + max);
@@ -308,7 +307,7 @@ final public class PolyScanner/*(C:PolyMat, X:XformMat)*/ implements Region.Scan
 
     public def $times(that:Xform): PolyScanner {
         if (that instanceof PolyXform) {
-            val p = that to PolyXform;
+            val p = that as PolyXform;
             return new PolyScanner((C*p.T)||p.E, X*p.T);
         } else {
             throw new UnsupportedOperationException(this.className() + ".xform(" + that.className() + ")");

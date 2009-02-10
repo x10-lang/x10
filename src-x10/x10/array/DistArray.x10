@@ -94,7 +94,7 @@ final value class DistArray[T] extends BaseArray[T] {
     //
     //
 
-    def this(dist: Dist, val init: (Point)=>T): DistArray[T]{self.dist==dist} {
+    def this(dist: Dist, val init: Box[(Point)=>T]): DistArray[T]{self.dist==dist} {
 
         super(dist);
 
@@ -107,9 +107,11 @@ final value class DistArray[T] extends BaseArray[T] {
             val layout = layouts();
             val n = layout.size();
             val raw = Rail.makeVar[T](n);
-            if (init!=null)
+            if (init!=null) {
+                val f = at (init.location) { init as (Point) => T };
                 for (p:Point in dist.get(here))
-                    raw(layout.offset(p)) = init(p);
+                    raw(layout.offset(p)) = f(p);
+            }
             return raw;
         };
         raws = PlaceLocal.make[Rail[T]](dist.places(), rawInit);

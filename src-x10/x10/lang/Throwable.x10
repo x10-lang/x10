@@ -17,7 +17,7 @@ import x10.io.Console;
 @NativeRep("java", "java.lang.Throwable", null, null)
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
 public value Throwable {
-    @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
+    @Native("java", "new x10.lang.Box<java.lang.Throwable>(new x10.lang.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     @Native("c++", "(#0)->getCause()")
     // Box is to make it nullable
     val cause: Box[Throwable];
@@ -35,7 +35,7 @@ public value Throwable {
     public def this(cause: Throwable) = this("", cause);
     public def this(message: String, cause: Throwable): Throwable {
         super();
-        this.cause = cause to Box[Throwable]; // BUG: should autobox
+    	this.cause = cause as Box[Throwable]; // BUG: should autobox
         this.message = message;
     }
     
@@ -43,7 +43,7 @@ public value Throwable {
     @Native("c++", "(#0)->getMessage()")
     public def getMessage() = message;
     
-    @Native("java", "(x10.core.Box<java.lang.Throwable>) x10.core.Box.<java.lang.Throwable>make(new x10.core.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
+    @Native("java", "new x10.lang.Box<java.lang.Throwable>(new x10.lang.Box.RTT(new x10.types.RuntimeType<java.lang.Throwable>(java.lang.Throwable.class)), #0.getCause())")
     @Native("c++", "(#0)->getCause()")
     public final def getCause(): Box[Throwable] = cause;
     
@@ -72,7 +72,6 @@ public value Throwable {
 
     /*
     public synchronized native java.lang.Throwable fillInStackTrace();
-    public java.lang.StackTraceElement[] getStackTrace();
     public void setStackTrace(java.lang.StackTraceElement[]);
     */
 }

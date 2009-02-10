@@ -22,13 +22,25 @@ import x10.compiler.NativeRep;
 public class Ref(
         @Native("java", "x10.lang.Place.place(#0.location())")
         @Native("c++", "x10::lang::Place::place(x10aux::location(#0))")
-        location: Place) {
+    	location: Place) 
+    /* @EQ implements Equals[Ref] */
+    implements Object
+{
+
+    @Native("java", "new x10.lang.Box<#2>(#3, #4)")
+//    @Native("c++", "new (x10aux::alloc<x10::lang::Box>()) x10::lang::Box<#2>(#3, #4)")
+    @Native("c++", "x10::lang::Box<#1 >::_make(#4)")
+    public static def $convert[T](x: T){T <: Value} = new Box[T](x);
 
     public native def this();
 
     @Native("java", "#0.equals(#1)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public native def equals(other : Object) : Boolean;
+    public native def equals(Ref): boolean;
+
+    @Native("java", "#0.equals(#1)")
+    @Native("c++", "x10aux::equals(#0,#1)")
+    public native def equals(Value): boolean;
 
     @Native("java", "#0.hashCode()")
     @Native("c++", "x10aux::hash_code(#0)")

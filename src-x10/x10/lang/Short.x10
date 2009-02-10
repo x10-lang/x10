@@ -18,11 +18,11 @@ public final value Short implements Integer, Signed {
     
     @Native("java", "java.lang.Short.MIN_VALUE")
     @Native("c++", "(x10_short)0x8000")
-    public const MIN_VALUE = 0x8000 to Short;
+    public const MIN_VALUE = 0x8000 as Short;
     
     @Native("java", "java.lang.Short.MAX_VALUE")
     @Native("c++", "(x10_short)0x7fff")
-    public const MAX_VALUE = 0x7fff to Short;
+    public const MAX_VALUE = 0x7fff as Short;
 
     @Native("java", "java.lang.Integer.toString(#0, #1)")
     @Native("c++", "x10aux::short_utils::toString(#0, #1)")

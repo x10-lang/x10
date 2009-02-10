@@ -45,7 +45,7 @@ public value Clock_c extends Clock {
     
     public def drop():Void {
     	if (dropped()) throw new ClockUseException();
-    	val ph = Runtime.clockPhases().remove(this) to Int;
+    	val ph = Runtime.clockPhases().remove(this) as Int;
     	async (state.location) state.drop(ph);
     }
     
@@ -79,6 +79,6 @@ public value Clock_c extends Clock {
     }
     
     private def ph_c():Int {
-        return Runtime.clockPhases()(this) to Int;
+        return Runtime.clockPhases()(this) as Int;
     }
 }

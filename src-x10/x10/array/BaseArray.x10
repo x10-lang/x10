@@ -26,33 +26,35 @@ public abstract value class BaseArray[T] extends Array[T] {
     // factories
     //
 
-    public static def makeVal1[T](region: Region, init: (Point)=>T): Array[T] {
+    public static def makeVal1[T](region: Region, init: Box[(Point)=>T]): Array[T] {
         val dist = Dist.makeConstant(region);
         return makeVal[T](dist, init);
     }
 
-    public static def makeVar1[T](region: Region, init: (Point)=>T): Array[T](region) {
+    public static def makeVar1[T](region: Region, init: Box[(Point)=>T]): Array[T](region) {
         val dist = Dist.makeConstant(region); // XXX _.x10 shd have Dist(Region) type?
         return makeVar[T](dist, init) as Array[T](region); // would eliminate cast here
     }
 
-    public static def makeVal1[T](dist: Dist, init: (Point)=>T): Array[T] {
+    public static def makeVal1[T](dist: Dist, init: Box[(Point)=>T]): Array[T] {
         return makeVar1[T](dist, init); // XXX for now
     }
 
-    public static def makeVar1[T](dist: Dist, init: (Point)=>T): Array[T](dist) {
+    public static def makeVar1[T](dist: Dist, init: Box[(Point)=>T]): Array[T](dist) {
         if (dist.constant) {
-            if (checkBounds || checkPlace)
-                return new LocalArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
-            else
-                return new FastArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
-        } else
+           if (checkBounds || checkPlace)
+               return new LocalArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+           else
+               return new FastArray[T](dist as Dist{constant}, init) as Array[T](dist); // XXXXX ???
+        }
+        else {
             return new DistArray[T](dist, init);
+        }
     }
 
     public static def makeVar1[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased} {
         val r = Region.makeRectangular(0, rail.length-1);
-        return makeVar[T](r, (p:Point)=>rail(p(0)))
+        return makeVar[T](r, ((p:Point)=>rail(p(0))) as Box[(Point)=>T])
             as Array[T]{rank==1 && rect && zeroBased}; // XXXX
     }
 
@@ -202,7 +204,6 @@ public abstract value class BaseArray[T] extends Array[T] {
 //
 //        return result;
 //    }            
-
 
     // LocalArray only for now!
     incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
