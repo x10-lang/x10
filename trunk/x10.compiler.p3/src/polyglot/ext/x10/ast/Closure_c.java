@@ -294,6 +294,8 @@ public class Closure_c extends Expr_c implements Closure {
 	    Report.report(5, "enter scope of closure at " + position());
         // TODO maybe we want a new type of "code context thingy" that is not a type system object, but can live on the Context stack.
         c = c.pushCode(closureDef);
+        if (c.pop().inStaticContext())
+            c = c.pushStatic();
         return c;
     }
 
