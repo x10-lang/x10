@@ -13,10 +13,10 @@ import harness.x10Test;
 public class Array3Byte extends x10Test {
 
     public def run(): boolean = {
-        val r  = [1..10, 1..10] to Region;
-        val ia  = Array.make[Byte](r, (x:Point)=>(0 to Byte));
+        val r  = [1..10, 1..10] as Region;
+        val ia  = Array.make[Byte](r, (x:Point)=>(0 as Byte));
     
-        ia(1, 1) = 42 to Byte;
+        ia(1, 1) = 42 as Byte;
         return (42 == ia(1, 1));
     }
 

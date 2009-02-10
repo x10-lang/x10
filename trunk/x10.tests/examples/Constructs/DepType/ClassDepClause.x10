@@ -5,8 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
- /**  Check that a class can have a depclause, after the property list.
  
+ /**  Check that a class can have a depclause, after the property list.
  *@author vj,10/30/2006
  *
  */

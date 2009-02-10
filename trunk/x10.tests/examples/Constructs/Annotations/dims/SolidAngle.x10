@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface SolidAngle extends Measure { 
-    @DerivedUnit(SI.steradian) var steradian: double = _, sr = _var sr: double = _;
+public interface SolidAngle extends Measure { 
+    @DerivedUnit(SI.steradian) const steradian: double = _, sr: double = _;
 }

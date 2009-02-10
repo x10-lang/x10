@@ -14,14 +14,14 @@ import harness.x10Test;
 public class CastLitteralToPrimitive extends x10Test {
 
 	public def run(): boolean = {
-		var boolt: boolean = true to boolean;
-		var boolf: boolean = false to boolean;
-		var b: byte = 1 to byte;
-		var i: int = 1 to int;
-		var s: short = 1 to short;
-		var l: long = 1 to long;
-		var d: double = 1.0 to double;
-		var f: float = 1.0 to float;
+		var boolt: boolean = true as boolean;
+		var boolf: boolean = false as boolean;
+		var b: byte = 1 as byte;
+		var i: int = 1 as int;
+		var s: short = 1 as short;
+		var l: long = 1 as long;
+		var d: double = 1.0 as double;
+		var f: float = 1.0 as float;
 		return true;
 	}
 

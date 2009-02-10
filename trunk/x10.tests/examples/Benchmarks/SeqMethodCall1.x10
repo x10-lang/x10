@@ -8,7 +8,7 @@
 public class SeqMethodCall1 extends Benchmark {
 
     val N = 2000000;
-    def expected() = N to double;
+    def expected() = N as double;
     def operations() = N * 5.0; // 5 method calls per iteration
 
     //

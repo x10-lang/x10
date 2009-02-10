@@ -25,14 +25,14 @@ public class ClosureFunctionType1 extends ClosureTest {
         f = ff;
     }
 
-    public def run(): boolean = {
+    public def run(): boolean {
         
         // syntax and type checking test - nothing to run
 
         return result;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(var args: Rail[String]): void {
         new ClosureFunctionType1().execute();
     }
 }

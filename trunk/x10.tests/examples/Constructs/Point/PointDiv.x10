@@ -17,8 +17,8 @@ public class PointDiv extends x10Test {
 
     public def run(): boolean = {
 
-        val p  = [2, 2, 2, 2, 2] to Point;
-        val q = [1, 1, 1, 1, 1] to Point;
+        val p  = [2, 2, 2, 2, 2] as Point;
+        val q = [1, 1, 1, 1, 1] as Point;
     
         val a = p / q;
         return p==a*q;

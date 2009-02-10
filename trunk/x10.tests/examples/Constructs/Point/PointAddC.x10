@@ -17,7 +17,7 @@ public class PointAddC extends x10Test {
 
     public def run(): boolean = {
 
-        val p:Point = [2, 2, 2, 2, 2] to Point;
+        val p:Point = [2, 2, 2, 2, 2] as Point;
         var c:int = 2;
         val a = p + c;
 

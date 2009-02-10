@@ -41,7 +41,7 @@ public class IntArrayIndexing extends x10Test {
 		_intArray3D = Array.make[int](dist.factory.constant(range3D,here));
 		_intArray4D = Array.make[int](dist.factory.constant(range4D,here));
 		var stop: long = System.currentTimeMillis();
-		System.out.println("int arrays allocated in "+(((stop-start) to double)/1000)+ "seconds");
+		System.out.println("int arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
 	def verify3D(var array: Array[int]): boolean = {
@@ -110,7 +110,7 @@ public class IntArrayIndexing extends x10Test {
 		while (repeatCount-- > 0)
 			if (!verify3D(_intArray3D)) return false;
 
-		System.out.println("Testing of 3D int arrays took "+(((System.currentTimeMillis()-start) to double)/1000));
+		System.out.println("Testing of 3D int arrays took "+(((System.currentTimeMillis()-start) as double)/1000));
 		initialize(_intArray4D);
 		if (false) {
 			while (repeatCount-- > 0)
@@ -118,7 +118,7 @@ public class IntArrayIndexing extends x10Test {
 		}
 
 		var stop: long = System.currentTimeMillis();
-		System.out.println("Testing of int arrays took "+(((stop-start) to double)/1000));
+		System.out.println("Testing of int arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 

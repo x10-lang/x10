@@ -13,12 +13,12 @@ value LocalTable {
     
     def this(size:int) {
         mask = size-1;
-        a = Rail.makeVar[long](size, (i:nat)=>i to long);
+        a = Rail.makeVar[long](size, (i:nat)=>i as long);
     }
     
     public def update(ran:long) {
-        //a(ran&mask to int) ^= ran;
-        val index = ran&mask to int;
+        //a(ran&mask as int) ^= ran;
+        val index = ran&mask as int;
         a(index) = a(index) ^ ran;
     }
 }
@@ -67,7 +67,7 @@ class FRASimpleDist {
             async (Place.places(p)) {
                 var ran:long = HPCC_starts(valp*(NUM_UPDATES/NUM_PLACES));
                 for (var i:long=0; i<NUM_UPDATES/NUM_PLACES; i++) {
-                    val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) to int;
+                    val placeId = ((ran>>logLocalTableSize) & PLACE_ID_MASK) as int;
                     val valran = ran;
                     val table = tables(placeId);
                     async (Place.places(placeId)) {

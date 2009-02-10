@@ -18,13 +18,13 @@ final class UTSRand {
         seed = (seed ^ 0x5DEECE66DL) & ((1L << 48) - 1);
         for (var k:int=0; k<11; k++)
             seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l0 = (seed >>> (48 - 32)) to int;
+        val l0 = (seed >>> (48 - 32)) as int;
         seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1);
-        val l1 = (seed >>> (48 - 32)) to int;
-        return ((l0 to long) << 32) + l1;
+        val l1 = (seed >>> (48 - 32)) as int;
+        return ((l0 as long) << 32) + l1;
     }
 
-    const scale = (long.MAX_VALUE to double) - (long.MIN_VALUE to double);
+    const scale = (long.MAX_VALUE as double) - (long.MIN_VALUE as double);
 
     final static def number(r:descriptor) = (r / scale) - (long.MIN_VALUE / scale);
 

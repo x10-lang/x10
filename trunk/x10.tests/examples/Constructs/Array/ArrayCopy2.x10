@@ -41,7 +41,7 @@ public class ArrayCopy2 extends x10Test {
         // Then compare it to the A[i] value
         finish
             ateach (val p: Point in D) {
-            val v = (future(E(p)){B(p)}).force();
+            val v = (future (E(p)) B(p))();
             chk(A(p) == v);
             }
     }

@@ -18,7 +18,7 @@ import harness.x10Test;
 	public def run(): boolean = {
 		try {
 			var k: Box[int] = null; // ok
-			var p: int = k to int; 
+			var p: int = k as int; 
 			// --> fails because 'k' is null which throws a ClassCastException
 		} catch (e: ClassCastException) {
 			return true;

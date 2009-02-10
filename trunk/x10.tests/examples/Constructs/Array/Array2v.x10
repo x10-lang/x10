@@ -16,7 +16,7 @@ public class Array2v extends x10Test {
     public def run(): boolean = {
 
         val e = 0..9;
-        val r = [e, e, e] to Region;
+        val r = [e, e, e] as Region;
         val d = Dist.makeConstant(r, here);
 
         chk(d.equals(Dist.makeConstant([0..9, 0..9, 0..9], here)));

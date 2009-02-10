@@ -14,7 +14,6 @@ import harness.x10Test;
  * Note: this a test only.  It is not the recommended way to
  * write x10 code.
  */
-
 public class Array1 extends x10Test {
 
     public def run(): boolean = {

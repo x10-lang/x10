@@ -32,7 +32,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 		for (val (i): Point in 0..N-1) {
 			s += i;
 			//=== >compiler error: i, s not final
-			x += (future(A.dist([i, s%N] to Point)) { A(i, s%N) }).force();
+			x += (future(A.dist([i, s%N] as Point)) { A(i, s%N) }).force();
 		}
 		System.out.println("x = "+x);
 		if (x != 252) return false;
@@ -42,7 +42,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 			s += i;
 			val I: int = i; val S: int = s;
 				// no compiler error
-				x += (future(A.dist([I, S%N] to Point)) A(I, S%N) ).force();
+				x += (future(A.dist([I, S%N] as Point)) A(I, S%N) ).force();
 			
 		}
 		System.out.println("x = "+x);

@@ -15,7 +15,7 @@ public class Boxing0 extends x10Test {
 
 	public def run(): boolean = {
 		var o: x10.lang.Object = X.five();
-		var i: int = (o to int) + 1;
+		var i: int = (o as int) + 1;
 		return (i==6);
 	}
 

@@ -7,7 +7,7 @@ class CyclicDist extends TestDist {
 
     public def run() {
 
-        val r = [1..4, 1..7] to Region;
+        val r = [1..4, 1..7] as Region;
         pr("r " + r);
 
         prDist("cyclic 0", Dist.makeCyclic(r, 0));

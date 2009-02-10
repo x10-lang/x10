@@ -10,7 +10,7 @@ import harness.x10Test;
 /**
  * Purpose: 
  * @author vcave
- Converted to Box by vj.
+ Converted as Box by vj.
  **/
 public class BoxObjectToBoxConstrainedType extends x10Test {
 	 

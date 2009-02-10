@@ -48,8 +48,8 @@ public class ArrayBounds1D extends x10Test {
         var withinBounds: boolean = true;
 
         try {
-            a(i) = 0xabcdef07L to Int;
-            chk(a(i) ==  (0xabcdef07L to Int));
+            a(i) = 0xabcdef07L as Int;
+            chk(a(i) ==  (0xabcdef07L as Int));
         } catch (var e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;
         }

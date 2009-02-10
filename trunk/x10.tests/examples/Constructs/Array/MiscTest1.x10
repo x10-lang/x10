@@ -36,13 +36,13 @@ public class MiscTest1 extends x10Test {
         chk(D.equals(D3));
 
         // create zero int array x
-        val x: Array[int]{distribution==D} = new Array[int](D);
+        val x: Array[int]{dist==D} = Array.make[int](D);
 
 
         // set x[i] = N*i with N atomic updates
         finish
             for (pi(i) in R)
-                for (val (j): Point in [0..N-1])
+                for (val pj in [0..N-1])
                     async(D(pi))
                         atomic x(pi) += i;
 
@@ -60,7 +60,7 @@ public class MiscTest1 extends x10Test {
         val D_inner: Dist{rank==1} = D|r_inner;
         val D_boundary: Dist{rank==1} = D-r_inner;
         finish {
-            ateach (val pi: Point[i] in D_inner) {
+            ateach (val pi(i) in D_inner) {
                 chk(x(pi) == N*i);
                 chk(x(i) == N*i);
                 chk(D(pi) == D_inner(pi) && D(pi) == here);
@@ -68,37 +68,37 @@ public class MiscTest1 extends x10Test {
         }
 
         finish {
-            ateach (val pi: Point[i] in D_boundary) {
+            ateach (val pi(i) in D_boundary) {
                 chk(x(pi) == N*i);
                 chk(D(pi) == D_boundary(pi) && D(pi) == here);
             }
         }
 
         // test scan
-        val y: Array[int]{distribution==D} = x.scan(intArray.add, 0);
+        val y: Array[int]{dist==D} = x.scan(intArray.add, 0);
 
         // y[i] == x[i]+y[i-1], for i>0
         finish {
-            ateach (pi(i):Point in D) {
+            ateach (pi(i) in D) {
                 val pi1: Point = [i-1];
-                chk(y(pi) == x(pi) + (i == 0 ? 0 : future(D(pi1)){y(pi1)}.force()));
-                chk(y(i) == x(i) + (i == 0 ? 0 : future(D(i-1)){y(i-1)}.force()));
+                chk(y(pi) == x(pi) + (i == 0 ? 0 : (future(D(pi1)) y(pi1)).force()));
+                chk(y(i) == x(i) + (i == 0 ? 0 : (future(D(i-1)) y(i-1)).force()));
             }
         }
 
         // y[NP-1] == SUM(x[0..NP-1])
         val pNP_1: Point = [NP-1];
 
-        chk(sum == future(D(pNP_1)){y(pNP_1)}.force());
-        chk(sum == future(D(NP-1)){y(NP-1)}.force());
+        chk(sum == (future(D(pNP_1)) y(pNP_1)).force());
+        chk(sum == (future(D(NP-1)) y(NP-1)).force());
 
         // test lift
-        val z: Array[int]{distribution==D} = (Array[int]{distribution==D}) x.lift(intArray.add, y);
+        val z: Array[int]{dist==D} =  x.lift(intArray.add, y) as Array[int]{dist==D};
 
-        finish ateach (val pi: Point in D) chk(z(pi) == x(pi) + y(pi));
+        finish ateach (val pi in D) chk(z(pi) == x(pi) + y(pi));
 
         // now write back zeros to x
-        x.update(new Array[int](D));
+        x.update(Array.make[int](D));
 
         // ensure x is all zeros
         chk(x.sum() == 0);

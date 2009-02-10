@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface Charge extends Measure { 
-    @DerivedUnit(SI.coulomb) var coulomb: double = _, C = _var C: double = _;
+public interface Charge extends Measure { 
+    @DerivedUnit(SI.coulomb) const coulomb: double = _, C: double = _;
 }

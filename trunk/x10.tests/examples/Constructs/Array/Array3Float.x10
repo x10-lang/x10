@@ -14,7 +14,7 @@ import harness.x10Test;
 public class Array3Float extends x10Test {
 
     public def run(): boolean = {
-        val r = [1..10, 1..10] to Region;
+        val r = [1..10, 1..10] as Region;
         val ia  = Array.make[Float](r, (x:Point)=>0.0F);
         ia(1, 1) = 42.0F;
         return (42.0F == ia(1, 1));

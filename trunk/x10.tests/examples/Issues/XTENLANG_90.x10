@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_90 extends x10Test {
 
     val y:Box[int] = 3;
-    val z = y to int;
+    val z = y as int;
 
     public def run(): boolean {
         return true;

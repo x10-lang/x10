@@ -11,7 +11,7 @@ import harness.x10Test;;
  * Purpose: Checks a null value is an instanceof a nullable type 
  * Issue: 
  * @author vcave
- * Converted to Box by vj.
+ * Converted as Box by vj.
  **/
 public class NullObjectToBox extends x10Test {
 	 

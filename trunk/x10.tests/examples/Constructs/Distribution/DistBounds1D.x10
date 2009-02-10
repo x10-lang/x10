@@ -51,8 +51,8 @@ public class DistBounds1D extends x10Test {
             chk(a.dist(i).id< Place.MAX_PLACES &&
                     a.dist(i).id >= 0);
             finish async(a.dist(i)) {
-                a(i) = (0xabcdef07L to Int);
-                chk(a(i) == (0xabcdef07L to Int));
+                a(i) = (0xabcdef07L as Int);
+                chk(a(i) == (0xabcdef07L as Int));
             }
         } catch (var e: ArrayIndexOutOfBoundsException) {
             withinBounds = false;

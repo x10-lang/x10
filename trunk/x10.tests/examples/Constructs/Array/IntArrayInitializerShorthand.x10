@@ -18,7 +18,7 @@ public class IntArrayInitializerShorthand extends x10Test {
         val d = Dist.makeConstant([1..10, 1..10], here);
         val ia = Array.make[int](d, ((i,j):Point) => i+j);
 
-        for (val p(i,j): Point(2) in ([1..10, 1..10] to Region))
+        for (val p(i,j): Point(2) in ([1..10, 1..10] as Region))
             chk(ia(p) == i+j);
 
         return true;

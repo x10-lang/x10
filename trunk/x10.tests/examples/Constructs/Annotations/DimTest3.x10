@@ -37,7 +37,7 @@ public class DimTest_MustFailCompile extends harness.x10Test {
 	
     	var model: double = 1.0;
     	var actual: double = model;
-        var diff: double = ((double) actual * 4.45) - (double) model;
+        var diff: double = (actual * 4.45) - model;
         return -0.001 <= diff && diff <= 0.001;
     }
 

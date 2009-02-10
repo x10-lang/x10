@@ -22,7 +22,7 @@ public class FlattenFutureCall extends x10Test {
     val a: Array[int](2);
 
     public def this(): FlattenFutureCall = {
-        a = Array.make[int](([1..10, 1..10] to Region)->here, ((i,j): Point): int => { return i+j;});
+        a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i+j;});
     }
     
     public def run(): boolean = {

@@ -16,7 +16,7 @@ public class InCtorRetType extends x10Test {
     static type Testy(i:int) = Test{self.i==i};
 
     static class Test(i:int) {
-       def this(i:int):Test(i) = {
+       def this(i:int):Testy(i) = {
           property(i);
        }
     }

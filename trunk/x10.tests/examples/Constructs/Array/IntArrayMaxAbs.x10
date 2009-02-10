@@ -15,7 +15,7 @@ public class IntArrayMaxAbs extends x10Test {
 
     public def run(): boolean = {
 
-        val D  = Dist.makeConstant([1..10, 1..10] to Region, here);
+        val D  = Dist.makeConstant([1..10, 1..10] as Region, here);
         val ia  = Array.make[int](D, (Point)=>0);
 
         finish ateach (val p(i,j): Point(2) in D) { ia(p) = -i; }

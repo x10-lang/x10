@@ -23,7 +23,7 @@ abstract class Benchmark extends x10Test {
     abstract def expected(): double;
     abstract def operations(): double;
 
-    def now() = (System.nanoTime() to double) * 1e-9;
+    def now() = (System.nanoTime() as double) * 1e-9;
     val out:Printer;
 
     @Native("java", "\"java\"")

@@ -18,11 +18,11 @@ public class AsyncTest2 extends x10Test {
 		val NP: int = Place.MAX_PLACES;
 		val A: Array[int] = Array.make[int](Dist.makeUnique());
 		finish
-			for (val (k): Point in [0..NP-1])
+			for (val (k): Point in 0..NP-1)
                                 async (A.dist(k))
-					ateach (val (i): Point in A)
+					ateach (val (i): Point{rank==A.rank} in A.dist)
                                                 atomic A(i) += i;
-		finish ateach (val (i): Point in A) { chk(A(i) == i*NP); }
+		finish ateach (val (i): Point{rank==A.rank} in A.dist) { chk(A(i) == i*NP); }
 
 		return true;
 	}

@@ -40,7 +40,7 @@ public class ReferenceConsistencyCheck(R: Region{rank==2, zeroBased, rect},
 			   Array.make[double](D, ((i,j):Point) => 
 			      { var res: int=i%2;
 			        if (i-1==j) res=i*(res==0?-1:1);
-			        res to double
+			        res as double
 			      });
 			
 		new ReferenceConsistencyCheck(R, D, A).execute();

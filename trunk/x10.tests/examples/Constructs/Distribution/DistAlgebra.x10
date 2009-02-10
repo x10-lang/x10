@@ -48,13 +48,13 @@ public class DistAlgebra extends x10Test {
 
         val P  = Dist.makeUnique();
 
-        val R1  = [0..1, 0..7] to Region; // horizontal strip
+        val R1  = [0..1, 0..7] as Region; // horizontal strip
         pr("R1", R1);
 
-        val R2  = [4..5, 0..7] to Region; // horizontal strip
+        val R2  = [4..5, 0..7] as Region; // horizontal strip
         pr("R2", R2);
 
-        val R3 = [0..7, 4..5] to Region; // vertical strip
+        val R3 = [0..7, 4..5] as Region; // vertical strip
         pr("R3", R3);
 
         val R1orR2 = (R1 || R2);
@@ -63,16 +63,16 @@ public class DistAlgebra extends x10Test {
         val R1orR2andR3  = R1orR2 && R3;
         pr("R1orR2andR3", R1orR2andR3);
 
-        chk(R1orR2andR3.equals(([0..1, 4..5] to Region) || ([4..5, 4..5] to Region)));
+        chk(R1orR2andR3.equals(([0..1, 4..5] as Region) || ([4..5, 4..5] as Region)));
         chk(R1orR2.contains(R1orR2andR3) && R3.contains(R1orR2andR3));
 
         val R1orR2orR3  = R1 || R2 || R3;
         pr("R1orR2orR3", R1orR2orR3);
 
-        chk(R1orR2orR3.equals(([0..1, 0..7] to Region)
-            || ([4..5, 0..7] to Region)
-            || ([2..3, 4..5] to Region)
-            || ([6..7, 4..5] to Region)));
+        chk(R1orR2orR3.equals(([0..1, 0..7] as Region)
+            || ([4..5, 0..7] as Region)
+            || ([2..3, 4..5] as Region)
+            || ([6..7, 4..5] as Region)));
 
         chk(R1orR2orR3.contains(R1) &&  R1orR2orR3.contains(R2) &&
                 R1orR2orR3.contains(R3));
@@ -80,10 +80,10 @@ public class DistAlgebra extends x10Test {
         val R1orR2minusR3 = R1orR2 - R3;
         pr("R1orR2minusR3", R1orR2minusR3);
 
-        chk(R1orR2minusR3.equals(([0..1, 0..3] to Region)
-           || ([0..1, 6..7] to Region)
-           || ([4..5, 0..3] to Region)
-           || ([4..5, 6..7] to Region)));
+        chk(R1orR2minusR3.equals(([0..1, 0..3] as Region)
+           || ([0..1, 6..7] as Region)
+           || ([4..5, 0..3] as Region)
+           || ([4..5, 6..7] as Region)));
 
         chk(R1orR2.contains(R1orR2minusR3) && R1orR2minusR3.disjoint(R3));
 
@@ -101,7 +101,7 @@ public class DistAlgebra extends x10Test {
             pr("DR1orR2orR3Here("+k+")", DR1orR2orR3Here);
             for (val (i,j): Point(2) in DR1orR2orR3) {
                 chk(iff(DR1orR2orR3(i, j) == P(k),
-                        DR1orR2orR3Here.contains([i, j] to Point) &&
+                        DR1orR2orR3Here.contains([i, j] as Point) &&
                         DR1orR2orR3Here(i, j) == P(k)));
             }
         }
@@ -144,7 +144,7 @@ public class DistAlgebra extends x10Test {
         val Doverlay =  (DR1orR2orR3.overlay(TD9));
         pr("Doverlay", Doverlay);
         for (val (i,j): Point in Doverlay) {
-            if (R1orR2andR3.contains([i, j] to Point)) {
+            if (R1orR2andR3.contains([i, j] as Point)) {
                 chk(Doverlay(i, j) == P(0) && TD9(i, j) == P(0));
             } else {
                 chk(Doverlay(i, j) == DR1orR2orR3(i, j));
@@ -163,16 +163,16 @@ public class DistAlgebra extends x10Test {
 
         val Dintersect:Dist(2) = DR1orR2orR3 && Doverlay;
         pr("Dintersect", Dintersect);
-        for (val (i,j): Point(2) in ([0..7, 0..7] to Region)) {
+        for (val (i,j): Point(2) in ([0..7, 0..7] as Region)) {
             chk(
-                    (DR1orR2orR3.contains([i, j] to Point) &&
-                     Doverlay.contains([i, j] to Point) &&
+                    (DR1orR2orR3.contains([i, j] as Point) &&
+                     Doverlay.contains([i, j] as Point) &&
                      DR1orR2orR3(i, j) == Doverlay(i, j)) ?
 
-                    (Dintersect.contains([i, j] to Point) &&
+                    (Dintersect.contains([i, j] as Point) &&
                      Dintersect(i, j) == Doverlay(i, j)) :
 
-                    !Dintersect.contains([i, j] to Point)
+                    !Dintersect.contains([i, j] as Point)
                );
         }
 */
@@ -188,8 +188,8 @@ public class DistAlgebra extends x10Test {
         System.out.println("printing dist "+s);
         var k: int = 0;
         val N: int = 8;
-        for (val (i,j): Point in ([0..N-1, 0..N-1] to Region)) {
-            System.out.print(" "+(d.contains([i, j] to Point) ? (""+d(i, j).id) : "."));
+        for (val (i,j): Point in ([0..N-1, 0..N-1] as Region)) {
+            System.out.print(" "+(d.contains([i, j] as Point) ? (""+d(i, j).id) : "."));
             if ((++k) % N == 0) System.out.println();
         }
     }
@@ -199,8 +199,8 @@ public class DistAlgebra extends x10Test {
         System.out.println("printing region "+s);
         var k: int = 0;
         val N: int = 8;
-        for (val (i,j): Point in ([0..N-1, 0..N-1] to Region)) {
-            System.out.print(" "+(r.contains([i, j] to Point) ? "+" : "."));
+        for (val (i,j): Point in ([0..N-1, 0..N-1] as Region)) {
+            System.out.print(" "+(r.contains([i, j] as Point) ? "+" : "."));
             if ((++k) % N == 0) System.out.println();
         }
     }

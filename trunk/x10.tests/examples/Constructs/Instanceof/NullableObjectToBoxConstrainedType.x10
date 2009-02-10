@@ -15,7 +15,7 @@ public class NullableObjectToBoxConstrainedType extends x10Test {
 	 
 	public def run(): boolean = {
 		var nullableVarNotNull: Box[ValueClass] = new ValueClass(1)
-                        to Box[ValueClass{p==1}];
+                        as Box[ValueClass{p==1}];
 		return nullableVarNotNull instanceof Box[ValueClass{p==1}];
 	}
 	

@@ -21,7 +21,7 @@ public class DimCheckN3 extends x10Test {
     }
 
     public def run(): boolean = {
-        val d  = Dist.makeConstant([0..2, 0..3] to Region, here);
+        val d  = Dist.makeConstant([0..2, 0..3] as Region, here);
         m(d);
         return true;
     }

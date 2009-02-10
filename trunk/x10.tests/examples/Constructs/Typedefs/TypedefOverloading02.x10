@@ -35,4 +35,3 @@ public class TypedefOverloading2 extends TypedefTest {
         new TypedefOverloading2().execute();
     }
 }
-

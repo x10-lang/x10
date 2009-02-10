@@ -28,7 +28,7 @@ public class ArrayTypeCheck extends x10Test {
             System.out.println("E " + E);
             System.out.println("== " + (a1.dist==E));
             // System.out.println(".equals " + a1.dist.equals(E)); XXXX
-            var a2: Array[int] = a1 to Array[int](E);
+            var a2: Array[int] = a1 as Array[int](E);
             System.out.println("did not get exception");
             return false;
         } catch (var z: ClassCastException) {
@@ -37,7 +37,7 @@ public class ArrayTypeCheck extends x10Test {
 
         try {
             val D: Dist = Dist.makeUnique();
-            var a3: Array[int] = a1 to Array[int](D);
+            var a3: Array[int] = a1 as Array[int](D);
             return false;
         } catch (var z: ClassCastException) {
             System.out.println("3");
@@ -46,9 +46,9 @@ public class ArrayTypeCheck extends x10Test {
         var i: int = 1;
         var j: int = 2;
         var k: int = 0;
-        val p = [i, j, k] to Point;
-        val q = [i, j] to Point;
-        val r = [i] to Point;
+        val p = [i, j, k] as Point;
+        val q = [i, j] as Point;
+        val r = [i] as Point;
 
         if (p == q) return false;
         

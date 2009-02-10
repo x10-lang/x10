@@ -27,7 +27,7 @@ public class FlattenCast extends x10Test {
     }
 
     public def run(): boolean = {
-        val x =  m(a(1, 1)) to Double; // being called in a method to force flattening.
+        val x =  m(a(1, 1)) as Double; // being called in a method to force flattening.
         return 2==x;
     }
     

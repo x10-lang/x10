@@ -13,7 +13,7 @@ public class SeqPseudoArray1 extends Benchmark {
 
     val N = 2000;
     def expected() = 1.0;
-    def operations() = N*N to double;
+    def operations() = N*N as double;
 
 
     //

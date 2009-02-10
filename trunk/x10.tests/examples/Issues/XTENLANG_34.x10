@@ -13,7 +13,7 @@ class XTENLANG_34 extends x10Test {
     
     public def run():boolean {
         val o:Object = 1.0;
-        val x = o to int;
+        val x = o as int;
         return true;
     }
 

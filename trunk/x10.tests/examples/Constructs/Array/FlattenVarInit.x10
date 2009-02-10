@@ -21,7 +21,7 @@ public class FlattenVarInit extends x10Test {
     val a: Array[int](2);
 
     public def this(): FlattenVarInit = {
-        a = Array.make[int](([1..10, 1..10] to Region)->here, ((i,j): Point): int => { return i+j;});
+        a = Array.make[int](([1..10, 1..10] as Region)->here, ((i,j): Point): int => { return i+j;});
     }
 
     def m(var x: int): int = {

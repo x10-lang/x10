@@ -27,4 +27,3 @@ public class TypedefOverloading12 extends TypedefTest {
         new TypedefOverloading12().execute();
     }
 }
-

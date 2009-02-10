@@ -46,4 +46,3 @@ public class TypedefOverloading11 extends TypedefTest {
         new TypedefOverloading11().execute();
     }
 }
-

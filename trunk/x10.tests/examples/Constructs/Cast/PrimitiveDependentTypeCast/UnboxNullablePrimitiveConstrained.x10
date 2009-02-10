@@ -21,11 +21,11 @@ import harness.x10Test;
 		
 		// test 1 to primitive		
 		// (int) <-- nullable<int>
-		var case1a: int = ni to int; // not null check
+		var case1a: int = ni as int; // not null check
 
 		try {
 			// (int) <-- nullable<int>
-			var case1b: int = nn to int; // not null check
+			var case1b: int = nn as int; // not null check
 		} catch (var e: ClassCastException) {
 			res1 = true;
 		}
@@ -48,10 +48,10 @@ import harness.x10Test;
 		// }
 		
 		// (nullable<int>) <-- nullable<int>
-		var case3a: Box[int] = ni to Box[int]; // no check
+		var case3a: Box[int] = ni as Box[int]; // no check
 
 		// (nullable<int>) <-- nullable<int> (null)
-		var case3b: Box[int] = nn to Box[int]; // no check
+		var case3b: Box[int] = nn as Box[int]; // no check
 
 
 		// (nullable<int(:self==3)>) <-- nullable<int>

@@ -1,5 +1,5 @@
 package dims;
 
-interface public interface LuminousIntensity extends Measure { 
-    @DerivedUnit(SI.candela) var candela: double = _, cd = _var cd: double = _;
+public interface LuminousIntensity extends Measure { 
+    @DerivedUnit(SI.candela) const candela: double = _, cd: double = _;
 }

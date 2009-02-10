@@ -48,10 +48,10 @@ public class ArrayAlgebra2 extends x10Test {
         //chk(ia1.xor() == false);
         //TODO: scan does not need a unit operand
 
-        arrEq(ia1.scan(booleanArray.or,false),
-              Array.make[boolean](D, (p(i): Point(1)) => (ia1 | 0..i).reduce(booleanArray.or,false)
+        arrEq(ia1.scan(Array[boolean].|,false),
+              Array.make[boolean](D, (p(i): Point(1)) => (ia1 | 0..i).reduce(Array[boolean].|,false)
 
-        arrEq((makeArray(D0, true) || makeArray(D1,false)).lift(booleanArray.xor,makeArray(D01, true)),
+        arrEq((makeArray(D0, true) || makeArray(D1,false)).lift(Array[boolean].^,makeArray(D01, true)),
               (makeArray(D0, false) || makeArray(D1,true)));
 
         // a1 || a2 where a1, a2 are boolean arrays

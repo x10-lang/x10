@@ -20,7 +20,7 @@ public class ArrayAccessWithPoint extends x10Test {
 
         val e = 1..10;
         val ia = Array.make[int](e->here, (Point)=>0); // will infer ia:Array[int](1)
-        val p = [1] to Point; // will infer p:Point(1).
+        val p = [1] as Point; // will infer p:Point(1).
 
         a(ia(p)); 
 

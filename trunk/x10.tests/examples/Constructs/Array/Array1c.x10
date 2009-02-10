@@ -22,7 +22,7 @@ public class Array1c extends x10Test {
     public def run(): boolean = {
 
         val e  = 1..10;
-        val r = [e, e] to Region;
+        val r = [e, e] as Region;
 
         chk(r.equals((1..10)*(1..10)));
 
@@ -42,7 +42,7 @@ public class Array1c extends x10Test {
 
 /*
         for (val p(i,j):Point(2) in ia) {
-            var q1(m,n)  = [i, j] to Point;
+            var q1(m,n)  = [i, j] as Point;
             chk(i == m);
             chk(j == n);
             chk(ia(i, j) == i+j);

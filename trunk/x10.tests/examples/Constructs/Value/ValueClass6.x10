@@ -30,11 +30,11 @@ public class ValueClass6 extends x10Test {
 		// different value arrays whose elements are different
 		// value objects
 		// that have the same contents, must be ==
-		val X2: Array[complex] = Array.make[complex](D, (p: Point): complex => {
+		val X2: Array[complex] = Array.make[complex](D, (p(i): Point): complex => {
 			System.out.println("The currentplace for X2" + i  + " is " + ( here));
 			return new complex(i,i);
 		});
-		val Y2: Array[complex] = Array.make[complex](D, (p: Point): complex => {
+		val Y2: Array[complex] = Array.make[complex](D, (p(i): Point): complex => {
 			System.out.println("The currentplace for Y2" + i  + " is " + ( here));
 			return new complex(i,i);
 		});

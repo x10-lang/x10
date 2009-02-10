@@ -19,14 +19,14 @@ public class FlattenPlaceCast extends x10Test {
     val d: Array[Place](1);
 
     public def this() {
-        a = Array.make[Test](([1..10, 1..10] to Region) -> here, (Point)=> new Test());
+        a = Array.make[Test](([1..10, 1..10] as Region) -> here, (Point)=> new Test());
         d = Array.make[Place](1..10 -> here, (Point)=>here);
     }
    
     static class Test {};
 
     public def run():boolean  = {
-        val x =  (a(1,1) to Test{location == d(1).next()}) ;
+        val x =  (a(1,1) as Test{location == d(1).next()}) ;
         return true;
     }
 

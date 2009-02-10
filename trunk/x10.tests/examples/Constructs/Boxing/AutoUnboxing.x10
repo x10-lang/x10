@@ -8,7 +8,7 @@
 import harness.x10Test;
 
 /**
- * Tests that a variable of type Box[int] is automatically unboxed to int.
+ * Tests that a variable of type Box[int] is automatically unboxed as int.
  */
 public class AutoUnboxing extends x10Test {
 

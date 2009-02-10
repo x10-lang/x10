@@ -18,7 +18,7 @@ public class Array1b extends x10Test {
     public def run(): boolean = {
 
         val e = 1..10;
-        val r = [e, e] to Region;
+        val r = [e, e] as Region;
 
         chk(r.equals((1..10)*(1..10)));
         //final dist d = r->here;
@@ -37,7 +37,7 @@ public class Array1b extends x10Test {
         }
 
         for (val p(i,j): Point(2) in ia.region) {
-            val q1(m,n) = [i, j] to Point;
+            val q1(m,n) = [i, j] as Point;
             chk(i == m);
             chk(j == n);
             chk(ia(i, j) == i+j);

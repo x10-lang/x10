@@ -8,7 +8,7 @@
 import harness.x10Test;;
 
 /**
- * Check that a float literal can be cast to float.
+ * Check that a float literal can be cast as float.
  */
 public class StringLitDepType extends x10Test {
 	public def run(): boolean = {

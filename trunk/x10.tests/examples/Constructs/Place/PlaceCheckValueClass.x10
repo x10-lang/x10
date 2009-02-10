@@ -20,6 +20,7 @@ public class PlaceCheckValueClass extends x10Test {
     val c = new C();
 
     public def run01(): boolean = {
+        val c = this.c;
         val f = future (Place.places(1)) {
             try {
                 val a = c.p;
@@ -33,6 +34,7 @@ public class PlaceCheckValueClass extends x10Test {
     }
 
     public def run02(): boolean = {
+        val c = this.c;
         val f = future (Place.places(1)) {
             try {
                 val a = c.x;
@@ -46,6 +48,7 @@ public class PlaceCheckValueClass extends x10Test {
     }
 
     public def run04(): boolean = {
+        val c = this.c;
         val f = future (Place.places(1)) {
             try {
                 c.foo();
@@ -59,6 +62,7 @@ public class PlaceCheckValueClass extends x10Test {
     }
 
     public def run05(): boolean = {
+        val c = this.c;
         val f = future (Place.places(1)) {
             try {
                 c.foo(1);
@@ -73,6 +77,7 @@ public class PlaceCheckValueClass extends x10Test {
     }
 
     public def run06(): boolean = {
+        val c = this.c;
         val f = future (Place.places(1)) {
             try {
                 c.foo("1");

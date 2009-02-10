@@ -13,7 +13,7 @@ class XTENLANG_117 extends x10Test {
     
     class Bug {
         val x:Box[R] = null;
-        val y = x to R;
+        val y = x as R;
     }
 
     public def run(): boolean {

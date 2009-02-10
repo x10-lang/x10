@@ -17,7 +17,7 @@ public class ArraySubtypeCheck_MustFailCompile extends x10Test {
     
     public def run(): boolean = {
         val R:Region = 0..3;
-        var subarr00: Array[Sub] = Array.make[Sub](R->here, (Point)=>null to Sub);
+        var subarr00: Array[Sub] = Array.make[Sub](R->here, (Point)=>null as Sub);
         var suparr00: Array[Sup] = subarr00;
         return true;
     }

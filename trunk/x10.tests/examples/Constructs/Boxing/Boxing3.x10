@@ -18,7 +18,7 @@ public class Boxing3 extends x10Test {
                 val z: Object = x;
                 val v: Box[int] = 2;
                 val w: Box[int] = x;
-                val u: int = v to int;
+                val u: int = v as int;
                 return true;
         }
 

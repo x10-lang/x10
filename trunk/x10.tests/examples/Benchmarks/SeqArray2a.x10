@@ -21,12 +21,12 @@ public class SeqArray2a extends Benchmark {
     // the benchmark
     //
 
-    val a = Array.makeFast[double]([0..N-1, 0..N-1], (Point)=>0.0);
+    val a = Array.makeFast[double]([0..N-1, 0..N-1], (Point)=>0.0) as Array[double](2);
 
     def once() {
         for (var i:int=0; i<N; i++)
             for (var j:int=0; j<N; j++)
-                a(i,j) = (i+j) to double;
+                a(i,j) = (i+j) as double;
         var sum:double = 0.0;
         for (var i:int=0; i<N; i++)
             for (var j:int=0; j<N; j++)

@@ -22,7 +22,7 @@ class XTENLANG_132 extends x10Test {
             val a = new A(0);
     
             try {
-                val a1 = a to A(1);
+                val a1 = a as A(1);
                 System.out.println("did not get exception");
                 return false;
             } catch (e:ClassCastException) {

@@ -463,7 +463,7 @@ fmt.format(t*100./tmax)+"%)");
 			rnmu = dmax1(rnmu, a);
 		}
 
-		rnm2 = Math.sqrt(rnm2 / ((nx*ny*nz) to double));
+		rnm2 = Math.sqrt(rnm2 / ((nx*ny*nz) as double));
 		if (timeron) timer.stop(T_norm2);
 		return rnm2;
 	}
@@ -471,7 +471,7 @@ fmt.format(t*100./tmax)+"%)");
 	public def TestNorm(var r: Rail[double], var n1: int, var n2: int, var n3: int): double = {
 		var rnm2: double = 0.0;
 		for (val (i3,i2,i1): Point in [1..n3-2, 1..n2-2, 1..n1-2]) rnm2 += r(i1+n1*(i2+n2*i3))*r(i1+n1*(i2+n2*i3));
-		rnm2 = Math.sqrt(rnm2 / ((n1*n2*n3) to double));
+		rnm2 = Math.sqrt(rnm2 / ((n1*n2*n3) as double));
 		System.out.println("*****TestNorm  "+rnm2);
 		return rnm2;
 	}

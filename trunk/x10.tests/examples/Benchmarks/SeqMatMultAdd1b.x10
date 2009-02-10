@@ -9,16 +9,16 @@ public class SeqMatMultAdd1b extends Benchmark {
 
     val N = 55*5;
     def expected() = -6866925.0;
-    def operations() = N*N*N to double;
+    def operations() = N*N*N as double;
 
     //
     //
     //
 
-    val r = [0..N-1,0..N-1] to Region;
-    val a = Array.makeFast[double](r, (p:Point)=>p(0)*p(1) to double);
-    val b = Array.makeFast[double](r, (p:Point)=>p(0)-p(1) to double);
-    val c = Array.makeFast[double](r, (p:Point)=>p(0)+p(1) to double);
+    val r = [0..N-1,0..N-1] as Region;
+    val a = Array.makeFast[double](r, (p:Point)=>p(0)*p(1) as double);
+    val b = Array.makeFast[double](r, (p:Point)=>p(0)-p(1) as double);
+    val c = Array.makeFast[double](r, (p:Point)=>p(0)+p(1) as double);
 
     def once() {
         for ((i,j,k):Point in r*(0..N-1))
