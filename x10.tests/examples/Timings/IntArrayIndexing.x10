@@ -12,7 +12,7 @@ import harness.x10Test;;
  */
 public class IntArrayIndexing extends x10Test {
 
-	var _tests: Rail[String] = { "testDouble" };
+	var _tests: Rail[String] = [ "testDouble" ];
 
 	const verbose: boolean = false;
 
@@ -21,7 +21,7 @@ public class IntArrayIndexing extends x10Test {
 	var _intArray3D: Array[int];
 	var _intArray4D: Array[int];
 
-	public def this(): IntArrayIndexing = {
+	public def this(): IntArrayIndexing {
 		val kArraySize: int = 30;
 		var range1D: Region;
                 var range2D: Region;
@@ -44,7 +44,7 @@ public class IntArrayIndexing extends x10Test {
 		System.out.println("int arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
-	def verify3D(var array: Array[int]): boolean = {
+	def verify3D(var array: Array[int]): boolean {
 
 		var h1: int = array.dist.region.rank(0).high();
 		var h2: int = array.dist.region.rank(1).high();
@@ -69,7 +69,7 @@ public class IntArrayIndexing extends x10Test {
 				}
 		return true;
 	}
-	def verify4D(var array: Array[int]): boolean = {
+	def verify4D(var array: Array[int]): boolean {
 		var h1: int = array.dist.region.rank(0).high();
 		var h2: int = array.dist.region.rank(1).high();
 		var h3: int = array.dist.region.rank(2).high();
@@ -94,7 +94,7 @@ public class IntArrayIndexing extends x10Test {
 		return true;
 	}
 
-	def initialize(var array: Array[int]): void = {
+	def initialize(var array: Array[int]): void {
 		var arrayDist: Dist = array.dist;
 		var count: int = 0;
 		for (val p: Point in array.dist.region) {
@@ -103,7 +103,7 @@ public class IntArrayIndexing extends x10Test {
 		}
 	}
 
-	def runIntTests(var repeatCount: int): boolean = {
+	def runIntTests(var repeatCount: int): boolean {
 		System.out.println("Testing Ints...");
 		var start: long = System.currentTimeMillis();
 		initialize(_intArray3D);
@@ -122,7 +122,7 @@ public class IntArrayIndexing extends x10Test {
 		return true;
 	}
 
-	public def run(): boolean = {
+	public def run(): boolean {
 		var repeatCount: int = 4000;
 
 		if (!runIntTests(repeatCount)) return false;
@@ -130,11 +130,7 @@ public class IntArrayIndexing extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]): void {
 		new IntArrayIndexing().execute();
-	}
-
-	static class Generic {
-		public var value: int;
 	}
 }
