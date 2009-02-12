@@ -14,7 +14,6 @@ import harness.x10Test;
  * @author vj
  * @author kemal 11/2005
  */
- import java.lang.Error;;
 public class IfElseFinishBug extends x10Test {
 
 	public def run(): boolean = {
