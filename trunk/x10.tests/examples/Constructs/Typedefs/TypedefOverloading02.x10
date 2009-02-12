@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefOverloading2 extends TypedefTest {
+public class TypedefOverloading02 extends TypedefTest {
 
     public def run(): boolean = {
         
@@ -32,6 +32,6 @@ public class TypedefOverloading2 extends TypedefTest {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefOverloading2().execute();
+        new TypedefOverloading02().execute();
     }
 }
