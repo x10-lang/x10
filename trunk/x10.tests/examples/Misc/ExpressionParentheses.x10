@@ -12,7 +12,7 @@ import harness.x10Test;;
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: int = java.lang.Integer.MIN_VALUE;
+	var x: int = x10.lang.Integer.MIN_VALUE;
 	var n: int = 16;
 	var z: int;
 
