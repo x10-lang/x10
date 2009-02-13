@@ -2904,6 +2904,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	    assert_(type1);
 	    assert_(type2);
 	    try { 
+	        if (typeEquals(type1, type2)) {
+	            return type1;
+	        }
+	        
 	        if (typeBaseEquals(type1, type2)) {
 	            Type base1 = X10TypeMixin.baseType(type1);
 	            return base1;
