@@ -85,13 +85,22 @@ public class X10Return_c extends Return_c {
 		    
 		    Ref<Type> typeRef = (Ref<Type>) fi.returnType();
 		    
-		    if (merge && ! typeRef.known()) {
-			if (expr == null) {
-			    typeRef.update(ts.Void());
-			}
-			else {
-			    typeRef.update(exprType);
-			}
+		    if (merge) {
+		        if (expr == null) {
+		            if (! typeRef.known()) {
+		                typeRef.update(ts.Void());
+		            }
+		        }
+		        else {
+		            if (! typeRef.known()) {
+		                typeRef.update(exprType);
+		            }
+		            else {
+		                // Merge the types
+		                Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
+		                typeRef.update(t);
+		            }
+		        }
 		    }
 
 		    if (typeRef.get().isVoid() && expr != null && implicit) {
@@ -105,12 +114,6 @@ public class X10Return_c extends Return_c {
 		    }
 		    if (expr != null && typeRef.getCached().isVoid()) {
 			throw new SemanticException("Cannot return value from void method.", position());
-		    }
-
-		    if (expr != null && merge) {
-		        // Merge the types
-		        Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
-		        typeRef.update(t);
 		    }
 		}
 		
