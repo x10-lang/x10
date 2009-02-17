@@ -109,9 +109,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     public static <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
         return (T) n.del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
     }
-    
-    static int depth = 0;
-    
+
     /** Return list of conversion functions needed to convert from fromType to toType */
     public Expr converterChain(final ContextVisitor tc) throws SemanticException {
         try {
@@ -126,7 +124,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         class Helper {
             Expr attempt(X10ClassType ct, int i, List<Type>[] alternatives, Type fromType, List<Type> accum, Type toType, boolean changed) throws SemanticException {
                 assert alternatives.length == accum.size();
-                
+
                 if (i < alternatives.length) {
                     try {
                         accum.set(i, ct.typeArguments().get(i));
@@ -152,15 +150,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                     if (newFrom.isSubtype(toType))
                         return X10Cast_c.this.expr();
                     X10Cast_c newCast = (X10Cast_c) nf.X10Cast(position(), nf.CanonicalTypeNode(position(), newFrom), X10Cast_c.this.expr(), ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
-                    try {
-                        Expr newE = newCast.converterChain(tc);
-                        assert newE.type() != null;
-                        X10Cast_c newC = (X10Cast_c) X10Cast_c.this.expr(newE);
-                        return newC.checkCast(tc);
-                    }
-                    finally {
-                        depth--;
-                    }
+                    Expr newE = newCast.converterChain(tc);
+                    assert newE.type() != null;
+                    X10Cast_c newC = (X10Cast_c) X10Cast_c.this.expr(newE);
+                    return newC.checkCast(tc);
                 }
 
                 throw new SemanticException("Cannot convert from " + fromType + " to " + toType + ".", position());
@@ -172,27 +165,27 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                     l.add(b);
                 }
                 else
-                if (t instanceof ObjectType) {
-                    ObjectType o = (ObjectType) t;
-                    if (o.superClass() != null) {
-                        l.add(o.superClass());
-//                        addSuperTypes(l, o.superClass());
+                    if (t instanceof ObjectType) {
+                        ObjectType o = (ObjectType) t;
+                        if (o.superClass() != null) {
+                            l.add(o.superClass());
+                            //                        addSuperTypes(l, o.superClass());
+                        }
+                        for (Type ti : o.interfaces()) {
+                            l.add(ti);
+                            //                        addSuperTypes(l, ti);
+                        }
                     }
-                    for (Type ti : o.interfaces()) {
-                        l.add(ti);
-//                        addSuperTypes(l, ti);
-                    }
-                }
             }
         }
-        
+
         Type fromType = expr.type();
         Type toType = castType.type();
-        
+
         // If the fromType has a covariant parameter,
         // try supertypes of the corresponding argument type.
         Type baseFrom = X10TypeMixin.baseType(fromType);
-        
+
         if (baseFrom instanceof X10ClassType) {
             X10ClassType ct = (X10ClassType) baseFrom;
             if (ct.typeArguments().size() > 0) {
@@ -208,10 +201,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                         break;
                     default:
                         alternatives[i] = Collections.EMPTY_LIST;
-                        break;                              
+                    break;                              
                     }
                 }
-                
+
                 // Now, try all possible combinations of the alternative type arguments.
                 try {
                     return new Helper().attempt(ct, 0, alternatives, fromType, new ArrayList<Type>(ct.typeArguments()), toType, false);
@@ -221,9 +214,9 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 }
             }
         }
-        
+
         String c = convert == ConversionType.UNKNOWN_CONVERSION ? "cast" : "implicitly convert";
-        
+
         throw new SemanticException("Cannot " + c + " expression of type \"" 
                                     + fromType + "\" to type \"" 
                                     + toType + "\".",
@@ -232,8 +225,8 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-//        if (ts.isBox(castType.type()) && expr.type() instanceof ParameterType)
-//            System.out.println(this);
+        //        if (ts.isBox(castType.type()) && expr.type() instanceof ParameterType)
+        //            System.out.println(this);
         Expr e = converterChain(tc);
         assert e.type() != null;
         assert ! (e instanceof X10Cast_c) || ((X10Cast_c) e).convert != ConversionType.UNKNOWN_CONVERSION;
@@ -249,7 +242,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
 
         if (ts.isVoid(toType) || ts.isVoid(fromType))
             throw new SemanticException("Cannot cast from " + toType + " to " + fromType + ".", position());
-        
+
         if (ts.isSubtype(fromType, toType)) {
             X10Cast_c n = (X10Cast_c) copy();
             n.convert = ConversionType.SUBTYPE;
@@ -260,7 +253,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         Type baseTo = X10TypeMixin.baseType(toType);
         XConstraint cFrom = X10TypeMixin.xclause(fromType);
         XConstraint cTo = X10TypeMixin.xclause(toType);
-        
+
         if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
             if (! ts.isParameterType(fromType) && ts.isCastValid(fromType, toType)) {
                 X10Cast_c n = (X10Cast_c) copy();
@@ -283,7 +276,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                     return n.type(toType);
                 }
             }
-            
+
             if (ts.isChar(fromType) && ts.isChar(toType)) {
                 if (cFrom == null || cTo == null || ts.clausesConsistent(cFrom, cTo)) {
                     X10Cast_c n = (X10Cast_c) copy();
@@ -340,7 +333,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 }
             }
         }
-        
+
         if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION) {
             if (ts.isParameterType(fromType) && ts.isCastValid(fromType, toType)) {
                 X10Cast_c n = (X10Cast_c) copy();
@@ -372,21 +365,21 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         }
 
         if (convert != ConversionType.UNKNOWN_IMPLICIT_CONVERSION && ts.typeEquals(fromType, boxOfTo)) {
-//            System.out.println("UNBOXING " + expr + " from " + fromType + " to " + toType);
+            //            System.out.println("UNBOXING " + expr + " from " + fromType + " to " + toType);
             Expr unboxed = check(nf.Field(position(), expr, nf.Id(position(), Name.make("value"))), tc);
             return check(nf.X10Cast(position(), nf.CanonicalTypeNode(position(), toType), unboxed, convert), tc);
         }
 
         // v to I, where I is not a value interface (i.e., a function type)
-        if ( ts.isParameterType(fromType) && ts.typeBaseEquals(toType, ts.Object())) {
+        if (ts.isParameterType(fromType) && ts.typeBaseEquals(toType, ts.Object())) {
             if (ts.isSubtypeWithValueInterfaces(fromType, toType, Collections.EMPTY_LIST)) {
-//                TypeBuilder tb = new TypeBuilder(tc.job(), ts, nf);
-//                tb = tb.pushPackage(tc.context().package_());
-//                tb = tb.pushClass(tc.context().currentClassDef());
-//                tb = tb.pushCode(tc.context().currentCode());
-//                
-//                TypeCheckPreparer sr = new TypeCheckPreparer(tc.job(), ts, nf, tc instanceof TypeChecker ? ((TypeChecker) tc).memo() : new HashMap<Node, Node>());
-//                sr = (TypeCheckPreparer) sr.context(tc.context());
+                //                TypeBuilder tb = new TypeBuilder(tc.job(), ts, nf);
+                //                tb = tb.pushPackage(tc.context().package_());
+                //                tb = tb.pushClass(tc.context().currentClassDef());
+                //                tb = tb.pushCode(tc.context().currentCode());
+                //                
+                //                TypeCheckPreparer sr = new TypeCheckPreparer(tc.job(), ts, nf, tc instanceof TypeChecker ? ((TypeChecker) tc).memo() : new HashMap<Node, Node>());
+                //                sr = (TypeCheckPreparer) sr.context(tc.context());
 
                 X10New_c boxed = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), Types.ref(boxOfFrom)), Collections.EMPTY_LIST, Collections.singletonList(expr));
 
@@ -396,7 +389,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 return check(boxed, tc);
             }
         }
-        
+
         // v to I, where I is not a value interface (i.e., a function type)
         if ((ts.isValueType(fromType) || ts.isParameterType(fromType)) && ts.isInterfaceType(toType) && ! ts.isValueType(toType)) {
             if (ts.isSubtypeWithValueInterfaces(fromType, toType, Collections.EMPTY_LIST)) {
