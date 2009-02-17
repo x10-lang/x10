@@ -79,7 +79,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
                         else
                             c = c.copy();
                         X10TypeSystem xts = (X10TypeSystem) ts;
-                        XLocal var = xts.xtypeTranslator().trans(c, this, t);
+                        XLocal var = xts.xtypeTranslator().trans(this, t);
                         c.addSelfBinding(var);
                         rightType = X10TypeMixin.xclause(X10TypeMixin.baseType(t), c);
                     }

@@ -190,18 +190,18 @@ public class XTypeTranslator {
 		}
 	}
 
-	public XLocal trans(XConstraint c, LocalInstance li) throws SemanticException {
-		return trans(c, li, li.type());
+	public XLocal trans(LocalInstance li) throws SemanticException {
+		return trans(li, li.type());
 	}
 	
-	public XLocal trans(XConstraint c, LocalInstance li, Type t) throws SemanticException {
+	public XLocal trans(LocalInstance li, Type t) throws SemanticException {
 		XLocal v = XTerms.makeLocal(XTerms.makeName(li.def(), li.name().toString()));
 		addTypeToEnv(v, t);
 		return v;
 	}
 
 	private XLocal trans(XConstraint c, Local t) throws SemanticException {
-		return trans(c, t.localInstance(), t.type());
+		return trans(t.localInstance(), t.type());
 	}
 
 	private XTerm trans(XConstraint c, TypeNode t) {

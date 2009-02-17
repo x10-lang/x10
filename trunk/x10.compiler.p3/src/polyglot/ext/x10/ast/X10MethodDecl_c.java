@@ -807,7 +807,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                         X10Type newType = (X10Type) ref.get();
 
                         // Fold the formal's constraint into the guard.
-                        XVar var = xts.xtypeTranslator().trans(c, n.localDef().asInstance());
+                        XVar var = xts.xtypeTranslator().trans(n.localDef().asInstance());
                         XConstraint dep = X10TypeMixin.xclause(newType);
                         if (dep != null) {
                             dep = dep.copy();

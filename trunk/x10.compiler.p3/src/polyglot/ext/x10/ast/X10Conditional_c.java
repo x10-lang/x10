@@ -144,6 +144,15 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	                return type(t1);
 	            }
 	        }
+	        
+	        try {
+	            Type t = ts.leastCommonAncestor(t1, t2);
+	            Expr n1 =  X10New_c.attemptCoercion(tc, e1, t);
+	            Expr n2 =  X10New_c.attemptCoercion(tc, e2, t);
+	            return consequent(n1).alternative(n2).type(t);
+	        }
+	        catch (SemanticException e) {
+	        }
 
 	        throw new SemanticException("Could not determine type of ternary conditional expression; cannot assign " + t1 + " to " + t2 + " or vice versa.",
 	                                    position());

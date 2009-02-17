@@ -1047,7 +1047,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
 		    }
 		    if (i < formalNames.size() && formalNames.get(i) != null) {
 		        try {
-		            xi = xts.xtypeTranslator().trans(xc, formalNames.get(i));
+		            xi = xts.xtypeTranslator().trans(formalNames.get(i));
 		            env.addBinding(xc.self(), xi);
 		        }
 		        catch (SemanticException e) {
@@ -1381,7 +1381,7 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
         }
     }
     
-    static Type meetTypes(X10TypeSystem xts, Type t1, Type t2) {
+    public static Type meetTypes(X10TypeSystem xts, Type t1, Type t2) {
         if (xts.isSubtype(t1, t2))
             return t1;
         if (xts.isSubtype(t2, t1))
