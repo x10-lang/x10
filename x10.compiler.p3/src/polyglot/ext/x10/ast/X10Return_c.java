@@ -16,18 +16,19 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return_c;
 import polyglot.ext.x10.types.ClosureDef;
-import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10MemberDef;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodDef;
-import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10ProcedureDef;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FunctionDef;
 import polyglot.types.InitializerDef;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -36,8 +37,11 @@ import polyglot.types.UnknownType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XRoot;
-import x10.constraint.XVar;
+import x10.constraint.XConstraint;
+import x10.constraint.XEQV;
+import x10.constraint.XFailure;
+import x10.constraint.XLocal;
+import x10.constraint.XTerms;
 
 public class X10Return_c extends Return_c {
 
@@ -46,6 +50,42 @@ public class X10Return_c extends Return_c {
 	public X10Return_c(Position pos, Expr expr, boolean implicit) {
 		super(pos, expr);
 		this.implicit = implicit;
+	}
+	
+	public Type removeLocals(X10Context ctx, Type t, CodeDef thisCode) {
+	    Type b = X10TypeMixin.baseType(t);
+	    if (b != t)
+	        b = removeLocals(ctx, b, thisCode);
+	    XConstraint c = X10TypeMixin.xclause(t);
+	    if (c == null)
+	        return b;
+	    c = removeLocals(ctx, c, thisCode);
+	    return X10TypeMixin.xclause(b, c);
+	}
+	
+	public XConstraint removeLocals(X10Context ctx, XConstraint c, CodeDef thisCode) {
+	    if (ctx.currentCode() != thisCode) {
+	        return c;
+	    }
+	    X10TypeSystem ts = (X10TypeSystem) ctx.typeSystem();
+	    LI:
+	        for (LocalDef li : ctx.locals()) {
+	            try {
+	                if (thisCode instanceof X10ProcedureDef) {
+	                    for (LocalDef fi : ((X10ProcedureDef) thisCode).formalNames())
+	                        if (li == fi)
+	                            continue LI;
+	                }
+	                XLocal l = ts.xtypeTranslator().trans(li.asInstance());
+	                XEQV x = c.genEQV(true);
+	                c = c.substitute(x, l);
+	            }
+	            catch (SemanticException e) {
+	            }
+	            catch (XFailure e) {
+	            }
+	        }
+	    return removeLocals((X10Context) ctx.pop(), c, thisCode);
 	}
 
 	@Override
@@ -97,6 +137,7 @@ public class X10Return_c extends Return_c {
 		            }
 		            else {
 		                // Merge the types
+		                exprType = removeLocals((X10Context) tc.context(), exprType, tc.context().currentCode());
 		                Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
 		                typeRef.update(t);
 		            }

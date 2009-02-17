@@ -41,6 +41,7 @@ package polyglot.ext.x10.types;
  * @author vj
  * @see Context
  */
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -54,6 +55,7 @@ import polyglot.types.Context;
 import polyglot.types.Context_c;
 import polyglot.types.FieldInstance;
 import polyglot.types.ImportTable;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Named;
@@ -75,6 +77,39 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	public X10Context_c(TypeSystem ts) {
 		super(ts);
+	}
+	
+	public List<LocalDef> locals() {
+	    if (vars != null) {
+	        List<LocalDef> lis = allLocals();
+	        if (lis.isEmpty())
+	            return lis;
+	        X10Context_c c = (X10Context_c) pop();
+	        if (c != null)
+	            lis.removeAll(c.allLocals());
+	        return lis;
+	    }
+	    return Collections.EMPTY_LIST;
+	}
+	
+	public List<LocalDef> allLocals() {
+	    if (vars != null) {
+	        List<LocalDef> lis = new ArrayList<LocalDef>(vars.values().size());
+	        for (VarInstance vi : vars.values()) {
+	            if (vi instanceof LocalInstance)
+	                lis.add(((LocalInstance) vi).def());
+	        }
+	        X10Context_c c = (X10Context_c) pop();
+	        if (c != null)
+	            lis.addAll(c.allLocals());
+	        return lis;
+	    }
+	    else {
+	        X10Context_c c = (X10Context_c) pop();
+	        if (c != null)
+	            return c.allLocals();
+	    }
+	    return Collections.EMPTY_LIST;
 	}
 	
 	public XRoot thisVar() {

@@ -7,15 +7,19 @@
  */
 package polyglot.ext.x10.types;
 
+import java.util.Collection;
+import java.util.List;
+
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
-import polyglot.types.VarInstance;
 import x10.constraint.XRoot;
 
 public interface X10Context extends Context {
@@ -26,6 +30,9 @@ public interface X10Context extends Context {
 	 */
 	String MAGIC_VAR_PREFIX = "x10$__var";
 	// Use addVariable to add a PropertyInstance to the context.
+	
+	/** Return the locals declared in this scope (and only this scope). */
+	List<LocalDef> locals();
 	
 	/**
 	 * Looks up a property in the current scope.

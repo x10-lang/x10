@@ -2908,11 +2908,13 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	            return type1;
 	        }
 	        
-	        if (typeBaseEquals(type1, type2)) {
-	            Type base1 = X10TypeMixin.baseType(type1);
-	            return base1;
-	        }
+	        type1 = X10TypeMixin.baseType(type1);
+	        type2 = X10TypeMixin.baseType(type2);
 
+	        if (typeEquals(type1, type2)) {
+	            return type1;
+	        }
+	        
 	        if (type1.isNumeric() && type2.isNumeric()) {
 	            if (isImplicitCastValid(type1, type2)) {
 	                return type2;
@@ -2932,12 +2934,41 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                return Int();
 	            }
 	        }
-
-	        // TODO: handle covariant instantiated types.
-	        // XYZ
-	        if (type1.isArray() && type2.isArray()) {
-	            return arrayOf(leastCommonAncestor(
-	                                               type1.toArray().base(), type2.toArray().base()));
+	        
+	        if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+	            if (hasSameClassDef(type1, type2)) {
+	                X10ClassType ct1 = (X10ClassType) type1;
+	                X10ClassType ct2 = (X10ClassType) type2;
+	                int n = ct1.typeArguments().size();
+	                List<Type> newArgs = new ArrayList<Type>(n);
+	                for (int i = 0; i < n; i++) {
+	                    Type a1 = ct1.typeArguments().get(i);
+	                    Type a2 = ct2.typeArguments().get(i);
+	                    TypeProperty.Variance v = ct1.x10Def().variances().get(i);
+	                    switch (v) {
+	                    case INVARIANT:
+	                        if (typeEquals(a1, a2))
+	                            newArgs.add(a1);
+	                        else
+	                            throw new SemanticException("No least common ancestor found for types \"" + type1 +
+	                                                        "\" and \"" + type2 + "\".");
+	                        break;
+	                    case COVARIANT:
+	                        newArgs.add(leastCommonAncestor(a1, a2));
+	                        break;
+	                    case CONTRAVARIANT:
+	                        if (isSubtype(a1, a2))
+	                            newArgs.add(a1);
+	                        else if (isSubtype(a2, a1))
+	                            newArgs.add(a2);
+	                        else
+	                            throw new SemanticException("No least common ancestor found for types \"" + type1 +
+	                                                        "\" and \"" + type2 + "\".");
+	                        break;
+	                    }
+	                }
+	                return ct1.typeArguments(newArgs);
+	            }
 	        }
 
 	        if (type1.isReference() && type2.isNull()) return type1;
