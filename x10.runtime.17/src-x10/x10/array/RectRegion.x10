@@ -261,8 +261,8 @@ final value class RectRegion extends PolyRegion{rect} {
     //
 
     public def toString(): String {
-        val min = min();
-        val max = max();
+        val min = this.min();
+        val max = this.max();
         var s: String = "[";
         for (var i: int = 0; i<rank; i++) {
             if (i>0) s += ",";
