@@ -31,8 +31,11 @@ public class HashMap[-K,V] implements Map[K,V] {
     /** The actual table, must be of size 2**n */
     var table: Rail[HashEntry[K,V]];
     
-    /** Number of (non-null) entries in the table. */
+    /** Number of non-null, non-removed entries in the table. */
     var size: Int;
+
+    /** Number of non-null entries in the table. */
+    var occupation: Int;
     
     /** table.length - 1 */
     var mask: Int;
@@ -61,6 +64,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         table = Rail.makeVar[HashEntry[K,V]](sz);
         mask = table.length - 1;
         size = 0;
+        occupation = 0;
         shouldRehash = false;
     }
     
@@ -83,9 +87,10 @@ public class HashMap[-K,V] implements Map[K,V] {
     protected def getEntry(k: K): HashEntry[K,V] {
         if (size == 0)
             return null;
-            
-        if (shouldRehash)
-            rehash();
+ 
+// incompatible with iterators            
+//        if (shouldRehash)
+//            rehash();
             
         val h = hash(k);
 
@@ -112,7 +117,7 @@ public class HashMap[-K,V] implements Map[K,V] {
     }
     
     public safe def put(k: K, v: V): Box[V] {
-        if (size == table.length || shouldRehash)
+        if (occupation == table.length || shouldRehash)
             rehash();
         
         val h = hash(k);
@@ -128,6 +133,7 @@ public class HashMap[-K,V] implements Map[K,V] {
                     shouldRehash = true;
                 table(j) = new HashEntry[K,V](k, v, h);
                 size++;
+                occupation++;
                 return null;
             }
             else if (e.hash == h && (k == null ? e.key == null : k.equals(e.key))) {
@@ -135,8 +141,11 @@ public class HashMap[-K,V] implements Map[K,V] {
                     shouldRehash = true;
                 val old = e.value;
                 e.value = v;
-                if (e.removed)
+                if (e.removed) {
+                	e.removed = false;
+                	size++;
                     return null;
+                }
                 return (old as V) as Box[V];
             }
         }
@@ -200,7 +209,7 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    
 	    public def hasNext(): Boolean {
 	        if (i < map.table.length) {
-                assert map.table(i) != null && ! map.table(i).removed : "map entry " + i + " is not null or removed";
+//              assert map.table(i) != null && ! map.table(i).removed : "map entry " + i + " is null or removed";
 	            return true;
 	        }
 	        return false;
@@ -208,7 +217,7 @@ public class HashMap[-K,V] implements Map[K,V] {
 	    
 	    public def next(): HashEntry[Key,Value] {
 	        val j = i;
-	        assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is not null or removed";
+//	        assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
 	        i++;
 	        advance();
 	        return map.table(j);
