@@ -34,7 +34,6 @@ public value Printer extends FilterWriter {
         try {
             val b = s.bytes();
             write(b, 0, b.length);
-            flush();
         }
         catch (e: IOException) {
             throw new IORuntimeException(e.getMessage());

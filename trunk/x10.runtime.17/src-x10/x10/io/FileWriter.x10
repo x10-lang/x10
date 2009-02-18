@@ -12,8 +12,13 @@ public value FileWriter extends OutputStreamWriter {
 
     val file: File;
     
+    @Native("java", "new java.io.BufferedOutputStream(new java.io.FileOutputStream(#1))")
+    private static def make(path: String):OutputStream throws IOException {
+		return new FileOutputStream(path);       
+    }
+
     public def this(file: File) throws IOException {
-        super(new FileOutputStream(file.getPath()));
+        super(make(file.getPath()));
         this.file = file;
     }
 }
