@@ -620,7 +620,7 @@ public class Inliner extends ContextVisitor {
                             Expr e = X10Cast_c.check(nf.Tuple(c.position(), args), this);
 
                             if (! ts.typeEquals(e.type(), c.type())) {
-                                e = nf.X10Cast(c.position(), nf.CanonicalTypeNode(c.position(), c.type()), e, false);
+                                e = nf.X10Cast(c.position(), nf.CanonicalTypeNode(c.position(), c.type()), e, X10Cast.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
                                 e = X10Cast_c.check(e, this);
                             }
 
