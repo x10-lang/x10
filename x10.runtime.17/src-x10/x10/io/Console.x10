@@ -7,7 +7,7 @@ public value Console {
         @Native("c++", "x10::io::FileOutputStream::STANDARD_OUT")
         private native static def realOut(): OutputStreamWriter.OutputStream;
 
-        @Native("java", "java.lang.System.err")
+        @Native("java", "new java.io.FileOutputStream(java.io.FileDescriptor.err)")
         @Native("c++", "x10::io::FileOutputStream::STANDARD_ERR")
         private native static def realErr(): OutputStreamWriter.OutputStream;
 
