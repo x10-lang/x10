@@ -5,20 +5,30 @@ import java.util.List;
 
 import polyglot.ast.Conditional;
 import polyglot.ast.Expr;
+import polyglot.ast.Field;
 import polyglot.ast.FloatLit;
 import polyglot.ast.If;
 import polyglot.ast.IntLit;
 import polyglot.ast.Lit;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.frontend.Job;
 import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
+import x10.constraint.XLit;
+import x10.constraint.XPromise;
+import x10.constraint.XRoot;
+import x10.constraint.XTerms;
 
 /**
  * Very simple constant propagation pass. If an expr has a constant value,
@@ -39,14 +49,21 @@ public class ConstantPropagator extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         Position pos = n.position();
 
+        if (n instanceof Expr || n instanceof Stmt) {
+        }
+        else {
+            return n;
+        }
+
         if (n instanceof Lit) {
             return n;
         }
 
         if (n instanceof Conditional) {
             Conditional c = (Conditional) n;
-            if (c.cond().isConstant()) {
-                boolean b = (boolean) (Boolean) c.cond().constantValue();
+            Expr cond = c.cond();
+            if (isConstant(cond)) {
+                boolean b = (boolean) (Boolean) constantValue(cond);
                 if (b)
                     return c.consequent();
                 else
@@ -56,8 +73,9 @@ public class ConstantPropagator extends ContextVisitor {
 
         if (n instanceof If) {
             If c = (If) n;
-            if (c.cond().isConstant()) {
-                boolean b = (boolean) (Boolean) c.cond().constantValue();
+            Expr cond = c.cond();
+            if (isConstant(cond)) {
+                boolean b = (boolean) (Boolean) constantValue(cond);
                 if (b)
                     return c.consequent();
                 else
@@ -67,8 +85,8 @@ public class ConstantPropagator extends ContextVisitor {
 
         if (n instanceof Expr) {
             Expr e = (Expr) n;
-            if (e.isConstant()) {
-                Object o = e.constantValue();
+            if (isConstant(e)) {
+                Object o = constantValue(e);
                 Expr result = toExpr(o, e.position());
                 if (result != null)
                     return result;
@@ -76,6 +94,77 @@ public class ConstantPropagator extends ContextVisitor {
         }
 
         return super.leaveCall(parent, old, n, v);
+    }
+
+    private Object constantValue(Expr e) {
+        if (e.isConstant())
+            return e.constantValue();
+
+        if (e instanceof Field) {
+            Field f = (Field) e;
+            if (f.target() instanceof Expr) {
+                Expr target = (Expr) f.target();
+                Type t = target.type();
+                XConstraint c = X10TypeMixin.xclause(t);
+                if (c != null) {
+                    try {
+                        XPromise p = c.lookup(XTerms.makeField(c.self(), XTerms.makeName(f.fieldInstance().def(), f.name().id().toString())));
+                        if (p != null && p.term() instanceof XLit) {
+                            XLit l = (XLit) p.term();
+                            return l.val();
+                        }
+                    }
+                    catch (XFailure e1) {
+                    }
+                }
+            }
+        }
+
+        Type t = e.type();
+        XConstraint c = X10TypeMixin.xclause(t);
+        if (c != null) {
+            XRoot r = c.self();
+            if (r instanceof XLit) {
+                XLit l = (XLit) r;
+                return l.val();
+            }
+        }
+        return null;
+    }
+
+    private boolean isConstant(Expr e) {
+        if (e.isConstant())
+            return true;
+
+        if (e instanceof Field) {
+            Field f = (Field) e;
+            if (f.target() instanceof Expr) {
+                Expr target = (Expr) f.target();
+                Type t = target.type();
+                XConstraint c = X10TypeMixin.xclause(t);
+                if (c != null) {
+                    try {
+                        XPromise p = c.lookup(XTerms.makeField(c.self(), XTerms.makeName(f.fieldInstance().def(), f.name().id().toString())));
+                        if (p != null && p.term() instanceof XLit) {
+                            return true;
+                        }
+                    }
+                    catch (XFailure e1) {
+                    }
+                }
+            }
+        }
+
+        Type t = e.type();
+        XConstraint c = X10TypeMixin.xclause(t);
+        if (c != null) {
+            XRoot r = c.self();
+            if (r instanceof XLit) {
+                XLit l = (XLit) r;
+                return true;
+            }
+        }
+        return false;
     }
 
     public Expr toExpr(Object o, Position pos) throws SemanticException {
