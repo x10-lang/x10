@@ -1,6 +1,8 @@
 package polyglot.ext.x10.visit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +13,7 @@ import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
+import polyglot.ast.Cast;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.CodeNode;
@@ -22,6 +25,7 @@ import polyglot.ast.FieldAssign;
 import polyglot.ast.For;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.IntLit;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -39,12 +43,15 @@ import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10Call;
 import polyglot.ext.x10.ast.X10Cast;
+import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
+import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -60,6 +67,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -217,7 +225,7 @@ public class Inliner extends ContextVisitor {
         // HACK: treating closures as simple is correct only if we don't do == on closures.
         return e instanceof Lit || e instanceof Local || e instanceof Closure;
     }
-    
+
     String nameOf(Expr e) {
         if (e instanceof Field)
             return ((Field) e).name().id().toString();
@@ -447,6 +455,18 @@ public class Inliner extends ContextVisitor {
     private Block substThis(Block body, final Expr e, final ClassDef thisType) {
         return (Block) body.visit(new NodeVisitor() {
             public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof Field) {
+                    Field f = (Field) n;
+                    assert f.target() != null;
+                }
+                if (n instanceof FieldAssign) {
+                    FieldAssign a = (FieldAssign) n;
+                    assert a.target() != null;
+                }
+                if (n instanceof Call) {
+                    Call c = (Call) n;
+                    assert c.target() != null;
+                }
                 if (n instanceof Special) {
                     Special s = (Special) n;
                     if (s.kind() == Special.THIS) {
@@ -479,7 +499,7 @@ public class Inliner extends ContextVisitor {
         cp = (ConstantPropagator) cp.context(context());
         return n.visit(cp);
     }
-    
+
     @Override
     protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
         if (n instanceof LocalDecl) {
@@ -510,9 +530,36 @@ public class Inliner extends ContextVisitor {
             }
         }
         
+        if (n instanceof LocalDecl) {
+            LocalDecl d = (LocalDecl) n;
+            Node s = d;
+
+            // Do not inline call occurring in a for-loop header.
+            if (parent instanceof For && ((For) parent).body() != d)
+                return d;
+
+            if (d.init() != null) {
+                Expr result = makeLocal(d);
+                Expr call = d.init();
+                s = attemptInlineCall(d, call, result);
+                if (s != d) {
+                    s = nf.NodeList(d.position(), Arrays.<Node>asList(d.init(null), s));
+                }
+            }
+
+            if (s != d) {
+                s = propagate(s);
+                if (count < limit) {
+                    return parent.visitChild(s, inc());
+                }
+            }
+
+            return s;
+        }
+
         if (n instanceof Eval) {
             Eval eval = (Eval) n;
-            Stmt s = eval;
+            Node s = eval;
 
             // Do not inline call occurring in a for-loop header.
             if (parent instanceof For && ((For) parent).body() != eval)
@@ -531,7 +578,7 @@ public class Inliner extends ContextVisitor {
             }
 
             if (s != eval) {
-                s = (Stmt) propagate(s);
+                s = propagate(s);
                 if (count < limit) {
                     return parent.visitChild(s, inc());
                 }
@@ -543,11 +590,74 @@ public class Inliner extends ContextVisitor {
         return n;
     }
 
+    private Stmt inlineSpecial(X10Call c, X10MethodDef md, Expr result) {
+        X10TypeSystem ts = (X10TypeSystem) this.ts;
+        X10NodeFactory nf = (X10NodeFactory) this.nf;
+        
+        // Rail.makeVal( 4, (x) => e )
+        // ->
+        // [ ((x) => e)(0) ... ((x) => e)(3) ]
+        try {
+            if (md.name() == Name.make("makeVal") && ts.isRail(Types.get(md.container())) && c.arguments().size() == 2) {
+                Expr len = c.arguments().get(0);
+                Expr init = c.arguments().get(1);
+                if (init instanceof Cast && ((Cast) init).expr() instanceof Closure) {
+                    init = ((Cast) init).expr();
+                }
+                if (init instanceof Closure) {
+                    if (len.isConstant()) {
+                        Object v = len.constantValue();
+                        if (v instanceof Integer) {
+                            int n = (Integer) v;
+                            List<Expr> args = new ArrayList<Expr>(n);
+
+                            for (int i = 0; i < n; i++) {
+                                Expr ni = X10Cast_c.check(nf.IntLit(c.position(), IntLit.INT, i), this);
+                                Expr ai = X10Cast_c.check(nf.ClosureCall(c.position(), init, Collections.EMPTY_LIST, Collections.singletonList(ni)), this);
+                                args.add(ai);
+                            }
+
+                            Expr e = X10Cast_c.check(nf.Tuple(c.position(), args), this);
+
+                            if (! ts.typeEquals(e.type(), c.type())) {
+                                e = nf.X10Cast(c.position(), nf.CanonicalTypeNode(c.position(), c.type()), e, false);
+                                e = X10Cast_c.check(e, this);
+                            }
+
+                            if (result == null) {
+                            }
+                            else {
+                                try {
+                                    Assign assign = assign(c.position(), result, Assign.ASSIGN, e);
+                                    Eval eval = nf.Eval(c.position(), assign);
+                                    return eval;
+                                }
+                                catch (SemanticException ex) {
+                                    throw new InternalCompilerError(ex);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (SemanticException e) {
+            return null;
+        }
+
+        return null;
+    }
+
     private Stmt attemptInlineCall(Stmt s_if_not_inline, Expr call, Expr result) {
         if (call instanceof X10Call) {
             X10Call c = (X10Call) call;
             X10MethodInstance mi = (X10MethodInstance) c.methodInstance();
             X10MethodDef md = mi.x10Def();
+
+            Stmt s = inlineSpecial(c, md, result);
+            if (s != null)
+                return s;
+
             if (!md.annotationsMatching(InlineType).isEmpty()) {
                 if (staticTypeIsExact(c.target()) || md.flags().isFinal()) {
                     return inline(s_if_not_inline, c, md, result);
