@@ -600,7 +600,7 @@ public class Emitter {
 			def clone() : Cloneable2;
 		}
 
-		class A implements Cloneable, Cloneable {
+		class A implements Cloneable, Cloneable2 {
 			public def clone() { return this; }
 		}
 		*/
