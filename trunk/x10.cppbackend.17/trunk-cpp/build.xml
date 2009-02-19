@@ -49,7 +49,8 @@
         <!-- <javac destdir="${build}" source="1.4" target="1.4" debug="on"> -->
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
         <!-- <javac destdir="${build}" debug="on"> -->
-            <!--<compilerarg value="-Xlint:unchecked"/>-->
+            <!-- <compilerarg value="-Xlint:unchecked"/> -->
+        	<compilerarg line="-Xmaxerrs 1000"/>
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
