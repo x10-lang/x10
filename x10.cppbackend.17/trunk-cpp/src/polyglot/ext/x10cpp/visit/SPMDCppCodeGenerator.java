@@ -113,7 +113,6 @@ import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.NullableNode_c;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.RegionMaker_c;
@@ -1501,11 +1500,13 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		w.newline();
 		//w.write("}");
 	}
-	
+
+	/*
 	public void visit (NullableNode_c n) {
 		tr.job().compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR,
 				"NullableNode_c's visitor in SPMDCppCodeGenerator should not be reached. ", n.position());
 	}
+	*/
 	
 
 
