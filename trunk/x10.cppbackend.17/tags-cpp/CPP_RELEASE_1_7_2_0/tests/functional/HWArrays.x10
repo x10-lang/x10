@@ -1,0 +1,36 @@
+public class HWArrays {
+	private static final String[] data = { "Hello,", "world!" };
+	private static final HWArrays[.] a = new HWArrays[[0:1]] (point p[i]) { return i==0 ? new HWArrays(0) : new HWArrays(1); };
+	public int value;
+	public final String[] z = { "Hi,", "mom!" };
+	int v;
+	{ v = 5; }
+	public final String[] y = new String[] { this.z[0], this.z[1] };
+	public HWArrays(int value) { this.value = value; }
+	public static void main(String[] s) {
+		HWArrays[:self.rank==1 && self.rect && self.zeroBased] b =
+			(HWArrays[:self.rank==1 && self.rect && self.zeroBased])
+			new HWArrays[[0:1]] (point p[i]) { return i==1 ? new HWArrays(1) : new HWArrays(0); };
+		System.out.println(data[a[0].value]+" "+data[a[1].value]);
+		final String[] x = { a[0].y[0], a[1].y[1] };
+		final String[] w = new String[] { x[0], x[1] };
+		System.out.println(w[0]+" "+w[1]);
+		data[1] = "dad?";
+		System.out.println(data[0]+" "+data[1]);
+	}
+}
+
+//@@X101X@@========== X10/C++ TEST HARNESS ==========<<START>>
+//@@X101X@@VER@@0.1.0 [POLYGLOT 2.3.0]
+//@@X101X@@TSTAMP@@20082605.110032
+//@@X101X@@TCASE@@HWArrays
+//@@X101X@@VCODE@@SUCCEED
+//@@X101X@@TOUT@@0 60
+//@@X101X@@SRCS@@HWArrays.cc
+//@@X101X@@NPLACES@@1
+//@@X101X@@FLAGS@@
+//@@X101X@@ARGS@@
+//@@X101X@@DATA@@Hello, world!
+//@@X101X@@DATA@@Hi, mom!
+//@@X101X@@DATA@@Hello, dad?
+//@@X101X@@========== X10/C++ TEST HARNESS ==========<<END>>

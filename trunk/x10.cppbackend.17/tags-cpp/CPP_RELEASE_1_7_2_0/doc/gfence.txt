@@ -1,0 +1,409 @@
+$Version 2.2.9$:
+
+GOAL
+
+Our goal is to design an efficient scheme for the communication
+required to implement an X10 program (in a restricted subset) in SPMD
+mode.  The number of inter-process messages is to be minimized.  The
+restricted subset is to be rich enough to handle RandomAccess and
+FT.  As a research goal, we intend to generalize this scheme to as
+large a class of X10 programs as possible.
+
+This revision also makes the code compiler-friendly by minimizing the
+amount of code motion.
+
+SOURCE LANGUAGE
+
+We desire to implement an efficient scheme for the case in which the
+main method looks like:
+
+  try {
+    if (c1)
+       finish Z1;
+  } catch (Exception e1) {
+    E1;
+  }
+  try {
+     if (c2)
+       finish Z2;
+  } catch (Exception e2) {
+    E2;
+  }
+  ...
+  try {
+    if (cn)
+       finish Zn;
+  } catch (Exception en) {
+    En;
+  }
+  
+The finish statement (Zi) has two posssible forms as given below:
+  Zi ::= ateach(unique) Si |
+         async {
+			... create generate clock(s) for clklist ...
+			ateach (unique) clocked(clklist) Si;
+         }
+         
+In the clocked ateach form above, no explicit clock statments 
+are present except next statements.      
+
+The Ei above will most likely be "throw ei", to conform to X10 semantics.
+
+Note that the catch clause will catch a MultipleExceptions as well as a
+normal exception.  We can handle a more general syntax in which there
+are multiple exception clauses; this is a straightforward
+generalization of the scheme below.
+
+We will assume that ci do not involve spawning any async, hence do not
+involve any communication.  ci is permitted to contain any local,
+sequential, nonblocking code.
+
+The conditions ci may throw an exception in the parent thread.  This will
+be caught by the catch clause,  and processed as below.
+Similarly, Si may throw an exception.  This exception will propagate
+the corresponding finish and will then be thrown in the parent
+thread.  It will be caught by the catch clause, which will then
+execute Ei.  Ei may itself throw an exception; this will cause the
+computation to abort.  If Ei does not throw an exception, computation
+continues with the next finish at each block.
+
+BASIC ASSUMPTIONS ABOUT RUNTIME
+
+An X10 computation is implemented by an X10 virtual machine, which
+consists of a collection of processes running on one or more
+computational nodes connected by a high-performance switch.  Each
+process contains a single application thread.  These threads
+communicate by means of a messaging layer (and through shared
+memory).  During the lifetime of the computation a thread may execute a
+large number of activities.  Each process has a unique rank.
+
+In each process, the thread is in of two modes.  Either it is
+performing local computations with the data located at that process or
+it is executing a library call implemented in the mesaging
+layer.  While executing a library call, the thread may help the runtime
+library progress by handling incoming messages from other
+processes.  We are concerned with three kinds of messages: gets, puts
+and active messages.  A get message returns some data from the remote
+processor, a put message places some data on the remote processor and
+active message executes some user-specified code on the remote
+processor.  Active messages may be immediate or eventual.  Immediate
+active messages are executed as soon as they arrive whereas eventual
+messages may be executed at some later point in time.
+
+The messaging layer provides acknowledgements for messages.  Messages
+are not assumed to be delivered in order between pairs of processes or
+executed in the order in which they are delivered.  Indeed, a message
+may be decomposed at the network layer, the pieces traveling to the
+final destination through different routes, and the message is then
+recomposed at the destination.  Each message is acknowleged.  The
+acknowledgement for a get message is the response to the get
+operation.  The response for a put message is sent after the put
+operation has been performed at the remote node.  The response for an
+immediate active message is sent as soon as all the packets for the
+message have been received and the (inline) completion handler has
+been run.  The response for an eventual active message is sent once the
+packets for the message have been received (without waiting for the
+message processing to terminate).
+
+FENCES
+
+The X10 runtime provides two forms of fences.  A call to a local fence
+returns only once all messages sent before the fence (to any
+destination) have been acknowledged.  Thus a local fence separates
+messages sent before the fence from messages initiated after the
+fence.
+
+A global fence consists of 2 parts: finish_end and finish_start.  The
+idea is that each finish is preceded by a finish_start and followed
+by a finish_end.
+
+A finish_end combines a one-way barrier with a local fence.  A
+finish_end is a collective operation.  Each process must enter a
+finish_end before place 0 returns from a finish_end.  The prototype
+for a finish_end call is:
+
+void x10_finish_end(const *exception_t e);
+
+A finish_start is also semantically a barrier.  Since no messages are
+supposed to be pending or in flight prior to a finish_start call, it
+does not need to perform a local fence.  A finish_start call is a
+one-way barrier (i.e., no code following a finish_start will be
+executed until place 0 enters its finish_start).  The prototype for
+a finish_start call is:
+
+int x10_finish_start(int CS);
+
+Note that a finish_end followed by a finish_start makes a two-way
+barrier -- no process will leave the finish_start until all processes
+have entered the finish_end.
+
+The implementation of global fence uses a special int location
+CONTINUE_STATUS at each child.  Only the parent writes a non-zero
+value into the CONTINUE_STATUS location of any child.
+
+==================================
+void x10_finish_end(exception) {
+   (place == PLACE0)
+     ? x10_finish_end_parent(exception)
+     : x10_finish_end_child(exception);
+}
+int x10_finish_start(CS) {
+   return (place == PLACE0)
+     ? x10_finish_start_parent(CS)
+     : x10_finish_start_child(CS)
+}
+
+void x10_finish_end_child(exception) {
+  LAPI_LOCAL_FENCE;
+  // Now it is known that all communications by this child have been
+  // performed
+
+  if (exception != null) {
+     perform an ActiveMessageSend that
+      -- appends exception into Error buffer on parent.
+      -- Increment X10GFence Counter at parent;
+  } else {
+     Increment X10GFence Counter at parent;
+  }
+  LAPI_LOCAL_FENCE; // PV: this is extra, but should speed things up by flushing the gfence increment.
+}
+int x10_finish_start_child(CS) {
+  // Note: if CS is non-zero, we already received notification, and are
+  // simply skipping to the right code block.  The value -1 means just
+  // wait for notification from parent, to be used in the termination
+  // barrier.
+  if (CS != 0 && CS != -1)   //PV: not needed (at least not currently)
+    return CS;               //PV: not needed
+  Wait on CONTINUE_STATUS, while continuing to process incoming messages; 
+  CS = CONTINUE_STATUS;
+  CONTINUE_STATUS = 0;
+  CONTINUE_BARRIER_STATUS = false;   // PV: reset operation, see clocked finish section later
+  return CS;
+}
+
+void x10_finish_end_parent(exception) {
+  LAPI_LOCAL_FENCE; // ensures that the messages if any are processed.  //PV: shifted up
+
+  if (exception != null) {
+     -- append exception into Error buffer on parent.
+     -- No need to increment counter, we check for N-1 instead of N.
+  }
+  Wait until X10GFence Counter reaches N-1, while continuing to process incoming messages including barriers;  
+  // PV: see clocked finish section later for barriers: specifically, each time a barrier completion is enabled 
+  // (e.g. after incoming message), carry out the post barrier_counter waiting operations in x10_barrier_parent();
+  
+  
+    // [PV] the following local fence is redundant and should be dropped.
+  //LAPI_LOCAL_FENCE; // ensures that the write if any is done.
+
+  if (Error buffer not empty)
+    throw MultipleExceptions(Error buffer);
+}
+
+int x10_finish_start_parent(CS) {
+  barrier_size = N-1; // PV: reset barrier size (see section on clocked finish).  
+  
+  // The below is done in all cases, serving as a ContinueCounter in the
+  // fallthrough case
+  write CS into CONTINUE_STATUS for each child;
+
+  // PV: the following should help speed things up. 
+  LAPI_LOCAL_FENCE; // PV: ensures that the CS writes are immediately done.
+  return CS;
+}
+
+===============================
+The above code uses the value of CONTINUE_STATUS as the ContinueCounter.
+We are reserving the special value 0 to mean that CONTINUE_STATUS has not
+been updated yet.  There is no longer any need to have a "skip" value, as
+sending the exact program point ID will work just as well.
+
+Thus on return from a global fence, it is guaranteed that the X10
+computation is data quiescent provided that all active messages sent
+by any process before it entered the global fence were inline
+messages.  Data quiescent means that no messages are in flight.  Each
+process must now determine the return value of this function call in
+order to determine its next step.
+
+There is also no longer a need for AbortComputation, since the child code
+will either receive a CONTINUE_STATUS update, in which case the child will
+simply skip to the right finish_start, or the parent will reach program
+exit, in which case all children will be terminated anyway.  In fact, there
+is no need to transmit exceptional abort information to the children -- an
+exceptional abort will simply mean that the parent will send a different
+value of CONTINUE_STATUS in the next finish_start.
+
+==================================
+Finish involving clocks
+==================================
+The precise form of the clocked ateach finish and its simple SPMDized implementation are
+described in http://orquesta.watson.ibm.com/mediawiki/index.php/Next_As_Global_Fence
+The next statements in the ateach are translated into barriers implemented
+using global fences as described below.
+
+int barrier_size;   //declarations; these variables are meaningful only at place 0.
+int barrier_counter = 0; 
+boolean CONTINUE_BARRIER_STATUS;
+
+When an activity in the clocked ateach incurs an exception, it drops the clock by invoking
+x10_barrier_size_decrement(), which removes it from further barrier synchronizations.
+
+void x10_barrier_size_decrement() {
+   (place == PLACE0)
+     ? x10_barrier_size_decrement_parent()
+     : x10_barrier_size_decrement_child();
+}
+
+void x10_barrier_size_decrement_parent () {
+  barrier_size --; 
+}
+
+void x10_barrier_size_decrement_child () {
+  send ActiveMessage to decrement barrier_size at place 0;
+  // since this is followed by finish_end processing with a lapi_local_fence, this does not need the same separately.
+}
+
+Each next statement is translated into x10_barrier(), which is a specialized global fence:
+
+void x10_barrier() {
+   (place == PLACE0)
+     ? x10_barrier_parent()
+     : x10_barrier_child();
+}
+
+void x10_barrier_child() {
+    LAPI_LOCAL_FENCE;
+
+    send ActiveMessage to increment barrier_counter at parent;
+    LAPI_LOCAL_FENCE; // this is extra (for flushing ActiveMessage), but should speed things up.  
+    
+    Wait for CONTINUE_BARRIER_STATUS to become true, while continuing to process incoming messages;
+    CONTINUE_BARRIER_STATUS = false;
+}
+
+void x10_barrier_parent() {
+  LAPI_LOCAL_FENCE; // ensures that the messages if any are processed.  
+
+  Wait until barrier_counter reaches barrier_size, while continuing to process incoming messages;
+  
+  barrier_counter = 0;
+  
+  write true into CONTINUE_BARRIER_STATUS for each child;  
+
+  LAPI_LOCAL_FENCE; // this is extra, but should speed things up by flushing the CONTINUE writing above
+  
+}
+
+==================================
+
+TRANSLATION OF X10 SOURCE PROGRAMS
+
+This restricted set of X10 programs may be implemented as follows.
+
+The code for each child and parent process is the same:
+===============================================
+  EXCEPTION = null;
+  ...
+  if (here() != 0) goto SKIP_c_myPC
+  cond_myPC = c_myPC; // i.e. c1 if myPC=1, c2 if myPC=2 etc
+  CS = cond_myPC ? myPC : END_OF_c_myPC; // END_OF_c_myPC is a compiler-generated constant
+SKIP_c_myPC:
+  CS = x10_finish_start(CS);                                 //  (1)
+  if (here() == 0 && !cond_myPC) goto SKIP_TO_END_OF_c_myPC; //  (2)
+  if (myPC != CS) goto SKIP_myPC; // myPC is a compiler-generated constant
+  try { // This try block also provides a scope for S_PC
+    S_myPC; // i.e. S_1 if myPC=1, S_2 if myPC=2 etc
+  } catch (Exception z) {
+    EXCEPTION = z;
+    // this following line can be dropped for finish statements not involving clocked ateach.
+    x10_barrier_size_decrement(); 
+  }
+  x10_finish_end(EXCEPTION)
+  CS = 0;  // To make the next finish_start wait for notification
+SKIP_myPC:
+===============================================
+In the above code, END_OF_c_myPC is the program point, labeled
+SKIP_TO_END_OF_c_myPC, that follows the "if" statement associated with
+c_myPC.
+
+Note that this code does not mention Ei; these are evaluated in the code
+generated from the user-written catch clauses.
+
+IP: We may be able to reorder statements (1) and (2), in which case the
+notification will happen in a later finish_start.  However, it seems very
+similar to the above in terms of communication, though I can't work it out
+fully at the moment, and the above scheme should work in the meantime.
+
+
+
+Immediate active messages.  An active message is immediate if it
+satisfies the following properties:
+-- its execution does not throw an exception
+-- its execution is bounded
+-- its execution does not result in any messages being initiated
+   (e.g. puts, gets, active messages)
+-- its execution does not spawn any async
+   (except for immediate local asyncs, but those do not manifest as spawns)
+-- its execution does not perform any conditional atomic operation.
+
+
+
+EXAMPLE:
+=========
+For the following:
+try {
+  finish ateach throw new X();
+  System.out.println("continuing");
+  if (verbose)
+    finish ateach { System.out.println("In place "+here()); }
+} catch (MultipleExceptions e) { ... }
+finish {...}
+
+I think we need to generate the following code:
+EXCEPTION = null;
+CS = 0;
+try {
+  if (here() == 0) CS = 1;
+  CS = x10_finish_start(CS);
+  if (1 != CS) goto SKIP_1;
+  try {
+    throw new X();
+  } catch (Exception z) {
+    EXCEPTION = z;
+  }
+  x10_finish_end(EXCEPTION);
+  CS = 0;
+SKIP_1:
+  if (here() != 0) goto SKIP_2;
+  System.out.println("continuing");
+SKIP_2:
+  if (here() != 0) goto SKIP_c3
+  cond3 = verbose;
+  CS = cond3 ? 3 : 4; // END_OF_c3=4
+SKIP_c3:
+  CS = x10_finish_start(CS);
+  if (here() == 0 && !cond3) goto SKIP_TO_END_OF_c3; // optimized for place 0
+  if (3 != CS) goto SKIP_3;
+  try {
+    System.out.println("In place "+here());
+  } catch (Exception z) {
+    EXCEPTION = z;
+  }
+  x10_finish_end(EXCEPTION);
+  CS = 0;
+SKIP_3:
+SKIP_TO_END_OF_c3:
+}
+catch (MultipleExceptions e) { ... } // user code!
+if (here() == 0) CS = 4;
+CS = x10_finish_start(CS);
+if (4 != CS) goto SKIP_4;
+try {
+  ...
+} catch (Exception z) {
+  EXCEPTION = z;
+}
+x10_finish_end(EXCEPTION);
+CS = 0;
+SKIP_4:
+
