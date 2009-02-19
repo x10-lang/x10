@@ -501,15 +501,13 @@ public class X10CPPTranslator extends Translator {
             "-lm",
             "-lpthread",
         };
-        public static final String BDWGCROOT = System.getenv("BDWGCROOT")==null?X10LANG+"/bdwgc/install":System.getenv("BDWGCROOT").replace(File.separatorChar, '/');
         /** These go before the files if gcEnabled is true */
         public static final String[] preArgsGC = new String[] {
-            "-I"+BDWGCROOT+"/include",
             "-DX10_USE_BDWGC",
         };
         /** These go after the files if gcEnabled is true */
         public static final String[] postArgsGC = new String[] {
-            BDWGCROOT+"/lib/libgc.a",
+            "-lgc",
         };
 
         private final X10CPPCompilerOptions options;
@@ -684,7 +682,6 @@ public class X10CPPTranslator extends Translator {
             super(options);
             assert (PLATFORM.startsWith("linux"));
         }
-
         /** Disable for now.  TODO: enable */
         protected boolean gcEnabled() { return false; }
 
