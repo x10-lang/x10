@@ -26,7 +26,6 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
@@ -110,7 +109,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		else // theType.isClass()
 		{
 			if (typeSystem.isX10Array(theType)) {
-				Type base = X10TypeMixin.baseType(theType);
+				Type base = typesystem.baseType(theType);
 				if (!base.isPrimitive())
 					return "void**";
 				return typeToCString(base)+"*";
@@ -196,7 +195,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			else {
 				// assume this is an X10 array object.  Determine backing array type and add
 				// descriptor signature
-				Type base = X10TypeMixin.baseType(type);
+				Type base = typesystem.baseType(type);
 				signature += typeToJavaSigString(typeSystem.arrayOf(parameter.position(), base));
 				signature += typeToJavaSigString(typeSystem.arrayOf(parameter.position(), typeSystem.Int()));
 				
@@ -306,7 +305,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			} else if (type.isArray()) {
 				wrapperDecl += typeToCType(type.toArray().base()) + "*";
 			} else { // X10 array
-				Type base = X10TypeMixin.baseType(type);
+				Type base = typesystem.baseType(type);
 				Type aType = typeSystem.arrayOf(parameter.position(), base);
 				wrapperDecl += typeToCType(aType);
 				// if we see an array type there must be a descriptor right after
