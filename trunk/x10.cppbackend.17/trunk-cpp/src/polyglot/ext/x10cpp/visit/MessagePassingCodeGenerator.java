@@ -580,6 +580,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	private void extractAllClassTypes(Type t, Set<ClassType> types) {
+        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+        t = xts.expandMacros(t);
 		if (!t.isClass())
 			return;
 		X10ClassType ct = (X10ClassType) t.toClass();
@@ -589,6 +591,39 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (ct.isNested())
 			extractAllClassTypes(ct.outer(), types);
 	}
+
+    private void declareClass(X10ClassDef cd, ClassifiedStream h) {
+        QName pkg = null;
+        if (cd.package_().get() != null)
+            pkg = cd.package_().get().fullName();
+        if (pkg != null) {
+            Emitter.openNamespaces(h, pkg);
+            h.newline(0);
+        }
+        if (cd.typeParameters().size() > 0) {
+            h.write("template <");
+            boolean first = true;
+            for (ParameterType pt : cd.typeParameters()) {
+                if (first)
+                    first = false;
+                else {
+                    h.write(",");
+                    h.allowBreak(4, " ");
+                }
+                h.write("class ");
+                h.write(emitter.translateType(pt));
+            }
+            h.write(">");
+            h.allowBreak(2, " ");
+        }
+        h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
+        h.newline();
+        if (pkg != null) {
+            h.newline(0);
+            Emitter.closeNamespaces(h, pkg);
+            h.newline(0);
+        }
+    }
 
 	void processClass(X10ClassDecl_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -639,7 +674,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write("#include <" + header + ">");
 					h.newline();
 					h.write("#undef "+guard); h.newline();
+                    allIncludes.add(ct);
 				}
+                Set<ClassType> types = new HashSet<ClassType>();
+                extractAllClassTypes(ct, types);
+                types.remove(ct);
+                for (ClassType t : types) {
+                    X10ClassDef cd = ((X10ClassType)t).x10Def();
+                    if (getCppRep(cd, tr) == null) {
+                        declareClass(cd, h);
+                        allIncludes.add(t);
+                    }
+                }
 			}
 			for (TypeNode i : n.interfaces()) {
 				ClassType ct = i.type().toClass();
@@ -656,7 +702,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write("#include <" + header + ">");
 					h.newline();
 					h.write("#undef "+guard); h.newline();
+                    allIncludes.add(ct);
 				}
+                Set<ClassType> types = new HashSet<ClassType>();
+                extractAllClassTypes(ct, types);
+                types.remove(ct);
+                for (ClassType t : types) {
+                    X10ClassDef cd = ((X10ClassType)t).x10Def();
+                    if (getCppRep(cd, tr) == null) {
+                        declareClass(cd, h);
+                        allIncludes.add(t);
+                    }
+                }
 			}
 
 			// FIXME: [IP] There is a problem with include ordering.
@@ -703,37 +760,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						assert (false) : ("Nested class alert!");
 						continue;
 					}
-					QName pkg = null;
-					if (ct.package_() != null)
-						pkg = ct.package_().fullName();
 					if (!allIncludes.contains(ct)) {
-						if (pkg != null) {
-							Emitter.openNamespaces(h, pkg);
-							h.newline(0);
-						}
-						if (cd.typeParameters().size() > 0) {
-							h.write("template <");
-							boolean first = true;
-							for (ParameterType pt : cd.typeParameters()) {
-								if (first)
-									first = false;
-								else {
-									h.write(",");
-									h.allowBreak(4, " ");
-								}
-								h.write("class ");
-								h.write(emitter.translateType(pt));
-							}
-							h.write(">");
-							h.allowBreak(2, " ");
-						}
-						h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
-						h.newline();
-						if (pkg != null) {
-							h.newline(0);
-							Emitter.closeNamespaces(h, pkg);
-							h.newline(0);
-						}
+                        declareClass(cd, h);
 						allIncludes.add(ct);
 					}
 				}
