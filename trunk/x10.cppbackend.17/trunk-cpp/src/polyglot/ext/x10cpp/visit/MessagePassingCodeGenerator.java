@@ -473,10 +473,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
-	private boolean extractInits(String className, String methodName,
+	private boolean extractInits(X10ClassType currentClass, String methodName,
 			String retType, List members,
 			ClassifiedStream w, boolean staticInits)
 	{
+		String className = emitter.translateType(currentClass);
 		boolean sawInit = false;
 		for (Iterator i = members.iterator(); i.hasNext(); ) {
 			ClassMember member = (ClassMember) i.next();
@@ -499,6 +500,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				}
 			}
 			if (!sawInit) {
+				emitter.printTemplateSignature(currentClass.typeArguments(), w);
 				w.write(retType + " " + className + "::" + methodName + "() {");
 				w.newline(4);
 				w.begin(0);
@@ -604,7 +606,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		DelegateTargetFactory tf = ((X10CPPTranslator) tr).getTargetFactory();
 		ArrayList<Type> allIncludes = new ArrayList<Type>();
-		if (!def.isNested()) {
+		if (true || !def.isNested()) {
 			if (n.superClass() != null) {
 				ClassType ct = n.superClass().type().toClass();
 				String cpp = getCppRep((X10ClassDef) ct.def(), tr);
@@ -620,29 +622,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write("#undef "+guard); h.newline();
 				}
 			}
-			// FIXME: HACK! [IP] Ignore the ValueType tag interface
-			if (!n.interfaces().isEmpty()
-					&& (!xts.isValueType((Type)def.asType()) || n.interfaces().size() > 1))
-			{
-				for (TypeNode i : n.interfaces()) {
-					ClassType ct = i.type().toClass();
-					// FIXME: HACK! [IP] Ignore the ValueType tag interface
-					if (ct.typeEquals(xts.Value()))
-						continue;
-					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
-					if (cpp == null) {
-						while (ct.isNested())
-							ct = (ClassType) ct.container();
-						String pkg = "";
-						if (ct.package_() != null)
-							pkg = ct.package_().fullName().toString();
-						String header = tf.outputHeaderName(pkg, ct.name().toString());
-						String guard = header.replace('/','_').replace('.','_').replace('$','_').toUpperCase()+"_NODEPS";
-						h.write("#define "+guard); h.newline();
-						h.write("#include <" + header + ">");
-						h.newline();
-						h.write("#undef "+guard); h.newline();
-					}
+			for (TypeNode i : n.interfaces()) {
+				ClassType ct = i.type().toClass();
+				String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+				if (cpp == null) {
+					while (ct.isNested())
+						ct = (ClassType) ct.container();
+					String pkg = "";
+					if (ct.package_() != null)
+						pkg = ct.package_().fullName().toString();
+					String header = tf.outputHeaderName(pkg, ct.name().toString());
+					String guard = header.replace('/','_').replace('.','_').replace('$','_').toUpperCase()+"_NODEPS";
+					h.write("#define "+guard); h.newline();
+					h.write("#include <" + header + ">");
+					h.newline();
+					h.write("#undef "+guard); h.newline();
 				}
 			}
 
@@ -917,7 +911,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.newline();
 			}
 
-			if (extractInits(className, RUN_INITIALIZERS, VOID, members, w, false)) {
+			if (extractInits(currentClass, RUN_INITIALIZERS, VOID, members, w, false)) {
 				h.write("private : " + VOID + " " + RUN_INITIALIZERS + "();");
 				h.newline();
 				context.hasInits = true;
@@ -939,7 +933,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
 			}
 
-			if (extractInits(className, STATIC_INIT, VOID_PTR, members, w, true)) {
+			if (extractInits(currentClass, STATIC_INIT, VOID_PTR, members, w, true)) {
 				h.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
 				h.newline();
 				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = " + className + "::" + STATIC_INIT + "()"+ ";");
@@ -1284,7 +1278,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!tr.job().extensionInfo().getOptions().assertions)
 			return;
 		// TODO: implement this
-		w.write("x10::x10__assert(");
+		w.write("x10aux::x10__assert(");
                 sw.pushCurrentStream(w);
 		n.print(n.cond(), sw, tr);
                 sw.popCurrentStream();
@@ -2342,14 +2336,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.print(n.expr(), sw, tr);
 		sw.popCurrentStream();
 		w.end();
-		w.write(")) x10::async_poll();");
+		w.write(")) x10aux::async_poll();");
 		w.newline();
 	}
 
 	public void visit(Next_c n) {
 		assert (false);
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		w.write("x10::clock_next();");
+		w.write("x10aux::clock_next();");
 		w.newline();
 	}
 
@@ -2439,15 +2433,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String name = "__i" + form.name();
 		w.write("Iterator<");
-		String fType = emitter.translateType(form.type().type());
+		String fType = emitter.translateType(form.type().type(),true);
 		w.write(fType + (fType.endsWith(">") ? " " : ""));
 		w.write(">* " + name + ";");
 		w.newline();
-		w.write(name + " = &*("); // FIXME
+		w.write(name + " = &*(("); // FIXME
 		sw.pushCurrentStream(w);
 		n.print(n.domain(), sw, tr);
 		sw.popCurrentStream();
-		w.write(")->iterator();");
+		w.write(")->iterator());");
 		w.newline();
 
 		w.write("for (");
@@ -2467,7 +2461,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(";");
 		w.newline();
 		w.write(mangled_non_method_name(form.name().id().toString()));
-		w.write(" = &" + name + "->next();");
+		w.write(" = " + name + "->next();");
 		w.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 			Stmt l = (Stmt) li.next();
@@ -2871,6 +2865,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// class header
 		inc.write("class CLOSURE_NAME("+id+") : "); inc.begin(0);
 		inc.write("public x10aux::AnyClosure, "); inc.newline();
+		inc.write("public x10::lang::Value, "); inc.newline();
 		inc.write("public virtual "+superType); inc.end(); inc.newline();
 		inc.write("{") ; inc.newline(4); inc.begin(0);
 		inc.write("public:") ; inc.newline(); inc.forceNewline();
@@ -2951,9 +2946,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write("x10aux::ref<x10::lang::String> name() { return String(\""+
+		inc.write("const x10aux::RuntimeType *_type() const {"+
+			 	  " return x10aux::getRTT<"+superType+" >(); }");
+		inc.newline(); inc.forceNewline();
+
+		inc.write("x10aux::ref<x10::lang::String> toString() { return String(\""+
 					n.position().nameAndLineString()+"\"); }");
-		inc.end(); inc.newline();
+		inc.end(); inc.newline(); inc.forceNewline();
 
 		inc.write("};"); inc.newline(); inc.forceNewline();
 
@@ -3420,7 +3419,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.print(n.expr(), sw, tr);
 		sw.popCurrentStream();
 		w.end();
-		w.write(")) x10::async_poll();");
+		w.write(")) x10aux::async_poll();");
 		w.newline();
 		sw.pushCurrentStream(w);
 		n.printSubStmt(n.stmt(), sw, tr);

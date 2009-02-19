@@ -306,6 +306,9 @@ public class X10CPPTranslator extends Translator {
 				generateClosureSwitch(sw);
                         }
 
+                        sw.newline();
+                        sw.write("// vim:tabstop=4:shiftwidth=4:expandtab"); sw.newline();
+
 			wstreams.commitStreams();
 
 			return true;
