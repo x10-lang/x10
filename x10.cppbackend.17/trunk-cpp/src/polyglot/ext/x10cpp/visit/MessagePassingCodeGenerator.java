@@ -1232,10 +1232,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			dec.printSubStmt(dec.body(), sw, tr);
 			sw.newline();
 		} else {
-			// Check for properties accessed using method syntax.  They may have @Native annotations too.
+			// Define property getter methods.
 			if (flags.isProperty() && flags.isAbstract() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
 				X10FieldInstance fi = (X10FieldInstance) container.fieldNamed(mi.name());
 				if (fi != null) {
+					//assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
 					// This is a property method in an interface.  Give it a body.
 					emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
 					sw.write(" {");
@@ -1836,7 +1837,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		X10MethodInstance mi = (X10MethodInstance)n.methodInstance();
+		X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
 		Receiver target = n.target();
 		Type t = target.type();
 
@@ -1857,6 +1858,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    			args.add(xts.Void());
 		    		target = tn.typeRef(Types.ref(ct.typeArguments(args)));
 		    	}
+		    }
+		}
+
+		X10Flags flags = X10Flags.toX10Flags(mi.flags());
+		// Check for properties accessed using method syntax.  They may have @Native annotations too.
+		if (flags.isProperty() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
+		    X10FieldInstance fi = (X10FieldInstance) md.container().get().fieldNamed(mi.name());
+		    if (fi != null) {
+		        //assert (X10Flags.toX10Flags(fi.flags()).isProperty()); // FIXME: property fields don't seem to have the property flag set
+		        // This is a property getter method.  Translate as a field access.
+		        String pat = getCppImplForDef(fi.x10Def());
+		        if (pat != null) {
+		            Object[] components = new Object[] { target };
+		            emitter.dumpRegex("Native", components, tr, pat, sw);
+		            return;
+		        }
 		    }
 		}
 
@@ -1981,12 +1998,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(fd);
 		if (pat != null) {
-		    String pi = translate_mangled_NSFQN(pat);
 		    Object[] components = new Object[] { target };
 		    emitter.dumpRegex("Native", components, tr, pat, sw);
 		    return;
 		}
-
 
 		sw.begin(0);
 		if (!n.isTargetImplicit()) {
