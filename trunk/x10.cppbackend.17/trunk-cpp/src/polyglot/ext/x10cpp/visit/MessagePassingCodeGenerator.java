@@ -2617,6 +2617,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	
 	public void visit(Finish_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		w.write("/* TODO: implement finish */");
+		w.newline();
+/*
 
 		emitter.emit_general_finish_start(w);
 		w.newline();
@@ -2626,6 +2629,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.newline();
 		emitter.emit_general_finish_end(w);
 		w.newline();
+*/
 
 	}
 
