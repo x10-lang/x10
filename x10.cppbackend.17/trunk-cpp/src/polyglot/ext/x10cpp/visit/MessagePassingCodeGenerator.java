@@ -1917,7 +1917,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10NodeFactory nf = (X10NodeFactory) tr.nodeFactory();
 		if (!xts.typeDeepBaseEquals(fType, a.type())) {
 			Position pos = a.position();
-		        a = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), a).type(fType);
+			a = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
+					X10Cast.ConversionType.CHECKED).type(fType);
 		}
 		return a;
 	}
@@ -2243,11 +2244,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		assert tn instanceof CanonicalTypeNode;
 
 		switch (c.conversionType()) {
+		case CHECKED:
 		case PRIMITIVE:
-		case COERCION:
-		case TRUNCATION:
-		case BOXING:
-		case UNBOXING:
+		case SUBTYPE:
 
 			if (tn instanceof X10CanonicalTypeNode) {
 				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
@@ -2270,10 +2269,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 			break;
 
+		case UNBOXING:
+			throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+		case UNKNOWN_IMPLICIT_CONVERSION:
+			throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
 		case UNKNOWN_CONVERSION:
 			throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-		case CALL:
-			throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
+		case BOXING:
+			throw new InternalCompilerError("Boxing conversion should have been rewritten.", c.position());
 		}
 	}
 
