@@ -405,12 +405,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		X10ClassDef def = (X10ClassDef) n.classDef();
 		if (getCppRep(def, tr) != null) {
-			w.write("class ");
-			w.write(mangled_non_method_name(n.name().id().toString())); 
-			w.write(" {};");
+			w.write(";");
 			w.newline();
-	        	return;
-	    	}
+			return;
+		}
 		context.setinsideClosure(false);
 		context.hasInits = false;
 
@@ -2046,8 +2044,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		w.write(") {");
 		w.newline(4); w.begin(0);
-		w.write(type); w.write (" ");
-		w.write(mangled_non_method_name(n.formal().name().id().toString()));
+		sw.pushCurrentStream(w);
+		n.printBlock(n.formal(), sw, tr);
+		sw.popCurrentStream();
 		w.write(" =");
 		w.allowBreak(2, " ");
 		w.write("(" + type + ") " + excVar + ";");
