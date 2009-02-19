@@ -92,7 +92,10 @@ public class Emitter {
         "short", "signed", "sizeof", "static", "static_cast", "struct",
         "switch", "template", "this", "throw", "true", "try", "typedef",
         "typeid", "typename", "union", "unsigned", "using", "virtual", "void",
-        "volatile", "wchar_t", "while"
+        "volatile", "wchar_t", "while",
+        // operator names
+        "and", "and_eq", "not", "not_eq", "or", "or_eq", "xor", "xor_eq",
+        "bitand", "bitor", "compl",
     };
     private static boolean isCPPKeyword(String name) {
         for (int i = 0; i < CPP_KEYWORDS.length; i++) {
