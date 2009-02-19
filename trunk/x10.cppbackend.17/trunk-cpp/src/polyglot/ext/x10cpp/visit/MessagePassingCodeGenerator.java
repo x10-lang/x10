@@ -632,6 +632,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(MethodDecl_c dec) {
+		// TODO: if method overrides another method with generic
+		// types, check if C++ does the right thing.
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		ClassifiedStream h;
 		if (context.inLocalClass())
@@ -2589,6 +2591,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// proceed in compilation of simple programs.
 		// TODO.
 		//throw new InternalCompilerError("Closure calls not supported");
+		w.write("/*Expansion of the closure " + n.toString() + " to go here */");
+		w.newline(0);
+		
 	}
 	public void visit(X10CanonicalTypeNode_c n) {
 //		System.out.println("Pretty-printing canonical type node for "+n);
