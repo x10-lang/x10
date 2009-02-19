@@ -450,10 +450,9 @@ public class X10CPPTranslator extends Translator {
 
 		if (sfn.package_() != null) {
 			w.write("using namespace ");
-			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
-			// sw.pushCurrentStream(w);
-			// sfn.package_().del().translate(sw, this);
-			// sw.popCurrentStream();
+			sw.pushCurrentStream(w);
+			sfn.package_().del().translate(sw, this);
+			sw.popCurrentStream();
 			w.write(";");
 			w.newline();
 		}
@@ -464,10 +463,9 @@ public class X10CPPTranslator extends Translator {
 
 		if (sfn.package_() != null) {
 			w.write("namespace ");
-			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString(), " { namespace "));
-			// sw.pushCurrentStream(w);
-			// sfn.package_().del().translate(sw, this);
-			// sw.popCurrentStream();
+			sw.pushCurrentStream(w);
+			sfn.package_().del().translate(sw, this);
+			sw.popCurrentStream();
 			w.write(" {");
 			w.newline(0);
 		}
@@ -498,10 +496,9 @@ public class X10CPPTranslator extends Translator {
 		// The declarations below are intentionally outside of the guard
 		if (sfn.package_() != null) {
 			h.write("namespace ");
-			h.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString(), " { namespace "));
-			// sw.pushCurrentStream(h);
-			//sfn.package_().del().translate(sw, this);
-			// sw.popCurrentStream();
+			sw.pushCurrentStream(h);
+			sfn.package_().del().translate(sw, this);
+			sw.popCurrentStream();
 			h.write(" {");
 			h.newline(0);
 		}
@@ -589,21 +586,24 @@ public class X10CPPTranslator extends Translator {
 			(options.post_compiler != null && options.post_compiler.contains("javac")) ?
 					"g++" :
 					options.post_compiler;
-		final String X10LANG = System.getenv("X10LANG")==null?"../../x10lang":System.getenv("X10LANG").replace(File.separatorChar, '/');
-		final String X10LIB = System.getenv("X10LIB")==null?"../../../x10.lib":System.getenv("X10LIB").replace(File.separatorChar, '/');
+		final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
+		final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
+		final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
 		// These go before the files
 		final String[] preArgs = new String[] {
 			"-I"+X10LIB+"/include",
 			"-I"+X10LANG,
 			"-I.",
+			"-DTRANSPORT="+TRANSPORT,
 		};
 		// These go after the files
 		final String[] postArgs = new String[] {
 			"-L"+X10LIB+"/lib",
 			"-L"+X10LANG,
-			"-lx10lang",
-			"-lx10",
+			"-lx10rt17",
+			"-lupcrts_"+TRANSPORT,
 			"-ldl",
+			"-lm",
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();
