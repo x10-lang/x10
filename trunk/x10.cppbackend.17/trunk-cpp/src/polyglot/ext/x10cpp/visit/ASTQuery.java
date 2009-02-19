@@ -343,15 +343,16 @@ public class ASTQuery {
 	public static String getPropertyInit(Type at, int index) {
 	    at = X10TypeMixin.baseType(at);
 	    if (at instanceof X10ClassType) {
-		X10ClassType act = (X10ClassType) at;
-		if (index < act.propertyInitializers().size()) {
-		    Expr e = act.propertyInitializer(index);
-		    if (e instanceof StringLit) {
-			StringLit lit = (StringLit) e;
-			String s = lit.value();
-			return s;
-		    }
-		}
+	        X10ClassType act = (X10ClassType) at;
+	        if (index < act.propertyInitializers().size()) {
+	            Expr e = act.propertyInitializer(index);
+	            if (e.isConstant()) {
+	                Object v = e.constantValue();
+	                if (v instanceof String) {
+	                    return (String) v;
+	                }
+	            }
+	        }
 	    }
 	    return null;
 	}
