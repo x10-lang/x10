@@ -70,7 +70,7 @@ public class X10CPPTranslator extends Translator {
     public static final class DelegateTargetFactory extends TargetFactory {
 		protected String outputHeaderExtension;
 
-		private DelegateTargetFactory(File dir, String ext, String hExt, boolean so) {
+		public DelegateTargetFactory(File dir, String ext, String hExt, boolean so) {
 			super(dir, ext, so);
 			if (outputDirectory == null)
 				throw new InternalCompilerError("Output directory not set.");
