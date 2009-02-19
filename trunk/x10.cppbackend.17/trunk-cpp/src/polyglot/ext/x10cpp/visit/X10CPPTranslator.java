@@ -489,7 +489,7 @@ public class X10CPPTranslator extends Translator {
 		final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
         final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknowns":System.getenv("X10_PLATFORM");
         final String PTHREAD_FLAG = PLATFORM.startsWith("linux") ? "-pthread" : DUMMY;
-        final boolean gcEnabled = !Configuration.DISABLE_GC && PLATFORM.startsWith("linux") && false; // TMP: dave
+        final boolean gcEnabled = !Configuration.DISABLE_GC && PLATFORM.startsWith("linux");
         // These go before the files
 		final String[] preArgs = new String[] {
 			"-I"+X10LIB+"/include",
