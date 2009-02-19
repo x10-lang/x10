@@ -2858,7 +2858,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        for (Type at : as) {
 	            assertNumberOfInitializers(at, 2);
 	            String lang = getPropertyInit(at, 0);
-	            if (lang != null && lang.equals("cpp")) {
+	            if (lang != null && lang.equals("c++")) {
 	                String lit = getPropertyInit(at, 1);
 	                return lit;
 	            }
