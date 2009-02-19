@@ -52,9 +52,10 @@ extern "C" {
         //fprintf(stderr, "Done with main in place %d", (int)x10_here());
         x10aux::free_args(args);
         x10aux::shutdown();
-        fprintf(stderr, "Place: %d   tx: %lld   rx: %lld\n", (int)x10_here(),
-                                                             (long long)x10aux::serialized_bytes,
-                                                             (long long)x10aux::deserialized_bytes);
+        if (getenv("X10_RXTX")!=NULL)
+            fprintf(stderr, "Place: %d   rx: %lld   tx: %lld\n", (int)x10_here(),
+                                                                 (long long)x10aux::deserialized_bytes,
+                                                                 (long long)x10aux::serialized_bytes);
         return x10aux::exitCode;
     }
 }
