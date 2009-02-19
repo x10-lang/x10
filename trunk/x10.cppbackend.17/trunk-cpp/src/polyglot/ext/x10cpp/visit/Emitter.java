@@ -387,12 +387,12 @@ public class Emitter {
 					for (Type a : typeArguments) {
 					    o[i++] = a;
 					}
-					String pi = translate_mangled_NSFQN(pat);
-					if (!pi.contains("#")){
-					    X10CPPContext_c c = (X10CPPContext_c) tr.context();
-					    c.pendingImplicitImports.add(pi);
-					    c.pendingImplicitImports.add(translate_mangled_FQN(pat));
-					}
+//					String pi = translate_mangled_NSFQN(pat);
+//					if (!pi.contains("#")){
+//					    X10CPPContext_c c = (X10CPPContext_c) tr.context();
+//					    c.pendingImplicitImports.add(pi);
+//					    c.pendingImplicitImports.add(translate_mangled_FQN(pat));
+//					}
 					// FIXME: Clean up this code!
 					return dumpRegex("NativeRep", o, tr, pat);
 				}
@@ -1610,8 +1610,18 @@ public class Emitter {
 				context.resetSelf();
 				w.write(")");
 			} else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
-			    w.write("if (" + castVar + "== NULL)");
-	                } else {
+				w.begin(0);
+				w.write("("); // put "(Type) expr" in parentheses.
+				w.write("(");
+				w.write(translateType(t, false));
+				w.write(")");
+				w.allowBreak(2, " ");
+				sw.pushCurrentStream(w);
+				c.printSubExpr(c.expr(), sw, tr);
+				sw.popCurrentStream();
+				w.write(")");
+				w.end();
+			} else {
 				// FIXME: RTT
 				w.write("if (false)");
 			}
