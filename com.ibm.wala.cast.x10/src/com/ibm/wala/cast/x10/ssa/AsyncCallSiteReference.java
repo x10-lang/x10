@@ -9,7 +9,11 @@ import com.ibm.wala.types.MethodReference;
 
 public class AsyncCallSiteReference extends CallSiteReference {
     public static enum Dispatch implements IInvokeInstruction.IDispatch {
-      ASYNC_CALL;
+      ASYNC_CALL {
+    	  public boolean hasImplicitThis() {
+    		  return false;
+    	  }
+      }
     }
 
     public AsyncCallSiteReference(MethodReference ref, int pc) {

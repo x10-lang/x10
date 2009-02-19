@@ -36,4 +36,8 @@ public class X10Language extends LanguageImpl {
     public boolean isNullType(TypeReference type) {
 	return Language.JAVA.isNullType(type);
     }
+
+	public TypeReference[] getArrayInterfaces() {
+		return Language.JAVA.getArrayInterfaces();
+	}
 }
