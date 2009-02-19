@@ -126,9 +126,8 @@ public class ASTQuery {
 		//FIXME. The above should refer to path().  Path() however gives full path only 
 		// for the file the x10c++ command is invoked on, and not the other files pulled in for compilation by imports.  
 		// Clearly path() works if we demand that the specified main file be the one to be specified explicitly to x10c++, but that's unclean.
-
 		boolean answer =   
-			dec.name().equals("main") &&
+			dec.name().toString().equals("main") &&
 			dec.flags().flags().isPublic() &&
 			dec.flags().flags().isStatic() &&
 			dec.returnType().type().isVoid() &&
