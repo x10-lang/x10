@@ -1606,17 +1606,7 @@ public class Emitter {
 				context.resetSelf();
 				w.write(")");
 			} else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
-	                    w.begin(0);
-	                    w.write("("); // put "(Type) expr" in parentheses.
-	                    w.write("(");
-	                    w.write(translateType(t, false));
-	                    w.write(")");
-	                    w.allowBreak(2, " ");
-			    sw.pushCurrentStream(w);
-	                    c.printSubExpr(c.expr(), sw, tr);
-			    sw.popCurrentStream();
-	                    w.write(")");
-	                    w.end();
+			    w.write("if (" + castVar + "== NULL)");
 	                } else {
 				// FIXME: RTT
 				w.write("if (false)");
