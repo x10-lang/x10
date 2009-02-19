@@ -32,11 +32,9 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 
-import polyglot.ext.x10.ast.TypeDecl;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10ClassDecl;
 
-import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
@@ -59,13 +57,11 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.StdErrorQueue;
-import polyglot.visit.InnerClassRemover;
 import polyglot.visit.Translator;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
-import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_FQN;
 
 public class X10CPPTranslator extends Translator {
 	public static final class DelegateTargetFactory extends TargetFactory {
@@ -132,7 +128,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public String outputName(String packageName, String className) {
-			return packagePath(packageName) + className + "." + outputExtension;
+			return packagePath(packageName) + className.replace('$','_') + "." + outputExtension;
 		}
 
 		/* (non-Javadoc)
@@ -162,7 +158,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public String outputHeaderName(String packageName, String className) {
-			return packagePath(packageName) + className + "." + outputHeaderExtension;
+			return packagePath(packageName) + className.replace('$','_') + "." + outputHeaderExtension;
 		}
 
 		public File outputHeaderFile(String packageName, String className, Source source) {
@@ -175,7 +171,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public String integratedOutputName(String packageName, String className, String ext) {
-			return packagePath(packageName) + className + "." + ext;
+			return packagePath(packageName) + className.replace('$','_') + "." + ext;
 		}
 
 		public File integratedOutputFile(String packageName, String className, Source source, String ext) {
@@ -251,14 +247,7 @@ public class X10CPPTranslator extends Translator {
 	 * @see polyglot.visit.Translator#translateSource(polyglot.ast.SourceFile)
 	 */
 	protected boolean translateSource(SourceFile sfn) {
-		TypeSystem ts = typeSystem();
-		NodeFactory nf = nodeFactory();
 		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
-
-		InnerClassRemover v = (InnerClassRemover) new  X10InnerClassRemover(job, ts, nf).begin();
-		Context c = sfn.del().enterScope(v.context());
-		v = (InnerClassRemover) v.context(c);
-		sfn = (SourceFile) sfn.visit(v);
 
 		int outputWidth = job.compiler().outputWidth();
 		Collection outputFiles = job.compiler().outputFiles();
@@ -272,7 +261,6 @@ public class X10CPPTranslator extends Translator {
 
 		try {
 			String opfPath;
-			CodeWriter w;
 
 			String pkg = "";
 			if (sfn.package_() != null) {
