@@ -154,6 +154,7 @@ import polyglot.types.Package_c;
 import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
 import polyglot.types.ReferenceType;
+import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
@@ -589,8 +590,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
-				VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
-						dec.methodDef().asInstance().container(), THIS);
+				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
 			if (!context.inLocalClass())
@@ -732,8 +733,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		if (!dec.flags().flags().isStatic()) {
 			TypeSystem ts = tr.typeSystem();
-			VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
-					container, THIS);
+			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+					new Ref_c<StructType>(container), Name.make(THIS)).asInstance();
 			context.addVariable(ti);
 		}
 		if (hasInits)
