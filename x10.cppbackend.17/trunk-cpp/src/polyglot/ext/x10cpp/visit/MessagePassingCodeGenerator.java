@@ -2392,6 +2392,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	
 	public void visit(X10Special_c n) {
 		//  PV: Q:  Why was this cast needed?
+		/*
 		if (n.qualifier() != null) {
 			w.write("(");
 			sw.pushCurrentStream(w);
@@ -2399,6 +2400,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.popCurrentStream();
 			w.write(")");
 		}
+		*/
 		
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
