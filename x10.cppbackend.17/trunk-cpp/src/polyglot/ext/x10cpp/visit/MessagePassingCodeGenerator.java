@@ -52,6 +52,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
@@ -132,6 +133,7 @@ import polyglot.ext.x10.ast.X10ClockedLoop_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
@@ -702,115 +704,133 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(ConstructorDecl_c dec) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		ClassifiedStream h;
-		if (!context.inLocalClass())
+		boolean outermost = context.outermostContext().cDecls.isEmpty();
+		if ((!context.inLocalClass()) && outermost)
 			emitter.printHeader(dec, ws.getCurStream(WriterStreams.StreamClass.Header), tr, false);
-		emitter.printHeader(dec, w, tr, true);
+		if (outermost) emitter.printHeader(dec, w, tr, true);
+		
+		
 		ClassType container = (ClassType)dec.constructorDef().asInstance().container();
-		boolean hasInits = false;
-		// Extract initializers from the body
-		Block_c body = (Block_c) dec.body();
-		if (body == null) {w.write("{}"); w.newline();return; }
-		List<Stmt> statements = body.statements();
-//		HashMap inited = new HashMap();
-		List<Stmt> newStatements = new TypedList(new ArrayList(), Stmt.class, false);
-		for (Stmt n : statements) {
-			// Iterator i = statements.iterator(); i.hasNext(); ) {
-			// Stmt n = (Stmt) i.next();
-			if (n instanceof ConstructorCall) {
-				ConstructorCall call = (ConstructorCall) n;
-				if (call.kind() == ConstructorCall.SUPER) {
-					if (!hasInits) {
-						w.allowBreak(4, " ");
-						w.write(":");
-						hasInits = true;
-					} else {
-						w.write(",");
-					}
-					w.allowBreak(2, " ");
-					w.write(emitter.translateType(container.superClass()) + "(");
-					if (call.arguments().size() > 0) {
-						w.allowBreak(2, 2, "", 0); // miser mode
-						w.begin(0);
-						boolean first = true;
-						for(Expr e : (List<Expr>) call.arguments() ) {
-							if (first) {
-								first=false;
-							} else { 
-								w.write(",");
-								w.allowBreak(0, " ");
-							}
-							sw.pushCurrentStream(w);
-							dec.print(e, sw, tr);
-							sw.popCurrentStream();
-						}
-						w.end();
-					}
-					w.write(")");
-				}
-				else
-					throw new InternalCompilerError("this() calls not supported", dec.position());
-			}
-			/* The code below translated assignments of the form "a = val" to field
-			 * initializers like "a(val)".  The problem is that assignments are expected
-			 * to happen in a certain order, and C++ initialzers don't provide such
-			 * guarantees.  We used to have to do this because of final fields, but
-			 * since we already strip away the "const" from final fields in FieldDecl_c,
-			 * we can do this.  Even if we didn't strip away the "const", we could
-			 * add const_cast's to assignments.
 
-			else
-			if (n instanceof Eval_c && ((Eval_c)n).expr() instanceof FieldAssign_c) {
-				FieldAssign_c init = (FieldAssign_c) ((Eval_c)n).expr();
-				Field f = (Field) init.left();
-				String name = f.name().id().toString();
-				if (f.fieldInstance().container() == container && inited.get(name) == null) {
-					inited.put(name, init.right());
-					if (!hasInits) {
-						w.write(":");
-						hasInits = true;
-					} else {
-						w.write(",");
-					}
-					w.allowBreak(2, " ");
-					w.write(name + "(");
+		boolean nativeTranslated = false;
+		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
+		if (dec.flags().flags().isNative()) {
+		        // Abstract native constructors don't make sense.
+			assert (!ci.flags().isAbstract());
+			String pat = getCppImplForDef(ci.x10Def());
+			if (pat != null) {
+				if (!context.inLocalClass())
+					emitter.printHeader(dec, w, tr, true);
+
+				w.newline(0); w.begin(4); w.write("{"); w.newline();
+				emitNativeDecl(pat, ci.formalNames());
+				w.end(); w.newline(0); w.write("}"); w.newline();
+				nativeTranslated = true;
+			} 
+		} 
+		if (!nativeTranslated && dec.body() != null) {
+			// Extract initializers from the body
+			Block_c body = (Block_c) dec.body();
+			List<Stmt> statements = body.statements();
+//			HashMap inited = new HashMap();
+			List<Stmt> newStatements = new TypedList(new ArrayList(), Stmt.class, false);
+			Iterator i = statements.iterator();
+			ConstructorCall call = null;
+			if (i.hasNext()) {  // Store ConstructorCall if any
+				Stmt n = (Stmt) i.next();
+				if (n instanceof ConstructorCall) {
+					call = (ConstructorCall) n;
+				}
+//				TODO Remove const initializations from all additions to newStatements below and store in context data
+				else newStatements.add(n);
+			}
+			while (i.hasNext()) {  
+				Stmt n = (Stmt) i.next();
+				newStatements.add(n);
+			}
+			
+			
+			
+			boolean hasInits = false;
+			
+			if ((call != null) && (call.kind() == ConstructorCall.SUPER)) {
+				w.allowBreak(4, " ");
+				w.write(":");
+				w.allowBreak(2, " ");
+				w.write(emitter.translateType(container.superClass()) + "(");
+				if (call.arguments().size() > 0) {
 					w.allowBreak(2, 2, "", 0); // miser mode
 					w.begin(0);
-					dec.print(init.right(), w, tr);
+					boolean first = true;
+					for(Expr e : (List<Expr>) call.arguments() ) {
+						if (first) {
+							first=false;
+						} else { 
+							w.write(",");
+							w.allowBreak(0, " ");
+						}
+						sw.pushCurrentStream(w);
+						dec.print(e, sw, tr);
+						sw.popCurrentStream();
+					}
 					w.end();
-					w.write(")");
 				}
-				else
-					newStatements.add(n);
+				w.write(")");
+				hasInits = true;
 			}
-			 */
-			else
-				newStatements.add(n);
+			if (call == null || hasInits) {
+				
+				// TODO print const initializations from context data and update hasInits
+				
+				
+				if (hasInits)
+					w.newline();
+				else
+					w.allowBreak(0, " ");
+				w.write("{"); w.newline(4); w.begin(0);
+				if (context.hasInits) {
+					w.write("this->"+RUN_INITIALIZERS+"();"); w.newline();
+				}
+			}
+			else {
+				X10SummarizingRules.Collection harvest = context.outermostContext().harvest;
+				ConstructorDecl decl = harvest.getDecl(call);
+				context.outermostContext().cDecls.push(decl);  // TODO push also the this call arguments here
+				sw.pushCurrentStream(w);
+				tr.printAst(decl, sw);
+				//dec.print(decl, sw, tr);   
+				sw.popCurrentStream();
+				context.outermostContext().cDecls.pop();
+			}
+			
+			if (!dec.flags().flags().isStatic()) {
+				TypeSystem ts = tr.typeSystem();
+				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+						new Ref_c<StructType>(container), Name.make(THIS)).asInstance();
+				context.addVariable(ti);
+			}
+			
+			for (Stmt s : newStatements) {
+				sw.pushCurrentStream(w);
+				dec.printBlock(s, sw, tr);
+				sw.popCurrentStream();
+				w.newline();
+			}
+			
 		}
-		if (!dec.flags().flags().isStatic()) {
-			TypeSystem ts = tr.typeSystem();
-			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-					new Ref_c<StructType>(container), Name.make(THIS)).asInstance();
-			context.addVariable(ti);
+		// Neither have  a body nor have the correct native
+		// directive.
+		if (!nativeTranslated && dec.body() == null && (!ci.flags().isAbstract())){
+			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
+				"Warning: Neither body nor correct directive! "+dec.toString(), dec.position());
 		}
-		if (hasInits)
+		
+		if (outermost) {
+			w.newline(); w.write("}");
 			w.newline();
-		else
-			w.allowBreak(0, " ");
-		w.write("{"); w.newline(4); w.begin(0);
-		if (context.hasInits) {
-			w.write("this->"+RUN_INITIALIZERS+"();"); w.newline();
 		}
-		for (Stmt s : newStatements) {
-			sw.pushCurrentStream(w);
-			dec.printBlock(s, sw, tr);
-			sw.popCurrentStream();
-			w.newline();
-		}
-		w.end(); w.newline(); w.write("}");
-		w.newline();
+	
 	}
-
 
 
 	public void visit(FieldDecl_c dec) {
