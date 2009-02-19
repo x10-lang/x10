@@ -1,0 +1,1987 @@
+############################################################
+# X10/C++ TEST HARNESS
+# (c) Copyright IBM Corporation 2008
+# Host: c890f8ec01.ppd.pok.ibm.com
+# Start Time: Fri Sep  5 07:20:54 EDT 2008
+# Launch Directory: /u/srkodali/regress
+############################################################
+
+
+
+<<Report Generation>>
+
+
+======================================================================
+
+                     X10/C++ Test Harness :: Run Report
+
+
+**QUEUE          : 669 Total / 669 Processed
+
+**PRE-VALIDATION : 616 Successes / 53 Failures
+
+**EFFECTIVE QUEUE: 616 Eligible
+
+**COMPILATION    : 453 Successes / 115 Expected Failures / 150 Actual Failures
+
+**BUILD          : 202 Successes / 0 Expected Failures / 251 Actual Failures
+
+**EXECUTION      : 153 Successes / 7 Expected Failures / 48 Actual Failures
+
+**TIME-OUT       : 4 Expected Failures / 29 Actual Failures
+
+**MISCELLANEOUS  : 14 Invalid Validation Codes
+
+**CONCLUSION     : 259 Successes / 331 Failures
+
+======================================================================
+
+
+<<Invocation Options>>
+
+Global Timeout: Enabled
+Global Timeout Value: 60
+Run Log File: log/x10c++th.run.20080509.072053.log
+Archived Run Log File: x10.backend/tests/log/x10c++th.run.log
+Run Log on Web: http://orquesta.watson.ibm.com/x10/tests/log/x10c++th.run.latest.log.txt
+Error Log File: log/x10c++th.err.20080509.072053.log
+Archived Error Log File: x10.backend/tests/log/x10c++th.err.log
+Error Log on Web: http://orquesta.watson.ibm.com/x10/tests/log/x10c++th.err.latest.log.txt
+Verbose: Off
+Testcase Pattern List:  ./x10.common/examples/Applications/OtherApps/AllReductionBarrier.x10 ./x10.common/examples/Applications/OtherApps/AllReductionBarrier_Dep.x10 ./x10.common/examples/Applications/OtherApps/AllReductionP2P.x10 ./x10.common/examples/Applications/OtherApps/AllReductionP2P_Dep.x10 ./x10.common/examples/Applications/OtherApps/CVS ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel1.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel10.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel11.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel2.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel3.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel4.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel4b.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel5.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel6.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel7.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel8.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Parallel9.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Sequential1.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Sequential2.x10 ./x10.common/examples/Applications/OtherApps/Edmiston_Sequential3.x10 ./x10.common/examples/Applications/OtherApps/GameOfLife.x10 ./x10.common/examples/Applications/OtherApps/Jacobi.x10 ./x10.common/examples/Applications/OtherApps/JacobiSmall.x10 ./x10.common/examples/Applications/OtherApps/Jacobi_skewed.x10 ./x10.common/examples/Applications/OtherApps/LU.x10 ./x10.common/examples/Applications/OtherApps/LU_Dep.x10 ./x10.common/examples/Applications/OtherApps/LU_Overlap.x10 ./x10.common/examples/Applications/OtherApps/LU_Overlap0.x10 ./x10.common/examples/Applications/OtherApps/LU_Overlap1.x10 ./x10.common/examples/Applications/OtherApps/MpiExample.x10 ./x10.common/examples/Applications/OtherApps/MpiExample2.x10 ./x10.common/examples/Applications/OtherApps/QueensList.x10 ./x10.common/examples/Applications/OtherApps/QueensList3.x10 ./x10.common/examples/Applications/OtherApps/RandomAccess.x10 ./x10.common/examples/Applications/OtherApps/RandomAccess_int.x10 ./x10.common/examples/Applications/OtherApps/RandomAccess_long.x10 ./x10.common/examples/Applications/OtherApps/RandomAccess_skewed.x10 ./x10.common/examples/Applications/OtherApps/Tree.x10 ./x10.common/examples/Applications/sparsematmult/CVS ./x10.common/examples/Applications/sparsematmult/SparseMatmultAllValues.x10 ./x10.common/examples/Applications/sparsematmult/SparseMatmultAllValuesClean.x10 ./x10.common/examples/Constructs/Annotations ./x10.common/examples/Constructs/Array ./x10.common/examples/Constructs/Async ./x10.common/examples/Constructs/AtEach ./x10.common/examples/Constructs/Atomic ./x10.common/examples/Constructs/Await ./x10.common/examples/Constructs/Boxing ./x10.common/examples/Constructs/CVS ./x10.common/examples/Constructs/Call ./x10.common/examples/Constructs/Cast ./x10.common/examples/Constructs/Clock ./x10.common/examples/Constructs/Constructor ./x10.common/examples/Constructs/DepType ./x10.common/examples/Constructs/Distribution ./x10.common/examples/Constructs/Exceptions ./x10.common/examples/Constructs/Extern ./x10.common/examples/Constructs/Final ./x10.common/examples/Constructs/Finish ./x10.common/examples/Constructs/For ./x10.common/examples/Constructs/ForEach ./x10.common/examples/Constructs/Future ./x10.common/examples/Constructs/Import ./x10.common/examples/Constructs/Init ./x10.common/examples/Constructs/InnerClass ./x10.common/examples/Constructs/Instanceof ./x10.common/examples/Constructs/Lit ./x10.common/examples/Constructs/MethodDecl ./x10.common/examples/Constructs/Modifiers ./x10.common/examples/Constructs/NoStaticMutable ./x10.common/examples/Constructs/Nullable ./x10.common/examples/Constructs/PlaceCast ./x10.common/examples/Constructs/Point ./x10.common/examples/Constructs/Region ./x10.common/examples/Constructs/StorageClass ./x10.common/examples/Constructs/Types ./x10.common/examples/Constructs/Unsafe ./x10.common/examples/Constructs/Value ./x10.common/examples/Misc/AssignIntToChar.x10 ./x10.common/examples/Misc/BreakInForTest.x10 ./x10.common/examples/Misc/CVS ./x10.common/examples/Misc/CommentTest.x10 ./x10.common/examples/Misc/ExpressionParentheses.x10 ./x10.common/examples/Misc/FieldAccessTest_MustFailCompile.x10 ./x10.common/examples/Misc/FinalInitializationTest.x10 ./x10.common/examples/Misc/HereParentheses.x10 ./x10.common/examples/Misc/IfElseFinishBug.x10 ./x10.common/examples/Misc/InfiniteLoopTest_MustFailTimeout.x10 ./x10.common/examples/Misc/List.x10 ./x10.common/examples/Misc/ListTest.x10 ./x10.common/examples/Misc/LiteralTest.x10 ./x10.common/examples/Misc/MissingReturn_MustFailCompile.x10 ./x10.common/examples/Misc/NonX10Constructs_MustFailCompile.x10 ./x10.common/examples/Misc/NopTest.x10 ./x10.common/examples/Misc/NullableComparison.x10 ./x10.common/examples/Misc/ObjectEquality.x10 ./x10.common/examples/Misc/RefA.x10 ./x10.common/examples/Misc/RefB.x10 ./x10.common/examples/Misc/RemoteAccessCheck.x10 ./x10.common/examples/Misc/SevereError.x10 ./x10.common/examples/Misc/StringTest.x10 ./x10.common/examples/Misc/TabsInStrings.x10 ./x10.common/examples/Misc/Temp.x10 ./x10.common/examples/Misc/TypeElaborationAcrossCompilationUnits.x10 ./x10.common/examples/Misc/Unreachable.x10 ./x10.common/examples/Misc/Unreachable3_MustFailTimeout.x10 ./x10.common/examples/Misc/VariableScope.x10 ./x10.common/examples/Timings/ArrayIndexing.x10 ./x10.common/examples/Timings/CVS ./x10.common/examples/Timings/Initialization.x10 ./x10.common/examples/Timings/IntArrayIndexing.x10
+
+<<Sanity Check : Environ>>
+
++ X10_HOME ++ X10_PLATFORM +++ JAVA_HOME ++++ ANT_HOME
+
+<<Sanity Check : Commands>>
+
+ mail cvs make gmake find xargs egrep awk sed mpCC_r poe
+
+<<Module Update>>
+
++ polyglot ++ x10.common +++ x10.runtime ++++ x10.compiler +++++ x10.lib ++++++ x10.backend
+
+<<Module Build>>
+
++ polyglot ++ x10.common +++ x10.runtime ++++ x10.compiler +++++ x10.lib ++++++ x10.backend +++++++ x10lang
+
+<<Testcase List Preparation>>
+
+<<Testcase Processing>>
+
+# Legend:
+#	V - pre-validation step
+#	R - parameters resolution step
+#	C - compilation step
+#	B - build step
+#	E - execution step
+
+#	X - test failed
+#	Y - test passed
+
+((1)) [OtherApps:AllReductionBarrier.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AllReductionBarrier
+
+((2)) [OtherApps:AllReductionBarrier_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AllReductionBarrier_Dep
+
+((3)) [OtherApps:AllReductionP2P.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AllReductionP2P
+
+((4)) [OtherApps:AllReductionP2P_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AllReductionP2P_Dep
+
+((5)) [OtherApps:Edmiston_Parallel1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel1
+
+((6)) [OtherApps:Edmiston_Parallel10.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel10
+
+((7)) [OtherApps:Edmiston_Parallel11.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel11
+
+((8)) [OtherApps:Edmiston_Parallel2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel2
+
+((9)) [OtherApps:Edmiston_Parallel3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel3
+
+((10)) [OtherApps:Edmiston_Parallel4.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel4
+
+((11)) [OtherApps:Edmiston_Parallel4b.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel4b
+
+((12)) [OtherApps:Edmiston_Parallel5.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel5
+
+((13)) [OtherApps:Edmiston_Parallel6.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel6
+
+((14)) [OtherApps:Edmiston_Parallel7.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel7
+
+((15)) [OtherApps:Edmiston_Parallel8.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel8
+
+((16)) [OtherApps:Edmiston_Parallel9.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Parallel9
+
+((17)) [OtherApps:Edmiston_Sequential1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Sequential1
+
+((18)) [OtherApps:Edmiston_Sequential2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Sequential2
+
+((19)) [OtherApps:Edmiston_Sequential3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Edmiston_Sequential3
+
+((20)) [OtherApps:GameOfLife.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target GameOfLife
+
+((21)) [OtherApps:Jacobi.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for Jacobi
+
+((22)) [OtherApps:JacobiSmall.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target JacobiSmall
+
+((23)) [OtherApps:Jacobi_skewed.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for Jacobi_skewed
+
+((24)) [OtherApps:LU.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for LU
+
+((25)) [OtherApps:LU_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target LU_Dep
+
+((26)) [OtherApps:LU_Overlap.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for LU_Overlap
+
+((27)) [OtherApps:LU_Overlap0.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for LU_Overlap0
+
+((28)) [OtherApps:LU_Overlap1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target LU_Overlap1
+
+((29)) [OtherApps:MpiExample.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target MpiExample
+
+((30)) [OtherApps:MpiExample2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target MpiExample2
+
+((31)) [OtherApps:QueensList.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target QueensList
+
+((32)) [OtherApps:QueensList3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target QueensList3
+
+((33)) [OtherApps:RandomAccess.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RandomAccess
+
+((34)) [OtherApps:RandomAccess_int.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RandomAccess_int
+
+((35)) [OtherApps:RandomAccess_long.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RandomAccess_long
+
+((36)) [OtherApps:RandomAccess_skewed.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RandomAccess_skewed
+
+((37)) [OtherApps:Tree.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Tree
+
+((38)) [sparsematmult:SparseMatmultAllValues.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target SparseMatmultAllValues
+
+((39)) [sparsematmult:SparseMatmultAllValuesClean.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target SparseMatmultAllValuesClean
+
+((40)) [bits:Bits.x10] + V
+[x10c++th:err]: no "public static void main" method in Bits.x10
+ *** X ***
+[x10c++th:err]: Bits.x10 is not a valid test case
+
+((41)) [Annotations:Aggregate.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((42)) [Annotations:BitsTest.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BitsTest
+
+((43)) [Annotations:DimTest.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DimTest
+
+((44)) [Annotations:DimTest2.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DimTest2
+
+((45)) [Annotations:DimTest3.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DimTest3
+
+((46)) [Annotations:DimTest3_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((47)) [dims:Acceleration.x10] + V
+[x10c++th:err]: no "public static void main" method in Acceleration.x10
+ *** X ***
+[x10c++th:err]: Acceleration.x10 is not a valid test case
+
+((48)) [dims:Angle.x10] + V
+[x10c++th:err]: no "public static void main" method in Angle.x10
+ *** X ***
+[x10c++th:err]: Angle.x10 is not a valid test case
+
+((49)) [dims:Area.x10] + V
+[x10c++th:err]: no "public static void main" method in Area.x10
+ *** X ***
+[x10c++th:err]: Area.x10 is not a valid test case
+
+((50)) [dims:BaseUnit.x10] + V
+[x10c++th:err]: no "public static void main" method in BaseUnit.x10
+ *** X ***
+[x10c++th:err]: BaseUnit.x10 is not a valid test case
+
+((51)) [dims:Capacitance.x10] + V
+[x10c++th:err]: no "public static void main" method in Capacitance.x10
+ *** X ***
+[x10c++th:err]: Capacitance.x10 is not a valid test case
+
+((52)) [dims:CatalyticActivity.x10] + V
+[x10c++th:err]: no "public static void main" method in CatalyticActivity.x10
+ *** X ***
+[x10c++th:err]: CatalyticActivity.x10 is not a valid test case
+
+((53)) [dims:Charge.x10] + V
+[x10c++th:err]: no "public static void main" method in Charge.x10
+ *** X ***
+[x10c++th:err]: Charge.x10 is not a valid test case
+
+((54)) [dims:Conductance.x10] + V
+[x10c++th:err]: no "public static void main" method in Conductance.x10
+ *** X ***
+[x10c++th:err]: Conductance.x10 is not a valid test case
+
+((55)) [dims:Current.x10] + V
+[x10c++th:err]: no "public static void main" method in Current.x10
+ *** X ***
+[x10c++th:err]: Current.x10 is not a valid test case
+
+((56)) [dims:DerivedUnit.x10] + V
+[x10c++th:err]: no "public static void main" method in DerivedUnit.x10
+ *** X ***
+[x10c++th:err]: DerivedUnit.x10 is not a valid test case
+
+((57)) [dims:Energy.x10] + V
+[x10c++th:err]: no "public static void main" method in Energy.x10
+ *** X ***
+[x10c++th:err]: Energy.x10 is not a valid test case
+
+((58)) [dims:Force.x10] + V
+[x10c++th:err]: no "public static void main" method in Force.x10
+ *** X ***
+[x10c++th:err]: Force.x10 is not a valid test case
+
+((59)) [dims:Frequency.x10] + V
+[x10c++th:err]: no "public static void main" method in Frequency.x10
+ *** X ***
+[x10c++th:err]: Frequency.x10 is not a valid test case
+
+((60)) [dims:Illuminance.x10] + V
+[x10c++th:err]: no "public static void main" method in Illuminance.x10
+ *** X ***
+[x10c++th:err]: Illuminance.x10 is not a valid test case
+
+((61)) [dims:Inductance.x10] + V
+[x10c++th:err]: no "public static void main" method in Inductance.x10
+ *** X ***
+[x10c++th:err]: Inductance.x10 is not a valid test case
+
+((62)) [dims:Length.x10] + V
+[x10c++th:err]: no "public static void main" method in Length.x10
+ *** X ***
+[x10c++th:err]: Length.x10 is not a valid test case
+
+((63)) [dims:LuminousFlux.x10] + V
+[x10c++th:err]: no "public static void main" method in LuminousFlux.x10
+ *** X ***
+[x10c++th:err]: LuminousFlux.x10 is not a valid test case
+
+((64)) [dims:LuminousIntensity.x10] + V
+[x10c++th:err]: no "public static void main" method in LuminousIntensity.x10
+ *** X ***
+[x10c++th:err]: LuminousIntensity.x10 is not a valid test case
+
+((65)) [dims:MagneticFlux.x10] + V
+[x10c++th:err]: no "public static void main" method in MagneticFlux.x10
+ *** X ***
+[x10c++th:err]: MagneticFlux.x10 is not a valid test case
+
+((66)) [dims:MagneticFluxDensity.x10] + V
+[x10c++th:err]: no "public static void main" method in MagneticFluxDensity.x10
+ *** X ***
+[x10c++th:err]: MagneticFluxDensity.x10 is not a valid test case
+
+((67)) [dims:Mass.x10] + V
+[x10c++th:err]: no "public static void main" method in Mass.x10
+ *** X ***
+[x10c++th:err]: Mass.x10 is not a valid test case
+
+((68)) [dims:Matter.x10] + V
+[x10c++th:err]: no "public static void main" method in Matter.x10
+ *** X ***
+[x10c++th:err]: Matter.x10 is not a valid test case
+
+((69)) [dims:Measure.x10] + V
+[x10c++th:err]: no "public static void main" method in Measure.x10
+ *** X ***
+[x10c++th:err]: Measure.x10 is not a valid test case
+
+((70)) [dims:Power.x10] + V
+[x10c++th:err]: no "public static void main" method in Power.x10
+ *** X ***
+[x10c++th:err]: Power.x10 is not a valid test case
+
+((71)) [dims:Pressure.x10] + V
+[x10c++th:err]: no "public static void main" method in Pressure.x10
+ *** X ***
+[x10c++th:err]: Pressure.x10 is not a valid test case
+
+((72)) [dims:Radioactivity.x10] + V
+[x10c++th:err]: no "public static void main" method in Radioactivity.x10
+ *** X ***
+[x10c++th:err]: Radioactivity.x10 is not a valid test case
+
+((73)) [dims:Resistance.x10] + V
+[x10c++th:err]: no "public static void main" method in Resistance.x10
+ *** X ***
+[x10c++th:err]: Resistance.x10 is not a valid test case
+
+((74)) [dims:SI.x10] + V
+[x10c++th:err]: no "public static void main" method in SI.x10
+ *** X ***
+[x10c++th:err]: SI.x10 is not a valid test case
+
+((75)) [dims:SolidAngle.x10] + V
+[x10c++th:err]: no "public static void main" method in SolidAngle.x10
+ *** X ***
+[x10c++th:err]: SolidAngle.x10 is not a valid test case
+
+((76)) [dims:Temperature.x10] + V
+[x10c++th:err]: no "public static void main" method in Temperature.x10
+ *** X ***
+[x10c++th:err]: Temperature.x10 is not a valid test case
+
+((77)) [dims:Time.x10] + V
+[x10c++th:err]: no "public static void main" method in Time.x10
+ *** X ***
+[x10c++th:err]: Time.x10 is not a valid test case
+
+((78)) [dims:Unit.x10] + V
+[x10c++th:err]: no "public static void main" method in Unit.x10
+ *** X ***
+[x10c++th:err]: Unit.x10 is not a valid test case
+
+((79)) [dims:Velocity.x10] + V
+[x10c++th:err]: no "public static void main" method in Velocity.x10
+ *** X ***
+[x10c++th:err]: Velocity.x10 is not a valid test case
+
+((80)) [dims:Voltage.x10] + V
+[x10c++th:err]: no "public static void main" method in Voltage.x10
+ *** X ***
+[x10c++th:err]: Voltage.x10 is not a valid test case
+
+((81)) [dims:Volume.x10] + V
+[x10c++th:err]: no "public static void main" method in Volume.x10
+ *** X ***
+[x10c++th:err]: Volume.x10 is not a valid test case
+
+((82)) [Array:Array1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Array1
+
+((83)) [Array:Array1DCodeGen.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Array1DCodeGen
+
+((84)) [Array:Array1Exploded.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute Array1Exploded
+
+((85)) [Array:Array1b.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Array1b
+
+((86)) [Array:Array1c.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Array1c
+
+((87)) [Array:Array2v.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Array2v
+
+((88)) [Array:Array3.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((89)) [Array:Array31.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((90)) [Array:Array3Boolean.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((91)) [Array:Array3Byte.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((92)) [Array:Array3Char.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((93)) [Array:Array3Double.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((94)) [Array:Array3Float.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((95)) [Array:Array3Long.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((96)) [Array:Array3Short.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((97)) [Array:Array4.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((98)) [Array:Array5.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((99)) [Array:ArrayAlgebra.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayAlgebra
+
+((100)) [Array:ArrayAlgebra2.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ArrayAlgebra2
+
+((101)) [Array:ArrayArrayInitializerShorthand.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: ArrayArrayInitializerShorthand is killed due to timeout
+
+((102)) [Array:ArrayBounds1D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ArrayBounds1D
+
+((103)) [Array:ArrayBounds2D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ArrayBounds2D
+
+((104)) [Array:ArrayBounds3D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ArrayBounds3D
+
+((105)) [Array:ArrayConstructor.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((106)) [Array:ArrayCopy1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayCopy1
+
+((107)) [Array:ArrayCopy2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayCopy2
+
+((108)) [Array:ArrayCopy3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayCopy3
+
+((109)) [Array:ArrayDecl.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ArrayDecl
+
+((110)) [Array:ArrayFuture.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayFuture
+
+((111)) [Array:ArrayFutureFlatten.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayFutureFlatten
+
+((112)) [Array:ArrayInitializer.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayInitializer
+
+((113)) [Array:ArrayInitializerShorthand.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: ArrayInitializerShorthand is killed due to timeout
+
+((114)) [Array:ArrayOfArraysShorthand.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ArrayOfArraysShorthand
+
+((115)) [Array:ArrayOpAssign.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((116)) [Array:ArrayOpAssign2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((117)) [Array:ArrayOverRegion.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayOverRegion
+
+((118)) [Array:ArraySubtypeCheck_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((119)) [Array:ArrayTypeCheck.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayTypeCheck
+
+((120)) [Array:ArrayTypeCheck2.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: ArrayTypeCheck2 is killed due to timeout
+
+((121)) [Array:ArrayTypeCheck2_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for ArrayTypeCheck2_MustFailCompile
+
+((122)) [Array:ArrayTypeCheck_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((123)) [Array:BlockDistedArray1D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BlockDistedArray1D
+
+((124)) [Array:BlockDistedArray1D_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BlockDistedArray1D_Dep
+
+((125)) [Array:BlockDistedArray2D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BlockDistedArray2D
+
+((126)) [Array:BlockDistedArray2D_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BlockDistedArray2D_Dep
+
+((127)) [Array:CheckTwice.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((128)) [Array:ConstructDist2D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ConstructDist2D
+
+((129)) [Array:DimCheck.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: DimCheck is killed due to timeout
+
+((130)) [Array:DimCheckN2_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for DimCheckN2_MustFailCompile
+
+((131)) [Array:DimCheckN3_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for DimCheckN3_MustFailCompile
+
+((132)) [Array:DimCheckN4_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for DimCheckN4_MustFailCompile
+
+((133)) [Array:DimCheckN_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for DimCheckN_MustFailCompile
+
+((134)) [Array:DimCheck_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for DimCheck_MustFailCompile
+
+((135)) [Array:EncapsulatedArray1D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target EncapsulatedArray1D
+
+((136)) [Array:EncapsulatedArray1D_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target EncapsulatedArray1D_Dep
+
+((137)) [Array:EncapsulatedArray2D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target EncapsulatedArray2D
+
+((138)) [Array:EncapsulatedArray2D_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target EncapsulatedArray2D_Dep
+
+((139)) [Array:FlattenArray.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenArray is killed due to timeout
+
+((140)) [Array:FlattenArray2.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenArray2 is killed due to timeout
+
+((141)) [Array:FlattenArray3.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenArray3 is killed due to timeout
+
+((142)) [Array:FlattenArray4.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenArray4 is killed due to timeout
+
+((143)) [Array:FlattenAsyncExpr.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((144)) [Array:FlattenAsyncExpr2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((145)) [Array:FlattenCast.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenCast is killed due to timeout
+
+((146)) [Array:FlattenCondAnd.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenCondAnd is killed due to timeout
+
+((147)) [Array:FlattenCondAndAnd.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenCondAndAnd is killed due to timeout
+
+((148)) [Array:FlattenCondOr.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenCondOr is killed due to timeout
+
+((149)) [Array:FlattenConditional.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenConditional is killed due to timeout
+
+((150)) [Array:FlattenConditional2.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenConditional2 is killed due to timeout
+
+((151)) [Array:FlattenConditional3.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenConditional3 is killed due to timeout
+
+((152)) [Array:FlattenFutureCall.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FlattenFutureCall
+
+((153)) [Array:FlattenInVoid.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenInVoid is killed due to timeout
+
+((154)) [Array:FlattenInitFor.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FlattenInitFor
+
+((155)) [Array:FlattenPlaceCast.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for FlattenPlaceCast
+
+((156)) [Array:FlattenValForce.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FlattenValForce
+
+((157)) [Array:FlattenVarInit.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: FlattenVarInit is killed due to timeout
+
+((158)) [Array:Force.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Force
+
+((159)) [Array:IntArrayInitializerShorthand.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: IntArrayInitializerShorthand is killed due to timeout
+
+((160)) [Array:IntArrayMaxAbs.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target IntArrayMaxAbs
+
+((161)) [Array:IntValueArrayInitializerShorthand.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: IntValueArrayInitializerShorthand is killed due to timeout
+
+((162)) [Array:JavaArrayInitializer.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target JavaArrayInitializer
+
+((163)) [Array:JavaArrayNotInitialized_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((164)) [Array:JavaArrayWithInitializer.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for JavaArrayWithInitializer
+
+((165)) [Array:MiscTest1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target MiscTest1
+
+((166)) [Array:MultiDimensionalJavaArray.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for MultiDimensionalJavaArray
+
+((167)) [Array:NullableArrayAssign.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableArrayAssign
+
+((168)) [Array:ObjectArrayInitializerShorthand.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: ObjectArrayInitializerShorthand is killed due to timeout
+
+((169)) [Array:StencilFor2D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target StencilFor2D
+
+((170)) [Array:StencilFor2D_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target StencilFor2D_Dep
+
+((171)) [Array:StencilForeach2D.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target StencilForeach2D
+
+((172)) [Array:StencilForeach2D_Dep.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target StencilForeach2D_Dep
+
+((173)) [Array:TestSimpleArrayMult.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target TestSimpleArrayMult
+
+((174)) [Array:UserArrayBounds1D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for UserArrayBounds1D
+
+((175)) [Array:UserArrayBounds2D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for UserArrayBounds2D
+
+((176)) [Array:UserArrayBounds3D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for UserArrayBounds3D
+
+((177)) [Array:UserDefinedArray.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target UserDefinedArray
+
+((178)) [Async:AsyncFieldAccess.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AsyncFieldAccess
+
+((179)) [Async:AsyncNext.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AsyncNext
+
+((180)) [Async:AsyncReturn.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AsyncReturn
+
+((181)) [Async:AsyncTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((182)) [Async:AsyncTest1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((183)) [Async:AsyncTest2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AsyncTest2
+
+((184)) [Async:AsyncTest3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AsyncTest3
+
+((185)) [Async:AsyncTest4_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((186)) [Async:AsyncTest5.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AsyncTest5
+
+((187)) [Async:ClockAsyncTest.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockAsyncTest
+
+((188)) [Async:ClockAsyncTest2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((189)) [AtEach:AtEach.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AtEach
+
+((190)) [AtEach:AtEach2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AtEach2
+
+((191)) [AtEach:AtEachLoopOnArray.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute AtEachLoopOnArray
+
+((192)) [Atomic:Atomic1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Atomic1
+
+((193)) [Atomic:Atomic2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Atomic2
+
+((194)) [Atomic:AtomicContainingWhen_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((195)) [Atomic:AtomicMethodTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((196)) [Atomic:AtomicNonLocal_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for AtomicNonLocal_MustFailCompile
+
+((197)) [Atomic:AtomicOrdered.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AtomicOrdered
+
+((198)) [Atomic:AtomicReturn.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((199)) [Atomic:AtomicTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((200)) [Atomic:AwaitTest.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: AwaitTest is killed due to timeout
+
+((201)) [Atomic:AwaitTest2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((202)) [Atomic:ConditionalAtomicQueue.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ConditionalAtomicQueue
+
+((203)) [Atomic:ConditionalAtomicTest.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: ConditionalAtomicTest is killed due to timeout
+
+((204)) [Atomic:NoAsyncInAtomic_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((205)) [Atomic:NoAtEachInAtomic_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((206)) [Atomic:NoAwaitInAtomic_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((207)) [Atomic:NoForEachInAtomic_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((208)) [Atomic:NoNextInAtomic_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((209)) [Atomic:NoWhenInAtomic_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((210)) [Atomic:WhenReturn.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((211)) [Atomic:WhenReturnAll.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((212)) [Await:ArgMustBeBoolean_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((213)) [Boxing:Boxing0.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((214)) [Boxing:Boxing1.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute Boxing1
+
+((215)) [Boxing:Boxing2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((216)) [Boxing:_complex.x10] + V
+[x10c++th:err]: no "public static void main" method in _complex.x10
+ *** X ***
+[x10c++th:err]: _complex.x10 is not a valid test case
+
+((217)) [Boxing:_dummy.x10] + V
+[x10c++th:err]: no "public static void main" method in _dummy.x10
+ *** X ***
+[x10c++th:err]: _dummy.x10 is not a valid test case
+
+((218)) [Call:Block.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((219)) [Call:Block2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Block2
+
+((220)) [ArrayDependentTypeCast:ArrayCast1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((221)) [ArrayDependentTypeCast:ArrayDynamicCast.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((222)) [ArrayDependentTypeCast:ArrayDynamicCastFromMethod.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayDynamicCastFromMethod
+
+((223)) [ArrayDependentTypeCast:ArrayDynamicCastFromMethod2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayDynamicCastFromMethod2
+
+((224)) [ArrayDependentTypeCast:ArrayDynamicCastFromObject.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayDynamicCastFromObject
+
+((225)) [ArrayDependentTypeCast:ArrayIdentityCast.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayIdentityCast
+
+((226)) [ArrayDependentTypeCast:DistributionDynamicCast1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistributionDynamicCast1
+
+((227)) [ArrayDependentTypeCast:DistributionIdentityCast.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistributionIdentityCast
+
+((228)) [ArrayDependentTypeCast:RegionCastWideningClause.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionCastWideningClause
+
+((229)) [ArrayDependentTypeCast:RegionDynamicCast1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionDynamicCast1
+
+((230)) [ArrayDependentTypeCast:RegionIdentityCast.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionIdentityCast
+
+((231)) [Cast:FloatLit.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((232)) [Cast:Int1ToInt.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((233)) [Cast:Int1ToInt0_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((234)) [Cast:IntToInt1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((235)) [PrimitiveDependentTypeCast:AssignmentIntLitteralToConstrainedInt.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AssignmentIntLitteralToConstrainedInt
+
+((236)) [PrimitiveDependentTypeCast:AssignmentIntLitteralToConstrainedInt_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((237)) [PrimitiveDependentTypeCast:AssignmentIntegerLitteralToConstrainedShort_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((238)) [PrimitiveDependentTypeCast:AssignmentLitteralPrimitiveToPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((239)) [PrimitiveDependentTypeCast:AssignmentLitteralPrimitiveToPrimitiveConstrained_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((240)) [PrimitiveDependentTypeCast:AssignmentPrimitiveConstrainedIdentity.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AssignmentPrimitiveConstrainedIdentity
+
+((241)) [PrimitiveDependentTypeCast:AssignmentPrimitiveConstrainedToPrimitive.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AssignmentPrimitiveConstrainedToPrimitive
+
+((242)) [PrimitiveDependentTypeCast:AssignmentPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((243)) [PrimitiveDependentTypeCast:AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((244)) [PrimitiveDependentTypeCast:CastBoxedToNullablePrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((245)) [PrimitiveDependentTypeCast:CastBoxedToNullablePrimitiveConstrained.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((246)) [PrimitiveDependentTypeCast:CastBoxedToNullablePrimitiveConstrained2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastBoxedToNullablePrimitiveConstrained2
+
+((247)) [PrimitiveDependentTypeCast:CastBoxedToPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((248)) [PrimitiveDependentTypeCast:CastBoxedToPrimitive2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastBoxedToPrimitive2
+
+((249)) [PrimitiveDependentTypeCast:CastBoxedToPrimitiveConstrained1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((250)) [PrimitiveDependentTypeCast:CastBoxedToPrimitiveConstrained2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastBoxedToPrimitiveConstrained2
+
+((251)) [PrimitiveDependentTypeCast:CastLitteralToPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((252)) [PrimitiveDependentTypeCast:CastNullToNullablePrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((253)) [PrimitiveDependentTypeCast:CastNullToNullablePrimitiveConstrained.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((254)) [PrimitiveDependentTypeCast:CastNullToNullableReference.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((255)) [PrimitiveDependentTypeCast:CastNullToReference_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((256)) [PrimitiveDependentTypeCast:CastNullablePrimitiveToPrimitive.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastNullablePrimitiveToPrimitive
+
+((257)) [PrimitiveDependentTypeCast:CastPrimitiveConstrainedToPrimitiveConstrained.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastPrimitiveConstrainedToPrimitiveConstrained
+
+((258)) [PrimitiveDependentTypeCast:CastPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((259)) [PrimitiveDependentTypeCast:CastPrimitiveLitteralToPrimitiveConstrained1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((260)) [PrimitiveDependentTypeCast:CastPrimitiveLitteralToPrimitiveConstrained_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((261)) [PrimitiveDependentTypeCast:CastPrimitiveToObject.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((262)) [PrimitiveDependentTypeCast:CastPrimitiveToPrimitiveConstrained1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastPrimitiveToPrimitiveConstrained1
+
+((263)) [PrimitiveDependentTypeCast:CastPrimitiveToPrimitiveConstrained2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((264)) [PrimitiveDependentTypeCast:Float_ConstraintDeclaredAsDouble_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((265)) [PrimitiveDependentTypeCast:Float_ConstraintDeclaredAsFloat.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((266)) [PrimitiveDependentTypeCast:Integer_ConstraintWithVariable.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((267)) [PrimitiveDependentTypeCast:Long_ConstrainedDeclaredAsIntegerOverflow2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((268)) [PrimitiveDependentTypeCast:Long_ConstrainedDeclaredAsIntegerOverflow_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((269)) [PrimitiveDependentTypeCast:Long_ConstraintDeclaredAsInteger.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((270)) [PrimitiveDependentTypeCast:Long_ConstraintDeclaredAsLong.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((271)) [PrimitiveDependentTypeCast:NumericExpressionToPrimitiveDepType_1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((272)) [PrimitiveDependentTypeCast:NumericExpressionToPrimitiveDepType_2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NumericExpressionToPrimitiveDepType_2
+
+((273)) [PrimitiveDependentTypeCast:NumericExpressionToPrimitiveDepType_3.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((274)) [PrimitiveDependentTypeCast:NumericExpressionToPrimitiveDepType_4.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((275)) [PrimitiveDependentTypeCast:NumericExpressionToPrimitiveDepType_5.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((276)) [PrimitiveDependentTypeCast:NumericExpressionToPrimitiveDepType_8.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((277)) [PrimitiveDependentTypeCast:PrimitiveAssignment.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((278)) [PrimitiveDependentTypeCast:PrimitiveDepTypeAssignmentOverflow.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target PrimitiveDepTypeAssignmentOverflow
+
+((279)) [PrimitiveDependentTypeCast:PrimitiveDepTypeCast_Overflow1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target PrimitiveDepTypeCast_Overflow1
+
+((280)) [PrimitiveDependentTypeCast:Short_ConstraintDeclaredAsInteger.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((281)) [PrimitiveDependentTypeCast:Short_ConstraintDeclaredAsShort.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((282)) [PrimitiveDependentTypeCast:UnboxNullablePrimitive.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target UnboxNullablePrimitive
+
+((283)) [PrimitiveDependentTypeCast:UnboxNullablePrimitiveConstrained.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target UnboxNullablePrimitiveConstrained
+
+((284)) [PrimitiveDependentTypeCast:UnboxNullablePrimitiveConstrained1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((285)) [PrimitiveDependentTypeCast:UnboxNullablePrimitiveConstrained2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((286)) [PrimitiveDependentTypeCast:UnboxPrimitive.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target UnboxPrimitive
+
+((287)) [PrimitiveDependentTypeCast:UnboxPrimitiveConstrained.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((288)) [PrimitiveDependentTypeCast:UnboxPrimitiveConstrained1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((289)) [PrimitiveDependentTypeCast:UnboxPrimitiveConstrained2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((290)) [ReferenceDependentTypeCast:AssignmentNullToConstrainedNullable_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((291)) [ReferenceDependentTypeCast:CastConstrainedNullableToConstrainedNonNullable.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((292)) [ReferenceDependentTypeCast:CastConstrainedToConstrainedNullable_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((293)) [ReferenceDependentTypeCast:CastConstraintOnThis.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((294)) [ReferenceDependentTypeCast:CastNegativeConstraint.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastNegativeConstraint
+
+((295)) [ReferenceDependentTypeCast:CastNullNullableToConstrained.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastNullNullableToConstrained
+
+((296)) [ReferenceDependentTypeCast:CastNullNullableToNonNullable.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastNullNullableToNonNullable
+
+((297)) [ReferenceDependentTypeCast:CastNullNullableToNullable.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((298)) [ReferenceDependentTypeCast:CastNullToConstrainedNullable.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CastNullToConstrainedNullable
+
+((299)) [ReferenceDependentTypeCast:CastNullableToNonNullable.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((300)) [ReferenceDependentTypeCast:ClassDepTypeCastWideningClause.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((301)) [ReferenceDependentTypeCast:ClassDepTypeCastWideningClause_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((302)) [ReferenceDependentTypeCast:DynamicCast1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCast1
+
+((303)) [ReferenceDependentTypeCast:DynamicCast2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCast2
+
+((304)) [ReferenceDependentTypeCast:DynamicCast3_Object.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCast3_Object
+
+((305)) [ReferenceDependentTypeCast:DynamicCast4_MethodReturn.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCast4_MethodReturn
+
+((306)) [ReferenceDependentTypeCast:DynamicCast5_MethodReturn.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCast5_MethodReturn
+
+((307)) [ReferenceDependentTypeCast:DynamicCast6_DepTypeVariables.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCast6_DepTypeVariables
+
+((308)) [ReferenceDependentTypeCast:DynamicCastDownCastHeritage.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCastDownCastHeritage
+
+((309)) [ReferenceDependentTypeCast:DynamicCastInterface1_Object.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCastInterface1_Object
+
+((310)) [ReferenceDependentTypeCast:DynamicCastUpCastHeritage.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DynamicCastUpCastHeritage
+
+((311)) [ReferenceDependentTypeCast:StaticCastWithHeritage.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target StaticCastWithHeritage
+
+((312)) [ReferenceDependentTypeCast:X10DepTypeClassOne.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target X10DepTypeClassOne
+
+((313)) [ReferenceDependentTypeCast:X10DepTypeClassTwo.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((314)) [ReferenceDependentTypeCast:X10DepTypeSubClassOne.x10] + V
+[x10c++th:err]: no "public static void main" method in X10DepTypeSubClassOne.x10
+ *** X ***
+[x10c++th:err]: X10DepTypeSubClassOne.x10 is not a valid test case
+
+((315)) [ReferenceDependentTypeCast:X10InterfaceOne.x10] + V
+[x10c++th:err]: no "public static void main" method in X10InterfaceOne.x10
+ *** X ***
+[x10c++th:err]: X10InterfaceOne.x10 is not a valid test case
+
+((316)) [Clock:ClockFuture.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockFuture
+
+((317)) [Clock:ClockPascal.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockPascal
+
+((318)) [Clock:ClockPascal2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockPascal2
+
+((319)) [Clock:ClockTest.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest
+
+((320)) [Clock:ClockTest1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest1
+
+((321)) [Clock:ClockTest10.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest10
+
+((322)) [Clock:ClockTest10a.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ClockTest10a
+
+((323)) [Clock:ClockTest11.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ClockTest11
+
+((324)) [Clock:ClockTest12.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest12
+
+((325)) [Clock:ClockTest13.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest13
+
+((326)) [Clock:ClockTest14.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest14
+
+((327)) [Clock:ClockTest15.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest15
+
+((328)) [Clock:ClockTest15WithResume.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ClockTest15WithResume
+
+((329)) [Clock:ClockTest16.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest16
+
+((330)) [Clock:ClockTest16a_MustFailRun.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest16a_MustFailRun
+
+((331)) [Clock:ClockTest17_MustFailRun.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: invalid validation code FAIL_RUN
+
+((332)) [Clock:ClockTest18_MustFailRun.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest18_MustFailRun
+
+((333)) [Clock:ClockTest2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest2
+
+((334)) [Clock:ClockTest3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest3
+
+((335)) [Clock:ClockTest3a.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest3a
+
+((336)) [Clock:ClockTest3b.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest3b
+
+((337)) [Clock:ClockTest4.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest4
+
+((338)) [Clock:ClockTest5.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest5
+
+((339)) [Clock:ClockTest6.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ClockTest6
+
+((340)) [Clock:ClockTest7_MustFailRun.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+((341)) [Clock:ClockTest8_MustFailRun.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest8_MustFailRun
+
+((342)) [Clock:ClockTest9.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClockTest9
+
+((343)) [Constructor:PropertyAssign.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((344)) [DepType:CallLaterMethod.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((345)) [DepType:CastChecking1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((346)) [DepType:CastChecking_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((347)) [DepType:CharLitDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((348)) [DepType:CharLitDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((349)) [DepType:CheckDescendEntails.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CheckDescendEntails
+
+((350)) [DepType:CheckDescendEntails_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((351)) [DepType:CheckEqualTypes.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((352)) [DepType:ClassDepClause.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClassDepClause
+
+((353)) [DepType:CondAnd.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target CondAnd
+
+((354)) [DepType:ConsistentInterfaceInvariants.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ConsistentInterfaceInvariants
+
+((355)) [DepType:ConstructorInvocation.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ConstructorInvocation
+
+((356)) [DepType:ConstructorInvocation2.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ConstructorInvocation2
+
+((357)) [DepType:ConstructorInvocation_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((358)) [DepType:DepClauseForNullableType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((359)) [DepType:DepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((360)) [DepType:DepType1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((361)) [DepType:DepTypeConsistency1_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for DepTypeConsistency1_MustFailCompile
+
+((362)) [DepType:DepTypeConsistency_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((363)) [DepType:DepTypeInMethodArg.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((364)) [DepType:DepTypeInMethodArgDependsOnArg.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((365)) [DepType:DepTypeInMethodArg_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((366)) [DepType:DepTypeInMethodRet.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((367)) [DepType:DepTypeInMethodRet1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((368)) [DepType:DepTypeInMethodRet1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((369)) [DepType:DepTypeInMethodRet_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((370)) [DepType:DepTypeRef.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: DepTypeRef is killed due to timeout
+
+((371)) [DepType:DepTypeThisClause.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DepTypeThisClause
+
+((372)) [DepType:DepTypeVariableVisibility_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((373)) [DepType:DoubleLit.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((374)) [DepType:DoubleLitDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((375)) [DepType:DoubleLitDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((376)) [DepType:EntailsPositiveInnerMustPass.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((377)) [DepType:EntailsPositiveInner_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((378)) [DepType:EntailsPositive_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((379)) [DepType:EqualityBoolean.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((380)) [DepType:EqualityInteger.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((381)) [DepType:EquivClause_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((382)) [DepType:Extends.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for Extends
+
+((383)) [DepType:FieldDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((384)) [DepType:FieldPropFromThis.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for FieldPropFromThis
+
+((385)) [DepType:FieldsMustBeFinalInDepClause.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((386)) [DepType:FloatLitDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((387)) [DepType:FloatLitDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((388)) [DepType:GuardedFieldAccess.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((389)) [DepType:GuardedFieldAccess_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((390)) [DepType:GuardedMethodAccess.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((391)) [DepType:GuardedMethodAccess_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for GuardedMethodAccess_MustFailCompile
+
+((392)) [DepType:InconsistentInterfaceInvariants_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for InconsistentInterfaceInvariants_MustFailCompile
+
+((393)) [DepType:InheritedClause.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for InheritedClause
+
+((394)) [DepType:InheritedClause_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((395)) [DepType:InnerClass.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for InnerClass
+
+((396)) [DepType:InnerDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((397)) [DepType:IntDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((398)) [DepType:IntDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((399)) [DepType:IntLitDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((400)) [DepType:IntLitDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((401)) [DepType:InterfaceProp.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for InterfaceProp
+
+((402)) [DepType:InterfaceProp_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((403)) [DepType:InterfaceTypeInvariant.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target InterfaceTypeInvariant
+
+((404)) [DepType:InterfaceTypeInvariant_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for InterfaceTypeInvariant_MustFailCompile
+
+((405)) [DepType:LongLitDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((406)) [DepType:LongLitDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((407)) [DepType:MethodArgDepTypes.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((408)) [DepType:MethodArgDepTypes2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target MethodArgDepTypes2
+
+((409)) [DepType:MethodInvocation.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((410)) [DepType:MethodInvocation_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((411)) [DepType:NegIntLitDepType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((412)) [DepType:NoDepClause.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NoDepClause
+
+((413)) [DepType:NonBooleanConstraint_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((414)) [DepType:NonFinalField_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((415)) [DepType:NonFinalVariable_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((416)) [DepType:Prop.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((417)) [DepType:Prop1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Prop1
+
+((418)) [DepType:PropertyMustBeAssignedInConsBody_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((419)) [DepType:PropertyNotInvoked2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((420)) [DepType:PropertyNotInvoked_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((421)) [DepType:Rail.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((422)) [DepType:RailAlias.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((423)) [DepType:RefToSameFieldInDepClause.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((424)) [DepType:ReferenceConsistencyCheck.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ReferenceConsistencyCheck
+
+((425)) [DepType:SameNameGuardedFieldAccess_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((426)) [DepType:SamePropertyAncestor_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((427)) [DepType:SameSignatureMethod_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((428)) [DepType:SelfFieldLocalVarShadow_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((429)) [DepType:SelfFieldsMustBeProperties1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((430)) [DepType:SelfFieldsMustBeProperties_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((431)) [DepType:StaticReturn.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((432)) [DepType:StringLitDepType.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target StringLitDepType
+
+((433)) [DepType:StringLitDepType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((434)) [DepType:SuperExtendsRule_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((435)) [DepType:ThisInConstructorReturn.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((436)) [DepType:ThisPropogatedToReturnType.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ThisPropogatedToReturnType
+
+((437)) [DepType:ThisRestrictionsConstructorContext_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((438)) [DepType:ThisRestrictionsStaticContext_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((439)) [DepType:Transitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((440)) [DepType:Transitivity.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((441)) [DepType:UninitializedProperty_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((442)) [DepType:ValueProp.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((443)) [DepType:ValueProp1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ValueProp1
+
+((444)) [DepType:VarBeingDefinedInType.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((445)) [DepType:VarBeingDefinedInType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((446)) [DepType:VariableMustBeFinalInDepClause.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((447)) [TypeElaboration:CF1.x10] + V
+[x10c++th:err]: no "public static void main" method in CF1.x10
+ *** X ***
+[x10c++th:err]: CF1.x10 is not a valid test case
+
+((448)) [TypeElaboration:CLV1.x10] + V
+[x10c++th:err]: no "public static void main" method in CLV1.x10
+ *** X ***
+[x10c++th:err]: CLV1.x10 is not a valid test case
+
+((449)) [TypeElaboration:CircularField.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((450)) [TypeElaboration:CircularLV.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((451)) [Distribution:ArrayToDist.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayToDist
+
+((452)) [Distribution:BlockCyclicDist.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for BlockCyclicDist
+
+((453)) [Distribution:BlockCyclicDistWithPlaceSet.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for BlockCyclicDistWithPlaceSet
+
+((454)) [Distribution:BlockDist.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for BlockDist
+
+((455)) [Distribution:BlockDistWithPlaceSet.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for BlockDistWithPlaceSet
+
+((456)) [Distribution:ConstDist.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((457)) [Distribution:CyclicDist.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for CyclicDist
+
+((458)) [Distribution:CyclicDistWithPlaceSet.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for CyclicDistWithPlaceSet
+
+((459)) [Distribution:DistAlgebra.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistAlgebra
+
+((460)) [Distribution:DistAlgebra2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistAlgebra2
+
+((461)) [Distribution:DistAlgebra3_MustFailRun.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistAlgebra3_MustFailRun
+
+((462)) [Distribution:DistBounds1D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DistBounds1D
+
+((463)) [Distribution:DistBounds2D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DistBounds2D
+
+((464)) [Distribution:DistBounds3D.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for DistBounds3D
+
+((465)) [Distribution:DistributionTest.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistributionTest
+
+((466)) [Distribution:DistributionTest1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target DistributionTest1
+
+((467)) [Distribution:Restrict.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Restrict
+
+((468)) [Distribution:Test.x10] + V
+[x10c++th:err]: no "public static void main" method in Test.x10
+ *** X ***
+[x10c++th:err]: Test.x10 is not a valid test case
+
+((469)) [Distribution:Test2.x10] + V
+[x10c++th:err]: no "public static void main" method in Test2.x10
+ *** X ***
+[x10c++th:err]: Test2.x10 is not a valid test case
+
+((470)) [Exceptions:ExceptionBug_MustFailRun.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+((471)) [Exceptions:Exceptions.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Exceptions
+
+((472)) [Exceptions:Exceptions2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Exceptions2
+
+((473)) [Exceptions:Exceptions3_MustFailTimeout.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute Exceptions3_MustFailTimeout
+
+((474)) [Exceptions:Exceptions_BadPlace.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Exceptions_BadPlace
+
+((475)) [Extern:AllArrayExternUnsafe.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target AllArrayExternUnsafe
+
+((476)) [Extern:BasicExternTest1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BasicExternTest1
+
+((477)) [Extern:IntArrayExternUnsafe.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target IntArrayExternUnsafe
+
+((478)) [Extern:JacobiExtern.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target JacobiExtern
+
+((479)) [Extern:RandomAccess_longExtern.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RandomAccess_longExtern
+
+((480)) [Final:ImplicitFinal.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ImplicitFinal
+
+((481)) [Final:ImplicitFinal2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ImplicitFinal2
+
+((482)) [Finish:FinishTest1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((483)) [Finish:FinishTest2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FinishTest2
+
+((484)) [For:ForLoop.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ForLoop
+
+((485)) [For:ForLoop2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ForLoop2
+
+((486)) [For:ForLoop3.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: ForLoop3 is killed due to timeout
+
+((487)) [For:ForLoop4.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ForLoop4
+
+((488)) [For:ForLoopOnArray.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((489)) [ForEach:Foreach1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Foreach1
+
+((490)) [ForEach:Foreach2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Foreach2
+
+((491)) [Future:Future0.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future0
+
+((492)) [Future:Future1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future1
+
+((493)) [Future:Future1Boxed.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future1Boxed
+
+((494)) [Future:Future2Boxed.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future2Boxed
+
+((495)) [Future:Future3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future3
+
+((496)) [Future:Future3Boxed.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future3Boxed
+
+((497)) [Future:Future4.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future4
+
+((498)) [Future:Future4Boxed.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future4Boxed
+
+((499)) [Future:Future5.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Future5
+
+((500)) [Future:FutureDeadlock_MustFailTimeout.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureDeadlock_MustFailTimeout
+
+((501)) [Future:FutureForce.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureForce
+
+((502)) [Future:FutureNullable0.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureNullable0
+
+((503)) [Future:FutureNullable1Boxed.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureNullable1Boxed
+
+((504)) [Future:FutureTest2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureTest2
+
+((505)) [Future:FutureTest3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureTest3
+
+((506)) [Future:FutureTest4_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for FutureTest4_MustFailCompile
+
+((507)) [Future:FutureTest5.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target FutureTest5
+
+((508)) [SubPackage:T3.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for T3
+
+((509)) [Import:ClassPathTest.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ClassPathTest
+
+((510)) [Import:ImportTest.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ImportTest
+
+((511)) [Import:_T2.x10] + V
+[x10c++th:err]: no "public static void main" method in _T2.x10
+ *** X ***
+[x10c++th:err]: _T2.x10 is not a valid test case
+
+((512)) [ImportTestPackage2:_T4.x10] + V
+[x10c++th:err]: no "public static void main" method in _T4.x10
+ *** X ***
+[x10c++th:err]: _T4.x10 is not a valid test case
+
+((513)) [Init:InitNonNullable_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((514)) [InnerClass:Test1.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for Test1
+
+((515)) [InnerClass:Test2.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for Test2
+
+((516)) [Instanceof:InstanceofDownCast.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target InstanceofDownCast
+
+((517)) [Instanceof:InstanceofDownCast1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target InstanceofDownCast1
+
+((518)) [Instanceof:InstanceofDownCast2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target InstanceofDownCast2
+
+((519)) [Instanceof:NotInstanceof1_Inline.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NotInstanceof1_Inline
+
+((520)) [Instanceof:NotInstanceof2_Method.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NotInstanceof2_Method
+
+((521)) [Instanceof:NullObjectToNullable.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullObjectToNullable
+
+((522)) [Instanceof:NullObjectToNullableConstrained.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullObjectToNullableConstrained
+
+((523)) [Instanceof:NullToConstrainedType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((524)) [Instanceof:NullToNullableConstrainedType.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullToNullableConstrainedType
+
+((525)) [Instanceof:NullToNullablePrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((526)) [Instanceof:NullToNullablePrimitiveConstrained.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((527)) [Instanceof:NullToNullableType.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullToNullableType
+
+((528)) [Instanceof:NullToPrimitive_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((529)) [Instanceof:NullToRegularType_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((530)) [Instanceof:NullableObjectToConstrainedType1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableObjectToConstrainedType1
+
+((531)) [Instanceof:NullableObjectToConstrainedType2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableObjectToConstrainedType2
+
+((532)) [Instanceof:NullableObjectToNullableConstrainedType.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableObjectToNullableConstrainedType
+
+((533)) [Instanceof:ObjectToNullablePrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((534)) [Instanceof:ObjectToNullablePrimitiveConstrained1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((535)) [Instanceof:ObjectToNullablePrimitiveConstrained2.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ObjectToNullablePrimitiveConstrained2
+
+((536)) [Instanceof:ObjectToPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((537)) [Instanceof:ObjectToPrimitive2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ObjectToPrimitive2
+
+((538)) [Instanceof:ObjectToPrimitiveConstrained1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((539)) [Instanceof:ObjectToPrimitiveConstrained2.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ObjectToPrimitiveConstrained2
+
+((540)) [Instanceof:PrimitiveToNullablePrimitive1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((541)) [Instanceof:PrimitiveToNullablePrimitiveConstrained1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((542)) [Instanceof:PrimitiveToNullablePrimitiveConstrained2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((543)) [Instanceof:PrimitiveToNullablePrimitiveConstrained3.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((544)) [Instanceof:PrimitiveToNullablePrimitiveConstrained4.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute PrimitiveToNullablePrimitiveConstrained4
+
+((545)) [Instanceof:PrimitiveToObject.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((546)) [Instanceof:PrimitiveToPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((547)) [Instanceof:PrimitiveToPrimitiveConstrained1.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((548)) [Instanceof:PrimitiveToPrimitiveConstrained2.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute PrimitiveToPrimitiveConstrained2
+
+((549)) [Instanceof:PrimitiveToPrimitiveConstrained_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((550)) [Instanceof:ReferenceToReference.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ReferenceToReference
+
+((551)) [Instanceof:X10DepTypeClassOne.x10] + V
+[x10c++th:err]: no "public static void main" method in X10DepTypeClassOne.x10
+ *** X ***
+[x10c++th:err]: X10DepTypeClassOne.x10 is not a valid test case
+
+((552)) [Instanceof:X10DepTypeSubClassOne.x10] + V
+[x10c++th:err]: no "public static void main" method in X10DepTypeSubClassOne.x10
+ *** X ***
+[x10c++th:err]: X10DepTypeSubClassOne.x10 is not a valid test case
+
+((553)) [Instanceof:X10InterfaceOne.x10] + V
+[x10c++th:err]: no "public static void main" method in X10InterfaceOne.x10
+ *** X ***
+[x10c++th:err]: X10InterfaceOne.x10 is not a valid test case
+
+((554)) [Lit:IntLitHex.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((555)) [Lit:IntLitHexBad_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((556)) [Lit:IntLitHexOutOfRange_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((557)) [Lit:IntLitOct.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((558)) [Lit:IntLitOctBad_MustFailCompile.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: invalid validation code for IntLitOctBad_MustFailCompile
+
+((559)) [Lit:IntLitOctOutOfRange_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((560)) [Lit:IntLitOutOfRange_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((561)) [MethodDecl:AbsractMustBeImplemented_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((562)) [Modifiers:AtomicAtomic.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((563)) [Modifiers:AtomicNonblocking.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((564)) [Modifiers:Local.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((565)) [Modifiers:LocalOverride_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((566)) [Modifiers:ManyModifiers.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((567)) [Modifiers:NonBlocking.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((568)) [Modifiers:NonBlockingOverride_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((569)) [Modifiers:Safe.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((570)) [Modifiers:SafeClass.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((571)) [Modifiers:SafeClass_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((572)) [Modifiers:SafeOverride1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((573)) [Modifiers:SafeOverride2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((574)) [Modifiers:SafeOverride_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((575)) [Modifiers:SafeStatic.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((576)) [Modifiers:Sequential.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((577)) [Modifiers:SequentialOverride_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((578)) [Modifiers:WierdModifier_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((579)) [NoStaticMutable:NoStaticMutable1_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((580)) [Nullable:DoubleToNullableDoubleCastTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((581)) [Nullable:DoubleToNullableDoubleTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((582)) [Nullable:Nullable0Ref.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Nullable0Ref
+
+((583)) [Nullable:Nullable1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Nullable1
+
+((584)) [Nullable:Nullable2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Nullable2
+
+((585)) [Nullable:Nullable5.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Nullable5
+
+((586)) [Nullable:NullableArray.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((587)) [Nullable:NullableArray2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableArray2
+
+((588)) [Nullable:NullableArray3.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: NullableArray3 is killed due to timeout
+
+((589)) [Nullable:NullableArray3_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((590)) [Nullable:NullableArray5.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: NullableArray5 is killed due to timeout
+
+((591)) [Nullable:NullableFuture0.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableFuture0
+
+((592)) [Nullable:NullableFuture1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableFuture1
+
+((593)) [Nullable:NullableFuture2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableFuture2
+
+((594)) [Nullable:NullableInt.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((595)) [Nullable:NullableIntArray.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((596)) [Nullable:NullableObject.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableObject
+
+((597)) [Nullable:NullableObject2.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((598)) [Nullable:NullableObject3.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableObject3
+
+((599)) [Nullable:NullableObjectArray.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableObjectArray
+
+((600)) [Nullable:NullableOverriding.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableOverriding
+
+((601)) [PlaceCast:ClassCast1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ClassCast1
+
+((602)) [PlaceCast:PlaceCast.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target PlaceCast
+
+((603)) [PlaceCast:PlaceCast2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target PlaceCast2
+
+((604)) [PlaceCast:PlaceCheck1.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for PlaceCheck1
+
+((605)) [Point:ArrayPointBinding_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((606)) [Point:PointArithmetic.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target PointArithmetic
+
+((607)) [Point:PointArray.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((608)) [Point:PointBinding.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((609)) [Point:PointIndex.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target PointIndex
+
+((610)) [Point:PointRebinding.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for PointRebinding
+
+((611)) [Point:UninitializedPointBinding_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((612)) [Region:ArrayOfRegions.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayOfRegions
+
+((613)) [Region:RegionAlgebra.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionAlgebra
+
+((614)) [Region:RegionBanded.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionBanded
+
+((615)) [Region:RegionConvexHull.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionConvexHull
+
+((616)) [Region:RegionDifference.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionDifference
+
+((617)) [Region:RegionEquality.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute RegionEquality
+
+((618)) [Region:RegionTest1.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionTest1
+
+((619)) [Region:RegionTest2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionTest2
+
+((620)) [Region:RegionTestIterator.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionTestIterator
+
+((621)) [Region:RegionTriangular.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionTriangular
+
+((622)) [Region:RegionWithHoles.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionWithHoles
+
+((623)) [Region:RegionWithHoles2.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RegionWithHoles2
+
+((624)) [StorageClass:StorageClassesTest.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for StorageClassesTest
+
+((625)) [Types:NullableObjectEqualsPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((626)) [Types:ObjectEqualsPrimitive.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ObjectEqualsPrimitive
+
+((627)) [Types:PrimitiveHasLocation.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((628)) [Types:PrimitiveLiteralHasLocation.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((629)) [Types:PrimitiveLiteralIsAnObject.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((630)) [Unsafe:Unsafe.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Unsafe
+
+((631)) [Value:ValueClass.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ValueClass
+
+((632)) [Value:ValueClass2_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((633)) [Value:ValueClass3_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((634)) [Value:ValueClass4.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ValueClass4
+
+((635)) [Value:ValueClass5_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((636)) [Value:ValueClass6.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ValueClass6
+
+((637)) [Value:ValueEquality.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute ValueEquality
+
+((638)) [Value:complex.x10] + V
+[x10c++th:err]: no "public static void main" method in complex.x10
+ *** X ***
+[x10c++th:err]: complex.x10 is not a valid test case
+
+((639)) [Misc:AssignIntToChar.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((640)) [Misc:BreakInForTest.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target BreakInForTest
+
+((641)) [Misc:CommentTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((642)) [Misc:ExpressionParentheses.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ExpressionParentheses
+
+((643)) [Misc:FieldAccessTest_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((644)) [Misc:FinalInitializationTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((645)) [Misc:HereParentheses.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((646)) [Misc:IfElseFinishBug.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target IfElseFinishBug
+
+((647)) [Misc:InfiniteLoopTest_MustFailTimeout.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+((648)) [Misc:List.x10] + V
+[x10c++th:err]: no "public static void main" method in List.x10
+ *** X ***
+[x10c++th:err]: List.x10 is not a valid test case
+
+((649)) [Misc:ListTest.x10] + V ++ R +++ C *** X ***
+[x10c++th:err]: can't generate c++ sources for ListTest
+
+((650)) [Misc:LiteralTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((651)) [Misc:MissingReturn_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((652)) [Misc:NonX10Constructs_MustFailCompile.x10] + V ++ R +++ C *** Y ***
+((653)) [Misc:NopTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((654)) [Misc:NullableComparison.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target NullableComparison
+
+((655)) [Misc:ObjectEquality.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ObjectEquality
+
+((656)) [Misc:RefA.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((657)) [Misc:RefB.x10] + V
+[x10c++th:err]: no "public static void main" method in RefB.x10
+ *** X ***
+[x10c++th:err]: RefB.x10 is not a valid test case
+
+((658)) [Misc:RemoteAccessCheck.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target RemoteAccessCheck
+
+((659)) [Misc:SevereError.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target SevereError
+
+((660)) [Misc:StringTest.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((661)) [Misc:TabsInStrings.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+[x10c++th:warn]: no reference data to compare
+
+((662)) [Misc:Temp.x10] + V
+[x10c++th:err]: no "public static void main" method in Temp.x10
+ *** X ***
+[x10c++th:err]: Temp.x10 is not a valid test case
+
+((663)) [Misc:TypeElaborationAcrossCompilationUnits.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target TypeElaborationAcrossCompilationUnits
+
+((664)) [Misc:Unreachable.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target Unreachable
+
+((665)) [Misc:Unreachable3_MustFailTimeout.x10] + V ++ R +++ C ++++ B +++++ E *** Y ***
+((666)) [Misc:VariableScope.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target VariableScope
+
+((667)) [Timings:ArrayIndexing.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target ArrayIndexing
+
+((668)) [Timings:Initialization.x10] + V ++ R +++ C ++++ B +++++ E *** X ***
+[x10c++th:err]: failed to execute Initialization
+
+((669)) [Timings:IntArrayIndexing.x10] + V ++ R +++ C ++++ B *** X ***
+[x10c++th:err]: can't build target IntArrayIndexing
+
+############################################################
+# End Time: Fri Sep  5 08:50:51 EDT 2008
+############################################################
+
