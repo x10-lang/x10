@@ -1890,22 +1890,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.finallyBlock() != null){
 			w.write ("{");
 			// Create a class and use the finally block as the
-			// destructor.
+			// destructor. The object is created at the
+			// beginning. Use local classes.
 			w.newline(4); w.begin(0);
-			ClassifiedStream h = ws.getCurStream(WriterStreams.StreamClass.Header);
 			String tempClass = getId();
-			h.write("class " + tempClass + "def");
-			h.write("{");
-			h.newline(4); h.begin(0);
-			h.write (tempClass+"def" + "(){}");
-			h.newline();
-			h.write ("~" + tempClass+"def" + "()");
-			sw.pushCurrentStream(h);
-			n.printBlock(n.finallyBlock(), sw, tr);
+			String tempClassDef = tempClass+"def";
+			w.write("class " + tempClassDef);
+			w.write("{");
+			w.newline(4); w.begin(0);
+
+			w.write (tempClassDef+ "(){}");
+			w.newline();
+			w.write ("~" + tempClassDef + "()");
+			sw.pushCurrentStream(w);
+			n.print(n.finallyBlock(), sw, tr);
 			sw.popCurrentStream();
-			h.end(); h.newline();
-			h.write("};");
-			w.write(tempClass + "def" + " " + tempClass + ";");
+
+			w.end();w.newline();
+			w.write("} ");
+		 	w.write(tempClass + ";");
 			w.newline();
 		}
 		w.write("try {");
