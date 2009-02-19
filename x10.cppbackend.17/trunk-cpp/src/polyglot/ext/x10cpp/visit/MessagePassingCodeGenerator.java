@@ -1912,6 +1912,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		sw.begin(0);
         String dangling = "";
+        boolean already_static = false;
 		if (!n.isTargetImplicit()) {
 			// explicit target.
 
@@ -1920,6 +1921,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             {
                 sw.write(emitter.translateType(t));
                 sw.write("::");
+                already_static = true;
             } else if (target instanceof Expr) {
                 if (mi.flags().isStatic()) {
                     sw.write("((void)");
@@ -1928,6 +1930,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     sw.write(emitter.translateType(t));
                     sw.write("::");
                     dangling = ")";
+                    already_static = true;
                 } else {
                     boolean assoc = !(target instanceof New_c || target instanceof Binary_c);
                     n.printSubExpr((Expr) target, assoc, sw, tr);
@@ -1936,11 +1939,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
                 n.print(target, sw, tr);
                 sw.write("::");
+                already_static = true;
             }
 		}
 
         if (context.inTemplate() && mi.typeParameters().size() != 0) {
             sw.write("template ");
+        }
+        boolean virtual_dispatch = true;
+        if (t.isClass()) {
+            X10ClassType ct = (X10ClassType)t.toClass();
+            X10ClassDef cd = ct.x10Def();
+            if (cd.flags().isFinal()) {
+                virtual_dispatch = false;
+            }
+        }
+        if (mi.flags().isFinal()) {
+            virtual_dispatch = false;
+        }
+        if (!virtual_dispatch && !already_static ) {
+            // disable virtual dispatch
+            sw.write(emitter.translateType(t));
+            sw.write("::");
         }
 		sw.write(mangled_method_name(n.name().id().toString()));
 		emitter.printTemplateInstantiation(mi, sw);
