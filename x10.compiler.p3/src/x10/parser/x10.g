@@ -1876,15 +1876,24 @@ public static class MessageHandler implements IMessageHandler {
                     setResult(nf.Block(pos(), nf.X10Return(pos(), CastExpression, true)));
           $EndJava
         ./
-                  | { BlockStatementsopt LastExpression }
+                  | Annotationsopt { BlockStatementsopt LastExpression }
         /.$BeginJava
                     List<Stmt> l = new ArrayList<Stmt>();
                     l.addAll(BlockStatementsopt);
                     l.add(LastExpression);
-                    setResult(nf.Block(pos(), l));
+                    Block b = nf.Block(pos(), l);
+                    b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
+                    setResult(b);
           $EndJava
         ./
-                  | Block
+                  | Annotationsopt Block
+        /.$BeginJava
+                    Block b = Block;
+                    b = (Block) ((X10Ext) b.ext()).annotations(Annotationsopt);
+                    setResult(b);
+          $EndJava
+        ./
+                  
                   
     AtExpression ::= at PlaceExpressionSingleList ClosureBody
         /.$BeginJava
