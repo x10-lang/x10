@@ -480,6 +480,7 @@ public class X10CPPTranslator extends Translator {
             "-g",
             "-I"+X10LIB+"/include",
             "-I"+X10LANG,
+            "-I"+X10LANG+"/gen", // FIXME: development option
             "-I.",
             "-DTRANSPORT="+TRANSPORT,
         };
