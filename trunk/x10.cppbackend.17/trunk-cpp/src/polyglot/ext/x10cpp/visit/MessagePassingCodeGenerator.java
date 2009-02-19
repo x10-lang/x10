@@ -365,11 +365,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			v.makeSummariesPass(n);
 		}
 		X10ClassDef def = (X10ClassDef) n.classDef();
-	    	if (getCppRep(def, tr) != null) {
-	        	w.write("class ");
+		if (getCppRep(def, tr) != null) {
+			w.write("class ");
 			w.write(mangled_non_method_name(n.name().id().toString())); 
 			w.write(" {};");
-	        	w.newline();
+			w.newline();
 	        	return;
 	    	}
 		context.setinsideClosure(false);
@@ -1103,8 +1103,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// refer to this variable (it is a local
 			// declaration). So this translation is
 			// semantically correct. [Krishna]
-			//emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);  FIXME Krishna says this should remain un-commented; 
-			//TODO the bug fix about duplicate closure visit and uncomment
+			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);  
 
 		}
 		// See above note about xlC.
