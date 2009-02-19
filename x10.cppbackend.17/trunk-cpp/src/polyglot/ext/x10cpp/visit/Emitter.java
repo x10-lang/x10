@@ -29,6 +29,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.While_c;
+import polyglot.types.QName;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Closure_c;
@@ -333,6 +334,7 @@ public class Emitter {
 	String translateType(Type type, boolean asRef) {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
+/*
 		if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
 		//if (type.isArray()) {
 			String base;
@@ -347,20 +349,20 @@ public class Emitter {
 				    base=translateType(T, asRef);
 				}
 			}
-			String name = "x10::array<"+base+(base.endsWith(">")?" ":"")+">";
+			String name = "x10::lang::Rail<"+base+(base.endsWith(">")?" ":"")+">";
 			if (!arraysAsRefs || !asRef)
 				return name;
 			return make_ref(name);
 		}
+*/
 		Context context = tr.context();
 		if (type.isVoid()) {
 			return "void";
 		}
+/*
 		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean())&& !type.isClass() && !type.isVoid())
 			return "x10_"+type.translate(context);
-		// FIXME: is ignoring nullable correct?
-//		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
-//			return translateType(((X10Type) type).toNullable().base(), asRef);
+*/
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
@@ -370,8 +372,7 @@ public class Emitter {
 			if (type.toClass().isAnonymous())
 				name = "__anonymous__"+getId();
 			else {
-				if (type instanceof ConstrainedType_c)
-					type = ((ConstrainedType_c)type).baseType().get();
+                type = X10TypeMixin.baseType(type);
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
 				//if (type.isBoolean() || type.isNumeric())
@@ -422,6 +423,7 @@ public class Emitter {
 				name=name.replaceAll("\\.", ".x10__");
 				//name=name.replaceAll("\\::", "::x10__");
 			}
+			/*
 			// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
 			if (query.isX10Array(type)) {
 				String base = translateType(query.getX10ArrayElementType(type), true);
@@ -430,6 +432,7 @@ public class Emitter {
 					return name;
 				return make_ref(name);
 			}
+        */
 		} else if (type instanceof ParameterType){
 			name = type.toString(); 
 		} else 
@@ -1746,6 +1749,21 @@ public class Emitter {
 		}
 		return null;
 	}
+
+    public static void openNamespaces(ClassifiedStream h, QName name) {
+        if (name==null) return;
+        openNamespaces(h, name.qualifier());
+        h.write("namespace "+name.name()+" { ");
+    }       
+                
+    public static void closeNamespaces(ClassifiedStream h, QName name) {
+        if (name==null) return;
+        h.write("} ");
+        closeNamespaces(h, name.qualifier());
+    }
+     
+
+/*
 	public static void closeNameSpace(String ns, ClassifiedStream w) {
 		int start = 0;
 		while (true) {
@@ -1757,6 +1775,7 @@ public class Emitter {
 		w.write("} // namespace ");
 		w.write(translate_mangled_FQN(ns));
 	}
+*/
 	private String dumpRegex(String id, Object[] components, Translator tr, String regex) {
 	    String retVal = "";
 	    for (int i = 0; i < components.length; i++) {

@@ -283,6 +283,7 @@ public class X10CPPTranslator extends Translator {
 			for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 				TopLevelDecl decl = (TopLevelDecl) i.next();
 				String className = ((ClassDecl)decl).classDef().name().toString();
+                System.out.println(className);
 				wstreams = new WriterStreams(className, sfn, pkg, tf, exports, job);
 				sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
 						outputWidth, wstreams);
@@ -462,11 +463,7 @@ public class X10CPPTranslator extends Translator {
 		w.forceNewline(0);
 
 		if (sfn.package_() != null) {
-			w.write("namespace ");
-			sw.pushCurrentStream(w);
-			sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
-			w.write(" {");
+			Emitter.openNamespaces(w,sfn.package_().package_().get().fullName());
 			w.newline(0);
 		}
 		ClassifiedStream z = wstreams.getNewStream(WriterStreams.StreamClass.Closures); // HACK. We are creating an empty new closure stream, to put all the header information required in the closure. [Krishna.]
@@ -480,11 +477,7 @@ public class X10CPPTranslator extends Translator {
 
 		if (sfn.package_() != null) {
 			w.newline(0);
-			String ns = sfn.package_().package_().get().fullName().toString();
-			Emitter.closeNameSpace(ns, w);
-			// sw.pushCurrentStream(w);
-			// sfn.package_().del().translate(sw, this);
-			// sw.popCurrentStream();
+			Emitter.closeNamespaces(w,sfn.package_().package_().get().fullName());
 			w.newline(0);
 		}
 
@@ -495,13 +488,9 @@ public class X10CPPTranslator extends Translator {
 
 		// The declarations below are intentionally outside of the guard
 		if (sfn.package_() != null) {
-			h.write("namespace ");
-			sw.pushCurrentStream(h);
-			sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
-			h.write(" {");
-			h.newline(0);
-		}
+            Emitter.openNamespaces(h,sfn.package_().package_().get().fullName());
+            h.newline(0);
+        }
 		for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 			TopLevelDecl decl = (TopLevelDecl) i.next();
 			if (decl.flags().flags().isPublic()) {
@@ -527,15 +516,11 @@ public class X10CPPTranslator extends Translator {
 				}
 			}
 		}
-		if (sfn.package_() != null) {
-			h.newline(0);
-			String ns = sfn.package_().package_().get().fullName().toString();
-			Emitter.closeNameSpace(ns, h);
-			// sw.pushCurrentStream(h);
-			// sfn.package_().del().translate(sw, this);
-			// sw.popCurrentStream();
-			h.newline(0);
-		}
+        if (sfn.package_() != null) {
+            h.newline(0);
+            Emitter.closeNamespaces(h,sfn.package_().package_().get().fullName());
+            h.newline(0);
+        }       
 	}
 
 	/* (non-Javadoc)
