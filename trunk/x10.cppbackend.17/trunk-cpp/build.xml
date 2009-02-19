@@ -49,7 +49,7 @@
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
-            <fileset dir="${build}" includes="polyglot/ext/x10cpp/**,data/**" excludes="${jar}"/>
+            <fileset dir="${build}" includes="x10c/**,polyglot/ext/x10cpp/**,data/**" excludes="${jar}"/>
         </jar>
     </target>
     <target name="build" depends="init">
