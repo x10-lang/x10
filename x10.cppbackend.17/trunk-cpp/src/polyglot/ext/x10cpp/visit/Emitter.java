@@ -47,6 +47,7 @@ import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Flags;
+import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -576,7 +577,7 @@ public class Emitter {
 		}
 	}
 
-	Type findRootMethodReturnType(MethodDecl_c n, MethodInstance from) {
+	Type findRootMethodReturnType(X10MethodDef n, Position pos, MethodInstance from) {
 		assert from != null;
 		// [IP] Optimizations
 		X10Flags flags = X10Flags.toX10Flags(from.flags());
@@ -610,7 +611,7 @@ public class Emitter {
 
 		// [DC] TODO: There has to be a better way!
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		X10ClassType original = (X10ClassType) n.methodDef().container().get();
+		X10ClassType original = (X10ClassType) n.container().get();
 
 		X10ClassType classType = (X10ClassType) from.container();
 		X10ClassType superClass = (X10ClassType) classType.superClass();
@@ -621,7 +622,7 @@ public class Emitter {
 			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,original);
 			if (superMeth != null) {
 				//System.out.println(from+" overrides "+superMeth);
-				returnType = findRootMethodReturnType(n, superMeth);
+				returnType = findRootMethodReturnType(n, pos, superMeth);
 			}
 		}
 
@@ -631,13 +632,13 @@ public class Emitter {
 			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,original);
 			if (superMeth != null) {
 				//System.out.println(from+" implements "+superMeth);
-				Type newReturnType = findRootMethodReturnType(n, superMeth);
+				Type newReturnType = findRootMethodReturnType(n, pos, superMeth);
 
 				// check -- 
 				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType)) {
 					String msg = "Two supertypes declare " + from + " with "
 						+ "different return types: " + returnType + " != " + newReturnType;
-					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, pos);
 				}
 				returnType = newReturnType;
 			}
