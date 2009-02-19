@@ -2845,7 +2845,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             inc.write("> ");
         }
 		inc.write("class "+cname+" : "); inc.begin(0);
-		inc.write("public x10aux::AnyClosure, "); inc.newline();
+		inc.write("public Value, "); inc.newline();
 		//inc.write("public x10::lang::Value, "); inc.newline();
 		inc.write("public virtual "+superType); inc.end(); inc.newline();
 		inc.write("{") ; inc.newline(4); inc.begin(0);
@@ -2867,9 +2867,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printDeclarationList(inc, c, c.variables);
 		inc.forceNewline();
 
-		inc.write("void _serialize_fields("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
+		inc.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
 		inc.newline(4); inc.begin(0);
-        inc.write("buf.write(_serialization_id);"); inc.newline();
+        inc.write("buf.write(_serialization_id, m);"); inc.end(); inc.newline();
+		inc.write("}"); inc.newline(); inc.forceNewline();
+
+		inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
+		inc.newline(4); inc.begin(0);
 		for (int i = 0; i < c.variables.size(); i++) {
 			if (i > 0) inc.newline();
 			VarInstance var = (VarInstance) c.variables.get(i);
@@ -2877,35 +2881,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (name.equals(THIS))
 				name = SAVED_THIS;
 			else name = mangled_non_method_name(name);
-			inc.write("buf.write(" + name + ");");
+			inc.write("buf.write(" + name + ", m);");
 		}
 		inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write("void _deserialize_fields("+SERIALIZATION_BUFFER+" &buf) {");
+		inc.write("template<class __T> static x10aux::ref<__T> "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
 		inc.newline(4); inc.begin(0);
+        inc.write("x10aux::ref<"+cnamet+" > this_ = new (x10aux::alloc<"+cnamet+" >())"+cnamet+"(x10aux::SERIALIZATION_MARKER());"); inc.newline();
         for (int i = 0; i < c.variables.size(); i++) {
-			if (i > 0) inc.newline();
             VarInstance var = (VarInstance) c.variables.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;
             else name=mangled_non_method_name(name);
-            inc.write(name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
+            inc.write("this_->"+name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
+            inc.newline();
         }
-		inc.end(); inc.newline();
+        inc.write("return this_;"); inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
-
-
-        if (generate_async_invoke) {
-            inc.write("static void _invoke("+SERIALIZATION_BUFFER+" &buf) {");
-            inc.newline(4); inc.begin(0);
-            inc.write(cnamet+" *this_ = new "+cnamet+"(x10aux::SERIALIZATION_MARKER());"); inc.newline();
-            inc.write("this_->_deserialize_fields(buf);"); inc.newline();
-            inc.write("this_->apply();");
-            inc.end(); inc.newline();
-            inc.write("}"); inc.newline(); inc.forceNewline();
-        }
 
 
 		inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
@@ -2935,7 +2929,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
-        inc.write("static x10_int _serialization_id;"); inc.newline(); inc.forceNewline();
+        inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
+        inc.newline(); inc.forceNewline();
+
 
 		inc.write("const x10aux::RuntimeType *_type() const {"+
 			 	  " return x10aux::getRTT<"+superType+" >(); }");
@@ -2959,13 +2955,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
             inc.write("> ");
         }
-        inc.write("x10_int "+cnamet+"::_serialization_id = ");
-
-        if (generate_async_invoke) {
-            inc.write("x10aux::AsyncSwitch::addInvoker("+cnamet+"::_invoke);");
+        inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
+        inc.newline(4);
+        if (in_template_closure) {
+            inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+                        cnamet+"::template "+DESERIALIZE_METHOD+"<Object>);");
         } else {
-            // FIXME: should be unique etc
-            inc.write("0;");
+            inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+                        cnamet+"::"+DESERIALIZE_METHOD+"<Object>);");
         }
         inc.newline(); inc.forceNewline();
 

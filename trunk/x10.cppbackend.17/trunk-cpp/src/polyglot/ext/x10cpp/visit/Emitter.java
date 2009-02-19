@@ -1530,43 +1530,73 @@ public class Emitter {
         ClassifiedStream w = sw.body();
 		ClassifiedStream h = sw.header();
 		h.forceNewline();
+
 		h.write("// Serialization"); h.newline();
 		String klass = translateType(type);
-		int serializationId = getUniqueId_().intValue();
-		h.write("public: static const int "+SERIALIZATION_ID_FIELD+" = "+serializationId+";");
-		h.newline();
 
-		// constructor (FIXME: public because "friend" below doesn't work)
+		if (!type.flags().isAbstract()) {
+            // _serialization_id
+            h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
+            h.newline();
+            printTemplateSignature(ct.typeArguments(), w);
+            w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
+            w.newline(4);
+            w.write("x10aux::DeserializationDispatcher::addDeserializer(");
+            if (context.inTemplate()) {
+                w.write(klass+"::template "+DESERIALIZER_METHOD+"<Object>);");
+            } else {
+                w.write(klass+"::"+DESERIALIZER_METHOD+"<Object>);");
+            }
+            w.newline(); w.forceNewline();
+        }
+
+        // SERIALIZATION_MARKER constructor
 		h.write("public: explicit "+mangled_non_method_name(type.name().toString())+"("+SERIALIZATION_MARKER+" m) ");
 		Type parent = type.superClass();
 		if (parent !=null && ts.isValueType(parent))
 			h.write(": "+ translateType(parent)+"(m)");
 		h.write("{ (void) m; }");
-		h.newline();
-		// FIXME: this doesn't work
-		//// Make sure the reference serializer can access the above
-		//h.write("template<> friend struct x10aux::_reference_serializer<"+type.name()+">;");
-		//h.newline();
+		h.newline(); h.forceNewline();
 
 		// _serialize()
-		h.write("public: ");
-		if (!type.flags().isFinal())
-			h.write("virtual ");
-		h.write("void "+SERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) "+
-		"{ x10aux::_serialize_ref(this, buf, m); }");
-		h.newline(0);
+		if (!type.flags().isAbstract()) {
+            if (type.flags().isFinal()) {
+                h.write("public: ");
+                h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
+                h.write("x10aux::ref<"+klass+" > this_,"); h.newline();
+                h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
+                h.write("x10aux::addr_map& m) "); h.end(); h.newline();
+                h.write("{ this_->_serialize_body(buf, m); }"); h.newline();
+                h.newline(0); h.forceNewline();
+            }
+        }
 
-		// _serialize_fields()
+		// _serialize_id()
+		if (!type.flags().isAbstract()) {
+            h.write("public: ");
+            if (!type.flags().isFinal())
+                h.write("virtual ");
+            h.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
+            h.newline(4); h.begin(0);
+            h.write("buf.write(this->"+SERIALIZATION_ID_FIELD+",m);"); h.newline();
+            h.end() ; h.newline();
+            h.write("}"); h.newline(); h.forceNewline();
+        }
+    
+
+		// _serialize_body()
 		h.write("public: ");
 		if (!type.flags().isFinal())
 			h.write("virtual ");
-		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);"); h.newline(0);
+		h.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);");
+        h.newline(0); h.forceNewline();
 
 		printTemplateSignature(ct.typeArguments(), w);
-		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
+		w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
+                    "("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
 		w.newline(4); w.begin(0);
 		if (parent != null && ts.isValueType(parent)) {
-			w.write(translateType(parent)+"::"+SERIALIZE_FIELDS_METHOD+"(buf, m);");
+			w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf, m);");
 			w.newline();
 		}
 		for (int i = 0; i < type.fields().size(); i++) {
@@ -1576,31 +1606,47 @@ public class Emitter {
 			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
 			String fieldName = mangled_field_name(f.name().toString());
-			if (f.type().isBoolean() || f.type().isNumeric()) {
-				w.write("buf.write(this->"+fieldName+");"); w.newline();
-				w.write("_S_(\"Written \" << this->"+fieldName+");");
-			} else if (ts.isValueType(f.type())) {
-				w.write("if (!m.ensure_unique(this->"+fieldName+")) assert (false);"); w.newline();
-				w.write("this->"+fieldName+"->"+SERIALIZE_METHOD+"(buf, m);"); w.newline();
-				w.write("_S_(\"Serialized "+fieldName+"\");");
-			} else {
-				w.write("buf.write(this->"+fieldName+"); "+"/"+"*"+" non-value "+"*"+"/"); w.newline();
-				w.write("_S_(\"Written reference "+fieldName+"\");");
-			}
+            w.write("buf.write(this->"+fieldName+",m);"); w.newline();
 		}
 		w.end(); w.newline();
 		w.write("}");
-		w.newline();
-		w.forceNewline();
+		w.newline(); w.forceNewline();
 
-		// _deserialize()
+		if (!type.flags().isAbstract()) {
+            // _deserialize()
+            h.write("public: template<class __T> static ");
+            h.write("x10aux::ref<__T> "+DESERIALIZER_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+            h.newline(4) ; h.begin(0);
+            h.write("x10aux::ref<"+klass+" > this_ = new (x10aux::alloc<"+klass+" >()) "+
+                        klass+"("+SERIALIZATION_MARKER+"());"); h.newline();
+            h.write("this_->"+DESERIALIZE_BODY_METHOD+"(buf);"); h.newline();
+            h.write("return this_;");
+            h.end(); h.newline();
+            h.write("}"); h.newline(); h.forceNewline();
+        }
+
+		if (!type.flags().isAbstract()) {
+            if (type.flags().isFinal()) {
+                // _deserialize()
+                h.write("public: template<class __T> static ");
+                h.write("x10aux::ref<__T> "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+                h.newline(4) ; h.begin(0);
+                h.write("return "+DESERIALIZER_METHOD+"<__T>(buf);");
+                h.end(); h.newline();
+                h.write("}"); h.newline(); h.forceNewline();
+            }
+        }
+
+		// _deserialize_body()
 		h.write("public: ");
-		if (!type.flags().isFinal())
-			h.write("virtual ");
-		h.write("void "+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf);"); h.newline(0);
+		h.write("void "+DESERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf);"); h.newline(0);
 		printTemplateSignature(ct.typeArguments(), w);
-		w.write("void "+klass+"::"+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+		w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
 		w.newline(4); w.begin(0);
+		if (parent != null && ts.isValueType(parent)) {
+			w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
+			w.newline();
+		}
 		for (int i = 0; i < type.fields().size(); i++) {
 			if (i != 0)
 				w.newline();
@@ -1608,13 +1654,7 @@ public class Emitter {
 			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
 			String fieldName = mangled_field_name(f.name().toString());
-			if (f.type().isBoolean() || f.type().isNumeric()) {
-				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type())+" >();");
-			} else if (ts.isValueType(f.type())) {
-				w.write("this->"+fieldName+" = x10aux::_deserialize_value_ref<"+translateType(f.type())+" >(buf);");
-			} else {
-				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type(), true)+" >(); "+"/"+"*"+" non-value "+"*"+"/");
-			}
+            w.write(fieldName+" = buf.read<"+translateType(f.type(),true)+" >();");
 		}
 		w.end(); w.newline();
 		w.write("}");
@@ -1638,7 +1678,7 @@ public class Emitter {
         if (name == null) return;
         openNamespaces(h, name.qualifier());
         h.write("namespace "+name.name()+" { ");
-    }       
+    }
                 
     public static void closeNamespaces(CodeWriter h, QName name) {
         if (name == null) return;
