@@ -1999,8 +1999,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Atomic_c a) {
-		if (!(a.place() instanceof Here_c)) // TODO: [IP] Ask Vijay what those mean
-			throw new InternalCompilerError("placed atomics not supported");
 		sw.pushCurrentStream(w);
 		a.print(a.body(), sw, tr);
 		sw.popCurrentStream();
