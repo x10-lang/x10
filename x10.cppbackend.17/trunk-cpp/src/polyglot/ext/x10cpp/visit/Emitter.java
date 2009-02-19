@@ -600,11 +600,7 @@ public class Emitter {
 			def clone() : Cloneable2;
 		}
 
-		class A implements Cloneable {
-			public def clone() { return this; }
-		}
-
-		class B extends A implements Cloneable2 {
+		class A implements Cloneable, Cloneable {
 			public def clone() { return this; }
 		}
 		*/
@@ -688,7 +684,7 @@ public class Emitter {
 			        // class Bar : public Foo {
 			        //    public: template<class T> Y m_impl(X a);
 			        // };
-			        String msg = "Method "+n.methodDef()+" is both generic and virtual";
+			        String msg = n.methodDef()+" is both generic and virtual";
 			        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
 			    }
 			}
@@ -741,7 +737,8 @@ public class Emitter {
 //		else // Java's "package access" should be the same as public
 //		h.write(Flags.PUBLIC.translate()+": ");
 		// [IP] HACK: with inlining, everything is public
-		h.write("/"+"*"+flags.retain(Flags.PUBLIC.Private().Protected()).translate()+"*"+"/ ");
+		// [DC] I got tired of seeing the comment everywhere
+		//h.write("/"+"*"+flags.retain(Flags.PUBLIC.Private().Protected()).translate()+"*"+"/ ");
 		h.write("public: ");
 	}
 
