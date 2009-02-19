@@ -26,6 +26,7 @@ import java.util.List;
 
 import polyglot.ast.ClassMember;
 import polyglot.ast.Stmt;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10cpp.visit.X10SummarizingRules;
 import polyglot.types.Context_c;
@@ -44,12 +45,9 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		condDepth = 0;
 		inprocess = false;
 		mainMethod = false;
-                inTemplate = false;
 	}
 
-	protected boolean inTemplate;
-        public boolean inTemplate() { return inTemplate; }
-        public void inTemplate(boolean b) { inTemplate = b; }
+	public boolean inTemplate() { return ((X10ClassDef)currentClassDef()).typeParameters().size() != 0; }
 
 	public boolean inClosure;
 	public boolean insideClosure;
@@ -460,3 +458,4 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public String Self() { return selfStr;};
 
 }
+//vim:tabstop=4:shiftwidth=4:expandtab
