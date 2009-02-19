@@ -33,6 +33,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
+import polyglot.ext.x10.ast.TypeParamNode;
 
 public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c implements X10Context {
 
@@ -66,6 +67,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 
 	public ArrayList pendingImports = new ArrayList();
 	public ArrayList pendingImplicitImports = new ArrayList();
+	public List<TypeParamNode> classTypeParams = new ArrayList<TypeParamNode>();
 	public static HashMap classesWithAsyncSwitches = new HashMap();
 	public static HashMap classesWithArrayCopySwitches = new HashMap();
 

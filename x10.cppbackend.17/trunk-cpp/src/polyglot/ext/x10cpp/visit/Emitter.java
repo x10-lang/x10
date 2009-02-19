@@ -36,16 +36,24 @@ import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.RectRegionMaker_c;
+import polyglot.ext.x10.ast.TypeParamNode;
+import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Cast_c;
+import polyglot.ext.x10.ast.X10ConstructorDecl_c;
+import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.ParameterType_c;
+import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
+import polyglot.types.ClassType_c;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -366,8 +374,18 @@ public class Emitter {
 					context = tr.typeSystem().createContext();
 				name = type.translate(context);
 			}
-			ClassType ct = type.toClass();
+			X10ClassType ct = (X10ClassType)type.toClass();
 			if (!knownSpecialPackages.contains(ct.package_())) {
+
+				if (ct.typeArguments().size() != 0) {
+
+					name += " < ";
+					for (Type t: ct.typeArguments()) {
+						name +=translateType(t, asRef);
+					}
+					name +=" > ";
+				}
+
 				name = "x10__" + name;
 				name=name.replaceAll("\\.", ".x10__");
 				name=name.replaceAll("\\::", "::x10__");
@@ -381,7 +399,7 @@ public class Emitter {
 				return make_ref(name);
 			}
 		} else if (type instanceof ParameterType){
-			name = type.toString(); // 
+			name = type.toString(); 
 		} else 
 			assert false; // unhandled type.
 		name = translateFQN(name);
@@ -473,16 +491,56 @@ public class Emitter {
 		w.newline();
 	}
 
+	void printTemplateSignature(List<TypeParamNode> list, ClassifiedStream h) {
+		int size = list.size();
+		if (size != 0){
+			h.write("template <class ");
+			for (TypeParamNode p: list) {
+				h.write(p.name().id().toString());
+				size --;
+				if (size > 0)
+					h.write(", class ");
+			}
+
+			h.write("> ");
+		}
+
+	}
+	void printTemplateInstantiation(X10MethodInstance mi, ClassifiedStream w) {
+
+		if (mi.typeParameters().size() == 0)
+			return;
+		w.write("<");
+		for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
+		    final Type at = i.next();
+		    w.write(translateType(at));
+		    if (i.hasNext()) {
+		        w.write(",");
+		        w.allowBreak(0, " ");
+		    }
+		}
+		w.write(">");
+	}
 	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		Flags flags = n.flags().flags();
+
 		if (!qualify) {
 			printFlags(h, flags);
 		}
 		h.begin(0);
+
+		if (qualify){
+			X10CPPContext_c context = (X10CPPContext_c) tr.context();
+			printTemplateSignature(context.classTypeParams, h);
+		}
+
+		X10MethodDecl_c xn = (X10MethodDecl_c) n;
+		printTemplateSignature(xn.typeParameters(), h);
+
 		if (!qualify) {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
-			else
+			else if (xn.typeParameters().size() == 0)
 				h.write("virtual ");
 		}
 		printType(n.returnType().type(), h);
@@ -541,6 +599,18 @@ public class Emitter {
 
 	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		h.begin(0);
+		// Handle generics
+		// If it involves Parameter Types then generate C++
+		// templates.
+
+		X10ClassDecl_c xn = (X10ClassDecl_c) n;
+		printTemplateSignature(xn.typeParameters(), h);
+
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		for (TypeParamNode p: xn.typeParameters()) {
+			context.classTypeParams.add(p);
+		}
+
 		h.write("class ");
 		assert(!n.classDef().isLocal());
 		if (n.classDef().isNested() && !n.classDef().isLocal()) // FIXME: handle local classes
@@ -600,6 +670,14 @@ public class Emitter {
 	void printHeader(ConstructorDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Flags flags = n.flags().flags();
+
+		if (qualify){
+			printTemplateSignature(context.classTypeParams, h);
+		}
+
+		X10ConstructorDecl_c xn = (X10ConstructorDecl_c) n;
+		printTemplateSignature(xn.typeParameters(), h);
+
 		if (!qualify) {
 			printFlags(h, flags);
 		}
@@ -1138,6 +1216,10 @@ public class Emitter {
 	{
 		String className = translateType(currentClass);
 		w.newline(0);
+
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		printTemplateSignature(context.classTypeParams, w);
+
 		String arg = "arg";
 		w.write(retType+" "+className+"::"+methodName+"(x10_async_handler_t h, "+VOID_PTR+" "+arg);
 		if (extraArgs != null)
