@@ -134,6 +134,7 @@ import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.X10DelegatingVisitor;
 import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
@@ -325,7 +326,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		context.hasInits = false;
 
 		if (hasNativeMethods(n.body().members())) {
-			w.write("#include \"" + X10ClassBodyExt_c.wrapperFileName(n.type()) + "\"");
+			w.write("#include \"" + X10ClassBodyExt_c.wrapperFileName(n.classDef().fullName().toString()) + "\"");
 			w.newline();
 		}
 		ClassifiedStream h;
@@ -333,20 +334,20 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			h = w;
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
-		if (!n.type().isNested()) {
+		if (!n.classDef().isNested()) {
 			// SPMD fields
 
 			X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
 			n.visit(xTypes);
 			if (xTypes.found()) {
-				X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 				populateKnownSpecialPackages(xts);
 				DelegateTargetFactory tf = ((X10CPPTranslator) tr).getTargetFactory();
 				ArrayList typeNodes = xTypes.getMatches();
 				HashSet types = new HashSet();
 				for (int i = 0; i < typeNodes.size(); i++) {
 					X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
-					if (!t.type().isClass() || xts.equals(t.type(), n.type()))
+					if (!t.type().isClass() || xts.equals(t.type(), n.classDef()))
 						continue;
 					ClassType ct = t.type().toClass();
 					if (ct.isNested() || knownSpecialPackages.contains(ct.package_()))
@@ -382,15 +383,15 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				context.pendingImports.clear();  // Just processed all imports - clean up
 			}
 			h.forceNewline(0);
-			if (n.type().package_() != null) {
+			if (n.classDef().package_() != null) {
 				h.write("namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName().toString())));
+				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().fullName().toString())));
 				h.write(" {");
 				h.newline(0);
 			}
 		}
 
-		if (n.type().isNested() && !n.type().flags().flags().isStatic())
+		if (n.classDef().isNested() && !n.classDef().flags().flags().isStatic())
 			throw new InternalCompilerError("Instance Inner classes not supported");
 
 		emitter.printHeader(n, h, tr, false);
@@ -406,28 +407,28 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 
 		ArrayList asyncs = context.closures.asyncs;
 		if (asyncSwitchRequired)
-			emitter.printSwitchMethod(n.type(), ASYNC_SWITCH, VOID,
+			emitter.printSwitchMethod(n.classDef().asType(), ASYNC_SWITCH, VOID,
 					ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
 					context.closures.asyncContainers,
 					"int niter",
 					"for (int i = 0; i < niter; i++,_arg++) {", "}",
 					context.classesWithAsyncSwitches, ws.getCurStream(WriterStreams.StreamClass.Closures));
 		if (asyncRegistrationRequired)
-			emitter.printAsyncsRegistration(n.type(), asyncs, 
+			emitter.printAsyncsRegistration(n.classDef().asType(), asyncs, 
 					ws.getCurStream(WriterStreams.StreamClass.Closures));
 		if (arrayCopySwitchRequired)
-			emitter.printSwitchMethod(n.type(), ARRAY_COPY_SWITCH, VOID_PTR,
+			emitter.printSwitchMethod(n.classDef().asType(), ARRAY_COPY_SWITCH, VOID_PTR,
 					ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
 					context.closures.arrayCopyClosures, 
 					null,
 					null, null,
 					context.classesWithArrayCopySwitches, ws.getCurStream(WriterStreams.StreamClass.Closures));
 
-		if (!n.type().isNested()) {
-			if (n.type().package_() != null) {
+		if (!n.classDef().isNested()) {
+			if (n.classDef().package_() != null) {
 				h.newline(0);
 				h.write("} // namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName().toString())));
+				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().fullName().toString())));
 				h.newline(0);
 			}
 		}
@@ -988,7 +989,8 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Assign_c asgn) {
 		X10CPPContext_c context = (X10CPPContext_c)tr.context();
 
-		Expr lhs = asgn.left();
+		NodeFactory nf = tr.nodeFactory();
+		Expr lhs = asgn.left(nf);
 		Expr rhs = asgn.right();
 		// Be conservative for now (because of evaluation order)
 		// TODO: [IP] use a non-const reference for lhs
@@ -1211,7 +1213,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		context.canInline = true;
 
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
 
 		emitter.enterSPMD(dec, w);
 		// SPMD/global array init
@@ -1513,10 +1515,10 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 	
 	public void visit(X10Binary_c n) {
 		Expr left = n.left();
-		X10Type l = (X10Type) left.type();
+		Type l = left.type();
 		Expr right = n.right();
 		X10Type r = (X10Type) right.type();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 //		NodeFactory nf = tr.nodeFactory();
 		Binary.Operator op = n.operator();
 
@@ -1533,7 +1535,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		Binary.Operator COND_OR = Binary.COND_OR;
 		Binary.Operator COND_AND = Binary.COND_AND;
 		if (op == COND_OR && (xts.isDistribution(l) ||
-				xts.isRegion(l) || xts.isPrimitiveTypeArray(l)))
+				xts.isRegion(l) ))
 		{
 			generateStaticOrInstanceCall(n.position(), left, "union", right);
 			return;
@@ -1587,7 +1589,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 	 * @param right TODO
 	 */
 	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr right) {
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		NodeFactory nf = tr.nodeFactory();
 		ReferenceType lType = (ReferenceType) left.type();
 		Type rType = right.type();
@@ -2083,7 +2085,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		VarInstance a_var =
 			(array instanceof Local_c) ? ((Local_c)array).localInstance()
 					: ((Field_c)array).fieldInstance();
@@ -2256,7 +2258,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		context.canInline = false;
 
 //		enterSPMD(n);
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		MethodInstance mi = n.methodInstance();
 		if (WARN_NONSPMD_EXTERN && mi.flags().flags().isNative() &&
 				query.isMainMethod(context) && context.inplace0)
@@ -3115,7 +3117,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		X10Formal form = (X10Formal) n.formal();
 
 		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && form.isUnnamed()) {
-			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 			assert (xts.isPoint(form.type().type()));
 			assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
 
@@ -3186,7 +3188,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		w.write("{");  
 		w.newline(4); w.begin(0);
 
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		assert (xts.isPoint(form.type().type()));
 		assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
 		emitter.enterSPMD(n, w);
@@ -3256,7 +3258,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		assert (n.clocks() == null || n.clocks().size() == 0);
 
 		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && form.isUnnamed()) {
-			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 			assert (xts.isPoint(form.type().type()));
 			assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
 
@@ -3313,7 +3315,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		w.write("{");  
 		w.newline(4); w.begin(0);
 
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		assert (xts.isPoint(form.type().type()));
 		assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
 		String name = "__i" + form.name();
@@ -3376,7 +3378,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 
 		if (query.isMainMethod(context) && context.finish_depth == 1 && context.inlinableAsyncsOnly()) {
 			// We need to translate the ateach header before printing the body.
-			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 			assert (xts.isPoint(n.formal().type().type()));
 			assert (xts.isDistribution(n.domain().type()));
 			sw.pushCurrentStream(w);
@@ -3641,7 +3643,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		context.canInline = false;
 
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
 		Expr arr = a.array();
 		if (arr instanceof Local_c) {
 			Local_c var = (Local_c) arr;
@@ -3806,7 +3808,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		Expr dest = (Expr) args.get(2);
 		Expr destOffset = (Expr) args.get(3);
 		Expr len = (Expr) args.get(4);
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		assert (xts.isX10Array(src.type())&& xts.isX10Array(dest.type()) &&
 				xts.equals(xts.baseType(src.type()), xts.baseType(dest.type())));
 		Type baseType = xts.baseType(src.type());
@@ -4037,7 +4039,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 //		w.begin(0);
 //		w.allowBreak(2, 2, "", 0);
 		assert (n.formals().size() == 1);
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
 			assert (xts.isPoint(f.type().type()));
