@@ -695,11 +695,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				for (ClassType ct : types) {
 					if (xts.typeEquals(ct, def.asType()))
 						continue;
-					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+					X10ClassDef cd = (X10ClassDef) ct.def();
+					String cpp = getCppRep(cd, tr);
 					if (cpp != null)
 						continue;
-					if (ct.isNested())
+					if (cd.isNested()) {
+						assert (false) : ("Nested class alert!");
 						continue;
+					}
 					QName pkg = null;
 					if (ct.package_() != null)
 						pkg = ct.package_().fullName();
@@ -708,7 +711,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 							Emitter.openNamespaces(h, pkg);
 							h.newline(0);
 						}
-						X10ClassDef cd = (X10ClassDef) ct.def();
 						if (cd.typeParameters().size() > 0) {
 							h.write("template <");
 							boolean first = true;
@@ -2280,25 +2282,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Try_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (n.finallyBlock() != null){
-			w.write ("{");
+			w.write("{");
 			// Create a class and use the finally block as the
 			// destructor. The object is created at the
 			// beginning. Use local classes.
 			w.newline(4); w.begin(0);
 			String tempClass = getId();
 			String tempClassDef = tempClass+"def";
-			w.write("class " + tempClassDef);
+			w.write("struct " + tempClassDef);
 			w.write("{");
 			w.newline(4); w.begin(0);
 
-			w.write (tempClassDef+ "(){}");
+			w.write(tempClassDef+ "(){}");
 			w.newline();
-			w.write ("~" + tempClassDef + "()");
+			w.write("~" + tempClassDef + "()");
 			sw.pushCurrentStream(w);
 			n.print(n.finallyBlock(), sw, tr);
 			sw.popCurrentStream();
 
-			w.end();w.newline();
+			w.end(); w.newline();
 			w.write("} ");
 		 	w.write(tempClass + ";");
 			w.newline();
@@ -2698,11 +2700,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Evaluate the distribution expression only once
 		// (put it outside the loop).
 		
-		w.write ("x10::lang::dist " + dist + " = ");
+		w.write("x10::lang::dist " + dist + " = ");
 		sw.pushCurrentStream(w);
 		n.print(n.domain(), sw, tr);
 		sw.popCurrentStream();
-		w.write (";");
+		w.write(";");
 		w.newline();
 
 		String itr = getId();
@@ -2804,6 +2806,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Async_c n) {
+		assert (false) : ("Async should have been desugared earlier");
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
         sw.pushCurrentStream(w);
@@ -2888,7 +2891,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		CodeInstance ci = closureDef.methodContainer().get();
 		X10ClassType hostClassType = (X10ClassType)(closureDef.typeContainer().get());
         X10ClassDef hostClassDef = hostClassType.x10Def();
-        List<Type> freeTypeParams = new ArrayList<Type>(hostClassDef.typeParameters());
+        List<Type> freeTypeParams = new ArrayList<Type>();
+
+        if (!(ci instanceof X10MethodInstance) || !((X10MethodInstance)ci).flags().isStatic())
+            freeTypeParams.addAll(hostClassDef.typeParameters());
 
         if (ci instanceof X10MethodInstance) {
             // this is the only case where additional type params can be defined
@@ -2912,7 +2918,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		// create closure and packed arguments
 
-		ClassifiedStream inc = ws.getNewStream(WriterStreams.StreamClass.Closures, false);
+		// Prepend this stream to closures.  Closures are created from the outside in.
+		// Thus, later closures can be used by earlier ones, but not vice versa.
+		ClassifiedStream inc = ws.getNewStream(WriterStreams.StreamClass.Closures, true);
 
 
 		Type retType = n.returnType().type();
@@ -3532,39 +3540,42 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.popCurrentStream();
 	}
 
-	public void visit(Future_c n) {
-	    // Inline the future template here for now
-	    // FIXME: do this expansion as a separate pass!
-	    w.write("/"+"*"+" Implement future, please "+"*"+"/");
-	    w.newline();
-	    w.write("x10::runtime::Runtime::evalFuture<"+emitter.translateType(n.returnType().type(), true)+" >(");
-	    w.begin(0);
-	    sw.pushCurrentStream(w);
-	    n.print(n.place(), sw, tr);
-	    sw.popCurrentStream();
-	    w.write(",");
-	    w.allowBreak(0, " ");
-	    visit((Closure_c) n);
-	    w.write(",");
-	    w.allowBreak(0, " ");
-	    w.write("String(\""+StringUtil.escape(n.position().nameAndLineString())+"\")");
-	    w.end();
-	    w.write(")");
-	}
+    public void visit(Future_c n) {
+        assert (false) : ("Future should have been desugared earlier");
+        // Inline the future template here for now
+        // FIXME: do this expansion as a separate pass!
+        w.write("/"+"*"+" Implement future, please "+"*"+"/");
+        w.newline();
+        w.write("x10::runtime::Runtime::evalFuture<"+emitter.translateType(n.returnType().type(), true)+" >(");
+        w.begin(0);
+        sw.pushCurrentStream(w);
+        n.print(n.place(), sw, tr);
+        sw.popCurrentStream();
+        w.write(",");
+        w.allowBreak(0, " ");
+        visit((Closure_c) n);
+        w.write(",");
+        w.allowBreak(0, " ");
+        w.write("String(\""+StringUtil.escape(n.position().nameAndLineString())+"\")");
+        w.end();
+        w.write(")");
+    }
 
-	public void visit(AtStmt_c n) {
-		w.write("/"+"*"+" Implement at, please "+"*"+"/");
-		w.newline();
-		w.write("assert (false);");
-		w.newline();
-	}
+    public void visit(AtStmt_c n) {
+        assert (false) : ("At statements are deprecated");
+        w.write("/"+"*"+" Implement at, please "+"*"+"/");
+        w.newline();
+        w.write("assert (false);");
+        w.newline();
+    }
 
-	public void visit(AtExpr_c n) {
-		w.write("/"+"*"+" Implement at expression, please "+"*"+"/");
-		w.newline();
-		w.write("assert (false);");
-		w.newline();
-	}
+    public void visit(AtExpr_c n) {
+        assert (false) : ("At expression should have been desugared earlier");
+        w.write("/"+"*"+" Implement at expression, please "+"*"+"/");
+        w.newline();
+        w.write("assert (false);");
+        w.newline();
+    }
 
 } // end of MessagePassingCodeGenerator
 // vim:tabstop=4:shiftwidth=4:expandtab
