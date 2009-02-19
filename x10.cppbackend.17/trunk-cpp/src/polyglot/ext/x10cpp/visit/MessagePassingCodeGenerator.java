@@ -373,6 +373,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else if (dec instanceof MethodDecl_c) {
 				MethodDecl_c md = (MethodDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
+				emitter.printTemplateSignature(((X10ClassType)md.methodDef().container().get()).typeArguments(), w);
 				emitter.printType(md.returnType().type(), w);
 				w.allowBreak(2, " ");
 				w.write(container+"::");
@@ -1903,7 +1904,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.arguments().size() > 0) {
 			w.allowBreak(2, 2, "", 0); // miser mode
 			w.begin(0);
-			for(Iterator i = n.arguments().iterator(); i.hasNext(); ) {
+			for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
 				Expr e = (Expr) i.next();
 				sw.pushCurrentStream(w);
 				n.print(e, sw, tr);
@@ -2084,9 +2085,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// otherwise overloads don't seem to work properly
 		w.begin(0);
 		w.write("("+make_ref(type)+")( ");
-		w.allowBreak(4,"");
+		w.allowBreak(4, "");
 		w.write("new (x10aux::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
-		w.allowBreak(4,"");
+		w.allowBreak(4, "");
 		w.write(type+"(");
 		w.begin(0);
 		for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
@@ -2887,7 +2888,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int id = getConstructorId(a);
 
 		String cname = getClosureName(hostClassName,id);
-		
+
 
 		// create closure and packed arguments
 
@@ -3512,10 +3513,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Future_c n) {
-		w.write("/"+"*"+" Implement future, please "+"*"+"/");
-		w.newline();
-		w.write("assert (false);");
-		w.newline();
+	    // Inline the future template here for now
+	    // FIXME: do this expansion as a separate pass!
+	    w.write("/"+"*"+" Implement future, please "+"*"+"/");
+	    w.newline();
+	    w.write("x10::runtime::Runtime::evalFuture<"+emitter.translateType(n.returnType().type(), true)+" >(");
+	    w.begin(0);
+	    sw.pushCurrentStream(w);
+	    n.print(n.place(), sw, tr);
+	    sw.popCurrentStream();
+	    w.write(",");
+	    w.allowBreak(0, " ");
+	    visit((Closure_c) n);
+	    w.write(",");
+	    w.allowBreak(0, " ");
+	    w.write("String(\""+StringUtil.escape(n.position().nameAndLineString())+"\")");
+	    w.end();
+	    w.write(")");
 	}
 
 	public void visit(AtStmt_c n) {
