@@ -87,6 +87,7 @@ import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit_c;
+import polyglot.ast.NumLit_c;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
@@ -307,9 +308,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				FieldDecl_c fd = (FieldDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
 				emitter.printHeader(fd, w, tr, false);
-				if (fd.init() != null) /* [DC] want these to occur in the static initialiser
+                // [DC] want these to occur in the static initialiser
+                // [IP] except for the ones that use a literal init - otherwise switch is broken
+				if (fd.init() != null &&
 						!(fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-								fd.init().isConstant())) */
+								(fd.init() instanceof NumLit_c || fd.init() instanceof BooleanLit_c)))
 				{
 					hasInits = true;
 				}
@@ -324,7 +327,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		if (hasInits) {
-			w.write("public : static " + VOID + " " + STATIC_INIT + "();");
+			w.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
 			w.newline();
 		}
 		w.end(); w.newline();
@@ -347,9 +350,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(container+"::");
 				w.write(mangled_field_name(fd.name().id().toString()));
 				if (fd.init() != null) {
-/* [DC] want these to occur in the static initialiser instead
+				    // [DC] want these to occur in the static initialiser instead
+                    // [IP] except for the ones that use a literal init - otherwise switch is broken
 					if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-							fd.init().isConstant())
+                            (fd.init() instanceof NumLit_c || fd.init() instanceof BooleanLit_c))
 					{
 						w.write(" =");
 						w.allowBreak(2, " ");
@@ -357,7 +361,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						fd.print(fd.init(), sw, tr);
 						sw.popCurrentStream();
 					} else
-*/
 						inits.add(fd);
 				}
 				w.write(";");
@@ -456,7 +459,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		if (inits.size() > 0) {
-			w.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
+			w.write(VOID_PTR + " " + container + "::" + STATIC_INIT + "() {");
 			w.newline(4); w.begin(0);
 			w.write("_I_(\"Doing static initialisation for class: "+container+"\");"); w.newline();
 			for (FieldDecl_c fd : inits) {
@@ -469,6 +472,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(";");
 				w.newline();
 			}
+            w.write("return NULL;");
 			w.end(); w.newline();
 			w.write("}"); w.newline();
 			w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
@@ -498,10 +502,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
 					if (((X10ClassDef)container.def()).typeParameters().size() != 0)
 						continue;
-/*
-					if (dec.init() != null && dec.flags().flags().isFinal() && dec.init().isConstant())
-						continue;
-*/
+					if (dec.init() != null && dec.flags().flags().isFinal() &&
+					        (dec.init() instanceof NumLit_c || dec.init() instanceof BooleanLit_c))
+					    continue;
 				}
 			}
 			if (!sawInit) {
@@ -509,7 +512,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(retType + " " + className + "::" + methodName + "() {");
 				w.newline(4);
 				w.begin(0);
-				w.write("_I_(\"Doing static initialisation for class: "+className+"\");"); w.newline();
+				w.write("_I_(\"Doing "+(staticInits?"static ":"")+"initialisation for class: "+className+"\");"); w.newline();
 				sawInit = true;
 			}
 			if (member instanceof Initializer_c) {
@@ -529,7 +532,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
 				w.write(";");
 				w.newline();
-
 			}
 		}
 		if (sawInit) {
@@ -612,7 +614,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		DelegateTargetFactory tf = ((X10CPPTranslator) tr).getTargetFactory();
 		ArrayList<Type> allIncludes = new ArrayList<Type>();
-		if (true || !def.isNested()) {
+		if (def.isNested()) {
+            assert (false) : ("Nested class alert!");
+            if (!def.flags().isStatic())
+                throw new InternalCompilerError("Instance Inner classes not supported");
+        } else {
 			if (n.superClass() != null) {
 				ClassType ct = n.superClass().type().toClass();
 				String cpp = getCppRep((X10ClassDef) ct.def(), tr);
@@ -753,9 +759,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 
-		if (def.isNested() && !def.flags().isStatic())
-			throw new InternalCompilerError("Instance Inner classes not supported");
-
 		ArrayList<ClassMember> opsd = context.pendingStaticDecls;
 		context.pendingStaticDecls = new ArrayList<ClassMember>();
 
@@ -828,11 +831,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline(0);
 				curPkg = pkgName.toString();
 			}
+            h.write("#endif // HACK: close the main guard");
 			// [IP] Ok to include here, since the class is already defined
 			h.forceNewline();
 			String curHdr = tf.outputHeaderName(curPkg, def.name().toString());
 			String guard = curHdr.replace('/','_').replace('.','_').replace('$','_').toUpperCase()+"_NODEPS";
 			h.write("#ifndef "+guard); h.newline();
+            h.write("#define "+guard); h.newline();
 
 			for (Type t : allIncludes) {
 				ClassType ct = t.toClass();
@@ -848,7 +853,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.newline();
 			}
 
-			h.write("#endif // "+guard); h.newline();
+			h.write("//#endif // HACK: the main guard will be closed later: "+guard); h.newline();
 		}
 		w.newline(0);
 	}
@@ -939,8 +944,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
 			}
 
-			if (extractInits(currentClass, STATIC_INIT, VOID, members, w, true)) {
-				h.write("public : static " + VOID + " " + STATIC_INIT + "();");
+			if (extractInits(currentClass, STATIC_INIT, VOID_PTR, members, w, true)) {
+				h.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
 				h.newline();
 				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
 						" = x10aux::InitDispatcher::addInitializer(" + 
@@ -1033,6 +1038,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
+//        X10ClassType container = (X10ClassType) mi.container().toClass();
+//        // TODO: [IP] Add an extra apply to something that's both Settable and Indexable
+//        try {
+//        if (mi.name().toString().equals("apply") &&
+//            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Indexable"))) &&
+//            xts.isImplicitCastValid(container, (Type) xts.forName(QName.make("x10.lang.Settable"))))
+//        {
+//            
+//        }
+//        } catch (SemanticException e) { assert (false) : ("Huh?  No Indexable or Settable?"); }
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
 		Type ret_type = emitter.findRootMethodReturnType(dec, mi);
 		String methodName = mi.name().toString();
@@ -1250,15 +1265,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printHeader(dec, h, tr, false);
 		if (dec.flags().flags().isStatic()) {
 			emitter.printHeader(dec, w, tr, true);
-/* [DC] disabled because I want this done through the static initialisation framework
-			if (dec.init() != null && dec.flags().flags().isFinal() && dec.init().isConstant()) {
+			// [DC] disabled because I want this done through the static initialisation framework
+            // [IP] re-enabled for a very limited set of cases, namely literal inits
+			if (dec.init() != null && dec.flags().flags().isFinal() &&
+			        (dec.init() instanceof NumLit_c || dec.init() instanceof BooleanLit_c))
+            {
 				w.write(" =");
 				w.allowBreak(2, " ");
 				sw.pushCurrentStream(w);
 				dec.print(dec.init(), sw, tr);
 				sw.popCurrentStream();
 			}
-*/
 			w.write(";");
 			w.newline();
 			return ;
@@ -1276,9 +1293,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Initializer_c n) {
 		if (n.flags().flags().isStatic()) {
 			// Ignore -- this will have been processed earlier
-//			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-//			"Static initializers not supported",
-//			n.position());
 		}
 	}
 
@@ -1287,11 +1301,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (!tr.job().extensionInfo().getOptions().assertions)
 			return;
-		// TODO: implement this
 		w.write("x10aux::x10__assert(");
-                sw.pushCurrentStream(w);
+		sw.pushCurrentStream(w);
 		n.print(n.cond(), sw, tr);
-                sw.popCurrentStream();
+		sw.popCurrentStream();
 		if (n.errorMessage() != null) {
 			w.write(",");
 			w.allowBreak(4, " ");
@@ -1306,9 +1319,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Switch_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		final boolean bodyForOnlyPlaceZero = !query.hasCodeForAllPlaces(n);
 
-		
 		{
 			w.write("switch (");
 			sw.pushCurrentStream(w);
@@ -1347,9 +1358,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(SwitchBlock_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		final boolean bodyForOnlyPlaceZero = !query.hasCodeForAllPlaces(n);
-		w.write("{");
 
+		w.write("{");
 		if (n.statements().size() > 0) {
 			w.newline(4);
 			w.begin(0);
@@ -1506,14 +1516,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Type base_type = null;
 		emitter.printHeader(dec, w, tr, true);
 		
-		// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
-		// xlC, for some reason, really doesn't like v1 = v2 = v3.  v1 gets the wrong value.
-		// So work around this by turning the above into v1 = v3; v2 = v1.
 		// FIXME: Need to handle nullable cast in this situation.
 		if (initexpr != null) {
 			w.write(" =");
 			w.allowBreak(2, " ");
-			// TODO: [IP] Combine finish calls for consecutive reductions
 			{
 				sw.pushCurrentStream(w);
 				dec.print(initexpr, sw, tr);
@@ -1556,10 +1562,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	
 	
 	public void visit(StmtSeq_c b) {
-		// Assumption: A StmtSeq will not do any leave/enterSPMD
-		// work. It is upto the each individual construct to
-		// handle things right.
-		
 		assert(false); // FIXME. It is not clear if when StmtSeq_c nodes are generated.  If they indeed are, remove this assert and continue with the method below.
 		
 		//w.write("{");
@@ -2346,6 +2348,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Await_c n) {
 		// [DC] still used somewhere
+        // FIXME: [IP] this code is wrong
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		w.write("while (!(");
@@ -2451,7 +2454,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String name = "__i" + form.name();
 		w.write("Iterator<");
-		String fType = emitter.translateType(form.type().type(),true);
+		String fType = emitter.translateType(form.type().type(), true);
 		w.write(fType + (fType.endsWith(">") ? " " : ""));
 		w.write(">* " + name + ";");
 		w.newline();
@@ -2857,7 +2860,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		// create closure and packed arguments
 
-		ClassifiedStream inc = ws.getNewStream(WriterStreams.StreamClass.Closures,false);
+		ClassifiedStream inc = ws.getNewStream(WriterStreams.StreamClass.Closures, false);
 
 
 		Type retType = n.returnType().type();
@@ -2969,7 +2972,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.newline(); inc.forceNewline();
 
 		inc.write("x10aux::ref<x10::lang::String> toString() { return String(\""+
-					n.position().nameAndLineString()+"\"); }");
+                StringUtil.escape(n.position().nameAndLineString())+"\"); }");
 		inc.end(); inc.newline(); inc.forceNewline();
 
 		inc.write("};"); inc.newline(); inc.forceNewline();
@@ -3125,8 +3128,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(SettableAssign_c n) {
-	// Code ported from X10PrettyPrinter.java (x10.compiler.p3) and
-	// ported to suit the needs. [Krishna]
+	    // Code ported from X10PrettyPrinter.java (x10.compiler.p3) and
+	    // ported to suit the needs. [Krishna]
 	    SettableAssign_c a = n;
 	    Expr array = a.array();
 	    List<Expr> index = a.index();
@@ -3140,53 +3143,59 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    if (n.operator() == Assign.ASSIGN) {
-	    	// Look for the appropriate set method on the array and emit native code if there is an
-	    	// @Native annotation on it.
-	    	X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
-	    	List<Expr> args = new ArrayList<Expr>(index.size()+1);
-	    	args.add(n.right());
-	    	for (Expr e : index) args.add(e);
+	        // Look for the appropriate set method on the array and emit native code if there is an
+	        // @Native annotation on it.
+	        X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
+	        List<Expr> args = new ArrayList<Expr>(index.size()+1);
+	        args.add(n.right());
+	        for (Expr e : index) args.add(e);
 
-	    	String pat = getCppImplForDef(mi.x10Def());
-	    	if (pat != null) {
-	    		emitNativeAnnotation(pat, mi.typeParameters(), array, args);
-	    		return;
-	    	} 
+	        String pat = getCppImplForDef(mi.x10Def());
+	        if (pat != null) {
+	            emitNativeAnnotation(pat, mi.typeParameters(), array, args);
+	            return;
+	        } 
 	        // otherwise emit the hardwired code.
-		sw.pushCurrentStream(w);
+	        w.write("(");
+	        w.begin(0);
+	        sw.pushCurrentStream(w);
 	        tr.print(n, array, sw);
-		sw.popCurrentStream();
-		w.write(".set(");
-		tr.print(n, n.right(), sw);
-		for (Expr e: index) {
-			w.write(", ");
-			sw.pushCurrentStream(w);
-			n.printSubExpr(e, false, sw, tr);
-			sw.popCurrentStream();
-		}
-		    w.write(")");
+	        sw.popCurrentStream();
+	        w.end();
+	        w.write(").set(");
+	        w.begin(0);
+	        tr.print(n, n.right(), sw);
+	        for (Expr e: index) {
+	            w.write(",");
+	            w.allowBreak(0, " ");
+	            sw.pushCurrentStream(w);
+	            n.printSubExpr(e, false, sw, tr);
+	            sw.popCurrentStream();
+	        }
+	        w.end();
+	        w.write(")");
 	    }
 	    else {
-		// R target = x; T right = e; 
-		// target.f = target.f.add(right);
+	        // R target = x; T right = e; 
+	        // target.f = target.f.add(right);
 	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 	        Name methodName = X10Binary_c.binaryMethodName(op);
 	        w.write("{ ");
 	        emitter.printType(n.type(), w);
-		String retVar=getId();
-		w.write(" " + retVar + ";");
-		w.newline();
-
+	        String retVar=getId();
+	        w.write(" " + retVar + ";");
+	        w.newline();
+	        
 	        emitter.printType(array.type(), w);
-		String target = getId();
-		w.write(" " + target + " = ");
-		sw.pushCurrentStream(w);
+	        String target = getId();
+	        w.write(" " + target + " = ");
+	        sw.pushCurrentStream(w);
 	        tr.print(n, array, sw);
-		sw.popCurrentStream();
-		w.newline();
-
-		String eArr [] = new String[index.size()];
+	        sw.popCurrentStream();
+	        w.newline();
+	        
+	        String eArr [] = new String[index.size()];
 	        {
 	            int i = 0;
 	            for (Expr e : index) {
@@ -3426,6 +3435,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(When_c n) {
+        // FIXME: [IP] this code is likely wrong.  Consolidate with Await_c.
 		assert (n.exprs() == null || n.exprs().size() == 0);
 		assert (n.stmts() == null || n.stmts().size() == 0);
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -3437,8 +3447,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.print(n.expr(), sw, tr);
 		sw.popCurrentStream();
 		w.end();
-		w.write(")) x10aux::async_poll();");
-		w.newline();
+		w.write("))");
+        w.newline(4); w.begin(0);
+        w.write("x10aux::async_poll();");
+        w.end(); w.newline();
 		sw.pushCurrentStream(w);
 		n.printSubStmt(n.stmt(), sw, tr);
 		sw.popCurrentStream();
@@ -3466,4 +3478,4 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 } // end of MessagePassingCodeGenerator
-// vim:tabstop=4:shiftwidth=4:noexpandtab
+// vim:tabstop=4:shiftwidth=4:expandtab
