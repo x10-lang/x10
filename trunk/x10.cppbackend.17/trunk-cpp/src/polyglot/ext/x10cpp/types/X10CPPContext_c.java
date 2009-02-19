@@ -47,7 +47,10 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		mainMethod = false;
 	}
 
-	public boolean inTemplate() { return ((X10ClassDef)currentClassDef()).typeParameters().size() != 0; }
+    public boolean inTemplate() {
+        X10ClassDef def = (X10ClassDef)currentClassDef();
+        return def != null && def.typeParameters().size() != 0;
+    }
 
 	public boolean inClosure;
 	public boolean insideClosure;
