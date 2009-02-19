@@ -1136,7 +1136,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 					var = context.getInlineMapping(var);
 				// FIXME: [IP] Why do we need the findVariableSilent call?
 				if ((!context.isGlobalVar(var) || context.isUnbroadcastable(var)) &&
-						context.findVariableSilent(local.name().toString()) != null)
+						context.findVariableSilent(local.name().id()) != null)
 					return false;
 			}
 			else if (ref instanceof Lit_c) {
