@@ -125,7 +125,6 @@ public class WriterStreams {
      */
     public ClassifiedStream getNewStream(StreamClass sc) { return getNewStream(sc, true); }
 
-    private int headerCount = 0;
     /**
      * Create and return a new stream of type sc. Until a new stream of 
      * type sc is created, this stream will be the current stream of type sc.
@@ -135,8 +134,6 @@ public class WriterStreams {
      * @return a new stream of type sc
      */
     public ClassifiedStream getNewStream(StreamClass sc, boolean prepend) {
-        if (sc == StreamClass.Header) headerCount++;
-        assert (sc != StreamClass.Header || headerCount < 2);
         ClassifiedStream cs = new ClassifiedStream(sc, job.compiler().outputWidth());
         if (prepend) {
             streams.add(0, cs);
