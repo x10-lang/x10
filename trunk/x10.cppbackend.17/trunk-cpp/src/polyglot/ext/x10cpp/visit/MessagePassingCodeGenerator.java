@@ -2720,29 +2720,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(ArrayAccess_c n) {
 		assert(false);
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		sw.pushCurrentStream(w);
-		n.printSubExpr(n.array(), sw, tr);
-		sw.popCurrentStream();
-		// FIXME: [IP] HACK! Inline array accesses
-		if (inlineArrayAccesses)
-			w.write("->_data[");
-		else
-		if (arraysAsRefs)
-			w.write("->operator[](");
-		else
-			w.write("[");
-		sw.pushCurrentStream(w);
-		n.printBlock(n.index(), sw, tr);
-		sw.popCurrentStream();
-		if (inlineArrayAccesses)
-			w.write("]");
-		else
-		if (arraysAsRefs)
-			w.write(")");
-		else
-			w.write("]");
 	}
 
 
@@ -2781,6 +2758,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Async_c n) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
+        sw.pushCurrentStream(w);
+        n.print(n.body, sw, tr);
+        sw.popCurrentStream();
+
+    /*
 		//if (!n.clocks().isEmpty())
 		//throw new InternalCompilerError("clocked asyncs not supported");
 		// FIXME: Why not merge the below code in the body of
@@ -2815,41 +2797,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.newline();
 
 		emitter.processAsync(n, placeVar, n.body, c, ws, w);
+    */
 	}
 	
 	public void visit(X10Special_c n) {
-		if (n.qualifier() != null) {
-			w.write("((");
-			sw.pushCurrentStream(w);
-			n.print(n.qualifier(), sw, tr);
-			sw.popCurrentStream();
-			w.write(" *)");
-		}
-		
-
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (n.kind().equals(X10Special_c.THIS) && (context.insideClosure)) {
-			w.write(SAVED_THIS);
-			if (context.insideClosure)
-				context.saveEnvVariableInfo(THIS);
-			if (n.qualifier() != null) 
-				w.write(")");
-			return;
-		}
-		if (n.kind().equals(X10Special_c.SUPER)) {
-			w.write(emitter.translateType(context.currentClass().superClass()));
-			if (n.qualifier() != null) 
-				w.write(")");
-			return;
-		}
-		if (n.isSelf()) {
+
+        // inner classes have been removed
+        assert(n.qualifier()==null):n.qualifier()+" "+n.kind()+" "+n.position().nameAndLineString();
+
+		if (n.kind().equals(X10Special_c.THIS)) {
+            if (context.insideClosure) {
+                w.write(SAVED_THIS);
+                context.saveEnvVariableInfo(THIS);
+            } else {
+                w.write("("+emitter.translateType(n.type(),true)+")"+n.kind().toString());
+            }
+		} else if (n.kind().equals(X10Special_c.SUPER)) {
+            w.write(emitter.translateType(context.currentClass().superClass()));
+		} else if (n.isSelf()) {
 			// FIXME: Why are we printing the string "self"?
 			// Confirm with Igor. [Krishna]
 			w.write((context.Self() == null)? "self":context.Self());
-		}
-		else w.write(n.kind().toString());
-		if (n.qualifier() != null) 
-			w.write(")");
+		} else assert(false):n.kind();
+
 	}
 
 	public String getClosureName(String className, int id) {
