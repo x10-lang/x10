@@ -11,7 +11,7 @@ override CXXFLAGS += -qrtti=all -DNDEBUG
 ARFLAGS := -X64 $(ARFLAGS)
 endif
 
-ALL_LIBS=libx10lang.a $(if $(wildcard /usr/include/lapi.h),,liblapi.a)
+ALL_LIBS=libx10lang.a $(if $(wildcard /usr/include/lapi.h),,liblapi.a) libx10lib.a
 
 all:	$(ALL_LIBS)
 
@@ -100,6 +100,9 @@ lapi.h:
 
 .INTERMEDIATE: stub_lapi.o
 liblapi.a: stub_lapi.o
+	$(AR) $(ARFLAGS) $@ $(filter %.o,$^)
+
+libx10lib.a: stub_x10lib.o
 	$(AR) $(ARFLAGS) $@ $(filter %.o,$^)
 
 x10lang.o: x10lang.h
