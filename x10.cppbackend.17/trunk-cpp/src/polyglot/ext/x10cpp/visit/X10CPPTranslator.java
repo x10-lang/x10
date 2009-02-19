@@ -283,7 +283,6 @@ public class X10CPPTranslator extends Translator {
 			for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 				TopLevelDecl decl = (TopLevelDecl) i.next();
 				String className = ((ClassDecl)decl).classDef().name().toString();
-                System.out.println(className);
 				wstreams = new WriterStreams(className, sfn, pkg, tf, exports, job);
 				sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
 						outputWidth, wstreams);
