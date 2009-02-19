@@ -96,6 +96,12 @@ public class Emitter {
         // operator names
         "and", "and_eq", "not", "not_eq", "or", "or_eq", "xor", "xor_eq",
         "bitand", "bitor", "compl",
+        // X10 types
+        "x10_boolean", "x10_byte", "x10_char", "x10_short", "x10_int",
+        "x10_long", "x10_float", "x10_double",
+        // X10 implementation names
+        "FMGL", "TYPENAME", "RTT", "DEFINE_RTT", "DEFINE_SPECIAL_RTT",
+        // Additionally, anything starting with a '_' is reserved, and may clash
     };
     private static boolean isCPPKeyword(String name) {
         for (int i = 0; i < CPP_KEYWORDS.length; i++) {
