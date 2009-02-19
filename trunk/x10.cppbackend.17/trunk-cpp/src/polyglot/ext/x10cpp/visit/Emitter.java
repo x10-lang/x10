@@ -62,6 +62,7 @@ import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
+import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
@@ -82,7 +83,7 @@ public class Emitter {
 		this.sw=sw;
 		//	this.ws=sw.ws; 
 		this.tr=tr;
-		query = new ASTQuery(sw, tr);
+		query = new ASTQuery(tr);
 	}
 	private static final String[] CPP_KEYWORDS = { // Some are also X10 keywords
 		"asm", "auto", "bool", "break", "case", "catch", "char", "class",
@@ -120,54 +121,13 @@ public class Emitter {
 		return "x10__"+mangle_to_cpp(str);
 	}
 
-	void emit_cond_global_finish_start(String cs, String comment, ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// FIXME: [IP] These assertions fail for me on AWE.
-//		assert(context.inplace0 == false && context.finish_depth == 0);
-		w.write(cs + " = x10::finish_start(" + cs + ");" + comment);
-	}
-
-	void emit_global_finish_start(ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// FIXME: [IP] These assertions fail for me on AWE.
-//		assert(context.inplace0 == false && context.finish_depth == 0);
-		w.write("x10::finish_start(-1);");
-	}
-
-	void emit_global_finish_end(ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// FIXME: [IP] These assertions fail for me on AWE.
-//		assert(context.inplace0 == false && context.finish_depth == 0);
-		w.write("x10::finish_end(EXCEPTION);");
-	}
-
-	void emit_cond_global_finish_end(String comment,ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// FIXME: [IP] These assertions fail for me on AWE.
-//		assert(context.inplace0 == false && context.finish_depth == 0);
-		w.write("x10::finish_end(EXCEPTION);" + comment);
-	}
-
-	void emit_general_finish_start(ClassifiedStream w) {
-		w.write("x10aux::general_finish_start();");  
-		// keep it in sync with data/*.xcd files
-		w.newline();
-	}
-
-	void emit_general_finish_end(ClassifiedStream w) {
-		w.write("x10aux::general_finish_end();");
-		// keep it in sync with data/*.xcd files
-		// FIXME: Handle Exceptions. [Krishna]
-		w.newline();
-	}
-
-	void printStaticAsyncDeclarations(X10CPPContext_c context, ClassifiedStream w) {
+	void printStaticAsyncDeclarations(X10CPPContext_c context, CodeWriter w) {
 		printAsyncDeclarations("static ", "", context.closures.asyncs,
 				context.closures.asyncsParameters, context.closures.arrayCopyClosures,
 				context.closures.asyncContainers, w);
 	}
 
-	void printFriendAsyncDeclarations(X10CPPContext_c context, ClassifiedStream h) {
+	void printFriendAsyncDeclarations(X10CPPContext_c context, CodeWriter h) {
 		printAsyncDeclarations("friend ", translateType(getOuterClass(context))+"::",
 				context.closures.asyncs,
 				context.closures.asyncsParameters, context.closures.arrayCopyClosures,
@@ -176,7 +136,7 @@ public class Emitter {
 
 	void printAsyncDeclarations(String prefix, String name_pfx, 
 			ArrayList asyncs, ArrayList asyncsParameters, 
-			HashMap arrayCopyClosures, HashMap asyncContainers, ClassifiedStream w) {
+			HashMap arrayCopyClosures, HashMap asyncContainers, CodeWriter w) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
 		// Declare the switch functions here
@@ -225,10 +185,6 @@ public class Emitter {
 		}
 	}
 
-	void printStaticClosureDeclarations(X10CPPContext_c context, ClassifiedStream h) {
-		printClosureDeclarations("static ", "",
-				context.closures.arrayInitializers, context.closures.arrayInitializerParameters, h);
-	}
 	/**
 	 * Same as n.printBlock(child, w, tr); but without the enterScope call.
 	 */
@@ -239,8 +195,13 @@ public class Emitter {
 		sw.popCurrentStream();
 		w.end();
 	}
+
+	void printStaticClosureDeclarations(X10CPPContext_c context, CodeWriter h) {
+		printClosureDeclarations("static ", "",
+				context.closures.arrayInitializers, context.closures.arrayInitializerParameters, h);
+	}
 	void printClosureDeclarations(String prefix, String name_pfx, ArrayList closures, 
-			ArrayList closuresParameters, ClassifiedStream w) {
+			ArrayList closuresParameters, CodeWriter w) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		for (int i = 0; i < closures.size(); i++) {
 			Closure_c n = (Closure_c) closures.get(i);
@@ -337,7 +298,7 @@ public class Emitter {
 	/**
 	 * Print a type as a reference.
 	 */
-	void printType(Type type, ClassifiedStream w) {
+	void printType(Type type, CodeWriter w) {
 		w.write(translateType(type, true));
 	}
 
@@ -432,36 +393,16 @@ public class Emitter {
 			return name;
 		return make_ref(name);
 	}
-	void printGlobalStateStruct(X10CPPContext_c c, ArrayList globals, 
-			WriterStreams ws, ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		ClassifiedStream h;
-		if (context.inLocalClass())
-			h = w;
-		else
-			h = ws.getCurStream(WriterStreams.StreamClass.Header);
-		h.forceNewline();
-		h.write("public: ");
-		h.write("static struct _"+GLOBAL_STATE+" {"); h.newline(0);
-		h.begin(4); h.newline();
-		printDeclarationList(h, c, globals);
-		h.end(); h.newline();
-		h.write("} "+GLOBAL_STATE+";");
-		h.newline();
-		String klass = translateType(c.currentClass());
-		w.write("struct "+klass+"::_"+GLOBAL_STATE+" "+klass+"::"+GLOBAL_STATE+";");
-		w.newline();
-		w.forceNewline();
-	}
-	void printArgumentList(ClassifiedStream w, X10CPPContext_c c) {
+
+	void printArgumentList(CodeWriter w, X10CPPContext_c c) {
 		printArgumentList(w, c, false, true);
 	}
 	
-	void printArgumentList(ClassifiedStream w, X10CPPContext_c c, boolean omitType) {
+	void printArgumentList(CodeWriter w, X10CPPContext_c c, boolean omitType) {
 		printArgumentList(w, c, omitType, true);
 	}
 	
-	void printArgumentList(ClassifiedStream w, X10CPPContext_c c, boolean omitType, boolean saved_this_mechanism) {
+	void printArgumentList(CodeWriter w, X10CPPContext_c c, boolean omitType, boolean saved_this_mechanism) {
 		for (int i = 0; i < c.variables.size(); i++) {
 			if (i > 0) {
 				w.write(",");
@@ -485,8 +426,7 @@ public class Emitter {
 			w.write(name);
 		}
 	}
-	void printAsyncsRegistration(ClassType currentClass, ArrayList asyncs, ClassifiedStream w) {
-		assert w.sClass==WriterStreams.StreamClass.Closures;
+	void printAsyncsRegistration(ClassType currentClass, ArrayList asyncs, CodeWriter w) {
 		if (asyncs.size() == 0) return;
 		String className = translateType(currentClass);
 		w.newline();
@@ -506,21 +446,13 @@ public class Emitter {
 
 
 
-	void printFriendClosureDeclarations(X10CPPContext_c context, ClassifiedStream h) {
+	void printFriendClosureDeclarations(X10CPPContext_c context, CodeWriter h) {
 		printClosureDeclarations("friend ", translateType(getOuterClass(context))+"::",
 				context.closures.arrayInitializers, context.closures.arrayInitializerParameters, h);
 	}
 
 
-	void printAsyncFlush(int last_async, int numAsyncs, ClassifiedStream w) {
-		for (int i = last_async; i < numAsyncs; i++) {
-			w.newline();
-			w.write("async_flush(" + i + ");");
-		}
-		w.newline();
-	}
-
-	void printTemplateSignature(List<Type> list, ClassifiedStream h) {
+	void printTemplateSignature(List<Type> list, CodeWriter h) {
 		int size = list.size();
 		if (size != 0){
 			h.write("template <class ");
@@ -542,7 +474,7 @@ public class Emitter {
 		return res;
 	}
 	
-	void printTemplateInstantiation(X10MethodInstance mi, ClassifiedStream w) {
+	void printTemplateInstantiation(X10MethodInstance mi, CodeWriter w) {
 		if (mi.typeParameters().size() == 0)
 			return;
 		w.write("<");
@@ -721,7 +653,7 @@ public class Emitter {
 	}
 
 	void printHeader(Formal_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		Flags flags = n.flags().flags();
+//		Flags flags = n.flags().flags();
 		h.begin(0);
 //		if (flags.isFinal())
 //		h.write("const ");
@@ -731,7 +663,7 @@ public class Emitter {
 		h.end();
 	}
 
-	void printFlags(ClassifiedStream h, Flags flags) {
+	void printFlags(CodeWriter h, Flags flags) {
 //		if (flags.isPublic() || flags.isProtected() || flags.isPrivate())
 //		h.write(flags.retain(Flags.PUBLIC.Private().Protected()).translate()+": ");
 //		else // Java's "package access" should be the same as public
@@ -742,7 +674,7 @@ public class Emitter {
 		h.write("public: ");
 	}
 
-	private void printAllTemplateSignatures(ClassDef cd, ClassifiedStream h) {
+	private void printAllTemplateSignatures(ClassDef cd, CodeWriter h) {
 		if (cd.isNested()) {
 			assert (false) : ("Nested class alert!");
 			printAllTemplateSignatures(cd.outer().get(), h);
@@ -750,7 +682,7 @@ public class Emitter {
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
 
-	void printRTT(X10ClassType ct, ClassifiedStream h) {
+	void printRTT(X10ClassType ct, CodeWriter h) {
 		String x10name = ct.fullName().toString();
 		int num_parents = 1 + ct.interfaces().size();
 		//
@@ -788,7 +720,7 @@ public class Emitter {
 			h.write("return x10aux::getRTT<"+translateType(ct)+" >();"); h.end(); h.newline();
 		h.write("}"); h.newline();
 	}
-	void printRTTDefn(X10ClassType ct, ClassifiedStream h) {
+	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 		if (ct.typeArguments().isEmpty()) {
 			h.write("DEFINE_RTT("+translateType(ct)+");");
 		} else {
@@ -801,7 +733,7 @@ public class Emitter {
 		h.newline();
 	}
 
-	void printInheritance(ClassDecl_c n, ClassifiedStream h, Translator tr) {
+	void printInheritance(ClassDecl_c n, CodeWriter h, Translator tr) {
 		String extends_ = n.superClass()==null ? null : translateType(n.superClass().type());
 		HashSet<String> implements_ = new HashSet<String>();
 		for (TypeNode tn : n.interfaces()) {
@@ -878,7 +810,7 @@ public class Emitter {
 		}
 		h.begin(0);
 		String typeName = translateType(container.def().asType());
-		if (qualify && !context.inLocalClass())
+		if (qualify)
 			h.write(typeName + "::");
 		// Use just the name for the constructor identifier -- no template params, etc
 		h.write(mangled_non_method_name(container.def().asType().name().toString()));
@@ -924,14 +856,6 @@ public class Emitter {
 			h.write(translateType(n.fieldDef().asInstance().container()) + "::");
 		h.write(mangled_field_name(n.name().id().toString())); 
 		h.end();
-
-		// TODO: Handle initialization of instance fields.
-		// While doing it also handle initializer blocks.
-		// [Krishna]
-		if (!qualify && flags.isStatic()) {
-			h.write(";");
-			h.newline();
-		}
 	}
 	void printHeader(LocalDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		//Flags flags = n.flags().flags();
@@ -951,10 +875,10 @@ public class Emitter {
 		h.end();
 	}
 	
-	void createPackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id, String prefix) {
+	void createPackedArgumentsStruct(CodeWriter w, X10CPPContext_c c, int id, String prefix) {
 		createPackedArgumentsStruct(w, c, id, prefix, true);
 	}
-	void createPackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id, String prefix, boolean saved_this_mechanism) {
+	void createPackedArgumentsStruct(CodeWriter w, X10CPPContext_c c, int id, String prefix, boolean saved_this_mechanism) {
 		w.write("struct "+args_name(prefix, id)+" : public x10aux::closure_args {");
 		w.newline(4); w.begin(0);
 		w.write(args_name(prefix, id));
@@ -1064,10 +988,8 @@ public class Emitter {
 
 		c.setinsideClosure(insideClosure);
 
-		if (query.hasAnnotation(n, "x10.lang.aggregate")) {
+		if (query.hasAnnotation(n, "x10.lang.aggregate"))
 			w.write("agg_");
-		}
-
 		w.write("async_invocation(" + translateType(c.currentClass()) + ", " + id + ", ");
 		w.write("(");
 		w.write(placeVar);
@@ -1092,6 +1014,7 @@ public class Emitter {
 			Expr target, Expr src, Expr srcOffset, Expr dest, Expr destOffset, Expr len,
 			WriterStreams ws, ClassifiedStream w)
 	{
+        assert (false);
 		String ARRAY_ACCESSOR = useIndicesForArrayCopy ? RAW_ADJUSTED : RAW_ARRAY;
 		w.write("async_array_copy_invocation(");
 		w.begin(0);
@@ -1233,6 +1156,7 @@ public class Emitter {
 			Expr target, Expr src, Expr srcOffset, Expr dest, Expr destOffset, Expr len,
 			Expr array, boolean shouldNotify, WriterStreams ws, ClassifiedStream w)
 	{
+        assert (false);
 		String ARRAY_ACCESSOR = useIndicesForArrayCopy ? RAW_ADJUSTED : RAW_ARRAY;
 		assert (eagerArrayCopyNotification); // TODO
 		//w.write("x10lib::AsyncArrayCopyRawNotify("); // TODO
@@ -1499,11 +1423,11 @@ public class Emitter {
 		return;
 	}
 	
-	void printDeclarationList(ClassifiedStream w, X10CPPContext_c c, ArrayList vars) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars) {
 		printDeclarationList(w, c, vars, true);
 	}
 	
-	void printDeclarationList(ClassifiedStream w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
@@ -1535,7 +1459,7 @@ public class Emitter {
 		}
 	}
 
-	void unpackArgs(ClassifiedStream w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
+	void unpackArgs(CodeWriter w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
@@ -1556,7 +1480,7 @@ public class Emitter {
 		}
 	}
 	
-	void unpackClosureArgs(ClassifiedStream w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
+	void unpackClosureArgs(CodeWriter w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
@@ -1574,11 +1498,11 @@ public class Emitter {
 		}
 	}
 	
-	void instantiateArguments(ClassifiedStream w, X10CPPContext_c c, Position p) {
+	void instantiateArguments(CodeWriter w, X10CPPContext_c c, Position p) {
 		instantiateArguments(w, c, p, true);
 	}
 	
-	void instantiateArguments(ClassifiedStream w, X10CPPContext_c c, Position p, boolean saved_this_mechanism) {
+	void instantiateArguments(CodeWriter w, X10CPPContext_c c, Position p, boolean saved_this_mechanism) {
 		w.write("(");
 		w.begin(0);
 		for (int i = 0; i < c.variables.size(); i++) {
@@ -1631,7 +1555,6 @@ public class Emitter {
 		X10ClassType ct = (X10ClassType) type.toClass();
 		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		assert(!context.inLocalClass()); // Do not ask for header stream in LocalClass
 		//ClassifiedStream h = ws.getCurStream(WriterStreams.StreamClass.Header);
 		h.forceNewline();
 		h.write("// Serialization"); h.newline();
@@ -1725,7 +1648,7 @@ public class Emitter {
 		w.newline();
 		w.forceNewline();
 	}
-	public void emitUniqueNS(QName name, ArrayList<String> history, ClassifiedStream w) {
+	public void emitUniqueNS(QName name, ArrayList<String> history, CodeWriter w) {
 		if (name == null) return;
 		if  (!history.contains(name.toString())) {
 			openNamespaces(w, name);
@@ -1736,6 +1659,19 @@ public class Emitter {
 		}
 		return;
 	}
+
+    public static void openNamespaces(CodeWriter h, QName name) {
+        if (name == null) return;
+        openNamespaces(h, name.qualifier());
+        h.write("namespace "+name.name()+" { ");
+    }       
+                
+    public static void closeNamespaces(CodeWriter h, QName name) {
+        if (name == null) return;
+        h.write("} ");
+        closeNamespaces(h, name.qualifier());
+    }
+     
 	public String makeUnsignedType(Type t) {
 		// FIXME: HACK!
 		if (t.isInt())
@@ -1744,103 +1680,7 @@ public class Emitter {
 			return "uint64_t";
 		return "unsigned "+translateType(t);
 	}
-	Node enterSPMD(Node n, ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		boolean mainMethod = query.isMainMethod(context);
-		boolean toplevel0 = mainMethod && context.finish_depth == 0;
-		boolean toplevel1 = mainMethod && context.finish_depth == 1;
-		boolean toplevel2 = mainMethod && context.ateach_depth == 0;
-		// Add isMainMethod() to toplevel2 as well -> we do not emit
-		// SKIP statements in non-Main methods.
 
-		if (n == null && mainMethod ||
-				((n instanceof Finish_c) && toplevel0) ||
-				//((n instanceof Eval_c) && (toplevel0 || toplevel1)) ||
-				((n instanceof Call_c) && mainMethod) ||
-				((n instanceof AtEach_c) && toplevel1) ||
-				((n instanceof LocalDecl_c) && toplevel0) ||
-				((n instanceof If_c) && (toplevel0/* || context.ateach_depth == 0*/)) ||
-				((n instanceof For_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof Do_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof While_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof ForLoop_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof Switch_c) && (toplevel0/* || context.ateach_depth == 0*/)) ||
-				((n instanceof SwitchBlock_c) && (toplevel0/* || context.ateach_depth == 0*/)) ||
-				((n instanceof Block_c) && mainMethod && toplevel2) ||
-				((n instanceof Next_c) && (toplevel0)) ||
-				((n instanceof Try_c) && (toplevel0 || toplevel2)))
-		{
-			if (context.inplace0) {
-				w.newline(0);
-				w.write("SKIP_s" + context.nextLabel + ": ;");
-				w.newline(0);
-				context.inplace0 = false;
-			}
-		}
-		return null;
-	}
-	Node leaveSPMD(Node n, ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		boolean mainMethod = query.isMainMethod(context);
-		boolean toplevel0 = mainMethod && context.finish_depth == 0;
-		boolean toplevel1 = mainMethod && context.finish_depth == 1;
-		boolean toplevel2 = mainMethod && context.ateach_depth == 0;
-		// Add isMainMethod to toplevel2 as well -> we do not emit
-		// SKIP statements in non-Main methods.
-		if (n == null && mainMethod ||
-				((n instanceof Finish_c) && toplevel0) ||
-				//((n instanceof Eval_c) && (toplevel0 || toplevel1)) ||
-				((n instanceof Call_c) && mainMethod) ||
-				((n instanceof AtEach_c) && toplevel1) ||
-				((n instanceof LocalDecl_c) && toplevel0) ||
-				((n instanceof If_c) && (toplevel0)) ||
-				((n instanceof For_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof While_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof Do_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof ForLoop_c) && (toplevel0 || toplevel2)) ||
-				((n instanceof Switch_c) && (toplevel0/* || context.ateach_depth == 0*/)) ||
-				((n instanceof SwitchBlock_c) && (toplevel0/* || context.ateach_depth == 0*/)) ||
-				((n instanceof Block_c) && mainMethod && toplevel2) ||
-				((n instanceof Next_c) && (toplevel0)) ||
-				((n instanceof Try_c) && (toplevel0 || toplevel2)))
-		{
-			if (!context.inplace0) {
-				context.nextLabel++;
-				w.newline(0);
-				w.write("if (__here__ != 0) goto SKIP_s"+context.nextLabel+";");
-				w.newline(0);
-				context.inplace0 = true;
-			}
-		}
-		return null;
-	}
-
-    public static void openNamespaces(ClassifiedStream h, QName name) {
-        if (name==null) return;
-        openNamespaces(h, name.qualifier());
-        h.write("namespace "+name.name()+" { ");
-    }       
-                
-    public static void closeNamespaces(ClassifiedStream h, QName name) {
-        if (name==null) return;
-        h.write("} ");
-        closeNamespaces(h, name.qualifier());
-    }
-     
-
-/*
-	public static void closeNameSpace(String ns, ClassifiedStream w) {
-		int start = 0;
-		while (true) {
-			start = ns.indexOf('.', start);
-			if (start < 0) break;
-			w.write("}");
-			start ++;
-		}
-		w.write("} // namespace ");
-		w.write(translate_mangled_FQN(ns));
-	}
-*/
 	private String dumpRegex(String id, Object[] components, Translator tr, String regex) {
 	    String retVal = "";
 	    for (int i = 0; i < components.length; i++) {
@@ -1904,20 +1744,20 @@ public class Emitter {
 		}
 		w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
 	}
-	private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
-		if (o instanceof Node) {
-			sw.pushCurrentStream(w);
-			Node n = (Node) o;
+    private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
+        if (o instanceof Node) {
+            sw.pushCurrentStream(w);
+            Node n = (Node) o;
             X10CPPContext_c context = (X10CPPContext_c) tr.context();
-			((X10CPPTranslator) tr).setContext(n.del().enterScope(context));
-			n.del().translate(sw, tr);
-			((X10CPPTranslator) tr).setContext(context);
-			sw.popCurrentStream();
-		} else if (o instanceof Type) {
-			w.write(translateType((Type)o, true));
-		} else if (o != null) {
-			w.write(o.toString());
-		}
-	}
+            ((X10CPPTranslator) tr).setContext(n.del().enterScope(context));
+            n.del().translate(sw, tr);
+            ((X10CPPTranslator) tr).setContext(context);
+            sw.popCurrentStream();
+        } else if (o instanceof Type) {
+            w.write(translateType((Type)o, true));
+        } else if (o != null) {
+            w.write(o.toString());
+        }
+    }
 }
-// vim:tabstop=4:shiftwidth=4:noexpandtab
+// vim:tabstop=4:shiftwidth=4:expandtab
