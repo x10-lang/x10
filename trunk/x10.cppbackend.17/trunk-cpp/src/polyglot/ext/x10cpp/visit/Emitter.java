@@ -89,6 +89,8 @@ public class Emitter {
 		return str.replace("$","__"); // FIXME: Add appropriate mangling. [Krishna]
 	}
 	public static String mangled_non_method_name(String str) {
+		if (str.equals(THIS)) return str;  // "this" is passed by closures code for graceful fitting with 1.5 closures code.  
+		// "this" mangles to "this". FIXME Import Igor's changes
 		return ("x10__" + str.replace("$","__"));
 	}
 
@@ -460,10 +462,14 @@ public class Emitter {
 		w.forceNewline();
 	}
 	void printArgumentList(ClassifiedStream w, X10CPPContext_c c) {
-		printArgumentList(w, c, false);
+		printArgumentList(w, c, false, true);
 	}
-
+	
 	void printArgumentList(ClassifiedStream w, X10CPPContext_c c, boolean omitType) {
+		printArgumentList(w, c, omitType, true);
+	}
+	
+	void printArgumentList(ClassifiedStream w, X10CPPContext_c c, boolean omitType, boolean saved_this_mechanism) {
 		for (int i = 0; i < c.variables.size(); i++) {
 			if (i > 0) {
 				w.write(",");
@@ -479,7 +485,7 @@ public class Emitter {
 				w.write(type + " ");
 			}
 			String name = var.name().toString();
-			if (name.equals(THIS))
+			if (saved_this_mechanism && name.equals(THIS))
 				name = SAVED_THIS;
 			else
 				name = mangled_non_method_name(name) ;
@@ -783,12 +789,16 @@ public class Emitter {
 		h.write(mangled_non_method_name(n.name().id().toString())); 
 		h.end();
 	}
+	
 	void createPackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id, String prefix) {
+		createPackedArgumentsStruct(w, c, id, prefix, true);
+	}
+	void createPackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id, String prefix, boolean saved_this_mechanism) {
 		w.write("struct "+args_name(prefix, id)+" : public x10::closure_args {");
 		w.newline(4); w.begin(0);
 		w.write(args_name(prefix, id));
 		w.write("(");
-		printArgumentList(w, c);
+		printArgumentList(w, c, false, saved_this_mechanism);
 		w.write(")");
 		w.allowBreak(0, " ");
 		// [IP] This used to output the normal C++ field initialization syntax,
@@ -797,10 +807,9 @@ public class Emitter {
 		for (int i = 0; i < c.variables.size(); i++) {
 			VarInstance var = (VarInstance)c.variables.get(i);
 			String name = var.name().toString();
-			if (name.equals(THIS))
+			if (saved_this_mechanism && name.equals(THIS))
 				name = SAVED_THIS;
-			else
-				name=mangled_non_method_name(name);
+			else name=mangled_non_method_name(name);
 			if (i > 0) w.newline();
 			// FIXME: pack references properly
 			w.write("this->" + name + " = " + name + ";");
@@ -814,7 +823,7 @@ public class Emitter {
 			w.write("() { }");
 			w.newline();
 		}
-		printDeclarationList(w, c, c.variables);
+		printDeclarationList(w, c, c.variables, saved_this_mechanism);
 		w.end(); w.newline();
 		w.write("};");
 	}
@@ -1349,7 +1358,12 @@ public class Emitter {
 
 		return;
 	}
+	
 	void printDeclarationList(ClassifiedStream w, X10CPPContext_c c, ArrayList vars) {
+		printDeclarationList(w, c, vars, true);
+	}
+	
+	void printDeclarationList(ClassifiedStream w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
@@ -1360,7 +1374,7 @@ public class Emitter {
 			List names = c.getRenameMapping(var);
 			if (names == null) {
 				String name = var.name().toString();
-				if (name.equals(THIS)) {
+				if (saved_this_mechanism && name.equals(THIS)) {
 					if (c.inlining || c.insideClosure) // FIXME: Krishna, why did you add this test?
 						name = SAVED_THIS;
 				}
@@ -1401,7 +1415,30 @@ public class Emitter {
 			w.newline();
 		}
 	}
+	
+	void unpackClosureArgs(ClassifiedStream w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
+		for (int i = 0; i < vars.size(); i++) {
+			VarInstance var = (VarInstance)vars.get(i);
+			Type t = var.type();
+			if (c.isSPMDVar(var)) {
+				t = query.getX10ArrayElementType(t);
+			}
+			String type = translateType(t, true);
+			String name = var.name().toString();
+			name = mangled_non_method_name(name);
+			// FIXME: unpack references properly
+			w.write(type + " " + name + " = " +
+					"((" + args_name(prefix, id)+"*) args)->" + name
+					+ ";");
+			w.newline();
+		}
+	}
+	
 	void instantiateArguments(ClassifiedStream w, X10CPPContext_c c, Position p) {
+		instantiateArguments(w, c, p, true);
+	}
+	
+	void instantiateArguments(ClassifiedStream w, X10CPPContext_c c, Position p, boolean saved_this_mechanism) {
 		w.write("(");
 		w.begin(0);
 		for (int i = 0; i < c.variables.size(); i++) {
@@ -1411,7 +1448,7 @@ public class Emitter {
 			}
 			VarInstance v = (VarInstance)c.variables.get(i);
 			String name = v.name().toString();
-			if (name.equals(THIS)) {
+			if (saved_this_mechanism && name.equals(THIS)) {
 				if (c.inlining || c.insideClosure)
 					name = SAVED_THIS;
 			}

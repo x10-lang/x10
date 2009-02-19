@@ -419,6 +419,7 @@ public class X10CPPTranslator extends Translator {
 		w.forceNewline(0);
 		w.write("using namespace x10;"); w.newline();
 		w.write("using namespace x10::lang;"); w.newline();
+		w.write("using namespace x10::core::fun;"); w.newline();
 		w.forceNewline(0);
 
 		boolean newline = false;

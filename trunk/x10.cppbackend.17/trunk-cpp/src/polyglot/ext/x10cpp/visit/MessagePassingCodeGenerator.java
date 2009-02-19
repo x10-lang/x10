@@ -1103,7 +1103,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// refer to this variable (it is a local
 			// declaration). So this translation is
 			// semantically correct. [Krishna]
-			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);
+			//emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);  FIXME Krishna says this should remain un-commented; 
+			//TODO the bug fix about duplicate closure visit and uncomment
 
 		}
 		// See above note about xlC.
@@ -2485,6 +2486,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Closure_c n) {
+		
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		
 		X10CPPContext_c.Closures a = c.closures;
@@ -2494,6 +2496,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		c.setinsideClosure(true);
 
 		int constructor_id = getConstructorId(a);
+		
 
 		// create closure and packed arguments
 		ClassifiedStream w = this.w;
@@ -2503,16 +2506,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		Type base_type = n.returnType().type();
 		String base = emitter.translateType(base_type, true);
-		String className = emitter.translateType(c.currentClass());
-		w.write("array_init_closure_and_args_struct(" + className + ",");
-		w.allowBreak(0, " ");
+		//String className = emitter.translateType(c.currentClass());
+		String inherits = n.returnType().type().isVoid() ? 
+				"x10::core::fun::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) : 
+					"x10::core::fun::" + mangled_non_method_name("Fun_0_" + n.formals().size());
+		w.write("closure_class_and_args_struct(" ); //className + ",");
+//		w.allowBreak(0, " ");
 		w.write(constructor_id + ",");
 		w.allowBreak(0, " ");
+		w.write(inherits + ",");
+		w.allowBreak(0, " ");		
 		w.write(base + ",");
 		w.allowBreak(0, " ");
 
 		// need to invoke this macro to make sure we visit the args before the body
-		w.write("array_init_unpacked_body(");
+		w.write("closure_unpacked_body(");
 		// arguments of the initializer function
 		w.write("(");
 //		w.begin(0);
@@ -2542,8 +2550,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(",");
 		w.allowBreak(0, " ");
 
-		if (useStructsForArrayInitArgs) {
-			emitter.unpackArgs(w, c, c.variables, constructor_id, INIT_PREFIX);
+		if (useStructsForClosureArgs) {
+			emitter.unpackClosureArgs(w, c, c.variables, constructor_id, CLOSURE_WRAPPER_PREFIX);
 		}
 
 		w.write(")");
@@ -2553,7 +2561,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.begin(0);
 		w.allowBreak(2, 2, "", 0);
 
-		if (useStructsForArrayInitArgs) { w.write(VOID_PTR+" args, "); }
+//		if (useStructsForClosureArgs) { w.write(VOID_PTR+" args, "); }
 
 //		assert (n.formals().size() == 1);
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
@@ -2570,7 +2578,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		boolean hasFormals = !n.formals().isEmpty();
-		if (!useStructsForArrayInitArgs) {
+		if (!useStructsForClosureArgs) {
 			if (hasFormals) {
 				w.write(",");
 				w.allowBreak(2, " ");
@@ -2583,7 +2591,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(",");
 		w.newline();
 
-		emitter.createPackedArgumentsStruct(w, c, constructor_id, INIT_PREFIX);
+		emitter.createPackedArgumentsStruct(w, c, constructor_id, CLOSURE_WRAPPER_PREFIX, false);
 		w.newline();
 
 		w.write(");");
@@ -2594,26 +2602,73 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		c.setinsideClosure(false);
 
-		// create closure invocation
-		emitter.instantiateArguments(w, c, n.position());
+		// create closure instantiation   closure_instantiation(id, env)
+		w.write("closure_instantiation(" + constructor_id + "," );
+		w.allowBreak(0, " ");
+		emitter.instantiateArguments(w, c, n.position(), false);
+		w.write(")");
 		int id = getConstructorId(a);
 		a.arrayInitializerParameters.set(id, c.variables);
 
 		c.finalizeClosureInstance();
 		emitter.exitClosure(a);
 	}
+	
+	
+	public void visit(ClosureCall_c c) {
+        Expr target = c.target();
+        Type t = target.type();
+        boolean base = false;
+        
+        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+
+        X10MethodInstance mi = c.closureInstance();
+
+        sw.pushCurrentStream(w);
+        c.printSubExpr(target, sw, tr);
+		sw.popCurrentStream();
+        w.write("->");
+        w.write("apply");
+        w.write("(");
+        w.begin(0);
+/*      TODO: TYPE PARAMETERS
+        for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
+            final Type at = i.next();
+            new RuntimeTypeExpander(at).expand(tr);
+            if (i.hasNext() || c.arguments().size() > 0) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            }
+        }
+        */
+
+        List l = c.arguments();
+        for (Iterator i = l.iterator(); i.hasNext(); ) {
+            Expr e = (Expr) i.next();
+            sw.pushCurrentStream(w);
+            c.print(e, sw, tr);
+            sw.popCurrentStream();
+            if (i.hasNext()) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            }
+        }
+        w.end();
+        w.write(")");
+}
 
 
 
-	public void visit(ClosureCall_c n) { // TODO: [IP] Remove
+//	public void visit(ClosureCall_c n) { // TODO: [IP] Remove
 		// Enabling the following throw does not allow us to
 		// proceed in compilation of simple programs.
 		// TODO.
 		//throw new InternalCompilerError("Closure calls not supported");
-		w.write("/*Expansion of the closure " + n.toString() + " to go here */");
-		w.newline(0);
+//		w.write("/*Expansion of the closure " + n.toString() + " to go here */");
+//		w.newline(0);
 		
-	}
+//	}
+
 	public void visit(X10CanonicalTypeNode_c n) {
 //		System.out.println("Pretty-printing canonical type node for "+n);
 		Type t = n.type();

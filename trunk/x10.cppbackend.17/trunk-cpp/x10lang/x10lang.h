@@ -2545,6 +2545,29 @@ extern x10::lang::place __here__;
 #define array_init_closure_and_args_struct(container, id, type, UnpackedBody, args, structure) \
     structure; \
     inline type container::init_name(id)args UnpackedBody
+ 
+ 
+
+   
+#define closure_class_and_args_struct(id, extends, type, UnpackedBody, formals, structure) \
+    structure; \
+    class closure_name(id) : public extends { \
+     private: args_name(closure_name(id))* args; \
+     public: type apply formals UnpackedBody; \
+             closure_name(id) (args_name(closure_name(id))* arg) { args = arg; }; \
+    };
+    
+
+#define closure_unpacked_body(ignorable, body, unpack) { unpack body }
+
+#define closure_instantiation(id, env) \
+    x10::ref <closure_name(id)> \
+       (new (x10::alloc<closure_name(id)>()) \
+             closure_name(id) (new (x10::alloc<args_name(closure_name(id))>()) \
+                                    args_name(closure_name(id)) env))
+
+
+
 
 #define array_copy_name(id) CONCAT(array_copy__,id)
 #define array_copy_closure_and_args_struct(container, id, type, UnpackedBody, args, structure) \
