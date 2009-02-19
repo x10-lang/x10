@@ -6,14 +6,21 @@
 
 package polyglot.ext.x10cpp;
 
+import java.util.List;
+
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
+import polyglot.ext.x10.visit.StaticNestedClassRemover;
+import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10cpp.ast.X10CPPDelFactory_c;
 import polyglot.ext.x10cpp.ast.X10CPPExtFactory_c;
 import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator;
+import polyglot.frontend.AllBarrierGoal;
+import polyglot.frontend.BarrierGoal;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.OutputGoal;
@@ -63,13 +70,48 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 			NodeFactory nf = extInfo.nodeFactory();
 			return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "c++")).intern(this);
 		}
-
+		public Goal InnerClassesRemoved(Job job) {
+			TypeSystem ts = extInfo.typeSystem();
+			NodeFactory nf = extInfo.nodeFactory();
+			return new VisitorGoal("InnerClassRemover", job, new X10InnerClassRemover(job, ts, nf)).intern(this);
+		}
+		public Goal StaticNestedClassesRemoved(Job job) {
+			TypeSystem ts = extInfo.typeSystem();
+			NodeFactory nf = extInfo.nodeFactory();
+			return new VisitorGoal("StaticNestedClassRemover", job, new StaticNestedClassRemover(job, ts, nf)).intern(this);
+		}
 		@Override
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();
 			NodeFactory nf = extInfo.nodeFactory();
-			return new OutputGoal(job, new X10CPPTranslator(job, ts, nf, 
-						extInfo.targetFactory()));
+			return new OutputGoal(job, new X10CPPTranslator(job, ts, nf, extInfo.targetFactory())).intern(this);
+		}
+		public Goal NewCodeGenBarrier() {
+		    if (Globals.Options().compile_command_line_only) {
+		        return new BarrierGoal(commandLineJobs()) {
+		            @Override
+		            public Goal prereqForJob(Job job) {
+		                return StaticNestedClassesRemoved(job);
+		            }
+		            public String name() { return "CodeGenBarrier"; }
+		        };
+		    }
+		    else {
+		        return new AllBarrierGoal("CodeGenBarrier", this) {
+		            @Override
+		            public Goal prereqForJob(Job job) {
+		                return StaticNestedClassesRemoved(job);
+		            }
+		        };
+		    }
+		}
+		@Override
+		public List<Goal> goals(Job job) {
+			List<Goal> res = super.goals(job);
+			InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
+			StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
+			CodeGenerated(job).addPrereq(NewCodeGenBarrier());
+			return res;
 		}
 	}
 
