@@ -1,0 +1,78 @@
+\documentclass{article}
+\def\cS{\mbox{\tt clocked-Statement}}
+\def\stmt{\mbox{\tt Statement}}
+\def\next{\mbox{\tt next}}
+\def\resume{\mbox{\tt resume}}
+\def\drop{\mbox{\tt drop}}
+\begin{document}
+\section {Introduction}
+X10 provides a notion of clocks that can be used as a synchronization
+barrier.
+Each activity in X10, which is a generalization of classical threads, can
+get registered to multiple clocks.
+An activity can {\em register} extra clocks during its execution, as well
+as {\em drop } already registered clocks.
+Registering of a new set of clocks for a statement is done by
+the structured operation {\tt clocked-Statement}:
+
+        $\cS$ ::= clocked \{clockSet\} $\stmt$
+
+If the current activity is already registered to the set of activities
+$S$, then the above construct registers {\tt clockSet} $\cup$ $S$ 
+set of clocks to $\stmt$.
+During any point of execution, an activity can drop an already registered
+clock by invoking the the {\tt drop} method on the explicit clock.
+At the end of any {\tt clocked} statement, all the set of clocks that were
+additionaly registered at the beginning of the statement are dropped.
+An activity may invoke the {\tt drop} operation, only on the registered
+set of clocks.
+
+{\bf Synchronization:} X10 provides two operation {\tt next} and {\tt
+resume} for synchronization purposes.
+Operation $\next$ is a blocking operation, when invoked by an activity
+$a$, that waits for synchronization across all activities that are
+registered on the same set of clocks on which $a$ is registered.
+Any activity can invoke the $\resume$ operation on any clock, that it is
+registered on. 
+A clock is considered ready to advance to the next phase, when every
+activity registered on this clock has invoked a $\resume$ operation on
+that clock.
+
+\section{Code generation}
+In the general case, we would need maintain program specific state in the
+runtime clock objects.
+However, there is a fast path: If we can guarrantee that all the
+activities that might be running in parallel are registered to the same
+set of clocks, then the following simplifications can be affected.
+\begin{itemize}
+\item The $\next$ operation can be replaced by a {\em global barrier}.
+\item The $\cS$ can be replaced by a simple $\stmt$.
+\item The $\resume$ operation can be replaced by nop. {\em This needs a
+bit more thought. But it looks safe to me. -Krishna.}
+\end{itemize}
+
+\section{Fast path Analysis}
+
+{\bf Find all activities running in parallel}:
+An async node, inside another async node results in two parallel executing
+activities. 
+Note: If we have a 
+
+\noindent
+loop:\\
+async clocked (clk) S\\
+end-loop\\
+
+then we can treat async S as one single async for the purpose of our
+analysis, if clk is loop invariant.
+
+{\bf Find the set of registered clocks}: For each clocked statement
+clocked on set of clocks $C$,
+propage the clocks down to all the sub-statements of the statement. 
+If we see a c.$\drop$ statement, set the current set of clocks to
+$C-\{c\}$. {\em In our case, we will not see any $\drop$ statement.}
+At any merge point (including function calls), only if the two incoming
+sets of clocks ($C_1$ and $C_2$) match , we will set the registered clocks
+for the function to $C = C_1 = C_2$.
+        
+\end{document}
