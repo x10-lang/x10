@@ -423,7 +423,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.forceNewline(0);
 			if (n.classDef().package_() != null) {
 				h.write("namespace ");
-				h.write(translate_mangled_FQN(n.classDef().package_().get().fullName().toString()));
+				h.write(translate_mangled_FQN(n.classDef().package_().get().fullName().toString(), "{ namespace "));
 				h.write(" {");
 				h.newline(0);
 			}
@@ -465,8 +465,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!n.classDef().isNested()) {
 			if (n.classDef().package_() != null) {
 				h.newline(0);
-				h.write("} // namespace ");
-				h.write(translate_mangled_FQN(n.classDef().package_().get().fullName().toString()));
+				String ns = n.classDef().package_().get().fullName().toString();
+				emitter.closeNameSpace(ns, h);
 				h.newline(0);
 			}
 		}

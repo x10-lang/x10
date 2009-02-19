@@ -405,10 +405,10 @@ public class X10CPPTranslator extends Translator {
 
 		if (sfn.package_() != null) {
 			w.write("using namespace ");
-			sw.pushCurrentStream(w);
 			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			// sw.pushCurrentStream(w);
 			// sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
+			// sw.popCurrentStream();
 			w.write(";");
 			w.newline();
 		}
@@ -419,10 +419,10 @@ public class X10CPPTranslator extends Translator {
 
 		if (sfn.package_() != null) {
 			w.write("namespace ");
-			sw.pushCurrentStream(w);
-			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString(), " { namespace "));
+			// sw.pushCurrentStream(w);
 			// sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
+			// sw.popCurrentStream();
 			w.write(" {");
 			w.newline(0);
 		}
@@ -437,11 +437,11 @@ public class X10CPPTranslator extends Translator {
 
 		if (sfn.package_() != null) {
 			w.newline(0);
-			w.write("} // namespace ");
-			sw.pushCurrentStream(w);
-			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			String ns = sfn.package_().package_().get().fullName().toString();
+			Emitter.closeNameSpace(ns, w);
+			// sw.pushCurrentStream(w);
 			// sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
+			// sw.popCurrentStream();
 			w.newline(0);
 		}
 
@@ -453,10 +453,10 @@ public class X10CPPTranslator extends Translator {
 		// The declarations below are intentionally outside of the guard
 		if (sfn.package_() != null) {
 			h.write("namespace ");
-			sw.pushCurrentStream(h);
-			h.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			h.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString(), " { namespace "));
+			// sw.pushCurrentStream(h);
 			//sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
+			// sw.popCurrentStream();
 			h.write(" {");
 			h.newline(0);
 		}
@@ -469,11 +469,11 @@ public class X10CPPTranslator extends Translator {
 		}
 		if (sfn.package_() != null) {
 			h.newline(0);
-			h.write("} // namespace ");
-			sw.pushCurrentStream(h);
-			h.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
-			//sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
+			String ns = sfn.package_().package_().get().fullName().toString();
+			Emitter.closeNameSpace(ns, h);
+			// sw.pushCurrentStream(h);
+			// sfn.package_().del().translate(sw, this);
+			// sw.popCurrentStream();
 			h.newline(0);
 		}
 	}
@@ -525,6 +525,7 @@ public class X10CPPTranslator extends Translator {
 			"-I"+X10LIB+"/include",
 			"-I"+X10LANG,
 			"-I.",
+			"-I/home/nvk/Desktop/lapi/include"
 		};
 		// These go after the files
 		final String[] postArgs = new String[] {
@@ -533,6 +534,7 @@ public class X10CPPTranslator extends Translator {
 			"-lx10lang",
 			"-lx10",
 			"-ldl",
+			"-llapi"
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();
