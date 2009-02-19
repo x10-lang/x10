@@ -332,8 +332,8 @@ public class Emitter {
 	String translateType(Type type, boolean asRef) {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
-		//if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
-		if (type.isArray()) {
+		if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
+		//if (type.isArray()) {
 			String base;
 			if (type.isArray()) {
 				base = translateType(type.toArray().base(), true);
@@ -394,6 +394,13 @@ public class Emitter {
 					for (Type a : typeArguments) {
 					    o[i++] = a;
 					}
+					String pi = translate_mangled_NSFQN(pat);
+					if (!pi.contains("#")){
+					    X10CPPContext_c c = (X10CPPContext_c) tr.context();
+					    c.pendingImplicitImports.add(pi);
+					    c.pendingImplicitImports.add(translate_mangled_FQN(pat));
+					}
+
 					name=dumpRegex("NativeRep", o, tr, pat);
 					nativeTranslated = true;
 				}
@@ -1631,9 +1638,18 @@ public class Emitter {
 		}
 	}
 	public void emitUniqueNS(String name, ArrayList<String> history, ClassifiedStream w) {
+		if (name == null) return;
 		if  (!history.contains(name)){
 			w.write("using namespace "+name+";");
 			history.add(name);
+		}
+		return;
+	}
+	public void emitUniqueUS(String header, ArrayList<String> history, ClassifiedStream w) {
+		// emit unique using statement
+		if  (!history.contains(header)){
+			w.write("using \"" + header + "\";");
+			history.add(header);
 		}
 		return;
 	}
