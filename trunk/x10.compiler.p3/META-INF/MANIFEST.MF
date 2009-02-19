@@ -8,7 +8,7 @@ Require-Bundle: x10.runtime.17,
  x10.common.17,
  x10.constraints,
  lpg.runtime,
- polyglot
+ polyglot3
 Export-Package: polyglot.ext.x10,
  polyglot.ext.x10.ast,
  polyglot.ext.x10.extension,
