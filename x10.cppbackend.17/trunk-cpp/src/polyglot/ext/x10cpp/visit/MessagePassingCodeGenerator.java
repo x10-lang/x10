@@ -576,13 +576,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline(); w.forceNewline(0);
 			}
 
-
+/*  Disabled array initializer invocations.
 			if (!context.inLocalClass()){
 				// FIXME: Do something for local classes
 				// as well. [Krishna]
 				emitter.printStaticAsyncDeclarations(context,  h);
 				emitter.printStaticClosureDeclarations(context, h);
 			}
+*/
 
 			if (!currentClass.isNested() && !context.inLocalClass())
 
@@ -2454,12 +2455,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Closure_c n) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
+		
+		X10CPPContext_c.Closures a = c.closures;
+		boolean outer = outerClosure(a);
+		emitter.enterClosure(a, (Closure_c) n);
 
 		c.setinsideClosure(true);
 
-		X10CPPContext_c.Closures a = c.closures;
 		int constructor_id = getConstructorId(a);
-		boolean outer = a.nesting == 1;  // TODO: clean up this hack
 
 		// create closure and packed arguments
 		ClassifiedStream w = this.w;
@@ -2483,11 +2486,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("(");
 //		w.begin(0);
 //		w.allowBreak(2, 2, "", 0);
-		assert (n.formals().size() == 1);
+//		assert (n.formals().size() == 1);
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
-			assert (xts.isPoint(f.type().type()));
+//			assert (xts.isPoint(f.type().type()));
 			sw.pushCurrentStream(w);
 			n.print(f, sw, tr);
 			sw.popCurrentStream();
@@ -2521,10 +2524,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (useStructsForArrayInitArgs) { w.write(VOID_PTR+" args, "); }
 
-		assert (n.formals().size() == 1);
+//		assert (n.formals().size() == 1);
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
-			assert (xts.isPoint(f.type().type()));
+//			assert (xts.isPoint(f.type().type()));
 			sw.pushCurrentStream(w);
 			n.print(f, sw, tr);
 			sw.popCurrentStream();
@@ -2566,6 +2569,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		a.arrayInitializerParameters.set(id, c.variables);
 
 		c.finalizeClosureInstance();
+		emitter.exitClosure(a);
 	}
 
 
