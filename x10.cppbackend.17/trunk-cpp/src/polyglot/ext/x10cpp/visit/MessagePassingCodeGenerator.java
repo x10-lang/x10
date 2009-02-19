@@ -130,6 +130,7 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10Local_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.X10Unary_c;
@@ -3098,11 +3099,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    List<Formal> formals = closure.formals();
 	    boolean clashes = false;
 	    for (Expr a : c.arguments()) {
-	        if (!(a instanceof Local_c)) continue;
-	        Name name = ((Local_c)a).localInstance().name();
-	        for (Formal f : formals) {
-	            if (f.name().id().equals(name))
-	                clashes = true;
+	        X10SearchVisitor xLocals = new X10SearchVisitor(X10Local_c.class);
+	        a.visit(xLocals);
+	        if (!xLocals.found())
+	            continue;
+	        ArrayList locals = xLocals.getMatches();
+	        for (int i = 0; i < locals.size(); i++) {
+	            X10Local_c t = (X10Local_c) locals.get(i);
+	            Name name = t.localInstance().name();
+	            for (Formal f : formals) {
+	                if (f.name().id().equals(name))
+	                    clashes = true;
+	            }
 	        }
 	    }
 	    sw.write("({");
@@ -3114,7 +3122,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        for (Expr a : args) {
 	            alt[i] = getId();
 	            Type fType = formals.get(i).type().type();
-	            sw.write(emitter.translateType(fType)+" "+alt+" =");
+	            sw.write(emitter.translateType(fType)+" "+alt[i]+" =");
 	            sw.allowBreak(2, " ");
 	            c.print(a, sw, tr);
 	            sw.write(";");
