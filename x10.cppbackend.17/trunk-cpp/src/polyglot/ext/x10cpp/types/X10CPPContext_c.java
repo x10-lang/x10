@@ -30,7 +30,6 @@ import polyglot.ast.Stmt;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodDef;
-import polyglot.ext.x10cpp.visit.X10SummarizingRules;
 import polyglot.types.Context_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.Name;
@@ -101,21 +100,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		return v;
 	}
 	
-	public LinkedList<X10SummarizingRules.Summary> summaries = null;  // PV-IPA
-
-	public X10SummarizingRules.Collection harvest = null;              // PV-IPA
-
-	public X10CPPContext_c outerContext() {  // PV-IPA
-		return (X10CPPContext_c)outer;
-	}
-
-	public X10CPPContext_c outermostContext() {  // PV-IPA
-		if (outer == null)
-			return this;
-		else
-			return ((X10CPPContext_c) outer).outermostContext();
-	}
-
 	public static class Closures {
 		public ArrayList asyncs = new ArrayList();
 		public ArrayList asyncsParameters = new ArrayList();
@@ -338,7 +322,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		res.variables = new ArrayList();  // or whatever the initial value is
 		res.inClosure = false;
 		res.InlineMap = new HashMap();
-		res.summaries = null;  // PV-IPA
 		return res;
 	}
 
