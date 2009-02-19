@@ -318,8 +318,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				MethodDecl_c md = (MethodDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
 				emitter.printHeader(md, w, tr, false);
-				((X10CPPTranslator)tr).setContext(context); // FIXME
 				w.write(";");
+				((X10CPPTranslator)tr).setContext(context); // FIXME
 			}
 			w.newline();
 		}
