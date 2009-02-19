@@ -356,7 +356,7 @@ public class Emitter {
 	 * @return a string representation of the type
 	 */
 	String translateType(Type type, boolean asRef) {
-		assert(type!=null);
+		assert (type != null);
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
 		Context context = tr.context();
@@ -547,7 +547,7 @@ public class Emitter {
 		w.write("<");
 		for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
 		    final Type at = i.next();
-		    w.write(translateType(at,true));
+		    w.write(translateType(at, true));
 		    if (i.hasNext()) {
 		        w.write(",");
 		        w.allowBreak(0, " ");
@@ -943,9 +943,9 @@ public class Emitter {
 		//if (flags.isFinal())
 		//	h.write("const ");
 		if (tr.printType()) {
-			assert(n!=null);
-			assert(n.type()!=null);
-			assert(n.type().type()!=null);
+			assert (n != null);
+			assert (n.type() != null);
+			assert (n.type().type() != null);
 			printType(n.type().type(), h);
 			h.write(" ");
 		}
