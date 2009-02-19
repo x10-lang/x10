@@ -1,31 +1,31 @@
 // SYNOPSIS: #0.main(...)
 
+##include <x10/runtime/Runtime.h>
+
 extern "C" {
     void __pgasrt_tsp_barrier(int,int);
     int main(int ac, char **av) {
+
         x10aux::ref<Rail<x10aux::ref<String> > > args = x10aux::convert_args(ac, av);
 ##ifndef NO_EXCEPTIONS
         try {
 ##endif
             __pgasrt_tsp_barrier(0,1); // needed so that noone sends a message until now
 
-            x10aux::InitDispatcher::runInitializers(); // initialise static fields of x10 classes
+            // Initialise enough state to make this 'main' thread look like a normal x10 thread
+            // (e.g. make Thread::CurrentThread work properly).
+            (void) new x10::runtime::Thread(x10aux::null, String::Lit("thread-main"));
 
-            // this is the closure that encapsulates the user's 
+            // Initialise the static fields of x10 classes.
+            x10aux::InitDispatcher::runInitializers();
+
+            // Construct closure to invoke the user's "public static def main(Rail[String]) : Void"
+            // if at place 0 otherwise wait for asyncs.
             x10aux::ref<VoidFun_0_0> main_closure =
                 new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
                     x10aux::BootStrapClosure(#0::main,args);
 
             x10::runtime::Runtime::start(main_closure);
-/*
-            x10aux::ref<x10::runtime::Thread> thread_main =
-                new (x10aux::alloc<x10::runtime::Thread>())
-                    x10::runtime::Thread(main_closure,String::Lit("thread-main"));
-
-            thread_main->start();
-
-            thread_main->join();
-*/
 
 ##ifndef NO_EXCEPTIONS
         } catch(int exitCode) {
