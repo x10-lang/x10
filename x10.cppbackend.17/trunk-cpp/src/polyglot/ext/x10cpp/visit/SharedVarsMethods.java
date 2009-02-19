@@ -83,13 +83,15 @@ public class SharedVarsMethods {
 	static final String GET_DEST_ARRAY = "getDestArray";
 	static final String POST_COPY_RUN = "postCopyRun";
 	static final boolean optimizePrimitiveBroadcasts = true;
-	static final String SERIALIZATION_ID_FIELD = "SERIALIZATION_ID";
+	static final String SERIALIZATION_ID_FIELD = "_serialization_id";
 	static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
 	static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
 	static final String SERIALIZE_METHOD = "_serialize";
-	static final String SERIALIZE_FIELDS_METHOD = "_serialize_fields";
-	static final String DESERIALIZE_FIELDS_METHOD = "_deserialize_fields";
-	static final String CLOSURE_STRUCT = "x10_async_closure_t";
+	static final String SERIALIZE_ID_METHOD = "_serialize_id";
+	static final String SERIALIZE_BODY_METHOD = "_serialize_body";
+	static final String DESERIALIZE_METHOD = "_deserialize";
+	static final String DESERIALIZER_METHOD = "_deserializer";
+	static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
 
     static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
 

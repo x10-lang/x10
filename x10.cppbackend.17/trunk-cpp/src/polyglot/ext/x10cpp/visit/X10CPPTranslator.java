@@ -303,13 +303,6 @@ public class X10CPPTranslator extends Translator {
 					break;
 				}
 			}
-			if (filefound && !t.hasNext()) {
-                sw.set(sw.getNewStream(StreamWrapper.StreamClass.Header, false),
-                       sw.getNewStream(StreamWrapper.StreamClass.CC, false));
-				generateGlobalSwitch(sw);
-				generateClosureSwitch(sw);
-                sw.newline();
-			}
 
 			wstreams.commitStreams();
 
@@ -487,9 +480,11 @@ public class X10CPPTranslator extends Translator {
 		final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
         final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknowns":System.getenv("X10_PLATFORM");
         final String PTHREAD_FLAG = PLATFORM.startsWith("linux") ? "-pthread" : DUMMY;
+        final String SYMBOLS_FLAGS = PLATFORM.startsWith("linux") ? "-rdynamic" : DUMMY;
         final boolean gcEnabled = !Configuration.DISABLE_GC && PLATFORM.startsWith("linux");
         // These go before the files
 		final String[] preArgs = new String[] {
+			"-g",
 			"-I"+X10LIB+"/include",
 			"-I"+X10LANG,
 			!gcEnabled ? DUMMY : "-I"+X10LANG+"/bdwgc/install/include",

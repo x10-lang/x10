@@ -25,7 +25,9 @@ extern "C" {
                 new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
                     x10aux::BootStrapClosure(#0::main,args);
 
-            x10::runtime::Runtime::start(main_closure);
+            x10::runtime::Runtime::start(main_closure); // use XRX
+            //main_closure->apply(); // bypass XRX
+            //sleep(3);
 
 ##ifndef NO_EXCEPTIONS
         } catch(int exitCode) {
