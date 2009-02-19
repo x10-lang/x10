@@ -2832,145 +2832,144 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Closure_c n) {
-		
+
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		
 		X10CPPContext_c.Closures a = c.closures;
-		boolean outer = outerClosure(a);
-		emitter.enterClosure(a, (Closure_c) n);
+		emitter.enterClosure(a, n);
 
 		c.setinsideClosure(true);
 
-		int constructor_id = getConstructorId(a);
+		int id = getConstructorId(a);
 		
 
 		// create closure and packed arguments
-		ClassifiedStream w = this.w;
-		if (outer) w = ws.getNewStream(WriterStreams.StreamClass.Closures);
-		else w.newline();
+
+		ClassifiedStream inc = ws.getNewStream(WriterStreams.StreamClass.Closures,false);
 
 
-		Type base_type = n.returnType().type();
-		String base = emitter.translateType(base_type, true);
+		Type retType = n.returnType().type();
 		//String className = emitter.translateType(c.currentClass());
-		String inherits = n.returnType().type().isVoid() ? 
+		String superType = n.returnType().type().isVoid() ? 
 				"x10::lang::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) : 
 					"x10::lang::" + mangled_non_method_name("Fun_0_" + n.formals().size());
 		String prefix = "<";
 		for (Formal formal : n.formals()) {
-			inherits = inherits + prefix + emitter.translateType(formal.type().typeRef().get(), true);
+			superType = superType + prefix + emitter.translateType(formal.type().typeRef().get(), true);
 			prefix = ", ";
 		}
 		if (!n.returnType().type().isVoid()) {
-			inherits = inherits + prefix + emitter.translateType(base_type, true);
+			superType = superType + prefix + emitter.translateType(retType, true);
+			prefix = ", ";
 		}
-		if (!prefix.equals("<")) inherits = inherits +" >"; // don't emit " >" for void->void case
+		if (!prefix.equals("<")) superType = superType +" >"; // don't emit " >" for void->void case
 
-		//TODO
-		// create two new streams
-		// 1 for body, 1 for formals
-		//ClassifiedStream body = ws.getNewStream(WriterStreams.StreamClass.Closures);
-		//ClassifiedStream formals = ws.getNewStream(WriterStreams.StreamClass.Closures);
+		// have to work out what the formals are whilst visiting the closure body
+		// but we need to know the formals before generating code for the body (function parameters)
 
-		w.write("closure_class_and_args_struct(" ); //className + ",");
-//		w.allowBreak(0, " ");
-		w.write(constructor_id + ",");
-		w.allowBreak(0, " ");
-		w.write(inherits + ",");
-		w.allowBreak(0, " ");		
-		w.write(base + ",");
-		w.allowBreak(0, " ");
 
-		// need to invoke this macro to make sure we visit the args before the body
-		w.write("closure_unpacked_body(");
-		// arguments of the initializer function
-		w.write("(");
-//		w.begin(0);
-//		w.allowBreak(2, 2, "", 0);
-//		assert (n.formals().size() == 1);
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
-			Formal f = (Formal) i.next();
-//			assert (xts.isPoint(f.type().type()));
-			sw.pushCurrentStream(w);
-			n.print(f, sw, tr);
+		// class header
+		inc.write("class CLOSURE_NAME("+id+") : "); inc.begin(0);
+		inc.write("public x10aux::AnyClosure, "); inc.newline();
+		inc.write("public virtual "+superType); inc.end(); inc.newline();
+		inc.write("{") ; inc.newline(4); inc.begin(0);
+		inc.write("public:") ; inc.newline(); inc.forceNewline();
+
+		inc.write("// closure body"); inc.newline();
+		inc.write(emitter.translateType(retType, true)+" apply (");
+		prefix = "";
+		for (Formal formal : n.formals()) {
+			inc.write(prefix);
+			sw.pushCurrentStream(inc);
+			n.print(formal, sw, tr);
 			sw.popCurrentStream();
-//			w.write("const point& " + f.name());
-//			f.addDecls(c);
-			if (i.hasNext()) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			}
+			prefix = ", ";
 		}
-//		w.end(); w.allowBreak(0, " ");
-		w.write(")");
-		w.write(","); w.allowBreak(0, " ");
-
-		sw.pushCurrentStream(w);
+		inc.write(") ");
+		sw.pushCurrentStream(inc);
 		n.print(n.body(), sw, tr);
 		sw.popCurrentStream();
-		w.write(",");
-		w.allowBreak(0, " ");
+		inc.newline(); inc.forceNewline();
 
-		if (useStructsForClosureArgs) {
-			emitter.unpackClosureArgs(w, c, c.variables, constructor_id, CLOSURE_WRAPPER_PREFIX);
-		}
+		inc.write("// captured environment"); inc.newline();
+		emitter.printDeclarationList(inc, c, c.variables);
+		inc.forceNewline();
 
-		w.write(")");
-		w.write(","); w.allowBreak(0, " ");
+		inc.write("void _serialize_fields("+SERIALIZATION_BUFFER+" &buf) {");
+		inc.newline(4); inc.begin(0);
+        for (int i=0 ; i<c.variables.size() ; i++) {
+			if (i>0) inc.newline();
+            VarInstance var = (VarInstance)c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name=mangled_non_method_name(name);
+            inc.write("buf.write(" + name + ");");
+        }
+		inc.end(); inc.newline();
+		inc.write("}"); inc.newline(); inc.forceNewline();
 
-		w.write("(");
-		w.begin(0);
-		w.allowBreak(2, 2, "", 0);
+		inc.write("void _deserialize_fields("+SERIALIZATION_BUFFER+" &buf) {");
+		inc.newline(4); inc.begin(0);
+        for (int i=0 ; i<c.variables.size() ; i++) {
+			if (i>0) inc.newline();
+            VarInstance var = (VarInstance)c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name=mangled_non_method_name(name);
+            inc.write(name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
+        }
+		inc.end(); inc.newline();
+		inc.write("}"); inc.newline(); inc.forceNewline();
 
-//		if (useStructsForClosureArgs) { w.write(VOID_PTR+" args, "); }
 
-//		assert (n.formals().size() == 1);
-		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
-			Formal f = (Formal) i.next();
-//			assert (xts.isPoint(f.type().type()));
-			sw.pushCurrentStream(w);
-			n.print(f, sw, tr);
-			sw.popCurrentStream();
-//			w.write("const point& " + f.name());
-//			f.addDecls(c);
-			if (i.hasNext()) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			}
-		}
-		boolean hasFormals = !n.formals().isEmpty();
-		if (!useStructsForClosureArgs) {
-			if (hasFormals) {
-				w.write(",");
-				w.allowBreak(2, " ");
-			}
-			emitter.printArgumentList(w, c);
-		}
-		w.end();
-		w.allowBreak(2, 2, "", 0);
-		w.write(")");
-		w.write(",");
-		w.newline();
+		inc.write("CLOSURE_NAME("+id+")("+SERIALIZATION_MARKER+") : x10aux::AnyClosure("+id+") { }");
+		inc.newline(); inc.forceNewline();
 
-		emitter.createPackedArgumentsStruct(w, c, constructor_id, CLOSURE_WRAPPER_PREFIX, false);
-		w.newline();
+		inc.write("CLOSURE_NAME("+id+")(");
+        for (int i=0 ; i<c.variables.size() ; i++) {
+            if (i > 0) inc.write(", ");
+            VarInstance var = (VarInstance)c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name=mangled_non_method_name(name);
+            inc.write(emitter.translateType(var.type(),true) + " " + name);
+        }
+		inc.write(") : x10aux::AnyClosure("+id+") {");
+		inc.newline(4); inc.begin(0);
+        for (int i=0 ; i<c.variables.size() ; i++) {
+            VarInstance var = (VarInstance)c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name=mangled_non_method_name(name);
+            if (i > 0) inc.newline();
+            inc.write("this->" + name + " = " + name + ";");
+        }
+		inc.end(); inc.newline();
+		inc.write("}"); inc.newline(); inc.forceNewline();
 
-		w.write(");");
-		w.newline(0);
-		w.forceNewline(0);
+		inc.write("x10aux::ref<x10::lang::String> name() { return String(\""+
+					n.position().nameAndLineString()+"\"); }");
+		inc.end(); inc.newline();
 
-		if (outer) w = this.w;
+		inc.write("};"); inc.newline(); inc.forceNewline();
 
-		c.setinsideClosure(false);
 
-		// create closure instantiation   closure_instantiation(id, env)
-		w.write("closure_instantiation(" + constructor_id + "," );
-		w.allowBreak(0, " ");
-		emitter.instantiateArguments(w, c, n.position(), false);
-		w.write(")");
-		int id = getConstructorId(a);
-		a.arrayInitializerParameters.set(id, c.variables);
+		// create closure instantiation (not in inc but where the closure was defined)
+		w.write("x10aux::ref<CLOSURE_NAME("+id+")>(new (x10aux::alloc<CLOSURE_NAME("+id+")>())");
+		w.write("CLOSURE_NAME("+id+")(");
+        for (int i=0 ; i<c.variables.size() ; i++) {
+            if (i > 0) w.write(", ");
+            VarInstance var = (VarInstance)c.variables.get(i);
+            String name = var.name().toString();
+            if (!name.equals(THIS))
+				name=mangled_non_method_name(name);
+            w.write(name);
+        }
+		w.write("))");
 
 		c.finalizeClosureInstance();
 		emitter.exitClosure(a);
