@@ -510,7 +510,7 @@ public class Emitter {
 		h.write("class ");
 		assert(!n.classDef().isLocal());
 		if (n.classDef().isNested() && !n.classDef().isLocal()) // FIXME: handle local classes
-			h.write(translateType(n.classDef().outer()) + "::");
+			h.write(translateType(n.classDef().outer().get().asType()) + "::");
 		h.write(mangled_non_method_name(n.name().id().toString())); 
 
 		boolean hasSuper = false;
