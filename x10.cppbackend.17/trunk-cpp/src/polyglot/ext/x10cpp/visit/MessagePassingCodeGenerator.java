@@ -2811,7 +2811,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 w.write(SAVED_THIS);
                 context.saveEnvVariableInfo(THIS);
             } else {
-                w.write("("+emitter.translateType(n.type(),true)+")"+n.kind().toString());
+                w.write("(("+emitter.translateType(n.type(),true)+")"+n.kind()+")");
             }
 		} else if (n.kind().equals(X10Special_c.SUPER)) {
             w.write(emitter.translateType(context.currentClass().superClass()));
