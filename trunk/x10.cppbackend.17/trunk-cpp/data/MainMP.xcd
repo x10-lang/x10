@@ -1,13 +1,14 @@
 // SYNOPSIS: #0.main(...)
 
 extern "C" {
+    void __pgasrt_tsp_barrier(int,int);
     int main(int ac, char **av) {
         x10aux::ref<Rail<x10aux::ref<String> > > args = x10aux::convert_args(ac, av);
 ##ifndef NO_EXCEPTIONS
         try {
 ##endif
+            __pgasrt_tsp_barrier(0,1);
             x10aux::InitDispatcher::runInitializers();
-            x10aux::allow_received_async_execution();
             (new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
                 x10aux::BootStrapClosure(#0::main,args))->apply();
 /*
