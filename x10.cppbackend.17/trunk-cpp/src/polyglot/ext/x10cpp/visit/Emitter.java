@@ -551,7 +551,7 @@ public class Emitter {
 			for (Iterator i = n.interfaces().iterator(); i.hasNext(); ) {
 				TypeNode tn = (TypeNode) i.next();
 				// FIXME: HACK! [IP] Ignore the ValueType tag interface
-				if (tn.type().equals(ts.value()))
+				if (tn.type().typeEquals(ts.Value()))
 					continue;
 				h.write("public ");
 				sw.pushCurrentStream(h);
