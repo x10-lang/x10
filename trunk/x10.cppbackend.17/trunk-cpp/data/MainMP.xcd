@@ -17,11 +17,16 @@ extern "C" {
         } catch(int exitCode) {
             x10aux::exitCode = exitCode;
         } catch(x10aux::__ref& e) {
-            x10aux::ref<Object> &e_ = static_cast<x10aux::ref<Object>&>(e); // TODO: yuck
-            fprintf(stderr, "%d: ", (int)x10aux::__here__);
-            //fprintf(stderr, "Caught %p\n", ((const x10aux::ref<Exception>&)e)._val);
+            // Assume that only throwables can be thrown
+            x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
+            fprintf(stderr, "At place %d: ", (int)x10aux::__here__);
             fprintf(stderr, "Uncaught exception of type: %s\n", e_->_type()->name().c_str());
-            //((const x10aux::ref<Exception>&)e)->printStackTrace();
+            fprintf(stderr, "%s\n", e_->toString()->c_str());
+            x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
+            x10aux::ref<Iterator<x10aux::ref<String> > > it = trace->iterator();
+            while (it->hasNext()) {
+                fprintf(stderr, "        at %s\n", it->next()->c_str());
+            }
             x10aux::exitCode = 1;
         } catch(...) {
             fprintf(stderr, "%d: Caught exception\n", (int)x10aux::__here__);
