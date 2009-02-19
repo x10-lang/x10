@@ -474,11 +474,6 @@ public class X10CPPTranslator extends Translator {
 		String incfile = tf.integratedOutputName(pkg, cd.name().toString(), WriterStreams.StreamClass.Closures.toString());
 		w.write("#include \""+incfile+"\""); w.newline();
 		w.forceNewline(0);
-
-		if (sfn.package_() != null) {
-			Emitter.openNamespaces(w,sfn.package_().package_().get().fullName());
-			w.newline(0);
-		}
 	}
 
 	/** Write the footer for a source file. */
@@ -486,12 +481,6 @@ public class X10CPPTranslator extends Translator {
 		WriterStreams wstreams = sw.ws;
 		ClassifiedStream w = sw.cs;
 		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
-
-		if (sfn.package_() != null) {
-			w.newline(0);
-			Emitter.closeNamespaces(w,sfn.package_().package_().get().fullName());
-			w.newline(0);
-		}
 
 		h.newline(0);
 		String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").toUpperCase();
