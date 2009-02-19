@@ -20,6 +20,7 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
@@ -43,8 +44,10 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
+import polyglot.ext.x10.types.ConstrainedType_c;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParameterType_c;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
@@ -327,7 +330,8 @@ public class Emitter {
 	String translateType(Type type, boolean asRef) {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
-		if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
+		//if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
+		if (type.isArray()) {
 			String base;
 			if (type.isArray()) {
 				base = translateType(type.toArray().base(), true);
@@ -357,7 +361,7 @@ public class Emitter {
 			return temp;
 		}
 		*/
-		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean())) // && !type.isVoid())
+		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean())&& !type.isClass()) // && !type.isVoid())
 			return "x10_"+type.translate(context);
 		// FIXME: is ignoring nullable correct?
 //		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
@@ -366,18 +370,41 @@ public class Emitter {
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
 		String name = null;
+		boolean nativeTranslated = false;
 		if (type.isClass()){
 			if (type.toClass().isAnonymous())
 				name = "__anonymous__"+getId();
 			else {
-				if (type.toClass().isNested())
-					context = tr.typeSystem().createContext();
-				name = type.translate(context);
+				if (type instanceof ConstrainedType_c)
+					type = ((ConstrainedType_c)type).baseType().get();
+				X10ClassDef cd = ((X10ClassType) type).x10Def();
+				String pat = null;
+				if (type.isBoolean() || type.isNumeric())
+					pat = getCppBoxRep(cd, tr);
+				else
+					pat = getCppRep(cd, tr);
+				if (pat != null){ 
+					List<Type> typeArguments = ((X10ClassType) type).typeArguments();
+					Object[] o = new Object[typeArguments.size()+1];
+					int i = 0;
+					NodeFactory nf = tr.nodeFactory();
+					o[i++] = type;
+					for (Type a : typeArguments) {
+					    o[i++] = a;
+					}
+					name=dumpRegex("NativeRep", o, tr, pat);
+					nativeTranslated = true;
+				}
+				else{
+					if (type.toClass().isNested())
+						context = tr.typeSystem().createContext();
+					name = type.translate(context);
+				}
 			}
 			X10ClassType ct = (X10ClassType)type.toClass();
 			if (!knownSpecialPackages.contains(ct.package_())) {
 
-				if (ct.typeArguments().size() != 0) {
+				if (!nativeTranslated && ct.typeArguments().size() != 0) {
 
 					name += " < ";
 					for (Type t: ct.typeArguments()) {
@@ -1674,5 +1701,79 @@ public class Emitter {
 		}
 		w.write("} // namespace ");
 		w.write(translate_mangled_FQN(ns));
+	}
+	private String dumpRegex(String id, Object[] components, Translator tr, String regex) {
+	    String retVal = "";
+	    for (int i = 0; i < components.length; i++) {
+	        assert ! (components[i] instanceof Object[]);
+	    }
+	    int len = regex.length();
+	    int pos = 0;
+	    int start = 0;
+	    while (pos < len) {
+	    	if (regex.charAt(pos) == '\n') {
+	    		retVal +=regex.substring(start, pos);
+			retVal += "\n";
+	    		start = pos+1;
+	    	}
+	    	else
+	    	if (regex.charAt(pos) == '#') {
+	    		retVal += translateFQN(regex.substring(start, pos));
+	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
+	    		pos++;
+	    		start = pos+1;
+	    		if (idx.intValue() >= components.length){
+	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
+			}
+			Object o = components[idx.intValue()];
+		 	if (o instanceof Type) {
+				retVal += translateType((Type)o, true);
+			} else if (o != null) {
+				retVal += o.toString();
+			}
+	    	}
+	    	pos++;
+	    }
+	    retVal += translateFQN(regex.substring(start));
+	    return retVal;
+	}
+	public void dumpRegex(String id, Object[] components, Translator tr, String regex, ClassifiedStream w) {
+	    for (int i = 0; i < components.length; i++) {
+	        assert ! (components[i] instanceof Object[]);
+	    }
+	    int len = regex.length();
+	    int pos = 0;
+	    int start = 0;
+	    while (pos < len) {
+	    	if (regex.charAt(pos) == '\n') {
+	    		w.write(regex.substring(start, pos));
+	    		w.newline(0);
+	    		start = pos+1;
+	    	}
+	    	else
+	    	if (regex.charAt(pos) == '#') {
+	    		w.write(translateFQN(regex.substring(start, pos)));
+	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
+	    		pos++;
+	    		start = pos+1;
+	    		if (idx.intValue() >= components.length){
+	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
+			}
+	    		prettyPrint(components[idx.intValue()], tr, w);
+	    	}
+	    	pos++;
+	    }
+	    w.write(translateFQN(regex.substring(start)));
+	}
+	private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
+		if (o instanceof Node) {
+			sw.pushCurrentStream(w);
+			((Node) o).del().translate(sw, tr);
+			sw.popCurrentStream();
+		} else if (o instanceof Type) {
+			w.write(translateType((Type)o));
+		} else if (o != null) {
+			w.write(o.toString());
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package polyglot.ext.x10cpp.visit;
 
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.knownInlinableMethods;
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.populateIninableMethodsIfEmpty;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +19,7 @@ import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
 import polyglot.ast.Throw_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -27,8 +27,10 @@ import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.extension.X10Ext;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
@@ -424,4 +426,52 @@ public class ASTQuery {
 		return type;
 	}
 
+	public static String getCppRep(X10ClassDef def, Translator tr) {
+		return getCppRepParam(def, 1, tr);
+	}
+	public static String getCppBoxRep(X10ClassDef def, Translator tr) {
+		return getCppRepParam(def, 2, tr);
+	}
+	public static String getCppRTTRep(X10ClassDef def, Translator tr) {
+		return getCppRepParam(def, 3, tr);
+	}
+	
+	public static String getCppRepParam(X10ClassDef def, int i, Translator tr) {
+		try {
+			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+			Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
+			List<Type> as = def.annotationsMatching(rep);
+			for (Type at : as) {
+				assertNumberOfInitializers(at, 4, tr);
+				String lang = getPropertyInit(at, 0);
+				if (lang != null && lang.equals(NATIVE_STRING)) {
+					return getPropertyInit(at, i);
+				}
+			}
+		}
+		catch (SemanticException e) {}
+		return null;
+	}
+	public static void assertNumberOfInitializers(Type at, int len, Translator tr) {
+	    at = X10TypeMixin.baseType(at);
+	    if (at instanceof X10ClassType) {
+	        X10ClassType act = (X10ClassType) at;
+	        assert len == act.propertyInitializers().size();
+	    }
+	}
+	public static String getPropertyInit(Type at, int index) {
+	    at = X10TypeMixin.baseType(at);
+	    if (at instanceof X10ClassType) {
+		X10ClassType act = (X10ClassType) at;
+		if (index < act.propertyInitializers().size()) {
+		    Expr e = act.propertyInitializer(index);
+		    if (e instanceof StringLit) {
+			StringLit lit = (StringLit) e;
+			String s = lit.value();
+			return s;
+		    }
+		}
+	    }
+	    return null;
+	}
 }

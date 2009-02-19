@@ -10,8 +10,11 @@
  */
 package polyglot.ext.x10cpp.visit;
 
+import static polyglot.ext.x10cpp.visit.ASTQuery.assertNumberOfInitializers;
 import static polyglot.ext.x10cpp.visit.ASTQuery.getConstructorId;
+import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
 import static polyglot.ext.x10cpp.visit.ASTQuery.getOuterClass;
+import static polyglot.ext.x10cpp.visit.ASTQuery.getPropertyInit;
 import static polyglot.ext.x10cpp.visit.ASTQuery.isPrintf;
 import static polyglot.ext.x10cpp.visit.ASTQuery.outerClosure;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_method_name;
@@ -133,7 +136,9 @@ import polyglot.ext.x10.ast.X10ClockedLoop_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
+import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
@@ -157,6 +162,7 @@ import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.ext.x10cpp.visit.X10SummarizingRules.X10SummarizingPass;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
+import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -173,6 +179,7 @@ import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
@@ -357,7 +364,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			X10SummarizingPass v = new X10SummarizingPass(tr);
 			v.makeSummariesPass(n);
 		}
-
+		X10ClassDef def = (X10ClassDef) n.classDef();
+	    	if (getCppRep(def, tr) != null) {
+	        	w.write(";");
+	        	w.newline();
+	        	return;
+	    	}
 		context.setinsideClosure(false);
 		context.hasInits = false;
 
@@ -638,6 +650,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// types, check if C++ does the right thing.
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		ClassifiedStream h;
+		if (dec.flags().flags().isNative()) 
+			return;
 		if (context.inLocalClass())
 			h = w;
 		else
@@ -656,25 +670,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write("public : static void main_np0();");
 			h.newline();
 		}
-		boolean nativeTranslated = false;
 		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
-		if (dec.flags().flags().isNative()) {
-		        // Abstract native methods don't make sense.
-			assert (!mi.flags().isAbstract());
-			String pat = getCppImplForDef(mi.x10Def());
-			if (pat != null) {
-				if (!context.inLocalClass())
-					emitter.printHeader(dec, w, tr, true);
-
-				w.newline(0); w.begin(4); w.write("{"); w.newline();
-				if (!mi.returnType().isVoid())
-					w.write("return ");
-				emitNativeDecl(pat, mi.formalNames());
-				w.end(); w.newline(0); w.write("}"); w.newline();
-				nativeTranslated = true;
-			} 
-		} 
-		if (!nativeTranslated && dec.body() != null) {
+		if (dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
 				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
@@ -692,12 +689,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write("}");
 			w.newline();
 		} 
-		// Neither have  a body nor have the correct native
-		// directive.
-		if (!nativeTranslated && dec.body() == null && (!mi.flags().isAbstract())){
-			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-				"Warning: Neither body nor correct directive! "+dec.toString(), dec.position());
-		}
 	}
 
 
@@ -705,6 +696,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(ConstructorDecl_c dec) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean outermost = context.outermostContext().cDecls.isEmpty();
+		if (dec.flags().flags().isNative()) 
+			return;
 		if ((!context.inLocalClass()) && outermost)
 			emitter.printHeader(dec, ws.getCurStream(WriterStreams.StreamClass.Header), tr, false);
 		if (outermost) emitter.printHeader(dec, w, tr, true);
@@ -712,23 +705,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		
 		ClassType container = (ClassType)dec.constructorDef().asInstance().container();
 
-		boolean nativeTranslated = false;
 		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
-		if (dec.flags().flags().isNative()) {
-		        // Abstract native constructors don't make sense.
-			assert (!ci.flags().isAbstract());
-			String pat = getCppImplForDef(ci.x10Def());
-			if (pat != null) {
-				if (!context.inLocalClass())
-					emitter.printHeader(dec, w, tr, true);
-
-				w.newline(0); w.begin(4); w.write("{"); w.newline();
-				emitNativeDecl(pat, ci.formalNames());
-				w.end(); w.newline(0); w.write("}"); w.newline();
-				nativeTranslated = true;
-			} 
-		} 
-		if (!nativeTranslated && dec.body() != null) {
+		if (dec.body() != null) {
 			// Extract initializers from the body
 			Block_c body = (Block_c) dec.body();
 			List<Stmt> statements = body.statements();
@@ -817,12 +795,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline();
 			}
 			
-		}
-		// Neither have  a body nor have the correct native
-		// directive.
-		if (!nativeTranslated && dec.body() == null && (!ci.flags().isAbstract())){
-			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-				"Warning: Neither body nor correct directive! "+dec.toString(), dec.position());
 		}
 		
 		if (outermost) {
@@ -1435,20 +1407,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		X10MethodInstance mi = (X10MethodInstance)n.methodInstance();
 		Receiver target = n.target();
-		// We do not need to special case the native calls. Each
-		// native function declaration is a wrapper that calls the
-		// underlying method. So we can just blindly call the
-		// wrapper. If we really need the special casing uncomment
-		// the below commented code.
-		// -Krishna.
 
-		/*
 		String pat = getCppImplForDef(mi.x10Def());
 		if (pat != null) {
-			emitNativeAnnotation(pat, target, mi.typeParameters(), n.arguments());
+			emitNativeAnnotation(pat, mi.typeParameters(), n.arguments());
 			return;
 		}
-		*/
 		w.begin(0);
 		boolean requireMangling = true;
 		if (!n.isTargetImplicit()) {
@@ -1609,11 +1573,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Field_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		Receiver target = n.target();
+		Type t = target.type();
+		
+		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
+		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
+		
+		if (target instanceof TypeNode) {
+		    TypeNode tn = (TypeNode) target;
+		    if (t instanceof ParameterType) {
+		        // Rewrite to the class declaring the field.
+		        FieldDef fd = fi.def();
+		        t = Types.get(fd.container());
+		        target = tn.typeRef(fd.container());
+		        n = (Field_c) n.target(target);
+		    }
+		}
+
+		String pat = getCppImplForDef(fi.x10Def());
+		if (pat != null) {
+		    Object[] components = new Object[] { target };
+		    emitter.dumpRegex("Native", components, tr, pat, w);
+		    return;
+		}
+
 
 		w.begin(0);
 		if (!n.isTargetImplicit()) {
 			// explicit target.
-			Receiver target = n.target();
 			if (target instanceof Expr) {
 				boolean assoc =
 					!(target instanceof New_c ||
@@ -1634,7 +1621,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write("->");
 			w.allowBreak(2, 3, "", 0);
 		} else {
-			Receiver target = n.target();
 			// TODO: capture constant fields as variables
 			if (!n.flags().isStatic()) {
 				X10CPPContext_c c = (X10CPPContext_c) tr.context();
@@ -1999,6 +1985,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Atomic_c a) {
+		// FIXME: Handle atomics
 		sw.pushCurrentStream(w);
 		a.print(a.body(), sw, tr);
 		sw.popCurrentStream();
@@ -2726,33 +2713,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    if (n.operator() == Assign.ASSIGN) {
-		// We do not need to special case the native calls. Each
-		// native function declaration is a wrapper that calls the
-		// underlying method. So we can just blindly call the
-		// wrapper. If we really need the special casing uncomment
-		// the below commented code.
-		// -Krishna.
-
-/* 
 	    	// Look for the appropriate set method on the array and emit native code if there is an
 	    	// @Native annotation on it.
 	    	X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
 	    	List<Expr> args = new ArrayList<Expr>(index.size()+1);
 	    	args.add(n.right());
 	    	for (Expr e : index) args.add(e);
-		// TODO: TypeParameters need to be dealt in the wrapper.
+
 	    	String pat = getCppImplForDef(mi.x10Def());
 	    	if (pat != null) {
-	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
+	    		emitNativeAnnotation(pat, mi.typeParameters(), args);
 	    		return;
 	    	} 
 	        // otherwise emit the hardwired code.
-*/
 		sw.pushCurrentStream(w);
-		    tr.print(n, array, sw);
+	        tr.print(n, array, sw);
 		sw.popCurrentStream();
-		    w.write(".set(");
-		    tr.print(n, n.right(), sw);
+		w.write(".set(");
+		tr.print(n, n.right(), sw);
 		for (Expr e: index) {
 			w.write(", ");
 			sw.pushCurrentStream(w);
@@ -2800,9 +2778,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        emitter.printType(n.right().type(), w);
 		String right = getId();
 	        w.write(" " + right + " = ");
+		sw.pushCurrentStream(w);
 	        tr.print(n, n.right(), sw);
+		sw.popCurrentStream();
+		w.write(";"); w.newline();
 
-	        w.newline();
 	        if (! n.type().isVoid()) {
 	            w.write(retVar + " = " );
 	        }
@@ -2854,9 +2834,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        Type java = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
 	        List<Type> as = o.annotationsMatching(java);
 	        for (Type at : as) {
-	            assertNumberOfInitializers(at, 2);
+	            assertNumberOfInitializers(at, 2, tr);
 	            String lang = getPropertyInit(at, 0);
-	            if (lang != null && lang.equals("c++")) {
+	            if (lang != null && lang.equals(NATIVE_STRING)) {
 	                String lit = getPropertyInit(at, 1);
 	                return lit;
 	            }
@@ -2865,13 +2845,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    catch (SemanticException e) {}
 	    return null;
 	}
-	void assertNumberOfInitializers(Type at, int len) {
-	    at = X10TypeMixin.baseType(at);
-	    if (at instanceof X10ClassType) {
-	        X10ClassType act = (X10ClassType) at;
-	        assert len == act.propertyInitializers().size();
-	    }
-	}
+	/* 
+	 // In case there is a need to have native declarations part of the
+	 // function declarations, use the following.
+	 // -Krishna.
 	private void emitNativeDecl(String pat, List<LocalInstance> names) {
 		 Object[] components = new Object[names.size()+1];
 		    int i = 0;
@@ -2889,7 +2866,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				// TODO: Handle Closures.
 				assert false;
 			}
-			System.out.println(li.type().getClass());
 			components[i++] = mangled_non_method_name(li.name().toString());
 		    }
 		    String pi = translate_mangled_NSFQN(pat);
@@ -2901,76 +2877,53 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		    dumpRegex("Native", components, tr, pat);
 	}
-	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {
-		 Object[] components = new Object[1 + types.size() * 3 + args.size()];
-		    int i = 0;
-		    components[i++] = target;
+	*/
+	Object getBoxType(Type type) {
+
+		if (type.isClass())
+			return type;
+		if (type.isBoolean() || type.isNumeric()) {
+
+	        		String[] s = new String[] { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
+	        		String[] w = new String[] { "java.lang.Boolean", "java.lang.Byte", "java.lang.Character", "java.lang.Short", "java.lang.Integer", "java.lang.Long", "java.lang.Float", "java.lang.Double" };
+	        		for (int i = 0; i < s.length; i++) {
+	        			if (type.toString().equals(s[i])) {
+	        				return w[i];
+	        			}
+	        		}
+				// Should not reach.
+				assert (false);
+			
+		}
+		if (type instanceof ParameterType)
+			return type;
+
+		// FIXME: unhandled.
+		assert (false);
+		return null;
+
+	}
+	private void emitNativeAnnotation(String pat, List<Type> types, List<Expr> args) {
+		 Object[] components = new Object[1+3*types.size() + args.size()];
+		 components[0] = "";
+		    int i = 1;
+
 		    for (Type at : types) {
-			// FIXME: Handle TypeParameters
-			    assert false;
-		        // components[i++] = new TypeExpander(at, true, false, false);
-		        // components[i++] = new TypeExpander(at, true, true, false);
-		        // components[i++] = new RuntimeTypeExpander(at);
+			components[i++] = at;
+			components[i++] = getBoxType(at);
+			// FIXME: Handle runtime types.
+			components[i++] = "/* RTT of " + at.toString() + "*/";
 		    }
 		    for (Expr e : args) {
 		        components[i++] = e;
 		    }
-		    dumpRegex("Native", components, tr, pat);
-	}
-	private void dumpRegex(String id, Object[] components, Translator tr, String regex) {
-	    for (int i = 0; i < components.length; i++) {
-	        assert ! (components[i] instanceof Object[]);
-	    }
-	    int len = regex.length();
-	    int pos = 0;
-	    int start = 0;
-	    while (pos < len) {
-	    	if (regex.charAt(pos) == '\n') {
-	    		w.write(regex.substring(start, pos));
-	    		w.newline(0);
-	    		start = pos+1;
-	    	}
-	    	else
-	    	if (regex.charAt(pos) == '#') {
-	    		w.write(regex.substring(start, pos));
-	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
-	    		pos++;
-	    		start = pos+1;
-	    		if (idx.intValue() >= components.length){
-	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
-			}
-	    		prettyPrint(components[idx.intValue()], tr);
-	    	}
-	    	pos++;
-	    }
-	    w.write(regex.substring(start));
-	}
-	private void prettyPrint(Object o, Translator tr) {
-		if (o instanceof Node) {
-			
-			sw.pushCurrentStream(w);
-			((Node) o).del().translate(sw, tr);
-			sw.popCurrentStream();
-		} else if (o instanceof Type) {
-			throw new InternalCompilerError("Should not attempt to pretty-print a type");
-		} else if (o != null) {
-			w.write(o.toString());
-		}
-	}
-	String getPropertyInit(Type at, int index) {
-	    at = X10TypeMixin.baseType(at);
-	    if (at instanceof X10ClassType) {
-		X10ClassType act = (X10ClassType) at;
-		if (index < act.propertyInitializers().size()) {
-		    Expr e = act.propertyInitializer(index);
-		    if (e instanceof StringLit) {
-			StringLit lit = (StringLit) e;
-			String s = lit.value();
-			return s;
+		    String pi = translate_mangled_NSFQN(pat);
+		    if (!pi.contains("#")){
+		
+			X10CPPContext_c c = (X10CPPContext_c) tr.context();
+			c.pendingImplicitImports.add(pat);
 		    }
-		}
-	    }
-	    return null;
+		    emitter.dumpRegex("Native", components, tr, pat, w);
 	}
 	
 	public void visit(Tuple_c c) {
