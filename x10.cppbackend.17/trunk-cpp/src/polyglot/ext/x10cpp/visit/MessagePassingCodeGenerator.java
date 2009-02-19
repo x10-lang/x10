@@ -366,7 +366,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		X10ClassDef def = (X10ClassDef) n.classDef();
 	    	if (getCppRep(def, tr) != null) {
-	        	w.write(";");
+	        	w.write("class ");
+			w.write(mangled_non_method_name(n.name().id().toString())); 
+			w.write(" {};");
 	        	w.newline();
 	        	return;
 	    	}
