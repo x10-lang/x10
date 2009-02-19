@@ -41,9 +41,11 @@ public class SharedVarsMethods{
 	public static String getId() {
 		return "__var" + getUniqueId_() + "__";
 	}
+	/* FIXME: -- SPMD compilation --
 	static boolean isUnique(Expr distribution) {
 		return ((X10ParsedClassType) distribution.type()).isUniqueDist();
 	}
+	*/
 	static final ArrayList knownSpecialPackages = new ArrayList();
 	static void populateKnownSpecialPackages(X10TypeSystem xts){
 		if (knownSpecialPackages.size() == 0) {
@@ -122,10 +124,12 @@ public class SharedVarsMethods{
 		return closure_name(prefix, id) + "_args";
 	}
 
+	/* FIXME: -- SPMD compilation --
 	static boolean isLocal(Expr distribution) {
 		return distribution instanceof ConstantDistMaker_c ||
 		((X10ParsedClassType) distribution.type()).isConstantDist();
 	}
+	*/
 	static final ArrayList knownSafeClasses = new ArrayList();
 	static final ArrayList knownSafeMethods = new ArrayList();
 	static final ArrayList knownSafeFields = new ArrayList();
