@@ -275,6 +275,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(ClassDecl_c n) {
 		processClass(n);
 	}
+	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		if (context.pendingStaticDecls.size() == 0)
+			return false;
+		w.write("template <> class ");
+		w.write(translate_mangled_FQN(cd.fullName().toString()));
+		w.write("<void> {");
+		w.newline(4); w.begin(0); 
+		for (FieldDecl_c dec: context.pendingStaticDecls) {
+			emitter.printHeader(dec, w, tr, false);
+		}
+		w.end(); w.newline();
+		w.write("}");
+		w.newline();
+		return true;
+
+	}
+	private void extractGenericStaticInits(X10ClassDef cd, ClassifiedStream w) {
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		for (FieldDecl_c dec: context.pendingStaticDecls) {
+			emitter.printType(dec.type().type(), w);
+			w.write(" ");
+			w.write(translate_mangled_FQN(cd.fullName().toString()));
+			w.write("<void>::");
+			emitFieldInit(dec);
+			w.newline();
+		}
+	}
 
 	private boolean extractInits(String className, String methodName,
 			String retType, List members,
@@ -291,6 +319,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					(((FieldDecl_c)member).init() == null ||
 							query.isSyntheticField(((FieldDecl_c)member).name().toString())))
 				continue;
+			if (member instanceof FieldDecl_c) {
+				FieldDecl_c dec = (FieldDecl_c) member;
+				if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() !=0) 
+				&& dec.flags().flags().isStatic()) {
+					continue;
+				}
+			}
 			if (!sawInit) {
 				w.write(retType + " " + className + "::" + methodName + "() {");
 				w.newline(4);
@@ -305,22 +340,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline(0);
 			} else if (member instanceof FieldDecl_c) {
 				FieldDecl_c dec = (FieldDecl_c) member;
-				Term_c init = (Term_c) dec.init();
-				assert (init != null);
-
-				w.write(mangled_non_method_name(dec.name().id().toString()));
-				w.write(" = ");
-				if (init instanceof ArrayInit_c) {
-					assert (dec.type().type().isArray());
-					ArrayType type = dec.type().type().toArray();
-					newJavaArray(init, type.base(), Collections.EMPTY_LIST, type.dims(), (ArrayInit_c) init);
-				} else {
-					sw.pushCurrentStream(w);
-					dec.print(init, sw, tr);
-					sw.popCurrentStream();
-				}
-				w.write(";");
+				emitFieldInit(dec);
 				w.newline();
+
 			}
 		}
 		if (sawInit) {
@@ -331,6 +353,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline(); w.forceNewline(0);
 		}
 		return sawInit;
+	}
+	void emitFieldInit(FieldDecl_c dec) {
+		Term_c init = (Term_c) dec.init();
+		assert (init != null);
+
+		w.write(mangled_non_method_name(dec.name().id().toString()));
+		w.write(" = ");
+		if (init instanceof ArrayInit_c) {
+			assert (dec.type().type().isArray());
+			ArrayType type = dec.type().type().toArray();
+			newJavaArray(init, type.base(), Collections.EMPTY_LIST, type.dims(), (ArrayInit_c) init);
+		} else {
+			sw.pushCurrentStream(w);
+			dec.print(init, sw, tr);
+			sw.popCurrentStream();
+		}
+		w.write(";");
 	}
 	boolean hasNativeMethods(List members) {
 		for (Iterator i = members.iterator(); i.hasNext(); ) {
@@ -548,6 +587,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(ClassBody_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		ArrayList<FieldDecl_c> opsd = new ArrayList(context.pendingStaticDecls);
+		context.pendingStaticDecls = new ArrayList<FieldDecl_c>();
+		ClassType currentClass = context.currentClass();
+
+		
 		ClassifiedStream h;
 		if (context.inLocalClass())
 			h = w;
@@ -556,7 +600,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("{");
 		List members = n.members();
 		if (!members.isEmpty()) {
-			ClassType currentClass = context.currentClass();
 			String className = emitter.translateType(currentClass);
 
 			h.newline(4);
@@ -628,6 +671,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		h.write("};");
+		h.newline();
+
+		if (extractGenericStaticDecls((X10ClassDef)currentClass.def(), h)) {
+			extractGenericStaticInits((X10ClassDef)currentClass.def(), w);
+		}
+
+		context.pendingStaticDecls = opsd;
+
 		h.newline();
 	}
 
@@ -813,8 +864,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// FIXME: HACK: skip synthetic serialization fields and x10 auxiliary fields
 		if (query.isSyntheticField(dec.name().toString()))
 			return;
-		ClassifiedStream h;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() !=0) 
+		&& dec.flags().flags().isStatic()) {
+			context.pendingStaticDecls.add(dec);
+			return;
+		}
+		ClassifiedStream h;
 		if (context.inLocalClass())
 			h = w;
 		else
@@ -1583,12 +1639,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 		
+		FieldDef fd = fi.def();
+		t = Types.get(fd.container());
+		if (((X10ClassDef)((X10ClassType)n.fieldInstance().container()).def()).typeParameters().size() !=0 
+		&& n.fieldInstance().flags().isStatic()) {
+			w.write(emitter.getStaticFieldName(
+					(X10ClassDef)((X10ClassType)n.fieldInstance().container()).def(),
+					n.name().id().toString()));
+			return;
+
+		}
+		
 		if (target instanceof TypeNode) {
 		    TypeNode tn = (TypeNode) target;
 		    if (t instanceof ParameterType) {
 		        // Rewrite to the class declaring the field.
-		        FieldDef fd = fi.def();
-		        t = Types.get(fd.container());
 		        target = tn.typeRef(fd.container());
 		        n = (Field_c) n.target(target);
 		    }

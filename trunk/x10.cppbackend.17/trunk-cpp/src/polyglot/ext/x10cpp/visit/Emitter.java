@@ -1820,4 +1820,7 @@ public class Emitter {
 			w.write(o.toString());
 		}
 	}
+	public String getStaticFieldName(X10ClassDef cd, String fldName) {
+		return translate_mangled_FQN(cd.fullName().toString()) + "<void>::" + fldName;
+	}
 }

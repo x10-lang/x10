@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Stack;
 
 import polyglot.ast.Stmt;
+import polyglot.ast.FieldDecl_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10cpp.visit.X10SummarizingRules;
 import polyglot.types.Context_c;
@@ -67,6 +68,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 
 	public ArrayList pendingImports = new ArrayList();
 	public static ArrayList pendingImplicitImports = new ArrayList();
+	public static ArrayList<FieldDecl_c> pendingStaticDecls = new ArrayList<FieldDecl_c>();
 	public List<TypeParamNode> classTypeParams = new ArrayList<TypeParamNode>();
 	public static HashMap classesWithAsyncSwitches = new HashMap();
 	public static HashMap classesWithArrayCopySwitches = new HashMap();
