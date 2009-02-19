@@ -224,13 +224,23 @@ public class Emitter {
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
+                type = X10TypeMixin.baseType(type);
 		String name = null;
 		if (type.isClass()) {
 			X10ClassType ct = (X10ClassType) type.toClass();
-			if (ct.isAnonymous())  // FIXME: [IP] Is this ever true?
-				name = "__anonymous__"+getId();
+			
+		    if (ct.isAnonymous()) {
+		    	// assert false : "unexpected anonymous type " + ct;
+		    	if (ct.interfaces().size() > 0) {
+		    		return translateType(ct.interfaces().get(0), asRef);
+		    	} else if (ct.superClass() != null) {
+		    		return translateType(ct.interfaces().get(0), asRef);
+		    	} else {
+		    		assert false;
+		    		return translateType(xts.Object(), asRef);
+		    	}
+		    }
 			else {
-                type = X10TypeMixin.baseType(type);
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
 				if (!asRef)
@@ -413,7 +423,7 @@ public class Emitter {
 		X10ClassType original = (X10ClassType) n.container().get();
 
 		X10ClassType classType = (X10ClassType) from.container();
-		X10ClassType superClass = (X10ClassType) classType.superClass();
+		X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(classType.superClass());
 		List<Type> interfaces = classType.interfaces();
 		Type returnType = null;
 
