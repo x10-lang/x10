@@ -40,12 +40,6 @@
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
-        <mkdir dir="${bin}"/>
-        <copy todir="${bin}">
-            <fileset dir="${basedir}/bin" includes="x10c++,runx10" />
-        </copy>
-        <chmod perm="+x" file="${bin}/x10c++"/>
-        <chmod perm="+x" file="${bin}/runx10"/>
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
