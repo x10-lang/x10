@@ -44,7 +44,9 @@ import polyglot.main.Options;
 import polyglot.main.Report;
 
 import polyglot.types.Context;
+import polyglot.types.Name;
 import polyglot.types.Package;
+import polyglot.types.QName;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -105,7 +107,7 @@ public class X10CPPTranslator extends Translator {
 		public Writer outputWriter(String packageName, String className, Source source) throws IOException {
 			// TODO Auto-generated method stub
 			assert (false);
-			return super.outputWriter(packageName, className, source);
+			return super.outputWriter(QName.make(packageName), Name.make(className), source);
 		}
 
 		/* (non-Javadoc)
