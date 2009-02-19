@@ -3037,6 +3037,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(SettableAssign_c n) {
 	    // Code ported from X10PrettyPrinter.java (x10.compiler.p3) and
 	    // ported to suit the needs. [Krishna]
+	    // FIXME: [IP] This method is crap.  Rewrite from scratch.
 	    SettableAssign_c a = n;
 	    Expr array = a.array();
 	    List<Expr> index = a.index();
@@ -3085,15 +3086,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
 	        Name methodName = X10Binary_c.binaryMethodName(op);
 	        sw.write("{ ");
-	        emitter.printType(n.type(), sw);
-	        String retVar=getId();
-	        sw.write(" " + retVar + ";");
-	        sw.newline();
+	        String retVar = getId();
+	        if (! n.type().isVoid()) {
+	            emitter.printType(n.type(), sw);
+	            sw.write(" " + retVar + ";");
+	            sw.newline();
+	        }
 
-	        emitter.printType(array.type(), sw);
 	        String target = getId();
+	        emitter.printType(array.type(), sw);
 	        sw.write(" " + target + " = ");
 	        tr.print(n, array, sw);
+	        sw.write(";");
 	        sw.newline();
 
 	        String eArr [] = new String[index.size()];
@@ -3119,8 +3123,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (! n.type().isVoid()) {
 	            sw.write(retVar + " = " );
 	        }
-	        sw.write("array.set(");
-	        sw.write(" array.apply(");
+	        sw.write(target+"->set(");
+	        sw.write(target+"->apply(");
 	        {
 	            int i = 0;
 	            for (Expr e : index) {
