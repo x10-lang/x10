@@ -547,7 +547,7 @@ public class Emitter {
 		w.write("<");
 		for (Iterator<Type> i = mi.typeParameters().iterator(); i.hasNext(); ) {
 		    final Type at = i.next();
-		    w.write(translateType(at));
+		    w.write(translateType(at,true));
 		    if (i.hasNext()) {
 		        w.write(",");
 		        w.allowBreak(0, " ");

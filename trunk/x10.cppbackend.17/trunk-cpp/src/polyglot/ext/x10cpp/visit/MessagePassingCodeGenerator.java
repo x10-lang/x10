@@ -183,6 +183,7 @@ import polyglot.types.Package;
 import polyglot.types.Package_c;
 import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.ReferenceType;
 import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
@@ -2102,7 +2103,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		if (ts.isSubtype(n.objectType().type(), ts.Throwable()) && n.arguments().size() == 0) {
 			String stringType = emitter.translateType(ts.String());
-			w.write("*x10aux::to_string(__FILE__ \":\")+*x10aux::to_string((x10_int)__LINE__)");
+			w.write("String::Lit(__FILELINE__)");
 		}
 		w.end();
 		w.write(")");
@@ -2772,7 +2773,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Here_c n) {
-		w.write("__here__");
+		w.write("x10aux::__here__");
 	}
 
 
@@ -2800,7 +2801,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
 				w.write(".operator->())");
 			} else{
-				w.write("__here__");
+				w.write("x10aux::__here__");
 				
 			}
 		} else { // It is array place expression 
@@ -2863,9 +2864,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.enterClosure(a, n);
 
 		ClosureDef closureDef = n.closureDef();
-		CodeInstance hostMethod = closureDef.methodContainer().get();
+		CodeInstance ci = closureDef.methodContainer().get();
 		X10ClassType hostClassType = (X10ClassType)(closureDef.typeContainer().get());
-		//TODO include packages
+        X10ClassDef hostClassDef = hostClassType.x10Def();
+        List<Type> freeTypeParams = new ArrayList<Type>(hostClassDef.typeParameters());
+
+        if (ci instanceof X10MethodInstance) {
+            // this is the only case where additional type params can be defined
+            X10MethodInstance xmi = (X10MethodInstance) ci;
+            X10MethodDef xmd = xmi.x10Def();
+            for (Ref<? extends Type> t : xmd.typeParameters()) {
+                freeTypeParams.add(t.get());
+            }
+        }
+
+        //System.out.println(freeTypeParams);
+        
 		String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(),"_");
 
 		c.setinsideClosure(true);
@@ -2901,6 +2915,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 		// class header
+        if (!freeTypeParams.isEmpty()) {
+            inc.write("template");
+            prefix="<";
+            for (Type t : freeTypeParams) {
+                inc.write(prefix+"class "+t);
+                prefix = ",";
+            }
+            inc.write("> ");
+        }
 		inc.write("class "+cname+" : "); inc.begin(0);
 		inc.write("public x10aux::AnyClosure, "); inc.newline();
 		inc.write("public x10::lang::Value, "); inc.newline();
@@ -2999,8 +3022,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// note that we alloc using the typeof the superType but we pass in the correct size
 		// this is because otherwise alloc may (when debugging is on) try to examine the 
 		// RTT of the closure (which doesn't exist)
-		w.write("x10aux::ref<"+superType+" >(new (x10aux::alloc<"+superType+" >(sizeof("+cname+")))");
-		w.write(cname+"(");
+
+        // first get the template arguments (if any)
+        prefix="<";
+        StringBuffer sb = new StringBuffer();
+        for (Type t : freeTypeParams) {
+            sb.append(prefix+t);
+            prefix = ",";
+        }
+        if (prefix.equals(",")) sb.append(">");
+        String templateArgs = sb.toString();
+
+		w.write("x10aux::ref<"+superType+" >");
+        w.write("(new (x10aux::alloc<"+superType+" >(sizeof("+cname+templateArgs+")))");
+		w.write(cname+templateArgs+"(");
         for (int i=0 ; i<c.variables.size() ; i++) {
             if (i > 0) w.write(", ");
             VarInstance var = (VarInstance)c.variables.get(i);
