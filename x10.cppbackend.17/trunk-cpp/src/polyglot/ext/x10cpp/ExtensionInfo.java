@@ -44,11 +44,6 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		return new X10CPPTypeSystem_c();
 	}
 
-	public void initCompiler(Compiler compiler) {
-		super.initCompiler(compiler);
-		QueryEngine.init(this);
-	}
-
 	// =================================
 	// X10-specific goals and scheduling
 	// =================================
