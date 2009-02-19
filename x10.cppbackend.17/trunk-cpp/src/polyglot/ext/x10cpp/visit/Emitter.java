@@ -654,7 +654,7 @@ public class Emitter {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify);
 	}
 	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, String name, Type ret, boolean qualify) {
-		Flags flags = n.flags().flags();
+		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 
 		if (!qualify) {
 			printFlags(h, flags);
@@ -671,9 +671,29 @@ public class Emitter {
 		if (!qualify) {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
-			else if (xn.typeParameters().size() == 0)
-				//if (!flags.isFinal()) // [IP] TODO: find out if this is ok
-					h.write("virtual ");
+			else if (xn.typeParameters().size() != 0 && !flags.isFinal()) {
+				// FIXME: [IP] for now just make non-virtual.
+				// In the future, will need to have some sort of dispatch object, e.g. the following:
+				// class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }
+				// translates to
+				// template<class T> class Foo_m {
+				//    Y _(Foo* f, X a) {
+				//       if (typeid(f)==typeid(Foo)) { return f->Foo::m_impl<T>(a); }
+				//       else if (typeid(f)==typeid(Bar)) { return f->Bar::m_impl<T>(a); }
+				//    }
+				// };
+				// class Foo {
+				//    public: template<class T> Y m(X a) { Foo_m<T>::_(this, a); }
+				//    public: template<class T> Y m_impl(X a);
+				// };
+				// class Bar : public Foo {
+				//    public: template<class T> Y m_impl(X a);
+				// };
+				String msg = "Method "+n.methodDef()+" is both generic and virtual";
+				tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+			}
+			else if (!flags.isProperty() /*&& !flags.isFinal()*/) // [IP] TODO: find out if this is ok
+				h.write("virtual ");
 		}
 		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
@@ -698,14 +718,9 @@ public class Emitter {
 		h.write(")");
 		h.end();
 		if (!qualify) {
-			assert (!n.flags().flags().isNative());
-			if (n.body() == null && !X10Flags.isExtern(n.flags().flags()))
+			assert (!flags.isNative());
+			if (n.body() == null && !flags.isExtern() && !flags.isProperty())
 				h.write(" = 0");
-			// [IP] I don't like this.  There has to be a better way.
-			if (h.sClass == WriterStreams.StreamClass.Header){
-				h.write(";");
-				h.newline();
-			}
 		}
 	}
 
@@ -727,7 +742,7 @@ public class Emitter {
 //		h.write(Flags.PUBLIC.translate()+": ");
 		// [IP] HACK: with inlining, everything is public
 		h.write("/"+"*"+flags.retain(Flags.PUBLIC.Private().Protected()).translate()+"*"+"/ ");
-		h.write(Flags.PUBLIC.translate()+": ");
+		h.write("public: ");
 	}
 
 	private void printAllTemplateSignatures(ClassDef cd, ClassifiedStream h) {
