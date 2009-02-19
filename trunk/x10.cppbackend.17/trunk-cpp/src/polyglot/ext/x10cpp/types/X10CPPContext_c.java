@@ -23,10 +23,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
+import polyglot.ast.ClassMember;
 import polyglot.ast.Stmt;
-import polyglot.ast.FieldDecl_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10cpp.visit.X10SummarizingRules;
 import polyglot.types.Context_c;
@@ -34,7 +33,6 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
-import polyglot.ext.x10.ast.TypeParamNode;
 
 public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c implements X10Context {
 
@@ -67,8 +65,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 
 	public ArrayList pendingImports = new ArrayList();
 	public static ArrayList pendingImplicitImports = new ArrayList();
-	public static ArrayList<FieldDecl_c> pendingStaticDecls = new ArrayList<FieldDecl_c>();
-	public List<TypeParamNode> classTypeParams = new ArrayList<TypeParamNode>();
+	public static ArrayList<ClassMember> pendingStaticDecls = new ArrayList<ClassMember>();
 	public static HashMap classesWithAsyncSwitches = new HashMap();
 	public static HashMap classesWithArrayCopySwitches = new HashMap();
 
@@ -87,9 +84,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		return v;
 	}
 	
-/**	 Stack of constructorDecl frames used in processing a constructor Decl with this calls. */
-	public Stack cDecls = new Stack(); // FIXME  Efficiency tip -- this needs to be initialized only once per outermost context and not everywhere as here.    
-
 	public LinkedList<X10SummarizingRules.Summary> summaries = null;  // PV-IPA
 
 	public X10SummarizingRules.Collection harvest = null;              // PV-IPA
