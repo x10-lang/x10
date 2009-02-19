@@ -64,6 +64,9 @@ public class StreamWrapper extends SimpleCodeWriter {
     public void pushCurrentStream(ClassifiedStream s) { csStack.push(this.cs); this.cs = s; }
     public void popCurrentStream() { this.cs = csStack.pop(); }
 
+    public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc, ClassifiedStream s, boolean prepend) {
+        return ws.getNewStream(sc, s, prepend);
+    }
     public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc, boolean prepend) {
         return ws.getNewStream(sc, prepend);
     }
