@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.ClassMember;
+import polyglot.ast.Import;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
@@ -59,6 +60,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
         boolean genericMethod = md != null && md.typeParameters().size() != 0;
         //[DC] FIXME: what if we've in a static initialiser of a generic class
         //should return false, but does return true?
+        //[IP] The above should also check for an initializer
         return (!staticMethod && genericClass) || genericMethod;
     }
 
@@ -466,9 +468,8 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public void popInLocalClass(){ localClassDepth--; }
 
 	private static String selfStr;
-	public void setSelf(String str){ selfStr = str;};
-	public void resetSelf() { selfStr = null;};
-	public String Self() { return selfStr;};
-
+	public void setSelf(String str){ selfStr = str; };
+	public void resetSelf() { selfStr = null; };
+	public String Self() { return selfStr; };
 }
 //vim:tabstop=4:shiftwidth=4:expandtab
