@@ -57,7 +57,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.StdErrorQueue;
 import polyglot.visit.Translator;
-import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
@@ -221,7 +220,7 @@ public class X10CPPTranslator extends Translator {
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
 			return; // FIXME HACK
-		ClassifiedStream w = ((StreamWrapper) w_).cs;
+		StreamWrapper w = (StreamWrapper) w_;
 		if (n != null && n.position().line() > 0 &&
 				((n instanceof Stmt && !(n instanceof Block)) ||
 				 (n instanceof FieldDecl) ||
@@ -284,8 +283,7 @@ public class X10CPPTranslator extends Translator {
 				X10ClassDecl cd = (X10ClassDecl) decl;
 				String className = cd.classDef().name().toString();
 				wstreams = new WriterStreams(className, sfn, pkg, tf, exports, job);
-				sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
-						outputWidth, wstreams);
+				sw = new StreamWrapper(wstreams, outputWidth);
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
 				translateTopLevelDecl(sw, sfn, decl); 
@@ -306,11 +304,13 @@ public class X10CPPTranslator extends Translator {
 				}
 			}
 			if (filefound && !t.hasNext()) {
+                sw.set(sw.getNewStream(StreamWrapper.StreamClass.Header, false),
+                       sw.getNewStream(StreamWrapper.StreamClass.CC, false));
 				generateGlobalSwitch(sw);
 				generateClosureSwitch(sw);
+                sw.newline();
 			}
 
-			sw.newline();
 			wstreams.commitStreams();
 
 			return true;
@@ -322,31 +322,27 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	private void generateClosureSwitch(StreamWrapper sw) {
-		ClassifiedStream w = sw.cs;
-		WriterStreams wstreams = sw.ws;
+	private void generateClosureSwitch(StreamWrapper w) {
 		X10CPPContext_c context = (X10CPPContext_c) this.context();
-		Emitter emitter = new Emitter(sw, this);
+		Emitter emitter = new Emitter(this);
 
 		w.write("extern \"C\" {"); w.newline(4); w.begin(0);
-		w.write("x10aux::AnyClosure *__x10_callback_closureswitch(int id, "
-                        +SERIALIZATION_BUFFER+"& s) {");
+		w.write("x10aux::AnyClosure *__x10_callback_closureswitch(int id, "+
+		        SERIALIZATION_BUFFER+"& s) {");
 		w.newline(4); w.begin(0);
 		w.write("switch (id) {"); w.newline(4); w.begin(0);
-                // iterate through closures
+		// iterate through closures
 		w.write("default: fprintf(stderr,\"Unrecognised closure id: %d\\n\",id); abort();");
-                w.end() ; w.newline();
+		w.end() ; w.newline();
 		w.write("}"); w.end(); w.newline();
 		w.write("} // __x10_callback_closureswitch"); w.end(); w.newline();
 		w.write("} // extern \"C\""); w.newline();
-        }
+	}
 
-	private void generateGlobalSwitch(StreamWrapper sw) {
-		ClassifiedStream w = sw.cs;
-		WriterStreams wstreams = sw.ws;
+	private void generateGlobalSwitch(StreamWrapper w) {
 		X10CPPContext_c context = (X10CPPContext_c) this.context();
 		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
-		Emitter emitter = new Emitter(sw, this);
+		Emitter emitter = new Emitter(this);
 		for (Iterator k = context.classesWithArrayCopySwitches.keySet().iterator(); k.hasNext(); ) {
 			ClassType ct = (ClassType) k.next();
 			if (ct.isNested())
