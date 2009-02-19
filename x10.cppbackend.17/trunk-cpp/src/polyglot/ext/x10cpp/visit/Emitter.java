@@ -456,7 +456,7 @@ public class Emitter {
 		printType(n.returnType().type(), h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
-			h.write(translateType(n.methodInstance().container()) + "::"); 
+			h.write(translateType(n.methodDef().asInstance().container()) + "::"); 
 		//n.print(n.id(), h, tr);
 		h.write(mangled_method_name(n.name().id().toString())); 
 		h.write("(");
