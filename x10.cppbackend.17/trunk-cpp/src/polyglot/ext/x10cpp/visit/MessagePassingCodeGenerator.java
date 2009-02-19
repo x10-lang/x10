@@ -3152,6 +3152,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.end(); sw.write(")");
 		    return;
 		}
+		if (opString.equals("%") && (n.type().isFloat() || n.type().isDouble())) {
+		    // [IP] Float and double modulus have to be treated specially in C++
+		    assert (!unsigned_op);
+		    sw.write("x10aux::mod("); sw.begin(0);
+		    n.printSubExpr(n.left(), false, sw, tr);
+		    sw.write(",");
+		    sw.allowBreak(0, " ");
+		    n.printSubExpr(n.right(), false, sw, tr);
+		    sw.end(); sw.write(")");
+		    return;
+		}
 
 		if (unsigned_op) {
 			sw.write("("+emitter.translateType(n.type())+")(");
