@@ -49,7 +49,9 @@ extern "C" {
             x10aux::exitCode = 1;
         }
 ##endif
+        //fprintf(stderr, "Done with main in place %d", (int)x10_here());
         x10aux::free_args(args);
+        x10aux::shutdown();
         return x10aux::exitCode;
     }
 }
