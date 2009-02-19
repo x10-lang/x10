@@ -26,6 +26,7 @@ import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -153,6 +154,7 @@ import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Def;
 import polyglot.ext.x10.types.X10FieldDef;
@@ -1007,8 +1009,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     // Get the list of methods of name "name" that ought to be accessible from class c
     // due to being locally defined or inherited
     List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
-        assert (name != null);
-        assert (c != null);
         return getOROLMeths(name, c, new HashSet<List<Type>>());
     }
 
@@ -1037,6 +1037,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         return meths;
+    }
+
+
+    private Type replaceType(Type type, HashMap<Type, Type> typeMap) {
+        Type mapped = typeMap.get(type);
+        if (mapped != null)
+            return mapped;
+        if (!type.isClass())
+            return type;
+        X10ClassType ct = (X10ClassType) type.toClass();
+        if (ct.typeArguments().size() == 0)
+            return ct;
+        ArrayList<Type> newArgs = new ArrayList<Type>();
+        boolean dirty = false;
+        for (Type t : ct.typeArguments()) {
+            Type n = replaceType(t, typeMap);
+            if (n != t) dirty = true;
+            newArgs.add(n);
+        }
+        if (dirty)
+            ct = ct.typeArguments(newArgs);
+        return ct;
     }
 
 	public void visit(ClassBody_c n) {
@@ -1115,6 +1137,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     mnames.add(mname);
                 }
 
+                X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
                 // then, for each one
                 for (Name mname : mnames) {
                     // get the list of overloads that this class should expose
@@ -1125,34 +1148,43 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         X10MethodInstance dropzone = (X10MethodInstance) dropzone_;
                         List<Type> formals = dropzone.formalTypes();
                         // do we have a matching method? (i.e. one the x10 programmer has written)
-                        if (currentClass.methods(mname,formals).size()>0) continue;
+                        if (currentClass.methods(mname, formals).size() > 0) continue;
                         // otherwise we need to add a proxy.
                         //System.out.println("Not found: "+dropzone);
-                        assert(!dropzone.flags().isStatic());
+                        assert (!dropzone.flags().isStatic());
                         //assert(!dropzone.flags().isFinal());
-                        assert(!dropzone.flags().isPrivate());
+                        assert (!dropzone.flags().isPrivate());
                         h.write("public: ");
-                        emitter.printTemplateSignature(dropzone.typeParameters(), h);
-                        if (dropzone.typeParameters().isEmpty()) {
+                        List<Type> typeParameters = dropzone.typeParameters();
+                        List<Type> newTypeParameters = new ArrayList<Type>();
+                        HashMap<Type, Type> typeMap = new HashMap<Type, Type>();
+                        for (Type t : typeParameters) {
+                            assert (t instanceof ParameterType);
+                            Type dummy = new ParameterType_c(xts, t.position(), Name.makeFresh("T"), null);
+                            newTypeParameters.add(dummy);
+                            typeMap.put(t, dummy);
+                        }
+                        emitter.printTemplateSignature(newTypeParameters, h);
+                        if (newTypeParameters.isEmpty()) {
                             h.write("virtual ");
                         }
-                        emitter.printType(dropzone.returnType(), h);
+                        emitter.printType(replaceType(dropzone.returnType(), typeMap), h);
                         h.write(" "+mangled_method_name(mname.toString()));
                         int counter = 0;
                         for (Type formal : formals) {
-                            h.write(counter==0?"(":", ");
-                            emitter.printType(formal, h);
+                            h.write(counter == 0 ? "(" : ", ");
+                            emitter.printType(replaceType(formal, typeMap), h);
                             h.write(" p"+counter++);
                         }
                         h.write(") {"); h.newline(4); h.begin(0);
 
                         if (!dropzone.returnType().isVoid())
                             h.write("return ");
-                        h.write(emitter.translateType(superClass,false)
-                                +"::"+mangled_method_name(mname.toString()));
-                        if (dropzone.typeParameters().size() != 0) {
+                        h.write(emitter.translateType(superClass, false) +
+                                "::" + mangled_method_name(mname.toString()));
+                        if (newTypeParameters.size() != 0) {
                             String prefix = "<";
-                            for (Type t : dropzone.typeParameters()) {
+                            for (Type t : newTypeParameters) {
                                 h.write(prefix);
                                 h.write(emitter.translateType(t));
                                 prefix = ",";
@@ -1161,8 +1193,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         }
                         counter = 0;
                         for (Type formal : formals) {
-                            h.write(counter==0?"(":", ");
-                            h.write("p"+counter++);
+                            h.write(counter == 0 ? "(" : ", ");
+                            h.write("p" + (counter++));
                         }
                         h.write(");"); h.end(); h.newline();
 
@@ -1201,7 +1233,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	String defaultValue(Type type) {
+    String defaultValue(Type type) {
 		return type.isPrimitive() ? "0" : "x10aux::null";
 	}
 
