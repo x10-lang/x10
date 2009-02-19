@@ -1,5 +1,6 @@
 package polyglot.ext.x10cpp.visit;
 import polyglot.types.SemanticException;
+import polyglot.types.QName;
 import polyglot.ast.Expr;
 import polyglot.visit.Translator;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -45,21 +46,21 @@ public class SharedVarsMethods{
 	static void populateKnownSpecialPackages(X10TypeSystem xts){
 		if (knownSpecialPackages.size() == 0) {
 			try {
-				Package x_l = xts.packageForName("x10.lang");
+				Package x_l = xts.packageForName(QName.make("x10.lang"));
 				knownSpecialPackages.add(x_l);
-				Package j_l = xts.packageForName("java.lang");
+				Package j_l = xts.packageForName(QName.make("java.lang"));
 				knownSpecialPackages.add(j_l);
-				Package j_i = xts.packageForName("java.io");
+				Package j_i = xts.packageForName(QName.make("java.io"));
 				knownSpecialPackages.add(j_i);
-				Package j_u = xts.packageForName("java.util");
+				Package j_u = xts.packageForName(QName.make("java.util"));
 				knownSpecialPackages.add(j_u);
-				Package j_u_c = xts.packageForName("java.util.concurrent");
+				Package j_u_c = xts.packageForName(QName.make("java.util.concurrent"));
 				knownSpecialPackages.add(j_u_c);
-				Package j_u_c_a = xts.packageForName("java.util.concurrent.atomic");
+				Package j_u_c_a = xts.packageForName(QName.make("java.util.concurrent.atomic"));
 				knownSpecialPackages.add(j_u_c_a);
-				Package x = xts.packageForName("x10");
+				Package x = xts.packageForName(QName.make("x10"));
 				knownSpecialPackages.add(x);
-				Package x_c = xts.packageForName("x10.compilergenerated");
+				Package x_c = xts.packageForName(QName.make("x10.compilergenerated"));
 				knownSpecialPackages.add(x_c);
 			} catch (SemanticException e) { assert (false); }
 		}
@@ -135,17 +136,17 @@ public class SharedVarsMethods{
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		if (knownSafeClasses.size() == 0) {
 			try {
-				ReferenceType j_l_Math = (ReferenceType) ts.forName("java.lang.Math");
+				ReferenceType j_l_Math = (ReferenceType) ts.forName(QName.make("java.lang.Math"));
 				knownSafeClasses.add(j_l_Math);
-				ReferenceType j_i_DIS = (ReferenceType) ts.forName("java.io.DataInputStream");
+				ReferenceType j_i_DIS = (ReferenceType) ts.forName(QName.make("java.io.DataInputStream"));
 				knownSafeClasses.add(j_i_DIS);
-				ReferenceType j_i_FIS = (ReferenceType) ts.forName("java.io.FileInputStream");
+				ReferenceType j_i_FIS = (ReferenceType) ts.forName(QName.make("java.io.FileInputStream"));
 				knownSafeClasses.add(j_i_DIS);
-				ReferenceType j_i_BAOS = (ReferenceType) ts.forName("java.io.ByteArrayOutputStream");
+				ReferenceType j_i_BAOS = (ReferenceType) ts.forName(QName.make("java.io.ByteArrayOutputStream"));
 				knownSafeClasses.add(j_i_BAOS);
-				ReferenceType j_i_PS = (ReferenceType) ts.forName("java.io.PrintStream");
+				ReferenceType j_i_PS = (ReferenceType) ts.forName(QName.make("java.io.PrintStream"));
 				knownSafeClasses.add(j_i_PS);
-				ReferenceType j_u_R = (ReferenceType) ts.forName("java.util.Random");
+				ReferenceType j_u_R = (ReferenceType) ts.forName(QName.make("java.util.Random"));
 				knownSafeClasses.add(j_u_R);
 			} catch (SemanticException e) { assert (false); }
 		}
@@ -177,7 +178,7 @@ public class SharedVarsMethods{
 				knownSafeMethods.add(ts.findMethod(x_l_dist, "restriction", Arrays.asList(X_L_P), context.currentClass()));
 				knownSafeFields.add(ts.findField(x_l_dist, "factory", context.currentClass()));
 				knownSafeFields.add(ts.findField(x_l_dist, "UNIQUE", context.currentClass()));
-				ReferenceType x_l_dist_factory = (ReferenceType) ts.forName("x10.lang.dist.factory");
+				ReferenceType x_l_dist_factory = (ReferenceType) ts.forName(QName.make("x10.lang.dist.factory"));
 				Type[] X_L_R = { x_l_region };
 				knownSafeMethods.add(ts.findMethod(x_l_dist_factory, "block", Arrays.asList(X_L_R), context.currentClass()));
 			} catch (SemanticException e) { assert (false); }
@@ -192,7 +193,7 @@ public class SharedVarsMethods{
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		if (knownInlinableMethods.size() == 0) {
 			try {
-				ReferenceType x_l_Runtime = (ReferenceType) ts.forName("x10.lang.Runtime");
+				ReferenceType x_l_Runtime = (ReferenceType) ts.forName(QName.make("x10.lang.Runtime"));
 				Type[] A_I_A_I_I = { ts.array(), ts.Int(), ts.array(), ts.Int(), ts.Int() };
 				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_I_A_I_I), context.currentClass()));
 				Type[] A_A = { ts.array(), ts.array() };

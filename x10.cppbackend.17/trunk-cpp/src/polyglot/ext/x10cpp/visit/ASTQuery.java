@@ -127,8 +127,8 @@ public class ASTQuery {
 
 		boolean answer =   
 			dec.name().equals("main") &&
-			dec.flags().isPublic() &&
-			dec.flags().isStatic() &&
+			dec.flags().flags().isPublic() &&
+			dec.flags().flags().isStatic() &&
 			dec.returnType().type().isVoid() &&
 			(dec.formals().size() == 1) &&
 			((Formal)dec.formals().get(0)).type().type().equals(ts.arrayOf(ts.String()));

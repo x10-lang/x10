@@ -153,6 +153,7 @@ import polyglot.types.NoMemberException;
 import polyglot.types.Package;
 import polyglot.types.Package_c;
 import polyglot.types.ParsedClassType;
+import polyglot.types.QName;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -240,11 +241,11 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			ClassMember member = (ClassMember) i.next();
 			if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
 				continue;
-			if (member.memberInstance().flags().isStatic() != staticInits)
+			if (member.memberInstance().flags().flags().isStatic() != staticInits)
 				continue;
 			if (member instanceof FieldDecl_c &&
 					(((FieldDecl_c)member).init() == null ||
-							query.isSyntheticField(((FieldDecl_c)member).name())))
+							query.isSyntheticField(((FieldDecl_c)member).name().toString())))
 				continue;
 			if (!sawInit) {
 				w.write(retType + " " + className + "::" + methodName + "() {");
@@ -263,7 +264,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				Term_c init = (Term_c) dec.init();
 				assert (init != null);
 
-				w.write(mangled_non_method_name(dec.id().id()));
+				w.write(mangled_non_method_name(dec.name().id().toString()));
 				w.write(" = ");
 				if (init instanceof ArrayInit_c) {
 					assert (dec.type().type().isArray());
@@ -293,7 +294,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			ClassMember member = (ClassMember) i.next();
 			if (member instanceof MethodDecl_c) {
 				MethodDecl_c init = (MethodDecl_c) member;
-				if (init.flags().isNative())
+				if (init.flags().flags().isNative())
 					return true;
 			}
 		}
@@ -359,8 +360,8 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 					ClassType ct = (ClassType) is.next();
 					String pkg = "";
 					if (ct.package_() != null)
-						pkg = ct.package_().fullName();
-					String header = tf.outputHeaderName(pkg, ct.name());
+						pkg = ct.package_().fullName().toString();
+					String header = tf.outputHeaderName(pkg, ct.name().toString());
 					h.write("#include \"" + header + "\"");
 					h.newline();
 				}
@@ -370,13 +371,13 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 					Package_c rt = null;
 					try {
 					if (xts.forName(in.name()) instanceof Package_c){
-						h.write("using namespace "+translateFQN(in.name())+";");
+						h.write("using namespace "+translateFQN(in.name().toString())+";");
 					} else if (knownSafeClasses.contains(xts.forName(in.name())) ) { // library class import.
 
-						h.write("using namespace "+translateFQN(in.name().substring(0,in.name().lastIndexOf('.')))+";");
+						h.write("using namespace "+translateFQN(in.name().toString().substring(0,in.name().toString().lastIndexOf('.')))+";");
 					}
 					else {// import user defined class
-						h.write("using namespace " + translate_mangled_NSFQN(in.name()) + ";");
+						h.write("using namespace " + translate_mangled_NSFQN(in.name().toString()) + ";");
 					}
 					h.newline();
 					} catch (SemanticException e) { assert (false); }
@@ -386,13 +387,13 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			h.forceNewline(0);
 			if (n.type().package_() != null) {
 				h.write("namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName())));
+				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName().toString())));
 				h.write(" {");
 				h.newline(0);
 			}
 		}
 
-		if (n.type().isNested() && !n.type().flags().isStatic())
+		if (n.type().isNested() && !n.type().flags().flags().isStatic())
 			throw new InternalCompilerError("Instance Inner classes not supported");
 
 		emitter.printHeader(n, h, tr, false);
@@ -429,7 +430,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			if (n.type().package_() != null) {
 				h.newline(0);
 				h.write("} // namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName())));
+				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName().toString())));
 				h.newline(0);
 			}
 		}
@@ -476,9 +477,9 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				if (!(member instanceof ClassDecl_c))
 					continue;
 				ClassDecl_c dec = (ClassDecl_c)member;
-				emitter.printFlags(h, dec.flags());
+				emitter.printFlags(h, dec.flags().flags());
 				h.write("class ");
-				h.write(mangled_non_method_name(dec.id().id()));
+				h.write(mangled_non_method_name(dec.name().id().toString()));
 				h.write(";");
 				h.newline();
 			}
@@ -548,7 +549,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(PackageNode_c n) {
-		w.write(mangled_non_method_name(translateFQN(n.package_().fullName())));
+		w.write(mangled_non_method_name(translateFQN(n.package_().fullName().toString())));
 	}
 
 	public void visit(Import_c n) {
@@ -584,7 +585,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			context.resetMainMethod();
 
 		if (dec.body() != null) {
-			if (!dec.flags().isStatic()) {
+			if (!dec.flags().flags().isStatic()) {
 				VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
 						dec.methodInstance().container(), THIS);
 				context.addVariable(ti);
@@ -605,7 +606,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 			w.write("}");
 			w.newline();
-		} else if (dec.flags().isNative()) {
+		} else if (dec.flags().flags().isNative()) {
 			if (!context.inLocalClass())
 				emitter.printHeader(dec, w, tr, true);
 			w.newline(0); w.begin(4); w.write("{"); w.newline();
@@ -621,16 +622,16 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 
 				Type type = parameter.declType();
 				if (type.isPrimitive()) {
-					w.write(mangled_non_method_name(parameter.id().id()));
+					w.write(mangled_non_method_name(parameter.name().id().toString()));
 				} else if (type.isArray()) {
 					assert (false);
-					w.write(mangled_non_method_name(parameter.id().id()));
+					w.write(mangled_non_method_name(parameter.name().id().toString()));
 					w.write("->"+RAW_ARRAY+"()");
 				} else {
 					assert (ts.isX10Array(type));
 					Type base = ts.baseType(type);
 					assert (base.isPrimitive());
-					w.write(mangled_non_method_name(parameter.id().id()));
+					w.write(mangled_non_method_name(parameter.name().id().toString()));
 					w.write("->"+RAW_ARRAY+"()");
 					w.write(", NULL"); // for the descriptor
 				}
@@ -739,7 +740,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			context.outermostContext().cDecls.pop();
 		}
 		
-		if (!dec.flags().isStatic()) {
+		if (!dec.flags().flags().isStatic()) {
 			TypeSystem ts = tr.typeSystem();
 			VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
 					container, THIS);
@@ -766,7 +767,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(FieldDecl_c dec) {
 		// FIXME: HACK: skip synthetic serialization fields and x10 auxiliary fields
-		if (query.isSyntheticField(dec.name()))
+		if (query.isSyntheticField(dec.name().toString()))
 			return;
 		ClassifiedStream h;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -775,7 +776,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
 		emitter.printHeader(dec, h, tr, false);
-		if (dec.flags().isStatic()) {
+		if (dec.flags().flags().isStatic()) {
 			emitter.printHeader(dec, w, tr, true);
 			w.write(";");
 			w.newline();
@@ -788,7 +789,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Initializer_c n) {
-		if (n.flags().isStatic()) {
+		if (n.flags().flags().isStatic()) {
 			// Ignore -- this will have been processed earlier
 //			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 //			"Static initializers not supported",
@@ -1122,7 +1123,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			}
 			else if (ref instanceof Field_c) {
 				Field_c field = (Field_c)ref;
-				Flags flags = field.flags();
+				Flags flags = field.flags().flags();
 				if (knownSafeFields.contains(field.fieldInstance()))
 					continue;
 //				if (!flags.isStatic() || !flags.isFinal() || !field.type().isPrimitive())
@@ -1137,7 +1138,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 					var = context.getInlineMapping(var);
 				// FIXME: [IP] Why do we need the findVariableSilent call?
 				if ((!context.isGlobalVar(var) || context.isUnbroadcastable(var)) &&
-						context.findVariableSilent(local.name()) != null)
+						context.findVariableSilent(local.name().toString()) != null)
 					return false;
 			}
 			else if (ref instanceof Lit_c) {
@@ -1151,7 +1152,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		Type type = dec.type().type();
 		if (optimizePrimitiveBroadcasts && type.isPrimitive()) {
 			w.write("variable_broadcast(&");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(",");
 			w.allowBreak(0, " ");
 			w.write("sizeof(" + emitter.translateType(type, true) + "))");
@@ -1164,29 +1165,29 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		// No braces -- make sure the code below writes only one statement!
 		if (type.isPrimitive()) {
 			w.write(buf+".write(");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(");");
 		} else if (((X10TypeSystem) tr.typeSystem()).isValueType(type)) {
 			w.write("x10::serialize_value_type("+buf+",");
 			w.allowBreak(0, " ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write("); "+"/"+"*"+" Serialize value ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(" "+"*"+"/");
 		} else {
 			w.write(buf+".write(");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write("); "+"/"+"*"+" Serialize reference ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(" "+"*"+"/");
 		}
 		w.end(); w.newline();
 		w.write("buffer_broadcast("+buf+"); "+"/"+"*"+" Broadcast ");
-		w.write(mangled_non_method_name(dec.id().id()));
+		w.write(mangled_non_method_name(dec.name().id().toString()));
 		w.write(" "+"*"+"/"); w.newline();
 		w.write("if (__here__ != 0)");
 		w.newline(4); w.begin(0);
-		w.write(mangled_non_method_name(dec.id().id()));
+		w.write(mangled_non_method_name(dec.name().id().toString()));
 		w.write(" = ");
 		// No braces -- make sure the code below writes only one statement!
 		if (type.isPrimitive()) {
@@ -1194,12 +1195,12 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		} else if (((X10TypeSystem) tr.typeSystem()).isValueType(type)) {
 			w.write("x10::deserialize_value_type<"+ emitter.translateType(type, false)+" >(");
 			w.write(buf+"); "+"/"+"*"+" Deserialize value ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(" "+"*"+"/");
 		} else {
 			w.write(buf+".read<"+ emitter.translateType(type, true)+" >(); ");
 			w.write("/"+"*"+" Deserialize reference ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(" "+"*"+"/");
 		}
 		w.end(); w.newline();
@@ -1228,7 +1229,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			// [IP] The condition below is too strict.
 			// We can also have global vars inside conditionals.
 //			((X10Context_c)context.pop()).isCode() &&
-			context.finish_depth == 0 && dec.flags().isFinal();
+			context.finish_depth == 0 && dec.flags().flags().isFinal();
 		boolean isSPMD = false;
 		boolean isDistributed = false;
 		// FIXME: [IP] This will ignore casts on SPMD array initializers.
@@ -1244,7 +1245,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			assert (query.isX10Array(dec.type().type()));
 			base_type = init.arrayBaseType().type();
 			isSPMD = query.isMainMethod(context) && context.finish_depth == 0 &&
-								dec.flags().isFinal() && isUnique(init.distribution());
+								dec.flags().flags().isFinal() && isUnique(init.distribution());
 			isDistributed = query.isMainMethod(context) && context.finish_depth == 0 &&
 								!isLocal(init.distribution());
 			if (isSPMD) {
@@ -1273,7 +1274,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			//w.write("const ");
 			emitter.printType(base_type, w);
 			w.write(" ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.end();
 		} else {
 			emitter.printHeader(dec, w, tr, true);
@@ -1294,7 +1295,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		if (separateInit) {
 			if (globalInit)
 				emitter.enterSPMD(dec,w);
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 		}
 
 		// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
@@ -1335,7 +1336,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				w.write(";");
 				w.newline();
 				w.write("x10lib::Reduce(&");
-				w.write(mangled_non_method_name(dec.id().id()));
+				w.write(mangled_non_method_name(dec.name().id().toString()));
 				w.write(");");
 				w.newline();
 				w.write("x10lib::FinishReduceAll<"+base_type+",x10::"+reduction.name()+"<"+base_type+" > >();");
@@ -1402,7 +1403,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			// refer to this variable (it is a local
 			// declaration). So this translation is
 			// semantically correct. [Krishna]
-			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.id().id()), w);
+			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);
 			emitter.enterSPMD(dec, w);
 			broadcastGlobalVariable(dec);
 		}
@@ -1417,17 +1418,17 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 			// refer to this variable (it is a local
 			// declaration). So this translation is
 			// semantically correct. [Krishna]
-			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.id().id()), w);
+			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);
 //			leaveSPMD(dec); // FIXME: check with Krishna which one of these is correct
 		}
 		// See above note about xlC.
 		if (isGlobal) {
 			w.write(emitter.translateType(getOuterClass(context)) + "::");
 			w.write(GLOBAL_STATE+".");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(" =");
 			w.allowBreak(2, " ");
-			w.write(mangled_non_method_name(dec.id().id()));
+			w.write(mangled_non_method_name(dec.name().id().toString()));
 			w.write(";");
 			w.newline(0);
 		}
@@ -2090,7 +2091,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		boolean isSPMDTarget = context.isSPMDVar(a_var);
 		ReferenceType x_l_RemoteDoubleArrayCopier = null;
 		try {
-			x_l_RemoteDoubleArrayCopier = (ReferenceType) xts.forName("x10.lang.RemoteDoubleArrayCopier");
+			x_l_RemoteDoubleArrayCopier = (ReferenceType) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
 			assert (xts.isX10Array(array.type()) &&
 					xts.isSubtype(xts.baseType(array.type()),
 							x_l_RemoteDoubleArrayCopier));
@@ -2258,16 +2259,16 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 //		enterSPMD(n);
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 		MethodInstance mi = n.methodInstance();
-		if (WARN_NONSPMD_EXTERN && mi.flags().isNative() &&
+		if (WARN_NONSPMD_EXTERN && mi.flags().flags().isNative() &&
 				query.isMainMethod(context) && context.inplace0)
 		{
 			// TODO: don't warn if extern method annotated @pure
 			if (knownIgnoredExternMethods.size() == 0) {
 				try {
-					ReferenceType j_l_System = (ReferenceType) xts.forName("java.lang.System");
+					ReferenceType j_l_System = (ReferenceType) xts.forName(QName.make("java.lang.System"));
 					knownIgnoredExternMethods.add(xts.findMethod(j_l_System, "nanoTime", Collections.EMPTY_LIST, context.currentClass()));
 					knownIgnoredExternMethods.add(xts.findMethod(j_l_System, "currentTimeMillis", Collections.EMPTY_LIST, context.currentClass()));
-					ReferenceType j_l_Math = (ReferenceType) xts.forName("java.lang.Math");
+					ReferenceType j_l_Math = (ReferenceType) xts.forName(QName.make("java.lang.Math"));
 					Type[] DD = { xts.Double(), xts.Double() };
 					knownIgnoredExternMethods.add(xts.findMethod(j_l_Math, "pow", Arrays.asList(DD), context.currentClass()));
 				} catch (SemanticException e) { assert (false); }
@@ -2313,7 +2314,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 ///////////////////////////////////////////////////
 			emitter.printExplicitTarget(n, target, context, w);
 
-			if (mi.flags().isStatic() ||
+			if (mi.flags().flags().isStatic() ||
 					(target instanceof X10Special_c &&
 							((X10Special_c)target).kind().equals(X10Special_c.SUPER))) {
 				w.write("::");
@@ -2350,9 +2351,9 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		if (requireMangling)
-                        w.write(mangled_method_name(n.id().id()));
+                        w.write(mangled_method_name(n.name().id().toString()));
                 else
-                        w.write(n.id().id());
+                        w.write(n.name().id().toString());
 		w.write("(");
 		if (isPrintf(n)) {
 			assert (n.arguments().size() > 0);
@@ -2463,7 +2464,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				// Handle the target.  Note that if the target is "this" or "super", it will be
 				// handled automatically.
 				String this_id = null;
-				if (!mi.flags().isStatic()) {
+				if (!mi.flags().flags().isStatic()) {
 					VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
 							mi.container(), THIS);
 					context.addVariable(ti);
@@ -2532,7 +2533,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 					w.write(";");
 					w.newline();
 				}
-				if (!mi.flags().isStatic()) {
+				if (!mi.flags().flags().isStatic()) {
 					String type = emitter.translateType(methodContainer, true);
 					w.write(type + " " + SAVED_THIS + " = " + this_id + ";");
 					w.newline();
@@ -2545,7 +2546,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 					Formal_c p = (Formal_c) decl.formals().get(i);
 					Type t = p.type().type();
 					assert (ts.isSubtype(e.type(), t) || e.type().isCastValid(t));
-					String name=mangled_non_method_name(p.name());
+					String name=mangled_non_method_name(p.name().toString());
 					VarInstance shadowed_var = context.findGlobalVarSilent(name);
 					boolean must_rename = shadowed_var != null && globalInit;
 					if (must_rename) {
@@ -2734,7 +2735,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				n.print(target, sw, tr);
 				sw.popCurrentStream();
 			}
-			if (n.fieldInstance().flags().isStatic())
+			if (n.fieldInstance().flags().flags().isStatic())
 				w.write("::");
 			else
 				w.write("->");
@@ -2742,7 +2743,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		} else {
 			Receiver target = n.target();
 			// TODO: capture constant fields as variables
-			if (!n.flags().isStatic()) {
+			if (!n.flags().flags().isStatic()) {
 				X10CPPContext_c c = (X10CPPContext_c) tr.context();
 				if (target instanceof X10Special_c && ((X10Special_c)target).isSelf()) {
 					w.write((context.Self() == null)? "self":context.Self());
@@ -2760,7 +2761,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				w.write(emitter.translateType(n.fieldInstance().container()) + "::");
 			}
 		}
-                w.write(mangled_non_method_name(n.id().id()));
+                w.write(mangled_non_method_name(n.name().id().toString()));
 		w.end();
 	}
 
@@ -2774,7 +2775,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				w.write(emitter.translateType(query.getOuterClass(c)) + "::");
 				w.write(GLOBAL_STATE+".");
 			} else
-				c.saveEnvVariableInfo(n.name());
+				c.saveEnvVariableInfo(n.name().toString());
 		}
 		w.write(c.getCurrentName(var));
 	}
@@ -2869,9 +2870,9 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Id_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (context.requireMangling())
-			w.write("x10__" + n.id());
+			w.write("x10__" + n.id().toString());
 		else
-			w.write(n.id());
+			w.write(n.id().toString());
 	}
 
 
@@ -3050,7 +3051,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		w.write(") {");
 		w.newline(4); w.begin(0);
 		w.write(type); w.write (" ");
-		w.write(mangled_non_method_name(n.formal().id().id()));
+		w.write(mangled_non_method_name(n.formal().name().id().toString()));
 		w.write(" =");
 		w.allowBreak(2, " ");
 		w.write("(" + type + ") " + excVar + ";");
@@ -3140,7 +3141,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				w.newline();
 				emitter.printType(f.type(), w);
 				w.write(" ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(";");
 				w.newline();
 			}
@@ -3158,11 +3159,11 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				w.write(limit[i] + " = " + domain + "->rank(" + i + ")->high();");
 				w.newline();
 				w.write("for (");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" = " + domain + "->rank(" + i + ")->low(); ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" <= " + limit[i] + "; ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write("++) {");
 				w.newline(4); w.begin(0);
 			}
@@ -3219,7 +3220,7 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 		w.write(";");
 		w.newline();
 		emitter.leaveSPMD(n, w);
-		w.write(mangled_non_method_name(form.id().id()));
+		w.write(mangled_non_method_name(form.name().id().toString()));
 		w.write(" = &" + name + "->next();");
 		w.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
@@ -3285,11 +3286,11 @@ public class SPMDCppCodeGenerator extends X10DelegatingVisitor {
 				w.write("for (");
 				emitter.printType(f.type(), w);
 				w.write(" ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" = " + domain + "->rank(" + i + ")->low(); ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" <= " + limit + "; ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write("++) {");
 				w.newline(4); w.begin(0);
 			}

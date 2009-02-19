@@ -141,7 +141,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		VarInstance vi = lookup(name);
 		boolean contains = false;
 		for (int i = 0; i < variables.size(); i++) {
-			if (((VarInstance) variables.get(i)).name().equals(vi.name())) {
+			if (((VarInstance) variables.get(i)).name().toString().equals(vi.name().toString())) {
 				contains = true;
 				break;
 			}
@@ -190,7 +190,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 
 		// If it is a different varInstance but same name then
 		// rename.
-		if (findGlobalVarSilent(var.name()) != null) {
+		if (findGlobalVarSilent(var.name().toString()) != null) {
 			duplicateId.put(var,id);
 		}
 		GlobalVars.add(var);
@@ -214,7 +214,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public VarInstance findGlobalVarSilent(String name) {
 		for (int i = 0; i < GlobalVars.size(); i++) {
 			VarInstance var = (VarInstance)GlobalVars.get(i);
-			if (var.name().equals(name))
+			if (var.name().toString().equals(name))
 				return var;
 		}
 		return null;
@@ -282,10 +282,10 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 			D = getDuplicateId(var).toString();
 		}
 		if (!inlining)
-			return mangled_non_method_name(var.name() + D); 
+			return mangled_non_method_name(var.name().toString() + D); 
 		List names = getRenameMapping(var);
 		if (names == null)
-			return mangled_non_method_name(var.name() + D); 
+			return mangled_non_method_name(var.name().toString() + D); 
 		return mangled_non_method_name((String) names.get(names.size()-1) + D);
 	}
 
@@ -313,9 +313,9 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 //		}
 		for (int i = 0; i < variables.size(); i++) {
 			VarInstance v = (VarInstance) variables.get(i);
-			VarInstance cvi = findVariableInThisScope(v.name());
+			VarInstance cvi = findVariableInThisScope(v.name().toString());
 			if (cvi == null)   // declaration not found 
-				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name());
+				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name().toString());
 		}
 	}
 

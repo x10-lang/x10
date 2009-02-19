@@ -397,7 +397,7 @@ public class Emitter {
 				String type = translateType(t, true);
 				w.write(type + " ");
 			}
-			String name = var.name();
+			String name = var.name().toString();
 			if (name.equals(THIS))
 				name = SAVED_THIS;
 			else
@@ -442,7 +442,7 @@ public class Emitter {
 	}
 
 	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		Flags flags = n.flags();
+		Flags flags = n.flags().flags();
 		if (!qualify) {
 			printFlags(h, flags);
 		}
@@ -458,7 +458,7 @@ public class Emitter {
 		if (qualify)
 			h.write(translateType(n.methodInstance().container()) + "::"); 
 		//n.print(n.id(), h, tr);
-		h.write(mangled_method_name(n.id().id())); 
+		h.write(mangled_method_name(n.name().id().toString())); 
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
@@ -476,7 +476,7 @@ public class Emitter {
 		h.write(")");
 		h.end();
 		if (!qualify) {
-			if (n.body() == null && !n.flags().isNative())
+			if (n.body() == null && !n.flags().flags().isNative())
 				h.write(" = 0");
 			// [IP] I don't like this.  There has to be a better way.
 			if (h.sClass == WriterStreams.StreamClass.Header){
@@ -487,13 +487,13 @@ public class Emitter {
 	}
 
 	void printHeader(Formal_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		Flags flags = n.flags();
+		Flags flags = n.flags().flags();
 		h.begin(0);
 //		if (flags.isFinal())
 //		h.write("const ");
 		printType(n.type().type(), h);
 		h.write(" ");
-		h.write(mangled_non_method_name(n.id().id()));
+		h.write(mangled_non_method_name(n.name().id().toString()));
 		h.end();
 	}
 
@@ -513,7 +513,7 @@ public class Emitter {
 		assert(!n.type().isLocal());
 		if (n.type().isNested() && !n.type().isLocal()) // FIXME: handle local classes
 			h.write(translateType(n.type().container()) + "::");
-		h.write(mangled_non_method_name(n.id().id())); 
+		h.write(mangled_non_method_name(n.name().id().toString())); 
 
 		boolean hasSuper = false;
 		if (n.superClass() != null) {
@@ -567,14 +567,14 @@ public class Emitter {
 
 	void printHeader(ConstructorDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		Flags flags = n.flags();
+		Flags flags = n.flags().flags();
 		if (!qualify) {
 			printFlags(h, flags);
 		}
 		h.begin(0);
 		if (qualify && !context.inLocalClass())
 			h.write(translateType(n.constructorInstance().container()) + "::");
-		h.write(mangled_non_method_name(n.id().id())); 
+		h.write(mangled_non_method_name(n.name().id().toString())); 
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
@@ -597,7 +597,7 @@ public class Emitter {
 		}
 	}
 	void printHeader(FieldDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		Flags flags = n.flags();
+		Flags flags = n.flags().flags();
 		if (!qualify) {
 			printFlags(h, flags);
 		}
@@ -617,7 +617,7 @@ public class Emitter {
 			h.write(translateType(n.fieldInstance().container()) + "::");
 		//h.write("__");  // In Java a field and a method can have
 		//		// the same name. This takes care of it.
-		h.write(mangled_non_method_name(n.id().id())); 
+		h.write(mangled_non_method_name(n.name().id().toString())); 
 		h.end();
 
 		// TODO: Handle initialization of instance fields.
@@ -629,7 +629,7 @@ public class Emitter {
 		}
 	}
 	void printHeader(LocalDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		Flags flags = n.flags();
+		Flags flags = n.flags().flags();
 		h.begin(0);
 		// Let us not generate constants - We will have problem in
 		// initializing away from the place where it is declared.
@@ -639,7 +639,7 @@ public class Emitter {
 			printType(n.type().type(), h);
 			h.write(" ");
 		}
-		h.write(mangled_non_method_name(n.id().id())); 
+		h.write(mangled_non_method_name(n.name().id().toString())); 
 		h.end();
 	}
 	void createPackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id, String prefix) {
@@ -655,7 +655,7 @@ public class Emitter {
 		w.write("{"); w.newline(4); w.begin(0);
 		for (int i = 0; i < c.variables.size(); i++) {
 			VarInstance var = (VarInstance)c.variables.get(i);
-			String name = var.name();
+			String name = var.name().toString();
 			if (name.equals(THIS))
 				name = SAVED_THIS;
 			else
@@ -1146,7 +1146,7 @@ public class Emitter {
 			// TODO: unpackArgs(w, c, parameters, i, prefix);
 			for (int j = 0; j < parameters.size(); j++) {
 				VarInstance p = (VarInstance) parameters.get(j);
-				String name = p.name();
+				String name = p.name().toString();
 				if (name.equals(THIS))
 					name = SAVED_THIS;
 				else
@@ -1214,7 +1214,7 @@ public class Emitter {
 			String type = translateType(t, true);
 			List names = c.getRenameMapping(var);
 			if (names == null) {
-				String name = var.name();
+				String name = var.name().toString();
 				if (name.equals(THIS)) {
 					if (c.inlining || c.insideClosure) // FIXME: Krishna, why did you add this test?
 						name = SAVED_THIS;
@@ -1244,7 +1244,7 @@ public class Emitter {
 				t = query.getX10ArrayElementType(t);
 			}
 			String type = translateType(t, true);
-			String name = var.name();
+			String name = var.name().toString();
 			if (name.equals(THIS))
 				name = SAVED_THIS;
 			else
@@ -1265,7 +1265,7 @@ public class Emitter {
 				w.allowBreak(2, " ");
 			}
 			VarInstance v = (VarInstance)c.variables.get(i);
-			String name = v.name();
+			String name = v.name().toString();
 			if (name.equals(THIS)) {
 				if (c.inlining || c.insideClosure)
 					name = SAVED_THIS;
@@ -1327,7 +1327,7 @@ public class Emitter {
 
 		// _serialize()
 		h.write("public: ");
-		if (!type.flags().isFinal())
+		if (!type.flags().flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+SERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) "+
 		"{ x10::_serialize_ref(this, buf, m); }");
@@ -1335,7 +1335,7 @@ public class Emitter {
 
 		// _serialize_fields()
 		h.write("public: ");
-		if (!type.flags().isFinal())
+		if (!type.flags().flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m);"); h.newline(0);
 		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) {");
@@ -1348,7 +1348,7 @@ public class Emitter {
 			if (i != 0)
 				w.newline();
 			FieldInstance f = (FieldInstance) type.fields().get(i);
-			if (f.flags().isStatic() || query.isSyntheticField(f.name()))
+			if (f.flags().flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
 			if (f.type().isPrimitive()) {
 				w.write("buf.write(this->"+"x10__"+f.name()+");"); w.newline();
@@ -1369,7 +1369,7 @@ public class Emitter {
 
 		// _deserialize()
 		h.write("public: ");
-		if (!type.flags().isFinal())
+		if (!type.flags().flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf);"); h.newline(0);
 		w.write("void "+klass+"::"+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
@@ -1378,7 +1378,7 @@ public class Emitter {
 			if (i != 0)
 				w.newline();
 			FieldInstance f = (FieldInstance) type.fields().get(i);
-			if (f.flags().isStatic() || query.isSyntheticField(f.name()))
+			if (f.flags().flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
 			if (f.type().isPrimitive()) {
 				w.write("this->"+"x10__"+f.name()+" = buf.read<"+translateType(f.type())+" >();");

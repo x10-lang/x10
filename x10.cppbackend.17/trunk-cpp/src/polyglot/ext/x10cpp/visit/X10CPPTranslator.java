@@ -266,7 +266,7 @@ public class X10CPPTranslator extends Translator {
 
 			if (sfn.package_() != null) {
 				Package p = sfn.package_().package_();
-				pkg = p.fullName();
+				pkg = p.fullName().toString();
 			}
 			
 			 // Use the source name to derive a default output file name.
@@ -279,7 +279,7 @@ public class X10CPPTranslator extends Translator {
 				StreamWrapper sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
 						outputWidth, wstreams);
 				writeHeader(sfn, sw);
-			  opfPath = tf.outputName(pkg, decl.name());
+			  opfPath = tf.outputName(pkg, decl.name().toString());
 			  if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
 			  translateTopLevelDecl(sw, sfn, decl); 
 				writeFooter(sfn, sw);
@@ -455,8 +455,8 @@ public class X10CPPTranslator extends Translator {
 		}
 		for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 			TopLevelDecl decl = (TopLevelDecl) i.next();
-			if (decl.flags().isPublic()) {
-				h.write("class "+Emitter.mangled_non_method_name(decl.name())+";");
+			if (decl.flags().flags().isPublic()) {
+				h.write("class "+Emitter.mangled_non_method_name(decl.name().toString())+";");
 				h.newline();
 			}
 		}
