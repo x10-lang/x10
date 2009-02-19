@@ -1322,10 +1322,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
-		Expr initcasts = dec.init();
-		Expr initexpr = initcasts;
-		while (initexpr instanceof X10Cast_c)
-			initexpr = ((X10Cast_c)initexpr).expr();
+		//Expr initcasts = dec.init();
+		Expr initexpr = dec.init();
+		//while (initexpr instanceof X10Cast_c)
+		//	initexpr = ((X10Cast_c)initexpr).expr();
 		Type base_type = null;
 		emitter.printHeader(dec, w, tr, true);
 		
@@ -1333,19 +1333,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// xlC, for some reason, really doesn't like v1 = v2 = v3.  v1 gets the wrong value.
 		// So work around this by turning the above into v1 = v3; v2 = v1.
 		// FIXME: Need to handle nullable cast in this situation.
-		X10Cast_c castExpr = null;
+		//X10Cast_c castExpr = null;
 		if (initexpr != null) {
 			w.write(" =");
 			w.allowBreak(2, " ");
-			Expr e = initcasts;
-			while (e instanceof X10Cast_c) {
-				X10Cast_c n = (X10Cast_c) e;
-				castExpr = n;
-				w.write("("+emitter.translateType(n.castType().type(), true)+")");
-				w.allowBreak(2, " ");
-				e = n.expr();
-			}
-			assert (e == initexpr);
+			//Expr e = initcasts;
+			//while (e instanceof X10Cast_c) {
+			//	X10Cast_c n = (X10Cast_c) e;
+			//	castExpr = n;
+			//	w.write("("+emitter.translateType(n.castType().type(), true)+")");
+			//	w.allowBreak(2, " ");
+			//	e = n.expr();
+			//}
+			//assert (e == initexpr);
 			// TODO: [IP] Combine finish calls for consecutive reductions
 			{
 				sw.pushCurrentStream(w);
@@ -1363,7 +1363,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// refer to this variable (it is a local
 			// declaration). So this translation is
 			// semantically correct. [Krishna]
-			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);  
+
+            // No.
+
+			//emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);  
 
 		}
 		// See above note about xlC.
@@ -1993,60 +1996,78 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Original code picked up from
 		// x10.compiler.p3/.../X10PrettyPrinter.java and mouled
 		// onto the cppbackend requirements. [Krishna]
+        // [DC] now commented out to use a c++ function
 		String castVar = null;
-	        TypeNode tn = c.castType();
-	        assert tn instanceof CanonicalTypeNode;
+        TypeNode tn = c.castType();
+        assert tn instanceof CanonicalTypeNode;
 	        
-	        switch (c.conversionType()) {
-	        case COERCION:
-	        case PRIMITIVE:
-	        case TRUNCATION:
-	            if (tn instanceof X10CanonicalTypeNode) {
-	                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
-
-	                Type t = X10TypeMixin.baseType(xtn.type());
-	                DepParameterExpr dep = xtn.constraintExpr();
-
-	                if (dep == null && (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t))) {
-	                    w.begin(0);
-	                    // put (Type) 
-	                    w.write("(");
-			    emitter.printType(t, w); 
-	                    w.write(")");
-			    w.allowBreak(2, " ");
-			    sw.pushCurrentStream(w);
-			    c.printSubExpr(c.expr(), true, sw, tr);
-			    sw.popCurrentStream();
-			    w.end();
-			    break;
-	                }
-			// else
-			// dep != null or dep == null but not primitive nor subtype.
-			w.write("({");
-			w.newline(4);
-			w.begin(0);
-			emitter.printType(t, w); 
-			w.write(" ");
-			castVar = getId();
-			w.write(castVar);
-			w.write (" = ");
-			w.allowBreak(2, " ");
-			sw.pushCurrentStream(w);
-			c.printSubExpr(c.expr(), true, sw, tr);
-			sw.popCurrentStream();
-			w.end();
-			w.write(";");
-			if (dep != null) {
-				emitter.handleX10Cast(c, castVar, w);
-			} 
-			w.write( castVar + "; ");
-			w.write("})");
-	            }
-	            else {
-	                throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
-	            }
-	            break;
+        switch (c.conversionType()) {
+            case PRIMITIVE:
+            case COERCION:
+            case TRUNCATION:
 	        case BOXING:
+            case UNBOXING:
+            
+            if (tn instanceof X10CanonicalTypeNode) {
+
+                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+
+                Type t = X10TypeMixin.baseType(xtn.type());
+
+                w.write("x10aux::class_cast<");
+                emitter.printType(t, w); 
+                w.write(" >(");
+                sw.pushCurrentStream(w);
+                c.printSubExpr(c.expr(), true, sw, tr);
+                sw.popCurrentStream();
+                w.write(")");
+
+
+/*
+                DepParameterExpr dep = xtn.constraintExpr();
+
+                if (dep == null && (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t))) {
+                    w.begin(0);
+                    // put (Type) 
+                    w.write("(");
+                    emitter.printType(t, w); 
+                    w.write(")");
+                    w.allowBreak(2, " ");
+                    sw.pushCurrentStream(w);
+                    c.printSubExpr(c.expr(), true, sw, tr);
+                    sw.popCurrentStream();
+                    w.end();
+                    break;
+                }
+                // else
+                // dep != null or dep == null but not primitive nor subtype.
+                w.write("({");
+                w.newline(4);
+                w.begin(0);
+                emitter.printType(t, w); 
+                w.write(" ");
+                castVar = getId();
+                w.write(castVar);
+                w.write (" = ");
+                w.allowBreak(2, " ");
+                sw.pushCurrentStream(w);
+                c.printSubExpr(c.expr(), true, sw, tr);
+                sw.popCurrentStream();
+                w.end();
+                w.write(";");
+                if (dep != null) {
+                    emitter.handleX10Cast(c, castVar, w);
+                } 
+                w.write( castVar + "; ");
+                w.write("})");
+*/
+
+            } else {
+                throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
+            }
+            break;
+
+	        //case BOXING:
 //	            if (c.expr() instanceof X10Cast) {
 //	                // check for rebox
 //	                X10Cast e = (X10Cast) c.expr();
@@ -2065,9 +2086,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //	                }
 //	            }
 //	            // ((Box<T>) Box.make(TYPE, v))
- //                   w.write("x10.types.Types.<");
-  //                  printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-   //                 w.write(">javacast(");
+//                  w.write("x10.types.Types.<");
+//                  printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+//                  w.write(">javacast(");
 //	            w.write("x10.core.Box.make(");
 //	            new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
 //	            w.write(", ");
@@ -2075,24 +2096,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //	            w.write(")");
 //	            w.write(")");
 //	            break;
-	        case UNBOXING:
+        //case UNBOXING:
 //	            // Box.unbox((Box<T>) v)
 //	            w.write("x10.core.Box.unbox(");
- //                   w.write("x10.types.Types.<x10.core.Box<");
-  //                  printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-   //                 w.write(">>javacast(");
+//                    w.write("x10.types.Types.<x10.core.Box<");
+//                    printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+//                    w.write(">>javacast(");
 //	            tr.print(c, c.expr(), w);
 //	            w.write(")");
 //	            break;
 
 		// FIXME: Handle boxing and unboxing. Need generics?
 //		assert (false);
-		break;
-	        case UNKNOWN_CONVERSION:
-	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-	        case CALL:
-	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
-	        }
+            //break;
+        case UNKNOWN_CONVERSION:
+            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+        case CALL:
+            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
+        }
 	}
 
 	public void visit(X10Instanceof_c n) {

@@ -451,7 +451,8 @@ public class Emitter {
 		} else if (type instanceof ParameterType){
 			return type.toString(); // parameter types shouldn't be refs
 		} else 
-			assert false; // unhandled type.
+			assert false:type; // unhandled type.
+        assert(name!=null);
 		name = translateFQN(name);
 		if (!asRef)
 			return name;
