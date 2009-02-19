@@ -376,7 +376,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		context.hasInits = false;
 
 		if (hasNativeMethods(n.body().members())) {
-			w.write("#include \"" + X10ClassBodyExt_c.wrapperFileName(n.classDef().asType().toReference()) + "\"");
+			w.write("#include <" + X10ClassBodyExt_c.wrapperFileName(n.classDef().asType().toReference()) + ">");
 			w.newline();
 		}
 		ClassifiedStream h;
@@ -670,10 +670,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (query.isMainMethod(dec))
 		{
 			Type container = dec.methodDef().asInstance().container();
-			if (ignoreExceptions)
-				xcdProcessor.new Template("MainMP_noexc", emitter.translateType(container)).expand();
-			else 
-				xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
+			xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
 			h.write("public : static void main_np0();");
 			h.newline();
 		}
@@ -1417,7 +1414,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String pat = getCppImplForDef(mi.x10Def());
 		if (pat != null) {
-			emitNativeAnnotation(pat, mi.typeParameters(), n.arguments());
+			emitNativeAnnotation(pat, mi.typeParameters(), target, n.arguments());
 			return;
 		}
 		w.begin(0);
@@ -2789,7 +2786,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    	String pat = getCppImplForDef(mi.x10Def());
 	    	if (pat != null) {
-	    		emitNativeAnnotation(pat, mi.typeParameters(), args);
+	    		emitNativeAnnotation(pat, mi.typeParameters(), array, args);
 	    		return;
 	    	} 
 	        // otherwise emit the hardwired code.
@@ -2970,9 +2967,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		return null;
 
 	}
-	private void emitNativeAnnotation(String pat, List<Type> types, List<Expr> args) {
+	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args) {
 		 Object[] components = new Object[1+3*types.size() + args.size()];
-		 components[0] = "";
+		 assert (receiver != null);
+		 components[0] = receiver;
 		    int i = 1;
 
 		    for (Type at : types) {
@@ -2984,7 +2982,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    for (Expr e : args) {
 		        components[i++] = e;
 		    }
-		    String pi = translate_mangled_NSFQN(pat);
+		    String pi = pat;
 		    if (!pi.contains("#")){
 			X10CPPContext_c c = (X10CPPContext_c) tr.context();
 			c.pendingImplicitImports.add(pi);

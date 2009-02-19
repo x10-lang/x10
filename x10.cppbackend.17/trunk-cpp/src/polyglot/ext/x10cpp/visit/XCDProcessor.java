@@ -66,11 +66,7 @@ public class XCDProcessor {
 			return cached;
 		try {
 			String rname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id + ".xcd"; // xcd = x10 compiler data/definition
-			InputStream is ;
-			/*if (polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION)
-				is = SPMDCppCodeGenerator.class.getClassLoader().getResourceAsStream(rname);
-			else*/
-				is = MessagePassingCodeGenerator.class.getClassLoader().getResourceAsStream(rname);
+			InputStream is = XCDProcessor.class.getClassLoader().getResourceAsStream(rname);
 			if (is == null)
 				throw new IOException("Cannot find resource '"+rname+"'");
 			byte[] b = new byte[is.available()];
@@ -123,16 +119,24 @@ public class XCDProcessor {
 				w.newline(0);
 				start = pos+1;
 			}
-			else
+			else if (regex.charAt(pos) == '#') {
+				w.write(regex.substring(start, pos));
+				pos++;
 				if (regex.charAt(pos) == '#') {
-					w.write(regex.substring(start, pos));
-					Integer idx = new Integer(regex.substring(pos+1,pos+2));
-					pos++;
+					w.write("#");
 					start = pos+1;
+				} else if (Character.isDigit(regex.charAt(pos))) {
+					int end = pos+1;
+					while (Character.isDigit(regex.charAt(end)))
+						end++;
+					Integer idx = new Integer(regex.substring(pos, end));
+					start = end;
 					if (idx.intValue() >= components.length)
 						throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
 					prettyPrint(components[idx.intValue()]);
-				}
+				} else
+					throw new InternalCompilerError("Template '"+id+"' has a lone '#'");
+			}
 			pos++;
 		}
 		w.write(regex.substring(start));

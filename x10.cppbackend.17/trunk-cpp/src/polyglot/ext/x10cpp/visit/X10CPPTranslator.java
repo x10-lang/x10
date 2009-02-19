@@ -32,6 +32,10 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 
+import polyglot.ext.x10.ast.TypeDecl;
+import polyglot.ext.x10.ast.TypeParamNode;
+import polyglot.ext.x10.ast.X10ClassDecl;
+
 import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.frontend.Compiler;
@@ -322,6 +326,7 @@ public class X10CPPTranslator extends Translator {
 		WriterStreams wstreams = sw.ws;
 		X10CPPContext_c context = (X10CPPContext_c) this.context();
 		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
+		Emitter emitter = new Emitter(sw, this);
 		for (Iterator k = context.classesWithArrayCopySwitches.keySet().iterator(); k.hasNext(); ) {
 			ClassType ct = (ClassType) k.next();
 			if (ct.isNested())
@@ -349,20 +354,23 @@ public class X10CPPTranslator extends Translator {
 
 		w.write("extern \"C\" {");
 		w.newline(4); w.begin(0);
-		w.write("void* ArrayCopySwitch(x10_async_handler_t h, void* __arg) {");
+		w.write(VOID_PTR+" "+ARRAY_COPY_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
 		w.newline(4); w.begin(0);
+		w.write("uint32_t h = cl->handler;");
+		w.newline();
 		w.write("switch (h) {");
 		w.newline(4); w.begin(0);
 		// FIXME: Replace with Java 5 loop. 
 		for (Iterator k = context.classesWithArrayCopySwitches.keySet().iterator(); k.hasNext(); ) {
-			String className = (String) k.next();
-			int[] async_ids = (int[]) context.classesWithArrayCopySwitches.get(className);
+			ClassType ct = (ClassType) k.next();
+			int[] async_ids = (int[]) context.classesWithArrayCopySwitches.get(ct);
+			String className = emitter.translateType(ct);
 			for (int i = 0; i < async_ids.length; i++) {
 				w.write("case "+async_ids[i]+":");
 				w.newline();
 			}
 			w.newline(4); w.begin(0);
-			w.write("return "+className+"::ArrayCopySwitch(h, __arg);");
+			w.write("return "+className+"::"+ARRAY_COPY_SWITCH+"(cl, clocks, num_clocks);");
 			w.end(); w.newline();
 		}
 		w.end(); w.newline();
@@ -372,19 +380,22 @@ public class X10CPPTranslator extends Translator {
 		w.end(); w.newline();
 		w.write("}"); w.newline();
 
-		w.write("void AsyncSwitch(x10_async_handler_t h, void* arg, int niter) {");
+		w.write(VOID+" "+ASYNC_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
 		w.newline(4); w.begin(0);
+		w.write("uint32_t h = cl->handler;");
+		w.newline();
 		w.write("switch (h) {");
 		w.newline(4); w.begin(0);
 		for (Iterator k = context.classesWithAsyncSwitches.keySet().iterator(); k.hasNext(); ) {
-			String className = (String) k.next();
-			int[] async_ids = (int[]) context.classesWithAsyncSwitches.get(className);
+			ClassType ct = (ClassType) k.next();
+			int[] async_ids = (int[]) context.classesWithAsyncSwitches.get(ct);
+			String className = emitter.translateType(ct);
 			for (int i = 0; i < async_ids.length; i++) {
 				w.write("case "+async_ids[i]+":");
 				w.newline();
 			}
 			w.newline(4); w.begin(0);
-			w.write(className+"::AsyncSwitch(h, arg, niter);");
+			w.write(className+"::"+ASYNC_SWITCH+"(cl, clocks, num_clocks);");
 			w.newline();
 			w.write("break;");
 			w.end(); w.newline();
@@ -411,15 +422,15 @@ public class X10CPPTranslator extends Translator {
 		h.write("#ifndef __"+guard); h.newline();
 		h.write("#define __"+guard); h.newline();
 		h.forceNewline(0);
-		h.write("#include <x10lang.h>"); h.newline();
+		h.write("#include <x10rt17.h>"); h.newline();
 		h.forceNewline(0);
 
-		w.write("#include \""+wstreams.getHeader().getName()+"\""); w.newline();
-		//w.write("#include \""+wstreams.getFile(WriterStreams.StreamClass.Header).getName()+"\""); w.newline();
+		w.write("#include <"+wstreams.getHeader().getName()+">"); w.newline();
+		//w.write("#include <"+wstreams.getFile(WriterStreams.StreamClass.Header).getName()+">"); w.newline();
 		w.forceNewline(0);
-		w.write("using namespace x10;"); w.newline();
-		w.write("using namespace x10::lang;"); w.newline();
-		w.write("using namespace x10::core::fun;"); w.newline();
+		//w.write("using namespace x10;"); w.newline();
+		//w.write("using namespace x10::lang;"); w.newline();
+		//w.write("using namespace x10::core::fun;"); w.newline();
 		w.forceNewline(0);
 
 		boolean newline = false;
@@ -447,8 +458,8 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 
-		w.write("static "+make_ref("Exception")+" EXCEPTION = NULL;"); w.newline();
-		w.write("#include \""+wstreams.getFile(WriterStreams.StreamClass.Closures).getName() + "\""); w.newline();
+		//w.write("static "+make_ref("Exception")+" EXCEPTION = NULL;"); w.newline();
+		w.write("#include <"+wstreams.getFile(WriterStreams.StreamClass.Closures).getName() + ">"); w.newline();
 		w.forceNewline(0);
 
 		if (sfn.package_() != null) {
@@ -497,8 +508,26 @@ public class X10CPPTranslator extends Translator {
 		for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 			TopLevelDecl decl = (TopLevelDecl) i.next();
 			if (decl.flags().flags().isPublic()) {
-				h.write("class "+Emitter.mangled_non_method_name(decl.name().toString())+";");
-				h.newline();
+				if (decl instanceof X10ClassDecl) {
+					X10ClassDecl cd = (X10ClassDecl) decl;
+					if (cd.typeParameters().size() > 0) {
+						h.write("template <");
+						String sep = "";
+						for (TypeParamNode tn : cd.typeParameters()) {
+							h.write(sep);
+							sep = ", ";
+							h.write("class ");
+							h.write(tn.name().toString());
+						}
+						h.write("> ");
+					}
+					h.write("class "+Emitter.mangled_non_method_name(decl.name().toString())+";");
+					h.newline();
+				} else if (decl instanceof TypeDecl) {
+					// do nothing
+				} else {
+					assert(false);
+				}
 			}
 		}
 		if (sfn.package_() != null) {
