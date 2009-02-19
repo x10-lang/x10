@@ -106,13 +106,14 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		    }
 		}
 		@Override
-		public List<Goal> goals(Job job) {
-			List<Goal> res = super.goals(job);
-			InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
-			StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
-			CodeGenerated(job).addPrereq(NewCodeGenBarrier());
-			return res;
-		}
+        public List<Goal> goals(Job job) {
+            List<Goal> res = super.goals(job);
+            InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
+            StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
+            CodeGenerated(job).addPrereq(NewCodeGenBarrier());
+            CodeGenerated(job).addPrereq(Desugarer(job));
+            return res;
+        }
 	}
 
 	// TODO: [IP] Override targetFactory() (rather, add createTargetFactory to polyglot)
@@ -121,3 +122,4 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		return new X10CPPCompilerOptions(this);
 	}
 }
+// vim:tabstop=4:shiftwidth=4:expandtab
