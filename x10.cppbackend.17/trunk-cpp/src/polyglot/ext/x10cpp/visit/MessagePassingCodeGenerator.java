@@ -771,47 +771,60 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// TODO: sort by namespace and combine things in the same namespace
 		X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
 		n.visit(xTypes);
+        ArrayList<ClassType> types = new ArrayList<ClassType>();
+        Set<ClassType> dupes = new HashSet<ClassType>();
+        dupes.add(def.asType());
 		if (xTypes.found()) {
 		    ArrayList typeNodes = xTypes.getMatches();
-		    ArrayList<ClassType> types = new ArrayList<ClassType>();
-		    Set<ClassType> dupes = new HashSet<ClassType>();
-		    dupes.add(def.asType());
 		    for (int i = 0; i < typeNodes.size(); i++) {
 		        X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
-		        Type type = t.type();
-		        extractAllClassTypes(type, types, dupes);
+		        extractAllClassTypes(t.type(), types, dupes);
 		    }
-		    for (ClassType ct : types) {
-		        X10ClassDef cd = (X10ClassDef) ct.def();
-		        if (cd == def)
-		            continue;
-		        String cpp = getCppRep(cd);
-		        if (cpp != null)
-		            continue;
-		        if (!allIncludes.contains(ct)) {
-		            declareClass(cd, h);
-		            allIncludes.add(ct);
-		        }
-		    }
+        }
+        X10ClassType superClass = (X10ClassType) def.asType().superClass();
+        if (superClass != null) {
+            for (Name mname : getMethodNames(n.body().members())) {
+                List<MethodInstance> overriddenOverloads = getOROLMeths(mname, superClass);
+                for (MethodInstance mi : overriddenOverloads) {
+                    extractAllClassTypes(mi.returnType(), types, dupes);
+                    for (Type t : mi.formalTypes())
+                        extractAllClassTypes(t, types, dupes);
+                    for (Type t : mi.throwTypes())
+                        extractAllClassTypes(t, types, dupes);
+                }
+            }
+        }
 
-		    ArrayList<String> nsHistory = new ArrayList<String>();
-		    for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
-		        Import_c in = (Import_c) is.next();
-		        QName nsName = in.name();
-		        if (in.kind() == Import_c.CLASS) {
-		            // [DC] couldn't we define a local typedef to represent this x10 concept?
-		            nsName = nsName.qualifier();
-		        } else {
-		            assert (in.kind() == Import_c.PACKAGE);
-		        }
-		        emitter.emitUniqueNS(nsName, nsHistory, h);
-		        h.newline();
-		    }
-		    context.pendingImports.clear();  // Just processed all imports - clean up
-		    QName x10_lang = xts.Object().toClass().fullName().qualifier();
-		    emitter.emitUniqueNS(x10_lang, nsHistory, h);
-		    h.newline();
-		}
+        for (ClassType ct : types) {
+            X10ClassDef cd = (X10ClassDef) ct.def();
+            if (cd == def)
+                continue;
+            String cpp = getCppRep(cd);
+            if (cpp != null)
+                continue;
+            if (!allIncludes.contains(ct)) {
+                declareClass(cd, h);
+                allIncludes.add(ct);
+            }
+        }
+
+        ArrayList<String> nsHistory = new ArrayList<String>();
+        for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
+            Import_c in = (Import_c) is.next();
+            QName nsName = in.name();
+            if (in.kind() == Import_c.CLASS) {
+                // [DC] couldn't we define a local typedef to represent this x10 concept?
+                nsName = nsName.qualifier();
+            } else {
+                assert (in.kind() == Import_c.PACKAGE);
+            }
+            emitter.emitUniqueNS(nsName, nsHistory, h);
+            h.newline();
+        }
+        context.pendingImports.clear();  // Just processed all imports - clean up
+        QName x10_lang = xts.Object().toClass().fullName().qualifier();
+        emitter.emitUniqueNS(x10_lang, nsHistory, h);
+        h.newline();
 		h.forceNewline(0);
 		if (def.package_() != null) {
 		    QName pkgName = def.package_().get().fullName();
@@ -979,7 +992,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         return ct;
     }
 
-	public void visit(ClassBody_c n) {
+    private ArrayList<Name> getMethodNames(List<ClassMember> members) {
+        ArrayList<Name> mnames = new ArrayList<Name>();
+        Set<Name> dupes = new HashSet<Name>();
+        for (ClassMember member : members) {
+            if (!(member instanceof X10MethodDecl)) continue;
+            X10MethodDecl mdcl = (X10MethodDecl) member;
+            Name mname = mdcl.name().id();
+            if (dupes.contains(mname)) continue;
+            MethodDef md = mdcl.methodDef();
+            MethodInstance mi = md.asInstance();
+            if (mi.flags().isStatic()) continue;
+            dupes.add(mname);
+            mnames.add(mname);
+        }
+        return mnames;
+    }
+
+    public void visit(ClassBody_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10ClassType currentClass = (X10ClassType) context.currentClass();
         X10ClassType superClass = (X10ClassType) currentClass.superClass();
@@ -1039,19 +1069,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // generate proxy methods for an overridden method's superclass overloads
             if (superClass != null) {
                 // first gather a set of all the method names in the current class
-                ArrayList<Name> mnames = new ArrayList<Name>();
-                Set<Name> dupes = new HashSet<Name>();
-                for (ClassMember member : members) {
-                    if (!(member instanceof X10MethodDecl)) continue;
-                    X10MethodDecl mdcl = (X10MethodDecl) member;
-                    Name mname = mdcl.name().id();
-                    if (dupes.contains(mname)) continue;
-                    MethodDef md = mdcl.methodDef();
-                    MethodInstance mi = md.asInstance();
-                    if (mi.flags().isStatic()) continue;
-                    dupes.add(mname);
-                    mnames.add(mname);
-                }
+                ArrayList<Name> mnames = getMethodNames(members);
 
                 X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
                 // then, for each one
@@ -1092,29 +1110,60 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             emitter.printType(replaceType(formal, typeMap), h);
                             h.write(" p"+counter++);
                         }
-                        h.write(") {"); h.newline(4); h.begin(0);
+                        h.write(");"); h.newline();
 
-                        if (!dropzone.returnType().isVoid())
-                            h.write("return ");
-                        h.write(emitter.translateType(superClass, false) +
+                        emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+                        emitter.printTemplateSignature(newTypeParameters, sw);
+                        emitter.printType(replaceType(dropzone.returnType(), typeMap), sw);
+                        sw.write(" " + emitter.translateType(currentClass, false) +
                                 "::" + mangled_method_name(mname.toString()));
-                        if (newTypeParameters.size() != 0) {
-                            String prefix = "<";
-                            for (Type t : newTypeParameters) {
-                                h.write(prefix);
-                                h.write(emitter.translateType(t));
-                                prefix = ",";
-                            }
-                            h.write(">");
-                        }
                         counter = 0;
                         for (Type formal : formals) {
-                            h.write(counter == 0 ? "(" : ", ");
-                            h.write("p" + (counter++));
+                            sw.write(counter == 0 ? "(" : ", ");
+                            emitter.printType(replaceType(formal, typeMap), sw);
+                            sw.write(" p"+counter++);
                         }
-                        h.write(");"); h.end(); h.newline();
+                        sw.write(") {"); sw.newline(4); sw.begin(0);
+                        if (!dropzone.returnType().isVoid())
+                            sw.write("return ");
+                        String pat = getCppImplForDef(dropzone.x10Def());
+                        if (pat != null) { // TODO: merge with emitNativeAnnotation
+                            // FIXME: casts!
+                            Object[] components = new Object[1+3*newTypeParameters.size() + formals.size()];
+                            components[0] = "this";
+                            int i = 1;
+                            for (Type at : newTypeParameters) {
+                                components[i++] = at;
+                                components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+                                components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+                            }
+                            counter = 0;
+                            for (Type formal : formals) {
+                                components[i++] = "p" + (counter++);
+                            }
+                            emitter.dumpRegex("Native", components, tr, pat, sw);
+                        } else {
+                            sw.write(emitter.translateType(superClass, false) +
+                                    "::" + mangled_method_name(mname.toString()));
+                            if (newTypeParameters.size() != 0) {
+                                String prefix = "<";
+                                for (Type t : newTypeParameters) {
+                                    sw.write(prefix);
+                                    sw.write(emitter.translateType(t));
+                                    prefix = ",";
+                                }
+                                sw.write(">");
+                            }
+                            counter = 0;
+                            for (Type formal : formals) {
+                                sw.write(counter == 0 ? "(" : ", ");
+                                sw.write("p" + (counter++));
+                            }
+                            sw.write(")");
+                        }
+                        sw.write(";"); sw.end(); sw.newline();
 
-                        h.write("}"); h.newline();
+                        sw.write("}"); sw.newline();
                     }
                 }
             }
@@ -3345,7 +3394,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args) {
 		 Object[] components = new Object[1+3*types.size() + args.size()];
 		 assert (receiver != null);
-		 components[0] = receiver;
+         components[0] = receiver;
+         if (receiver instanceof X10Special_c && ((X10Special_c)receiver).kind() == X10Special_c.SUPER)
+             pat = pat.replaceAll("\\(#0\\)->", "#0::"); // FIXME: HACK
 
          int i = 1;
 		 for (Type at : types) {
@@ -3356,7 +3407,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		 for (Expr e : args) {
 			 components[i++] = e;
 		 }
-		 String pi = pat;
 		 emitter.dumpRegex("Native", components, tr, pat, sw);
 	}
 
