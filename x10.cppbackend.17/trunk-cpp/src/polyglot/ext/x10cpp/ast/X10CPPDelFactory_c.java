@@ -103,10 +103,12 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
 				Conditional c = (Conditional) jl();
 				Type t1 = c.consequent().type();
 				Type t2 = c.alternative().type();
+				/*
 				if (t1.isNull() && t2.isNumeric())
 					return c.type(ts.createNullableType(t2.position(), (X10NamedType) t2));
 				if (t1.isNumeric() && t2.isNull())
 					return c.type(ts.createNullableType(t1.position(), (X10NamedType) t1));
+					*/
 				return c.typeCheck(tc);
 			}
 		};
