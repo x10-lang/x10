@@ -12,6 +12,7 @@
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
+    <property name="distbin" location="${x10.dist.location}/bin"/>
     <property name="jar" value="x10cpp.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
@@ -35,12 +36,16 @@
         <delete dir="${build}"/>
     </target>
     <target name="dist" depends="jar" description="generate part of the distribution">
-        <!--
         <mkdir dir="${lib}"/>
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
-        -->
+        <mkdir dir="${distbin}"/>
+	<!-- use exec instead of copy to preserve execution bit -->
+	<exec executable="cp">
+	    <arg value="${basedir}/bin/x10c++" />
+	    <arg value="${distbin}/x10c++" />
+	</exec>
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
