@@ -99,6 +99,9 @@ public class ConstantPropagator extends ContextVisitor {
     private Object constantValue(Expr e) {
         if (e.isConstant())
             return e.constantValue();
+        
+        if (e.type().isNull())
+            return null;
 
         if (e instanceof Field) {
             Field f = (Field) e;
@@ -136,6 +139,9 @@ public class ConstantPropagator extends ContextVisitor {
         if (e.isConstant())
             return true;
 
+        if (e.type().isNull())
+            return true;
+        
         if (e instanceof Field) {
             Field f = (Field) e;
             if (f.target() instanceof Expr) {
