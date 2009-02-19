@@ -474,13 +474,18 @@ public class X10CPPTranslator extends Translator {
         public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
 
-        public static final String MANIFEST = X10LANG+"/libx10lib17.mft";
+        public static final String MANIFEST = "libx10lib17.mft";
+        public static final String[] MANIFEST_LOCATIONS = new String[] {
+            X10LANG,
+            X10LANG+"/lib",
+        };
         /** These go before the files */
         public static final String[] preArgs = new String[] {
             "-g",
             "-I"+X10LIB+"/include",
             "-I"+X10LANG,
             "-I"+X10LANG+"/gen", // FIXME: development option
+            "-I"+X10LANG+"/include", // dist
             "-I.",
             "-DTRANSPORT="+TRANSPORT,
         };
@@ -488,6 +493,7 @@ public class X10CPPTranslator extends Translator {
         public static final String[] postArgs = new String[] {
             "-L"+X10LIB+"/lib",
             "-L"+X10LANG,
+            "-L"+X10LANG+"/lib", // dist
             "-lx10lib17",
             "-lx10rt17",
             "-lupcrts_"+TRANSPORT,
@@ -580,20 +586,31 @@ public class X10CPPTranslator extends Translator {
                 addExecutablePath(cxxCmd);
             }
 
-            HashSet<String> manifest = new HashSet<String>();
+            HashSet<String> exclude = new HashSet<String>();
             try {
-                FileReader fr = new FileReader(MANIFEST);
-                BufferedReader br = new BufferedReader(fr);
-                String file = "";
-                while ((file = br.readLine()) != null)
-                    manifest.add(file);
+                String manifest = Configuration.MANIFEST;
+                if (manifest == null) {
+                    for (int i = 0; i < MANIFEST_LOCATIONS.length; i++) {
+                        File x10lang_m = new File(MANIFEST_LOCATIONS[i]+"/"+MANIFEST);
+                        if (!x10lang_m.exists())
+                            continue;
+                        manifest = x10lang_m.getPath();
+                    }
+                }
+                if (manifest != null) {
+                    FileReader fr = new FileReader(manifest);
+                    BufferedReader br = new BufferedReader(fr);
+                    String file = "";
+                    while ((file = br.readLine()) != null)
+                        exclude.add(file);
+                }
             } catch (IOException e) { }
 
             Iterator iter = outputFiles.iterator();
             for (; iter.hasNext(); ) {
                 String file = (String) iter.next();
                 file = file.replace(File.separatorChar,'/');
-                if (manifest.contains(file))
+                if (exclude.contains(file))
                     continue;
                 cxxCmd.add(file);
             }
