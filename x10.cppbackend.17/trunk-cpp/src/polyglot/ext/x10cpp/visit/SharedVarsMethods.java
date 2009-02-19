@@ -29,7 +29,7 @@ import java.util.Collections;
 /* A class containing all the static constants and variables that many
  * code generators share.
  */
-public class SharedVarsMethods{
+public class SharedVarsMethods {
 	
 	public static final boolean WARN_NONSPMD_EXTERN = true;
 	private static int nextId_;
