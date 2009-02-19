@@ -89,7 +89,8 @@ public class ASTQuery {
 		return false;
 	}
 
-    private boolean seenMain = false;
+    private static boolean seenMain = false; // FIXME: non-reentrant
+    private static boolean warnedAboutMain = false; // FIXME: non-reentrant
     boolean isMainMethod(MethodDecl dec) {
         final X10TypeSystem ts = (X10TypeSystem) dec.returnType().type().typeSystem();
         X10ClassType container = (X10ClassType) dec.methodDef().asInstance().container();
@@ -104,10 +105,12 @@ public class ASTQuery {
             (dec.formals().size() == 1) &&
             ((Formal)dec.formals().get(0)).type().type().typeEquals(ts.Rail(ts.String()));
         if (result) {
-            if (seenMain && Configuration.MAIN_CLASS == null)
+            if (seenMain && !warnedAboutMain && Configuration.MAIN_CLASS == null) {
                 tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
                                                          "Multiple main() methods encountered.  " +
                                                          "Please specify MAIN_CLASS.");
+                warnedAboutMain = true;
+            }
             seenMain = true;
         }
         return result;
