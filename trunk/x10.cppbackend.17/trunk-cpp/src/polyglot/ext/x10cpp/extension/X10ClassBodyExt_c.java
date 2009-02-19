@@ -279,7 +279,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	}
 
 	public static String generateX10NativeName(MethodDecl_c method) {
-		return JNImangle(canonicalTypeString(method.methodDef().container())) + "_" + method.name();
+		return JNImangle(canonicalTypeString(method.methodDef().container().get())) + "_" + method.name();
 	}
 
 	/**
@@ -294,7 +294,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		if (isOverloaded)
 			_newName += "__" + JNImangle(generateJavaSignature(nativeMethod));
 
-		String wrapperDecl = "extern " + typeToCType(nativeMethod.methodDef().returnType()) + " ";
+		String wrapperDecl = "extern " + typeToCType(nativeMethod.methodDef().returnType().get()) + " ";
 		wrapperDecl += _newName + "(";
 
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext(); ) {

@@ -832,7 +832,7 @@ public class X10SummarizingRules {
 		}
 		// Externalizes the type signature of a constructor
 		private String constructDiscriminator(ConstructorDef ci) {
-			return ci.container().get().fullName() + ".<init>" + constructTypeSignature(ci);
+			return ci.container().toString() + ".<init>" + constructTypeSignature(ci);
 		}
 		/** Externalizes the arguments part of a call's type signature */
 		public static String constructTypeSignature(ProcedureDef pi) {
