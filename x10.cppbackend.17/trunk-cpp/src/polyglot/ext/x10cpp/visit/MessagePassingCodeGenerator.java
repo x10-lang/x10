@@ -332,7 +332,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		context.hasInits = false;
 
 		if (hasNativeMethods(n.body().members())) {
-			w.write("#include \"" + X10ClassBodyExt_c.wrapperFileName(n.classDef().fullName().toString()) + "\"");
+			w.write("#include \"" + X10ClassBodyExt_c.wrapperFileName(n.classDef().asType().toReference()) + "\"");
 			w.newline();
 		}
 		ClassifiedStream h;
@@ -391,7 +391,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.forceNewline(0);
 			if (n.classDef().package_() != null) {
 				h.write("namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().fullName().toString())));
+				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().toString())));
 				h.write(" {");
 				h.newline(0);
 			}
@@ -434,7 +434,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (n.classDef().package_() != null) {
 				h.newline(0);
 				h.write("} // namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().fullName().toString())));
+				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().toString())));
 				h.newline(0);
 			}
 		}
@@ -550,7 +550,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(PackageNode_c n) {
-		w.write(mangled_non_method_name(translateFQN(n.package_().fullName().toString())));
+		w.write(mangled_non_method_name(translateFQN(n.package_().toString())));
 	}
 
 	public void visit(Import_c n) {
