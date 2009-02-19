@@ -20,8 +20,8 @@ extern "C" {
         } catch(x10aux::__ref& e) {
             // Assume that only throwables can be thrown
             x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
-            fprintf(stderr, "At place %d: ", (int)x10aux::__here__);
-            fprintf(stderr, "Uncaught exception of type: %s\n", e_->_type()->name().c_str());
+            fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
+                                (int)x10aux::__here__, e_->_type()->name().c_str());
             fprintf(stderr, "%s\n", e_->toString()->c_str());
             x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
             x10aux::ref<Iterator<x10aux::ref<String> > > it = trace->iterator();
