@@ -413,7 +413,7 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 
-		w.write("static "+make_ref("Exception")+" EXCEPTION = NULL;"); w.newline();
+		w.write("static "+make_ref("x10::lang::Exception")+" EXCEPTION = NULL;"); w.newline();
 		w.write("#include \""+wstreams.getFile(WriterStreams.StreamClass.Closures).getName() + "\""); w.newline();
 		w.forceNewline(0);
 
