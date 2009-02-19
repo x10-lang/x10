@@ -25,6 +25,7 @@ import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.extension.X10Ext_c;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
@@ -418,7 +419,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			if (!(theObj instanceof MethodDecl))
 				continue;
 			MethodDecl_c methodDecl = (MethodDecl_c) theObj;
-			if (!methodDecl.methodDef().flags().isNative())
+			if (!X10Flags.isExtern(methodDecl.methodDef().flags()))
 				continue;
 
 			if (methodHash.containsKey(methodDecl.name())) {

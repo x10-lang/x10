@@ -149,6 +149,7 @@ import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Def;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
@@ -366,12 +367,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.popCurrentStream();
 		w.write(";");
 	}
-	boolean hasNativeMethods(List members) {
+	boolean hasExternMethods(List members) {
 		for (Iterator i = members.iterator(); i.hasNext(); ) {
 			ClassMember member = (ClassMember) i.next();
 			if (member instanceof MethodDecl_c) {
 				MethodDecl_c init = (MethodDecl_c) member;
-				if (init.flags().flags().isNative())
+				if (X10Flags.isExtern(init.flags().flags()))
 					return true;
 			}
 		}
@@ -407,7 +408,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		context.setinsideClosure(false);
 		context.hasInits = false;
 
-		if (hasNativeMethods(n.body().members())) {
+		if (hasExternMethods(n.body().members())) {
 			w.write("#include <" + X10ClassBodyExt_c.wrapperFileName(n.classDef().asType().toReference()) + ">");
 			w.newline();
 		}
