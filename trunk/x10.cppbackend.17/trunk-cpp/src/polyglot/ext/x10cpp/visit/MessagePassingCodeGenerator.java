@@ -148,6 +148,7 @@ import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
@@ -169,8 +170,10 @@ import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.ext.x10cpp.visit.X10SummarizingRules.X10SummarizingPass;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
+import polyglot.types.CodeInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -213,6 +216,7 @@ import x10c.util.WriterStreams.StreamClass;
  * @author V. Krishna Nandivada
  * @author Pradeep Varma
  * @author vj
+ * @author Dave Cunningham
  */
 
 /* Design:
@@ -988,7 +992,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	String defaultValue(Type type) {
-		return type.isPrimitive() ? "0" : "NULL";
+		return type.isPrimitive() ? "0" : "x10aux::null";
 	}
 
 
@@ -2074,18 +2078,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 		String type = emitter.translateType(n.objectType().type());
+
 		// [DC] this cast is needed to ensure everything has a ref type
 		// otherwise overloads don't seem to work properly
-		w.write("("+make_ref(type)+")");
-		w.write("(");
 		w.begin(0);
-		w.write("new");
-		w.allowBreak(0, " ");
-		w.write("(x10aux::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
-		w.allowBreak(0, " ");
-		w.write(emitter.translateType(n.objectType().type()));
-		w.write("(");
-		w.allowBreak(2, 2, "", 0);
+		w.write("("+make_ref(type)+")( ");
+		w.allowBreak(4,"");
+		w.write("new (x10aux::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
+		w.allowBreak(4,"");
+		w.write(type+"(");
 		w.begin(0);
 		for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
 			Expr e = (Expr) i.next();
@@ -2094,7 +2095,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.popCurrentStream();
 			if (i.hasNext()) {
 				w.write(",");
-				w.allowBreak(2, " ");
+				w.allowBreak(0, " ");
 			}
 		}
 		// FIXME: [IP] Temporary hack until we have full stack traces
@@ -2105,8 +2106,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		w.end();
 		w.write(")");
+		w.write(" )");
 		w.end();
-		w.write(")");
 	}
 
 
@@ -2136,11 +2137,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(NullLit_c n) {
-		w.write("NULL");
+		w.write("x10aux::null");
 	}
 
 	public void visit(StringLit_c n) {
-		w.write("String(\"");
+		w.write("String::Lit(\"");
 		w.write(StringUtil.escape(n.stringValue()));
 		w.write("\")");
 	}
@@ -2180,7 +2181,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 
-				if (xts.typeDeepBaseEquals(t,c.expr().type())) {
+				if (false || xts.typeDeepBaseEquals(t,c.expr().type())) {
 					sw.pushCurrentStream(w);
 					c.printSubExpr(c.expr(), true, sw, tr);
 					sw.popCurrentStream();
@@ -2288,7 +2289,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("catch (x10aux::__ref& " + refVar + ") {");
 		w.newline(4); w.begin(0);
 		String excVar = "__exc" + refVar;
-		String exception_ref = make_ref("Exception");
+		// Note that the following c-style cast only works because Throwable is
+		// *not* an interface and thus is not virtually inheritted.  If it
+		// were, we would have to static_cast the exception to Throwable on
+		// throw (otherwise we would need to offset by an unknown quantity).
+		String exception_ref = make_ref("Throwable");
 		w.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
 		((X10CPPContext_c)tr.context()).setExceptionVar(excVar);
 		for (Iterator it = n.catchBlocks().iterator(); it.hasNext(); ) {
@@ -2329,7 +2334,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.popCurrentStream();
 		w.write(" =");
 		w.allowBreak(2, " ");
-		w.write("(" + type + ") " + excVar + ";");
+		w.write("static_cast<" + type + " >(" + excVar + ");");
 		w.newline(0);
 		sw.pushCurrentStream(w);
 		n.print(n.body(), sw, tr);
@@ -2845,6 +2850,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(")");
 	}
 
+	public String getClosureName(String className, int id) {
+		return className+"__closure__"+id;
+	}
+
 
 	public void visit(Closure_c n) {
 
@@ -2853,9 +2862,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c.Closures a = c.closures;
 		emitter.enterClosure(a, n);
 
+		ClosureDef closureDef = n.closureDef();
+		CodeInstance hostMethod = closureDef.methodContainer().get();
+		X10ClassType hostClassType = (X10ClassType)(closureDef.typeContainer().get());
+		//TODO include packages
+		String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(),"_");
+
 		c.setinsideClosure(true);
 
 		int id = getConstructorId(a);
+
+		String cname = getClosureName(hostClassName,id);
 		
 
 		// create closure and packed arguments
@@ -2884,7 +2901,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 		// class header
-		inc.write("class CLOSURE_NAME("+id+") : "); inc.begin(0);
+		inc.write("class "+cname+" : "); inc.begin(0);
 		inc.write("public x10aux::AnyClosure, "); inc.newline();
 		inc.write("public x10::lang::Value, "); inc.newline();
 		inc.write("public virtual "+superType); inc.end(); inc.newline();
@@ -2940,10 +2957,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
 
-		inc.write("CLOSURE_NAME("+id+")("+SERIALIZATION_MARKER+") : x10aux::AnyClosure("+id+") { }");
+		inc.write(cname+"("+SERIALIZATION_MARKER+") : x10aux::AnyClosure("+id+") { }");
 		inc.newline(); inc.forceNewline();
 
-		inc.write("CLOSURE_NAME("+id+")(");
+		inc.write(cname+"(");
         for (int i=0 ; i<c.variables.size() ; i++) {
             if (i > 0) inc.write(", ");
             VarInstance var = (VarInstance)c.variables.get(i);
@@ -2979,8 +2996,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 		// create closure instantiation (not in inc but where the closure was defined)
-		w.write("x10aux::ref<CLOSURE_NAME("+id+")>(new (x10aux::alloc<CLOSURE_NAME("+id+")>())");
-		w.write("CLOSURE_NAME("+id+")(");
+		// note that we alloc using the typeof the superType but we pass in the correct size
+		// this is because otherwise alloc may (when debugging is on) try to examine the 
+		// RTT of the closure (which doesn't exist)
+		w.write("x10aux::ref<"+superType+" >(new (x10aux::alloc<"+superType+" >(sizeof("+cname+")))");
+		w.write(cname+"(");
         for (int i=0 ; i<c.variables.size() ; i++) {
             if (i > 0) w.write(", ");
             VarInstance var = (VarInstance)c.variables.get(i);

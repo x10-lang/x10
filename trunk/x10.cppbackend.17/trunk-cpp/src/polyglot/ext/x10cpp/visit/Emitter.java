@@ -356,6 +356,7 @@ public class Emitter {
 	 * @return a string representation of the type
 	 */
 	String translateType(Type type, boolean asRef) {
+		assert(type!=null);
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
 		Context context = tr.context();
@@ -420,6 +421,8 @@ public class Emitter {
 			}
 		} else if (type instanceof ParameterType) {
 			return type.toString(); // parameter types shouldn't be refs
+		} else if (type.isNull()) {
+			return "x10aux::NullType"; // typedef to something sensible
 		} else 
 			assert false : type; // unhandled type.
 		assert (name != null);
@@ -794,7 +797,8 @@ public class Emitter {
     		printTemplateSignature(ct.typeArguments(), h);
 			h.write("typename "+translateType(ct)+"::RTT * const "+translateType(ct)+"::RTT::it = ");
 			h.newline(4);
-			h.write("new typename "+translateType(ct)+"::RTT();");
+			h.write("new (x10aux::alloc<typename "+translateType(ct)+"::RTT>()) "+
+					"typename "+translateType(ct)+"::RTT();");
 		}
 		h.newline();
 	}
@@ -932,13 +936,16 @@ public class Emitter {
 		}
 	}
 	void printHeader(LocalDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		Flags flags = n.flags().flags();
+		//Flags flags = n.flags().flags();
 		h.begin(0);
 		// Let us not generate constants - We will have problem in
 		// initializing away from the place where it is declared.
 		//if (flags.isFinal())
 		//	h.write("const ");
 		if (tr.printType()) {
+			assert(n!=null);
+			assert(n.type()!=null);
+			assert(n.type().type()!=null);
 			printType(n.type().type(), h);
 			h.write(" ");
 		}
@@ -1719,69 +1726,6 @@ public class Emitter {
 		w.write("}");
 		w.newline();
 		w.forceNewline();
-	}
-	void handleX10Cast(X10Cast_c c, String castVar, ClassifiedStream w) {
-
-		if (c==null) return;
-
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	        TypeNode tn = c.castType();
-
-	        assert tn instanceof CanonicalTypeNode;
-
-	        switch (c.conversionType()) {
-	        case COERCION:
-	        case PRIMITIVE:
-	        case TRUNCATION:
-	            if (tn instanceof X10CanonicalTypeNode) {
-	                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
-
-	                Type t = X10TypeMixin.baseType(xtn.type());
-	                DepParameterExpr dep = xtn.constraintExpr();
-
-			if (dep != null) {
-				// FIXME: handle RTT
-				context.setSelf(castVar);
-				w.write("if (! ");
-				sw.pushCurrentStream(w);
-				c.printSubExpr(dep.condition(), true, sw, tr);
-				sw.popCurrentStream();
-				context.resetSelf();
-				w.write(")");
-			} else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
-				w.begin(0);
-				w.write("("); // put "(Type) expr" in parentheses.
-				w.write("(");
-				w.write(translateType(t, true));
-				w.write(")");
-				w.allowBreak(2, " ");
-				sw.pushCurrentStream(w);
-				c.printSubExpr(c.expr(), sw, tr);
-				sw.popCurrentStream();
-				w.write(")");
-				w.end();
-			} else {
-				// FIXME: RTT
-				w.write("if (false)");
-			}
-			w.newline(2);
-			w.begin(0);
-			w.write("throw (x10aux::ref<x10::lang::ClassCastException>) new (x10aux::alloc<x10::lang::ClassCastException>()) x10::lang::ClassCastException() ; " );
-			w.end();
-			w.newline();
-		}
-	        	break;
-
-	        case BOXING:
-	        case UNBOXING:
-			// FIXME: Handle boxing and unboxing. Need generics?
-//			assert (false);
-			break;
-		case UNKNOWN_CONVERSION:
-	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-	        case CALL:
-	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
-		}
 	}
 	public void emitUniqueNS(QName name, ArrayList<String> history, ClassifiedStream w) {
 		if (name == null) return;
