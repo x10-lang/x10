@@ -534,7 +534,7 @@ public class Emitter {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		// FIXME: HACK! [IP] Ignore the ValueType tag interface
 		if (!n.interfaces().isEmpty()
-				&& (!ts.isValueType(n.classDef()) || n.interfaces().size() > 1))
+				&& (!ts.isValueType((Type)n.classDef()) || n.interfaces().size() > 1))
 		{
 			h.allowBreak(2);
 			h.begin(0);
