@@ -33,6 +33,7 @@ import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
 import polyglot.types.Name;
@@ -88,36 +89,31 @@ public class ASTQuery {
 		return false;
 	}
 
-	boolean isMainMethod(MethodDecl dec) {
-		final X10TypeSystem ts = (X10TypeSystem) dec.returnType().type().typeSystem();
-		String currentFileName = tr.job().source().name(); 
-		//FIXME. The above should refer to path().  Path() however gives full path only 
-		// for the file the x10c++ command is invoked on, and not the other files pulled in for compilation by imports.  
-		// Clearly path() works if we demand that the specified main file be the one to be specified explicitly to x10c++, but that's unclean.
-		boolean answer =   
-			dec.name().toString().equals("main") &&
-			dec.flags().flags().isPublic() &&
-			dec.flags().flags().isStatic() &&
-			dec.returnType().type().isVoid() &&
-			(dec.formals().size() == 1) &&
-			((Formal)dec.formals().get(0)).type().type().typeEquals(ts.arrayOf(ts.String()));
-		if (answer) {
-			if (polyglot.ext.x10cpp.Configuration.MAIN_FILE.equals(currentFileName)) { return true;}
-			
-			if (polyglot.ext.x10cpp.Configuration.MAIN_FILE.equals("")) {
-				polyglot.ext.x10cpp.Configuration.MAIN_FILE = "__internal_processing_value__";
-				return true;
-			}
-			else if (polyglot.ext.x10cpp.Configuration.MAIN_FILE.equals("__internal_processing_value__")){ 
-			       tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-					"Encountered multiple mains. Choice of main file not specified in compiler options.");}
-					
-		}
-		
-		return false;
-	}
+    private boolean seenMain = false;
+    boolean isMainMethod(MethodDecl dec) {
+        final X10TypeSystem ts = (X10TypeSystem) dec.returnType().type().typeSystem();
+        X10ClassType container = (X10ClassType) dec.methodDef().asInstance().container();
+        assert (container.isClass());
+        boolean result =
+            (Configuration.MAIN_CLASS == null ||
+                    container.fullName().toString().equals(Configuration.MAIN_CLASS)) &&
+            dec.name().toString().equals("main") &&
+            dec.flags().flags().isPublic() &&
+            dec.flags().flags().isStatic() &&
+            dec.returnType().type().isVoid() &&
+            (dec.formals().size() == 1) &&
+            ((Formal)dec.formals().get(0)).type().type().typeEquals(ts.Rail(ts.String()));
+        if (result) {
+            if (seenMain && Configuration.MAIN_CLASS == null)
+                tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+                                                         "Multiple main() methods encountered.  " +
+                                                         "Please specify MAIN_CLASS.");
+            seenMain = true;
+        }
+        return result;
+    }
 
-	boolean hasAnnotation(Node dec, String name) {
+    boolean hasAnnotation(Node dec, String name) {
 		try {
 			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 			if (annotationNamed(ts, dec, name) != null)

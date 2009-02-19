@@ -26,14 +26,14 @@ import x10.config.OptionError;
  */
 public final class Configuration extends x10.config.Configuration {
 
-	/**
-	 * The error received when attempting to load the configuration from
-	 * the specified resource, or null if successful.
-	 */
-	public static final ConfigurationError LOAD_ERROR;
+    /**
+     * The error received when attempting to load the configuration from
+     * the specified resource, or null if successful.
+     */
+    public static final ConfigurationError LOAD_ERROR;
 
-	public static String MAIN_FILE = "";
-	private static final String MAIN_FILE_desc = "Identify procedure main containing file in case there is more than one choice";
+    public static String MAIN_CLASS = null;
+    private static final String MAIN_CLASS_desc = "The class whose main() will be invoked";
 
     public static boolean VIM_MODELINE = true;
     private static final String VIM_MODELINE_desc = "Generate a modeline (formatting instructions) for VIm";
