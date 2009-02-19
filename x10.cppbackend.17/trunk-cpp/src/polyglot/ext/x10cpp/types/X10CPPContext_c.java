@@ -46,7 +46,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		condDepth = 0;
 		inprocess = false;
 		mainMethod = false;
-		requireMangling = true;
 	}
 
 	public boolean inClosure;
@@ -450,11 +449,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public String getExceptionVar() {
 		return excVar;
 	}
-	private boolean requireMangling;
-	public boolean requireMangling() { return requireMangling; }
-	public void setRequireMangling() { requireMangling = true; }
-	public void resetRequireMangling() { requireMangling = false; }
-        private static int localClassDepth;
+	private static int localClassDepth;
 	public boolean inLocalClass(){ return localClassDepth != 0; }
 	public void pushInLocalClass(){ localClassDepth ++ ; }
 	public void popInLocalClass(){ localClassDepth--; }
