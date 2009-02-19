@@ -212,7 +212,7 @@ public class X10CPPTranslator extends Translator {
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
 			return; // FIXME HACK
-		ClassifiedStream w = ((StreamWrapper) w_).cs;
+		ClassifiedStream w = ((StreamWrapper) w_) . cs;
 		if (n != null && n.position().line() > 0 &&
 				((n instanceof Stmt && !(n instanceof Block)) ||
 				 (n instanceof FieldDecl) ||
