@@ -22,7 +22,6 @@ import polyglot.ext.x10.types.X10NamedType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
-import polyglot.ext.x10cpp.visit.SPMDCppCodeGenerator;
 import polyglot.ext.x10cpp.visit.MessagePassingCodeGenerator;
 import polyglot.types.Context;
 import polyglot.types.SemanticException;
@@ -48,10 +47,7 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
 				if (ext != null && ext.comment() != null)
 					w.write(ext.comment());
 			}
-			if (Configuration.SPMD_COMPILATION)
-				new SPMDCppCodeGenerator((StreamWrapper)w,tr).visitAppropriate(jl());
-			else
-				new MessagePassingCodeGenerator((StreamWrapper)w,tr).visitAppropriate(jl());
+			new MessagePassingCodeGenerator((StreamWrapper)w,tr).visitAppropriate(jl());
 
 		}
 	};

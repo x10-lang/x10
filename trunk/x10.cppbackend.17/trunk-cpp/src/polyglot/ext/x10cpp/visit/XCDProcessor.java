@@ -67,10 +67,7 @@ public class XCDProcessor {
 		try {
 			String rname = Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY + id + ".xcd"; // xcd = x10 compiler data/definition
 			InputStream is ;
-			if (polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION)
-				is = SPMDCppCodeGenerator.class.getClassLoader().getResourceAsStream(rname);
-			else
-				is = MessagePassingCodeGenerator.class.getClassLoader().getResourceAsStream(rname);
+			is = MessagePassingCodeGenerator.class.getClassLoader().getResourceAsStream(rname);
 			if (is == null)
 				throw new IOException("Cannot find resource '"+rname+"'");
 			byte[] b = new byte[is.available()];
