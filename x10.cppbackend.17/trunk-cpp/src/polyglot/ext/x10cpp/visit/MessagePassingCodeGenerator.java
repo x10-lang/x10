@@ -32,6 +32,7 @@ import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
+import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Binary;
 import polyglot.ast.Binary_c;
@@ -85,6 +86,7 @@ import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
 import polyglot.ast.Stmt;
+import polyglot.ast.StringLit;
 import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
@@ -95,7 +97,6 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.ext.x10.Configuration;
-import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -115,9 +116,8 @@ import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.RegionMaker_c;
+import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
-import polyglot.ext.x10.ast.X10ArrayAccess1_c;
-import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
@@ -129,6 +129,8 @@ import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -627,12 +629,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					w.write(mangled_non_method_name(parameter.name().id().toString()));
 					w.write("->"+RAW_ARRAY+"()");
 				} else {
-					assert (ts.isX10Array(type));
-					Type base = ts.baseType(type);
-					assert (base.isPrimitive());
-					w.write(mangled_non_method_name(parameter.name().id().toString()));
-					w.write("->"+RAW_ARRAY+"()");
-					w.write(", NULL"); // for the descriptor
+					assert(false);
+					// Unhandled case!
+					// assert (ts.isX10Array(type));
 				}
 				if (i.hasNext())
 					w.write(", ");
@@ -936,7 +935,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		w.write(label.labelNode() + " : ");
 		w.newline();
-		((X10CPPContext_c) tr.context()).setLabel(label.labelNode(), label.statement());
+		((X10CPPContext_c) tr.context()).setLabel(label.labelNode().id().toString(), label.statement());
 		sw.pushCurrentStream(w);
 		label.print(label.statement(), sw, tr);
 		sw.popCurrentStream();
@@ -996,25 +995,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		Expr initcasts = dec.init();
 		Expr initexpr = initcasts;
-		boolean isDistributed = false;
-		// FIXME: [IP] This will ignore casts on SPMD array initializers.
-		// However, most times the casts are for dependent types, and can probably be ignored.
-		// TODO: investigate the above
 		while (initexpr instanceof X10Cast_c)
 			initexpr = ((X10Cast_c)initexpr).expr();
-		ArrayConstructor_c init = null;
 		Type base_type = null;
-		if (initexpr instanceof ArrayConstructor_c) {
-			init = (ArrayConstructor_c) initexpr;
-			assert(ts.isDistribution(init.distribution().type()));
-			assert (query.isX10Array(dec.type().type()));
-			base_type = init.arrayBaseType().type();
-			isDistributed = !isLocal(init.distribution());
-		}
-		if (isDistributed) {
-			emitter.emit_general_finish_start(w);
-			w.newline();
-		}
 		emitter.printHeader(dec, w, tr, true);
 		
 		// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
@@ -1060,10 +1043,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		}
 		// See above note about xlC.
-		if (isDistributed) {
-			emitter.emit_general_finish_end(w);
-			w.newline();
-		}
 	}
 
 
@@ -1360,123 +1339,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		tr.appendSemicolon(semi);
 	}
 
-
-
-
-
-	/**
-	 * Asynchronous array copies are treated in the following way:
-	 * The first argument has to be an SPMD global.
-	 * The method call is converted to a call to the push-style
-	 * runtime routine, asyncArrayCopy.  The source is a sum of
-	 * the first argument indexed with "here.id" and the second
-	 * argument, the destination is a closure that yields the sum
-	 * of the first argument indexed with "here.id" (remote!) and
-	 * the fourth argument, the destination place is left
-	 * unchanged.  The clock argument is always null.  Finally, if
-	 * the post-copy notification (sixth argument) is true,
-	 * another closure is created, this one invoking the
-	 * postCopyRun() method on the first argument indexed with
-	 * "here.id" (again remote).
-	 */
-	private void processAsyncArrayCopy(Call_c n) {
-		List args = n.arguments();
-		assert (args.size() == 6);
-		Expr array = (Expr) args.get(0);
-		Expr srcOffset = (Expr) args.get(1);
-		Expr target = (Expr) args.get(2);
-		Expr destOffset = (Expr) args.get(3);
-		Expr len = (Expr) args.get(4);
-		Expr notify = (Expr) args.get(5);
-		// TODO
-//		Expr clock = null;
-
-		if (!(array instanceof Local_c || array instanceof Field_c)) {
-			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-					"Warning: array argument to " + n.name() + " is neither a local nor a field",
-					array.position());
-			w.write("// AsyncArrayCopy call would have been here");
-			w.newline();
-			return;
-		}
-
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		VarInstance a_var =
-			(array instanceof Local_c) ? ((Local_c)array).localInstance()
-					: ((Field_c)array).fieldInstance();
-		boolean isSPMDTarget = context.isSPMDVar(a_var);
-		Type x_l_RemoteDoubleArrayCopier = null;
-		try {
-			x_l_RemoteDoubleArrayCopier = (Type) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
-			assert (xts.isX10Array(array.type()) &&
-					xts.isSubtype(xts.baseType(array.type()),
-							x_l_RemoteDoubleArrayCopier));
-			// TODO: assert that the distribution of the array is unique
-		} catch (SemanticException e) { assert (false); }
-
-		boolean notifyConstant = notify.isConstant();
-		boolean shouldNotify = false;
-		if (notify instanceof BooleanLit_c) {
-			BooleanLit_c lit = (BooleanLit_c) notify;
-			shouldNotify = lit.booleanValue();
-		}
-
-		w.write("{");
-		w.newline(4); w.begin(0);
-
-		// FIXME: make more general
-		Type baseType = xts.Double();
-
-		// TODO: Evaluate arguments in the right order
-		X10NodeFactory xnf = (X10NodeFactory)tr.nodeFactory();
-		Expr src = null;
-		Expr dest = null;
-		try {
-			FieldInstance fi = xts.findField(xts.Place(), xts.FieldMatcher(xts.Place(), Name.make("id")), context.currentClassDef());
-			array = xnf.X10ArrayAccess1(array.position(), array,
-					xnf.Field(array.position(),
-							xnf.Here(Position.COMPILER_GENERATED).type(xts.Place()),
-							xnf.Id(Position.COMPILER_GENERATED, "id"))
-						.fieldInstance(fi).type(xts.Int()))
-					.type(x_l_RemoteDoubleArrayCopier);
-			Type aType = xts.array(baseType);
-			MethodInstance smi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, Name.make(GET_SOURCE_ARRAY), (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
-			src = xnf.Call(Position.COMPILER_GENERATED, array,
-						  xnf.Id(Position.COMPILER_GENERATED, GET_SOURCE_ARRAY))
-				  .methodInstance(smi).type(aType);
-			MethodInstance dmi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, Name.make(GET_DEST_ARRAY), (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
-			dest = xnf.Call(Position.COMPILER_GENERATED, array,
-						   xnf.Id(Position.COMPILER_GENERATED, GET_DEST_ARRAY))
-				   .methodInstance(dmi).type(aType);
-		} catch (SemanticException e) { assert (false); }
-
-		if (notifyConstant) {
-			emitter.printAsyncArrayCopyInvocation(n, context, baseType, target,
-					src, srcOffset, dest, destOffset, len, array, shouldNotify, ws, w);
-		} else {
-			// TODO: store notify in a variable and send that into the closure
-			w.write("if (");
-			sw.pushCurrentStream(w);
-			n.print(notify, sw, tr);
-			sw.popCurrentStream();
-			w.write(") {");
-			w.newline(4); w.begin(0);
-			emitter.printAsyncArrayCopyInvocation(n, context, baseType, target,
-					src, srcOffset, dest, destOffset, len, array, true, ws, w);
-			w.end(); w.newline(0);
-			w.write("} else {");
-			w.newline(4); w.begin(0);
-			emitter.printAsyncArrayCopyInvocation(n, context, baseType, target,
-					src, srcOffset, dest, destOffset, len, array, false, ws, w);
-			w.end(); w.newline(0);
-			w.write("}");
-			w.newline();
-		}
-
-		w.end(); w.newline(0);
-		w.write("}");
-	}
 	public void visit(Call_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -1543,12 +1405,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// TODO: refactor
 			w.end();
 			return;
-		} else
-		if (query.isAsyncArrayCopy(n)) {
-			processAsyncArrayCopy(n);
-			return;
-		}
-
+		} 
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		MethodInstance mi = n.methodInstance();
@@ -1827,7 +1684,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.qualifier() != null)
 			throw new InternalCompilerError("Qualified new not supported");
 		if (n.body() != null)
-			throw new InternalCompilerError("Anonymous innner classes not supported");
+			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 		String type = emitter.translateType(n.objectType().type());
 		w.write("("+make_ref(type)+")(");
 		w.begin(0);
@@ -2533,106 +2390,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-
-	public void visit(X10ArrayAccess1_c a) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
-		Expr arr = a.array();
-		
-		// FIXME: [IP] HACK! Inline unique distribution accesses
-		if (ts.isDistribution(arr.type()) && isUnique(arr)) {
-			w.write("((x10::lang::place)");
-			sw.pushCurrentStream(w);
-			a.printSubExpr(a.index(), true, sw, tr);
-			sw.popCurrentStream();
-			if (ts.isPoint(a.index().type())) {
-				// Unique distributions are always rank 1
-				w.write("->operator[](0)");
-			}
-			w.write(")");
-			return;
-		}
-		// FIXME: [IP] HACK! Inline array accesses
-		if (inlineArrayAccesses && query.isX10Array(arr.type()) &&
-				QueryEngine.INSTANCE().isRectangularRankOneLowZero(a) &&
-				a.index().type().isPrimitive())
-		{
-			sw.pushCurrentStream(w);
-			a.printSubExpr(arr, sw, tr);
-			sw.popCurrentStream();
-			w.write("->"+RAW_ADJUSTED+"()[");
-			sw.pushCurrentStream(w);
-			a.printBlock(a.index(), sw, tr);
-			sw.popCurrentStream();
-			w.write("]");
-			return;
-		}
-		sw.pushCurrentStream(w);
-		a.printSubExpr(arr, sw, tr);
-		sw.popCurrentStream();
-		if (arraysAsRefs)
-			w.write("->operator[](");
-		else
-			w.write("[");
-		sw.pushCurrentStream(w);
-		a.printBlock(a.index(), sw, tr);
-		sw.popCurrentStream();
-		if (arraysAsRefs)
-			w.write(")");
-		else
-			w.write("]");
-//		X10Type at = (X10Type)a.type();
-//		if (at.isParametric()) {
-//		w.write("((");
-//		printType((Type)at.typeParameters().get(0), w);
-//		w.write(")");
-//		}
-//		boolean assoc = !(a.array() instanceof New_c);
-//		a.printSubExpr(a.array(), assoc, w, tr);
-//		w.write("->get(");
-//		a.printBlock(a.index(), w, tr);
-//		w.write(")");
-//		if (at.isParametric()) {
-//		w.write(")");
-//		}
-	}
-
-
-	public void visit(X10ArrayAccess_c a) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-		Expr arr = a.array();
-		List index = a.index();
-		// FIXME: [IP] HACK! Inline array accesses
-		sw.pushCurrentStream(w);
-		a.printSubExpr(arr, sw, tr);
-		sw.popCurrentStream();
-		if (arraysAsRefs)
-			w.write("->operator[](");
-		else
-			w.write("[");
-		w.write(("_point<"+index.size()+">")+"(");
-		w.begin(0);
-		for (Iterator is = index.iterator(); is.hasNext(); ) {
-			Expr i = (Expr) is.next();
-			sw.pushCurrentStream(w);
-			a.printBlock(i, sw, tr);
-			sw.popCurrentStream();
-			if (is.hasNext()) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			}
-		}
-		w.end();
-		w.write(")");
-		if (arraysAsRefs)
-			w.write(")");
-		else
-			w.write("]");
-	}
-
 	public void visit(ParExpr_c n) {
 		//w.write(" ( ");
 		sw.pushCurrentStream(w);
@@ -2664,54 +2421,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("__here__");
 	}
 
-	/**
-	 * Asynchronous array copies are treated in the following way:
-	 * The async is converted to a call to the push-style runtime routine.
-	 * The first two arguments are combined into the source address.
-	 * The third and fourth arguments are converted into a closure that
-	 * yields the destination address, to be invoked on the target.
-	 * The rest of the arguments are the length, the target id, and the
-	 * clock from the async (at most one).
-	 */
-	void processAsyncArrayCopy(Async_c n, X10CPPContext_c context) {
-		Stmt body = n.body();
-		if (body instanceof Block_c)
-			body = (Stmt) ((Block_c) body).statements().get(0);
-		Call_c call = (Call_c) ((Eval_c) body).expr();
-		Expr target = n.place();
-		Expr clock = null;
-		// FIXME: handle more than one clock
-		if (n.clocks() != null && !n.clocks().isEmpty()) {
-			assert (n.clocks().size() == 1);
-			clock = (Expr) n.clocks().get(0);
-		}
-		List args = call.arguments();
-		assert (args.size() == 5);
-		Expr src = (Expr) args.get(0);
-		Expr srcOffset = (Expr) args.get(1);
-		Expr dest = (Expr) args.get(2);
-		Expr destOffset = (Expr) args.get(3);
-		Expr len = (Expr) args.get(4);
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		assert (xts.isX10Array(src.type())&& xts.isX10Array(dest.type()) &&
-				xts.equals(xts.baseType(src.type()), xts.baseType(dest.type())));
-		Type baseType = xts.baseType(src.type());
-		emitter.printAsyncArrayCopyInvocation(n, context, baseType, target, src, srcOffset, 
-				dest, destOffset, len,ws, w);
-	}
 
 	public void visit(Async_c n) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
 		//if (!n.clocks().isEmpty())
 		//throw new InternalCompilerError("clocked asyncs not supported");
-
-		// TODO: [IP] Switching to a different mechanism
-		if (query.isAsyncArrayCopy(n)) { // Special case -- async(...) { Runtime.arrayCopy(...) }
-			processAsyncArrayCopy(n, c);
-			return;
-		}
-
 		// FIXME: Why not merge the below code in the body of
 		// processAsync? Suggested by Igor. [Krishna]
 		
@@ -2746,115 +2461,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.processAsync(n, placeVar, n.body, c, ws, w);
 	}
 	
-
-
-	public void visit(ArrayConstructor_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		Type base_type = n.arrayBaseType().type();
-		String base = emitter.translateType(base_type, true);
-		Expr init = n.initializer();
-		if (init == null) {
-			w.write("x10::x10newArray<"+base+(base.endsWith(">")?" ":"")+">(");
-			w.begin(0);
-			sw.pushCurrentStream(w);
-			n.printSubExpr(n.distribution(), sw, tr);
-			sw.popCurrentStream();
-			w.end();
-			w.write(")");
-			return;
-		}
-
-		X10CPPContext_c.Closures a = context.closures;
-		boolean outer = outerClosure(a);
-		emitter.enterClosure(a, (Closure_c) init);
-		int constructor_id = getConstructorId(a);
-
-		w.write("array_init_closure_invocation(" + constructor_id + ",");
-		w.allowBreak(0, " ");
-		sw.pushCurrentStream(w);
-		n.printSubExpr(n.distribution(), sw, tr);
-		sw.popCurrentStream();
-		w.write(",");
-		w.allowBreak(0, " ");
-
-		w.write(base);
-		w.write(",");
-		w.allowBreak(0, " ");
-
-		sw.pushCurrentStream(w);
-		n.printSubExpr(init, sw, tr);
-		sw.popCurrentStream();
-
-		w.write(")");
-		emitter.exitClosure(a);
-	}
-
-
-	void newJavaArray(Term_c n, Type base, List dims, int additionalDims, ArrayInit_c init) {
-		// TODO: check that all of the initializer fragments are less than MAX_OBJECT_ARRAY_INIT in size
-//		if (init != null && !base.isPrimitive() && init.elements().size() > MAX_OBJECT_ARRAY_INIT) {
-//		tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-//		"Non-primitive array initializers with more than "+MAX_OBJECT_ARRAY_INIT+" elements not supported",
-//		init.position());
-//		// TODO: generate an init method for the whole initializer
-//		}
-		newJavaArray(n, base, dims, 0, additionalDims, init);
-	}
-
-	private void newJavaArray(Term_c n, Type base, List dims, int dim, int additionalDims, ArrayInit_c init) {
-		if (init != null && !base.isPrimitive() && init.elements().size() > MAX_OBJECT_ARRAY_INIT) {
-			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-					"Non-primitive array initializers with more than "+MAX_OBJECT_ARRAY_INIT+" elements not supported",
-					init.position());
-			// TODO: generate an init method
-		}
-		w.write("x10::alloc_array<");
-		String base_type = emitter.translateType(base, true);
-		w.write(base_type);
-		w.write(" >(");
-		if (dims.size() > 0) {
-			sw.pushCurrentStream(w);
-			n.printBlock((Expr) dims.get(dim), sw, tr);
-			sw.popCurrentStream();
-		} else if (init != null) {
-			w.write(""+init.elements().size());
-		} else {
-			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-					"Unknown array size",
-					n.position());
-		}
-		if (init != null) {
-			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-			for (Iterator i = init.elements().iterator(); i.hasNext(); ) {
-				w.write(",");
-				w.allowBreak(4, " ");
-				Expr init_i = (Expr) i.next();
-				if (init_i instanceof ArrayInit_c) {
-					assert (base.isArray());
-					newJavaArray((Term_c) init_i, base.toArray().base(), dims, dim+1, additionalDims, (ArrayInit_c) init_i);
-				} else {
-					boolean needsCast = !ts.equalsWithoutClause((X10Type)base, (X10Type) init_i.type());
-					if (needsCast)
-						w.write("("+base_type+")(");
-					sw.pushCurrentStream(w);
-					init.print(init_i, sw, tr);
-					sw.popCurrentStream();
-					if (needsCast)
-						w.write(")");
-				}
-			}
-		}
-		w.write(")");
-	}
-
-
-	public void visit(NewArray_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		newJavaArray(n, n.baseType().type(), n.dims(), n.additionalDims(), (ArrayInit_c) n.init());
-	}
-
 	public void visit(X10Special_c n) {
 		if (n.qualifier() != null) {
 			sw.pushCurrentStream(w);
@@ -3090,7 +2696,232 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		throw new InternalCompilerError("Should not be invoked");
 	}
 
+	public void visit(SettableAssign_c n) {
+	// Code ported from X10PrettyPrinter.java (x10.compiler.p3) and
+	// ported to suit the needs. [Krishna]
+	    SettableAssign_c a = n;
+	    Expr array = a.array();
+	    List<Expr> index = a.index();
 
+	    TypeSystem ts = tr.typeSystem();
+	    Type t = n.leftType();
 
+	    boolean nativeop = false;
+	    if (t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String())) {
+	        nativeop = true;
+	    }
+
+	    if (n.operator() == Assign.ASSIGN) {
+	    	// Look for the appropriate set method on the array and emit native code if there is an
+	    	// @Native annotation on it.
+	    	X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
+	    	List<Expr> args = new ArrayList<Expr>(index.size()+1);
+	    	//args.add(array);
+	    	args.add(n.right());
+	    	for (Expr e : index) args.add(e);
+	    	String pat = getCppImplForDef(mi.x10Def());
+	    	if (pat != null) {
+	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
+	    		return;
+	    	} else {
+	    		// otherwise emit the hardwired code.
+			sw.pushCurrentStream(w);
+	    		tr.print(n, array, w);
+			sw.popCurrentStream();
+	    		w.write(".set(");
+	    		tr.print(n, n.right(), w);
+			for (Expr e: index) {
+				w.write(", ");
+				sw.pushCurrentStream(w);
+				n.printSubExpr(e, false, sw, tr);
+				sw.popCurrentStream();
+			}
+	    		w.write(")");
+	    	}
+	    }
+	    else {
+		// R target = x; T right = e; 
+		// target.f = target.f.add(right);
+	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
+	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
+	        Name methodName = X10Binary_c.binaryMethodName(op);
+	        w.write("{ ");
+	        emitter.printType(n.type(), w);
+		String retVar=getId();
+		w.write(" " + retVar + ";");
+		w.newline();
+
+	        emitter.printType(array.type(), w);
+		String target = getId();
+		w.write(" " + target + " = ");
+		sw.pushCurrentStream(w);
+	        tr.print(n, array, w);
+		sw.popCurrentStream();
+		w.newline();
+
+		String eArr [] = new String[index.size()];
+	        {
+	            int i = 0;
+	            for (Expr e : index) {
+	                emitter.printType(e.type(), w);
+	                w.write(" ");
+			eArr[i] = getId();
+	                w.write(eArr[i]);
+			w.write(" = ");
+			sw.pushCurrentStream(w);
+			n.printSubExpr(e, false, sw, tr);
+			sw.popCurrentStream();
+			w.write(";"); w.newline();
+	                i++;
+	            }
+	        }
+	        emitter.printType(n.right().type(), w);
+		String right = getId();
+	        w.write(" " + right + " = ");
+	        tr.print(n, n.right(), w);
+
+	        w.newline();
+	        if (! n.type().isVoid()) {
+	            w.write(retVar + " = " );
+	        }
+	        w.write("array.set(");
+	        w.write(" array.apply(");
+	        {
+	            int i = 0;
+	            for (Expr e : index) {
+	                if (i != 0)
+	                    w.write(", ");
+	                w.write(eArr[i]);
+	                i++;
+	            }
+	        }
+	        w.write(")");
+	        if (nativeop) {
+	            w.write(" ");
+	            w.write(op.toString());
+	            w.write(right);
+	        }
+	        else {
+	            w.write(".");
+	            w.write(methodName.toString());
+	            w.write("(" + right +")");
+	        }
+	        if (index.size() > 0)
+	            w.write(", ");
+	        {
+	            int i = 0;
+	            for (Expr e : index) {
+	                if (i != 0)
+	                    w.write(", ");
+	                w.write(eArr[i]);
+	                i++;
+	            }
+	        }
+	        w.write(");");
+	        w.newline();
+	        if (! n.type().isVoid()) {
+	            w.write(retVar + ";" );
+		    w.newline();
+	        }
+	        w.write("}");
+	    }
+	}
+	String getCppImplForDef(X10Def o) {
+	    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+	    try {
+	        Type java = (Type) xts.systemResolver().find(QName.make("x10.compiler.Native"));
+	        List<Type> as = o.annotationsMatching(java);
+	        for (Type at : as) {
+	            assertNumberOfInitializers(at, 2);
+	            String lang = getPropertyInit(at, 0);
+	            if (lang != null && lang.equals("cpp")) {
+	                String lit = getPropertyInit(at, 1);
+	                return lit;
+	            }
+	        }
+	    }
+	    catch (SemanticException e) {}
+	    return null;
+	}
+	void assertNumberOfInitializers(Type at, int len) {
+	    at = X10TypeMixin.baseType(at);
+	    if (at instanceof X10ClassType) {
+	        X10ClassType act = (X10ClassType) at;
+	        assert len == act.propertyInitializers().size();
+	    }
+	}
+	
+	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {
+		 Object[] components = new Object[1 + types.size() * 3 + args.size()];
+		    int i = 0;
+		    components[i++] = target;
+		    for (Type at : types) {
+			// TODO: Handle typeParameters
+			assert false;
+		        // components[i++] = new TypeExpander(at, true, false, false);
+		        // components[i++] = new TypeExpander(at, true, true, false);
+		        // components[i++] = new RuntimeTypeExpander(at);
+		    }
+		    for (Expr e : args) {
+		        components[i++] = e;
+		    }
+		    dumpRegex("Native", components, tr, pat);
+	}
+	private void dumpRegex(String id, Object[] components, Translator tr, String regex) {
+	    for (int i = 0; i < components.length; i++) {
+	        assert ! (components[i] instanceof Object[]);
+	    }
+	    int len = regex.length();
+	    int pos = 0;
+	    int start = 0;
+	    while (pos < len) {
+	    	if (regex.charAt(pos) == '\n') {
+	    		w.write(regex.substring(start, pos));
+	    		w.newline(0);
+	    		start = pos+1;
+	    	}
+	    	else
+	    	if (regex.charAt(pos) == '#') {
+	    		w.write(regex.substring(start, pos));
+	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
+	    		pos++;
+	    		start = pos+1;
+	    		if (idx.intValue() >= components.length)
+	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
+	    		prettyPrint(components[idx.intValue()], tr);
+	    	}
+	    	pos++;
+	    }
+	    w.write(regex.substring(start));
+	}
+	private void prettyPrint(Object o, Translator tr) {
+		if (o instanceof Node) {
+			((Node) o).del().translate(w, tr);
+		} else if (o instanceof Type) {
+			throw new InternalCompilerError("Should not attempt to pretty-print a type");
+		} else if (o != null) {
+			w.write(o.toString());
+		}
+	}
+	String getPropertyInit(Type at, int index) {
+	    at = X10TypeMixin.baseType(at);
+	    if (at instanceof X10ClassType) {
+		X10ClassType act = (X10ClassType) at;
+		if (index < act.propertyInitializers().size()) {
+		    Expr e = act.propertyInitializer(index);
+		    if (e instanceof StringLit) {
+			StringLit lit = (StringLit) e;
+			String s = lit.value();
+			return s;
+		    }
+		}
+	    }
+	    return null;
+	}
+	public void visit(Tuple_c c) {
+		assert false;
+		// TODO:
+		// Handle Rails initializer.
+	}
 
 } // end of MessagePassingCodeGenerator
