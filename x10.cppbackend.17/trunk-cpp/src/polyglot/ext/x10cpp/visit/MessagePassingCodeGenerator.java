@@ -368,6 +368,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
 		if (!n.classDef().isNested()) {
 			// SPMD fields
+			// FIXME: [IP] There is a problem with include ordering.
+			// We cannot just blindly include a header for every type used
+			// because of recursive dependences.  So we need to do partial
+			// ordering.  For that, we need to include only those headers
+			// that define classes for which the code needs a full definition.
+			// Otherwise, just declare a class and include the header in the
+			// implementation file instead.
+			// As I can see, the only uses that need a full definition are
+			// field reads (in static final field initializers) and
+			// inheritance.  So find all class declarations and field
+			// declarations, and do #include for those headers.
 			X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
 			n.visit(xTypes);
 			if (xTypes.found()) {
@@ -379,9 +390,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				HashSet types = new HashSet();
 				for (int i = 0; i < typeNodes.size(); i++) {
 					X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
-					if (!t.type().isClass() || xts.typeEquals(t.type(), n.classDef().asType()))
+					Type type = t.type();
+                                        while (type.isArray() || query.isX10Array(type)) {
+                                                type = type.isArray() ? 
+                                                                        type.toArray().base() :
+                                                                        query.getX10ArrayElementType(type);
+                                        }
+
+					if (!type.isClass() || xts.typeEquals(type, n.classDef().asType()))
 						continue;
-					ClassType ct = t.type().toClass();
+					ClassType ct = type.toClass();
 					if (ct.isNested() || knownSpecialPackages.contains(ct.package_()))
 						continue;
 					types.add(ct);
@@ -396,6 +414,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					emitter.emitUniqueIF(header, ifHistory, h);
 					h.newline();
 				}
+
+				for (Iterator is = context.pendingImplicitImports.iterator(); is.hasNext();) {
+					String in = (String) is.next();
+					emitter.emitUniqueIF(in, ifHistory, h);
+					h.newline();
+				}
+
 				ArrayList<String> unHistory = new ArrayList<String>();
 				for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
 					Import_c in = (Import_c) is.next();
@@ -2815,6 +2840,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			System.out.println(li.type().getClass());
 			components[i++] = mangled_non_method_name(li.name().toString());
 		    }
+		    String pi = translate_mangled_NSFQN(pat);
+		    if (!pi.contains("#")){
+		
+			X10CPPContext_c c = (X10CPPContext_c) tr.context();
+			c.pendingImplicitImports.add(pat);
+		    }
+
 		    dumpRegex("Native", components, tr, pat);
 	}
 	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {

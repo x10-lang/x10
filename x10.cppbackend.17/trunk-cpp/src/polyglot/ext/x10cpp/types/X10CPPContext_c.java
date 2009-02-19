@@ -65,6 +65,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public boolean canInline;
 
 	public ArrayList pendingImports = new ArrayList();
+	public ArrayList pendingImplicitImports = new ArrayList();
 	public static HashMap classesWithAsyncSwitches = new HashMap();
 	public static HashMap classesWithArrayCopySwitches = new HashMap();
 
