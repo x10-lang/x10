@@ -130,6 +130,7 @@ import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 
@@ -624,7 +625,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					w.write("->"+RAW_ARRAY+"()");
 				} else {
 					assert (ts.isX10Array(type));
-					Type base = ts.baseType(type);
+					Type base = X10TypeMixin.baseType(type);
 					assert (base.isPrimitive());
 					w.write(mangled_non_method_name(parameter.name().id().toString()));
 					w.write("->"+RAW_ARRAY+"()");
@@ -1406,7 +1407,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		try {
 			x_l_RemoteDoubleArrayCopier = (Type) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
 			assert (xts.isX10Array(array.type()) &&
-					xts.isSubtype(xts.baseType(array.type()),
+					xts.isSubtype(X10TypeMixin.baseType(array.type()),
 							x_l_RemoteDoubleArrayCopier));
 			// TODO: assert that the distribution of the array is unique
 		} catch (SemanticException e) { assert (false); }
@@ -2629,8 +2630,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr len = (Expr) args.get(4);
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		assert (xts.isX10Array(src.type())&& xts.isX10Array(dest.type()) &&
-				xts.equals(xts.baseType(src.type()), xts.baseType(dest.type())));
-		Type baseType = xts.baseType(src.type());
+				xts.equals(X10TypeMixin.baseType(src.type()), X10TypeMixin.baseType(dest.type())));
+		Type baseType = X10TypeMixin.baseType(src.type());
 		emitter.printAsyncArrayCopyInvocation(n, context, baseType, target, src, srcOffset, 
 				dest, destOffset, len,ws, w);
 	}

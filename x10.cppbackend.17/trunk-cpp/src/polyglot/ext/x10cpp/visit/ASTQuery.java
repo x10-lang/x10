@@ -320,7 +320,7 @@ public class ASTQuery {
 			try {
 				Type x_l_Runtime = (Type) ts.Runtime();
 				Type Int = ts.Int();
-				Type[] OA_I_P_I_I_B = { ts.array(ts.Object()), Int, ts.place(), Int, Int, ts.Boolean() };
+				Type[] OA_I_P_I_I_B = { ts.array(ts.Object()), Int, ts.Place(), Int, Int, ts.Boolean() };
 				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "asyncDoubleArrayCopy", Arrays.asList(OA_I_P_I_I_B)), context.currentClassDef()));
 			} catch (SemanticException e) { assert (false); }
 		}
