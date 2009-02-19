@@ -1569,14 +1569,15 @@ namespace x10 {
                 x10_index_t _j;
             public:
                 explicit Iter(const _region<2>& region) : region(region), _i(region._dims[0]->_lo), _j(region._dims[1]->_lo) { }
-                bool hasNext() const { return _i <= region._dims[0]->_hi || _j <= region._dims[1]->_hi; }
+                bool hasNext() const { return _i <= region._dims[0]->_hi ;}
                 const point& next() {
+		    x10_index_t save_i = _i, save_j = _j;
                     _j++;
                     if (_j > region._dims[1]->_hi) {
                         _j = region._dims[1]->_lo;
                         _i++;
                     }
-                    return *(new (x10::alloc<_point<2> >()) _point<2>(_i, _j)); // FIXME: GC
+                    return *(new (x10::alloc<_point<2> >()) _point<2>(save_i, save_j)); // FIXME: GC
                 }
             };
             friend class _region<2>::Iter;
