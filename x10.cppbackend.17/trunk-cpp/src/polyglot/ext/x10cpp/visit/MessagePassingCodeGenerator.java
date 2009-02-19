@@ -518,6 +518,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            Type aType = dec.type().type();
 	            boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, init.type());
 	            if (rhsNeedsCast) {
+	                // FIXME: this cast would not be needed if not for a frontend bug
 	                sw.write("x10aux::class_cast<");
 	                emitter.printType(aType, sw);
 	                sw.write(" >(");
@@ -1574,6 +1575,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Type aType = lhs.type();
 	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type());
 	    if (rhsNeedsCast) {
+	        // FIXME: this cast would not be needed if not for a frontend bug
 	        sw.write("x10aux::class_cast<");
 	        emitter.printType(aType, sw);
 	        sw.write(" >(");
@@ -1616,6 +1618,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        Type aType = dec.type().type();
 	        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, initexpr.type());
 	        if (rhsNeedsCast) {
+	            // FIXME: this cast would not be needed if not for a frontend bug
 	            sw.write("x10aux::class_cast<");
 	            emitter.printType(aType, sw);
 	            sw.write(" >(");
@@ -1879,9 +1882,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 
+		NodeFactory nf = tr.nodeFactory();
+		List<Expr> args = new ArrayList<Expr>();
+		int counter = 0;
+		for (Expr a : n.arguments()) {
+		    Type fType = mi.formalTypes().get(counter);
+		    if (!xts.typeDeepBaseEquals(fType, a.type())) {
+		        Position pos = a.position();
+		        a = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), a).type(fType);
+		    }
+		    args.add(a);
+		    counter++;
+		}
+
 		String pat = getCppImplForDef(md);
 		if (pat != null) {
-			emitNativeAnnotation(pat, mi.typeParameters(), target, n.arguments());
+			emitNativeAnnotation(pat, mi.typeParameters(), target, args);
 			return;
 		}
 
@@ -1929,27 +1945,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(mangled_method_name(n.name().id().toString()));
 		emitter.printTemplateInstantiation(mi, sw);
 		sw.write("(");
-		if (n.arguments().size() > 0) {
+		if (args.size() > 0) {
 			sw.allowBreak(2, 2, "", 0); // miser mode
 			sw.begin(0);
-            int counter = 0;
-			for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
+			counter = 0;
+			for (Iterator i = args.iterator(); i.hasNext(); ) {
 				Expr e = (Expr) i.next();
-                Type fType = mi.formalTypes().get(counter);
-                boolean argNeedsCast = !xts.typeDeepBaseEquals(fType, e.type());
-                if (argNeedsCast) {
-                    sw.write("x10aux::class_cast<");
-                    emitter.printType(fType, sw);
-                    sw.write(" >(");
-                }
+				Type fType = mi.formalTypes().get(counter);
+				assert (xts.typeDeepBaseEquals(fType, e.type())) : ("Casts should have been inserted");
 				n.print(e, sw, tr);
-                if (argNeedsCast)
-                    sw.write(")");
 				if (i.hasNext()) {
 					sw.write(",");
 					sw.allowBreak(0, " ");
 				}
-                counter++;
+				counter++;
 			}
 			sw.end();
 		}
@@ -3182,6 +3191,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    SettableAssign_c a = n;
 	    Expr array = a.array();
 	    List<Expr> index = a.index();
+	    Expr r = n.right();
 
 	    TypeSystem ts = tr.typeSystem();
 	    Type t = n.leftType();
@@ -3192,35 +3202,72 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    if (n.operator() == Assign.ASSIGN) {
+	        // FIXME: Desugar this into a real call
 	        // Look for the appropriate set method on the array and emit native code if there is an
 	        // @Native annotation on it.
-	        X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
+	        X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
+	        NodeFactory nf = tr.nodeFactory();
+	        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 	        List<Expr> args = new ArrayList<Expr>(index.size()+1);
-	        args.add(n.right());
-	        for (Expr e : index) args.add(e);
+	        int counter = 0;
+	        Type fType = mi.formalTypes().get(counter);
+	        if (!xts.typeDeepBaseEquals(fType, r.type())) {
+	            Position pos = r.position();
+	            r = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), r).type(fType);
+	        }
+	        args.add(r);
+	        counter++;
+	        for (Expr e : index) {
+	            fType = mi.formalTypes().get(counter);
+	            if (!xts.typeDeepBaseEquals(fType, e.type())) {
+	                Position pos = e.position();
+	                e = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), e).type(fType);
+	            }
+	            args.add(e);
+	            counter++;
+	        }
 
 	        String pat = getCppImplForDef(mi.x10Def());
 	        if (pat != null) {
 	            emitNativeAnnotation(pat, mi.typeParameters(), array, args);
 	            return;
 	        }
+
 	        // otherwise emit the hardwired code.
+	        Type ret_type = emitter.findRootMethodReturnType(mi.x10Def(), null, mi);
+	        boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type);
+	        if (needsCast) {
+	            sw.write("static_cast<");
+	            emitter.printType(mi.returnType(), sw);
+	            sw.write(" >(");
+	        }
 	        sw.write("(");
 	        sw.begin(0);
 	        tr.print(n, array, sw);
 	        sw.end();
 	        sw.write(")->set(");
 	        sw.begin(0);
-	        tr.print(n, n.right(), sw);
+	        counter = 0;
+	        fType = mi.formalTypes().get(counter);
+	        assert (xts.typeDeepBaseEquals(fType, r.type())) : ("Casts should have been inserted");
+	        tr.print(n, r, sw);
+	        counter++;
 	        for (Expr e: index) {
+	            fType = mi.formalTypes().get(counter);
+	            assert (xts.typeDeepBaseEquals(fType, e.type())) : ("Casts should have been inserted");
 	            sw.write(",");
 	            sw.allowBreak(0, " ");
 	            n.printSubExpr(e, false, sw, tr);
+	            counter++;
 	        }
 	        sw.end();
 	        sw.write(")");
+	        if (needsCast) {
+	            sw.write(")");
+	        }
 	    }
 	    else {
+	        // FIXME: Desugar this into a real call or a closure
 	        // R target = x; T right = e;
 	        // target.f = target.f.add(right);
 	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
@@ -3255,10 +3302,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                i++;
 	            }
 	        }
-	        emitter.printType(n.right().type(), sw);
+	        emitter.printType(r.type(), sw);
 	        String right = getId();
 	        sw.write(" " + right + " = ");
-	        tr.print(n, n.right(), sw);
+	        tr.print(n, r, sw);
 	        sw.write(";"); sw.newline();
 
 	        if (! n.type().isVoid()) {
