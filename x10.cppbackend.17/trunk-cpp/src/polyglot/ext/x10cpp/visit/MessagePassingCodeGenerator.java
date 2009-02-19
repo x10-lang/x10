@@ -521,23 +521,31 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            sw.newline(0);
 	        } else if (member instanceof FieldDecl_c) {
 	            FieldDecl_c dec = (FieldDecl_c) member;
+	            X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	            ((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
+	            X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	            if (!staticInits) {
+	                VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+	                        Types.ref(currentClass), Name.make(THIS)).asInstance();
+	                context.addVariable(ti);
+	            }
 	            Expr init = (Expr) dec.init();
 	            assert (init != null);
 	            sw.write(mangled_field_name(dec.name().id().toString()));
 	            sw.write(" = ");
-                X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-                Type aType = dec.type().type();
-                boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, init.type());
-                if (rhsNeedsCast) {
-                    sw.write("x10aux::class_cast<");
-                    emitter.printType(aType, sw);
-                    sw.write(" >(");
-                }
-                dec.print(init, sw, tr);
-                if (rhsNeedsCast)
-                    sw.write(")");
+	            Type aType = dec.type().type();
+	            boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, init.type());
+	            if (rhsNeedsCast) {
+	                sw.write("x10aux::class_cast<");
+	                emitter.printType(aType, sw);
+	                sw.write(" >(");
+	            }
+	            dec.print(init, sw, tr);
+	            if (rhsNeedsCast)
+	                sw.write(")");
 	            sw.write(";");
 	            sw.newline();
+	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	        }
 	    }
 	    if (sawInit) {
@@ -1359,7 +1367,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			assert (!dec.flags().flags().isStatic());
 			TypeSystem ts = tr.typeSystem();
 			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-					Types.ref(container), Name.make(THIS)).asInstance();
+			        Types.ref(container), Name.make(THIS)).asInstance();
 			context.addVariable(ti);
 			if (hasInits)
 				sw.newline();
