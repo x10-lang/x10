@@ -66,6 +66,14 @@ public class SharedVarsMethods{
 				knownSpecialPackages.add(x);
 				Package x_c = xts.packageForName(QName.make("x10.compilergenerated"));
 				knownSpecialPackages.add(x_c);
+				Package x_cc = xts.packageForName(QName.make("x10.compiler"));
+				knownSpecialPackages.add(x_cc);
+				Package x_io = xts.packageForName(QName.make("x10.io"));
+				knownSpecialPackages.add(x_io);
+				Package x_rt = xts.packageForName(QName.make("x10.runtime"));
+				knownSpecialPackages.add(x_rt);
+				Package x_u = xts.packageForName(QName.make("x10.util"));
+				knownSpecialPackages.add(x_u);
 			} catch (SemanticException e) { assert (false); }
 		}
 

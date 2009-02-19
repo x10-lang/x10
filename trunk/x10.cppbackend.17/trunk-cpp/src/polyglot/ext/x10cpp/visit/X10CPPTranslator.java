@@ -60,6 +60,7 @@ import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
+import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_FQN;
 
 public class X10CPPTranslator extends Translator {
 	public static final class DelegateTargetFactory extends TargetFactory {
@@ -405,7 +406,8 @@ public class X10CPPTranslator extends Translator {
 		if (sfn.package_() != null) {
 			w.write("using namespace ");
 			sw.pushCurrentStream(w);
-			sfn.package_().del().translate(sw, this);
+			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			// sfn.package_().del().translate(sw, this);
 			sw.popCurrentStream();
 			w.write(";");
 			w.newline();
@@ -418,7 +420,8 @@ public class X10CPPTranslator extends Translator {
 		if (sfn.package_() != null) {
 			w.write("namespace ");
 			sw.pushCurrentStream(w);
-			sfn.package_().del().translate(sw, this);
+			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			// sfn.package_().del().translate(sw, this);
 			sw.popCurrentStream();
 			w.write(" {");
 			w.newline(0);
@@ -436,7 +439,8 @@ public class X10CPPTranslator extends Translator {
 			w.newline(0);
 			w.write("} // namespace ");
 			sw.pushCurrentStream(w);
-			sfn.package_().del().translate(sw, this);
+			w.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			// sfn.package_().del().translate(sw, this);
 			sw.popCurrentStream();
 			w.newline(0);
 		}
@@ -450,7 +454,8 @@ public class X10CPPTranslator extends Translator {
 		if (sfn.package_() != null) {
 			h.write("namespace ");
 			sw.pushCurrentStream(h);
-			sfn.package_().del().translate(sw, this);
+			h.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			//sfn.package_().del().translate(sw, this);
 			sw.popCurrentStream();
 			h.write(" {");
 			h.newline(0);
@@ -466,7 +471,8 @@ public class X10CPPTranslator extends Translator {
 			h.newline(0);
 			h.write("} // namespace ");
 			sw.pushCurrentStream(h);
-			sfn.package_().del().translate(sw, this);
+			h.write(translate_mangled_FQN(sfn.package_().package_().get().fullName().toString()));
+			//sfn.package_().del().translate(sw, this);
 			sw.popCurrentStream();
 			h.newline(0);
 		}
@@ -527,7 +533,6 @@ public class X10CPPTranslator extends Translator {
 			"-lx10lang",
 			"-lx10",
 			"-ldl",
-			"-llapi"
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();

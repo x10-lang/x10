@@ -17,6 +17,7 @@ import static polyglot.ext.x10cpp.visit.ASTQuery.outerClosure;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_method_name;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
 import static polyglot.ext.x10cpp.visit.Emitter.translateFQN;
+import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_FQN;
 import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_NSFQN;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 
@@ -422,7 +423,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.forceNewline(0);
 			if (n.classDef().package_() != null) {
 				h.write("namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().get().fullName().toString())));
+				h.write(translate_mangled_FQN(n.classDef().package_().get().fullName().toString()));
 				h.write(" {");
 				h.newline(0);
 			}
@@ -465,7 +466,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (n.classDef().package_() != null) {
 				h.newline(0);
 				h.write("} // namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().get().fullName().toString())));
+				h.write(translate_mangled_FQN(n.classDef().package_().get().fullName().toString()));
 				h.newline(0);
 			}
 		}
