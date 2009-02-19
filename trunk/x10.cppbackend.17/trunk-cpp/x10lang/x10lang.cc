@@ -387,8 +387,8 @@ namespace io {
         return (x10_int)c;
     }
 
-    void FILEPtrInputStream::gets(char* s, int num) {
-        ::fgets(s, num, _stream);  // FIXME: check for errors
+    char* FILEPtrInputStream::gets(char* s, int num) {
+        return ::fgets(s, num, _stream);
     }
 
     //////////////////////////////////////////////////////////////
@@ -397,8 +397,13 @@ namespace io {
 
     x10::ref<x10::lang::String> DataInputStream::readLine() {
         char buf[1000]; // FIXME
-        this->gets(buf, 1000);
-        return new (x10::alloc<x10::lang::String>()) x10::lang::String(buf); // FIXME: what about the trailing newline?
+        char* res = this->gets(buf, 1000);
+        if (res == NULL)
+            return NULL;
+        int last = strlen(buf)-1;
+        if (buf[last] == '\n')
+            buf[last] = '\0';
+        return new (x10::alloc<x10::lang::String>()) x10::lang::String(buf);
     }
 
     void DataInputStream::readFully(const x10::ref<x10::array<x10_byte> >& b) {
@@ -435,6 +440,12 @@ x10::lang::place __here__ = x10::lang::here();
 namespace x10 {
 namespace lang {
     //////////////////////////////////////////////////////////////
+    // x10::lang::Math implementation
+    //////////////////////////////////////////////////////////////
+
+    const double Math::x10__PI = 3.141592653589793;
+
+    //////////////////////////////////////////////////////////////
     // x10::lang::System implementation
     //////////////////////////////////////////////////////////////
 
@@ -452,14 +463,14 @@ namespace lang {
     }
 
     x10_long System::nanoTime() {
-        struct timespec ts;
+        struct ::timespec ts;
         // clock_gettime is POSIX!
         ::clock_gettime(CLOCK_REALTIME, &ts);
         return (x10_long)(ts.tv_sec * 1000000000LL + ts.tv_nsec);
     }
     
     x10_long System::currentTimeMillis() {
-        struct timespec ts;
+        struct ::timespec ts;
         // clock_gettime is POSIX!
         ::clock_gettime(CLOCK_REALTIME, &ts);
         return (x10_long)(ts.tv_sec * 1000L + ts.tv_nsec / 1000000);
@@ -642,7 +653,17 @@ namespace lang {
         return to_string(value, 0, value->x10__length);
     }
     const string String::to_string(const ref<array<x10_char> >& value, x10_int offset, x10_int count) {
-        return string(((char*)value->raw())+offset*sizeof(char), count);
+        char buf[count];
+        for (int i = 0; i < count; i++)
+            buf[i] = (char)value->raw()[offset+count];
+        return string(buf, count);
+    }
+    x10::ref<x10::array<x10_char> > String::toCharArray() const {
+        x10::array<x10_char>* arr = alloc_array<x10_char>((x10_int)(size()));
+        x10_char* buf = arr->raw();
+        for (int i = 0; i < size(); i++)
+            buf[i] = (x10_char)at(i);
+        return arr;
     }
     const string String::to_string(const place& p) {
         return to_string(p.x10__id);
@@ -676,6 +697,20 @@ namespace lang {
 
     x10_int String::indexOf(x10_char c, x10_int i) const {
         size_type res = find((char)c, (size_type)i);
+        if (res == string::npos)
+            return (x10_int) -1;
+        return (x10_int) res;
+    }
+
+    x10_int String::lastIndexOf(const ref<String>& str, x10_int i) const {
+        size_type res = rfind(dynamic_cast<const string&>(*str), (size_type)i);
+        if (res == string::npos)
+            return (x10_int) -1;
+        return (x10_int) res;
+    }
+
+    x10_int String::lastIndexOf(x10_char c, x10_int i) const {
+        size_type res = rfind((char)c, (size_type)i);
         if (res == string::npos)
             return (x10_int) -1;
         return (x10_int) res;

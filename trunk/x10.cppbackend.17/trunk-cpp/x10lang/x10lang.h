@@ -23,12 +23,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <string>
 #ifndef NO_IOSTREAM
 #  include <iostream>
 #endif
 #include <stdint.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include <math.h>
 #include <errno.h>
 #ifdef __GNUC__
@@ -515,7 +517,8 @@ namespace java {
         class InputStream : public x10::lang::Object {
         protected:
             explicit InputStream(const char* _t = NULL) : Object(_t?_t:TYPEID(*this,"java::io::InputStream")) { }
-            virtual void gets(char* s, int num) = 0;
+            explicit InputStream() : Object() { }
+            virtual char* gets(char* s, int num) = 0;
         public:
             virtual void close() { }
             virtual x10_int read() = 0;
@@ -526,7 +529,7 @@ namespace java {
         // FILEPtrInputStream
         class FILEPtrInputStream : public java::io::InputStream, public FILEPtrStream {
         protected:
-            void gets(char* s, int num);
+            char* gets(char* s, int num);
         public:
             explicit FILEPtrInputStream(FILE* stream, const char* _t = NULL) : InputStream(_t?_t:TYPEID(*this,"java::io::FILEPtrInputStream")), FILEPtrStream(stream) { }
             x10_int read(const x10::ref<x10::array<x10_byte> >& b, x10_int off, x10_int len);
@@ -541,7 +544,7 @@ namespace java {
         class FilterInputStream : public java::io::InputStream {
         protected:
             const x10::ref<InputStream> in;
-            void gets(char* s, int num) { in->gets(s, num); }
+            char* gets(char* s, int num) { return in->gets(s, num); }
             explicit FilterInputStream(const x10::ref<InputStream>& _in, const char* _t = NULL) : InputStream(_t?_t:TYPEID(*this,"java::io::FilterInputStream")), in(_in) { }
         public:
             void close() { in->close(); }
@@ -618,6 +621,10 @@ namespace x10 {
             static void __init__in_out_err();
             friend class x10::__init__;
         };
+// math.h defines M_PI
+#undef M_PI
+// math.h defines log2 as a macro
+#undef log2
         // x10.lang.Math
         class Math {
         private:
@@ -652,14 +659,11 @@ namespace x10 {
                 static java::util::Random rand;
                 return rand.nextDouble();
             }
+            static const double x10__PI;
 	    template <typename T> static T ceil(T a){ return ::ceil(a);}
 	    template <typename T> static T floor(T a){ return ::floor(a);}
 	    template <typename T> static T round(T a){ return ::round(a);}
         };
-// math.h defines M_PI
-#undef M_PI
-// math.h defines log2 as a macro
-#undef log2
     }
     namespace compilergenerated {
         // x10.compilergenerated.Boxed*
@@ -692,7 +696,7 @@ namespace x10 {
         DECLARE_BOXED_TYPE(Float, float);
         DECLARE_BOXED_TYPE(Double, double);
     }
-    extern array<ref<x10::lang::String> > * convert_args(int ac, char **av);
+    extern array<ref<x10::lang::String> >* convert_args(int ac, char **av);
     extern void free_args(array<ref<x10::lang::String> > *arr);
     namespace lang {
         // x10.lang.String
@@ -734,10 +738,13 @@ namespace x10 {
             String operator+(const String& s) const;
             x10_int indexOf(const ref<String>& s, x10_int i = 0) const;
             x10_int indexOf(x10_char c, x10_int i = 0) const;
+            x10_int lastIndexOf(const x10::ref<String>& s, x10_int i = 0) const;
+            x10_int lastIndexOf(x10_char c, x10_int i = 0) const;
             String substring(x10_int start, x10_int end) const;
             String substring(x10_int start) const { return substring(start, this->length()); }
             x10_char charAt(x10_int i) const;
-    	    friend array<ref<x10::lang::String> > * convert_args(int ac, char **av);
+            x10::ref<x10::array<x10_char> > toCharArray() const;
+            friend array<ref<x10::lang::String> >* x10::convert_args(int ac, char **av);
             friend void x10::free_args(array<ref<x10::lang::String> > *arr);
         };
 
