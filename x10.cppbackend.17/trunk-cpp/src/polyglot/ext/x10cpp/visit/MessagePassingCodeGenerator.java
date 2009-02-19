@@ -655,8 +655,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.newline();
 		}
 		boolean nativeTranslated = false;
+		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
 		if (dec.flags().flags().isNative()) {
-			X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
 		        // Abstract native methods don't make sense.
 			assert (!mi.flags().isAbstract());
 			String pat = getCppImplForDef(mi.x10Def());
@@ -692,8 +692,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} 
 		// Neither have  a body nor have the correct native
 		// directive.
-		if (!nativeTranslated && dec.body() == null){
-			
+		if (!nativeTranslated && dec.body() == null && (!mi.flags().isAbstract())){
 			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
 				"Warning: Neither body nor correct directive! "+dec.toString(), dec.position());
 		}
