@@ -638,16 +638,41 @@ public class X10CPPTranslator extends Translator {
     }
 
     private static class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
+        /** These go before the files */
+        public static final String[] preArgsCygwin = new String[] {
+            "-msse2",
+            "-mfpmath=sse",
+        };
+        /** These go after the files */
+        public static final String[] postArgsCygwin = new String[] {
+        };
+
         public Cygwin_CXXCommandBuilder(Options options) {
             super(options);
             assert (PLATFORM.startsWith("win32"));
         }
+
+        protected void addPreArgs(ArrayList<String> cxxCmd) {
+            super.addPreArgs(cxxCmd);
+            for (int i = 0; i < preArgsCygwin.length; i++) {
+                cxxCmd.add(preArgsCygwin[i]);
+            }
+        }
+
+        protected void addPostArgs(ArrayList<String> cxxCmd) {
+            super.addPostArgs(cxxCmd);
+            for (int i = 0; i < postArgsCygwin.length; i++) {
+                cxxCmd.add(postArgsCygwin[i]);
+            }
+        }
     }
 
     private static class Linux_CXXCommandBuilder extends CXXCommandBuilder {
-        /** These go after the files */
+        /** These go before the files */
         public static final String[] preArgsLinux = new String[] {
             "-pthread",
+            "-msse2",
+            "-mfpmath=sse",
         };
         /** These go after the files */
         public static final String[] postArgsLinux = new String[] {
@@ -682,7 +707,7 @@ public class X10CPPTranslator extends Translator {
         public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
         //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
         //"mpCC_r -q64 -qrtti=all"
-        /** These go after the files */
+        /** These go before the files */
         public static final String[] preArgsAIX = new String[] {
             USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
             USE_XLC ? "-qrtti=all" : DUMMY,
