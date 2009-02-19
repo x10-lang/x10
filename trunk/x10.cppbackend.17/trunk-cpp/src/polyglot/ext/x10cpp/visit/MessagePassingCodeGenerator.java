@@ -150,6 +150,7 @@ import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
@@ -1970,10 +1971,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             int counter = 0;
 			for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
 				Expr e = (Expr) i.next();
-                String type = emitter.translateType(mi.formalTypes().get(counter),true);
-                sw.write("("+type+")(");
+                Type fType = mi.formalTypes().get(counter);
+                boolean argNeedsCast = !xts.typeDeepBaseEquals(fType, e.type());
+                if (argNeedsCast) {
+                    sw.write("x10aux::class_cast<");
+                    emitter.printType(fType, sw);
+                    sw.write(" >(");
+                }
 				n.print(e, sw, tr);
-                sw.write(")");
+                if (argNeedsCast)
+                    sw.write(")");
 				if (i.hasNext()) {
 					sw.write(",");
 					sw.allowBreak(0, " ");
@@ -2762,6 +2769,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         List<Type> freeTypeParams = new ArrayList<Type>();
         // FIXME: handle static field initializers here
+        while (ci instanceof ClosureInstance)
+            ci = ((ClosureDef) ci.def()).methodContainer().get();
         if (ci instanceof X10MethodInstance) {
             X10MethodInstance xmi = (X10MethodInstance) ci;
             // in X10, static methods do not inherit the template params of their classes
