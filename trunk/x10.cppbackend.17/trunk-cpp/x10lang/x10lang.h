@@ -2668,3 +2668,5 @@ namespace x10{
 #endif
 
 typedef x10::lang::String     x10__String;
+typedef x10::lang::Object     x10__Object;
+typedef x10::lang::System     x10__System;
