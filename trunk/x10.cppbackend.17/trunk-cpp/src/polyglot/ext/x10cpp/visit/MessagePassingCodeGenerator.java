@@ -476,8 +476,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		X10ClassDef def = (X10ClassDef) n.classDef();
 		if (getCppRep(def, tr) != null) {
-			w.write(";");
-			w.newline();
+            // emit no c++ code as this is a native rep class
 			return;
 		}
 		context.setinsideClosure(false);
