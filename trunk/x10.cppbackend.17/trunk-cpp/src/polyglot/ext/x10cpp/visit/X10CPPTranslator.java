@@ -472,7 +472,7 @@ public class X10CPPTranslator extends Translator {
 
         public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
         public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
-        public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
+        public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
 
         public static final String MANIFEST = X10LANG+"/libx10lib17.mft";
         /** These go before the files */
@@ -710,6 +710,7 @@ public class X10CPPTranslator extends Translator {
     }
 
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
+    public static final String DEFAULT_TRANSPORT = PLATFORM.startsWith("aix")?"lapi":"sockets";
 
     private static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
         if (PLATFORM.startsWith("win32"))
