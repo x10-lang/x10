@@ -1,0 +1,61 @@
+// @author: Pradeep Varma
+//================= IR representation of HWFinishAsync.x10 ====================
+
+// Namespace is an IR construct, to represent X10 classes and interfaces
+NAMESPACE HWFinishAsync EXTENDS x10$$$lang$$$Object 
+
+// Method signatures are given below
+
+        @ static NULLABLE Exception NULLABLE VOID HelloWorld$$main ([ ] String ) ;
+// Function declarations are given below
+
+@ static NULLABLE Exception NULLABLE VOID HelloWorld$$main [] String  s
+
+            L# 0 @ FUNCSTART FINISHBEGIN
+            L# 5 NULLABLE $Activity TEMP10 := 
+                       @ Async NULLABLE $Activity CREATEACTIVITY Place HERE L# 20
+ 
+            // check if activity got created
+            L# 6 BOOLEAN TEMP16 := BOOLEAN NULLCHECKPASS NULLABLE $Activity TEMP10
+            L# 7 IF BOOLEAN TEMP16 GOTO L# 100             // If created fine, goto L# 100
+
+            L# 8 MULTIEXCEPTIONUPDATE Exception $createActivityFailureException 
+                             // using global exception values for now to avoid dealing with
+                             // exceptions in creating exceptions
+            // Ought to revisit createActivity’s exception mechanism 
+            // (return explicit exception than NULL)
+            L# 10 GOTO L# 100
+
+         
+           // Async code
+            L# 20 ASYNCBEGIN
+            L# 25 String TEMP20 := String  String "Hello, World!" 
+            
+            // call to System.out.println
+            L# 30 NULLABLE Exception TEMP25 NULLABLE VOID TEMP26:= 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String TEMP20   
+                        // overloaded function names? Need to flatten out?
+            
+            L# 35 BOOLEAN TEMP35 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP25
+
+            L# 40 IF BOOLEAN TEMP35 GOTO L# 44             // If exception, goto 44
+            L# 42 GOTO L# 50
+
+            // throw exception to root activity
+            L# 44 @ verified Exception TEMP37 := Exception TYPECAST NULLABLE Exception TEMP25 Exception
+            L# 45 MULTIEXCEPTIONUPDATE Exception TEMP37
+ 
+            L# 50 ASYNCEND
+        
+            L# 100 FINISHEND
+            L# 110 NULLABLE Exception TEMP50 := NULLABLE Exception GETMULTIEXCEPTION
+            L# 120 BOOLEAN TEMP60 := BOOLEAN NULLCHECKPASS  NULLABLE Exception TEMP50
+            L# 130 IF BOOLEAN TEMP60 GOTO L# 140             // If exception, goto 140
+            L# 135 GOTO L# 200
+            L# 140 PRETURN NULLABLE Exception TEMP50 NULLABLE VOID NULL         // exception return
+
+
+            L# 200 @FUNCEND PRETURN NULLABLE Exception NULL NULLABLE VOID NULL   // normal return
+                                 
+
+
