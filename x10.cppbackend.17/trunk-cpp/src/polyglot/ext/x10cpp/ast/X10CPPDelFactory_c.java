@@ -123,10 +123,10 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
 	}
 
 	/**
-	 * For each nullable type node, add the delegate that redirects translate
+	 * For each TypeDecl node, add the delegate that redirects translate
 	 * to the X10PrettyPrinterVisitor.
 	 */
-	public JL delNullableNodeImpl() {
+	public JL delTypeDeclNodeImpl() {
 		return new TD();
 	}
 
