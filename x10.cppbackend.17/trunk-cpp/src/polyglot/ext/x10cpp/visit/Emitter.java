@@ -552,21 +552,27 @@ public class Emitter {
 				}
 				h.write(");"); h.end(); h.newline();
 			h.write("}"); h.newline();
-			h.write("virtual std::string name() const { ");
+			h.write("virtual const char *name() const { ");
 				//TODO: type parameters
 				if (ct.typeArguments().isEmpty()) {
 					h.write("return \""+x10name+"\"; ");
 				} else {
                     h.newline(4); h.begin(0);
-					h.write("std::stringstream ss;"); h.newline();
-					h.write("ss << \""+x10name+"[\"");
+					h.write("static const char *name = "); h.newline(4);
+					h.write("x10aux::alloc_printf("); h.begin(0);
+                    h.write("\""+x10name+"[");
 					String comma = "";
 					for (Type param : ct.typeArguments()) {
-						h.write(comma+" << x10aux::getRTT<"+translateType(param)+">()->name()");
-						comma = " << \",\"";
+						h.write(comma+"%s");
+						comma = ",";
 					}
-					h.write(" << \"]\";") ; h.newline();
-					h.write("return ss.str();"); h.end(); h.newline();
+                    h.write("]\"");
+					for (Type param : ct.typeArguments()) {
+						h.write(","); h.newline();
+                        h.write("x10aux::getRTT<"+translateType(param)+">()->name()");
+					}
+					h.write(");") ; h.end(); h.newline();
+					h.write("return name;"); h.end(); h.newline();
 				}
 			h.write("}"); h.end(); h.newline();
 		h.write("};"); h.newline();
