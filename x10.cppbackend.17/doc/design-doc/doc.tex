@@ -1,0 +1,43 @@
+\documentclass{article}
+\def\XCPP{\mbox{\tt X10Cpp}}
+\def\Xten{\mbox{\tt X10}}
+\def\async{\mbox{\tt async}}
+\begin{document}
+\section{Introduction}
+\section{List of output files}
+The \XCPP{} compiler generates three files per public \Xten{} class, which
+combined together reflect the behavior of the original \Xten{} class. 
+\begin{enumerate}
+\item A header file (.h) that contains the skeleton for the translated class, and the
+forward declarations required for the skeleton class.
+
+\item A .cc file that contains the definitions of all the members of the
+class.
+
+\item A .inc file that contains the bodies of the different closures that
+are built for invoking \async{} statements, and a dispatcher that invokes \async{}s.
+\end{enumerate}
+\section{Sequence of passes in the compiler}
+\subsection{Built in Analyses}
+\subsubsection{SPMD analysis}
+\subsubsection{Inter procedural analysis}
+\subsection{Explanation of different visit methods}
+\subsubsection{Class Declaration}
+\subsubsection{Method Declaration}
+\subsubsection{Variable Declaration}
+\subsubsection{...}
+
+
+\section {Flat X10}
+Copy some code from the ICS submission.
+\subsection{List of unsupported constructs in the current implementation}
+\subsection{ List of assumptions in the current compiler }
+Some of these correspond to the asserts in the code.
+
+\subsection{Beyond Flat X10 in the current implementation}
+
+\section{Extending Flat X10 compilation to complete X10}
+\subsection{List of the things that we do not support in X10}
+\end{document}
+
+
