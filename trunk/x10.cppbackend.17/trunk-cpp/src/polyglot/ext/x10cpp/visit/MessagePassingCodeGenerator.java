@@ -1738,7 +1738,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		if (ts.isSubtype(n.objectType().type(), ts.Throwable()) && n.arguments().size() == 0) {
 			String stringType = emitter.translateType(ts.String());
-			w.write(stringType+"(__FILE__ \":\")+"+stringType+"((x10_int)__LINE__)");
+			w.write("*x10aux::to_string(__FILE__ \":\")+*x10aux::to_string((x10_int)__LINE__)");
 		}
 		w.end();
 		w.write(")");
@@ -1767,7 +1767,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		else
 			throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
 		w.write("("); w.begin(0);
-		w.write("(" + emitter.translateType(n.type()) + ")");
+		w.write("(" + emitter.translateType(n.type(),true) + ")");
 		w.write(val);
 		w.end(); w.write(")");
 	}
@@ -1981,7 +1981,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// So, we have to do the dispatching ourselves.
 		w.newline();
 		String refVar = "__ref__" + getUniqueId_();
-		w.write("catch (x10::__ref& " + refVar + ") {");
+		w.write("catch (x10aux::__ref& " + refVar + ") {");
 		w.newline(4); w.begin(0);
 		String excVar = "__exc" + refVar;
 		String exception_ref = make_ref("Exception");
@@ -3033,9 +3033,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("x10aux::alloc_rail<");
         emitter.printType(T, w); 
 		w.write(",");
+        w.allowBreak(0, " ");
         // TODO: we don't want x10aux::ref<Rail<T> > here
         // Use the NativeRep stuff
-        emitter.printType(c.type(), w); 
+        w.write(emitter.translateType(c.type())); 
 		w.write(" >("+c.arguments().size());
 		for (Expr e:c.arguments()) {
             w.write(",");
