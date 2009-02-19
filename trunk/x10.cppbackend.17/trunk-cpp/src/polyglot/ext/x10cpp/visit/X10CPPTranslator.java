@@ -125,8 +125,12 @@ public class X10CPPTranslator extends Translator {
 			return packageName.replace('.', '/') + '/';
 		}
 
+		private String mangleClassName(String className) {
+			return Emitter.mangled_non_method_name(className);
+		}
+
 		public String outputName(String packageName, String className) {
-			return packagePath(packageName) + className.replace('$','_') + "." + outputExtension;
+			return packagePath(packageName) + mangleClassName(className) + "." + outputExtension;
 		}
 
 		/* (non-Javadoc)
@@ -156,7 +160,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public String outputHeaderName(String packageName, String className) {
-			return packagePath(packageName) + className.replace('$','_') + "." + outputHeaderExtension;
+			return packagePath(packageName) + mangleClassName(className) + "." + outputHeaderExtension;
 		}
 
 		public File outputHeaderFile(String packageName, String className, Source source) {
@@ -169,7 +173,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public String integratedOutputName(String packageName, String className, String ext) {
-			return packagePath(packageName) + className.replace('$','_') + "." + ext;
+			return packagePath(packageName) + mangleClassName(className) + "." + ext;
 		}
 
 		public File integratedOutputFile(String packageName, String className, Source source, String ext) {
