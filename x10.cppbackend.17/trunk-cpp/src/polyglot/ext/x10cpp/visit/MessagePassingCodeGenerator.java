@@ -331,7 +331,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		if (hasInits) {
-			w.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
+			w.write("public : static " + VOID + " " + STATIC_INIT + "();");
 			w.newline();
 		}
 		w.end(); w.newline();
@@ -463,7 +463,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		if (inits.size() > 0) {
-			w.write(VOID_PTR + " " + container + "::" + STATIC_INIT + "() {");
+			w.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
 			w.newline(4); w.begin(0);
 			w.write("_I_(\"Doing static initialisation for class: "+container+"\");"); w.newline();
 			for (FieldDecl_c fd : inits) {
@@ -476,7 +476,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(";");
 				w.newline();
 			}
-            w.write("return NULL;");
+            //w.write("return NULL;");
 			w.end(); w.newline();
 			w.write("}"); w.newline();
 			w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
@@ -948,8 +948,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
 			}
 
-			if (extractInits(currentClass, STATIC_INIT, VOID_PTR, members, w, true)) {
-				h.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
+			if (extractInits(currentClass, STATIC_INIT, VOID, members, w, true)) {
+				h.write("public : static " + VOID + " " + STATIC_INIT + "();");
 				h.newline();
 				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
 						" = x10aux::InitDispatcher::addInitializer(" + 
