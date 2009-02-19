@@ -1279,12 +1279,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // emit _make method
             h.write("static ");
             sw.pushCurrentStream(h);
-            emitter.printHeader(dec, sw, tr, false, MAKE, false);
+            emitter.printHeader(dec, sw, tr, false, MAKE, make_ref(typeName));
             sw.popCurrentStream();
             h.allowBreak(0, " "); h.write("{"); h.newline(4); h.begin(0);
-            h.write("x10aux::ref"+chevrons(typeName)+" this_ = "+
+            h.write(make_ref(typeName)+" this_ = "+
                         "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); h.newline();
-            h.write("return this_->"+CONSTRUCTOR+"(");
+            h.write("this_->"+CONSTRUCTOR+"(");
             for (Iterator i = dec.formals().iterator(); i.hasNext(); ) {
                 Formal f = (Formal) i.next();
                 h.write(mangled_non_method_name(f.name().id().toString()));
@@ -1293,16 +1293,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     h.allowBreak(0, " ");
                 }
             }
-            h.write(");");
+            h.write(");"); h.newline();
+            h.write("return this_;");
             h.end(); h.newline();
             h.write("}"); h.newline(); // no gap between _make and _constructor
         }
 
         sw.pushCurrentStream(h);
-		emitter.printHeader(dec, sw, tr, false, CONSTRUCTOR, true);
+		emitter.printHeader(dec, sw, tr, false, CONSTRUCTOR, "void");
         sw.popCurrentStream();
+        h.write(";") ; h.newline();
         h.forceNewline();
-		emitter.printHeader(dec, sw, tr, true, CONSTRUCTOR, false);
+		emitter.printHeader(dec, sw, tr, true, CONSTRUCTOR, "void");
 		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
 		if (dec.body() == null) {
             assert false : dec.position().toString();
@@ -1366,7 +1368,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.newline();
             }
         }
-        sw.write("return this;"); sw.end(); sw.newline();
+        sw.end(); sw.newline();
         sw.write("}");
 
 		sw.newline(); sw.forceNewline();
