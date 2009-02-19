@@ -440,20 +440,19 @@ public class X10CPPTranslator extends Translator {
 		ClassifiedStream w = sw.cs;
 		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
 
-		//String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
-		String guard = wstreams.getHeader().getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
+        DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
+        String pkg = "";
+        if (sfn.package_() != null) {
+            pkg = sfn.package_().package_().get().fullName().toString();
+        }
+        String header = tf.outputHeaderName(pkg, cd.name().toString());
+        String guard = header.replace('/','_').replace('.','_').replace('$','_').toUpperCase();
 		h.write("#ifndef __"+guard); h.newline();
 		h.write("#define __"+guard); h.newline();
 		h.forceNewline(0);
 		h.write("#include <x10rt17.h>"); h.newline();
 		h.forceNewline(0);
 
-		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
-		String pkg = "";
-		if (sfn.package_() != null) {
-			pkg = sfn.package_().package_().get().fullName().toString();
-		}
-		String header = tf.outputHeaderName(pkg, cd.name().toString());
 		w.write("#include <"+header+">"); w.newline();
 		w.forceNewline(0);
 		//w.write("using namespace x10;"); w.newline();
