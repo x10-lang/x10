@@ -131,6 +131,7 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.ast.SubtypeTest_c;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
@@ -2206,6 +2207,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		case CALL:
 			throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
 		}
+	}
+
+	public void visit(SubtypeTest_c n) {
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        if (n.equals()) {
+            sw.write("x10aux::sametype");
+            sw.write(chevrons(
+                emitter.translateType(n.subtype().type(), true) + "," +
+                emitter.translateType(n.supertype().type(), true)
+            ));
+        } else {
+            sw.write("x10aux::subtypeof");
+            sw.write(chevrons(
+                emitter.translateType(n.subtype().type(), true) + "," +
+                emitter.translateType(n.supertype().type(), true)
+            ));
+		}
+		sw.write("()");
 	}
 
 	public void visit(X10Instanceof_c n) {
