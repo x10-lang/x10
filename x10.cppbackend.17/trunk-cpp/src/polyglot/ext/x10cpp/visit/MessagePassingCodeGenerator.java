@@ -106,6 +106,8 @@ import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
+import polyglot.ext.x10.ast.AtExpr_c;
+import polyglot.ext.x10.ast.AtStmt_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
 import polyglot.ext.x10.ast.ClosureCall_c;
@@ -115,6 +117,7 @@ import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
+import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
@@ -248,16 +251,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		this.query = new ASTQuery(sw, tr);
 	}
 
-	public void visit(Term_c n) {
-		// FIXME:
-		// For some reason TypeDecl_c visitor is not getting
-		// called directly.
-		if (n instanceof polyglot.ext.x10.ast.TypeDecl_c){
-			visit ((TypeDecl_c) n);
-			return;
-		}
-		assert false;
-	}
 	public void visit(TypeDecl_c n) {
 		// FIXME: I think we need to put a typedef for a TypeDecl.
 		// verify. [Krishna]
@@ -500,8 +493,42 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
 
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		DelegateTargetFactory tf = ((X10CPPTranslator) tr).getTargetFactory();
 		if (!n.classDef().isNested()) {
-			// SPMD fields
+			if (n.superClass() != null) {
+				ClassType ct = n.superClass().type().toClass();
+				String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+				if (cpp == null) {
+					String pkg = "";
+					if (ct.package_() != null)
+						pkg = ct.package_().fullName().toString();
+					String header = tf.outputHeaderName(pkg, ct.name().toString());
+					h.write("#include <" + header + ">");
+					h.newline();
+				}
+			}
+			// FIXME: HACK! [IP] Ignore the ValueType tag interface
+			if (!n.interfaces().isEmpty()
+					&& (!xts.isValueType((Type)n.classDef().asType()) || n.interfaces().size() > 1))
+			{
+				for (TypeNode i : n.interfaces()) {
+					ClassType ct = i.type().toClass();
+					// FIXME: HACK! [IP] Ignore the ValueType tag interface
+					if (ct.typeEquals(xts.Value()))
+						continue;
+					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+					if (cpp == null) {
+						String pkg = "";
+						if (ct.package_() != null)
+							pkg = ct.package_().fullName().toString();
+						String header = tf.outputHeaderName(pkg, ct.name().toString());
+						h.write("#include <" + header + ">");
+						h.newline();
+					}
+				}
+			}
+
 			// FIXME: [IP] There is a problem with include ordering.
 			// We cannot just blindly include a header for every type used
 			// because of recursive dependences.  So we need to do partial
@@ -524,24 +551,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // something for generic classes, in a manner that reflects the
             // (h,cc) pairing for non-generic classes.
 
+			// TODO: sort by namespace and combine things in the same namespace
 			X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
 			n.visit(xTypes);
 			if (xTypes.found()) {
-				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-				DelegateTargetFactory tf = ((X10CPPTranslator) tr).getTargetFactory();
 				populateKnownSpecialPackages(xts);
 
 				ArrayList typeNodes = xTypes.getMatches();
-				HashSet types = new HashSet();
+				HashSet<Type> types = new HashSet<Type>();
 				for (int i = 0; i < typeNodes.size(); i++) {
 					X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
 					Type type = t.type();
-                                        while (type.isArray() || query.isX10Array(type)) {
-                                                type = type.isArray() ? 
-                                                                        type.toArray().base() :
-                                                                        query.getX10ArrayElementType(type);
-                                        }
-
+					while (type.isArray() || query.isX10Array(type)) {
+						assert (false); // TODO: dead code, remove
+						type = type.isArray() ? 
+						                        type.toArray().base() :
+						                        query.getX10ArrayElementType(type);
+					}
 					if (!type.isClass() || xts.typeEquals(type, n.classDef().asType()))
 						continue;
 					ClassType ct = type.toClass();
@@ -551,30 +577,51 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						ct = ct.outer();
 					types.add(ct);
 				}
-				ArrayList<String> ifHistory = new ArrayList<String>();
-				for (Iterator is = types.iterator(); is.hasNext(); ) {
-					ClassType ct = (ClassType) is.next();
+				ArrayList<Type> ifHistory = new ArrayList<Type>();
+				for (Type t : types) {
+					ClassType ct = (ClassType) t;
 					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
 					if (cpp != null)
 						continue;
-					String pkg = "";
+					QName pkg = null;
 					if (ct.package_() != null)
-						pkg = ct.package_().fullName().toString();
-					String header = tf.outputHeaderName(pkg, ct.name().toString());
-					emitter.emitUniqueIF(header, ifHistory, h);
-					h.newline();
+						pkg = ct.package_().fullName();
+					if (!ifHistory.contains(ct)) {
+						String pkgs = pkg == null ? "" : pkg.toString();
+						String header = tf.outputHeaderName(pkgs, ct.name().toString());
+						if (pkg != null) {
+							Emitter.openNamespaces(h, pkg);
+							h.newline(0);
+						}
+						X10ClassDef cd = (X10ClassDef) ct.def();
+						if (cd.typeParameters().size() > 0) {
+							h.write("template <");
+							boolean first = true;
+							for (ParameterType pt : cd.typeParameters()) {
+								if (first)
+									first = false;
+								else {
+									h.write(",");
+									h.allowBreak(4, " ");
+								}
+								h.write("class ");
+								h.write(emitter.translateType(pt));
+							}
+							h.write(">");
+							h.allowBreak(2, " ");
+						}
+						h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
+						h.newline();
+						if (pkg != null) {
+							h.newline(0);
+							Emitter.closeNamespaces(h, pkg);
+							h.newline(0);
+						}   
+						w.write("#include <" + header + ">");
+						w.newline();
+						ifHistory.add(ct);
+					}
 				}
-
-//				ArrayList<String> usHistory = new ArrayList<String>();
-//				for (Iterator is = context.pendingImplicitImports.iterator(); is.hasNext();) {
-//					String in = (String) is.next();
-//					emitter.emitUniqueIF(in, ifHistory, h);
-//					h.newline();
-//					String us = (String) is.next();
-//					emitter.emitUniqueUS(us, usHistory, h);
-//					h.newline();
-//				}
-//				context.pendingImplicitImports.clear();  
 
 				ArrayList<String> unHistory = new ArrayList<String>();
 				for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
@@ -582,16 +629,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					Package_c rt = null;
 					try {
 					if (xts.forName(in.name()) instanceof Package_c){
-						String unName = translateFQN(in.name().toString());
+						QName unName = in.name();
 						emitter.emitUniqueNS(unName, unHistory, h);
 
 					} else if (knownSpecialPackages.contains(xts.packageForName(in.name())) ) { // library class import.
-
-						String unName = translateFQN(in.name().toString().substring(0,in.name().toString().lastIndexOf('.')));
+						QName unName = in.name().qualifier();
 						emitter.emitUniqueNS(unName, unHistory, h);
 					}
 					else {// import user defined class
-						String unName = translate_mangled_NSFQN(in.name().toString());
+						QName unName = in.name().qualifier();
 						emitter.emitUniqueNS(unName, unHistory, h);
 					}
 					h.newline();
@@ -603,10 +649,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				context.pendingImports.clear();  // Just processed all imports - clean up
 			}
 			h.forceNewline(0);
-			if (n.classDef().package_() != null) {
-                QName fullName = n.classDef().package_().get().fullName();
-                Emitter.openNamespaces(h,fullName);
+			if (def.package_() != null) {
+                QName pkgName = def.package_().get().fullName();
+				Emitter.openNamespaces(h, pkgName);
 				h.newline(0);
+				Emitter.openNamespaces(w, pkgName);
+				w.newline(0);
 			}
 		}
 
@@ -625,7 +673,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		processNestedClasses(n);
 
 		ArrayList asyncs = context.closures.asyncs;
-		if (context.classesWithAsyncSwitches.size()!=0) {
+		if (context.classesWithAsyncSwitches.size() != 0) {
 			emitter.printSwitchMethod(n.classDef().asType(), ASYNC_SWITCH, VOID,
 					ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
 					context.closures.asyncContainers,
@@ -635,7 +683,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			emitter.printAsyncsRegistration(n.classDef().asType(), asyncs, 
 					ws.getCurStream(WriterStreams.StreamClass.Closures));
 		}
-		if (context.closures.arrayCopyClosures.size()!=0)
+		if (context.closures.arrayCopyClosures.size() != 0)
 			emitter.printSwitchMethod(n.classDef().asType(), ARRAY_COPY_SWITCH, VOID_PTR,
 					ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
 					context.closures.arrayCopyClosures, 
@@ -643,12 +691,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					null, null,
 					context.classesWithArrayCopySwitches, ws.getCurStream(WriterStreams.StreamClass.Closures));
 
-		if (!n.classDef().isNested()) {
-			if (n.classDef().package_() != null) {
-				h.newline(0);
-                Emitter.closeNamespaces(h,n.classDef().package_().get().fullName());
-				h.newline(0);
-			}
+		if (!def.isNested() && def.package_() != null) {
+			QName pkgName = def.package_().get().fullName();
+			h.newline(0);
+			Emitter.closeNamespaces(h, pkgName);
+			h.newline(0);
+			w.newline(0);
+			Emitter.closeNamespaces(w, pkgName);
+			w.newline(0);
 		}
 		w.newline(0);
 	}
@@ -2021,7 +2071,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //	            break;
 
 		// FIXME: Handle boxing and unboxing. Need generics?
-		assert (false);
+//		assert (false);
 		break;
 	        case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
@@ -3233,24 +3283,45 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		w.write(")");
 	}
-	public void visit(When_c n) {
-		 assert (n.exprs() == null || n.exprs().size() == 0);
-		 assert (n.stmts() == null || n.stmts().size() == 0);
-		 X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		 context.canInline = false;
 
-		 w.write("while (!(");
-		 w.begin(0);
-		 sw.pushCurrentStream(w);
-		 n.print(n.expr(), sw, tr);
-		 sw.popCurrentStream();
-		 w.end();
-		 w.write(")) x10::async_poll();");
-		 w.newline();
-		 sw.pushCurrentStream(w);
-		 n.printSubStmt(n.stmt(), sw, tr);
-		 sw.popCurrentStream();
-	 }
-	
+	public void visit(When_c n) {
+		assert (n.exprs() == null || n.exprs().size() == 0);
+		assert (n.stmts() == null || n.stmts().size() == 0);
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		context.canInline = false;
+		
+		w.write("while (!(");
+		w.begin(0);
+		sw.pushCurrentStream(w);
+		n.print(n.expr(), sw, tr);
+		sw.popCurrentStream();
+		w.end();
+		w.write(")) x10::async_poll();");
+		w.newline();
+		sw.pushCurrentStream(w);
+		n.printSubStmt(n.stmt(), sw, tr);
+		sw.popCurrentStream();
+	}
+
+	public void visit(Future_c n) {
+		w.write("/"+"*"+" Implement future, please "+"*"+"/");
+		w.newline();
+		w.write("assert (false);");
+		w.newline();
+	}
+
+	public void visit(AtStmt_c n) {
+		w.write("/"+"*"+" Implement at, please "+"*"+"/");
+		w.newline();
+		w.write("assert (false);");
+		w.newline();
+	}
+
+	public void visit(AtExpr_c n) {
+		w.write("/"+"*"+" Implement at expression, please "+"*"+"/");
+		w.newline();
+		w.write("assert (false);");
+		w.newline();
+	}
 
 } // end of MessagePassingCodeGenerator
