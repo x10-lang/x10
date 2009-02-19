@@ -651,14 +651,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream save_generic = context.templateFunctions;
         // Header stream
         ClassifiedStream h = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
+        // Stream for generic functions (always in the header, may be empty)
+        ClassifiedStream g = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
+        context.templateFunctions = g;
         StreamWrapper.StreamClass impl = StreamWrapper.StreamClass.CC;
         if (def.typeParameters().size() != 0)
             impl = StreamWrapper.StreamClass.Header;
         // Implementation stream (may be after the header)
         ClassifiedStream w = sw.getNewStream(impl, false);
-        // Stream for generic functions (always in the header, may be empty)
-        ClassifiedStream g = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
-        context.templateFunctions = g;
         // Dependences guard closing stream (comes at the end of the header)
         ClassifiedStream z = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
         sw.set(h, w);
@@ -2639,7 +2639,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		int id = getConstructorId(a);
 
-		String cname = getClosureName(hostClassName,id);
+		String cname = getClosureName(hostClassName, id);
 
         boolean in_template_closure = false;
 
@@ -2658,25 +2658,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		// Prepend this stream to closures.  Closures are created from the outside in.
 		// Thus, later closures can be used by earlier ones, but not vice versa.
-		ClassifiedStream inc_s = sw.getNewStream(StreamWrapper.StreamClass.Closures, true);
+		ClassifiedStream inc_s = in_template_closure ?
+		        sw.getNewStream(StreamWrapper.StreamClass.Header, sw.header(), false) :
+		        sw.getNewStream(StreamWrapper.StreamClass.Closures, true);
         sw.pushCurrentStream(inc_s);
 
         StreamWrapper inc = sw;
-		Type retType = n.returnType().type();
-		//String className = emitter.translateType(c.currentClass());
-		String superType = n.returnType().type().isVoid() ?
-				"x10::lang::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) :
-					"x10::lang::" + mangled_non_method_name("Fun_0_" + n.formals().size());
-		prefix = "<";
-		for (Formal formal : n.formals()) {
-			superType = superType + prefix + emitter.translateType(formal.type().typeRef().get(), true);
-			prefix = ", ";
-		}
-		if (!n.returnType().type().isVoid()) {
-			superType = superType + prefix + emitter.translateType(retType, true);
-			prefix = ", ";
-		}
-		if (!prefix.equals("<")) superType = superType +" >"; // don't emit " >" for void->void case
+
+        if (in_template_closure) {
+            String guard = getHeaderGuard(cname);
+            inc.write("#ifndef "+guard+"_CLOSURE"); inc.newline();
+            inc.write("#define "+guard+"_CLOSURE"); inc.newline();
+        }
+
+        Type retType = n.returnType().type();
+        //String className = emitter.translateType(c.currentClass());
+        String superType = n.returnType().type().isVoid() ?
+                "x10::lang::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) :
+                "x10::lang::" + mangled_non_method_name("Fun_0_" + n.formals().size());
+        prefix = "<";
+        for (Formal formal : n.formals()) {
+            superType = superType + prefix + emitter.translateType(formal.type().typeRef().get(), true);
+            prefix = ", ";
+        }
+        if (!n.returnType().type().isVoid()) {
+            superType = superType + prefix + emitter.translateType(retType, true);
+            prefix = ", ";
+        }
+        if (!prefix.equals("<")) superType = superType +" >"; // don't emit " >" for void->void case
 
         boolean generate_async_invoke = false;
         if (superType.equals("x10::lang::VoidFun_0_0")) generate_async_invoke = true;
@@ -2816,6 +2825,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         cnamet+"::"+DESERIALIZE_METHOD+"<Object>);");
         }
         inc.newline(); inc.forceNewline();
+
+        if (in_template_closure) {
+            String guard = getHeaderGuard(cname);
+            inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
+        }
 
         sw.popCurrentStream();
 
