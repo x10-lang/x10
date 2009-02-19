@@ -21,6 +21,7 @@ import static polyglot.ext.x10cpp.visit.Emitter.translateFQN;
 import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_FQN;
 import static polyglot.ext.x10cpp.visit.Emitter.translate_mangled_NSFQN;
 import static polyglot.ext.x10cpp.visit.Emitter.voidTemplateInstantiation;
+import static polyglot.ext.x10cpp.visit.Emitter.toTypeList;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 
 import java.util.ArrayList;
@@ -349,11 +350,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				((X10CPPTranslator)tr).setContext(context); // FIXME
 			} else if (dec instanceof MethodDecl_c) {
 				MethodDecl_c md = (MethodDecl_c) dec;
-                boolean templateMethod = ((X10MethodDef)md.methodDef()).typeParameters().size() != 0;
+                X10MethodDef def = (X10MethodDef)md.methodDef();
+                boolean templateMethod = def.typeParameters().size() != 0;
                 if (templateMethod)
                     sw.pushCurrentStream(save_w);
 				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
 
+				emitter.printTemplateSignature(toTypeList(def.typeParameters()), sw);
 				emitter.printType(md.returnType().type(), sw);
 				sw.allowBreak(2, " ");
 				sw.write(container+"::");
