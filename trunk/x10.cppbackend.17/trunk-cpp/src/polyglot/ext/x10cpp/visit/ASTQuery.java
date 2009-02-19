@@ -405,9 +405,10 @@ public class ASTQuery {
 
 	// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
 	boolean isX10Array(Type type) {
-		// TODO: move this method to X10TypeSystem_c
-		String name = type.translate(tr.typeSystem().createContext());
-		return type.isClass() && name.startsWith("x10.lang.") && name.endsWith("Array");
+                return false;
+		//// TODO: move this method to X10TypeSystem_c
+		//String name = type.translate(tr.typeSystem().createContext());
+		//return type.isClass() && name.startsWith("x10.lang.") && name.endsWith("Array");
 	}
 
 	// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!

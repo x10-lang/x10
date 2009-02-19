@@ -91,7 +91,8 @@ public class Emitter {
 	public static String mangled_non_method_name(String str) {
 		if (str.equals(THIS)) return str;  // "this" is passed by closures code for graceful fitting with 1.5 closures code.  
 		// "this" mangles to "this". FIXME Import Igor's changes
-		return ("x10__" + str.replace("$","__"));
+        return str.replace("$","__");
+		//return ("x10__" + str.replace("$","__"));
 	}
 
 	void emit_cond_global_finish_start(String cs, String comment, ClassifiedStream w) {
@@ -352,18 +353,10 @@ public class Emitter {
 			return make_ref(name);
 		}
 		Context context = tr.context();
-		/*
 		if (type.isVoid()) {
-			String temp = type.translate(context);
-			/// HACK. Revert it back after we know how to
-			//handle the capitalized types.
-			//FIXME Does temp ever become anything other than Void? Also, do 
-			// need to de-capitalize other primitive types?
-			if (temp.equals("Void")) return "void";
-			return temp;
+			return "void";
 		}
-		*/
-		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean())&& !type.isClass()) // && !type.isVoid())
+		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean())&& !type.isClass() && !type.isVoid())
 			return "x10_"+type.translate(context);
 		// FIXME: is ignoring nullable correct?
 //		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
@@ -381,9 +374,9 @@ public class Emitter {
 					type = ((ConstrainedType_c)type).baseType().get();
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
-				if (type.isBoolean() || type.isNumeric())
-					pat = getCppBoxRep(cd, tr);
-				else
+				//if (type.isBoolean() || type.isNumeric())
+				//	pat = getCppBoxRep(cd, tr);
+				//else
 					pat = getCppRep(cd, tr);
 				if (pat != null){ 
 					List<Type> typeArguments = ((X10ClassType) type).typeArguments();
@@ -400,9 +393,8 @@ public class Emitter {
 					    c.pendingImplicitImports.add(pi);
 					    c.pendingImplicitImports.add(translate_mangled_FQN(pat));
 					}
-
-					name=dumpRegex("NativeRep", o, tr, pat);
-					nativeTranslated = true;
+					// FIXME: Clean up this code!
+					return dumpRegex("NativeRep", o, tr, pat);
 				}
 				else{
 					if (type.toClass().isNested())
@@ -426,9 +418,9 @@ public class Emitter {
 					name +=" > ";
 				}
 
-				name = "x10__" + name;
+				//name = "x10__" + name;
 				name=name.replaceAll("\\.", ".x10__");
-				name=name.replaceAll("\\::", "::x10__");
+				//name=name.replaceAll("\\::", "::x10__");
 			}
 			// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
 			if (query.isX10Array(type)) {
@@ -1252,97 +1244,98 @@ public class Emitter {
 		w.end(); w.write(");");
 	}
 
-	/**
-	 * TODO: emit to separate file to make work on Windows
-	 */
-	void printSwitchMethod(ClassType currentClass, String methodName,
-			String retType, String prefix, ArrayList asyncs,
-			ArrayList asyncsParameters, HashMap include,
-			String extraArgs,
-			String preCode, String postCode, HashMap classToAsyncs, ClassifiedStream w)
-	{
-		String className = translateType(currentClass);
-		w.newline(0);
+    /**
+     * TODO: emit to separate file to make work on Windows
+     */
+    void printSwitchMethod(ClassType currentClass, String methodName,
+            String retType, String prefix, ArrayList asyncs,
+            ArrayList asyncsParameters, HashMap include,
+            String extraArgs,
+            String preCode, String postCode, HashMap classToAsyncs, ClassifiedStream w)
+    {
+        String className = translateType(currentClass);
+        w.newline(0);
 
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		printTemplateSignature(context.classTypeParams, w);
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        printTemplateSignature(context.classTypeParams, w);
 
-		String arg = "arg";
-		w.write(retType+" "+className+"::"+methodName+"(x10_async_handler_t h, "+VOID_PTR+" "+arg);
-		if (extraArgs != null)
-			w.write(", " + extraArgs);
-		w.write(") {");
-		w.newline(4); w.begin(0);
-		w.write("switch (h) {"); w.newline();
+        String arg = "arg";
+        w.write(retType+" "+className+"::"+methodName+"(x10_async_handler_t h, "+VOID_PTR+" "+arg);
+        if (extraArgs != null)
+            w.write(", " + extraArgs);
+        w.write(") {");
+        w.newline(4); w.begin(0);
+        w.write("switch (h) {"); w.newline();
 
-		ArrayList relevant_asyncs = new ArrayList();
+        ArrayList relevant_asyncs = new ArrayList();
 
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-		for (int i = 0; i < asyncs.size(); i++) {
-			if (!include.containsKey(asyncs.get(i)))
-				continue;
-			ClassType container = (ClassType) include.get(asyncs.get(i));
-			if (!ts.typeEquals(container, currentClass))
-				continue;
-			className = translateType(container);
+        X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+        for (int i = 0; i < asyncs.size(); i++) {
+            if (!include.containsKey(asyncs.get(i)))
+                continue;
+            ClassType container = (ClassType) include.get(asyncs.get(i));
+            if (!ts.typeEquals(container, currentClass))
+                continue;
+            className = translateType(container);
 
-			relevant_asyncs.add(new Integer(i));
+            relevant_asyncs.add(new Integer(i));
 
-			w.write("case " + i + ":");
-			w.newline(4); w.begin(0);
-			w.write("{"); w.newline();
-			w.begin(0);
-			String args_struct = args_name(prefix, i);
-			w.write(args_struct+"* _arg = ("+args_struct+"*) "+arg+";"); w.newline();
-			if (preCode != null) {
-				w.write(preCode);
-				w.newline();
-				if (postCode != null)
-					w.begin(0);
-			}
-			if (!retType.equals(VOID))
-				w.write("return ");
-			w.write(className + "::" + closure_name(prefix, i) + "(");
-			ArrayList parameters = (ArrayList) asyncsParameters.get(i);
-			// TODO: unpackArgs(w, c, parameters, i, prefix);
-			for (int j = 0; j < parameters.size(); j++) {
-				VarInstance p = (VarInstance) parameters.get(j);
-				String name = p.name().toString();
-				if (name.equals(THIS))
-					name = SAVED_THIS;
-				else
-					name = mangled_non_method_name(name); 
-				// FIXME: unpack refs
-				w.write(((j>0) ? ", " : "") + "_arg->" + name);
-			}
-			w.write(");");
-			w.end(); w.newline();
-			if (postCode != null) {
-				w.write(postCode);
-				if (preCode != null)
-					w.end();
-				w.newline();
-			}
-			w.write("}"); w.newline();
-			if (retType.equals(VOID))
-				w.write("break;");
-			w.end(); w.newline();
-		}
+            w.write("case " + i + ":");
+            w.newline(4); w.begin(0);
+            w.write("{"); w.newline();
+            w.begin(0);
+            String args_struct = args_name(prefix, i);
+            w.write(args_struct+"* _arg = ("+args_struct+"*) "+arg+";"); w.newline();
+            if (preCode != null) {
+                w.write(preCode);
+                w.newline();
+                if (postCode != null)
+                    w.begin(0);
+            }
+            if (!retType.equals(VOID))
+                w.write("return ");
+            w.write(className + "::" + closure_name(prefix, i) + "(");
+            ArrayList parameters = (ArrayList) asyncsParameters.get(i);
+            // TODO: unpackArgs(w, c, parameters, i, prefix);
+            for (int j = 0; j < parameters.size(); j++) {
+                VarInstance p = (VarInstance) parameters.get(j);
+                String name = p.name().toString();
+                if (name.equals(THIS))
+                    name = SAVED_THIS;
+                else
+                    name = mangled_non_method_name(name); 
+                // FIXME: unpack refs
+                w.write(((j>0) ? ", " : "") + "_arg->" + name);
+            }
+            w.write(");");
+            w.end(); w.newline();
+            if (postCode != null) {
+                w.write(postCode);
+                if (preCode != null)
+                    w.end();
+                w.newline();
+            }
+            w.write("}"); w.newline();
+            if (retType.equals(VOID))
+                w.write("break;");
+            w.end(); w.newline();
+        }
 
-		if (relevant_asyncs.size() > 0) {
-			int[] async_ids = new int[relevant_asyncs.size()];
-			for (int i = 0; i < async_ids.length; i++)
-				async_ids[i] = ((Integer) relevant_asyncs.get(i)).intValue();
-			classToAsyncs.put(currentClass, async_ids);
-		}
+        if (relevant_asyncs.size() > 0) {
+            int[] async_ids = new int[relevant_asyncs.size()];
+            for (int i = 0; i < async_ids.length; i++)
+                async_ids[i] = ((Integer) relevant_asyncs.get(i)).intValue();
+            classToAsyncs.put(currentClass, async_ids);
+        }
 
-		w.write("}"); w.newline(0);
-		if (!retType.equals(VOID))
-			w.write("return (" + retType + ")0;");
-		w.end(); w.newline();
-		w.write("}"); w.newline(0); w.forceNewline(0);
-	}
-	void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, ClassifiedStream w) {
+        w.write("}"); w.newline(0);
+        if (!retType.equals(VOID))
+            w.write("return (" + retType + ")0;");
+        w.end(); w.newline();
+        w.write("}"); w.newline(0); w.forceNewline(0);
+    }
+
+    void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, ClassifiedStream w) {
 		if (target instanceof X10Special_c &&
 				((X10Special_c)target).kind().equals(X10Special_c.THIS) &&
 				(context.inlining || context.insideClosure))
@@ -1465,18 +1458,22 @@ public class Emitter {
 				w.write(name);
 			} else if (((X10TypeSystem) tr.typeSystem()).isValueType(v.type())) {
 				// FIXME: allocate a buffer and pack things properly (translate references, etc)
+/*
 				if (!c.isUnbroadcastable(v))
 					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
 							"Warning: attempt to serialize non-primitive value "+name+" -- IGNORING", p);
+*/
 				w.write("/"+"*"+" Serialization of value "+name+" should go here "+"*"+"/");
 				w.write(name);
 				// FIXME: [IP] cannot invoke addUnbroadcastable from non-main methods
 				//c.addUnbroadcastable(v);
 			} else {
 				// FIXME: translate references
+/*
 				if (!c.isUnbroadcastable(v))
 					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
 							"Warning: attempt to serialize reference "+name+" -- IGNORING", p);
+*/
 				w.write("/"+"*"+" Serialization of reference "+name+" should go here "+"*"+"/");
 				w.write(name);
 				// FIXME: [IP] cannot invoke addUnbroadcastable from non-main methods
@@ -1507,27 +1504,27 @@ public class Emitter {
 		Type parent = type.superClass();
 		if (parent !=null && ts.isValueType(parent))
 			h.write(": "+ translateType(parent)+"(m)");
-		h.write("{ }");
+		h.write("{ (void) m; }");
 		h.newline();
 		// FIXME: this doesn't work
 		//// Make sure the reference serializer can access the above
-		//h.write("template<> friend struct x10::_reference_serializer<"+"x10__"+type.name()+">;");
+		//h.write("template<> friend struct x10aux::_reference_serializer<"+"x10__"+type.name()+">;");
 		//h.newline();
 
 		// _serialize()
 		h.write("public: ");
 		if (!type.flags().isFinal())
 			h.write("virtual ");
-		h.write("void "+SERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) "+
-		"{ x10::_serialize_ref(this, buf, m); }");
+		h.write("void "+SERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) "+
+		"{ x10aux::_serialize_ref(this, buf, m); }");
 		h.newline(0);
 
 		// _serialize_fields()
 		h.write("public: ");
 		if (!type.flags().isFinal())
 			h.write("virtual ");
-		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m);"); h.newline(0);
-		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) {");
+		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);"); h.newline(0);
+		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
 		w.newline(4); w.begin(0);
 		if (parent != null && ts.isValueType(parent)) {
 			w.write(translateType(parent)+"::"+SERIALIZE_FIELDS_METHOD+"(buf, m);");
@@ -1574,7 +1571,7 @@ public class Emitter {
 			if (f.type().isPrimitive()) {
 				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type())+" >();");
 			} else if (ts.isValueType(f.type())) {
-				w.write("this->"+fieldName+" = x10::_deserialize_value_ref<"+translateType(f.type())+" >(buf);");
+				w.write("this->"+fieldName+" = x10aux::_deserialize_value_ref<"+translateType(f.type())+" >(buf);");
 			} else {
 				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type(), true)+" >(); "+"/"+"*"+" non-value "+"*"+"/");
 			}
@@ -1620,7 +1617,7 @@ public class Emitter {
 			}
 			w.newline(2);
 			w.begin(0);
-			w.write("throw (x10::ref<x10::lang::ClassCastException>) new (x10::alloc<x10::lang::ClassCastException>()) x10::lang::ClassCastException() ; " );
+			w.write("throw (x10aux::ref<x10::lang::ClassCastException>) new (x10aux::alloc<x10::lang::ClassCastException>()) x10::lang::ClassCastException() ; " );
 			w.end();
 			w.newline();
 		}
@@ -1655,7 +1652,7 @@ public class Emitter {
 	}
 	public void emitUniqueIF(String header, ArrayList<String> history, ClassifiedStream w) {
 		if  (!history.contains(header)){
-			w.write("#include \"" + header + "\"");
+			w.write("#include <" + header + ">");
 			history.add(header);
 		}
 		return;
@@ -1765,7 +1762,7 @@ public class Emitter {
 	    	}
 	    	else
 	    	if (regex.charAt(pos) == '#') {
-	    		retVal += translateFQN(regex.substring(start, pos));
+	    		retVal += regex.substring(start, pos); //translateFQN(regex.substring(start, pos));
 	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
 	    		pos++;
 	    		start = pos+1;
@@ -1781,7 +1778,7 @@ public class Emitter {
 	    	}
 	    	pos++;
 	    }
-	    retVal += translateFQN(regex.substring(start));
+	    retVal += regex.substring(start); //translateFQN(regex.substring(start));
 	    return retVal;
 	}
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex, ClassifiedStream w) {
@@ -1799,7 +1796,7 @@ public class Emitter {
 	    	}
 	    	else
 	    	if (regex.charAt(pos) == '#') {
-	    		w.write(translateFQN(regex.substring(start, pos)));
+	    		w.write(regex.substring(start, pos) /*translateFQN(regex.substring(start, pos))*/);
 	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
 	    		pos++;
 	    		start = pos+1;
@@ -1810,7 +1807,7 @@ public class Emitter {
 	    	}
 	    	pos++;
 	    }
-	    w.write(translateFQN(regex.substring(start)));
+	    w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
 	}
 	private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
 		if (o instanceof Node) {

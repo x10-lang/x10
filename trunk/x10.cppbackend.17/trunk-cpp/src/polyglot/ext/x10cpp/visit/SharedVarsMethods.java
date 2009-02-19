@@ -97,8 +97,8 @@ public class SharedVarsMethods{
 	static final String INIT_PREFIX = "__init__";
 	static final String ARRAY_COPY_PREFIX = "array_copy__";
 	static final String CLOSURE_WRAPPER_PREFIX = "__closure__";
-	static final String ASYNC_SWITCH = "AsyncSwitch";
-	static final String ARRAY_COPY_SWITCH = "ArrayCopySwitch";
+	static final String ASYNC_SWITCH = "__x10_callback_asyncswitch";
+	static final String ARRAY_COPY_SWITCH = "__x10_callback_arraycopyswitch";
 	static final String VOID = "void";
 	static final String VOID_PTR = "void*";
 	static final String SAVED_THIS = "saved_this";
@@ -115,17 +115,19 @@ public class SharedVarsMethods{
 	static final String POST_COPY_RUN = "postCopyRun";
 	static final boolean optimizePrimitiveBroadcasts = true;
 	static final String SERIALIZATION_ID_FIELD = "SERIALIZATION_ID";
-	static final String SERIALIZATION_MARKER = "x10::SERIALIZATION_MARKER";
-	static final String SERIALIZATION_BUFFER = "x10::serialization_buffer";
+	static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
+	static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
 	static final String SERIALIZE_METHOD = "_serialize";
 	static final String SERIALIZE_FIELDS_METHOD = "_serialize_fields";
 	static final String DESERIALIZE_FIELDS_METHOD = "_deserialize_fields";
+	static final String CLOSURE_STRUCT = "x10_async_closure_t"; 
+
 	static final String NATIVE_STRING = "c++";
 
 	static String make_ref(String type) {
 		if (refsAsPointers)
 			return type+"*";
-		return "x10::ref<"+type+(type.endsWith(">")?" ":"")+">";
+		return "x10aux::ref<"+type+(type.endsWith(">")?" ":"")+">";
 	}
 	static String closure_name(String prefix, int id) {
 		return prefix + id;
