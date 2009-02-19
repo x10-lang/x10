@@ -135,8 +135,6 @@ import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.constr.C_Var;
-import polyglot.ext.x10.types.constr.TypeTranslator;
 import polyglot.ext.x10.visit.X10DelegatingVisitor;
 import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
