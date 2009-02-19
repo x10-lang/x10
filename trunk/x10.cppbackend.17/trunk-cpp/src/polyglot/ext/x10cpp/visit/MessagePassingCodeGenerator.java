@@ -912,11 +912,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Note: The break statements inside a switch statement are always
 		// non-labeled.
 		// FIXME: [IP] The above assumption is incorrect!!!
-		if (br.label() != null) {
+		if (br.labelNode() != null) {
 			if (br.kind().toString() == "continue")
-				w.write("goto " + br.label() + "_next_");
+				w.write("goto " + br.labelNode().id().toString() + "_next_");
 			else
-				w.write("goto " + br.label() + "_end_");
+				w.write("goto " + br.labelNode().id().toString() + "_end_");
 		} else
 			w.write(br.kind().toString());
 		w.write(";");
@@ -936,9 +936,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// for (...) {... L_next_: ; }
 		// L_end_: ;
 
-		w.write(label.label() + " : ");
+		w.write(label.labelNode() + " : ");
 		w.newline();
-		((X10CPPContext_c) tr.context()).setLabel(label.label(), label.statement());
+		((X10CPPContext_c) tr.context()).setLabel(label.labelNode(), label.statement());
 		sw.pushCurrentStream(w);
 		label.print(label.statement(), sw, tr);
 		sw.popCurrentStream();
