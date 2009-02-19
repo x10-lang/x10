@@ -140,6 +140,7 @@ import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParameterType_c;
+import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Def;
 import polyglot.ext.x10.types.X10FieldDef;
@@ -2418,71 +2419,75 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10Formal form = (X10Formal) n.formal();
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type())) {
-			assert (xts.isPoint(form.type().type()));
-			assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
+		Type dType = n.domain().type();
+		if (Configuration.LOOP_OPTIMIZATIONS &&
+		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
+		        (X10ArraysMixin.isRect(dType)))
+		{
+		    assert (xts.isPoint(form.type().type()));
+		    assert (xts.isDistribution(dType) || xts.isRegion(dType));
 
-			sw.write("{");
-			sw.newline(4); sw.begin(0);
+		    sw.write("{");
+		    sw.newline(4); sw.begin(0);
 
-			String domain = getId();
-			LocalDef[] lis = form.localInstances();
-			List<Formal> vars = form.vars();
-			int rank = lis.length;
-			String[] limit = new String[rank];
-			emitter.printType(n.domain().type(), sw);
-			sw.write(" " + domain + ";");
-			sw.newline();
-			for (int i = 0; i < rank; i++) {
-				LocalInstance f = lis[i].asInstance();
-				assert (f.type().isInt());
-				limit[i] = getId();
-				emitter.printType(f.type(), sw);
-				sw.write(" " + limit[i] + ";");
-				sw.newline();
-				emitter.printType(f.type(), sw);
-				sw.write(" ");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write(";");
-				sw.newline();
-			}
+		    String domain = getId();
+		    LocalDef[] lis = form.localInstances();
+		    List<Formal> vars = form.vars();
+		    int rank = lis.length;
+		    String[] limit = new String[rank];
+		    emitter.printType(dType, sw);
+		    sw.write(" " + domain + ";");
+		    sw.newline();
+		    for (int i = 0; i < rank; i++) {
+		        LocalInstance f = lis[i].asInstance();
+		        assert (f.type().isInt());
+		        limit[i] = getId();
+		        emitter.printType(f.type(), sw);
+		        sw.write(" " + limit[i] + ";");
+		        sw.newline();
+		        emitter.printType(f.type(), sw);
+		        sw.write(" ");
+		        sw.write(mangled_non_method_name(f.name().toString()));
+		        sw.write(";");
+		        sw.newline();
+		    }
 
-			sw.write(domain + " = ");
-			n.print(n.domain(), sw, tr);
-			sw.write(";");
-			sw.newline();
-			for (int i = 0; i < rank; i++) {
-				LocalInstance f = lis[i].asInstance();
-				assert (f.type().isInt());
-				sw.write(limit[i] + " = " + domain + "->max(" + i + ");");
-				sw.newline();
-				sw.write("for (");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write(" = " + domain + "->min(" + i + "); ");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write(" <= " + limit[i] + "; ");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write("++) {");
-				sw.newline(4); sw.begin(0);
-			}
+		    sw.write(domain + " = ");
+		    n.print(n.domain(), sw, tr);
+		    sw.write(";");
+		    sw.newline();
+		    for (int i = 0; i < rank; i++) {
+		        LocalInstance f = lis[i].asInstance();
+		        assert (f.type().isInt());
+		        sw.write(limit[i] + " = " + domain + "->max(" + i + ");");
+		        sw.newline();
+		        sw.write("for (");
+		        sw.write(mangled_non_method_name(f.name().toString()));
+		        sw.write(" = " + domain + "->min(" + i + "); ");
+		        sw.write(mangled_non_method_name(f.name().toString()));
+		        sw.write(" <= " + limit[i] + "; ");
+		        sw.write(mangled_non_method_name(f.name().toString()));
+		        sw.write("++) {");
+		        sw.newline(4); sw.begin(0);
+		    }
 
-			form.addDecls(tr.context());
-			n.print(n.body(), sw, tr);
+		    form.addDecls(tr.context());
+		    n.print(n.body(), sw, tr);
 
-			for (int i = 0; i < rank; i++) {
-				sw.end(); sw.newline();
-				sw.write("}");
-			}
+		    for (int i = 0; i < rank; i++) {
+		        sw.end(); sw.newline();
+		        sw.write("}");
+		    }
 
-			sw.end(); sw.newline(0);
-			sw.write("}");
-			sw.newline(0);
-			return;
+		    sw.end(); sw.newline(0);
+		    sw.write("}");
+		    sw.newline(0);
+		    return;
 		}
 
         Type itType = null;
-        assert (n.domain().type().isClass());
-        X10ClassType domainType = (X10ClassType)n.domain().type().toClass();
+        assert (dType.isClass());
+        X10ClassType domainType = (X10ClassType)dType.toClass();
         try {
             X10MethodInstance mi = xts.findMethod(domainType,
                                 xts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST),
