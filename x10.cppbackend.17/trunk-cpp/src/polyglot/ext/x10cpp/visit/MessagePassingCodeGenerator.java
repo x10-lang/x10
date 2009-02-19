@@ -2369,13 +2369,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	// FIXME: [IP] does this process ForEach?
-	public void visit(X10ClockedLoop_c n) {
-		assert (false);
-		// Why have the call after an assert?
-		// n.print(n.body(), w, tr);
-	}
-
 	public void visit(ForLoop_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -2418,11 +2411,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			for (int i = 0; i < rank; i++) {
 				LocalInstance f = lis[i].asInstance();
 				assert (f.type().isInt());
-				sw.write(limit[i] + " = " + domain + "->rank(" + i + ")->high();");
+				sw.write(limit[i] + " = " + domain + "->max(" + i + ");");
 				sw.newline();
 				sw.write("for (");
 				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write(" = " + domain + "->rank(" + i + ")->low(); ");
+				sw.write(" = " + domain + "->min(" + i + "); ");
 				sw.write(mangled_non_method_name(f.name().toString()));
 				sw.write(" <= " + limit[i] + "; ");
 				sw.write(mangled_non_method_name(f.name().toString()));
@@ -2517,174 +2510,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-    // FIXME: do this in the Desugarer
 	public void visit(ForEach_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		X10Formal form = (X10Formal) n.formal();
-		// FIXME: Handle clocks. [Krishna]
-		assert (n.clocks() == null || n.clocks().size() == 0);
-
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && form.isUnnamed()) {
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-			assert (xts.isPoint(form.type().type()));
-			assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
-
-			sw.write("{");
-			sw.newline(4); sw.begin(0);
-
-			String domain = getId();
-			emitter.printType(n.domain().type(), sw);
-			sw.write(" " + domain + " = ");
-			n.print(n.domain(), sw, tr);
-			sw.write(";");
-			sw.newline();
-
-			LocalDef [] lis = form.localInstances();
-			List<Formal> vars = form.vars();
-			int rank = lis.length;
-			for (int i = 0; i < rank; i++) {
-				LocalInstance f = lis[i].asInstance();
-				assert (f.type().isInt());
-				String limit = getId();
-				emitter.printType(f.type(), sw);
-				sw.write(" " + limit + " = " + domain + "->rank(" + i + ")->high();");
-				sw.newline();
-				sw.write("for (");
-				emitter.printType(f.type(), sw);
-				sw.write(" ");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write(" = " + domain + "->rank(" + i + ")->low(); ");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write(" <= " + limit + "; ");
-				sw.write(mangled_non_method_name(f.name().toString()));
-				sw.write("++) {");
-				sw.newline(4); sw.begin(0);
-			}
-
-			form.addDecls(tr.context());
-			n.print(n.body(), sw, tr);
-
-			for (int i = 0; i < rank; i++) {
-				sw.end(); sw.newline();
-				sw.write("}");
-			}
-
-			sw.end(); sw.newline(0);
-			sw.write("}");
-			sw.newline(0);
-			return;
-		}
-
-		sw.write("{");
-		sw.newline(4); sw.begin(0);
-
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		assert (xts.isPoint(form.type().type()));
-		assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
-		String name = "__i" + form.name();
-		sw.write("Iterator<point>* " + name + " = &(");
-		n.print(n.domain(), sw, tr);
-		sw.write(")->iterator();");
-		sw.newline();
-
-		sw.write("for (");
-		sw.begin(0);
-
-		sw.write(";"); sw.allowBreak(2, " ");
-		sw.write(name + "->hasNext();");
-		sw.allowBreak(2, " ");
-
-		sw.end();
-		sw.write(") {");
-		sw.newline(4); sw.begin(0);
-
-		n.print(form, sw, tr);
-		sw.write(" = &" + name + "->next();");
-		sw.newline();
-		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
-			Stmt l = (Stmt) li.next();
-			n.print(l, sw, tr);
-		}
-
-		handleLabeledLoop(n);
-
-		sw.end(); sw.newline(0);
-		sw.write("}");
-		sw.newline(0);
-
-		sw.write("x10aux::dealloc(" + name + ");");
-		sw.newline();
-
-		sw.end(); sw.newline(0);
-		sw.write("}");
-		sw.newline(0);
+        assert (false) : ("ForEach should have been desugared earlier");
 	}
 
-
-    // FIXME: do this in the Desugarer
 	public void visit(AtEach_c n) {
-//		if (!n.clocks().isEmpty())
-//			throw new InternalCompilerError("clocked loops not supported");
-		// We need to translate the ateach header before printing the body.
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		// -- K context.ateach_depth++;
-		//context.setAtEachCode();
-
-		// FIXME:Krishna: Replace the ateach by a for + async.
-		// FIXME: Handle clocks.
-		assert (n.clocks() == null);
-		// We need to translate the ateach header before printing the body.
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		assert (xts.isPoint(n.formal().type().type()));
-		assert (xts.isDistribution(n.domain().type()));
-		String dist = getId();
-
-		// Evaluate the distribution expression only once
-		// (put it outside the loop).
-
-		sw.write("x10::lang::dist " + dist + " = ");
-		n.print(n.domain(), sw, tr);
-		sw.write(";");
-		sw.newline();
-
-		String itr = getId();
-		sw.write("for (x10::lang::Iterator<x10::lang::point> " + itr);
-		sw.write(" = " + dist + ".iterator() ; " +
-				itr + ".hasNext();) ");
-		sw.write("{"); sw.newline(4); sw.begin(0);
-
-		n.print(n.formal(), sw, tr);
-		sw.write (" = ");
-
-		sw.write ("(");
-		n.print(n.formal().type(), sw, tr);
-		sw.write (")");
-		sw.write (itr + ".next();");
-		sw.newline();
-
-		context.addVar(n.formal().name().id().toString());
-
-		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
-			Stmt l = (Stmt) li.next();
-			n.print(l, sw, tr);
-		}
-
-		emitter.processAsync(n,
-		   mangled_non_method_name(n.formal().name().toString()),
-		   n.body(), context, sw);
-
-		sw.end(); sw.newline(); sw.write("}");
-		sw.newline();
+        assert (false) : ("AtEach should have been desugared earlier");
 	}
-
-
 
 	public void visit(Finish_c n) {
         assert (false) : ("Finish should have been desugared earlier");
 	}
-
 
 
 	public void visit(ArrayAccess_c n) {
@@ -2720,10 +2556,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         assert (false) : ("Here should have been desugared earlier");
     }
 
-
 	public void visit(Async_c n) {
 		assert (false) : ("Async should have been desugared earlier");
 	}
+
 
     public void visit(X10Special_c n) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
