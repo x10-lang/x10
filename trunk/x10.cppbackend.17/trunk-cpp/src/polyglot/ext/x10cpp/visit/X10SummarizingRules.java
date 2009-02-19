@@ -178,7 +178,7 @@ public class X10SummarizingRules {
         	List <Summary> s = new LinkedList <Summary> ();
         	for (Summary sum : l) {
         		if (sum.library) return null;
-        		if (! (((MethodDecl_c) sum.summaryOf).flags().isAbstract())) 
+        		if (! (((MethodDecl_c) sum.summaryOf).flags().flags().isAbstract())) 
         			s.add(sum);
         	}
         	if (s.size() != 1 ) return null;  // No need to check for nonVirtual, given CHA handles virtual functions.
@@ -206,7 +206,7 @@ public class X10SummarizingRules {
         			if (debugLevel > 1) System.out.println("Call_c discriminator: " + call.methodInstance().container() + call.methodInstance().signature() );
         			if (decl == null) {if (debugLevel > 1)  System.out.println("No MethodDecl_c available");}
         			else System.out.println("MethodDecl_c discriminator: " + decl.methodInstance().container() + "." +
-        					decl.methodInstance().signature() + " flags: " + decl.flags());
+        					decl.methodInstance().signature() + " flags: " + decl.flags().flags());
         		}
         	}
         }
@@ -472,9 +472,9 @@ public class X10SummarizingRules {
 
 				for (Object member : ms) {
 					if ((member instanceof MethodDecl) 
-							&& (((MethodDecl) member).flags().isStatic() ||
-							    ((MethodDecl) member).flags().isFinal()  ||
-							    ((MethodDecl) member).flags().isPrivate())) {
+							&& (((MethodDecl) member).flags().flags().isStatic() ||
+							    ((MethodDecl) member).flags().flags().isFinal()  ||
+							    ((MethodDecl) member).flags().flags().isPrivate())) {
 						MethodDecl mem = (MethodDecl) member;
 						MethodInstance mi = mem.methodInstance();
 						String memberDiscriminator =  mi.name() + Relations.constructTypeSignature(mi);
@@ -496,8 +496,8 @@ public class X10SummarizingRules {
 
 				for (Object member : ms) {
 					if ((member instanceof MethodDecl) 
-							&& (! ((MethodDecl) member).flags().isStatic())
-							&& (! ((MethodDecl) member).flags().isPrivate())){
+							&& (! ((MethodDecl) member).flags().flags().isStatic())
+							&& (! ((MethodDecl) member).flags().flags().isPrivate())){
 						MethodDecl mem = (MethodDecl) member;
 						MethodInstance mi = mem.methodInstance();
 						String memberDiscriminator =  mi.name() + Relations.constructTypeSignature(mi);
@@ -523,7 +523,7 @@ public class X10SummarizingRules {
 
 				for (Object member : ms) {
 					if ((member instanceof MethodDecl) 
-							&& (! ((MethodDecl) member).flags().isStatic())) {
+							&& (! ((MethodDecl) member).flags().flags().isStatic())) {
 						MethodDecl mem = (MethodDecl) member;
 						MethodInstance mi = mem.methodInstance();
 						String memberDiscriminator =  mi.name() + Relations.constructTypeSignature(mi);
@@ -553,7 +553,7 @@ public class X10SummarizingRules {
 
 			for (Summary s : summaries) {
 				if ((s.summaryOf instanceof ClassDecl) && 
-						(! ((ClassDecl) s.summaryOf).flags().isInterface()) &&
+						(! ((ClassDecl) s.summaryOf).flags().flags().isInterface()) &&
 						name.equals(((ClassDecl) s.summaryOf).type().fullName())) 
 					return (ClassDecl) s.summaryOf;
 			}
@@ -592,11 +592,11 @@ public class X10SummarizingRules {
 			if (debug()) System.out.println("Populating Class Hierarchy List");
 			for (Summary s : c.summaries) {
 				if (s.summaryOf instanceof ClassDecl
-						&& (! ((ClassDecl) s.summaryOf).flags().isInterface())) {
+						&& (! ((ClassDecl) s.summaryOf).flags().flags().isInterface())) {
 					ClassDecl cl = (ClassDecl) s.summaryOf;
 					if (debug()) {
 						System.out.println("Adding to hierarchy, class: " + cl.type().fullName()); //cl.name());
-						System.out.println("interface? " + cl.flags().isInterface());
+						System.out.println("interface? " + cl.flags().flags().isInterface());
 						System.out.println("    with super Class: " + cl.superClass().
 								type().
 								toClass().toString()); // cl.superClass().name());
@@ -1056,7 +1056,7 @@ public class X10SummarizingRules {
 			if (debug()) {
 				if (n instanceof MethodDecl) {
 					System.out.println(" MethodDecl name is: " + ((MethodDecl) n).name() + 
-							((MethodDecl) n).flags());
+							((MethodDecl) n).flags().flags());
 				}
 			}
 			
@@ -1064,23 +1064,23 @@ public class X10SummarizingRules {
 			}
 		
 		private boolean isFinal(MethodDecl m) {
-			return m.flags().isFinal() || 
+			return m.flags().flags().isFinal() || 
 			// left clause for && below is unnecessary once anonymous classes are taken care of 
 			// necessitated for crash-free passing of x10.common/examples/Constructs/Array/JavaArrayWithInitializer.x10
 			(((ClassType) m.
 					methodInstance().
 					container()).
-					flags() != null) 
+					flags().flags() != null) 
 					&& 
 					((ClassType) m.
 							methodInstance().
 							container()).
-							flags().isFinal();
+							flags().flags().isFinal();
 		}
 		
 		public void computeLocal(Summary s) {
 			MethodDecl m = (MethodDecl) s.summaryOf; 
-			boolean nonVirtual = isFinal(m) || m.flags().isStatic();
+			boolean nonVirtual = isFinal(m) || m.flags().flags().isStatic();
 			s.addLocalProperty("nonVirtual", nonVirtual ? "true" : "false");
 		}
 		
@@ -1101,7 +1101,7 @@ public class X10SummarizingRules {
 			if (debug()) {
 				if (n instanceof ClassDecl) {
 					System.out.println(" ClassDecl_c name is: " + ((ClassDecl) n).name() + 
-							((ClassDecl) n).flags());
+							((ClassDecl) n).flags().flags());
 				}
 			}
 			

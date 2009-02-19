@@ -150,6 +150,7 @@ import polyglot.types.NoMemberException;
 import polyglot.types.Package;
 import polyglot.types.Package_c;
 import polyglot.types.ParsedClassType;
+import polyglot.types.QName;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -251,11 +252,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			ClassMember member = (ClassMember) i.next();
 			if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
 				continue;
-			if (member.memberInstance().flags().isStatic() != staticInits)
+			if (member.memberInstance().flags().flags().isStatic() != staticInits)
 				continue;
 			if (member instanceof FieldDecl_c &&
 					(((FieldDecl_c)member).init() == null ||
-							query.isSyntheticField(((FieldDecl_c)member).name())))
+							query.isSyntheticField(((FieldDecl_c)member).name().toString())))
 				continue;
 			if (!sawInit) {
 				w.write(retType + " " + className + "::" + methodName + "() {");
@@ -274,7 +275,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				Term_c init = (Term_c) dec.init();
 				assert (init != null);
 
-				w.write(mangled_non_method_name(dec.id().id()));
+				w.write(mangled_non_method_name(dec.name().id().toString()));
 				w.write(" = ");
 				if (init instanceof ArrayInit_c) {
 					assert (dec.type().type().isArray());
@@ -303,7 +304,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			ClassMember member = (ClassMember) i.next();
 			if (member instanceof MethodDecl_c) {
 				MethodDecl_c init = (MethodDecl_c) member;
-				if (init.flags().isNative())
+				if (init.flags().flags().isNative())
 					return true;
 			}
 		}
@@ -368,8 +369,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					ClassType ct = (ClassType) is.next();
 					String pkg = "";
 					if (ct.package_() != null)
-						pkg = ct.package_().fullName();
-					String header = tf.outputHeaderName(pkg, ct.name());
+						pkg = ct.package_().fullName().toString();
+					String header = tf.outputHeaderName(pkg, ct.name().toString());
 					h.write("#include \"" + header + "\"");
 					h.newline();
 				}
@@ -378,13 +379,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					Package_c rt = null;
 					try {
 					if (xts.forName(in.name()) instanceof Package_c){
-						h.write("using namespace "+translateFQN(in.name())+";");
+						h.write("using namespace "+translateFQN(in.name().toString())+";");
 					} else if (knownSpecialPackages.contains(xts.packageForName(in.name())) ) { // library class import.
 
-						h.write("using namespace "+translateFQN(in.name().substring(0,in.name().lastIndexOf('.')))+";");
+						h.write("using namespace "+translateFQN(in.name().toString().substring(0,in.name().toString().lastIndexOf('.')))+";");
 					}
 					else {// import user defined class
-						h.write("using namespace " + translate_mangled_NSFQN(in.name()) + ";");
+						h.write("using namespace " + translate_mangled_NSFQN(in.name().toString()) + ";");
 					}
 					h.newline();
 					} catch (SemanticException e) { assert (false); }
@@ -395,13 +396,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.forceNewline(0);
 			if (n.type().package_() != null) {
 				h.write("namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName())));
+				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName().toString())));
 				h.write(" {");
 				h.newline(0);
 			}
 		}
 
-		if (n.type().isNested() && !n.type().flags().isStatic())
+		if (n.type().isNested() && !n.type().flags().flags().isStatic())
 			throw new InternalCompilerError("Instance Inner classes not supported");
 
 		emitter.printHeader(n, h, tr, false);
@@ -438,7 +439,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (n.type().package_() != null) {
 				h.newline(0);
 				h.write("} // namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName())));
+				h.write(mangled_non_method_name(translateFQN(n.type().package_().fullName().toString())));
 				h.newline(0);
 			}
 		}
@@ -485,9 +486,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				if (!(member instanceof ClassDecl_c))
 					continue;
 				ClassDecl_c dec = (ClassDecl_c)member;
-				emitter.printFlags(h, dec.flags());
+				emitter.printFlags(h, dec.flags().flags());
 				h.write("class ");
-				h.write(mangled_non_method_name(dec.id().id()));
+				h.write(mangled_non_method_name(dec.name().id().toString()));
 				h.write(";");
 				h.newline();
 			}
@@ -554,7 +555,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(PackageNode_c n) {
-		w.write(mangled_non_method_name(translateFQN(n.package_().fullName())));
+		w.write(mangled_non_method_name(translateFQN(n.package_().fullName().toString())));
 	}
 
 	public void visit(Import_c n) {
@@ -590,7 +591,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		if (dec.body() != null) {
-			if (!dec.flags().isStatic()) {
+			if (!dec.flags().flags().isStatic()) {
 				VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
 						dec.methodInstance().container(), THIS);
 				context.addVariable(ti);
@@ -606,7 +607,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 			w.write("}");
 			w.newline();
-		} else if (dec.flags().isNative()) {
+		} else if (dec.flags().flags().isNative()) {
 			if (!context.inLocalClass())
 				emitter.printHeader(dec, w, tr, true);
 			w.newline(0); w.begin(4); w.write("{"); w.newline();
@@ -622,16 +623,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 				Type type = parameter.declType();
 				if (type.isPrimitive()) {
-					w.write(mangled_non_method_name(parameter.id().id()));
+					w.write(mangled_non_method_name(parameter.name().id().toString()));
 				} else if (type.isArray()) {
 					assert (false);
-					w.write(mangled_non_method_name(parameter.id().id()));
+					w.write(mangled_non_method_name(parameter.name().id().toString()));
 					w.write("->"+RAW_ARRAY+"()");
 				} else {
 					assert (ts.isX10Array(type));
 					Type base = ts.baseType(type);
 					assert (base.isPrimitive());
-					w.write(mangled_non_method_name(parameter.id().id()));
+					w.write(mangled_non_method_name(parameter.name().id().toString()));
 					w.write("->"+RAW_ARRAY+"()");
 					w.write(", NULL"); // for the descriptor
 				}
@@ -708,7 +709,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (n instanceof Eval_c && ((Eval_c)n).expr() instanceof FieldAssign_c) {
 				FieldAssign_c init = (FieldAssign_c) ((Eval_c)n).expr();
 				Field f = (Field) init.left();
-				String name = f.id().id();
+				String name = f.name().id().toString();
 				if (f.fieldInstance().container() == container && inited.get(name) == null) {
 					inited.put(name, init.right());
 					if (!hasInits) {
@@ -732,7 +733,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			else
 				newStatements.add(n);
 		}
-		if (!dec.flags().isStatic()) {
+		if (!dec.flags().flags().isStatic()) {
 			TypeSystem ts = tr.typeSystem();
 			VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
 					container, THIS);
@@ -760,7 +761,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(FieldDecl_c dec) {
 		// FIXME: HACK: skip synthetic serialization fields and x10 auxiliary fields
-		if (query.isSyntheticField(dec.name()))
+		if (query.isSyntheticField(dec.name().toString()))
 			return;
 		ClassifiedStream h;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -769,7 +770,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
 		emitter.printHeader(dec, h, tr, false);
-		if (dec.flags().isStatic()) {
+		if (dec.flags().flags().isStatic()) {
 			emitter.printHeader(dec, w, tr, true);
 			w.write(";");
 			w.newline();
@@ -782,7 +783,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Initializer_c n) {
-		if (n.flags().isStatic()) {
+		if (n.flags().flags().isStatic()) {
 			// Ignore -- this will have been processed earlier
 //			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
 //			"Static initializers not supported",
@@ -1056,7 +1057,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// refer to this variable (it is a local
 			// declaration). So this translation is
 			// semantically correct. [Krishna]
-			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.id().id()), w);
+			emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);
 
 		}
 		// See above note about xlC.
@@ -1514,7 +1515,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean isSPMDTarget = context.isSPMDVar(a_var);
 		ReferenceType x_l_RemoteDoubleArrayCopier = null;
 		try {
-			x_l_RemoteDoubleArrayCopier = (ReferenceType) xts.forName("x10.lang.RemoteDoubleArrayCopier");
+			x_l_RemoteDoubleArrayCopier = (ReferenceType) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
 			assert (xts.isX10Array(array.type()) &&
 					xts.isSubtype(xts.baseType(array.type()),
 							x_l_RemoteDoubleArrayCopier));
@@ -1692,7 +1693,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 ///////////////////////////////////////////////////
 			emitter.printExplicitTarget(n, target, context, w);
 
-			if (mi.flags().isStatic() ||
+			if (mi.flags().flags().isStatic() ||
 					(target instanceof X10Special_c &&
 							((X10Special_c)target).kind().equals(X10Special_c.SUPER))) {
 				w.write("::");
@@ -1729,9 +1730,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		if (requireMangling)
-                        w.write(mangled_method_name(n.id().id()));
+                        w.write(mangled_method_name(n.name().id().toString()));
                 else
-                        w.write(n.id().id());
+                        w.write(n.name().id().toString());
 		w.write("(");
 		if (isPrintf(n)) {
 			assert (n.arguments().size() > 0);
@@ -1888,7 +1889,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				n.print(target, sw, tr);
 				sw.popCurrentStream();
 			}
-			if (n.fieldInstance().flags().isStatic())
+			if (n.fieldInstance().flags().flags().isStatic())
 				w.write("::");
 			else
 				w.write("->");
@@ -1896,7 +1897,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} else {
 			Receiver target = n.target();
 			// TODO: capture constant fields as variables
-			if (!n.flags().isStatic()) {
+			if (!n.flags().flags().isStatic()) {
 				X10CPPContext_c c = (X10CPPContext_c) tr.context();
 				if (target instanceof X10Special_c && ((X10Special_c)target).isSelf()) {
 					w.write((context.Self() == null)? "self":context.Self());
@@ -1914,7 +1915,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(emitter.translateType(n.fieldInstance().container()) + "::");
 			}
 		}
-                w.write(mangled_non_method_name(n.id().id()));
+                w.write(mangled_non_method_name(n.name().id().toString()));
 		w.end();
 	}
 
@@ -1922,7 +1923,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		LocalInstance var = n.localInstance();
 		if (c.insideClosure) {
-			c.saveEnvVariableInfo(n.name());
+			c.saveEnvVariableInfo(n.name().toString());
 		}
 		w.write(c.getCurrentName(var));
 	}
@@ -2016,9 +2017,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Id_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (context.requireMangling())
-			w.write("x10__" + n.id());
+			w.write("x10__" + n.id().toString());
 		else
-			w.write(n.id());
+			w.write(n.id().toString());
 	}
 
 
@@ -2173,7 +2174,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(") {");
 		w.newline(4); w.begin(0);
 		w.write(type); w.write (" ");
-		w.write(mangled_non_method_name(n.formal().id().id()));
+		w.write(mangled_non_method_name(n.formal().name().id().toString()));
 		w.write(" =");
 		w.allowBreak(2, " ");
 		w.write("(" + type + ") " + excVar + ";");
@@ -2252,7 +2253,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline();
 				emitter.printType(f.type(), w);
 				w.write(" ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(";");
 				w.newline();
 			}
@@ -2269,11 +2270,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(limit[i] + " = " + domain + "->rank(" + i + ")->high();");
 				w.newline();
 				w.write("for (");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" = " + domain + "->rank(" + i + ")->low(); ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" <= " + limit[i] + "; ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write("++) {");
 				w.newline(4); w.begin(0);
 			}
@@ -2326,7 +2327,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.popCurrentStream();
 		w.write(";");
 		w.newline();
-		w.write(mangled_non_method_name(form.id().id()));
+		w.write(mangled_non_method_name(form.name().id().toString()));
 		w.write(" = &" + name + "->next();");
 		w.newline();
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
@@ -2389,11 +2390,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write("for (");
 				emitter.printType(f.type(), w);
 				w.write(" ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" = " + domain + "->rank(" + i + ")->low(); ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write(" <= " + limit + "; ");
-				w.write(mangled_non_method_name(f.name()));
+				w.write(mangled_non_method_name(f.name().toString()));
 				w.write("++) {");
 				w.newline(4); w.begin(0);
 			}
@@ -2515,7 +2516,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write (itr + ".next();");
 		w.newline();
 
-		context.addVar(n.formal().id().id());
+		context.addVar(n.formal().name().id().toString());
 
 		for (Iterator li = n.locals().iterator(); li.hasNext(); ) {
 			Stmt l = (Stmt) li.next();
@@ -2526,7 +2527,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		
 		emitter.processAsync(n, 
-		   mangled_non_method_name(n.formal().name()),
+		   mangled_non_method_name(n.formal().name().toString()),
 		   n.body(), context, ws, w);
 
 		w.end(); w.newline(); w.write("}");
