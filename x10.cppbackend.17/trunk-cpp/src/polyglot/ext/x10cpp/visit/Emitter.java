@@ -375,9 +375,9 @@ public class Emitter {
                 type = X10TypeMixin.baseType(type);
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
-				//if (type.isBoolean() || type.isNumeric())
-				//	pat = getCppBoxRep(cd, tr);
-				//else
+				if (!asRef)
+					pat = getCppBoxRep(cd, tr);
+				else
 					pat = getCppRep(cd, tr);
 				if (pat != null){ 
 					List<Type> typeArguments = ((X10ClassType) type).typeArguments();
