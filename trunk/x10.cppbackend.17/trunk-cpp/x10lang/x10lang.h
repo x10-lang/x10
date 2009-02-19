@@ -104,6 +104,16 @@ namespace x10 {
 #define TYPEID(T,D) D
 #endif
 
+typedef bool     x10_Boolean;
+typedef int8_t   x10_Byte;
+typedef uint16_t x10_Char;
+typedef int16_t  x10_Short;
+typedef int32_t  x10_Int;
+typedef int64_t  x10_Long;
+typedef float    x10_Float;
+typedef double   x10_Double;
+typedef void     x10_Void;
+
 typedef bool     x10_boolean;
 typedef int8_t   x10_byte;
 typedef uint16_t x10_char;
@@ -112,6 +122,13 @@ typedef int32_t  x10_int;
 typedef int64_t  x10_long;
 typedef float    x10_float;
 typedef double   x10_double;
+typedef void     x10_void;
+
+// FIXME: **Temporary** Static Harness for compiling simple examples
+typedef char*    x10__Rail;
+class x10__Ref { };
+
+// End of: **Temporary** Static Harness for compiling simple examples
 
 // Array index type
 #ifdef USE_LONG_ARRAYS
