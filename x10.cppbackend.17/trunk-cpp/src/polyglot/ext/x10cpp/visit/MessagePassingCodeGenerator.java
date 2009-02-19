@@ -874,9 +874,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printHeader(n, h, tr, false);
 		h.allowBreak(0, " ");
 
+		/*
+		 * Ideally, classProperties would be added to the child context
+		 * that will be created for processing the classBody, but there
+		 * is no way to do that.  So instead we add and remove the properties
+		 * around the call to visiting the class body.
+		 */
 		context.classProperties.addAll(n.properties());
-
-		n.print(n.body(), sw, tr);
+		n.print(n.body(), sw, tr);		
+		context.classProperties.clear();
 
         ((X10CPPTranslator)tr).setContext(n.enterChildScope(n.body(), context)); // FIXME
         /*
@@ -1448,6 +1454,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // FIXME: HACK: skip synthetic serialization fields
 	    if (query.isSyntheticField(dec.name().id().toString()))
 	        return;
+	    
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() != 0) &&
 	            dec.flags().flags().isStatic())
