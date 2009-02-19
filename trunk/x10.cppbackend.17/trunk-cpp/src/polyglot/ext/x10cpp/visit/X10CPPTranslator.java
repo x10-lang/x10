@@ -9,13 +9,17 @@ package polyglot.ext.x10cpp.visit;
 
 import java.io.File;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -462,10 +466,247 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
-    private static final String DUMMY = "-U___DUMMY___";
-    private static final String IGNORED = "-U___IGNORED___";
+    private static class CXXCommandBuilder {
+        public static final String DUMMY = "-U___DUMMY___";
 
-	/**
+        public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
+        public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
+        public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
+
+        public static final String MANIFEST = X10LANG+"/libx10lib17.mft";
+        /** These go before the files */
+        public static final String[] preArgs = new String[] {
+            "-g",
+            "-I"+X10LIB+"/include",
+            "-I"+X10LANG,
+            "-I.",
+            "-DTRANSPORT="+TRANSPORT,
+        };
+        /** These go after the files */
+        public static final String[] postArgs = new String[] {
+            "-L"+X10LIB+"/lib",
+            "-L"+X10LANG,
+            "-lx10lib17",
+            "-lx10rt17",
+            "-lupcrts_"+TRANSPORT,
+            "-ldl",
+            "-lm",
+            "-lpthread",
+        };
+        public static final String BDWGCROOT = System.getenv("BDWGCROOT")==null?X10LANG+"/bdwgc/install":System.getenv("BDWGCROOT").replace(File.separatorChar, '/');
+        /** These go before the files if gcEnabled is true */
+        public static final String[] preArgsGC = new String[] {
+            "-I"+BDWGCROOT+"/include",
+            "-DX10_USE_BDWGC",
+        };
+        /** These go after the files if gcEnabled is true */
+        public static final String[] postArgsGC = new String[] {
+            BDWGCROOT+"/lib/libgc.a",
+        };
+
+        private String post_compiler;
+
+        public CXXCommandBuilder(String post_compiler) {
+            assert (post_compiler != null);
+            this.post_compiler = post_compiler;
+        }
+
+        /** Is GC enabled on this platform? */
+        protected boolean gcEnabled() { return false; }
+
+        protected String defaultPostCompiler() { return "g++"; }
+
+        /** Add the arguments that go before the output files */
+        protected void addPreArgs(ArrayList<String> cxxCmd) {
+            for (int i = 0; i < preArgs.length; i++) {
+                cxxCmd.add(preArgs[i]);
+            }
+            if (!Configuration.DISABLE_GC && gcEnabled()) {
+                for (int i = 0; i < preArgsGC.length; i++) {
+                    cxxCmd.add(preArgsGC[i]);
+                }
+            }
+        }
+
+        /** Add the arguments that go after the output files */
+        protected void addPostArgs(ArrayList<String> cxxCmd) {
+            if (!Configuration.DISABLE_GC && gcEnabled()) {
+                for (int i = 0; i < postArgsGC.length; i++) {
+                    cxxCmd.add(postArgsGC[i]);
+                }
+            }
+            for (int i = 0; i < postArgs.length; i++) {
+                cxxCmd.add(postArgs[i]);
+            }
+        }
+
+        /** Construct the C++ compilation command */
+        public final String[] buildCXXCommandLine(Collection<String> outputFiles) {
+            if (post_compiler.contains("javac"))
+                post_compiler = defaultPostCompiler();
+
+            QuotedStringTokenizer st = new QuotedStringTokenizer(post_compiler);
+            int pc_size = st.countTokens();
+            ArrayList<String> cxxCmd = new ArrayList<String>();
+            String token = "";
+            for (int i = 0; i < pc_size; i++) {
+                token = st.nextToken();
+                // The first '#' marks the place where the filenames go
+                if (token.equals("#") || token.equals("%")) {
+                    break;
+                }
+                cxxCmd.add(token);
+            }
+
+            boolean skipArgs = token.equals("%");
+            if (!skipArgs) {
+                addPreArgs(cxxCmd);
+            }
+
+            HashSet<String> manifest = new HashSet<String>();
+            try {
+                FileReader fr = new FileReader(MANIFEST);
+                BufferedReader br = new BufferedReader(fr);
+                String file = "";
+                while ((file = br.readLine()) != null)
+                    manifest.add(file);
+            } catch (IOException e) { }
+
+            Iterator iter = outputFiles.iterator();
+            for (; iter.hasNext(); ) {
+                String file = (String) iter.next();
+                file = file.replace(File.separatorChar,'/');
+                if (manifest.contains(file))
+                    continue;
+                cxxCmd.add(file);
+            }
+
+            while (st.hasMoreTokens()) {
+                token = st.nextToken();
+                // The second '#' delimits the libraries that have to go at the end
+                if (token.equals("#") || token.equals("%")) {
+                    break;
+                }
+                cxxCmd.add(token);
+            }
+
+            boolean skipLibs = token.equals("%");
+            if (!skipLibs) {
+                addPostArgs(cxxCmd);
+            }
+
+            while (st.hasMoreTokens()) {
+                cxxCmd.add(st.nextToken());
+            }
+
+            return cxxCmd.toArray(new String[cxxCmd.size()]);
+        }
+    }
+
+    private static class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
+        public Cygwin_CXXCommandBuilder(String post_compiler) {
+            super(post_compiler);
+            assert (PLATFORM.startsWith("win32"));
+        }
+    }
+
+    private static class Linux_CXXCommandBuilder extends CXXCommandBuilder {
+        /** These go after the files */
+        public static final String[] preArgsLinux = new String[] {
+            "-pthread",
+        };
+        /** These go after the files */
+        public static final String[] postArgsLinux = new String[] {
+            "-Wl,-export-dynamic",
+            "-lrt",
+        };
+
+        public Linux_CXXCommandBuilder(String post_compiler) {
+            super(post_compiler);
+            assert (PLATFORM.startsWith("linux"));
+        }
+
+        /** Disable for now.  TODO: enable */
+        protected boolean gcEnabled() { return false; }
+
+        protected void addPreArgs(ArrayList<String> cxxCmd) {
+            super.addPreArgs(cxxCmd);
+            for (int i = 0; i < preArgsLinux.length; i++) {
+                cxxCmd.add(preArgsLinux[i]);
+            }
+        }
+
+        protected void addPostArgs(ArrayList<String> cxxCmd) {
+            super.addPostArgs(cxxCmd);
+            for (int i = 0; i < postArgsLinux.length; i++) {
+                cxxCmd.add(postArgsLinux[i]);
+            }
+        }
+    }
+
+    private static class AIX_CXXCommandBuilder extends CXXCommandBuilder {
+        public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
+        //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
+        //"mpCC_r -q64 -qrtti=all"
+        /** These go after the files */
+        public static final String[] preArgsAIX = new String[] {
+            USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
+            USE_XLC ? "-qrtti=all" : DUMMY,
+            //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
+        };
+        /** These go after the files */
+        public static final String[] postArgsAIX = new String[] {
+            USE_XLC ? "-bbigtoc" : "-Wl,-bbigtoc",
+            USE_XLC ? DUMMY : "-Wl,-binitfini:poe_remote_main",
+            USE_XLC ? DUMMY : "-L/usr/lpp/ppe.poe/lib",
+            USE_XLC ? DUMMY : "-lmpi_r",
+            USE_XLC ? DUMMY : "-lvtd_r",
+            USE_XLC ? DUMMY : "-llapi_r",
+        };
+
+        public AIX_CXXCommandBuilder(String post_compiler) {
+            super(post_compiler);
+            assert (PLATFORM.startsWith("aix"));
+        }
+
+        protected boolean gcEnabled() { return false; }
+
+        protected String defaultPostCompiler() {
+            if (USE_XLC)
+                return "mpCC_r";
+            return "g++";
+        }
+
+        protected void addPreArgs(ArrayList<String> cxxCmd) {
+            super.addPreArgs(cxxCmd);
+            for (int i = 0; i < preArgsAIX.length; i++) {
+                cxxCmd.add(preArgsAIX[i]);
+            }
+        }
+
+        protected void addPostArgs(ArrayList<String> cxxCmd) {
+            super.addPostArgs(cxxCmd);
+            for (int i = 0; i < postArgsAIX.length; i++) {
+                cxxCmd.add(postArgsAIX[i]);
+            }
+        }
+    }
+
+    public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
+
+    private static CXXCommandBuilder getCXXCommandBuilder(String post_compiler, ErrorQueue eq) {
+        if (PLATFORM.startsWith("win32"))
+            return new Cygwin_CXXCommandBuilder(post_compiler);
+        if (PLATFORM.startsWith("linux"))
+            return new Linux_CXXCommandBuilder(post_compiler);
+        if (PLATFORM.startsWith("aix"))
+            return new AIX_CXXCommandBuilder(post_compiler);
+        eq.enqueue(ErrorInfo.WARNING,
+                "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
+        return new CXXCommandBuilder(post_compiler);
+    }
+
+    /**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
 	 * Using '%' instead of '#' to delimit a section will cause the default values in that section to be omitted.
@@ -474,86 +715,9 @@ public class X10CPPTranslator extends Translator {
 		if (eq.hasErrors())
 			return false;
 
-		// FIXME: [IP] HACK
-		final String post_compiler =
-			(options.post_compiler != null && options.post_compiler.contains("javac")) ?
-					"g++" :
-					options.post_compiler;
-		final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
-		final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
-		final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
-        final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknowns":System.getenv("X10_PLATFORM");
-        final String PTHREAD_FLAG = PLATFORM.startsWith("linux") ? "-pthread" : DUMMY;
-        final String SYMBOLS_FLAGS = PLATFORM.startsWith("linux") ? "-rdynamic" : DUMMY;
-        final boolean gcEnabled = !Configuration.DISABLE_GC && PLATFORM.startsWith("linux");
-        // These go before the files
-		final String[] preArgs = new String[] {
-			"-g",
-			"-I"+X10LIB+"/include",
-			"-I"+X10LANG,
-			!gcEnabled ? DUMMY : "-I"+X10LANG+"/bdwgc/install/include",
-			!gcEnabled ? DUMMY : "-DX10_USE_BDWGC",
-			"-I.",
-			"-DTRANSPORT="+TRANSPORT,
-            PTHREAD_FLAG,
-		};
-		// These go after the files
-		final String[] postArgs = new String[] {
-			"-L"+X10LIB+"/lib",
-			"-L"+X10LANG,
-			!gcEnabled ? DUMMY : X10LANG+"/bdwgc/install/lib/libgc.a",
-			"-lx10rt17",
-			"-lupcrts_"+TRANSPORT,
-			"-ldl",
-			"-lm",
-			"-lpthread"
-		};
-		if (post_compiler != null && !options.output_stdout) {
-			Runtime runtime = Runtime.getRuntime();
-			QuotedStringTokenizer st = new QuotedStringTokenizer(post_compiler);
-			int pc_size = st.countTokens();
-			String[] cxxCmd = new String[pc_size+preArgs.length+postArgs.length+compiler.outputFiles().size()];
-			int j = 0;
-			String token = "";
-			for (int i = 0; i < pc_size; i++) {
-				token = st.nextToken();
-				// The first '#' marks the place where the filenames go
-				if (token.equals("#") || token.equals("%")) {
-					cxxCmd[j++] = DUMMY; // don't want to resize the array
-					break;
-				}
-				cxxCmd[j++] = token;
-			}
-
-			boolean skipArgs = token.equals("%");
-			for (int i = 0; i < preArgs.length; i++) {
-				cxxCmd[j++] = skipArgs ? IGNORED : preArgs[i];
-			}
-
-			Iterator iter = compiler.outputFiles().iterator();
-			for (; iter.hasNext(); j++) {
-				String file = (String) iter.next();
-				cxxCmd[j] = file.replace(File.separatorChar,'/');
-			}
-
-			while (st.hasMoreTokens()) {
-				token = st.nextToken();
-				// The second '#' delimits the libraries that have to go at the end
-				if (token.equals("#") || token.equals("%")) {
-					cxxCmd[j++] = DUMMY; // don't want to resize the array
-					break;
-				}
-				cxxCmd[j++] = token;
-			}
-
-			boolean skipLibs = token.equals("%");
-			for (int i = 0; i < postArgs.length; i++) {
-				cxxCmd[j++] = skipLibs ? IGNORED : postArgs[i];
-			}
-
-			while (st.hasMoreTokens()) {
-				cxxCmd[j++] = st.nextToken();
-			}
+		if (options.post_compiler != null && !options.output_stdout) {
+            Collection<String> outputFiles = compiler.outputFiles();
+            String[] cxxCmd = getCXXCommandBuilder(options.post_compiler, eq).buildCXXCommandLine(outputFiles);
 
 			if (Report.should_report("postcompile", 1)) {
 				StringBuffer cmdStr = new StringBuffer();
@@ -563,6 +727,7 @@ public class X10CPPTranslator extends Translator {
 			}
 
 			try {
+                Runtime runtime = Runtime.getRuntime();
 				Process proc = runtime.exec(cxxCmd, null, options.output_directory);
 
 				InputStreamReader err = new InputStreamReader(proc.getErrorStream());
@@ -586,9 +751,9 @@ public class X10CPPTranslator extends Translator {
 				proc.waitFor();
 
 				if (!options.keep_output_files) {
-					String[] rmCmd = new String[1+compiler.outputFiles().size()];
+					String[] rmCmd = new String[1+outputFiles.size()];
 					rmCmd[0] = "rm";
-					iter = compiler.outputFiles().iterator();
+					Iterator iter = outputFiles.iterator();
 					for (int i = 1; iter.hasNext(); i++)
 						rmCmd[i] = (String) iter.next();
 					runtime.exec(rmCmd);
