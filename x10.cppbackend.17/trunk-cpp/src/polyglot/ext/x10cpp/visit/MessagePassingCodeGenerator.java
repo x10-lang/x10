@@ -873,7 +873,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// [Krishna] Is it not fixed already? -- The asyncs in the
 		// nested class will be added to the outmost toplevel
 		// class. Would that be a problem? Probably not.
-		assert(false); // We are removing all the inner + local classes using a separate pass.
+		assert (false); // We are removing all the inner + local classes using a separate pass.
 		context.pushInLocalClass();
 		emitter.printHeader((ClassDecl_c)n.decl(), w, tr, false);
 		w.allowBreak(0, " ");
@@ -1568,7 +1568,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	
 	
 	public void visit(StmtSeq_c b) {
-		assert(false); // FIXME. It is not clear if when StmtSeq_c nodes are generated.  If they indeed are, remove this assert and continue with the method below.
+		assert (false); // FIXME. It is not clear if when StmtSeq_c nodes are generated.  If they indeed are, remove this assert and continue with the method below.
 		
 		//w.write("{");
 		w.newline();
@@ -2456,7 +2456,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 
-		w.write("{");  
+        Type itType = null;
+        assert (n.domain().type().isClass());
+        X10ClassType domainType = (X10ClassType)n.domain().type().toClass();
+        try {
+            X10MethodInstance mi = xts.findMethod(domainType,
+                                xts.MethodMatcher(domainType, Name.make("iterator"), Collections.EMPTY_LIST),
+                                context.currentClassDef());
+            assert (mi != null);
+            assert (mi.returnType().isClass());
+            List<Type> typeArgs = ((X10ClassType)mi.returnType()).typeArguments();
+            assert (typeArgs.size() == 1);
+            itType = typeArgs.get(0);
+        } catch (SemanticException e) {
+            assert (false) : e.getMessage();
+        }
+
+        w.write("{");  
 		w.newline(4); w.begin(0);
 
 		String name = "__i" + form.name();
@@ -2465,7 +2481,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(fType + (fType.endsWith(">") ? " " : ""));
 		w.write(">* " + name + ";");
 		w.newline();
-		w.write(name + " = &*(("); // FIXME
+		w.write(name + " = &*"); // FIXME
+        if (!xts.typeEquals(form.type().type(), itType))
+            w.write("x10aux::convert_iterator<"+fType+","+emitter.translateType(itType, true)+" >");
+        w.write("((");
 		sw.pushCurrentStream(w);
 		n.print(n.domain(), sw, tr);
 		sw.popCurrentStream();
@@ -2719,7 +2738,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(ArrayAccess_c n) {
-		assert(false);
+		assert (false);
 	}
 
 
@@ -2800,28 +2819,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     */
 	}
 	
-	public void visit(X10Special_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+    public void visit(X10Special_c n) {
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
         // inner classes have been removed
-        assert(n.qualifier()==null):n.qualifier()+" "+n.kind()+" "+n.position().nameAndLineString();
+        assert (n.qualifier() == null) :
+               n.qualifier()+" "+n.kind()+" "+n.position().nameAndLineString();
 
-		if (n.kind().equals(X10Special_c.THIS)) {
+        if (n.kind().equals(X10Special_c.THIS)) {
             if (context.insideClosure) {
                 w.write(SAVED_THIS);
                 context.saveEnvVariableInfo(THIS);
             } else {
                 w.write("(("+emitter.translateType(n.type(),true)+")"+n.kind()+")");
             }
-		} else if (n.kind().equals(X10Special_c.SUPER)) {
+        } else if (n.kind().equals(X10Special_c.SUPER)) {
             w.write(emitter.translateType(context.currentClass().superClass()));
-		} else if (n.isSelf()) {
-			// FIXME: Why are we printing the string "self"?
-			// Confirm with Igor. [Krishna]
-			w.write((context.Self() == null)? "self":context.Self());
-		} else assert(false):n.kind();
+        } else if (n.isSelf()) {
+            // FIXME: Why are we printing the string "self"?
+            // Confirm with Igor. [Krishna]
+            w.write((context.Self() == null)? "self":context.Self());
+        } else assert (false) : n.kind();
 
-	}
+    }
 
 	public String getClosureName(String className, int id) {
 		return className+"__closure__"+id;
