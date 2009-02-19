@@ -9,6 +9,7 @@ package polyglot.ext.x10cpp;
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
 import polyglot.ext.x10cpp.ast.X10CPPDelFactory_c;
 import polyglot.ext.x10cpp.ast.X10CPPExtFactory_c;
 import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
@@ -17,6 +18,7 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.types.TypeSystem;
 
@@ -55,6 +57,13 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		X10CPPScheduler(ExtensionInfo extInfo) {
 			super(extInfo);
 		}
+		@Override
+		public Goal CheckNativeAnnotations(Job job) {
+			TypeSystem ts = extInfo.typeSystem();
+			NodeFactory nf = extInfo.nodeFactory();
+			return new VisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, "c++")).intern(this);
+		}
+
 		@Override
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();
