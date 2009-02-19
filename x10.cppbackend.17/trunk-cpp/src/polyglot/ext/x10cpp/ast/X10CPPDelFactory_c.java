@@ -271,5 +271,19 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
 			}
 		};
 	}
+
+    /**
+     * For each future, add the delegate that redirects translate
+     * to the X10PrettyPrinterVisitor and overrides enterScope.
+     */
+    public JL delFutureImpl() {
+        return new TD() {
+            public Context enterScope(Context c) {
+                X10CPPContext_c context = (X10CPPContext_c) super.enterScope(c);
+                context.setinClosure(true);
+                return context;
+            }
+        };
+    }
 }
 
