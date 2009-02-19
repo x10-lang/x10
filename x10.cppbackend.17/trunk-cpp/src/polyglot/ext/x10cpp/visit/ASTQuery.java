@@ -314,6 +314,7 @@ public class ASTQuery {
 
 	static final ArrayList knownAsyncArrayCopyMethods = new ArrayList();
 
+	/* -- SPMD compilation --
 	boolean isAsyncArrayCopy(Call_c n) {
 		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
 		if (knownAsyncArrayCopyMethods.size() == 0) {
@@ -321,7 +322,7 @@ public class ASTQuery {
 			try {
 				Type x_l_Runtime = (Type) ts.Runtime();
 				Type Int = ts.Int();
-				Type[] OA_I_P_I_I_B = { ts.arrayOf(ts.Object().position(), ts.Object()), Int, ts.Place(), Int, Int, ts.Boolean() };
+				Type[] OA_I_P_I_I_B = { ts.array(ts.Object()), Int, ts.Place(), Int, Int, ts.Boolean() };
 				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("asyncDoubleArrayCopy"), Arrays.asList(OA_I_P_I_I_B)), context.currentClassDef()));
 			} catch (SemanticException e) { assert (false); }
 		}
@@ -334,6 +335,7 @@ public class ASTQuery {
 			return false;
 		return true;
 	}
+	*/
 
 
 	static final ArrayList knownArrayCopyMethods = new ArrayList();
@@ -416,10 +418,9 @@ public class ASTQuery {
 		name = (String) arrayRuntimeNameToType.get(name.substring(9));
 		if (name == null) {
 			X10Type x10type = (X10Type) type;
-			assert (x10type.typeParameters().size() == 1);
-			return (Type) x10type.typeParameters().get(0);
+			return polyglot.ext.x10.types.X10TypeMixin.getParameterType(x10type, 0);
 		} else {
-			try { type = ts.primitiveForName(name); } catch (SemanticException e) { }
+			try { type = ts.primitiveForName(Name.make(name)); } catch (SemanticException e) { }
 		}
 		return type;
 	}
