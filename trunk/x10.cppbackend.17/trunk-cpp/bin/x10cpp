@@ -7,12 +7,13 @@ PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 TOP="$(cd "$(dirname $0)/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 [ -z "$X10REL" ] && export X10REL="../x10.dist"
-[ -z "$X10LIB" ] && export X10LIB="$TOP/../x10.lib"
-[ -z "$X10LANG" ] && export X10LANG="$TOP/x10lang"
+[ -z "$X10LIB" ] && export X10LIB="$TOP/../pgas/common/work"
+[ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime.17/src-cpp"
 X10="$(cd "$TOP/$X10REL" && pwd)"
 
 export CP_OVERRIDE="${TOP}${FILE_SEP}classes${PATH_SEP}"
 export DEXT="x10cpp"
 export MAIN="polyglot.ext.x10cpp.main.Main"
+
 exec "${X10}/bin/x10c" "$@"
 
