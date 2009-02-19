@@ -55,5 +55,5 @@ Here's a list of known issues with the C++ backend:
 - Code generation errors for value assignments and closures in generics
 
 For a current list of issues, see the X10 JIRA:
-http://jira.codehaus.org/secure/IssueNavigator.jspa?component=13491&resolution=-1
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
 
