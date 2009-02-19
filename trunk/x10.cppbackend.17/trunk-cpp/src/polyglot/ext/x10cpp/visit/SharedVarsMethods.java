@@ -61,28 +61,14 @@ public class SharedVarsMethods {
 	// FIXME: [IP] cannot enable refsAsPointers unless the library was also rebuilt
 	// without refs and the Main template was changed
 	static final boolean refsAsPointers = false;
-	static final String ASYNC_PREFIX = "async__";
-	static final String INIT_PREFIX = "__init__";
-	static final String ARRAY_COPY_PREFIX = "array_copy__";
-	static final String CLOSURE_WRAPPER_PREFIX = "__closure__";
-	static final String ASYNC_SWITCH = "__x10_callback_asyncswitch";
-	static final String ARRAY_COPY_SWITCH = "__x10_callback_arraycopyswitch";
 	static final String VOID = "void";
 	static final String VOID_PTR = "void*";
 	static final String SAVED_THIS = "saved_this";
-	static final String GLOBAL_STATE = "GLOBAL_STATE";
-	static final String THIS = "this";
-	static final String RUN_INITIALIZERS = "_run_initializers";
-	static final String INIT = "__init";
-	static final String STATIC_INIT = "__static_init";
-	static final int MAX_OBJECT_ARRAY_INIT = 6;
-	static final String RAW_ARRAY = "raw";
-	static final String RAW_ADJUSTED = "rawRegion";
-	static final boolean eagerArrayCopyNotification = true;
-	static final String GET_SOURCE_ARRAY = "getSourceArray";
-	static final String GET_DEST_ARRAY = "getDestArray";
-	static final String POST_COPY_RUN = "postCopyRun";
-	static final boolean optimizePrimitiveBroadcasts = true;
+    static final String THIS = "this";
+	static final String INSTANCE_INIT = "_instance_init"; // instance field initialisers
+	static final String CONSTRUCTOR = "_constructor";
+	static final String MAKE = "_make";
+	static final String STATIC_INIT = "_static_init"; // static field initialisers
 	static final String SERIALIZATION_ID_FIELD = "_serialization_id";
 	static final String SERIALIZATION_MARKER = "x10aux::SERIALIZATION_MARKER";
 	static final String SERIALIZATION_BUFFER = "x10aux::serialization_buffer";
@@ -97,10 +83,14 @@ public class SharedVarsMethods {
 
 	static final String NATIVE_STRING = "c++";
 
+    public static String chevrons(String type) {
+        return "<" + type + (type.endsWith(">")?" ":"")+">";
+    }
+
 	static String make_ref(String type) {
 		if (refsAsPointers)
 			return type+"*";
-		return "x10aux::ref<"+type+(type.endsWith(">")?" ":"")+">";
+		return "x10aux::ref"+chevrons(type);
 	}
 	static String closure_name(String prefix, int id) {
 		return prefix + id;
@@ -198,3 +188,5 @@ public class SharedVarsMethods {
 		}
 	}
 }
+
+// vim: shiftwidth=4:tabstop=4:expandtab

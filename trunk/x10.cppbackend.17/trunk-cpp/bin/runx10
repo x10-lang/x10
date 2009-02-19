@@ -3,6 +3,8 @@
 # Can also be used to invoke valgrind, gdb, etc
 # Should work on Cygwin, Linux, AIX
 
+PATH="$PATH:."
+
 if [ "`uname -s`" = "AIX" ] ; then
     # AIX: set up env vars needed for poe, run at 1 place (localhost) via poe
     unset MP_MSG_API MP_TASK_AFFINITY MP_EUIDEVICE MP_ADAPTER_USE MP_EUILIB MP_CPU_USE \

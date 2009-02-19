@@ -257,9 +257,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.allowBreak(0, " ");
 		w.write("{");
 		w.newline(4); w.begin(0);
+        w.write("public:"); w.newline();
 		// First process all classes
 		for (ClassMember dec : context.pendingStaticDecls) {
 			if (dec instanceof ClassDecl_c) {
+                assert false : "nested class alert! "+cd.position();
 				ClassDecl_c cdecl = (ClassDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(cdecl.enterScope(context)); // FIXME
 				X10ClassDef def = (X10ClassDef) cdecl.classDef();
@@ -267,7 +269,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					// emit no c++ code as this is a native rep class
 					continue;
 				}
-				emitter.printFlags(w, cdecl.flags().flags());
 				emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), w);
 				w.write("class ");
 				w.write(Emitter.mangled_non_method_name(cdecl.name().id().toString()));
@@ -303,11 +304,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(";");
 				((X10CPPTranslator)tr).setContext(context); // FIXME
 			}
-			w.newline();
+			w.newline(); w.forceNewline();
 		}
 		if (hasInits) {
-			w.write("public : static " + VOID + " " + STATIC_INIT + "();");
-			w.newline();
+			w.write("static " + VOID + " " + STATIC_INIT + "();");
+			w.newline(); w.forceNewline();
 		}
 		w.end(); w.newline();
 		w.write("};");
@@ -426,28 +427,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            context.pendingStaticDecls = opsd;
 
 	            h.newline();
-
-	            ArrayList asyncs = context.closures.asyncs;
-	            if (context.classesWithAsyncSwitches.size() != 0) {
-	                ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-	                emitter.printSwitchMethod(cdecl.classDef().asType(), ASYNC_SWITCH, VOID,
-	                        ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
-	                        context.closures.asyncContainers,
-	                        "int niter",
-	                        "for (int i = 0; i < niter; i++,_arg++) {", "}",
-	                        context.classesWithAsyncSwitches, inc);
-	                emitter.printAsyncsRegistration(cdecl.classDef().asType(), asyncs, inc);
-	            }
-	            if (context.closures.arrayCopyClosures.size() != 0) {
-	                ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-	                emitter.printSwitchMethod(cdecl.classDef().asType(), ARRAY_COPY_SWITCH, VOID_PTR,
-	                        ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
-	                        context.closures.arrayCopyClosures,
-	                        null,
-	                        null, null,
-	                        context.classesWithArrayCopySwitches, inc);
-	            }
-	            sw.newline();
 
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	        }
@@ -881,27 +860,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		h.newline();
 
-		ArrayList asyncs = context.closures.asyncs;
-		if (context.classesWithAsyncSwitches.size() != 0) {
-            ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-			emitter.printSwitchMethod(def.asType(), ASYNC_SWITCH, VOID,
-					ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
-					context.closures.asyncContainers,
-					"int niter",
-					"for (int i = 0; i < niter; i++,_arg++) {", "}",
-					context.classesWithAsyncSwitches, inc);
-			emitter.printAsyncsRegistration(def.asType(), asyncs, inc);
-		}
-		if (context.closures.arrayCopyClosures.size() != 0) {
-            ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-			emitter.printSwitchMethod(def.asType(), ARRAY_COPY_SWITCH, VOID_PTR,
-					ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
-					context.closures.arrayCopyClosures,
-					null,
-					null, null,
-					context.classesWithArrayCopySwitches, inc);
-        }
-
         // Write the footer for the class
 		if (def.package_() != null) {
 		    QName pkgName = def.package_().get().fullName();
@@ -961,21 +919,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(LocalClassDecl_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// FIXME: [IP] Local classes cannot have static members (thus asyncs)
-		//
-		// [Krishna] Is it not fixed already? -- The asyncs in the
-		// nested class will be added to the outmost toplevel
-		// class. Would that be a problem? Probably not.
-		assert (false); // We are removing all the inner + local classes using a separate pass.
-		context.pushInLocalClass();
-        ClassifiedStream save_header = sw.header();
-        sw.setHeader(sw.body());
-		emitter.printHeader((ClassDecl_c)n.decl(), sw, tr, false);
-		sw.allowBreak(0, " ");
-		n.print(n.decl().body(), sw, tr);
-		context.popInLocalClass();
-        sw.setHeader(save_header);
+		assert (false) : ("Local classes should have been removed by a separate pass");
 	}
 
     // Get the list of methods of name "name" that ought to be accessible from class c
@@ -1040,9 +984,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		ClassifiedStream h = sw.header();
 
-		h.write("{");
-		h.newline(4);
-		h.begin(0);
+		h.write("{"); h.newline(4); h.begin(0);
+		h.write("public:"); h.newline();
 		emitter.printRTT(currentClass, h);
 		sw.begin(0);
 		for (Iterator pi = context.classProperties.iterator(); pi.hasNext();) {
@@ -1065,7 +1008,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					continue;
 				if (def.flags().isStatic() && ((X10ClassDef)currentClass.def()).typeParameters().size() != 0)
 					continue;
-				emitter.printFlags(h, dec.flags().flags());
 				emitter.printTemplateSignature(((X10ClassType)dec.classDef().asType()).typeArguments(), h);
 				h.write("class ");
 				h.write(mangled_non_method_name(dec.name().id().toString()));
@@ -1073,9 +1015,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.newline();
 			}
 
-			if (extractInits(currentClass, RUN_INITIALIZERS, VOID, members, false)) {
-				h.write("private : " + VOID + " " + RUN_INITIALIZERS + "();");
-				h.newline();
+			if (extractInits(currentClass, INSTANCE_INIT, VOID, members, false)) {
+				h.write(VOID + " " + INSTANCE_INIT + "();");
+				h.newline(); h.forceNewline();
 				context.hasInits = true;
 			}
 
@@ -1313,161 +1255,120 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(ConstructorDecl_c dec) {
+
+        // [DC] here we generate a pair of functions to form a fake
+        // constructor.   Real constructors are no use to us because they
+        // cannot invoke virtual functions with the semantics we need.  The two
+        // functions are _make which behaves like a constructor by creating an
+        // uninitialised object and calling _constructor (the body of the X10
+        // constructor).  Calls to super() and this() are translated into calls
+        // to the appropriate OtherClass::_constructor (hence the separate
+        // function).
+
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (dec.flags().flags().isNative())
 			return;
 
 		ClassifiedStream h = sw.header();
-        sw.pushCurrentStream(h);
-		emitter.printHeader(dec, sw, tr, false);
-        sw.popCurrentStream();
-		emitter.printHeader(dec, sw, tr, true);
-		ClassType container = (ClassType)dec.constructorDef().asInstance().container();
-		boolean hasInits = false;
-		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
-		if (dec.body() != null) {
-			assert (!dec.flags().flags().isStatic());
-			TypeSystem ts = tr.typeSystem();
-			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-			        Types.ref(container), Name.make(THIS)).asInstance();
-			context.addVariable(ti);
-			// Extract initializers from the body
-			Block_c body = (Block_c) dec.body();
-			List<Stmt> statements = body.statements();
-//			HashMap inited = new HashMap();
-			List<Stmt> newStatements = new TypedList(new ArrayList(), Stmt.class, false);
-			List<Stmt> syntheticInits = new TypedList(new ArrayList(), Stmt.class, false);
-			for (Stmt n : statements) {
-				if (n instanceof ConstructorCall && ((ConstructorCall)n).kind() == ConstructorCall.SUPER) {
-					ConstructorCall call = (ConstructorCall) n;
-					sw.allowBreak(4, " ");
-					sw.write(":");
-					sw.allowBreak(2, " ");
-					sw.write(emitter.translateType(container.superClass()) + "(");
-					if (call.arguments().size() > 0) {
-						sw.allowBreak(2, 2, "", 0); // miser mode
-						sw.begin(0);
-                        int counter = 0;
-						for(Expr e : (List<Expr>) call.arguments() ) {
-							if (counter==0) {
-							} else {
-								sw.write(",");
-								sw.allowBreak(0, " ");
-							}
-                            ConstructorInstance calli = call.constructorInstance();
-                            String type = emitter.translateType(calli.formalTypes().get(counter),true);
-                            sw.write("("+type+")(");
-							dec.print(e, sw, tr);
-                            sw.write(")");
-                            counter++;
-						}
-						sw.end();
-					}
-					sw.write(")");
-					hasInits = true;
-				} else {
-					if (query.isSyntheticOuterAccessor(n))
-					    syntheticInits.add(n);
-					else
-					    newStatements.add(n);
-				}
-			}
-			if (hasInits)
-				sw.newline();
-			else
-				sw.allowBreak(0, " ");
-			sw.write("{"); sw.newline(4); sw.begin(0);
-			for (Stmt stmt : syntheticInits) { // Synthetic fields must be initialized before everything else
-			    dec.print(stmt, sw, tr); sw.newline();
-			}
-			if (context.hasInits) {
-				sw.write("this->"+RUN_INITIALIZERS+"();"); sw.newline();
-			}
-			sw.write("this->"+INIT+"(");
-			sw.begin(0);
-			boolean first = true;
-			for (Formal f : dec.formals()) {
-				if (first) {
-					first = false;
-				} else {
-					sw.write(",");
-					sw.allowBreak(0, " ");
-				}
-				sw.write(mangled_non_method_name(f.name().toString()));
-			}
-			sw.end();
-			sw.write(");");
-			sw.end(); sw.newline(); sw.write("}");
-			sw.newline();
 
+        X10ClassType container = (X10ClassType) dec.constructorDef().container().get();
+        String typeName = emitter.translateType(container.def().asType());
+
+        if (!container.flags().isAbstract()) {
+            // emit _make method
+            h.write("static ");
             sw.pushCurrentStream(h);
-			h.write("private: "+VOID+" "+INIT+"(");
-			h.begin(0);
-			first = true;
-			for (Formal f : dec.formals()) {
-				if (first) {
-					first = false;
-				} else {
-					h.write(",");
-					h.allowBreak(0, " ");
-				}
-				dec.print(f, sw, tr);
-			}
-			h.end();
-			h.write(");");
-			h.newline();
+            emitter.printHeader(dec, sw, tr, false, MAKE, false);
             sw.popCurrentStream();
-			emitter.printTemplateSignature(((X10ClassType)dec.constructorDef().container().get()).typeArguments(), sw);
-			sw.write(VOID+" "+emitter.translateType(container)+"::"+INIT+"(");
-			sw.begin(0);
-			first = true;
-			for (Formal f : dec.formals()) {
-				if (first) {
-					first = false;
-				} else {
-					sw.write(",");
-					sw.allowBreak(0, " ");
-				}
-				dec.print(f, sw, tr);
-			}
-			sw.end();
-			sw.write(")");
-			sw.allowBreak(0, " ");
-			if (newStatements.size() > 0) {
-				sw.write("{"); sw.newline(4); sw.begin(0);
-				for (Stmt s : newStatements) {
-					if (s instanceof ConstructorCall) {
-						ConstructorCall call = (ConstructorCall)s;
-						assert (call.kind() == ConstructorCall.THIS);
-						sw.write("this->"+INIT+"(");
-						if (call.arguments().size() > 0) {
-							sw.allowBreak(2, 2, "", 0); // miser mode
-							sw.begin(0);
-							first = true;
-							for(Expr e : (List<Expr>) call.arguments() ) {
-								if (first) {
-									first = false;
-								} else {
-									sw.write(",");
-									sw.allowBreak(0, " ");
-								}
-								dec.print(e, sw, tr);
-							}
-							sw.end();
-						}
-						sw.write(");");
-					} else {
-						dec.printBlock(s, sw, tr);
-					}
-					sw.newline();
-				}
-				sw.end(); sw.newline(); sw.write("}");
-			} else
-				sw.write("{ }");
-		} else {
-			sw.write(" { }");
-		}
-		sw.newline();
+            h.allowBreak(0, " "); h.write("{"); h.newline(4); h.begin(0);
+            h.write("x10aux::ref"+chevrons(typeName)+" this_ = "+
+                        "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); h.newline();
+            h.write("return this_->"+CONSTRUCTOR+"(");
+            for (Iterator i = dec.formals().iterator(); i.hasNext(); ) {
+                Formal f = (Formal) i.next();
+                h.write(mangled_non_method_name(f.name().id().toString()));
+                if (i.hasNext()) {
+                    h.write(",");
+                    h.allowBreak(0, " ");
+                }
+            }
+            h.write(");");
+            h.end(); h.newline();
+            h.write("}"); h.newline(); // no gap between _make and _constructor
+        }
+
+        sw.pushCurrentStream(h);
+		emitter.printHeader(dec, sw, tr, false, CONSTRUCTOR, true);
+        sw.popCurrentStream();
+        h.forceNewline();
+		emitter.printHeader(dec, sw, tr, true, CONSTRUCTOR, false);
+		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
+		if (dec.body() == null) {
+            assert false : dec.position().toString();
+            sw.write("{ }"); sw.newline(); sw.forceNewline();
+        }
+
+        assert (!dec.flags().flags().isStatic());
+
+        TypeSystem ts = tr.typeSystem();
+
+        VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+                                     Types.ref(container), Name.make(THIS)).asInstance();
+        context.addVariable(ti);
+
+
+        sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
+
+        Block_c body = (Block_c) dec.body();
+
+        // Synthetic fields must be initialized before everything else
+        for (Stmt s : body.statements()) {
+            if (query.isSyntheticOuterAccessor(s)) {
+                dec.print(s, sw, tr); sw.newline();
+            }
+        }
+
+        if (context.hasInits) {
+            // then, run x10 instance field initialisers
+            sw.write("this->"+INSTANCE_INIT+"();"); sw.newline();
+        }
+
+        for (Stmt s : body.statements()) {
+            if (s instanceof ConstructorCall) {
+                ConstructorCall call = (ConstructorCall)s;
+                if (call.kind() == ConstructorCall.SUPER) {
+                    String superClass = emitter.translateType(container.superClass());
+                    sw.write("this->"+superClass+"::"+CONSTRUCTOR+"(");
+                } else if (call.kind() == ConstructorCall.THIS) {
+                    sw.write("this->"+CONSTRUCTOR+"(");
+                }
+                if (call.arguments().size() > 0) {
+                    sw.allowBreak(2, 2, "", 0); // miser mode
+                    sw.begin(0);
+                    boolean first = true;
+                    for(Expr e : (List<Expr>) call.arguments() ) {
+                        if (!first) {
+                            sw.write(",");
+                            sw.allowBreak(0, " ");
+                        }
+                        dec.print(e, sw, tr);
+                        first = false;
+                    }
+                    sw.end();
+                }
+                sw.write(");");
+                sw.newline();
+            } else if (query.isSyntheticOuterAccessor(s)) {
+                // we did synthetic field initialisation earlier
+            } else {
+                dec.printBlock(s, sw, tr);
+                sw.newline();
+            }
+        }
+        sw.write("return this;"); sw.end(); sw.newline();
+        sw.write("}");
+
+		sw.newline(); sw.forceNewline();
 	}
 
 
@@ -1490,7 +1391,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // Ignore the initializer -- this will have been done in extractInits/extractStaticInits
 	    // FIXME: the above breaks switch constants!
 	    h.write(";");
-	    h.newline();
+	    h.newline(); h.forceNewline();
 	    if (dec.flags().flags().isStatic()) {
 	        emitter.printHeader(dec, sw, tr, true);
 	        // [DC] disabled because I want this done through the static initialisation framework
@@ -1504,7 +1405,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            dec.print(dec.init(), sw, tr);
 	        }
 	        sw.write(";");
-	        sw.newline();
+	        sw.newline(); sw.forceNewline();
 	    }
 	}
 
@@ -2150,7 +2051,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(c.getCurrentName(var));
 	}
 
-
 	public void visit(New_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -2159,16 +2059,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 
-		String type = emitter.translateType(n.objectType().type());
-
-		// [DC] this cast is needed to ensure everything has a ref type
-		// otherwise overloads don't seem to work properly
-		sw.begin(0);
-		sw.write("("+make_ref(type)+")( ");
-		sw.allowBreak(4, "");
-		sw.write("new (x10aux::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
-		sw.allowBreak(4, "");
-		sw.write(type+"(");
+		sw.write(emitter.translateType(n.objectType().type())+"::"+MAKE+"(");
 		sw.begin(0);
 		for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
 			Expr e = (Expr) i.next();
@@ -2178,15 +2069,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.allowBreak(0, " ");
 			}
 		}
-		// FIXME: [IP] Temporary hack until we have full stack traces
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-		if (ts.isSubtype(n.objectType().type(), ts.Throwable()) && n.arguments().size() == 0) {
-			String stringType = emitter.translateType(ts.String());
-			sw.write("String::Lit(__FILELINE__)");
-		}
-		sw.end();
 		sw.write(")");
-		sw.write(" )");
 		sw.end();
 	}
 
@@ -2773,9 +2656,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write("template<class __T> static x10aux::ref<__T> "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
+		inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
 		inc.newline(4); inc.begin(0);
-        inc.write("x10aux::ref<"+cnamet+" > this_ = new (x10aux::alloc<"+cnamet+" >())"+cnamet+"(x10aux::SERIALIZATION_MARKER());"); inc.newline();
+        inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
+                        cnamet+"("+SERIALIZATION_MARKER+"());");
         for (int i = 0; i < c.variables.size(); i++) {
             VarInstance var = (VarInstance) c.variables.get(i);
             String name = var.name().toString();
@@ -2789,8 +2673,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
 
-		inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
-		inc.newline(); inc.forceNewline();
+        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
+        inc.newline(); inc.forceNewline();
+
 
 		inc.write(cname+"(");
         for (int i = 0; i < c.variables.size(); i++) {
@@ -2824,9 +2709,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			 	  " return x10aux::getRTT<"+superType+" >(); }");
 		inc.newline(); inc.forceNewline();
 
-        inc.write("x10aux::ref<x10::lang::String> toString() {");
+        inc.write(make_ref("x10::lang::String")+" toString() {");
         inc.newline(4); inc.begin(0);
-        inc.write("return String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
+        inc.write("return x10::lang::String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
         inc.end(); inc.newline();
         inc.write(" }");
 		inc.end(); inc.newline(); inc.forceNewline();
@@ -2868,8 +2753,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (prefix.equals(",")) sb.append(">");
         String templateArgs = sb.toString();
 
-		sw.write("x10aux::ref<"+superType+" >");
-        sw.write("(new (x10aux::alloc<"+superType+" >(sizeof("+cname+templateArgs+")))");
+		sw.write(make_ref(superType));
+        sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
 		sw.write(cname+templateArgs+"(");
         for (int i = 0; i < c.variables.size(); i++) {
             if (i > 0) sw.write(", ");
@@ -3069,9 +2954,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	void declarePackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id) {
-		w.write("struct "+args_name(INIT_PREFIX, id)+";"); w.newline();
-	}
 
 	public void visit(ArrayInit_c n) {
 		throw new InternalCompilerError("Should not be invoked");
@@ -3228,39 +3110,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return null;
 	}
 
-	/*
-	 // In case there is a need to have native declarations part of the
-	 // function declarations, use the following.
-	 // -Krishna.
-	private void emitNativeDecl(String pat, List<LocalInstance> names) {
-		 Object[] components = new Object[names.size()+1];
-		    int i = 0;
-		    components[i++] = THIS;
-		    for (LocalInstance li : names) {
-			// FIXME: Handle typeParameters
-			if (li.type() instanceof ParameterType){
-				assert false;
-
-				// components[i++] = new TypeExpander(at, true, false, false);
-				// components[i++] = new TypeExpander(at, true, true, false);
-				// components[i++] = new RuntimeTypeExpander(at);
-			}
-			if (li.type() instanceof ClosureType) {
-				// TODO: Handle Closures.
-				assert false;
-			}
-			components[i++] = mangled_non_method_name(li.name().toString());
-		    }
-		    String pi = translate_mangled_NSFQN(pat);
-		    if (!pi.contains("#")){
-
-			X10CPPContext_c c = (X10CPPContext_c) tr.context();
-			c.pendingImplicitImports.add(pat);
-		    }
-
-		    dumpRegex("Native", components, tr, pat);
-	}
-	*/
 
 	private static Object getBoxType(Type type) {
 		if (type.isClass())
@@ -3284,6 +3133,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		return null;
 	}
 
+    // FIXME: generic native methods will break
 	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args) {
 		 Object[] components = new Object[1+3*types.size() + args.size()];
 		 assert (receiver != null);
