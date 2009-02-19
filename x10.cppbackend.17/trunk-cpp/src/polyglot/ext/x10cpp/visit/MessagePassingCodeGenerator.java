@@ -465,6 +465,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				ArrayList<String> ifHistory = new ArrayList<String>();
 				for (Iterator is = types.iterator(); is.hasNext(); ) {
 					ClassType ct = (ClassType) is.next();
+					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+					if (cpp != null)
+						continue;
 					String pkg = "";
 					if (ct.package_() != null)
 						pkg = ct.package_().fullName().toString();
@@ -473,16 +476,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.newline();
 				}
 
-				ArrayList<String> usHistory = new ArrayList<String>();
-				for (Iterator is = context.pendingImplicitImports.iterator(); is.hasNext();) {
-					String in = (String) is.next();
-					emitter.emitUniqueIF(in, ifHistory, h);
-					h.newline();
-					String us = (String) is.next();
-					emitter.emitUniqueUS(us, usHistory, h);
-					h.newline();
-				}
-				context.pendingImplicitImports.clear();  
+//				ArrayList<String> usHistory = new ArrayList<String>();
+//				for (Iterator is = context.pendingImplicitImports.iterator(); is.hasNext();) {
+//					String in = (String) is.next();
+//					emitter.emitUniqueIF(in, ifHistory, h);
+//					h.newline();
+//					String us = (String) is.next();
+//					emitter.emitUniqueUS(us, usHistory, h);
+//					h.newline();
+//				}
+//				context.pendingImplicitImports.clear();  
 
 				ArrayList<String> unHistory = new ArrayList<String>();
 				for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
@@ -1660,11 +1663,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String pat = getCppImplForDef(fi.x10Def());
 		if (pat != null) {
 		    String pi = translate_mangled_NSFQN(pat);
-		    if (!pi.contains("#")){
-			X10CPPContext_c c = (X10CPPContext_c) tr.context();
-			c.pendingImplicitImports.add(pi);
-			c.pendingImplicitImports.add(null);
-		    }
 		    Object[] components = new Object[] { target };
 		    emitter.dumpRegex("Native", components, tr, pat, w);
 		    return;
@@ -3047,11 +3045,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        components[i++] = e;
 		    }
 		    String pi = pat;
-		    if (!pi.contains("#")){
-			X10CPPContext_c c = (X10CPPContext_c) tr.context();
-			c.pendingImplicitImports.add(pi);
-			c.pendingImplicitImports.add(null);
-		    }
 		    emitter.dumpRegex("Native", components, tr, pat, w);
 	}
 	
