@@ -43,8 +43,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		super(ts);
 		finish_depth = 0;
 		ateach_depth = 0;
-		block_depth = 0;
-		condDepth = 0;
 		inprocess = false;
 		mainMethod = false;
 	}
@@ -397,32 +395,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public int finish_depth;
 
 	public int ateach_depth;
-
-	private int block_depth;
-
-	private static int curCondCnt;
-
-	public void incrCurCond() {
-		curCondCnt += 2;
-	}
-
-	public int curCond() {
-		return curCondCnt;
-	}
-
-	private int condDepth;
-
-	public int curCondDepth() {
-		return condDepth;
-	}
-
-	public void incrCondDepth() {
-		condDepth++;
-	}
-
-	public void decrCondDepth() {
-		condDepth--;
-	}
 
 	public boolean inprocess;
 
