@@ -2,7 +2,12 @@ Tue Dec  2 10:12:04 EST 2008
 
 Release 1.7.2
 
-This release includes the C++ code generation backend.
+This release is the first to include the C++ code generation backend.
+The C++ backend is not as mature as the Java backend, so expect some
+rough edges.  Your patience is appreciated.  We will be working to
+fix the known issues in the subsequent releases.  Please use JIRA
+(link at the bottom) to report bugs, after ensuring the problem is
+not already reported.
 
 This release of the Experimental Concurrent Programming Language (X10)
 supports the following additional features (since Release 1.5):
@@ -27,7 +32,6 @@ releases:
 - AST externalization to XML
 - Shared local variables
 - Extern methods
-- Random number generation
 
 Additionally, the following features described in the 1.7 language
 manual do not currently work with the C++ backend and will be fixed in
