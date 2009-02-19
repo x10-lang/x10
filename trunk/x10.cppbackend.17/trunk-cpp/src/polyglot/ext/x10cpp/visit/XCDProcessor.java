@@ -31,13 +31,11 @@ public class XCDProcessor {
 	private final ClassifiedStream w; // This is the current stream. 
 	private final WriterStreams ws;
 	private final Translator tr;
-	private ASTQuery query;
 	public XCDProcessor(StreamWrapper sw, Translator tr) {
-		this.sw=sw;
-		this.ws=sw.ws;
-		this.w=sw.cs; 
-		this.tr=tr;
-		query = new ASTQuery(sw, tr);
+		this.sw = sw;
+		this.ws = sw.ws;
+		this.w = sw.cs; 
+		this.tr = tr;
 	}
 	
 	static HashMap translationCache_ = new HashMap();
