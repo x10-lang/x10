@@ -356,6 +356,8 @@ public class X10CPPTranslator extends Translator {
 		w.newline(4); w.begin(0);
 		w.write(VOID_PTR+" "+ARRAY_COPY_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
 		w.newline(4); w.begin(0);
+		w.write("(void) clocks; (void) num_clocks;");
+		w.newline();
 		w.write("uint32_t h = cl->handler;");
 		w.newline();
 		w.write("switch (h) {");
@@ -382,6 +384,8 @@ public class X10CPPTranslator extends Translator {
 
 		w.write(VOID+" "+ASYNC_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
 		w.newline(4); w.begin(0);
+		w.write("(void) clocks; (void) num_clocks;");
+		w.newline();
 		w.write("uint32_t h = cl->handler;");
 		w.newline();
 		w.write("switch (h) {");

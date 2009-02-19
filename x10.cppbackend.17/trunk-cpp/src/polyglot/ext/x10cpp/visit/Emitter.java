@@ -1638,7 +1638,7 @@ public class Emitter {
 				w.begin(0);
 				w.write("("); // put "(Type) expr" in parentheses.
 				w.write("(");
-				w.write(translateType(t, false));
+				w.write(translateType(t, true));
 				w.write(")");
 				w.allowBreak(2, " ");
 				sw.pushCurrentStream(w);
