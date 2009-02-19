@@ -640,7 +640,7 @@ public class Emitter {
 	}
 
 	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr,
-                     boolean define, String name, boolean semicolon) {
+                     boolean define, String name, String rType) {
         Flags flags = n.flags().flags();
 
 		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
@@ -654,7 +654,7 @@ public class Emitter {
 		h.begin(0);
 		String typeName = translateType(container.def().asType());
         // not a virtual method, this function is called only when the static type is precise
-        h.write(make_ref(typeName) + " ");
+        h.write(rType + " ");
 		if (define)
 			h.write(typeName + "::");
 		h.write(name + "(");
@@ -672,10 +672,6 @@ public class Emitter {
 		h.write(")");
 		h.end();
         // TODO: caller should emit this
-		if (semicolon) {
-			h.write(";");
-			h.newline();
-		}
 	}
 
 	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
