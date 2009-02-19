@@ -16,6 +16,9 @@ if [ "`uname -s`" = "AIX" ] ; then
     rm -f $HOSTFILENAME
 else
     # Cygwin / Linux: set up env vars needed for PGAS sockets backend
+    if [ -n "$CPUPROFILE" ] ; then
+        export LD_PRELOAD="$LDPRELOAD /usr/lib/libprofiler.so"
+    fi
     if [ -n "$BE" -a -n "$OF" ] ; then
         MP_CHILD="$BE" MP_PROCS="$OF" PGASRT_HOME_NODE=127.0.0.1 PGAS_NTHREADS=1 UPC_NTHREADS=1 exec "$@"
     fi

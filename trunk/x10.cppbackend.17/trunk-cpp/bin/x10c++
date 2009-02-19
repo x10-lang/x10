@@ -16,12 +16,14 @@ if [[ -z "$X10_FROM_SRC" ]]; then
     # Default to pre-built distribution; do not set X10LANG
     [ -z "$X10LIB" ] && export X10LIB="$TOP"
     [ -z "$X10LANG" ] && export X10LANG="$TOP"
+    [ -z "$X10GC" ] && export X10GC="$TOP/x10.dist"
     X10="$TOP"
 else
     # Default to developer setup
     [ -z "$X10REL" ] && export X10REL="../x10.dist"
     [ -z "$X10LIB" ] && export X10LIB="$TOP/../pgas/common/work"
     [ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime.17/src-cpp"
+    [ -z "$X10GC" ] && export X10GC="$TOP/../x10.runtime.17/src-cpp/bdwgc/install"
     X10="$(cd "$TOP/$X10REL" && pwd)"
 fi
 
