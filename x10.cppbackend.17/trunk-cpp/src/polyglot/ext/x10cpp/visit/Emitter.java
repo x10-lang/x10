@@ -2,6 +2,7 @@ package polyglot.ext.x10cpp.visit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import polyglot.ast.Block_c;
@@ -806,52 +807,42 @@ public class Emitter {
 	}
 
 	void printInheritance(ClassDecl_c n, ClassifiedStream h, Translator tr) {
-		boolean hasSuper = false;
-		if (n.superClass() != null) {
-			h.allowBreak(0);
-			if (!hasSuper) {
-				h.write(":");
-				hasSuper = true;
-			} else {
-				h.write(",");
-			}
-			h.allowBreak(0, " ");
-			h.write("public ");
-			sw.pushCurrentStream(h);
-			n.print(n.superClass(), sw, tr);
-			sw.popCurrentStream();
+		String extends_ = n.superClass()==null ? null : translateType(n.superClass().type());
+		HashSet<String> implements_ = new HashSet<String>();
+		for (TypeNode tn : n.interfaces()) {
+			implements_.add(translateType(tn.type()));
 		}
 
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-		// FIXME: HACK! [IP] Ignore the ValueType tag interface
-		if (!n.interfaces().isEmpty()
-				&& (!ts.isValueType((Type)n.classDef().asType()) || n.interfaces().size() > 1))
-		{
-			h.allowBreak(2);
-			h.begin(0);
-			if (!hasSuper) {
-				h.write(":");
-				hasSuper = true;
-			} else {
-				h.write(",");
-			}
-			h.allowBreak(0, " ");
-			for (Iterator i = n.interfaces().iterator(); i.hasNext(); ) {
-				TypeNode tn = (TypeNode) i.next();
-				// FIXME: HACK! [IP] Ignore the ValueType tag interface
-				if (tn.type().typeEquals(ts.Value()))
-					continue;
-				h.write("public virtual ");
-				sw.pushCurrentStream(h);
-				n.print(tn, sw, tr);
-				sw.popCurrentStream();
-				if (i.hasNext()) {
-					h.write(",");
-					h.allowBreak(0, " ");
-				}
-			}
-			h.end();
+		// [DC] FIXME: the following is a hack, probably this should happen in
+		// the front end but I doubt that will happen any time soon.  It ought
+		// to use type objects instead of strings, too.  But I couldn't work
+		// out how to do that.
+
+		// it seems extends_==null implies that we are dealing with an
+		// interface, since otherwise extends_ is Ref, Value, or some
+		// user-defined type.
+
+		if (extends_==null && implements_.isEmpty()) {
+			//Interfaces must always extend something in c++
+			implements_.add("x10::lang::Object");
+		} else if (extends_!=null && implements_.contains("x10::lang::Object")) {
+			//Cosmetic: No point implementing Object if we're already extending something
+			implements_.remove("x10::lang::Object");
 		}
+
+		String prefix = ":";
+		if (extends_!=null) {
+			h.write(" "+prefix+" public "+extends_);
+			prefix = ",";
+		}
+
+		h.allowBreak(2);
+		h.begin(0);
+		for (String iface : implements_) {
+			h.write(" "+prefix+" public virtual "+iface);
+			prefix = ",";
+		}
+		h.end();
 	}
 
 	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
@@ -894,7 +885,8 @@ public class Emitter {
 		String typeName = translateType(container.def().asType());
 		if (qualify && !context.inLocalClass())
 			h.write(typeName + "::");
-		h.write(mangled_non_method_name(typeName)); 
+		// Use just the name for the constructor identifier -- no template params, etc
+		h.write(mangled_non_method_name(container.def().asType().name().toString()));
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
@@ -1638,6 +1630,7 @@ public class Emitter {
 		// FIXME: Has a lot of string constants. Refactor them
 		// into final variables.
 		// -Krishna.
+		X10ClassType ct = (X10ClassType) type.toClass();
 		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		assert(!context.inLocalClass()); // Do not ask for header stream in LocalClass
@@ -1674,6 +1667,8 @@ public class Emitter {
 		if (!type.flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m);"); h.newline(0);
+
+		printTemplateSignature(ct.typeArguments(), w);
 		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
 		w.newline(4); w.begin(0);
 		if (parent != null && ts.isValueType(parent)) {
@@ -1709,6 +1704,7 @@ public class Emitter {
 		if (!type.flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf);"); h.newline(0);
+		printTemplateSignature(ct.typeArguments(), w);
 		w.write("void "+klass+"::"+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
 		w.newline(4); w.begin(0);
 		for (int i = 0; i < type.fields().size(); i++) {
