@@ -1486,6 +1486,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 else
                         w.write(n.name().id().toString());
 		w.write("(");
+		/*
 		if (isPrintf(n)) {
 			assert (n.arguments().size() > 0);
 			sw.pushCurrentStream(w);
@@ -1503,7 +1504,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					// FIXME: [IP] HACK.  Box the primitives here!
 					if (arg_i.type().isPrimitive()) {
 						arg_i = nf.Cast(arg_i.position(), nf.CanonicalTypeNode(arg_i.position(), objectType), arg_i).type(objectType);
-						arg_i = (Expr) ((X10Ext_c) arg_i.ext()).rewrite(xts, nf, tr.job().extensionInfo());
+						arg_i = (Expr) ((X10ClassBodyExt_c) arg_i.ext()).rewrite(xts, nf, tr.job().extensionInfo());
 					}
 					initArgs.add(arg_i);
 				}
@@ -1511,6 +1512,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						(ArrayInit_c) nf.ArrayInit(firstArg.position(), initArgs).type(xts.array(objectType)));
 			}
 		} else
+		*/
 		if (n.arguments().size() > 0) {
 			w.allowBreak(2, 2, "", 0); // miser mode
 			w.begin(0);
