@@ -208,7 +208,8 @@ public class SharedVarsMethods{
 //				ReferenceType x_l_region = ts.region();
 //				Type[] A_R_A_R = { array, x_l_region, array, x_l_region };
 //				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_R_A_R), context.currentClass()));
-			} catch (SemanticException e) { assert (false); }
+			} catch (SemanticException e) { //FIXME: assert (false); 
+			}
 		}
 	}
 }

@@ -319,7 +319,7 @@ public class Emitter {
 		Context context = tr.context();
 		if (type.isVoid())
 			return type.translate(context);
-		if (type.isPrimitive() && !type.isVoid())
+		if ((type.isPrimitive() || type.isNumeric()) && !type.isVoid())
 			return "x10_"+type.translate(context);
 		// FIXME: is ignoring nullable correct?
 //		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
@@ -532,7 +532,7 @@ public class Emitter {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		// FIXME: HACK! [IP] Ignore the ValueType tag interface
 		if (!n.interfaces().isEmpty()
-				&& (!ts.isValueType((Type)n.classDef()) || n.interfaces().size() > 1))
+				&& (!ts.isValueType((Type)n.classDef().asType()) || n.interfaces().size() > 1))
 		{
 			h.allowBreak(2);
 			h.begin(0);
@@ -1314,7 +1314,7 @@ public class Emitter {
 		// constructor (FIXME: public because "friend" below doesn't work)
 		h.write("public: explicit "+"x10__"+type.name()+"("+SERIALIZATION_MARKER+" m) ");
 		Type parent = type.superClass();
-		if (ts.isValueType(parent))
+		if (parent !=null && ts.isValueType(parent))
 			h.write(": "+ translateType(parent)+"(m)");
 		h.write("{ }");
 		h.newline();
@@ -1338,7 +1338,7 @@ public class Emitter {
 		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m);"); h.newline(0);
 		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) {");
 		w.newline(4); w.begin(0);
-		if (ts.isValueType(parent)) {
+		if (parent != null && ts.isValueType(parent)) {
 			w.write(translateType(parent)+"::"+SERIALIZE_FIELDS_METHOD+"(buf, m);");
 			w.newline();
 		}
@@ -1392,11 +1392,14 @@ public class Emitter {
 		w.forceNewline();
 	}
 	void handleX10Cast(X10Cast_c c, String castVar, ClassifiedStream w) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	        TypeNode tn = c.castType();
-	        assert tn instanceof CanonicalTypeNode;
 
 		if (c==null) return;
+
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	        TypeNode tn = c.castType();
+
+	        assert tn instanceof CanonicalTypeNode;
+
 	        switch (c.conversionType()) {
 	        case COERCION:
 	        case PRIMITIVE:

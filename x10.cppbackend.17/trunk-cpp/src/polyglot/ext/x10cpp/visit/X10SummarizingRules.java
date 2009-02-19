@@ -43,6 +43,7 @@ import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.Translator;
@@ -611,6 +612,7 @@ public class X10SummarizingRules {
 							
 					}
 					TypeNode p = cl.superClass();
+					if (p == null) continue;
 					ClassDecl pc = searchClassDecl(c.summaries, p.type().toClass().toString());  // p.name();
 					if (pc == null) 
 						classHierarchy.add(new Tree(cl, p));
@@ -839,7 +841,7 @@ public class X10SummarizingRules {
 			StringBuffer res = new StringBuffer("(");
 			List formals = pi.formalTypes();
 			for (Iterator fi = formals.iterator(); fi.hasNext();) {
-				Type t = (Type) fi.next();
+				Type t = (Type) ((Ref <Type>) fi.next()).get();
 				res.append(t.translate(null));
 				if (fi.hasNext())
 					res.append(", ");
@@ -1073,12 +1075,12 @@ public class X10SummarizingRules {
 			// left clause for && below is unnecessary once anonymous classes are taken care of 
 			// necessitated for crash-free passing of x10.common/examples/Constructs/Array/JavaArrayWithInitializer.x10
 			(((ClassType) m.
-					methodDef().
+					methodDef().asInstance().
 					container()).
 					flags().flags() != null) 
 					&& 
 					((ClassType) m.
-							methodDef().
+							methodDef().asInstance().
 							container()).
 							flags().isFinal();
 		}

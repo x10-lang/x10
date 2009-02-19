@@ -102,7 +102,6 @@ import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
-import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.ClosureCall_c;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.ConstantDistMaker_c;
@@ -119,7 +118,10 @@ import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
 import polyglot.ext.x10.ast.Tuple_c;
+import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.X10Binary_c;
+import polyglot.ext.x10.ast.X10Call_c;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClockedLoop_c;
@@ -228,7 +230,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		this.query = new ASTQuery(sw, tr);
 	}
 
-
+	public void visit(TypeDecl_c n) {
+		// FIXME: I think we need to put a typedef for a TypeDecl.
+		// verify. [Krishna]
+	}
 	public void visit(Node n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -390,7 +395,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						h.write("using namespace " + translate_mangled_NSFQN(in.name().toString()) + ";");
 					}
 					h.newline();
-					} catch (SemanticException e) { assert (false); }
+					} catch (SemanticException e) { 
+						// FIXME: assert (false); 
+					}
 
 				}
 				context.pendingImports.clear();  // Just processed all imports - clean up
@@ -656,6 +663,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean hasInits = false;
 		// Extract initializers from the body
 		Block_c body = (Block_c) dec.body();
+		if (body == null) {w.write("{}"); w.newline();return; }
 		List<Stmt> statements = body.statements();
 //		HashMap inited = new HashMap();
 		List<Stmt> newStatements = new TypedList(new ArrayList(), Stmt.class, false);
@@ -1341,108 +1349,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		tr.appendSemicolon(semi);
 	}
 
-	public void visit(Call_c n) {
+	public void visit(X10Call_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		// -- K assert (!query.isSPMDArrayReduction(n));
-		if (query.isClockMaker(n)) {
-			w.begin(0);
-			String clock_type = "x10::lang::clock";
-			w.write("("+make_ref(clock_type)+")(");
-			w.begin(0);
-			w.write("new (x10::alloc<"+clock_type+" >()) "+clock_type+"(");
-			w.write(")");
-			w.end();
-			w.write(")");
-			// TODO: refactor
-			w.end();
-			return;
-		} else
-		if (query.isBlockDistMaker(n)) {
-			assert (n.arguments().size() == 1);
-
-			w.begin(0);
-			String dist_type = "_dist_block";
-			w.write("("+make_ref(dist_type)+")(");
-			w.begin(0);
-			w.write("new (x10::alloc<"+dist_type+" >()) "+dist_type+"(");
-			w.allowBreak(2, 2, "", 0); // miser mode
-			w.begin(0);
-			Expr r = (Expr) n.arguments().get(0);
-			sw.pushCurrentStream(w);
-			n.printSubExpr(r, true, sw, tr);
-			sw.popCurrentStream();
-			w.end();
-			w.write(")");
-			w.end();
-			w.write(")");
-			// TODO: refactor
-			w.end();
-			return;
-		} else
-		if (query.isPointMaker(n)) {
-
-			w.begin(0);
-			List arguments = n.arguments();
-			int dim = arguments.size();
-			String point_type = "x10::lang::_point<"+dim+">";
-			w.write("("+make_ref(point_type)+")(");
-			w.begin(0);
-			w.write("new (x10::alloc<"+point_type+" >()) "+point_type+"(");
-			w.allowBreak(2, 2, "", 0); // miser mode
-			w.begin(0);
-			for(Iterator i = arguments.iterator(); i.hasNext(); ) {
-				sw.pushCurrentStream(w);
-				n.print((Expr) i.next(), sw, tr);
-				sw.popCurrentStream();
-				if (i.hasNext()) {
-					w.write(",");
-					w.allowBreak(0, " ");
-				}
-			}
-			w.end();
-			w.write(")");
-			w.end();
-			w.write(")");
-			// TODO: refactor
-			w.end();
-			return;
-		} 
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		MethodInstance mi = n.methodInstance();
-
+		X10MethodInstance mi = (X10MethodInstance)n.methodInstance();
+		Receiver target = n.target();
+		String pat = getCppImplForDef(mi.x10Def());
+		if (pat != null) {
+			emitNativeAnnotation(pat, target, mi.typeParameters(), n.arguments());
+			return;
+		}
 		w.begin(0);
 		boolean requireMangling = true;
 		if (!n.isTargetImplicit()) {
 			// explicit target.
-			Receiver target = n.target();
 
-///////////////////////////////////////////////////
-// The following code can be enabled if we require methods with guards.
-// Vijay says, it is not required anymore. Also enable the code in
-// inlineMethod. -Krishna.
-//			X10SummarizingRules.Collection harvest = context.outermostContext().harvest;
-//			X10MethodDecl_c decl = (X10MethodDecl_c) harvest.getDecl(n);
-//			if (decl != null && decl.body() != null) {
-//				if (decl.whereClause() != null) {
-//					printType(target.type(), w);
-//					w.write(" ");
-//					String tVar = getId();
-//					w.write(tVar + " = ");
-//					printExplicitTarget(n, target, context);
-//					w.write(" ,");
-//					String wcVar = getId();
-//					w.write("boolean " + wcVar + " = ");
-//					w.write(tVar + ".");
-//					n.printSubExpr(decl.whereClause(), true, w, tr);
-//					w.write(" , ");
-//					w.write(tVar);
-//				}
-//			} else {
-//				printExplicitTarget(n, target, context);
-//			}
-///////////////////////////////////////////////////
 			emitter.printExplicitTarget(n, target, context, w);
 
 			if (mi.flags().isStatic() ||
@@ -1468,7 +1392,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				// -Krishna.
 			}
 		}
-		else if (context.inlining || context.insideClosure) {
+		else if (context.insideClosure) {
 			w.write(SAVED_THIS+"->");
 			if (context.insideClosure)
 				context.saveEnvVariableInfo(THIS);
@@ -1486,33 +1410,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 else
                         w.write(n.name().id().toString());
 		w.write("(");
-		/*
-		if (isPrintf(n)) {
-			assert (n.arguments().size() > 0);
-			sw.pushCurrentStream(w);
-			n.print((Expr) n.arguments().get(0), sw, tr);
-			sw.popCurrentStream();
-			if (n.arguments().size() > 1) {
-				Expr firstArg = (Expr) n.arguments().get(1);
-				w.write(",");
-				w.allowBreak(0, " ");
-				NodeFactory nf = tr.nodeFactory();
-				ClassType objectType = (ClassType)xts.Object();
-				ArrayList initArgs = new ArrayList();
-				for (int i = 1; i < n.arguments().size(); i++) {
-					Expr arg_i = (Expr) n.arguments().get(i);
-					// FIXME: [IP] HACK.  Box the primitives here!
-					if (arg_i.type().isPrimitive()) {
-						arg_i = nf.Cast(arg_i.position(), nf.CanonicalTypeNode(arg_i.position(), objectType), arg_i).type(objectType);
-						arg_i = (Expr) ((X10ClassBodyExt_c) arg_i.ext()).rewrite(xts, nf, tr.job().extensionInfo());
-					}
-					initArgs.add(arg_i);
-				}
-				newJavaArray(n, objectType, Collections.EMPTY_LIST, 0,
-						(ArrayInit_c) nf.ArrayInit(firstArg.position(), initArgs).type(xts.array(objectType)));
-			}
-		} else
-		*/
 		if (n.arguments().size() > 0) {
 			w.allowBreak(2, 2, "", 0); // miser mode
 			w.begin(0);
@@ -1660,7 +1557,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					// context.Self() in the env?
 					// [Krishna]
 				} else
-				if (c.insideClosure || c.inlining) {
+				if (c.insideClosure) {
 					w.write(SAVED_THIS+"->");
 					if (c.insideClosure)
 						c.saveEnvVariableInfo(THIS);
@@ -2467,15 +2364,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	
 	public void visit(X10Special_c n) {
 		if (n.qualifier() != null) {
+			w.write("(");
 			sw.pushCurrentStream(w);
 			n.print(n.qualifier(), sw, tr);
 			sw.popCurrentStream();
-			w.write(".");
-			throw new InternalCompilerError("Qualified "+n.kind()+" not supported");
+			w.write(")");
 		}
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (n.kind().equals(X10Special_c.THIS) && (context.inlining || context.insideClosure)) {
+		if (n.kind().equals(X10Special_c.THIS) && (context.insideClosure)) {
 			w.write(SAVED_THIS);
 			if (context.insideClosure)
 				context.saveEnvVariableInfo(THIS);
@@ -2730,10 +2627,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    	} else {
 	    		// otherwise emit the hardwired code.
 			sw.pushCurrentStream(w);
-	    		tr.print(n, array, w);
+	    		tr.print(n, array, sw);
 			sw.popCurrentStream();
 	    		w.write(".set(");
-	    		tr.print(n, n.right(), w);
+	    		tr.print(n, n.right(), sw);
 			for (Expr e: index) {
 				w.write(", ");
 				sw.pushCurrentStream(w);
@@ -2759,7 +2656,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String target = getId();
 		w.write(" " + target + " = ");
 		sw.pushCurrentStream(w);
-	        tr.print(n, array, w);
+	        tr.print(n, array, sw);
 		sw.popCurrentStream();
 		w.newline();
 
@@ -2782,7 +2679,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        emitter.printType(n.right().type(), w);
 		String right = getId();
 	        w.write(" " + right + " = ");
-	        tr.print(n, n.right(), w);
+	        tr.print(n, n.right(), sw);
 
 	        w.newline();
 	        if (! n.type().isVoid()) {
@@ -2922,6 +2819,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	    return null;
 	}
+	
 	public void visit(Tuple_c c) {
 		assert false;
 		// TODO:
@@ -2984,4 +2882,5 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		w.write(")");
 	}
+	
 } // end of MessagePassingCodeGenerator
