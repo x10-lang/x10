@@ -3143,17 +3143,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			unsigned_op = true;
 			opString = opString.substring(1);
 		}
-		if (opString.equals("/") && (n.type().isFloat() || n.type().isDouble())) {
-		    // [IP] Float and double division have to be treated specially due to precision issues
-		    assert (!unsigned_op);
-		    sw.write("x10aux::div("); sw.begin(0);
-		    n.printSubExpr(n.left(), false, sw, tr);
-		    sw.write(",");
-		    sw.allowBreak(0, " ");
-		    n.printSubExpr(n.right(), false, sw, tr);
-		    sw.end(); sw.write(")");
-		    return;
-		}
 		if (opString.equals("%") && (n.type().isFloat() || n.type().isDouble())) {
 		    // [IP] Float and double modulus have to be treated specially in C++
 		    assert (!unsigned_op);
