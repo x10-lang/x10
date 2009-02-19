@@ -402,7 +402,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.write("class "+container+"::"+Emitter.mangled_non_method_name(def.name().toString()));
 				h.allowBreak(0, " ");
 				// [DC]: the following function adds the : public B, public C etc
-				emitter.printInheritance(cdecl,h,tr);
+				emitter.printInheritance(cdecl, h ,tr);
+				h.allowBreak(0, " ");
 
 				context.setinsideClosure(false);
 				context.hasInits = false;
@@ -772,6 +773,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		emitter.printHeader(n, h, tr, false);
+		h.allowBreak(0, " ");
 
 		context.classProperties.addAll(n.properties());
 
@@ -862,6 +864,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		assert(false); // We are removing all the inner + local classes using a separate pass.
 		context.pushInLocalClass();
 		emitter.printHeader((ClassDecl_c)n.decl(), w, tr, false);
+		w.allowBreak(0, " ");
 		sw.pushCurrentStream(w);
 		n.print(n.decl().body(), sw, tr);
 		sw.popCurrentStream();
@@ -1443,8 +1446,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		NodeFactory nf = tr.nodeFactory();
 		Expr lhs = asgn.left(nf);
 		Expr rhs = asgn.right();
- 		 if (unsigned_op)
-			 w.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
+		if (unsigned_op) {
+			w.write("("+emitter.translateType(asgn.type())+")");
+			w.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
+		}
 		sw.pushCurrentStream(w);
 		asgn.printSubExpr(lhs, false, sw, tr);
 		sw.popCurrentStream();
@@ -2438,7 +2443,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(fType + (fType.endsWith(">") ? " " : ""));
 		w.write(">* " + name + ";");
 		w.newline();
-		w.write(name + " = &*(");
+		w.write(name + " = &*("); // FIXME
 		sw.pushCurrentStream(w);
 		n.print(n.domain(), sw, tr);
 		sw.popCurrentStream();
@@ -3057,8 +3062,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			opString = opString.substring(1);
 		}
 
-		if (unsigned_op)
+		if (unsigned_op) {
+			w.write("("+emitter.translateType(n.type())+")");
 			w.write("(("+emitter.makeUnsignedType(n.left().type())+")");
+		}
 		sw.pushCurrentStream(w);
 		n.printSubExpr(n.left(), true, sw, tr);
 		sw.popCurrentStream();
