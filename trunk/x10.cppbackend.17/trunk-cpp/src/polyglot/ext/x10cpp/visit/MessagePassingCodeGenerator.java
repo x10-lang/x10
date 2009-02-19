@@ -349,6 +349,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	void processClass(ClassDecl_c n) {
+		System.out.println(n);
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -479,17 +480,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		processNestedClasses(n);
 
 		ArrayList asyncs = context.closures.asyncs;
-		if (asyncSwitchRequired)
+		if (context.classesWithAsyncSwitches.size()!=0) {
 			emitter.printSwitchMethod(n.classDef().asType(), ASYNC_SWITCH, VOID,
 					ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
 					context.closures.asyncContainers,
 					"int niter",
 					"for (int i = 0; i < niter; i++,_arg++) {", "}",
 					context.classesWithAsyncSwitches, ws.getCurStream(WriterStreams.StreamClass.Closures));
-		if (asyncRegistrationRequired)
 			emitter.printAsyncsRegistration(n.classDef().asType(), asyncs, 
 					ws.getCurStream(WriterStreams.StreamClass.Closures));
-		if (arrayCopySwitchRequired)
+		}
+		if (context.closures.arrayCopyClosures.size()!=0)
 			emitter.printSwitchMethod(n.classDef().asType(), ARRAY_COPY_SWITCH, VOID_PTR,
 					ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
 					context.closures.arrayCopyClosures, 
@@ -506,6 +507,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		context.classTypeParams = tempClassTypeParams;
+		w.newline(0);
 	}
 
 

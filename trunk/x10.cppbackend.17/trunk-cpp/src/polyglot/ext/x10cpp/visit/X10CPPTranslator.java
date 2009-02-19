@@ -43,6 +43,7 @@ import polyglot.frontend.TargetFactory;
 import polyglot.main.Options;
 import polyglot.main.Report;
 
+import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.Package;
@@ -213,7 +214,7 @@ public class X10CPPTranslator extends Translator {
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
 			return; // FIXME HACK
-		ClassifiedStream w = ((StreamWrapper) w_) . cs;
+		ClassifiedStream w = ((StreamWrapper) w_).cs;
 		if (n != null && n.position().line() > 0 &&
 				((n instanceof Stmt && !(n instanceof Block)) ||
 				 (n instanceof FieldDecl) ||
@@ -272,26 +273,23 @@ public class X10CPPTranslator extends Translator {
 				pkg = p.fullName().toString();
 			}
 			
-			 // Use the source name to derive a default output file name.
-		    opfPath = tf.outputName(pkg, sfn.source());
-		    if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
-		    StreamWrapper lastsw = null;
+			WriterStreams wstreams = null;
+			StreamWrapper sw = null;
+			// Use the class name to derive a default output file name.
 			for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 				TopLevelDecl decl = (TopLevelDecl) i.next();
-				WriterStreams wstreams = new WriterStreams(sfn, pkg, tf, exports, job);
-				StreamWrapper sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
+				String className = ((ClassDecl)decl).classDef().name().toString();
+				wstreams = new WriterStreams(className, sfn, pkg, tf, exports, job);
+				sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
 						outputWidth, wstreams);
+				opfPath = tf.outputName(pkg, decl.name().toString());
+				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
 				writeHeader(sfn, sw);
-			  opfPath = tf.outputName(pkg, decl.name().toString());
-			  if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
-			  translateTopLevelDecl(sw, sfn, decl); 
-			  writeFooter(sfn, sw);
-			  if (i.hasNext())
-				wstreams.commitStreams();
-			  else 
-				lastsw = sw;
+				translateTopLevelDecl(sw, sfn, decl); 
+				writeFooter(sfn, sw);
+				if (i.hasNext())
+					wstreams.commitStreams();
 		    }
-
 
 			Iterator t = job().extensionInfo().scheduler().commandLineJobs().iterator();
 			// FIXME: [IP] The following does the same as the prior code below.  Why the change?
@@ -306,9 +304,10 @@ public class X10CPPTranslator extends Translator {
 				}
 			}
 			if (filefound && !t.hasNext())
-				generateGlobalSwitch(lastsw, this);
+				generateGlobalSwitch(sw);
 
-			lastsw.ws.commitStreams();
+			wstreams.commitStreams();
+
 			return true;
 		}
 		catch (IOException e) {
@@ -318,11 +317,38 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	public static void generateGlobalSwitch(StreamWrapper sw, X10CPPTranslator tr) {
+	private void generateGlobalSwitch(StreamWrapper sw) {
 		ClassifiedStream w = sw.cs;
-		WriterStreams  wstreams = sw.ws;
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		// TODO: extern "C"
+		WriterStreams wstreams = sw.ws;
+		X10CPPContext_c context = (X10CPPContext_c) this.context();
+		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
+		for (Iterator k = context.classesWithArrayCopySwitches.keySet().iterator(); k.hasNext(); ) {
+			ClassType ct = (ClassType) k.next();
+			if (ct.isNested())
+				ct = ct.container().toClass();
+			String pkg = "";
+			if (ct.package_() != null) {
+				pkg = ct.package_().fullName().toString();
+			}
+			String header = tf.outputHeaderName(pkg, ct.name().toString());
+			w.write("#include \"" + header + "\"");
+			w.newline();
+		}
+		for (Iterator k = context.classesWithAsyncSwitches.keySet().iterator(); k.hasNext(); ) {
+			ClassType ct = (ClassType) k.next();
+			if (ct.isNested())
+				ct = ct.container().toClass();
+			String pkg = "";
+			if (ct.package_() != null) {
+				pkg = ct.package_().fullName().toString();
+			}
+			String header = tf.outputHeaderName(pkg, ct.name().toString());
+			w.write("#include \"" + header + "\"");
+			w.newline();
+		}
+
+		w.write("extern \"C\" {");
+		w.newline(4); w.begin(0);
 		w.write("void* ArrayCopySwitch(x10_async_handler_t h, void* __arg) {");
 		w.newline(4); w.begin(0);
 		w.write("switch (h) {");
@@ -341,8 +367,9 @@ public class X10CPPTranslator extends Translator {
 		}
 		w.end(); w.newline();
 		w.write("}");
+		w.newline();
+		w.write("return NULL;");
 		w.end(); w.newline();
-		w.write("return NULL;"); w.newline();
 		w.write("}"); w.newline();
 
 		w.write("void AsyncSwitch(x10_async_handler_t h, void* arg, int niter) {");
@@ -365,7 +392,10 @@ public class X10CPPTranslator extends Translator {
 		w.end(); w.newline();
 		w.write("}");
 		w.end(); w.newline();
-		w.write("}"); w.newline();
+		w.write("}");
+		w.end(); w.newline();
+		w.write("}");
+		w.newline();
 	}
 
 	/* (non-Javadoc)
@@ -376,14 +406,16 @@ public class X10CPPTranslator extends Translator {
 		ClassifiedStream w = sw.cs;
 		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
 
-		String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
+		//String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
+		String guard = wstreams.getHeader().getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
 		h.write("#ifndef __"+guard); h.newline();
 		h.write("#define __"+guard); h.newline();
 		h.forceNewline(0);
 		h.write("#include <x10lang.h>"); h.newline();
 		h.forceNewline(0);
 
-		w.write("#include \""+wstreams.getFile(WriterStreams.StreamClass.Header).getName()+"\""); w.newline();
+		w.write("#include \""+wstreams.getHeader().getName()+"\""); w.newline();
+		//w.write("#include \""+wstreams.getFile(WriterStreams.StreamClass.Header).getName()+"\""); w.newline();
 		w.forceNewline(0);
 		w.write("using namespace x10;"); w.newline();
 		w.write("using namespace x10::lang;"); w.newline();
@@ -513,7 +545,15 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
+	/**
+	 * The post-compiler option has the following structure:
+	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
+	 * Using '%' instead of '#' to delimit a section will cause the default values in that section to be omitted.
+	 */
 	public static boolean postCompile(Options options, Compiler compiler, ErrorQueue eq) {
+		if (eq.hasErrors())
+			return false;
+
 		// FIXME: [IP] HACK
 		final String post_compiler =
 			(options.post_compiler != null && options.post_compiler.contains("javac")) ?
@@ -541,18 +581,20 @@ public class X10CPPTranslator extends Translator {
 			int pc_size = st.countTokens();
 			String[] cxxCmd = new String[pc_size+preArgs.length+postArgs.length+compiler.outputFiles().size()];
 			int j = 0;
+			String token = "";
 			for (int i = 0; i < pc_size; i++) {
-				String token = st.nextToken();
+				token = st.nextToken();
 				// The first '#' marks the place where the filenames go
-				if (token.equals("#")) {
+				if (token.equals("#") || token.equals("%")) {
 					cxxCmd[j++] = "-U___DUMMY___"; // don't want to resize the array
 					break;
 				}
 				cxxCmd[j++] = token;
 			}
 
+			boolean skipArgs = token.equals("%");
 			for (int i = 0; i < preArgs.length; i++) {
-				cxxCmd[j++] = preArgs[i];
+				cxxCmd[j++] = skipArgs ? "-U___IGNORED___" : preArgs[i];
 			}
 
 			Iterator iter = compiler.outputFiles().iterator();
@@ -562,17 +604,18 @@ public class X10CPPTranslator extends Translator {
 			}
 
 			while (st.hasMoreTokens()) {
-				String token = st.nextToken();
+				token = st.nextToken();
 				// The second '#' delimits the libraries that have to go at the end
-				if (token.equals("#")) {
+				if (token.equals("#") || token.equals("%")) {
 					cxxCmd[j++] = "-U___DUMMY___"; // don't want to resize the array
 					break;
 				}
 				cxxCmd[j++] = token;
 			}
 
+			boolean skipLibs = token.equals("%");
 			for (int i = 0; i < postArgs.length; i++) {
-				cxxCmd[j++] = postArgs[i];
+				cxxCmd[j++] = skipLibs ? "-U___IGNORED___" : postArgs[i];
 			}
 
 			while (st.hasMoreTokens()) {
