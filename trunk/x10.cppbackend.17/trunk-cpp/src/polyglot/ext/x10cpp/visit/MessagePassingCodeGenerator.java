@@ -314,230 +314,241 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	private void extractGenericStaticInits(X10ClassDef cd) {
-        // Always write non-template static decls into the implementation file
+	    // Always write non-template static decls into the implementation file
 	    ClassifiedStream save_w = sw.currentStream();
-        ClassifiedStream w = sw.getNewStream(StreamWrapper.StreamClass.CC, false);
-        sw.pushCurrentStream(w);
-        String header = getHeader(cd.asType());
-        w.write("#include <"+header+">"); w.newline();
-        w.forceNewline(0);
+	    ClassifiedStream w = sw.getNewStream(StreamWrapper.StreamClass.CC, false);
+	    sw.pushCurrentStream(w);
+	    String header = getHeader(cd.asType());
+	    w.write("#include <"+header+">"); w.newline();
+	    w.forceNewline(0);
 
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		ArrayList<FieldDecl_c> inits = new ArrayList<FieldDecl_c>();
-		String container = translate_mangled_FQN(cd.fullName().toString())+voidTemplateInstantiation(cd.typeParameters().size());
-		for (ClassMember dec : context.pendingStaticDecls) {
-			if (dec instanceof FieldDecl_c) {
-				FieldDecl_c fd = (FieldDecl_c) dec;
-				((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
-				emitter.printType(fd.type().type(), sw);
-				sw.allowBreak(2, " ");
-				sw.write(container+"::");
-				sw.write(mangled_field_name(fd.name().id().toString()));
-				if (fd.init() != null) {
-				    // [DC] want these to occur in the static initialiser instead
-                    // [IP] except for the ones that use a literal init - otherwise switch is broken
-					if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-                            (fd.init() instanceof NumLit_c || fd.init() instanceof BooleanLit_c))
-					{
-						sw.write(" =");
-						sw.allowBreak(2, " ");
-						fd.print(fd.init(), sw, tr);
-					} else
-						inits.add(fd);
-				}
-				sw.write(";");
-                sw.newline();
-				((X10CPPTranslator)tr).setContext(context); // FIXME
-			} else if (dec instanceof MethodDecl_c) {
-				MethodDecl_c md = (MethodDecl_c) dec;
-                X10MethodDef def = (X10MethodDef)md.methodDef();
-                boolean templateMethod = def.typeParameters().size() != 0;
-                if (templateMethod)
-                    sw.pushCurrentStream(save_w);
-                ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
-                if (query.isMainMethod(md))
-                    processMain((X10ClassType) cd.asType());
-                emitter.printTemplateSignature(toTypeList(def.typeParameters()), sw);
-                emitter.printType(md.returnType().type(), sw);
-                sw.allowBreak(2, " ");
-                sw.write(container+"::");
-                sw.write(mangled_method_name(md.name().id().toString()) + "(");
-                sw.begin(0);
-                boolean first = true;
-                for (Formal f : md.formals()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        sw.write(",");
-                        sw.allowBreak(0, " ");
-                    }
-                    md.print(f, sw, tr);
-                }
-                sw.end();
-                sw.write(")");
-                if (md.body() != null) {
-                    sw.allowBreak(0, " ");
-                    md.printBlock(md.body(), sw, tr);
-                }
-                sw.newline();
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    ArrayList<FieldDecl_c> inits = new ArrayList<FieldDecl_c>();
+	    String container = translate_mangled_FQN(cd.fullName().toString())+voidTemplateInstantiation(cd.typeParameters().size());
+	    for (ClassMember dec : context.pendingStaticDecls) {
+	        if (dec instanceof FieldDecl_c) {
+	            FieldDecl_c fd = (FieldDecl_c) dec;
+	            ((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
+	            emitter.printType(fd.type().type(), sw);
+	            sw.allowBreak(2, " ");
+	            sw.write(container+"::");
+	            sw.write(mangled_field_name(fd.name().id().toString()));
+	            if (fd.init() != null) {
+	                // [DC] want these to occur in the static initialiser instead
+	                // [IP] except for the ones that use a literal init - otherwise switch is broken
+	                if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
+	                        ((fd.type().type().isNumeric() && fd.init() instanceof NumLit_c) ||
+	                         (fd.type().type().isBoolean() && fd.init() instanceof BooleanLit_c)))
+	                {
+	                    sw.write(" =");
+	                    sw.allowBreak(2, " ");
+	                    fd.print(fd.init(), sw, tr);
+	                } else
+	                    inits.add(fd);
+	            }
+	            sw.write(";");
+	            sw.newline();
+	            ((X10CPPTranslator)tr).setContext(context); // FIXME
+	        } else if (dec instanceof MethodDecl_c) {
+	            MethodDecl_c md = (MethodDecl_c) dec;
+	            X10MethodDef def = (X10MethodDef)md.methodDef();
+	            boolean templateMethod = def.typeParameters().size() != 0;
+	            if (templateMethod)
+	                sw.pushCurrentStream(save_w);
+	            ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
+	            if (query.isMainMethod(md))
+	                processMain((X10ClassType) cd.asType());
+	            emitter.printTemplateSignature(toTypeList(def.typeParameters()), sw);
+	            emitter.printType(md.returnType().type(), sw);
+	            sw.allowBreak(2, " ");
+	            sw.write(container+"::");
+	            sw.write(mangled_method_name(md.name().id().toString()) + "(");
+	            sw.begin(0);
+	            boolean first = true;
+	            for (Formal f : md.formals()) {
+	                if (first) {
+	                    first = false;
+	                } else {
+	                    sw.write(",");
+	                    sw.allowBreak(0, " ");
+	                }
+	                md.print(f, sw, tr);
+	            }
+	            sw.end();
+	            sw.write(")");
+	            if (md.body() != null) {
+	                sw.allowBreak(0, " ");
+	                md.printBlock(md.body(), sw, tr);
+	            }
+	            sw.newline();
+	            ((X10CPPTranslator)tr).setContext(context); // FIXME
+	            if (templateMethod)
+	                sw.popCurrentStream();
+	        } else if (dec instanceof X10ClassDecl_c) {
+	            assert (false) : ("Nested class alert!");
 
-                ((X10CPPTranslator)tr).setContext(context); // FIXME
-                if (templateMethod)
-                    sw.popCurrentStream();
-			} else if (dec instanceof X10ClassDecl_c) {
-				assert (false) : ("Nested class alert!");
+	            X10ClassDecl_c cdecl = (X10ClassDecl_c) dec;
+	            ((X10CPPTranslator)tr).setContext(cdecl.enterScope(context)); // FIXME
 
-                X10ClassDecl_c cdecl = (X10ClassDecl_c) dec;
-				((X10CPPTranslator)tr).setContext(cdecl.enterScope(context)); // FIXME
+	            X10ClassDef def = (X10ClassDef) cdecl.classDef();
+	            if (getCppRep(def) != null) {
+	                // emit no c++ code as this is a native rep class
+	                continue;
+	            }
+	            ClassifiedStream h = sw.header();
+	            emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
+	            h.write("class "+container+"::"+Emitter.mangled_non_method_name(def.name().toString()));
+	            h.allowBreak(0, " ");
+	            // [DC]: the following function adds the : public B, public C etc
+	            emitter.printInheritance(cdecl, h ,tr);
+	            h.allowBreak(0, " ");
 
-				X10ClassDef def = (X10ClassDef) cdecl.classDef();
-				if (getCppRep(def) != null) {
-					// emit no c++ code as this is a native rep class
-					continue;
-				}
-				ClassifiedStream h = sw.header();
-				emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
-				h.write("class "+container+"::"+Emitter.mangled_non_method_name(def.name().toString()));
-				h.allowBreak(0, " ");
-				// [DC]: the following function adds the : public B, public C etc
-				emitter.printInheritance(cdecl, h ,tr);
-				h.allowBreak(0, " ");
+	            context.setinsideClosure(false);
+	            context.hasInits = false;
 
-				context.setinsideClosure(false);
-				context.hasInits = false;
+	            assert (def.isNested());
+	            if (!def.flags().isStatic())
+	                throw new InternalCompilerError("Instance Inner classes not supported");
 
-				assert (def.isNested());
-				if (!def.flags().isStatic())
-					throw new InternalCompilerError("Instance Inner classes not supported");
+	            ArrayList<ClassMember> opsd = context.pendingStaticDecls;
+	            context.pendingStaticDecls = new ArrayList<ClassMember>();
 
-				ArrayList<ClassMember> opsd = context.pendingStaticDecls;
-				context.pendingStaticDecls = new ArrayList<ClassMember>();
+	            cdecl.print(cdecl.body(), sw, tr);
 
-				cdecl.print(cdecl.body(), sw, tr);
+	            processNestedClasses(cdecl);
 
-				processNestedClasses(cdecl);
+	            if (extractGenericStaticDecls((X10ClassDef)cdecl.classDef(), h)) {
+	                extractGenericStaticInits((X10ClassDef)cdecl.classDef());
+	            }
 
-				if (extractGenericStaticDecls((X10ClassDef)cdecl.classDef(), h)) {
-					extractGenericStaticInits((X10ClassDef)cdecl.classDef());
-				}
+	            context.pendingStaticDecls = opsd;
 
-				context.pendingStaticDecls = opsd;
+	            h.newline();
 
-				h.newline();
+	            ArrayList asyncs = context.closures.asyncs;
+	            if (context.classesWithAsyncSwitches.size() != 0) {
+	                ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
+	                emitter.printSwitchMethod(cdecl.classDef().asType(), ASYNC_SWITCH, VOID,
+	                        ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
+	                        context.closures.asyncContainers,
+	                        "int niter",
+	                        "for (int i = 0; i < niter; i++,_arg++) {", "}",
+	                        context.classesWithAsyncSwitches, inc);
+	                emitter.printAsyncsRegistration(cdecl.classDef().asType(), asyncs, inc);
+	            }
+	            if (context.closures.arrayCopyClosures.size() != 0) {
+	                ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
+	                emitter.printSwitchMethod(cdecl.classDef().asType(), ARRAY_COPY_SWITCH, VOID_PTR,
+	                        ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
+	                        context.closures.arrayCopyClosures,
+	                        null,
+	                        null, null,
+	                        context.classesWithArrayCopySwitches, inc);
+	            }
+	            sw.newline();
 
-				ArrayList asyncs = context.closures.asyncs;
-				if (context.classesWithAsyncSwitches.size() != 0) {
-                    ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-					emitter.printSwitchMethod(cdecl.classDef().asType(), ASYNC_SWITCH, VOID,
-							ASYNC_PREFIX, asyncs, context.closures.asyncsParameters,
-							context.closures.asyncContainers,
-							"int niter",
-							"for (int i = 0; i < niter; i++,_arg++) {", "}",
-							context.classesWithAsyncSwitches, inc);
-					emitter.printAsyncsRegistration(cdecl.classDef().asType(), asyncs, inc);
-				}
-				if (context.closures.arrayCopyClosures.size() != 0) {
-                    ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-					emitter.printSwitchMethod(cdecl.classDef().asType(), ARRAY_COPY_SWITCH, VOID_PTR,
-							ARRAY_COPY_PREFIX, asyncs, context.closures.asyncsParameters,
-							context.closures.arrayCopyClosures,
-							null,
-							null, null,
-							context.classesWithArrayCopySwitches, inc);
-                }
-                sw.newline();
+	            ((X10CPPTranslator)tr).setContext(context); // FIXME
+	        }
+	    }
+	    if (inits.size() > 0) {
+	        sw.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
+	        sw.newline(4); sw.begin(0);
+	        sw.write("static bool done = false;"); sw.newline();
+	        sw.write("if (done) return;"); sw.newline();
+	        sw.write("done = true;"); sw.newline();
+	        sw.write("_I_(\"Doing static initialisation for class: "+container+"\");"); sw.newline();
+	        for (FieldDecl_c fd : inits) {
+	            assert (fd.init() != null);
+	            sw.write(mangled_field_name(fd.name().id().toString())+" =");
+	            sw.allowBreak(2, " ");
+	            fd.print(fd.init(), sw, tr);
+	            sw.write(";");
+	            sw.newline();
+	        }
+	        //w.write("return NULL;");
+	        sw.end(); sw.newline();
+	        sw.write("}"); sw.newline();
+	        sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
+	        sw.newline(); sw.forceNewline(0);
+	    }
 
-				((X10CPPTranslator)tr).setContext(context); // FIXME
-			}
-		}
-		if (inits.size() > 0) {
-			sw.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
-			sw.newline(4); sw.begin(0);
-			sw.write("static bool done = false;"); sw.newline();
-			sw.write("if (done) return;"); sw.newline();
-			sw.write("done = true;"); sw.newline();
-			sw.write("_I_(\"Doing static initialisation for class: "+container+"\");"); sw.newline();
-			for (FieldDecl_c fd : inits) {
-				assert (fd.init() != null);
-				sw.write(mangled_field_name(fd.name().id().toString())+" =");
-				sw.allowBreak(2, " ");
-				fd.print(fd.init(), sw, tr);
-				sw.write(";");
-				sw.newline();
-			}
-            //w.write("return NULL;");
-			sw.end(); sw.newline();
-			sw.write("}"); sw.newline();
-			sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
-			sw.newline(); sw.forceNewline(0);
-		}
-
-		sw.popCurrentStream();
+	    sw.popCurrentStream();
 	}
 
 	private boolean extractInits(X10ClassType currentClass, String methodName,
 			String retType, List members, boolean staticInits)
 	{
-		String className = emitter.translateType(currentClass);
-		boolean sawInit = false;
-		for (Iterator i = members.iterator(); i.hasNext(); ) {
-			ClassMember member = (ClassMember) i.next();
-			if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
-				continue;
-			if (member.memberDef().flags().isStatic() != staticInits)
-				continue;
-			if (member instanceof FieldDecl_c &&
-					(((FieldDecl_c)member).init() == null ||
-							query.isSyntheticField(((FieldDecl_c)member).name().id().toString())))
-				continue;
-			if (member instanceof FieldDecl_c) {
-				FieldDecl_c dec = (FieldDecl_c) member;
-				if (dec.flags().flags().isStatic()) {
-					X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
-					if (((X10ClassDef)container.def()).typeParameters().size() != 0)
-						continue;
-					if (dec.init() != null && dec.flags().flags().isFinal() &&
-					        (dec.init() instanceof NumLit_c || dec.init() instanceof BooleanLit_c))
-					    continue;
-				}
-			}
-			if (!sawInit) {
-				emitter.printTemplateSignature(currentClass.typeArguments(), sw);
-				sw.write(retType + " " + className + "::" + methodName + "() {");
-				sw.newline(4); sw.begin(0);
-                if (staticInits) {
-                    sw.write("static bool done = false;"); sw.newline();
-                    sw.write("if (done) return;"); sw.newline();
-                    sw.write("done = true;"); sw.newline();
-                    sw.write("_I_(\"Doing static initialisation for class: "+className+"\");"); sw.newline();
-                } else {
-                    sw.write("_I_(\"Doing initialisation for class: "+className+"\");"); sw.newline();
+	    String className = emitter.translateType(currentClass);
+	    boolean sawInit = false;
+	    for (Iterator i = members.iterator(); i.hasNext(); ) {
+	        ClassMember member = (ClassMember) i.next();
+	        if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
+	            continue;
+	        if (member.memberDef().flags().isStatic() != staticInits)
+	            continue;
+	        if (member instanceof FieldDecl_c &&
+	                (((FieldDecl_c)member).init() == null ||
+	                        query.isSyntheticField(((FieldDecl_c)member).name().id().toString())))
+	            continue;
+	        if (member instanceof FieldDecl_c) {
+	            FieldDecl_c dec = (FieldDecl_c) member;
+	            if (dec.flags().flags().isStatic()) {
+	                X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
+	                if (((X10ClassDef)container.def()).typeParameters().size() != 0)
+	                    continue;
+	                if (dec.init() != null && dec.flags().flags().isFinal() &&
+	                        ((dec.type().type().isNumeric() && dec.init() instanceof NumLit_c) ||
+	                         (dec.type().type().isBoolean() && dec.init() instanceof BooleanLit_c)))
+	                    continue;
+	            }
+	        }
+	        if (!sawInit) {
+	            emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+	            sw.write(retType + " " + className + "::" + methodName + "() {");
+	            sw.newline(4); sw.begin(0);
+	            if (staticInits) {
+	                sw.write("static bool done = false;"); sw.newline();
+	                sw.write("if (done) return;"); sw.newline();
+	                sw.write("done = true;"); sw.newline();
+	                sw.write("_I_(\"Doing static initialisation for class: "+className+"\");"); sw.newline();
+	            } else {
+	                sw.write("_I_(\"Doing initialisation for class: "+className+"\");"); sw.newline();
+	            }
+	            sawInit = true;
+	        }
+	        if (member instanceof Initializer_c) {
+	            Initializer_c init = (Initializer_c) member;
+	            init.printBlock(init.body(), sw, tr);
+	            sw.newline(0);
+	        } else if (member instanceof FieldDecl_c) {
+	            FieldDecl_c dec = (FieldDecl_c) member;
+	            Expr init = (Expr) dec.init();
+	            assert (init != null);
+	            sw.write(mangled_field_name(dec.name().id().toString()));
+	            sw.write(" = ");
+                X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+                Type aType = dec.type().type();
+                boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, init.type());
+                if (rhsNeedsCast) {
+                    sw.write("x10aux::class_cast<");
+                    emitter.printType(aType, sw);
+                    sw.write(" >(");
                 }
-				sawInit = true;
-			}
-			if (member instanceof Initializer_c) {
-				Initializer_c init = (Initializer_c) member;
-				init.printBlock(init.body(), sw, tr);
-				sw.newline(0);
-			} else if (member instanceof FieldDecl_c) {
-				FieldDecl_c dec = (FieldDecl_c) member;
-				Term_c init = (Term_c) dec.init();
-				assert (init != null);
-				sw.write(mangled_field_name(dec.name().id().toString()));
-				sw.write(" = ");
-				dec.print(init, sw, tr);
-				sw.write(";");
-				sw.newline();
-			}
-		}
-		if (sawInit) {
-			if (!retType.equals(VOID))
-				sw.write("return ("+retType+")0;");
-			sw.end(); sw.newline();
-			sw.write("}");
-			sw.newline(); sw.forceNewline(0);
-		}
-		return sawInit;
+                dec.print(init, sw, tr);
+                if (rhsNeedsCast)
+                    sw.write(")");
+	            sw.write(";");
+	            sw.newline();
+	        }
+	    }
+	    if (sawInit) {
+	        if (!retType.equals(VOID))
+	            sw.write("return ("+retType+")0;");
+	        sw.end(); sw.newline();
+	        sw.write("}");
+	        sw.newline(); sw.forceNewline(0);
+	    }
+	    return sawInit;
 	}
 	boolean hasExternMethods(List members) {
 		for (Iterator i = members.iterator(); i.hasNext(); ) {
@@ -1443,39 +1454,40 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(FieldDecl_c dec) {
-		// FIXME: HACK: skip synthetic serialization fields
-		if (query.isSyntheticField(dec.name().id().toString()))
-			return;
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() != 0) &&
-				dec.flags().flags().isStatic())
-		{
-			context.pendingStaticDecls.add(dec);
-			return;
-		}
+	    // FIXME: HACK: skip synthetic serialization fields
+	    if (query.isSyntheticField(dec.name().id().toString()))
+	        return;
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() != 0) &&
+	            dec.flags().flags().isStatic())
+	    {
+	        context.pendingStaticDecls.add(dec);
+	        return;
+	    }
 
-		ClassifiedStream h = sw.header();
-		sw.pushCurrentStream(h);
-		emitter.printHeader(dec, sw, tr, false);
-		sw.popCurrentStream();
-        // Ignore the initializer -- this will have been done in extractInits/extractStaticInits
-        // FIXME: the above breaks switch constants!
-        h.write(";");
-        h.newline();
-		if (dec.flags().flags().isStatic()) {
-			emitter.printHeader(dec, sw, tr, true);
-			// [DC] disabled because I want this done through the static initialisation framework
-            // [IP] re-enabled for a very limited set of cases, namely literal inits
-			if (dec.init() != null && dec.flags().flags().isFinal() &&
-			        (dec.init() instanceof NumLit_c || dec.init() instanceof BooleanLit_c))
-            {
-				sw.write(" =");
-				sw.allowBreak(2, " ");
-				dec.print(dec.init(), sw, tr);
-			}
-			sw.write(";");
-			sw.newline();
-		}
+	    ClassifiedStream h = sw.header();
+	    sw.pushCurrentStream(h);
+	    emitter.printHeader(dec, sw, tr, false);
+	    sw.popCurrentStream();
+	    // Ignore the initializer -- this will have been done in extractInits/extractStaticInits
+	    // FIXME: the above breaks switch constants!
+	    h.write(";");
+	    h.newline();
+	    if (dec.flags().flags().isStatic()) {
+	        emitter.printHeader(dec, sw, tr, true);
+	        // [DC] disabled because I want this done through the static initialisation framework
+	        // [IP] re-enabled for a very limited set of cases, namely literal inits
+	        if (dec.init() != null && dec.flags().flags().isFinal() &&
+	                ((dec.type().type().isNumeric() && dec.init() instanceof NumLit_c) ||
+                     (dec.type().type().isBoolean() && dec.init() instanceof BooleanLit_c)))
+	        {
+	            sw.write(" =");
+	            sw.allowBreak(2, " ");
+	            dec.print(dec.init(), sw, tr);
+	        }
+	        sw.write(";");
+	        sw.newline();
+	    }
 	}
 
 	public void visit(PropertyDecl_c n) {
@@ -1613,33 +1625,44 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Assign_c asgn) {
- 		 boolean unsigned_op = false;
- 		 String opString = asgn.operator().toString();
+	    boolean unsigned_op = false;
+	    String opString = asgn.operator().toString();
 
- 		 if (opString.equals(">>>=")) {
- 		 		 unsigned_op = true;
- 		 		 opString = opString.substring(1);
- 		 }
+	    if (opString.equals(">>>=")) {
+	        unsigned_op = true;
+	        opString = opString.substring(1);
+	    }
 
-		NodeFactory nf = tr.nodeFactory();
-		Expr lhs = asgn.left(nf);
-		Expr rhs = asgn.right();
-		if (unsigned_op) {
-			sw.write("("+emitter.translateType(asgn.type())+")(");
-			sw.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
-		}
-		asgn.printSubExpr(lhs, false, sw, tr);
-		if (unsigned_op)
-			 sw.write(")");
-		sw.write(" ");
-		// [IP] Are all the operators the same?
-		sw.write(opString);
-		sw.allowBreak(2, 2, " ", 1);
- 		if (unsigned_op)
-			 sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
-		asgn.printSubExpr(rhs, true, sw, tr);
-		if (unsigned_op)
-			 sw.write("))");
+	    NodeFactory nf = tr.nodeFactory();
+	    Expr lhs = asgn.left(nf);
+	    Expr rhs = asgn.right();
+	    if (unsigned_op) {
+	        sw.write("("+emitter.translateType(asgn.type())+")(");
+	        sw.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
+	    }
+	    asgn.printSubExpr(lhs, false, sw, tr);
+	    if (unsigned_op)
+	        sw.write(")");
+	    sw.write(" ");
+	    // [IP] Are all the operators the same?
+	    sw.write(opString);
+        sw.allowBreak(2, 2, " ", 1);
+
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	    Type aType = lhs.type();
+	    boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, rhs.type());
+	    if (rhsNeedsCast) {
+	        sw.write("x10aux::class_cast<");
+	        emitter.printType(aType, sw);
+	        sw.write(" >(");
+	    }
+	    if (unsigned_op)
+	        sw.write("(("+emitter.makeUnsignedType(rhs.type())+")");
+	    asgn.printSubExpr(rhs, true, sw, tr);
+	    if (unsigned_op)
+	        sw.write("))");
+        if (rhsNeedsCast)
+            sw.write(")");
 	}
 
 
@@ -1661,19 +1684,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(LocalDecl_c dec) {
-		emitter.printHeader(dec, sw, tr, true);
+	    emitter.printHeader(dec, sw, tr, true);
 
-        Expr initexpr = dec.init();
-		if (initexpr != null) {
-			sw.write(" =");
-			sw.allowBreak(2, " ");
-			dec.print(initexpr, sw, tr);
-		}
+	    Expr initexpr = dec.init();
+	    if (initexpr != null) {
+	        sw.write(" =");
+	        sw.allowBreak(2, " ");
+	        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+	        Type aType = dec.type().type();
+	        boolean rhsNeedsCast = !xts.typeDeepBaseEquals(aType, initexpr.type());
+	        if (rhsNeedsCast) {
+	            sw.write("x10aux::class_cast<");
+	            emitter.printType(aType, sw);
+	            sw.write(" >(");
+	        }
+	        dec.print(initexpr, sw, tr);
+	        if (rhsNeedsCast)
+	            sw.write(")");
+	    }
 
-		if (tr.appendSemicolon()) {
-			sw.write(";");
-			sw.newline(0);
-		}
+	    if (tr.appendSemicolon()) {
+	        sw.write(";");
+	        sw.newline(0);
+	    }
 	}
 
 
