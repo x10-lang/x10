@@ -407,8 +407,12 @@ public class Emitter {
 				if (!nativeTranslated && ct.typeArguments().size() != 0) {
 
 					name += " < ";
+					int s = ct.typeArguments().size();
 					for (Type t: ct.typeArguments()) {
 						name +=translateType(t, asRef);
+						s--;
+						if (s > 0)
+							name +=", ";
 					}
 					name +=" > ";
 				}
