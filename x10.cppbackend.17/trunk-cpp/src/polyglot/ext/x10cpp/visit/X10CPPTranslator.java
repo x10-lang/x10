@@ -35,6 +35,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10ClassDecl;
 
+import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
@@ -304,10 +305,12 @@ public class X10CPPTranslator extends Translator {
 			if (filefound && !t.hasNext()) {
 				generateGlobalSwitch(sw);
 				generateClosureSwitch(sw);
-                        }
+			}
 
-                        sw.newline();
-                        sw.write("// vim:tabstop=4:shiftwidth=4:expandtab"); sw.newline();
+			sw.newline();
+            if (Configuration.VIM_MODELINE) {
+                sw.write("// "+VIM_MODELINE); sw.newline();
+            }
 
 			wstreams.commitStreams();
 
@@ -495,7 +498,8 @@ public class X10CPPTranslator extends Translator {
 		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
 
 		h.newline(0);
-		String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").toUpperCase();
+		//String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").toUpperCase();
+        String guard = wstreams.getHeader().getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
 		h.write("#endif // __"+guard); h.newline();
 		h.forceNewline(0);
 

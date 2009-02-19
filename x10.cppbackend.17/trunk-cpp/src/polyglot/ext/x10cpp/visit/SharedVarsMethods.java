@@ -89,7 +89,9 @@ public class SharedVarsMethods{
 	static final String SERIALIZE_METHOD = "_serialize";
 	static final String SERIALIZE_FIELDS_METHOD = "_serialize_fields";
 	static final String DESERIALIZE_FIELDS_METHOD = "_deserialize_fields";
-	static final String CLOSURE_STRUCT = "x10_async_closure_t"; 
+	static final String CLOSURE_STRUCT = "x10_async_closure_t";
+
+    static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
 
 	static final String NATIVE_STRING = "c++";
 
