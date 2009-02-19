@@ -119,6 +119,7 @@ public class SharedVarsMethods{
 	static final String SERIALIZE_METHOD = "_serialize";
 	static final String SERIALIZE_FIELDS_METHOD = "_serialize_fields";
 	static final String DESERIALIZE_FIELDS_METHOD = "_deserialize_fields";
+	static final String NATIVE_STRING = "c++";
 
 	static String make_ref(String type) {
 		if (refsAsPointers)
