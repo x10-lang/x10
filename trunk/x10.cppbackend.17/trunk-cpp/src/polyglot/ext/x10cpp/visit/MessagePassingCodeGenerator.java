@@ -277,32 +277,115 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(ClassDecl_c n) {
 		processClass(n);
 	}
+
 	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (context.pendingStaticDecls.size() == 0)
 			return false;
+		boolean hasInits = false;
 		w.write("template <> class ");
 		w.write(translate_mangled_FQN(cd.fullName().toString()));
 		w.write("<void> {");
-		w.newline(4); w.begin(0); 
-		for (FieldDecl_c dec: context.pendingStaticDecls) {
-			emitter.printHeader(dec, w, tr, false);
+		w.newline(4); w.begin(0);
+		for (ClassMember dec : context.pendingStaticDecls) {
+			if (dec instanceof FieldDecl_c) {
+				FieldDecl_c fd = (FieldDecl_c) dec;
+				emitter.printHeader(fd, w, tr, false);
+				if (fd.init() != null &&
+						!(fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
+								fd.init().isConstant()))
+				{
+					hasInits = true;
+				}
+			} else if (dec instanceof MethodDecl_c) {
+				MethodDecl_c md = (MethodDecl_c) dec;
+				((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
+				emitter.printHeader(md, w, tr, false);
+				((X10CPPTranslator)tr).setContext(context); // FIXME
+			}
+			w.newline();
+		}
+		if (hasInits) {
+			w.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
+			w.newline();
 		}
 		w.end(); w.newline();
-		w.write("}");
+		w.write("};");
 		w.newline();
 		return true;
 
 	}
 	private void extractGenericStaticInits(X10ClassDef cd, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		for (FieldDecl_c dec: context.pendingStaticDecls) {
-			emitter.printType(dec.type().type(), w);
-			w.write(" ");
-			w.write(translate_mangled_FQN(cd.fullName().toString()));
-			w.write("<void>::");
-			emitFieldInit(dec);
+		ArrayList<FieldDecl_c> inits = new ArrayList<FieldDecl_c>();
+		String container = translate_mangled_FQN(cd.fullName().toString())+"<void>";
+		for (ClassMember dec : context.pendingStaticDecls) {
+			if (dec instanceof FieldDecl_c) {
+				FieldDecl_c fd = (FieldDecl_c) dec;
+				emitter.printType(fd.type().type(), w);
+				w.allowBreak(2, " ");
+				w.write(container+"::");
+				w.write(mangled_field_name(fd.name().id().toString()));
+				if (fd.init() != null) {
+					if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
+							fd.init().isConstant())
+					{
+						w.write(" =");
+						w.allowBreak(2, " ");
+						sw.pushCurrentStream(w);
+						fd.print(fd.init(), sw, tr);
+						sw.popCurrentStream();
+					} else
+						inits.add(fd);
+				}
+				w.write(";");
+			} else if (dec instanceof MethodDecl_c) {
+				MethodDecl_c md = (MethodDecl_c) dec;
+				((X10CPPTranslator)tr).setContext(dec.enterScope(context)); // FIXME
+				emitter.printType(md.returnType().type(), w);
+				w.allowBreak(2, " ");
+				w.write(container+"::");
+				w.write(mangled_method_name(md.name().id().toString()) + "(");
+				w.begin(0);
+				boolean first = true;
+				for (Formal f : md.formals()) {
+					if (first) {
+						first = false;
+					} else {
+						w.write(",");
+						w.allowBreak(0, " ");
+					}
+					sw.pushCurrentStream(w);
+					md.print(f, sw, tr);
+					sw.popCurrentStream();
+				}
+				w.end();
+				w.write(")");
+				if (md.body() != null) {
+					w.allowBreak(0, " ");
+					sw.pushCurrentStream(w);
+					md.printBlock(md.body(), sw, tr);
+					sw.popCurrentStream();
+				}
+				((X10CPPTranslator)tr).setContext(context); // FIXME
+			}
 			w.newline();
+		}
+		if (inits.size() > 0) {
+			w.write(VOID_PTR + " " + container + "::" + STATIC_INIT + "() {");
+			w.newline(4); w.begin(0);
+			for (FieldDecl_c fd : inits) {
+				assert (fd.init() != null);
+				w.write(fd.name().id().toString()+" =");
+				w.allowBreak(2, " ");
+				sw.pushCurrentStream(w);
+				fd.print(fd.init(), sw, tr);
+				sw.popCurrentStream();
+			}
+			w.end(); w.newline();
+			w.write("}"); w.newline();
+			w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = " + container + "::" + STATIC_INIT + "()"+ ";");
+			w.newline(); w.forceNewline(0);
 		}
 	}
 
@@ -319,13 +402,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				continue;
 			if (member instanceof FieldDecl_c &&
 					(((FieldDecl_c)member).init() == null ||
-							query.isSyntheticField(((FieldDecl_c)member).name().toString())))
+							query.isSyntheticField(((FieldDecl_c)member).name().id().toString())))
 				continue;
 			if (member instanceof FieldDecl_c) {
 				FieldDecl_c dec = (FieldDecl_c) member;
-				if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() !=0) 
-				&& dec.flags().flags().isStatic()) {
-					continue;
+				if (dec.flags().flags().isStatic()) {
+					X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
+					if (((X10ClassDef)container.def()).typeParameters().size() != 0)
+						continue;
+					if (dec.init() != null && dec.flags().flags().isFinal() && dec.init().isConstant())
+						continue;
 				}
 			}
 			if (!sawInit) {
@@ -342,7 +428,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline(0);
 			} else if (member instanceof FieldDecl_c) {
 				FieldDecl_c dec = (FieldDecl_c) member;
-				emitFieldInit(dec);
+				Term_c init = (Term_c) dec.init();
+				assert (init != null);
+				w.write(mangled_field_name(dec.name().id().toString()));
+				w.write(" = ");
+				sw.pushCurrentStream(w);
+				dec.print(init, sw, tr);
+				sw.popCurrentStream();
+				w.write(";");
 				w.newline();
 
 			}
@@ -355,17 +448,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline(); w.forceNewline(0);
 		}
 		return sawInit;
-	}
-	void emitFieldInit(FieldDecl_c dec) {
-		Term_c init = (Term_c) dec.init();
-		assert (init != null);
-
-		w.write(mangled_field_name(dec.name().id().toString()));
-		w.write(" = ");
-        sw.pushCurrentStream(w);
-        dec.print(init, sw, tr);
-        sw.popCurrentStream();
-		w.write(";");
 	}
 	boolean hasExternMethods(List members) {
 		for (Iterator i = members.iterator(); i.hasNext(); ) {
@@ -413,7 +495,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		ClassifiedStream h;
-		ArrayList<TypeParamNode> tempClassTypeParams = new ArrayList(context.classTypeParams);
 		if (context.inLocalClass())
 			h = w;
 		else
@@ -569,7 +650,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.newline(0);
 			}
 		}
-		context.classTypeParams = tempClassTypeParams;
 		w.newline(0);
 	}
 
@@ -594,8 +674,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(ClassBody_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		ArrayList<FieldDecl_c> opsd = new ArrayList(context.pendingStaticDecls);
-		context.pendingStaticDecls = new ArrayList<FieldDecl_c>();
+		ArrayList<ClassMember> opsd = new ArrayList(context.pendingStaticDecls);
+		context.pendingStaticDecls = new ArrayList<ClassMember>();
 		ClassType currentClass = context.currentClass();
 
 		
@@ -619,7 +699,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					continue;
 				ClassDecl_c dec = (ClassDecl_c)member;
 				emitter.printFlags(h, dec.flags().flags());
-				emitter.printTemplateSignature(((X10ClassDecl_c)member).typeParameters(), h);
+				emitter.printTemplateSignature(((X10ClassType)dec.classDef().asType()).typeArguments(), h);
 				h.write("class ");
 				h.write(mangled_non_method_name(dec.name().id().toString()));
 				h.write(";");
@@ -721,17 +801,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h = w;
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
-		emitter.printHeader(dec, h, tr, false);
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-
-		assert (!polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION);
 		if (query.isMainMethod(dec))
 		{
 			Type container = dec.methodDef().asInstance().container();
+		    if (container.isClass() && !((X10ClassType)container).typeArguments().isEmpty()) {
+				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		    	List<Type> args = Arrays.asList(new Type[] { xts.Void() });
+		    	container = ((X10ClassType)container).typeArguments(args);
+		    }
 			xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
-			h.write("public : static void main_np0();");
 			h.newline();
 		}
+		if ((((X10ClassDef)((X10ClassType)dec.methodDef().asInstance().container()).def()).typeParameters().size() != 0) 
+				&& dec.flags().flags().isStatic()) {
+			context.pendingStaticDecls.add(dec);
+			return;
+		}
+		emitter.printHeader(dec, h, tr, false);
+		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+
 		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
 		if (dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
@@ -757,16 +845,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(ConstructorDecl_c dec) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		boolean outermost = context.outermostContext().cDecls.isEmpty();
 		if (dec.flags().flags().isNative()) 
 			return;
-		if ((!context.inLocalClass()) && outermost)
-			emitter.printHeader(dec, ws.getCurStream(WriterStreams.StreamClass.Header), tr, false);
-		if (outermost) emitter.printHeader(dec, w, tr, true);
-		
-		
+		ClassifiedStream h = ws.getCurStream(WriterStreams.StreamClass.Header);
+		if ((!context.inLocalClass()))
+			emitter.printHeader(dec, h, tr, false);
+		emitter.printHeader(dec, w, tr, true);
 		ClassType container = (ClassType)dec.constructorDef().asInstance().container();
-
+		boolean hasInits = false;
 		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
 		if (dec.body() != null) {
 			// Extract initializers from the body
@@ -774,106 +860,148 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			List<Stmt> statements = body.statements();
 //			HashMap inited = new HashMap();
 			List<Stmt> newStatements = new TypedList(new ArrayList(), Stmt.class, false);
-			Iterator i = statements.iterator();
-			ConstructorCall call = null;
-			if (i.hasNext()) {  // Store ConstructorCall if any
-				Stmt n = (Stmt) i.next();
-				if (n instanceof ConstructorCall) {
-					call = (ConstructorCall) n;
-				}
-//				TODO Remove const initializations from all additions to newStatements below and store in context data
-				else newStatements.add(n);
-			}
-			while (i.hasNext()) {  
-				Stmt n = (Stmt) i.next();
-				newStatements.add(n);
-			}
-			
-			
-			
-			boolean hasInits = false;
-			
-			if ((call != null) && (call.kind() == ConstructorCall.SUPER)) {
-				w.allowBreak(4, " ");
-				w.write(":");
-				w.allowBreak(2, " ");
-				w.write(emitter.translateType(container.superClass()) + "(");
-				if (call.arguments().size() > 0) {
-					w.allowBreak(2, 2, "", 0); // miser mode
-					w.begin(0);
-					boolean first = true;
-					for(Expr e : (List<Expr>) call.arguments() ) {
-						if (first) {
-							first=false;
-						} else { 
-							w.write(",");
-							w.allowBreak(0, " ");
+			for (Stmt n : statements) {
+				if (n instanceof ConstructorCall && ((ConstructorCall)n).kind() == ConstructorCall.SUPER) {
+					ConstructorCall call = (ConstructorCall) n;
+					w.allowBreak(4, " ");
+					w.write(":");
+					w.allowBreak(2, " ");
+					w.write(emitter.translateType(container.superClass()) + "(");
+					if (call.arguments().size() > 0) {
+						w.allowBreak(2, 2, "", 0); // miser mode
+						w.begin(0);
+						boolean first = true;
+						for(Expr e : (List<Expr>) call.arguments() ) {
+							if (first) {
+								first = false;
+							} else { 
+								w.write(",");
+								w.allowBreak(0, " ");
+							}
+							sw.pushCurrentStream(w);
+							dec.print(e, sw, tr);
+							sw.popCurrentStream();
 						}
+						w.end();
+					}
+					w.write(")");
+					hasInits = true;
+				} else
+					newStatements.add(n);
+			}
+			assert (!dec.flags().flags().isStatic());
+			TypeSystem ts = tr.typeSystem();
+			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+					new Ref_c<StructType>(container), Name.make(THIS)).asInstance();
+			context.addVariable(ti);
+			if (hasInits)
+				w.newline();
+			else
+				w.allowBreak(0, " ");
+			w.write("{"); w.newline(4); w.begin(0);
+			if (context.hasInits) {
+				w.write("this->"+RUN_INITIALIZERS+"();"); w.newline();
+			}
+			w.write("this->"+INIT+"(");
+			w.begin(0);
+			boolean first = true;
+			for (Formal f : dec.formals()) {
+				if (first) {
+					first = false;
+				} else {
+					w.write(",");
+					w.allowBreak(0, " ");
+				}
+				w.write(mangled_non_method_name(f.name().toString()));
+			}
+			w.end();
+			w.write(");");
+			w.end(); w.newline(); w.write("}");
+			w.newline();
+			
+			h.write("private: "+VOID+" "+INIT+"(");
+			h.begin(0);
+			first = true;
+			for (Formal f : dec.formals()) {
+				if (first) {
+					first = false;
+				} else {
+					h.write(",");
+					h.allowBreak(0, " ");
+				}
+				sw.pushCurrentStream(h);
+				dec.print(f, sw, tr);
+				sw.popCurrentStream();
+			}
+			h.end();
+			h.write(");");
+			h.newline();
+			w.write(VOID+" "+emitter.translateType(container)+"::"+INIT+"(");
+			w.begin(0);
+			first = true;
+			for (Formal f : dec.formals()) {
+				if (first) {
+					first = false;
+				} else {
+					w.write(",");
+					w.allowBreak(0, " ");
+				}
+				sw.pushCurrentStream(w);
+				dec.print(f, sw, tr);
+				sw.popCurrentStream();
+			}
+			w.end();
+			w.write(")");
+			w.allowBreak(0, " ");
+			if (newStatements.size() > 0) {
+				w.write("{"); w.newline(4); w.begin(0);
+				for (Stmt s : newStatements) {
+					if (s instanceof ConstructorCall) {
+						ConstructorCall call = (ConstructorCall)s;
+						assert (call.kind() == ConstructorCall.THIS);
+						w.write("this->"+INIT+"(");
+						if (call.arguments().size() > 0) {
+							w.allowBreak(2, 2, "", 0); // miser mode
+							w.begin(0);
+							first = true;
+							for(Expr e : (List<Expr>) call.arguments() ) {
+								if (first) {
+									first = false;
+								} else { 
+									w.write(",");
+									w.allowBreak(0, " ");
+								}
+								sw.pushCurrentStream(w);
+								dec.print(e, sw, tr);
+								sw.popCurrentStream();
+							}
+							w.end();
+						}
+						w.write(");");
+					} else {
 						sw.pushCurrentStream(w);
-						dec.print(e, sw, tr);
+						dec.printBlock(s, sw, tr);
 						sw.popCurrentStream();
 					}
-					w.end();
-				}
-				w.write(")");
-				hasInits = true;
-			}
-			if (call == null || hasInits) {
-				
-				// TODO print const initializations from context data and update hasInits
-				
-				
-				if (hasInits)
 					w.newline();
-				else
-					w.allowBreak(0, " ");
-				w.write("{"); w.newline(4); w.begin(0);
-				if (context.hasInits) {
-					w.write("this->"+RUN_INITIALIZERS+"();"); w.newline();
 				}
-			}
-			else {
-				X10SummarizingRules.Collection harvest = context.outermostContext().harvest;
-				ConstructorDecl decl = harvest.getDecl(call);
-				context.outermostContext().cDecls.push(decl);  // TODO push also the this call arguments here
-				sw.pushCurrentStream(w);
-				tr.printAst(decl, sw);
-				//dec.print(decl, sw, tr);   
-				sw.popCurrentStream();
-				context.outermostContext().cDecls.pop();
-			}
-			
-			if (!dec.flags().flags().isStatic()) {
-				TypeSystem ts = tr.typeSystem();
-				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-						new Ref_c<StructType>(container), Name.make(THIS)).asInstance();
-				context.addVariable(ti);
-			}
-			
-			for (Stmt s : newStatements) {
-				sw.pushCurrentStream(w);
-				dec.printBlock(s, sw, tr);
-				sw.popCurrentStream();
-				w.newline();
-			}
-			
+				w.end(); w.newline(); w.write("}");
+			} else
+				w.write("{ }");
+		} else {
+			w.write(" { }");
 		}
-		
-		if (outermost) {
-			w.newline(); w.write("}");
-			w.newline();
-		}
-	
+		w.newline();
 	}
 
 
 	public void visit(FieldDecl_c dec) {
 		// FIXME: HACK: skip synthetic serialization fields and x10 auxiliary fields
-		if (query.isSyntheticField(dec.name().toString()))
+		if (query.isSyntheticField(dec.name().id().toString()))
 			return;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() !=0) 
-		&& dec.flags().flags().isStatic()) {
+		if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() != 0) && 
+				dec.flags().flags().isStatic()) {
 			context.pendingStaticDecls.add(dec);
 			return;
 		}
@@ -885,6 +1013,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printHeader(dec, h, tr, false);
 		if (dec.flags().flags().isStatic()) {
 			emitter.printHeader(dec, w, tr, true);
+			if (dec.init() != null && dec.flags().flags().isFinal() && dec.init().isConstant()) {
+				w.write(" =");
+				w.allowBreak(2, " ");
+				sw.pushCurrentStream(w);
+				dec.print(dec.init(), sw, tr);
+				sw.popCurrentStream();
+			}
 			w.write(";");
 			w.newline();
 			return ;
@@ -1622,23 +1757,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 		
-		FieldDef fd = fi.def();
-		t = Types.get(fd.container());
-		if (((X10ClassDef)((X10ClassType)n.fieldInstance().container()).def()).typeParameters().size() !=0 
-		&& n.fieldInstance().flags().isStatic()) {
-			w.write(emitter.getStaticFieldName(
-					(X10ClassDef)((X10ClassType)n.fieldInstance().container()).def(),
-					n.name().id().toString()));
-			return;
-
-		}
-		
+		FieldDef fd = fi.def();		
 		if (target instanceof TypeNode) {
+		    assert (n.fieldInstance().flags().isStatic());
 		    TypeNode tn = (TypeNode) target;
 		    if (t instanceof ParameterType) {
 		        // Rewrite to the class declaring the field.
 		        target = tn.typeRef(fd.container());
 		        n = (Field_c) n.target(target);
+		    }
+		    if (t.isClass() && !((X10ClassType)t).typeArguments().isEmpty()) {
+		    	List<Type> args = Arrays.asList(new Type[] { xts.Void() });
+		    	target = tn.typeRef(Types.ref(((X10ClassType)t).typeArguments(args)));
 		    }
 		}
 
@@ -2880,12 +3010,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            }
 	        }
 	        emitter.printType(n.right().type(), w);
-		String right = getId();
+	        String right = getId();
 	        w.write(" " + right + " = ");
-		sw.pushCurrentStream(w);
+	        sw.pushCurrentStream(w);
 	        tr.print(n, n.right(), sw);
-		sw.popCurrentStream();
-		w.write(";"); w.newline();
+	        sw.popCurrentStream();
+	        w.write(";"); w.newline();
 
 	        if (! n.type().isVoid()) {
 	            w.write(retVar + " = " );
