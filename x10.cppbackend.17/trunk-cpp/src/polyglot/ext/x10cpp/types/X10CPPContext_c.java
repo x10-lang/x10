@@ -16,24 +16,23 @@ package polyglot.ext.x10cpp.types;
  * @author nvk
  * @see X10Context_c
  */
-import java.util.Collection;
+import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Stack;
-import java.util.Vector;
 
 import polyglot.ast.Stmt;
+import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10cpp.visit.X10SummarizingRules;
 import polyglot.types.Context_c;
 import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
-import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10cpp.visit.X10SummarizingRules;  // PV-IPA
-import static polyglot.ext.x10cpp.visit.Emitter.mangled_method_name;
-import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
 
 public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c implements X10Context {
 
@@ -126,7 +125,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	}
 
 	public void saveEnvVariableInfo(String name) {
-		VarInstance vi = findVariableInThisScope(name);
+		VarInstance vi = findVariableInThisScope(Name.make(name));
 		if (vi != null) {  // found declaration 
 			return;  // local variable
 		} else if (inClosure) {
@@ -298,7 +297,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	}
 
 	private VarInstance lookup(String name) {
-		VarInstance vi = findVariableInThisScope(name);
+		VarInstance vi = findVariableInThisScope(Name.make(name));
 		if (vi != null) return vi;
 		else if (outer != null) return ((X10CPPContext_c) outer).lookup(name);
 		else return null;
@@ -313,7 +312,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 //		}
 		for (int i = 0; i < variables.size(); i++) {
 			VarInstance v = (VarInstance) variables.get(i);
-			VarInstance cvi = findVariableInThisScope(v.name().toString());
+			VarInstance cvi = findVariableInThisScope(v.name());
 			if (cvi == null)   // declaration not found 
 				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name().toString());
 		}
