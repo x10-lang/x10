@@ -2480,7 +2480,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 		if (n.kind().equals(X10Special_c.SUPER)) {
-			w.write(emitter.translateType(context.currentClass().superType()));
+			w.write(emitter.translateType(context.currentClass().superClass()));
 			return;
 		}
 		if (n.isSelf()) {
