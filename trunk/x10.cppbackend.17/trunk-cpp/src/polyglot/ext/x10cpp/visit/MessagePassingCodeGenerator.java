@@ -2928,4 +2928,60 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Handle Rails initializer.
 	}
 
+	void newJavaArray(Term_c n, Type base, List dims, int additionalDims, ArrayInit_c init) {
+		// TODO: check that all of the initializer fragments are less than MAX_OBJECT_ARRAY_INIT in size
+//		if (init != null && !base.isPrimitive() && init.elements().size() > MAX_OBJECT_ARRAY_INIT) {
+//		tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+//		"Non-primitive array initializers with more than "+MAX_OBJECT_ARRAY_INIT+" elements not supported",
+//		init.position());
+//		// TODO: generate an init method for the whole initializer
+//		}
+		newJavaArray(n, base, dims, 0, additionalDims, init);
+	}
+
+	private void newJavaArray(Term_c n, Type base, List dims, int dim, int additionalDims, ArrayInit_c init) {
+		if (init != null && !base.isPrimitive() && init.elements().size() > MAX_OBJECT_ARRAY_INIT) {
+			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+					"Non-primitive array initializers with more than "+MAX_OBJECT_ARRAY_INIT+" elements not supported",
+					init.position());
+			// TODO: generate an init method
+		}
+		w.write("x10::alloc_array<");
+		String base_type = emitter.translateType(base, true);
+		w.write(base_type);
+		w.write(" >(");
+		if (dims.size() > 0) {
+			sw.pushCurrentStream(w);
+			n.printBlock((Expr) dims.get(dim), sw, tr);
+			sw.popCurrentStream();
+		} else if (init != null) {
+			w.write(""+init.elements().size());
+		} else {
+			tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
+					"Unknown array size",
+					n.position());
+		}
+		if (init != null) {
+			X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+			for (Iterator i = init.elements().iterator(); i.hasNext(); ) {
+				w.write(",");
+				w.allowBreak(4, " ");
+				Expr init_i = (Expr) i.next();
+				if (init_i instanceof ArrayInit_c) {
+					assert (base.isArray());
+					newJavaArray((Term_c) init_i, base.toArray().base(), dims, dim+1, additionalDims, (ArrayInit_c) init_i);
+				} else {
+					boolean needsCast = !ts.typeBaseEquals((X10Type)base, (X10Type) init_i.type());
+					if (needsCast)
+						w.write("("+base_type+")(");
+					sw.pushCurrentStream(w);
+					init.print(init_i, sw, tr);
+					sw.popCurrentStream();
+					if (needsCast)
+						w.write(")");
+				}
+			}
+		}
+		w.write(")");
+	}
 } // end of MessagePassingCodeGenerator
