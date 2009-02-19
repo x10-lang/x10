@@ -38,7 +38,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 
 
 	public String compilerName() {
-		return "x10cpp";
+		return "x10c++";
 	}
 
 	public polyglot.main.Version version() {
