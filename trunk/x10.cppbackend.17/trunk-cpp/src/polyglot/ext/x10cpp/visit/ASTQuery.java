@@ -41,7 +41,6 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.Translator;
@@ -55,72 +54,40 @@ import polyglot.visit.Translator;
 
 public class ASTQuery {
 
-	private final CodeWriter w;
 	private final Translator tr;
-	public ASTQuery(CodeWriter w, Translator tr) {
-		this.w=w;
-		this.tr=tr;
+	public ASTQuery(Translator tr) {
+		this.tr = tr;
 	}
 	
-	 static final HashMap<String,String> arrayRuntimeNameToType = new HashMap<String,String>();
-		static {
-			arrayRuntimeNameToType.put("booleanArray", "boolean");
-			arrayRuntimeNameToType.put("BooleanReferenceArray", "boolean");
-			arrayRuntimeNameToType.put("byteArray", "byte");
-			arrayRuntimeNameToType.put("ByteReferenceArray", "byte");
-			arrayRuntimeNameToType.put("charArray", "char");
-			arrayRuntimeNameToType.put("CharReferenceArray", "char");
-			arrayRuntimeNameToType.put("shortArray", "short");
-			arrayRuntimeNameToType.put("ShortReferenceArray", "short");
-			arrayRuntimeNameToType.put("intArray", "int");
-			arrayRuntimeNameToType.put("IntReferenceArray", "int");
-			arrayRuntimeNameToType.put("longArray", "long");
-			arrayRuntimeNameToType.put("LongReferenceArray", "long");
-			arrayRuntimeNameToType.put("floatArray", "float");
-			arrayRuntimeNameToType.put("FloatReferenceArray", "float");
-			arrayRuntimeNameToType.put("doubleArray", "double");
-			arrayRuntimeNameToType.put("DoubleReferenceArray", "double");
-		}
-	boolean isMainMethod(X10CPPContext_c context) {
-		return context.isMainMethod() && !context.insideClosure;
+	static final HashMap<String,String> arrayRuntimeNameToType = new HashMap<String,String>();
+	static {
+	    arrayRuntimeNameToType.put("booleanArray", "boolean");
+	    arrayRuntimeNameToType.put("BooleanReferenceArray", "boolean");
+	    arrayRuntimeNameToType.put("byteArray", "byte");
+	    arrayRuntimeNameToType.put("ByteReferenceArray", "byte");
+	    arrayRuntimeNameToType.put("charArray", "char");
+	    arrayRuntimeNameToType.put("CharReferenceArray", "char");
+	    arrayRuntimeNameToType.put("shortArray", "short");
+	    arrayRuntimeNameToType.put("ShortReferenceArray", "short");
+	    arrayRuntimeNameToType.put("intArray", "int");
+	    arrayRuntimeNameToType.put("IntReferenceArray", "int");
+	    arrayRuntimeNameToType.put("longArray", "long");
+	    arrayRuntimeNameToType.put("LongReferenceArray", "long");
+	    arrayRuntimeNameToType.put("floatArray", "float");
+	    arrayRuntimeNameToType.put("FloatReferenceArray", "float");
+	    arrayRuntimeNameToType.put("doubleArray", "double");
+	    arrayRuntimeNameToType.put("DoubleReferenceArray", "double");
 	}
-	boolean isInlinable(Async_c async) {
-		populateIninableMethodsIfEmpty(tr);
-		// An inlinable async should not have any of the
-		// following in it's body unless they are known good
 
-		X10SearchVisitor xAsync = new X10SearchVisitor(Async_c.class, Throw_c.class, Call_c.class);
-		async.body().visit(xAsync);
-		return canBePartOfInlinableAsync(xAsync);
+	boolean isMainMethod(X10CPPContext_c context) {
+	    return context.isMainMethod() && !context.insideClosure;
 	}
-	boolean isSyntheticField(String name) {
+
+    boolean isSyntheticField(String name) {
 		if (name.startsWith("jlc$")) return true;
 		return false;
 	}
 
-	boolean containsCodeForAll(X10SearchVisitor xCode, Node body) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (!xCode.found())
-			return false;
-		ArrayList matches = xCode.getMatches();
-		for (int j = 0; j < matches.size(); j++) {
-			Node match = (Node) matches.get(j);
-			if (match instanceof Call_c) {
-				Call_c call = (Call_c) match;
-				if (knownInlinableMethods.contains(call.methodInstance()))
-					continue;
-
-				X10SummarizingRules.Collection harvest = context.outermostContext().harvest;
-				MethodDecl_c decl = harvest.getDecl(call);
-				if (decl!= null && decl.body()!= null && decl.body() != body && hasCodeForAllPlaces(decl.body()))
-					return true;
-			} else if (match instanceof Finish_c || match instanceof AtEach_c) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	boolean isMainMethod(MethodDecl dec) {
 		final X10TypeSystem ts = (X10TypeSystem) dec.returnType().type().typeSystem();
 		String currentFileName = tr.job().source().name(); 
@@ -178,52 +145,6 @@ public class ASTQuery {
 			}
 		}
 		return null;
-	}
-
-	boolean hasCodeForAllPlaces(Node n) {
-		populateIninableMethodsIfEmpty(tr);
-		X10SearchVisitor xCode = new X10SearchVisitor(Finish_c.class, AtEach_c.class, Call_c.class);
-		n.visit(xCode);
-		return containsCodeForAll(xCode, n);
-	}
-
-	boolean isInlinableFunc(Call_c c) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10SummarizingRules.Collection harvest = context.outermostContext().harvest;
-		MethodDecl_c decl = harvest.getDecl(c);
-		// Note that this is different from the inlining code, so there's no reason why
-		// we cannot actually examine the body of the function to figure out if it's
-		// inlinable - we're only going to call it anyway, not inline.
-		if (decl != null && decl.body() != null && !harvest.isCallRecursiveCached(c)) {
-			X10SearchVisitor xAsync = new X10SearchVisitor(Async_c.class, Throw_c.class, Call_c.class);
-			decl.body().visit(xAsync);
-			return canBePartOfInlinableAsync(xAsync);
-		}
-
-		return false;
-	}
-
-	boolean canBePartOfInlinableAsync(X10SearchVisitor xAsync) {
-		if (!xAsync.found())
-			return true;
-		ArrayList matches = xAsync.getMatches();
-		for (int j = 0; j < matches.size(); j++) {
-			Node match = (Node) matches.get(j);
-			if (match instanceof Async_c) {
-				if (!(((Async_c) match).place() instanceof Here_c))
-					return false;
-			}
-			else if (match instanceof Call_c) {
-				Call_c call = (Call_c) match;
-				if (!knownInlinableMethods.contains(call.methodInstance()) 
-						&& !isInlinableFunc(call))
-					return false;
-			}
-			// TODO: check for statically bounded loops
-			else
-				return false;
-		}
-		return true;
 	}
 
 	boolean isClockMaker(Call_c n) {
@@ -435,14 +356,13 @@ public class ASTQuery {
 	public static String getCppRTTRep(X10ClassDef def, Translator tr) {
 		return getCppRepParam(def, 3, tr);
 	}
-	
 	public static String getCppRepParam(X10ClassDef def, int i, Translator tr) {
 		try {
 			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 			Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
 			List<Type> as = def.annotationsMatching(rep);
 			for (Type at : as) {
-				assertNumberOfInitializers(at, 4, tr);
+				assertNumberOfInitializers(at, 4);
 				String lang = getPropertyInit(at, 0);
 				if (lang != null && lang.equals(NATIVE_STRING)) {
 					return getPropertyInit(at, i);
@@ -452,13 +372,15 @@ public class ASTQuery {
 		catch (SemanticException e) {}
 		return null;
 	}
-	public static void assertNumberOfInitializers(Type at, int len, Translator tr) {
+
+	public static void assertNumberOfInitializers(Type at, int len) {
 	    at = X10TypeMixin.baseType(at);
 	    if (at instanceof X10ClassType) {
 	        X10ClassType act = (X10ClassType) at;
 	        assert len == act.propertyInitializers().size();
 	    }
 	}
+
 	public static String getPropertyInit(Type at, int index) {
 	    at = X10TypeMixin.baseType(at);
 	    if (at instanceof X10ClassType) {
