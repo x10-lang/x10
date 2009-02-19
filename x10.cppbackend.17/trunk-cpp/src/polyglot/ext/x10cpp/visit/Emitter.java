@@ -765,8 +765,8 @@ public class Emitter {
 			if (names == null) {
 				String name = var.name().toString();
 				if (saved_this_mechanism && name.equals(THIS)) {
-					if (c.inlining || c.insideClosure) // FIXME: Krishna, why did you add this test?
-						name = SAVED_THIS;
+					assert (c.inlining || c.insideClosure); // FIXME: Krishna, why did you add this test?
+					name = SAVED_THIS;
 				}
 				else {
 					if (c.isGlobalVar(var) && c.getDuplicateId(var) != null)

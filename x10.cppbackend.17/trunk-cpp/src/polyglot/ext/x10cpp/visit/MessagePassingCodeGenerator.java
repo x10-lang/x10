@@ -2858,111 +2858,118 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
 		inc.newline(4); inc.begin(0);
-        inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
-                        cnamet+"("+SERIALIZATION_MARKER+"());");
-        for (int i = 0; i < c.variables.size(); i++) {
-            VarInstance var = (VarInstance) c.variables.get(i);
-            String name = var.name().toString();
-            if (name.equals(THIS))
-                name = SAVED_THIS;
-            else name = mangled_non_method_name(name);
-            inc.write("this_->"+name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
-            inc.newline();
-        }
-        inc.write("return this_;"); inc.end(); inc.newline();
+		inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
+		        cnamet+"("+SERIALIZATION_MARKER+"());");
+		for (int i = 0; i < c.variables.size(); i++) {
+		    VarInstance var = (VarInstance) c.variables.get(i);
+		    String name = var.name().toString();
+		    if (name.equals(THIS))
+		        name = SAVED_THIS;
+		    else name = mangled_non_method_name(name);
+		    inc.write("this_->"+name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
+		    inc.newline();
+		}
+		inc.write("return this_;"); inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
-        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
-        inc.newline(); inc.forceNewline();
-
+		inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
+		inc.newline(); inc.forceNewline();
 
 		inc.write(cname+"(");
-        for (int i = 0; i < c.variables.size(); i++) {
-            if (i > 0) inc.write(", ");
-            VarInstance var = (VarInstance) c.variables.get(i);
-            String name = var.name().toString();
-            if (name.equals(THIS))
-                name = SAVED_THIS;
-            else name = mangled_non_method_name(name);
-            inc.write(emitter.translateType(var.type(), true) + " " + name);
-        }
+		for (int i = 0; i < c.variables.size(); i++) {
+		    if (i > 0) inc.write(", ");
+		    VarInstance var = (VarInstance) c.variables.get(i);
+		    String name = var.name().toString();
+		    if (name.equals(THIS))
+		        name = SAVED_THIS;
+		    else name = mangled_non_method_name(name);
+		    inc.write(emitter.translateType(var.type(), true) + " " + name);
+		}
 		inc.write(") {");
 		inc.newline(4); inc.begin(0);
-        for (int i = 0 ; i < c.variables.size() ; i++) {
-            VarInstance var = (VarInstance) c.variables.get(i);
-            String name = var.name().toString();
-            if (name.equals(THIS))
-                name = SAVED_THIS;
-            else name = mangled_non_method_name(name);
-            if (i > 0) inc.newline();
-            inc.write("this->" + name + " = " + name + ";");
-        }
+		for (int i = 0 ; i < c.variables.size() ; i++) {
+		    VarInstance var = (VarInstance) c.variables.get(i);
+		    String name = var.name().toString();
+		    if (name.equals(THIS))
+		        name = SAVED_THIS;
+		    else name = mangled_non_method_name(name);
+		    if (i > 0) inc.newline();
+		    inc.write("this->" + name + " = " + name + ";");
+		}
 		inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
-        inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
-        inc.newline(); inc.forceNewline();
-
-
-		inc.write("const x10aux::RuntimeType *_type() const {"+
-			 	  " return x10aux::getRTT<"+superType+" >(); }");
+		inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
 		inc.newline(); inc.forceNewline();
 
-        inc.write(make_ref("x10::lang::String")+" toString() {");
-        inc.newline(4); inc.begin(0);
-        inc.write("return x10::lang::String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
-        inc.end(); inc.newline();
-        inc.write("}");
+		inc.write("const x10aux::RuntimeType *_type() const {"+
+		          " return x10aux::getRTT<"+superType+" >(); }");
+		inc.newline();
+		inc.write("struct RTT { static x10aux::RuntimeType * it; };");
+		inc.newline(); inc.forceNewline();
+
+		inc.write(make_ref("x10::lang::String")+" toString() {");
+		inc.newline(4); inc.begin(0);
+		inc.write("return x10::lang::String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
+		inc.end(); inc.newline();
+		inc.write("}");
 		inc.end(); inc.newline(); inc.forceNewline();
 
 		inc.write("};"); inc.newline(); inc.forceNewline();
 
-        if (in_template_closure)
-            emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
-        inc.newline(4);
-        if (in_template_closure) {
-            inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
-                        cnamet+"::template "+DESERIALIZE_METHOD+"<Object>);");
-        } else {
-            inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
-                        cnamet+"::"+DESERIALIZE_METHOD+"<Object>);");
-        }
-        inc.newline(); inc.forceNewline();
+		if (in_template_closure)
+		    emitter.printTemplateSignature(freeTypeParams, inc);
+		inc.write("x10aux::RuntimeType * "+cnamet+"::RTT::it = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
+		inc.newline(); inc.forceNewline();
 
-        if (in_template_closure) {
-            String guard = getHeaderGuard(cname);
-            inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
-        }
+		if (in_template_closure)
+		    emitter.printTemplateSignature(freeTypeParams, inc);
+		inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
+		inc.newline(4);
+		if (in_template_closure) {
+		    inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+		              cnamet+"::template "+DESERIALIZE_METHOD+"<Object>);");
+		} else {
+		    inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+		              cnamet+"::"+DESERIALIZE_METHOD+"<Object>);");
+		}
+		inc.newline(); inc.forceNewline();
 
-        sw.popCurrentStream();
+		if (in_template_closure) {
+		    String guard = getHeaderGuard(cname);
+		    inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
+		}
+
+		sw.popCurrentStream();
 
 		// create closure instantiation (not in inc but where the closure was defined)
 		// note that we alloc using the typeof the superType but we pass in the correct size
 		// this is because otherwise alloc may (when debugging is on) try to examine the
 		// RTT of the closure (which doesn't exist)
 
-        // first get the template arguments (if any)
-        prefix="<";
-        StringBuffer sb = new StringBuffer();
-        for (Type t : freeTypeParams) {
-            sb.append(prefix+emitter.translateType(t, true));
-            prefix = ",";
-        }
-        if (prefix.equals(",")) sb.append(">");
-        String templateArgs = sb.toString();
+		// first get the template arguments (if any)
+		prefix="<";
+		StringBuffer sb = new StringBuffer();
+		for (Type t : freeTypeParams) {
+		    sb.append(prefix+emitter.translateType(t, true));
+		    prefix = ",";
+		}
+		if (prefix.equals(",")) sb.append(">");
+		String templateArgs = sb.toString();
 
 		sw.write(make_ref(superType));
-        sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
+		sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
 		sw.write(cname+templateArgs+"(");
-        for (int i = 0; i < c.variables.size(); i++) {
-            if (i > 0) sw.write(", ");
-            VarInstance var = (VarInstance) c.variables.get(i);
-            String name = var.name().toString();
-            if (!name.equals(THIS))
-				name = mangled_non_method_name(name);
-            sw.write(name);
-        }
+		for (int i = 0; i < c.variables.size(); i++) {
+		    if (i > 0) sw.write(", ");
+		    VarInstance var = (VarInstance) c.variables.get(i);
+		    String name = var.name().toString();
+		    if (!name.equals(THIS))
+		        name = mangled_non_method_name(name);
+		    else if (((X10CPPContext_c)c.pop()).insideClosure)  // FIXME: hack
+		        name = SAVED_THIS;
+		    sw.write(name);
+		}
 		sw.write("))");
 
 		c.finalizeClosureInstance();
