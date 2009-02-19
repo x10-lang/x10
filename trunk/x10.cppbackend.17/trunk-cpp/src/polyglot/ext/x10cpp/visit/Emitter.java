@@ -247,9 +247,15 @@ public class Emitter {
 	 * Translate the string representation of a fully-qualified type name.
 	 */
 	public static String translateFQN(String name) {
-		return name.replace("$","__").replaceAll("\\.", "::");
+		return translateFQN(name, "::");
+	}
+	public static String translateFQN(String name, String delim) {
+		return name.replace("$","__").replaceAll("\\.", delim);
 	}
 	public static String translate_mangled_FQN(String name) {
+		return translate_mangled_FQN(name, "::");
+	}
+	public static String translate_mangled_FQN(String name, String delim) {
 		String src = name;
 		String dest = "";
 		int fromIndex = 0;
@@ -267,7 +273,7 @@ public class Emitter {
 			fromIndex = toIndex+1;
 		}
 
-		return translateFQN(dest);
+		return translateFQN(dest, delim);
 	}
 	public static String translate_mangled_NSFQN(String name) { // namespace FQN
 		String src = name;
@@ -1548,5 +1554,16 @@ public class Emitter {
 			}
 		}
 		return null;
+	}
+	public static void closeNameSpace(String ns, ClassifiedStream w) {
+		int start = 0;
+		while (true) {
+			start = ns.indexOf('.', start);
+			if (start < 0) break;
+			w.write("}");
+			start ++;
+		}
+		w.write("} // namespace ");
+		w.write(translate_mangled_FQN(ns));
 	}
 }
