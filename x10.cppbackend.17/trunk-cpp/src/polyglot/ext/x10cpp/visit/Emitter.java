@@ -2,7 +2,6 @@ package polyglot.ext.x10cpp.visit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import polyglot.ast.Block_c;
@@ -71,18 +70,13 @@ import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 import static polyglot.ext.x10cpp.visit.ASTQuery.*;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
-import x10c.util.WriterStreams;
 
 public class Emitter {
 
-	private final StreamWrapper sw;
-	//private final WriterStreams ws;
 	private final Translator tr;
 	private ASTQuery query;
-	public Emitter(StreamWrapper sw, Translator tr) {
-		this.sw=sw;
-		//	this.ws=sw.ws; 
-		this.tr=tr;
+	public Emitter(Translator tr) {
+		this.tr = tr;
 		query = new ASTQuery(tr);
 	}
 	private static final String[] CPP_KEYWORDS = { // Some are also X10 keywords
@@ -188,11 +182,9 @@ public class Emitter {
 	/**
 	 * Same as n.printBlock(child, w, tr); but without the enterScope call.
 	 */
-	void printBlock(Node n, Expr child, ClassifiedStream w, Translator tr) {
+	void printBlock(Node n, Expr child, StreamWrapper w, Translator tr) {
 		w.begin(0);
-		sw.pushCurrentStream(w);
-		child.del().translate(sw, tr);
-		sw.popCurrentStream();
+		child.del().translate(w, tr);
 		w.end();
 	}
 
@@ -353,6 +345,7 @@ public class Emitter {
 					return dumpRegex("NativeRep", o, tr, pat);
 				}
 				else {
+                    context = tr.typeSystem().createContext(); // Always fully qualify
 					if (ct.def().isNested()) {
 						X10ClassDef cdef = (X10ClassDef) ct.container().toClass().def();
 						assert (false) : ("Nested class alert!");
@@ -576,10 +569,10 @@ public class Emitter {
 		return returnType != null ? returnType : from.returnType();
 	}
 
-	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify);
 	}
-	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, String name, Type ret, boolean qualify) {
+	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 
 		if (!qualify) {
@@ -634,9 +627,7 @@ public class Emitter {
 		h.begin(0);
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
-			sw.pushCurrentStream(h);
-			n.print(f, sw, tr);
-			sw.popCurrentStream();
+			n.print(f, h, tr);
 			if (i.hasNext()) {
 				h.write(",");
 				h.allowBreak(0, " ");
@@ -652,7 +643,7 @@ public class Emitter {
 		}
 	}
 
-	void printHeader(Formal_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+	void printHeader(Formal_c n, CodeWriter h, Translator tr, boolean qualify) {
 //		Flags flags = n.flags().flags();
 		h.begin(0);
 //		if (flags.isFinal())
@@ -735,7 +726,7 @@ public class Emitter {
 
 	void printInheritance(ClassDecl_c n, CodeWriter h, Translator tr) {
 		String extends_ = n.superClass()==null ? null : translateType(n.superClass().type());
-		HashSet<String> implements_ = new HashSet<String>();
+		ArrayList<String> implements_ = new ArrayList<String>();
 		for (TypeNode tn : n.interfaces()) {
 			implements_.add(translateType(tn.type()));
 		}
@@ -772,7 +763,7 @@ public class Emitter {
 		h.end();
 	}
 
-	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+	void printHeader(ClassDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		h.begin(0);
 		// Handle generics
 		// If it involves Parameter Types then generate C++
@@ -793,9 +784,9 @@ public class Emitter {
 		h.unifiedBreak(0);
 		h.end();
 	}
-	void printHeader(ConstructorDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		Flags flags = n.flags().flags();
+
+	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
+        Flags flags = n.flags().flags();
 
 		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
 		if (qualify){
@@ -819,9 +810,7 @@ public class Emitter {
 		h.begin(0);
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
 			Formal f = (Formal) i.next();
-			sw.pushCurrentStream(h);
-			n.print(f, sw, tr);
-			sw.popCurrentStream();
+			n.print(f, h, tr);
 			if (i.hasNext()) {
 				h.write(",");
 				h.allowBreak(0, " ");
@@ -835,7 +824,8 @@ public class Emitter {
 			h.newline();
 		}
 	}
-	void printHeader(FieldDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+
+	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		Flags flags = n.flags().flags();
 		if (!qualify) {
 			printFlags(h, flags);
@@ -857,7 +847,8 @@ public class Emitter {
 		h.write(mangled_field_name(n.name().id().toString())); 
 		h.end();
 	}
-	void printHeader(LocalDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+
+	void printHeader(LocalDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		//Flags flags = n.flags().flags();
 		h.begin(0);
 		// Let us not generate constants - We will have problem in
@@ -930,80 +921,81 @@ public class Emitter {
 		a.arrayInitializerParameters.add(null); // actual parameters will be defined later
 		a.nesting++;
 	}
-
 	void exitClosure(X10CPPContext_c.Closures a) {
 		a.nesting--;
 	}
-	public void processAsync (Stmt_c n, String placeVar, Stmt asyncStmt, 
-									X10CPPContext_c c, WriterStreams ws, ClassifiedStream w1){
-		ClassifiedStream fw = ws.getFirstStream(WriterStreams.StreamClass.Closures);
+
+	public void processAsync(Stmt_c n, String placeVar, Stmt asyncStmt, 
+									X10CPPContext_c c, StreamWrapper sw) {
+		ClassifiedStream decl = sw.getNewStream(StreamWrapper.StreamClass.Closures);
+        ClassifiedStream body = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
+
 		boolean insideClosure = c.insideClosure;
 		c.setinsideClosure(true);
 
 		X10CPPContext_c.Closures a = c.closures;
 		enterAsync(a, n);
-		ClassifiedStream w = ws.getNewStream(WriterStreams.StreamClass.Closures);
 		// Async argument struct declaration.
 		int id = async_id(a, n);
 
-		fw.write("struct "+args_name(ASYNC_PREFIX, id) + ";\n"); 
-		fw.newline();
+		decl.write("struct "+args_name(ASYNC_PREFIX, id) + ";\n"); 
+		decl.newline();
+
+        sw.pushCurrentStream(body); // Now writing into the body
 
 		c.closures.asyncContainers.put(n, c.currentClass());
 		// Declare async function
 		String className = translateType(c.currentClass());
-		w.write("async_closure(" + className + ",");
-		w.allowBreak(0, " ");
-		w.write(id + ",");
-		w.allowBreak(0, " ");
+		sw.write("async_closure(" + className + ",");
+		sw.allowBreak(0, " ");
+		sw.write(id + ",");
+		sw.allowBreak(0, " ");
 		if (useStructsForAsyncArgs)
-			w.write("async_unpacked_body(");
-		sw.pushCurrentStream(w);
+			sw.write("async_unpacked_body(");
 		n.print(asyncStmt, sw, tr);
-		sw.popCurrentStream();
-		w.write(",");
-		w.allowBreak(0, " ");
+		sw.write(",");
+        sw.allowBreak(0, " ");
 		if (useStructsForAsyncArgs) {
-			unpackArgs(w, c, c.variables, id, ASYNC_PREFIX);
-			w.write(")");
-			w.write(",");
-			w.allowBreak(0, " ");
-			w.write("(" + VOID_PTR + " args)");
+			unpackArgs(sw, c, c.variables, id, ASYNC_PREFIX);
+            sw.write(")");
+            sw.write(",");
+            sw.allowBreak(0, " ");
+            sw.write("(" + VOID_PTR + " args)");
 		}
 		else {
-			w.write("(");
-			printArgumentList(w, c);
-			w.write(")");
+            sw.write("(");
+			printArgumentList(sw, c);
+            sw.write(")");
 		}
-		w.write(");");
-		w.newline();
+        sw.write(");");
+        sw.newline();
 
 		// Async argument struct definition.
-		createPackedArgumentsStruct(fw, c, id, ASYNC_PREFIX);
-		fw.newline(0);
+		createPackedArgumentsStruct(decl, c, id, ASYNC_PREFIX);
+		decl.newline(0);
 
-		w.forceNewline(0);
+		body.forceNewline(0);
 
-		w = w1;
+		sw.popCurrentStream();
 
 		c.setinsideClosure(insideClosure);
 
 		if (query.hasAnnotation(n, "x10.lang.aggregate"))
-			w.write("agg_");
-		w.write("async_invocation(" + translateType(c.currentClass()) + ", " + id + ", ");
-		w.write("(");
-		w.write(placeVar);
-		w.write(")");
-		//w.write(")->x10__id");
-		w.write(", ");
-		instantiateArguments(w, c, n.position());
-		w.write(");");
+			sw.write("agg_");
+		sw.write("async_invocation(" + translateType(c.currentClass()) + ", " + id + ", ");
+		sw.write("(");
+		sw.write(placeVar);
+		sw.write(")");
+		//sw.write(")->x10__id");
+		sw.write(", ");
+		instantiateArguments(sw, c, n.position());
+		sw.write(");");
 		a.asyncsParameters.set(id, c.variables);
 
 		c.finalizeClosureInstance();
 		exitClosure(a);
-
 	}
+
 	/**
 	 * TODO: consolidate with
 	 * {@link #printAsyncArrayCopyInvocation(Call_c, X10CPPContext_c, Type, Expr,
@@ -1012,24 +1004,20 @@ public class Emitter {
 	 */
 	void printAsyncArrayCopyInvocation(Async_c n, X10CPPContext_c context, Type baseType,
 			Expr target, Expr src, Expr srcOffset, Expr dest, Expr destOffset, Expr len,
-			WriterStreams ws, ClassifiedStream w)
+            StreamWrapper sw)
 	{
         assert (false);
 		String ARRAY_ACCESSOR = useIndicesForArrayCopy ? RAW_ADJUSTED : RAW_ARRAY;
-		w.write("async_array_copy_invocation(");
-		w.begin(0);
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write("async_array_copy_invocation(");
+		sw.begin(0);
+		sw.write("(");
 		n.printBlock(src, sw, tr);
-		sw.popCurrentStream();
-		w.write(")->"+ARRAY_ACCESSOR+"()");
-		w.allowBreak(0, " "); w.write("+"); w.allowBreak(0, " ");
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write(")->"+ARRAY_ACCESSOR+"()");
+		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
+		sw.write("(");
 		n.printBlock(srcOffset, sw, tr);
-		sw.popCurrentStream();
-		w.write(")");
-		w.write(","); w.allowBreak(0, " ");
+		sw.write(")");
+		sw.write(","); sw.allowBreak(0, " ");
 
 		// Represent dest and destOffset as a closure to be evaluated at the target
 		boolean inClosure = context.inClosure;
@@ -1040,111 +1028,107 @@ public class Emitter {
 		X10CPPContext_c.Closures a = context.closures;
 		enterAsync(a, n);
 		a.arrayCopyClosures.put(n, context.currentClass());
-		// ClassifiedStream w = this.w;
-		ClassifiedStream oldW = w;
-		w = ws.getNewStream(WriterStreams.StreamClass.Closures);
+
+        ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures);
+        sw.pushCurrentStream(inc);
 
 		// Array copy argument struct declaration.
 		int id = async_id(a, n);
 
 		// Declare array copy function
 		String className = translateType(context.currentClass());
-		w.write("array_copy_closure_and_args_struct(" + className + ",");
-		w.allowBreak(0, " ");
-		w.write(id + ",");
-		w.allowBreak(0, " ");
-		w.write(VOID_PTR+",");
-		w.allowBreak(0, " ");
+		sw.write("array_copy_closure_and_args_struct(" + className + ",");
+		sw.allowBreak(0, " ");
+		sw.write(id + ",");
+		sw.allowBreak(0, " ");
+		sw.write(VOID_PTR+",");
+		sw.allowBreak(0, " ");
 		if (useStructsForArrayCopyArgs)
-			w.write("async_unpacked_body(");
-		w.write("{ ");
-		w.write("return (");
-		printBlock(n, dest, w, tr);
-		w.write(")->"+ARRAY_ACCESSOR+"()");
-		w.allowBreak(0, " "); w.write("+"); w.allowBreak(0, " ");
-		w.write("(");
-		printBlock(n, destOffset, w, tr);
-		w.write("); },");
-		w.allowBreak(0, " ");
+			sw.write("async_unpacked_body(");
+		sw.write("{ ");
+		sw.write("return (");
+		printBlock(n, dest, sw, tr);
+		sw.write(")->"+ARRAY_ACCESSOR+"()");
+		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
+		sw.write("(");
+		printBlock(n, destOffset, sw, tr);
+		sw.write("); },");
+		sw.allowBreak(0, " ");
 		if (useStructsForArrayCopyArgs) {
-			unpackArgs(w, context, context.variables, id, ARRAY_COPY_PREFIX);
-			w.write(")");
-			w.write(",");
-			w.allowBreak(0, " ");
-			w.write("(" + VOID_PTR + " args)");
+			unpackArgs(sw, context, context.variables, id, ARRAY_COPY_PREFIX);
+			sw.write(")");
+			sw.write(",");
+			sw.allowBreak(0, " ");
+			sw.write("(" + VOID_PTR + " args)");
 		}
 		else {
-			w.write("(");
-			printArgumentList(w, context);
-			w.write(")");
+			sw.write("(");
+			printArgumentList(sw, context);
+			sw.write(")");
 		}
-		w.write(",");
-		w.allowBreak(0, " ");
+		sw.write(",");
+		sw.allowBreak(0, " ");
 		// Array copy argument struct definition.
-		createPackedArgumentsStruct(w, context, id, ARRAY_COPY_PREFIX);
-		w.newline();
-		w.write(");");
-		w.newline(0);
+		createPackedArgumentsStruct(sw, context, id, ARRAY_COPY_PREFIX);
+		sw.newline();
+		sw.write(");");
+		sw.newline(0);
 
-		w.write("struct "+closure_name(CLOSURE_WRAPPER_PREFIX, id)+" : public x10lib::Closure {");
-		w.newline(4); w.begin(0);
-		w.write(closure_name(CLOSURE_WRAPPER_PREFIX, id));
-		w.write("(");
-		printArgumentList(w, context);
-		w.write(") :");
-		w.allowBreak(0, " ");
-		w.write("x10lib::Closure(sizeof(" + args_name(ARRAY_COPY_PREFIX, id) + "),");
-		w.allowBreak(0, " ");
-		w.write(id + "),");
-		w.allowBreak(0, " ");
-		w.write("args(");
-		printArgumentList(w, context, true);  // print args with no types
-		w.write(") { }");
-		w.newline();
+		sw.write("struct "+closure_name(CLOSURE_WRAPPER_PREFIX, id)+" : public x10lib::Closure {");
+		sw.newline(4); sw.begin(0);
+		sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id));
+		sw.write("(");
+		printArgumentList(sw, context);
+		sw.write(") :");
+		sw.allowBreak(0, " ");
+		sw.write("x10lib::Closure(sizeof(" + args_name(ARRAY_COPY_PREFIX, id) + "),");
+		sw.allowBreak(0, " ");
+        sw.write(id + "),");
+        sw.allowBreak(0, " ");
+        sw.write("args(");
+		printArgumentList(sw, context, true);  // print args with no types
+        sw.write(") { }");
+        sw.newline();
 		if (context.variables.size() > 0) {
-			w.write(closure_name(CLOSURE_WRAPPER_PREFIX, id) + "() { }"); w.newline();
+            sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id) + "() { }"); sw.newline();
 		}
-		w.write(args_name(ARRAY_COPY_PREFIX, id) + " args;");
-		w.end(); w.newline();
-		w.write("};");
-		w.newline(0);
+        sw.write(args_name(ARRAY_COPY_PREFIX, id) + " args;");
+        sw.end(); sw.newline();
+        sw.write("};");
+        sw.newline(0);
 
-		w.forceNewline(0);
+        sw.forceNewline(0);
 
-		w = oldW;
+		sw.popCurrentStream();
 
 		context.setinClosure(inClosure);
 		context.setinsideClosure(insideClosure);
 
-		w.write("array_copy_closure_invocation(");
-		w.begin(0);
-		w.write(id + ","); w.allowBreak(0, " ");
-		instantiateArguments(w, context, n.position());
-		w.end();
-		w.write(")");
+		sw.write("array_copy_closure_invocation(");
+		sw.begin(0);
+		sw.write(id + ","); sw.allowBreak(0, " ");
+		instantiateArguments(sw, context, n.position());
+		sw.end();
+		sw.write(")");
 		a.asyncsParameters.set(id, context.variables);
 
 		context.finalizeClosureInstance();
 		exitClosure(a);
 
-		w.write(","); w.allowBreak(0, " ");
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write(","); sw.allowBreak(0, " ");
+		sw.write("(");
 		n.printBlock(len, sw, tr);
-		sw.popCurrentStream();
-		w.write(")*sizeof(" + translateType(baseType, true) + ")");
-		w.write(","); w.allowBreak(0, " ");
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write(")*sizeof(" + translateType(baseType, true) + ")");
+		sw.write(","); sw.allowBreak(0, " ");
+		sw.write("(");
 		n.printBlock(target, sw, tr);
-		sw.popCurrentStream();
-		w.write(")->x10__id");
+		sw.write(")->x10__id");
 		// FIXME: handle clocks
 //		if (clock != null) {
 //		w.write(","); w.allowBreak(0, " ");
 //		n.printBlock(clock, w, tr);
 //		}
-		w.end(); w.write(");");
+		sw.end(); sw.write(");");
 	}
 
 	/**
@@ -1154,26 +1138,22 @@ public class Emitter {
 	 */
 	void printAsyncArrayCopyInvocation(Call_c n, X10CPPContext_c context, Type baseType,
 			Expr target, Expr src, Expr srcOffset, Expr dest, Expr destOffset, Expr len,
-			Expr array, boolean shouldNotify, WriterStreams ws, ClassifiedStream w)
+			Expr array, boolean shouldNotify, StreamWrapper sw)
 	{
         assert (false);
 		String ARRAY_ACCESSOR = useIndicesForArrayCopy ? RAW_ADJUSTED : RAW_ARRAY;
 		assert (eagerArrayCopyNotification); // TODO
 		//w.write("x10lib::AsyncArrayCopyRawNotify("); // TODO
-		w.write("async_array_copy_invocation(");
-		w.begin(0);
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write("async_array_copy_invocation(");
+		sw.begin(0);
+		sw.write("(");
 		n.printBlock(src, sw, tr);
-		sw.popCurrentStream();
-		w.write(")->"+ARRAY_ACCESSOR+"()");
-		w.allowBreak(0, " "); w.write("+"); w.allowBreak(0, " ");
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write(")->"+ARRAY_ACCESSOR+"()");
+		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
+		sw.write("(");
 		n.printBlock(srcOffset, sw, tr);
-		sw.popCurrentStream();
-		w.write(")");
-		w.write(","); w.allowBreak(0, " ");
+		sw.write(")");
+		sw.write(","); sw.allowBreak(0, " ");
 
 		// Represent dest and destOffset as a closure to be evaluated at the target
 		boolean inClosure = context.inClosure;
@@ -1184,116 +1164,111 @@ public class Emitter {
 		X10CPPContext_c.Closures a = context.closures;
 		enterAsync(a, n);
 		a.arrayCopyClosures.put(n, context.currentClass());
-		ClassifiedStream oldW = w;
-		w = ws.getNewStream(WriterStreams.StreamClass.Closures);
+
+		ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures);
+		sw.pushCurrentStream(inc);
 
 		// Array copy argument struct declaration.
 		int id = async_id(a, n);
 
 		// Declare array copy function
 		String className = translateType(context.currentClass());
-		w.write("array_copy_closure_and_args_struct(" + className + ",");
-		w.allowBreak(0, " ");
-		w.write(id + ",");
-		w.allowBreak(0, " ");
-		w.write(VOID_PTR+",");
-		w.allowBreak(0, " ");
+		sw.write("array_copy_closure_and_args_struct(" + className + ",");
+		sw.allowBreak(0, " ");
+		sw.write(id + ",");
+		sw.allowBreak(0, " ");
+		sw.write(VOID_PTR+",");
+		sw.allowBreak(0, " ");
 		if (useStructsForArrayCopyArgs)
-			w.write("async_unpacked_body(");
-		w.write("{ ");
+			sw.write("async_unpacked_body(");
+		sw.write("{ ");
 		String destoff_id = getId();
-		w.write(translateType(destOffset.type(), true)+" "+destoff_id+" = ");
-		printBlock(n, destOffset, w, tr);
-		w.write(";"); w.allowBreak(0, " ");
+		sw.write(translateType(destOffset.type(), true)+" "+destoff_id+" = ");
+		printBlock(n, destOffset, sw, tr);
+		sw.write(";"); sw.allowBreak(0, " ");
 		if (eagerArrayCopyNotification && shouldNotify) {
-			w.write("(");
-			sw.pushCurrentStream(w);
+			sw.write("(");
 			n.printBlock(array, sw, tr);
-			sw.popCurrentStream();
-			w.write(")->"+POST_COPY_RUN+"("+destoff_id+");");
-			w.allowBreak(0, " ");
+			sw.write(")->"+POST_COPY_RUN+"("+destoff_id+");");
+			sw.allowBreak(0, " ");
 		}
-		w.write("return (");
-		printBlock(n, dest, w, tr);
-		w.write(")->"+ARRAY_ACCESSOR+"()");
-		w.allowBreak(0, " "); w.write("+"); w.allowBreak(0, " ");
-		w.write("(");
-		w.write(destoff_id);
-		w.write("); },");
-		w.allowBreak(0, " ");
+		sw.write("return (");
+		printBlock(n, dest, sw, tr);
+		sw.write(")->"+ARRAY_ACCESSOR+"()");
+		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
+		sw.write("(");
+		sw.write(destoff_id);
+		sw.write("); },");
+		sw.allowBreak(0, " ");
 		if (useStructsForArrayCopyArgs) {
-			unpackArgs(w, context, context.variables, id, ARRAY_COPY_PREFIX);
-			w.write(")");
-			w.write(",");
-			w.allowBreak(0, " ");
-			w.write("(" + VOID_PTR + " args)");
+			unpackArgs(sw, context, context.variables, id, ARRAY_COPY_PREFIX);
+			sw.write(")");
+			sw.write(",");
+			sw.allowBreak(0, " ");
+			sw.write("(" + VOID_PTR + " args)");
 		}
 		else {
-			w.write("(");
-			printArgumentList(w, context);
-			w.write(")");
+			sw.write("(");
+			printArgumentList(sw, context);
+			sw.write(")");
 		}
-		w.write(",");
-		w.allowBreak(0, " ");
+		sw.write(",");
+		sw.allowBreak(0, " ");
 		// Array copy argument struct definition.
-		createPackedArgumentsStruct(w, context, id, ARRAY_COPY_PREFIX);
-		w.newline();
-		w.write(");");
-		w.newline(0);
+		createPackedArgumentsStruct(sw, context, id, ARRAY_COPY_PREFIX);
+		sw.newline();
+		sw.write(");");
+		sw.newline(0);
 
-		w.write("struct "+closure_name(CLOSURE_WRAPPER_PREFIX, id)+" : public x10lib::Closure {");
-		w.newline(4); w.begin(0);
-		w.write(closure_name(CLOSURE_WRAPPER_PREFIX, id));
-		w.write("(");
-		printArgumentList(w, context);
-		w.write(") :");
-		w.allowBreak(0, " ");
-		w.write("x10lib::Closure(sizeof(" + args_name(ARRAY_COPY_PREFIX, id) + "),");
-		w.allowBreak(0, " ");
-		w.write(id + "),");
-		w.allowBreak(0, " ");
-		w.write("args(");
-		printArgumentList(w, context, true);  // print args with no types
-		w.write(") { }");
-		w.newline();
+		sw.write("struct "+closure_name(CLOSURE_WRAPPER_PREFIX, id)+" : public x10lib::Closure {");
+		sw.newline(4); sw.begin(0);
+		sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id));
+		sw.write("(");
+		printArgumentList(sw, context);
+		sw.write(") :");
+		sw.allowBreak(0, " ");
+		sw.write("x10lib::Closure(sizeof(" + args_name(ARRAY_COPY_PREFIX, id) + "),");
+		sw.allowBreak(0, " ");
+		sw.write(id + "),");
+		sw.allowBreak(0, " ");
+		sw.write("args(");
+		printArgumentList(sw, context, true);  // print args with no types
+		sw.write(") { }");
+		sw.newline();
 		if (context.variables.size() > 0) {
-			w.write(closure_name(CLOSURE_WRAPPER_PREFIX, id) + "() { }"); w.newline();
+			sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id) + "() { }"); sw.newline();
 		}
-		w.write(args_name(ARRAY_COPY_PREFIX, id) + " args;");
-		w.end(); w.newline();
-		w.write("};");
-		w.newline(0);
+		sw.write(args_name(ARRAY_COPY_PREFIX, id) + " args;");
+		sw.end(); sw.newline();
+		sw.write("};");
+		sw.newline(0);
 
-		w.forceNewline(0);
+		sw.forceNewline(0);
 
-		w = oldW;
+        sw.popCurrentStream();
 
 		context.setinClosure(inClosure);
 		context.setinsideClosure(insideClosure);
 
-		w.write("array_copy_closure_invocation(");
-		w.begin(0);
-		w.write(id + ","); w.allowBreak(0, " ");
-		instantiateArguments(w, context, n.position());
-		w.end();
-		w.write(")");
+		sw.write("array_copy_closure_invocation(");
+		sw.begin(0);
+		sw.write(id + ","); sw.allowBreak(0, " ");
+		instantiateArguments(sw, context, n.position());
+		sw.end();
+		sw.write(")");
 		a.asyncsParameters.set(id, context.variables);
 
 		context.finalizeClosureInstance();
 		exitClosure(a);
 
-		w.write(","); w.allowBreak(0, " ");
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write(","); sw.allowBreak(0, " ");
+		sw.write("(");
 		n.printBlock(len, sw, tr);
-		sw.popCurrentStream();
-		w.write(")*sizeof(" + translateType(baseType, true) + ")");
-		w.write(","); w.allowBreak(0, " ");
-		w.write("(");
-		sw.pushCurrentStream(w);
+		sw.write(")*sizeof(" + translateType(baseType, true) + ")");
+		sw.write(","); sw.allowBreak(0, " ");
+		sw.write("(");
 		n.printBlock(target, sw, tr);
-		sw.popCurrentStream();
-		w.write(")->x10__id");
+		sw.write(")->x10__id");
 		// FIXME: handle clocks
 //		if (clock != null) {
 //		w.write(","); w.allowBreak(0, " ");
@@ -1306,7 +1281,7 @@ public class Emitter {
 //		// Represent argument 4 as a closure to be evaluated at the target
 //		}
 
-		w.end(); w.write(");");
+		sw.end(); sw.write(");");
 	}
 
     /**
@@ -1399,7 +1374,7 @@ public class Emitter {
         w.write("}"); w.newline(0); w.forceNewline(0);
     }
 
-    void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, ClassifiedStream w) {
+    void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, CodeWriter w) {
 		if (target instanceof X10Special_c &&
 				((X10Special_c)target).kind().equals(X10Special_c.THIS) &&
 				(context.inlining || context.insideClosure))
@@ -1410,14 +1385,10 @@ public class Emitter {
 		}
 		else if (target instanceof Expr) {
 			boolean assoc = !(target instanceof New_c);
-			sw.pushCurrentStream(w);
-			n.printSubExpr((Expr) target, assoc, sw, tr);
-			sw.popCurrentStream();
+			n.printSubExpr((Expr) target, assoc, w, tr);
 		}
 		else if (target != null) {
-			sw.pushCurrentStream(w);
-			n.print(target, sw, tr);
-			sw.popCurrentStream();
+			n.print(target, w, tr);
 		}
 
 		return;
@@ -1548,14 +1519,15 @@ public class Emitter {
 		w.write(")");
 	}
 	
-	void generateSerializationMethods(ClassType type, ClassifiedStream w, ClassifiedStream h) {
+	void generateSerializationMethods(ClassType type, StreamWrapper sw) {
 		// FIXME: Has a lot of string constants. Refactor them
 		// into final variables.
 		// -Krishna.
 		X10ClassType ct = (X10ClassType) type.toClass();
 		X10TypeSystem ts = (X10TypeSystem) type.typeSystem();
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		//ClassifiedStream h = ws.getCurStream(WriterStreams.StreamClass.Header);
+        ClassifiedStream w = sw.body();
+		ClassifiedStream h = sw.header();
 		h.forceNewline();
 		h.write("// Serialization"); h.newline();
 		String klass = translateType(type);
@@ -1564,7 +1536,7 @@ public class Emitter {
 		h.newline();
 
 		// constructor (FIXME: public because "friend" below doesn't work)
-		 h.write("public: explicit "+mangled_non_method_name(type.name().toString())+"("+SERIALIZATION_MARKER+" m) ");
+		h.write("public: explicit "+mangled_non_method_name(type.name().toString())+"("+SERIALIZATION_MARKER+" m) ");
 		Type parent = type.superClass();
 		if (parent !=null && ts.isValueType(parent))
 			h.write(": "+ translateType(parent)+"(m)");
@@ -1648,6 +1620,7 @@ public class Emitter {
 		w.newline();
 		w.forceNewline();
 	}
+
 	public void emitUniqueNS(QName name, ArrayList<String> history, CodeWriter w) {
 		if (name == null) return;
 		if  (!history.contains(name.toString())) {
@@ -1716,7 +1689,7 @@ public class Emitter {
 	    retVal += regex.substring(start); //translateFQN(regex.substring(start));
 	    return retVal;
 	}
-	public void dumpRegex(String id, Object[] components, Translator tr, String regex, ClassifiedStream w) {
+	public void dumpRegex(String id, Object[] components, Translator tr, String regex, CodeWriter w) {
 		for (int i = 0; i < components.length; i++) {
 			assert ! (components[i] instanceof Object[]);
 		}
@@ -1744,15 +1717,13 @@ public class Emitter {
 		}
 		w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
 	}
-    private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
+    private void prettyPrint(Object o, Translator tr, CodeWriter w) {
         if (o instanceof Node) {
-            sw.pushCurrentStream(w);
             Node n = (Node) o;
             X10CPPContext_c context = (X10CPPContext_c) tr.context();
             ((X10CPPTranslator) tr).setContext(n.del().enterScope(context));
-            n.del().translate(sw, tr);
+            n.del().translate(w, tr);
             ((X10CPPTranslator) tr).setContext(context);
-            sw.popCurrentStream();
         } else if (o instanceof Type) {
             w.write(translateType((Type)o, true));
         } else if (o != null) {
