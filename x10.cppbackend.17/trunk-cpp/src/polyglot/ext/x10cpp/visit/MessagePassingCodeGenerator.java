@@ -121,7 +121,6 @@ import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.TypeDecl_c;
-import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
@@ -1882,8 +1881,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(X10Call_c n) {
-
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		X10MethodInstance mi = (X10MethodInstance)n.methodInstance();
 		Receiver target = n.target();
@@ -2910,16 +2909,61 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public void visit(Binary_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	public void visit(X10Binary_c n) {
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
+	    Expr left = n.left();
+	    Type l = left.type();
+	    Expr right = n.right();
+	    Type r = right.type();
+	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    NodeFactory nf = tr.nodeFactory();
+	    Binary.Operator op = n.operator();
+
+	    if (op == Binary.EQ || op == Binary.NE) { // TODO
+	        visit((Binary_c)n);
+	        return;
+	    }
+	    if (l.isNumeric() && r.isNumeric()) {
+	        visit((Binary_c)n);
+	        return;
+	    }
+	    if (l.isBoolean() && r.isBoolean()) {
+	        visit((Binary_c)n);
+	        return;
+	    }
+	    if (op == Binary.ADD && (l.isSubtype(xts.String()) || r.isSubtype(xts.String()))) {
+	        visit((Binary_c)n);
+	        return;
+	    }
+
+	    // FIXME: move this to the Desugarer
+	    boolean inv = n.invert();
+	    Name methodName = inv ? X10Binary_c.invBinaryMethodName(op) : X10Binary_c.binaryMethodName(op);
+	    Expr receiver = inv ? right : left;
+	    Expr arg = inv ? left : right;
+        
+	    if (methodName == null)
+	        throw new InternalCompilerError("No method to implement " + n, n.position());
+
+	    try {
+	        List<Type> types = Arrays.asList(new Type[] { arg.type() });
+	        MethodInstance mi = xts.findMethod(receiver.type(),
+	                xts.MethodMatcher(receiver.type(), methodName, types), context.currentClassDef());
+	        List<Expr> args = Arrays.asList(new Expr[] { arg });
+	        n.print(nf.Call(n.position(), receiver, nf.Id(n.position(), methodName),
+	                args).methodInstance(mi).type(mi.returnType()), sw, tr);
+	    } catch (SemanticException e) { }
+	}
+
+	public void visit(Binary_c n) {
 		// FIXME Check if there needs to be explicit handling of operators polyglot.ast.Binary.EQ and polyglot.ast.Binary.NE
 		// for Reference Type arguments here as in X10PrettyPrinter.java
 
 		boolean unsigned_op = false;
 		String opString = n.operator().toString();
 
-		if (opString.equals(">>>") || opString.equals(">>>=")) {
+		if (opString.equals(">>>")) {
 			unsigned_op = true;
 			opString = opString.substring(1);
 		}
