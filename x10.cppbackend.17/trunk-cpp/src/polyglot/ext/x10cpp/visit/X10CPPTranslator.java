@@ -604,6 +604,7 @@ public class X10CPPTranslator extends Translator {
 			"-lupcrts_"+TRANSPORT,
 			"-ldl",
 			"-lm",
+			"-lpthread",
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();
