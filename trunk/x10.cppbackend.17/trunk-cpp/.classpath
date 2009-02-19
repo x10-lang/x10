@@ -6,6 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.compiler.p3"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.common.17"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/x10.constraints"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3-dev"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/polyglot3"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
