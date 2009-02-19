@@ -14,9 +14,7 @@ import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.Translator;
-import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
-import x10c.util.WriterStreams;
 
 /**
  * Extracted from X10PrettyPrinterProcessor. Helper class for instantiating and processing
@@ -28,13 +26,9 @@ import x10c.util.WriterStreams;
 public class XCDProcessor {
 	
 	private final StreamWrapper sw;
-	private final ClassifiedStream w; // This is the current stream. 
-	private final WriterStreams ws;
 	private final Translator tr;
 	public XCDProcessor(StreamWrapper sw, Translator tr) {
 		this.sw = sw;
-		this.ws = sw.ws;
-		this.w = sw.cs; 
 		this.tr = tr;
 	}
 	
@@ -49,13 +43,11 @@ public class XCDProcessor {
 		if (o instanceof Expander) {
 			((Expander) o).expand();
 		} else if (o instanceof Node) {
-			sw.pushCurrentStream(w);
 			((Node) o).del().translate(sw, tr);
-			sw.popCurrentStream();
 		} else if (o instanceof Type) {
 			throw new InternalCompilerError("Should not attempt to pretty-print a type");
 		} else if (o != null) {
-			w.write(o.toString());
+			sw.write(o.toString());
 		}
 	}
 	static String translate(String id) {
@@ -113,15 +105,15 @@ public class XCDProcessor {
 		int start = 0;
 		while (pos < len) {
 			if (regex.charAt(pos) == '\n') {
-				w.write(regex.substring(start, pos));
-				w.newline(0);
+				sw.write(regex.substring(start, pos));
+				sw.newline(0);
 				start = pos+1;
 			}
 			else if (regex.charAt(pos) == '#') {
-				w.write(regex.substring(start, pos));
+				sw.write(regex.substring(start, pos));
 				pos++;
 				if (regex.charAt(pos) == '#') {
-					w.write("#");
+					sw.write("#");
 					start = pos+1;
 				} else if (Character.isDigit(regex.charAt(pos))) {
 					int end = pos+1;
@@ -137,7 +129,7 @@ public class XCDProcessor {
 			}
 			pos++;
 		}
-		w.write(regex.substring(start));
+		sw.write(regex.substring(start));
 	}
 
 	/**
@@ -192,7 +184,7 @@ public class XCDProcessor {
 			this.args = args;
 		}
 		public void expand() {
-			w.write("/* Join: { */");
+			sw.write("/* Join: { */");
 			int N = args.size();
 			// FIXME: [IP] use N in iteration, to handle circular lists
 			for (Iterator i = args.iterator(); i.hasNext(); ) {
@@ -200,7 +192,7 @@ public class XCDProcessor {
 				if (i.hasNext())
 					prettyPrint(delimiter);
 			}
-			w.write("/* } */");
+			sw.write("/* } */");
 		}
 	}
 
@@ -247,7 +239,7 @@ public class XCDProcessor {
 			this.N = n;
 		}
 		public void expand() {
-			w.write("/* Loop: { */");
+			sw.write("/* Loop: { */");
 			Object[] args = new Object[lists.length];
 			Iterator[] iters = new Iterator[lists.length];
 			// Parallel iterators over all argument lists
@@ -258,7 +250,7 @@ public class XCDProcessor {
 					args[j] = iters[j].next();
 				dump(id, args);
 			}
-			w.write("/* } */");
+			sw.write("/* } */");
 		}
 	}
 

@@ -5,37 +5,72 @@ package x10c.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Stack;
 
 import polyglot.util.SimpleCodeWriter;
 
 /**
- * A StreamWrapper represents a stack of ClassifiedStreamss. All output operations
- * are performed with respect to the current ClassifiedStream (the one at the top of the
- * stack). Operations are also provided to push and pop ClassifiedStreams from the stack.
+ * A StreamWrapper represents a pair of ClassifiedStreams, header and body, plus a stream
+ * designated as "current" (could be yet a third one).  All output operations are performed
+ * by default with respect to the current ClassifiedStream.  Operations are also provided
+ * to set the header and body streams. 
  * 
  * StreamWrapper must extend SimpleCodeWriter since polyglot chose to make SimpleCodeWriter
  * an abstract class rather than an interface. StreamWrapper does not actually use any of the
- * methods defined on SimpleCodeWriter, delegating them instead to the ClassifiedStream
- * on top of the stack.
+ * methods defined on SimpleCodeWriter, delegating them instead to the current ClassifiedStream.
  * 
  * TODO: Get Nate to make SimpleCodeWriter be an interface so we dont have to jump through
  * the hoops below.
  * 
  * @author nvk
  * @author vj
+ * @author igor
  */
 public class StreamWrapper extends SimpleCodeWriter {
-    public WriterStreams ws;
-    public ClassifiedStream cs; // current stream;
-    java.util.Stack<ClassifiedStream> csStack; // Stream stack.
-    public StreamWrapper(ClassifiedStream b, int w, WriterStreams ws) throws IOException {
+    
+    public static enum StreamClass { Header("h"), CC("cc"), Closures("inc");
+        String ext;
+        private StreamClass(String e) { ext = e; }
+        public String toString() { return ext; }
+    }
+    // Desired API: getNewStream(class, pre/append), setCurrentStream, setHeader, setBody, header, body
+    // 2 streams - header and body
+    // Decouple stream class from stream destination file
+    private WriterStreams ws;
+    private ClassifiedStream cs; // current stream;
+    private Stack<ClassifiedStream> csStack;
+    private ClassifiedStream h; // header stream
+    private ClassifiedStream w; // body stream
+    public StreamWrapper(WriterStreams ws, int width) throws IOException {
         // we override all methods, so super methods will never be called.
         // hence it is ok to pass null to the super constructor.
-        super(new ByteArrayOutputStream(), w);
+        super(new ByteArrayOutputStream(), width);
         this.ws = ws;
-        this.cs = b;
-        csStack = new java.util.Stack<ClassifiedStream>();
+        this.csStack = new Stack<ClassifiedStream>();
     }
+
+    public void set(ClassifiedStream h, ClassifiedStream w) {
+        this.h = h;
+        this.w = w;
+        this.cs = w;
+    }
+
+    public ClassifiedStream header() { return h; }
+    public ClassifiedStream body() { return w; }
+    public void setHeader(ClassifiedStream h) { this.h = h; }
+    public void setBody(ClassifiedStream w) { this.w = w; }
+
+    public ClassifiedStream currentStream() { return cs; }
+    public void pushCurrentStream(ClassifiedStream s) { csStack.push(this.cs); this.cs = s; }
+    public void popCurrentStream() { this.cs = csStack.pop(); }
+
+    public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc, boolean prepend) {
+        return ws.getNewStream(sc, prepend);
+    }
+    public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc) {
+        return getNewStream(sc, true);
+    }
+
     @Override public void newline() { cs.newline(); }
     @Override public void newline(int n) { cs.newline(n); }
     @Override public void newline(int n, int level) { cs.newline(n, level); }
@@ -59,12 +94,7 @@ public class StreamWrapper extends SimpleCodeWriter {
         return null;
     }
     @Override public void close() throws IOException { cs.close(); }
-    public void forceNewline(){ cs.forceNewline(); }
-    public void forceNewline(int n){ cs.forceNewline(n); }
-    public void popCurrentStream() { this.cs = csStack.pop(); }
-    public void pushCurrentStream(ClassifiedStream cs) {
-        csStack.push(this.cs);
-        this.cs = cs;
-    }
+    public void forceNewline() { cs.forceNewline(); }
+    public void forceNewline(int n) { cs.forceNewline(n); }
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

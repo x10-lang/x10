@@ -14,6 +14,7 @@ import polyglot.ast.SourceFile;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.frontend.Job;
 import polyglot.util.SimpleCodeWriter;
+import x10c.util.StreamWrapper.StreamClass;
 
 /**
  * This class represents a collection of output streams. Each stream has an associated
@@ -25,15 +26,9 @@ import polyglot.util.SimpleCodeWriter;
  * 
  * @author nvk
  * @author vj -- Moved out to its own separate class.
- *
  */
 public class WriterStreams {
-    public static enum StreamClass { Header("h"), CC("cc"), Closures("inc");
-        String ext;
-        private StreamClass(String e) { ext = e; }
-        public String toString() { return ext; }
-    };
-    private Map<StreamClass,SimpleCodeWriter> codeWriters;
+    private Map<StreamClass, SimpleCodeWriter> codeWriters;
     private Map<StreamClass, File> codeFiles;
     private Vector<ClassifiedStream> streams;
     private DelegateTargetFactory targetFactory;
@@ -89,41 +84,13 @@ public class WriterStreams {
     }
 
     /**
-     * Return the current stream of type sc, creating one if there is none.
-     * @param sc
-     * @return
-     */
-    public ClassifiedStream getCurStream(StreamClass sc) {
-        ClassifiedStream last = null;
-        for (ClassifiedStream cfs: streams) {
-            if (cfs.sClass != sc) continue;
-            last = cfs;
-        }
-        if (last != null) return last;
-        return getNewStream(sc);
-    }
-
-    /**
-     * Get the first stream of type sc, creating one if there is none.
-     * @param sc
-     * @return the first stream of type sc
-     */
-    public ClassifiedStream getFirstStream(StreamClass sc) {
-        for (ClassifiedStream cfs: streams) {
-            if (cfs.sClass != sc) continue;
-            return cfs;
-        }
-        return getNewStream(sc);
-    }
-
-    /**
      * Create and return a new stream of type sc. Until a new stream of 
      * type sc is created, this stream will be the current stream of type sc.
      * Can only create a new stream for the non-header class.
      * @param sc
      * @return a new stream of type sc
      */
-    public ClassifiedStream getNewStream(StreamClass sc) { return getNewStream(sc, true); }
+    ClassifiedStream getNewStream(StreamClass sc) { return getNewStream(sc, true); }
 
     /**
      * Create and return a new stream of type sc. Until a new stream of 
@@ -133,7 +100,7 @@ public class WriterStreams {
      * @param prepend Whether to prepend the new stream (true) or append it (false)
      * @return a new stream of type sc
      */
-    public ClassifiedStream getNewStream(StreamClass sc, boolean prepend) {
+    ClassifiedStream getNewStream(StreamClass sc, boolean prepend) {
         ClassifiedStream cs = new ClassifiedStream(sc, job.compiler().outputWidth());
         if (prepend) {
             streams.add(0, cs);
