@@ -14,7 +14,7 @@ extern "C" {
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
             // (e.g. make Thread::CurrentThread work properly).
-            (void) new x10::runtime::Thread(x10aux::null, String::Lit("thread-main"));
+            (void) X10NEW(x10::runtime::Thread)(x10aux::null, String::Lit("thread-main"));
 
             // Initialise the static fields of x10 classes.
             x10aux::InitDispatcher::runInitializers();
