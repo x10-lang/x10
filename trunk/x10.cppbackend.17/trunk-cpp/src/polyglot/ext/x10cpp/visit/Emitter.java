@@ -1121,7 +1121,7 @@ public class Emitter {
 			if (!include.containsKey(asyncs.get(i)))
 				continue;
 			ClassType container = (ClassType) include.get(asyncs.get(i));
-			if (!ts.equals(container, currentClass))
+			if (!ts.typeEquals(container, currentClass))
 				continue;
 			className = translateType(container);
 

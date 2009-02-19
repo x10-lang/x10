@@ -1430,7 +1430,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr src = null;
 		Expr dest = null;
 		try {
-			FieldInstance fi = xts.findField(xts.Place(), "id", context.currentClassDef());
+			FieldInstance fi = xts.findField(xts.Place(), xts.FieldMatcher(xts.Place(), Name.make("id")), context.currentClassDef());
 			array = xnf.X10ArrayAccess1(array.position(), array,
 					xnf.Field(array.position(),
 							xnf.Here(Position.COMPILER_GENERATED).type(xts.Place()),
