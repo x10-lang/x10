@@ -354,33 +354,34 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 boolean templateMethod = def.typeParameters().size() != 0;
                 if (templateMethod)
                     sw.pushCurrentStream(save_w);
-				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
-
-				emitter.printTemplateSignature(toTypeList(def.typeParameters()), sw);
-				emitter.printType(md.returnType().type(), sw);
-				sw.allowBreak(2, " ");
-				sw.write(container+"::");
-				sw.write(mangled_method_name(md.name().id().toString()) + "(");
-				sw.begin(0);
-				boolean first = true;
-				for (Formal f : md.formals()) {
-					if (first) {
-						first = false;
-					} else {
-						sw.write(",");
-						sw.allowBreak(0, " ");
-					}
-					md.print(f, sw, tr);
-				}
-				sw.end();
-				sw.write(")");
-				if (md.body() != null) {
-					sw.allowBreak(0, " ");
-					md.printBlock(md.body(), sw, tr);
-				}
+                ((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
+                if (query.isMainMethod(md))
+                    processMain((X10ClassType) cd.asType());
+                emitter.printTemplateSignature(toTypeList(def.typeParameters()), sw);
+                emitter.printType(md.returnType().type(), sw);
+                sw.allowBreak(2, " ");
+                sw.write(container+"::");
+                sw.write(mangled_method_name(md.name().id().toString()) + "(");
+                sw.begin(0);
+                boolean first = true;
+                for (Formal f : md.formals()) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        sw.write(",");
+                        sw.allowBreak(0, " ");
+                    }
+                    md.print(f, sw, tr);
+                }
+                sw.end();
+                sw.write(")");
+                if (md.body() != null) {
+                    sw.allowBreak(0, " ");
+                    md.printBlock(md.body(), sw, tr);
+                }
                 sw.newline();
 
-				((X10CPPTranslator)tr).setContext(context); // FIXME
+                ((X10CPPTranslator)tr).setContext(context); // FIXME
                 if (templateMethod)
                     sw.popCurrentStream();
 			} else if (dec instanceof X10ClassDecl_c) {
@@ -1230,6 +1231,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
+    private void processMain(X10ClassType container) {
+        X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
+        if (container.isClass() && !container.typeArguments().isEmpty()) {
+            List<Type> args = Arrays.asList(new Type[] { xts.Void() });
+            container = container.typeArguments(args);
+        }
+        xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
+    }
+
 	public void visit(MethodDecl_c dec) {
 		// TODO: if method overrides another method with generic
 		// types, check if C++ does the right thing.
@@ -1242,18 +1252,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10MethodDef def = (X10MethodDef) dec.methodDef();
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
-		if (query.isMainMethod(dec)) {
-            X10ClassType mainContainer = container;
-		    if (container.isClass() && !container.typeArguments().isEmpty()) {
-		        List<Type> args = Arrays.asList(new Type[] { xts.Void() });
-		        mainContainer = container.typeArguments(args);
-		    }
-		    xcdProcessor.new Template("MainMP", emitter.translateType(mainContainer)).expand();
-		}
 		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
 			context.pendingStaticDecls.add(dec);
 			return;
 		}
+		if (query.isMainMethod(dec))
+		    processMain(container);
 		int mid = getUniqueId_().intValue();
 		if (def.typeParameters().size() != 0) {
 		    sw.pushCurrentStream(context.templateFunctions);
@@ -1310,7 +1314,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.popCurrentStream();
 		}
 	}
-
 
 
 	public void visit(ConstructorDecl_c dec) {
