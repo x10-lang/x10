@@ -21,11 +21,9 @@ import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 
 import polyglot.ast.ClassMember;
-import polyglot.ast.Import;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
@@ -35,6 +33,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
+import x10c.util.ClassifiedStream;
 
 public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c implements X10Context {
 
@@ -426,5 +425,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public void setSelf(String str){ selfStr = str; };
 	public void resetSelf() { selfStr = null; };
 	public String Self() { return selfStr; };
+
+	public ClassifiedStream templateFunctions = null;
 }
 //vim:tabstop=4:shiftwidth=4:expandtab
