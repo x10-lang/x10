@@ -837,7 +837,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					if (cpp != null)
 						continue;
 					if (cd.isNested()) {
-						assert (false) : ("Nested class alert!");
+						assert (false) : (n.position().nameAndLineString()+" Nested class alert!");
 						continue;
 					}
 					if (!allIncludes.contains(ct)) {
@@ -2103,18 +2103,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			} else {
 				w.write("->");
 			}
-		}
-		else if (context.insideClosure) {
-			w.write(SAVED_THIS+"->");
-			if (context.insideClosure)
-				context.saveEnvVariableInfo(THIS);
-			// FIXME: [IP] Why are we returning here?
-
-			assert (false); // Want to check, where it is used.
-			                // Do not see any obvious use of
-			                // this part of the code.
-			                // Seems wrong. -Krishna.
-			return;
+		
 		}
 
         if (context.inTemplate() && mi.typeParameters().size() != 0) {
@@ -2250,7 +2239,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// explicit target.
 			if (target instanceof Expr) {
                 if (fi.flags().isStatic()) {
-                    w.write("(");
+                    w.write("((void)");
                     sw.pushCurrentStream(w);
                     n.printSubExpr((Expr) target, false, sw, tr);
                     sw.popCurrentStream();
@@ -3111,7 +3100,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 		inc.write("class "+cname+" : "); inc.begin(0);
 		inc.write("public x10aux::AnyClosure, "); inc.newline();
-		inc.write("public x10::lang::Value, "); inc.newline();
+		//inc.write("public x10::lang::Value, "); inc.newline();
 		inc.write("public virtual "+superType); inc.end(); inc.newline();
 		inc.write("{") ; inc.newline(4); inc.begin(0);
 		inc.write("public:") ; inc.newline(); inc.forceNewline();
@@ -3136,8 +3125,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printDeclarationList(inc, c, c.variables);
 		inc.forceNewline();
 
-		inc.write("void _serialize_fields("+SERIALIZATION_BUFFER+" &buf) {");
+		inc.write("void _serialize_fields("+SERIALIZATION_BUFFER+" &buf, ");
+        inc.write("x10aux::addr_map& m) {");
 		inc.newline(4); inc.begin(0);
+        inc.write("x10aux::AnyClosure::_serialize_fields(buf,m);"); inc.newline();
         for (int i=0 ; i<c.variables.size() ; i++) {
 			if (i>0) inc.newline();
             VarInstance var = (VarInstance)c.variables.get(i);
@@ -3152,6 +3143,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		inc.write("void _deserialize_fields("+SERIALIZATION_BUFFER+" &buf) {");
 		inc.newline(4); inc.begin(0);
+        inc.write("x10aux::AnyClosure::_deserialize_fields(buf);"); inc.newline();
         for (int i=0 ; i<c.variables.size() ; i++) {
 			if (i>0) inc.newline();
             VarInstance var = (VarInstance)c.variables.get(i);
