@@ -142,6 +142,7 @@ import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.NoMemberException;
@@ -151,6 +152,7 @@ import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
@@ -573,7 +575,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		assert (!polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION);
 		if (query.isMainMethod(dec))
 		{
-			ReferenceType container = dec.methodInstance().container();
+			Type container = dec.methodDef().asInstance().container();
 			if (ignoreExceptions)
 				xcdProcessor.new Template("MainMP_noexc", emitter.translateType(container)).expand();
 			else 
@@ -585,7 +587,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
 				VarInstance ti = ts.localInstance(Position.COMPILER_GENERATED, Flags.FINAL,
-						dec.methodInstance().container(), THIS);
+						dec.methodDef().asInstance().container(), THIS);
 				context.addVariable(ti);
 			}
 			if (!context.inLocalClass())
@@ -603,7 +605,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (!context.inLocalClass())
 				emitter.printHeader(dec, w, tr, true);
 			w.newline(0); w.begin(4); w.write("{"); w.newline();
-			if (!dec.methodInstance().returnType().isVoid())
+			if (!dec.methodDef().asInstance().returnType().isVoid())
 				w.write("return ");
 
 			String jniName = X10ClassBodyExt_c.generateX10NativeName(dec);
@@ -645,7 +647,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!context.inLocalClass())
 			emitter.printHeader(dec, ws.getCurStream(WriterStreams.StreamClass.Header), tr, false);
 		emitter.printHeader(dec, w, tr, true);
-		ReferenceType container = dec.constructorInstance().container();
+		StructType container = dec.constructorDef().asInstance().container();
 		boolean hasInits = false;
 		// Extract initializers from the body
 		Block_c body = (Block_c) dec.body();
@@ -1438,11 +1440,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			MethodInstance smi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, GET_SOURCE_ARRAY, (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
 			src = xnf.Call(Position.COMPILER_GENERATED, array,
 						  xnf.Id(Position.COMPILER_GENERATED, GET_SOURCE_ARRAY))
-				  .methodInstance(smi).type(aType);
+				  .methodDef().asInstance(smi).type(aType);
 			MethodInstance dmi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, GET_DEST_ARRAY, (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
 			dest = xnf.Call(Position.COMPILER_GENERATED, array,
 						   xnf.Id(Position.COMPILER_GENERATED, GET_DEST_ARRAY))
-				   .methodInstance(dmi).type(aType);
+				   .methodDef().asInstance(dmi).type(aType);
 		} catch (SemanticException e) { assert (false); }
 
 		if (notifyConstant) {
@@ -2124,7 +2126,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline(4); w.begin(0);
 
 			String domain = getId();
-			LocalInstance[] lis = form.localInstances();
+			LocalDef[] lis = form.localInstances();
 			List<Formal> vars = form.vars();
 			int rank = lis.length;
 			String[] limit = new String[rank];
@@ -2132,7 +2134,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(" " + domain + ";");
 			w.newline();
 			for (int i = 0; i < rank; i++) {
-				LocalInstance f = lis[i];
+				LocalInstance f = lis[i].asInstance();
 				assert (f.type().isInt());
 				limit[i] = getId();
 				emitter.printType(f.type(), w);
@@ -2152,7 +2154,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(";");
 			w.newline();
 			for (int i = 0; i < rank; i++) {
-				LocalInstance f = lis[i];
+				LocalInstance f = lis[i].asInstance();
 				assert (f.type().isInt());
 				w.write(limit[i] + " = " + domain + "->rank(" + i + ")->high();");
 				w.newline();
@@ -2264,11 +2266,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(";");
 			w.newline();
 
-			LocalInstance[] lis = form.localInstances();
+			LocalDef [] lis = form.localInstances();
 			List<Formal> vars = form.vars();
 			int rank = lis.length;
 			for (int i = 0; i < rank; i++) {
-				LocalInstance f = lis[i];
+				LocalInstance f = lis[i].asInstance();
 				assert (f.type().isInt());
 				String limit = getId();
 				emitter.printType(f.type(), w);
