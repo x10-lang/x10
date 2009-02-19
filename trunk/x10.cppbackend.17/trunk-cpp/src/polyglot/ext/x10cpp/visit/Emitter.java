@@ -319,8 +319,8 @@ public class Emitter {
 		if (type.isPrimitive() && !type.isVoid())
 			return "x10_"+type.translate(context);
 		// FIXME: is ignoring nullable correct?
-		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
-			return translateType(((X10Type) type).toNullable().base(), asRef);
+//		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
+//			return translateType(((X10Type) type).toNullable().base(), asRef);
 		if (((X10TypeSystem) type.typeSystem()).isFuture(type)) {
 			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
 					"Warning: values of type future not supported -- IGNORING");
