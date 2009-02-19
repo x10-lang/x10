@@ -2478,12 +2478,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("if (");
 		String type = emitter.translateType(n.formal().type().type(), true);
 		if (refsAsPointers) {
-			sw.write("!!dynamic_cast<" + type + " >(" + excVar + ")");
+			sw.write("!!dynamic_cast" + chevrons(type) + "(" + excVar + ")");
 		} else {
-			sw.write("INSTANCEOF(" + excVar + ",");
-			sw.allowBreak(0, " ");
-			sw.write(type);
-			sw.write(")");
+			sw.write("x10aux::instanceof" + chevrons(type) + "(" + excVar + ")");
 		}
 		sw.write(") {");
 		sw.newline(4); sw.begin(0);
@@ -3374,28 +3371,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	private static Object getBoxType(Type type) {
-		if (type.isClass())
-			return type;
-		if (type.isBoolean() || type.isNumeric()) {
-			String[] s = new String[] { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
-			String[] w = new String[] { "java.lang.Boolean", "java.lang.Byte", "java.lang.Character", "java.lang.Short", "java.lang.Integer", "java.lang.Long", "java.lang.Float", "java.lang.Double" };
-			for (int i = 0; i < s.length; i++) {
-				if (type.toString().equals(s[i])) {
-					return w[i];
-				}
-			}
-			// Should not reach.
-			assert (false);
-		}
-		if (type instanceof ParameterType)
-			return type;
-
-		// FIXME: unhandled.
-		assert (false);
-		return null;
-	}
-
     // FIXME: generic native methods will break
 	private void emitNativeAnnotation(String pat, List<Type> types, Receiver receiver, List<Expr> args) {
 		 Object[] components = new Object[1+3*types.size() + args.size()];
@@ -3405,9 +3380,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
          int i = 1;
 		 for (Type at : types) {
 			 components[i++] = at;
-			 components[i++] = getBoxType(at);
-			 // FIXME: Handle runtime types.
-			 components[i++] = "/* UNUSED */";
+			 components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
+			 components[i++] = "/"+"*"+" UNUSED "+"*"+"/";
 		 }
 		 for (Expr e : args) {
 			 components[i++] = e;
