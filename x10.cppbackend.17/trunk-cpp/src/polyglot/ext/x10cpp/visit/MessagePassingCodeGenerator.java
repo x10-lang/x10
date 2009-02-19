@@ -245,7 +245,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private final StreamWrapper sw;
 	private final ClassifiedStream w; // This is the current stream. 
 	private final WriterStreams ws;
-	private Translator tr;
+	private final Translator tr;
 	private XCDProcessor xcdProcessor;
 
 	Emitter emitter;
@@ -273,7 +273,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	
 
 
 	public void visit(X10ClassDecl_c n) {
@@ -827,22 +826,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.print(n.body(), sw, tr);
 		sw.popCurrentStream();
 
-        Translator tr2 = tr.context(n.enterChildScope(n.body(), tr.context()));
-        try {
-            tr = tr2;
-
-            /*
-             * TODO: [IP] Add comment about dependences between the method calls.
-             */
-            processNestedClasses(n);
-
-            if (extractGenericStaticDecls(def, h)) {
-                extractGenericStaticInits(def, w);
-            }
+        ((X10CPPTranslator)tr).setContext(n.enterChildScope(n.body(), context)); // FIXME
+        /*
+         * TODO: [IP] Add comment about dependences between the method calls.
+         */
+        processNestedClasses(n);
+        
+        if (extractGenericStaticDecls(def, h)) {
+            extractGenericStaticInits(def, w);
         }
-        finally {
-            tr = tr2;
-        }
+        ((X10CPPTranslator)tr).setContext(context); // FIXME
 
 		context.pendingStaticDecls = opsd;
 
@@ -929,7 +922,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
     // Get the list of methods of name "name" that ought to be accessible from class c
-    // due to being locally defined or inheritted
+    // due to being locally defined or inherited
     List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
         assert(name!=null);
         assert(c!=null);
@@ -1080,7 +1073,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             h.write("return ");
                         h.write(emitter.translateType(superClass,false)
                                 +"::"+mangled_method_name(mname.toString()));
-                        if (dropzone.typeParameters().size()>0) {
+                        if (dropzone.typeParameters().size() != 0) {
                             String prefix = "<";
                             for (Type t : dropzone.typeParameters()) {
                                 h.write(prefix);
@@ -1097,9 +1090,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         h.write(");"); h.end(); h.newline();
 
                         h.write("}"); h.newline();
-
                     }
-
                 }
             }            
 
@@ -2054,7 +2045,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 
-        if (context.inTemplate() && mi.typeParameters().size()>0) {
+        if (context.inTemplate() && mi.typeParameters().size() != 0) {
             w.write("template ");
         }
 		w.write(mangled_method_name(n.name().id().toString()));
