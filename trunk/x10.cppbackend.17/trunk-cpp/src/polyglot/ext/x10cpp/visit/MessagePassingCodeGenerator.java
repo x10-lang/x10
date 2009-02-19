@@ -1887,30 +1887,36 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Try_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (n.finallyBlock() != null)
-			throw new InternalCompilerError("finally blocks not supported");
-		// TODO: [IP] create a local class here with the finally block as the destructor
-
-
-		// TODO: All the places enter the try block. This should
-		// be fixed. But needs fix from two other places: variable
-		// declaration and return statements of functions.
-		//boolean bodyForOnlyPlaceZero = !hasCodeForAllPlaces(n);
-		//if (bodyForOnlyPlaceZero) {
-		//	w.write("try ");
-		//	w.newline(0);
-		//	n.printSubStmt(n.tryBlock(), w, tr);
-		//} else {
-			w.write("try {");
-			w.newline(0);
-			assert (n.tryBlock() instanceof Block_c);
-			sw.pushCurrentStream(w);
-			n.printSubStmt(n.tryBlock(), sw, tr);
+		if (n.finallyBlock() != null){
+			w.write ("{");
+			// Create a class and use the finally block as the
+			// destructor.
+			w.newline(4); w.begin(0);
+			ClassifiedStream h = ws.getCurStream(WriterStreams.StreamClass.Header);
+			String tempClass = getId();
+			h.write("class " + tempClass + "def");
+			h.write("{");
+			h.newline(4); h.begin(0);
+			h.write (tempClass+"def" + "(){}");
+			h.newline();
+			h.write ("~" + tempClass+"def" + "()");
+			sw.pushCurrentStream(h);
+			n.printBlock(n.finallyBlock(), sw, tr);
 			sw.popCurrentStream();
-			w.newline(0);
-			w.write("}");
-			w.newline(0);
-		//}
+			h.end(); h.newline();
+			h.write("};");
+			w.write(tempClass + "def" + " " + tempClass + ";");
+			w.newline();
+		}
+		w.write("try {");
+		w.newline(0);
+		assert (n.tryBlock() instanceof Block_c);
+		sw.pushCurrentStream(w);
+		n.printSubStmt(n.tryBlock(), sw, tr);
+		sw.popCurrentStream();
+		w.newline(0);
+		w.write("}");
+		w.newline(0);
 
 		// [IP] C++ will not catch ref types properly, as there is no hierarchy.
 		// So, we have to do the dispatching ourselves.
@@ -1933,6 +1939,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("throw;");
 		w.end(); w.newline();
 		w.write("}");
+		if (n.finallyBlock() != null){
+			w.end(); w.newline();
+			w.write("}");
+		}
 
 	}
 
