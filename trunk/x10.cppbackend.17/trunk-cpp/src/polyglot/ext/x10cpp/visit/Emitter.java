@@ -66,7 +66,6 @@ import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -401,7 +400,9 @@ public class Emitter {
 					if (ct.isNested()) {
 						X10ClassDef cdef = (X10ClassDef) ct.container().toClass().def();
 						if (cdef.typeParameters().size() != 0) {
-							name = ct.container().translate(context)+"<void>::"+ct.name().toString();
+							name = ct.container().translate(context)+
+								voidTemplateInstantiation(cdef.typeParameters().size())+
+								"::"+ct.name().toString();
 						} else {
 							context = tr.typeSystem().createContext();
 							name = type.translate(context);
@@ -558,7 +559,19 @@ public class Emitter {
 		w.write(" >");
 	}
 
-	MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, ClassType original) {
+	public static String voidTemplateInstantiation(int num) {
+		StringBuffer b = new StringBuffer();
+		b.append("<");
+		for (int i = 0; i < num; i++) {
+			if (i > 0)
+				b.append(", ");
+			b.append("void");
+		}
+		b.append(">");
+		return b.toString();
+	}
+
+	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, ClassType original) {
 		try {
 			return xts.findMethod(localClass,xts.MethodMatcher(localClass,mi.name(),mi.formalTypes()),original.def());
 		} catch (SemanticException e) {
@@ -566,7 +579,7 @@ public class Emitter {
 		}
 	}
 
-	Type findRootMethodReturnType(X10TypeSystem xts, MethodDecl_c n, MethodInstance from) {
+	Type findRootMethodReturnType(MethodDecl_c n, MethodInstance from) {
 		assert from != null;
 		// [IP] Optimizations
 		X10Flags flags = X10Flags.toX10Flags(from.flags());
@@ -599,7 +612,8 @@ public class Emitter {
 		*/
 
 		// [DC] TODO: There has to be a better way!
-		X10ClassType original = (X10ClassType)n.methodDef().container().get();
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10ClassType original = (X10ClassType) n.methodDef().container().get();
 
 		X10ClassType classType = (X10ClassType) from.container();
 		X10ClassType superClass = (X10ClassType) classType.superClass();
@@ -610,10 +624,9 @@ public class Emitter {
 			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,original);
 			if (superMeth != null) {
 				//System.out.println(from+" overrides "+superMeth);
-				returnType = findRootMethodReturnType(xts, n, superMeth);
+				returnType = findRootMethodReturnType(n, superMeth);
 			}
 		}
-
 
 		for (Type itf : interfaces) {
 			X10ClassType itf_ = (X10ClassType) itf;
@@ -621,7 +634,7 @@ public class Emitter {
 			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,original);
 			if (superMeth != null) {
 				//System.out.println(from+" implements "+superMeth);
-				Type newReturnType = findRootMethodReturnType(xts, n, superMeth);
+				Type newReturnType = findRootMethodReturnType(n, superMeth);
 
 				// check -- 
 				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType)) {
