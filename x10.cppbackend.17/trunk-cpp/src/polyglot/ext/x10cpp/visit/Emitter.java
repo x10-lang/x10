@@ -21,7 +21,6 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
@@ -39,27 +38,22 @@ import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.TypeParamNode;
-import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10Special_c;
-import polyglot.ext.x10.types.ConstrainedType_c;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
-import polyglot.types.ClassType_c;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -73,7 +67,6 @@ import polyglot.util.Position;
 import polyglot.visit.Translator;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 import static polyglot.ext.x10cpp.visit.ASTQuery.*;
-import polyglot.ext.x10cpp.visit.*;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
@@ -822,16 +815,16 @@ public class Emitter {
 		// interface, since otherwise extends_ is Ref, Value, or some
 		// user-defined type.
 
-		if (extends_==null && implements_.isEmpty()) {
+		if (extends_ == null && implements_.isEmpty()) {
 			//Interfaces must always extend something in c++
 			implements_.add("x10::lang::Object");
-		} else if (extends_!=null && implements_.contains("x10::lang::Object")) {
+		} else if (extends_ != null && implements_.contains("x10::lang::Object")) {
 			//Cosmetic: No point implementing Object if we're already extending something
 			implements_.remove("x10::lang::Object");
 		}
 
 		String prefix = ":";
-		if (extends_!=null) {
+		if (extends_ != null) {
 			h.write(" "+prefix+" public "+extends_);
 			prefix = ",";
 		}
