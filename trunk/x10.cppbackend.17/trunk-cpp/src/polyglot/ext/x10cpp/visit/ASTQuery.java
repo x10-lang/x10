@@ -47,6 +47,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
+import polyglot.visit.InnerClassRemover;
 import polyglot.visit.Translator;
 
 /**
@@ -92,13 +93,11 @@ public class ASTQuery {
 		return false;
 	}
 
-    public static final Name InnerClassRemover_OUTER_FIELD_NAME = Name.make("out$");
-
     public boolean isSyntheticOuterAccessor(Stmt n) {
         if (n instanceof Eval && ((Eval)n).expr() instanceof FieldAssign) {
             FieldAssign init = (FieldAssign) ((Eval)n).expr();
             Field_c f = (Field_c)init.left(tr.nodeFactory());
-            return f.fieldInstance().name().equals(InnerClassRemover_OUTER_FIELD_NAME);
+            return f.fieldInstance().name().equals(InnerClassRemover.OUTER_FIELD_NAME);
         }
         return false;
     }
