@@ -563,6 +563,8 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
+    private static final String DUMMY = "-U__DUMMY__";
+
 	/**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
@@ -580,22 +582,28 @@ public class X10CPPTranslator extends Translator {
 		final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
 		final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
 		final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
-		// These go before the files
+        final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknowns":System.getenv("X10_PLATFORM");
+        final String PTHREAD_FLAG = PLATFORM.startsWith("linux") ? "-pthread":DUMMY;
+        final boolean gcEnabled = !Configuration.DISABLE_GC && PLATFORM.startsWith("linux") && false; // TMP: dave
+        // These go before the files
 		final String[] preArgs = new String[] {
 			"-I"+X10LIB+"/include",
 			"-I"+X10LANG,
+			!gcEnabled ? DUMMY : "-I"+X10LANG+"/bdwgc/install/include -DX10_USE_BDWGC",
 			"-I.",
 			"-DTRANSPORT="+TRANSPORT,
+            PTHREAD_FLAG,
 		};
 		// These go after the files
 		final String[] postArgs = new String[] {
 			"-L"+X10LIB+"/lib",
 			"-L"+X10LANG,
+			!gcEnabled ? DUMMY : X10LANG+"/bdwgc/install/lib/libgc.a",
 			"-lx10rt17",
 			"-lupcrts_"+TRANSPORT,
 			"-ldl",
 			"-lm",
-			"-lpthread",
+			"-lpthread"
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();
