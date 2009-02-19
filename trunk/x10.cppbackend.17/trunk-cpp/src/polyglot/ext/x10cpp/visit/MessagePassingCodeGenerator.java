@@ -121,6 +121,8 @@ import polyglot.ext.x10.ast.StmtSeq_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.TypeDecl_c;
 import polyglot.ext.x10.ast.TypeDecl;
+import polyglot.ext.x10.ast.TypeParamNode;
+import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
@@ -129,6 +131,7 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ClockedLoop_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
+import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10MethodDecl_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
@@ -362,6 +365,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		ClassifiedStream h;
+		ArrayList<TypeParamNode> tempClassTypeParams = new ArrayList(context.classTypeParams);
 		if (context.inLocalClass())
 			h = w;
 		else
@@ -400,8 +404,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					if (!type.isClass() || xts.typeEquals(type, n.classDef().asType()))
 						continue;
 					ClassType ct = type.toClass();
-					if (ct.isNested() || knownSpecialPackages.contains(ct.package_()))
+					if (knownSpecialPackages.contains(ct.package_()))
 						continue;
+					while (ct.isNested())
+						ct = ct.outer();
 					types.add(ct);
 				}
 				ArrayList<String> ifHistory = new ArrayList<String>();
@@ -497,6 +503,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				h.newline(0);
 			}
 		}
+		context.classTypeParams = tempClassTypeParams;
 	}
 
 
@@ -537,10 +544,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 			for (Iterator i = members.iterator(); i.hasNext(); ) {
 				ClassMember member = (ClassMember) i.next();
-				if (!(member instanceof ClassDecl_c))
+				if (!(member instanceof X10ClassDecl_c))
 					continue;
 				ClassDecl_c dec = (ClassDecl_c)member;
 				emitter.printFlags(h, dec.flags().flags());
+				emitter.printTemplateSignature(((X10ClassDecl_c)member).typeParameters(), h);
 				h.write("class ");
 				h.write(mangled_non_method_name(dec.name().id().toString()));
 				h.write(";");
@@ -1467,6 +1475,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         w.write(mangled_method_name(n.name().id().toString()));
                 else
                         w.write(n.name().id().toString());
+		emitter.printTemplateInstantiation(mi, w);
 		w.write("(");
 		if (n.arguments().size() > 0) {
 			w.allowBreak(2, 2, "", 0); // miser mode
@@ -1524,7 +1533,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int dims = arguments.size();
 		if (dims == 1) { // Special case - unbox
 			sw.pushCurrentStream(w);
-			n.print((RegionMaker_c) arguments.get(0), sw, tr);
+			n.print((Expr) arguments.get(0), sw, tr);
 			sw.popCurrentStream();
 			return;
 		}
@@ -1651,9 +1660,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.allowBreak(0, " ");
 		w.write("(x10::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
 		w.allowBreak(0, " ");
-		sw.pushCurrentStream(w);
-		n.print(n.objectType(), sw, tr);
-		sw.popCurrentStream();
+		w.write(emitter.translateType(n.objectType().type()));
 		w.write("(");
 		w.allowBreak(2, 2, "", 0);
 		w.begin(0);
@@ -2421,16 +2428,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 	
 	public void visit(X10Special_c n) {
-		//  PV: Q:  Why was this cast needed?
-		/*
 		if (n.qualifier() != null) {
-			w.write("(");
+			w.write("((");
 			sw.pushCurrentStream(w);
 			n.print(n.qualifier(), sw, tr);
 			sw.popCurrentStream();
-			w.write(")");
+			w.write(" *)");
 		}
-		*/
 		
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -2438,10 +2442,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(SAVED_THIS);
 			if (context.insideClosure)
 				context.saveEnvVariableInfo(THIS);
+			if (n.qualifier() != null) 
+				w.write(")");
 			return;
 		}
 		if (n.kind().equals(X10Special_c.SUPER)) {
 			w.write(emitter.translateType(context.currentClass().superClass()));
+			if (n.qualifier() != null) 
+				w.write(")");
 			return;
 		}
 		if (n.isSelf()) {
@@ -2450,6 +2458,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write((context.Self() == null)? "self":context.Self());
 		}
 		else w.write(n.kind().toString());
+		if (n.qualifier() != null) 
+			w.write(")");
 	}
 
 
@@ -2997,6 +3007,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		w.write(")");
 	}
+	public void visit(When_c n) {
+		 assert (n.exprs() == null || n.exprs().size() == 0);
+		 assert (n.stmts() == null || n.stmts().size() == 0);
+		 X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		 context.canInline = false;
+
+		 w.write("while (!(");
+		 w.begin(0);
+		 sw.pushCurrentStream(w);
+		 n.print(n.expr(), sw, tr);
+		 sw.popCurrentStream();
+		 w.end();
+		 w.write(")) x10::async_poll();");
+		 w.newline();
+		 sw.pushCurrentStream(w);
+		 n.printSubStmt(n.stmt(), sw, tr);
+		 sw.popCurrentStream();
+	 }
 	
 
 } // end of MessagePassingCodeGenerator
