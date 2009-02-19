@@ -231,7 +231,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		this.query = new ASTQuery(sw, tr);
 	}
 
-	public void visit (Term_c n) {
+	public void visit(Term_c n) {
 		// FIXME:
 		// For some reason TypeDecl_c visitor is not getting
 		// called directly.
@@ -241,7 +241,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		assert false;
 	}
-	public void visit (TypeDecl_c n) {
+	public void visit(TypeDecl_c n) {
 		// FIXME: I think we need to put a typedef for a TypeDecl.
 		// verify. [Krishna]
 	}
@@ -392,18 +392,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					h.write("#include \"" + header + "\"");
 					h.newline();
 				}
+				ArrayList<String> unHistory = new ArrayList<String>();
 				for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
 					Import_c in = (Import_c) is.next();
 					Package_c rt = null;
 					try {
 					if (xts.forName(in.name()) instanceof Package_c){
-						h.write("using namespace "+translateFQN(in.name().toString())+";");
+						String unName = translateFQN(in.name().toString());
+						emitter.emitUniqueNS(unName, unHistory, h);
+
 					} else if (knownSpecialPackages.contains(xts.packageForName(in.name())) ) { // library class import.
 
-						h.write("using namespace "+translateFQN(in.name().toString().substring(0,in.name().toString().lastIndexOf('.')))+";");
+						String unName = translateFQN(in.name().toString().substring(0,in.name().toString().lastIndexOf('.')));
+						emitter.emitUniqueNS(unName, unHistory, h);
 					}
 					else {// import user defined class
-						h.write("using namespace " + translate_mangled_NSFQN(in.name().toString()) + ";");
+						String unName = translate_mangled_NSFQN(in.name().toString());
+						emitter.emitUniqueNS(unName, unHistory, h);
 					}
 					h.newline();
 					} catch (SemanticException e) { 
@@ -960,22 +965,35 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Assign_c asgn) {
 		X10CPPContext_c context = (X10CPPContext_c)tr.context();
 
+ 		 boolean unsigned_op = false;
+ 		 String opString = asgn.operator().toString();
+
+ 		 if (opString.equals(">>>=")) {
+ 		 		 unsigned_op = true;
+ 		 		 opString = opString.substring(1);
+ 		 }
+
 		NodeFactory nf = tr.nodeFactory();
 		Expr lhs = asgn.left(nf);
 		Expr rhs = asgn.right();
-		// Be conservative for now (because of evaluation order)
-		// TODO: [IP] use a non-const reference for lhs
-
+ 		 if (unsigned_op)
+			 w.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
 		sw.pushCurrentStream(w);
 		asgn.printSubExpr(lhs, false, sw, tr);
 		sw.popCurrentStream();
+		if (unsigned_op)
+			 w.write(")");
 		w.write(" ");
 		// [IP] Are all the operators the same?
-		w.write(asgn.operator().toString());
+		w.write(opString);
 		w.allowBreak(2, 2, " ", 1);
+ 		if (unsigned_op)
+			 w.write("(("+emitter.makeUnsignedType(rhs.type())+")");
 		sw.pushCurrentStream(w);
 		asgn.printSubExpr(rhs, true, sw, tr);
 		sw.popCurrentStream();
+		if (unsigned_op)
+			 w.write(")");
 	}
 
 
@@ -1376,7 +1394,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 			emitter.printExplicitTarget(n, target, context, w);
 
-			if (mi.flags().isStatic() ||
+		 if ((mi.flags().isStatic() && !(target instanceof Expr)) ||
 					(target instanceof X10Special_c &&
 							((X10Special_c)target).kind().equals(X10Special_c.SUPER))) {
 				w.write("::");
@@ -2577,7 +2595,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		if (unsigned_op)
-			w.write("((unsigned)");
+			w.write("(("+emitter.makeUnsignedType(n.left().type())+")");
 		sw.pushCurrentStream(w);
 		n.printSubExpr(n.left(), true, sw, tr);
 		sw.popCurrentStream();
@@ -2587,7 +2605,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(opString);
 		w.allowBreak(n.type() == null || n.type().isPrimitive() ? 2 : 0, " ");
 		if (unsigned_op)
-			w.write("((unsigned)");
+			w.write("(("+emitter.makeUnsignedType(n.left().type())+")");
 		sw.pushCurrentStream(w);
 		n.printSubExpr(n.right(), false, sw, tr);
 		sw.popCurrentStream();
@@ -2760,11 +2778,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        assert len == act.propertyInitializers().size();
 	    }
 	}
-	/* 
-	 * FIXME: Work in progress. [Krishna]
+	/*
+	 * Work in progress.
 	private void emitNativeDecl(String pat, List<LocalInstance> names) {
 		 Object[] components = new Object[names.size() * 3 + names.size()];
 		    int i = 0;
+		    String temp = pat.toString();
+		    while (true) {
+
+
+		    }
 		    for (LocalInstance li : names) {
 			// FIXME: Handle typeParameters
 		        // components[i++] = new TypeExpander(at, true, false, false);
