@@ -53,8 +53,8 @@ extern "C" {
         x10aux::free_args(args);
         x10aux::shutdown();
         fprintf(stderr, "Place: %d   tx: %lld   rx: %lld\n", (int)x10_here(),
-                                                             x10aux::serialized_bytes,
-                                                             x10aux::deserialized_bytes);
+                                                             (long long)x10aux::serialized_bytes,
+                                                             (long long)x10aux::deserialized_bytes);
         return x10aux::exitCode;
     }
 }
