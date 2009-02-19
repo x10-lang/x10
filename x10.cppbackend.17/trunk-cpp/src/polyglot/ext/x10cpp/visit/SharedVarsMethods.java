@@ -105,6 +105,7 @@ public class SharedVarsMethods{
 	static final String GLOBAL_STATE = "GLOBAL_STATE";
 	static final String THIS = "this";
 	static final String RUN_INITIALIZERS = "_run_initializers";
+	static final String INIT = "__init";
 	static final String STATIC_INIT = "__static_init";
 	static final int MAX_OBJECT_ARRAY_INIT = 6;
 	static final String RAW_ARRAY = "raw";
