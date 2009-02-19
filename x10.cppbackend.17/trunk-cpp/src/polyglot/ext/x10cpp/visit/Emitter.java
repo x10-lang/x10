@@ -323,7 +323,7 @@ public class Emitter {
 			String base;
 			if (type.isArray()) {
 				base = translateType(type.toArray().base(), true);
-			else {
+			} else {
 				Type T = X10TypeMixin.getParameterType((X10Type) type, 0);
 				if (T == null) {
 				    base="x10::lang::Object";
