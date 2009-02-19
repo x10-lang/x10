@@ -1979,7 +1979,7 @@ public class Emitter {
 			((Node) o).del().translate(sw, tr);
 			sw.popCurrentStream();
 		} else if (o instanceof Type) {
-			w.write(translateType((Type)o));
+			w.write(translateType((Type)o, true));
 		} else if (o != null) {
 			w.write(o.toString());
 		}
