@@ -594,22 +594,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Emitter.openNamespaces(h, pkg);
             h.newline(0);
         }
-        if (cd.typeParameters().size() > 0) {
-            h.write("template <");
-            boolean first = true;
-            for (ParameterType pt : cd.typeParameters()) {
-                if (first)
-                    first = false;
-                else {
-                    h.write(",");
-                    h.allowBreak(4, " ");
-                }
-                h.write("class ");
-                h.write(emitter.translateType(pt));
-            }
-            h.write(">");
-            h.allowBreak(2, " ");
-        }
+        emitter.printTemplateSignature((List<Type>)(List)cd.typeParameters(), h);
         String name = StaticNestedClassRemover.mangleName(cd).toString();
         h.write("class "+Emitter.mangled_non_method_name(name)+";");
         h.newline();
@@ -922,17 +907,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             Emitter.openNamespaces(h, qn);
             h.newline(0);
         }
-        if (n.typeParameters().size() > 0) {
-            h.write("template <");
-            String sep = "";
-            for (TypeParamNode tn : n.typeParameters()) {
-                h.write(sep);
-                sep = ", ";
-                h.write("class ");
-                h.write(tn.name().toString());
-            }
-            h.write("> ");
-        }
+        emitter.printTemplateSignature((List<Type>)(List)def.typeParameters(), h);
         h.write("class "+Emitter.mangled_non_method_name(n.name().toString())+";");
         h.newline(0);
         if (context.package_() != null) {
@@ -2700,17 +2675,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// have to work out what the formals are whilst visiting the closure body
 		// but we need to know the formals before generating code for the body (function parameters)
 
-
 		// class header
-        if (!freeTypeParams.isEmpty()) {
-            inc.write("template");
-            prefix="<";
-            for (Type t : freeTypeParams) {
-                inc.write(prefix+"class "+t);
-                prefix = ",";
-            }
-            inc.write("> ");
-        }
+        if (!freeTypeParams.isEmpty())
+            emitter.printTemplateSignature(freeTypeParams, inc);
 		inc.write("class "+cname+" : "); inc.begin(0);
 		inc.write("public x10::lang::Value, "); inc.newline();
 		inc.write("public virtual "+superType); inc.end(); inc.newline();
@@ -2812,15 +2779,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		inc.write("};"); inc.newline(); inc.forceNewline();
 
-        if (in_template_closure) {
-            inc.write("template");
-            prefix="<";
-            for (Type t : freeTypeParams) {
-                inc.write(prefix+"class "+t);
-                prefix = ",";
-            }
-            inc.write("> ");
-        }
+        if (in_template_closure)
+            emitter.printTemplateSignature(freeTypeParams, inc);
         inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
         inc.newline(4);
         if (in_template_closure) {
@@ -2848,7 +2808,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         prefix="<";
         StringBuffer sb = new StringBuffer();
         for (Type t : freeTypeParams) {
-            sb.append(prefix+t);
+            sb.append(prefix+emitter.translateType(t, true));
             prefix = ",";
         }
         if (prefix.equals(",")) sb.append(">");

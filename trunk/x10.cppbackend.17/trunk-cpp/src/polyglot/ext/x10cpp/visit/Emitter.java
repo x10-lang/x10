@@ -118,6 +118,9 @@ public class Emitter {
         //return "x10__"+mangle_to_cpp(str);
         return "FMGL("+mangle_to_cpp(str)+")";
     }
+    public static String mangled_parameter_type_name(String str) {
+        return "FMGL("+mangle_to_cpp(str)+")";
+    }
 
 	void printStaticAsyncDeclarations(X10CPPContext_c context, CodeWriter w) {
 		printAsyncDeclarations("static ", "", context.closures.asyncs,
@@ -307,7 +310,7 @@ public class Emitter {
 	/**
 	 * Translate a type name.
 	 */
-	String translateType(Type type) {
+	static String translateType(Type type) {
 		return translateType(type, false);
 	}
 
@@ -377,7 +380,8 @@ public class Emitter {
 				name += ">";
 			}
 		} else if (type instanceof ParameterType) {
-			return type.toString(); // parameter types shouldn't be refs
+			name = ((ParameterType)type).name().toString();
+			return mangled_parameter_type_name(name); // parameter types shouldn't be refs
 		} else if (type.isNull()) {
 			return "x10aux::NullType"; // typedef to something sensible
 		} else 
@@ -452,8 +456,8 @@ public class Emitter {
 
 	void printTemplateSignature(List<Type> list, CodeWriter h) {
 		int size = list.size();
-		if (size != 0){
-			h.write("template <class ");
+		if (size != 0) {
+			h.write("template<class ");
 			for (Type t: list) {
 				assert (t instanceof ParameterType);
 				h.write(translateType(t));
@@ -461,7 +465,8 @@ public class Emitter {
 				if (size > 0)
 					h.write(", class ");
 			}
-			h.write("> ");
+			h.write(">");
+			h.allowBreak(0, " ");
 		}
 	}
 	
