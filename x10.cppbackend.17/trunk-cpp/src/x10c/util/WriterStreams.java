@@ -119,12 +119,25 @@ public class WriterStreams {
 	 * @param sc
 	 * @return a new stream of type sc
 	 */
-	public ClassifiedStream getNewStream(StreamClass sc) {
+	public ClassifiedStream getNewStream(StreamClass sc) { return getNewStream(sc,true); }
+
+	/**
+	 * Create and return a new stream of type sc. Until a new stream of 
+	 * type sc is created, this stream will be the current stream of type sc.
+	 * Can only create a new stream for the non-header class.
+	 * @param sc
+	 * @param prepend Whether to prepend the new stream (true) or append it (false)
+	 * @return a new stream of type sc
+	 */
+	public ClassifiedStream getNewStream(StreamClass sc, boolean prepend) {
 		if (sc == StreamClass.Header) headerCount++;
 		assert (sc != StreamClass.Header || headerCount < 2);
 		ClassifiedStream cs = new ClassifiedStream(sc, job.compiler().outputWidth());
-		// FIXME! HACK! Prepend the stream -- newer streams are likely to be more important
-		streams.add(0, cs);
+		if (prepend) {
+                        streams.add(0, cs);
+                } else {
+                        streams.add(cs);
+                }
 		return cs;
 	}
 
