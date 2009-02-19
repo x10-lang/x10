@@ -33,6 +33,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
+import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
@@ -321,7 +322,7 @@ public class ASTQuery {
 				Type x_l_Runtime = (Type) ts.Runtime();
 				Type Int = ts.Int();
 				Type[] OA_I_P_I_I_B = { ts.array(ts.Object()), Int, ts.Place(), Int, Int, ts.Boolean() };
-				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "asyncDoubleArrayCopy", Arrays.asList(OA_I_P_I_I_B)), context.currentClassDef()));
+				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("asyncDoubleArrayCopy"), Arrays.asList(OA_I_P_I_I_B)), context.currentClassDef()));
 			} catch (SemanticException e) { assert (false); }
 		}
 		if (!(n.target() instanceof X10CanonicalTypeNode_c))
@@ -346,7 +347,7 @@ public class ASTQuery {
 				Type array = ts.array();
 				Type Int = ts.Int();
 				Type[] A_I_A_I_I = { array, Int, array, Int, Int };
-				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "arrayCopy", Arrays.asList(A_I_A_I_I)), context.currentClass()));
+				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I)), context.currentClass()));
 				// TODO
 //				Type[] A_A = { array, array };
 //				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_A), context.currentClass()));

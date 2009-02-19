@@ -573,7 +573,7 @@ public class Emitter {
 		}
 		h.begin(0);
 		if (qualify && !context.inLocalClass())
-			h.write(translateType(n.constructorInstance().container()) + "::");
+			h.write(translateType(n.constructorDef().asInstance().container()) + "::");
 		h.write(mangled_non_method_name(n.name().id().toString())); 
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);

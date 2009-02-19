@@ -146,6 +146,7 @@ import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.NoMemberException;
 import polyglot.types.Package;
 import polyglot.types.Package_c;
@@ -1438,14 +1439,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						.fieldInstance(fi).type(xts.Int()))
 					.type(x_l_RemoteDoubleArrayCopier);
 			Type aType = xts.array(baseType);
-			MethodInstance smi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, GET_SOURCE_ARRAY, (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
+			MethodInstance smi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, Name.make(GET_SOURCE_ARRAY), (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
 			src = xnf.Call(Position.COMPILER_GENERATED, array,
 						  xnf.Id(Position.COMPILER_GENERATED, GET_SOURCE_ARRAY))
-				  .methodDef().asInstance(smi).type(aType);
-			MethodInstance dmi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, GET_DEST_ARRAY, (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
+				  .methodInstance(smi).type(aType);
+			MethodInstance dmi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, Name.make(GET_DEST_ARRAY), (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
 			dest = xnf.Call(Position.COMPILER_GENERATED, array,
 						   xnf.Id(Position.COMPILER_GENERATED, GET_DEST_ARRAY))
-				   .methodDef().asInstance(dmi).type(aType);
+				   .methodInstance(dmi).type(aType);
 		} catch (SemanticException e) { assert (false); }
 
 		if (notifyConstant) {
@@ -1634,7 +1635,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(",");
 				w.allowBreak(0, " ");
 				NodeFactory nf = tr.nodeFactory();
-				ClassType objectType = xts.X10Object();
+				ClassType objectType = (ClassType)xts.Object();
 				ArrayList initArgs = new ArrayList();
 				for (int i = 1; i < n.arguments().size(); i++) {
 					Expr arg_i = (Expr) n.arguments().get(i);
