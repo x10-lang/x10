@@ -321,7 +321,7 @@ public class ASTQuery {
 			try {
 				Type x_l_Runtime = (Type) ts.Runtime();
 				Type Int = ts.Int();
-				Type[] OA_I_P_I_I_B = { ts.array(ts.Object()), Int, ts.Place(), Int, Int, ts.Boolean() };
+				Type[] OA_I_P_I_I_B = { ts.arrayOf(ts.Object().position(), ts.Object()), Int, ts.Place(), Int, Int, ts.Boolean() };
 				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("asyncDoubleArrayCopy"), Arrays.asList(OA_I_P_I_I_B)), context.currentClassDef()));
 			} catch (SemanticException e) { assert (false); }
 		}
@@ -344,7 +344,7 @@ public class ASTQuery {
 			X10CPPContext_c context = (X10CPPContext_c) tr.context();
 			try {
 				Type x_l_Runtime = (Type) ts.Runtime();
-				Type array = ts.array();
+				Type array = ts.Array();
 				Type Int = ts.Int();
 				Type[] A_I_A_I_I = { array, Int, array, Int, Int };
 				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I)), context.currentClass()));
