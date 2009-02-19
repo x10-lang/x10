@@ -15,8 +15,8 @@ import java.util.Set;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
-import x10.runtime.util.ConfigurationError;
-import x10.runtime.util.OptionError;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 
 public class X10CPPCompilerOptions extends polyglot.ext.x10.X10CompilerOptions {
 

@@ -10,8 +10,8 @@
  */
 package polyglot.ext.x10cpp;
 
-import x10.runtime.util.ConfigurationError;
-import x10.runtime.util.OptionError;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 
 /**
  * This class provides the configuration for the X10 C++ compiler backend.
@@ -24,7 +24,7 @@ import x10.runtime.util.OptionError;
  * @author Christian Grothoff
  * @author Igor Peshansky
  */
-public final class Configuration extends x10.runtime.util.Configuration {
+public final class Configuration extends x10.config.Configuration {
 
 	/**
 	 * The error received when attempting to load the configuration from
