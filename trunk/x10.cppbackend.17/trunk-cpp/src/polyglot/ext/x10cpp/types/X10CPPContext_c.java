@@ -68,6 +68,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public static ArrayList<ClassMember> pendingStaticDecls = new ArrayList<ClassMember>();
 	public static HashMap classesWithAsyncSwitches = new HashMap();
 	public static HashMap classesWithArrayCopySwitches = new HashMap();
+	public ArrayList classProperties = new ArrayList();
 
 	public HashSet warnedAbout = new HashSet();
 
