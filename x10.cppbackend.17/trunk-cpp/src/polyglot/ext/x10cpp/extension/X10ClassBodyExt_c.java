@@ -109,7 +109,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		else // theType.isClass()
 		{
 			if (typeSystem.isX10Array(theType)) {
-				Type base = typesystem.baseType(theType);
+				Type base = typeSystem.baseType(theType);
 				if (!base.isPrimitive())
 					return "void**";
 				return typeToCString(base)+"*";
@@ -195,7 +195,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			else {
 				// assume this is an X10 array object.  Determine backing array type and add
 				// descriptor signature
-				Type base = typesystem.baseType(type);
+				Type base = typeSystem.baseType(type);
 				signature += typeToJavaSigString(typeSystem.arrayOf(parameter.position(), base));
 				signature += typeToJavaSigString(typeSystem.arrayOf(parameter.position(), typeSystem.Int()));
 				
@@ -305,7 +305,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			} else if (type.isArray()) {
 				wrapperDecl += typeToCType(type.toArray().base()) + "*";
 			} else { // X10 array
-				Type base = typesystem.baseType(type);
+				Type base = typeSystem.baseType(type);
 				Type aType = typeSystem.arrayOf(parameter.position(), base);
 				wrapperDecl += typeToCType(aType);
 				// if we see an array type there must be a descriptor right after

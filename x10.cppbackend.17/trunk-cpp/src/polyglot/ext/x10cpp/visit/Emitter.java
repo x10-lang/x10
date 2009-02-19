@@ -614,7 +614,7 @@ public class Emitter {
 		printType(n.type().type(), h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
-			h.write(translateType(n.fieldInstance().container()) + "::");
+			h.write(translateType(n.fieldDef().asInstance().container()) + "::");
 		//h.write("__");  // In Java a field and a method can have
 		//		// the same name. This takes care of it.
 		h.write(mangled_non_method_name(n.name().id().toString())); 
