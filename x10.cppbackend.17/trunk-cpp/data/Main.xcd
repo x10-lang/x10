@@ -2,9 +2,11 @@
 
 extern "C" {
     int main(int ac, char **av) {
-        Rail<x10aux::ref<String> >* args = x10aux::convert_args(ac, av);
+        ref<Rail<x10aux::ref<String> > > args = x10aux::convert_args(ac, av);
         try {
-            #0::main(args);
+            x10::runtime::Runtime::start(
+                new (x10aux::alloc<VoidFun>(sizeof(BootStrapClosure)))
+                    x10aux::BootStrapClosure(#0::main,args)  );
         } catch(int exitCode) {
             x10aux::exitCode = exitCode;
         } catch(x10aux::__ref& e) {

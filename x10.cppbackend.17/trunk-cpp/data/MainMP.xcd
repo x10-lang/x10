@@ -2,18 +2,18 @@
 
 extern "C" {
     int main(int ac, char **av) {
-        Rail<x10aux::ref<String> >* args = x10aux::convert_args(ac, av);
+        x10aux::ref<Rail<x10aux::ref<String> > > args = x10aux::convert_args(ac, av);
 ##ifndef NO_EXCEPTIONS
         try {
 ##endif
-        if (x10aux::__here__ == 0) {
-            x10aux::general_finish_start();
             x10aux::InitDispatcher::runInitializers();
-            #0::main(args);
-            x10aux::general_finish_end();
-        } else {
-            x10aux::general_wait();
-        }
+                (new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
+                    x10aux::BootStrapClosure(#0::main,args))->apply();
+/*
+            x10::runtime::Runtime::start( (x10aux::ref<x10aux::BootStrapClosure>)
+                new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
+                    x10aux::BootStrapClosure(#0::main,args)  );
+*/
 ##ifndef NO_EXCEPTIONS
         } catch(int exitCode) {
             x10aux::exitCode = exitCode;
@@ -21,7 +21,7 @@ extern "C" {
             // Assume that only throwables can be thrown
             x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
             fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
-                                (int)x10aux::__here__, e_->_type()->name().c_str());
+                                (int)x10_here(), e_->_type()->name().c_str());
             fprintf(stderr, "%s\n", e_->toString()->c_str());
             x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
             x10aux::ref<Iterator<x10aux::ref<String> > > it = trace->iterator();
@@ -30,7 +30,7 @@ extern "C" {
             }
             x10aux::exitCode = 1;
         } catch(...) {
-            fprintf(stderr, "%d: Caught exception\n", (int)x10aux::__here__);
+            fprintf(stderr, "Caught unrecognised exception at place %d\n", (int)x10_here());
             x10aux::exitCode = 1;
         }
 ##endif
