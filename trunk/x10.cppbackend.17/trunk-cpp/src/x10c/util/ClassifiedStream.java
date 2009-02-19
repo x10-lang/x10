@@ -12,13 +12,13 @@ import polyglot.util.SimpleCodeWriter;
 
 public class ClassifiedStream extends SimpleCodeWriter {
     final ByteArrayOutputStream stream;
-    public final WriterStreams.StreamClass sClass;
-    private ClassifiedStream(ByteArrayOutputStream bs, WriterStreams.StreamClass c, int width) {
+    public final StreamWrapper.StreamClass sClass;
+    private ClassifiedStream(ByteArrayOutputStream bs, StreamWrapper.StreamClass c, int width) {
         super(bs, width);
         stream = bs;
         this.sClass=c;
     }
-    public ClassifiedStream(WriterStreams.StreamClass c, int width) {
+    public ClassifiedStream(StreamWrapper.StreamClass c, int width) {
         this(new ByteArrayOutputStream(), c, width);
     }
     public void forceNewline() { pos = -1; newline(); }
