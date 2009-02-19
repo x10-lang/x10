@@ -791,7 +791,7 @@ public class Emitter {
 	}
 	void printRTTDefn(X10ClassType ct, ClassifiedStream h) {
 		if (ct.typeArguments().isEmpty()) {
-			h.write("DEFINE_RTT("+ct.name().toString()+");");
+			h.write("DEFINE_RTT("+translateType(ct)+");");
 		} else {
     		printTemplateSignature(ct.typeArguments(), h);
 			h.write("typename "+translateType(ct)+"::RTT * const "+translateType(ct)+"::RTT::it = ");
@@ -801,20 +801,7 @@ public class Emitter {
 		h.newline();
 	}
 
-	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
-		h.begin(0);
-		// Handle generics
-		// If it involves Parameter Types then generate C++
-		// templates.
-
-		printAllTemplateSignatures(n.classDef(), h);
-
-		h.write("class ");
-		assert(!n.classDef().isLocal());
-		if (n.classDef().isNested() && !n.classDef().isLocal()) // FIXME: handle local classes
-			h.write(translateType(n.classDef().outer().get().asType()) + "::");
-		h.write(mangled_non_method_name(n.name().id().toString())); 
-
+	void printInheritance(ClassDecl_c n, ClassifiedStream h, Translator tr) {
 		boolean hasSuper = false;
 		if (n.superClass() != null) {
 			h.allowBreak(0);
@@ -861,6 +848,24 @@ public class Emitter {
 			}
 			h.end();
 		}
+	}
+
+	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+		h.begin(0);
+		// Handle generics
+		// If it involves Parameter Types then generate C++
+		// templates.
+
+		printAllTemplateSignatures(n.classDef(), h);
+
+		h.write("class ");
+		assert(!n.classDef().isLocal());
+		if (n.classDef().isNested() && !n.classDef().isLocal()) // FIXME: handle local classes
+			h.write(translateType(n.classDef().outer().get().asType()) + "::");
+		h.write(mangled_non_method_name(n.name().id().toString())); 
+
+		printInheritance(n, h, tr);
+
 		h.unifiedBreak(0);
 		h.end();
 	}
