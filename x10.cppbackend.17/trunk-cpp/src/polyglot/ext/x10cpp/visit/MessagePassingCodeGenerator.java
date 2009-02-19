@@ -466,6 +466,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (inits.size() > 0) {
 			w.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
 			w.newline(4); w.begin(0);
+			w.write("static bool done = false;"); w.newline();
+			w.write("if (done) return;"); w.newline();
+			w.write("done = true;"); w.newline();
 			w.write("_I_(\"Doing static initialisation for class: "+container+"\");"); w.newline();
 			for (FieldDecl_c fd : inits) {
 				assert (fd.init() != null);
@@ -517,7 +520,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(retType + " " + className + "::" + methodName + "() {");
 				w.newline(4);
 				w.begin(0);
-				w.write("_I_(\"Doing "+(staticInits?"static ":"")+"initialisation for class: "+className+"\");"); w.newline();
+                if (staticInits) {
+                    w.write("static bool done = false;"); w.newline();
+                    w.write("if (done) return;"); w.newline();
+                    w.write("done = true;"); w.newline();
+                    w.write("_I_(\"Doing static initialisation for class: "+className+"\");");
+                    w.newline();
+                } else {
+                    w.write("_I_(\"Doing initialisation for class: "+className+"\");");
+                    w.newline();
+                }
 				sawInit = true;
 			}
 			if (member instanceof Initializer_c) {
@@ -2759,7 +2771,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.newline(0);
 
 		// [IP] It's always safe to free the iterator because it can't escape
-		w.write("x10aux::dealloc(" + name + ");");
+		// [DC] It's not safe to free the iterator because it has been cast to an interface
+        // FIXME: change the type of 'name' to be some kind of non-interface type
+		//w.write("x10aux::dealloc(" + name + ");");
 		w.newline();
 
 		w.end(); w.newline(0);
