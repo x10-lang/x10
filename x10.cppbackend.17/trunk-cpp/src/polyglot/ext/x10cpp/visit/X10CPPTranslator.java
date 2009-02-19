@@ -174,9 +174,13 @@ public class X10CPPTranslator extends Translator {
 			return outputFile;
 		}
 
+		public String integratedOutputName(String packageName, String className, String ext) {
+			return packagePath(packageName) + className + "." + ext;
+		}
+
 		public File integratedOutputFile(String packageName, String className, Source source, String ext) {
 			File outputFile = new File(outputDirectory, 
-					      packagePath(packageName) + className + "." + ext);
+			                           integratedOutputName(packageName, className, ext));
 
 			if (source != null && outputFile.getPath().equals(source.path()))
 				throw new InternalCompilerError("The header file is the same as the source file");
@@ -271,7 +275,6 @@ public class X10CPPTranslator extends Translator {
 			CodeWriter w;
 
 			String pkg = "";
-
 			if (sfn.package_() != null) {
 				Package p = sfn.package_().package_().get();
 				pkg = p.fullName().toString();
@@ -282,18 +285,21 @@ public class X10CPPTranslator extends Translator {
 			// Use the class name to derive a default output file name.
 			for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
 				TopLevelDecl decl = (TopLevelDecl) i.next();
-				String className = ((ClassDecl)decl).classDef().name().toString();
+				if (!(decl instanceof X10ClassDecl))
+					continue;
+				X10ClassDecl cd = (X10ClassDecl) decl;
+				String className = cd.classDef().name().toString();
 				wstreams = new WriterStreams(className, sfn, pkg, tf, exports, job);
 				sw = new StreamWrapper(wstreams.getNewStream(WriterStreams.StreamClass.CC), 
 						outputWidth, wstreams);
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
-				writeHeader(sfn, sw);
+				writeHeader(cd, sfn, sw);
 				translateTopLevelDecl(sw, sfn, decl); 
-				writeFooter(sfn, sw);
+				writeFooter(cd, sfn, sw);
 				if (i.hasNext())
 					wstreams.commitStreams();
-		    }
+			}
 
 			Iterator t = job().extensionInfo().scheduler().commandLineJobs().iterator();
 			// FIXME: [IP] The following does the same as the prior code below.  Why the change?
@@ -413,10 +419,8 @@ public class X10CPPTranslator extends Translator {
 		w.newline();
 	}
 
-	/* (non-Javadoc)
-	 * @see polyglot.visit.Translator#writeHeader(polyglot.ast.SourceFile, polyglot.util.CodeWriter)
-	 */
-	protected void writeHeader(SourceFile sfn, StreamWrapper sw) {
+	/** Write the header for a source file. */
+	protected void writeHeader(X10ClassDecl cd, SourceFile sfn, StreamWrapper sw) {
 		WriterStreams wstreams = sw.ws;
 		ClassifiedStream w = sw.cs;
 		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
@@ -429,14 +433,19 @@ public class X10CPPTranslator extends Translator {
 		h.write("#include <x10rt17.h>"); h.newline();
 		h.forceNewline(0);
 
-		w.write("#include <"+wstreams.getHeader().getName()+">"); w.newline();
-		//w.write("#include <"+wstreams.getFile(WriterStreams.StreamClass.Header).getName()+">"); w.newline();
+		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
+		String pkg = "";
+		if (sfn.package_() != null) {
+			pkg = sfn.package_().package_().get().fullName().toString();
+		}
+		String header = tf.outputHeaderName(pkg, cd.name().toString());
+		w.write("#include <"+header+">"); w.newline();
 		w.forceNewline(0);
 		//w.write("using namespace x10;"); w.newline();
 		//w.write("using namespace x10::lang;"); w.newline();
 		//w.write("using namespace x10::core::fun;"); w.newline();
 		w.forceNewline(0);
-
+		
 		boolean newline = false;
 
 		for (Iterator i = sfn.imports().iterator(); i.hasNext(); ) {
@@ -462,18 +471,18 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		//w.write("static "+make_ref("Exception")+" EXCEPTION = NULL;"); w.newline();
-		w.write("#include <"+wstreams.getFile(WriterStreams.StreamClass.Closures).getName() + ">"); w.newline();
+		String incfile = tf.integratedOutputName(pkg, cd.name().toString(), WriterStreams.StreamClass.Closures.toString());
+		w.write("#include \""+incfile+"\""); w.newline();
 		w.forceNewline(0);
 
 		if (sfn.package_() != null) {
 			Emitter.openNamespaces(w,sfn.package_().package_().get().fullName());
 			w.newline(0);
 		}
-		ClassifiedStream z = wstreams.getNewStream(WriterStreams.StreamClass.Closures); // HACK. We are creating an empty new closure stream, to put all the header information required in the closure. [Krishna.]
 	}
 
 	/** Write the footer for a source file. */
-	protected void writeFooter(SourceFile sfn, StreamWrapper sw) {
+	protected void writeFooter(X10ClassDecl cd, SourceFile sfn, StreamWrapper sw) {
 		WriterStreams wstreams = sw.ws;
 		ClassifiedStream w = sw.cs;
 		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
@@ -491,39 +500,29 @@ public class X10CPPTranslator extends Translator {
 
 		// The declarations below are intentionally outside of the guard
 		if (sfn.package_() != null) {
-            Emitter.openNamespaces(h,sfn.package_().package_().get().fullName());
-            h.newline(0);
-        }
-		for (Iterator i = sfn.decls().iterator(); i.hasNext(); ) {
-			TopLevelDecl decl = (TopLevelDecl) i.next();
-			if (decl.flags().flags().isPublic()) {
-				if (decl instanceof X10ClassDecl) {
-					X10ClassDecl cd = (X10ClassDecl) decl;
-					if (cd.typeParameters().size() > 0) {
-						h.write("template <");
-						String sep = "";
-						for (TypeParamNode tn : cd.typeParameters()) {
-							h.write(sep);
-							sep = ", ";
-							h.write("class ");
-							h.write(tn.name().toString());
-						}
-						h.write("> ");
-					}
-					h.write("class "+Emitter.mangled_non_method_name(decl.name().toString())+";");
-					h.newline();
-				} else if (decl instanceof TypeDecl) {
-					// do nothing
-				} else {
-					assert(false);
-				}
-			}
+			QName qn = sfn.package_().package_().get().fullName();
+			Emitter.openNamespaces(h, qn);
+			h.newline(0);
 		}
-        if (sfn.package_() != null) {
-            h.newline(0);
-            Emitter.closeNamespaces(h,sfn.package_().package_().get().fullName());
-            h.newline(0);
-        }       
+		if (cd.typeParameters().size() > 0) {
+			h.write("template <");
+			String sep = "";
+			for (TypeParamNode tn : cd.typeParameters()) {
+				h.write(sep);
+				sep = ", ";
+				h.write("class ");
+				h.write(tn.name().toString());
+			}
+			h.write("> ");
+		}
+		h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
+		h.newline();
+		if (sfn.package_() != null) {
+			h.newline(0);
+			QName qn = sfn.package_().package_().get().fullName();
+			Emitter.closeNamespaces(h, qn);
+			h.newline(0);
+		}   
 	}
 
 	/* (non-Javadoc)
