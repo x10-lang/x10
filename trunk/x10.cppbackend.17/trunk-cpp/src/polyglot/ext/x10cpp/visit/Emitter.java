@@ -1819,14 +1819,14 @@ public class Emitter {
 	    		pos++;
 	    		start = pos+1;
 	    		if (idx.intValue() >= components.length){
-	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
-			}
-			Object o = components[idx.intValue()];
-		 	if (o instanceof Type) {
-				retVal += translateType((Type)o, true);
-			} else if (o != null) {
-				retVal += o.toString();
-			}
+	    			throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
+                }
+                Object o = components[idx.intValue()];
+                if (o instanceof Type) {
+                    retVal += translateType((Type)o, true);
+                } else if (o != null) {
+                    retVal += o.toString();
+                }
 	    	}
 	    	pos++;
 	    }
@@ -1852,9 +1852,9 @@ public class Emitter {
 	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
 	    		pos++;
 	    		start = pos+1;
-	    		if (idx.intValue() >= components.length){
-	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
-			}
+	    		if (idx.intValue() >= components.length) {
+	    			throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
+                }
 	    		prettyPrint(components[idx.intValue()], tr, w);
 	    	}
 	    	pos++;
