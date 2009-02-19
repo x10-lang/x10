@@ -97,11 +97,12 @@ int LAPI_Msg_string(int e, void* b) {
 }
 int LAPI_Util(lapi_handle_t h, lapi_util_t *u) {
     switch (u->Util_type) {
-    case LAPI_GET_THREAD_FUNC:
+    case LAPI_GET_THREAD_FUNC: {
         lapi_thread_func_t* tf = (lapi_thread_func_t*)u;
         tf->mutex_lock = NULL;
         tf->mutex_unlock = NULL;
         tf->mutex_trylock = NULL;
+			       }
         break;
     default: assert (false); break;
     }
