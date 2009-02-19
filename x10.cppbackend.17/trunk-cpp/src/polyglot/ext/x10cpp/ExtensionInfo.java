@@ -7,6 +7,11 @@
 package polyglot.ext.x10cpp;
 
 import polyglot.ast.NodeFactory;
+import polyglot.ext.x10.ast.X10NodeFactory_c;
+import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10cpp.ast.X10CPPDelFactory_c;
+import polyglot.ext.x10cpp.ast.X10CPPExtFactory_c;
+import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -27,6 +32,26 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		return "x10cpp";
 	}
 
+	public polyglot.main.Version version() {
+		return new Version();
+	}
+
+	protected NodeFactory createNodeFactory() {
+		return new X10NodeFactory_c(this, new X10CPPExtFactory_c(), new X10CPPDelFactory_c()) { };
+	}
+
+	protected TypeSystem createTypeSystem() {
+		return new X10CPPTypeSystem_c();
+	}
+
+	public void initCompiler(Compiler compiler) {
+		super.initCompiler(compiler);
+		QueryEngine.init(this);
+	}
+
+	// =================================
+	// X10-specific goals and scheduling
+	// =================================
 	protected Scheduler createScheduler() {
 		return new X10CPPScheduler(this);
 	}
@@ -39,7 +64,8 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		public Goal CodeGenerated(Job job) {
 			TypeSystem ts = extInfo.typeSystem();
 			NodeFactory nf = extInfo.nodeFactory();
-			return new OutputGoal(job, new X10CPPTranslator(job, ts, nf, extInfo.targetFactory()));
+			return new OutputGoal(job, new X10CPPTranslator(job, ts, nf, 
+						extInfo.targetFactory()));
 		}
 	}
 

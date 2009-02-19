@@ -284,7 +284,7 @@ public class X10CPPTranslator extends Translator {
 			  opfPath = tf.outputName(pkg, decl.name().toString());
 			  if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
 			  translateTopLevelDecl(sw, sfn, decl); 
-				writeFooter(sfn, sw);
+			  writeFooter(sfn, sw);
 			  if (i.hasNext())
 				wstreams.commitStreams();
 			  else 
