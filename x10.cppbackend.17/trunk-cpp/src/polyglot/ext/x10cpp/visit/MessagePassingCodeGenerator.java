@@ -409,6 +409,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				context.hasInits = false;
 
 				assert (def.isNested());
+				assert (false) : ("Nested class alert!");
 				if (!def.flags().isStatic())
 					throw new InternalCompilerError("Instance Inner classes not supported");
 
@@ -612,7 +613,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					if (ct.package_() != null)
 						pkg = ct.package_().fullName().toString();
 					String header = tf.outputHeaderName(pkg, ct.name().toString());
-					String guard = header.replace('/','_').replace('.','_').toUpperCase()+"_NODEPS";
+					String guard = header.replace('/','_').replace('.','_').replace('$','_').toUpperCase()+"_NODEPS";
 					h.write("#define "+guard); h.newline();
 					h.write("#include <" + header + ">");
 					h.newline();
@@ -636,7 +637,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						if (ct.package_() != null)
 							pkg = ct.package_().fullName().toString();
 						String header = tf.outputHeaderName(pkg, ct.name().toString());
-						String guard = header.replace('/','_').replace('.','_').toUpperCase()+"_NODEPS";
+						String guard = header.replace('/','_').replace('.','_').replace('$','_').toUpperCase()+"_NODEPS";
 						h.write("#define "+guard); h.newline();
 						h.write("#include <" + header + ">");
 						h.newline();
@@ -830,7 +831,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// [IP] Ok to include here, since the class is already defined
 			h.forceNewline();
 			String curHdr = tf.outputHeaderName(curPkg, def.name().toString());
-			String guard = curHdr.replace('/','_').replace('.','_').toUpperCase()+"_NODEPS";
+			String guard = curHdr.replace('/','_').replace('.','_').replace('$','_').toUpperCase()+"_NODEPS";
 			h.write("#ifndef "+guard); h.newline();
 
 			for (Type t : allIncludes) {
