@@ -37,7 +37,6 @@ import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
@@ -1483,7 +1482,7 @@ public class Emitter {
 				context.saveEnvVariableInfo(THIS);
 		}
 		else if (target instanceof Expr) {
-			boolean assoc = !(target instanceof New_c || target instanceof RectRegionMaker_c);
+			boolean assoc = !(target instanceof New_c);
 			sw.pushCurrentStream(w);
 			n.printSubExpr((Expr) target, assoc, sw, tr);
 			sw.popCurrentStream();
