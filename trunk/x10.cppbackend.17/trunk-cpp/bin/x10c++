@@ -18,7 +18,7 @@ if [[ -z "$X10_FROM_SRC" ]]; then
     [ -z "$X10LANG" ] && export X10LANG="$TOP"
     X10="$TOP"
 else
-    # Default to devloper setup
+    # Default to developer setup
     [ -z "$X10REL" ] && export X10REL="../x10.dist"
     [ -z "$X10LIB" ] && export X10LIB="$TOP/../pgas/common/work"
     [ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime.17/src-cpp"
