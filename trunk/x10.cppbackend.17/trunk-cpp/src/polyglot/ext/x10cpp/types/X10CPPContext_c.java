@@ -100,20 +100,13 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	}
 	
 	public static class Closures {
-		public ArrayList asyncs = new ArrayList();
-		public ArrayList asyncsParameters = new ArrayList();
-
-		public ArrayList arrayInitializers = new ArrayList();
-		public ArrayList arrayInitializerParameters = new ArrayList();
-
-		public HashMap arrayCopyClosures = new HashMap();
-		public HashMap asyncContainers = new HashMap();
-
-		public int nesting = 0;
+	    public int closureId = -1;
+	    public int nesting = 0;
 	}
 
 	public Closures closures = new Closures();
 
+	// FIXME: should this be used instead of accessing closures directly?
 	public Closures getClosures() {
 		if (isSource()) {
 			System.err.println("found source context");
