@@ -134,6 +134,8 @@ import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.query.QueryEngine;
+import polyglot.ext.x10.types.ClosureType;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Def;
 import polyglot.ext.x10.types.X10MethodInstance;
@@ -629,9 +631,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.newline(0); w.begin(4); w.write("{"); w.newline();
 				if (!mi.returnType().isVoid())
 					w.write("return ");
-				System.out.println(pat);
-				assert (false);
-				// emitNativeDecl(pat, mi.formalNames());
+				emitNativeDecl(pat, mi.formalNames());
 				w.end(); w.newline(0); w.write("}"); w.newline();
 				nativeTranslated = true;
 			} 
@@ -1377,19 +1377,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(X10Call_c n) {
 		
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-
-		// -- K assert (!query.isSPMDArrayReduction(n));
-
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		X10MethodInstance mi = (X10MethodInstance)n.methodInstance();
 		Receiver target = n.target();
+		// We do not need to special case the native calls. Each
+		// native function declaration is a wrapper that calls the
+		// underlying method. So we can just blindly call the
+		// wrapper. If we really need the special casing uncomment
+		// the below commented code.
+		// -Krishna.
+
+		/*
 		String pat = getCppImplForDef(mi.x10Def());
 		if (pat != null) {
-			System.out.println(pat);
-			assert false;
 			emitNativeAnnotation(pat, target, mi.typeParameters(), n.arguments());
 			return;
 		}
+		*/
 		w.begin(0);
 		boolean requireMangling = true;
 		if (!n.isTargetImplicit()) {
@@ -2645,34 +2649,40 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    if (n.operator() == Assign.ASSIGN) {
+		// We do not need to special case the native calls. Each
+		// native function declaration is a wrapper that calls the
+		// underlying method. So we can just blindly call the
+		// wrapper. If we really need the special casing uncomment
+		// the below commented code.
+		// -Krishna.
+
+/* 
 	    	// Look for the appropriate set method on the array and emit native code if there is an
 	    	// @Native annotation on it.
 	    	X10MethodInstance mi= (X10MethodInstance) n.methodInstance();
 	    	List<Expr> args = new ArrayList<Expr>(index.size()+1);
-	    	//args.add(array);
 	    	args.add(n.right());
 	    	for (Expr e : index) args.add(e);
+		// TODO: TypeParameters need to be dealt in the wrapper.
 	    	String pat = getCppImplForDef(mi.x10Def());
 	    	if (pat != null) {
-			System.out.println(pat);
-			assert false;
 	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
 	    		return;
-	    	} else {
-	    		// otherwise emit the hardwired code.
+	    	} 
+	        // otherwise emit the hardwired code.
+*/
+		sw.pushCurrentStream(w);
+		    tr.print(n, array, sw);
+		sw.popCurrentStream();
+		    w.write(".set(");
+		    tr.print(n, n.right(), sw);
+		for (Expr e: index) {
+			w.write(", ");
 			sw.pushCurrentStream(w);
-	    		tr.print(n, array, sw);
+			n.printSubExpr(e, false, sw, tr);
 			sw.popCurrentStream();
-	    		w.write(".set(");
-	    		tr.print(n, n.right(), sw);
-			for (Expr e: index) {
-				w.write(", ");
-				sw.pushCurrentStream(w);
-				n.printSubExpr(e, false, sw, tr);
-				sw.popCurrentStream();
-			}
-	    		w.write(")");
-	    	}
+		}
+		    w.write(")");
 	    }
 	    else {
 		// R target = x; T right = e; 
@@ -2785,25 +2795,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        assert len == act.propertyInitializers().size();
 	    }
 	}
-	/*
-	 * Work in progress.
 	private void emitNativeDecl(String pat, List<LocalInstance> names) {
-		 Object[] components = new Object[names.size() * 3 + names.size()];
+		 Object[] components = new Object[names.size()+1];
 		    int i = 0;
-		    String temp = pat.toString();
-		    while (true) {
-
-
-		    }
+		    components[i++] = THIS;
 		    for (LocalInstance li : names) {
 			// FIXME: Handle typeParameters
-		        // components[i++] = new TypeExpander(at, true, false, false);
-		        // components[i++] = new TypeExpander(at, true, true, false);
-		        // components[i++] = new RuntimeTypeExpander(at);
+			if (li.type() instanceof ParameterType){
+				assert false;
+
+				// components[i++] = new TypeExpander(at, true, false, false);
+				// components[i++] = new TypeExpander(at, true, true, false);
+				// components[i++] = new RuntimeTypeExpander(at);
+			}
+			if (li.type() instanceof ClosureType) {
+				// TODO: Handle Closures.
+				assert false;
+			}
+			System.out.println(li.type().getClass());
+			components[i++] = mangled_non_method_name(li.name().toString());
 		    }
 		    dumpRegex("Native", components, tr, pat);
 	}
-	*/
 	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {
 		 Object[] components = new Object[1 + types.size() * 3 + args.size()];
 		    int i = 0;
@@ -2839,8 +2852,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
 	    		pos++;
 	    		start = pos+1;
-	    		if (idx.intValue() >= components.length)
+	    		if (idx.intValue() >= components.length){
 	    			throw new InternalCompilerError("Template '"+id+"' uses #"+idx);
+			}
 	    		prettyPrint(components[idx.intValue()], tr);
 	    	}
 	    	pos++;
@@ -2849,7 +2863,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 	private void prettyPrint(Object o, Translator tr) {
 		if (o instanceof Node) {
-			((Node) o).del().translate(w, tr);
+			
+			sw.pushCurrentStream(w);
+			((Node) o).del().translate(sw, tr);
+			sw.popCurrentStream();
 		} else if (o instanceof Type) {
 			throw new InternalCompilerError("Should not attempt to pretty-print a type");
 		} else if (o != null) {
