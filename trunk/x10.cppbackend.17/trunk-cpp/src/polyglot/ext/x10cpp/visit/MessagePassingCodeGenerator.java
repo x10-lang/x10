@@ -2712,8 +2712,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             inc.write("> ");
         }
 		inc.write("class "+cname+" : "); inc.begin(0);
-		inc.write("public Value, "); inc.newline();
-		//inc.write("public x10::lang::Value, "); inc.newline();
+		inc.write("public x10::lang::Value, "); inc.newline();
 		inc.write("public virtual "+superType); inc.end(); inc.newline();
 		inc.write("{") ; inc.newline(4); inc.begin(0);
 		inc.write("public:") ; inc.newline(); inc.forceNewline();
@@ -3024,7 +3023,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.begin(0);
 	        tr.print(n, array, sw);
 	        sw.end();
-	        sw.write(").set(");
+	        sw.write(")->set(");
 	        sw.begin(0);
 	        tr.print(n, n.right(), sw);
 	        for (Expr e: index) {
