@@ -36,7 +36,6 @@ import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Next_c;
-import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10ConstructorDecl_c;
@@ -45,6 +44,7 @@ import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10ConstructorDef;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
@@ -60,6 +60,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
@@ -464,10 +465,10 @@ public class Emitter {
 		}
 	}
 	
-	List<Type> toTypeList(List<TypeParamNode> list) {
+	static List<Type> toTypeList(List<Ref<? extends Type>> list) {
 		ArrayList<Type> res = new ArrayList<Type>();
-		for (TypeParamNode n : list)
-			res.add(n.type());
+		for (Ref<? extends Type> r : list)
+			res.add(r.get());
 		return res;
 	}
 	
@@ -588,13 +589,13 @@ public class Emitter {
 			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
 		}
 
-		X10MethodDecl_c xn = (X10MethodDecl_c) n;
-		printTemplateSignature(toTypeList(xn.typeParameters()), h);
+		X10MethodDef def = (X10MethodDef) n.methodDef();
+		printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		if (!qualify) {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
-			else if (xn.typeParameters().size() != 0) {
+			else if (def.typeParameters().size() != 0) {
 			    if (!flags.isFinal()) {
 			        // FIXME: [IP] for now just make non-virtual.
 			        // In the future, will need to have some sort of dispatch object, e.g. the following:
@@ -797,8 +798,8 @@ public class Emitter {
 			printTemplateSignature((container).typeArguments(), h);
 		}
 
-		X10ConstructorDecl_c xn = (X10ConstructorDecl_c) n;
-		printTemplateSignature(toTypeList(xn.typeParameters()), h);
+		X10ConstructorDef def = (X10ConstructorDef) n.constructorDef();
+		printTemplateSignature(toTypeList(def.typeParameters()), h);
 
 		if (!qualify) {
 			printFlags(h, flags);
