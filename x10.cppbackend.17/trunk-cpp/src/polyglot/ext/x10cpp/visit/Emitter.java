@@ -57,6 +57,7 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ClassType_c;
 import polyglot.types.Context;
@@ -432,32 +433,22 @@ public class Emitter {
 			}
 			X10ClassType ct = (X10ClassType)type.toClass();
 			if (!knownSpecialPackages.contains(ct.package_())) {
-
 				if (!nativeTranslated && ct.typeArguments().size() != 0) {
-
-					name += " < ";
+					name += "<";
 					int s = ct.typeArguments().size();
 					for (Type t: ct.typeArguments()) {
-						name +=translateType(t, asRef);
+						name += translateType(t, true); // type arguments are always translated as refs
 						s--;
 						if (s > 0)
 							name +=", ";
 					}
-					name +=" > ";
+					if (name.endsWith(">"))
+						name += " ";
+					name += ">";
 				}
 			}
-			/*
-			// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
-			if (query.isX10Array(type)) {
-				String base = translateType(query.getX10ArrayElementType(type), true);
-				name = "x10::x10array<"+base+(base.endsWith(">")?" ":"")+">";
-				if (!arraysAsRefs || !asRef)
-					return name;
-				return make_ref(name);
-			}
-        */
 		} else if (type instanceof ParameterType){
-			name = type.toString(); 
+			return type.toString(); // parameter types shouldn't be refs
 		} else 
 			assert false; // unhandled type.
 		name = translateFQN(name);
@@ -553,23 +544,29 @@ public class Emitter {
 		w.newline();
 	}
 
-	void printTemplateSignature(List<TypeParamNode> list, ClassifiedStream h) {
+	void printTemplateSignature(List<Type> list, ClassifiedStream h) {
 		int size = list.size();
 		if (size != 0){
 			h.write("template <class ");
-			for (TypeParamNode p: list) {
-				h.write(p.name().id().toString());
-				size --;
+			for (Type t: list) {
+				assert (t instanceof ParameterType);
+				h.write(translateType(t));
+				size--;
 				if (size > 0)
 					h.write(", class ");
 			}
-
 			h.write("> ");
 		}
-
 	}
+	
+	List<Type> toTypeList(List<TypeParamNode> list) {
+		ArrayList<Type> res = new ArrayList<Type>();
+		for (TypeParamNode n : list)
+			res.add(n.type());
+		return res;
+	}
+	
 	void printTemplateInstantiation(X10MethodInstance mi, ClassifiedStream w) {
-
 		if (mi.typeParameters().size() == 0)
 			return;
 		w.write("<");
@@ -591,13 +588,12 @@ public class Emitter {
 		}
 		h.begin(0);
 
-		if (qualify){
-			X10CPPContext_c context = (X10CPPContext_c) tr.context();
-			printTemplateSignature(context.classTypeParams, h);
+		if (qualify) {
+			printTemplateSignature(((X10ClassType)n.methodDef().container().get()).typeArguments(), h);
 		}
 
 		X10MethodDecl_c xn = (X10MethodDecl_c) n;
-		printTemplateSignature(xn.typeParameters(), h);
+		printTemplateSignature(toTypeList(xn.typeParameters()), h);
 
 		if (!qualify) {
 			if (flags.isStatic())
@@ -660,19 +656,19 @@ public class Emitter {
 		h.write(Flags.PUBLIC.translate()+": ");
 	}
 
+	private void printAllTemplateSignatures(ClassDef cd, ClassifiedStream h) {
+		if (cd.isNested())
+			printAllTemplateSignatures(cd.outer().get(), h);
+		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
+	}
+
 	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		h.begin(0);
 		// Handle generics
 		// If it involves Parameter Types then generate C++
 		// templates.
 
-		X10ClassDecl_c xn = (X10ClassDecl_c) n;
-		printTemplateSignature(xn.typeParameters(), h);
-
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		for (TypeParamNode p: xn.typeParameters()) {
-			context.classTypeParams.add(p);
-		}
+		printAllTemplateSignatures(n.classDef(), h);
 
 		h.write("class ");
 		assert(!n.classDef().isLocal());
@@ -729,17 +725,16 @@ public class Emitter {
 		h.unifiedBreak(0);
 		h.end();
 	}
-
 	void printHeader(ConstructorDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Flags flags = n.flags().flags();
 
 		if (qualify){
-			printTemplateSignature(context.classTypeParams, h);
+			printTemplateSignature(((X10ClassType)n.constructorDef().container().get()).typeArguments(), h);
 		}
 
 		X10ConstructorDecl_c xn = (X10ConstructorDecl_c) n;
-		printTemplateSignature(xn.typeParameters(), h);
+		printTemplateSignature(toTypeList(xn.typeParameters()), h);
 
 		if (!qualify) {
 			printFlags(h, flags);
@@ -978,17 +973,11 @@ public class Emitter {
 		context.setinsideClosure(true);
 
 		X10CPPContext_c.Closures a = context.closures;
-		boolean outer = outerClosure(a);
 		enterAsync(a, n);
 		a.arrayCopyClosures.put(n, context.currentClass());
 		// ClassifiedStream w = this.w;
 		ClassifiedStream oldW = w;
-		if (polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION){
-			if (outer) w = ws.getNewStream(WriterStreams.StreamClass.Closures);
-			else w.newline(0);
-		} else {
-			w = ws.getNewStream(WriterStreams.StreamClass.Closures);
-		}
+		w = ws.getNewStream(WriterStreams.StreamClass.Closures);
 
 		// Array copy argument struct declaration.
 		int id = async_id(a, n);
@@ -1057,11 +1046,7 @@ public class Emitter {
 
 		w.forceNewline(0);
 
-		if (polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION){
-			if (outer) w = oldW;
-		} else {
-			w = oldW;
-		}
+		w = oldW;
 
 		context.setinClosure(inClosure);
 		context.setinsideClosure(insideClosure);
@@ -1131,16 +1116,10 @@ public class Emitter {
 		context.setinsideClosure(true);
 
 		X10CPPContext_c.Closures a = context.closures;
-		boolean outer = outerClosure(a);
 		enterAsync(a, n);
 		a.arrayCopyClosures.put(n, context.currentClass());
 		ClassifiedStream oldW = w;
-		if (polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION){
-			if (outer) w = ws.getNewStream(WriterStreams.StreamClass.Closures);
-			else w.newline(0);
-		} else {
-			w = ws.getNewStream(WriterStreams.StreamClass.Closures);
-		}
+		w = ws.getNewStream(WriterStreams.StreamClass.Closures);
 
 		// Array copy argument struct declaration.
 		int id = async_id(a, n);
@@ -1221,12 +1200,7 @@ public class Emitter {
 
 		w.forceNewline(0);
 
-
-		if (polyglot.ext.x10cpp.Configuration.SPMD_COMPILATION){
-			if (outer) w = oldW;
-		} else {
-			w = oldW;
-		}
+		w = oldW;
 
 		context.setinClosure(inClosure);
 		context.setinsideClosure(insideClosure);
@@ -1281,8 +1255,7 @@ public class Emitter {
         String className = translateType(currentClass);
         w.newline(0);
 
-        X10CPPContext_c context = (X10CPPContext_c) tr.context();
-        printTemplateSignature(context.classTypeParams, w);
+        printTemplateSignature(((X10ClassType)currentClass).typeArguments(), w);
 
         String arg = "arg";
         w.write(retType+" "+className+"::"+methodName+"(x10_async_handler_t h, "+VOID_PTR+" "+arg);
@@ -1834,32 +1807,32 @@ public class Emitter {
 	    return retVal;
 	}
 	public void dumpRegex(String id, Object[] components, Translator tr, String regex, ClassifiedStream w) {
-	    for (int i = 0; i < components.length; i++) {
-	        assert ! (components[i] instanceof Object[]);
-	    }
-	    int len = regex.length();
-	    int pos = 0;
-	    int start = 0;
-	    while (pos < len) {
-	    	if (regex.charAt(pos) == '\n') {
-	    		w.write(regex.substring(start, pos));
-	    		w.newline(0);
-	    		start = pos+1;
-	    	}
-	    	else
-	    	if (regex.charAt(pos) == '#') {
-	    		w.write(regex.substring(start, pos) /*translateFQN(regex.substring(start, pos))*/);
-	    		Integer idx = new Integer(regex.substring(pos+1,pos+2));
-	    		pos++;
-	    		start = pos+1;
-	    		if (idx.intValue() >= components.length) {
-	    			throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
-                }
-	    		prettyPrint(components[idx.intValue()], tr, w);
-	    	}
-	    	pos++;
-	    }
-	    w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
+		for (int i = 0; i < components.length; i++) {
+			assert ! (components[i] instanceof Object[]);
+		}
+		int len = regex.length();
+		int pos = 0;
+		int start = 0;
+		while (pos < len) {
+			if (regex.charAt(pos) == '\n') {
+				w.write(regex.substring(start, pos));
+				w.newline(0);
+				start = pos+1;
+			}
+			else
+			if (regex.charAt(pos) == '#') {
+				w.write(regex.substring(start, pos) /*translateFQN(regex.substring(start, pos))*/);
+				Integer idx = new Integer(regex.substring(pos+1,pos+2));
+				pos++;
+				start = pos+1;
+				if (idx.intValue() >= components.length) {
+					throw new InternalCompilerError("Template '"+id+"' '"+regex+"' uses #"+idx+" (max is "+(components.length-1)+")");
+				}
+				prettyPrint(components[idx.intValue()], tr, w);
+			}
+			pos++;
+		}
+		w.write(regex.substring(start) /*translateFQN(regex.substring(start))*/);
 	}
 	private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
 		if (o instanceof Node) {
@@ -1871,8 +1844,5 @@ public class Emitter {
 		} else if (o != null) {
 			w.write(o.toString());
 		}
-	}
-	public String getStaticFieldName(X10ClassDef cd, String fldName) {
-		return translate_mangled_FQN(cd.fullName().toString()) + "<void>::" + fldName;
 	}
 }
