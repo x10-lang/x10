@@ -1178,7 +1178,7 @@ public class Emitter {
 			int[] async_ids = new int[relevant_asyncs.size()];
 			for (int i = 0; i < async_ids.length; i++)
 				async_ids[i] = ((Integer) relevant_asyncs.get(i)).intValue();
-			classToAsyncs.put(className, async_ids);
+			classToAsyncs.put(currentClass, async_ids);
 		}
 
 		w.write("}"); w.newline(0);
@@ -1320,7 +1320,7 @@ public class Emitter {
 		h.newline();
 
 		// constructor (FIXME: public because "friend" below doesn't work)
-		h.write("public: explicit "+"x10__"+type.name()+"("+SERIALIZATION_MARKER+" m) ");
+		 h.write("public: explicit "+mangled_non_method_name(type.name().toString())+"("+SERIALIZATION_MARKER+" m) ");
 		Type parent = type.superClass();
 		if (parent !=null && ts.isValueType(parent))
 			h.write(": "+ translateType(parent)+"(m)");
@@ -1356,16 +1356,17 @@ public class Emitter {
 			FieldInstance f = (FieldInstance) type.fields().get(i);
 			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
+			String fieldName = mangled_non_method_name(f.name().toString());
 			if (f.type().isPrimitive()) {
-				w.write("buf.write(this->"+"x10__"+f.name()+");"); w.newline();
-				w.write("_S_(\"Written \" << this->"+"x10__"+f.name()+");");
+				w.write("buf.write(this->"+fieldName+");"); w.newline();
+				w.write("_S_(\"Written \" << this->"+fieldName+");");
 			} else if (ts.isValueType(f.type())) {
-				w.write("if (!m.ensure_unique(this->"+"x10__"+f.name()+")) assert (false);"); w.newline();
-				w.write("this->"+"x10__"+f.name()+"->"+SERIALIZE_METHOD+"(buf, m);"); w.newline();
-				w.write("_S_(\"Serialized "+"x10__"+f.name()+"\");");
+				w.write("if (!m.ensure_unique(this->"+fieldName+")) assert (false);"); w.newline();
+				w.write("this->"+fieldName+"->"+SERIALIZE_METHOD+"(buf, m);"); w.newline();
+				w.write("_S_(\"Serialized "+fieldName+"\");");
 			} else {
-				w.write("buf.write(this->"+"x10__"+f.name()+"); "+"/"+"*"+" non-value "+"*"+"/"); w.newline();
-				w.write("_S_(\"Written reference "+"x10__"+f.name()+"\");");
+				w.write("buf.write(this->"+fieldName+"); "+"/"+"*"+" non-value "+"*"+"/"); w.newline();
+				w.write("_S_(\"Written reference "+fieldName+"\");");
 			}
 		}
 		w.end(); w.newline();
@@ -1386,12 +1387,13 @@ public class Emitter {
 			FieldInstance f = (FieldInstance) type.fields().get(i);
 			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
+			String fieldName = mangled_non_method_name(f.name().toString());
 			if (f.type().isPrimitive()) {
-				w.write("this->"+"x10__"+f.name()+" = buf.read<"+translateType(f.type())+" >();");
+				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type())+" >();");
 			} else if (ts.isValueType(f.type())) {
-				w.write("this->"+"x10__"+f.name()+" = x10::_deserialize_value_ref<"+translateType(f.type())+" >(buf);");
+				w.write("this->"+fieldName+" = x10::_deserialize_value_ref<"+translateType(f.type())+" >(buf);");
 			} else {
-				w.write("this->"+"x10__"+f.name()+" = buf.read<"+translateType(f.type(), true)+" >(); "+"/"+"*"+" non-value "+"*"+"/");
+				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type(), true)+" >(); "+"/"+"*"+" non-value "+"*"+"/");
 			}
 		}
 		w.end(); w.newline();
@@ -1448,7 +1450,22 @@ public class Emitter {
 	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
 		}
 	}
+	public void emitUniqueNS(String name, ArrayList<String> history, ClassifiedStream w) {
+		if  (!history.contains(name)){
+			w.write("using namespace "+name+";");
+			history.add(name);
+		}
+		return;
+	}
 	
+	 public String makeUnsignedType(Type t) {
+	 		 // FIXME: HACK!
+	 		 if (t.isInt())
+	 		 		 return "uint32_t";
+	 		 if (t.isLong())
+	 		 		 return "uint64_t";
+	 		 return "unsigned "+translateType(t);
+	 }
 	Node enterSPMD(Node n, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean mainMethod = query.isMainMethod(context);

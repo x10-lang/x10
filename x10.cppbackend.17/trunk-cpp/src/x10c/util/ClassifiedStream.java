@@ -21,8 +21,8 @@ public class ClassifiedStream extends SimpleCodeWriter {
 	public ClassifiedStream(WriterStreams.StreamClass c, int width) {
 		this(new ByteArrayOutputStream(), c, width);
 	}
-	public void forceNewline(){ newline();}
-	public void forceNewline(int n){newline(n); }
+	public void forceNewline(){ pos = -1; newline();}
+	public void forceNewline(int n) { pos = -1; newline(n); }
 	public String toString() { return stream.toString();}
 
 }
