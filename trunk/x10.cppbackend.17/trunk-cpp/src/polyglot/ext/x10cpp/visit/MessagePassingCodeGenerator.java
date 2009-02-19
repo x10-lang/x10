@@ -277,7 +277,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return false;
 		boolean hasInits = false;
 		w.write("template <> class ");
-		w.write(translate_mangled_FQN(cd.fullName().toString()));
+		w.write(mangled_non_method_name(cd.name().toString()));
 		w.write("<void> {");
 		w.newline(4); w.begin(0);
 		for (ClassMember dec : context.pendingStaticDecls) {
@@ -495,6 +495,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		DelegateTargetFactory tf = ((X10CPPTranslator) tr).getTargetFactory();
+		ArrayList<Type> allIncludes = new ArrayList<Type>();
 		if (!n.classDef().isNested()) {
 			if (n.superClass() != null) {
 				ClassType ct = n.superClass().type().toClass();
@@ -519,6 +520,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						continue;
 					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
 					if (cpp == null) {
+						while (ct.isNested())
+							ct = (ClassType) ct.container();
 						String pkg = "";
 						if (ct.package_() != null)
 							pkg = ct.package_().fullName().toString();
@@ -577,18 +580,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						ct = ct.outer();
 					types.add(ct);
 				}
-				ArrayList<Type> ifHistory = new ArrayList<Type>();
 				for (Type t : types) {
 					ClassType ct = (ClassType) t;
 					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
 					if (cpp != null)
 						continue;
+					while (ct.isNested())
+						ct = (ClassType) ct.container();
 					QName pkg = null;
 					if (ct.package_() != null)
 						pkg = ct.package_().fullName();
-					if (!ifHistory.contains(ct)) {
-						String pkgs = pkg == null ? "" : pkg.toString();
-						String header = tf.outputHeaderName(pkgs, ct.name().toString());
+					if (!allIncludes.contains(ct)) {
 						if (pkg != null) {
 							Emitter.openNamespaces(h, pkg);
 							h.newline(0);
@@ -616,10 +618,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 							h.newline(0);
 							Emitter.closeNamespaces(h, pkg);
 							h.newline(0);
-						}   
-						w.write("#include <" + header + ">");
-						w.newline();
-						ifHistory.add(ct);
+						}
+						allIncludes.add(ct);
 					}
 				}
 
@@ -699,6 +699,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline(0);
 			Emitter.closeNamespaces(w, pkgName);
 			w.newline(0);
+			// [IP] Ok to include here, since the class is already defined
+			h.forceNewline();
+			for (Type t : allIncludes) {
+				ClassType ct = t.toClass();
+				String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+				assert (cpp == null);
+				assert (!ct.isNested());
+				QName pkg = null;
+				if (ct.package_() != null)
+					pkg = ct.package_().fullName();
+				String pkgs = pkg == null ? "" : pkg.toString();
+				String header = tf.outputHeaderName(pkgs, ct.name().toString());
+				h.write("#include <" + header + ">");
+				h.newline();
+			}
 		}
 		w.newline(0);
 	}
@@ -1046,7 +1061,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(FieldDecl_c dec) {
-		// FIXME: HACK: skip synthetic serialization fields and x10 auxiliary fields
+		// FIXME: HACK: skip synthetic serialization fields
 		if (query.isSyntheticField(dec.name().id().toString()))
 			return;
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
