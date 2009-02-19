@@ -1564,6 +1564,7 @@ public class Emitter {
 	        case UNBOXING:
 			// FIXME: Handle boxing and unboxing. Need generics?
 			assert (false);
+			break;
 		case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
 	        case CALL:
