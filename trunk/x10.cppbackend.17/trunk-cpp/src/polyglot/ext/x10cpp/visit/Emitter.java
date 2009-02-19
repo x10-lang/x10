@@ -31,7 +31,6 @@ import polyglot.ast.While_c;
 import polyglot.types.QName;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForLoop_c;
@@ -717,16 +716,12 @@ public class Emitter {
 		h.end();
 	}
 	
-	void enterClosure(X10CPPContext_c.Closures a, Closure_c n) {
-		assert (n != null);
-//		assert (!a.arrayInitializers.contains(n));
-		// if present, need to add again, because captured variables may change
-		a.arrayInitializers.add(n);
-		a.arrayInitializerParameters.add(null); // actual parameters will be defined later
-		a.nesting++;
+	void enterClosure(X10CPPContext_c c) {
+		c.closures.closureId++;
+		c.closures.nesting++;
 	}
-	void exitClosure(X10CPPContext_c.Closures a) {
-		a.nesting--;
+	void exitClosure(X10CPPContext_c c) {
+		c.closures.nesting--;
 	}
 
     void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, CodeWriter w) {
@@ -750,10 +745,10 @@ public class Emitter {
 	}
 	
 	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars) {
-		printDeclarationList(w, c, vars, true);
+		printDeclarationList(w, c, vars, true, false);
 	}
 	
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList vars, boolean saved_this_mechanism, boolean writable) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
@@ -764,6 +759,8 @@ public class Emitter {
 				t = ct.typeArguments().get(0);
 			}
 			String type = translateType(t, true);
+			if (writable && !var.name().toString().equals(THIS)) // this is a temporary ref
+			    type = type + "&"; // FIXME: Hack to get writable args in finally closures
 			List names = c.getRenameMapping(var);
 			if (names == null) {
 				String name = var.name().toString();
@@ -776,12 +773,12 @@ public class Emitter {
 						name += c.getDuplicateId(var);
 					name = mangled_non_method_name(name);
 				}
-				w.write(type + " " + name + "; ");
+				w.write(type + " " + name + ";");
 				w.newline();
 			} else {
 				for (Iterator n = names.iterator(); n.hasNext(); ) {
 					String name = (String) n.next();
-					w.write(type + " " + name + "; ");
+					w.write(type + " " + name + ";");
 					w.newline();
 				}
 			}

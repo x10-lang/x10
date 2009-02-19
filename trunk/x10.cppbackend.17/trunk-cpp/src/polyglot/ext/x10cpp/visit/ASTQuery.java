@@ -290,17 +290,12 @@ public class ASTQuery {
 		return true;
 	}
 
-	static int async_id(X10CPPContext_c.Closures a, Node n) {
-		return a.asyncs.lastIndexOf(n);
+	static int getConstructorId(X10CPPContext_c c) {
+		return c.closures.closureId;
 	}
 
-
-	static int getConstructorId(X10CPPContext_c.Closures c) {
-		return c.arrayInitializers.size()-1;
-	}
-
-	static boolean outerClosure(X10CPPContext_c.Closures a) {
-		return a.nesting == 0;
+	static boolean outerClosure(X10CPPContext_c c) {
+		return c.closures.nesting == 0;
 	}
 	static ClassType getOuterClass(X10CPPContext_c c) {
 		ClassType currentClass = c.currentClass();
