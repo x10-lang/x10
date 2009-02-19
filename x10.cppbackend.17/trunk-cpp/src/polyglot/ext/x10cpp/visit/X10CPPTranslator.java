@@ -525,7 +525,6 @@ public class X10CPPTranslator extends Translator {
 			"-I"+X10LIB+"/include",
 			"-I"+X10LANG,
 			"-I.",
-			"-I/home/nvk/Desktop/lapi/include"
 		};
 		// These go after the files
 		final String[] postArgs = new String[] {
@@ -534,7 +533,6 @@ public class X10CPPTranslator extends Translator {
 			"-lx10lang",
 			"-lx10",
 			"-ldl",
-			"-llapi"
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();
