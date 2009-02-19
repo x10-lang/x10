@@ -671,26 +671,28 @@ public class Emitter {
 		if (!qualify) {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
-			else if (xn.typeParameters().size() != 0 && !flags.isFinal()) {
-				// FIXME: [IP] for now just make non-virtual.
-				// In the future, will need to have some sort of dispatch object, e.g. the following:
-				// class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }
-				// translates to
-				// template<class T> class Foo_m {
-				//    Y _(Foo* f, X a) {
-				//       if (typeid(f)==typeid(Foo)) { return f->Foo::m_impl<T>(a); }
-				//       else if (typeid(f)==typeid(Bar)) { return f->Bar::m_impl<T>(a); }
-				//    }
-				// };
-				// class Foo {
-				//    public: template<class T> Y m(X a) { Foo_m<T>::_(this, a); }
-				//    public: template<class T> Y m_impl(X a);
-				// };
-				// class Bar : public Foo {
-				//    public: template<class T> Y m_impl(X a);
-				// };
-				String msg = "Method "+n.methodDef()+" is both generic and virtual";
-				tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+			else if (xn.typeParameters().size() != 0) {
+			    if (!flags.isFinal()) {
+			        // FIXME: [IP] for now just make non-virtual.
+			        // In the future, will need to have some sort of dispatch object, e.g. the following:
+			        // class Foo { def m[T](a: X): Y { ... } }; class Bar extends Foo { def m[T](a: X): Y { ... } }
+			        // translates to
+			        // template<class T> class Foo_m {
+			        //    Y _(Foo* f, X a) {
+			        //       if (typeid(f)==typeid(Foo)) { return f->Foo::m_impl<T>(a); }
+			        //       else if (typeid(f)==typeid(Bar)) { return f->Bar::m_impl<T>(a); }
+			        //    }
+			        // };
+			        // class Foo {
+			        //    public: template<class T> Y m(X a) { Foo_m<T>::_(this, a); }
+			        //    public: template<class T> Y m_impl(X a);
+			        // };
+			        // class Bar : public Foo {
+			        //    public: template<class T> Y m_impl(X a);
+			        // };
+			        String msg = "Method "+n.methodDef()+" is both generic and virtual";
+			        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+			    }
 			}
 			else if (!flags.isProperty() /*&& !flags.isFinal()*/) // [IP] TODO: find out if this is ok
 				h.write("virtual ");
