@@ -39,9 +39,11 @@ import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10Special_c;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -309,6 +311,8 @@ public class Emitter {
 	 * @return a string representation of the type
 	 */
 	String translateType(Type type, boolean asRef) {
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		type = xts.expandMacros(type);
 		if (type.isArray()) {
 			String base = translateType(type.toArray().base(), true);
 			String name = "x10::array<"+base+(base.endsWith(">")?" ":"")+">";
@@ -319,7 +323,7 @@ public class Emitter {
 		Context context = tr.context();
 		if (type.isVoid())
 			return type.translate(context);
-		if ((type.isPrimitive() || type.isNumeric()) && !type.isVoid())
+		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean()) && !type.isVoid())
 			return "x10_"+type.translate(context);
 		// FIXME: is ignoring nullable correct?
 //		if (((X10TypeSystem) type.typeSystem()).isNullable(type))
@@ -327,29 +331,33 @@ public class Emitter {
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
-		assert (type.isClass());
 		String name = null;
-		if (type.toClass().isAnonymous())
-			name = "__anonymous__"+getId();
-		else {
-			if (type.toClass().isNested())
-				context = tr.typeSystem().createContext();
-			name = type.translate(context);
-		}
-		ClassType ct = type.toClass();
-		if (!knownSpecialPackages.contains(ct.package_())) {
-			name = "x10__" + name;
-			name=name.replaceAll("\\.", ".x10__");
-			name=name.replaceAll("\\::", "::x10__");
-		}
-		// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
-		if (query.isX10Array(type)) {
-			String base = translateType(query.getX10ArrayElementType(type), true);
-			name = "x10::x10array<"+base+(base.endsWith(">")?" ":"")+">";
-			if (!arraysAsRefs || !asRef)
-				return name;
-			return make_ref(name);
-		}
+		if (type.isClass()){
+			if (type.toClass().isAnonymous())
+				name = "__anonymous__"+getId();
+			else {
+				if (type.toClass().isNested())
+					context = tr.typeSystem().createContext();
+				name = type.translate(context);
+			}
+			ClassType ct = type.toClass();
+			if (!knownSpecialPackages.contains(ct.package_())) {
+				name = "x10__" + name;
+				name=name.replaceAll("\\.", ".x10__");
+				name=name.replaceAll("\\::", "::x10__");
+			}
+			// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
+			if (query.isX10Array(type)) {
+				String base = translateType(query.getX10ArrayElementType(type), true);
+				name = "x10::x10array<"+base+(base.endsWith(">")?" ":"")+">";
+				if (!arraysAsRefs || !asRef)
+					return name;
+				return make_ref(name);
+			}
+		} else if (type instanceof ParameterType){
+			name = type.toString(); // 
+		} else 
+			assert false; // unhandled type.
 		name = translateFQN(name);
 		if (!asRef)
 			return name;
