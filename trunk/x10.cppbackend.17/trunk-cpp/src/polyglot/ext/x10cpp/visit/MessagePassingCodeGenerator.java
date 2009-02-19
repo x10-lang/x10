@@ -43,7 +43,6 @@ import polyglot.ast.Binary_c;
 import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Branch_c;
-import polyglot.ast.Call_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case_c;
 import polyglot.ast.Catch;
@@ -54,8 +53,6 @@ import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall;
-import polyglot.ast.ConstructorCall_c;
-import polyglot.ast.ConstructorDecl;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Do_c;
 import polyglot.ast.Empty_c;
@@ -76,13 +73,11 @@ import polyglot.ast.Initializer_c;
 import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Labeled_c;
-import polyglot.ast.Lit_c;
 import polyglot.ast.LocalClassDecl_c;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.Loop_c;
 import polyglot.ast.MethodDecl_c;
-import polyglot.ast.NewArray_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -92,7 +87,6 @@ import polyglot.ast.PackageNode_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return_c;
 import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
 import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
@@ -113,12 +107,10 @@ import polyglot.ext.x10.ast.Await_c;
 import polyglot.ext.x10.ast.ClosureCall_c;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.ConstantDistMaker_c;
-import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Future_c;
-import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.ParExpr_c;
@@ -128,7 +120,6 @@ import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.TypeDecl_c;
-import polyglot.ext.x10.ast.TypeDecl;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.When_c;
 import polyglot.ext.x10.ast.X10Binary_c;
@@ -136,23 +127,16 @@ import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
-import polyglot.ext.x10.ast.X10ClassDecl;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
-import polyglot.ext.x10.ast.X10ClockedLoop_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10FieldInstance;
-import polyglot.ext.x10.ast.X10MethodDecl_c;
-import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
-import polyglot.ext.x10.extension.X10Ext_c;
-import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
-import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.X10ClassType;
@@ -161,7 +145,6 @@ import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -172,41 +155,27 @@ import polyglot.ext.x10.visit.X10DelegatingVisitor;
 import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
-import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
-import polyglot.types.NoMemberException;
-import polyglot.types.Package;
-import polyglot.types.Package_c;
-import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
-import polyglot.types.Ref;
-import polyglot.types.ReferenceType;
-import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
-import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.util.TypedList;
-import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
 import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 
@@ -676,6 +645,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         ClassifiedStream save_body = sw.body();
         ClassifiedStream save_header = sw.header();
+        ClassifiedStream save_generic = context.templateFunctions;
         // Header stream
         ClassifiedStream h = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
         StreamWrapper.StreamClass impl = StreamWrapper.StreamClass.CC;
@@ -683,6 +653,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             impl = StreamWrapper.StreamClass.Header;
         // Implementation stream (may be after the header)
         ClassifiedStream w = sw.getNewStream(impl, false);
+        // Stream for generic functions (always in the header, may be empty)
+        ClassifiedStream g = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
+        context.templateFunctions = g;
         // Dependences guard closing stream (comes at the end of the header)
         ClassifiedStream z = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
         sw.set(h, w);
@@ -981,6 +954,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         z.write("#endif // __"+cguard+"_NODEPS"); h.newline();
         z.forceNewline(0);
         
+        context.templateFunctions = save_generic;
         sw.set(save_header, save_body);
 	}
 
@@ -1261,22 +1235,29 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10Flags flags = X10Flags.toX10Flags(dec.flags().flags());
 		if (flags.isNative())
 			return;
-        ClassifiedStream h = sw.header();
+		ClassifiedStream h = sw.header();
+		X10MethodDef def = (X10MethodDef) dec.methodDef();
+		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
+		X10ClassType container = (X10ClassType) mi.container();
 		if (query.isMainMethod(dec)) {
-			Type container = dec.methodDef().asInstance().container();
-		    if (container.isClass() && !((X10ClassType)container).typeArguments().isEmpty()) {
-		    	List<Type> args = Arrays.asList(new Type[] { xts.Void() });
-		    	container = ((X10ClassType)container).typeArguments(args);
+            X10ClassType mainContainer = container;
+		    if (container.isClass() && !container.typeArguments().isEmpty()) {
+		        List<Type> args = Arrays.asList(new Type[] { xts.Void() });
+		        mainContainer = container.typeArguments(args);
 		    }
-			xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
+		    xcdProcessor.new Template("MainMP", emitter.translateType(mainContainer)).expand();
 		}
-		if ((((X10ClassDef)((X10ClassType)dec.methodDef().asInstance().container()).def()).typeParameters().size() != 0)
-				&& flags.isStatic())
-		{
+		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
 			context.pendingStaticDecls.add(dec);
 			return;
 		}
-		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
+		int mid = getUniqueId_().intValue();
+		if (def.typeParameters().size() != 0) {
+		    sw.pushCurrentStream(context.templateFunctions);
+		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
+		    sw.write("#ifndef "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
+		    sw.write("#define "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
+		}
 //        X10ClassType container = (X10ClassType) mi.container().toClass();
 //        // TODO: [IP] Add an extra apply to something that's both Settable and Indexable
 //        try {
@@ -1288,7 +1269,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //        }
 //        } catch (SemanticException e) { assert (false) : ("Huh?  No Indexable or Settable?"); }
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
-		Type ret_type = emitter.findRootMethodReturnType((X10MethodDef)dec.methodDef(), dec.position(), mi);
+		Type ret_type = emitter.findRootMethodReturnType(def, dec.position(), mi);
 		String methodName = mi.name().toString();
         sw.pushCurrentStream(h);
         emitter.printHeader(dec, sw, tr, methodName, ret_type, false);
@@ -1299,27 +1280,31 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (dec.body() != null) {
 			if (!flags.isStatic()) {
 				VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
+						Types.ref(container), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
 			emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
-			sw.newline();
 			dec.printSubStmt(dec.body(), sw, tr);
 			sw.newline();
 		} else {
 			// Check for properties accessed using method syntax.  They may have @Native annotations too.
 			if (flags.isProperty() && flags.isAbstract() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
-				X10FieldInstance fi = (X10FieldInstance) mi.container().fieldNamed(mi.name());
+				X10FieldInstance fi = (X10FieldInstance) container.fieldNamed(mi.name());
 				if (fi != null) {
 					// This is a property method in an interface.  Give it a body.
 					emitter.printHeader(dec, sw, tr, methodName, ret_type, true);
-					sw.write("{");
+					sw.write(" {");
 					sw.allowBreak(0, " ");
 					sw.write("return "+mangled_field_name(fi.name().toString())+";");
 					sw.allowBreak(0, " ");
 					sw.write("}");
 				}
 			}
+		}
+		if (def.typeParameters().size() != 0) {
+		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
+		    sw.write("#endif // "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
+		    sw.popCurrentStream();
 		}
 	}
 
@@ -1378,7 +1363,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			assert (!dec.flags().flags().isStatic());
 			TypeSystem ts = tr.typeSystem();
 			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-					new Ref_c<StructType>(container), Name.make(THIS)).asInstance();
+					Types.ref(container), Name.make(THIS)).asInstance();
 			context.addVariable(ti);
 			if (hasInits)
 				sw.newline();
