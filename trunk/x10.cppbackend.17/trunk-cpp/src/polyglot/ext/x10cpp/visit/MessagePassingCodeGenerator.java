@@ -360,15 +360,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		w.write(mangled_non_method_name(dec.name().id().toString()));
 		w.write(" = ");
-		if (init instanceof ArrayInit_c) {
-			assert (dec.type().type().isArray());
-			ArrayType type = dec.type().type().toArray();
-			newJavaArray(init, type.base(), Collections.EMPTY_LIST, type.dims(), (ArrayInit_c) init);
-		} else {
-			sw.pushCurrentStream(w);
-			dec.print(init, sw, tr);
-			sw.popCurrentStream();
-		}
+        sw.pushCurrentStream(w);
+        dec.print(init, sw, tr);
+        sw.popCurrentStream();
 		w.write(";");
 	}
 	boolean hasNativeMethods(List members) {
@@ -422,6 +416,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h = w;
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
+
 		if (!n.classDef().isNested()) {
 			// SPMD fields
 			// FIXME: [IP] There is a problem with include ordering.
@@ -435,6 +430,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// field reads (in static final field initializers) and
 			// inheritance.  So find all class declarations and field
 			// declarations, and do #include for those headers.
+
+            // [DC] static final field initialisers should be in the cc file,
+            // with everything else that needs a full definition (lookups,
+            // construction, etc)
+
+            // [DC] generic classes might cause a problem though, as their
+            // function bodies are in the header.  We can still get cycles
+            // through this approach.  We may need two layers of headers or
+            // something for generic classes, in a manner that reflects the
+            // (h,cc) pairing for non-generic classes.
+
 			X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
 			n.visit(xTypes);
 			if (xTypes.found()) {
@@ -515,9 +521,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 			h.forceNewline(0);
 			if (n.classDef().package_() != null) {
-				h.write("namespace ");
-				h.write(translate_mangled_FQN(n.classDef().package_().get().fullName().toString(), "{ namespace "));
-				h.write(" {");
+                QName fullName = n.classDef().package_().get().fullName();
+                Emitter.openNamespaces(h,fullName);
 				h.newline(0);
 			}
 		}
@@ -558,8 +563,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!n.classDef().isNested()) {
 			if (n.classDef().package_() != null) {
 				h.newline(0);
-				String ns = n.classDef().package_().get().fullName().toString();
-				emitter.closeNameSpace(ns, h);
+                Emitter.closeNamespaces(h,n.classDef().package_().get().fullName());
 				h.newline(0);
 			}
 		}
@@ -1140,11 +1144,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				e = n.expr();
 			}
 			assert (e == initexpr);
-			if (initexpr instanceof ArrayInit_c) {
-				assert (dec.type().type().isArray());
-				ArrayType type = dec.type().type().toArray();
-				newJavaArray((Term_c) initexpr, type.base(), Collections.EMPTY_LIST, type.dims(), (ArrayInit_c) dec.init());
-			} else
 			// TODO: [IP] Combine finish calls for consecutive reductions
 			{
 				sw.pushCurrentStream(w);
@@ -1552,7 +1551,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String region_type = "_region<1>";
 		w.write("("+make_ref(region_type)+")(");
 		w.begin(0);
-		w.write("new (x10::alloc<"+region_type+" >()) "+region_type+"(");
+		w.write("new (x10aux::alloc<"+region_type+" >()) "+region_type+"(");
 		w.allowBreak(2, 2, "", 0); // miser mode
 		w.begin(0);
 		for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
@@ -1586,7 +1585,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String rect_region_type = "_region<"+ dims + ">";
 		w.write("("+make_ref(rect_region_type)+")(");
 		w.begin(0);
-		w.write("new (x10::alloc<"+rect_region_type+" >()) "+rect_region_type+"(");
+		w.write("new (x10aux::alloc<"+rect_region_type+" >()) "+rect_region_type+"(");
 		w.allowBreak(2, 2, "", 0); // miser mode
 		w.begin(0);
 		for (Iterator i = arguments.iterator(); i.hasNext(); ) {
@@ -1612,7 +1611,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String dist_type = "_dist_local";
 		w.write("("+make_ref(dist_type)+")(");
 		w.begin(0);
-		w.write("new (x10::alloc<"+dist_type+" >()) "+dist_type+"(");
+		w.write("new (x10aux::alloc<"+dist_type+" >()) "+dist_type+"(");
 		w.allowBreak(2, 2, "", 0); // miser mode
 		w.begin(0);
 		Expr r = (Expr) n.arguments().get(0);
@@ -1736,7 +1735,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.begin(0);
 		w.write("new");
 		w.allowBreak(0, " ");
-		w.write("(x10::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
+		w.write("(x10aux::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
 		w.allowBreak(0, " ");
 		w.write(emitter.translateType(n.objectType().type()));
 		w.write("(");
@@ -2211,7 +2210,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline(0);
 
-		w.write("x10::dealloc(" + name + ");");
+		w.write("x10aux::dealloc(" + name + ");");
 		w.newline();
 
 		w.end(); w.newline(0);  
@@ -2326,7 +2325,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline(0);
 
-		w.write("x10::dealloc(" + name + ");");
+		w.write("x10aux::dealloc(" + name + ");");
 		w.newline();
 
 		w.end(); w.newline(0);  
@@ -3051,17 +3050,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Tuple_c c) {
 		// Handles Rails initializer.
 
-		w.write("{");
-		int i = 0;
+        Type T = X10TypeMixin.getParameterType(c.type(), 0);
+		w.write("x10aux::alloc_rail<");
+        emitter.printType(T, w); 
+		w.write(",");
+        // TODO: we don't want x10aux::ref<Rail<T> > here
+        // Use the NativeRep stuff
+        emitter.printType(c.type(), w); 
+		w.write(" >("+c.arguments().size());
 		for (Expr e:c.arguments()) {
+            w.write(",");
 			sw.pushCurrentStream(w);
 			c.printSubExpr(e, false, sw, tr);
 			sw.popCurrentStream();
-			i++;
-			if (i < c.arguments().size())
-				w.write(",");
 		}
-		w.write("}");
+		w.write(")");
 	}
 
 	void newJavaArray(Term_c n, Type base, List dims, int additionalDims, ArrayInit_c init) {
@@ -3082,7 +3085,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					init.position());
 			// TODO: generate an init method
 		}
-		w.write("x10::alloc_array<");
+		w.write("x10aux::alloc_array<");
 		String base_type = emitter.translateType(base, true);
 		w.write(base_type);
 		w.write(" >(");
