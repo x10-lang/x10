@@ -323,6 +323,8 @@ public class Emitter {
 		Context context = tr.context();
 		if (type.isVoid()) {
 			String temp = type.translate(context);
+			/// HACK. Revert it back after we know how to
+			//handle the capitalized types.
 			//FIXME Does temp ever become anything other than Void? Also, do 
 			// need to de-capitalize other primitive types?
 			if (temp.equals("Void")) return "void";
@@ -1462,7 +1464,13 @@ public class Emitter {
 		}
 		return;
 	}
-	
+	public void emitUniqueIF(String header, ArrayList<String> history, ClassifiedStream w) {
+		if  (!history.contains(header)){
+			w.write("#include \"" + header + "\"");
+			history.add(header);
+		}
+		return;
+	}
 	 public String makeUnsignedType(Type t) {
 	 		 // FIXME: HACK!
 	 		 if (t.isInt())

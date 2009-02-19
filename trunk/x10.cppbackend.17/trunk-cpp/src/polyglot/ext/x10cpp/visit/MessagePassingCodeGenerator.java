@@ -383,13 +383,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						continue;
 					types.add(ct);
 				}
+				ArrayList<String> ifHistory = new ArrayList<String>();
 				for (Iterator is = types.iterator(); is.hasNext(); ) {
 					ClassType ct = (ClassType) is.next();
 					String pkg = "";
 					if (ct.package_() != null)
 						pkg = ct.package_().fullName().toString();
 					String header = tf.outputHeaderName(pkg, ct.name().toString());
-					h.write("#include \"" + header + "\"");
+					emitter.emitUniqueIF(header, ifHistory, h);
 					h.newline();
 				}
 				ArrayList<String> unHistory = new ArrayList<String>();

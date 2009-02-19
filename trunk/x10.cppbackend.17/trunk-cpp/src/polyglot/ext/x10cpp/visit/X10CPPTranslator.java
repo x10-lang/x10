@@ -527,7 +527,7 @@ public class X10CPPTranslator extends Translator {
 			"-lx10lang",
 			"-lx10",
 			"-ldl",
-			"-lm",
+			"-llapi"
 		};
 		if (post_compiler != null && !options.output_stdout) {
 			Runtime runtime = Runtime.getRuntime();
