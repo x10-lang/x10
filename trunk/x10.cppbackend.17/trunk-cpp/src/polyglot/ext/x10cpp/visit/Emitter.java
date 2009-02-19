@@ -321,8 +321,13 @@ public class Emitter {
 			return make_ref(name);
 		}
 		Context context = tr.context();
-		if (type.isVoid())
-			return type.translate(context);
+		if (type.isVoid()) {
+			String temp = type.translate(context);
+			//FIXME Does temp ever become anything other than Void? Also, do 
+			// need to de-capitalize other primitive types?
+			if (temp.equals("Void")) return "void";
+			return temp;
+		}
 		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean()) && !type.isVoid())
 			return "x10_"+type.translate(context);
 		// FIXME: is ignoring nullable correct?
