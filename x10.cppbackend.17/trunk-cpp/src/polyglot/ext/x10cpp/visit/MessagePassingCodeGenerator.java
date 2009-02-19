@@ -2853,8 +2853,24 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String base = emitter.translateType(base_type, true);
 		//String className = emitter.translateType(c.currentClass());
 		String inherits = n.returnType().type().isVoid() ? 
-				"x10::core::fun::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) : 
-					"x10::core::fun::" + mangled_non_method_name("Fun_0_" + n.formals().size());
+				"x10::lang::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) : 
+					"x10::lang::" + mangled_non_method_name("Fun_0_" + n.formals().size());
+		String prefix = "<";
+		for (Formal formal : n.formals()) {
+			inherits = inherits + prefix + emitter.translateType(formal.type().typeRef().get(), true);
+			prefix = ", ";
+		}
+		if (!n.returnType().type().isVoid()) {
+			inherits = inherits + prefix + emitter.translateType(base_type, true);
+		}
+		if (!prefix.equals("<")) inherits = inherits +" >"; // don't emit " >" for void->void case
+
+		//TODO
+		// create two new streams
+		// 1 for body, 1 for formals
+		//ClassifiedStream body = ws.getNewStream(WriterStreams.StreamClass.Closures);
+		//ClassifiedStream formals = ws.getNewStream(WriterStreams.StreamClass.Closures);
+
 		w.write("closure_class_and_args_struct(" ); //className + ",");
 //		w.allowBreak(0, " ");
 		w.write(constructor_id + ",");

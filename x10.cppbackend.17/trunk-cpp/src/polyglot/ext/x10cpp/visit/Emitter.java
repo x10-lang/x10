@@ -957,7 +957,7 @@ public class Emitter {
 		createPackedArgumentsStruct(w, c, id, prefix, true);
 	}
 	void createPackedArgumentsStruct(ClassifiedStream w, X10CPPContext_c c, int id, String prefix, boolean saved_this_mechanism) {
-		w.write("struct "+args_name(prefix, id)+" : public x10::closure_args {");
+		w.write("struct "+args_name(prefix, id)+" : public x10aux::closure_args {");
 		w.newline(4); w.begin(0);
 		w.write(args_name(prefix, id));
 		w.write("(");
