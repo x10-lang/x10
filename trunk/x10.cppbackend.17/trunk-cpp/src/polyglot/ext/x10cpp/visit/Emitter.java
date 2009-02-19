@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import polyglot.ast.Block_c;
 import polyglot.ast.Call_c;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.Do_c;
@@ -30,15 +31,16 @@ import polyglot.ast.While_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Closure_c;
-import polyglot.ext.x10.ast.DepCast_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.RectRegionMaker_c;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
@@ -48,6 +50,7 @@ import polyglot.types.Flags;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.Translator;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
@@ -1393,32 +1396,50 @@ public class Emitter {
 		w.newline();
 		w.forceNewline();
 	}
-	void handleX10Cast(X10Cast_c n, String castVar, ClassifiedStream w) {
+	void handleX10Cast(X10Cast_c c, String castVar, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (n==null) return;
+	        TypeNode tn = c.castType();
+	        assert tn instanceof CanonicalTypeNode;
 
-		DepParameterExpr dpe = null;
-		if (n instanceof DepCast_c && n.isDepTypeCheckingNeeded()) {
-			dpe = (((DepCast_c) n).dep());
-		}
-		if (dpe != null || (n.notNullRequired() && !n.isToTypeNullable())) {
-			if (dpe != null) {
-				// TODO: Handle dpe.args()
+		if (c==null) return;
+	        switch (c.conversionType()) {
+	        case COERCION:
+	        case PRIMITIVE:
+	        case TRUNCATION:
+	            if (tn instanceof X10CanonicalTypeNode) {
+	                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+
+	                Type t = X10TypeMixin.baseType(xtn.type());
+	                DepParameterExpr dep = xtn.constraintExpr();
+
+			if (dep != null) {
 				context.setSelf(castVar);
-				w.write("if (!");
+				w.write("if (! ");
 				sw.pushCurrentStream(w);
-				n.printSubExpr(dpe.condition(), true, sw, tr);
+				c.printSubExpr(dep.condition(), true, sw, tr);
 				sw.popCurrentStream();
 				context.resetSelf();
 				w.write(")");
 			} else {
-				w.write("if (" + castVar + "== NULL)");
+				// FIXME: unhandled cast.
+				assert false;
 			}
 			w.newline(2);
 			w.begin(0);
-			w.write("throw (x10::ref<std::bad_cast>) new (x10::alloc<std::bad_cast>()) std::bad_cast() ; " );
+			w.write("throw (x10::ref<x10::lang::ClassCastException>) new (x10::alloc<x10::lang::ClassCastException>()) x10::lang::ClassCastException() ; " );
 			w.end();
 			w.newline();
+		}
+	        	break;
+
+	        case BOXING:
+	        case UNBOXING:
+			// FIXME: Handle boxing and unboxing. Need generics?
+			assert (false);
+		case UNKNOWN_CONVERSION:
+	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+	        case CALL:
+	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
 		}
 	}
 	
