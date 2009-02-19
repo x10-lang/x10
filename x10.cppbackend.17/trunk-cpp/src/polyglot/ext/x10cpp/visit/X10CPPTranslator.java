@@ -301,8 +301,10 @@ public class X10CPPTranslator extends Translator {
 					break;
 				}
 			}
-			if (filefound && !t.hasNext())
+			if (filefound && !t.hasNext()) {
 				generateGlobalSwitch(sw);
+				generateClosureSwitch(sw);
+                        }
 
 			wstreams.commitStreams();
 
@@ -314,6 +316,25 @@ public class X10CPPTranslator extends Translator {
 			return false;
 		}
 	}
+
+	private void generateClosureSwitch(StreamWrapper sw) {
+		ClassifiedStream w = sw.cs;
+		WriterStreams wstreams = sw.ws;
+		X10CPPContext_c context = (X10CPPContext_c) this.context();
+		Emitter emitter = new Emitter(sw, this);
+
+		w.write("extern \"C\" {"); w.newline(4); w.begin(0);
+		w.write("x10aux::AnyClosure *__x10_callback_closureswitch(int id, "
+                        +SERIALIZATION_BUFFER+"& s) {");
+		w.newline(4); w.begin(0);
+		w.write("switch (id) {"); w.newline(4); w.begin(0);
+                // iterate through closures
+		w.write("default: fprintf(stderr,\"Unrecognised closure id: %d\\n\",id); abort();");
+                w.end() ; w.newline();
+		w.write("}"); w.end(); w.newline();
+		w.write("} // __x10_callback_closureswitch"); w.end(); w.newline();
+		w.write("} // extern \"C\""); w.newline();
+        }
 
 	private void generateGlobalSwitch(StreamWrapper sw) {
 		ClassifiedStream w = sw.cs;
