@@ -98,7 +98,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			throw new Error("Problems writing to "+wrapperFile);
 		}
 	}
-
+/*
 	private String typeToCType(Type theType) {
 		if (theType.isPrimitive()) {
 			return typeToCString(theType);
@@ -117,6 +117,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			return "void*";
 		}
 	}
+	*/
 	
 	private String typeToCString(Type theType) {
 		if (theType.isPrimitive()) {
@@ -185,6 +186,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		}
 	}
 
+	/*
 	private String generateJavaSignature(MethodDecl_c method) {
 		String signature = "";
 		for (ListIterator i = method.formals().listIterator(); i.hasNext();) {
@@ -203,6 +205,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		}
 		return signature;
 	}
+	*/
 
 	private static final String zeros = "0000";
 	/**
@@ -288,6 +291,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * @param nativeMethod
 	 * @param isOverloaded
 	 */
+	/*
 	private void generateStub(MethodDecl_c nativeMethod, boolean isOverloaded) {
 
 		String _newName = generateX10NativeName(nativeMethod);
@@ -323,6 +327,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			throw new Error("Problems writing file");
 		}
 	}
+	*/
 
 	private static int containingClassDepth = 0; // use to create stub file for outermost class w/ natives
 
@@ -351,6 +356,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	 * with the actual native implementation of <code>C_foo(int)</code>, into
 	 * a dynamic library, and ensure that the X10 program can find them
 	 */
+	/*
 	public Node rewrite(X10TypeSystem ts, NodeFactory nf, ExtensionInfo info) {
 		typeSystem = ts;
 		boolean seenNativeMethodDecl = false;
@@ -395,6 +401,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 
 		return cb;
 	}
+	*/
 
 	/**
 	 * Create a stub file name for the type with suffix _x10stub.c
