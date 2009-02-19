@@ -245,7 +245,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private final StreamWrapper sw;
 	private final ClassifiedStream w; // This is the current stream. 
 	private final WriterStreams ws;
-	private final Translator tr;
+	private Translator tr;
 	private XCDProcessor xcdProcessor;
 
 	Emitter emitter;
@@ -827,14 +827,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.print(n.body(), sw, tr);
 		sw.popCurrentStream();
 
-		/*
-		 * TODO: [IP] Add comment about dependences between the method calls.
-		 */
-		processNestedClasses(n);
+        Translator tr2 = tr.context(n.enterChildScope(n.body(), tr.context()));
+        try {
+            tr = tr2;
 
-		if (extractGenericStaticDecls(def, h)) {
-			extractGenericStaticInits(def, w);
-		}
+            /*
+             * TODO: [IP] Add comment about dependences between the method calls.
+             */
+            processNestedClasses(n);
+
+            if (extractGenericStaticDecls(def, h)) {
+                extractGenericStaticInits(def, w);
+            }
+        }
+        finally {
+            tr = tr2;
+        }
 
 		context.pendingStaticDecls = opsd;
 
@@ -920,6 +928,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	}
 
+    // Get the list of methods of name "name" that ought to be accessible from class c
+    // due to being locally defined or inheritted
     List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
         assert(name!=null);
         assert(c!=null);
@@ -1066,7 +1076,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         }
                         h.write(") {"); h.newline(4); h.begin(0);
                         
-                        h.write(superClass.name()+"::"+mname);
+                        if (!dropzone.returnType().isVoid())
+                            h.write("return ");
+                        h.write(emitter.translateType(superClass,false)
+                                +"::"+mangled_method_name(mname.toString()));
+                        if (dropzone.typeParameters().size()>0) {
+                            String prefix = "<";
+                            for (Type t : dropzone.typeParameters()) {
+                                h.write(prefix);
+                                h.write(emitter.translateType(t));
+                                prefix = ",";
+                            }
+                            h.write(">");
+                        }
                         counter = 0;
                         for (Type formal : formals) {
                             h.write(counter==0?"(":", ");
@@ -1074,7 +1096,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                         }
                         h.write(");"); h.end(); h.newline();
 
-                        h.write("}");
+                        h.write("}"); h.newline();
 
                     }
 
@@ -2032,7 +2054,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 
-        if (context.inTemplate()) {
+        if (context.inTemplate() && mi.typeParameters().size()>0) {
             w.write("template ");
         }
 		w.write(mangled_method_name(n.name().id().toString()));

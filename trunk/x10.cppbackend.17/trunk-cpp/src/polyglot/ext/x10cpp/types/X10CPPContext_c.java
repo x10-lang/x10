@@ -28,6 +28,7 @@ import polyglot.ast.ClassMember;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10cpp.visit.X10SummarizingRules;
 import polyglot.types.Context_c;
 import polyglot.types.LocalInstance;
@@ -48,8 +49,17 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	}
 
     public boolean inTemplate() {
-        X10ClassDef def = (X10ClassDef)currentClassDef();
-        return def != null && def.typeParameters().size() != 0;
+        X10ClassDef cd = (X10ClassDef)currentClassDef();
+        // following 2 lines are needed for constraints
+        if (inSuperTypeDeclaration())
+            cd = supertypeDeclarationType();
+        X10MethodDef md = currentCode() instanceof X10MethodDef ? (X10MethodDef) currentCode() : null;
+        boolean genericClass = cd.typeParameters().size() != 0;
+        boolean staticMethod = md != null && md.flags().isStatic();
+        boolean genericMethod = md != null && md.typeParameters().size() != 0;
+        //[DC] FIXME: what if we've in a static initialiser of a generic class
+        //should return false, but does return true?
+        return (!staticMethod && genericClass) || genericMethod;
     }
 
 	public boolean inClosure;
