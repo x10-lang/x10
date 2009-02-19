@@ -307,9 +307,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				FieldDecl_c fd = (FieldDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
 				emitter.printHeader(fd, w, tr, false);
-				if (fd.init() != null &&
+				if (fd.init() != null) /* [DC] want these to occur in the static initialiser
 						!(fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
-								fd.init().isConstant()))
+								fd.init().isConstant())) */
 				{
 					hasInits = true;
 				}
@@ -324,7 +324,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		if (hasInits) {
-			w.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
+			w.write("public : static " + VOID + " " + STATIC_INIT + "();");
 			w.newline();
 		}
 		w.end(); w.newline();
@@ -347,6 +347,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(container+"::");
 				w.write(mangled_field_name(fd.name().id().toString()));
 				if (fd.init() != null) {
+/* [DC] want these to occur in the static initialiser instead
 					if (fd.flags().flags().isStatic() && fd.flags().flags().isFinal() &&
 							fd.init().isConstant())
 					{
@@ -356,6 +357,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						fd.print(fd.init(), sw, tr);
 						sw.popCurrentStream();
 					} else
+*/
 						inits.add(fd);
 				}
 				w.write(";");
@@ -454,8 +456,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 		if (inits.size() > 0) {
-			w.write(VOID_PTR + " " + container + "::" + STATIC_INIT + "() {");
+			w.write(VOID + " " + container + "::" + STATIC_INIT + "() {");
 			w.newline(4); w.begin(0);
+			w.write("_I_(\"Doing static initialisation for class: "+container+"\");"); w.newline();
 			for (FieldDecl_c fd : inits) {
 				assert (fd.init() != null);
 				w.write(mangled_field_name(fd.name().id().toString())+" =");
@@ -468,7 +471,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 			w.end(); w.newline();
 			w.write("}"); w.newline();
-			w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = " + container + "::" + STATIC_INIT + "()"+ ";");
+			w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
 			w.newline(); w.forceNewline(0);
 		}
 	}
@@ -495,8 +498,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					X10ClassType container = (X10ClassType)dec.fieldDef().asInstance().container();
 					if (((X10ClassDef)container.def()).typeParameters().size() != 0)
 						continue;
+/*
 					if (dec.init() != null && dec.flags().flags().isFinal() && dec.init().isConstant())
 						continue;
+*/
 				}
 			}
 			if (!sawInit) {
@@ -504,6 +509,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(retType + " " + className + "::" + methodName + "() {");
 				w.newline(4);
 				w.begin(0);
+				w.write("_I_(\"Doing static initialisation for class: "+className+"\");"); w.newline();
 				sawInit = true;
 			}
 			if (member instanceof Initializer_c) {
@@ -933,10 +939,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
 			}
 
-			if (extractInits(currentClass, STATIC_INIT, VOID_PTR, members, w, true)) {
-				h.write("public : static " + VOID_PTR + " " + STATIC_INIT + "();");
+			if (extractInits(currentClass, STATIC_INIT, VOID, members, w, true)) {
+				h.write("public : static " + VOID + " " + STATIC_INIT + "();");
 				h.newline();
-				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = " + className + "::" + STATIC_INIT + "()"+ ";");
+				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
+						" = x10aux::InitDispatcher::addInitializer(" + 
+						className+"::"+STATIC_INIT + ")" + ";");
 				w.newline(); w.forceNewline(0);
 			}
 
@@ -1242,6 +1250,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printHeader(dec, h, tr, false);
 		if (dec.flags().flags().isStatic()) {
 			emitter.printHeader(dec, w, tr, true);
+/* [DC] disabled because I want this done through the static initialisation framework
 			if (dec.init() != null && dec.flags().flags().isFinal() && dec.init().isConstant()) {
 				w.write(" =");
 				w.allowBreak(2, " ");
@@ -1249,6 +1258,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				dec.print(dec.init(), sw, tr);
 				sw.popCurrentStream();
 			}
+*/
 			w.write(";");
 			w.newline();
 			return ;
@@ -2166,13 +2176,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 				Type t = X10TypeMixin.baseType(xtn.type());
 
-				w.write("x10aux::class_cast<");
-				emitter.printType(t, w); 
-				w.write(" >(");
-				sw.pushCurrentStream(w);
-				c.printSubExpr(c.expr(), true, sw, tr);
-				sw.popCurrentStream();
-				w.write(")");
+				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+
+				if (xts.typeDeepBaseEquals(t,c.expr().type())) {
+					sw.pushCurrentStream(w);
+					c.printSubExpr(c.expr(), true, sw, tr);
+					sw.popCurrentStream();
+				} else {
+					w.write("x10aux::class_cast<");
+					emitter.printType(t, w); 
+					w.write(" >(");
+					sw.pushCurrentStream(w);
+					c.printSubExpr(c.expr(), true, sw, tr);
+					sw.popCurrentStream();
+					w.write(")");
+				}
 			} else {
 				throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
 			}

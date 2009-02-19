@@ -8,6 +8,7 @@ extern "C" {
 ##endif
         if (x10aux::__here__ == 0) {
             x10aux::general_finish_start();
+            x10aux::InitDispatcher::runInitializers();
             #0::main(args);
             x10aux::general_finish_end();
         } else {
