@@ -1529,6 +1529,7 @@ public class Emitter {
 	                DepParameterExpr dep = xtn.constraintExpr();
 
 			if (dep != null) {
+				// FIXME: handle RTT
 				context.setSelf(castVar);
 				w.write("if (! ");
 				sw.pushCurrentStream(w);
@@ -1549,8 +1550,8 @@ public class Emitter {
 	                    w.write(")");
 	                    w.end();
 	                } else {
-				// FIXME: unhandled cast.
-				assert false;
+				// FIXME: RTT
+				w.write("if (false)");
 			}
 			w.newline(2);
 			w.begin(0);
