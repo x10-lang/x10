@@ -223,7 +223,7 @@ public class Inliner extends ContextVisitor {
 
     public boolean simple(Expr e) {
         // HACK: treating closures as simple is correct only if we don't do == on closures.
-        return e instanceof Lit || e instanceof Local || e instanceof Closure;
+        return e instanceof Lit || e instanceof Local || e instanceof Closure || e.type().isNull();
     }
 
     String nameOf(Expr e) {
@@ -236,6 +236,7 @@ public class Inliner extends ContextVisitor {
 
     public LocalDecl makeFreshLocal(Expr e, Flags flags) {
         Type t = e.type();
+        assert ! t.isNull() : "null type for " + e;
         Name name = Name.makeFresh(nameOf(e));
         Position pos = e.position();
         LocalDef def = ts.localDef(pos, flags, Types.ref(t), name);
@@ -289,7 +290,7 @@ public class Inliner extends ContextVisitor {
             vformals.add(formals.get(i));
         }
 
-        assert vars.size() == formals.size();
+        assert vars.size() == vformals.size();
 
         body = renameLocals(body);
 
@@ -387,6 +388,8 @@ public class Inliner extends ContextVisitor {
                     }
                     else {
                         if (result == null) {
+                            if (simple(r.expr()))
+                                return break_;
                             LocalDecl d = makeFreshLocal(r.expr(), Flags.FINAL);
                             return nf.Block(r.position(), d, break_);
                         }
@@ -458,14 +461,17 @@ public class Inliner extends ContextVisitor {
                 if (n instanceof Field) {
                     Field f = (Field) n;
                     assert f.target() != null;
+                    return f.targetImplicit(false);
                 }
                 if (n instanceof FieldAssign) {
                     FieldAssign a = (FieldAssign) n;
                     assert a.target() != null;
+                    return a.targetImplicit(false);
                 }
                 if (n instanceof Call) {
                     Call c = (Call) n;
                     assert c.target() != null;
+                    return c.targetImplicit(false);
                 }
                 if (n instanceof Special) {
                     Special s = (Special) n;
@@ -521,12 +527,17 @@ public class Inliner extends ContextVisitor {
 
             if (r.expr() != null) {
                 Expr call = r.expr();
-                LocalDecl d = makeFreshLocal(call, Flags.FINAL);
-                d = d.init(null);
-                Assign a = nf.LocalAssign(r.position(), makeLocal(d), Assign.ASSIGN, call);
-                Eval eval = nf.Eval(r.position(), a);
-                r = r.expr(makeLocal(d));
-                return nf.Block(r.position(), d, (Stmt) leaveCall(parent, old, eval, v), r);
+                if (call instanceof X10Call || call instanceof ClosureCall) {
+                    LocalDecl d = makeFreshLocal(call, Flags.FINAL);
+                    d = d.init(null);
+                    Assign a = assign(r.position(), makeLocal(d), Assign.ASSIGN, call);
+                    Eval eval = nf.Eval(r.position(), a);
+                    r = r.expr(makeLocal(d));
+                    return nf.Block(r.position(), d, (Stmt) leaveCall(parent, old, eval, v), r);
+                }
+                else {
+                    return r;
+                }
             }
         }
         
