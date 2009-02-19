@@ -13,9 +13,7 @@ package polyglot.ext.x10cpp.visit;
 import static polyglot.ext.x10cpp.visit.ASTQuery.assertNumberOfInitializers;
 import static polyglot.ext.x10cpp.visit.ASTQuery.getConstructorId;
 import static polyglot.ext.x10cpp.visit.ASTQuery.getCppRep;
-import static polyglot.ext.x10cpp.visit.ASTQuery.getOuterClass;
 import static polyglot.ext.x10cpp.visit.ASTQuery.getPropertyInit;
-import static polyglot.ext.x10cpp.visit.ASTQuery.isPrintf;
 import static polyglot.ext.x10cpp.visit.ASTQuery.outerClosure;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_field_name;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_method_name;
@@ -31,7 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
+import java.util.Set;
 
 import polyglot.ast.AmbReceiver;
 import polyglot.ast.ArrayAccess_c;
@@ -465,6 +463,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
+	private void extractAllClassTypes(Type t, Set<ClassType> types) {
+		if (!t.isClass())
+			return;
+		X10ClassType ct = (X10ClassType) t.toClass();
+		types.add(ct);
+		for (Type pt : ct.typeArguments())
+			extractAllClassTypes(pt, types);
+		if (ct.isNested())
+			extractAllClassTypes(ct.outer(), types);
+	}
+
 	void processClass(ClassDecl_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -476,7 +485,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		X10ClassDef def = (X10ClassDef) n.classDef();
 		if (getCppRep(def, tr) != null) {
-            // emit no c++ code as this is a native rep class
+			// emit no c++ code as this is a native rep class
 			return;
 		}
 		context.setinsideClosure(false);
@@ -557,35 +566,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
 			n.visit(xTypes);
 			if (xTypes.found()) {
-				populateKnownSpecialPackages(xts);
-
 				ArrayList typeNodes = xTypes.getMatches();
-				HashSet<Type> types = new HashSet<Type>();
+				Set<ClassType> types = new HashSet<ClassType>();
 				for (int i = 0; i < typeNodes.size(); i++) {
 					X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
 					Type type = t.type();
-					while (type.isArray() || query.isX10Array(type)) {
-						assert (false); // TODO: dead code, remove
-						type = type.isArray() ? 
-						                        type.toArray().base() :
-						                        query.getX10ArrayElementType(type);
-					}
-					if (!type.isClass() || xts.typeEquals(type, n.classDef().asType()))
-						continue;
-					ClassType ct = type.toClass();
-					if (knownSpecialPackages.contains(ct.package_()))
-						continue;
-					while (ct.isNested())
-						ct = ct.outer();
-					types.add(ct);
+					extractAllClassTypes(type, types);
 				}
-				for (Type t : types) {
-					ClassType ct = (ClassType) t;
+				for (ClassType ct : types) {
+					if (xts.typeEquals(ct, n.classDef().asType()))
+						continue;
 					String cpp = getCppRep((X10ClassDef) ct.def(), tr);
 					if (cpp != null)
 						continue;
-					while (ct.isNested())
-						ct = (ClassType) ct.container();
+					if (ct.isNested())
+						continue;
 					QName pkg = null;
 					if (ct.package_() != null)
 						pkg = ct.package_().fullName();
@@ -608,7 +603,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 								h.write("class ");
 								h.write(emitter.translateType(pt));
 							}
-							h.write(" >");
+							h.write(">");
 							h.allowBreak(2, " ");
 						}
 						h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
@@ -622,30 +617,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					}
 				}
 
-				ArrayList<String> unHistory = new ArrayList<String>();
+				ArrayList<String> nsHistory = new ArrayList<String>();
 				for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
 					Import_c in = (Import_c) is.next();
-					Package_c rt = null;
-					try {
-					if (xts.forName(in.name()) instanceof Package_c){
-						QName unName = in.name();
-						emitter.emitUniqueNS(unName, unHistory, h);
-
-					} else if (knownSpecialPackages.contains(xts.packageForName(in.name())) ) { // library class import.
-						QName unName = in.name().qualifier();
-						emitter.emitUniqueNS(unName, unHistory, h);
+					QName nsName = in.name();
+					if (in.kind() == Import_c.CLASS) {
+						nsName = nsName.qualifier();
+					} else {
+						assert (in.kind() == Import_c.PACKAGE);
 					}
-					else {// import user defined class
-						QName unName = in.name().qualifier();
-						emitter.emitUniqueNS(unName, unHistory, h);
-					}
+					emitter.emitUniqueNS(nsName, nsHistory, h);
 					h.newline();
-					} catch (SemanticException e) { 
-						// FIXME: assert (false); 
-					}
-
 				}
 				context.pendingImports.clear();  // Just processed all imports - clean up
+				QName x10_lang = xts.Object().toClass().fullName().qualifier();
+				emitter.emitUniqueNS(x10_lang, nsHistory, h);
+				h.newline();
 			}
 			h.forceNewline(0);
 			if (def.package_() != null) {
@@ -854,6 +841,40 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
+	private String encodeTypeIntoName(Type t) {
+		String r = emitter.translateType(t);
+		return r.replace(" ", "").replace("$", "__").replace("::", "__").replace("<", "_lt_").replace(">", "_gt_");
+	}
+	private String getCovariantName(MethodInstance mi) {
+		return mi.name().toString() + "__" + encodeTypeIntoName(mi.returnType());
+	}
+	private Type getCovariantReturn(MethodInstance mi) {
+		assert (false);
+		X10Flags flags = X10Flags.toX10Flags(mi.flags());
+		if (flags.isStatic() || flags.isPrivate() || flags.isProperty() || mi.returnType().isVoid())
+			return mi.returnType();
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		ArrayList<MethodInstance> all = new ArrayList<MethodInstance>();
+		for (MethodInstance smi : mi.overrides()) { // FIXME: should we only look at the topmost ancestor?
+			if (smi != mi)
+				all.add(smi);
+		}
+		for (MethodInstance smi : mi.implemented()) {
+			if (smi != mi)
+				all.add(smi);
+		}
+		Type ret = null;
+		for (MethodInstance smi : all) {
+			if (ret == null) {
+				if (!xts.typeBaseEquals(mi.returnType(), smi.returnType()))
+					ret = smi.returnType();
+			} else {
+				assert (xts.typeBaseEquals(ret, smi.returnType()));
+			}
+		}
+		return ret;
+	}
+
 	public void visit(MethodDecl_c dec) {
 		// TODO: if method overrides another method with generic
 		// types, check if C++ does the right thing.
@@ -881,18 +902,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			context.pendingStaticDecls.add(dec);
 			return;
 		}
-		emitter.printHeader(dec, h, tr, false);
+		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
+		// [IP] Handle covariant return types in the following way: create a
+		// method with the superclass's signature and this method's body.  Add
+		// a method with the return type encoded in the name that delegates to
+		// the method with superclass's signature and casts the result.  Replace
+		// all invocations of the original method with the newly added mangled one.
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		Type cReturn = emitter.findRootMethodReturnType(xts, dec, mi);
+		//Type cReturn = getCovariantReturn(mi);
+		String cName = mi.name().toString();
+		boolean covariant = !xts.typeEquals(cReturn, mi.returnType());
+		if (covariant) {
+			// Mangle the name
+			cName = getCovariantName(mi);
+			emitter.printHeader(dec, h, tr, cName, mi.returnType(), false);
+		} else
+			emitter.printHeader(dec, h, tr, false);
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
-		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
 		if (dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
 				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
-			if (!context.inLocalClass())
-				emitter.printHeader(dec, w, tr, true);
+			if (!context.inLocalClass()) {
+				if (covariant) {
+					// Mangle the name
+					emitter.printHeader(dec, w, tr, cName, mi.returnType(), true);
+				} else
+					emitter.printHeader(dec, w, tr, true);
+			}
 			w.newline();
 			w.write("{");
 			w.newline();
@@ -902,7 +943,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 			w.write("}");
 			w.newline();
-		} 
+		}
+
+		if (covariant) {
+			// Change the return type to that of the superclass's method
+			emitter.printHeader(dec, h, tr, mi.name().toString(), cReturn, false);
+			if (!context.inLocalClass())
+				emitter.printHeader(dec, w, tr, mi.name().toString(), cReturn, true);
+			w.newline();
+			w.write("{");
+			w.begin(4); w.newline();
+			assert (!mi.returnType().isVoid());
+			w.write("return ");
+			if (!dec.flags().flags().isStatic())
+				w.write("this->");
+			w.write(cName + "(");
+			w.begin(0);
+			boolean first = true;
+			for (Formal f : dec.formals()) {
+				if (first) {
+					first = false;
+				} else {
+					w.write(",");
+					w.allowBreak(0, " ");
+				}
+				w.write(mangled_non_method_name(f.name().toString()));
+			}
+			w.end();
+			w.write(");");
+			w.end(); w.newline();
+			w.write("}");
+			w.newline();
+		}
 	}
 
 
@@ -1321,10 +1393,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 
-		//Expr initcasts = dec.init();
 		Expr initexpr = dec.init();
-		//while (initexpr instanceof X10Cast_c)
-		//	initexpr = ((X10Cast_c)initexpr).expr();
 		Type base_type = null;
 		emitter.printHeader(dec, w, tr, true);
 		
@@ -1332,19 +1401,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// xlC, for some reason, really doesn't like v1 = v2 = v3.  v1 gets the wrong value.
 		// So work around this by turning the above into v1 = v3; v2 = v1.
 		// FIXME: Need to handle nullable cast in this situation.
-		//X10Cast_c castExpr = null;
 		if (initexpr != null) {
 			w.write(" =");
 			w.allowBreak(2, " ");
-			//Expr e = initcasts;
-			//while (e instanceof X10Cast_c) {
-			//	X10Cast_c n = (X10Cast_c) e;
-			//	castExpr = n;
-			//	w.write("("+emitter.translateType(n.castType().type(), true)+")");
-			//	w.allowBreak(2, " ");
-			//	e = n.expr();
-			//}
-			//assert (e == initexpr);
 			// TODO: [IP] Combine finish calls for consecutive reductions
 			{
 				sw.pushCurrentStream(w);
@@ -1356,19 +1415,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (tr.appendSemicolon()) {
 			w.write(";");
 			w.newline(0);
-			// Note: Our handling of the cast, first assigns
-			// the value to the lhs and then it might throw
-			// the error. But there is no way to actually
-			// refer to this variable (it is a local
-			// declaration). So this translation is
-			// semantically correct. [Krishna]
-
-            // No.
-
-			//emitter.handleX10Cast(castExpr, mangled_non_method_name(dec.name().id().toString()), w);  
-
 		}
-		// See above note about xlC.
 	}
 
 
@@ -1677,10 +1724,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			emitNativeAnnotation(pat, mi.typeParameters(), target, n.arguments());
 			return;
 		}
+		// TODO
+		//boolean covariant = !xts.typeEquals(emitter.findRootMethodReturnType(xts, dec, mi), mi.returnType());
+		w.write("static_cast<");
+		emitter.printType(mi.returnType(), w);
+		w.write(" >(");
 		w.begin(0);
-        w.write("static_cast<");
-        emitter.printType(mi.returnType(), w);
-        w.write(" >(");
 		if (!n.isTargetImplicit()) {
 			// explicit target.
 			
@@ -1726,8 +1775,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.end();
 		}
 		w.write(")");
-		w.write(")");
 		w.end();
+		w.write(")");
 	}
 
 
@@ -1771,7 +1820,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.popCurrentStream();
 			return;
 		}
-		String rect_region_type = "_region<"+ dims + " >";
+		String rect_region_type = "_region<"+ dims + ">";
 		w.write("("+make_ref(rect_region_type)+")(");
 		w.begin(0);
 		w.write("new (x10aux::alloc<"+rect_region_type+" >()) "+rect_region_type+"(");
@@ -1919,7 +1968,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.begin(0);
 		w.write("new");
 		w.allowBreak(0, " ");
-		w.write("(x10aux::alloc<"+type+" >())");
+		w.write("(x10aux::alloc<"+type+(type.endsWith(">")?" ":"")+">())");
 		w.allowBreak(0, " ");
 		w.write(emitter.translateType(n.objectType().type()));
 		w.write("(");
@@ -1999,42 +2048,40 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Original code picked up from
 		// x10.compiler.p3/.../X10PrettyPrinter.java and mouled
 		// onto the cppbackend requirements. [Krishna]
-        // [DC] now commented out to use a c++ function
+		// [DC] now commented out to use a c++ function
 		String castVar = null;
-        TypeNode tn = c.castType();
-        assert tn instanceof CanonicalTypeNode;
-	        
-        switch (c.conversionType()) {
-            case PRIMITIVE:
-            case COERCION:
-            case TRUNCATION:
-	        case BOXING:
-            case UNBOXING:
-            
-            if (tn instanceof X10CanonicalTypeNode) {
+		TypeNode tn = c.castType();
+		assert tn instanceof CanonicalTypeNode;
 
-                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
+		switch (c.conversionType()) {
+		case PRIMITIVE:
+		case COERCION:
+		case TRUNCATION:
+		case BOXING:
+		case UNBOXING:
 
-                Type t = X10TypeMixin.baseType(xtn.type());
+			if (tn instanceof X10CanonicalTypeNode) {
+				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-                w.write("x10aux::class_cast<");
-                emitter.printType(t, w); 
-                w.write(" >(");
-                sw.pushCurrentStream(w);
-                c.printSubExpr(c.expr(), true, sw, tr);
-                sw.popCurrentStream();
-                w.write(")");
+				Type t = X10TypeMixin.baseType(xtn.type());
 
-            } else {
-                throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
-            }
-            break;
+				w.write("x10aux::class_cast<");
+				emitter.printType(t, w); 
+				w.write(" >(");
+				sw.pushCurrentStream(w);
+				c.printSubExpr(c.expr(), true, sw, tr);
+				sw.popCurrentStream();
+				w.write(")");
+			} else {
+				throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
+			}
+			break;
 
-        case UNKNOWN_CONVERSION:
-            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-        case CALL:
-            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
-        }
+		case UNKNOWN_CONVERSION:
+			throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+		case CALL:
+			throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
+		}
 	}
 
 	public void visit(X10Instanceof_c n) {
@@ -2284,8 +2331,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String name = "__i" + form.name();
 		w.write("Iterator<");
-		w.write(emitter.translateType(form.type().type()));
-		w.write(" >* " + name + ";");
+		String fType = emitter.translateType(form.type().type());
+		w.write(fType + (fType.endsWith(">") ? " " : ""));
+		w.write(">* " + name + ";");
 		w.newline();
 		w.write(name + " = &(");
 		sw.pushCurrentStream(w);
@@ -2326,7 +2374,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("}");
 		w.newline(0);
 
-		//w.write("x10aux::dealloc(" + name + ");");
+		// [IP] It's always safe to free the iterator because it's can't escape
+		w.write("x10aux::dealloc(" + name + ");");
 		w.newline();
 
 		w.end(); w.newline(0);  
