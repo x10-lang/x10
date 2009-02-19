@@ -2496,7 +2496,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(">* " + name + ";");
 		w.newline();
 		w.write(name + " = &*"); // FIXME
-        if (!xts.typeEquals(form.type().type(), itType))
+        if (!xts.typeDeepBaseEquals(form.type().type(), itType))
             w.write("x10aux::convert_iterator<"+fType+","+emitter.translateType(itType, true)+" >");
         w.write("((");
 		sw.pushCurrentStream(w);
