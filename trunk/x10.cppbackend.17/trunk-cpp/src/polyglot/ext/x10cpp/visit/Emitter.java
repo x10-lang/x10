@@ -319,14 +319,18 @@ public class Emitter {
 	String translateType(Type type, boolean asRef) {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
-		if (xts.isRail(type) || xts.isValRail(type)) {
+		if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
 			String base;
-			Type T = X10TypeMixin.getParameterType((X10Type) type, 0);
-			if (T == null) {
-			    base="x10::lang::Object";
-			}
+			if (type.isArray()) {
+				base = translateType(type.toArray().base(), true);
 			else {
-			    base=translateType(T, asRef);
+				Type T = X10TypeMixin.getParameterType((X10Type) type, 0);
+				if (T == null) {
+				    base="x10::lang::Object";
+				}
+				else {
+				    base=translateType(T, asRef);
+				}
 			}
 			String name = "x10::array<"+base+(base.endsWith(">")?" ":"")+">";
 			if (!arraysAsRefs || !asRef)
