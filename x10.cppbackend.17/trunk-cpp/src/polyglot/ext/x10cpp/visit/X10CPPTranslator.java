@@ -324,23 +324,6 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
-	private void generateClosureSwitch(StreamWrapper w) {
-		X10CPPContext_c context = (X10CPPContext_c) this.context();
-		Emitter emitter = new Emitter(this);
-
-		w.write("extern \"C\" {"); w.newline(4); w.begin(0);
-		w.write("x10aux::AnyClosure *__x10_callback_closureswitch(int id, "+
-		        SERIALIZATION_BUFFER+"& s) {");
-		w.newline(4); w.begin(0);
-		w.write("switch (id) {"); w.newline(4); w.begin(0);
-		// iterate through closures
-		w.write("default: fprintf(stderr,\"Unrecognised closure id: %d\\n\",id); abort();");
-		w.end() ; w.newline();
-		w.write("}"); w.end(); w.newline();
-		w.write("} // __x10_callback_closureswitch"); w.end(); w.newline();
-		w.write("} // extern \"C\""); w.newline();
-	}
-
 	private void generateGlobalSwitch(StreamWrapper w) {
 		X10CPPContext_c context = (X10CPPContext_c) this.context();
 		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
@@ -370,66 +353,6 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 
-/*
-		w.write("extern \"C\" {");
-		w.newline(4); w.begin(0);
-		w.write(VOID_PTR+" "+ARRAY_COPY_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
-		w.newline(4); w.begin(0);
-		w.write("(void) clocks; (void) num_clocks;");
-		w.newline();
-		w.write("uint32_t h = cl->handler;");
-		w.newline();
-		w.write("switch (h) {");
-		w.newline(4); w.begin(0);
-		// FIXME: Replace with Java 5 loop. 
-		for (Iterator k = context.classesWithArrayCopySwitches.keySet().iterator(); k.hasNext(); ) {
-			ClassType ct = (ClassType) k.next();
-			int[] async_ids = (int[]) context.classesWithArrayCopySwitches.get(ct);
-			String className = emitter.translateType(ct);
-			for (int i = 0; i < async_ids.length; i++) {
-				w.write("case "+async_ids[i]+":");
-				w.newline();
-			}
-			w.newline(4); w.begin(0);
-			w.write("return "+className+"::"+ARRAY_COPY_SWITCH+"(cl, clocks, num_clocks);");
-			w.end(); w.newline();
-		}
-		w.end(); w.newline();
-		w.write("}");
-		w.newline();
-		w.write("return NULL;");
-		w.end(); w.newline();
-		w.write("}"); w.newline();
-
-		w.write(VOID+" "+ASYNC_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
-		w.newline(4); w.begin(0);
-		w.write("(void) clocks; (void) num_clocks;");
-		w.newline();
-		w.write("uint32_t h = cl->handler;");
-		w.newline();
-		w.write("switch (h) {");
-		w.newline(4); w.begin(0);
-		for (Iterator k = context.classesWithAsyncSwitches.keySet().iterator(); k.hasNext(); ) {
-			ClassType ct = (ClassType) k.next();
-			int[] async_ids = (int[]) context.classesWithAsyncSwitches.get(ct);
-			String className = emitter.translateType(ct);
-			for (int i = 0; i < async_ids.length; i++) {
-				w.write("case "+async_ids[i]+":");
-				w.newline();
-			}
-			w.newline(4); w.begin(0);
-			w.write(className+"::"+ASYNC_SWITCH+"(cl, clocks, num_clocks);");
-			w.newline();
-			w.write("break;");
-			w.end(); w.newline();
-		}
-		w.end(); w.newline();
-		w.write("}");
-		w.end(); w.newline();
-		w.write("}");
-		w.end(); w.newline();
-		w.write("}");
-*/
 		w.newline();
 	}
 
@@ -472,6 +395,7 @@ public class X10CPPTranslator extends Translator {
 
         public static final String X10LANG = System.getenv("X10LANG")==null?"../../../x10.runtime.17/src-cpp":System.getenv("X10LANG").replace(File.separatorChar, '/');
         public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
+        public static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
 
         public static final String MANIFEST = "libx10lib17.mft";
@@ -488,6 +412,8 @@ public class X10CPPTranslator extends Translator {
             "-I"+X10LANG+"/include", // dist
             "-I.",
             "-DTRANSPORT="+TRANSPORT,
+            "-Wno-long-long",
+            "-Wno-unused-parameter",
         };
         /** These go after the files */
         public static final String[] postArgs = new String[] {
@@ -504,10 +430,11 @@ public class X10CPPTranslator extends Translator {
         /** These go before the files if gcEnabled is true */
         public static final String[] preArgsGC = new String[] {
             "-DX10_USE_BDWGC",
+            "-I"+X10GC+"/include",
         };
         /** These go after the files if gcEnabled is true */
         public static final String[] postArgsGC = new String[] {
-            "-lgc",
+            X10GC+"/lib/libgc.a",
         };
 
         private final X10CPPCompilerOptions options;
@@ -682,6 +609,7 @@ public class X10CPPTranslator extends Translator {
             super(options);
             assert (PLATFORM.startsWith("linux"));
         }
+
         /** Disable for now.  TODO: enable */
         protected boolean gcEnabled() { return false; }
 
