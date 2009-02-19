@@ -136,10 +136,11 @@ import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.ast.X10Cast_c;
+import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10ClockedLoop_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
-import polyglot.ext.x10.ast.X10ClassDecl_c;
+import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10FieldInstance;
@@ -177,6 +178,7 @@ import polyglot.types.Flags;
 import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.NoMemberException;
@@ -593,6 +595,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
     private void declareClass(X10ClassDef cd, ClassifiedStream h) {
+        assert(cd!=null);
         QName pkg = null;
         if (cd.package_() != null)
             pkg = cd.package_().get().fullName();
@@ -635,12 +638,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			v.makeSummariesPass(n);
 		}
 		X10ClassDef def = (X10ClassDef) n.classDef();
+
 		if (getCppRep(def, tr) != null) {
 			// emit no c++ code as this is a native rep class
 			return;
 		}
 		context.setinsideClosure(false);
 		context.hasInits = false;
+        boolean oldInTemplate = context.inTemplate();
 
 		if (!def.isNested() && hasExternMethods(n.body().members())) {
 			// FIXME: extern methods in nested classes
@@ -800,6 +805,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		context.pendingStaticDecls = new ArrayList<ClassMember>();
 
 		if (def.typeParameters().size() != 0) {
+            // set this up now
+            context.inTemplate(true);
 			// Pre-declare the void specialization for statics
 			emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
 			h.write("class ");
@@ -892,6 +899,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 			h.write("//#endif // HACK: the main guard will be closed later: "+guard); h.newline();
 		}
+        context.inTemplate(oldInTemplate);
 		w.newline(0);
 	}
 
@@ -915,9 +923,44 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	}
 
+    List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
+        assert(name!=null);
+        assert(c!=null);
+        return getOROLMeths(name, c, new HashSet<List<Type>>());
+    }
+
+    List<MethodInstance> getOROLMeths(Name name, X10ClassType c, HashSet<List<Type>> shadowed) {
+        assert(name!=null);
+        assert(c!=null);
+        assert(shadowed!=null);
+
+        List<MethodInstance> meths = new ArrayList<MethodInstance>();
+
+        List<MethodInstance> cmeths = c.methodsNamed(name);
+
+        for (MethodInstance cmi : cmeths) {
+            if (cmi.flags().isAbstract()) continue;
+            if (shadowed.contains(cmi.formalTypes())) continue;
+            shadowed.add(cmi.formalTypes());
+            if (cmi.flags().isPrivate()) continue;
+            meths.add(cmi);
+        }
+
+        // no need to look in interfaces because they only contain abstract methods
+        X10ClassType superClass = (X10ClassType) c.superClass();
+        if (superClass!=null) {
+            List<MethodInstance> moreMeths = getOROLMeths(name, superClass, shadowed);
+            meths.addAll(moreMeths);
+        }
+
+        return meths;
+    }
+
 	public void visit(ClassBody_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10ClassType currentClass = (X10ClassType) context.currentClass();
+        X10ClassType superClass = (X10ClassType) currentClass.superClass();
+
 
 		ClassifiedStream h;
 		if (context.inLocalClass())
@@ -937,14 +980,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.popCurrentStream();
 		}
 		context.classProperties = new ArrayList();
-		List members = n.members();
+		List<ClassMember> members = n.members();
+
 		if (!members.isEmpty()) {
 			String className = emitter.translateType(currentClass);
 
-			for (Iterator i = members.iterator(); i.hasNext(); ) {
-				ClassMember member = (ClassMember) i.next();
+			for (ClassMember member : members) {
 				if (!(member instanceof X10ClassDecl_c))
 					continue;
+                assert(false):member+" "+n.position().nameAndLineString();
 				ClassDecl_c dec = (ClassDecl_c)member;
 				X10ClassDef def = (X10ClassDef) dec.classDef();
 				if (getCppRep(def, tr) != null)
@@ -965,9 +1009,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				context.hasInits = true;
 			}
 
+            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+
 			ClassMember prev = null;
-			for (Iterator i = members.iterator(); i.hasNext(); ) {
-				ClassMember member = (ClassMember) i.next();
+			for (ClassMember member : members) {
 				if (member instanceof ClassDecl_c)  // Process nested classes separately
 					continue;
 				if ((member instanceof polyglot.ast.CodeDecl) ||
@@ -979,25 +1024,85 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.pushCurrentStream(w);
 				n.printBlock(member, sw, tr);
 				sw.popCurrentStream();
-			}
+            }
+
+
+            // generate proxy methods for an overridden method's superclass overloads
+            if (superClass!=null) {
+
+                // first gather a set of all the method names in the current class
+                Set<Name> mnames = new HashSet<Name>();
+                for (ClassMember member : members) {
+                    if (!(member instanceof X10MethodDecl)) continue;
+                    X10MethodDecl mdcl = (X10MethodDecl) member;
+                    Name mname = mdcl.name().id();
+                    if (mnames.contains(mname)) continue;
+                    MethodDef md = mdcl.methodDef();
+                    MethodInstance mi = md.asInstance();
+                    if (mi.flags().isStatic()) continue;
+                    mnames.add(mname);
+                }
+
+                // then, for each one
+                for (Name mname : mnames) {
+                    // get the list of overloads that this class should expose
+                    // (but doesn't because c++ doesn't work that way)
+                    List<MethodInstance> overriddenOverloads = getOROLMeths(mname,superClass);
+                    // for each one...
+                    for (MethodInstance dropzone_ : overriddenOverloads) {
+                        X10MethodInstance dropzone = (X10MethodInstance) dropzone_;
+                        List<Type> formals = dropzone.formalTypes();
+                        // do we have a matching method? (i.e. one the x10 programmer has written)
+                        if (currentClass.methods(mname,formals).size()>0) continue;
+                        // otherwise we need to add a proxy.
+                        //System.out.println("Not found: "+dropzone);
+                        assert(!dropzone.flags().isStatic());
+                        //assert(!dropzone.flags().isFinal());
+                        assert(!dropzone.flags().isPrivate());
+                        h.write("public: "); 
+                        emitter.printTemplateSignature(dropzone.typeParameters(), h);
+                        if (dropzone.typeParameters().isEmpty()) {
+                            h.write("virtual ");
+                        }
+                        emitter.printType(dropzone.returnType(), h);
+                        h.write(" "+mangled_method_name(mname.toString()));
+                        int counter = 0;
+                        for (Type formal : formals) {
+                            h.write(counter==0?"(":", ");
+                            emitter.printType(formal, h);
+                            h.write(" p"+counter++);
+                        }
+                        h.write(") {"); h.newline(4); h.begin(0);
+                        
+                        h.write(superClass.name()+"::"+mname);
+                        counter = 0;
+                        for (Type formal : formals) {
+                            h.write(counter==0?"(":", ");
+                            h.write("p"+counter++);
+                        }
+                        h.write(");"); h.end(); h.newline();
+
+                        h.write("}");
+
+                    }
+
+                }
+            }            
+
+
 
 			if (extractInits(currentClass, STATIC_INIT, VOID, members, w, true)) {
+                //declare static init function in header
 				h.write("public : static " + VOID + " " + STATIC_INIT + "();");
 				h.newline();
+                //define field that triggers initalisation-time registration of
+                //static init functio
 				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
 						" = x10aux::InitDispatcher::addInitializer(" + 
 						className+"::"+STATIC_INIT + ")" + ";");
 				w.newline(); w.forceNewline(0);
 			}
 
-/*  Disabled array initializer invocations.
-			if (!context.inLocalClass()){
-				// FIXME: Do something for local classes
-				// as well. [Krishna]
-				emitter.printStaticAsyncDeclarations(context,  h);
-				emitter.printStaticClosureDeclarations(context, h);
-			}
-*/
 
 			if (!currentClass.isNested() && !context.inLocalClass())
 
@@ -1937,6 +2042,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 
+        if (context.inTemplate()) {
+            w.write("template ");
+        }
 		w.write(mangled_method_name(n.name().id().toString()));
 		emitter.printTemplateInstantiation(mi, w);
 		w.write("(");
@@ -2829,7 +2937,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(Here_c n) {
-		w.write("x10aux::__here__");
+		w.write("x10aux::here()");
 	}
 
 
@@ -2921,16 +3029,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10ClassDef hostClassDef = hostClassType.x10Def();
         List<Type> freeTypeParams = new ArrayList<Type>();
 
-        if (!(ci instanceof X10MethodInstance) || !((X10MethodInstance)ci).flags().isStatic())
-            freeTypeParams.addAll(hostClassDef.typeParameters());
-
         if (ci instanceof X10MethodInstance) {
-            // this is the only case where additional type params can be defined
             X10MethodInstance xmi = (X10MethodInstance) ci;
-            X10MethodDef xmd = xmi.x10Def();
-            for (Ref<? extends Type> t : xmd.typeParameters()) {
-                freeTypeParams.add(t.get());
-            }
+            // in X10, static generic methods do not inherit the template params of their classes
+            if (!xmi.flags().isStatic())
+                freeTypeParams.addAll(hostClassDef.typeParameters());
+            freeTypeParams.addAll(xmi.typeParameters());
+        } else {
+            // could be a constructor or other non-static thing
+            freeTypeParams.addAll(hostClassDef.typeParameters());
         }
 
         //System.out.println(freeTypeParams);

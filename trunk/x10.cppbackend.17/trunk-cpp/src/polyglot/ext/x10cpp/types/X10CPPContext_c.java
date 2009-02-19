@@ -44,7 +44,12 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		condDepth = 0;
 		inprocess = false;
 		mainMethod = false;
+                inTemplate = false;
 	}
+
+	protected boolean inTemplate;
+        public boolean inTemplate() { return inTemplate; }
+        public void inTemplate(boolean b) { inTemplate = b; }
 
 	public boolean inClosure;
 	public boolean insideClosure;
