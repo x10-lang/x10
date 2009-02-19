@@ -38,6 +38,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ext.x10.ast.X10ClassDecl;
 
 import polyglot.ext.x10cpp.Configuration;
+import polyglot.ext.x10cpp.X10CPPCompilerOptions;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
@@ -504,11 +505,12 @@ public class X10CPPTranslator extends Translator {
             BDWGCROOT+"/lib/libgc.a",
         };
 
-        private String post_compiler;
+        private final X10CPPCompilerOptions options;
 
-        public CXXCommandBuilder(String post_compiler) {
-            assert (post_compiler != null);
-            this.post_compiler = post_compiler;
+        public CXXCommandBuilder(Options options) {
+            assert (options != null);
+            assert (options.post_compiler != null);
+            this.options = (X10CPPCompilerOptions) options;
         }
 
         /** Is GC enabled on this platform? */
@@ -540,8 +542,21 @@ public class X10CPPTranslator extends Translator {
             }
         }
 
+        protected void addExecutablePath(ArrayList<String> cxxCmd) {
+            File exe = null;
+            if (options.executable_path != null)
+                exe = new File(options.executable_path);
+            else if (Configuration.MAIN_CLASS != null)
+                exe = new File(options.output_directory, Configuration.MAIN_CLASS);
+            else
+                return;
+            cxxCmd.add("-o");
+            cxxCmd.add(exe.getAbsolutePath().replace(File.separatorChar,'/'));
+        }
+
         /** Construct the C++ compilation command */
         public final String[] buildCXXCommandLine(Collection<String> outputFiles) {
+            String post_compiler = options.post_compiler;
             if (post_compiler.contains("javac"))
                 post_compiler = defaultPostCompiler();
 
@@ -561,6 +576,7 @@ public class X10CPPTranslator extends Translator {
             boolean skipArgs = token.equals("%");
             if (!skipArgs) {
                 addPreArgs(cxxCmd);
+                addExecutablePath(cxxCmd);
             }
 
             HashSet<String> manifest = new HashSet<String>();
@@ -604,8 +620,8 @@ public class X10CPPTranslator extends Translator {
     }
 
     private static class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
-        public Cygwin_CXXCommandBuilder(String post_compiler) {
-            super(post_compiler);
+        public Cygwin_CXXCommandBuilder(Options options) {
+            super(options);
             assert (PLATFORM.startsWith("win32"));
         }
     }
@@ -621,8 +637,8 @@ public class X10CPPTranslator extends Translator {
             "-lrt",
         };
 
-        public Linux_CXXCommandBuilder(String post_compiler) {
-            super(post_compiler);
+        public Linux_CXXCommandBuilder(Options options) {
+            super(options);
             assert (PLATFORM.startsWith("linux"));
         }
 
@@ -664,8 +680,8 @@ public class X10CPPTranslator extends Translator {
             USE_XLC ? DUMMY : "-llapi_r",
         };
 
-        public AIX_CXXCommandBuilder(String post_compiler) {
-            super(post_compiler);
+        public AIX_CXXCommandBuilder(Options options) {
+            super(options);
             assert (PLATFORM.startsWith("aix"));
         }
 
@@ -694,16 +710,16 @@ public class X10CPPTranslator extends Translator {
 
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
 
-    private static CXXCommandBuilder getCXXCommandBuilder(String post_compiler, ErrorQueue eq) {
+    private static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
         if (PLATFORM.startsWith("win32"))
-            return new Cygwin_CXXCommandBuilder(post_compiler);
+            return new Cygwin_CXXCommandBuilder(options);
         if (PLATFORM.startsWith("linux"))
-            return new Linux_CXXCommandBuilder(post_compiler);
+            return new Linux_CXXCommandBuilder(options);
         if (PLATFORM.startsWith("aix"))
-            return new AIX_CXXCommandBuilder(post_compiler);
+            return new AIX_CXXCommandBuilder(options);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
-        return new CXXCommandBuilder(post_compiler);
+        return new CXXCommandBuilder(options);
     }
 
     /**
@@ -717,7 +733,7 @@ public class X10CPPTranslator extends Translator {
 
 		if (options.post_compiler != null && !options.output_stdout) {
             Collection<String> outputFiles = compiler.outputFiles();
-            String[] cxxCmd = getCXXCommandBuilder(options.post_compiler, eq).buildCXXCommandLine(outputFiles);
+            String[] cxxCmd = getCXXCommandBuilder(options, eq).buildCXXCommandLine(outputFiles);
 
 			if (Report.should_report("postcompile", 1)) {
 				StringBuffer cmdStr = new StringBuffer();
