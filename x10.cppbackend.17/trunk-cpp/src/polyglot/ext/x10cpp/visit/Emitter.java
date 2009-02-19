@@ -50,6 +50,7 @@ import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParameterType_c;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -627,7 +628,8 @@ public class Emitter {
 		h.write(")");
 		h.end();
 		if (!qualify) {
-			if (n.body() == null && !n.flags().flags().isNative())
+			assert (!n.flags().flags().isNative());
+			if (n.body() == null && !X10Flags.isExtern(n.flags().flags()))
 				h.write(" = 0");
 			// [IP] I don't like this.  There has to be a better way.
 			if (h.sClass == WriterStreams.StreamClass.Header){
