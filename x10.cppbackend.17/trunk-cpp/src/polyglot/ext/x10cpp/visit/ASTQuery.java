@@ -30,6 +30,7 @@ import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
 import polyglot.types.NoClassException;
@@ -254,7 +255,7 @@ public class ASTQuery {
 		if (!(f.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) f.target();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		if (!xts.isDistribution(t.type()) || !f.name().equals("factory"))
 			return false;
 		// TODO: detect other distribution constructors

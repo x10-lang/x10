@@ -510,9 +510,9 @@ public class Emitter {
 	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		h.begin(0);
 		h.write("class ");
-		assert(!n.type().isLocal());
-		if (n.type().isNested() && !n.type().isLocal()) // FIXME: handle local classes
-			h.write(translateType(n.type().container()) + "::");
+		assert(!n.classDef().isLocal());
+		if (n.classDef().isNested() && !n.classDef().isLocal()) // FIXME: handle local classes
+			h.write(translateType(n.classDef().outer()) + "::");
 		h.write(mangled_non_method_name(n.name().id().toString())); 
 
 		boolean hasSuper = false;
@@ -534,7 +534,7 @@ public class Emitter {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
 		// FIXME: HACK! [IP] Ignore the ValueType tag interface
 		if (!n.interfaces().isEmpty()
-				&& (!ts.isValueType(n.type()) || n.interfaces().size() > 1))
+				&& (!ts.isValueType(n.classDef()) || n.interfaces().size() > 1))
 		{
 			h.allowBreak(2);
 			h.begin(0);
