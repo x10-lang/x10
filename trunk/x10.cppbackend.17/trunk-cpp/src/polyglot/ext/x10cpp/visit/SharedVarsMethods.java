@@ -196,9 +196,9 @@ public class SharedVarsMethods{
 		if (knownInlinableMethods.size() == 0) {
 			try {
 				Type x_l_Runtime = (Type) ts.forName(QName.make("x10.lang.Runtime"));
-				Type[] A_I_A_I_I = { ts.array(), ts.Int(), ts.array(), ts.Int(), ts.Int() };
+				Type[] A_I_A_I_I = { ts.Array(), ts.Int(), ts.Array(), ts.Int(), ts.Int() };
 				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I)), context.currentClassDef()));
-				Type[] A_A = { ts.array(), ts.array() };
+				Type[] A_A = { ts.Array(), ts.Array() };
 				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_A)), context.currentClassDef()));
 				// TODO
 //				ReferenceType x_l_region = ts.region();
