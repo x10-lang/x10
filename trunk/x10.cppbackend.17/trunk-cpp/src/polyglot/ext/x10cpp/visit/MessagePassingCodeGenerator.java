@@ -172,7 +172,6 @@ import polyglot.ext.x10.visit.X10DelegatingVisitor;
 import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
-import polyglot.ext.x10cpp.visit.X10SummarizingRules.X10SummarizingPass;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
@@ -386,7 +385,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     sw.pushCurrentStream(save_w);
 				((X10CPPTranslator)tr).setContext(md.enterScope(context)); // FIXME
 
-				emitter.printTemplateSignature(((X10ClassType)md.methodDef().container().get()).typeArguments(), sw);
 				emitter.printType(md.returnType().type(), sw);
 				sw.allowBreak(2, " ");
 				sw.write(container+"::");
