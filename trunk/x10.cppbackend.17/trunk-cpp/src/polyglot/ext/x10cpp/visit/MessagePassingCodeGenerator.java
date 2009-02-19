@@ -1466,7 +1466,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr lhs = asgn.left(nf);
 		Expr rhs = asgn.right();
 		if (unsigned_op) {
-			w.write("("+emitter.translateType(asgn.type())+")");
+			w.write("("+emitter.translateType(asgn.type())+")(");
 			w.write("(("+emitter.makeUnsignedType(lhs.type())+"&)");
 		}
 		sw.pushCurrentStream(w);
@@ -1484,7 +1484,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		asgn.printSubExpr(rhs, true, sw, tr);
 		sw.popCurrentStream();
 		if (unsigned_op)
-			 w.write(")");
+			 w.write("))");
 	}
 
 
@@ -3153,7 +3153,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 
 		if (unsigned_op) {
-			w.write("("+emitter.translateType(n.type())+")");
+			w.write("("+emitter.translateType(n.type())+")(");
 			w.write("(("+emitter.makeUnsignedType(n.left().type())+")");
 		}
 		sw.pushCurrentStream(w);
@@ -3170,7 +3170,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		n.printSubExpr(n.right(), false, sw, tr);
 		sw.popCurrentStream();
 		if (unsigned_op)
-			w.write(")");
+			w.write("))");
 	}
 
 
