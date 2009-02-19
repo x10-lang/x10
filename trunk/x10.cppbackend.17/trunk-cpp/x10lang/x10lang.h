@@ -125,7 +125,7 @@ typedef double   x10_double;
 typedef void     x10_void;
 
 // FIXME: **Temporary** Static Harness for compiling simple examples
-typedef char*    x10__Rail;
+
 class x10__Ref { };
 
 // End of: **Temporary** Static Harness for compiling simple examples
@@ -692,7 +692,7 @@ namespace x10 {
         DECLARE_BOXED_TYPE(Float, float);
         DECLARE_BOXED_TYPE(Double, double);
     }
-    extern array<ref<x10::lang::String> >* convert_args(int ac, char **av);
+    extern array<ref<x10::lang::String> > * convert_args(int ac, char **av);
     extern void free_args(array<ref<x10::lang::String> > *arr);
     namespace lang {
         // x10.lang.String
@@ -737,7 +737,7 @@ namespace x10 {
             String substring(x10_int start, x10_int end) const;
             String substring(x10_int start) const { return substring(start, this->length()); }
             x10_char charAt(x10_int i) const;
-            friend array<ref<x10::lang::String> >* x10::convert_args(int ac, char **av);
+    	    friend array<ref<x10::lang::String> > * convert_args(int ac, char **av);
             friend void x10::free_args(array<ref<x10::lang::String> > *arr);
         };
 
@@ -2257,6 +2257,8 @@ namespace x10 {
         const T& operator[](x10_int index) const;
         T& operator[](x10_int index);
         T* raw() { return _data; }
+	T& get(x10_int index) { return operator[](index);}
+	void set(T& x, x10_int index) { operator[](index)=x;}
         friend array<T>* alloc_array<T>(x10_int length);
         friend void free_array<>(array<T>* arr);
     };
@@ -2648,6 +2650,13 @@ namespace x10 {
     };
     static __init__ __init__counter;
 };
+namespace x10{
+	namespace lang{
+	    void general_finish_start();
+	    void general_finish_end();
+	}
+}
 
 #endif
 
+typedef x10::lang::String     x10__String;

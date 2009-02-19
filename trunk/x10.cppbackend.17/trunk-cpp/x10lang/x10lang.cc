@@ -871,3 +871,13 @@ void async_poll() {
 int __init__::count = 0;
 
 } // x10 namespace
+namespace x10{
+	namespace lang {
+		void general_finish_start() {
+		    x10lib::FinishStart(0);
+		}
+		void general_finish_end() {
+		    x10lib::FinishEnd(NULL);
+		}
+	}
+};
