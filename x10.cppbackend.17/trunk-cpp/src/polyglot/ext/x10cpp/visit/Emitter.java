@@ -288,6 +288,7 @@ public class Emitter {
 	}
 	/**
 	 * Translate the string representation of a fully-qualified type name.
+	 * TODO: rewrite to use QName instead
 	 */
 	public static String translateFQN(String name) {
 		return translateFQN(name, "::");
@@ -1634,7 +1635,7 @@ public class Emitter {
 	        case BOXING:
 	        case UNBOXING:
 			// FIXME: Handle boxing and unboxing. Need generics?
-			assert (false);
+//			assert (false);
 			break;
 		case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
@@ -1642,38 +1643,25 @@ public class Emitter {
 	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
 		}
 	}
-	public void emitUniqueNS(String name, ArrayList<String> history, ClassifiedStream w) {
+	public void emitUniqueNS(QName name, ArrayList<String> history, ClassifiedStream w) {
 		if (name == null) return;
-		if  (!history.contains(name)){
-			w.write("using namespace "+name+";");
-			history.add(name);
+		if  (!history.contains(name.toString())) {
+			openNamespaces(w, name);
+			closeNamespaces(w, name);
+			w.newline();
+			w.write("using namespace "+translateFQN(name.toString())+";");
+			history.add(name.toString());
 		}
 		return;
 	}
-	public void emitUniqueUS(String header, ArrayList<String> history, ClassifiedStream w) {
-		// emit unique using statement
-		assert (false);
-		if  (!history.contains(header)){
-			w.write("using \"" + header + "\";");
-			history.add(header);
-		}
-		return;
+	public String makeUnsignedType(Type t) {
+		// FIXME: HACK!
+		if (t.isInt())
+			return "uint32_t";
+		if (t.isLong())
+			return "uint64_t";
+		return "unsigned "+translateType(t);
 	}
-	public void emitUniqueIF(String header, ArrayList<String> history, ClassifiedStream w) {
-		if  (!history.contains(header)){
-			w.write("#include <" + header + ">");
-			history.add(header);
-		}
-		return;
-	}
-	 public String makeUnsignedType(Type t) {
-	 		 // FIXME: HACK!
-	 		 if (t.isInt())
-	 		 		 return "uint32_t";
-	 		 if (t.isLong())
-	 		 		 return "uint64_t";
-	 		 return "unsigned "+translateType(t);
-	 }
 	Node enterSPMD(Node n, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		boolean mainMethod = query.isMainMethod(context);
