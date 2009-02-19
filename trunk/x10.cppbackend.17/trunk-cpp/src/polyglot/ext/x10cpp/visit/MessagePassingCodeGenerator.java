@@ -2183,23 +2183,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		if (refsAsPointers) {
-			sw.write("!!dynamic_cast<");
-			sw.write(emitter.translateType(n.compareType().type(), true));
-			sw.write(" >(");
+			sw.write("!!dynamic_cast");
+			sw.write(chevrons(emitter.translateType(n.compareType().type(), true)));
+			sw.write("(");
 			sw.begin(0);
 			n.printSubExpr(n.expr(), sw, tr);
 			sw.end();
 			sw.write(")");
 			return;
 		}
-		// equivalent of (x instanceof B) -> (!!dynamic_cast<B>(x))
-		// but the above doesn't work for refs
-		sw.write("INSTANCEOF(");
+		sw.write("x10aux::instanceof");
+		sw.write(chevrons(emitter.translateType(n.compareType().type(), true)));
+		sw.write("(");
 		sw.begin(0);
 		n.printSubExpr(n.expr(), false, sw, tr);
-		sw.write(",");
-		sw.allowBreak(0, " ");
-		sw.write(emitter.translateType(n.compareType().type(), true));
 		sw.end();
 		sw.write(")");
 	}
@@ -3032,7 +3029,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 	    Expr left = n.expr();
-	    X10Type l = (X10Type) left.type();
+	    Type l = left.type();
 	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
 	    NodeFactory nf = tr.nodeFactory();
 	    Unary.Operator op = n.operator();
