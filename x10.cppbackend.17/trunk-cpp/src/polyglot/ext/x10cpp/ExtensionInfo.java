@@ -36,7 +36,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 	}
 
 	public String compilerName() {
-		return "x10c++";
+		return "x10cpp";
 	}
 
 	protected NodeFactory createNodeFactory() {
