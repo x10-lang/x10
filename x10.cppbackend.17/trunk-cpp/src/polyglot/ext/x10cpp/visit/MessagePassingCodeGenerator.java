@@ -3236,27 +3236,32 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			 	  " return x10aux::getRTT<"+superType+" >(); }");
 		inc.newline(); inc.forceNewline();
 
-		inc.write("x10aux::ref<x10::lang::String> toString() { return String(\""+
-                StringUtil.escape(n.position().nameAndLineString())+"\"); }");
+		inc.write("x10aux::ref<x10::lang::String> toString() {"); inc.newline(4); inc.begin(0);
+        inc.write("return String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
+        inc.end(); inc.newline();
+        inc.write(" }");
 		inc.end(); inc.newline(); inc.forceNewline();
 
 		inc.write("};"); inc.newline(); inc.forceNewline();
 
-        if (generate_async_invoke) {
-            if (in_template_closure) {
-                inc.write("template");
-                prefix="<";
-                for (Type t : freeTypeParams) {
-                    inc.write(prefix+"class "+t);
-                    prefix = ",";
-                }
-                inc.write("> ");
+        if (in_template_closure) {
+            inc.write("template");
+            prefix="<";
+            for (Type t : freeTypeParams) {
+                inc.write(prefix+"class "+t);
+                prefix = ",";
             }
-            inc.write("x10_int "+cnamet+"::_serialization_id = "+
-                        "x10aux::AsyncSwitch::addInvoker("+cnamet+"::_invoke);");
-            inc.newline(); inc.forceNewline();
+            inc.write("> ");
         }
+        inc.write("x10_int "+cnamet+"::_serialization_id = ");
 
+        if (generate_async_invoke) {
+            inc.write("x10aux::AsyncSwitch::addInvoker("+cnamet+"::_invoke);");
+        } else {
+            // FIXME: should be unique etc
+            inc.write("0;");
+        }
+        inc.newline(); inc.forceNewline();
 
 		// create closure instantiation (not in inc but where the closure was defined)
 		// note that we alloc using the typeof the superType but we pass in the correct size
