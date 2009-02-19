@@ -11,13 +11,12 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import polyglot.ast.SourceFile;
-import polyglot.ast.TopLevelDecl;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.frontend.Job;
 import polyglot.util.SimpleCodeWriter;
 
 /**
- * This class representsa a collection of output streams. Each stream has an associated
+ * This class represents a collection of output streams. Each stream has an associated
  * type, specified by StreamClass. There is one output file associated with each type.
  * Operations are provided to create a new stream of a given type (see getNewStream), 
  * and to commit all streams. Committing causes the contents of all streams of a given 
@@ -37,24 +36,23 @@ public class WriterStreams {
 	private Map<StreamClass,SimpleCodeWriter> codeWriters;
 	private Map<StreamClass, File> codeFiles;
 	private Vector<ClassifiedStream> streams;
+	private DelegateTargetFactory targetFactory;
 	Job job;
 
-	public WriterStreams(SourceFile sfn, String pkg, DelegateTargetFactory tf, List exports, Job job)
+	public WriterStreams(String className, SourceFile sfn, String pkg, DelegateTargetFactory tf, List exports, Job job)
 	throws IOException{
 		streams = new Vector<ClassifiedStream>();
 		codeWriters = new TreeMap<StreamClass,SimpleCodeWriter>();
 		codeFiles = new TreeMap<StreamClass,File>();
+		targetFactory = tf;
 		this.job=job;
 
 		//List exports = exports(sfn);
 
 		for (StreamClass sc : StreamClass.values()) {
-			String className = DelegateTargetFactory.extractName(sfn.source());
 			final File file = tf.integratedOutputFile(pkg, className,sfn.source(), 
 					sc.toString());
 			codeFiles.put(sc, file);
-			codeWriters.put(sc, new SimpleCodeWriter(tf.outputWriter(file),
-					job.compiler().outputWidth()));
 		}
 		
 	}
@@ -66,6 +64,11 @@ public class WriterStreams {
 	 * @throws IOException
 	 */
 	public void commitStreams() throws IOException {
+		for (StreamClass sc : StreamClass.values()) {
+			final File file = codeFiles.get(sc);
+			codeWriters.put(sc, new SimpleCodeWriter(targetFactory.outputWriter(file),
+					job.compiler().outputWidth()));
+		}
 		for (ClassifiedStream s : streams) {
 			s.flush();
 			codeWriters.get(s.sClass).write(s.toString());
@@ -78,6 +81,9 @@ public class WriterStreams {
 	}
 	public File getFile(StreamClass sc) {
 		return codeFiles.get(sc);
+	}
+	public File getHeader() {
+		return codeFiles.get(StreamClass.Header);
 	}
 	/**
 	 * Return the current stream of type sc, creating one if there is none.
@@ -105,15 +111,20 @@ public class WriterStreams {
 		}
 		return getNewStream(sc);
 	}
+	private int headerCount = 0;
 	/**
 	 * Create and return a new stream of type sc. Until a new stream of 
 	 * type sc is created, this stream will be the current stream of type sc.
+	 * Can only create a new stream for the non-header class.
 	 * @param sc
 	 * @return a new stream of type sc
 	 */
 	public ClassifiedStream getNewStream(StreamClass sc) {
+		if (sc == StreamClass.Header) headerCount++;
+		assert (sc != StreamClass.Header || headerCount < 2);
 		ClassifiedStream cs = new ClassifiedStream(sc, job.compiler().outputWidth());
-		streams.add(cs);
+		// FIXME! HACK! Prepend the stream -- newer streams are likely to be more important
+		streams.add(0, cs);
 		return cs;
 	}
 
