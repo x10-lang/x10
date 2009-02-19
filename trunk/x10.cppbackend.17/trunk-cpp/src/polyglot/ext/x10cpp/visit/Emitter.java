@@ -51,6 +51,7 @@ import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.visit.StaticNestedClassRemover;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -58,6 +59,7 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
@@ -170,7 +172,10 @@ public class Emitter {
 					VarInstance var = (VarInstance) parameters.get(j);
 					Type t = var.type();
 					if (c.isSPMDVar(var)) {
-						t = query.getX10ArrayElementType(t);
+						assert (t.isClass());
+						X10ClassType ct = (X10ClassType) t;
+						assert (ct.typeArguments().size() == 1);
+						t = ct.typeArguments().get(0);
 					}
 					w.write(translateType(t, true));
 				}
@@ -227,7 +232,10 @@ public class Emitter {
 					VarInstance var = (VarInstance) parameters.get(j);
 					Type t = var.type();
 					if (c.isSPMDVar(var)) {
-						t = query.getX10ArrayElementType(t);
+						assert (t.isClass());
+						X10ClassType ct = (X10ClassType) t;
+						assert (ct.typeArguments().size() == 1);
+						t = ct.typeArguments().get(0);
 					}
 					w.write(translateType(t, true));
 				}
@@ -310,11 +318,10 @@ public class Emitter {
 	 * @param asRef whether to make a reference
 	 * @return a string representation of the type
 	 */
-	String translateType(Type type, boolean asRef) {
+	static String translateType(Type type, boolean asRef) {
 		assert (type != null);
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) type.typeSystem();
 		type = xts.expandMacros(type);
-		Context context = tr.context();
 		if (type.isVoid()) {
 			return "void";
 		}
@@ -331,9 +338,9 @@ public class Emitter {
 				X10ClassDef cd = ((X10ClassType) type).x10Def();
 				String pat = null;
 				if (!asRef)
-					pat = getCppBoxRep(cd, tr);
+					pat = getCppBoxRep(cd);
 				else
-					pat = getCppRep(cd, tr);
+					pat = getCppRep(cd);
 				if (pat != null) { 
 					List<Type> typeArguments = ct.typeArguments();
 					Object[] o = new Object[typeArguments.size()+1];
@@ -342,24 +349,17 @@ public class Emitter {
 					for (Type a : typeArguments) {
 					    o[i++] = a;
 					}
-					// FIXME: Clean up this code!
-					return dumpRegex("NativeRep", o, tr, pat);
+					// FIXME: [IP] Clean up this code!
+					return dumpRegex("NativeRep", o, pat);
 				}
 				else {
-                    context = tr.typeSystem().createContext(); // Always fully qualify
 					if (ct.def().isNested()) {
-						X10ClassDef cdef = (X10ClassDef) ct.container().toClass().def();
-						assert (false) : ("Nested class alert!");
-						if (cdef.typeParameters().size() != 0) {
-							name = ct.container().translate(context)+
-								voidTemplateInstantiation(cdef.typeParameters().size())+
-								"::"+ct.name().toString();
-						} else {
-							context = tr.typeSystem().createContext();
-							name = type.translate(context);
-						}
+						Name mangled = StaticNestedClassRemover.mangleName(ct.def());
+						QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
+						QName full = QName.make(pkg, mangled);
+						name = full.toString();
 					} else
-						name = type.translate(context);
+						name = ct.fullName().toString();
 				}
 			}
 			if (ct.typeArguments().size() != 0) {
@@ -406,7 +406,10 @@ public class Emitter {
 			if (!omitType) {
 				Type t = var.type();
 				if (c.isSPMDVar(var)) {
-					t = query.getX10ArrayElementType(t);
+					assert (t.isClass());
+					X10ClassType ct = (X10ClassType) t;
+					assert (ct.typeArguments().size() == 1);
+					t = ct.typeArguments().get(0);
 				}
 				String type = translateType(t, true);
 				w.write(type + " ");
@@ -773,7 +776,7 @@ public class Emitter {
 		printAllTemplateSignatures(n.classDef(), h);
 
 		h.write("class ");
-		assert(!n.classDef().isLocal());
+		assert (!n.classDef().isLocal());
 		if (n.classDef().isNested() && !n.classDef().isLocal()) { // FIXME: handle local classes
 			assert (false) : ("Nested class alert!");
 			h.write(translateType(n.classDef().outer().get().asType()) + "::");
@@ -1404,7 +1407,10 @@ public class Emitter {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
 			if (c.isSPMDVar(var)) {
-				t = query.getX10ArrayElementType(t);
+				assert (t.isClass());
+				X10ClassType ct = (X10ClassType) t;
+				assert (ct.typeArguments().size() == 1);
+				t = ct.typeArguments().get(0);
 			}
 			String type = translateType(t, true);
 			List names = c.getRenameMapping(var);
@@ -1436,7 +1442,10 @@ public class Emitter {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
 			if (c.isSPMDVar(var)) {
-				t = query.getX10ArrayElementType(t);
+				assert (t.isClass());
+				X10ClassType ct = (X10ClassType) t;
+				assert (ct.typeArguments().size() == 1);
+				t = ct.typeArguments().get(0);
 			}
 			String type = translateType(t, true);
 			String name = var.name().toString();
@@ -1457,7 +1466,10 @@ public class Emitter {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
 			if (c.isSPMDVar(var)) {
-				t = query.getX10ArrayElementType(t);
+				assert (t.isClass());
+				X10ClassType ct = (X10ClassType) t;
+				assert (ct.typeArguments().size() == 1);
+				t = ct.typeArguments().get(0);
 			}
 			String type = translateType(t, true);
 			String name = var.name().toString();
@@ -1695,7 +1707,7 @@ public class Emitter {
 		return "unsigned "+translateType(t);
 	}
 
-	private String dumpRegex(String id, Object[] components, Translator tr, String regex) {
+	private static String dumpRegex(String id, Object[] components, String regex) {
 	    String retVal = "";
 	    for (int i = 0; i < components.length; i++) {
 	        assert ! (components[i] instanceof Object[]);
