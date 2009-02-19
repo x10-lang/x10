@@ -349,8 +349,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	void processClass(ClassDecl_c n) {
-		System.out.println(n);
-
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		// PV-IPA
