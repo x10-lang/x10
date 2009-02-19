@@ -1857,6 +1857,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		// FIXME: Handle boxing and unboxing. Need generics?
 		assert (false);
+		break;
 	        case UNKNOWN_CONVERSION:
 	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
 	        case CALL:
@@ -2039,8 +2040,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10Formal form = (X10Formal) n.formal();
 
-		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && form.isUnnamed()) {
-			X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		if (Configuration.LOOP_OPTIMIZATIONS && form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type())) {
 			assert (xts.isPoint(form.type().type()));
 			assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
 
@@ -2109,11 +2110,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write("{");  
 		w.newline(4); w.begin(0);
 
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		assert (xts.isPoint(form.type().type()));
-		assert (xts.isDistribution(n.domain().type()) || xts.isRegion(n.domain().type()));
 		String name = "__i" + form.name();
-		w.write("Iterator<point>* " + name + ";");
+		w.write("Iterator<");
+		w.write(emitter.translateType(form.type().type()));
+		w.write(">* " + name + ";");
 		w.newline();
 		w.write(name + " = &(");
 		sw.pushCurrentStream(w);
