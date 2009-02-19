@@ -19,8 +19,8 @@
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 </listAttribute>
 <mapAttribute key="org.eclipse.debug.core.environmentVariables">
-<mapEntry key="X10LIB" value="${project_loc:x10.compiler.p3}/../x10.lib"/>
-<mapEntry key="X10LANG" value="${project_loc:x10.cppbackend.17}/x10lang"/>
+<mapEntry key="X10LIB" value="${project_loc:x10.cppbackend.17}/../pgas/common/work"/>
+<mapEntry key="X10LANG" value="${project_loc:x10.runtime.17}/src-cpp"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${container_loc}"/>
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
