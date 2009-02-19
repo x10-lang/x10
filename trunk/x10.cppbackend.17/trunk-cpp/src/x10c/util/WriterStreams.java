@@ -75,7 +75,7 @@ public class WriterStreams {
         }
         for (ClassifiedStream s : streams) {
             s.flush();
-            codeWriters.get(s.sClass).write(s.toString());
+            codeWriters.get(s.sClass).write(s.contents());
         }
         for (StreamClass sc : StreamClass.values()) {
 //            if (!nonEmpty.contains(sc))
