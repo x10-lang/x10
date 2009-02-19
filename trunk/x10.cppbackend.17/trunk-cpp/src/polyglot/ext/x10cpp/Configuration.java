@@ -35,6 +35,9 @@ public final class Configuration extends x10.config.Configuration {
 	public static String MAIN_FILE = "";
 	private static final String MAIN_FILE_desc = "Identify procedure main containing file in case there is more than one choice";
 
+    public static boolean VIM_MODELINE = true;
+    private static final String VIM_MODELINE_desc = "Generate a modeline (formatting instructions) for VIm";
+
 	/**
 	 * Parses one argument from the command line.  This allows the user
 	 * to specify options also on the command line (in addition to the
