@@ -1654,6 +1654,7 @@ public class Emitter {
 	}
 	public void emitUniqueUS(String header, ArrayList<String> history, ClassifiedStream w) {
 		// emit unique using statement
+		assert (false);
 		if  (!history.contains(header)){
 			w.write("using \"" + header + "\";");
 			history.add(header);
