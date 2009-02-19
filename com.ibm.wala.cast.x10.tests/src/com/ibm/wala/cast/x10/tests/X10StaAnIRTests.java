@@ -2,14 +2,8 @@
  * Created on Oct 21, 2005
  */
 package com.ibm.wala.cast.x10.tests;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,10 +45,8 @@ import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.analysis.ExplodedControlFlowGraph.ExplodedBasicBlock;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.collections.Filter;
-import com.ibm.wala.util.collections.Filtersection;
 import com.ibm.wala.util.collections.HashSetFactory;
 import com.ibm.wala.util.collections.Pair;
-import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.util.intset.OrdinalSet;
 
 class ClockInst {
@@ -520,9 +512,9 @@ public class X10StaAnIRTests extends IRTests {
 			}			
 		}) {
 			@Override
-			public ControlFlowGraph<ExplodedBasicBlock> getCFG(CGNode n)
+			public ControlFlowGraph<SSAInstruction, ExplodedBasicBlock> getCFG(CGNode n)
 			throws IllegalArgumentException {
-				ControlFlowGraph x = super.getCFG(n);
+				ControlFlowGraph<SSAInstruction, ExplodedBasicBlock> x = super.getCFG(n);
 
 				/*	if (n.getIR() != null) {
 						System.err.println( n );
