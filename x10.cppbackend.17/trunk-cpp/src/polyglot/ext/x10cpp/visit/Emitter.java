@@ -30,7 +30,6 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.While_c;
 import polyglot.types.QName;
-import polyglot.types.Ref;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Closure_c;
@@ -64,7 +63,6 @@ import polyglot.types.ClassType_c;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
@@ -399,9 +397,8 @@ public class Emitter {
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
 		String name = null;
-		boolean nativeTranslated = false;
 		if (type.isClass()){
-			if (type.toClass().isAnonymous())
+			if (type.toClass().isAnonymous())  // FIXME: [IP] Is this ever true?
 				name = "__anonymous__"+getId();
 			else {
                 type = X10TypeMixin.baseType(type);
@@ -415,7 +412,6 @@ public class Emitter {
 					List<Type> typeArguments = ((X10ClassType) type).typeArguments();
 					Object[] o = new Object[typeArguments.size()+1];
 					int i = 0;
-					NodeFactory nf = tr.nodeFactory();
 					o[i++] = type;
 					for (Type a : typeArguments) {
 					    o[i++] = a;
@@ -429,33 +425,31 @@ public class Emitter {
 					// FIXME: Clean up this code!
 					return dumpRegex("NativeRep", o, tr, pat);
 				}
-				else{
+				else {
 					if (type.toClass().isNested())
 						context = tr.typeSystem().createContext();
 					name = type.translate(context);
 				}
 			}
-			X10ClassType ct = (X10ClassType)type.toClass();
-			if (!knownSpecialPackages.contains(ct.package_())) {
-				if (!nativeTranslated && ct.typeArguments().size() != 0) {
-					name += "<";
-					int s = ct.typeArguments().size();
-					for (Type t: ct.typeArguments()) {
-						name += translateType(t, true); // type arguments are always translated as refs
-						s--;
-						if (s > 0)
-							name +=", ";
-					}
-					if (name.endsWith(">"))
-						name += " ";
-					name += ">";
+			X10ClassType ct = (X10ClassType) type.toClass();
+			if (ct.typeArguments().size() != 0) {
+				name += "<";
+				int s = ct.typeArguments().size();
+				for (Type t: ct.typeArguments()) {
+					name += translateType(t, true); // type arguments are always translated as refs
+					s--;
+					if (s > 0)
+						name +=", ";
 				}
+				if (name.endsWith(">"))
+					name += " ";
+				name += ">";
 			}
-		} else if (type instanceof ParameterType){
+		} else if (type instanceof ParameterType) {
 			return type.toString(); // parameter types shouldn't be refs
 		} else 
-			assert false:type; // unhandled type.
-        assert(name!=null);
+			assert false : type; // unhandled type.
+		assert (name != null);
 		name = translateFQN(name);
 		if (!asRef)
 			return name;
@@ -586,76 +580,83 @@ public class Emitter {
 		w.write(" >");
 	}
 
-    
 
-    Type findRootMethodReturnType (X10TypeSystem xts, MethodDecl_c n, MethodInstance from) {
-        // [DC] c++ doesn't allow covariant smartptr return types so
-        // we are forced to use the same type everywhere and cast
-        // on call.  This function gets the one type that we use for
-        // all return types, from the root of the class hierarchy.
+	Type findRootMethodReturnType(X10TypeSystem xts, MethodDecl_c n, MethodInstance from) {
+		// [IP] Optimizations
+		X10Flags flags = X10Flags.toX10Flags(from.flags());
+		if (flags.isStatic() || flags.isPrivate() || flags.isProperty() || from.returnType().isVoid())
+			return from.returnType();
 
-        // TODO: currently we cannot handle the following code:
-        // A new approach is required.
-        /*
-        interface Cloneable {
-            def clone() : Cloneable;
-        }
+		// [DC] c++ doesn't allow covariant smartptr return types so
+		// we are forced to use the same type everywhere and cast
+		// on call.  This function gets the one type that we use for
+		// all return types, from the root of the class hierarchy.
 
-        interface Cloneable2 {
-            def clone() : Cloneable2;
-        }
+		// TODO: currently we cannot handle the following code:
+		// A new approach is required.
+		/*
+		interface Cloneable {
+			def clone() : Cloneable;
+		}
 
-        class A implements Cloneable {
-            public def clone() { return this; }
-        }
+		interface Cloneable2 {
+			def clone() : Cloneable2;
+		}
 
-        class B extends A implements Cloneable2 {
-            public def clone() { return this; }
-        }
-        */
-        
-        X10ClassType classDef = (X10ClassType) from.container();
-        X10ClassType superClass = (X10ClassType) classDef.superClass();
-        List<Type> interfaces = classDef.interfaces();
-        Type returnType = null; // 
+		class A implements Cloneable {
+			public def clone() { return this; }
+		}
 
-        if (superClass!=null) {
-            List<MethodInstance> methods = superClass.methods(from.name(), from.formalTypes());
-            if (methods.size()==1) {
-                MethodInstance superMeth = methods.get(0);
-                //System.out.println(from+" overrides "+superMeth);
-                assert(returnType==null);
-                returnType = findRootMethodReturnType(xts, n,superMeth);
-            } else {
-                assert(methods.size()==0):methods.size();
-            }
-        }
+		class B extends A implements Cloneable2 {
+			public def clone() { return this; }
+		}
+		*/
+
+		X10ClassType classDef = (X10ClassType) from.container();
+		X10ClassType superClass = (X10ClassType) classDef.superClass();
+		List<Type> interfaces = classDef.interfaces();
+		Type returnType = null;
+
+		if (superClass != null) {
+			List<MethodInstance> methods = superClass.methods(from.name(), from.formalTypes());
+			if (methods.size()==1) {
+				MethodInstance superMeth = methods.get(0);
+				//System.out.println(from+" overrides "+superMeth);
+				assert (returnType == null);
+				returnType = findRootMethodReturnType(xts, n, superMeth);
+			} else {
+				assert (methods.size() == 0) : methods.size();
+			}
+		}
 
 
-        for (Type itf : interfaces) {
-            X10ClassType itf_ = (X10ClassType) itf;
-            // same thing again for interfaces
-            List<MethodInstance> methods = itf_.methods(from.name(), from.formalTypes());
-            if (methods.size()==1) {
-                MethodInstance superMeth = methods.get(0);
-                //System.out.println(from+" overrides "+superMeth);
-                Type newReturnType = findRootMethodReturnType(xts, n,superMeth);
-                if (returnType!=null && !xts.typeBaseEquals(returnType,newReturnType)) {
-                    String msg = "Two supertypes declare "+from+" with "
-                               + "different return types: "+returnType+" != "+newReturnType;
-                    tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
-                }
-                returnType = newReturnType;
-            } else {
-                assert(methods.size()==0):methods.size();
-            }
-        }
-        
-        // if we couldn't find an overridden method, just use the local return type
-        return returnType!=null ? returnType : from.returnType();
-    }
-        
+		for (Type itf : interfaces) {
+			X10ClassType itf_ = (X10ClassType) itf;
+			// same thing again for interfaces
+			List<MethodInstance> methods = itf_.methods(from.name(), from.formalTypes());
+			if (methods.size() == 1) {
+				MethodInstance superMeth = methods.get(0);
+				//System.out.println(from+" overrides "+superMeth);
+				Type newReturnType = findRootMethodReturnType(xts, n,superMeth);
+				if (returnType != null && !xts.typeBaseEquals(returnType, newReturnType)) {
+					String msg = "Two supertypes declare " + from + " with "
+						+ "different return types: " + returnType + " != " + newReturnType;
+					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+				}
+				returnType = newReturnType;
+			} else {
+				assert (methods.size() == 0) : methods.size();
+			}
+		}
+
+		// if we couldn't find an overridden method, just use the local return type
+		return returnType != null ? returnType : from.returnType();
+	}
+
 	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
+		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify);
+	}
+	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, String name, Type ret, boolean qualify) {
 		Flags flags = n.flags().flags();
 
 		if (!qualify) {
@@ -673,23 +674,16 @@ public class Emitter {
 		if (!qualify) {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
-			else if (xn.typeParameters().size() == 0) {
-                if (!flags.isFinal()) {
-                    h.write("virtual ");
-                }
-            }
+			else if (xn.typeParameters().size() == 0)
+				//if (!flags.isFinal()) // [IP] TODO: find out if this is ok
+					h.write("virtual ");
 		}
-
-        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-
-        Type return_type = findRootMethodReturnType(xts, n,n.methodDef().asInstance());
-        
-		printType(return_type, h);
+		printType(ret, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
 			h.write(translateType(n.methodDef().asInstance().container()) + "::"); 
 		//n.print(n.id(), h, tr);
-		h.write(mangled_method_name(n.name().id().toString())); 
+		h.write(mangled_method_name(name)); 
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
