@@ -1041,19 +1041,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
-			ClassifiedStream b = flags.isProperty() ? h : w; // Property methods are inline
-			if (!context.inLocalClass() && !flags.isProperty()) {
+			if (!context.inLocalClass()) {
 				h.write(";");
 				h.newline();
 				emitter.printHeader(dec, w, tr, methodName, ret_type, true);
 				w.newline();
 			} else {
-				b.allowBreak(0, " ");
+				w.allowBreak(0, " ");
 			}
-			sw.pushCurrentStream(b);
+			sw.pushCurrentStream(w);
 			dec.printSubStmt(dec.body(), sw, tr);
 			sw.popCurrentStream();
-			b.newline();
+			w.newline();
 		} else {
 			// Check for properties accessed using method syntax.  They may have @Native annotations too.
 			if (flags.isProperty() && flags.isAbstract() && mi.formalTypes().size() == 0 && mi.typeParameters().size() == 0) {
