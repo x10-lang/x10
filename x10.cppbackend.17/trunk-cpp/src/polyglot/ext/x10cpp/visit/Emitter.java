@@ -30,6 +30,7 @@ import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
 import polyglot.ast.While_c;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Closure_c;
@@ -63,6 +64,8 @@ import polyglot.types.ClassType_c;
 import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.MethodDef;
+import polyglot.types.MethodInstance;
 import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
@@ -580,8 +583,78 @@ public class Emitter {
 		        w.allowBreak(0, " ");
 		    }
 		}
-		w.write(">");
+		w.write(" >");
 	}
+
+    
+
+    Type findRootMethodReturnType (X10TypeSystem xts, MethodDecl_c n, MethodInstance from) {
+        // [DC] c++ doesn't allow covariant smartptr return types so
+        // we are forced to use the same type everywhere and cast
+        // on call.  This function gets the one type that we use for
+        // all return types, from the root of the class hierarchy.
+
+        // TODO: currently we cannot handle the following code:
+        // A new approach is required.
+        /*
+        interface Cloneable {
+            def clone() : Cloneable;
+        }
+
+        interface Cloneable2 {
+            def clone() : Cloneable2;
+        }
+
+        class A implements Cloneable {
+            public def clone() { return this; }
+        }
+
+        class B extends A implements Cloneable2 {
+            public def clone() { return this; }
+        }
+        */
+        
+        X10ClassType classDef = (X10ClassType) from.container();
+        X10ClassType superClass = (X10ClassType) classDef.superClass();
+        List<Type> interfaces = classDef.interfaces();
+        Type returnType = null; // 
+
+        if (superClass!=null) {
+            List<MethodInstance> methods = superClass.methods(from.name(), from.formalTypes());
+            if (methods.size()==1) {
+                MethodInstance superMeth = methods.get(0);
+                //System.out.println(from+" overrides "+superMeth);
+                assert(returnType==null);
+                returnType = findRootMethodReturnType(xts, n,superMeth);
+            } else {
+                assert(methods.size()==0):methods.size();
+            }
+        }
+
+
+        for (Type itf : interfaces) {
+            X10ClassType itf_ = (X10ClassType) itf;
+            // same thing again for interfaces
+            List<MethodInstance> methods = itf_.methods(from.name(), from.formalTypes());
+            if (methods.size()==1) {
+                MethodInstance superMeth = methods.get(0);
+                //System.out.println(from+" overrides "+superMeth);
+                Type newReturnType = findRootMethodReturnType(xts, n,superMeth);
+                if (returnType!=null && !xts.typeBaseEquals(returnType,newReturnType)) {
+                    String msg = "Two supertypes declare "+from+" with "
+                               + "different return types: "+returnType+" != "+newReturnType;
+                    tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
+                }
+                returnType = newReturnType;
+            } else {
+                assert(methods.size()==0):methods.size();
+            }
+        }
+        
+        // if we couldn't find an overridden method, just use the local return type
+        return returnType!=null ? returnType : from.returnType();
+    }
+        
 	void printHeader(MethodDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		Flags flags = n.flags().flags();
 
@@ -600,10 +673,18 @@ public class Emitter {
 		if (!qualify) {
 			if (flags.isStatic())
 				h.write(flags.retain(Flags.STATIC).translate());
-			else if (xn.typeParameters().size() == 0)
-				h.write("virtual ");
+			else if (xn.typeParameters().size() == 0) {
+                if (!flags.isFinal()) {
+                    h.write("virtual ");
+                }
+            }
 		}
-		printType(n.returnType().type(), h);
+
+        X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+
+        Type return_type = findRootMethodReturnType(xts, n,n.methodDef().asInstance());
+        
+		printType(return_type, h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
 			h.write(translateType(n.methodDef().asInstance().container()) + "::"); 
