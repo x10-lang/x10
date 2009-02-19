@@ -17,9 +17,11 @@ extern "C" {
         } catch(int exitCode) {
             x10aux::exitCode = exitCode;
         } catch(x10aux::__ref& e) {
+            x10aux::ref<Object> &e_ = static_cast<x10aux::ref<Object>&>(e); // TODO: yuck
             fprintf(stderr, "%d: ", (int)x10aux::__here__);
             //fprintf(stderr, "Caught %p\n", ((const x10aux::ref<Exception>&)e)._val);
-            ((const x10aux::ref<Exception>&)e)->printStackTrace(System::x10__out);
+            fprintf(stderr, "Uncaught exception of type: %s\n", e_->_type()->name().c_str());
+            //((const x10aux::ref<Exception>&)e)->printStackTrace();
             x10aux::exitCode = 1;
         } catch(...) {
             fprintf(stderr, "%d: Caught exception\n", (int)x10aux::__here__);
