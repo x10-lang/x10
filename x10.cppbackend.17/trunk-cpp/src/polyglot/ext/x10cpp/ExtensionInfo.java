@@ -15,6 +15,7 @@ import polyglot.ext.x10.visit.StaticNestedClassRemover;
 import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10cpp.ast.X10CPPDelFactory_c;
 import polyglot.ext.x10cpp.ast.X10CPPExtFactory_c;
+import polyglot.ext.x10cpp.types.X10CPPSourceClassResolver;
 import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator;
 import polyglot.frontend.AllBarrierGoal;
@@ -26,7 +27,11 @@ import polyglot.frontend.OutputGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
+import polyglot.types.MemberClassResolver;
+import polyglot.types.SemanticException;
+import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
+import polyglot.util.InternalCompilerError;
 
 
 /**
@@ -52,7 +57,30 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		return new X10CPPTypeSystem_c();
 	}
 
-	// =================================
+	@Override
+        protected void initTypeSystem() {
+                // Inline from superclass, replacing SourceClassResolver
+                try {
+                        TopLevelResolver r = new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+                                                                        getOptions().compile_command_line_only,
+                                                                        getOptions().ignore_mod_times);
+
+
+                        // Resolver to handle lookups of member classes.
+                        if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+                                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+                                r = mcr;
+                        }
+
+                        ts.initialize(r, this);
+                }
+                catch (SemanticException e) {
+                    throw new InternalCompilerError(
+                        "Unable to initialize type system: " + e.getMessage(), e);
+                }
+        }
+
+        // =================================
 	// X10-specific goals and scheduling
 	// =================================
 	protected Scheduler createScheduler() {
