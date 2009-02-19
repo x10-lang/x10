@@ -91,7 +91,6 @@ import polyglot.ast.Stmt;
 import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
-import polyglot.ast.Term_c;
 import polyglot.ast.Throw_c;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
@@ -1321,6 +1320,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			List<Stmt> statements = body.statements();
 //			HashMap inited = new HashMap();
 			List<Stmt> newStatements = new TypedList(new ArrayList(), Stmt.class, false);
+			List<Stmt> syntheticInits = new TypedList(new ArrayList(), Stmt.class, false);
 			for (Stmt n : statements) {
 				if (n instanceof ConstructorCall && ((ConstructorCall)n).kind() == ConstructorCall.SUPER) {
 					ConstructorCall call = (ConstructorCall) n;
@@ -1349,8 +1349,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					}
 					sw.write(")");
 					hasInits = true;
-				} else
-					newStatements.add(n);
+				} else {
+					if (query.isSyntheticOuterAccessor(n))
+					    syntheticInits.add(n);
+					else
+					    newStatements.add(n);
+				}
 			}
 			assert (!dec.flags().flags().isStatic());
 			TypeSystem ts = tr.typeSystem();
@@ -1362,6 +1366,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			else
 				sw.allowBreak(0, " ");
 			sw.write("{"); sw.newline(4); sw.begin(0);
+			for (Stmt stmt : syntheticInits) { // Synthetic fields must be initialized before everything else
+			    dec.print(stmt, sw, tr); sw.newline();
+			}
 			if (context.hasInits) {
 				sw.write("this->"+RUN_INITIALIZERS+"();"); sw.newline();
 			}

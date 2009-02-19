@@ -9,14 +9,17 @@ import java.util.List;
 
 import polyglot.ast.Block_c;
 import polyglot.ast.Call_c;
+import polyglot.ast.Eval;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
+import polyglot.ast.FieldAssign;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
@@ -88,6 +91,17 @@ public class ASTQuery {
 		if (name.startsWith("jlc$")) return true;
 		return false;
 	}
+
+    public static final Name InnerClassRemover_OUTER_FIELD_NAME = Name.make("out$");
+
+    public boolean isSyntheticOuterAccessor(Stmt n) {
+        if (n instanceof Eval && ((Eval)n).expr() instanceof FieldAssign) {
+            FieldAssign init = (FieldAssign) ((Eval)n).expr();
+            Field_c f = (Field_c)init.left(tr.nodeFactory());
+            return f.fieldInstance().name().equals(InnerClassRemover_OUTER_FIELD_NAME);
+        }
+        return false;
+    }
 
     private static boolean seenMain = false; // FIXME: non-reentrant
     private static boolean warnedAboutMain = false; // FIXME: non-reentrant
@@ -276,6 +290,7 @@ public class ASTQuery {
 			return false;
 		return true;
 	}
+
 	static int async_id(X10CPPContext_c.Closures a, Node n) {
 		return a.asyncs.lastIndexOf(n);
 	}
