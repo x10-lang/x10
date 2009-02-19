@@ -156,13 +156,13 @@ public class Emitter {
 	}
 
 	void emit_general_finish_start(ClassifiedStream w) {
-		w.write("x10::lang::general_finish_start();");  
+		w.write("x10aux::general_finish_start();");  
 		// keep it in sync with data/*.xcd files
 		w.newline();
 	}
 
 	void emit_general_finish_end(ClassifiedStream w) {
-		w.write("x10::lang::general_finish_end();");
+		w.write("x10aux::general_finish_end();");
 		// keep it in sync with data/*.xcd files
 		// FIXME: Handle Exceptions. [Krishna]
 		w.newline();
