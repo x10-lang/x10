@@ -17,6 +17,7 @@ import static polyglot.ext.x10cpp.visit.ASTQuery.getOuterClass;
 import static polyglot.ext.x10cpp.visit.ASTQuery.getPropertyInit;
 import static polyglot.ext.x10cpp.visit.ASTQuery.isPrintf;
 import static polyglot.ext.x10cpp.visit.ASTQuery.outerClosure;
+import static polyglot.ext.x10cpp.visit.Emitter.mangled_field_name;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_method_name;
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
 import static polyglot.ext.x10cpp.visit.Emitter.translateFQN;
@@ -358,7 +359,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Term_c init = (Term_c) dec.init();
 		assert (init != null);
 
-		w.write(mangled_non_method_name(dec.name().id().toString()));
+		w.write(mangled_field_name(dec.name().id().toString()));
 		w.write(" = ");
         sw.pushCurrentStream(w);
         dec.print(init, sw, tr);
@@ -1474,7 +1475,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 		w.begin(0);
-		boolean requireMangling = true;
 		if (!n.isTargetImplicit()) {
 			// explicit target.
 			
@@ -1486,21 +1486,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write("::");
 			} else {
 				w.write("->");
-			}
-			if (!target.type().isClass()) {
-				requireMangling = false;
-			} else {
-				ClassType ct = target.type().toClass();
-				if (knownSpecialPackages.contains(ct.package_()))
-					requireMangling = false;
-				// FIXME: The target name is mangled. What about
-				// the method name? Currently it is not! -- Issue
-				// with x10lang.
-				// It is waiting to break. For example,
-				// System.out.println should get translated to
-				// System::__x10__out.println, not
-				// System::__x10__out.x10__println.
-				// -Krishna.
 			}
 		}
 		else if (context.insideClosure) {
@@ -1516,10 +1501,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 
-		if (requireMangling)
-                        w.write(mangled_method_name(n.name().id().toString()));
-                else
-                        w.write(n.name().id().toString());
+		w.write(mangled_method_name(n.name().id().toString()));
 		emitter.printTemplateInstantiation(mi, w);
 		w.write("(");
 		if (n.arguments().size() > 0) {
@@ -1710,7 +1692,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				w.write(emitter.translateType(n.fieldInstance().container()) + "::");
 			}
 		}
-                w.write(mangled_non_method_name(n.name().id().toString()));
+		w.write(mangled_field_name(n.name().id().toString()));
 		w.end();
 	}
 
@@ -1808,11 +1790,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Id_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (context.requireMangling())
-			w.write("x10__" + n.id().toString());
-		else
-			w.write(n.id().toString());
+		w.write(mangled_non_method_name(n.id().toString()));
 	}
 
 	public void visit(X10Cast_c c) {

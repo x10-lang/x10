@@ -86,14 +86,40 @@ public class Emitter {
 		this.tr=tr;
 		query = new ASTQuery(sw, tr);
 	}
+	private static final String[] CPP_KEYWORDS = { // Some are also X10 keywords
+		"asm", "auto", "bool", "break", "case", "catch", "char", "class",
+		"const", "const_cast", "continue", "default", "delete", "do", "double",
+		"dynamic_cast", "else", "enum", "explicit", "export", "extern",
+		"false", "float", "for", "friend", "goto", "if", "inline", "int",
+		"long", "mutable", "namespace", "new", "operator", "private",
+		"protected", "public", "register", "reinterpret_cast", "return",
+		"restrict", // Yes, stupid xlC has a "restrict" keyword -- who knew?
+		"short", "signed", "sizeof", "static", "static_cast", "struct",
+		"switch", "template", "this", "throw", "true", "try", "typedef",
+		"typeid", "typename", "union", "unsigned", "using", "virtual", "void",
+		"volatile", "wchar_t", "while"
+	};
+	private static boolean isCPPKeyword(String name) {
+		for (int i = 0; i < CPP_KEYWORDS.length; i++) {
+			if (CPP_KEYWORDS[i].equals(name))
+				return true;
+		}
+		return false;
+	}
+	private static String mangle_to_cpp(String str) {
+		if (isCPPKeyword(str))
+			str = "_kwd__" + str;
+		return str.replace("$", "__");
+	}
 	public static String mangled_method_name(String str) {
-		return str.replace("$","__"); // FIXME: Add appropriate mangling. [Krishna]
+		return mangle_to_cpp(str);
 	}
 	public static String mangled_non_method_name(String str) {
-		if (str.equals(THIS)) return str;  // "this" is passed by closures code for graceful fitting with 1.5 closures code.  
-		// "this" mangles to "this". FIXME Import Igor's changes
-        return str.replace("$","__");
-		//return ("x10__" + str.replace("$","__"));
+		return mangle_to_cpp(str);
+	}
+	public static String mangled_field_name(String str) {
+		//return "__"+mangle_to_cpp(str);
+		return "x10__"+mangle_to_cpp(str);
 	}
 
 	void emit_cond_global_finish_start(String cs, String comment, ClassifiedStream w) {
@@ -418,10 +444,6 @@ public class Emitter {
 					}
 					name +=" > ";
 				}
-
-				//name = "x10__" + name;
-				name=name.replaceAll("\\.", ".x10__");
-				//name=name.replaceAll("\\::", "::x10__");
 			}
 			/*
 			// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
@@ -764,9 +786,7 @@ public class Emitter {
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify)
 			h.write(translateType(n.fieldDef().asInstance().container()) + "::");
-		//h.write("__");  // In Java a field and a method can have
-		//		// the same name. This takes care of it.
-		h.write(mangled_non_method_name(n.name().id().toString())); 
+		h.write(mangled_field_name(n.name().id().toString())); 
 		h.end();
 
 		// TODO: Handle initialization of instance fields.
@@ -1511,7 +1531,7 @@ public class Emitter {
 		h.newline();
 		// FIXME: this doesn't work
 		//// Make sure the reference serializer can access the above
-		//h.write("template<> friend struct x10aux::_reference_serializer<"+"x10__"+type.name()+">;");
+		//h.write("template<> friend struct x10aux::_reference_serializer<"+type.name()+">;");
 		//h.newline();
 
 		// _serialize()
@@ -1539,8 +1559,8 @@ public class Emitter {
 			FieldInstance f = (FieldInstance) type.fields().get(i);
 			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
-			String fieldName = mangled_non_method_name(f.name().toString());
-			if (f.type().isPrimitive()) {
+			String fieldName = mangled_field_name(f.name().toString());
+			if (f.type().isBoolean() || f.type().isNumeric()) {
 				w.write("buf.write(this->"+fieldName+");"); w.newline();
 				w.write("_S_(\"Written \" << this->"+fieldName+");");
 			} else if (ts.isValueType(f.type())) {
@@ -1570,8 +1590,8 @@ public class Emitter {
 			FieldInstance f = (FieldInstance) type.fields().get(i);
 			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
-			String fieldName = mangled_non_method_name(f.name().toString());
-			if (f.type().isPrimitive()) {
+			String fieldName = mangled_field_name(f.name().toString());
+			if (f.type().isBoolean() || f.type().isNumeric()) {
 				w.write("this->"+fieldName+" = buf.read<"+translateType(f.type())+" >();");
 			} else if (ts.isValueType(f.type())) {
 				w.write("this->"+fieldName+" = x10aux::_deserialize_value_ref<"+translateType(f.type())+" >(buf);");
