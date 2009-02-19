@@ -396,8 +396,9 @@ public class Emitter {
 					return dumpRegex("NativeRep", o, tr, pat);
 				}
 				else {
-					if (ct.isNested()) {
+					if (ct.def().isNested()) {
 						X10ClassDef cdef = (X10ClassDef) ct.container().toClass().def();
+						assert (false) : ("Nested class alert!");
 						if (cdef.typeParameters().size() != 0) {
 							name = ct.container().translate(context)+
 								voidTemplateInstantiation(cdef.typeParameters().size())+
@@ -745,13 +746,14 @@ public class Emitter {
 	}
 
 	private void printAllTemplateSignatures(ClassDef cd, ClassifiedStream h) {
-		if (cd.isNested())
+		if (cd.isNested()) {
+			assert (false) : ("Nested class alert!");
 			printAllTemplateSignatures(cd.outer().get(), h);
+		}
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
 
 	void printRTT(X10ClassType ct, ClassifiedStream h) {
-		String name = ct.name().toString();
 		String x10name = ct.fullName().toString();
 		int num_parents = 1 + ct.interfaces().size();
 		//
@@ -786,8 +788,8 @@ public class Emitter {
 		h.write("};"); h.newline();
 		h.newline();
 		h.write("public: virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
-			h.write("return x10aux::getRTT<"+name+">();"); h.end(); h.newline();
-		h.write("}");h.newline();
+			h.write("return x10aux::getRTT<"+translateType(ct)+" >();"); h.end(); h.newline();
+		h.write("}"); h.newline();
 	}
 	void printRTTDefn(X10ClassType ct, ClassifiedStream h) {
 		if (ct.typeArguments().isEmpty()) {
@@ -860,8 +862,10 @@ public class Emitter {
 
 		h.write("class ");
 		assert(!n.classDef().isLocal());
-		if (n.classDef().isNested() && !n.classDef().isLocal()) // FIXME: handle local classes
+		if (n.classDef().isNested() && !n.classDef().isLocal()) { // FIXME: handle local classes
+			assert (false) : ("Nested class alert!");
 			h.write(translateType(n.classDef().outer().get().asType()) + "::");
+		}
 		h.write(mangled_non_method_name(n.name().id().toString())); 
 
 		printInheritance(n, h, tr);
@@ -873,8 +877,9 @@ public class Emitter {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		Flags flags = n.flags().flags();
 
+		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
 		if (qualify){
-			printTemplateSignature(((X10ClassType)n.constructorDef().container().get()).typeArguments(), h);
+			printTemplateSignature((container).typeArguments(), h);
 		}
 
 		X10ConstructorDecl_c xn = (X10ConstructorDecl_c) n;
@@ -884,9 +889,10 @@ public class Emitter {
 			printFlags(h, flags);
 		}
 		h.begin(0);
+		String typeName = translateType(container.def().asType());
 		if (qualify && !context.inLocalClass())
-			h.write(translateType(n.constructorDef().asInstance().container()) + "::");
-		h.write(mangled_non_method_name(n.name().id().toString())); 
+			h.write(typeName + "::");
+		h.write(mangled_non_method_name(typeName)); 
 		h.write("(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
