@@ -20,6 +20,7 @@ import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator;
 import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.BarrierGoal;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -31,6 +32,8 @@ import polyglot.types.MemberClassResolver;
 import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.TypeSystem;
+import polyglot.util.ErrorQueue;
+import polyglot.visit.PostCompiled;
 import polyglot.util.InternalCompilerError;
 
 
@@ -112,6 +115,14 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 			TypeSystem ts = extInfo.typeSystem();
 			NodeFactory nf = extInfo.nodeFactory();
 			return new OutputGoal(job, new X10CPPTranslator(job, ts, nf, extInfo.targetFactory())).intern(this);
+		}
+		@Override
+		protected Goal PostCompiled() {
+		    return new PostCompiled(extInfo) {
+		        protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
+		            return X10CPPTranslator.postCompile(options, compiler, eq);
+		        }
+		    }.intern(this);
 		}
 		public Goal NewCodeGenBarrier() {
 		    if (Globals.Options().compile_command_line_only) {
