@@ -314,14 +314,14 @@ public class ASTQuery {
 	static final ArrayList knownAsyncArrayCopyMethods = new ArrayList();
 
 	boolean isAsyncArrayCopy(Call_c n) {
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
 		if (knownAsyncArrayCopyMethods.size() == 0) {
 			X10CPPContext_c context = (X10CPPContext_c) tr.context();
 			try {
-				ReferenceType x_l_Runtime = (ReferenceType) ts.Runtime();
+				Type x_l_Runtime = (Type) ts.Runtime();
 				Type Int = ts.Int();
 				Type[] OA_I_P_I_I_B = { ts.array(ts.Object()), Int, ts.place(), Int, Int, ts.Boolean() };
-				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "asyncDoubleArrayCopy", Arrays.asList(OA_I_P_I_I_B), context.currentClass()));
+				knownAsyncArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "asyncDoubleArrayCopy", Arrays.asList(OA_I_P_I_I_B)), context.currentClassDef()));
 			} catch (SemanticException e) { assert (false); }
 		}
 		if (!(n.target() instanceof X10CanonicalTypeNode_c))
@@ -342,11 +342,11 @@ public class ASTQuery {
 		if (knownArrayCopyMethods.size() == 0) {
 			X10CPPContext_c context = (X10CPPContext_c) tr.context();
 			try {
-				ReferenceType x_l_Runtime = (ReferenceType) ts.Runtime();
+				Type x_l_Runtime = (Type) ts.Runtime();
 				Type array = ts.array();
 				Type Int = ts.Int();
 				Type[] A_I_A_I_I = { array, Int, array, Int, Int };
-				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_I_A_I_I), context.currentClass()));
+				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "arrayCopy", Arrays.asList(A_I_A_I_I)), context.currentClass()));
 				// TODO
 //				Type[] A_A = { array, array };
 //				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_A), context.currentClass()));

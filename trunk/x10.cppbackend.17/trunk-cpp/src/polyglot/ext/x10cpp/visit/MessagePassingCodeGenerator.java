@@ -1137,118 +1137,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	
 	public void visit(X10Binary_c n) {
-		Expr left = n.left();
-		Type l = left.type();
-		Expr right = n.right();
-		X10Type r = (X10Type) right.type();
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-//		NodeFactory nf = tr.nodeFactory();
-		Binary.Operator op = n.operator();
-
-		Binary.Operator GT = Binary.GT;
-		Binary.Operator LT = Binary.LT;
-		Binary.Operator GE = Binary.GE;
-		Binary.Operator LE = Binary.LE;
-		if ((op == GT || op == LT || op == GE || op == LE) & (xts.isPoint(l) || xts.isPlace(l))) {
-			String name = op == GT ? "gt" : op == LT ? "lt" : op == GE ? "ge" : "le";
-			generateStaticOrInstanceCall(n.position(), left, name, right);
-			return;
-		}
-
-		Binary.Operator COND_OR = Binary.COND_OR;
-		Binary.Operator COND_AND = Binary.COND_AND;
-		if (op == COND_OR && (xts.isDistribution(l) ||
-				xts.isRegion(l) ))
-		{
-			generateStaticOrInstanceCall(n.position(), left, "union", right);
-			return;
-		}
-		if (op == COND_AND && (xts.isRegion(l) || xts.isDistribution(l))) {
-			generateStaticOrInstanceCall(n.position(), left, "intersection", right);
-			return;
-		}
-
-		Binary.Operator BIT_OR = Binary.BIT_OR;
-		Binary.Operator BIT_AND = Binary.BIT_AND;
-		// New for X10.
-		if (op == BIT_OR && (xts.isDistribution(l) ||
-					xts.isDistributedArray(l) || xts.isPlace(l))) {
-			generateStaticOrInstanceCall(n.position(), left, "restriction", right);
-			return;
-		}
-
-		Binary.Operator SUB = Binary.SUB;
-		Binary.Operator ADD = Binary.ADD;
-		Binary.Operator MUL = Binary.MUL;
-		Binary.Operator DIV = Binary.DIV;
-		// Modified for X10.
-		if (op == SUB && (xts.isDistribution(l) || xts.isRegion(l))) {
-			generateStaticOrInstanceCall(n.position(), left, "difference", right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPrimitiveTypeArray(l)) {
-			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-			generateStaticOrInstanceCall(n.position(), left, name, right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(l) && !xts.isSubtype(r, xts.String())) {
-			String name = op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div";
-			generateStaticOrInstanceCall(n.position(), left, name, right);
-			return;
-		}
-		if ((op == SUB || op == ADD || op == MUL || op == DIV) && xts.isPoint(r) && !xts.isSubtype(l, xts.String())) {
-			String name = "inv" + (op == SUB ? "sub" : op == ADD ? "add" : op == MUL ? "mul" : "div");
-			generateStaticOrInstanceCall(n.position(), right, name, left);
-			return;
-		}
-		// WARNING: it's important to delegate to the appropriate visit() here!
 		visit((Binary_c)n);
 	}
 
-	/**
-	 * @param pos
-	 * @param left TODO
-	 * @param name
-	 * @param right TODO
-	 */
-	private void generateStaticOrInstanceCall(Position pos, Expr left, String name, Expr right) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		NodeFactory nf = tr.nodeFactory();
-		ReferenceType lType = (ReferenceType) left.type();
-		Type rType = right.type();
-		try {
-			try {
-				MethodInstance mi = xts.findMethod(lType, name,
-						Collections.singletonList(rType), xts.Object());
-				sw.pushCurrentStream(w);
-				tr.print(null, nf.Call(pos, left, nf.Id(pos, name), right).methodInstance(mi).type(mi.returnType()), sw);
-				sw.popCurrentStream();
-//				printSubExpr(left, true, w, tr);
-//				w.write(".");
-//				w.write(name);
-//				w.write("(");
-//				printSubExpr(right, false, w, tr);
-//				w.write(")");
-			} catch (NoMemberException e) {
-				MethodInstance mi = xts.findMethod(xts.ArrayOperations(), name,
-						Arrays.asList(new Type[] {lType, rType}), xts.Object());
-				sw.pushCurrentStream(w);
-				tr.print(null, nf.Call(pos, nf.CanonicalTypeNode(pos, xts.ArrayOperations()),
-						nf.Id(pos, name), left, right).methodInstance(mi), sw);
-				sw.popCurrentStream();
-//				w.write("x10.lang.ArrayOperations.");
-//				w.write(name);
-//				w.write("(");
-//				printSubExpr(left, false, w, tr);
-//				w.write(", ");
-//				printSubExpr(right, false, w, tr);
-//				w.write(")");
-				return;
-			}
-		} catch (SemanticException e) {
-			throw new InternalCompilerError(e.getMessage(), pos, e);
-		}
-	}
+	
 
 
 
@@ -1515,9 +1407,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			(array instanceof Local_c) ? ((Local_c)array).localInstance()
 					: ((Field_c)array).fieldInstance();
 		boolean isSPMDTarget = context.isSPMDVar(a_var);
-		ReferenceType x_l_RemoteDoubleArrayCopier = null;
+		Type x_l_RemoteDoubleArrayCopier = null;
 		try {
-			x_l_RemoteDoubleArrayCopier = (ReferenceType) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
+			x_l_RemoteDoubleArrayCopier = (Type) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
 			assert (xts.isX10Array(array.type()) &&
 					xts.isSubtype(xts.baseType(array.type()),
 							x_l_RemoteDoubleArrayCopier));
@@ -1542,19 +1434,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Expr src = null;
 		Expr dest = null;
 		try {
-			FieldInstance fi = xts.findField(xts.place(), "id", context.currentClass());
+			FieldInstance fi = xts.findField(xts.Place(), "id", context.currentClassDef());
 			array = xnf.X10ArrayAccess1(array.position(), array,
 					xnf.Field(array.position(),
-							xnf.Here(Position.COMPILER_GENERATED).type(xts.place()),
+							xnf.Here(Position.COMPILER_GENERATED).type(xts.Place()),
 							xnf.Id(Position.COMPILER_GENERATED, "id"))
 						.fieldInstance(fi).type(xts.Int()))
 					.type(x_l_RemoteDoubleArrayCopier);
-			ReferenceType aType = xts.array(baseType);
-			MethodInstance smi = xts.findMethod(x_l_RemoteDoubleArrayCopier, GET_SOURCE_ARRAY, Collections.EMPTY_LIST, context.currentClass());
+			Type aType = xts.array(baseType);
+			MethodInstance smi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, GET_SOURCE_ARRAY, (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
 			src = xnf.Call(Position.COMPILER_GENERATED, array,
 						  xnf.Id(Position.COMPILER_GENERATED, GET_SOURCE_ARRAY))
 				  .methodInstance(smi).type(aType);
-			MethodInstance dmi = xts.findMethod(x_l_RemoteDoubleArrayCopier, GET_DEST_ARRAY, Collections.EMPTY_LIST, context.currentClass());
+			MethodInstance dmi = xts.findMethod(x_l_RemoteDoubleArrayCopier, xts.MethodMatcher(x_l_RemoteDoubleArrayCopier, GET_DEST_ARRAY, (List<Type>)Collections.EMPTY_LIST), context.currentClassDef());
 			dest = xnf.Call(Position.COMPILER_GENERATED, array,
 						   xnf.Id(Position.COMPILER_GENERATED, GET_DEST_ARRAY))
 				   .methodInstance(dmi).type(aType);
