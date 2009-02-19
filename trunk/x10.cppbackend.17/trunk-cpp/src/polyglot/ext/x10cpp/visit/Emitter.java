@@ -149,7 +149,7 @@ public class Emitter {
 			} else {
 				aClass = (ClassType) asyncContainers.get(asyncs.get(i));
 			}
-			if (! ts.equals(aClass, c.currentClass()))
+			if (! ts.typeEquals(aClass, c.currentClass()))
 				continue;
 			if (arrayCopyClosures.containsKey(asyncs.get(i))) {
 				w.write("public : " + prefix + VOID_PTR + " " + name_pfx + closure_name(ARRAY_COPY_PREFIX, i));
