@@ -27,6 +27,7 @@ releases:
 - AST externalization to XML
 - Shared local variables
 - Extern methods
+- Random number generation
 
 Additionally, the following features described in the 1.7 language
 manual do not currently work with the C++ backend and will be fixed in
