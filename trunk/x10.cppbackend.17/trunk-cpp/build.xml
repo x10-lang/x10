@@ -12,7 +12,7 @@
     <property name="build" location="${basedir}/classes"/>
     <property name="src" location="${basedir}/src"/>
     <property name="lib" location="${x10.dist.location}/lib"/>
-    <property name="distbin" location="${x10.dist.location}/bin"/>
+    <property name="bin" location="${x10.dist.location}/bin"/>
     <property name="jar" value="x10cpp.jar"/>
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
@@ -40,12 +40,12 @@
         <copy todir="${lib}">
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
-        <mkdir dir="${distbin}"/>
-	<!-- use exec instead of copy to preserve execution bit -->
-	<exec executable="cp">
-	    <arg value="${basedir}/bin/x10c++" />
-	    <arg value="${distbin}/x10c++" />
-	</exec>
+        <mkdir dir="${bin}"/>
+        <copy todir="${bin}">
+            <fileset dir="${basedir}/bin" includes="x10c++,runx10" />
+        </copy>
+        <chmod perm="+x" file="${bin}/x10c++"/>
+        <chmod perm="+x" file="${bin}/runx10"/>
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
@@ -58,7 +58,7 @@
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
         <!-- <javac destdir="${build}" debug="on"> -->
             <!-- <compilerarg value="-Xlint:unchecked"/> -->
-        	<compilerarg line="-Xmaxerrs 10000"/>
+            <compilerarg line="-Xmaxerrs 10000"/>
             <src path="${src}"/>
             <classpath refid="project.classpath"/>
         </javac>
