@@ -595,7 +595,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
     private void declareClass(X10ClassDef cd, ClassifiedStream h) {
-        assert(cd!=null);
+        assert (cd != null);
         QName pkg = null;
         if (cd.package_() != null)
             pkg = cd.package_().get().fullName();
@@ -637,6 +637,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			X10SummarizingPass v = new X10SummarizingPass(tr);
 			v.makeSummariesPass(n);
 		}
+
 		X10ClassDef def = (X10ClassDef) n.classDef();
 
 		if (getCppRep(def, tr) != null) {
@@ -645,7 +646,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		context.setinsideClosure(false);
 		context.hasInits = false;
-        boolean oldInTemplate = context.inTemplate();
 
 		if (!def.isNested() && hasExternMethods(n.body().members())) {
 			// FIXME: extern methods in nested classes
@@ -805,8 +805,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		context.pendingStaticDecls = new ArrayList<ClassMember>();
 
 		if (def.typeParameters().size() != 0) {
-            // set this up now
-            context.inTemplate(true);
 			// Pre-declare the void specialization for statics
 			emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
 			h.write("class ");
@@ -899,7 +897,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 			h.write("//#endif // HACK: the main guard will be closed later: "+guard); h.newline();
 		}
-        context.inTemplate(oldInTemplate);
 		w.newline(0);
 	}
 
@@ -961,7 +958,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10ClassType currentClass = (X10ClassType) context.currentClass();
         X10ClassType superClass = (X10ClassType) currentClass.superClass();
 
-
 		ClassifiedStream h;
 		if (context.inLocalClass())
 			h = w;
@@ -980,15 +976,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.popCurrentStream();
 		}
 		context.classProperties = new ArrayList();
-		List<ClassMember> members = n.members();
 
+		List<ClassMember> members = n.members();
 		if (!members.isEmpty()) {
 			String className = emitter.translateType(currentClass);
 
 			for (ClassMember member : members) {
 				if (!(member instanceof X10ClassDecl_c))
 					continue;
-                assert(false):member+" "+n.position().nameAndLineString();
+                assert (false) : "Nested class alert! "+member+" "+n.position().nameAndLineString();
 				ClassDecl_c dec = (ClassDecl_c)member;
 				X10ClassDef def = (X10ClassDef) dec.classDef();
 				if (getCppRep(def, tr) != null)
@@ -1009,8 +1005,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				context.hasInits = true;
 			}
 
-            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-
 			ClassMember prev = null;
 			for (ClassMember member : members) {
 				if (member instanceof ClassDecl_c)  // Process nested classes separately
@@ -1026,10 +1020,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.popCurrentStream();
             }
 
-
             // generate proxy methods for an overridden method's superclass overloads
-            if (superClass!=null) {
-
+            if (superClass != null) {
                 // first gather a set of all the method names in the current class
                 Set<Name> mnames = new HashSet<Name>();
                 for (ClassMember member : members) {
@@ -1089,14 +1081,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 }
             }            
 
-
-
 			if (extractInits(currentClass, STATIC_INIT, VOID, members, w, true)) {
-                //declare static init function in header
+                // declare static init function in header
 				h.write("public : static " + VOID + " " + STATIC_INIT + "();");
 				h.newline();
-                //define field that triggers initalisation-time registration of
-                //static init functio
+                // define field that triggers initalisation-time registration of
+                // static init function
 				w.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
 						" = x10aux::InitDispatcher::addInitializer(" + 
 						className+"::"+STATIC_INIT + ")" + ";");
@@ -1111,7 +1101,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 
 			context.resetMainMethod();
-
 		}
 
 		h.end();
@@ -1121,6 +1110,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("};");
 		h.newline();
 
+        // FIXME: just use a different stream for the body
 		if (currentClass.x10Def().typeParameters().isEmpty()) {
 			emitter.printRTTDefn(currentClass, w);
 		} else {
@@ -3027,11 +3017,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		CodeInstance ci = closureDef.methodContainer().get();
 		X10ClassType hostClassType = (X10ClassType)(closureDef.typeContainer().get());
         X10ClassDef hostClassDef = hostClassType.x10Def();
-        List<Type> freeTypeParams = new ArrayList<Type>();
 
+        List<Type> freeTypeParams = new ArrayList<Type>();
+        // FIXME: handle static field initializers here
         if (ci instanceof X10MethodInstance) {
             X10MethodInstance xmi = (X10MethodInstance) ci;
-            // in X10, static generic methods do not inherit the template params of their classes
+            // in X10, static methods do not inherit the template params of their classes
             if (!xmi.flags().isStatic())
                 freeTypeParams.addAll(hostClassDef.typeParameters());
             freeTypeParams.addAll(xmi.typeParameters());
@@ -3040,9 +3031,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             freeTypeParams.addAll(hostClassDef.typeParameters());
         }
 
-        //System.out.println(freeTypeParams);
-        
-		String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(),"_");
+		String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
 
 		c.setinsideClosure(true);
 
