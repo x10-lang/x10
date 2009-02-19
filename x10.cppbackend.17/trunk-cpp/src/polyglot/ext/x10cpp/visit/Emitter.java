@@ -1536,7 +1536,19 @@ public class Emitter {
 				sw.popCurrentStream();
 				context.resetSelf();
 				w.write(")");
-			} else {
+			} else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
+	                    w.begin(0);
+	                    w.write("("); // put "(Type) expr" in parentheses.
+	                    w.write("(");
+	                    w.write(translateType(t, false));
+	                    w.write(")");
+	                    w.allowBreak(2, " ");
+			    sw.pushCurrentStream(w);
+	                    c.printSubExpr(c.expr(), sw, tr);
+			    sw.popCurrentStream();
+	                    w.write(")");
+	                    w.end();
+	                } else {
 				// FIXME: unhandled cast.
 				assert false;
 			}
