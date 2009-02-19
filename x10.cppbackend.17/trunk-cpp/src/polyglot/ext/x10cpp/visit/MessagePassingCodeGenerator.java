@@ -119,6 +119,7 @@ import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
 import polyglot.ext.x10.ast.Tuple_c;
 import polyglot.ext.x10.ast.TypeDecl_c;
+import polyglot.ext.x10.ast.TypeDecl;
 import polyglot.ext.x10.ast.X10Binary_c;
 import polyglot.ext.x10.ast.X10Call_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode;
@@ -230,7 +231,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		this.query = new ASTQuery(sw, tr);
 	}
 
-	public void visit(TypeDecl_c n) {
+	public void visit (Term_c n) {
+		// FIXME:
+		// For some reason TypeDecl_c visitor is not getting
+		// called directly.
+		if (n instanceof polyglot.ext.x10.ast.TypeDecl_c){
+			visit ((TypeDecl_c) n);
+			return;
+		}
+		assert false;
+	}
+	public void visit (TypeDecl_c n) {
 		// FIXME: I think we need to put a typedef for a TypeDecl.
 		// verify. [Krishna]
 	}
@@ -598,8 +609,27 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.write("public : static void main_np0();");
 			h.newline();
 		}
+		boolean nativeTranslated = false;
+		if (dec.flags().flags().isNative()) {
+			X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
+		        // Abstract native methods don't make sense.
+			assert (!mi.flags().isAbstract());
+			String pat = getCppImplForDef(mi.x10Def());
+			if (pat != null) {
+				if (!context.inLocalClass())
+					emitter.printHeader(dec, w, tr, true);
 
-		if (dec.body() != null) {
+				w.newline(0); w.begin(4); w.write("{"); w.newline();
+				if (!mi.returnType().isVoid())
+					w.write("return ");
+				System.out.println(pat);
+				assert (false);
+				// emitNativeDecl(pat, mi.formalNames());
+				w.end(); w.newline(0); w.write("}"); w.newline();
+				nativeTranslated = true;
+			} 
+		} 
+		if (!nativeTranslated && dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
 				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
@@ -616,38 +646,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 			w.write("}");
 			w.newline();
-		} else if (dec.flags().flags().isNative()) {
-			if (!context.inLocalClass())
-				emitter.printHeader(dec, w, tr, true);
-			w.newline(0); w.begin(4); w.write("{"); w.newline();
-			if (!dec.methodDef().asInstance().returnType().isVoid())
-				w.write("return ");
-
-			String jniName = X10ClassBodyExt_c.generateX10NativeName(dec);
-			w.write(jniName + "(");
-			w.begin(0);
-
-			for (ListIterator i = dec.formals().listIterator(); i.hasNext(); ) {
-				Formal_c parameter = (Formal_c) i.next();
-
-				Type type = parameter.declType();
-				if (type.isPrimitive()) {
-					w.write(mangled_non_method_name(parameter.name().id().toString()));
-				} else if (type.isArray()) {
-					assert (false);
-					w.write(mangled_non_method_name(parameter.name().id().toString()));
-					w.write("->"+RAW_ARRAY+"()");
-				} else {
-					assert(false);
-					// Unhandled case!
-					// assert (ts.isX10Array(type));
-				}
-				if (i.hasNext())
-					w.write(", ");
-			}
-
-			w.end(); w.write(");");
-			w.end(); w.newline(0); w.write("}"); w.newline();
+		} 
+		// Neither have  a body nor have the correct native
+		// directive.
+		if (!nativeTranslated && dec.body() == null){
+			
+			tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
+				"Warning: Neither body nor correct directive! "+dec.toString(), dec.position());
 		}
 	}
 
@@ -1359,6 +1364,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		Receiver target = n.target();
 		String pat = getCppImplForDef(mi.x10Def());
 		if (pat != null) {
+			System.out.println(pat);
+			assert false;
 			emitNativeAnnotation(pat, target, mi.typeParameters(), n.arguments());
 			return;
 		}
@@ -1690,41 +1697,41 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	                Type t = X10TypeMixin.baseType(xtn.type());
 	                DepParameterExpr dep = xtn.constraintExpr();
-	                
-	                if (dep != null) {
-				w.write("({");
-				w.newline(4);
-				w.begin(0);
-				emitter.printType(t, w); 
-				w.write(" ");
-				castVar = getId();
-				w.write(castVar);
-				w.write (" = ");
 
-			}
-			else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
+	                if (dep == null && (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t))) {
 	                    w.begin(0);
 	                    // put (Type) 
 	                    w.write("(");
 			    emitter.printType(t, w); 
 	                    w.write(")");
+			    w.allowBreak(2, " ");
+			    sw.pushCurrentStream(w);
+			    c.printSubExpr(c.expr(), true, sw, tr);
+			    sw.popCurrentStream();
+			    w.end();
+			    break;
 	                }
-	                else {
-			    // FIXME: unhandled cast.
-			    assert false;
-	                }
+			// else
+			// dep != null or dep == null but not primitive nor subtype.
+			w.write("({");
+			w.newline(4);
+			w.begin(0);
+			emitter.printType(t, w); 
+			w.write(" ");
+			castVar = getId();
+			w.write(castVar);
+			w.write (" = ");
 			w.allowBreak(2, " ");
 			sw.pushCurrentStream(w);
 			c.printSubExpr(c.expr(), true, sw, tr);
 			sw.popCurrentStream();
 			w.end();
+			w.write(";");
 			if (dep != null) {
-				w.write(";");
 				emitter.handleX10Cast(c, castVar, w);
-				w.write( castVar + "; ");
-				w.write("})");
-			}
-
+			} 
+			w.write( castVar + "; ");
+			w.write("})");
 	            }
 	            else {
 	                throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
@@ -2622,6 +2629,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    	for (Expr e : index) args.add(e);
 	    	String pat = getCppImplForDef(mi.x10Def());
 	    	if (pat != null) {
+			System.out.println(pat);
+			assert false;
 	    		emitNativeAnnotation(pat, array, mi.typeParameters(), args);
 	    		return;
 	    	} else {
@@ -2751,14 +2760,27 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        assert len == act.propertyInitializers().size();
 	    }
 	}
-	
+	/* 
+	 * FIXME: Work in progress. [Krishna]
+	private void emitNativeDecl(String pat, List<LocalInstance> names) {
+		 Object[] components = new Object[names.size() * 3 + names.size()];
+		    int i = 0;
+		    for (LocalInstance li : names) {
+			// FIXME: Handle typeParameters
+		        // components[i++] = new TypeExpander(at, true, false, false);
+		        // components[i++] = new TypeExpander(at, true, true, false);
+		        // components[i++] = new RuntimeTypeExpander(at);
+		    }
+		    dumpRegex("Native", components, tr, pat);
+	}
+	*/
 	private void emitNativeAnnotation(String pat, Receiver target, List<Type> types, List<Expr> args) {
 		 Object[] components = new Object[1 + types.size() * 3 + args.size()];
 		    int i = 0;
 		    components[i++] = target;
 		    for (Type at : types) {
-			// TODO: Handle typeParameters
-			assert false;
+			// FIXME: Handle TypeParameters
+			    assert false;
 		        // components[i++] = new TypeExpander(at, true, false, false);
 		        // components[i++] = new TypeExpander(at, true, true, false);
 		        // components[i++] = new RuntimeTypeExpander(at);
@@ -2821,9 +2843,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 	
 	public void visit(Tuple_c c) {
-		assert false;
-		// TODO:
-		// Handle Rails initializer.
+		// Handles Rails initializer.
+
+		w.write("{");
+		int i = 0;
+		for (Expr e:c.arguments()) {
+			sw.pushCurrentStream(w);
+			c.printSubExpr(e, false, sw, tr);
+			sw.popCurrentStream();
+			i++;
+			if (i < c.arguments().size())
+				w.write(",");
+		}
+		w.write("}");
 	}
 
 	void newJavaArray(Term_c n, Type base, List dims, int additionalDims, ArrayInit_c init) {
@@ -2883,4 +2915,5 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.write(")");
 	}
 	
+
 } // end of MessagePassingCodeGenerator
