@@ -2063,9 +2063,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.body() != null)
 			throw new InternalCompilerError("Anonymous innner classes should have been removed.");
 		String type = emitter.translateType(n.objectType().type());
-		// [DC] if the only reason for this was to make throws work, we don't need it anymore
-		// as x10aux::throwException takes a ref and the cast is implicit
-		//w.write("("+make_ref(type)+")");
+		// [DC] this cast is needed to ensure everything has a ref type
+		// otherwise overloads don't seem to work properly
+		w.write("("+make_ref(type)+")");
 		w.write("(");
 		w.begin(0);
 		w.write("new");
@@ -3310,6 +3310,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Tuple_c c) {
 		// Handles Rails initializer.
 		Type T = X10TypeMixin.getParameterType(c.type(), 0);
+		String type = emitter.translateType(c.type());
+		// [DC] this cast is needed to ensure everything has a ref type
+		// otherwise overloads don't seem to work properly
+		w.write("("+make_ref(type)+")");
 		w.write("x10aux::alloc_rail<");
 		emitter.printType(T, w); 
 		w.write(",");
