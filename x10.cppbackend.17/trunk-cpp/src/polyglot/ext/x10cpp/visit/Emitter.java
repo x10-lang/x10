@@ -484,11 +484,13 @@ public class Emitter {
 			        // class Bar : public Foo {
 			        //    public: template<class T> Y m_impl(X a);
 			        // };
-			        String msg = n.methodDef()+" is both generic and virtual";
+			        String msg = n.methodDef()+" is generic and non-final, disabling virtual binding for this method";
 			        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
 			    }
 			}
-			else if (!flags.isProperty() && !flags.isPrivate() /*&& !flags.isFinal()*/) // [IP] TODO: find out if this is ok
+            // [DC] there is no benefit to omitting the virtual keyword as we can
+            // statically bind CALLS to final methods and methods that are members of final classes
+			else if (!flags.isProperty() && !flags.isPrivate())
 				h.write("virtual ");
 		}
 		printType(ret, h);
