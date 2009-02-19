@@ -10,12 +10,12 @@ import java.util.List;
 
 import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.ast.X10NodeFactory_c;
-import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.visit.CheckNativeAnnotationsVisitor;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
 import polyglot.ext.x10.visit.X10InnerClassRemover;
 import polyglot.ext.x10cpp.ast.X10CPPDelFactory_c;
 import polyglot.ext.x10cpp.ast.X10CPPExtFactory_c;
+import polyglot.ext.x10cpp.types.X10CPPSourceClassResolver;
 import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator;
 import polyglot.frontend.AllBarrierGoal;
@@ -108,6 +108,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		@Override
         public List<Goal> goals(Job job) {
             List<Goal> res = super.goals(job);
+            InnerClassesRemoved(job).addPrereq(Serialized(job));
             InnerClassesRemoved(job).addPrereq(CodeGenBarrier());
             StaticNestedClassesRemoved(job).addPrereq(InnerClassesRemoved(job));
             CodeGenerated(job).addPrereq(NewCodeGenBarrier());
