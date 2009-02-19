@@ -1318,7 +1318,7 @@ public class Emitter {
 
 		// constructor (FIXME: public because "friend" below doesn't work)
 		h.write("public: explicit "+"x10__"+type.name()+"("+SERIALIZATION_MARKER+" m) ");
-		Type parent = type.superType();
+		Type parent = type.superClass();
 		if (ts.isValueType(parent))
 			h.write(": "+ translateType(parent)+"(m)");
 		h.write("{ }");

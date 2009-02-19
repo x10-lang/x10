@@ -652,7 +652,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!context.inLocalClass())
 			emitter.printHeader(dec, ws.getCurStream(WriterStreams.StreamClass.Header), tr, false);
 		emitter.printHeader(dec, w, tr, true);
-		StructType container = dec.constructorDef().asInstance().container();
+		ClassType container = (ClassType)dec.constructorDef().asInstance().container();
 		boolean hasInits = false;
 		// Extract initializers from the body
 		Block_c body = (Block_c) dec.body();
@@ -673,7 +673,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 						w.write(",");
 					}
 					w.allowBreak(2, " ");
-					w.write(emitter.translateType(container.superType()) + "(");
+					w.write(emitter.translateType(container.superClass()) + "(");
 					if (call.arguments().size() > 0) {
 						w.allowBreak(2, 2, "", 0); // miser mode
 						w.begin(0);
