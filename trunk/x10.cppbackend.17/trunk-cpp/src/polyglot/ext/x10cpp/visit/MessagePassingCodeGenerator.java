@@ -171,6 +171,7 @@ import polyglot.ext.x10cpp.visit.X10SummarizingRules.X10SummarizingPass;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.InitializerInstance;
@@ -1055,7 +1056,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //        }
 //        } catch (SemanticException e) { assert (false) : ("Huh?  No Indexable or Settable?"); }
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
-		Type ret_type = emitter.findRootMethodReturnType(dec, mi);
+		Type ret_type = emitter.findRootMethodReturnType((X10MethodDef)dec.methodDef(), dec.position(), mi);
 		String methodName = mi.name().toString();
 		emitter.printHeader(dec, h, tr, methodName, ret_type, false);
 
@@ -1125,17 +1126,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					if (call.arguments().size() > 0) {
 						w.allowBreak(2, 2, "", 0); // miser mode
 						w.begin(0);
-						boolean first = true;
+                        int counter = 0;
 						for(Expr e : (List<Expr>) call.arguments() ) {
-							if (first) {
-								first = false;
+							if (counter==0) {
 							} else { 
 								w.write(",");
 								w.allowBreak(0, " ");
 							}
+                            ConstructorInstance calli = call.constructorInstance();
+                            String type = emitter.translateType(calli.formalTypes().get(counter),true);
+                            w.write("("+type+")(");
 							sw.pushCurrentStream(w);
 							dec.print(e, sw, tr);
 							sw.popCurrentStream();
+                            w.write(")");
+                            counter++;
 						}
 						w.end();
 					}
@@ -1865,7 +1870,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// the cast is because our generated member function may use a more general
 		// return type because c++ does not support covariant smartptr returns
 		// TODO: only emit static_cast where necessary
-		boolean needsCast = !mi.returnType().isVoid();
+
+
+        Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
+
+		boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(),ret_type);
 		if (needsCast) {
 			w.write("static_cast<");
 			emitter.printType(mi.returnType(), w);
@@ -1904,15 +1913,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.arguments().size() > 0) {
 			w.allowBreak(2, 2, "", 0); // miser mode
 			w.begin(0);
+            int counter = 0;
 			for (Iterator i = n.arguments().iterator(); i.hasNext(); ) {
 				Expr e = (Expr) i.next();
+                String type = emitter.translateType(mi.formalTypes().get(counter),true);
+                w.write("("+type+")(");
 				sw.pushCurrentStream(w);
 				n.print(e, sw, tr);
 				sw.popCurrentStream();
+                w.write(")");
 				if (i.hasNext()) {
 					w.write(",");
 					w.allowBreak(0, " ");
 				}
+                counter++;
 			}
 			w.end();
 		}
