@@ -2233,18 +2233,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String refVar = "__ref__" + getUniqueId_();
 		sw.write("catch (x10aux::__ref& " + refVar + ") {");
 		sw.newline(4); sw.begin(0);
-		String excVar = "__exc" + refVar;
-		// Note that the following c-style cast only works because Throwable is
-		// *not* an interface and thus is not virtually inheritted.  If it
-		// were, we would have to static_cast the exception to Throwable on
-		// throw (otherwise we would need to offset by an unknown quantity).
-		String exception_ref = make_ref("Throwable");
-		sw.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
-		context.setExceptionVar(excVar);
-		for (Iterator it = n.catchBlocks().iterator(); it.hasNext(); ) {
-			Catch cb = (Catch) it.next();
-			sw.newline(0);
-			n.printBlock(cb, sw, tr);
+		if (n.catchBlocks().size() > 0) {
+		    String excVar = "__exc" + refVar;
+		    // Note that the following c-style cast only works because Throwable is
+		    // *not* an interface and thus is not virtually inheritted.  If it
+		    // were, we would have to static_cast the exception to Throwable on
+		    // throw (otherwise we would need to offset by an unknown quantity).
+		    String exception_ref = make_ref("Throwable");
+		    sw.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
+		    context.setExceptionVar(excVar);
+		    for (Iterator it = n.catchBlocks().iterator(); it.hasNext(); ) {
+		        Catch cb = (Catch) it.next();
+		        sw.newline(0);
+		        n.printBlock(cb, sw, tr);
+		    }
 		}
 		sw.newline(4);
 		sw.write("throw;");
