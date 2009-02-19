@@ -1375,6 +1375,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(X10Call_c n) {
+		
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
 		// -- K assert (!query.isSPMDArrayReduction(n));
@@ -1393,10 +1394,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean requireMangling = true;
 		if (!n.isTargetImplicit()) {
 			// explicit target.
-
+			
 			emitter.printExplicitTarget(n, target, context, w);
-
-		 if ((mi.flags().isStatic() && !(target instanceof Expr)) ||
+			
+			if ((mi.flags().isStatic() && !(target instanceof Expr)) ||
 					(target instanceof X10Special_c &&
 							((X10Special_c)target).kind().equals(X10Special_c.SUPER))) {
 				w.write("::");
@@ -2390,6 +2391,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 	
 	public void visit(X10Special_c n) {
+		//  PV: Q:  Why was this cast needed?
 		if (n.qualifier() != null) {
 			w.write("(");
 			sw.pushCurrentStream(w);
@@ -2397,6 +2399,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.popCurrentStream();
 			w.write(")");
 		}
+		
 
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (n.kind().equals(X10Special_c.THIS) && (context.insideClosure)) {
