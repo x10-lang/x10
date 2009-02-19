@@ -613,7 +613,7 @@ public class Emitter {
 			        tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
 			    }
 			}
-			else if (!flags.isProperty() /*&& !flags.isFinal()*/) // [IP] TODO: find out if this is ok
+			else if (!flags.isProperty() && !flags.isPrivate() /*&& !flags.isFinal()*/) // [IP] TODO: find out if this is ok
 				h.write("virtual ");
 		}
 		printType(ret, h);
