@@ -265,7 +265,7 @@ public class X10CPPTranslator extends Translator {
 			String pkg = "";
 
 			if (sfn.package_() != null) {
-				Package p = sfn.package_().package_();
+				Package p = sfn.package_().package_().get();
 				pkg = p.fullName().toString();
 			}
 			
