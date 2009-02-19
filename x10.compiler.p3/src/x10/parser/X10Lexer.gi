@@ -5,7 +5,7 @@
 %Options fp=X10Lexer
 %options single_productions
 %options package=x10.parser
-%options template=LexerTemplate.gi
+%options template=LexerTemplateF.gi
 %options filter=X10KWLexer.gi
 
 %Notice
@@ -22,7 +22,7 @@
 %End
 
 %Include
-    LexerBasicMap.gi
+    LexerBasicMapF.gi
 %End
 
 %Define
@@ -37,19 +37,28 @@
     -- Additional methods for the action class not provided in the template
     --
     /.
-        public void makeToken(int startLoc, int endLoc, int kind)
+        public void makeX10Token(int startLoc, int endLoc, int kind)
         {
-            if (kind == TK_IDENTIFIER)
+            if (kind == X10Parsersym.TK_IDENTIFIER)
             {
-                int index = getPrsStream().getSize() - 1;
-                IToken token = getPrsStream().getIToken(index);
-                if (token.getKind() == TK_DoubleLiteral && getInputChars()[token.getEndOffset()] == '.')
+                int index = lexStream.getIPrsStream().getSize() - 1;
+                IToken token = lexStream.getIPrsStream().getIToken(index);
+                if (token.getKind() == X10Parsersym.TK_DoubleLiteral && lexStream.getInputChars()[token.getEndOffset()] == '.')
                 {
                     token.setEndOffset(token.getEndOffset() - 1);
-                    getPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), TK_DOT);
+                    lexStream.getIPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), X10Parsersym.TK_DOT);
                 }
             }
-            prsStream.makeToken(startLoc, endLoc, kind);
+            lexStream.makeToken(startLoc, endLoc, kind);
+        }
+        
+        final void checkForX10KeyWord()
+        {
+            int startOffset = getLeftSpan(),
+                endOffset = getRightSpan(),
+                kwKind = kwLexer.lexer(startOffset, endOffset);
+            makeX10Token(startOffset, endOffset, kwKind);
+            if (printTokens) printValue(startOffset, endOffset);
         }
 
         public $action_type(java.io.Reader reader, String filename) throws java.io.IOException
@@ -59,7 +68,6 @@
 
         public $action_type(java.io.Reader reader, String filename, int tab) throws java.io.IOException
         {
-            super(tab);
             ArrayList buffers = new ArrayList();
             int size = 0;
             while (true)
@@ -82,8 +90,8 @@
             }
             assert(size == 0);
         
-            initialize(buffer, filename);
-            kwLexer = new $kw_lexer_class(getInputChars(), $_IDENTIFIER);
+            reset(buffer, filename, tab);
+            kwLexer = new $kw_lexer_class(lexStream.getInputChars(), $_IDENTIFIER);
         }
     ./
 %End
@@ -215,7 +223,7 @@
 
     Token ::= Identifier
         /.$BeginAction
-                    checkForKeyWord();
+                    checkForX10KeyWord();
           $EndAction
         ./
     Token ::= '"' SLBody '"'
@@ -561,7 +569,7 @@
 
     MultiLineComment ::= '/' '*' Inside Stars '/'
         /.$BeginAction
-                    if (getKind(getRhsFirstTokenIndex(3)) == Char_Star && getKind(getNext(getRhsFirstTokenIndex(3))) != Char_Star)
+                    if (lexStream.getKind(getRhsFirstTokenIndex(3)) == X10Lexersym.Char_Star && lexStream.getKind(lexStream.getNext(getRhsFirstTokenIndex(3))) != X10Lexersym.Char_Star)
                          makeComment($_DocComment);
                     else makeComment($_MlComment);
           $EndAction

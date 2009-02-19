@@ -74,7 +74,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
 	      if (t instanceof X10ParsedClassType) {
 		  X10ParsedClassType ct = (X10ParsedClassType) t;
 		  if (ct.flags().isInterface()) {
-		      return postprocess((CanonicalTypeNode) tn, this, (ContextVisitor) tc.enter(this));
+		      return postprocess((CanonicalTypeNode) tn, this, tc);
 		  }
 	      }
 
