@@ -204,31 +204,6 @@ public class ASTQuery {
 		return true;
 	}
 
-	boolean isSPMDArrayReduction(Expr expr) {
-		if (!(expr instanceof Call_c))
-			return false;
-		Call_c n = (Call_c) expr;
-		if (n.isTargetImplicit())
-			return false;
-		Receiver target = n.target();
-		if (!(target instanceof Local_c))
-			return false;
-		Local_c l = (Local_c) target;
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (!context.isSPMDVar(l.localInstance()))
-			return false;
-		// FIXME: detect reductions other than "sum"
-		if (!(n.arguments().size() == 0 && n.name().equals("sum")))
-			return false;
-		return true;
-	}
-
-	static boolean isPrintf(Call_c n) {
-		return n.name().equals("printf") &&
-		n.methodInstance().container().isClass() &&
-		n.methodInstance().container().toClass().fullName().toString().equals("java.io.PrintStream");
-	}
-
 	static final ArrayList knownAsyncArrayCopyMethods = new ArrayList();
 
 	/* -- SPMD compilation --
@@ -319,42 +294,18 @@ public class ASTQuery {
 	}
 
 
-	// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
-	boolean isX10Array(Type type) {
-                return false;
-		//// TODO: move this method to X10TypeSystem_c
-		//String name = type.translate(tr.typeSystem().createContext());
-		//return type.isClass() && name.startsWith("x10.lang.") && name.endsWith("Array");
+	public static String getCppRep(X10ClassDef def) {
+		return getCppRepParam(def, 1);
 	}
-
-	// FIXME: [IP] KLUDGE! KLUDGE! KLUDGE!
-	Type getX10ArrayElementType(Type type) {
-		// TODO: move this method to X10TypeSystem_c
-		assert (isX10Array(type));
-		TypeSystem ts = tr.typeSystem();
-		String name = type.translate(ts.createContext());
-		name = (String) arrayRuntimeNameToType.get(name.substring(9));
-		if (name == null) {
-			X10Type x10type = (X10Type) type;
-			return polyglot.ext.x10.types.X10TypeMixin.getParameterType(x10type, 0);
-		} else {
-			try { type = ts.primitiveForName(Name.make(name)); } catch (SemanticException e) { }
-		}
-		return type;
+	public static String getCppBoxRep(X10ClassDef def) {
+		return getCppRepParam(def, 2);
 	}
-
-	public static String getCppRep(X10ClassDef def, Translator tr) {
-		return getCppRepParam(def, 1, tr);
+	public static String getCppRTTRep(X10ClassDef def) {
+		return getCppRepParam(def, 3);
 	}
-	public static String getCppBoxRep(X10ClassDef def, Translator tr) {
-		return getCppRepParam(def, 2, tr);
-	}
-	public static String getCppRTTRep(X10ClassDef def, Translator tr) {
-		return getCppRepParam(def, 3, tr);
-	}
-	public static String getCppRepParam(X10ClassDef def, int i, Translator tr) {
+	public static String getCppRepParam(X10ClassDef def, int i) {
 		try {
-			X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+			X10TypeSystem xts = (X10TypeSystem) def.typeSystem();
 			Type rep = (Type) xts.systemResolver().find(QName.make("x10.compiler.NativeRep"));
 			List<Type> as = def.annotationsMatching(rep);
 			for (Type at : as) {

@@ -165,6 +165,7 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 
+import polyglot.ext.x10.visit.StaticNestedClassRemover;
 import polyglot.ext.x10.visit.X10DelegatingVisitor;
 import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
@@ -289,7 +290,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				ClassDecl_c cdecl = (ClassDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(cdecl.enterScope(context)); // FIXME
 				X10ClassDef def = (X10ClassDef) cdecl.classDef();
-				if (getCppRep(def, tr) != null) {
+				if (getCppRep(def) != null) {
 					// emit no c++ code as this is a native rep class
 					continue;
 				}
@@ -411,11 +412,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 if (templateMethod)
                     sw.popCurrentStream();
 			} else if (dec instanceof X10ClassDecl_c) {
-				X10ClassDecl_c cdecl = (X10ClassDecl_c) dec;
+				assert (false) : ("Nested class alert!");
+
+                X10ClassDecl_c cdecl = (X10ClassDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(cdecl.enterScope(context)); // FIXME
 
 				X10ClassDef def = (X10ClassDef) cdecl.classDef();
-				if (getCppRep(def, tr) != null) {
+				if (getCppRep(def) != null) {
 					// emit no c++ code as this is a native rep class
 					continue;
 				}
@@ -431,7 +434,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				context.hasInits = false;
 
 				assert (def.isNested());
-				assert (false) : ("Nested class alert!");
 				if (!def.flags().isStatic())
 					throw new InternalCompilerError("Instance Inner classes not supported");
 
@@ -634,7 +636,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.write(">");
             h.allowBreak(2, " ");
         }
-        h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
+        String name = StaticNestedClassRemover.mangleName(cd).toString();
+        h.write("class "+Emitter.mangled_non_method_name(name)+";");
         h.newline();
         if (pkg != null) {
             h.newline(0);
@@ -648,7 +651,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String pkg = "";
         if (ct.package_() != null)
             pkg = ct.package_().fullName().toString();
-        String header = tf.outputHeaderName(pkg, ct.name().toString());
+        Name name = StaticNestedClassRemover.mangleName(ct.def());
+        String header = tf.outputHeaderName(pkg, name.toString());
         return header;
     }
 
@@ -663,7 +667,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		X10ClassDef def = (X10ClassDef) n.classDef();
 
-		if (getCppRep(def, tr) != null) {
+		if (getCppRep(def) != null) {
 			// emit no c++ code as this is a native rep class
 			return;
 		}
@@ -730,7 +734,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.superClass() != null) {
 		    ClassType ct = n.superClass().type().toClass();
 		    X10ClassDef scd = (X10ClassDef) ct.def();
-		    String cpp = getCppRep(scd, tr);
+		    String cpp = getCppRep(scd);
 		    if (scd != def && cpp == null) {
 		        String header = getHeader(ct);
 		        String guard = getHeaderGuard(header);
@@ -746,7 +750,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    extractAllClassTypes(ct, types, dupes);
 		    for (ClassType t : types) {
 		        X10ClassDef cd = ((X10ClassType)t).x10Def();
-		        if (cd != def && getCppRep(cd, tr) == null) {
+		        if (cd != def && getCppRep(cd) == null) {
 		            declareClass(cd, h);
 		            allIncludes.add(t);
 		        }
@@ -755,10 +759,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		for (TypeNode i : n.interfaces()) {
 		    ClassType ct = i.type().toClass();
 		    X10ClassDef icd = (X10ClassDef) ct.def();
-		    String cpp = getCppRep(icd, tr);
+		    String cpp = getCppRep(icd);
 		    if (icd != def && cpp == null) {
-		        while (ct.isNested())
-		            ct = (ClassType) ct.container();
 		        String header = getHeader(ct);
 		        String guard = getHeaderGuard(header);
 		        h.write("#define "+guard+"_NODEPS"); h.newline();
@@ -773,7 +775,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    extractAllClassTypes(ct, types, dupes);
 		    for (ClassType t : types) {
 		        X10ClassDef cd = ((X10ClassType)t).x10Def();
-		        if (cd != def && getCppRep(cd, tr) == null) {
+		        if (cd != def && getCppRep(cd) == null) {
 		            declareClass(cd, h);
 		            allIncludes.add(t);
 		        }
@@ -819,13 +821,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        X10ClassDef cd = (X10ClassDef) ct.def();
 		        if (cd == def)
 		            continue;
-		        String cpp = getCppRep(cd, tr);
+		        String cpp = getCppRep(cd);
 		        if (cpp != null)
 		            continue;
-		        if (cd.isNested()) {
-		            assert (false) : (n.position().nameAndLineString()+" Nested class alert!");
-		            continue;
-		        }
 		        if (!allIncludes.contains(ct)) {
 		            declareClass(cd, h);
 		            allIncludes.add(ct);
@@ -973,9 +971,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         for (Type t : allIncludes) {
             ClassType ct = t.toClass();
-            String cpp = getCppRep((X10ClassDef) ct.def(), tr);
+            String cpp = getCppRep((X10ClassDef) ct.def());
             assert (cpp == null);
-            assert (!ct.isNested());
             String header = getHeader(ct);
             h.write("#include <" + header + ">");
             h.newline();
@@ -1010,8 +1007,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     // Get the list of methods of name "name" that ought to be accessible from class c
     // due to being locally defined or inherited
     List<MethodInstance> getOROLMeths(Name name, X10ClassType c) {
-        assert(name!=null);
-        assert(c!=null);
+        assert (name != null);
+        assert (c != null);
         return getOROLMeths(name, c, new HashSet<List<Type>>());
     }
 
@@ -1070,7 +1067,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 assert (false) : "Nested class alert! "+member+" "+n.position().nameAndLineString();
 				ClassDecl_c dec = (ClassDecl_c)member;
 				X10ClassDef def = (X10ClassDef) dec.classDef();
-				if (getCppRep(def, tr) != null)
+				if (getCppRep(def) != null)
 					continue;
 				if (def.flags().isStatic() && ((X10ClassDef)currentClass.def()).typeParameters().size() != 0)
 					continue;
