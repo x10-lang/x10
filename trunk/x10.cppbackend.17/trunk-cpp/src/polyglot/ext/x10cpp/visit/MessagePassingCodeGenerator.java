@@ -2091,19 +2091,40 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(" >(");
 		}
 		w.begin(0);
+        String dangling = "";
 		if (!n.isTargetImplicit()) {
 			// explicit target.
 
-			emitter.printExplicitTarget(n, target, context, w);
+            if (target instanceof X10Special_c &&
+                ((X10Special_c)target).kind().equals(X10Special_c.SUPER)) {
+                w.write(emitter.translateType(t));
+                w.write("::");
+            } else if (target instanceof Expr) {
+                if (mi.flags().isStatic()) {
+                    w.write("((void)");
+                    sw.pushCurrentStream(w);
+                    n.printSubExpr((Expr) target, false, sw, tr);
+                    sw.popCurrentStream();
+                    w.write(",");
+                    w.write(emitter.translateType(t));
+                    w.write("::");
+                    dangling = ")";
+                } else {
+                    boolean assoc =
+                        !(target instanceof New_c ||
+                            target instanceof Binary_c);
+                    sw.pushCurrentStream(w);
+                    n.printSubExpr((Expr) target, assoc, sw, tr);
+                    sw.popCurrentStream();
+                    w.write("->");
+                }
+            } else if (target instanceof TypeNode || target instanceof AmbReceiver) {
+                sw.pushCurrentStream(w);
+                n.print(target, sw, tr);
+                sw.popCurrentStream();
+                w.write("::");
+            }
 
-			if ((mi.flags().isStatic() && !(target instanceof Expr)) ||
-					(target instanceof X10Special_c &&
-							((X10Special_c)target).kind().equals(X10Special_c.SUPER))) {
-				w.write("::");
-			} else {
-				w.write("->");
-			}
-		
 		}
 
         if (context.inTemplate() && mi.typeParameters().size() != 0) {
@@ -2133,6 +2154,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.end();
 		}
 		w.write(")");
+		w.write(dangling);
 		w.end();
 		if (needsCast) {
 			w.write(")");
@@ -3060,6 +3082,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String cname = getClosureName(hostClassName,id);
 
+        boolean in_template_closure = false;
+
+		StringBuffer cnamet_ = new StringBuffer(cname);
+        String prefix = "<";
+        for (Type t : freeTypeParams) {
+            in_template_closure = true;
+            cnamet_.append(prefix + emitter.translateType(t));
+            prefix = ",";
+        }
+        if (in_template_closure) cnamet_.append(">");
+        String cnamet = cnamet_.toString();
+
 
 		// create closure and packed arguments
 
@@ -3073,7 +3107,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String superType = n.returnType().type().isVoid() ?
 				"x10::lang::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) :
 					"x10::lang::" + mangled_non_method_name("Fun_0_" + n.formals().size());
-		String prefix = "<";
+		prefix = "<";
 		for (Formal formal : n.formals()) {
 			superType = superType + prefix + emitter.translateType(formal.type().typeRef().get(), true);
 			prefix = ", ";
@@ -3083,6 +3117,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			prefix = ", ";
 		}
 		if (!prefix.equals("<")) superType = superType +" >"; // don't emit " >" for void->void case
+
+        boolean generate_async_invoke = false;
+        if (superType.equals("x10::lang::VoidFun_0_0")) generate_async_invoke = true;
 
 		// have to work out what the formals are whilst visiting the closure body
 		// but we need to know the formals before generating code for the body (function parameters)
@@ -3125,10 +3162,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printDeclarationList(inc, c, c.variables);
 		inc.forceNewline();
 
-		inc.write("void _serialize_fields("+SERIALIZATION_BUFFER+" &buf, ");
-        inc.write("x10aux::addr_map& m) {");
-		inc.newline(4); inc.begin(0);
-        inc.write("x10aux::AnyClosure::_serialize_fields(buf,m);"); inc.newline();
+		inc.write("void _serialize_fields("+SERIALIZATION_BUFFER+" &buf, "+
+                                          "x10aux::addr_map& m) {"); inc.newline(4); inc.begin(0);
+        inc.write("buf.write(_serialization_id);"); inc.newline();
         for (int i=0 ; i<c.variables.size() ; i++) {
 			if (i>0) inc.newline();
             VarInstance var = (VarInstance)c.variables.get(i);
@@ -3143,7 +3179,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		inc.write("void _deserialize_fields("+SERIALIZATION_BUFFER+" &buf) {");
 		inc.newline(4); inc.begin(0);
-        inc.write("x10aux::AnyClosure::_deserialize_fields(buf);"); inc.newline();
         for (int i=0 ; i<c.variables.size() ; i++) {
 			if (i>0) inc.newline();
             VarInstance var = (VarInstance)c.variables.get(i);
@@ -3157,7 +3192,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
 
-		inc.write(cname+"("+SERIALIZATION_MARKER+") : x10aux::AnyClosure("+id+") { }");
+        if (generate_async_invoke) {
+            inc.write("static void _invoke("+SERIALIZATION_BUFFER+" &buf) {");
+            inc.newline(4); inc.begin(0);
+            inc.write(cnamet+" *this_ = new "+cnamet+"(x10aux::SERIALIZATION_MARKER());"); inc.newline();
+            inc.write("this_->_deserialize_fields(buf);"); inc.newline();
+            inc.write("this_->apply();");
+            inc.end(); inc.newline();
+            inc.write("}"); inc.newline(); inc.forceNewline();
+        }
+
+
+		inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
 		inc.newline(); inc.forceNewline();
 
 		inc.write(cname+"(");
@@ -3170,7 +3216,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             else name=mangled_non_method_name(name);
             inc.write(emitter.translateType(var.type(),true) + " " + name);
         }
-		inc.write(") : x10aux::AnyClosure("+id+") {");
+		inc.write(") {");
 		inc.newline(4); inc.begin(0);
         for (int i=0 ; i<c.variables.size() ; i++) {
             VarInstance var = (VarInstance)c.variables.get(i);
@@ -3184,6 +3230,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.end(); inc.newline();
 		inc.write("}"); inc.newline(); inc.forceNewline();
 
+        inc.write("static x10_int _serialization_id;"); inc.newline(); inc.forceNewline();
+
 		inc.write("const x10aux::RuntimeType *_type() const {"+
 			 	  " return x10aux::getRTT<"+superType+" >(); }");
 		inc.newline(); inc.forceNewline();
@@ -3193,6 +3241,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.end(); inc.newline(); inc.forceNewline();
 
 		inc.write("};"); inc.newline(); inc.forceNewline();
+
+        if (generate_async_invoke) {
+            if (in_template_closure) {
+                inc.write("template");
+                prefix="<";
+                for (Type t : freeTypeParams) {
+                    inc.write(prefix+"class "+t);
+                    prefix = ",";
+                }
+                inc.write("> ");
+            }
+            inc.write("x10_int "+cnamet+"::_serialization_id = "+
+                        "x10aux::AsyncSwitch::addInvoker("+cnamet+"::_invoke);");
+            inc.newline(); inc.forceNewline();
+        }
 
 
 		// create closure instantiation (not in inc but where the closure was defined)

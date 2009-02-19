@@ -372,6 +372,7 @@ public class X10CPPTranslator extends Translator {
 			w.newline();
 		}
 
+/*
 		w.write("extern \"C\" {");
 		w.newline(4); w.begin(0);
 		w.write(VOID_PTR+" "+ARRAY_COPY_SWITCH+"(" + CLOSURE_STRUCT + "* cl, x10_clock_t* clocks, int num_clocks) {");
@@ -430,6 +431,7 @@ public class X10CPPTranslator extends Translator {
 		w.write("}");
 		w.end(); w.newline();
 		w.write("}");
+*/
 		w.newline();
 	}
 

@@ -7,13 +7,15 @@ extern "C" {
         try {
 ##endif
             x10aux::InitDispatcher::runInitializers();
-                (new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
-                    x10aux::BootStrapClosure(#0::main,args))->apply();
+            x10aux::allow_received_async_execution();
+            (new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
+                x10aux::BootStrapClosure(#0::main,args))->apply();
 /*
             x10::runtime::Runtime::start( (x10aux::ref<x10aux::BootStrapClosure>)
                 new (x10aux::alloc<VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
                     x10aux::BootStrapClosure(#0::main,args)  );
 */
+
 ##ifndef NO_EXCEPTIONS
         } catch(int exitCode) {
             x10aux::exitCode = exitCode;
@@ -38,6 +40,7 @@ extern "C" {
         return x10aux::exitCode;
     }
 }
+
 
 // the original app-main method
 
