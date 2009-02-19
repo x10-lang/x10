@@ -94,6 +94,7 @@ import polyglot.ast.Switch_c;
 import polyglot.ast.Throw_c;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.ext.x10.Configuration;
@@ -130,6 +131,7 @@ import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
+import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10FieldInstance;
@@ -2928,23 +2930,51 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public void visit(Unary_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	public void visit(X10Unary_c n) {
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
+	    Expr left = n.expr();
+	    X10Type l = (X10Type) left.type();
+	    X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+	    NodeFactory nf = tr.nodeFactory();
+	    Unary.Operator op = n.operator();
+        
+	    if (op == Unary.POST_DEC || op == Unary.POST_INC || op == Unary.PRE_DEC || op == Unary.PRE_INC) { // TODO
+	        visit((Unary_c)n);
+	        return;
+	    }
+	    if (l.isNumeric()) { // TODO: get rid of this special case by defining native operators
+	        visit((Unary_c)n);
+	        return;
+	    }
+	    if (l.isBoolean()) { // TODO: get rid of this special case by defining native operators
+	        visit((Unary_c)n);
+	        return;
+	    }
+
+	    // FIXME: move this to the Desugarer
+	    Name methodName = X10Unary_c.unaryMethodName(op);
+	    Expr receiver = left;
+        
+	    if (methodName == null)
+	        throw new InternalCompilerError("No method to implement " + n, n.position());
+
+	    try {
+	        List<Type> types = Arrays.asList(new Type[] { });
+	        MethodInstance mi = xts.findMethod(receiver.type(),
+	                xts.MethodMatcher(receiver.type(), methodName, types), context.currentClassDef());
+	        List<Expr> args = Arrays.asList(new Expr[] { });
+	        n.print(nf.Call(n.position(), receiver, nf.Id(n.position(), methodName),
+	                args).methodInstance(mi).type(mi.returnType()), sw, tr);
+	    } catch (SemanticException e) { }
+	}
+
+	public void visit(Unary_c n) {
 		Unary_c.Operator operator = n.operator();
 		Expr expr = n.expr();
-		Type t = expr.type();
 		if (operator == Unary_c.NEG && expr instanceof IntLit && ((IntLit) expr).boundary()) {
 			sw.write(operator.toString());
 			sw.write(((IntLit) expr).positiveToString());
-		}
-		else if ((operator == Unary_c.NEG || operator == Unary_c.POS) &&
-				t instanceof X10Type &&
-				((X10TypeSystem) ((X10Type) t).typeSystem()).isPoint(t)) {
-			n.printSubExpr(expr, true, sw, tr);
-			if (operator == Unary_c.NEG) {
-				sw.write("->neg()");
-			}
 		}
 		else if (operator.isPrefix()) {
 			sw.write(operator.toString());
@@ -2972,15 +3002,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        visit((Binary_c)n);
 	        return;
 	    }
-	    if (l.isNumeric() && r.isNumeric()) {
+	    if (l.isNumeric() && r.isNumeric()) { // TODO: get rid of this special case by defining native operators
 	        visit((Binary_c)n);
 	        return;
 	    }
-	    if (l.isBoolean() && r.isBoolean()) {
+	    if (l.isBoolean() && r.isBoolean()) { // TODO: get rid of this special case by defining native operators
 	        visit((Binary_c)n);
 	        return;
 	    }
-	    if (op == Binary.ADD && (l.isSubtype(xts.String()) || r.isSubtype(xts.String()))) {
+	    if (op == Binary.ADD && (l.isSubtype(xts.String()) || r.isSubtype(xts.String()))) { // TODO: get rid of this special case by defining native operators
 	        visit((Binary_c)n);
 	        return;
 	    }
