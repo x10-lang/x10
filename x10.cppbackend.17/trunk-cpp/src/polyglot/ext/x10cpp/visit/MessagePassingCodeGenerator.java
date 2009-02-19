@@ -160,6 +160,7 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Flags;
+import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
@@ -2622,7 +2623,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         X10ClassDef hostClassDef = hostClassType.x10Def();
 
         List<Type> freeTypeParams = new ArrayList<Type>();
-        // FIXME: handle static field initializers here
         while (ci instanceof ClosureInstance)
             ci = ((ClosureDef) ci.def()).methodContainer().get();
         if (ci instanceof X10MethodInstance) {
@@ -2631,6 +2631,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             if (!xmi.flags().isStatic())
                 freeTypeParams.addAll(hostClassDef.typeParameters());
             freeTypeParams.addAll(xmi.typeParameters());
+        } else if (ci instanceof InitializerInstance) {
+            InitializerInstance ii = (InitializerInstance) ci;
+            if (!ii.def().flags().isStatic())
+                freeTypeParams.addAll(hostClassDef.typeParameters());
         } else {
             // could be a constructor or other non-static thing
             freeTypeParams.addAll(hostClassDef.typeParameters());
