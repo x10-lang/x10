@@ -594,7 +594,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     private void declareClass(X10ClassDef cd, ClassifiedStream h) {
         QName pkg = null;
-        if (cd.package_().get() != null)
+        if (cd.package_() != null)
             pkg = cd.package_().get().fullName();
         if (pkg != null) {
             Emitter.openNamespaces(h, pkg);
