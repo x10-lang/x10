@@ -353,7 +353,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				HashSet types = new HashSet();
 				for (int i = 0; i < typeNodes.size(); i++) {
 					X10CanonicalTypeNode_c t = (X10CanonicalTypeNode_c) typeNodes.get(i);
-					if (!t.type().isClass() || xts.equals(t.type(), n.classDef()))
+					if (!t.type().isClass() || xts.typeEquals(t.type(), n.classDef().asType()))
 						continue;
 					ClassType ct = t.type().toClass();
 					if (ct.isNested() || knownSpecialPackages.contains(ct.package_()))
@@ -1407,7 +1407,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		try {
 			x_l_RemoteDoubleArrayCopier = (Type) xts.forName(QName.make("x10.lang.RemoteDoubleArrayCopier"));
 			assert (xts.isX10Array(array.type()) &&
-					xts.isSubtype(ts.baseType(array.type()),
+					xts.isSubtype(xts.baseType(array.type()),
 							x_l_RemoteDoubleArrayCopier));
 			// TODO: assert that the distribution of the array is unique
 		} catch (SemanticException e) { assert (false); }

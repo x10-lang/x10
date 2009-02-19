@@ -35,7 +35,7 @@ import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
-import polyglot.types.ReferenceType;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -133,7 +133,7 @@ public class ASTQuery {
 			dec.flags().flags().isStatic() &&
 			dec.returnType().type().isVoid() &&
 			(dec.formals().size() == 1) &&
-			((Formal)dec.formals().get(0)).type().type().equals(ts.arrayOf(ts.String()));
+			((Formal)dec.formals().get(0)).type().type().typeEquals(ts.arrayOf(ts.String()));
 		if (answer) {
 			if (polyglot.ext.x10cpp.Configuration.MAIN_FILE.equals(currentFileName)) { return true;}
 			
@@ -167,7 +167,7 @@ public class ASTQuery {
 		// Nate's code. This one.
 		if (o.ext() instanceof X10Ext) {
 			X10Ext ext = (X10Ext) o.ext();
-			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(name);
+			X10ClassType baseType = (X10ClassType) ts.systemResolver().find(QName.make(name));
 			List<X10ClassType> ats = ext.annotationMatching(baseType);
 			if (ats.size() > 1) {
 				throw new SemanticException("Expression has more than one " + name + " annotation.", o.position());
@@ -309,7 +309,7 @@ public class ASTQuery {
 	static boolean isPrintf(Call_c n) {
 		return n.name().equals("printf") &&
 		n.methodInstance().container().isClass() &&
-		n.methodInstance().container().toClass().fullName().equals("java.io.PrintStream");
+		n.methodInstance().container().toClass().fullName().toString().equals("java.io.PrintStream");
 	}
 
 	static final ArrayList knownAsyncArrayCopyMethods = new ArrayList();
@@ -328,7 +328,7 @@ public class ASTQuery {
 		if (!(n.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c target = (X10CanonicalTypeNode_c) n.target();
-		if (!ts.equals(target.type(), ts.Runtime()))
+		if (!ts.typeEquals(target.type(), ts.Runtime()))
 			return false;
 		if (!knownAsyncArrayCopyMethods.contains(n.methodInstance()))
 			return false;
@@ -373,7 +373,7 @@ public class ASTQuery {
 		if (!(call.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c target = (X10CanonicalTypeNode_c) call.target();
-		if (!ts.equals(target.type(), ts.Runtime()))
+		if (!ts.typeEquals(target.type(), ts.Runtime()))
 			return false;
 		if (!knownArrayCopyMethods.contains(call.methodInstance()))
 			return false;
