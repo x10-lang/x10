@@ -46,38 +46,6 @@ public class SharedVarsMethods{
 		return ((X10ParsedClassType) distribution.type()).isUniqueDist();
 	}
 	*/
-	static final ArrayList knownSpecialPackages = new ArrayList();
-	static void populateKnownSpecialPackages(X10TypeSystem xts){
-		if (knownSpecialPackages.size() == 0) {
-			try {
-				Package x_l = xts.packageForName(QName.make("x10.lang"));
-				knownSpecialPackages.add(x_l);
-				Package j_l = xts.packageForName(QName.make("java.lang"));
-				knownSpecialPackages.add(j_l);
-				Package j_i = xts.packageForName(QName.make("java.io"));
-				knownSpecialPackages.add(j_i);
-				Package j_u = xts.packageForName(QName.make("java.util"));
-				knownSpecialPackages.add(j_u);
-				Package j_u_c = xts.packageForName(QName.make("java.util.concurrent"));
-				knownSpecialPackages.add(j_u_c);
-				Package j_u_c_a = xts.packageForName(QName.make("java.util.concurrent.atomic"));
-				knownSpecialPackages.add(j_u_c_a);
-				Package x = xts.packageForName(QName.make("x10"));
-				knownSpecialPackages.add(x);
-				Package x_c = xts.packageForName(QName.make("x10.compilergenerated"));
-				knownSpecialPackages.add(x_c);
-				Package x_cc = xts.packageForName(QName.make("x10.compiler"));
-				knownSpecialPackages.add(x_cc);
-				Package x_io = xts.packageForName(QName.make("x10.io"));
-				knownSpecialPackages.add(x_io);
-				Package x_rt = xts.packageForName(QName.make("x10.runtime"));
-				knownSpecialPackages.add(x_rt);
-				Package x_u = xts.packageForName(QName.make("x10.util"));
-				knownSpecialPackages.add(x_u);
-			} catch (SemanticException e) { assert (false); }
-		}
-
-	}
 
 	static final boolean asyncSwitchRequired = true;
 	static final boolean asyncRegistrationRequired = false;
