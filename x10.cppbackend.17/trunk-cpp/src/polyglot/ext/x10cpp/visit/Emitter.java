@@ -64,7 +64,9 @@ import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem_c.MethodMatcher;
 import polyglot.types.VarInstance;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -556,8 +558,16 @@ public class Emitter {
 		w.write(" >");
 	}
 
+	MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, ClassType original) {
+		try {
+			return xts.findMethod(localClass,xts.MethodMatcher(localClass,mi.name(),mi.formalTypes()),original.def());
+		} catch (SemanticException e) {
+			return null;
+		}
+	}
 
 	Type findRootMethodReturnType(X10TypeSystem xts, MethodDecl_c n, MethodInstance from) {
+		assert from != null;
 		// [IP] Optimizations
 		X10Flags flags = X10Flags.toX10Flags(from.flags());
 		if (flags.isStatic() || flags.isPrivate() || flags.isProperty() || from.returnType().isVoid())
@@ -588,20 +598,19 @@ public class Emitter {
 		}
 		*/
 
-		X10ClassType classDef = (X10ClassType) from.container();
-		X10ClassType superClass = (X10ClassType) classDef.superClass();
-		List<Type> interfaces = classDef.interfaces();
+		// [DC] TODO: There has to be a better way!
+		X10ClassType original = (X10ClassType)n.methodDef().container().get();
+
+		X10ClassType classType = (X10ClassType) from.container();
+		X10ClassType superClass = (X10ClassType) classType.superClass();
+		List<Type> interfaces = classType.interfaces();
 		Type returnType = null;
 
 		if (superClass != null) {
-			List<MethodInstance> methods = superClass.methods(from.name(), from.formalTypes());
-			if (methods.size()==1) {
-				MethodInstance superMeth = methods.get(0);
+			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,original);
+			if (superMeth != null) {
 				//System.out.println(from+" overrides "+superMeth);
-				assert (returnType == null);
 				returnType = findRootMethodReturnType(xts, n, superMeth);
-			} else {
-				assert (methods.size() == 0) : methods.size();
 			}
 		}
 
@@ -609,19 +618,18 @@ public class Emitter {
 		for (Type itf : interfaces) {
 			X10ClassType itf_ = (X10ClassType) itf;
 			// same thing again for interfaces
-			List<MethodInstance> methods = itf_.methods(from.name(), from.formalTypes());
-			if (methods.size() == 1) {
-				MethodInstance superMeth = methods.get(0);
-				//System.out.println(from+" overrides "+superMeth);
-				Type newReturnType = findRootMethodReturnType(xts, n,superMeth);
-				if (returnType != null && !xts.typeBaseEquals(returnType, newReturnType)) {
+			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,original);
+			if (superMeth != null) {
+				//System.out.println(from+" implements "+superMeth);
+				Type newReturnType = findRootMethodReturnType(xts, n, superMeth);
+
+				// check -- 
+				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType)) {
 					String msg = "Two supertypes declare " + from + " with "
 						+ "different return types: " + returnType + " != " + newReturnType;
 					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, n.position());
 				}
 				returnType = newReturnType;
-			} else {
-				assert (methods.size() == 0) : methods.size();
 			}
 		}
 
@@ -715,6 +723,57 @@ public class Emitter {
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
 
+	void printRTT(X10ClassType ct, ClassifiedStream h) {
+		String name = ct.name().toString();
+		String x10name = ct.fullName().toString();
+		int num_parents = 1 + ct.interfaces().size();
+		//
+		h.write("public: class RTT : public x10aux::RuntimeType {"); h.newline(4); h.begin(0);
+			h.write("public:"); h.newline();
+			h.write("static RTT * const it;"); h.newline();
+			h.write("virtual void init() {"); h.newline(4); h.begin(0);
+				h.write("initParents("+num_parents);
+				h.write(", x10aux::getRTT<" + (ct.superClass()==null ? "x10::lang::Ref" : translateType(ct.superClass())) + " >()");
+				for (Type iface : ct.interfaces()) {
+					h.write(", x10aux::getRTT<"+translateType(iface)+" >()");
+				}
+				h.write(");"); h.end(); h.newline();
+			h.write("}"); h.newline();
+			h.write("virtual std::string name() const {"); h.newline(4); h.begin(0);
+				//TODO: type parameters
+				if (ct.typeArguments().isEmpty()) {
+					h.write("return \""+x10name+"\";"); h.end(); h.newline();
+				} else {
+					h.write("std::stringstream ss;"); h.newline();
+					h.write("ss << \""+x10name+"[\"");
+					String comma = "";
+					for (Type param : ct.typeArguments()) {
+						h.write(comma+" << x10aux::getRTT<"+translateType(param)+">()->name()");
+						comma = " << \",\"";
+					}
+					h.write(" << \"]\";") ; h.newline();
+					h.write("return ss.str();"); h.end(); h.newline();
+				}
+			h.write("}"); h.newline();
+			h.end(); h.newline();
+		h.write("};"); h.newline();
+		h.newline();
+		h.write("public: virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
+			h.write("return x10aux::getRTT<"+name+">();"); h.end(); h.newline();
+		h.write("}");h.newline();
+	}
+	void printRTTDefn(X10ClassType ct, ClassifiedStream h) {
+		if (ct.typeArguments().isEmpty()) {
+			h.write("DEFINE_RTT("+ct.name().toString()+");");
+		} else {
+    		printTemplateSignature(ct.typeArguments(), h);
+			h.write("typename "+translateType(ct)+"::RTT * const "+translateType(ct)+"::RTT::it = ");
+			h.newline(4);
+			h.write("new typename "+translateType(ct)+"::RTT();");
+		}
+		h.newline();
+	}
+
 	void printHeader(ClassDecl_c n, ClassifiedStream h, Translator tr, boolean qualify) {
 		h.begin(0);
 		// Handle generics
@@ -764,7 +823,7 @@ public class Emitter {
 				// FIXME: HACK! [IP] Ignore the ValueType tag interface
 				if (tn.type().typeEquals(ts.Value()))
 					continue;
-				h.write("public ");
+				h.write("public virtual ");
 				sw.pushCurrentStream(h);
 				n.print(tn, sw, tr);
 				sw.popCurrentStream();
@@ -1886,3 +1945,4 @@ public class Emitter {
 		}
 	}
 }
+// vim:tabstop=4:shiftwidth=4:noexpandtab

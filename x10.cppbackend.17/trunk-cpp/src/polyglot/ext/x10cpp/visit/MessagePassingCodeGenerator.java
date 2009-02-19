@@ -646,15 +646,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			// inheritance.  So find all class declarations and field
 			// declarations, and do #include for those headers.
 
-            // [DC] static final field initialisers should be in the cc file,
-            // with everything else that needs a full definition (lookups,
-            // construction, etc)
+			// [DC] static final field initialisers should be in the cc file,
+			// with everything else that needs a full definition (lookups,
+			// construction, etc)
 
-            // [DC] generic classes might cause a problem though, as their
-            // function bodies are in the header.  We can still get cycles
-            // through this approach.  We may need two layers of headers or
-            // something for generic classes, in a manner that reflects the
-            // (h,cc) pairing for non-generic classes.
+			// [DC] generic classes might cause a problem though, as their
+			// function bodies are in the header.  We can still get cycles
+			// through this approach.  We may need two layers of headers or
+			// something for generic classes, in a manner that reflects the
+			// (h,cc) pairing for non-generic classes.
 
 			// TODO: sort by namespace and combine things in the same namespace
 			X10SearchVisitor xTypes = new X10SearchVisitor(X10CanonicalTypeNode_c.class);
@@ -716,9 +716,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					Import_c in = (Import_c) is.next();
 					QName nsName = in.name();
 					if (in.kind() == Import_c.CLASS) {
+						// [DC] couldn't we define a local typedef to represent this x10 concept?
 						nsName = nsName.qualifier();
 					} else {
 						assert (in.kind() == Import_c.PACKAGE);
+						// TODO: [DC] we should iterate through all the classes in this package, #including each one
 					}
 					emitter.emitUniqueNS(nsName, nsHistory, h);
 					h.newline();
@@ -730,11 +732,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 			h.forceNewline(0);
 			if (def.package_() != null) {
-                QName pkgName = def.package_().get().fullName();
+				QName pkgName = def.package_().get().fullName();
 				Emitter.openNamespaces(h, pkgName);
-				h.newline(0);
+				h.newline(4);
+				h.begin(0);
 				Emitter.openNamespaces(w, pkgName);
-				w.newline(0);
+				w.newline(4);
+				w.begin(0);
 			}
 		}
 
@@ -784,9 +788,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		if (!def.isNested() && def.package_() != null) {
 			QName pkgName = def.package_().get().fullName();
+			h.end();
 			h.newline(0);
 			Emitter.closeNamespaces(h, pkgName);
 			h.newline(0);
+			w.end();
 			w.newline(0);
 			Emitter.closeNamespaces(w, pkgName);
 			w.newline(0);
@@ -837,21 +843,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(ClassBody_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		ClassType currentClass = context.currentClass();
+		X10ClassType currentClass = (X10ClassType) context.currentClass();
 
 		ClassifiedStream h;
 		if (context.inLocalClass())
 			h = w;
 		else
 			h = ws.getCurStream(WriterStreams.StreamClass.Header);
+
 		h.write("{");
+		h.newline(4);
+		h.begin(0);
+		emitter.printRTT(currentClass,h);
+		w.begin(0);
 		List members = n.members();
 		if (!members.isEmpty()) {
 			String className = emitter.translateType(currentClass);
 
-			h.newline(4);
-			h.begin(0);
-			w.begin(0);
 
 			for (Iterator i = members.iterator(); i.hasNext(); ) {
 				ClassMember member = (ClassMember) i.next();
@@ -917,13 +925,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 			context.resetMainMethod();
 
-			w.end();
-			h.end();
-			h.newline(0);
 		}
 
+		h.end();
+		w.end();
+		w.newline();
+		h.newline(0);
 		h.write("};");
 		h.newline();
+
+		// TODO: is this the right way to test for a generic class?
+		if (currentClass.typeArguments().isEmpty()) {
+			emitter.printRTTDefn(currentClass,w);
+		} else {
+			emitter.printRTTDefn(currentClass,h);
+		}
+
 	}
 
 	String defaultValue(Type type) {
@@ -947,44 +964,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	private String encodeTypeIntoName(Type t) {
-		String r = emitter.translateType(t);
-		return r.replace(" ", "").replace("$", "__").replace("::", "__").replace("<", "_lt_").replace(">", "_gt_");
-	}
-	private String getCovariantName(MethodInstance mi) {
-		return mi.name().toString() + "__" + encodeTypeIntoName(mi.returnType());
-	}
-	private Type getCovariantReturn(MethodInstance mi) {
-		assert (false);
-		X10Flags flags = X10Flags.toX10Flags(mi.flags());
-		if (flags.isStatic() || flags.isPrivate() || flags.isProperty() || mi.returnType().isVoid())
-			return mi.returnType();
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		ArrayList<MethodInstance> all = new ArrayList<MethodInstance>();
-		for (MethodInstance smi : mi.overrides()) { // FIXME: should we only look at the topmost ancestor?
-			if (smi != mi)
-				all.add(smi);
-		}
-		for (MethodInstance smi : mi.implemented()) {
-			if (smi != mi)
-				all.add(smi);
-		}
-		Type ret = null;
-		for (MethodInstance smi : all) {
-			if (ret == null) {
-				if (!xts.typeBaseEquals(mi.returnType(), smi.returnType()))
-					ret = smi.returnType();
-			} else {
-				assert (xts.typeBaseEquals(ret, smi.returnType()));
-			}
-		}
-		return ret;
-	}
-
 	public void visit(MethodDecl_c dec) {
 		// TODO: if method overrides another method with generic
 		// types, check if C++ does the right thing.
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		ClassifiedStream h;
 		if (dec.flags().flags().isNative()) 
 			return;
@@ -996,7 +980,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		{
 			Type container = dec.methodDef().asInstance().container();
 		    if (container.isClass() && !((X10ClassType)container).typeArguments().isEmpty()) {
-				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		    	List<Type> args = Arrays.asList(new Type[] { xts.Void() });
 		    	container = ((X10ClassType)container).typeArguments(args);
 		    }
@@ -1010,37 +993,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 		X10MethodInstance mi = (X10MethodInstance) dec.methodDef().asInstance();
-		// [IP] Handle covariant return types in the following way: create a
-		// method with the superclass's signature and this method's body.  Add
-		// a method with the return type encoded in the name that delegates to
-		// the method with superclass's signature and casts the result.  Replace
-		// all invocations of the original method with the newly added mangled one.
-		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		Type cReturn = emitter.findRootMethodReturnType(xts, dec, mi);
-		//Type cReturn = getCovariantReturn(mi);
-		String cName = mi.name().toString();
-		boolean covariant = !xts.typeEquals(cReturn, mi.returnType());
-		if (covariant) {
-			// Mangle the name
-			cName = getCovariantName(mi);
-			emitter.printHeader(dec, h, tr, cName, mi.returnType(), false);
-		} else
-			emitter.printHeader(dec, h, tr, false);
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
+		Type ret_type = emitter.findRootMethodReturnType(xts, dec, mi);
+		String methodName = mi.name().toString();
+		emitter.printHeader(dec, h, tr, methodName, ret_type, false);
 
 		if (dec.body() != null) {
 			if (!dec.flags().flags().isStatic()) {
-				VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+				VarInstance ti = xts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
 						new Ref_c<StructType>(dec.methodDef().asInstance().container()), Name.make(THIS)).asInstance();
 				context.addVariable(ti);
 			}
 			if (!context.inLocalClass()) {
-				if (covariant) {
-					// Mangle the name
-					emitter.printHeader(dec, w, tr, cName, mi.returnType(), true);
-				} else
-					emitter.printHeader(dec, w, tr, true);
-			}
+					emitter.printHeader(dec, w, tr, methodName, ret_type, true);
+				}
 			w.newline();
 			w.write("{");
 			w.newline();
@@ -1052,36 +1018,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.newline();
 		}
 
-		if (covariant) {
-			// Change the return type to that of the superclass's method
-			emitter.printHeader(dec, h, tr, mi.name().toString(), cReturn, false);
-			if (!context.inLocalClass())
-				emitter.printHeader(dec, w, tr, mi.name().toString(), cReturn, true);
-			w.newline();
-			w.write("{");
-			w.begin(4); w.newline();
-			assert (!mi.returnType().isVoid());
-			w.write("return ");
-			if (!dec.flags().flags().isStatic())
-				w.write("this->");
-			w.write(cName + "(");
-			w.begin(0);
-			boolean first = true;
-			for (Formal f : dec.formals()) {
-				if (first) {
-					first = false;
-				} else {
-					w.write(",");
-					w.allowBreak(0, " ");
-				}
-				w.write(mangled_non_method_name(f.name().toString()));
-			}
-			w.end();
-			w.write(");");
-			w.end(); w.newline();
-			w.write("}");
-			w.newline();
-		}
 	}
 
 
@@ -1179,6 +1115,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.end();
 			h.write(");");
 			h.newline();
+			if ((!context.inLocalClass()))
+				emitter.printTemplateSignature(((X10ClassType)dec.constructorDef().container().get()).typeArguments(), w);
 			w.write(VOID+" "+emitter.translateType(container)+"::"+INIT+"(");
 			w.begin(0);
 			first = true;
@@ -1832,8 +1770,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			emitNativeAnnotation(pat, mi.typeParameters(), target, n.arguments());
 			return;
 		}
-		// TODO
-		//boolean covariant = !xts.typeEquals(emitter.findRootMethodReturnType(xts, dec, mi), mi.returnType());
+		// the cast is because our generated member function may use a more general
+		// return type because c++ does not support covariant smartptr returns
+		// TODO: only emit static_cast where necessary
 		w.write("static_cast<");
 		emitter.printType(mi.returnType(), w);
 		w.write(" >(");
@@ -3323,17 +3262,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Tuple_c c) {
 		// Handles Rails initializer.
 
-        Type T = X10TypeMixin.getParameterType(c.type(), 0);
+		Type T = X10TypeMixin.getParameterType(c.type(), 0);
 		w.write("x10aux::alloc_rail<");
-        emitter.printType(T, w); 
+		emitter.printType(T, w); 
 		w.write(",");
-        w.allowBreak(0, " ");
-        // TODO: we don't want x10aux::ref<Rail<T> > here
-        // Use the NativeRep stuff
-        w.write(emitter.translateType(c.type())); 
+		w.allowBreak(0, " ");
+		w.write(emitter.translateType(c.type())); 
 		w.write(" >("+c.arguments().size());
 		for (Expr e:c.arguments()) {
-            w.write(",");
+			w.write(",");
 			sw.pushCurrentStream(w);
 			c.printSubExpr(e, false, sw, tr);
 			sw.popCurrentStream();
@@ -3439,3 +3376,4 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 } // end of MessagePassingCodeGenerator
+// vim:tabstop=4:shiftwidth=4:noexpandtab
