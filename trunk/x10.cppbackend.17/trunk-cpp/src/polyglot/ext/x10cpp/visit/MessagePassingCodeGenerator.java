@@ -2865,6 +2865,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		inc.newline(4); inc.begin(0);
 		inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
 		        cnamet+"("+SERIALIZATION_MARKER+"());");
+		inc.newline();
 		for (int i = 0; i < c.variables.size(); i++) {
 		    VarInstance var = (VarInstance) c.variables.get(i);
 		    String name = var.name().toString();
@@ -2982,14 +2983,109 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
+	private void printInlinedClosureStmt(Stmt s, StreamWrapper w, String retLabel, String retVar) {
+	    if (s instanceof Block_c) {
+	        w.write("{");
+	        w.newline(4); w.begin(0);
+	        for (Stmt b : ((Block_c)s).statements())
+	            printInlinedClosureStmt(b, w, retLabel, retVar);
+	        w.end(); w.newline();
+	        w.write("}");
+	        return;
+	    }
+	    if (s instanceof Return_c) { // TODO
+	        w.write("/"+"*"+" return from closure should go here "+"*"+"/");
+	        tr.print(null, ((Return_c)s).expr(), w);
+	        return;
+	    }
+	    tr.print(null, s, w);
+	}
+
+	private boolean inlineClosureCall(ClosureCall_c c, Closure_c closure, List<Expr> args) {
+	    List<Stmt> body = closure.body().statements();
+	    // Special case: a single return statement
+	    if (body.size() != 1 || !(body.get(0) instanceof Return_c)) // TODO
+	        return false;
+
+	    List<Formal> formals = closure.formals();
+	    boolean clashes = false;
+	    for (Expr a : c.arguments()) {
+	        if (!(a instanceof Local_c)) continue;
+	        Name name = ((Local_c)a).localInstance().name();
+	        for (Formal f : formals) {
+	            if (f.name().id().equals(name))
+	                clashes = true;
+	        }
+	    }
+	    sw.write("({");
+	    sw.newline(4); sw.begin(0);
+	    String[] alt = null;
+	    if (clashes) {
+	        alt = new String[args.size()];
+	        int i = 0;
+	        for (Expr a : args) {
+	            alt[i] = getId();
+	            Type fType = formals.get(i).type().type();
+	            sw.write(emitter.translateType(fType)+" "+alt+" =");
+	            sw.allowBreak(2, " ");
+	            c.print(a, sw, tr);
+	            sw.write(";");
+	            sw.newline();
+	        }
+	        i++;
+	    }
+	    int i = 0;
+	    for (Expr a : args) {
+	        Formal f = closure.formals().get(i);
+	        c.print(f, sw, tr);
+	        sw.write(" =");
+	        sw.allowBreak(2, " ");
+	        if (clashes)
+	            sw.write(alt[i]);
+	        else
+	            c.print(a, sw, tr);
+	        sw.write(";");
+	        sw.newline();
+	        i++;
+	    }
+	    // Special case: a single return statement
+	    if (body.size() == 1 && body.get(0) instanceof Return_c) {
+	        c.print(((Return_c)body.get(0)).expr(), sw, tr);
+	        sw.write(";");
+	    } else { // TODO
+	        for (Stmt s : body) {
+	            sw.newline();
+	            printInlinedClosureStmt(s, sw, null, null);
+	        }
+	    }
+	    sw.end(); sw.newline();
+	    sw.write("})"); sw.newline();
+	    return true;
+	}
+
 	public void visit(ClosureCall_c c) {
 		Expr target = c.target();
-		Type t = target.type();
-		boolean base = false;
-
-		X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 
 		X10MethodInstance mi = c.closureInstance();
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+		NodeFactory nf = tr.nodeFactory();
+		List<Expr> args = new ArrayList<Expr>();
+		int counter = 0;
+		for (Expr a : c.arguments()) {
+		    Type fType = mi.formalTypes().get(counter);
+		    if (!xts.typeDeepBaseEquals(fType, a.type())) {
+		        Position pos = a.position();
+		        a = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), a).type(fType);
+		    }
+		    args.add(a);
+		    counter++;
+		}
+
+		// Optimization: if the target is a closure literal, inline the body
+		if (target instanceof Closure_c) {
+		    if (inlineClosureCall(c, (Closure_c) target, args))
+		        return;
+		}
 
 		c.printSubExpr(target, sw, tr);
 		sw.write("->");
@@ -3007,7 +3103,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		*/
 
-		List l = c.arguments();
+		List l = args;
 		for (Iterator i = l.iterator(); i.hasNext(); ) {
 			Expr e = (Expr) i.next();
 			c.print(e, sw, tr);
@@ -3021,9 +3117,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-
 	public void visit(X10CanonicalTypeNode_c n) {
-//		System.out.println("Pretty-printing canonical type node for "+n);
 		Type t = n.type();
 		if (t == null)
 			throw new InternalCompilerError("Unknown type");
@@ -3180,6 +3274,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(ArrayInit_c n) {
 		throw new InternalCompilerError("Should not be invoked");
 	}
+
 
 	public void visit(SettableAssign_c n) {
 	    // Code ported from X10PrettyPrinter.java (x10.compiler.p3) and
