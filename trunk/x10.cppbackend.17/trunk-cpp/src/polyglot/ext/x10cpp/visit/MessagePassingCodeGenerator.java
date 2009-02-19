@@ -122,7 +122,6 @@ import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
-import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
@@ -1929,40 +1928,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public void visit(RectRegionMaker_c n) {
-//		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-//
-//		List arguments = n.arguments();
-//		int dims = arguments.size();
-//		if (dims == 1) { // Special case - unbox
-//			sw.pushCurrentStream(w);
-//			n.print((Expr) arguments.get(0), sw, tr);
-//			sw.popCurrentStream();
-//			return;
-//		}
-//		String rect_region_type = "_region<"+ dims + ">";
-//		w.write("("+make_ref(rect_region_type)+")(");
-//		w.begin(0);
-//		w.write("new (x10aux::alloc<"+rect_region_type+" >()) "+rect_region_type+"(");
-//		w.allowBreak(2, 2, "", 0); // miser mode
-//		w.begin(0);
-//		for (Iterator i = arguments.iterator(); i.hasNext(); ) {
-//			sw.pushCurrentStream(w);
-//			n.print((Expr) i.next(), sw, tr);
-//			sw.popCurrentStream();
-//			if (i.hasNext()) {
-//				w.write(",");
-//				w.allowBreak(0, " ");
-//			}
-//		}
-//		w.end();
-//		w.write(")");
-//		w.end();
-//		w.write(")");
-		super.visit(n);
-	}
-
-
 	public void visit(ConstantDistMaker_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
@@ -2033,7 +1998,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (target instanceof Expr) {
 				boolean assoc =
 					!(target instanceof New_c ||
-						target instanceof RectRegionMaker_c ||
 						target instanceof Binary_c);
 				sw.pushCurrentStream(w);
 				n.printSubExpr((Expr) target, assoc, sw, tr);
