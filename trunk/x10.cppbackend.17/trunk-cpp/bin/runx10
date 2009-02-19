@@ -4,14 +4,15 @@
 # Should work on Cygwin, Linux, AIX
 
 if [ "`uname -s`" = "AIX" ] ; then
-	# AIX: set up env vars needed for poe, run at 1 place (localhost) via poe
-	unset MP_MSG_API MP_TASK_AFFINITY MP_EUIDEVICE MP_ADAPTER_USE MP_EUILIB MP_CPU_USE \
-	      MP_CSS_INTERRUPT MP_USE_BULK_XFER MP_EAGER_LIMIT MP_PULSE MP_POLLING_INTERVAL \
-	      MP_SHARED_MEMORY MP_SINGLE_THREAD MP_WAIT_MODE
-        hostname > .hostlist.x10run.$$
-	LAPI_USE_SHMEM="yes" poe "$@" -procs 1 -hostfile .hostlist.x10run -msg_api lapi
-        rm -f .hostlist.x10run.$$
+    # AIX: set up env vars needed for poe, run at 1 place (localhost) via poe
+    unset MP_MSG_API MP_TASK_AFFINITY MP_EUIDEVICE MP_ADAPTER_USE MP_EUILIB MP_CPU_USE \
+          MP_CSS_INTERRUPT MP_USE_BULK_XFER MP_EAGER_LIMIT MP_PULSE MP_POLLING_INTERVAL \
+          MP_SHARED_MEMORY MP_SINGLE_THREAD MP_WAIT_MODE
+    HOSTFILENAME=.hostlist.x10run.$$
+    hostname > $HOSTFILENAME
+    LAPI_USE_SHMEM="yes" poe "$@" -procs 1 -hostfile $HOSTFILENAME -msg_api lapi
+    rm -f $HOSTFILENAME
 else
-        # Cygwin / Linux: set up env vars needed for PGAS sockets backend
-	MP_CHILD=0 MP_PROCS=1 PGASRT_HOME_NODE=127.0.0.1 PGAS_NTHREADS=1 UPC_NTHREADS=1 exec "$@"
+    # Cygwin / Linux: set up env vars needed for PGAS sockets backend
+    MP_CHILD=0 MP_PROCS=1 PGASRT_HOME_NODE=127.0.0.1 PGAS_NTHREADS=1 UPC_NTHREADS=1 exec "$@"
 fi
