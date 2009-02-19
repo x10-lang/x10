@@ -39,6 +39,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Branch_c;
 import polyglot.ast.Call_c;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.Case_c;
 import polyglot.ast.Catch;
 import polyglot.ast.Catch_c;
@@ -100,10 +101,10 @@ import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
 import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Await_c;
+import polyglot.ext.x10.ast.X10CanonicalTypeNode;
 import polyglot.ext.x10.ast.ClosureCall_c;
 import polyglot.ext.x10.ast.Closure_c;
 import polyglot.ext.x10.ast.ConstantDistMaker_c;
-import polyglot.ext.x10.ast.DepCast_c;
 import polyglot.ext.x10.ast.DepParameterExpr;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
@@ -130,6 +131,7 @@ import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.query.QueryEngine;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10Type;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 
@@ -391,7 +393,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			h.forceNewline(0);
 			if (n.classDef().package_() != null) {
 				h.write("namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().toString())));
+				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().get().fullName().toString())));
 				h.write(" {");
 				h.newline(0);
 			}
@@ -434,7 +436,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (n.classDef().package_() != null) {
 				h.newline(0);
 				h.write("} // namespace ");
-				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().toString())));
+				h.write(mangled_non_method_name(translateFQN(n.classDef().package_().get().fullName().toString())));
 				h.newline(0);
 			}
 		}
@@ -550,7 +552,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(PackageNode_c n) {
-		w.write(mangled_non_method_name(translateFQN(n.package_().toString())));
+		w.write(mangled_non_method_name(translateFQN(n.package_().get().fullName().toString())));
 	}
 
 	public void visit(Import_c n) {
@@ -1912,45 +1914,110 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			w.write(n.id().toString());
 	}
 
-
-	public void visit(X10Cast_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		w.begin(0);
+	public void visit(X10Cast_c c) {
+		// Original code picked up from
+		// x10.compiler.p3/.../X10PrettyPrinter.java and mouled
+		// onto the cppbackend requirements. [Krishna]
 		String castVar = null;
-		DepParameterExpr dpe = null;
-		if (n instanceof DepCast_c && n.isDepTypeCheckingNeeded()) {
-			dpe = (((DepCast_c) n).dep());
-		}
-		if (dpe != null || (n.notNullRequired() && !n.isToTypeNullable())) {
-			w.write("({");
-			w.newline(4);
-			w.begin(0);
-			emitter.printType(n.castType().type(), w); 
-			w.write(" ");
-			castVar = getId();
-			w.write(castVar);
-			w.write (" = ");
+	        TypeNode tn = c.castType();
+	        assert tn instanceof CanonicalTypeNode;
+	        
+	        switch (c.conversionType()) {
+	        case COERCION:
+	        case PRIMITIVE:
+	        case TRUNCATION:
+	            if (tn instanceof X10CanonicalTypeNode) {
+	                X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-		} else {
-			w.write("(");
-			emitter.printType(n.castType().type(), w);
-			w.write(")");
-		}
-		w.allowBreak(2, " ");
-		sw.pushCurrentStream(w);
-		n.printSubExpr(n.expr(), true, sw, tr);
-		sw.popCurrentStream();
-		if (dpe != null || (n.notNullRequired() && !n.isToTypeNullable())) {
-			w.write(";");
-			emitter.handleX10Cast(n, castVar, w);
-			w.write( castVar + "; ");
-			w.write("})");
-		}
-		w.end();
+	                Type t = X10TypeMixin.baseType(xtn.type());
+	                DepParameterExpr dep = xtn.constraintExpr();
+	                
+	                if (dep != null) {
+				w.write("({");
+				w.newline(4);
+				w.begin(0);
+				emitter.printType(t, w); 
+				w.write(" ");
+				castVar = getId();
+				w.write(castVar);
+				w.write (" = ");
 
+			}
+			else if (t.isBoolean() || t.isNumeric() || c.expr().type().isSubtype(t)) {
+	                    w.begin(0);
+	                    // put (Type) 
+	                    w.write("(");
+			    emitter.printType(t, w); 
+	                    w.write(")");
+	                }
+	                else {
+			    // FIXME: unhandled cast.
+			    assert false;
+	                }
+			w.allowBreak(2, " ");
+			sw.pushCurrentStream(w);
+			c.printSubExpr(c.expr(), true, sw, tr);
+			sw.popCurrentStream();
+			w.end();
+			if (dep != null) {
+				w.write(";");
+				emitter.handleX10Cast(c, castVar, w);
+				w.write( castVar + "; ");
+				w.write("})");
+			}
+
+	            }
+	            else {
+	                throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
+	            }
+	            break;
+	        case BOXING:
+//	            if (c.expr() instanceof X10Cast) {
+//	                // check for rebox
+//	                X10Cast e = (X10Cast) c.expr();
+//	                if (e.conversionType() == X10Cast.ConversionType.UNBOXING) {
+//	                    // ((Box<T>) Box.make(TYPE, v))
+//	                    w.write("x10.types.Types.<");
+//	                    printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+//	                    w.write(">javacast(");
+//	                    w.write("x10.core.Box.make(");
+//	                    new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
+//	                    w.write(", ");
+//	                    tr.print(c, e.expr(), w);
+//	                    w.write(")");
+//	                    w.write(")");
+//	                    break;
+//	                }
+//	            }
+//	            // ((Box<T>) Box.make(TYPE, v))
+ //                   w.write("x10.types.Types.<");
+  //                  printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+   //                 w.write(">javacast(");
+//	            w.write("x10.core.Box.make(");
+//	            new RuntimeTypeExpander(((BoxType) X10TypeMixin.baseType(tn.type())).arg()).expand(tr);
+//	            w.write(", ");
+//	            tr.print(c, c.expr(), w);
+//	            w.write(")");
+//	            w.write(")");
+//	            break;
+	        case UNBOXING:
+//	            // Box.unbox((Box<T>) v)
+//	            w.write("x10.core.Box.unbox(");
+ //                   w.write("x10.types.Types.<x10.core.Box<");
+  //                  printType(c.castType().type(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+   //                 w.write(">>javacast(");
+//	            tr.print(c, c.expr(), w);
+//	            w.write(")");
+//	            break;
+
+		// FIXME: Handle boxing and unboxing. Need generics?
+		assert (false);
+	        case UNKNOWN_CONVERSION:
+	            throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
+	        case CALL:
+	            throw new InternalCompilerError("Conversion call should have been rewritten.", c.position());
+	        }
 	}
-
-
 
 	public void visit(X10Instanceof_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
@@ -2049,10 +2116,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.newline();
 		w.write("if (");
 		String type = emitter.translateType(n.formal().type().type(), true);
-		if (type.equals("x10::ref<ClassCastException>")) { // C++ does not have ClassCastException. 
-			                                           // Instead it will throw std::bad_cast
-			type = "ref<std::bad_cast>&";
-		}
 		if (refsAsPointers) {
 			w.write("!!dynamic_cast<" + type + " >(" + excVar + ")");
 		} else {
