@@ -18,10 +18,6 @@ public class Main extends polyglot.main.Main {
 		// TODO Auto-generated constructor stub
 	}
 
-	protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
-		return X10CPPTranslator.postCompile(options, compiler, eq);
-	}
-
 	public static void main(String[] args) {
 		try {
 			System.setProperty("x10.postcompile", "FALSE");
