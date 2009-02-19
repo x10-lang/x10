@@ -23,7 +23,6 @@ import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.FieldDecl;
-import polyglot.ast.Import;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -32,7 +31,6 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 
-import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10ClassDecl;
 
 import polyglot.ext.x10cpp.Configuration;
@@ -65,7 +63,7 @@ import x10c.util.WriterStreams;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
 
 public class X10CPPTranslator extends Translator {
-	public static final class DelegateTargetFactory extends TargetFactory {
+    public static final class DelegateTargetFactory extends TargetFactory {
 		protected String outputHeaderExtension;
 
 		private DelegateTargetFactory(File dir, String ext, String hExt, boolean so) {
@@ -216,6 +214,10 @@ public class X10CPPTranslator extends Translator {
 		                                 "cc", "h", options.output_stdout);
 	}
 
+	public DelegateTargetFactory targetFactory() {
+	    return (DelegateTargetFactory) tf;
+	}
+
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
 			return; // FIXME HACK
@@ -268,7 +270,10 @@ public class X10CPPTranslator extends Translator {
 				Package p = sfn.package_().package_().get();
 				pkg = p.fullName().toString();
 			}
-			
+
+            // store all explicit imports in the context
+            ((X10CPPContext_c)context).pendingImports.addAll(sfn.imports());
+
 			WriterStreams wstreams = null;
 			StreamWrapper sw = null;
 			// Use the class name to derive a default output file name.
@@ -283,9 +288,7 @@ public class X10CPPTranslator extends Translator {
 						outputWidth, wstreams);
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
-				writeHeader(cd, sfn, sw);
 				translateTopLevelDecl(sw, sfn, decl); 
-				writeFooter(cd, sfn, sw);
 				if (i.hasNext())
 					wstreams.commitStreams();
 			}
@@ -308,10 +311,6 @@ public class X10CPPTranslator extends Translator {
 			}
 
 			sw.newline();
-            if (Configuration.VIM_MODELINE) {
-                sw.write("// "+VIM_MODELINE); sw.newline();
-            }
-
 			wstreams.commitStreams();
 
 			return true;
@@ -434,101 +433,6 @@ public class X10CPPTranslator extends Translator {
 		w.newline();
 	}
 
-	/** Write the header for a source file. */
-	protected void writeHeader(X10ClassDecl cd, SourceFile sfn, StreamWrapper sw) {
-		WriterStreams wstreams = sw.ws;
-		ClassifiedStream w = sw.cs;
-		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
-
-        DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
-        String pkg = "";
-        if (sfn.package_() != null) {
-            pkg = sfn.package_().package_().get().fullName().toString();
-        }
-        String header = tf.outputHeaderName(pkg, cd.name().toString());
-        String guard = header.replace('/','_').replace('.','_').replace('$','_').toUpperCase();
-		h.write("#ifndef __"+guard); h.newline();
-		h.write("#define __"+guard); h.newline();
-		h.forceNewline(0);
-		h.write("#include <x10rt17.h>"); h.newline();
-		h.forceNewline(0);
-
-		w.write("#include <"+header+">"); w.newline();
-		w.forceNewline(0);
-		//w.write("using namespace x10;"); w.newline();
-		//w.write("using namespace x10::lang;"); w.newline();
-		//w.write("using namespace x10::core::fun;"); w.newline();
-		w.forceNewline(0);
-		
-		boolean newline = false;
-
-		for (Iterator i = sfn.imports().iterator(); i.hasNext(); ) {
-			Import imp = (Import) i.next();
-			sw.pushCurrentStream(h);
-			imp.del().translate(sw, this);
-			sw.popCurrentStream();
-			newline = true;
-		}
-
-		if (newline) {
-			w.newline(0);
-			h.newline(0);
-		}
-
-		if (sfn.package_() != null) {
-			w.write("using namespace ");
-			sw.pushCurrentStream(w);
-			sfn.package_().del().translate(sw, this);
-			sw.popCurrentStream();
-			w.write(";");
-			w.newline();
-		}
-
-		//w.write("static "+make_ref("Exception")+" EXCEPTION = NULL;"); w.newline();
-		String incfile = tf.integratedOutputName(pkg, cd.name().toString(), WriterStreams.StreamClass.Closures.toString());
-		w.write("#include \""+incfile+"\""); w.newline();
-		w.forceNewline(0);
-	}
-
-	/** Write the footer for a source file. */
-	protected void writeFooter(X10ClassDecl cd, SourceFile sfn, StreamWrapper sw) {
-		WriterStreams wstreams = sw.ws;
-		ClassifiedStream w = sw.cs;
-		ClassifiedStream h = wstreams.getCurStream(WriterStreams.StreamClass.Header);
-
-		h.newline(0);
-		//String guard = wstreams.getFile(WriterStreams.StreamClass.Header).getName().replace(".", "_").replace(File.separator, "_").toUpperCase();
-        String guard = wstreams.getHeader().getName().replace(".", "_").replace(File.separator, "_").replace("-", "_").toUpperCase();
-		h.write("#endif // __"+guard); h.newline();
-		h.forceNewline(0);
-
-		// The declarations below are intentionally outside of the guard
-		if (sfn.package_() != null) {
-			QName qn = sfn.package_().package_().get().fullName();
-			Emitter.openNamespaces(h, qn);
-			h.newline(0);
-		}
-		if (cd.typeParameters().size() > 0) {
-			h.write("template <");
-			String sep = "";
-			for (TypeParamNode tn : cd.typeParameters()) {
-				h.write(sep);
-				sep = ", ";
-				h.write("class ");
-				h.write(tn.name().toString());
-			}
-			h.write("> ");
-		}
-		h.write("class "+Emitter.mangled_non_method_name(cd.name().toString())+";");
-		h.newline();
-		if (sfn.package_() != null) {
-			h.newline(0);
-			QName qn = sfn.package_().package_().get().fullName();
-			Emitter.closeNamespaces(h, qn);
-			h.newline(0);
-		}   
-	}
-
 	/* (non-Javadoc)
 	 * @see polyglot.visit.Translator#translate(polyglot.ast.Node)
 	 */
@@ -563,7 +467,8 @@ public class X10CPPTranslator extends Translator {
 		return (DelegateTargetFactory) this.tf;
 	}
 
-    private static final String DUMMY = "-U__DUMMY__";
+    private static final String DUMMY = "-U___DUMMY___";
+    private static final String IGNORED = "-U___IGNORED___";
 
 	/**
 	 * The post-compiler option has the following structure:
@@ -583,13 +488,14 @@ public class X10CPPTranslator extends Translator {
 		final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
 		final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?"sockets":System.getenv("X10RT_TRANSPORT");
         final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknowns":System.getenv("X10_PLATFORM");
-        final String PTHREAD_FLAG = PLATFORM.startsWith("linux") ? "-pthread":DUMMY;
+        final String PTHREAD_FLAG = PLATFORM.startsWith("linux") ? "-pthread" : DUMMY;
         final boolean gcEnabled = !Configuration.DISABLE_GC && PLATFORM.startsWith("linux") && false; // TMP: dave
         // These go before the files
 		final String[] preArgs = new String[] {
 			"-I"+X10LIB+"/include",
 			"-I"+X10LANG,
-			!gcEnabled ? DUMMY : "-I"+X10LANG+"/bdwgc/install/include -DX10_USE_BDWGC",
+			!gcEnabled ? DUMMY : "-I"+X10LANG+"/bdwgc/install/include",
+			!gcEnabled ? DUMMY : "-DX10_USE_BDWGC",
 			"-I.",
 			"-DTRANSPORT="+TRANSPORT,
             PTHREAD_FLAG,
@@ -616,7 +522,7 @@ public class X10CPPTranslator extends Translator {
 				token = st.nextToken();
 				// The first '#' marks the place where the filenames go
 				if (token.equals("#") || token.equals("%")) {
-					cxxCmd[j++] = "-U___DUMMY___"; // don't want to resize the array
+					cxxCmd[j++] = DUMMY; // don't want to resize the array
 					break;
 				}
 				cxxCmd[j++] = token;
@@ -624,7 +530,7 @@ public class X10CPPTranslator extends Translator {
 
 			boolean skipArgs = token.equals("%");
 			for (int i = 0; i < preArgs.length; i++) {
-				cxxCmd[j++] = skipArgs ? "-U___IGNORED___" : preArgs[i];
+				cxxCmd[j++] = skipArgs ? IGNORED : preArgs[i];
 			}
 
 			Iterator iter = compiler.outputFiles().iterator();
@@ -637,7 +543,7 @@ public class X10CPPTranslator extends Translator {
 				token = st.nextToken();
 				// The second '#' delimits the libraries that have to go at the end
 				if (token.equals("#") || token.equals("%")) {
-					cxxCmd[j++] = "-U___DUMMY___"; // don't want to resize the array
+					cxxCmd[j++] = DUMMY; // don't want to resize the array
 					break;
 				}
 				cxxCmd[j++] = token;
@@ -645,7 +551,7 @@ public class X10CPPTranslator extends Translator {
 
 			boolean skipLibs = token.equals("%");
 			for (int i = 0; i < postArgs.length; i++) {
-				cxxCmd[j++] = skipLibs ? "-U___IGNORED___" : postArgs[i];
+				cxxCmd[j++] = skipLibs ? IGNORED : postArgs[i];
 			}
 
 			while (st.hasMoreTokens()) {
