@@ -10,21 +10,22 @@
  */
 package polyglot.ext.x10cpp.visit;
 
-import java.util.Iterator;
-import java.util.LinkedList;     // Concretely constructed list objects are LinkedList objects.  Can easily shift to other concrete list classes upon manifest need.
-import java.util.List;
-import java.util.ListIterator;
 import java.io.File;
 import java.io.FileReader;
 import java.io.StreamTokenizer;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 
 import polyglot.ast.Call;
+import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.For;
 import polyglot.ast.Loop;
 import polyglot.ast.MethodDecl;
-import polyglot.ast.MethodDecl_c;  // FIXME. Left here only for interface with PrettyPrinter code
+import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
 import polyglot.ast.Throw;
@@ -37,14 +38,14 @@ import polyglot.ext.x10.ast.ForEach;
 import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
-import polyglot.types.ConstructorInstance;
+import polyglot.types.ConstructorDef;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
+import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
-import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.Translator;
-import polyglot.ast.ClassDecl;
 
 
 /**
@@ -205,8 +206,8 @@ public class X10SummarizingRules {
         			MethodDecl decl = getDecl(call);
         			if (debugLevel > 1) System.out.println("Call_c discriminator: " + call.methodInstance().container() + call.methodInstance().signature() );
         			if (decl == null) {if (debugLevel > 1)  System.out.println("No MethodDecl_c available");}
-        			else System.out.println("MethodDecl_c discriminator: " + decl.methodInstance().container() + "." +
-        					decl.methodInstance().signature() + " flags: " + decl.flags().flags());
+        			else System.out.println("MethodDecl_c discriminator: " + decl.methodDef().container() + "." +
+        					decl.methodDef().signature() + " flags: " + decl.flags().flags());
         		}
         	}
         }
@@ -301,7 +302,8 @@ public class X10SummarizingRules {
 		public void printSummary() {
 			if (! library ) {
 			System.out.println("printSummary: Summary is of: " + summaryOf.getClass().getSimpleName() + " full summary object: "+ this);
-			if (summaryOf instanceof MethodDecl) System.out.println("summary of method: " + ((MethodDecl) summaryOf).methodInstance().signature());
+			if (summaryOf instanceof MethodDecl) System.out.println("summary of method: " 
+					+ ((MethodDecl) summaryOf).methodDef().signature());
 			/* System.out.println("containing calls: ");
 			ListIterator <Node> lm = methodCalls.listIterator(0);
 			while (lm.hasNext()) {
@@ -476,7 +478,7 @@ public class X10SummarizingRules {
 							    ((MethodDecl) member).flags().flags().isFinal()  ||
 							    ((MethodDecl) member).flags().flags().isPrivate())) {
 						MethodDecl mem = (MethodDecl) member;
-						MethodInstance mi = mem.methodInstance();
+						MethodDef mi = mem.methodDef();
 						String memberDiscriminator =  mi.name() + Relations.constructTypeSignature(mi);
 						if (debug()) System.out.println("nonVirtualMatch: Comparing basicCallDiscriminator: " + basicCallDiscriminator + " with " + memberDiscriminator);
 						if (basicCallDiscriminator.equals(memberDiscriminator)) {
@@ -491,7 +493,7 @@ public class X10SummarizingRules {
 			
 			/** Identifies a virtual matching member from this tree's self ClassDecl or the parent tree's ClassDecl (recursively), if any, and adds its summary to matchingSummaries. */
 			public void parentMatch(List <Summary> matchingSummaries, String basicCallDiscriminator, Collection c, String callDiscriminator) {
-				if (debug()) System.out.println("Entering parent with name: " + self.type().fullName());
+				if (debug()) System.out.println("Entering parent with name: " + self.classDef().fullName());
 				List ms = self.body().members();
 
 				for (Object member : ms) {
@@ -499,7 +501,7 @@ public class X10SummarizingRules {
 							&& (! ((MethodDecl) member).flags().flags().isStatic())
 							&& (! ((MethodDecl) member).flags().flags().isPrivate())){
 						MethodDecl mem = (MethodDecl) member;
-						MethodInstance mi = mem.methodInstance();
+						MethodDef mi = mem.methodDef();
 						String memberDiscriminator =  mi.name() + Relations.constructTypeSignature(mi);
 						if (debug()) System.out.println("parentMatch: Comparing basicCallDiscriminator: " + basicCallDiscriminator + " with " + memberDiscriminator);
 						if (basicCallDiscriminator.equals(memberDiscriminator)) {
@@ -518,14 +520,14 @@ public class X10SummarizingRules {
 			
 			/** Identifies all virtual matching members, if any, from this tree's self ClassDecl or the children trees' ClassDecls (recursively), and adds their summaries to matchingSummaries. */
 			public void childrenMatch(List <Summary> matchingSummaries, String basicCallDiscriminator, Collection c) {
-				if (debug()) System.out.println("Entering Child with name: " + self.type().fullName());
+				if (debug()) System.out.println("Entering Child with name: " + self.classDef().fullName());
 				List ms = self.body().members();
 
 				for (Object member : ms) {
 					if ((member instanceof MethodDecl) 
 							&& (! ((MethodDecl) member).flags().flags().isStatic())) {
 						MethodDecl mem = (MethodDecl) member;
-						MethodInstance mi = mem.methodInstance();
+						MethodDef mi = mem.methodDef();
 						String memberDiscriminator =  mi.name() + Relations.constructTypeSignature(mi);
 						if (debug()) System.out.println("childrenMatch: Comparing basicCallDiscriminator: " + basicCallDiscriminator + " with " + memberDiscriminator);
 						if (basicCallDiscriminator.equals(memberDiscriminator)) {
@@ -554,7 +556,7 @@ public class X10SummarizingRules {
 			for (Summary s : summaries) {
 				if ((s.summaryOf instanceof ClassDecl) && 
 						(! ((ClassDecl) s.summaryOf).flags().flags().isInterface()) &&
-						name.equals(((ClassDecl) s.summaryOf).type().fullName())) 
+						name.equals(((ClassDecl) s.summaryOf).classDef().fullName())) 
 					return (ClassDecl) s.summaryOf;
 			}
 			return null;
@@ -595,7 +597,7 @@ public class X10SummarizingRules {
 						&& (! ((ClassDecl) s.summaryOf).flags().flags().isInterface())) {
 					ClassDecl cl = (ClassDecl) s.summaryOf;
 					if (debug()) {
-						System.out.println("Adding to hierarchy, class: " + cl.type().fullName()); //cl.name());
+						System.out.println("Adding to hierarchy, class: " + cl.classDef().fullName()); //cl.name());
 						System.out.println("interface? " + cl.flags().flags().isInterface());
 						System.out.println("    with super Class: " + cl.superClass().
 								type().
@@ -635,7 +637,8 @@ public class X10SummarizingRules {
 					t.parent = tp;
 					tp.children.add(t);
 					if (debug()) {
-						System.out.println("t: " + t.self.type().fullName() + " t.parent: " + tp.self.type().fullName());
+						System.out.println("t: " + t.self.classDef().fullName() + " t.parent: " 
+								+ tp.self.classDef().fullName());
 					}
 				}
 			}
@@ -649,8 +652,8 @@ public class X10SummarizingRules {
 						Call mc = (Call) mcn;
 						MethodInstance mi = mc.methodInstance();
 						String callClass = stripDepTypeClause(mc.target().type().toReference().toString());  //mc.target().type().toClass().fullName(); //  mi.container().toClass().name(); -- loses precision //mi.container().toString();
-						String basicCallDiscriminator = mi.name() + constructTypeSignature(mi);
-						String callDiscriminator = constructDiscriminator(mi);
+						String basicCallDiscriminator = mi.name() + constructTypeSignature(mi.def());
+						String callDiscriminator = constructDiscriminator(mi.def());
 						if (debug()) System.out.println("target: " + callClass +  
 								" mi's class: " + (mc.target().type().isClass() ? mi.container().toClass().name() : "?") + 
 								" basicCallDiscriminator: " + basicCallDiscriminator + " callDiscriminator: " + callDiscriminator);
@@ -659,7 +662,7 @@ public class X10SummarizingRules {
 							Tree t = null;
 
 							for (Tree cht : classHierarchy) {
-								if (cht.self.type().fullName().equals(callClass)) {  
+								if (cht.self.classDef().toString().equals(callClass)) {  
 									t = cht; 
 									if (debug()) System.out.println("Found Class in Hierarchy as: " + callClass);
 									break;
@@ -757,14 +760,15 @@ public class X10SummarizingRules {
 
 					for (Node ccn : ccl) {
 						ConstructorCall cc = (ConstructorCall) ccn;
-						String callDiscriminator = constructDiscriminator(cc.constructorInstance());
+						String callDiscriminator = constructDiscriminator(cc.constructorInstance().def());
 						if (summariesFor(cc) == null) {
 							LinkedList <Summary> matchingSummaries = new LinkedList<Summary> ();
 
 							for (Summary summary : c.summaries) {
 								if (summary.summaryOf instanceof ConstructorDecl) {
 									ConstructorDecl cd = (ConstructorDecl) summary.summaryOf;
-									String constructorDeclDiscriminator = constructDiscriminator(cd.constructorInstance());
+									String constructorDeclDiscriminator = 
+										constructDiscriminator(cd.constructorDef());
 									if (debug()) System.out.println("Matching callDiscriminator = " + callDiscriminator + " with constructorDeclDiscriminator = " + constructorDeclDiscriminator);
 									if (constructorDeclDiscriminator.equals(callDiscriminator)) {
 										if (debug()) System.out.println("Matched!!" + cc);
@@ -799,15 +803,15 @@ public class X10SummarizingRules {
 									//constructDiscriminator(((Call) r.call).methodInstance())
 									stripDepTypeClause(((Call) r.call).target().type().toReference().toString()) + "." +
 									((Call) r.call).methodInstance().name() + constructTypeSignature(
-									((Call) r.call).methodInstance())
+									((Call) r.call).methodInstance().def())
 									:
-										constructDiscriminator(((ConstructorCall) r.call).constructorInstance())));
+										constructDiscriminator(((ConstructorCall) r.call).constructorInstance().def())));
 
 					for (Summary s : r.summaries) {
 						System.out.println("         maps to: " + (s.library ? s.libraryFuncDiscriminator : 
 							(s.summaryOf instanceof MethodDecl ? 
-									constructDiscriminator(((MethodDecl) s.summaryOf).methodInstance()) :
-										constructDiscriminator(((ConstructorDecl) s.summaryOf).constructorInstance()))) 
+									constructDiscriminator(((MethodDecl) s.summaryOf).methodDef()) :
+										constructDiscriminator(((ConstructorDecl) s.summaryOf).constructorDef()))) 
 										+ " of library: " + s.library);
 					}
 				}
@@ -821,16 +825,17 @@ public class X10SummarizingRules {
 		}
 
 		// Externalizes the type signature of a method
-		private String constructDiscriminator(MethodInstance mi) {
+		private String constructDiscriminator(MethodDef mi) {
 //			return mi.container().toClass().fullName() + "." + mi.name() + constructTypeSignature(mi);
-			return stripDepTypeClause(mi.container().toString()) + "." + mi.name() + constructTypeSignature(mi);
+			return stripDepTypeClause(mi.container().toString()) + "." 
+			+ mi.name() + constructTypeSignature(mi);
 		}
 		// Externalizes the type signature of a constructor
-		private String constructDiscriminator(ConstructorInstance ci) {
-			return ci.container().toClass().fullName() + ".<init>" + constructTypeSignature(ci);
+		private String constructDiscriminator(ConstructorDef ci) {
+			return ci.container().get().fullName() + ".<init>" + constructTypeSignature(ci);
 		}
 		/** Externalizes the arguments part of a call's type signature */
-		public static String constructTypeSignature(ProcedureInstance pi) {
+		public static String constructTypeSignature(ProcedureDef pi) {
 			StringBuffer res = new StringBuffer("(");
 			List formals = pi.formalTypes();
 			for (Iterator fi = formals.iterator(); fi.hasNext();) {
@@ -1068,14 +1073,14 @@ public class X10SummarizingRules {
 			// left clause for && below is unnecessary once anonymous classes are taken care of 
 			// necessitated for crash-free passing of x10.common/examples/Constructs/Array/JavaArrayWithInitializer.x10
 			(((ClassType) m.
-					methodInstance().
+					methodDef().
 					container()).
 					flags().flags() != null) 
 					&& 
 					((ClassType) m.
-							methodInstance().
+							methodDef().
 							container()).
-							flags().flags().isFinal();
+							flags().isFinal();
 		}
 		
 		public void computeLocal(Summary s) {
@@ -1144,7 +1149,8 @@ public class X10SummarizingRules {
 		public boolean applicable(Node n) { 
 			if (debug()) {
 				if (n instanceof ConstructorDecl) {
-					System.out.println("ConstructorDecl signature is: " + ((ConstructorDecl) n).constructorInstance().signature() + 
+					System.out.println("ConstructorDecl signature is: " 
+							+ ((ConstructorDecl) n).constructorDef().signature() + 
 							" and name is: " + ((ConstructorDecl) n).name());
 				}
 			}

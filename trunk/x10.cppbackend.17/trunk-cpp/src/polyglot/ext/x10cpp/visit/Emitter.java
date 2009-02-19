@@ -149,7 +149,7 @@ public class Emitter {
 			} else {
 				aClass = (ClassType) asyncContainers.get(asyncs.get(i));
 			}
-			if (!ts.equals(aClass, c.currentClass()))
+			if (! ts.equals(aClass, c.currentClass()))
 				continue;
 			if (arrayCopyClosures.containsKey(asyncs.get(i))) {
 				w.write("public : " + prefix + VOID_PTR + " " + name_pfx + closure_name(ARRAY_COPY_PREFIX, i));
@@ -1327,7 +1327,7 @@ public class Emitter {
 
 		// _serialize()
 		h.write("public: ");
-		if (!type.flags().flags().isFinal())
+		if (!type.flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+SERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) "+
 		"{ x10::_serialize_ref(this, buf, m); }");
@@ -1335,7 +1335,7 @@ public class Emitter {
 
 		// _serialize_fields()
 		h.write("public: ");
-		if (!type.flags().flags().isFinal())
+		if (!type.flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m);"); h.newline(0);
 		w.write("void "+klass+"::"+SERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10::addr_map& m) {");
@@ -1348,7 +1348,7 @@ public class Emitter {
 			if (i != 0)
 				w.newline();
 			FieldInstance f = (FieldInstance) type.fields().get(i);
-			if (f.flags().flags().isStatic() || query.isSyntheticField(f.name().toString()))
+			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
 			if (f.type().isPrimitive()) {
 				w.write("buf.write(this->"+"x10__"+f.name()+");"); w.newline();
@@ -1369,7 +1369,7 @@ public class Emitter {
 
 		// _deserialize()
 		h.write("public: ");
-		if (!type.flags().flags().isFinal())
+		if (!type.flags().isFinal())
 			h.write("virtual ");
 		h.write("void "+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf);"); h.newline(0);
 		w.write("void "+klass+"::"+DESERIALIZE_FIELDS_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
@@ -1378,7 +1378,7 @@ public class Emitter {
 			if (i != 0)
 				w.newline();
 			FieldInstance f = (FieldInstance) type.fields().get(i);
-			if (f.flags().flags().isStatic() || query.isSyntheticField(f.name().toString()))
+			if (f.flags().isStatic() || query.isSyntheticField(f.name().toString()))
 				continue;
 			if (f.type().isPrimitive()) {
 				w.write("this->"+"x10__"+f.name()+" = buf.read<"+translateType(f.type())+" >();");

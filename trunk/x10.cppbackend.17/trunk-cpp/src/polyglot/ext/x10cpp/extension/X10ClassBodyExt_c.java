@@ -12,39 +12,25 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
-import polyglot.ast.Call;
-import polyglot.ast.Expr;
-import polyglot.ast.Local;
-import polyglot.ast.MethodDecl;
-import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
-import polyglot.ast.TypeNode;
-import polyglot.frontend.ExtensionInfo;
-import polyglot.ast.Block_c;
-import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody_c;
 import polyglot.ast.Formal_c;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.MethodDecl_c;
-import polyglot.types.ClassType_c;
+import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.extension.X10Ext_c;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
-import polyglot.types.Context;
-import polyglot.types.MethodInstance;
+import polyglot.frontend.ExtensionInfo;
 import polyglot.types.ClassType;
-import polyglot.types.PrimitiveType;
+import polyglot.types.MethodDef;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
-import polyglot.types.Package;
-import polyglot.types.SemanticException;
-import polyglot.util.Position;
 
 
 /**
@@ -293,7 +279,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 	}
 
 	public static String generateX10NativeName(MethodDecl_c method) {
-		return JNImangle(canonicalTypeString(method.methodInstance().container())) + "_" + method.name();
+		return JNImangle(canonicalTypeString(method.methodDef().container())) + "_" + method.name();
 	}
 
 	/**
@@ -308,7 +294,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 		if (isOverloaded)
 			_newName += "__" + JNImangle(generateJavaSignature(nativeMethod));
 
-		String wrapperDecl = "extern " + typeToCType(nativeMethod.methodInstance().returnType()) + " ";
+		String wrapperDecl = "extern " + typeToCType(nativeMethod.methodDef().returnType()) + " ";
 		wrapperDecl += _newName + "(";
 
 		for (ListIterator i = nativeMethod.formals().listIterator(); i.hasNext(); ) {
@@ -376,7 +362,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			Object o = i.next();
 			if (o instanceof MethodDecl) {
 				MethodDecl_c md = (MethodDecl_c) o;
-				MethodInstance mi = md.methodInstance();
+				MethodDef mi = md.methodDef();
 
 				if (!mi.flags().isNative()) {
 					continue;
@@ -425,7 +411,7 @@ public class X10ClassBodyExt_c extends X10Ext_c {
 			if (!(theObj instanceof MethodDecl))
 				continue;
 			MethodDecl_c methodDecl = (MethodDecl_c) theObj;
-			if (!methodDecl.methodInstance().flags().isNative())
+			if (!methodDecl.methodDef().flags().isNative())
 				continue;
 
 			if (methodHash.containsKey(methodDecl.name())) {
