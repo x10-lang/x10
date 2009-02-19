@@ -32,7 +32,7 @@ public final class Configuration extends x10.config.Configuration {
 	 */
 	public static final ConfigurationError LOAD_ERROR;
 
-	public static boolean SPMD_COMPILATION = true;
+	public static boolean SPMD_COMPILATION = false;
 	private static final String SPMD_COMPILATION_desc = "Generate SPMD code";
 	
 	public static String MAIN_FILE = "";

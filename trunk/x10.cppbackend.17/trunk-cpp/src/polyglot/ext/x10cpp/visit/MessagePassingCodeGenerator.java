@@ -115,7 +115,6 @@ import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.RectRegionMaker_c;
 import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.StmtSeq_c;
-import polyglot.ext.x10.ast.ValueClassDecl_c;
 import polyglot.ext.x10.ast.X10ArrayAccess1_c;
 import polyglot.ext.x10.ast.X10ArrayAccess_c;
 import polyglot.ext.x10.ast.X10Binary_c;
@@ -231,12 +230,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	
 
-	public void visit(ValueClassDecl_c n) {
-		// TODO: Currently we are treating value classes, exactly
-		// in the same way as normal classes. Do we need anything
-		// more? -Krishna.
-		processClass(n);
-	}
 
 	public void visit(ClassDecl_c n) {
 		processClass(n);
@@ -251,7 +244,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			ClassMember member = (ClassMember) i.next();
 			if (!(member instanceof Initializer_c) && !(member instanceof FieldDecl_c))
 				continue;
-			if (member.memberInstance().flags().flags().isStatic() != staticInits)
+			if (member.memberDef().flags().isStatic() != staticInits)
 				continue;
 			if (member instanceof FieldDecl_c &&
 					(((FieldDecl_c)member).init() == null ||
@@ -401,7 +394,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 
-		if (n.classDef().isNested() && !n.classDef().flags().flags().isStatic())
+		if (n.classDef().isNested() && !n.classDef().flags().isStatic())
 			throw new InternalCompilerError("Instance Inner classes not supported");
 
 		emitter.printHeader(n, h, tr, false);
@@ -1587,7 +1580,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 ///////////////////////////////////////////////////
 			emitter.printExplicitTarget(n, target, context, w);
 
-			if (mi.flags().flags().isStatic() ||
+			if (mi.flags().isStatic() ||
 					(target instanceof X10Special_c &&
 							((X10Special_c)target).kind().equals(X10Special_c.SUPER))) {
 				w.write("::");
@@ -1783,7 +1776,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				n.print(target, sw, tr);
 				sw.popCurrentStream();
 			}
-			if (n.fieldInstance().flags().flags().isStatic())
+			if (n.fieldInstance().flags().isStatic())
 				w.write("::");
 			else
 				w.write("->");
@@ -1791,7 +1784,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		} else {
 			Receiver target = n.target();
 			// TODO: capture constant fields as variables
-			if (!n.flags().flags().isStatic()) {
+			if (!n.flags().isStatic()) {
 				X10CPPContext_c c = (X10CPPContext_c) tr.context();
 				if (target instanceof X10Special_c && ((X10Special_c)target).isSelf()) {
 					w.write((context.Self() == null)? "self":context.Self());
