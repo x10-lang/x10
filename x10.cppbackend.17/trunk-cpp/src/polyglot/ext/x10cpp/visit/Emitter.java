@@ -1907,7 +1907,11 @@ public class Emitter {
 	private void prettyPrint(Object o, Translator tr, ClassifiedStream w) {
 		if (o instanceof Node) {
 			sw.pushCurrentStream(w);
-			((Node) o).del().translate(sw, tr);
+			Node n = (Node) o;
+            X10CPPContext_c context = (X10CPPContext_c) tr.context();
+			((X10CPPTranslator) tr).setContext(n.del().enterScope(context));
+			n.del().translate(sw, tr);
+			((X10CPPTranslator) tr).setContext(context);
 			sw.popCurrentStream();
 		} else if (o instanceof Type) {
 			w.write(translateType((Type)o, true));
