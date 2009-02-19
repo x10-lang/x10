@@ -1,0 +1,29 @@
+// @author: Pradeep Varma
+//=============== IR Representation of HW.x10 ================
+
+// Namespace is an IR construct, to represent X10 classes and interfaces
+NAMESPACE HW EXTENDS x10$$$lang$$$Object
+
+// Method signature
+
+        @ static NULLABLE Exception NULLABLE VOID HW$$main ([]String);
+// VOID is a class in IR that is never instantiated.  Represents the X10 type VOID.
+
+// Namespace ends above.  Now Function Declarations:
+
+@ static NULLABLE Exception NULLABLE VOID HW$$main []String TEMP0
+            L# 0 @ FUNCSTART String TEMP10 := String "Hello, world!"
+            
+            // call to System.out.println
+            L# 20 NULLABLE Exception TEMP20 NULLABLE VOID TEMP25 := 
+                        CALL PrintStream$$println PrintStream x10$$$lang$$$System$$out, String TEMP10   
+                        // overloaded function names? Need to flatten out?
+                        
+            L# 30 BOOLEAN TEMP30 := BOOLEAN NULLCHECKPASS NULLABLE Exception TEMP20
+
+            L# 35 IF BOOLEAN TEMP30 GOTO L# 50             // If exception, goto L 50
+            L# 40 GOTO L# 60
+            L# 50 PRETURN NULLABLE Exception TEMP20 NULLABLE VOID NULL
+
+            L# 60 @ FUNCEND PRETURN NULLABLE Exception NULL NULLABLE VOID NULL
+                                 
