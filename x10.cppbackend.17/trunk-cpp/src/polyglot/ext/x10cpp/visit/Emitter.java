@@ -364,41 +364,17 @@ public class Emitter {
 	String translateType(Type type, boolean asRef) {
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		type = xts.expandMacros(type);
-/*
-		if (xts.isRail(type) || xts.isValRail(type) || type.isArray()) {
-		//if (type.isArray()) {
-			String base;
-			if (type.isArray()) {
-				base = translateType(type.toArray().base(), true);
-			} else {
-				Type T = X10TypeMixin.getParameterType((X10Type) type, 0);
-				if (T == null) {
-				    base="x10::lang::Object";
-				}
-				else {
-				    base=translateType(T, asRef);
-				}
-			}
-			String name = "x10::lang::Rail<"+base+(base.endsWith(">")?" ":"")+">";
-			if (!arraysAsRefs || !asRef)
-				return name;
-			return make_ref(name);
-		}
-*/
 		Context context = tr.context();
 		if (type.isVoid()) {
 			return "void";
 		}
-/*
-		if ((type.isPrimitive() || type.isNumeric() || type.isBoolean())&& !type.isClass() && !type.isVoid())
-			return "x10_"+type.translate(context);
-*/
 		// TODO: handle closures
 //		if (((X10TypeSystem) type.typeSystem()).isClosure(type))
 //			return translateType(((X10Type) type).toClosure().base(), asRef);
 		String name = null;
-		if (type.isClass()){
-			if (type.toClass().isAnonymous())  // FIXME: [IP] Is this ever true?
+		if (type.isClass()) {
+			X10ClassType ct = (X10ClassType) type.toClass();
+			if (ct.isAnonymous())  // FIXME: [IP] Is this ever true?
 				name = "__anonymous__"+getId();
 			else {
                 type = X10TypeMixin.baseType(type);
@@ -408,30 +384,30 @@ public class Emitter {
 					pat = getCppBoxRep(cd, tr);
 				else
 					pat = getCppRep(cd, tr);
-				if (pat != null){ 
-					List<Type> typeArguments = ((X10ClassType) type).typeArguments();
+				if (pat != null) { 
+					List<Type> typeArguments = ct.typeArguments();
 					Object[] o = new Object[typeArguments.size()+1];
 					int i = 0;
 					o[i++] = type;
 					for (Type a : typeArguments) {
 					    o[i++] = a;
 					}
-//					String pi = translate_mangled_NSFQN(pat);
-//					if (!pi.contains("#")){
-//					    X10CPPContext_c c = (X10CPPContext_c) tr.context();
-//					    c.pendingImplicitImports.add(pi);
-//					    c.pendingImplicitImports.add(translate_mangled_FQN(pat));
-//					}
 					// FIXME: Clean up this code!
 					return dumpRegex("NativeRep", o, tr, pat);
 				}
 				else {
-					if (type.toClass().isNested())
-						context = tr.typeSystem().createContext();
-					name = type.translate(context);
+					if (ct.isNested()) {
+						X10ClassDef cdef = (X10ClassDef) ct.container().toClass().def();
+						if (cdef.typeParameters().size() != 0) {
+							name = ct.container().translate(context)+"<void>::"+ct.name().toString();
+						} else {
+							context = tr.typeSystem().createContext();
+							name = type.translate(context);
+						}
+					} else
+						name = type.translate(context);
 				}
 			}
-			X10ClassType ct = (X10ClassType) type.toClass();
 			if (ct.typeArguments().size() != 0) {
 				name += "<";
 				int s = ct.typeArguments().size();
