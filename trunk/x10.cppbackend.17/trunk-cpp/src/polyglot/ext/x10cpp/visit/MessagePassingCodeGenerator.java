@@ -2004,23 +2004,23 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 		
 		X10FieldDef fd = fi.x10Def();		
-		if (target instanceof TypeNode) {
-		    assert (fi.flags().isStatic());
-		    TypeNode tn = (TypeNode) target;
-		    if (t instanceof ParameterType) {
-		        // Rewrite to the class declaring the field.
-		        target = tn.typeRef(fd.container());
-		        n = (Field_c) n.target(target);
-		    }
-		    if (t.isClass()) {
-		    	X10ClassType ct = (X10ClassType)t.toClass();
-				if (!ct.typeArguments().isEmpty()) {
-		    		List<Type> args = new TypedList(new ArrayList<Type>(), Type.class, false);
-		    		for (int i = 0; i < ct.typeArguments().size(); i++)
-		    			args.add(xts.Void());
-		    		target = tn.typeRef(Types.ref(ct.typeArguments(args)));
-		    	}
-		    }
+        if (target instanceof TypeNode) {
+            assert (fi.flags().isStatic());
+            TypeNode tn = (TypeNode) target;
+            if (t instanceof ParameterType) {
+                // Rewrite to the class declaring the field.
+                target = tn.typeRef(fd.container());
+                n = (Field_c) n.target(target);
+            }
+            if (t.isClass()) {
+                X10ClassType ct = (X10ClassType)t.toClass();
+                if (!ct.typeArguments().isEmpty()) {
+                    List<Type> args = new TypedList(new ArrayList<Type>(), Type.class, false);
+                    for (int i = 0; i < ct.typeArguments().size(); i++)
+                        args.add(xts.Void());
+                    target = tn.typeRef(Types.ref(ct.typeArguments(args)));
+                }
+            }
 		}
 
 		String pat = getCppImplForDef(fd);
@@ -2036,12 +2036,27 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!n.isTargetImplicit()) {
 			// explicit target.
 			if (target instanceof Expr) {
-				boolean assoc =
-					!(target instanceof New_c ||
-						target instanceof Binary_c);
-				sw.pushCurrentStream(w);
-				n.printSubExpr((Expr) target, assoc, sw, tr);
-				sw.popCurrentStream();
+                if (fi.flags().isStatic()) {
+                    w.write("(");
+                    sw.pushCurrentStream(w);
+                    n.printSubExpr((Expr) target, false, sw, tr);
+                    sw.popCurrentStream();
+                    w.write(",");
+                    w.write(emitter.translateType(target.type()));
+                    w.write("::");
+                    w.allowBreak(2, 3, "", 0);
+                    w.write(mangled_field_name(n.name().id().toString()));
+                    w.write(")");
+                    w.end();
+                    return;
+                } else {
+                    boolean assoc =
+                        !(target instanceof New_c ||
+                            target instanceof Binary_c);
+                    sw.pushCurrentStream(w);
+                    n.printSubExpr((Expr) target, assoc, sw, tr);
+                    sw.popCurrentStream();
+                }
 			}
 			else if (target instanceof TypeNode || target instanceof AmbReceiver) {
 				sw.pushCurrentStream(w);
