@@ -46,6 +46,9 @@
         </copy>
         <chmod perm="+x" file="${bin}/x10c++"/>
         <chmod perm="+x" file="${bin}/runx10"/>
+        <copy todir="${x10.dist.location}">
+            <fileset dir="${basedir}" includes="INSTALL-c++,README-c++,RELEASE.NOTES-c++" />
+        </copy>
     </target>
     <target name="jar" depends="build">
         <jar jarfile="${build}/${jar}">
