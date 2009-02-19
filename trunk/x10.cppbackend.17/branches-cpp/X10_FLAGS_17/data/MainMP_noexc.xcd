@@ -1,0 +1,23 @@
+// SYNOPSIS: #0.main(...)
+
+extern "C" {
+    int main(int ac, char **av) {
+        x10::array<x10::ref<String> >* args = x10::convert_args(ac, av);
+
+	x10::lang::general_finish_start();
+	if (__here__ == 0) {
+		#0::main(args);
+	} else{
+		#0::main_np0();
+	}
+	x10::lang::general_finish_end();
+        x10::free_args(args);
+        return x10::exitCode;
+    }
+}
+
+void #0::main_np0() {
+	; 
+}
+// the original app-main method
+
