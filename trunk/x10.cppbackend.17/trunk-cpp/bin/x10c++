@@ -11,7 +11,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 [ -z "$X10LANG" ] && export X10LANG="$TOP/../x10.runtime.17/src-cpp"
 X10="$(cd "$TOP/$X10REL" && pwd)"
 
-export CP_OVERRIDE="${TOP}${FILE_SEP}classes${PATH_SEP}"
+export CP_OVERRIDE="${TOP}${FILE_SEP}lib${FILE_SEP}x10cpp.jar${PATH_SEP}${TOP}${FILE_SEP}classes${PATH_SEP}"
 export DEXT="x10cpp"
 export MAIN="polyglot.ext.x10cpp.main.Main"
 
