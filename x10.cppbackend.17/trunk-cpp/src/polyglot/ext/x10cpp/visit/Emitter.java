@@ -122,72 +122,6 @@ public class Emitter {
         return "FMGL("+mangle_to_cpp(str)+")";
     }
 
-	void printStaticAsyncDeclarations(X10CPPContext_c context, CodeWriter w) {
-		printAsyncDeclarations("static ", "", context.closures.asyncs,
-				context.closures.asyncsParameters, context.closures.arrayCopyClosures,
-				context.closures.asyncContainers, w);
-	}
-
-	void printFriendAsyncDeclarations(X10CPPContext_c context, CodeWriter h) {
-		printAsyncDeclarations("friend ", translateType(getOuterClass(context))+"::",
-				context.closures.asyncs,
-				context.closures.asyncsParameters, context.closures.arrayCopyClosures,
-				context.closures.asyncContainers, h);
-	}
-
-	void printAsyncDeclarations(String prefix, String name_pfx, 
-			ArrayList asyncs, ArrayList asyncsParameters, 
-			HashMap arrayCopyClosures, HashMap asyncContainers, CodeWriter w) {
-		X10CPPContext_c c = (X10CPPContext_c) tr.context();
-
-		// Declare the switch functions here
-		w.write("public : " + prefix + VOID_PTR + " " + name_pfx + ARRAY_COPY_SWITCH + "(x10_async_handler_t h, " + VOID_PTR + " __arg);");
-		w.newline();
-		w.write("public : " + prefix + VOID + " " + name_pfx + ASYNC_SWITCH + "(x10_async_handler_t h, " + VOID_PTR + " arg, int niter);");
-		w.newline();
-
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-		for (int i = 0; i < asyncs.size(); i++) {
-			ClassType aClass = null;
-			if (arrayCopyClosures.containsKey(asyncs.get(i))) {
-				aClass = (ClassType) arrayCopyClosures.get(asyncs.get(i));
-			} else {
-				aClass = (ClassType) asyncContainers.get(asyncs.get(i));
-			}
-			if (! ts.typeEquals(aClass, c.currentClass()))
-				continue;
-			if (arrayCopyClosures.containsKey(asyncs.get(i))) {
-				w.write("public : " + prefix + VOID_PTR + " " + name_pfx + closure_name(ARRAY_COPY_PREFIX, i));
-			} else {
-				w.write("public : " + prefix + VOID + " " + name_pfx + closure_name(ASYNC_PREFIX, i));
-			}
-			w.write("(");
-			w.begin(0);
-			if (useStructsForAsyncArgs) {
-				w.write(VOID_PTR);
-			}
-			else {
-				ArrayList parameters = (ArrayList) asyncsParameters.get(i);
-				for (int j = 0; j < parameters.size(); j++) {
-					if (j > 0) {
-						w.write(",");
-						w.allowBreak(2, " ");
-					}
-					VarInstance var = (VarInstance) parameters.get(j);
-					Type t = var.type();
-					if (c.isSPMDVar(var)) {
-						assert (t.isClass());
-						X10ClassType ct = (X10ClassType) t;
-						assert (ct.typeArguments().size() == 1);
-						t = ct.typeArguments().get(0);
-					}
-					w.write(translateType(t, true));
-				}
-			}
-			w.write(");");
-			w.end(); w.newline();
-		}
-	}
 
 	/**
 	 * Same as n.printBlock(child, w, tr); but without the enterScope call.
@@ -198,56 +132,6 @@ public class Emitter {
 		w.end();
 	}
 
-	void printStaticClosureDeclarations(X10CPPContext_c context, CodeWriter h) {
-		printClosureDeclarations("static ", "",
-				context.closures.arrayInitializers, context.closures.arrayInitializerParameters, h);
-	}
-	void printClosureDeclarations(String prefix, String name_pfx, ArrayList closures, 
-			ArrayList closuresParameters, CodeWriter w) {
-		X10CPPContext_c c = (X10CPPContext_c) tr.context();
-		for (int i = 0; i < closures.size(); i++) {
-			Closure_c n = (Closure_c) closures.get(i);
-			Type r = n.returnType().type();
-			w.write("public : " + prefix + translateType(r, true) + " " + name_pfx + closure_name(INIT_PREFIX, i) + "(");
-			w.begin(0);
-			if (useStructsForArrayInitArgs) {
-				w.write(VOID_PTR+", ");
-			}
-			for (Iterator p = n.formals().iterator(); p.hasNext(); ) {
-				Formal f = (Formal) p.next();
-				w.write(translateType(f.type().type(), true));
-				if (p.hasNext()) {
-					w.write(",");
-					w.allowBreak(0, " ");
-				}
-			}
-			boolean hasFormals = !n.formals().isEmpty();
-			if (!useStructsForArrayInitArgs) {
-				if (hasFormals) {
-					w.write(",");
-					w.allowBreak(2, " ");
-				}
-				ArrayList parameters = (ArrayList) closuresParameters.get(i);
-				for (int j = 0; j < parameters.size(); j++) {
-					if (j > 0) {
-						w.write(",");
-						w.allowBreak(2, " ");
-					}
-					VarInstance var = (VarInstance) parameters.get(j);
-					Type t = var.type();
-					if (c.isSPMDVar(var)) {
-						assert (t.isClass());
-						X10ClassType ct = (X10ClassType) t;
-						assert (ct.typeArguments().size() == 1);
-						t = ct.typeArguments().get(0);
-					}
-					w.write(translateType(t, true));
-				}
-			}
-			w.write(");");
-			w.end(); w.newline();
-		}
-	}
 	/**
 	 * Translate the string representation of a fully-qualified type name.
 	 * TODO: rewrite to use QName instead
@@ -428,30 +312,6 @@ public class Emitter {
 			w.write(name);
 		}
 	}
-	void printAsyncsRegistration(ClassType currentClass, ArrayList asyncs, CodeWriter w) {
-		if (asyncs.size() == 0) return;
-		String className = translateType(currentClass);
-		w.newline();
-		w.write("func_t handlers[] = {");
-		w.newline(4); w.begin(0);
-		for (int i = 0; i < asyncs.size(); i++) {
-			if (i > 0) {
-				w.write(",");
-				w.newline();
-			}
-			w.write("(void_func_t) "+className+"::"+closure_name(ASYNC_PREFIX, i));
-		}
-		w.end(); w.newline();
-		w.write("};");
-		w.newline();
-	}
-
-
-
-	void printFriendClosureDeclarations(X10CPPContext_c context, CodeWriter h) {
-		printClosureDeclarations("friend ", translateType(getOuterClass(context))+"::",
-				context.closures.arrayInitializers, context.closures.arrayInitializerParameters, h);
-	}
 
 
 	void printTemplateSignature(List<Type> list, CodeWriter h) {
@@ -585,9 +445,6 @@ public class Emitter {
 	void printHeader(MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, boolean qualify) {
 		X10Flags flags = X10Flags.toX10Flags(n.flags().flags());
 
-		if (!qualify) {
-			printFlags(h, flags);
-		}
 		h.begin(0);
 
 		if (qualify) {
@@ -664,17 +521,6 @@ public class Emitter {
 		h.end();
 	}
 
-	void printFlags(CodeWriter h, Flags flags) {
-//		if (flags.isPublic() || flags.isProtected() || flags.isPrivate())
-//		h.write(flags.retain(Flags.PUBLIC.Private().Protected()).translate()+": ");
-//		else // Java's "package access" should be the same as public
-//		h.write(Flags.PUBLIC.translate()+": ");
-		// [IP] HACK: with inlining, everything is public
-		// [DC] I got tired of seeing the comment everywhere
-		//h.write("/"+"*"+flags.retain(Flags.PUBLIC.Private().Protected()).translate()+"*"+"/ ");
-		h.write("public: ");
-	}
-
 	private void printAllTemplateSignatures(ClassDef cd, CodeWriter h) {
 		if (cd.isNested()) {
 			assert (false) : ("Nested class alert!");
@@ -683,11 +529,11 @@ public class Emitter {
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
 
-	void printRTT(X10ClassType ct, CodeWriter h) {
+	void printRTT(X10ClassType ct, ClassifiedStream h) {
 		String x10name = ct.fullName().toString();
 		int num_parents = 1 + ct.interfaces().size();
 		//
-		h.write("public: class RTT : public x10aux::RuntimeType {"); h.newline(4); h.begin(0);
+		h.write("class RTT : public x10aux::RuntimeType {"); h.newline(4); h.begin(0);
 			h.write("public:"); h.newline();
 			h.write("static RTT * const it;"); h.newline();
 			h.write("virtual void init() {"); h.newline(4); h.begin(0);
@@ -698,11 +544,12 @@ public class Emitter {
 				}
 				h.write(");"); h.end(); h.newline();
 			h.write("}"); h.newline();
-			h.write("virtual std::string name() const {"); h.newline(4); h.begin(0);
+			h.write("virtual std::string name() const { ");
 				//TODO: type parameters
 				if (ct.typeArguments().isEmpty()) {
-					h.write("return \""+x10name+"\";"); h.end(); h.newline();
+					h.write("return \""+x10name+"\"; ");
 				} else {
+                    h.newline(4); h.begin(0);
 					h.write("std::stringstream ss;"); h.newline();
 					h.write("ss << \""+x10name+"[\"");
 					String comma = "";
@@ -713,13 +560,11 @@ public class Emitter {
 					h.write(" << \"]\";") ; h.newline();
 					h.write("return ss.str();"); h.end(); h.newline();
 				}
-			h.write("}"); h.newline();
-			h.end(); h.newline();
+			h.write("}"); h.end(); h.newline();
 		h.write("};"); h.newline();
-		h.newline();
-		h.write("public: virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
+		h.write("virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
 			h.write("return x10aux::getRTT<"+translateType(ct)+" >();"); h.end(); h.newline();
-		h.write("}"); h.newline();
+		h.write("}"); h.newline(); h.forceNewline();
 	}
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
 		if (ct.typeArguments().isEmpty()) {
@@ -795,27 +640,25 @@ public class Emitter {
 		h.end();
 	}
 
-	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
+	void printHeader(ConstructorDecl_c n, CodeWriter h, Translator tr,
+                     boolean define, String name, boolean semicolon) {
         Flags flags = n.flags().flags();
 
 		X10ClassType container = (X10ClassType) n.constructorDef().container().get();
-		if (qualify){
+		if (define){
 			printTemplateSignature((container).typeArguments(), h);
 		}
 
 		X10ConstructorDef def = (X10ConstructorDef) n.constructorDef();
 		printTemplateSignature(toTypeList(def.typeParameters()), h);
 
-		if (!qualify) {
-			printFlags(h, flags);
-		}
 		h.begin(0);
 		String typeName = translateType(container.def().asType());
-		if (qualify)
+        // not a virtual method, this function is called only when the static type is precise
+        h.write(make_ref(typeName) + " ");
+		if (define)
 			h.write(typeName + "::");
-		// Use just the name for the constructor identifier -- no template params, etc
-		h.write(mangled_non_method_name(container.def().asType().name().toString()));
-		h.write("(");
+		h.write(name + "(");
 		h.allowBreak(2, 2, "", 0);
 		h.begin(0);
 		for (Iterator i = n.formals().iterator(); i.hasNext(); ) {
@@ -829,7 +672,8 @@ public class Emitter {
 		h.end();
 		h.write(")");
 		h.end();
-		if (!qualify) {
+        // TODO: caller should emit this
+		if (semicolon) {
 			h.write(";");
 			h.newline();
 		}
@@ -837,9 +681,6 @@ public class Emitter {
 
 	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		Flags flags = n.flags().flags();
-		if (!qualify) {
-			printFlags(h, flags);
-		}
 		h.begin(0);
 		if (!qualify) {
 			if (flags.isStatic())
@@ -876,53 +717,6 @@ public class Emitter {
 		h.end();
 	}
 	
-	void createPackedArgumentsStruct(CodeWriter w, X10CPPContext_c c, int id, String prefix) {
-		createPackedArgumentsStruct(w, c, id, prefix, true);
-	}
-	void createPackedArgumentsStruct(CodeWriter w, X10CPPContext_c c, int id, String prefix, boolean saved_this_mechanism) {
-		w.write("struct "+args_name(prefix, id)+" : public x10aux::closure_args {");
-		w.newline(4); w.begin(0);
-		w.write(args_name(prefix, id));
-		w.write("(");
-		printArgumentList(w, c, false, saved_this_mechanism);
-		w.write(")");
-		w.allowBreak(0, " ");
-		// [IP] This used to output the normal C++ field initialization syntax,
-		//      but the commas played havoc with the macro invocation
-		w.write("{"); w.newline(4); w.begin(0);
-		for (int i = 0; i < c.variables.size(); i++) {
-			VarInstance var = (VarInstance)c.variables.get(i);
-			String name = var.name().toString();
-			if (saved_this_mechanism && name.equals(THIS))
-				name = SAVED_THIS;
-			else name=mangled_non_method_name(name);
-			if (i > 0) w.newline();
-			// FIXME: pack references properly
-			w.write("this->" + name + " = " + name + ";");
-		}
-		w.end(); w.newline();
-		w.write("}");
-		w.newline();
-		if (c.variables.size() > 0) {
-			// Generate a no-arg constructor as well
-			w.write(args_name(prefix, id));
-			w.write("() { }");
-			w.newline();
-		}
-		printDeclarationList(w, c, c.variables, saved_this_mechanism);
-		w.end(); w.newline();
-		w.write("};");
-	}
-
-	void enterAsync(X10CPPContext_c.Closures a, Node n) {
-		assert (n != null);
-//		assert (!a.asyncs.contains(n));
-		// if present, need to add again, because captured variables may change
-		a.asyncs.add(n);
-		a.asyncsParameters.add(null); // actual parameters will be defined later
-		a.nesting++;
-	}
-
 	void enterClosure(X10CPPContext_c.Closures a, Closure_c n) {
 		assert (n != null);
 //		assert (!a.arrayInitializers.contains(n));
@@ -934,455 +728,6 @@ public class Emitter {
 	void exitClosure(X10CPPContext_c.Closures a) {
 		a.nesting--;
 	}
-
-	public void processAsync(Stmt_c n, String placeVar, Stmt asyncStmt, 
-									X10CPPContext_c c, StreamWrapper sw) {
-		ClassifiedStream decl = sw.getNewStream(StreamWrapper.StreamClass.Closures);
-        ClassifiedStream body = sw.getNewStream(StreamWrapper.StreamClass.Closures, false);
-
-		boolean insideClosure = c.insideClosure;
-		c.setinsideClosure(true);
-
-		X10CPPContext_c.Closures a = c.closures;
-		enterAsync(a, n);
-		// Async argument struct declaration.
-		int id = async_id(a, n);
-
-		decl.write("struct "+args_name(ASYNC_PREFIX, id) + ";\n"); 
-		decl.newline();
-
-        sw.pushCurrentStream(body); // Now writing into the body
-
-		c.closures.asyncContainers.put(n, c.currentClass());
-		// Declare async function
-		String className = translateType(c.currentClass());
-		sw.write("async_closure(" + className + ",");
-		sw.allowBreak(0, " ");
-		sw.write(id + ",");
-		sw.allowBreak(0, " ");
-		if (useStructsForAsyncArgs)
-			sw.write("async_unpacked_body(");
-		n.print(asyncStmt, sw, tr);
-		sw.write(",");
-        sw.allowBreak(0, " ");
-		if (useStructsForAsyncArgs) {
-			unpackArgs(sw, c, c.variables, id, ASYNC_PREFIX);
-            sw.write(")");
-            sw.write(",");
-            sw.allowBreak(0, " ");
-            sw.write("(" + VOID_PTR + " args)");
-		}
-		else {
-            sw.write("(");
-			printArgumentList(sw, c);
-            sw.write(")");
-		}
-        sw.write(");");
-        sw.newline();
-
-		// Async argument struct definition.
-		createPackedArgumentsStruct(decl, c, id, ASYNC_PREFIX);
-		decl.newline(0);
-
-		body.forceNewline(0);
-
-		sw.popCurrentStream();
-
-		c.setinsideClosure(insideClosure);
-
-		if (query.hasAnnotation(n, "x10.lang.aggregate"))
-			sw.write("agg_");
-		sw.write("async_invocation(" + translateType(c.currentClass()) + ", " + id + ", ");
-		sw.write("(");
-		sw.write(placeVar);
-		sw.write(")");
-		//sw.write(")->x10__id");
-		sw.write(", ");
-		instantiateArguments(sw, c, n.position());
-		sw.write(");");
-		a.asyncsParameters.set(id, c.variables);
-
-		c.finalizeClosureInstance();
-		exitClosure(a);
-	}
-
-	/**
-	 * TODO: consolidate with
-	 * {@link #printAsyncArrayCopyInvocation(Call_c, X10CPPContext_c, Type, Expr,
-	 *                                       Expr, Expr, Expr, Expr, Expr, Expr,
-	 *                                       boolean)}.
-	 */
-	void printAsyncArrayCopyInvocation(Async_c n, X10CPPContext_c context, Type baseType,
-			Expr target, Expr src, Expr srcOffset, Expr dest, Expr destOffset, Expr len,
-            StreamWrapper sw)
-	{
-        assert (false);
-		String ARRAY_ACCESSOR = useIndicesForArrayCopy ? RAW_ADJUSTED : RAW_ARRAY;
-		sw.write("async_array_copy_invocation(");
-		sw.begin(0);
-		sw.write("(");
-		n.printBlock(src, sw, tr);
-		sw.write(")->"+ARRAY_ACCESSOR+"()");
-		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
-		sw.write("(");
-		n.printBlock(srcOffset, sw, tr);
-		sw.write(")");
-		sw.write(","); sw.allowBreak(0, " ");
-
-		// Represent dest and destOffset as a closure to be evaluated at the target
-		boolean inClosure = context.inClosure;
-		boolean insideClosure = context.insideClosure;
-		context.setinClosure(true);
-		context.setinsideClosure(true);
-
-		X10CPPContext_c.Closures a = context.closures;
-		enterAsync(a, n);
-		a.arrayCopyClosures.put(n, context.currentClass());
-
-        ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures);
-        sw.pushCurrentStream(inc);
-
-		// Array copy argument struct declaration.
-		int id = async_id(a, n);
-
-		// Declare array copy function
-		String className = translateType(context.currentClass());
-		sw.write("array_copy_closure_and_args_struct(" + className + ",");
-		sw.allowBreak(0, " ");
-		sw.write(id + ",");
-		sw.allowBreak(0, " ");
-		sw.write(VOID_PTR+",");
-		sw.allowBreak(0, " ");
-		if (useStructsForArrayCopyArgs)
-			sw.write("async_unpacked_body(");
-		sw.write("{ ");
-		sw.write("return (");
-		printBlock(n, dest, sw, tr);
-		sw.write(")->"+ARRAY_ACCESSOR+"()");
-		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
-		sw.write("(");
-		printBlock(n, destOffset, sw, tr);
-		sw.write("); },");
-		sw.allowBreak(0, " ");
-		if (useStructsForArrayCopyArgs) {
-			unpackArgs(sw, context, context.variables, id, ARRAY_COPY_PREFIX);
-			sw.write(")");
-			sw.write(",");
-			sw.allowBreak(0, " ");
-			sw.write("(" + VOID_PTR + " args)");
-		}
-		else {
-			sw.write("(");
-			printArgumentList(sw, context);
-			sw.write(")");
-		}
-		sw.write(",");
-		sw.allowBreak(0, " ");
-		// Array copy argument struct definition.
-		createPackedArgumentsStruct(sw, context, id, ARRAY_COPY_PREFIX);
-		sw.newline();
-		sw.write(");");
-		sw.newline(0);
-
-		sw.write("struct "+closure_name(CLOSURE_WRAPPER_PREFIX, id)+" : public x10lib::Closure {");
-		sw.newline(4); sw.begin(0);
-		sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id));
-		sw.write("(");
-		printArgumentList(sw, context);
-		sw.write(") :");
-		sw.allowBreak(0, " ");
-		sw.write("x10lib::Closure(sizeof(" + args_name(ARRAY_COPY_PREFIX, id) + "),");
-		sw.allowBreak(0, " ");
-        sw.write(id + "),");
-        sw.allowBreak(0, " ");
-        sw.write("args(");
-		printArgumentList(sw, context, true);  // print args with no types
-        sw.write(") { }");
-        sw.newline();
-		if (context.variables.size() > 0) {
-            sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id) + "() { }"); sw.newline();
-		}
-        sw.write(args_name(ARRAY_COPY_PREFIX, id) + " args;");
-        sw.end(); sw.newline();
-        sw.write("};");
-        sw.newline(0);
-
-        sw.forceNewline(0);
-
-		sw.popCurrentStream();
-
-		context.setinClosure(inClosure);
-		context.setinsideClosure(insideClosure);
-
-		sw.write("array_copy_closure_invocation(");
-		sw.begin(0);
-		sw.write(id + ","); sw.allowBreak(0, " ");
-		instantiateArguments(sw, context, n.position());
-		sw.end();
-		sw.write(")");
-		a.asyncsParameters.set(id, context.variables);
-
-		context.finalizeClosureInstance();
-		exitClosure(a);
-
-		sw.write(","); sw.allowBreak(0, " ");
-		sw.write("(");
-		n.printBlock(len, sw, tr);
-		sw.write(")*sizeof(" + translateType(baseType, true) + ")");
-		sw.write(","); sw.allowBreak(0, " ");
-		sw.write("(");
-		n.printBlock(target, sw, tr);
-		sw.write(")->x10__id");
-		// FIXME: handle clocks
-//		if (clock != null) {
-//		w.write(","); w.allowBreak(0, " ");
-//		n.printBlock(clock, w, tr);
-//		}
-		sw.end(); sw.write(");");
-	}
-
-	/**
-	 * TODO: consolidate with
-	 * {@link #printAsyncArrayCopyInvocation(Async_c, X10CPPContext_c, Type, Expr,
-	 *                                       Expr, Expr, Expr, Expr, Expr)}.
-	 */
-	void printAsyncArrayCopyInvocation(Call_c n, X10CPPContext_c context, Type baseType,
-			Expr target, Expr src, Expr srcOffset, Expr dest, Expr destOffset, Expr len,
-			Expr array, boolean shouldNotify, StreamWrapper sw)
-	{
-        assert (false);
-		String ARRAY_ACCESSOR = useIndicesForArrayCopy ? RAW_ADJUSTED : RAW_ARRAY;
-		assert (eagerArrayCopyNotification); // TODO
-		//w.write("x10lib::AsyncArrayCopyRawNotify("); // TODO
-		sw.write("async_array_copy_invocation(");
-		sw.begin(0);
-		sw.write("(");
-		n.printBlock(src, sw, tr);
-		sw.write(")->"+ARRAY_ACCESSOR+"()");
-		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
-		sw.write("(");
-		n.printBlock(srcOffset, sw, tr);
-		sw.write(")");
-		sw.write(","); sw.allowBreak(0, " ");
-
-		// Represent dest and destOffset as a closure to be evaluated at the target
-		boolean inClosure = context.inClosure;
-		boolean insideClosure = context.insideClosure;
-		context.setinClosure(true);
-		context.setinsideClosure(true);
-
-		X10CPPContext_c.Closures a = context.closures;
-		enterAsync(a, n);
-		a.arrayCopyClosures.put(n, context.currentClass());
-
-		ClassifiedStream inc = sw.getNewStream(StreamWrapper.StreamClass.Closures);
-		sw.pushCurrentStream(inc);
-
-		// Array copy argument struct declaration.
-		int id = async_id(a, n);
-
-		// Declare array copy function
-		String className = translateType(context.currentClass());
-		sw.write("array_copy_closure_and_args_struct(" + className + ",");
-		sw.allowBreak(0, " ");
-		sw.write(id + ",");
-		sw.allowBreak(0, " ");
-		sw.write(VOID_PTR+",");
-		sw.allowBreak(0, " ");
-		if (useStructsForArrayCopyArgs)
-			sw.write("async_unpacked_body(");
-		sw.write("{ ");
-		String destoff_id = getId();
-		sw.write(translateType(destOffset.type(), true)+" "+destoff_id+" = ");
-		printBlock(n, destOffset, sw, tr);
-		sw.write(";"); sw.allowBreak(0, " ");
-		if (eagerArrayCopyNotification && shouldNotify) {
-			sw.write("(");
-			n.printBlock(array, sw, tr);
-			sw.write(")->"+POST_COPY_RUN+"("+destoff_id+");");
-			sw.allowBreak(0, " ");
-		}
-		sw.write("return (");
-		printBlock(n, dest, sw, tr);
-		sw.write(")->"+ARRAY_ACCESSOR+"()");
-		sw.allowBreak(0, " "); sw.write("+"); sw.allowBreak(0, " ");
-		sw.write("(");
-		sw.write(destoff_id);
-		sw.write("); },");
-		sw.allowBreak(0, " ");
-		if (useStructsForArrayCopyArgs) {
-			unpackArgs(sw, context, context.variables, id, ARRAY_COPY_PREFIX);
-			sw.write(")");
-			sw.write(",");
-			sw.allowBreak(0, " ");
-			sw.write("(" + VOID_PTR + " args)");
-		}
-		else {
-			sw.write("(");
-			printArgumentList(sw, context);
-			sw.write(")");
-		}
-		sw.write(",");
-		sw.allowBreak(0, " ");
-		// Array copy argument struct definition.
-		createPackedArgumentsStruct(sw, context, id, ARRAY_COPY_PREFIX);
-		sw.newline();
-		sw.write(");");
-		sw.newline(0);
-
-		sw.write("struct "+closure_name(CLOSURE_WRAPPER_PREFIX, id)+" : public x10lib::Closure {");
-		sw.newline(4); sw.begin(0);
-		sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id));
-		sw.write("(");
-		printArgumentList(sw, context);
-		sw.write(") :");
-		sw.allowBreak(0, " ");
-		sw.write("x10lib::Closure(sizeof(" + args_name(ARRAY_COPY_PREFIX, id) + "),");
-		sw.allowBreak(0, " ");
-		sw.write(id + "),");
-		sw.allowBreak(0, " ");
-		sw.write("args(");
-		printArgumentList(sw, context, true);  // print args with no types
-		sw.write(") { }");
-		sw.newline();
-		if (context.variables.size() > 0) {
-			sw.write(closure_name(CLOSURE_WRAPPER_PREFIX, id) + "() { }"); sw.newline();
-		}
-		sw.write(args_name(ARRAY_COPY_PREFIX, id) + " args;");
-		sw.end(); sw.newline();
-		sw.write("};");
-		sw.newline(0);
-
-		sw.forceNewline(0);
-
-        sw.popCurrentStream();
-
-		context.setinClosure(inClosure);
-		context.setinsideClosure(insideClosure);
-
-		sw.write("array_copy_closure_invocation(");
-		sw.begin(0);
-		sw.write(id + ","); sw.allowBreak(0, " ");
-		instantiateArguments(sw, context, n.position());
-		sw.end();
-		sw.write(")");
-		a.asyncsParameters.set(id, context.variables);
-
-		context.finalizeClosureInstance();
-		exitClosure(a);
-
-		sw.write(","); sw.allowBreak(0, " ");
-		sw.write("(");
-		n.printBlock(len, sw, tr);
-		sw.write(")*sizeof(" + translateType(baseType, true) + ")");
-		sw.write(","); sw.allowBreak(0, " ");
-		sw.write("(");
-		n.printBlock(target, sw, tr);
-		sw.write(")->x10__id");
-		// FIXME: handle clocks
-//		if (clock != null) {
-//		w.write(","); w.allowBreak(0, " ");
-//		n.printBlock(clock, w, tr);
-//		}
-
-		// TODO
-//		if (!eagerArrayCopyNotification && shouldNotify) {
-//		w.write(","); w.allowBreak(0, " ");
-//		// Represent argument 4 as a closure to be evaluated at the target
-//		}
-
-		sw.end(); sw.write(");");
-	}
-
-    /**
-     * TODO: emit to separate file to make work on Windows
-     */
-    void printSwitchMethod(ClassType currentClass, String methodName,
-            String retType, String prefix, ArrayList asyncs,
-            ArrayList asyncsParameters, HashMap include,
-            String extraArgs,
-            String preCode, String postCode, HashMap classToAsyncs, ClassifiedStream w)
-    {
-        String className = translateType(currentClass);
-        w.newline(0);
-
-        printTemplateSignature(((X10ClassType)currentClass).typeArguments(), w);
-
-        String arg = "arg";
-        w.write(retType+" "+className+"::"+methodName+"(x10_async_handler_t h, "+VOID_PTR+" "+arg);
-        if (extraArgs != null)
-            w.write(", " + extraArgs);
-        w.write(") {");
-        w.newline(4); w.begin(0);
-        w.write("switch (h) {"); w.newline();
-
-        ArrayList relevant_asyncs = new ArrayList();
-
-        X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
-        for (int i = 0; i < asyncs.size(); i++) {
-            if (!include.containsKey(asyncs.get(i)))
-                continue;
-            ClassType container = (ClassType) include.get(asyncs.get(i));
-            if (!ts.typeEquals(container, currentClass))
-                continue;
-            className = translateType(container);
-
-            relevant_asyncs.add(new Integer(i));
-
-            w.write("case " + i + ":");
-            w.newline(4); w.begin(0);
-            w.write("{"); w.newline();
-            w.begin(0);
-            String args_struct = args_name(prefix, i);
-            w.write(args_struct+"* _arg = ("+args_struct+"*) "+arg+";"); w.newline();
-            if (preCode != null) {
-                w.write(preCode);
-                w.newline();
-                if (postCode != null)
-                    w.begin(0);
-            }
-            if (!retType.equals(VOID))
-                w.write("return ");
-            w.write(className + "::" + closure_name(prefix, i) + "(");
-            ArrayList parameters = (ArrayList) asyncsParameters.get(i);
-            // TODO: unpackArgs(w, c, parameters, i, prefix);
-            for (int j = 0; j < parameters.size(); j++) {
-                VarInstance p = (VarInstance) parameters.get(j);
-                String name = p.name().toString();
-                if (name.equals(THIS))
-                    name = SAVED_THIS;
-                else
-                    name = mangled_non_method_name(name); 
-                // FIXME: unpack refs
-                w.write(((j>0) ? ", " : "") + "_arg->" + name);
-            }
-            w.write(");");
-            w.end(); w.newline();
-            if (postCode != null) {
-                w.write(postCode);
-                if (preCode != null)
-                    w.end();
-                w.newline();
-            }
-            w.write("}"); w.newline();
-            if (retType.equals(VOID))
-                w.write("break;");
-            w.end(); w.newline();
-        }
-
-        if (relevant_asyncs.size() > 0) {
-            int[] async_ids = new int[relevant_asyncs.size()];
-            for (int i = 0; i < async_ids.length; i++)
-                async_ids[i] = ((Integer) relevant_asyncs.get(i)).intValue();
-            classToAsyncs.put(currentClass, async_ids);
-        }
-
-        w.write("}"); w.newline(0);
-        if (!retType.equals(VOID))
-            w.write("return (" + retType + ")0;");
-        w.end(); w.newline();
-        w.write("}"); w.newline(0); w.forceNewline(0);
-    }
 
     void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, CodeWriter w) {
 		if (target instanceof X10Special_c &&
@@ -1443,100 +788,6 @@ public class Emitter {
 		}
 	}
 
-	void unpackArgs(CodeWriter w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
-		for (int i = 0; i < vars.size(); i++) {
-			VarInstance var = (VarInstance)vars.get(i);
-			Type t = var.type();
-			if (c.isSPMDVar(var)) {
-				assert (t.isClass());
-				X10ClassType ct = (X10ClassType) t;
-				assert (ct.typeArguments().size() == 1);
-				t = ct.typeArguments().get(0);
-			}
-			String type = translateType(t, true);
-			String name = var.name().toString();
-			if (name.equals(THIS))
-				name = SAVED_THIS;
-			else
-				name = mangled_non_method_name(name);
-			// FIXME: unpack references properly
-			w.write(type + " " + name + " = " +
-					"((" + args_name(prefix, id)+"*) args)->" + name
-					+ ";");
-			w.newline();
-		}
-	}
-	
-	void unpackClosureArgs(CodeWriter w, X10CPPContext_c c, ArrayList vars, int id, String prefix) {
-		for (int i = 0; i < vars.size(); i++) {
-			VarInstance var = (VarInstance)vars.get(i);
-			Type t = var.type();
-			if (c.isSPMDVar(var)) {
-				assert (t.isClass());
-				X10ClassType ct = (X10ClassType) t;
-				assert (ct.typeArguments().size() == 1);
-				t = ct.typeArguments().get(0);
-			}
-			String type = translateType(t, true);
-			String name = var.name().toString();
-			name = mangled_non_method_name(name);
-			// FIXME: unpack references properly
-			w.write(type + " " + name + " = " +
-					"((" + args_name(prefix, id)+"*) args)->" + name
-					+ ";");
-			w.newline();
-		}
-	}
-	
-	void instantiateArguments(CodeWriter w, X10CPPContext_c c, Position p) {
-		instantiateArguments(w, c, p, true);
-	}
-	
-	void instantiateArguments(CodeWriter w, X10CPPContext_c c, Position p, boolean saved_this_mechanism) {
-		w.write("(");
-		w.begin(0);
-		for (int i = 0; i < c.variables.size(); i++) {
-			if (i > 0) {
-				w.write(",");
-				w.allowBreak(2, " ");
-			}
-			VarInstance v = (VarInstance)c.variables.get(i);
-			String name = v.name().toString();
-			if (saved_this_mechanism && name.equals(THIS)) {
-				if (c.inlining || c.insideClosure)
-					name = SAVED_THIS;
-			}
-			else
-				name = mangled_non_method_name(name);
-			if (v.type().isPrimitive()) {
-				w.write(name);
-			} else if (((X10TypeSystem) tr.typeSystem()).isValueType(v.type())) {
-				// FIXME: allocate a buffer and pack things properly (translate references, etc)
-/*
-				if (!c.isUnbroadcastable(v))
-					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-							"Warning: attempt to serialize non-primitive value "+name+" -- IGNORING", p);
-*/
-				w.write("/"+"*"+" Serialization of value "+name+" should go here "+"*"+"/");
-				w.write(name);
-				// FIXME: [IP] cannot invoke addUnbroadcastable from non-main methods
-				//c.addUnbroadcastable(v);
-			} else {
-				// FIXME: translate references
-/*
-				if (!c.isUnbroadcastable(v))
-					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING,
-							"Warning: attempt to serialize reference "+name+" -- IGNORING", p);
-*/
-				w.write("/"+"*"+" Serialization of reference "+name+" should go here "+"*"+"/");
-				w.write(name);
-				// FIXME: [IP] cannot invoke addUnbroadcastable from non-main methods
-				//c.addUnbroadcastable(v);
-			}
-		}
-		w.end();
-		w.write(")");
-	}
 	
 	void generateSerializationMethods(ClassType type, StreamWrapper sw) {
 		// FIXME: Has a lot of string constants. Refactor them
@@ -1568,20 +819,12 @@ public class Emitter {
             w.newline(); w.forceNewline();
         }
 
-        // SERIALIZATION_MARKER constructor
-		h.write("public: explicit "+mangled_non_method_name(type.name().toString())+"("+SERIALIZATION_MARKER+" m) ");
-		Type parent = type.superClass();
-		if (parent !=null && ts.isValueType(parent))
-			h.write(": "+ translateType(parent)+"(m)");
-		h.write("{ (void) m; }");
-		h.newline(); h.forceNewline();
-
 		// _serialize()
 		if (!type.flags().isAbstract()) {
             if (type.flags().isFinal()) {
                 h.write("public: ");
                 h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
-                h.write("x10aux::ref<"+klass+" > this_,"); h.newline();
+                h.write(make_ref(klass)+" this_,"); h.newline();
                 h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
                 h.write("x10aux::addr_map& m) "); h.end(); h.newline();
                 h.write("{ this_->_serialize_body(buf, m); }"); h.newline();
@@ -1613,6 +856,7 @@ public class Emitter {
 		w.write("void "+klass+"::"+SERIALIZE_BODY_METHOD+
                     "("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
 		w.newline(4); w.begin(0);
+		Type parent = type.superClass();
 		if (parent != null && ts.isValueType(parent)) {
 			w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf, m);");
 			w.newline();
@@ -1633,10 +877,10 @@ public class Emitter {
 		if (!type.flags().isAbstract()) {
             // _deserialize()
             h.write("public: template<class __T> static ");
-            h.write("x10aux::ref<__T> "+DESERIALIZER_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+            h.write(make_ref("__T")+" "+DESERIALIZER_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
             h.newline(4) ; h.begin(0);
-            h.write("x10aux::ref<"+klass+" > this_ = new (x10aux::alloc<"+klass+" >()) "+
-                        klass+"("+SERIALIZATION_MARKER+"());"); h.newline();
+            h.write(make_ref(klass)+" this_ = "+
+                        "new (x10aux::alloc<"+klass+" >()) "+klass+"();"); h.newline();
             h.write("this_->"+DESERIALIZE_BODY_METHOD+"(buf);"); h.newline();
             h.write("return this_;");
             h.end(); h.newline();
@@ -1647,7 +891,7 @@ public class Emitter {
             if (type.flags().isFinal()) {
                 // _deserialize()
                 h.write("public: template<class __T> static ");
-                h.write("x10aux::ref<__T> "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
+                h.write(make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
                 h.newline(4) ; h.begin(0);
                 h.write("return "+DESERIALIZER_METHOD+"<__T>(buf);");
                 h.end(); h.newline();
