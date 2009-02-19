@@ -73,47 +73,48 @@ import x10c.util.StreamWrapper;
 
 public class Emitter {
 
-	private final Translator tr;
-	private ASTQuery query;
-	public Emitter(Translator tr) {
-		this.tr = tr;
-		query = new ASTQuery(tr);
-	}
-	private static final String[] CPP_KEYWORDS = { // Some are also X10 keywords
-		"asm", "auto", "bool", "break", "case", "catch", "char", "class",
-		"const", "const_cast", "continue", "default", "delete", "do", "double",
-		"dynamic_cast", "else", "enum", "explicit", "export", "extern",
-		"false", "float", "for", "friend", "goto", "if", "inline", "int",
-		"long", "mutable", "namespace", "new", "operator", "private",
-		"protected", "public", "register", "reinterpret_cast", "return",
-		"restrict", // Yes, stupid xlC has a "restrict" keyword -- who knew?
-		"short", "signed", "sizeof", "static", "static_cast", "struct",
-		"switch", "template", "this", "throw", "true", "try", "typedef",
-		"typeid", "typename", "union", "unsigned", "using", "virtual", "void",
-		"volatile", "wchar_t", "while"
-	};
-	private static boolean isCPPKeyword(String name) {
-		for (int i = 0; i < CPP_KEYWORDS.length; i++) {
-			if (CPP_KEYWORDS[i].equals(name))
-				return true;
-		}
-		return false;
-	}
-	private static String mangle_to_cpp(String str) {
-		if (isCPPKeyword(str))
-			str = "_kwd__" + str;
-		return str.replace("$", "__");
-	}
-	public static String mangled_method_name(String str) {
-		return mangle_to_cpp(str);
-	}
-	public static String mangled_non_method_name(String str) {
-		return mangle_to_cpp(str);
-	}
-	public static String mangled_field_name(String str) {
-		//return "__"+mangle_to_cpp(str);
-		return "x10__"+mangle_to_cpp(str);
-	}
+    private final Translator tr;
+    private ASTQuery query;
+    public Emitter(Translator tr) {
+        this.tr = tr;
+        query = new ASTQuery(tr);
+    }
+    private static final String[] CPP_KEYWORDS = { // Some are also X10 keywords
+        "asm", "auto", "bool", "break", "case", "catch", "char", "class",
+        "const", "const_cast", "continue", "default", "delete", "do", "double",
+        "dynamic_cast", "else", "enum", "explicit", "export", "extern",
+        "false", "float", "for", "friend", "goto", "if", "inline", "int",
+        "long", "mutable", "namespace", "new", "operator", "private",
+        "protected", "public", "register", "reinterpret_cast", "return",
+        "restrict", // Yes, stupid xlC has a "restrict" keyword -- who knew?
+        "short", "signed", "sizeof", "static", "static_cast", "struct",
+        "switch", "template", "this", "throw", "true", "try", "typedef",
+        "typeid", "typename", "union", "unsigned", "using", "virtual", "void",
+        "volatile", "wchar_t", "while"
+    };
+    private static boolean isCPPKeyword(String name) {
+        for (int i = 0; i < CPP_KEYWORDS.length; i++) {
+            if (CPP_KEYWORDS[i].equals(name))
+                return true;
+        }
+        return false;
+    }
+    private static String mangle_to_cpp(String str) {
+        if (isCPPKeyword(str))
+            str = "_kwd__" + str;
+        return str.replace("$", "__");
+    }
+    public static String mangled_method_name(String str) {
+        return mangle_to_cpp(str);
+    }
+    public static String mangled_non_method_name(String str) {
+        return mangle_to_cpp(str);
+    }
+    public static String mangled_field_name(String str) {
+        //return "__"+mangle_to_cpp(str);
+        //return "x10__"+mangle_to_cpp(str);
+        return "FMGL("+mangle_to_cpp(str)+")";
+    }
 
 	void printStaticAsyncDeclarations(X10CPPContext_c context, CodeWriter w) {
 		printAsyncDeclarations("static ", "", context.closures.asyncs,
