@@ -153,7 +153,7 @@ public class SharedVarsMethods{
 	}	
 	static void populateKnownSafeMethodsAndFields(Translator tr){
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
 		if (knownSafeMethods.size() == 0 && knownSafeFields.size() == 0) {
 			try {
 //				Type[] II = { ts.Int(), ts.Int() };
@@ -168,19 +168,19 @@ public class SharedVarsMethods{
 //				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(JJ), context.currentClass()));
 //				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(FF), context.currentClass()));
 //				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(DD), context.currentClass()));
-				ReferenceType x_l_place = ts.place();
+				Type x_l_place = ts.Place();
 				knownSafeFields.add(ts.findField(x_l_place, "MAX_PLACES", context.currentClass()));
-				ReferenceType x_l_region = ts.region();
-				knownSafeMethods.add(ts.findMethod(x_l_region, "toDistribution", Collections.EMPTY_LIST, context.currentClass()));
+				Type x_l_region = ts.Region();
+				knownSafeMethods.add(ts.findMethod(x_l_region, ts.MethodMatcher(x_l_region, "toDistribution", Collections.EMPTY_LIST), context.currentClassDef()));
 				knownSafeFields.add(ts.findField(x_l_region, "factory", context.currentClass()));
-				ReferenceType x_l_dist = ts.distribution();
+				Type x_l_dist = ts.Dist();
 				Type[] X_L_P = { x_l_place };
-				knownSafeMethods.add(ts.findMethod(x_l_dist, "restriction", Arrays.asList(X_L_P), context.currentClass()));
+				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist, "restriction", Arrays.asList(X_L_P)), context.currentClassDef()));
 				knownSafeFields.add(ts.findField(x_l_dist, "factory", context.currentClass()));
 				knownSafeFields.add(ts.findField(x_l_dist, "UNIQUE", context.currentClass()));
 				ReferenceType x_l_dist_factory = (ReferenceType) ts.forName(QName.make("x10.lang.dist.factory"));
 				Type[] X_L_R = { x_l_region };
-				knownSafeMethods.add(ts.findMethod(x_l_dist_factory, "block", Arrays.asList(X_L_R), context.currentClass()));
+				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist_factory, "block", Arrays.asList(X_L_R)), context.currentClassDef()));
 			} catch (SemanticException e) { assert (false); }
 		}
 	}	
@@ -190,14 +190,14 @@ public class SharedVarsMethods{
 
 	static void populateIninableMethodsIfEmpty(Translator tr) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		X10TypeSystem_c ts = (X10TypeSystem_c) tr.typeSystem();
 		if (knownInlinableMethods.size() == 0) {
 			try {
 				ReferenceType x_l_Runtime = (ReferenceType) ts.forName(QName.make("x10.lang.Runtime"));
 				Type[] A_I_A_I_I = { ts.array(), ts.Int(), ts.array(), ts.Int(), ts.Int() };
-				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_I_A_I_I), context.currentClass()));
+				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "arrayCopy", Arrays.asList(A_I_A_I_I)), context.currentClassDef()));
 				Type[] A_A = { ts.array(), ts.array() };
-				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_A), context.currentClass()));
+				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, "arrayCopy", Arrays.asList(A_A)), context.currentClassDef()));
 				// TODO
 //				ReferenceType x_l_region = ts.region();
 //				Type[] A_R_A_R = { array, x_l_region, array, x_l_region };
