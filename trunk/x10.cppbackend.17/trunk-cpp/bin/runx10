@@ -7,7 +7,7 @@ export MP_MSG_API=lapi
 export MP_TASK_AFFINITY=MCM 
 export MP_EUIDEVICE=sn_all 
 export MP_ADAPTER_USE=shared # dedicated
-export MP_EUILIB=ip # us 
+export MP_EUILIB=us 
 export MP_CPU_USE=unique 
 export MP_CSS_INTERRUPT=no 
 export MP_USE_BULK_XFER=yes 
@@ -17,6 +17,7 @@ export MP_POLLING_INTERVAL=2000000000
 export MP_SHARED_MEMORY=yes 
 export MP_SINGLE_THREAD=yes 
 export MP_WAIT_MODE=poll 
+export LAPI_USE_SHMEM=yes
 END
 
 MP_CHILD=0 MP_PROCS=1 PGASRT_HOME_NODE=127.0.0.1 PGAS_NTHREADS=1 UPC_NTHREADS=1 "$@"
