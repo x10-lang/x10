@@ -3146,6 +3146,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        visit((Unary_c)n);
 	        return;
 	    }
+	    assert (false) : ("User-defined unary operators should have been desugared earier");
 
 	    // FIXME: move this to the Desugarer
 	    Name methodName = X10Unary_c.unaryMethodName(op);
@@ -3209,6 +3210,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        visit((Binary_c)n);
 	        return;
 	    }
+	    assert (false) : ("User-defined binary operators should have been desugared earier");
 
 	    // FIXME: move this to the Desugarer
 	    boolean inv = n.invert();
@@ -3277,173 +3279,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 	public void visit(SettableAssign_c n) {
-	    // Code ported from X10PrettyPrinter.java (x10.compiler.p3) and
-	    // ported to suit the needs. [Krishna]
-	    // FIXME: [IP] This method is crap.  Rewrite from scratch.
-	    SettableAssign_c a = n;
-	    Expr array = a.array();
-	    List<Expr> index = a.index();
-	    Expr r = n.right();
-
-	    TypeSystem ts = tr.typeSystem();
-	    Type t = n.leftType();
-
-	    boolean nativeop = false;
-	    if (t.isNumeric() || t.isBoolean() || t.isSubtype(ts.String())) {
-	        nativeop = true;
-	    }
-
-	    if (n.operator() == Assign.ASSIGN) {
-	        // FIXME: Desugar this into a real call
-	        // Look for the appropriate set method on the array and emit native code if there is an
-	        // @Native annotation on it.
-	        X10MethodInstance mi = (X10MethodInstance) n.methodInstance();
-	        NodeFactory nf = tr.nodeFactory();
-	        X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	        List<Expr> args = new ArrayList<Expr>(index.size()+1);
-	        int counter = 0;
-	        Type fType = mi.formalTypes().get(counter);
-	        if (!xts.typeDeepBaseEquals(fType, r.type())) {
-	            Position pos = r.position();
-	            r = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), r).type(fType);
-	        }
-	        args.add(r);
-	        counter++;
-	        for (Expr e : index) {
-	            fType = mi.formalTypes().get(counter);
-	            if (!xts.typeDeepBaseEquals(fType, e.type())) {
-	                Position pos = e.position();
-	                e = nf.Cast(pos, nf.CanonicalTypeNode(pos, fType), e).type(fType);
-	            }
-	            args.add(e);
-	            counter++;
-	        }
-
-	        String pat = getCppImplForDef(mi.x10Def());
-	        if (pat != null) {
-	            emitNativeAnnotation(pat, mi.typeParameters(), array, args);
-	            return;
-	        }
-
-	        // otherwise emit the hardwired code.
-	        Type ret_type = emitter.findRootMethodReturnType(mi.x10Def(), null, mi);
-	        boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type);
-	        if (needsCast) {
-	            sw.write("static_cast<");
-	            emitter.printType(mi.returnType(), sw);
-	            sw.write(" >(");
-	        }
-	        sw.write("(");
-	        sw.begin(0);
-	        tr.print(n, array, sw);
-	        sw.end();
-	        sw.write(")->set(");
-	        sw.begin(0);
-	        counter = 0;
-	        fType = mi.formalTypes().get(counter);
-	        assert (xts.typeDeepBaseEquals(fType, r.type())) : ("Casts should have been inserted");
-	        tr.print(n, r, sw);
-	        counter++;
-	        for (Expr e: index) {
-	            fType = mi.formalTypes().get(counter);
-	            assert (xts.typeDeepBaseEquals(fType, e.type())) : ("Casts should have been inserted");
-	            sw.write(",");
-	            sw.allowBreak(0, " ");
-	            n.printSubExpr(e, false, sw, tr);
-	            counter++;
-	        }
-	        sw.end();
-	        sw.write(")");
-	        if (needsCast) {
-	            sw.write(")");
-	        }
-	    }
-	    else {
-	        // FIXME: Desugar this into a real call or a closure
-	        // R target = x; T right = e;
-	        // target.f = target.f.add(right);
-	        // new Object() { T eval(R target, T right) { return (target.f = target.f.add(right)); } }.eval(x, e)
-	        Binary.Operator op = SettableAssign_c.binaryOp(n.operator());
-	        Name methodName = X10Binary_c.binaryMethodName(op);
-	        sw.write("{ ");
-	        String retVar = getId();
-	        if (! n.type().isVoid()) {
-	            emitter.printType(n.type(), sw);
-	            sw.write(" " + retVar + ";");
-	            sw.newline();
-	        }
-
-	        String target = getId();
-	        emitter.printType(array.type(), sw);
-	        sw.write(" " + target + " = ");
-	        tr.print(n, array, sw);
-	        sw.write(";");
-	        sw.newline();
-
-	        String eArr [] = new String[index.size()];
-	        {
-	            int i = 0;
-	            for (Expr e : index) {
-	                emitter.printType(e.type(), sw);
-	                sw.write(" ");
-	                eArr[i] = getId();
-	                sw.write(eArr[i]);
-	                sw.write(" = ");
-	                n.printSubExpr(e, false, sw, tr);
-	                sw.write(";"); sw.newline();
-	                i++;
-	            }
-	        }
-	        emitter.printType(r.type(), sw);
-	        String right = getId();
-	        sw.write(" " + right + " = ");
-	        tr.print(n, r, sw);
-	        sw.write(";"); sw.newline();
-
-	        if (! n.type().isVoid()) {
-	            sw.write(retVar + " = " );
-	        }
-	        sw.write(target+"->set(");
-	        sw.write(target+"->apply(");
-	        {
-	            int i = 0;
-	            for (Expr e : index) {
-	                if (i != 0)
-	                    sw.write(", ");
-	                sw.write(eArr[i]);
-	                i++;
-	            }
-	        }
-	        sw.write(")");
-	        if (nativeop) {
-	            sw.write(" ");
-	            sw.write(op.toString());
-	            sw.write(right);
-	        }
-	        else {
-	            sw.write(".");
-	            sw.write(methodName.toString());
-	            sw.write("(" + right +")");
-	        }
-	        if (index.size() > 0)
-	            sw.write(", ");
-	        {
-	            int i = 0;
-	            for (Expr e : index) {
-	                if (i != 0)
-	                    sw.write(", ");
-	                sw.write(eArr[i]);
-	                i++;
-	            }
-	        }
-	        sw.write(");");
-	        sw.newline();
-	        if (! n.type().isVoid()) {
-	            sw.write(retVar + ";" );
-		    sw.newline();
-	        }
-	        sw.write("}");
-	    }
+	    assert (false) : ("Function assign should have been desugared earlier");
 	}
 
 
