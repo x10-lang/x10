@@ -1323,6 +1323,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		boolean hasInits = false;
 		X10ConstructorInstance ci = (X10ConstructorInstance) dec.constructorDef().asInstance();
 		if (dec.body() != null) {
+			assert (!dec.flags().flags().isStatic());
+			TypeSystem ts = tr.typeSystem();
+			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
+			        Types.ref(container), Name.make(THIS)).asInstance();
+			context.addVariable(ti);
 			// Extract initializers from the body
 			Block_c body = (Block_c) dec.body();
 			List<Stmt> statements = body.statements();
@@ -1364,11 +1369,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 					    newStatements.add(n);
 				}
 			}
-			assert (!dec.flags().flags().isStatic());
-			TypeSystem ts = tr.typeSystem();
-			VarInstance ti = ts.localDef(Position.COMPILER_GENERATED, Flags.FINAL,
-			        Types.ref(container), Name.make(THIS)).asInstance();
-			context.addVariable(ti);
 			if (hasInits)
 				sw.newline();
 			else
