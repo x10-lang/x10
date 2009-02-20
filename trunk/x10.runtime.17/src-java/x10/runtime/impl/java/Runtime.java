@@ -23,6 +23,10 @@ public abstract class Runtime implements Runnable {
 			for (int i = libs.length-1; i>=0; i--) System.loadLibrary(libs[i]);
 		}
 
+		java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
+		    public void run() { System.out.flush(); }
+		});
+
 		// start and join main x10 thread in place 0
 		Thread thread = new Thread(0, this, "thread-main");
 		thread.start();
