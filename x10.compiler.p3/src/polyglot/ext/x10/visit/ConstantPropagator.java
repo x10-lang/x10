@@ -3,13 +3,16 @@ package polyglot.ext.x10.visit;
 import java.util.ArrayList;
 import java.util.List;
 
+import polyglot.ast.Block;
 import polyglot.ast.Conditional;
+import polyglot.ast.Empty;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FloatLit;
 import polyglot.ast.If;
 import polyglot.ast.IntLit;
 import polyglot.ast.Lit;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
@@ -17,6 +20,7 @@ import polyglot.ext.x10.ast.X10Cast_c;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.frontend.Job;
+import polyglot.types.LocalDef;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -26,6 +30,8 @@ import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XPromise;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
@@ -37,14 +43,14 @@ import x10.constraint.XTerms;
  * TODO: Propagate through rails A(0) = v; ... A(0) --> v. TODO: Dead code
  * elimination. visitor.
  * 
- * @param n
+ * @param theValueIfBindingTimeIsStatic
  * @return
  */
 public class ConstantPropagator extends ContextVisitor {
     public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
     }
-
+    
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         Position pos = n.position();
@@ -53,6 +59,14 @@ public class ConstantPropagator extends ContextVisitor {
         }
         else {
             return n;
+        }
+        
+        if (n instanceof LocalDecl) {
+            LocalDecl d = (LocalDecl) n;
+            if (d.flags().flags().isFinal() && d.init() != null && isConstant(d.init())) {
+                d.localDef().setConstantValue(constantValue(d.init()));
+                return nf.Empty(d.position());
+            }
         }
 
         if (n instanceof Lit) {
@@ -75,11 +89,14 @@ public class ConstantPropagator extends ContextVisitor {
             If c = (If) n;
             Expr cond = c.cond();
             if (isConstant(cond)) {
-                boolean b = (boolean) (Boolean) constantValue(cond);
-                if (b)
-                    return c.consequent();
-                else
-                    return c.alternative() != null ? c.alternative() : nf.Empty(pos);
+                Object o = constantValue(cond);
+                if (o instanceof Boolean) {
+                    boolean b = (boolean) (Boolean) o;
+                    if (b)
+                        return c.consequent();
+                    else
+                        return c.alternative() != null ? c.alternative() : nf.Empty(pos);
+                }
             }
         }
 
@@ -91,6 +108,20 @@ public class ConstantPropagator extends ContextVisitor {
                 if (result != null)
                     return result;
             }
+        }
+        
+        if (n instanceof Block) {
+            Block b = (Block) n;
+            List<Stmt> ss = new ArrayList<Stmt>();
+            for (Stmt s : b.statements()) {
+                if (s instanceof Empty) {
+                }
+                else {
+                    ss.add(s);
+                }
+            }
+            if (ss.size() != b.statements().size())
+                return b.statements(ss);
         }
 
         return super.leaveCall(parent, old, n, v);
@@ -175,6 +206,7 @@ public class ConstantPropagator extends ContextVisitor {
 
     public Expr toExpr(Object o, Position pos) throws SemanticException {
         X10NodeFactory nf = (X10NodeFactory) this.nf;
+        
         if (o == null) {
             return X10Cast_c.check(nf.NullLit(pos), this);
         }
