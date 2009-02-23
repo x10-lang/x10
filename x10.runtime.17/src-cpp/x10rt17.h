@@ -11,6 +11,7 @@
 #include <x10aux/bootstrap.h>
 #include <x10aux/class_cast.h>
 #include <x10aux/ref.h>
+#include <x10aux/reference_logger.h>
 #include <x10aux/alloc.h>
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
@@ -36,7 +37,9 @@
 #include <x10aux/system_utils.h>
 #include <x10aux/iterator_utils.h>
 
-#include <x10aux/cuda.h>
+#include <x10aux/cuda/cuda_utils.h>
+#include <x10aux/cuda/bridge_buffer.h>
+#include <x10aux/cuda/ring_buffer.h>
 
 #include <x10/io/EOFException.h>
 //#include <x10/io/File.h>
