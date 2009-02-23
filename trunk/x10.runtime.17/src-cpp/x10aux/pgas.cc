@@ -2,6 +2,8 @@
 
 #include <x10aux/pgas.h>
 
+#include <x10aux/cuda/cuda_utils.h>
+
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
 
@@ -18,6 +20,13 @@ volatile x10_long x10aux::deserialized_bytes = 0;
 int PGASInitializer::count = 0;
 
 void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
+
+    #ifdef X10_USE_CUDA_HOST
+    if (place==100) {
+        the_kernel();
+        return;
+    }
+    #endif
 
     assert(place!=x10_here()); // this case should be handled earlier
     assert(place<x10_nplaces()); // this is ensured by XRX runtime
