@@ -14,10 +14,13 @@ import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
+import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.CodeNode;
 import polyglot.ast.ConstructorCall;
+import polyglot.ast.Do;
+import polyglot.ast.Empty;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -25,9 +28,12 @@ import polyglot.ast.FieldAssign;
 import polyglot.ast.For;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
+import polyglot.ast.If;
 import polyglot.ast.IntLit;
+import polyglot.ast.Labeled;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
+import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
@@ -36,9 +42,13 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Return;
 import polyglot.ast.Special;
 import polyglot.ast.Stmt;
+import polyglot.ast.SwitchBlock;
+import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.While;
 import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.ClosureCall;
+import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.SettableAssign_c;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10Call;
@@ -52,6 +62,7 @@ import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.visit.pe.TinyPartialEvaluator;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -67,7 +78,6 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.types.TypeSystem_c.TypeEquals;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -223,7 +233,7 @@ public class Inliner extends ContextVisitor {
 
     public boolean simple(Expr e) {
         // HACK: treating closures as simple is correct only if we don't do == on closures.
-        return e instanceof Lit || e instanceof Local || e instanceof Closure || e.type().isNull();
+        return e instanceof Lit || e instanceof Local || e instanceof Closure || e.type().isNull() || (e instanceof ParExpr && simple(((ParExpr) e).expr()));
     }
 
     String nameOf(Expr e) {
@@ -310,7 +320,7 @@ public class Inliner extends ContextVisitor {
     /** Rename local variables in the block to avoid shadowing errors when inlining. */    
     private Block renameLocals(Block body) {
         final Map<Name,Name> map = new HashMap<Name, Name>();
-        return (Block) body.visit(new NodeVisitor() {
+        body.visit(new NodeVisitor() {
             public Node override(Node n) {
                 if (n instanceof ClassDecl)
                     return n;
@@ -334,27 +344,70 @@ public class Inliner extends ContextVisitor {
                     LocalDecl d = (LocalDecl) n;
                     Name name = d.name().id();
                     Name newName = newName(name);
-                    d.localDef().setName(newName);
-                    return d.name(d.name().id(newName));
+                }
+                return n;
+            }
+        });
+        return (Block) body.visit(new NodeVisitor() {
+            public Node override(Node n) {
+                if (n instanceof ClassDecl)
+                    return n;
+                if (n instanceof Closure)
+                    return n;
+                if (n instanceof ClassMember)
+                    return n;
+                return null;
+            }
+            Name newName(Name name) {
+                Name newName = map.get(name);
+                return newName;
+            }
+            @Override
+            public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof LocalDecl) {
+                    LocalDecl d = (LocalDecl) n;
+                    Name name = d.name().id();
+                    Name newName = newName(name);
+                    if (newName != null) {
+                        d.localDef().setName(newName);
+                        return d.name(d.name().id(newName));
+                    }
+                }
+                if (n instanceof LocalAssign) {
+                    LocalAssign d = (LocalAssign) n;
+                    Name name = d.local().name().id();
+                    Name newName = newName(name);
+                    if (newName != null) {
+                        LocalInstance li = d.local().localInstance();
+                        li = renameLI(newName, li);
+                        d = d.local(d.local().localInstance(li));
+                        return d;
+                    }
                 }
                 if (n instanceof Local) {
                     Local d = (Local) n;
                     Name name = d.name().id();
                     Name newName = newName(name);
-                    LocalInstance li = d.localInstance();
-                    LocalDef def = li.def();
-                    while (li.name() != newName) {
-                        if (def.name() == newName) {
-                            li = li.name(newName);
-                        }
-                        else {
-                            def.setName(newName);
-                        }
+                    if (newName != null) {
+                        LocalInstance li = d.localInstance();
+                        li = renameLI(newName, li);
+                        d = d.localInstance(li);
+                        return d.name(d.name().id(newName));
                     }
-                    d = d.localInstance(li);
-                    return d.name(d.name().id(newName));
                 }
                 return n;
+            }
+            private LocalInstance renameLI(Name newName, LocalInstance li) {
+                LocalDef def = li.def();
+                while (li.name() != newName) {
+                    if (def.name() == newName) {
+                        li = li.name(newName);
+                    }
+                    else {
+                        def.setName(newName);
+                    }
+                }
+                return li;
             }
         });
     }
@@ -369,7 +422,47 @@ public class Inliner extends ContextVisitor {
 
     private Stmt rewireControlFlow(final Expr result, Block body) {
         final Id label = nf.Id(body.position(), Name.makeFresh("label"));
-        final boolean[] loop = new boolean[1];
+
+        class HasReturn extends NodeVisitor {
+            boolean result = false;
+
+            public Node override(Node n) {
+                if (n instanceof CodeNode || n instanceof ClassMember)
+                    return n;
+
+                if (n instanceof Block && ! (n instanceof SwitchBlock)) {
+                    Block b = (Block) n;
+                    for (int i = 0; i < b.statements().size()-1; i++) {
+                        HasReturn r = new HasReturn();
+                        Stmt s = b.statements().get(i);
+                        b.visitChild(s, r);
+                        if (r.result) {
+                            result = true;
+                            return n;
+                        }
+                    }
+
+                    if (b.statements().size() > 0) {
+                        Stmt s = b.statements().get(b.statements().size()-1);
+                        if (s instanceof Return)
+                            return n;
+                        b.visitChild(s, this);
+                    }
+                }
+
+                if (n instanceof Return) {
+                    result = true;
+                }
+
+                if (result)
+                    return n;
+
+                return null;
+            }
+        }
+
+        final  HasReturn hr = new HasReturn();
+        body.visit(hr);
 
         Block b = (Block) body.visit(new NodeVisitor() {
             public Node override(Node n) {
@@ -379,10 +472,24 @@ public class Inliner extends ContextVisitor {
             }
 
             public Node leave(Node old, Node n, NodeVisitor v) {
+                if (n instanceof Block) {
+                    Block b = (Block) n;
+                    List<Stmt> ss = new ArrayList<Stmt>(b.statements().size());
+                    for (Stmt s : b.statements()) {
+                        if (s instanceof Empty)
+                            ;
+                        else
+                            ss.add(s);
+                    }
+                    if (ss.size() != b.statements().size()) {
+                        return b.statements(ss);
+                    }
+                    return b;
+                }
+                
                 if (n instanceof Return) {
                     Return r = (Return) n;
-                    Branch break_ = nf.Break(r.position(), label);
-                    loop[0] = true;
+                    Stmt break_ = hr.result ? nf.Break(r.position(), label) : nf.Empty(r.position());
                     if (r.expr() == null) {
                         return break_;
                     }
@@ -391,12 +498,16 @@ public class Inliner extends ContextVisitor {
                             if (simple(r.expr()))
                                 return break_;
                             LocalDecl d = makeFreshLocal(r.expr(), Flags.FINAL);
+                            if (break_ instanceof Empty)
+                                return nf.Block(r.position(), d);
                             return nf.Block(r.position(), d, break_);
                         }
                         else {
                             try {
                                 Assign assign = assign(r.position(), result, Assign.ASSIGN, r.expr());
                                 Eval eval = nf.Eval(r.position(), assign);
+                                if (break_ instanceof Empty)
+                                    return eval;
                                 return nf.Block(r.position(), eval, break_);
                             }
                             catch (SemanticException e) {
@@ -405,13 +516,21 @@ public class Inliner extends ContextVisitor {
                         }
                     }
                 }
+
+                if (n instanceof ParExpr) {
+                    ParExpr e = (ParExpr) n;
+                    if (e.expr() instanceof Local) {
+                        return e.expr();
+                    }
+                }
+
                 return n;
             }
         });
 
         // return got rewritten to break
         // replace B with do B while (false)
-        if (loop[0]) {
+        if (hr.result) {
             Expr falsch = nf.BooleanLit(b.position(), false).type(ts.Boolean());
             return nf.Labeled(b.position(), label, nf.Do(b.position(), b, falsch));
         }
@@ -503,7 +622,8 @@ public class Inliner extends ContextVisitor {
     public Node propagate(Node n) {
         ConstantPropagator cp = new ConstantPropagator(job, ts, nf);
         cp = (ConstantPropagator) cp.context(context());
-        return n.visit(cp);
+        Node n1 = n.visit(cp);
+        return n1;
     }
 
     @Override
@@ -518,9 +638,145 @@ public class Inliner extends ContextVisitor {
         return this;
     }
 
+    class MoreThanOne extends Exception { 
+        public MoreThanOne() {
+        }
+    }
+
+    // Get the expression assigned to var in s.  Return null if s has any other effects or than assignment to var or doesn't assign var.
+    public Expr getVarRhs(Stmt s, Local var, boolean returnOk) {
+        try {
+            HashMap<LocalDef,Expr> copies = new HashMap<LocalDef,Expr>();
+            Set<LocalDef> local = new HashSet<LocalDef>();
+            Expr e = getExpr(s, var, returnOk, copies, local);
+            return e;
+        }
+        catch (MoreThanOne e) {
+            return null;
+        }
+    }
+    
+    private void killDef(final LocalDef def, Map<LocalDef, Expr> map) {
+        for (final java.util.Iterator<Map.Entry<LocalDef, Expr>> i = map.entrySet().iterator(); i.hasNext(); ) {
+            Map.Entry<LocalDef, Expr> entry = i.next();
+            Expr a = entry.getValue();
+            if (a == null)
+                continue;
+            a.visit(new NodeVisitor() {
+                @Override
+                public Node override(Node n) {
+                    if (n instanceof Local) {
+                        Local l = (Local) n;
+                        if (l.localInstance().def() == def) {
+                            i.remove();
+                            return n;
+                        }
+                    }
+                    return null;
+                } 
+            });
+        }
+    }
+
+    public Expr lookup(Map<LocalDef, Expr> copies, Expr e) {
+        if (e instanceof Local) {
+            Local l = (Local) e;
+            Expr x = copies.get(l.localInstance().def());
+            if (x != null)
+                return lookup(copies, x);
+        }
+        return e;
+    }
+
+    // Get the expression assigned to var in s.  Return null if s does not assign var.  Throw if s has any other effects than assignment to var.
+    public Expr getExpr(Stmt s, Local var, boolean returnOk, Map<LocalDef,Expr> copies, Set<LocalDef> local) throws MoreThanOne {
+        if (s instanceof Block) {
+            Expr result = null;
+            Block b = (Block) s;
+            for (Stmt si : b.statements()) {
+                Expr e = getExpr(si, var, returnOk, copies, local);
+                if (e != null) {
+                    if (result != null)
+                        throw new MoreThanOne();
+                    result = e;
+                }
+            }
+            return result;
+        }
+
+        if (s instanceof Eval) {
+            Eval eval = (Eval) s;
+            Expr e = eval.expr();
+            if (e instanceof LocalAssign) {
+                LocalAssign a = (LocalAssign) e;
+                copies.put(a.local().localInstance().def(), a.right());
+                killDef(a.local().localInstance().def(), copies);
+                if (a.local().localInstance().def() == var.localInstance().def())
+                    return lookup(copies, a.right());
+                if (local.contains(a.local().localInstance().def()))
+                    return null;
+            }
+            throw new MoreThanOne();
+        }
+
+        if (s instanceof LocalDecl) {
+            LocalDecl d = (LocalDecl) s;
+            local.add(d.localDef());
+            if (d.init() != null) {
+                if (d.init().isConstant())
+                    return null;
+                throw new MoreThanOne();
+            }
+            return null;
+        }
+
+        if (s instanceof Labeled) {
+            Labeled l = (Labeled) s;
+            return getExpr(l.statement(), var, returnOk, copies, local);
+        }
+
+        if (s instanceof Do) {
+            Do l = (Do) s;
+            if (l.cond().isConstant() && l.cond().constantValue().equals(Boolean.FALSE))
+                return getExpr(l.body(), var, returnOk, copies, local);
+            else
+                throw new MoreThanOne();
+        }
+
+        if (s instanceof Return && returnOk) {
+            Return r = (Return) s;
+            if (r.expr() instanceof Local) {
+                Local l = (Local) r.expr();
+                if (l.localInstance().def() == var.localInstance().def())
+                    return null;
+            }
+        }
+        
+        if (s instanceof Empty) {
+            return null;
+        }
+
+        throw new MoreThanOne();
+    }
+
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         if (InlineType == null)
             return n;
+
+        // Inline simple getters and setters 
+        if (n instanceof ClosureCall) {
+            ClosureCall c = (ClosureCall) n;
+            if (c.target() instanceof Closure) {
+                LocalDecl d = makeFreshLocal(c, Flags.FINAL);
+                d = d.init(null);
+                Local var = makeLocal(d);
+                Stmt s = inlineClosure((Closure) c.target(), c, var);
+                s = (Stmt) propagate(s);
+                Expr e = getVarRhs(s, var, false);
+                if (e != null)
+                    return e;
+            }
+        }
 
         if (n instanceof Return) {
             Return r = (Return) n;
@@ -530,17 +786,22 @@ public class Inliner extends ContextVisitor {
                 if (call instanceof X10Call || call instanceof ClosureCall) {
                     LocalDecl d = makeFreshLocal(call, Flags.FINAL);
                     d = d.init(null);
-                    Assign a = assign(r.position(), makeLocal(d), Assign.ASSIGN, call);
+                    Local var = makeLocal(d);
+                    Assign a = assign(r.position(), var, Assign.ASSIGN, call);
                     Eval eval = nf.Eval(r.position(), a);
-                    r = r.expr(makeLocal(d));
-                    return nf.Block(r.position(), d, (Stmt) leaveCall(parent, old, eval, v), r);
+                    r = r.expr(var);
+                    Stmt s = (Stmt) leaveCall(parent, old, eval, v);
+                    Expr e = getVarRhs(s, var, false);
+                    if (e != null)
+                        return r.expr(e);
+                    return nf.Block(r.position(), d, s, r);
                 }
                 else {
                     return r;
                 }
             }
         }
-        
+
         if (n instanceof LocalDecl) {
             LocalDecl d = (LocalDecl) n;
             Node s = d;
@@ -598,13 +859,27 @@ public class Inliner extends ContextVisitor {
             return s;
         }
 
+        if (n instanceof Block) {
+            Block b = (Block) n;
+            List<Stmt> ss = new ArrayList<Stmt>();
+            for (Stmt s : b.statements()) {
+                if (s instanceof Empty) {
+                }
+                else {
+                    ss.add(s);
+                }
+            }
+            if (ss.size() != b.statements().size())
+                return b.statements(ss);
+        }
+
         return n;
     }
 
     private Stmt inlineSpecial(X10Call c, X10MethodDef md, Expr result) {
         X10TypeSystem ts = (X10TypeSystem) this.ts;
         X10NodeFactory nf = (X10NodeFactory) this.nf;
-        
+
         // Rail.makeVal( 4, (x) => e )
         // ->
         // [ ((x) => e)(0) ... ((x) => e)(3) ]
@@ -711,6 +986,10 @@ public class Inliner extends ContextVisitor {
                 default:
                     return false;
                 }
+            }
+            if (target instanceof ParExpr) {
+                ParExpr e = (ParExpr) target;
+                return staticTypeIsExact(e.expr());
             }
             if (target instanceof New) {
                 return true;
