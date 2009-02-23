@@ -58,6 +58,8 @@ namespace x10aux {
 #ifndef NO_EXCEPTIONS
         try {
 #endif
+            setlinebuf(stdout);
+			
             x10aux::barrier();
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread
