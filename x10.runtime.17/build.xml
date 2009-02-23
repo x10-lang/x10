@@ -34,7 +34,7 @@
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
         <!--<os family="unix" name="linux"/>-->
-	 <istrue value="false"/>
+        <istrue value="false"/>
     </condition>
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
 	<isset property="bdwgc.enabled" />
@@ -52,8 +52,8 @@
     <target name="clean-bdwgc" depends="clean">
         <delete dir="${bdwgc.dir}/install"/>
         <exec executable="${make.exe}" failonerror="true" dir ="${bdwgc.dir}/src">
-	    <arg value="distclean"/>
-	</exec>
+            <arg value="distclean"/>
+        </exec>
     </target>
     <target name="dist-java" depends="jar">
         <mkdir dir="${lib}"/>
@@ -63,6 +63,7 @@
     </target>
     <target name="dist-cpp" depends="build-cpp">
       <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
+        <arg value="-j2" />
         <arg value="install" />
         <arg value="${cppmake.gcarg}" />
       </exec>
@@ -88,6 +89,7 @@
 
     <target name="build-cpp" depends="init,dist-bdwgc">
       <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
+        <arg value="-j2" />
         <arg value="${cppmake.gcarg}" />
       </exec>
     </target>
