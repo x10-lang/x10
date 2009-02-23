@@ -115,6 +115,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.ast.While_c;
 import polyglot.ext.x10.Configuration;
+import polyglot.ext.x10.ast.AnnotationNode;
 import polyglot.ext.x10.ast.AssignPropertyBody_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -154,6 +155,7 @@ import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.ast.X10Unary_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ParameterType;
@@ -1709,8 +1711,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	}
 
+    boolean nodeHasCudaAnnotation(Node n) {
+		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
+        X10Ext ext = (X10Ext) n.ext();
+        String annotationName = "Cudable";
+        try {
+            Type cudable = (Type) xts.systemResolver().find(QName.make(annotationName));
+
+            for (X10ClassType t : ext.annotationMatching(cudable)) {
+                return true;
+            }
+        } catch (SemanticException e) {
+            return false; // Until the annotation is in the stdlib
+            //assert false : e;
+        }
+
+        return false;
+    }
 
 	public void visit(Block_c b) {
+        if (nodeHasCudaAnnotation(b)) {
+            sw.write(" /*CUDABLE!*/ ");
+        }
 		sw.write("{");
 		sw.newline();
 		if (b.statements().size() > 0) {
