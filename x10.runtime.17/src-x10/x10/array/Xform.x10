@@ -46,6 +46,23 @@ public abstract class Xform {
         return new PolyXform(E, T);
     }
 
+    public static def skew(axis:int, with:ValRail[int]) {
+
+        val rank = with.length - 1;
+        
+        // reverse transform
+        val t = new MatBuilder(rank+1, rank+1);
+        t.setDiagonal(0, 0, rank+1, (nat)=>1);
+        t.setColumn(0, axis, rank, (i:nat)=>with(i));
+        val T = t.toXformMat();
+
+        // no extra constraints
+        val e = new PolyMatBuilder(2);
+        val E = e.toSortedPolyMat(true);
+
+        return new PolyXform(E, T);
+    }
+
     // compose transforms
     abstract public def $times(that:Xform): Xform;
 }
