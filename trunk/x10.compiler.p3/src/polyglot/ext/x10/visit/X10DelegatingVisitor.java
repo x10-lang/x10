@@ -67,6 +67,7 @@ import polyglot.ast.MethodDecl_c;
 import polyglot.ast.NewArray_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
+import polyglot.ast.NodeList_c;
 import polyglot.ast.Node_c;
 import polyglot.ast.NullLit_c;
 import polyglot.ast.NumLit_c;
@@ -162,6 +163,7 @@ public class X10DelegatingVisitor {
 	 */
 	public void visitAppropriate(JL n) {
 		if (n instanceof Id_c) { visit((Id_c)n); return; }
+		if (n instanceof NodeList_c) { visit((NodeList_c)n); return; }
 		if (n instanceof AnnotationNode_c) { visit((AnnotationNode_c)n); return; }
 		if (n instanceof X10CanonicalTypeNode_c) { visit((X10CanonicalTypeNode_c)n); return; }
 		if (n instanceof CanonicalTypeNode_c) { visit((CanonicalTypeNode_c)n); return; }
@@ -441,5 +443,6 @@ public class X10DelegatingVisitor {
 				public void visit(X10CanonicalTypeNode_c n) { visit((CanonicalTypeNode_c)n); }
 				public void visit(AmbDepTypeNode_c n) { visit((TypeNode_c)n); }
 			public void visit(AnnotationNode_c n) { visit((Node_c) n); }
+			public void visit(NodeList_c n) { visit((Node_c) n); }
 			public void visit(Id_c n) { visit((Node_c) n); }
 }
