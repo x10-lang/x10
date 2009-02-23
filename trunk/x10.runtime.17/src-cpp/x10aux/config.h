@@ -30,11 +30,22 @@
  */
 
 #ifdef __CUDA_ARCH__
-    #define X10_CUDA
-    #define NO_IOSTREAM // this apparently will be fixed in a future release of cuda
+    #ifndef X10_USE_CUDA_HOST
+        #define X10_USE_CUDA_HOST
+    #endif
+    #ifndef X10_USE_CUDA_DEVICE
+        #define X10_USE_CUDA_DEVICE
+    #endif
+    #ifndef NO_IOSTREAM
+        #define NO_IOSTREAM // this apparently will be fixed in a future release of cuda
+    #endif
     #define GPUSAFE __host__ __device__
-    #define NO_CHECKS // can't abort() assert() or throw exception on the gpu
-    #define NDEBUG // as above
+    #ifndef NO_CHECKS
+        #define NO_CHECKS // can't abort() assert() or throw exception on the gpu
+    #endif
+    #ifndef NDEBUG
+        #define NDEBUG // as above
+    #endif
 #else
     #define GPUSAFE
 #endif
