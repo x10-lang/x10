@@ -15,6 +15,12 @@ ifdef ENABLE_GC
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 
+ifdef ENABLE_CUDA
+  CXXFLAGS += -DX10_USE_CUDA_HOST
+  INCLUDE_DIRS += -I/usr/local/cuda/include
+  ALL_CUDA_OBJECTS += x10aux/cuda/cuda_utils.o
+endif
+
 CXXFLAGS += $(INCLUDE_DIRS)
 
 
@@ -85,6 +91,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/math_utils.o \
 	x10aux/pgas.o \
 	x10aux/ref.o \
+	x10aux/reference_logger.o \
 	x10aux/RTT.o \
 	x10aux/rail_utils.o \
 	x10aux/deserialization_dispatcher.o \
@@ -116,7 +123,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/runtime/Thread.o 
 
 
-$(XRCPP_ARCHIVE): $(ALL_XRCPP_OBJECTS)
+$(XRCPP_ARCHIVE): $(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
 	$(AR) $(ARFLAGS) $@ $^
 
 
@@ -136,7 +143,7 @@ XRXFILES  = $(shell find ../src-x10 -name '*.x10')
 # this simply means there will be more symbols in the archive than there should
 # be.  This is harmless and equivalent to the old behaviour of this Makefile,
 # i.e. a make clean is needed.
-gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar
+gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar test.o
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
 	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | xargs "$(INSTDIR)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c
@@ -193,7 +200,7 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 
 
 depend:
-	find . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -I $(INCLUDE_DIRS) -f- > depend.mk 
+	find . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -I $(INCLUDE_DIRS) -fdepend.mk 
 
 
 clean:
