@@ -104,7 +104,7 @@ class FRASimpleDist {
                     varTables(pp) = t;
             }
         }
-        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, varTables);
+        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, (x:Int) => varTables(x));
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
