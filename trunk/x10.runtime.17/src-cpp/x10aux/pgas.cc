@@ -40,7 +40,7 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
     serialized_bytes += buf.length();
 
     const x10_async_closure_t *cl = reinterpret_cast<const x10_async_closure_t*>(buf.get());
-    x10_comm_handle_t handle = x10_async_spawn((x10_place_t)place, cl, buf.length(), NULL, 0);
+    x10_comm_handle_t handle = x10_async_spawn((x10_place_t)place, cl, buf.length(), NULL, 0, QUEUED_ASYNC);
     x10_async_spawn_wait(handle);
 
 }
@@ -76,7 +76,7 @@ extern "C" {
         try {
 #endif
 
-            fprintf(stderr,"pthread: %p\n",pthread_self());
+            //fprintf(stderr,"pthread: %p\n",pthread_self());
 
             // init XRX info for this internal pgas thread if it's not already done
             if (x10::runtime::Thread::currentThread()==x10aux::null) {
