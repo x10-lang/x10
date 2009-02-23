@@ -78,7 +78,7 @@ public abstract value class BaseArray[T] extends Array[T] {
         return raw()(layout().offset(pt));
     }
 
-    public final def get(pt: Point(rank)): T = apply(pt(rank));
+    public final def get(pt: Point(rank)): T = apply(pt);
 
     // XXXX settable order
     public final def set(v: T, pt: Point(rank)): T {
