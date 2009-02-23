@@ -55,6 +55,7 @@ namespace x10aux {
         // All possibilities accounted for, if you got here something has gone wrong
         static ref<T> _ (F obj) {
             throwException<x10::lang::ClassCastException>();
+            return NULL;
         }
     };
 
@@ -62,6 +63,7 @@ namespace x10aux {
       // All possibilities accounted for, if you got here something has gone wrong
         static T _ (ref<F> obj) {
             throwException<x10::lang::ClassCastException>();
+            return NULL;
         }
     };
 

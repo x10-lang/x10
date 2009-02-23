@@ -21,14 +21,21 @@ extern "C" {
 
 namespace x10aux {
 
+    #ifdef X10_USE_CUDA_HOST
+    void cuda_init(void);
+    #endif
+
     class PGASInitializer {
         static int count;
     public:
         PGASInitializer() {
             if (count++ == 0) {
-#ifdef X10_USE_BDWGC
+                #ifdef X10_USE_CUDA_HOST
+                cuda_init();
+                #endif
+                #ifdef X10_USE_BDWGC
                 GC_INIT();
-#endif                
+                #endif                
                 _X_("PGAS initialization starting");
                 x10_init();
                 _X_("PGAS initialization complete");
@@ -37,16 +44,17 @@ namespace x10aux {
 
     };
 
-#ifndef NO_IOSTREAM
+    #ifndef NO_IOSTREAM
     inline std::ostream &operator<<(std::ostream &o, const x10_remote_ref_t &rr) {
         return o << "rr("<<rr.addr<<"@"<<rr.loc<<")";
     }
-#endif
+    #endif
 }
 
 
 
 #include <x10aux/ref.h>
+#include <x10aux/reference_logger.h>
 
 namespace x10 { namespace lang { class VoidFun_0_0; } }
 
@@ -78,6 +86,20 @@ namespace x10aux {
     inline void barrier() {
         __pgasrt_tsp_barrier(0,1);
     }
+   
+    template<class T> x10aux::ref<T> ref_deserialize(x10_remote_ref_t remote_ref) {
+        x10_addr_t flagged = x10_ref_deserialize(remote_ref);
+        if (x10_ref_get_addr(flagged) == NULL) return x10aux::null;
+        return (T*)flagged;
+    }
+
+    template<class T> x10_remote_ref_t ref_serialize(T *remote_ref) {
+        #ifdef X10_USE_BDWGC
+        ReferenceLogger::log(remote_ref);
+        #endif
+        return x10_ref_serialize(reinterpret_cast<x10_addr_t>(remote_ref));
+    }
+
 
     inline x10_int num_places() {
         return x10_nplaces();

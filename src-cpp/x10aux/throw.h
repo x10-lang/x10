@@ -7,7 +7,7 @@
 
 #include <x10/lang/Throwable.h>
 
-#if defined __GNUC__ && !defined X10_CUDA
+#if defined __GNUC__ && !defined __CUDA_ARCH__
 // stops the compiler warning about functions that don't return but do throw
 #define NORETURN __attribute__ ((noreturn))
 #else
