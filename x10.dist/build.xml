@@ -34,9 +34,9 @@
 
     <target name="init">
         <tstamp/>
-	<mkdir dir="${etc}" />	
-	<mkdir dir="${incdir}" />	
-	<mkdir dir="${lib}" />	
+	<mkdir dir="${etc}" />
+	<mkdir dir="${incdir}" />
+	<mkdir dir="${lib}" />
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
@@ -61,11 +61,11 @@
 
     <target name="distclean" depends="clean">
         <delete dir="${etc}" />
-	<mkdir dir="${etc}" />	
+	<mkdir dir="${etc}" />
         <delete dir="${incdir}" />
-	<mkdir dir="${incdir}" />	
+	<mkdir dir="${incdir}" />
         <delete dir="${lib}" />
-	<mkdir dir="${lib}" />	
+	<mkdir dir="${lib}" />
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -262,12 +262,13 @@
         <echo message="PATH_SEP = '${path.separator}'"/>
         <echo message="X10_PLATFORM = '${env.X10_PLATFORM}'"/>
         <echo message="TOP = '${basedir}'"/>
+        <!-- TODO: some of this is x10c-specific; factor out into x10c.in -->
         <echo file="${bin}/defs" append="no">#!/bin/bash
 # DO NOT EDIT - This file was automatically generated.
 
 #JAVA='${java.executable}'
 [ -n "$JAVA_HOME" ] || JAVA_HOME='${env.JAVA_HOME}'
-JRE_HOME='${java.home}'
+[ -n "$JRE_HOME" ] || JRE_HOME='${java.home}'
 #FILE_SEP='${file.separator}'
 #PATH_SEP='${path.separator}'
 #CONFIG_FILE='${config}'
@@ -295,7 +296,7 @@ esac
 prog=$(readlink $0)
 if [ "$prog" = "" ]; then prog="$0"; fi
 TOP="$(cd "$(dirname $prog)/.." &amp;&amp; pwd)"
-if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
 
 if [ -n "$JAVA_HOME" -a -e "$JAVA_HOME/bin/java" ]; then
     JAVA="$JAVA_HOME/bin/java"
@@ -306,7 +307,7 @@ else
     exit 1
 fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
-if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -aw "$JAVA_HOME")"; fi
+if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
 
 </echo>
     </target>
