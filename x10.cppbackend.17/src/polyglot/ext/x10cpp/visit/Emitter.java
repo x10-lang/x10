@@ -558,9 +558,9 @@ public class Emitter {
 			h.write("static RTT * const it;"); h.newline();
 			h.write("virtual void init() {"); h.newline(4); h.begin(0);
 				h.write("initParents("+num_parents);
-				h.write(", x10aux::getRTT<" + (ct.superClass()==null ? "x10::lang::Ref" : translateType(ct.superClass())) + " >()");
+				h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? "x10::lang::Ref" : translateType(ct.superClass())) + "()");
 				for (Type iface : ct.interfaces()) {
-					h.write(", x10aux::getRTT<"+translateType(iface)+" >()");
+					h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
 				}
 				h.write(");"); h.end(); h.newline();
 			h.write("}"); h.newline();
@@ -581,7 +581,7 @@ public class Emitter {
                     h.write("]\"");
 					for (Type param : ct.typeArguments()) {
 						h.write(","); h.newline();
-                        h.write("x10aux::getRTT<"+translateType(param)+">()->name()");
+                        h.write("x10aux::getRTT"+chevrons(translateType(param))+"()->name()");
 					}
 					h.write(");") ; h.end(); h.newline();
 					h.write("return name;"); h.end(); h.newline();
@@ -589,7 +589,7 @@ public class Emitter {
 			h.write("}"); h.end(); h.newline();
 		h.write("};"); h.newline();
 		h.write("virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
-			h.write("return x10aux::getRTT<"+translateType(ct)+" >();"); h.end(); h.newline();
+			h.write("return x10aux::getRTT"+chevrons(translateType(ct))+"();"); h.end(); h.newline();
 		h.write("}"); h.newline(); h.forceNewline();
 	}
 	void printRTTDefn(X10ClassType ct, CodeWriter h) {
