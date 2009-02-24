@@ -50,6 +50,7 @@ import polyglot.ext.x10.ast.Closure;
 import polyglot.ext.x10.ast.ClosureCall;
 import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.SettableAssign_c;
+import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.TypeParamNode;
 import polyglot.ext.x10.ast.X10Call;
 import polyglot.ext.x10.ast.X10Cast;
@@ -62,7 +63,6 @@ import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.visit.pe.TinyPartialEvaluator;
 import polyglot.frontend.Job;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
@@ -766,15 +766,42 @@ public class Inliner extends ContextVisitor {
         // Inline simple getters and setters 
         if (n instanceof ClosureCall) {
             ClosureCall c = (ClosureCall) n;
+            if (c.arguments().size() == 1 && c.target() instanceof Expr && ((Expr) c.target()).isConstant() && ((Expr) c.target()).constantValue() instanceof Object[]) {
+                Expr len = c.arguments().get(0);
+                if (len.isConstant()) {
+                    Object val = len.constantValue();
+                    if (val instanceof Integer) {
+                        int i = (Integer) val;
+                        Object[] a =  (Object[]) ((Expr) c.target()).constantValue();
+
+                        try {
+                            if (0 <= i && i < a.length) {
+                                Expr e = new ConstantPropagator(job, ts, nf).toExpr(a[i], c.position());
+                                return e;
+                            }
+                        }
+                        catch (SemanticException ex) {
+                        }
+                    }
+                }
+            }
             if (c.target() instanceof Closure) {
+                
+
+
+                
                 LocalDecl d = makeFreshLocal(c, Flags.FINAL);
                 d = d.init(null);
                 Local var = makeLocal(d);
                 Stmt s = inlineClosure((Closure) c.target(), c, var);
                 s = (Stmt) propagate(s);
                 Expr e = getVarRhs(s, var, false);
-                if (e != null)
+                if (e != null) {
+                    if (count < limit) {
+                        e = (Expr) parent.visitChild(e, inc());
+                    }
                     return e;
+                }
             }
         }
 
@@ -792,8 +819,12 @@ public class Inliner extends ContextVisitor {
                     r = r.expr(var);
                     Stmt s = (Stmt) leaveCall(parent, old, eval, v);
                     Expr e = getVarRhs(s, var, false);
-                    if (e != null)
+                    if (e != null) {
+                        if (count < limit) {
+                            e = (Expr) parent.visitChild(e, inc());
+                        }
                         return r.expr(e);
+                    }
                     return nf.Block(r.position(), d, s, r);
                 }
                 else {
@@ -880,6 +911,28 @@ public class Inliner extends ContextVisitor {
         X10TypeSystem ts = (X10TypeSystem) this.ts;
         X10NodeFactory nf = (X10NodeFactory) this.nf;
 
+        if (md.name() == Name.make("apply") && c.arguments().size() == 1 && c.target() instanceof Expr && ((Expr) c.target()).isConstant() && ((Expr) c.target()).constantValue() instanceof Object[]) {
+            Expr len = c.arguments().get(0);
+            if (len.isConstant()) {
+                Object v = len.constantValue();
+                if (v instanceof Integer) {
+                    int n = (Integer) v;
+                    Object[] a =  (Object[]) ((Expr) c.target()).constantValue();
+
+                    if (result != null && 0 <= n && n < a.length) {
+                        try {
+                            Expr e = new ConstantPropagator(job, ts, nf).toExpr(a[n], c.position());
+                            Assign assign = assign(c.position(), result, Assign.ASSIGN, e);
+                            Eval eval = nf.Eval(c.position(), assign);
+                            return eval;
+                        }
+                        catch (SemanticException ex) {
+                        }
+                    }
+                }
+            }
+        }
+        
         // Rail.makeVal( 4, (x) => e )
         // ->
         // [ ((x) => e)(0) ... ((x) => e)(3) ]
