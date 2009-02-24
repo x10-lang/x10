@@ -140,7 +140,7 @@ svnUpdate $X10_DIST $X10_SVNROOT
 X10_TESTS=$X10_HOME/x10.tests
 svnUpdate $X10_TESTS $X10_SVNROOT
 X10_CPP=$X10_HOME/x10.cppbackend.17
-cvsUpdate $X10_CPP $X10CPP_CVSROOT
+svnUpdate $X10_CPP $X10CPP_CVSROOT
 
 
 buildX10Module $POLYGLOT_HOME polyglot
