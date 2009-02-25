@@ -13,15 +13,15 @@ namespace x10aux {
 
         T *host;
         T *device;
-        std::size_t count;
-        std::size_t sz;
+        std::size_t cnt;
 
 
         public:
 
         BridgeBuffer (std::size_t count_, bool zero=false)
-          : count(count_), sz(count_*sizeof(T))
+          : cnt(count_)
         {
+            std::size_t sz = count_*sizeof(T);
             CU_ASSERT(cudaMallocHost((void**)&host, sz));
             if (zero) memset(host, 0, sz);
 
@@ -29,7 +29,7 @@ namespace x10aux {
             if (zero) push(0);
         }
 
-        std::size_t size (void) const { return sz; }
+        std::size_t size (void) const { return cnt; }
 
         T &operator* (void) const { return *host; }
         T *operator[] (std::size_t index) { return &host[index]; }
@@ -41,7 +41,7 @@ namespace x10aux {
         T *getDevicePtr (void) const { return device; }
 
 
-        void push (cudaStream_t stream) { push(stream, 0, count); }
+        void push (cudaStream_t stream) { push(stream, 0, cnt); }
 
         void push (cudaStream_t stream, std::size_t just)
         { push(stream, just, just+1); }
@@ -54,7 +54,7 @@ namespace x10aux {
         }
 
 
-        void pull (cudaStream_t stream) { pull(stream, 0, count); }
+        void pull (cudaStream_t stream) { pull(stream, 0, cnt); }
 
         void pull (cudaStream_t stream, std::size_t just)
         { pull(stream, just, just+1); }
