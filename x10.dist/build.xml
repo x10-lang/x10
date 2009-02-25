@@ -300,11 +300,12 @@ case "$UNAME" in
   AIX,*) export X10_PLATFORM='aix_ppc';;
   Darwin,i386) export X10_PLATFORM='macosx_x86';;
   Darwin,powerpc) export X10_PLATFORM='macosx_ppc';;
+	SunOS,sparc) export X10_PLATFORM='sunos_sparc';;
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
 # FIXME: the above assumes that Cygwin==win32 and Linux==x86 and AIX==ppc
 
-prog=$(readlink $0)
+if [[ "$UNAME" = SunOS* ]]; then prog=""; else prog=$(readlink $0); fi
 if [ "$prog" = "" ]; then prog="$0"; fi
 TOP="$(cd "$(dirname $prog)/.." &amp;&amp; pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
