@@ -14,6 +14,9 @@
 
 #include <x10/runtime/Thread.h>
 
+#ifdef __CYGWIN__
+extern "C" void setlinebuf(FILE *);
+#endif
 namespace x10 { namespace lang { template<class T> class Rail; } }
 
 namespace x10aux {
