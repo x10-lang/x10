@@ -34,7 +34,7 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
     char *r = x10aux::realloc(buf, sz+1);
     // append the new stuff onto the original stuff
     va_start(args, fmt);
-    std::size_t s1 = vsprintf(&r[original_sz], sz+1, fmt, args);
+    std::size_t s1 = vsnprintf(&r[original_sz], sz+1, fmt, args);
     (void) s1;
     assert (s1 == sz);
     va_end(args);
