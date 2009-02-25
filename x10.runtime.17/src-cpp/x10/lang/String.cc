@@ -122,25 +122,6 @@ ref<ValRail<x10_byte> > String::bytes() {
     return rail;
 }
 
-#ifdef __CYGWIN__
-extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
-#endif
-// Note: allocates the return buffer
-static char* vformat_to_buf(char* fmt, ...) {
-    va_list args;
-    char try_buf[1];
-    va_start(args, fmt);
-    int sz = vsnprintf(try_buf, 0, fmt, args);
-    va_end(args);
-    char* buf = alloc<char>(sz+1);
-    va_start(args, fmt);
-    int s1 = vsnprintf(buf, sz+1, fmt, args);
-    (void) s1;
-    assert (s1 == sz);
-    va_end(args);
-    return buf;
-}
-
 // [IP] I'm sure I will hate this but it will do for now.
 static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > parms) {
     std::ostringstream ss;
@@ -160,27 +141,27 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
         const ref<Object> p = parms->operator[](i);
         char* buf = NULL;
         if (p.isNull())
-            ss << (buf = vformat_to_buf(fmt, "null")); // FIXME: Ignore nulls for now
+            ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
         else if (x10aux::instanceof<ref<String> >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<ref<String> >(p)->c_str()));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<ref<String> >(p)->c_str()));
         else if (x10aux::instanceof<ref<Box<x10_boolean> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_boolean>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_boolean>(p)));
         else if (x10aux::instanceof<ref<Box<x10_byte> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_byte>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_byte>(p)));
         else if (x10aux::instanceof<ref<Box<x10_char> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_char>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_char>(p)));
         else if (x10aux::instanceof<ref<Box<x10_short> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_short>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_short>(p)));
         else if (x10aux::instanceof<ref<Box<x10_int> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_int>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_int>(p)));
         else if (x10aux::instanceof<ref<Box<x10_long> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_long>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_long>(p)));
         else if (x10aux::instanceof<ref<Box<x10_float> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_float>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_float>(p)));
         else if (x10aux::instanceof<ref<Box<x10_double> > >(p))
-            ss << (buf = vformat_to_buf(fmt, class_cast<x10_double>(p)));
+            ss << (buf = x10aux::alloc_printf(fmt, class_cast<x10_double>(p)));
         else
-            ss << (buf = vformat_to_buf(fmt, p->toString()->c_str()));
+            ss << (buf = x10aux::alloc_printf(fmt, p->toString()->c_str()));
         if (buf != NULL)
             dealloc(buf);
         if (next != NULL)
