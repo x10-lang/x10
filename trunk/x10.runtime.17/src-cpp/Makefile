@@ -5,7 +5,14 @@
 CXX ?= g++
 AR ?= ar
 
-X10LIB ?= $(abspath ../../pgas/common/work)
+__m_have_abspath:=$(abspath /)
+ifndef __m_have_abspath
+  abspath=$(shell cd $1 && /bin/pwd)
+else
+  abspath=$(abspath $1)
+endif
+
+X10LIB ?= $(call abspath,../../pgas/common/work)
 CXXFLAGS += -g
 INCLUDE_DIRS += -I$(X10LIB)/include -I.
 
@@ -48,7 +55,7 @@ else
 
 endif
 
-INSTDIR = $(abspath ../../x10.dist)
+INSTDIR = $(call abspath,../../x10.dist)
 
 XRCPP_ARCHIVE = libx10rt17.a
 XRX_ARCHIVE = libx10lib17.a
