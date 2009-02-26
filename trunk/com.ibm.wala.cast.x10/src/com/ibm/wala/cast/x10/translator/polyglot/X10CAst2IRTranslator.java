@@ -264,7 +264,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 //	PrintWriter printWriter= new PrintWriter(System.out);
 //	X10CAstPrinter.printTo(N, printWriter);
 //	printWriter.flush();
-	visitEntities(N, new DefaultContext(translator, N, nm), this);
+	visitEntities(N, translator.new DefaultContext(translator, N, nm), this);
     }
 
     /* UGH! */
