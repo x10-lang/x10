@@ -3182,7 +3182,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        for (Expr a : args) {
 	            alt[i] = getId();
 	            Type fType = formals.get(i).type().type();
-	            sw.write(emitter.translateType(fType)+" "+alt+" =");
+	            sw.write(emitter.translateType(fType)+" "+alt[i]+" =");
 	            sw.allowBreak(2, " ");
 	            c.print(a, sw, tr);
 	            sw.write(";");
