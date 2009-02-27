@@ -16,7 +16,7 @@ if [[ -z "$X10_FROM_SRC" ]]; then
     # Default to pre-built distribution; do not set X10LANG
     [ -z "$X10LIB" ] && export X10LIB="$TOP"
     [ -z "$X10LANG" ] && export X10LANG="$TOP"
-    [ -z "$X10GC" ] && export X10GC="$TOP/x10.dist"
+    [ -z "$X10GC" ] && export X10GC="$TOP"
     X10="$TOP"
 else
     # Default to developer setup
