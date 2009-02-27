@@ -9,8 +9,8 @@ public class ArraySum {
 
     public def this(n: int): ArraySum = {
         size=n;
-        R= 0..n-1 to Region{rail};
-        data = Rail.makeVar[int](n, (x:nat)=>0 to int);
+        R= 0..n-1 as Region{rail};
+        data = Rail.makeVar[int](n, (x:nat)=>0 as int);
         for (var i: int = 0; i < n; i++) data(i)=1;
         sum=0;
     }
