@@ -13,27 +13,12 @@
 Modern architectural advances are leading to the development of
 complex computational systems, such as heterogeneous multi-core
 systems (e.g., Cell), large CPU count systems such as the Blue Gene,
-and hybrid accelerated clusters such as the Road Runner.  Such systems
-pose a central challenge: How can application programmers write
-high-performance programs for such machines while building on the
-productivity gains of modern object-oriented languages?
-
+and hybrid accelerated clusters such as the Road Runner.
 The \Xten{} programming language \cite{X10-concur,x10-oopsla05,x10} was
-designed to address the challenges of ``productivity with
-performance'' on these diverse architectures. Developed on
-the {\em asynchronous partitioned global address} (APGAS) model, 
-\Xten{} organizes computation into a collection of
-logical {\em places}, which encpasulates data and one or more {\em
-activities} that operate on the data. Places capture the idea of {\em
-locality} 
-%(data in the same place is ``close'', data in a different place is ``far'') 
-and {\em heterogenity}. 
-%(one place may target for a collection of tightly integrated cores, another may target a
-%GPGPU). 
-Data resides in a global address space; thus a
-field of an object can point to an object in a different place. Remote
-data is not operated on directly; rather light-weight activities
-must be spawned remotely to operate on them.
+designed to address the 
+challenge of allowing developers to write
+high-performance applications for such machines while building on the
+productivity gains of modern object-oriented languages.
 
 The design of \Xten{} requires the development of a rich type system
 to enable code reuse, permit a large variety of errors to be caught at
