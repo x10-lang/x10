@@ -10,6 +10,7 @@ TARGETS = generics.pdf
 # TARGETS could be $(DOC).dvi instead, if there are no figures
 
 TEXS = paper.tex \
+abstract.tex discussion.tex fx-semantics.tex paper.tex quad-semantics.tex related.tex self-types.tex translation.tex vj-intro.tex x10-overview.tex \
        $(X10TEXS) $(STY)
 STY = defs.sty utils.sty
 #
