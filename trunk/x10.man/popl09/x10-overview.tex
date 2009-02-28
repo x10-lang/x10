@@ -33,11 +33,11 @@ value properties.
 class List[T](length: int) {
   var head: T;
   val tail: List[T];
-  def get(i: int) = {
+  def get(i: int) {
     if (i == 0) return head;
     else return tail.get(i-1);
   }
-  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) = {
+  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) {
     property[S](tl.length+1);
     head = hd; tail = tl;
   }
@@ -98,11 +98,11 @@ class List[T](length: int){length >= 0} {
   var head{length>0}: T;
   val tail{length>1}: List[T](length-1);
 
-  def get(i: int{0 <= i, i < length}){length > 0} = {
+  def get(i: int{0 <= i, i < length}){length > 0} {
     return i==0 ? head : tail.get(i-1);
   }
 
-  def map[S](f: Object{self $\super$ T} => S): List[S] = {
+  def map[S](f: Object{self $\super$ T} => S): List[S] {
     if (length==0)
       return new List[S](0);
     else if (length==1)
@@ -112,10 +112,10 @@ class List[T](length: int){length >= 0} {
   }
 
   def this[S](): List[S](0) = property[S](0);
-  def this[S](hd: S): List[S](1) = {
+  def this[S](hd: S): List[S](1) {
     property[S](1); head = hd;
   }
-  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) = {
+  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) {
     property[S](tl.length+1);
     head = hd; tail = tl;
   }
@@ -340,7 +340,7 @@ Method constraints also provide support for optional methods.
 \begin{xtenmath}
 class List[T] {
     ...
-    def print(){T $\extends$ Printable} = {
+    def print(){T $\extends$ Printable} {
         for (x: T in this)
             x.print();
     }
@@ -358,7 +358,7 @@ interface Printable { def print(); }
 
 class List[T] implements Printable if {T <: Printable} {
     ...
-    def print(){T <: Printable} = {
+    def print(){T <: Printable} {
         for (x: T in this)
             x.print();
     }

@@ -42,7 +42,7 @@
 \fi
 
 \newcommand\val{\mbox{\tt val}}
-\newcommand\klass{\mbox{\tt class}}
+\newcommand\klass{\mbox{\sf class}}
 \newcommand\var{\mbox{\tt var}}
 \newcommand\self{\mbox{\tt self}}
 \newcommand\this{\mbox{\tt this}}
@@ -52,10 +52,10 @@
 \newcommand\return{\mbox{\tt return}}
 \newcommand\true{\mbox{\tt true}}
 \newcommand\as{\mbox{\tt as}}
-\newcommand\fields{\mbox{\tt fields}}
+\newcommand\fields{\mbox{\sf fields}}
 \newcommand\type{\mbox{\tt type}}
-\newcommand\mtype{\mbox{\tt mtype}}
-\newcommand\field{\mbox{\tt field}}
+\newcommand\mtype{\mbox{\sf mtype}}
+\newcommand\field{\mbox{\sf field}}
 \newcommand\CFJ{{\sf CFJ}}
 \newcommand\FJ{{\sf FJ}}
 \newcommand\Java{{\sf Java}}
@@ -76,9 +76,9 @@
 \def\FGJ{{\sf FGJ}}
 \def\FX{{\sf FX}}
 \def\FXZ{{\sf FX($\cdot$)}}
-\def\FXG{{\sf FX($\cal O$)}}
+\def\FXG{{\sf FX($\cal G$)}}
 \def\FXD{{\sf FX($\cal A$)}}
-\def\FXGD{{\sf FX(${\cal O},{\cal A}$)}}
+\def\FXGD{{\sf FX(${\cal G},{\cal A}$)}}
 \def\has{\mbox{\tt has}}
 \def\TConstr{\mbox{\sc T-Constr}}
 \def\TInv{\mbox{\sc T-Inv}}
@@ -134,11 +134,13 @@ Nathaniel Nystrom\inst{1}
 Igor Peshansky\inst{1}
 \and
 Vijay Saraswat\inst{1}
+\and
+Olivier Tardieu\inst{1}
 }
 
 \institute{IBM T.~J. Watson Research~Center,
 P.O.~Box~704, Yorktown~Heights NY 10598 USA,
-\email{\{nystrom,igorp,vsaraswa\}@us.ibm.com}}
+\email{\{nystrom,igorp,vsaraswa,tardieu\}@us.ibm.com}}
 
 \else
 
@@ -149,6 +151,8 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
   {igorp@us.ibm.com}
 \authorinfo{Vijay Saraswat$^{\;*}$}{}
   {vsaraswa@us.ibm.com}
+\authorinfo{Olivier Tardieu$^{\;*}$}{}
+  {tardieu@us.ibm.com}
 
 % \conferenceinfo{POPL'08}{XXX}
 % \copyrightyear{2008}
@@ -172,10 +176,12 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}}{}
 \label{sec:lang}
 \input{x10-overview}
 
+\eat{
 \section{Translation}
 \label{sec:translation}
 \label{sec:impl}
 \input{translation.tex}
+}
 
 \eat{\input{constraint-solver.tex}}
 

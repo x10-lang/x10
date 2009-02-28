@@ -92,9 +92,8 @@ fields and methods).  Final variables in the computation can be used
 directly in types; there is no need for a separate parallel universe
 of index expressions in the type system.  Constrained types always
 permit field selection and equality at object types; hence the
-programmer may specify constraints at any user-specified object type
-(not just over the built-in constraint system).  
-
+programmer may specify constraints at any user-specified object type,
+not just over the built-in constraint system.  
 
 \subsection{Generic types}
 
@@ -154,8 +153,8 @@ instance, {\tt Array} should be dependent on the type of its
 member elements. While it is possible to develop an approach that
 classes have type {\em parameters} \cite{Java3}, the constrained
 type approach suggests an alternative: classes may have type-valued
-properties (=immutable instance fields). To create an instance of such
-a class a type must be supplied to initialize this property. As with
+properties. To create an instance of such
+a class, a type must be supplied to initialize this property. As with
 other state of the object, this value is available at runtime and
 can hence be used in dynamic cast expressions.
 
@@ -167,14 +166,16 @@ used to specify both value- and type-dependency of types.
   Consider the class {\tt Array} declared as:
 {\footnotesize
 \begin{xten}
-class Array[T](r: Region) {
+class Array {
+  val T: type;
+  val r: Region;
   def get(p: Point{self in this.r}): this.T = ...;
   def set(p: Point{self in this.r}, v: this.T) = ...;
   ...
 }
 \end{xten}}
-{}\noindent The class has two properties, a type-valued property {\tt
-T} (enclosed in square brackets), and a value property {\tt r} of type
+{}\noindent The class has two properties: a type-valued property {\tt
+T} and a value property {\tt r} of type
 {\tt Region}. The {\tt get} method for the array requires a point {\tt
 p} which must lie in the object's region.\footnote{Within the body of
 a class, class members may be referenced without using the ``{\tt
