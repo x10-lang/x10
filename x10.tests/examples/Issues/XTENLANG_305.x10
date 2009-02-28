@@ -7,8 +7,6 @@ import harness.x10Test;
  * @author bdlucas 12/2008
  */
 
-import x10.util.concurrent.atomic.AtomicInteger;
-
 class XTENLANG_305 extends x10Test {
 
     class A[T] implements (nat,nat,nat)=>T {
@@ -22,6 +20,7 @@ class XTENLANG_305 extends x10Test {
 
     public def run(): boolean {
         foo(new A[double]());
+        return true;
     }
 
     public static def main(Rail[String]) {

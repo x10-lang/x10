@@ -4,19 +4,18 @@
 import harness.x10Test;
 
 /**
- * @author tardieu 01/2009
+ * @author igor 2/2009
  */
 
-class XTENLANG_322 extends x10Test {
-
-    static value V { }
+class XTENLANG_311 extends x10Test {
 
     public def run(): boolean {
-        val v = new V();
-        return v.equals(v);
+        var t:int = 0;
+        t++;
+        return t==1;
     }
 
     public static def main(Rail[String]) {
-        new XTENLANG_322().execute();
+        new XTENLANG_311().execute();
     }
 }
