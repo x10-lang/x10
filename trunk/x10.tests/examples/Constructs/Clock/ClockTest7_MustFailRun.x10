@@ -55,7 +55,7 @@ public class ClockTest7_MustFailRun extends x10Test {
 			next;
 			atomic val++;
 			System.out.println("Activity "+i+" phase 2");
-			next;
+			c.next();
 		}
 
 		next; next; next;
