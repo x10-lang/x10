@@ -290,20 +290,21 @@ POLYGLOT_URL='${polyglot.jar.url}'
 LPG_URL='${lpg.jar.url}'
 ECJ_URL='${ecj.jar.url}'
 
-UNAME=`uname -s -p | sed -e 's/ /,/g'`
+UNAME=`uname -smp | sed -e 's/ /,/g'`
 FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
 PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 [ -n "$X10_PLATFORM" ] || \
 case "$UNAME" in
-  CYGWIN*) export X10_PLATFORM='win32_x86';;
-  Linux,*) export X10_PLATFORM='linux_x86';;
-  AIX,*) export X10_PLATFORM='aix_ppc';;
-  Darwin,i386) export X10_PLATFORM='macosx_x86';;
-  Darwin,powerpc) export X10_PLATFORM='macosx_ppc';;
-  SunOS,sparc) export X10_PLATFORM='sunos_sparc';;
+  CYGWIN*,i*86,*) export X10_PLATFORM='win32_x86';;
+  Linux,i*86,*) export X10_PLATFORM='linux_x86';;
+  Linux,ppc*,*) export X10_PLATFORM='linux_ppc';;
+  AIX,*,powerpc) export X10_PLATFORM='aix_ppc';;
+  Darwin,*,i*86) export X10_PLATFORM='macosx_x86';;
+  Darwin,*,powerpc) export X10_PLATFORM='macosx_ppc';;
+  SunOS,*,sparc) export X10_PLATFORM='sunos_sparc';;
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
-# FIXME: the above assumes that Cygwin==win32 and Linux==x86 and AIX==ppc
+# NOTE: the above assumes that Cygwin==win32 (probably valid)
 
 if [[ "$UNAME" = SunOS* ]]; then prog=""; else prog=$(readlink $0); fi
 if [ "$prog" = "" ]; then prog="$0"; fi
