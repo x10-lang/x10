@@ -22,6 +22,15 @@ x10_int NativeInputStream::read(ref<Rail<x10_byte> > b,
     return i;
 }
 
+x10_boolean NativeInputStream::_struct_equals(ref<Object> p0) {
+    if (p0.operator->() == this) return true; // short-circuit trivial equality
+    if (!this->Value::_struct_equals(p0))
+        return false;
+//    ref<NativeInputStream> that = (ref<NativeInputStream>) p0;
+//    if (!struct_equals(this->FMGL(stream), that->FMGL(stream)))
+//        return false;
+    return true;
+}
 
 
 DEFINE_RTT(NativeInputStream);

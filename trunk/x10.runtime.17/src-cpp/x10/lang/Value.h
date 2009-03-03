@@ -70,7 +70,13 @@ namespace x10 {
             virtual x10aux::ref<String> toString();
 
             virtual x10_boolean equals(x10aux::ref<Object> other) {
-                if (!x10aux::concrete_instanceof<Value>(other)) return false;
+                if (!x10aux::instanceof<Value>(other)) return false;
+                return this->_struct_equals(other);
+            }
+
+            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
+                if (!_type()->concreteInstanceOf(other))
+                    return false;
                 // now compare fields but there aren't any
                 return true;
             }

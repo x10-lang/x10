@@ -31,6 +31,16 @@ void NativeOutputStream::write(ref<ValRail<x10_byte> > b,
         this->write((x10_int) b->operator[](off + i));
 }
 
+x10_boolean NativeOutputStream::_struct_equals(ref<Object> p0) {
+    if (p0.operator->() == this) return true; // short-circuit trivial equality
+    if (!this->Value::_struct_equals(p0))
+        return false;
+//    ref<NativeOutputStream> that = (ref<NativeOutputStream>) p0;
+//    if (!struct_equals(this->FMGL(stream), that->FMGL(stream)))
+//        return false;
+    return true;
+}
+
 /*
 void NativeOutputStream::_printf(const char* format, ...) {
     va_list parms;

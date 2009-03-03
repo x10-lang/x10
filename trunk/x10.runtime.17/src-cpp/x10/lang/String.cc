@@ -20,6 +20,7 @@ x10_int String::hashCode() {
     return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
 }
 
+// TODO: merge with _struct_equals
 x10_boolean String::equals(ref<Object> other) {
     if (!x10aux::concrete_instanceof<String>(other)) return false;
     // now we can downcast the Object to String
@@ -176,6 +177,16 @@ ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms
 
 ref<String> String::format(ref<String> format, ref<Rail<ref<Object> > > parms) {
     return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
+}
+
+x10_boolean String::_struct_equals(ref<Object> p0) {
+    if (p0.operator->() == this) return true; // short-circuit trivial equality
+    if (!this->Value::_struct_equals(p0))
+        return false;
+    ref<String> that = (ref<String>) p0;
+    if (strcmp(this->FMGL(content), that->FMGL(content)))
+        return false;
+    return true;
 }
 
 const serialization_id_t String::_serialization_id =
