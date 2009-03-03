@@ -24,7 +24,7 @@ The design of \Xten{} requires the development of a rich type system
 to enable code reuse, permit a large variety of errors to be caught at
 compile-time, and to generate efficient code. For instance, a central
 data structure in \Xten{} is the dense, distributed, multi-dimensional
-array. Arrays are defined over a set of indices known as {\em regions},
+array. Arrays are defined over a set of indices known as \emph{regions},
 may support arbitrary base types, and accesses through {\em
 points} that must lie in the underlying region. For performance it is
 necessary that as far as possible array index accesses are
@@ -40,11 +40,11 @@ race conditions arise due to simultaneous accesses by
 multiple activities to different pieces.
 
 These requirements motivated us to develop a framework for dependent
-types in OO languages \cite{constrained-types}.  {\em Dependent type
+types in OO languages \cite{constrained-types}.  \emph{Dependent type
 systems}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}
 have been extensively developed over the past few decades in the
 context of logic and functional programming---they permit types to be
-parametrized by {\em values}.
+parametrized by \emph{values}.
 
 The key idea behind our approach is to focus on the notion of a {\em
 constraint system}. Constraint systems were originally developed in
@@ -52,8 +52,8 @@ constraint system}. Constraint systems were originally developed in
 inference systems used in programming languages, in particular as a
 foundation for constraint programming languages.  Patterned after
 Scott's information systems, a constraint system is
-organized around the notion of {\em constraints} or tokens of partial
-information (e.g., {\tt X+Y>Z*3}), together with an entailment
+organized around the notion of \emph{constraints} or tokens of partial
+information (e.g., \Xcd{X+Y>Z*3}), together with an entailment
 relation $\vdash$.  Tokens may have first-order structure; existential
 quantification is supported. The entailment relation is required to
 support a certain set of inference rules arising from a Gentzen-style
@@ -66,16 +66,16 @@ is that objects typically have some immutable state, and constraints on
 this state are of interest to the application.  For instance, in \Java{}
 the length of an array may not be statically known but is fixed once
 the array is created. Hence we can enrich the notion of a type: for a
-class {\tt C} we permit a type {\tt C\{c\}} where {\tt c} is a
-constraint on the immutable fields, or {\em properties}, of the class. Thus, 
+class \Xcd{C} we permit a type \Xcd{C\{c\}} where \Xcd{c} is a
+constraint on the immutable fields, or \emph{properties}, of the class. Thus, 
 \Xcd{Array\{self.length==N\}} is a type satisfied by any array whose length
-is {\tt N}---a (final) variable whose value may be unknown
-statically. Subtyping is easily defined: a type {\tt C\{c\}} is a
-subtype of {\tt D\{d\}} 
-% (in the sense that any value satisfying {\tt C\{c\}} may be used wherever a value satisfying {\tt D\{d\}} is
+is \Xcd{N}---a (final) variable whose value may be unknown
+statically. Subtyping is easily defined: a type \Xcd{C\{c\}} is a
+subtype of \Xcd{D\{d\}} 
+% (in the sense that any value satisfying \Xcd{C\{c\}} may be used wherever a value satisfying \Xcd{D\{d\}} is
 %expected) 
-provided that {\tt C} is a subclass of {\tt D} and {\tt c}
-entails {\tt d} in the underlying constraint system.
+provided that \Xcd{C} is a subclass of \Xcd{D} and \Xcd{c}
+entails \Xcd{d} in the underlying constraint system.
 
 Constrained types maintain a phase distinction between compile time
 (entailment checking in the underlying constraint system) and run time
@@ -100,34 +100,34 @@ not just over the built-in constraint system.
 In this paper we extend the constrained types approach to handle {\em
 generic
 types}~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics}---types
-such as {\tt List<T>} in Java that are parametrized by other
+such as \Xcd{List<T>} in Java that are parametrized by other
 types. Generic types are vital for implementing type-safe, reusable
 libraries, especially collections classes. For instance the data type
-{\tt Array} discussed above is generic on its member type.
+\Xcd{Array} discussed above is generic on its member type.
 
-To permit genericity, variables {\tt X} must be admitted over types.
+To permit genericity, variables \Xcd{X} must be admitted over types.
 What constraints can be used to specify conditions on such variables?
 In nominally typed OO languages such as \Java, the answer is
 relatively clear and a simple semantic framework can be sketched out:
-a type is a class {\em name}.\footnote{This can be extended naturally
+a type is a class \emph{name}.\footnote{This can be extended naturally
 to account for interfaces.} Intuitively, an object belongs to a type
 if it is an instance of the class. Types are equipped with a partial
-order (the {\em subtyping} order) generated from the user program
-through the ``{\tt extends}'' relationship.  Further, each type is
+order (the \emph{subtyping} order) generated from the user program
+through the ``\Xcd{extends}'' relationship.  Further, each type is
 associated with member fields and methods, each with their
 name and signature.
 %
 %. Members are of two kinds.  A {\em
-%field} has a name and an associated type. A {\em method} has a name
+%field} has a name and an associated type. A \emph{method} has a name
 %and an associated signature (the type of arguments and the return
 %type).  The members available at a type and its supertype are related:
 %members ``flow'' from supertypes to subtypes in a manner determined by
 %the overriding rules of the language.
 
 This motivates a very natural constraint system on types.  For a type
-variable {\tt X} we should be able to assert the constraint \Xcd{X}
+variable \Xcd{X} we should be able to assert the constraint \Xcd{X}
 $\extends$ \Xcd{T}: a valuation (mapping from variables to types) realizes
-this constraint if it maps {\tt X} to a type that extends {\tt T}.
+this constraint if it maps \Xcd{X} to a type that extends \Xcd{T}.
 Similarly, it should be able to require that a type has a
 particular member---a field with a given name and type, or a method
 with a given name and signature. We introduce the constraints 
@@ -138,9 +138,9 @@ straightforward to specify, given the interpretation specified in the
 previous paragraph. For instance, the $\subtype$ relation on class
 names must be transitive and is precisely given by the transitive
 closure of the extends relation.
-%If the user program does not specify that a class {\tt C}
-%extends {\tt D} (transitively), then {\tt C} does {\em not} extend
-%{\tt D} (closed world assumption). 
+%If the user program does not specify that a class \Xcd{C}
+%extends \Xcd{D} (transitively), then \Xcd{C} does \emph{not} extend
+%\Xcd{D} (closed world assumption). 
 Section~\ref{sec:O} describes the
 resulting Object constraint system, $\cal O$, in more detail.
 
@@ -149,9 +149,9 @@ Clearly, one must permit methods to have type parameters (as permitted
 for instance in Java~\cite{Java3}, Scala~\cite{scala} and in
 functional languages such as ML~\cite{ml} and Haskell~\cite{haskell}).
 It is necessary as well to permit classes to be dependent on types---for
-instance, {\tt Array} should be dependent on the type of its
+instance, \Xcd{Array} should be dependent on the type of its
 member elements. While it is possible to develop an approach that
-classes have type {\em parameters} \cite{Java3}, the constrained
+classes have type \emph{parameters} \cite{Java3}, the constrained
 type approach suggests an alternative: classes may have type-valued
 properties. To create an instance of such
 a class, a type must be supplied to initialize this property. As with
@@ -163,7 +163,7 @@ mechanism of constrained types---imposing constraints on properties---is
 used to specify both value- and type-dependency of types.
 
 \begin{example}[Array]
-  Consider the class {\tt Array} declared as:
+  Consider the class \Xcd{Array} declared as:
 {\footnotesize
 \begin{xten}
 class Array {
@@ -174,13 +174,14 @@ class Array {
   ...
 }
 \end{xten}}
-{}\noindent The class has two properties: a type-valued property {\tt
-T} and a value property {\tt r} of type
-{\tt Region}. The {\tt get} method for the array requires a point {\tt
-p} which must lie in the object's region.\footnote{Within the body of
-a class, class members may be referenced without using the ``{\tt
-this.}'' selector, as usual for OO languages. Hence occurrences of
-{\tt this.r} and {\tt this.T} can be replaced by {\tt r} and {\tt T}
+{}\noindent The class has two properties: a type-valued property
+\Xcd{T} and a value property \Xcd{r} of type
+\Xcd{Region}. The \Xcd{get} method for the array requires a
+point \Xcd{p} which must lie in the object's region.\footnote{Within the body of
+a class, class members may be referenced without using the
+``\Xcd{this.}'' selector, as usual for OO languages. Hence occurrences of
+\Xcd{this.r} and \Xcd{this.T} can be replaced by \Xcd{r} and
+\Xcd{T}
 respectively.}
 \end{example}
 
@@ -188,19 +189,20 @@ The type \Xcd{Array\{self.T==int\}} specifies the type of all arrays
 whose element type (\Xcd{T}) is \Xcd{int}.
 \Xcdmath{Array\{self.T $\extends$ Number,} \Xcd{self.r.rank==2\}}
 specifies the type of all arrays whose base
-type is a subtype of {\tt Number}, and whose region has rank {\tt 2}.
+type is a subtype of \Xcd{Number}, and whose region has rank
+\Xcd{2}.
 The type 
 \Xcd{Array\{self.T==List\{self.length==N\},} \Xcd{self.r.rank==N\}}
-specifies an {\tt N}-dimensional array whose elements are lists (of
-unknown type) that are precisely {\tt N} long.
+specifies an \Xcd{N}-dimensional array whose elements are lists (of
+unknown type) that are precisely \Xcd{N} long.
 
 Note that for any expression \xcd"a" of type \xcd"Array", \xcd"a.T" is
 a type, equivalent to the type to which \xcd"T" was initialized when
 the object \xcd"a" was instantiated
-(cf. the return type {\tt this.T} for {\tt Array.get}).
+(cf. the return type \Xcd{this.T} for \Xcd{Array.get}).
 For soundness, we require
-that {\tt a} be a final access path: an immutable
-variable (including {\tt this}) or an access to a final field of a final access
+that \Xcd{a} be a final access path: an immutable
+variable (including \Xcd{this}) or an access to a final field of a final access
 path.
 
 \subsection{Design and implementation of the \Xten{} type system}
@@ -235,7 +237,7 @@ shown to be sound with respect to the operational semantics.
 Different members of the family are associated with different
 constraint systems. \FXZ{} is
 \FX{} instantiated over the vacuous constraint system---the only
-user-specifiable constraint permitted is the vacuous {\tt true}. \FXZ{}
+user-specifiable constraint permitted is the vacuous \Xcd{true}. \FXZ{}
 corresponds to \FJ. \FXG{} permits user-specifiable constraints from the 
 Object constraint system $\cal O$ described above---it corresponds to
 \FGJ{} (being somewhat richer in permitting path types and

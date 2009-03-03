@@ -4,21 +4,21 @@ framework for types capable of expressing value-dependency,
 type-dependency and supporting pluggable, application-specific
 extensions.
 
-In earlier work, we presented the framework of {\em constrained types}
+In earlier work, we presented the framework of \emph{constrained types}
 for concurrent, object-oriented languages, parametrized by an
 underlying constraint system $\cal C$. Constraint systems are a very
 expressive framework for partial information. Types are viewed as
 formulas \Xcd{C\{c\}} where \Xcd{C} is the name of a class or an interface
 and
 \Xcd{c} is a constraint in $\cal C$ on the immutable instance state of
-\Xcd{C} (the {\em properties}). Many (value-)dependent type systems
+\Xcd{C} (the \emph{properties}). Many (value-)dependent type systems
 for object-oriented languages can be viewed as constrained types.
 
 This paper extends the constrained types approach to handle
-{\em type-dependency} (``genericity''). The key idea is to formalize the
+\emph{type-dependency} (``genericity''). The key idea is to formalize the
 essence of nominal object-oriented types itself as a constraint system
-over predicates such as {\tt X} extends {\tt T}, {\tt S} is a subtype
-of {\tt T} and {\tt X} has member {\tt I}. Generic types are supported
+over predicates such as \Xcd{X} extends \Xcd{T}, \Xcd{S} is a subtype
+of \Xcd{T} and \Xcd{X} has member \Xcd{I}. Generic types are supported
 by introducing parameters and properties that range over types and
 permitting the user program to impose constraints on such
 variables. Type-valued properties are required to have a run-time

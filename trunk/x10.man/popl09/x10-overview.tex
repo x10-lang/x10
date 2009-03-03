@@ -139,13 +139,11 @@ bounds on the type properties.  For instance, a binary
 tree class
 might require that its elements implement the \xcd"Comparable"
 interface:
-\clearpage
-{\footnotesize
 \begin{xtenmath}
 class Tree[T]{T $\extends$ Comparable[T]} {
   left, right: Tree[T]; ...
 }
-\end{xtenmath}}
+\end{xtenmath}
 
 \subsection{Class member invariants}
 
@@ -154,7 +152,7 @@ constraints that must be satisfied for access.
 
 The field  declarations in Figure~\ref{fig:list}
 each have a \emph{field constraint}.  The field constraint on
-\xcd"head" requires that \xcd"this.length>0";
+\xcd"head" requires that \xcd"length" \xcd">" \xcd"0";
 that is \xcd"this.head" may not be dereferenced
 unless \xcd"this" has type \xcd"List{length>0}".  Similarly,
 \xcd"tail" cannot be accessed unless the list has a non-empty tail.  The
