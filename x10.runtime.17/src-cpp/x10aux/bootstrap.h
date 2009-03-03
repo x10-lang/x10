@@ -44,6 +44,9 @@ namespace x10aux {
           : main(main_), args(args_)
         { }
 
+        virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0) {
+            return false; // FIXME: should we be able to compare function types structurally?
+        }
 
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
@@ -62,7 +65,7 @@ namespace x10aux {
         try {
 #endif
             setlinebuf(stdout);
-			
+
             x10aux::barrier();
 
             // Initialise enough state to make this 'main' thread look like a normal x10 thread

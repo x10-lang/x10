@@ -33,6 +33,8 @@ import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZATION_MARKER;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_BODY_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.STATIC_INIT;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.STRUCT_EQUALS_METHOD;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.THIS;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.VOID;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.VOID_PTR;
@@ -181,6 +183,7 @@ import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
+import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.InitializerInstance;
 import polyglot.types.LocalDef;
@@ -1092,12 +1095,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				n.printBlock(member, sw, tr);
             }
 
+            X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
             // generate proxy methods for an overridden method's superclass overloads
             if (superClass != null) {
                 // first gather a set of all the method names in the current class
                 ArrayList<Name> mnames = getMethodNames(members);
 
-                X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
                 // then, for each one
                 for (Name mname : mnames) {
                     // get the list of overloads that this class should expose
@@ -1194,7 +1197,55 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 }
             }
 
-			if (extractInits(currentClass, STATIC_INIT, VOID, members, true)) {
+            // Generate structEquals for values
+            if (xts.isValueType(currentClass)) {
+                h.write("public: ");
+                h.write("virtual ");
+                emitter.printType(xts.Boolean(), h);
+                h.write(" "+mangled_method_name(STRUCT_EQUALS_METHOD)+"(");
+                emitter.printType(xts.Object(), h);
+                h.write(" p0");
+                h.write(");"); h.newline();
+
+                emitter.printTemplateSignature(currentClass.typeArguments(), sw);
+                emitter.printType(xts.Boolean(), sw);
+                sw.write(" " + emitter.translateType(currentClass, false) +
+                         "::" + mangled_method_name(STRUCT_EQUALS_METHOD) + "(");
+                emitter.printType(xts.Object(), sw);
+                sw.write(" p0");
+                sw.write(") {"); sw.newline(4); sw.begin(0);
+                sw.write("if (p0.operator->() == this) return true; // short-circuit trivial equality");
+                sw.newline();
+                sw.write("if (!this->" + emitter.translateType(superClass) + "::" +
+                         mangled_method_name(STRUCT_EQUALS_METHOD) + "(p0))");
+                sw.newline(4); sw.begin(0);
+                sw.write("return false;");
+                sw.end(); sw.newline();
+                emitter.printType(currentClass, sw);
+                sw.write(" that =");
+                sw.allowBreak(4, " ");
+                sw.write("("); sw.begin(0);
+                emitter.printType(currentClass, sw);
+                sw.end(); sw.write(") p0;");
+                sw.newline();
+                for (FieldInstance fi : currentClass.fields()) {
+                    if (fi.flags().isStatic())
+                        continue;
+                    if (!xts.isValueType(fi.type()))
+                        continue;
+                    String name = fi.name().toString();
+                    sw.write("if (!"+STRUCT_EQUALS+"(this->" + mangled_field_name(name) +
+                             ", that->" + mangled_field_name(name) + "))");
+                    sw.newline(4); sw.begin(0);
+                    sw.write("return false;");
+                    sw.end(); sw.newline();
+                }
+                sw.write("return true;");
+                sw.end(); sw.newline();
+                sw.write("}"); sw.newline();
+            }
+
+            if (extractInits(currentClass, STATIC_INIT, VOID, members, true)) {
                 // define field that triggers initalisation-time registration of
                 // static init function
                 sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +

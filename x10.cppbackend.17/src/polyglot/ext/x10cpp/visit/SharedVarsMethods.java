@@ -78,6 +78,8 @@ public class SharedVarsMethods {
 	static final String DESERIALIZE_METHOD = "_deserialize";
 	static final String DESERIALIZER_METHOD = "_deserializer";
 	static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
+    static final String STRUCT_EQUALS = "x10aux::struct_equals";
+    static final String STRUCT_EQUALS_METHOD = "_struct_equals";
 
     static final String VIM_MODELINE = "vim:tabstop=4:shiftwidth=4:expandtab";
 
