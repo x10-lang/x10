@@ -574,7 +574,7 @@ public class X10CPPTranslator extends Translator {
 
         public Cygwin_CXXCommandBuilder(Options options) {
             super(options);
-            assert (PLATFORM.startsWith("win32"));
+            assert (PLATFORM.startsWith("win32_"));
         }
 
         protected void addPreArgs(ArrayList<String> cxxCmd) {
@@ -593,11 +593,12 @@ public class X10CPPTranslator extends Translator {
     }
 
     private static class Linux_CXXCommandBuilder extends CXXCommandBuilder {
+        public static final boolean USE_X86 = PLATFORM.endsWith("_x86");
         /** These go before the files */
         public static final String[] preArgsLinux = new String[] {
             "-pthread",
-            "-msse2",
-            "-mfpmath=sse",
+            USE_X86 ? "-msse2" : DUMMY,
+            USE_X86 ? "-mfpmath=sse" : DUMMY,
         };
         /** These go after the files */
         public static final String[] postArgsLinux = new String[] {
@@ -607,7 +608,7 @@ public class X10CPPTranslator extends Translator {
 
         public Linux_CXXCommandBuilder(Options options) {
             super(options);
-            assert (PLATFORM.startsWith("linux"));
+            assert (PLATFORM.startsWith("linux_"));
         }
 
         /** Disable for now.  TODO: enable */
@@ -650,7 +651,7 @@ public class X10CPPTranslator extends Translator {
 
         public AIX_CXXCommandBuilder(Options options) {
             super(options);
-            assert (PLATFORM.startsWith("aix"));
+            assert (PLATFORM.startsWith("aix_"));
         }
 
         protected boolean gcEnabled() { return false; }
@@ -677,14 +678,14 @@ public class X10CPPTranslator extends Translator {
     }
 
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
-    public static final String DEFAULT_TRANSPORT = PLATFORM.startsWith("aix")?"lapi":"sockets";
+    public static final String DEFAULT_TRANSPORT = PLATFORM.startsWith("aix_")?"lapi":"sockets";
 
     private static CXXCommandBuilder getCXXCommandBuilder(Options options, ErrorQueue eq) {
-        if (PLATFORM.startsWith("win32"))
+        if (PLATFORM.startsWith("win32_"))
             return new Cygwin_CXXCommandBuilder(options);
-        if (PLATFORM.startsWith("linux"))
+        if (PLATFORM.startsWith("linux_"))
             return new Linux_CXXCommandBuilder(options);
-        if (PLATFORM.startsWith("aix"))
+        if (PLATFORM.startsWith("aix_"))
             return new AIX_CXXCommandBuilder(options);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
