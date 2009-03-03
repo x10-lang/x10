@@ -13,7 +13,7 @@ them.
   (Method declaration)& {\tt M} &{::=}& ${\tt def~m}(\tbar{x}:\tbar{V})\{{\tt c}\}: {\tt T = e;}$ \\
   (Expression)& {\tt e} &{::=}& {\tt x} \alt \this \alt ${\tt e}.{\tt f}$ \alt ${\tt e}.{\tt m}(\tbar{e})$
    \alt ${\tt new~C}(\tbar{e})$ \alt ${\tt e}~{\tt as}~{\tt T}$ \\
-  (Parameter type) & ${\tt U}, {\tt V}$&{::=} & {\tt T} \\
+  (Parameter type) & ${\tt U}, {\tt V}$&{::=} & {\tt T} \alt $\exists{\tt x}:{\tt V}.~{\tt U}$ \\
   (Type)& ${\tt S},{\tt T}$&{::=}& {\tt C} \alt ${\tt T\{c\}}$ \alt $\exists{\tt x}:{\tt V}.~{\tt T}$ \alt {\tt x} \\
   (Constraint term) & {\tt t} &{::=}& {\tt x} \alt {\tt self} \alt
   {\tt this} \alt ${\tt t}.{\tt f}$ \alt ${\tt new~C}(\tbar{t})$ \\
@@ -21,7 +21,7 @@ them.
 %  (Values) & {\tt v}&{::=}& \new\ {\tt C}($\bar{\tt v}$)
 \end{tabular} 
 \end{center}
-{\tt C}, {\tt D} range over class names, {\tt f} over field names, {\tt m} over method names, {\tt u} over existential variables, {\tt x} over parameter names.
+{\tt C}, {\tt D} range over class names, {\tt f} over field names, {\tt m} over method names, {\tt x} over parameter names.
 \caption{\FX{} productions}
 \label{fig:fx-grammar}
 \end{figure*}
@@ -105,8 +105,8 @@ of $\cal O$ are uniformly added to every \FX{} member.}
 \infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
 
 \infrule[And]
-	{\Gamma  \vdash {\tt c}_0: {\tt o} \andalso \Gamma \vdash {\tt c}_1: {\tt o}}
-	{\Gamma \vdash ({\tt c}_0,{\tt c}_1):{\tt o}}
+	{\Gamma  \vdash {\tt c}: {\tt o} \andalso \Gamma \vdash {\tt d}: {\tt o}}
+	{\Gamma \vdash ({\tt c},{\tt d}):{\tt o}}
 
 %\infrule[Exists]
 %	{\Gamma \vdash {\tt t}: {\tt T} \andalso \Gamma \vdash {\tt c}[{\tt t}/{\tt x}]:{\tt o}}
@@ -119,8 +119,8 @@ of $\cal O$ are uniformly added to every \FX{} member.}
 	{\Gamma \vdash {\tt C} : \type} 
 
 \infrule[Exists]
-	{\Gamma \vdash {\tt t}: {\tt V} \andalso \Gamma \vdash {\tt T}[{\tt t}/{\tt x}]: \type}
-	{\Gamma \vdash \exists {\tt x}:{\tt V}.~{\tt T}: \type} 
+	{\Gamma \vdash {\tt t}: {\tt V} \andalso \Gamma \vdash {\tt U}[{\tt t}/{\tt x}]: \type}
+	{\Gamma \vdash \exists {\tt x}:{\tt V}.~{\tt U}: \type} 
 
 \infrule[Dep]
 	{\Gamma \vdash {\tt T}: \type \andalso \Gamma, \self:{\tt T} \vdash {\tt c}:{\tt o}}
@@ -129,6 +129,56 @@ of $\cal O$ are uniformly added to every \FX{} member.}
 \end{figure}
 
 
+\begin{figure*}
+\quad\\[-12pt]
+
+\infax[Fields-B]
+{{\tt x}:{\tt Object} \vdash \fields({\tt x})=\bullet}
+
+\infrule[Fields-I]
+{\Gamma, {\tt x}:{\tt D} \vdash \fields({\tt x})=\tbar{g}: \tbar{V}
+ \\
+ {\tt class}~{\tt C}(\tbar{f}:\tbar{U})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
+{\Gamma, {\tt x}:{\tt C} \vdash \fields({\tt x})=\tbar{g}: \tbar{V}, \tbar{f}: \tbar{U}[{\tt x}/{\tt this}]}
+
+\infrule[Fields-C,E]
+{\Gamma, {\tt x}: {\tt S} \vdash \fields({\tt x})=\tbar{f}: \tbar{V}}
+{\Gamma, {\tt x}: {\tt S}\{{\tt d}\} \vdash \fields({\tt x}) = \tbar{f}:
+                                  \tbar{V}\{{\tt d}[{\tt x}/{\tt self}]\}
+\\
+\Gamma, {\tt x}: \exists {\tt y}: {\tt U}.~{\tt S} \vdash
+\fields({\tt x})=\tbar{f}:\exists {\tt y}:{\tt U}.~\tbar{V}
+	}
+
+\infrule[Method-B]
+{{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}
+ \\
+ {\tt def}~{\tt m}(\tbar{z}:\tbar{U})\{{\tt d}\}:{\tt T} = {\tt e} \in \tbar{M} \andalso
+ \theta=[{\tt x}/\this]}
+{\Gamma, {\tt x}:{\tt C} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U}\theta)\{{\tt d}\theta\}:{\tt T}\theta={\tt e})}
+
+\infrule[Method-I]
+{\Gamma, {\tt x}:{\tt D} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U})\{{\tt d}\}:{\tt T}={\tt e})
+\\
+ {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}
+ \andalso
+ {\tt m} \not\in \tbar{M}}
+{\Gamma, {\tt x}:{\tt C} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U})\{{\tt d}\}:{\tt T}={\tt e})}
+
+\infrule[Method-C,E]
+{\Gamma, {\tt x}:{\tt S} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U})\{{\tt c}\}:{\tt T}={\tt e})}
+{\Gamma, {\tt x}: {\tt S}\{{\tt d}\} \vdashO 
+                                 {\tt x}~\has~({\tt
+                                 m}(\tbar{z}:\tbar{U})\{{\tt
+                                 c}\}:{\tt T\{d[{\tt x}/{\tt self}]\}}={\tt e})
+\\
+\Gamma, {\tt x}: \exists {\tt y}: {\tt U}.~{\tt S} \vdash
+                                 {\tt x}~\has~({\tt
+                                 m}(\tbar{z}:\tbar{U})\{{\tt
+                                 c}\}:{\tt \exists {\tt y}: {\tt U}.~{\tt T}}={\tt e})}
+
+\caption{The Object constraint system, $\cal O$}\label{fig:O}  
+\end{figure*}
 
 \subsection{The Object constraint system, $\cal O$}\label{sec:O}
 
@@ -258,60 +308,6 @@ the user to state constraints on type variables).
  \Gamma \vdashO {\tt T} \subtype {\tt S}}
 {\Gamma  \vdashO {\tt S} \equiv {\tt T}}
 
-\end{figure*}
-
-\begin{figure*}
-\quad\\[-12pt]
-
-\infax[Fields-B]
-{{\tt x}:{\tt Object} \vdashO \fields({\tt x})=\bullet}
-
-\infrule[Fields-I]
-{\Gamma, {\tt x}:{\tt D} \vdashO \fields({\tt x})=\tbar{g}: \tbar{V}
- \\
- {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
-{\Gamma, {\tt x}:{\tt C} \vdashO \fields({\tt x})=\tbar{g}: \tbar{V}, \tbar{f}: \tbar{U}[{\tt x}/{\tt this}]}
-
-\infrule[Fields-C,E]
-{\Gamma, {\tt x}: {\tt S} \vdashO \fields({\tt x})=\tbar{f}: \tbar{V}}
-{\Gamma, {\tt x}: {\tt S}\{{\tt d}\} \vdashO \fields({\tt x}) = \tbar{f}:
-                                  \tbar{V}\{{\tt d}[{\tt x}/{\tt self}]\}
-\\
-\Gamma, {\tt x}: \exists {\tt y}: {\tt U}.~{\tt S} \vdashO
-\fields({\tt x})=\tbar{f}:\exists {\tt y}:{\tt U}.~\tbar{V}
-	}
-
-\infrule[Method-B]
-{\Gamma, {\tt x}:{\tt C}\vdashO\klass({\tt C})
- \andalso
- \theta=[{\tt x}/\this]
- \\
- {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}
- \\
- {\tt def}~{\tt m}(\tbar{z}:\tbar{V})\{{\tt c}\}:{\tt V} = {\tt e} \in \tbar{M}}
-{\Gamma, {\tt x}:{\tt C} \vdashO {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{V}\theta)\{{\tt c}\theta\}:{\tt V}\theta={\tt e})}
-
-\infrule[Method-I]
-{\Gamma, {\tt x}:{\tt D} \vdashO {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{V})\{{\tt c}\}:{\tt V}={\tt e})
-\\
- {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}
- \andalso
- {\tt m} \not\in \tbar{M}}
-{\Gamma, {\tt x}:{\tt C} \vdashO {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{V})\{{\tt c}\}:{\tt V}={\tt e})}
-
-\infrule[Method-C,E]
-{\Gamma, {\tt x}:{\tt S} \vdashO {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{V})\{{\tt c}\}:{\tt V}={\tt e})}
-{\Gamma, {\tt x}: {\tt S}\{{\tt d}\} \vdashO 
-                                 {\tt x}~\has~({\tt
-                                 m}(\tbar{z}:\tbar{V})\{{\tt
-                                 c}\}:{\tt V\{d[{\tt x}/{\tt self}]\}}={\tt e})
-\\
-\Gamma, {\tt x}: \exists {\tt y}: {\tt U}.~{\tt S} \vdashO
-                                 {\tt x}~\has~({\tt
-                                 m}(\tbar{z}:\tbar{V})\{{\tt
-                                 c}\}:{\tt \exists {\tt y}: {\tt U}.~{\tt V}}={\tt e})}
-
-\caption{The Object constraint system, $\cal O$}\label{fig:O}  
 \end{figure*}
 
 
