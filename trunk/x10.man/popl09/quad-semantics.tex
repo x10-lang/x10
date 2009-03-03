@@ -8,19 +8,20 @@ them.
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
   (Program) & {\tt P} &{::=}& \tbar{L} \\
-  (Class) & {\tt L} &{::=}& ${\tt class~C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends~C'}~\{~\tbar{M}~\}$
+  (Class declaration) & {\tt L} &{::=}& ${\tt class~C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends~D}~\{~\tbar{M}~\}$
   \\
-  (Method)& {\tt M} &{::=}& ${\tt def~m}(\tbar{x}:\tbar{V})\{{\tt c}\}: {\tt V = e;}$ \\
-  (Expression)& {\tt e} &{::=}& {\tt x} \alt \this \alt ${\tt e}.{\tt f}$ \alt ${\tt e}.{\tt f}(\tbar{e})$
+  (Method declaration)& {\tt M} &{::=}& ${\tt def~m}(\tbar{x}:\tbar{V})\{{\tt c}\}: {\tt T = e;}$ \\
+  (Expression)& {\tt e} &{::=}& {\tt x} \alt \this \alt ${\tt e}.{\tt f}$ \alt ${\tt e}.{\tt m}(\tbar{e})$
    \alt ${\tt new~C}(\tbar{e})$ \alt ${\tt e}~{\tt as}~{\tt T}$ \\
   (Parameter type) & ${\tt U}, {\tt V}$&{::=} & {\tt T} \\
-  (Type)& ${\tt S},{\tt T}$&{::=}& {\tt C} \alt ${\tt T\{c\}}$ \alt $\exists{\tt x}:{\tt U}.~{\tt V}$ \\
+  (Type)& ${\tt S},{\tt T}$&{::=}& {\tt C} \alt ${\tt T\{c\}}$ \alt $\exists{\tt x}:{\tt V}.~{\tt T}$ \alt {\tt x} \\
   (Constraint term) & {\tt t} &{::=}& {\tt x} \alt {\tt self} \alt
   {\tt this} \alt ${\tt t}.{\tt f}$ \alt ${\tt new~C}(\tbar{t})$ \\
   (Constraint) & ${\tt c}, {\tt d}$ &{::=}&\true \alt {\tt t==t} \alt ${\tt c}, {\tt c}$ \\
 %  (Values) & {\tt v}&{::=}& \new\ {\tt C}($\bar{\tt v}$)
 \end{tabular} 
 \end{center}
+{\tt C}, {\tt D} range over class names, {\tt f} over field names, {\tt m} over method names, {\tt u} over existential variables, {\tt x} over parameter names.
 \caption{\FX{} productions}
 \label{fig:fx-grammar}
 \end{figure*}
@@ -36,13 +37,13 @@ A program {\tt P} is a set of class declarations \tbar{L}.
 Class names {\tt C} in {\tt P} range over the declared classes in {\tt P} 
 and {\tt Object}.
 Classes have
-properties \tbar{f} and methods \tbar{M}.  We omit constructors
+properties (i.e., immutable fields) \tbar{f} and methods \tbar{M}.  We omit constructors
 and require that the {\tt new} expression provide initializers
 for all fields. 
-Methods are introduces with the {\tt def} keyword.
+Methods are introduced with the {\tt def} keyword.
 Both classes and methods may have constraint clauses
 {\tt c}.  In the case of classes, {\tt c} is to be thought of as an
-invariant satisfied by all instances of the clause; in the case of
+invariant satisfied by all instances of the class; in the case of
 methods, {\tt c} is an additional condition, or {\em guard}
 that must be satisfied by
 {\tt this} and the actual arguments of the method in order for the method to
@@ -54,15 +55,7 @@ expressions, or casts (written {\tt e as T}).
 
 The set of types includes classes {\tt C} and is closed under
 constrained types (${\tt T\{c\}}$) and existential
-quantification ($\exists {\tt x}:{\tt U}.~{\tt V}$).
-%
-Note that we distinguish the category of {\em parameter types} ({\tt
-V}) from types ({\tt T}). This is in preparation for the introduction
-of type variables; we will introduce a ``type'' {\tt type} and permit
-parameters and fields to have this type, thus supporting
-genericity.\footnote{But we will not permit the return types of
-methods to be {\tt type}. This does indeed make sense, but developing
-this theory further is beyond the scope of this paper.}
+quantification ($\exists {\tt x}:{\tt V}.~{\tt T}$).
 %
 An object {\tt o} is of type {\tt C} (for {\tt C} a class)
 if it is an instance of a subtype of {\tt C}; it is of type {\tt
@@ -71,11 +64,19 @@ c[o/self]$\footnote{Thus the constraint {\tt c} in a type {\tt T\{c\}}
 should be thought of as a unary predicate $\lambda\self.{\tt c}$, an
 object is of this type if it is of type {\tt T} and satisfies this
 predicate.}; it is of type
-                $\exists {\tt x}:{\tt U}.~{\tt V}$
+                $\exists {\tt x}:{\tt V}.~{\tt T}$
 if there is some object {\tt q}
-of type {\tt U} such that {\tt o} is of type
-${\tt V}[{\tt q}/{\tt x}]$ (treating at
-type as a syntactic expression).
+of type {\tt V} such that {\tt o} is of type
+${\tt T}[{\tt q}/{\tt x}]$.
+
+%
+Note that we distinguish the category of {\em parameter types} ({\tt
+V}) from types ({\tt T}). This is in preparation for the introduction
+of type variables; we will introduce a ``type'' {\tt type} and permit
+parameters and fields to have this type, thus supporting
+genericity.\footnote{But we will not permit the return types of
+methods to be {\tt type}. This does indeed make sense, but developing
+this theory further is beyond the scope of this paper.}
 
 The syntax for constraints in \FXZ{} is specified in
 Figure~\ref{fig:fx-grammar}. We distinguish a subset of these constraints as
@@ -97,6 +98,37 @@ constraint system over which they are defined.\footnote{Another way of
 saying this is that the language ${\cal L}=\FX({\cal C})$ is actually
 defined over the constraint system ${\cal O}({\cal C})$--the constraints
 of $\cal O$ are uniformly added to every \FX{} member.}
+
+
+\begin{figure}
+\quad\\[-12pt]
+\infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
+
+\infrule[And]
+	{\Gamma  \vdash {\tt c}_0: {\tt o} \andalso \Gamma \vdash {\tt c}_1: {\tt o}}
+	{\Gamma \vdash ({\tt c}_0,{\tt c}_1):{\tt o}}
+
+%\infrule[Exists]
+%	{\Gamma \vdash {\tt t}: {\tt T} \andalso \Gamma \vdash {\tt c}[{\tt t}/{\tt x}]:{\tt o}}
+%	{\Gamma \vdash {\tt x}:{\tt T}.~{\tt c}: {\tt o}}
+
+\infax[Object]{\Gamma \vdash {\tt Object}: {\tt type}}
+
+\infrule[Class]
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
+	{\Gamma \vdash {\tt C} : \type} 
+
+\infrule[Exists]
+	{\Gamma \vdash {\tt t}: {\tt V} \andalso \Gamma \vdash {\tt T}[{\tt t}/{\tt x}]: \type}
+	{\Gamma \vdash \exists {\tt x}:{\tt V}.~{\tt T}: \type} 
+
+\infrule[Dep]
+	{\Gamma \vdash {\tt T}: \type \andalso \Gamma, \self:{\tt T} \vdash {\tt c}:{\tt o}}
+	{\Gamma \vdash {\tt T}\{{\tt c}\}: {\tt type}} 
+\caption{\FX{} well-formedness rules}
+\end{figure}
+
+
 
 \subsection{The Object constraint system, $\cal O$}\label{sec:O}
 
