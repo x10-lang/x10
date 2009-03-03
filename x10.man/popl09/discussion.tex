@@ -19,7 +19,7 @@ Covariance, mutability, erasure.
 
 \subsection{Virtual types}
 
-{\em Virtual classes}~\cite{beta,mp89-virtual-classes,ernst06-virtual}.
+\emph{Virtual classes}~\cite{beta,mp89-virtual-classes,ernst06-virtual}.
 are a language-based extensibility
 mechanism that where
 originally introduced in the language
@@ -31,7 +31,7 @@ variants of
 virtual classes~\cite{scala,nqm06,cdnw07-tribe,variant-path-types}
 using path-dependent types.  
 
-{\em Virtual types}, also introduced in BETA~\cite{beta},
+\emph{Virtual types}, also introduced in BETA~\cite{beta},
 are similar to virtual
 classes.  A virtual type is a type binding nested within an
 enclosing instance.
@@ -113,32 +113,40 @@ and even \xcdmath"List{Integer$\extends$T, T$\extends$Number}".
 Type properties are also similar, but not identical to, type
 parameters.  The key difference is that type properties are
 instance members bound during object construction.  Type
-properties are thus accessible through expressions: \xcd"e.T" is
-a legal type.
+properties are thus accessible through expressions---\xcd"e.T" is
+a legal type---and are inherited by subclasses.
 
 We can make the type system behave as if type properties were
-type parameters very simply.  We need only make the syntax \xcd"e.T"
+type parameters very simply:  First, we make the syntax \xcd"e.T"
 illegal and permit type properties to be accessible only
 from within the body of their class definition via the implicit \xcd"this"
-qualifier.
+qualifier and within constraints via \xcd"self".  In addition,
+we change the inheritance rules of type properties so that a
+class may inherit more than one property with the same name
+without conflict.
 
-Wildcards in Java~\cite{Java3,adding-wildcards} can be motivated
+Constrained types also provide a characterization of
+wildcards in Java.
+Wildcards~\cite{Java3,adding-wildcards} can be motivated
 by the following example.
 Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
 the empty set.  What should be the type of \xcd"EMPTY"?
 In Java, one can use a wildcard, and 
 assign the type \xcd"Set<?>"; that is the type of all \xcd"Set"
-instantiated on {\em some} parameter.  Clients of this
+instantiated on \emph{some} parameter.  Clients of this
 type do not know what parameter the actual instance of \xcd"Set"
 is bound to, which restricts the methods that can be invoked on
 the object.
+In \Xten{}, a similar effect is achieved by leaving the
+element type property of \xcd"Set" unconstrained.
 
 Wildcards can
 also be bounded above and below with
-{\tt ?} {\tt extends} {\tt T} and {\tt ?} {\tt super} {\tt T} respectively.
+\Xcd{?} \Xcd{extends} \Xcd{T} and \Xcd{?} \Xcd{super} \Xcd{T} respectively.
 %
-In \Xten{}, a similar effect is achieved by leaving the
-element type property of \xcd"Set" partially unconstrained.
+In \Xten{}, a similar effect is achieved by constraining
+the
+element type property of \xcd"Set" with a subtyping constraint.
 
 We can define the following straightforward translation
 from Java wildcards to \Xten{}.
@@ -290,7 +298,7 @@ We consider an extension of the \Xten{} type system
 to support structural type constraints.  Formally, the extension
 is straightforward; indeed the \FX{} family already supports structural
 constraints
-via the rules for ``{\tt x} {\tt has} {\tt I}''.
+via the rules for ``\Xcd{x} \Xcd{has} \Xcd{I}''.
 Figure~\ref{fig:O} and Figure~\ref{fig:fgj}.
 
 Structural constraints on types are found in many languages.
@@ -465,6 +473,6 @@ ys.append(1.0); // illegal
 \end{xten}}
 the call to \xcd"xs.append" is allowed and the result type is \xcd"List[Number]", but
 the call to \xcd"ys.append" is not allowed because the caller cannot show that
-${\tt Number} \subtype {\tt Double}$.
+$\Xcd{Number} \subtype \Xcd{Double}$.
 
 }

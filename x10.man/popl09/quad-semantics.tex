@@ -31,7 +31,8 @@ them.
 The grammar for \FXZ{} is shown in Figure~\ref{fig:fx-grammar}.
 The syntax is essentially that of \FJ{}.
 Following the convention for \FJ{}, we use $\bar{x}$ to denote a
-list $x_1, \dots, x_n$.
+list $x_1, \dots, x_n$.  We use $\bullet$ to denote the empty
+list.
 
 A program {\tt P} is a set of class declarations \tbar{L}.
 Class names {\tt C} in {\tt P} range over the declared classes in {\tt P} 
@@ -44,7 +45,7 @@ Methods are introduced with the {\tt def} keyword.
 Both classes and methods may have constraint clauses
 {\tt c}.  In the case of classes, {\tt c} is to be thought of as an
 invariant satisfied by all instances of the class; in the case of
-methods, {\tt c} is an additional condition, or {\em guard}
+methods, {\tt c} is an additional condition, or {\em guard},
 that must be satisfied by
 {\tt this} and the actual arguments of the method in order for the method to
 be applicable. 
@@ -302,11 +303,13 @@ the user to state constraints on type variables).
  \Gamma \vdashO {\tt S} \subtype {\tt T}[{\tt t}/{\tt x}]}
 {\Gamma  \vdashO {\tt S}\subtype \exists {\tt x}: {\tt U}.~{\tt T}}
 
+\eat{
 \infrule[Type-equiv]
 {\Gamma  \vdashO {\tt S} \subtype {\tt T}
  \andalso
  \Gamma \vdashO {\tt T} \subtype {\tt S}}
 {\Gamma  \vdashO {\tt S} \equiv {\tt T}}
+}
 
 \end{figure*}
 
@@ -414,7 +417,8 @@ for some values $\bar{\tt v}$ of the given type.
 
 \paragraph{Operational semantics.}
 
-The operational semantics is straightforward and essentially identical
+The operational semantics, shown in Figure~\ref{fig:sos},
+is straightforward and essentially identical
 to \FJ \cite{FJ}. It is described in terms of a non-deterministic
 reduction relation on expressions. The only novelty is the use of the
 subtyping relation to check that the cast is satisfied. In \FXZ, this
@@ -454,8 +458,8 @@ discussed further in Section~\ref{sec:parameters-vs-fields}. In brief,
 it permits powerful idioms using fixed but unknown types without
 requiring ``wildcards''.
 
-Once fields of type \type{} are permitted, it is natural to have {\em
-path} types (cf \cite{scala}). Such types name type-valued members of
+Once fields of type \type{} are permitted, it is natural to have
+\emph{path types} (cf. \cite{scala}). Such types name type-valued members of
 objects.
 
 The set of types is now enhanced to permit some fixed but unknown
@@ -496,20 +500,17 @@ Figure~\ref{fig:fgj} must be added.
 \begin{example}
 The \FGJ{} parametric method:
 
-{\footnotesize
 \begin{xten} 
  <T> T id(T x) { return x; }
 \end{xten}
-}
 \noindent can be represented as
-{\footnotesize
 \begin{xten} 
 def id(T: type, x: T): T = x;
 \end{xten}
-}
+\end{example}
 
+\begin{example}
 \noindent The \FGJ{} class 
-{\footnotesize
 \begin{xten} 
 class Comparator<B> {
   int compare(B y) { ... } }
@@ -517,18 +518,16 @@ class SortedList<T extends Comparator<T>> {
   int m(T x, T y) {
      return x.compare(y); } }
 \end{xten}
-}
 \noindent can be represented as
-{\footnotesize
 \begin{xtenmath} 
 class Comparator(B: type) {
- def compare(y:B):int = ...;
+  def compare(y:B):int = ...;
 }
-class SortedList(T: type){T $\extends$ Comparator{self.B==T}} { 
+class SortedList(T: type)
+    {T $\extends$ Comparator{self.B==T}} { 
   def m(x:T, y:T):int = x.compare(y);
 }
 \end{xtenmath}
-}
 \end{example}
 
 \subsection{\FXD}
@@ -546,6 +545,7 @@ augment the constraints expressible in the language.
 The obvious rules are needed to ensure that formulas are well-formed.
 
 {
+\typicallabel{Equals}
 \infrule[Pred]
 	{\tt p(\bar{\tt T}):{\tt o}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
 	{\Gamma \vdash \tt p(\bar{\tt T}):o}
