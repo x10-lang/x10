@@ -156,6 +156,7 @@ namespace x10aux {
         ValueBox(T v_) : v(v_) { }
         virtual x10_int hashCode() { return x10aux::hash_code(v); }
         virtual x10_boolean equals(x10aux::ref<Object> other) { return x10aux::equals(v, other); }
+        virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0) { return x10aux::struct_equals(v, p0); }
         virtual ref<x10::lang::String> toString() { return x10aux::to_string(v); }
     };
 

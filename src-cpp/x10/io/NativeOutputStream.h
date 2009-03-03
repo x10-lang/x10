@@ -1,7 +1,7 @@
 #ifndef X10_IO_OUTPUTSTREAM_H
 #define X10_IO_OUTPUTSTREAM_H
 
-#include <x10/lang/Ref.h>
+#include <x10/lang/Value.h>
 
 namespace x10 {
 
@@ -12,18 +12,18 @@ namespace x10 {
 
     namespace io {
 
-        class NativeOutputStream : public x10::lang::Ref {
+        class NativeOutputStream : public x10::lang::Value {
             public:
             class RTT : public x10aux::RuntimeType {
                 public:
                     static RTT* const it;
 
                     virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
+                        initParents(1,x10aux::getRTT<x10::lang::Value>());
                     }
                     
                     virtual const char *name() const {
-                        return "x10.io.OutputStreamWriter.NativeOutputStream";
+                        return "x10.io.OutputStreamWriter.OutputStream";
                     }
 
             };
@@ -42,6 +42,7 @@ namespace x10 {
             virtual void write(x10aux::ref<x10::lang::Rail<x10_byte> > b, x10_int off, x10_int len);
             virtual void write(x10aux::ref<x10::lang::ValRail<x10_byte> > b, x10_int off, x10_int len);
 
+            virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0);
         };
     }
 }

@@ -85,6 +85,8 @@ namespace x10 {
             virtual StringRail getStackTrace();
             virtual void printStackTrace();
 
+            virtual x10_boolean _struct_equals(x10aux::ref<x10::lang::Object> p0);
+
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {

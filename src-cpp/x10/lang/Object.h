@@ -80,6 +80,12 @@ namespace x10 {
             virtual x10_int hashCode() = 0;
             virtual x10aux::ref<String> toString() = 0;
 
+            // Needed for linking - non-values should not override
+            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
+                if (other == x10aux::ref<Object>(this)) return true;
+                return false;
+            }
+
         };
 
     }

@@ -110,14 +110,22 @@ namespace x10 {
                 return new (x10aux::alloc<Iterator>()) Iterator(this);
             }
 
-            virtual bool equals(x10aux::ref<Object> other) {
-                if (!_type()->concreteInstanceOf(other)) return false;
+            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
+                if (other.operator->() == this) return true; // short-circuit trivial equality
+                if (!this->Value::_struct_equals(other)) return false;
                 x10aux::ref<ValRail> other_rail = other;
                 // different sizes so false
-                if (other_rail->FMGL(length)!=this->FMGL(length)) return false;
-                for (x10_int index=0 ; index<this->FMGL(length) ; ++index) {
-                    if ((*other_rail)[index]!=this->raw()[index])
-                        return false;
+                if (other_rail->FMGL(length) != this->FMGL(length)) return false;
+                if (x10aux::getRTT<T>()->subtypeOf(x10aux::getRTT<Value>())) {
+                    // Value type; structurally compare elements
+                    for (x10_int i = 0; i < this->FMGL(length); ++i)
+                        if (!x10aux::struct_equals((*other_rail)[i], this->raw()[i]))
+                            return false;
+                } else {
+                    // Ref type; simple reference equality
+                    for (x10_int i = 0; i < this->FMGL(length); ++i)
+                        if ((*other_rail)[i] != this->raw()[i])
+                            return false;
                 }
                 return true;
             }
