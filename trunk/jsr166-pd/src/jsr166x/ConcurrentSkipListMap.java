@@ -977,7 +977,7 @@ public class ConcurrentSkipListMap<K,V> extends AbstractMap<K,V>
      */
     private int randomLevel() {
       // DG: Original code snippet removed.
-      assert false : "Implement me"
+      assert false : "Implement me";
       return 0;
     }
 
