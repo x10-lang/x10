@@ -263,13 +263,6 @@ public class X10CPPTranslator extends Translator {
 		int outputWidth = job.compiler().outputWidth();
 		Collection outputFiles = job.compiler().outputFiles();
 
-		// Find the public declarations in the file.  We'll use these to
-		// derive the names of the target files.  There will be one
-		// target file per public declaration.  If there are no public
-		// declarations, we'll use the source file name to derive the
-		// target file name.
-		List exports = exports(sfn);
-
 		try {
 			String opfPath;
 
@@ -291,9 +284,12 @@ public class X10CPPTranslator extends Translator {
 					continue;
 				X10ClassDecl cd = (X10ClassDecl) decl;
 				String className = cd.classDef().name().toString();
-				wstreams = new WriterStreams(className, sfn, pkg, tf, exports, job);
+				wstreams = new WriterStreams(className, pkg, tf, job);
 				sw = new StreamWrapper(wstreams, outputWidth);
+                // [DC] TODO: This hack is to ensure the .inc is always generated.
+                sw.getNewStream(StreamWrapper.Closures, true);
 				opfPath = tf.outputName(pkg, decl.name().toString());
+                assert(!opfPath.endsWith("$"));
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
 				translateTopLevelDecl(sw, sfn, decl); 
 				if (i.hasNext())
@@ -322,38 +318,6 @@ public class X10CPPTranslator extends Translator {
 					"I/O error while translating: " + e.getMessage());
 			return false;
 		}
-	}
-
-	private void generateGlobalSwitch(StreamWrapper w) {
-		X10CPPContext_c context = (X10CPPContext_c) this.context();
-		DelegateTargetFactory tf = (DelegateTargetFactory) this.tf;
-		Emitter emitter = new Emitter(this);
-		for (Iterator k = context.classesWithArrayCopySwitches.keySet().iterator(); k.hasNext(); ) {
-			ClassType ct = (ClassType) k.next();
-			if (ct.isNested())
-				ct = ct.container().toClass();
-			String pkg = "";
-			if (ct.package_() != null) {
-				pkg = ct.package_().fullName().toString();
-			}
-			String header = tf.outputHeaderName(pkg, ct.name().toString());
-			w.write("#include \"" + header + "\"");
-			w.newline();
-		}
-		for (Iterator k = context.classesWithAsyncSwitches.keySet().iterator(); k.hasNext(); ) {
-			ClassType ct = (ClassType) k.next();
-			if (ct.isNested())
-				ct = ct.container().toClass();
-			String pkg = "";
-			if (ct.package_() != null) {
-				pkg = ct.package_().fullName().toString();
-			}
-			String header = tf.outputHeaderName(pkg, ct.name().toString());
-			w.write("#include \"" + header + "\"");
-			w.newline();
-		}
-
-		w.newline();
 	}
 
 	/* (non-Javadoc)

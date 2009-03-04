@@ -27,12 +27,11 @@ import polyglot.util.SimpleCodeWriter;
  * @author igor
  */
 public class StreamWrapper extends SimpleCodeWriter {
-    
-    public static enum StreamClass { Header("h"), CC("cc"), Closures("inc");
-        String ext;
-        private StreamClass(String e) { ext = e; }
-        public String toString() { return ext; }
-    }
+
+    public static final String Header = "h";
+    public static final String CC = "cc";
+    public static final String Closures = "inc";
+
     // Desired API: getNewStream(class, pre/append), setCurrentStream, setHeader, setBody, header, body
     // 2 streams - header and body
     // Decouple stream class from stream destination file
@@ -64,13 +63,13 @@ public class StreamWrapper extends SimpleCodeWriter {
     public void pushCurrentStream(ClassifiedStream s) { csStack.push(this.cs); this.cs = s; }
     public void popCurrentStream() { this.cs = csStack.pop(); }
 
-    public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc, ClassifiedStream s, boolean prepend) {
+    public ClassifiedStream getNewStream(String sc, ClassifiedStream s, boolean prepend) {
         return ws.getNewStream(sc, s, prepend);
     }
-    public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc, boolean prepend) {
+    public ClassifiedStream getNewStream(String sc, boolean prepend) {
         return ws.getNewStream(sc, prepend);
     }
-    public ClassifiedStream getNewStream(StreamWrapper.StreamClass sc) {
+    public ClassifiedStream getNewStream(String sc) {
         return getNewStream(sc, true);
     }
 

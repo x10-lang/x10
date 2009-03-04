@@ -55,7 +55,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delAsyncImpl() {
-		return new TD();
+		return delNodeImpl();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delAtEachImpl() {
-		return new TD();
+		return delNodeImpl();
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delForEachImpl() {
-		return new TD();
+		return delNodeImpl();
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delForLoopImpl() {
-		return new TD();
+		return delNodeImpl();
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delFinishImpl() {
-		return new TD();
+		return delNodeImpl();
 	}
 
 	/**
@@ -95,7 +95,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 	 * to the X10PrettyPrinterVisitor.
 	 */
 	public JL delClosureImpl() {
-		return new TD();
+		return delNodeImpl();
 	}
 
     /**
@@ -103,7 +103,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
      * to the X10PrettyPrinterVisitor.
      */
     public JL delFutureImpl() {
-        return new TD();
+        return delNodeImpl();
     }
 }
 

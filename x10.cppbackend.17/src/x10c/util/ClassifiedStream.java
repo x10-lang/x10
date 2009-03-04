@@ -10,14 +10,14 @@ import polyglot.util.SimpleCodeWriter;
 
 public class ClassifiedStream extends SimpleCodeWriter {
     final ByteArrayOutputStream stream;
-    public final StreamWrapper.StreamClass sClass;
-    private ClassifiedStream(ByteArrayOutputStream bs, StreamWrapper.StreamClass c, int width) {
+    public final String ext;
+    private ClassifiedStream(ByteArrayOutputStream bs, String ext, int width) {
         super(bs, width);
         stream = bs;
-        this.sClass = c;
+        this.ext = ext;
     }
-    public ClassifiedStream(StreamWrapper.StreamClass c, int width) {
-        this(new ByteArrayOutputStream(), c, width);
+    public ClassifiedStream(String ext, int width) {
+        this(new ByteArrayOutputStream(), ext, width);
     }
     public String contents() { output.flush(); return stream.toString(); }
     public void forceNewline() { pos = -1; newline(); }
