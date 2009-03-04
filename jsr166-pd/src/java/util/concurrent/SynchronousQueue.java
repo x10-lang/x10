@@ -998,7 +998,10 @@ public class SynchronousQueue<E> extends AbstractQueue<E>
      * @return an empty iterator
      */
     public Iterator<E> iterator() {
+    	/* DG: This was the original code, but the method doesn't appear to be defined
         return Collections.emptyIterator();
+        */
+        return (Iterator<E>)Collections.emptyList().iterator();
     }
 
     /**
