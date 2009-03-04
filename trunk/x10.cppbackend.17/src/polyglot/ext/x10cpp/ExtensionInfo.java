@@ -61,29 +61,30 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 	}
 
 	@Override
-        protected void initTypeSystem() {
-                // Inline from superclass, replacing SourceClassResolver
-                try {
-                        TopLevelResolver r = new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
-                                                                        getOptions().compile_command_line_only,
-                                                                        getOptions().ignore_mod_times);
+    protected void initTypeSystem() {
+        // Inline from superclass, replacing SourceClassResolver
+        try {
+            TopLevelResolver r =
+                new X10CPPSourceClassResolver(compiler, this, getOptions().constructFullClasspath(),
+                                              getOptions().compile_command_line_only,
+                                              getOptions().ignore_mod_times);
 
 
-                        // Resolver to handle lookups of member classes.
-                        if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
-                                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
-                                r = mcr;
-                        }
+            // Resolver to handle lookups of member classes.
+            if (true || TypeSystem.SERIALIZE_MEMBERS_WITH_CONTAINER) {
+                MemberClassResolver mcr = new MemberClassResolver(ts, r, true);
+                r = mcr;
+            }
 
-                        ts.initialize(r, this);
-                }
-                catch (SemanticException e) {
-                    throw new InternalCompilerError(
-                        "Unable to initialize type system: " + e.getMessage(), e);
-                }
+            ts.initialize(r, this);
         }
+        catch (SemanticException e) {
+            throw new InternalCompilerError(
+                "Unable to initialize type system: " + e.getMessage(), e);
+        }
+    }
 
-        // =================================
+    // =================================
 	// X10-specific goals and scheduling
 	// =================================
 	protected Scheduler createScheduler() {

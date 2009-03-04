@@ -237,12 +237,12 @@ import x10c.util.StreamWrapper;
  */
 public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
-	private final StreamWrapper sw;
-	private final Translator tr;
-	private XCDProcessor xcdProcessor;
+	protected final StreamWrapper sw;
+	protected final Translator tr;
+	protected XCDProcessor xcdProcessor;
 
-	Emitter emitter;
-	ASTQuery query;
+	protected Emitter emitter;
+	protected ASTQuery query;
 	public MessagePassingCodeGenerator(StreamWrapper sw, Translator tr) {
 		this.sw = sw;
 		this.tr = tr;
@@ -343,7 +343,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private void extractGenericStaticInits(X10ClassDef cd) {
 	    // Always write non-template static decls into the implementation file
 	    ClassifiedStream save_w = sw.currentStream();
-	    ClassifiedStream w = sw.getNewStream(StreamWrapper.StreamClass.CC, false);
+	    ClassifiedStream w = sw.getNewStream(StreamWrapper.CC, false);
 	    sw.pushCurrentStream(w);
 	    String header = getHeader(cd.asType());
 	    w.write("#include <"+header+">"); w.newline();
@@ -661,17 +661,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream save_header = sw.header();
         ClassifiedStream save_generic = context.templateFunctions;
         // Header stream
-        ClassifiedStream h = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
+        ClassifiedStream h = sw.getNewStream(StreamWrapper.Header, false);
         // Stream for generic functions (always in the header, may be empty)
-        ClassifiedStream g = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
+        ClassifiedStream g = sw.getNewStream(StreamWrapper.Header, false);
         context.templateFunctions = g;
-        StreamWrapper.StreamClass impl = StreamWrapper.StreamClass.CC;
+        String impl = StreamWrapper.CC;
         if (def.typeParameters().size() != 0)
-            impl = StreamWrapper.StreamClass.Header;
+            impl = StreamWrapper.Header;
         // Implementation stream (may be after the header)
         ClassifiedStream w = sw.getNewStream(impl, false);
         // Dependences guard closing stream (comes at the end of the header)
-        ClassifiedStream z = sw.getNewStream(StreamWrapper.StreamClass.Header, false);
+        ClassifiedStream z = sw.getNewStream(StreamWrapper.Header, false);
         sw.set(h, w);
 
         context.setinsideClosure(false);
@@ -707,7 +707,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String pkg = "";
         if (context.package_() != null)
             pkg = context.package_().fullName().toString();
-        String incfile = tf.integratedOutputName(pkg, n.name().toString(), StreamWrapper.StreamClass.Closures.toString());
+        String incfile = tf.integratedOutputName(pkg, n.name().toString(), StreamWrapper.Closures);
         w.write("#include \""+incfile+"\""); w.newline();
         w.forceNewline(0);
 
@@ -1762,28 +1762,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	}
 
-    boolean nodeHasCudaAnnotation(Node n) {
-		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-        X10Ext ext = (X10Ext) n.ext();
-        String annotationName = "Cudable";
-        try {
-            Type cudable = (Type) xts.systemResolver().find(QName.make(annotationName));
-
-            for (X10ClassType t : ext.annotationMatching(cudable)) {
-                return true;
-            }
-        } catch (SemanticException e) {
-            return false; // Until the annotation is in the stdlib
-            //assert false : e;
-        }
-
-        return false;
-    }
-
 	public void visit(Block_c b) {
-        if (nodeHasCudaAnnotation(b)) {
-            sw.write(" /*CUDABLE!*/ ");
-        }
 		sw.write("{");
 		sw.newline();
 		if (b.statements().size() > 0) {
@@ -2460,8 +2439,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // Prepend this stream to closures.  Closures are created from the outside in.
 	    // Thus, later closures can be used by earlier ones, but not vice versa.
 	    ClassifiedStream inc_s = in_template_closure ?
-	            sw.getNewStream(StreamWrapper.StreamClass.Header, sw.header(), false) :
-	            sw.getNewStream(StreamWrapper.StreamClass.Closures, true);
+	            sw.getNewStream(StreamWrapper.Header, sw.header(), false) :
+	            sw.getNewStream(StreamWrapper.Closures, true);
 	    sw.pushCurrentStream(inc_s);
 
 	    StreamWrapper inc = sw;
@@ -2973,8 +2952,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		// Prepend this stream to closures.  Closures are created from the outside in.
 		// Thus, later closures can be used by earlier ones, but not vice versa.
 		ClassifiedStream inc_s = in_template_closure ?
-		        sw.getNewStream(StreamWrapper.StreamClass.Header, sw.header(), false) :
-		        sw.getNewStream(StreamWrapper.StreamClass.Closures, true);
+		        sw.getNewStream(StreamWrapper.Header, sw.header(), false) :
+		        sw.getNewStream(StreamWrapper.Closures, true);
         sw.pushCurrentStream(inc_s);
 
         StreamWrapper inc = sw;
