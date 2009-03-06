@@ -376,8 +376,6 @@ public class X10CPPTranslator extends Translator {
             "-I"+X10LANG+"/include", // dist
             "-I.",
             "-DTRANSPORT="+TRANSPORT,
-            "-Wno-long-long",
-            "-Wno-unused-parameter",
         };
         /** These go after the files */
         public static final String[] postArgs = new String[] {
@@ -529,6 +527,8 @@ public class X10CPPTranslator extends Translator {
     private static class Cygwin_CXXCommandBuilder extends CXXCommandBuilder {
         /** These go before the files */
         public static final String[] preArgsCygwin = new String[] {
+            "-Wno-long-long",
+            "-Wno-unused-parameter",
             "-msse2",
             "-mfpmath=sse",
         };
@@ -560,6 +560,8 @@ public class X10CPPTranslator extends Translator {
         public static final boolean USE_X86 = PLATFORM.endsWith("_x86");
         /** These go before the files */
         public static final String[] preArgsLinux = new String[] {
+            "-Wno-long-long",
+            "-Wno-unused-parameter",
             "-pthread",
             USE_X86 ? "-msse2" : DUMMY,
             USE_X86 ? "-mfpmath=sse" : DUMMY,
@@ -599,6 +601,8 @@ public class X10CPPTranslator extends Translator {
         //"mpCC_r -q64 -qrtti=all"
         /** These go before the files */
         public static final String[] preArgsAIX = new String[] {
+            USE_XLC ? DUMMY : "-Wno-long-long",
+            USE_XLC ? "-qsuppress=1540-0809" : "-Wno-unused-parameter",
             USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
             USE_XLC ? "-qrtti=all" : DUMMY,
             //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?

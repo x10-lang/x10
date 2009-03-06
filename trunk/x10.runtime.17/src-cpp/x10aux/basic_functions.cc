@@ -64,11 +64,11 @@ ref<String> x10aux::to_string(double v) {
         // scientific notation
         int e = (int)::floor(::log(::fabs(v))/::log(10.0)); //exponent
         // volatile because reordering could change computed floating point value
-        volatile double m = v / ::pow(10, e); //mantissa
+        volatile double m = v / ::pow(10.0, e); //mantissa
         if (e < -10) {
             // avoid touching -Infinity
             m = v * 1E10;
-            m /= ::pow(10, e+10);
+            m /= ::pow(10.0, e+10);
         }   
         if (e < 0) {
             ::snprintf(buf, sizeof(buf), "%.1f", m);
