@@ -57,17 +57,11 @@ public class WriterStreams {
      * @throws IOException
      */
     public void commitStreams() throws IOException {
-        Set<String> nonEmpty = new HashSet<String>();
-        for (ClassifiedStream s : streams) {
-            nonEmpty.add(s.ext);
-        }
         Set<String> extensions = new TreeSet<String>();
         for (ClassifiedStream s : streams) {
             extensions.add(s.ext);
         }
         for (String ext : extensions) {
-//            if (!nonEmpty.contains(ext))
-//                continue;
             final File file = targetFactory.integratedOutputFile(pkg, className, null, ext);
             codeWriters.put(ext,
                             new SimpleCodeWriter(targetFactory.outputWriter(file),
@@ -78,8 +72,6 @@ public class WriterStreams {
             codeWriters.get(s.ext).write(s.contents());
         }
         for (String ext : extensions) {
-//            if (!nonEmpty.contains(ext))
-//                continue;
             SimpleCodeWriter w = codeWriters.get(ext);
             w.flush();
             w.close();
