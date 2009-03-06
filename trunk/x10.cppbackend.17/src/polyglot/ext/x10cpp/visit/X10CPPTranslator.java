@@ -286,10 +286,12 @@ public class X10CPPTranslator extends Translator {
 				String className = cd.classDef().name().toString();
 				wstreams = new WriterStreams(className, pkg, tf, job);
 				sw = new StreamWrapper(wstreams, outputWidth);
-                // [DC] TODO: This hack is to ensure the .inc is always generated.
-                sw.getNewStream(StreamWrapper.Closures, true);
+				// [DC] TODO: This hack is to ensure the .inc is always generated.
+				sw.getNewStream(StreamWrapper.Closures, true);
+				// [IP] FIXME: This hack is to ensure the .cc is always generated.
+				sw.getNewStream(StreamWrapper.CC, true);
 				opfPath = tf.outputName(pkg, decl.name().toString());
-                assert(!opfPath.endsWith("$"));
+				assert (!opfPath.endsWith("$"));
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
 				translateTopLevelDecl(sw, sfn, decl); 
 				if (i.hasNext())
