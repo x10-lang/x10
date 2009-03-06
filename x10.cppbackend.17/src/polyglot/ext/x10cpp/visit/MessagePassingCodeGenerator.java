@@ -2077,9 +2077,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
 		}
 
-        if (context.inTemplate() && mi.typeParameters().size() != 0) {
-            sw.write("template ");
-        }
         boolean virtual_dispatch = true;
         if (t.isClass()) {
             X10ClassType ct = (X10ClassType)t.toClass();
@@ -2095,6 +2092,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // disable virtual dispatch
             sw.write(emitter.translateType(t));
             sw.write("::");
+        }
+        // [IP] FIXME: virtual_dispatch test is temporary, until xlC is upgraded to v10
+        if (context.inTemplate() && mi.typeParameters().size() != 0 && virtual_dispatch) {
+            sw.write("template ");
         }
 		sw.write(mangled_method_name(n.name().id().toString()));
 		emitter.printTemplateInstantiation(mi, sw);

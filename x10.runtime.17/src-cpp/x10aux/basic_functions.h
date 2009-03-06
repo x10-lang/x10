@@ -152,7 +152,7 @@ namespace x10aux {
 
 
 
-    template<class T> static inline ref<x10::lang::String> to_string(ref<T> x) {
+    template<class T> ref<x10::lang::String> to_string(ref<T> x) {
         return x->toString();
     }
 
