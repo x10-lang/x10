@@ -272,9 +272,6 @@ public class X10CPPTranslator extends Translator {
 				pkg = p.fullName().toString();
 			}
 
-            // store all explicit imports in the context
-            ((X10CPPContext_c)context).pendingImports.addAll(sfn.imports());
-
 			WriterStreams wstreams = null;
 			StreamWrapper sw = null;
 			// Use the class name to derive a default output file name.

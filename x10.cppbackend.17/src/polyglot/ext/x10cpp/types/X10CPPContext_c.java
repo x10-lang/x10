@@ -77,8 +77,6 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 	public static String lastReturnVar;
 	public boolean canInline;
 
-	public ArrayList pendingImports = new ArrayList();
-	public static ArrayList pendingImplicitImports = new ArrayList();
 	public static ArrayList<ClassMember> pendingStaticDecls = new ArrayList<ClassMember>();
 	public static HashMap classesWithAsyncSwitches = new HashMap();
 	public static HashMap classesWithArrayCopySwitches = new HashMap();

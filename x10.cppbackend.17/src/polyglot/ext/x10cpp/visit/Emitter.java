@@ -260,6 +260,7 @@ public class Emitter {
 				}
 				else {
 					if (ct.def().isNested()) {
+						assert (false) : ("Nested class alert!");
 						Name mangled = StaticNestedClassRemover.mangleName(ct.def());
 						QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
 						QName full = QName.make(pkg, mangled);
@@ -269,17 +270,14 @@ public class Emitter {
 				}
 			}
 			if (ct.typeArguments().size() != 0) {
-				name += "<";
+				String args = "";
 				int s = ct.typeArguments().size();
 				for (Type t: ct.typeArguments()) {
-					name += translateType(t, true); // type arguments are always translated as refs
-					s--;
-					if (s > 0)
-						name +=", ";
+					args += translateType(t, true); // type arguments are always translated as refs
+					if (--s > 0)
+						args +=", ";
 				}
-				if (name.endsWith(">"))
-					name += " ";
-				name += ">";
+				name += chevrons(args);
 			}
 		} else if (type instanceof ParameterType) {
 			name = ((ParameterType)type).name().toString();
@@ -550,15 +548,15 @@ public class Emitter {
 	}
 
 	void printRTT(X10ClassType ct, ClassifiedStream h) {
+		X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
 		String x10name = ct.fullName().toString();
 		int num_parents = 1 + ct.interfaces().size();
-		//
 		h.write("class RTT : public x10aux::RuntimeType {"); h.newline(4); h.begin(0);
 			h.write("public:"); h.newline();
 			h.write("static RTT * const it;"); h.newline();
 			h.write("virtual void init() {"); h.newline(4); h.begin(0);
 				h.write("initParents("+num_parents);
-				h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? "x10::lang::Ref" : translateType(ct.superClass())) + "()");
+				h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
 				for (Type iface : ct.interfaces()) {
 					h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
 				}
@@ -606,6 +604,7 @@ public class Emitter {
 	}
 
 	void printInheritance(ClassDecl_c n, CodeWriter h, Translator tr) {
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		String extends_ = n.superClass()==null ? null : translateType(n.superClass().type());
 		ArrayList<String> implements_ = new ArrayList<String>();
 		for (TypeNode tn : n.interfaces()) {
@@ -621,12 +620,13 @@ public class Emitter {
 		// interface, since otherwise extends_ is Ref, Value, or some
 		// user-defined type.
 
+		String x_l_Object = translateType(xts.Object());
 		if (extends_ == null && implements_.isEmpty()) {
 			//Interfaces must always extend something in c++
-			implements_.add("x10::lang::Object");
-		} else if (extends_ != null && implements_.contains("x10::lang::Object")) {
+			implements_.add(x_l_Object);
+		} else if (extends_ != null && implements_.contains(x_l_Object)) {
 			//Cosmetic: No point implementing Object if we're already extending something
-			implements_.remove("x10::lang::Object");
+			implements_.remove(x_l_Object);
 		}
 
 		String prefix = ":";
@@ -831,11 +831,8 @@ public class Emitter {
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
             w.write("x10aux::DeserializationDispatcher::addDeserializer(");
-            if (context.inTemplate()) {
-                w.write(klass+"::template "+DESERIALIZER_METHOD+"<Object>);");
-            } else {
-                w.write(klass+"::"+DESERIALIZER_METHOD+"<Object>);");
-            }
+            String template = context.inTemplate() ? "template " : "";
+            w.write(klass+"::"+template+DESERIALIZER_METHOD+chevrons(translateType(ts.Object()))+");");
             w.newline(); w.forceNewline();
         }
 
