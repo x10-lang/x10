@@ -48,7 +48,7 @@ ifeq ($(shell uname -s),AIX)
 
 else
 
-  override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter -fpermissive
+  override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
   ifeq ($(shell uname -s),Linux)
     override CXXFLAGS += -pthread
   endif

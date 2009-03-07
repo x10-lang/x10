@@ -2227,9 +2227,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		String val;
 		if (n.kind() == IntLit_c.LONG)
 			val = Long.toString(n.value()) + "ll";
-		else if (n.kind() == IntLit_c.INT)
-			val = Long.toString((int) n.value());
-		else
+		else if (n.kind() == IntLit_c.INT) {
+			if ((n.value() & 0x80000000L) != 0)
+			    val = Long.toString(n.value()<0 ? (-n.value() & 0xFFFFFFFFL) : n.value()) + "u";
+			else
+			    val = Long.toString((int) n.value());
+		} else
 			throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
 		sw.write("("); sw.begin(0);
 		sw.write("(" + emitter.translateType(n.type(), true) + ")");
@@ -3160,7 +3163,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    	args = newArgs;
 	    }
 
-	    sw.write("({");
+	    sw.write("__extension__ ({");
 	    sw.newline(4); sw.begin(0);
 	    String[] alt = null;
 	    if (clashes) {
