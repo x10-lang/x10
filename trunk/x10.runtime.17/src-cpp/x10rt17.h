@@ -81,7 +81,5 @@
 
 #include <x10/util/GrowableRail.h>
 
-using namespace x10::lang;
-
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

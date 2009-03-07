@@ -697,13 +697,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         w.forceNewline(0);
         w.forceNewline(0);
         
-        if (context.package_() != null) {
-            w.write("using namespace ");
-            w.write(Emitter.translateFQN(context.package_().fullName().toString()));
-            w.write(";");
-            w.newline();
-        }
-        
         String pkg = "";
         if (context.package_() != null)
             pkg = context.package_().fullName().toString();
@@ -831,24 +824,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
         }
 
-        ArrayList<String> nsHistory = new ArrayList<String>();
-        for (Iterator is = context.pendingImports.iterator(); is.hasNext();) {
-            Import_c in = (Import_c) is.next();
-            QName nsName = in.name();
-            if (in.kind() == Import_c.CLASS) {
-                // [DC] couldn't we define a local typedef to represent this x10 concept?
-                nsName = nsName.qualifier();
-            } else {
-                assert (in.kind() == Import_c.PACKAGE);
-            }
-            emitter.emitUniqueNS(nsName, nsHistory, h);
-            h.newline();
-        }
-        context.pendingImports.clear();  // Just processed all imports - clean up
-        QName x10_lang = xts.Object().toClass().fullName().qualifier();
-        emitter.emitUniqueNS(x10_lang, nsHistory, h);
-        h.newline();
-		h.forceNewline(0);
 		if (def.package_() != null) {
 		    QName pkgName = def.package_().get().fullName();
 		    Emitter.openNamespaces(h, pkgName);
@@ -1281,20 +1256,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
 
-	public void visit(PackageNode_c n) {
+    public void visit(PackageNode_c n) {
         assert (false);
-		sw.write(mangled_non_method_name(translateFQN(n.package_().get().fullName().toString())));
-	}
+        sw.write(mangled_non_method_name(translateFQN(n.package_().get().fullName().toString())));
+    }
 
-	public void visit(Import_c n) {
+    public void visit(Import_c n) {
         assert (false);
-		if (n.kind() == Import_c.CLASS || n.kind() == Import_c.PACKAGE) {
-			X10CPPContext_c context = (X10CPPContext_c) tr.context();
-			context.pendingImports.add(n);
-		}
-		else
-			throw new InternalCompilerError("Unknown import kind");
-	}
+    }
 
 
     private void processMain(X10ClassType container) {
@@ -2273,7 +2242,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(StringLit_c n) {
-		sw.write("String::Lit(\"");
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		sw.write(emitter.translateType(xts.String())+"::Lit(\"");
 		sw.write(StringUtil.escape(n.stringValue()));
 		sw.write("\")");
 	}
@@ -2385,6 +2355,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    assert (n.finallyBlock() != null);
 
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 
 	    X10CPPContext_c c = (X10CPPContext_c) context.pushBlock();
 	    c.setinClosure(true);
@@ -2422,18 +2393,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    String cname = getClosureName(hostClassName, id);
 
-	    boolean in_template_closure = false;
-
-	    StringBuffer cnamet_ = new StringBuffer(cname);
-	    String prefix = "<";
-	    for (Type t : freeTypeParams) {
-	        in_template_closure = true;
-	        cnamet_.append(prefix + emitter.translateType(t));
-	        prefix = ",";
-	    }
-	    if (in_template_closure) cnamet_.append(" >");
-	    String cnamet = cnamet_.toString();
-
+	    final boolean in_template_closure = !freeTypeParams.isEmpty();
 
 	    // create closure and packed arguments
 
@@ -2453,13 +2413,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    //String className = emitter.translateType(c.currentClass());
-	    String superType = "x10::lang::" + mangled_non_method_name("VoidFun_0_0");
+	    String superType = emitter.translateType(xts.closureBaseInterfaceDef(0, 0, true).asType());
 
 	    // class header
-	    if (!freeTypeParams.isEmpty())
+	    if (in_template_closure)
 	        emitter.printTemplateSignature(freeTypeParams, inc);
 	    inc.write("class "+cname+" : "); inc.begin(0);
-	    inc.write("public x10::lang::Value, "); inc.newline();
+	    inc.write("public "+emitter.translateType(xts.Value())+", "); inc.newline();
 	    inc.write("public virtual "+superType); inc.end(); inc.newline();
 	    inc.write("{") ; inc.newline(4); inc.begin(0);
 	    inc.write("public:") ; inc.newline(); inc.forceNewline();
@@ -2510,9 +2470,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    inc.newline(); inc.forceNewline();
 
 	    // FIXME: this should not be needed
-	    inc.write(make_ref("x10::lang::String")+" toString() {");
+	    inc.write(emitter.translateType(xts.String(), true)+" toString() {");
 	    inc.newline(4); inc.begin(0);
-	    inc.write("return x10::lang::String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
+	    inc.write("return "+emitter.translateType(xts.String())+"::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
 	    inc.end(); inc.newline();
 	    inc.write("}");
 	    inc.end(); inc.newline(); inc.forceNewline();
@@ -2532,7 +2492,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // RTT of the closure (which doesn't exist)
 
 	    // first get the template arguments (if any)
-	    prefix="<";
+	    String prefix="<";
 	    StringBuffer sb = new StringBuffer();
 	    for (Type t : freeTypeParams) {
 	        sb.append(prefix+emitter.translateType(t, true));
@@ -2569,8 +2529,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(Try_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-        if (n.finallyBlock() != null) {
-            // FIXME: this doesn't work.  Use closures
+		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+		if (n.finallyBlock() != null) {
+			// FIXME: break, continue, and return don't work
 			sw.write("{");
 			sw.newline(0); sw.begin(0);
 			// Create a closure with C++ reference fields that encapsulates the finally block.
@@ -2580,7 +2541,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			String tempClassDef = tempClass+"def";
 			sw.write("struct " + tempClassDef + " {");
 			sw.newline(4); sw.begin(0);
-			String closureType = make_ref("x10::lang::" + mangled_non_method_name("VoidFun_0_0"));
+			String closureType = emitter.translateType(xts.closureBaseInterfaceDef(0, 0, true).asType(), true);
 			sw.write(closureType+" _closure;"); sw.newline();
 
 			String closureName = getId();
@@ -2615,7 +2576,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    // *not* an interface and thus is not virtually inheritted.  If it
 		    // were, we would have to static_cast the exception to Throwable on
 		    // throw (otherwise we would need to offset by an unknown quantity).
-		    String exception_ref = make_ref("Throwable");
+		    String exception_ref = emitter.translateType(xts.Throwable(), true);
 		    sw.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
 		    context.setExceptionVar(excVar);
 		    for (Iterator it = n.catchBlocks().iterator(); it.hasNext(); ) {
@@ -2763,14 +2724,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline(4); sw.begin(0);
 
 		String name = "__i" + form.name();
-		sw.write("Iterator<");
-		String fType = emitter.translateType(form.type().type(), true);
-		sw.write(fType + (fType.endsWith(">") ? " " : ""));
-		sw.write(">* " + name + ";");
+		sw.write(emitter.translateType(xts.Iterator(form.type().type())));
+		sw.write("* " + name + ";");
 		sw.newline();
 		sw.write(name + " = &*"); // FIXME
-        if (!xts.typeDeepBaseEquals(form.type().type(), itType))
-            sw.write("x10aux::convert_iterator<"+fType+","+emitter.translateType(itType, true)+" >");
+        if (!xts.typeDeepBaseEquals(form.type().type(), itType)) {
+            String fType = emitter.translateType(form.type().type(), true);
+            sw.write("x10aux::convert_iterator"+chevrons(fType+","+emitter.translateType(itType, true)));
+        }
         sw.write("((");
 		n.print(n.domain(), sw, tr);
 		sw.write(")->iterator());");
@@ -2816,55 +2777,55 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 
-	public void visit(ForEach_c n) {
+    public void visit(ForEach_c n) {
         assert (false) : ("ForEach should have been desugared earlier");
-	}
+    }
 
-	public void visit(AtEach_c n) {
+    public void visit(AtEach_c n) {
         assert (false) : ("AtEach should have been desugared earlier");
-	}
+    }
 
-	public void visit(Finish_c n) {
+    public void visit(Finish_c n) {
         assert (false) : ("Finish should have been desugared earlier");
-	}
+    }
 
 
-	public void visit(ArrayAccess_c n) {
-		assert (false);
-	}
+    public void visit(ArrayAccess_c n) {
+        assert (false);
+    }
 
 
-	public void visit(ParExpr_c n) {
-		n.print(n.expr(), sw, tr);
-	}
+    public void visit(ParExpr_c n) {
+        n.print(n.expr(), sw, tr);
+    }
 
-	public void visit(Conditional_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		n.printSubExpr(n.cond(), false, sw, tr);
-		sw.unifiedBreak(2);
-		sw.write("? ");
+    public void visit(Conditional_c n) {
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        n.printSubExpr(n.cond(), false, sw, tr);
+        sw.unifiedBreak(2);
+        sw.write("? ");
         sw.write("("+emitter.translateType(n.type(), true)+")(");
         sw.begin(0);
-		n.printSubExpr(n.consequent(), true, sw, tr);
+        n.printSubExpr(n.consequent(), true, sw, tr);
         sw.end();
         sw.write(")");
         sw.unifiedBreak(2);
-		sw.write(": ");
+        sw.write(": ");
         sw.write("("+emitter.translateType(n.type(), true)+")(");
         sw.begin(0);
-		n.printSubExpr(n.alternative(), true, sw, tr);
+        n.printSubExpr(n.alternative(), true, sw, tr);
         sw.end();
         sw.write(")");
-	}
+    }
 
 
     public void visit(Here_c n) {
         assert (false) : ("Here should have been desugared earlier");
     }
 
-	public void visit(Async_c n) {
-		assert (false) : ("Async should have been desugared earlier");
-	}
+    public void visit(Async_c n) {
+        assert (false) : ("Async should have been desugared earlier");
+    }
 
 
     public void visit(X10Special_c n) {
@@ -2893,21 +2854,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-	public static String getClosureName(String className, int id) {
+    public static String getClosureName(String className, int id) {
         // TODO: factor out into a constant
-		return className+"__closure__"+id;
-	}
+        return className+"__closure__"+id;
+    }
 
-	public void visit(Closure_c n) {
+    public void visit(Closure_c n) {
 
-		X10CPPContext_c c = (X10CPPContext_c) tr.context();
+        X10CPPContext_c c = (X10CPPContext_c) tr.context();
 
-		emitter.enterClosure(c);
+        emitter.enterClosure(c);
 
-		ClosureDef closureDef = n.closureDef();
-		CodeInstance ci = closureDef.methodContainer().get();
-		X10ClassType hostClassType = (X10ClassType) closureDef.typeContainer().get();
+        ClosureDef closureDef = n.closureDef();
+        CodeInstance ci = closureDef.methodContainer().get();
+        X10ClassType hostClassType = (X10ClassType) closureDef.typeContainer().get();
         X10ClassDef hostClassDef = hostClassType.x10Def();
+        X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 
         List<Type> freeTypeParams = new ArrayList<Type>();
         while (ci instanceof ClosureInstance)
@@ -2927,13 +2889,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             freeTypeParams.addAll(hostClassDef.typeParameters());
         }
 
-		String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
+        String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
 
-		c.setinsideClosure(true);
+        c.setinsideClosure(true);
 
-		int id = getConstructorId(c);
+        int id = getConstructorId(c);
 
-		String cname = getClosureName(hostClassName, id);
+        String cname = getClosureName(hostClassName, id);
 
         boolean in_template_closure = false;
 
@@ -2948,13 +2910,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String cnamet = cnamet_.toString();
 
 
-		// create closure and packed arguments
+        // create closure and packed arguments
 
-		// Prepend this stream to closures.  Closures are created from the outside in.
-		// Thus, later closures can be used by earlier ones, but not vice versa.
-		ClassifiedStream inc_s = in_template_closure ?
-		        sw.getNewStream(StreamWrapper.Header, sw.header(), false) :
-		        sw.getNewStream(StreamWrapper.Closures, true);
+        // Prepend this stream to closures.  Closures are created from the outside in.
+        // Thus, later closures can be used by earlier ones, but not vice versa.
+        ClassifiedStream inc_s = in_template_closure ?
+                sw.getNewStream(StreamWrapper.Header, sw.header(), false) :
+                sw.getNewStream(StreamWrapper.Closures, true);
         sw.pushCurrentStream(inc_s);
 
         StreamWrapper inc = sw;
@@ -2967,184 +2929,178 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         Type retType = n.returnType().type();
         //String className = emitter.translateType(c.currentClass());
-        String superType = retType.isVoid() ?
-                "x10::lang::" + mangled_non_method_name("VoidFun_0_" + n.formals().size()) :
-                "x10::lang::" + mangled_non_method_name("Fun_0_" + n.formals().size());
-        prefix = "<";
-        for (Formal formal : n.formals()) {
-            superType = superType + prefix + emitter.translateType(formal.type().typeRef().get(), true);
-            prefix = ", ";
-        }
-        if (!retType.isVoid()) {
-            superType = superType + prefix + emitter.translateType(retType, true);
-            prefix = ", ";
-        }
-        if (!prefix.equals("<")) superType = superType +" >"; // don't emit " >" for void->void case
+        X10ClassType sup = (X10ClassType) xts.closureBaseInterfaceDef(0, n.formals().size(), retType.isVoid()).asType();
+        List<Type> supArgs = new ArrayList<Type>();
+        for (Formal formal : n.formals())
+            supArgs.add(formal.type().typeRef().get());
+        if (!retType.isVoid())
+            supArgs.add(retType);
+        String superType = emitter.translateType(sup.typeArguments(supArgs));
 
-		// class header
+        // class header
         if (!freeTypeParams.isEmpty())
             emitter.printTemplateSignature(freeTypeParams, inc);
-		inc.write("class "+cname+" : "); inc.begin(0);
-		inc.write("public x10::lang::Value, "); inc.newline();
-		inc.write("public virtual "+superType); inc.end(); inc.newline();
-		inc.write("{") ; inc.newline(4); inc.begin(0);
-		inc.write("public:") ; inc.newline(); inc.forceNewline();
+        inc.write("class "+cname+" : "); inc.begin(0);
+        inc.write("public "+emitter.translateType(xts.Value())+", "); inc.newline();
+        inc.write("public virtual "+superType); inc.end(); inc.newline();
+        inc.write("{") ; inc.newline(4); inc.begin(0);
+        inc.write("public:") ; inc.newline(); inc.forceNewline();
 
-		inc.write("// closure body"); inc.newline();
-		inc.write(emitter.translateType(retType, true)+" apply(");
-		prefix = "";
-		for (Formal formal : n.formals()) {
-			inc.write(prefix);
-			n.print(formal, inc, tr);
-			prefix = ", ";
-		}
-		inc.write(") ");
-		n.print(n.body(), inc, tr);
-		inc.newline(); inc.forceNewline();
+        inc.write("// closure body"); inc.newline();
+        inc.write(emitter.translateType(retType, true)+" apply(");
+        prefix = "";
+        for (Formal formal : n.formals()) {
+            inc.write(prefix);
+            n.print(formal, inc, tr);
+            prefix = ", ";
+        }
+        inc.write(") ");
+        n.print(n.body(), inc, tr);
+        inc.newline(); inc.forceNewline();
 
-		inc.write("// captured environment"); inc.newline();
-		emitter.printDeclarationList(inc, c, c.variables);
-		inc.forceNewline();
+        inc.write("// captured environment"); inc.newline();
+        emitter.printDeclarationList(inc, c, c.variables);
+        inc.forceNewline();
 
-		inc.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
-		inc.newline(4); inc.begin(0);
+        inc.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
+        inc.newline(4); inc.begin(0);
         inc.write("buf.write(_serialization_id, m);"); inc.end(); inc.newline();
-		inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
-		inc.newline(4); inc.begin(0);
-		for (int i = 0; i < c.variables.size(); i++) {
-			if (i > 0) inc.newline();
-			VarInstance var = (VarInstance) c.variables.get(i);
-			String name = var.name().toString();
-			if (name.equals(THIS))
-				name = SAVED_THIS;
-			else name = mangled_non_method_name(name);
-			inc.write("buf.write(" + name + ", m);");
-		}
-		inc.end(); inc.newline();
-		inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf, x10aux::addr_map& m) {");
+        inc.newline(4); inc.begin(0);
+        // FIXME: factor out this loop
+        for (int i = 0; i < c.variables.size(); i++) {
+            if (i > 0) inc.newline();
+            VarInstance var = (VarInstance) c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            inc.write("buf.write(" + name + ", m);");
+        }
+        inc.end(); inc.newline();
+        inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
-		inc.newline(4); inc.begin(0);
-		inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
-		        cnamet+"("+SERIALIZATION_MARKER+"());");
-		inc.newline();
-		for (int i = 0; i < c.variables.size(); i++) {
-		    VarInstance var = (VarInstance) c.variables.get(i);
-		    String name = var.name().toString();
-		    if (name.equals(THIS))
-		        name = SAVED_THIS;
-		    else name = mangled_non_method_name(name);
-		    inc.write("this_->"+name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
-		    inc.newline();
-		}
-		inc.write("return this_;"); inc.end(); inc.newline();
-		inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
+        inc.newline(4); inc.begin(0);
+        inc.write(make_ref(cnamet)+" this_ = new (x10aux::alloc"+chevrons(cnamet)+"()) "+
+                  cnamet+"("+SERIALIZATION_MARKER+"());");
+        inc.newline();
+        // FIXME: factor out this loop
+        for (int i = 0; i < c.variables.size(); i++) {
+            VarInstance var = (VarInstance) c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            inc.write("this_->"+name+" = buf.read<"+emitter.translateType(var.type(), true)+" >();");
+            inc.newline();
+        }
+        inc.write("return this_;"); inc.end(); inc.newline();
+        inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
-		inc.newline(); inc.forceNewline();
+        inc.write(cname+"("+SERIALIZATION_MARKER+") { }");
+        inc.newline(); inc.forceNewline();
 
-		inc.write(cname+"(");
-		for (int i = 0; i < c.variables.size(); i++) {
-		    if (i > 0) inc.write(", ");
-		    VarInstance var = (VarInstance) c.variables.get(i);
-		    String name = var.name().toString();
-		    if (name.equals(THIS))
-		        name = SAVED_THIS;
-		    else name = mangled_non_method_name(name);
-		    inc.write(emitter.translateType(var.type(), true) + " " + name);
-		}
-		inc.write(") {");
-		inc.newline(4); inc.begin(0);
-		for (int i = 0 ; i < c.variables.size() ; i++) {
-		    VarInstance var = (VarInstance) c.variables.get(i);
-		    String name = var.name().toString();
-		    if (name.equals(THIS))
-		        name = SAVED_THIS;
-		    else name = mangled_non_method_name(name);
-		    if (i > 0) inc.newline();
-		    inc.write("this->" + name + " = " + name + ";");
-		}
-		inc.end(); inc.newline();
-		inc.write("}"); inc.newline(); inc.forceNewline();
+        inc.write(cname+"(");
+        for (int i = 0; i < c.variables.size(); i++) {
+            if (i > 0) inc.write(", ");
+            VarInstance var = (VarInstance) c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            inc.write(emitter.translateType(var.type(), true) + " " + name);
+        }
+        inc.write(") {");
+        inc.newline(4); inc.begin(0);
+        // FIXME: factor out this loop
+        for (int i = 0 ; i < c.variables.size() ; i++) {
+            VarInstance var = (VarInstance) c.variables.get(i);
+            String name = var.name().toString();
+            if (name.equals(THIS))
+                name = SAVED_THIS;
+            else name = mangled_non_method_name(name);
+            if (i > 0) inc.newline();
+            inc.write("this->" + name + " = " + name + ";");
+        }
+        inc.end(); inc.newline();
+        inc.write("}"); inc.newline(); inc.forceNewline();
 
-		inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
-		inc.newline(); inc.forceNewline();
+        inc.write("static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
+        inc.newline(); inc.forceNewline();
 
-		inc.write("const x10aux::RuntimeType *_type() const {"+
-		          " return x10aux::getRTT<"+superType+" >(); }");
-		inc.newline();
-		inc.write("struct RTT { static x10aux::RuntimeType * it; };");
-		inc.newline(); inc.forceNewline();
+        inc.write("const x10aux::RuntimeType *_type() const {"+
+                  " return x10aux::getRTT<"+superType+" >(); }");
+        inc.newline();
+        inc.write("struct RTT { static x10aux::RuntimeType * it; };");
+        inc.newline(); inc.forceNewline();
 
-		inc.write(make_ref("x10::lang::String")+" toString() {");
-		inc.newline(4); inc.begin(0);
-		inc.write("return x10::lang::String::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
-		inc.end(); inc.newline();
-		inc.write("}");
-		inc.end(); inc.newline(); inc.forceNewline();
+        inc.write(emitter.translateType(xts.String(), true)+" toString() {");
+        inc.newline(4); inc.begin(0);
+        inc.write("return "+emitter.translateType(xts.String())+"::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
+        inc.end(); inc.newline();
+        inc.write("}");
+        inc.end(); inc.newline(); inc.forceNewline();
 
-		inc.write("};"); inc.newline(); inc.forceNewline();
+        inc.write("};"); inc.newline(); inc.forceNewline();
 
-		if (in_template_closure)
-		    emitter.printTemplateSignature(freeTypeParams, inc);
-		inc.write("x10aux::RuntimeType * "+cnamet+"::RTT::it = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
-		inc.newline(); inc.forceNewline();
+        if (in_template_closure)
+            emitter.printTemplateSignature(freeTypeParams, inc);
+        inc.write("x10aux::RuntimeType * "+cnamet+"::RTT::it = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
+        inc.newline(); inc.forceNewline();
 
-		if (in_template_closure)
-		    emitter.printTemplateSignature(freeTypeParams, inc);
-		inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
-		inc.newline(4);
-		if (in_template_closure) {
-		    inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
-		              cnamet+"::template "+DESERIALIZE_METHOD+"<Object>);");
-		} else {
-		    inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
-		              cnamet+"::"+DESERIALIZE_METHOD+"<Object>);");
-		}
-		inc.newline(); inc.forceNewline();
+        if (in_template_closure)
+            emitter.printTemplateSignature(freeTypeParams, inc);
+        inc.write("const x10aux::serialization_id_t "+cnamet+"::"+SERIALIZATION_ID_FIELD+" = ");
+        inc.newline(4);
+        String template = in_template_closure ? "template " : "";
+        inc.write("x10aux::DeserializationDispatcher::addDeserializer("+
+                  cnamet+"::"+template+DESERIALIZE_METHOD+
+                  chevrons(emitter.translateType(xts.Object()))+");");
+        inc.newline(); inc.forceNewline();
 
-		if (in_template_closure) {
-		    String guard = getHeaderGuard(cname);
-		    inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
-		}
+        if (in_template_closure) {
+            String guard = getHeaderGuard(cname);
+            inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
+        }
 
-		sw.popCurrentStream();
+        sw.popCurrentStream();
 
-		// create closure instantiation (not in inc but where the closure was defined)
-		// note that we alloc using the typeof the superType but we pass in the correct size
-		// this is because otherwise alloc may (when debugging is on) try to examine the
-		// RTT of the closure (which doesn't exist)
+        // create closure instantiation (not in inc but where the closure was defined)
+        // note that we alloc using the typeof the superType but we pass in the correct size
+        // this is because otherwise alloc may (when debugging is on) try to examine the
+        // RTT of the closure (which doesn't exist)
 
-		// first get the template arguments (if any)
-		prefix="<";
-		StringBuffer sb = new StringBuffer();
-		for (Type t : freeTypeParams) {
-		    sb.append(prefix+emitter.translateType(t, true));
-		    prefix = ",";
-		}
-		if (prefix.equals(",")) sb.append(">");
-		String templateArgs = sb.toString();
+        // first get the template arguments (if any)
+        prefix="<";
+        StringBuffer sb = new StringBuffer();
+        for (Type t : freeTypeParams) {
+            sb.append(prefix+emitter.translateType(t, true));
+            prefix = ",";
+        }
+        if (prefix.equals(",")) sb.append(">");
+        String templateArgs = sb.toString();
 
-		sw.write(make_ref(superType));
-		sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
-		sw.write(cname+templateArgs+"(");
-		for (int i = 0; i < c.variables.size(); i++) {
-		    if (i > 0) sw.write(", ");
-		    VarInstance var = (VarInstance) c.variables.get(i);
-		    String name = var.name().toString();
-		    if (!name.equals(THIS))
-		        name = mangled_non_method_name(name);
-		    else if (((X10CPPContext_c)c.pop()).insideClosure)  // FIXME: hack
-		        name = SAVED_THIS;
-		    sw.write(name);
-		}
-		sw.write("))");
+        sw.write(make_ref(superType));
+        sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
+        sw.write(cname+templateArgs+"(");
+        for (int i = 0; i < c.variables.size(); i++) {
+            if (i > 0) sw.write(", ");
+            VarInstance var = (VarInstance) c.variables.get(i);
+            String name = var.name().toString();
+            if (!name.equals(THIS))
+                name = mangled_non_method_name(name);
+            else if (((X10CPPContext_c)c.pop()).insideClosure)  // FIXME: hack
+                name = SAVED_THIS;
+            sw.write(name);
+        }
+        sw.write("))");
 
-		c.finalizeClosureInstance();
-		emitter.exitClosure(c);
-	}
+        c.finalizeClosureInstance();
+        emitter.exitClosure(c);
+    }
 
 
 	private void printInlinedClosureStmt(Stmt s, StreamWrapper w, String retLabel, String retVar, Closure_c closure) {
