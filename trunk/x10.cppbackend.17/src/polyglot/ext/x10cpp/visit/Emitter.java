@@ -740,11 +740,9 @@ public class Emitter {
 	}
 	
 	void enterClosure(X10CPPContext_c c) {
-		c.closures.closureId++;
-		c.closures.nesting++;
+		c.incClosureId();
 	}
 	void exitClosure(X10CPPContext_c c) {
-		c.closures.nesting--;
 	}
 
     void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, CodeWriter w) {

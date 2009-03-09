@@ -185,6 +185,13 @@ namespace x10aux {
         }
     public:
 
+        // we use the same buffers for serializing and deserializing so the
+        // const cast is necessary
+        // note that a serialization_buffer created this way can only be used for deserializing
+        serialization_buffer(const char *buffer_)
+            : buffer(const_cast<char*>(buffer_)), limit(NULL), cursor(buffer)
+        { }
+
         serialization_buffer()
             : buffer(alloc(INITIAL_SIZE)), limit(buffer + INITIAL_SIZE), cursor(buffer)
         { }
@@ -195,14 +202,6 @@ namespace x10aux {
         }
 
         const char *get() const { return buffer; }
-
-        // we use the same buffers for serializing and deserializing so the
-        // const cast is necessary
-        void set(const char* buf) { set(const_cast<char*>(buf)); }
-        void set(char* buf) {
-            buffer = cursor = buf;
-            limit = NULL;
-        }
 
         size_t length() { return cursor - buffer; }
 
@@ -235,7 +234,7 @@ namespace x10aux {
 
         // default case for primitives and other things that never contain pointers
         template<class T> struct Read {
-            static T &_(serialization_buffer &buf) {
+            GPUSAFE static T &_(serialization_buffer &buf) {
                 // FIXME: assumes all places are same endian
                 T &val = *(T*) buf.cursor;
                 buf.cursor += sizeof(T);
@@ -246,14 +245,14 @@ namespace x10aux {
 
         // case for references e.g. ref<Object>, 
         template<class T> struct Read<ref<T> > {
-            static ref<T> _(serialization_buffer &buf) {
+            GPUSAFE static ref<T> _(serialization_buffer &buf) {
                 //dispatch because we don't know what it is
                 _S_("Deserializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET" from buf: "<<&buf);
                 return T::template _deserialize<T>(buf);
             }
         };
 
-        template<typename T> T read() {
+        template<typename T> GPUSAFE T read() {
             return Read<T>::_(*this);
         }
 
