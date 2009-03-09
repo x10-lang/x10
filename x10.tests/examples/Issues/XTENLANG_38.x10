@@ -7,8 +7,9 @@ import harness.x10Test;
  * @author bdlucas 10/2008
  */
 
-import x10.io.PrintStream;
-import x10.io.ByteArrayOutputStream;
+import x10.io.Printer;
+import x10.io.StringWriter;
+import x10.io.IOException;
 
 class XTENLANG_38 extends x10Test {
 
@@ -22,9 +23,9 @@ class XTENLANG_38 extends x10Test {
         //System.out.write(b);
 
         // however we can reproduce the same bug in a testable way
-        val os = new ByteArrayOutputStream();
-        val ps = new PrintStream(os);
-        ps.write(b);
+        val os = new StringWriter();
+        val ps = new Printer(os);
+        try { ps.write(b); } catch (e:IOException) {}
         System.out.println("got " + os.toString());
 
         return os.toString().equals("a");
