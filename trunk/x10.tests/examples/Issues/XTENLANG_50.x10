@@ -11,7 +11,9 @@ class XTENLANG_50 extends x10Test {
 
     static class R(rank:nat) {
     
-        incomplete public static def make(val rs: ValRail[R]): R{rank==rs.length};
+        public static def make(val rs: ValRail[R]): R{rank==rs.length} {
+        	return new R(rs.length) as R{rank==rs.length};
+        }
     
         public static def $convert(rs: ValRail[R]) = make(rs);
     
