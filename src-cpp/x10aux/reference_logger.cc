@@ -10,7 +10,7 @@ using namespace x10aux;
 ReferenceLogger *x10aux::ReferenceLogger::it;
 
 #define SPINE_SIZE 1024
-#define BUCKET_LOG_SIZE 4
+#define BUCKET_LOG_SIZE 12
 #define BUCKET_SIZE (1<<BUCKET_LOG_SIZE)
 #define BUCKET_MASK ((1<<BUCKET_LOG_SIZE)-1)
 
