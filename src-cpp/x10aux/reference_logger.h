@@ -13,7 +13,7 @@ namespace x10 {
 
 namespace x10aux {
 
-#ifdef X10_USE_BDWGC
+#if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
     /* References that have been shipped to remote Places,
      * and therefore must be treated as roots for local GCs
      */

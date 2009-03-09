@@ -94,7 +94,7 @@ namespace x10aux {
     }
 
     template<class T> x10_remote_ref_t ref_serialize(T *remote_ref) {
-        #ifdef X10_USE_BDWGC
+        #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
         ReferenceLogger::log(remote_ref);
         #endif
         return x10_ref_serialize(reinterpret_cast<x10_addr_t>(remote_ref));

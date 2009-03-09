@@ -6,7 +6,7 @@ using namespace x10::lang;
 using namespace x10::runtime;
 using namespace x10aux;
 
-#ifdef X10_USE_BDWGC
+#if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
 ReferenceLogger *x10aux::ReferenceLogger::it;
 
 #define SPINE_SIZE 1024
@@ -15,7 +15,7 @@ ReferenceLogger *x10aux::ReferenceLogger::it;
 #define BUCKET_MASK ((1<<BUCKET_LOG_SIZE)-1)
 
 ReferenceLogger::ReferenceLogger() {
-    escapedReferences = x10aux::alloc<void**>(SPINE_SIZE);
+    escapedReferences = x10aux::alloc<void**>(SPINE_SIZE*sizeof(void**));
     nextSlot = 0;
     lock = Lock::_make();
 }
@@ -31,7 +31,7 @@ void ReferenceLogger::log_(void *x) {
     int bucketIndex = mySlot & BUCKET_MASK;
     if (0 == bucketIndex) {
         assert(spineIndex<SPINE_SIZE); /* TODO: We've logged so many references that we're out of space to log them */
-        escapedReferences[spineIndex] = x10aux::alloc<void*>(BUCKET_SIZE);
+        escapedReferences[spineIndex] = x10aux::alloc<void*>(BUCKET_SIZE*sizeof(void*));
     }
     lock->unlock();
 
