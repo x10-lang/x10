@@ -96,23 +96,11 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		X10CPPContext_c v = (X10CPPContext_c) super.push();
 		return v;
 	}
-	
-	public static class Closures {
-	    public int closureId = -1;
-	    public int nesting = 0;
-	}
 
-	public Closures closures = new Closures();
-
-	// FIXME: should this be used instead of accessing closures directly?
-	public Closures getClosures() {
-		if (isSource()) {
-			System.err.println("found source context");
-			return closures;
-		} else
-			return ((X10CPPContext_c) outer).getClosures();
-	}
-
+    static int closureId = -1;
+    public void incClosureId() { closureId++; }
+    public int closureId() { return closureId; }
+    
 	public void saveEnvVariableInfo(String name) {
 		VarInstance vi = findVariableInThisScope(Name.make(name));
 		if (vi != null) {  // found declaration 

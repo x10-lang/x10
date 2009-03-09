@@ -60,8 +60,7 @@ extern "C" {
     // this one for when pgas does not use an internal thread
     void __x10_callback_asyncswitch(const x10_async_closure_t *cl, x10_clock_t *, int) {
             _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
-            x10aux::serialization_buffer buf;
-            buf.set(reinterpret_cast<const char*>(cl));
+            x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
             ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
             _X_("The deserialised async was: "<<async->toString()->c_str());
             deserialized_bytes += buf.length();

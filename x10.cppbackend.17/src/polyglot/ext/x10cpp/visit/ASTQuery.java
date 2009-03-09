@@ -291,12 +291,14 @@ public class ASTQuery {
 	}
 
 	static int getConstructorId(X10CPPContext_c c) {
-		return c.closures.closureId;
+		return c.closureId();
 	}
 
+    /*
 	static boolean outerClosure(X10CPPContext_c c) {
 		return c.closures.nesting == 0;
 	}
+    */
 	static ClassType getOuterClass(X10CPPContext_c c) {
 		ClassType currentClass = c.currentClass();
 		while (currentClass.isNested()) {

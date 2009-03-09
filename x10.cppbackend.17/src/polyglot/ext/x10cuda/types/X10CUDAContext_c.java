@@ -20,15 +20,21 @@ import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 
 public class X10CUDAContext_c extends X10CPPContext_c {
-    
-    private ClassifiedStream cudaStream = null;
-    
-    private Closure_c wrappingClosure;
 
-	public X10CUDAContext_c(TypeSystem ts) {
-		super(ts);
-	}
-    
+    public X10CUDAContext_c(TypeSystem ts) {
+        super(ts);
+    }
+        
+    private Closure_c wrappingClosure;
+    public Closure_c wrappingClosure() { return wrappingClosure; }
+    public void wrappingClosure(Closure_c v) { wrappingClosure = v; }
+
+    private boolean generatingCuda;
+    public boolean generatingCuda() { return generatingCuda; }
+    public void generatingCuda(boolean v) { generatingCuda = v; }
+
+    private ClassifiedStream cudaStream = null;
+
     public ClassifiedStream cudaStream (StreamWrapper sw) {
         if (cudaStream==null) {
             cudaStream = sw.getNewStream("cu");
@@ -36,14 +42,7 @@ public class X10CUDAContext_c extends X10CPPContext_c {
         return cudaStream;
     }
 
-    public Closure_c getWrappingClosure() {
-        return wrappingClosure;
-    }
-
-    public void setWrappingClosure(Closure_c wrappingClosure) {
-        this.wrappingClosure = wrappingClosure;
-    }
-
+    
 }
 
 //vim:tabstop=4:shiftwidth=4:expandtab
