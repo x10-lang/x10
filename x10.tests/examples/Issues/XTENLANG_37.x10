@@ -7,11 +7,11 @@ import harness.x10Test;
  * @author bdlucas 10/2008
  */
 
-import x10.io.InputStream;
+import x10.io.Reader;
     
 class XTENLANG_37 extends x10Test {
 
-    def foo(is:InputStream) {
+    def foo(is:Reader) {
         try {
             is.read();
         } catch (Exception) {}
