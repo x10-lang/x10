@@ -123,6 +123,11 @@ extern "C" {
 
     }
 #endif
+
+    void __x10rt_callback_asyncswitch(x10_async_closure_t *cl, int) {
+        __x10_callback_asyncswitch(const_cast<const x10_async_closure_t *>(cl),NULL,0);
+    }
+
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
