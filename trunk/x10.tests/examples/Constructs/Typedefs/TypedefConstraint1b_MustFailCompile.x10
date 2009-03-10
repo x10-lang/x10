@@ -10,9 +10,9 @@ import harness.x10Test;
 
 public class TypedefConstraint1b_MustFailCompile extends TypedefTest {
 
-    class X           {def name() = "X";}
-    class Y extends X {def name() = "Y";}
-    class Z extends Y {def name() = "Z";}
+    class X           {def name():String = "X";}
+    class Y extends X {def name():String = "Y";}
+    class Z extends Y {def name():String = "Z";}
 
     public def run(): boolean = {
         
