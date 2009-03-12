@@ -1,30 +1,10 @@
+\newcommand{\constraint}{{\tt constraint}}
+
 We now describe the semantics of languages in the \FX{} family.
 For uniformity we declare type-valued parameters and properties
 to be of ``type'' \type, instead of using square brackets to demarcate
 them.
 
-\begin{figure*}
-\quad\\[-12pt]
-\begin{center}
-\begin{tabular}{r@{\quad}rcl}
-  (Program) & {\tt P} &{::=}& \tbar{L} \\
-  (Class declaration) & {\tt L} &{::=}& ${\tt class~C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends~D}~\{~\tbar{M}~\}$
-  \\
-  (Method declaration)& {\tt M} &{::=}& ${\tt def~m}(\tbar{x}:\tbar{V})\{{\tt c}\}: {\tt T = e;}$ \\
-  (Expression)& {\tt e} &{::=}& {\tt x} \alt \this \alt ${\tt e}.{\tt f}$ \alt ${\tt e}.{\tt m}(\tbar{e})$
-   \alt ${\tt new~C}(\tbar{e})$ \alt ${\tt e}~{\tt as}~{\tt T}$ \\
-  (Parameter type) & ${\tt U}, {\tt V}$&{::=} & {\tt T} \alt $\exists{\tt x}:{\tt V}.~{\tt U}$ \\
-  (Type)& ${\tt S},{\tt T}$&{::=}& {\tt C} \alt ${\tt T\{c\}}$ \alt $\exists{\tt x}:{\tt V}.~{\tt T}$ \alt {\tt x} \\
-  (Constraint term) & {\tt t} &{::=}& {\tt x} \alt {\tt self} \alt
-  {\tt this} \alt ${\tt t}.{\tt f}$ \alt ${\tt new~C}(\tbar{t})$ \\
-  (Constraint) & ${\tt c}, {\tt d}$ &{::=}&\true \alt {\tt t==t} \alt ${\tt c}, {\tt c}$ \\
-%  (Values) & {\tt v}&{::=}& \new\ {\tt C}($\bar{\tt v}$)
-\end{tabular} 
-\end{center}
-{\tt C}, {\tt D} range over class names, {\tt f} over field names, {\tt m} over method names, {\tt x} over parameter names.
-\caption{\FX{} productions}
-\label{fig:fx-grammar}
-\end{figure*}
 
 \subsection{\FXZ}
 
@@ -39,7 +19,7 @@ Class names {\tt C} in {\tt P} range over the declared classes in {\tt P}
 and {\tt Object}.
 Classes have
 properties (i.e., immutable fields) \tbar{f} and methods \tbar{M}.  We omit constructors
-and require that the {\tt new} expression provide initializers
+and require that the \new{} expression provide initializers
 for all fields. 
 Methods are introduced with the {\tt def} keyword.
 Both classes and methods may have constraint clauses
@@ -51,33 +31,21 @@ that must be satisfied by
 be applicable. 
 
 Expressions {\tt e} are either parameters {\tt x}, the implicit
-method parameter {\tt this}, field accesses, calls, {\tt new}
+method parameter {\tt this}, field accesses, method invocations, \new{}
 expressions, or casts (written {\tt e as T}).
 
 The set of types includes classes {\tt C} and is closed under
-constrained types (${\tt T\{c\}}$) and existential
-quantification ($\exists {\tt x}:{\tt V}.~{\tt T}$).
-%
-An object {\tt o} is of type {\tt C} (for {\tt C} a class)
-if it is an instance of a subtype of {\tt C}; it is of type {\tt
-T\{c\}} if it is of type {\tt T} and it satisfies the constraint $\tt
+constrained types ($\tt T\{c\}$) and existential
+quantification ($\exists \tt x:T.~U$).
+An object {\tt o} is of type {\tt C} if it is an instance of class {\tt C}; it is of type $\tt
+T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt
 c[o/self]$\footnote{Thus the constraint {\tt c} in a type {\tt T\{c\}}
 should be thought of as a unary predicate $\lambda\self.{\tt c}$, an
 object is of this type if it is of type {\tt T} and satisfies this
-predicate.}; it is of type
-                $\exists {\tt x}:{\tt V}.~{\tt T}$
+predicate.}; it is of type $\exists \tt x:T.~U$
 if there is some object {\tt q}
-of type {\tt V} such that {\tt o} is of type
-${\tt T}[{\tt q}/{\tt x}]$.
-
-%
-Note that we distinguish the category of {\em parameter types} ({\tt
-V}) from types ({\tt T}). This is in preparation for the introduction
-of type variables; we will introduce a ``type'' {\tt type} and permit
-parameters and fields to have this type, thus supporting
-genericity.\footnote{But we will not permit the return types of
-methods to be {\tt type}. This does indeed make sense, but developing
-this theory further is beyond the scope of this paper.}
+of type {\tt T} such that {\tt o} is of type
+$\tt U[q/x]$.
 
 The syntax for constraints in \FXZ{} is specified in
 Figure~\ref{fig:fx-grammar}. We distinguish a subset of these constraints as
@@ -89,331 +57,13 @@ standard class and method definitions of \FJ{}.
 
 The constraints permitted by the syntax in
 Figure~\ref{fig:fx-grammar} that
-are not user constraints are necessary to define the static and
-dynamic semantics of the program.
-The use of this richer constraint set is
-not necessary, it simply enables us to present the static and dynamic
+are not user constraints are equality constraints and
+conjunctions of constraints. These additional constraints as well as constrained and existential types
+are not necessary to the definition of \FXZ.
+But they enable us to present the static and dynamic
 semantics once for the entire family of \FX{} languages,
 distinguishing different members of the family by varying the
-constraint system over which they are defined.\footnote{Another way of
-saying this is that the language ${\cal L}=\FX({\cal C})$ is actually
-defined over the constraint system ${\cal O}({\cal C})$--the constraints
-of $\cal O$ are uniformly added to every \FX{} member.}
-
-
-\begin{figure}
-\quad\\[-12pt]
-\infax[True]{\Gamma \vdash {\tt true}: {\tt o}}
-
-\infrule[And]
-	{\Gamma  \vdash {\tt c}: {\tt o} \andalso \Gamma \vdash {\tt d}: {\tt o}}
-	{\Gamma \vdash ({\tt c},{\tt d}):{\tt o}}
-
-%\infrule[Exists]
-%	{\Gamma \vdash {\tt t}: {\tt T} \andalso \Gamma \vdash {\tt c}[{\tt t}/{\tt x}]:{\tt o}}
-%	{\Gamma \vdash {\tt x}:{\tt T}.~{\tt c}: {\tt o}}
-
-\infax[Object]{\Gamma \vdash {\tt Object}: {\tt type}}
-
-\infrule[Class]
-  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
-	{\Gamma \vdash {\tt C} : \type} 
-
-\infrule[Exists]
-	{\Gamma \vdash {\tt t}: {\tt V} \andalso \Gamma \vdash {\tt U}[{\tt t}/{\tt x}]: \type}
-	{\Gamma \vdash \exists {\tt x}:{\tt V}.~{\tt U}: \type} 
-
-\infrule[Dep]
-	{\Gamma \vdash {\tt T}: \type \andalso \Gamma, \self:{\tt T} \vdash {\tt c}:{\tt o}}
-	{\Gamma \vdash {\tt T}\{{\tt c}\}: {\tt type}} 
-\caption{\FX{} well-formedness rules}
-\end{figure}
-
-
-\begin{figure*}
-\quad\\[-12pt]
-
-\infax[Fields-B]
-{{\tt x}:{\tt Object} \vdash \fields({\tt x})=\bullet}
-
-\infrule[Fields-I]
-{\Gamma, {\tt x}:{\tt D} \vdash \fields({\tt x})=\tbar{g}: \tbar{V}
- \\
- {\tt class}~{\tt C}(\tbar{f}:\tbar{U})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
-{\Gamma, {\tt x}:{\tt C} \vdash \fields({\tt x})=\tbar{g}: \tbar{V}, \tbar{f}: \tbar{U}[{\tt x}/{\tt this}]}
-
-\infrule[Fields-C,E]
-{\Gamma, {\tt x}: {\tt S} \vdash \fields({\tt x})=\tbar{f}: \tbar{V}}
-{\Gamma, {\tt x}: {\tt S}\{{\tt d}\} \vdash \fields({\tt x}) = \tbar{f}:
-                                  \tbar{V}\{{\tt d}[{\tt x}/{\tt self}]\}
-\\
-\Gamma, {\tt x}: \exists {\tt y}: {\tt U}.~{\tt S} \vdash
-\fields({\tt x})=\tbar{f}:\exists {\tt y}:{\tt U}.~\tbar{V}
-	}
-
-\infrule[Method-B]
-{{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}
- \\
- {\tt def}~{\tt m}(\tbar{z}:\tbar{U})\{{\tt d}\}:{\tt T} = {\tt e} \in \tbar{M} \andalso
- \theta=[{\tt x}/\this]}
-{\Gamma, {\tt x}:{\tt C} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U}\theta)\{{\tt d}\theta\}:{\tt T}\theta={\tt e})}
-
-\infrule[Method-I]
-{\Gamma, {\tt x}:{\tt D} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U})\{{\tt d}\}:{\tt T}={\tt e})
-\\
- {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}
- \andalso
- {\tt m} \not\in \tbar{M}}
-{\Gamma, {\tt x}:{\tt C} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U})\{{\tt d}\}:{\tt T}={\tt e})}
-
-\infrule[Method-C,E]
-{\Gamma, {\tt x}:{\tt S} \vdash {\tt x}~\has~({\tt m}(\tbar{z}:\tbar{U})\{{\tt c}\}:{\tt T}={\tt e})}
-{\Gamma, {\tt x}: {\tt S}\{{\tt d}\} \vdashO 
-                                 {\tt x}~\has~({\tt
-                                 m}(\tbar{z}:\tbar{U})\{{\tt
-                                 c}\}:{\tt T\{d[{\tt x}/{\tt self}]\}}={\tt e})
-\\
-\Gamma, {\tt x}: \exists {\tt y}: {\tt U}.~{\tt S} \vdash
-                                 {\tt x}~\has~({\tt
-                                 m}(\tbar{z}:\tbar{U})\{{\tt
-                                 c}\}:{\tt \exists {\tt y}: {\tt U}.~{\tt T}}={\tt e})}
-
-\caption{The Object constraint system, $\cal O$}\label{fig:O}  
-\end{figure*}
-
-\subsection{The Object constraint system, $\cal O$}\label{sec:O}
-
-Each language $\cal L$ in the family is defined over a given input
-constraint system $\cal X$.  Given a program $P$, we now show how to
-build a larger constraint system ${\cal O}({\cal X})$ on top of $\cal X$
-that captures constraints related to the object-oriented structure
-of $P$. $\cal O$ is sensitive to $\cal X$ only in that $\cal O$
-depends on the types defined by $\cal L$, and these may depend on
-$\cal X$.  For some members of $\cal L$, viz., the generic languages,
-$\cal X$ itself may use some of the constraints defined by $\cal O$.
-Thus we should think of $\cal X$ and $\cal O$ as being defined
-simultaneously and recursively.
-
-The static and dynamic semantics of $\cal L$ use ${\cal O}({\cal X})$.
-
-The inference relation for $\cal O$ depends on the object-oriented
-structure of the input program $P$ in $\cal L$.  
-
-The constraints of $\cal O$ are given by:
-
-\begin{tabular}{r@{\quad}rcl}
-(Member) & {\tt I}&{::=}& ${\tt m}(\tbar{x} : \tbar{V})\{{\tt c}\}: {\tt V} = {\tt e}$ \alt ${\tt f}: {\tt V}$ \\
-(Constraint) & ${\tt c},{\tt d}$ &{::=}& \klass({\tt C}) \alt ${\tt S} \extends {\tt T}$ \alt ${\tt S} \subtype {\tt T}$\\
-&& \alt &$\fields({\tt x})= \bar{\tt f}:\bar{\tt V}$ \\
-&& \alt& {\tt x\ \has\ I}
-\end{tabular}
-
-The predicate
-$\klass({\tt C})$ is true for all classes {\tt C}
-defined in the program. ${\tt S} \extends {\tt T}$ holds
-if it can be established that {\tt S} extends {\tt T}, for
-instance if {\tt S} is a class that extends {\tt T}, or if {\tt S} is
-a type variable and {\tt T} its upper bound. ${\tt S} \subtype {\tt T}$
-holds if {\tt S} is a subtype of {\tt T}.
-[XXX why the distinction?]
-For a
-variable {\tt x}, {\tt \fields({\tt x})} specifies the
-(complete) set of typed fields available to {\tt x}.  {\tt x\ \has\ I}
-specifies that the member {\tt I} (field or method) is
-available to {\tt x}---for instance, the member is defined at the class at
-which {\tt x} is declared or is inherited by it, or it is available at
-the upper bound of a type variable.
-
-$\cal O$ satisfies the axioms and inference rules in
-Figure~\ref{fig:O}. Since $\cal O$ is a constraint system \cite{cccc},
-it also satisfies Identity and Cut.
-[XXX define!]
-%% Well, it isn't really since its assumptions are ordered??!
-
-Note that some rules (viz., {\sc S-Exists} rules) use $\vdash$. 
-
-We assume that the rules given are complete for
-defining the predicates $\tt C \subtype D$ and {\tt C\ \has\ I}, for
-classes {\tt C}, {\tt D} and members {\tt I}; that is, if the rules
-cannot be used to establish $\tt \vdashO C \subtype D$
-($\tt \vdashO C\ \has\ I$), then it is the case that
-$\tt \vdashO C \notsubtype D$ ($\tt \vdashO \neg (C\ \has\
-I)$).
-%
-Such negative facts are important to establish {\em inconsistency} of
-assumptions (for instance, for the programming languages which permits
-the user to state constraints on type variables).  
-
-\begin{figure*}
-\quad\\[-12pt]
-
-\infrule[Class]
-{{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
-{\tt \vdashO \klass({\tt C}),{\tt C} \extends {\tt D}}
-
-\infrule[Has-F]
-{\Gamma \vdashO \fields({\tt x})=\tbar{f}:\tbar{V}} 
-{\Gamma \vdashO {\tt x}\ \has\ {\tt f}_i:{\tt V}_i}
-
-\infax[Sel]{\vdashO {\tt new}~{\tt C}(\tbar{t}).{\tt f}_i={\tt t}_i}
-
-\infrule[Inv]
-{\Gamma \vdashO {\tt x:C}
-\andalso
-{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
-{\Gamma \vdashO {\tt c}[{\tt x}/{\tt this}]}
-
-\infax[V-Id]
-{\vdashO {\tt C} \extends {\tt C}} 
-
-\infrule[V-Trans]
-{\Gamma\tt \vdashO T_1 \extends T_2, T_2 \extends T_3}
-{\Gamma\tt \vdashO T_1 \extends T_3}
-
-\infrule[Sub-X]
-{\Gamma \vdashO {\tt t} \extends {\tt T}}
-{\Gamma \vdashO {\tt t} \subtype {\tt T}}
-
-\infrule[S-Trans]
-	{\Gamma\tt \vdashO T_1 \subtype T_2, T_2 \subtype T_3}
-	{\Gamma\tt \vdashO T_1 \subtype T_3}
-
-\infrule[S-Const-L]
-	{\Gamma\tt,  {\tt c} \vdashO {\tt S} \subtype {\tt T}}
-	{\Gamma\tt  \vdashO {\tt S\{c\}} \subtype {\tt T}}
-
-\infrule[S-Const-R]
-	{\Gamma\tt  \vdashO {\tt S} \subtype {\tt
-        T}\andalso\Gamma,{\tt \self:S} \vdashO {\tt c} }
-	{\Gamma\tt  \vdashO {\tt S} \subtype {\tt T\{c\}}}
-
-\infrule[S-Extends]
-{{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
-{\tt\vdashO C \subtype D}
-
-\infrule[S-Exists-L]
-{\Gamma \vdashO {\tt S} \subtype {\tt T}
- \andalso
- \mbox{({\tt x} fresh})}
-{\Gamma \vdashO \exists {\tt x}: {\tt U}.~{\tt S} \subtype {\tt T}}
-
-\infrule[S-Exists-R]
-{\Gamma \vdash {\tt t}:{\tt U}
- \andalso
- \Gamma \vdashO {\tt S} \subtype {\tt T}[{\tt t}/{\tt x}]}
-{\Gamma  \vdashO {\tt S}\subtype \exists {\tt x}: {\tt U}.~{\tt T}}
-
-\eat{
-\infrule[Type-equiv]
-{\Gamma  \vdashO {\tt S} \subtype {\tt T}
- \andalso
- \Gamma \vdashO {\tt T} \subtype {\tt S}}
-{\Gamma  \vdashO {\tt S} \equiv {\tt T}}
-}
-
-\end{figure*}
-
-
-\input{fx-semantics}
-
-\subsection{Judgments}
-%\begin{definition}[Designator] The class of {\em designators}
-%is given by:
-%\begin{tabular}{r@{\quad}rcl}
-%(Designator) & {\tt d} &{::=}& {\tt x}\alt C($\bar{\tt d}$)  \alt {\tt d.f} \\
-%\end{tabular}
-%\end{definition}
-
-In the following $\Gamma$ is a {\em well-typed context}, i.e., a
-(finite, possibly empty) sequence of formulas $\tt x:T$, $\tt T\
-\type$ and constraints $\tt c$ satisfying:
-\begin{enumerate}
-  \item for any formula $\phi$ in the sequence all variables $\tt x$
-    ({\tt X}) occurring in $\phi$ are defined by a declaration $\tt
-    x:T$ ({\tt X\ \type}) in the sequence to the left of $\phi$.
-
-  \item for any variable $\tt x$ ({\tt X}), there is at most one
-  formula $\tt x:T$ ({\tt X\ \type})  in $\Gamma$.
-\end{enumerate}
-
-The judgments of interest are as follows. 
-(1)~Type well-formedness:  $\Gamma \vdash {\tt T} \ {\tt type}$,
-(2)~Subtyping: $\Gamma \vdash {\tt S} \subtype {\tt T}$,
-(3)~Typing:   $\Gamma   \vdash {\tt e:T}$,
-(4)~Method OK (method $\tt M$ is well-defined for the class $\tt C$): $\Gamma \vdash M\ \mbox{OK in $C$}$,
-(5)~Field OK (field $\tt f:T$ is well-defined for the class $\tt
-   C$): $\Gamma \vdash f:T\ \mbox{OK in $C$}$
-(6)~Class OK: $\Gamma \vdash {\tt L} \ OK$ (class definition {\tt L} is well-formed). 
-
-In defining these judgments we will use $\Gamma \vdash_{\cal C} c$,
-the judgment corresponding to the underlying constraint system. For
-simplicity, we define $\Gamma \vdash {\tt c}$ to mean
-$\sigma(\Gamma)\vdash_{\cal C} {\tt c}$, where the {\em constraint
-projection}, $\sigma(\Gamma)$ is defined as allows. 
-
-\begin{tabular}{l}
-$\sigma(\epsilon)={\tt true}$\\
-$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)$={\tt c}[{\tt x}/\self], $\sigma(\Gamma)$\\
-$\sigma({\tt x}:\exists {\tt y}:{\tt S}.~{\tt T}, \Gamma)$=$\sigma({\tt y:S}, {\tt x}:{\tt T},\Gamma)$\\
-$\sigma(c,\Gamma)$ = c, $\sigma(\Gamma)$
-\end{tabular}
-
-\noindent Above, in the third rule we assume that alpha-equivalence is used to
-choose the variable {\tt x} from a set of variables that does not
-occur in the context $\Gamma$.
-
-We say that a context $\Gamma$ is {\em consistent} if all (finite)
-subsets of $\{\sigma(\phi)\alt \Gamma \vdash \phi\}$ are consistent.
-In all type judgments presented below ({\sc T-Cast}, {\sc T-Field}
-etc) we make the implicit assumption that the context $\Gamma$ is
-consistent; if it is inconsistent, the rule cannot be used and the
-type of the given expression cannot be established (type-checking
-fails).
-
-\subsection{\FXZ}
-The semantics of \FXZ{} is presented in Figure~\ref{fig:FX}. 
-
-The rules for well-formedness of types are straightforward, given 
-the assumption that constraints are of a pre-given type $o$.
-
-\paragraph{Type judgment rules.}
-{\sc T-Var} is as expected, except that it asserts the constraint {\tt
-self==x} which records the fact that any value of this type is known
-statically to be equal to {\tt x}. This constraint is actually very
-crucial---as we shall see in the other rules once we establish that
-an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
-type to a freshly chosen variable {\tt z}. If in fact {\tt e} has a
-static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
-equal to {\tt x}, i.e., {\tt e} is of type {\tt T\{self==x\}}), then
-{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., {\tt z}
-equals {\tt x}. Thus {\sc T-Var} provides an important base case for
-reasoning statically about equality of values in the environment.
-
-We do away with the three casts provided in\FJ{} in favor of a single
-cast, requiring only that {\tt e} be of some type {\tt U}. At run time
-{\tt e} will be checked to see if it is actually of type {\tt T} (see
-Rule~{\sc R-Cast}).
-
-{\sc T-Field} may be understood through ``proxy'' reasoning as
-follows.  Given the context $\Gamma$ assume the receiver {\tt e} can
-be established to be of type {\tt S}. Now we do not know the run-time
-value of {\tt e}, so we shall assume that it is some fixed but unknown
-``proxy'' value {\tt z} (of type {\tt S}) that is ``fresh'' in that it
-is not known to be related to any known value (i.e., those recorded
-in $\Gamma$).  If we can establish that {\tt z} has a field {\tt f} of
-type {\tt V}\footnote{Note from the definition of
-\fields{} in ${\cal O}$ (Figure~\ref{fig:O}) that all occurrences of
-\this{} in the declared type of the field {\tt f} will have been replaced
-by {\tt z}.}, then we can assert that
-{\tt e.f} has type {\tt V} and, further, that it equals {\tt z.f}.
-Hence, we can assert that {\tt e.f} has type 
-$\exists {\tt z}:{\tt S}.~{\tt V}\{\self={\tt z}.{\tt f}\}$.
-
-{\sc T-Invk} has a very similar structure to {\sc T-Field}: we use
-``proxy'' reasoning for the receiver and the arguments of the method
-call. {\sc T-New} also uses the same proxy reasoning: however in this case
-we can establish that the resulting value is equal to ${\tt new\ C(\bar{\tt v})}$
-for some values $\bar{\tt v}$ of the given type.
+constraint system over which they are defined.
 
 \paragraph{Operational semantics.}
 
@@ -428,21 +78,399 @@ richer languages with richer notions of type this operation may
 involve run-time constraint solving using the fields of the object.
 
 
+\subsection{Judgments}
+
+In the following, $\Gamma$ is always a
+(finite, possibly empty) sequence of formulas $\tt x:T$ and constraints $\tt c$ satisfying:
+\begin{enumerate}
+  \item for any formula $\phi=\tt x:T$ or $\phi=\tt c$ in the sequence all free variables $\tt y$
+  occurring in $\tt T$ or $\tt c$ are defined by a declaration $\tt
+  x:U$ in the sequence to the left of $\phi$.
+
+  \item for any variable $\tt x$, there is at most one
+  formula $\tt x:T$ in $\Gamma$.
+\end{enumerate}
+
+The judgments of interest are as follows.
+\begin{enumerate}
+	\item Well-formedness:\\
+	  $\tt\Gamma\vdash T~\type$ \hfill  type {\tt T} is well formed\\
+	  $\tt\Gamma\vdash c~\constraint$ \hfill constraint {\tt c} is well formed
+	\item Member lookup:\\
+	  $\tt\Gamma\vdash \fields(x)=\tbar{f}:\tbar{T}$ \hfill variable {\tt x} has fields \tbar{f} of type \tbar{T}\\
+	  $\tt\Gamma\vdash x~\has~f:T$ \hfill variable {\tt x} has field {\tt f} of type {\tt T}\\
+	  $\tt\Gamma\vdash x~\has~m(\tbar{x}:\tbar{T})\{c\}:T=e$ \hfill variable {\tt x} has method {\tt m}
+	\item Constraints:\\
+	  $\tt\Gamma\vdash c$ \hfill constraint {\tt c} holds
+	\item Typing:\\
+	  $\tt\Gamma\vdash e:T$ \hfill expression {\tt e} has type {\tt T}\\
+	  $\tt\vdash def~m(\tbar{y}:\tbar{W})\{d\}:T=e~{\rm ok~in}~C$ \\ $~$ \hfill method {\tt m} in class {\tt C} is properly declared\\
+	  $\tt\vdash class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}~\rm ok$ \\ $~$ \hfill class {\tt C} is properly declared
+	\item Subtyping:\\
+	  $\Gamma \vdash {\tt S} \subtype {\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
+\end{enumerate}
+
+\paragraph{Well-formedness.} The rules for well-formedness of types in Figure~\ref{fig:well} are straightforward. A constraint $\tt c$ is well-formed for context $\Gamma$ iff its free variables are declared in $\Gamma$, i.e., $\tt\mathcal{F}(c)\subseteq\mathcal{D}(\Gamma)$. $\mathcal{D}$ and $\mathcal{F}$ are defined as usual.
+
+\paragraph{Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each type. %Note that fields cannot be overriden; methods may only be overriden by methods with weaker constraints; classes may only be extended by classes with stronger invariants.
+
+\paragraph{Constraints.}
+In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$},
+the judgment corresponding to the underlying constraint system.
+
+Each language $\cal L$ in the family is defined over a given input
+constraint system $\cal X$ that has at least support for equality constraints over uninterpreted terms.
+Formally, $\cal X$ permits judgments of the form
+$\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequences of constraints.
+
+For
+simplicity, we define $\Gamma \vdash {\tt c}$ to mean
+$\sigma(\Gamma)\vdashX {\tt c}$, where the {\em constraint
+projection}, $\sigma(\Gamma)$ is defined as follows. 
+%
+\begin{center}
+\begin{tabular}{l}
+$\sigma(\epsilon)={\tt true}$\\
+$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)={\tt c}[{\tt x}/\self], \sigma(\Gamma)$\\
+$\sigma({\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}, \Gamma)=\sigma({\tt z:T}, {\tt x}:{\tt U[{\tt z}/{\tt y}]},\Gamma)$\\
+$\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$
+\end{tabular}
+\end{center}
+%
+Above, in the third rule we assume that alpha-equivalence is used to
+choose a variable {\tt z} that does not
+occur in the context under construction.
+
+In order to capture the object-oriented structure of a program {\tt P}, we extend $\cal X$ with the {\sc Sel} rules in Figure~\ref{fig:object}. We also add rules {\sc Proj} and {\sc Inv} to expose the type constraints and class invariants to $\cal X$. TODO: consistency
+
+\paragraph{Typing rules.} The typing rules are specified in Figure~\ref{fig:FX}.
+
+{\sc T-Var} is as expected, except that it asserts the constraint {\tt
+self==x} which records the fact that any value of this type is known
+statically to be equal to {\tt x}. This constraint is actually very
+crucial---as we shall see in the other rules once we establish that
+an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
+type to a freshly chosen variable {\tt z}. If in fact {\tt e} has a
+static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
+equal to {\tt x}, i.e., {\tt e} is of type {\tt T\{self==x\}}), then
+{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., {\tt z}
+equals {\tt x}. Thus {\sc T-Var} provides an important base case for
+reasoning statically about equality of values in the environment.
+
+We do away with the three casts provided in \FJ{} in favor of a single
+cast, requiring only that {\tt e} be of some type {\tt U}. At run time
+{\tt e} will be checked to see if it is actually of type {\tt T} (see
+Rule~{\sc R-Cast}).
+
+{\sc T-Field} may be understood through ``proxy'' reasoning as
+follows.  Given the context $\Gamma$ assume the receiver {\tt e} can
+be established to be of type {\tt S}. Now we do not know the run-time
+value of {\tt e}, so we shall assume that it is some fixed but unknown
+``proxy'' value {\tt z} (of type {\tt S}) that is ``fresh'' in that it
+is not known to be related to any known value (i.e., those recorded
+in $\Gamma$).  If we can establish that {\tt z} has a field {\tt f} of
+type {\tt V}\footnote{Note from the definition of
+\fields{} in Figure~\ref{fig:lookup} that all occurrences of
+\this{} in the declared type of the field {\tt f} will have been replaced
+by {\tt z}.}, then we can assert that
+{\tt e.f} has type {\tt V} and, further, that it equals {\tt z.f}.
+Hence, we can assert that {\tt e.f} has type 
+$\exists {\tt z}:{\tt S}.~{\tt V}\{\self={\tt z}.{\tt f}\}$.
+
+{\sc T-Invk} has a very similar structure to {\sc T-Field}: we use
+``proxy'' reasoning for the receiver and the arguments of the method
+call. {\sc T-New} also uses the same proxy reasoning: however in this case
+we can establish that the resulting value is equal to ${\tt new\ C(\bar{\tt v})}$
+for some values $\bar{\tt v}$ of the given type.
+
+\paragraph{Subtyping rules.} The subtyping rules in Figure~\ref{fig:subtyping} are straightforward.
+
+
+\begin{figure*}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Program) & {\tt P} &{::=}& $\tbar{L}$ \\
+  (Class declaration) & {\tt L} &{::=}& $\tt class~C(\tbar{f}:\tbar{T})\{c\}~extends~D~\{~\tbar{M}~\}$ \\
+  (Method declaration)& {\tt M} &{::=}& $\tt def~m(\tbar{x}:\tbar{T})\{c\}:T=e;$ \\
+  (Expression)& {\tt e} &{::=}& $\tt x$ \alt $\this$ \alt $\tt e.f$ \alt $\tt e.m(\tbar{e})$ \alt $\tt\new~C(\tbar{e})$ \alt $\tt e~\as~T$ \\
+  (Type)& {\tt T} &{::=}& $\tt C$ \alt $\tt T\{c\}$ \alt $\tt \exists x:T.~T$ \\
+  (Constraint term) & {\tt t} &{::=}& $\tt x$ \alt $\self$ \alt $\this$ \alt $\tt t.f$ \alt $\tt\new~C(\tbar{t})$ \\
+  (Constraint) & {\tt c} &{::=}& $\true$ \alt $\tt t==t$ \alt $\tt c,c$ \\
+\end{tabular} 
+\par\flushleft
+{\tt C} ranges over class names, {\tt f} over field names, {\tt m} over method names, {\tt x} over variable names.
+\caption{\FX{} productions}
+\label{fig:fx-grammar}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{minipage}{.4\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[\RField]
+	{\tt x:C\vdash\fields(x)=\tbar{f}:\tbar{T}}
+	{\tt\new~C(\tbar{e}).f_i \derives e_i}
+
+\infrule[\RCField]
+	{\tt e\derives e'}
+	{\tt e.f\derives e'.f}
+
+\infrule[\RCast]
+	{\tt\vdash C\{\self==\new~C(\tbar{e})\}\subtype T}
+	{\tt\new~C(\tbar{e})~\as~T\derives\new~C(\tbar{e})}
+
+\infrule[\RCCast]
+	{\tt e\derives e'}
+	{\tt e~\as~T\derives e'~\as~T}
+
+\end{minipage}%
+\begin{minipage}{.6\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[\RInvk]
+	{\tt x:C\vdash x~\has~m(\tbar{f}:\tbar{T})\{c\}:U=e}
+	{\tt\new~C(\tbar{b}).m(\tbar{a})\derives e[\new~C(\tbar{b}),\tbar{a}/\this,\tbar{f}]}
+
+\infrule[\RCInvkRecv]
+	{\tt e\derives e'}
+	{\tt e.m(\tbar{a})\derives e'.m(\tbar{a})}
+
+\infrule[\RCInvkArg]
+	{\tt a_i\derives a'_i}
+	{\tt e.m(\ldots,a_i,\ldots)\derives e.m(\ldots,a'_i,\ldots)}
+
+\infrule[\RCNewArg]
+	{\tt e_i\derives e'_i}
+	{\tt\new~C(\ldots,e_i,\ldots)\derives\new~C(\ldots,e'_i,\ldots)}
+\end{minipage}
+\caption{\FX{} operational semantics}
+\label{fig:sos}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{minipage}{.4\textwidth}
+\quad\typicallabel{XXXXXX}
+\infax[W-True]
+  {\vdash\true~\constraint}
+
+\infrule[W-Equals]
+	{\tt\mathcal{F}(t==u)\subseteq\mathcal{D}(\Gamma)} 
+	{\tt\Gamma\vdash t==u~\constraint} 
+
+\infrule[W-And]
+	{\tt\Gamma\vdash c~\constraint,d~\constraint}
+	{\tt\Gamma\vdash c,d~\constraint}
+
+\end{minipage}%
+\begin{minipage}{.6\textwidth}
+\quad\typicallabel{XXXX}
+\infax[W-Object]
+  {\tt\vdash Object~\type}
+
+\infrule[W-Class]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in~P}
+	{\tt\vdash C~\type} 
+
+\infrule[W-Exists]
+	{\tt\Gamma\vdash V~\type,W~\type}
+	{\tt\Gamma\vdash\exists x:V.~W~\type} 
+
+\infrule[W-Dep]
+	{\tt\Gamma\vdash T~\type \andalso \Gamma,\self:T\vdash c~\constraint}
+	{\tt\Gamma\vdash T\{c\}~\type} 
+\end{minipage}
+\caption{\FX{} well-formed constraints and types}
+\label{fig:well}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{minipage}{.4\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[Sel]
+  {\tt x:C\vdash\fields(x)=\tbar{f}:\tbar{V}}
+  {\tt\vdashX\new~C(\tbar{t}).f_i==t_i}
+\end{minipage}%
+\begin{minipage}{.6\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[Proj]
+  {\tt\Gamma\vdash t:T\{c\}}
+  {\tt\sigma(\Gamma)\vdashX c[t/\self]}
+
+\infrule[Inv]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso \Gamma\vdash t:C}
+  {\tt\sigma(\Gamma)\vdashX c[t/\this]}
+\end{minipage}%
+\caption{\FX{} object constraint system}
+\label{fig:object}
+\end{figure*}
+
+\begin{figure*}
+\quad\typicallabel{XXXXXX}
+\infax[L-Fields-B]
+  {\tt x:Object\vdash\fields(x)=\bullet}
+
+\infrule[L-Fields-I]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso
+    x:D\vdash\fields(x)=\tbar{g}:\tbar{W}}
+  {\tt x:C\vdash\fields(x)=\tbar{g}: \tbar{W}, \tbar{f}: \tbar{V}[x/\this]}
+
+\infrule[L-Field]
+  {\tt x:C\vdash\fields(x)=\tbar{f}:\tbar{V}}
+  {\tt x:C\vdash x~\has~f_i:V_i}
+
+\infrule[L-Field-C,E]
+  {\tt\Gamma,x:T\vdash x~\has~f:V \andalso y~\rm fresh}
+  {\tt\Gamma,x:T\{c\}\vdash x~\has~f:V\{c[x/{\self}]\} \\
+    \tt\Gamma,x:\exists y:W.~T\vdash x~\has~f:\exists y:W.~V}
+
+\infrule[L-Method-B]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso
+    def~m(\tbar{y}:\tbar{W})\{d\}:T=e\in \tbar{M}}
+  {\tt x:C\vdash x~\has~m(\tbar{y}:\tbar{W}[x/\this])\{d[x/\this]\}:T[x/\this]=e}
+
+\infrule[L-Method-I]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso
+    x:D\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T=e \andalso
+    m\not\in\tbar{M}}
+  {\tt x:C\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T=e}
+
+\infrule[L-Method-C,E]
+  {\tt\Gamma,x:U\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T=e \andalso z~\rm fresh}
+  {\tt\Gamma,x:U\{c\}\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T\{c[x/\self]\}=e \\
+    \tt\Gamma,x:\exists z:V.~U\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:\exists z:V.~T=e}
+\caption{\FX{} member lookup}
+\label{fig:lookup}
+\end{figure*}
+
+
+\begin{figure*}
+\quad\typicallabel{XXXXXX}
+\infax[T-Var]
+  {\tt\Gamma,x:T\vdash x:T\{\self==x\}}
+
+\infrule[T-Field]
+	{\tt\Gamma\vdash e:T \andalso \Gamma,x:T\vdash x~\has~f:U \andalso x~\rm fresh}
+	{\tt\Gamma\vdash e.f:\exists x:T.~U\{\self==x.f\}}
+
+\infrule[T-Invk]
+	{\tt\Gamma\vdash e:T,\tbar{a}:\tbar{V} \andalso 
+	  \Gamma,x:T,\tbar{y}:\tbar{V}\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:U=e,
+		\tbar{V}\subtype\tbar{W},d \andalso x,\tbar{y}~\rm fresh}
+	{\tt\Gamma\vdash e.m(\tbar{a}):\exists x:T.~\exists\tbar{y}:\tbar{V}.~U}
+
+\infrule[T-New]
+	{\tt\Gamma\vdash\tbar{e}:\tbar{T} \andalso
+    \Gamma,x:C,\tbar{y}:\tbar{T},x.\tbar{f}==\tbar{y}\vdash
+    \tbar{T}\subtype\tbar{U},c[x/\this],\fields(x)=\tbar{f}:\tbar{U} \andalso x,\tbar{y}~\rm fresh}
+	{\tt\Gamma\vdash\new~C(\tbar{e}):\exists\tbar{y}:\tbar{T}.~C\{\self==\new~C(\tbar{y})\}}
+        
+\infrule[T-Cast]
+	{\tt\Gamma\vdash e:U}
+	{\tt\Gamma\vdash e~\as~T:T}
+	
+\infrule[T-Method]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in~P \andalso
+    \this:C,\tbar{y}:\tbar{W},d\vdash T~\type,\tbar{W}~\type,d~\constraint,e:U,U\subtype T}
+  {\tt def~m(\tbar{y}:\tbar{W})\{d\}:T=e~{\rm ok~in}~C}
+
+\infrule[T-Class]
+  {\tt\tbar{M}~{\rm ok~in}~C \andalso \this:C,\tbar{f}:\tbar{V},c\vdash\tbar{V}~\type,c~\constraint}
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}~\rm ok}
+\caption{\FX{} typing rules}\label{fig:FX}
+\end{figure*}
+
+
+\begin{figure*}
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXX}
+\infrule[S-Extends]
+  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P}
+  {\tt\Gamma\vdash C\subtype D}
+
+\infrule[S-Id]
+  {\tt\Gamma\vdash W~\type}
+  {\tt\Gamma\vdash W\subtype W}
+
+\infrule[S-Trans]
+	{\tt\Gamma\vdash V\subtype W, W\subtype X}
+	{\tt\Gamma\vdash V\subtype X}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXX}
+\infrule[S-Const-L]
+	{\tt\Gamma,c\vdash V\subtype W}
+	{\tt\Gamma\vdash V\{c\}\subtype W}
+
+\infrule[S-Const-R]
+	{\tt\Gamma\vdash V\subtype W \andalso\Gamma,\self:V\vdash c}
+	{\tt\Gamma\vdash V\subtype W\{c\}}
+
+\infrule[S-Exists-L]
+  {\tt\Gamma\vdash V\subtype W \andalso x~\rm fresh}
+  {\tt\Gamma\vdash\exists x:X.~V\subtype W}
+
+\infrule[S-Exists-R]
+  {\tt\Gamma\vdash t:X \andalso \Gamma\vdash V\subtype W[t/x]}
+  {\tt\Gamma\vdash V\subtype\exists x:X.~W}
+\end{minipage}        
+\caption{\FX{} subtyping rules}\label{fig:subtyping}
+\end{figure*}
+
+
+\begin{figure*}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Type)& {\tt T} &{::=}& ${\tt t}$ \alt \type \\
+  (Constraint) & {\tt c} &{::=}& $\tt t\extends C\{c\}$
+\end{tabular}
+
+\infrule[G-Extends]
+	{\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D\{~\tbar{M}~\}\in P \andalso \Gamma\vdash c:\constraint}
+	{\tt\Gamma\vdash t\extends C\{c\}~\constraint}
+
+\infax[G-Var]
+	{\tt\Gamma,x:\type\vdash x~\type}
+
+\infrule[G-Path]
+	{\tt\Gamma\vdash t:T \andalso \Gamma,x:T\vdash x~\has~f:\type}
+	{\tt\Gamma\vdash t.f~\type}
+	
+\infrule[G-Has]
+	{\tt\Gamma\vdash t\extends C\{c\} \andalso \Gamma,x:C\{c\}\vdash x~\has~I}
+	{\tt\Gamma\vdash t~\has~I}
+
+\infrule[G-Subtype]
+	{\tt\Gamma\vdash t\extends C\{c\}}
+	{\tt\Gamma\vdash t\subtype C\{c\}}
+
+\infrule[G-Id]
+  {\tt\Gamma\vdash t~\type}
+  {\tt\Gamma\vdash t\extends t}
+\caption{\FXG}
+\label{fig:FXG}
+\end{figure*}
+
+
+\begin{figure*}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Type)& {\tt T} &{::=}& \mbox{new base types, e.g., {\tt int}} \\
+  (Constraint term) & {\tt t} &{::=}& ${\tt f}(\tbar{t})$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
+\end{tabular}
+
+\infrule[A-Pred]
+	{\tt\Gamma\vdash\tbar{t}~\constraint}
+	{\tt\Gamma\vdash p(\tbar{t})~\constraint}
+\caption{\FXD}
+\end{figure*}
+
 \subsection{\FXG}
 We now turn to showing how \FGJ{} style generics can be supported in the \FX{} family.
 
-\FXG{} is the language obtained by adding the following productions to \FXZ.
-
-\begin{tabular}{r@{\quad}rcl}
-  (Par Type)& {\tt V}&{::=}& \type\\
-  (Path) & {\tt p} &{::=}& {\tt x} \alt \self \alt \this \alt {\tt p.f}\\
-  (Type)& {\tt T}&{::=}& {\tt X} \alt {\tt p}\\
-  (C Term) & {\tt t} &{::=}& {\tt T} \\
-  (Const.) & {\tt c} &{::=}& ${\tt t} \extends {\tt T}$ [XXX was N]
-\end{tabular}
-
-\noindent
-The constraint system specified by these changes will be called ${\cal G}$.
+\FXG{} is the language obtained by adding to \FXZ{} the productions and deduction rules of Figure~\ref{fig:FXG}.
+%The constraint system specified by these changes will be called ${\cal G}$.
 
 That is, first we introduce the ``type'' \type. \FGJ{} method type
 parameters are modeled in \FXG{} as normal parameters of type
@@ -458,44 +486,43 @@ discussed further in Section~\ref{sec:parameters-vs-fields}. In brief,
 it permits powerful idioms using fixed but unknown types without
 requiring ``wildcards''.
 
-Once fields of type \type{} are permitted, it is natural to have
-\emph{path types} (cf. \cite{scala}). Such types name type-valued members of
-objects.
+The set of well-formed types is now enhanced to permit some fixed but unknown
+types {\tt x} as well as \emph{path types} (cf. \cite{scala}), that is use type-valued fields of objects as types.\footnote{But we will not permit invocations of methods with return type \type\ to be 
+used as types. This does indeed make sense, but developing
+this theory further is beyond the scope of this paper.}
 
-The set of types is now enhanced to permit some fixed but unknown
-types {\tt X}. The key idea is that information about such types can
-be accumulated through constraints over $\cal O$.  Specifically we
-permit the constraint ${\tt t \extends N}$. It may be used, for
+The key idea is that information about such types can
+be accumulated through constraints.  Specifically we
+permit the constraint ${\tt t \extends C\{c\}}$. It may be used, for
 instance, to specify upper bounds on type variables or fields (path
-types).\footnote{To support structural typing, we permit the
+types).\eat{\footnote{To support structural typing, we permit the
 programmer to use {\tt x\ \has\ I} constraints, see
-Section~\ref{sec:structural-typing}.}
+Section~\ref{sec:structural-typing}.}}
 
-The well-formedness and $\vdashO$ rules in
-Figure~\ref{fig:fgj} must be added.
-
+\eat{
 \begin{figure*}
 \quad\\[-12pt]
 \infrule[Path]
 	{\Gamma \vdash {\tt p:T} \andalso \Gamma, {\tt x:T} \vdash {\tt x}\ \has\ {\tt X}:\ \type}
-	{\Gamma \vdash {\tt p.X}\ {\tt type}} 
+	{\Gamma \vdash {\tt p.X}\ {\tt ok}} 
 
 \infax[Type-Var]{\Gamma, {\tt X:\type} \vdash {\tt X}\ \type}
 
-\infax[Equals]{{\tt S==T} \vdashO S \extends T, T \extends S}
+\infax[Equals]{{\tt S==T} \vdash S \extends T, T \extends S}
 
 \infrule[Inh-p]
-	{\Gamma \vdashO {\tt p} \extends {\tt T} \andalso
-        \Gamma, {\tt x}:{\tt T} \vdashO {\tt x}\ \has\ {\tt I}}
-	{\Gamma,{\tt x}:{\tt p} \vdashO {\tt x}\ \has\ {\tt I}}
+	{\Gamma \vdash {\tt p} \extends {\tt T} \andalso
+        \Gamma, {\tt x}:{\tt T} \vdash {\tt x}\ \has\ {\tt I}}
+	{\Gamma,{\tt x}:{\tt p} \vdash {\tt x}\ \has\ {\tt I}}
 
 \infrule[Inh-X]
-	{\Gamma \vdashO {\tt X} \extends {\tt T} \andalso
-        \Gamma, {\tt x}:{\tt T} \vdashO {\tt x}\ \has\ {\tt I}}
-	{\Gamma,{\tt x}:{\tt X} \vdashO {\tt x}\ \has\ {\tt I}}
+	{\Gamma \vdash {\tt X} \extends {\tt T} \andalso
+        \Gamma, {\tt x}:{\tt T} \vdash {\tt x}\ \has\ {\tt I}}
+	{\Gamma,{\tt x}:{\tt X} \vdash {\tt x}\ \has\ {\tt I}}
 \caption{\FXG{} semantics}
 \label{fig:fgj}
 \end{figure*}
+}
 
 \begin{example}
 The \FGJ{} parametric method:
@@ -547,7 +574,7 @@ The obvious rules are needed to ensure that formulas are well-formed.
 {
 \typicallabel{Equals}
 \infrule[Pred]
-	{\tt p(\bar{\tt T}):{\tt o}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
+	{\tt p(\bar{\tt T}):{\tt ok}\in {\cal C} \andalso \Gamma \vdash \bar{\tt t}:\bar{\tt T}}
 	{\Gamma \vdash \tt p(\bar{\tt T}):o}
 
 \infrule[Fun]
@@ -600,3 +627,17 @@ ${\tt e'}$ contains  a stuck cast sub-expression.
 
 
 
+
+
+\eat{
+\begin{figure*}
+\centering
+\begin{tabular}{r@{\quad}rcl}
+  (Member) & {\tt I} &{::=}& ${\tt f}: {\tt T}$ \alt ${\tt m}(\tbar{x} : \tbar{T})\{{\tt c}\}: {\tt T} = {\tt e}$ \\
+  (Hypothesis) & {\tt h} &{::=}& ${\tt c}$ \alt ${\tt x}:{\tt T}$ \\
+  (Consequence) & {\tt k} &{::=}& ${\tt c}$ \alt ${\tt e}:{\tt T}$ \alt ${\tt x\ \has\ I}$ \alt $\fields({\tt x})=\tbar{f}:\tbar{T}$ \alt ${\tt T}\subtype{\tt T}$ \\
+  (Judgement) & {\tt j} &{::=}& $\tbar{h}\vdash\tbar{k}$
+\end{tabular} 
+\caption{\FX{} judgements}
+\end{figure*}
+}
