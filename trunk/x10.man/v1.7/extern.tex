@@ -73,10 +73,9 @@ Future language releases are expected to support similar bindings to
 distributed \Xten{} arrays. 
 
 The interface consists of two parts. First, an array intended to be
-communicated to native code must be created as an unsafe array
-via the \xcd"unsafe" annotation.
+communicated to native code must be created as an unsafe array:
 \begin{xten}
-new unsafe Array[T](dist)
+Array.makeUnsafe[T](dist)
 \end{xten}
 Unsafe arrays can be of any dimension. However, \XtenCurrVer{}
 requires that unsafe arrays be of a primitive type, and local
@@ -150,7 +149,7 @@ public class IntArrayExternUnsafe {
   public def run() : Boolean {
     val high = 10;
     val d = (0..high) -> here;
-    val y: Array[Int] = new unsafe Array[Int](d);
+    val y: Array[Int] = Array.makeUnsafe[Int](d);
     for (val (j) in y.region) {
         y(j) = j;
     process(y,high);

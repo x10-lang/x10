@@ -169,8 +169,8 @@ super-distribution of \xcdmath"D$_1$" and \xcdmath"D$_2$".)
 \subsection{Example}
 \begin{xten}
 def dotProduct(a: Array[T](D), b: Array[T](D)): Array[Double](D) =
-  (new Array[T]([1:D.places],
-      (Point) => (new Array[T](D | here,
+  (Array.make[T]([1:D.places],
+      (Point) => (Array.make[T](D | here,
                     (i): Point) => a(i)*b(i)).sum())).sum();
 \end{xten}
 
