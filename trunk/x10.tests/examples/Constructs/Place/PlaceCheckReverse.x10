@@ -15,10 +15,10 @@ public class PlaceCheckReverse extends x10Test {
         var y:int = 0;
         def foo() {}
         def foo(x:int) {}
-        def foo[T](x:T) {}
+        final def foo[T](x:T) {}
     }
 
-    val c = (future (Place.places(1)) new C()).force();
+    val c = (future (here.next()) new C()).force();
 
     public def run01(): boolean = {
         try {
@@ -81,7 +81,13 @@ public class PlaceCheckReverse extends x10Test {
         return false;
     }
 
-    public def run() = run01() && run02() && run03() && run04() && run05() && run06();
+    public def run(): boolean {
+    	if (Place.MAX_PLACES == 1) {
+    		x10.io.Console.OUT.println("not enough places to run this test");
+    		return false;
+    	}
+    	return run01() && run02() && run03() && run04() && run05() && run06();
+	}
 
     //
     //
