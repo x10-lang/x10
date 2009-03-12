@@ -129,7 +129,7 @@ public class ClockTest6 extends x10Test {
 	 */
 	def doWork(var kind: String, var instance: int, var clocks: String, var tick: int): void = {
 		atomic globalCounter++;
-		Console.OUT.println("Activity "+kind+instance+" in phase "+tick+" of clocks "+clocks);
+		x10.io.Console.OUT.println("Activity "+kind+instance+" in phase "+tick+" of clocks "+clocks);
 	}
 
 	/**

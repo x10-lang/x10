@@ -190,24 +190,24 @@ public class DistAlgebra2 extends x10Test {
     }
 
     static def pr(var s: String, var d: Dist(2)): void = {
-        Console.OUT.println();
-        Console.OUT.println("printing dist "+s);
+        x10.io.Console.OUT.println();
+        x10.io.Console.OUT.println("printing dist "+s);
         var k: int = 0;
         val N: int = 8;
         for (val (i,j): Point in ([0..N-1, 0..N-1] as Region)) {
-            Console.OUT.print(" "+(d.contains([i, j] as Point) ? (""+d(i, j).id) : "."));
-            if ((++k) % N == 0) Console.OUT.println();
+            x10.io.Console.OUT.print(" "+(d.contains([i, j] as Point) ? (""+d(i, j).id) : "."));
+            if ((++k) % N == 0) x10.io.Console.OUT.println();
         }
     }
 
     static def pr(var s: String, var r: Region(2)): void = {
-        Console.OUT.println();
-        Console.OUT.println("printing region "+s);
+        x10.io.Console.OUT.println();
+        x10.io.Console.OUT.println("printing region "+s);
         var k: int = 0;
         val N: int = 8;
         for (val (i,j): Point in ([0..N-1, 0..N-1] as Region)) {
-            Console.OUT.print(" "+(r.contains([i, j] as Point) ? "+" : "."));
-            if ((++k) % N == 0) Console.OUT.println();
+            x10.io.Console.OUT.print(" "+(r.contains([i, j] as Point) ? "+" : "."));
+            if ((++k) % N == 0) x10.io.Console.OUT.println();
         }
     }
 

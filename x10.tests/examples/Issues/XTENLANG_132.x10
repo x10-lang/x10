@@ -23,10 +23,10 @@ class XTENLANG_132 extends x10Test {
     
             try {
                 val a1 = a as A(1);
-                Console.OUT.println("did not get exception");
+                x10.io.Console.OUT.println("did not get exception");
                 return false;
             } catch (e:ClassCastException) {
-                Console.OUT.println("got exception");
+                x10.io.Console.OUT.println("got exception");
                 return true;
             }
         }

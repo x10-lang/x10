@@ -16,9 +16,9 @@ import harness.x10Test;
 public class HereParentheses extends x10Test {
 
 	public def run(): boolean = {
-		Console.OUT.println("(here).id="+(here).id+" (here).next()="+(here).next()
+		x10.io.Console.OUT.println("(here).id="+(here).id+" (here).next()="+(here).next()
 				   + " (here).prev()="+(here).prev());
-		Console.OUT.println("here.id="+here.id+ " here.next()=" 
+		x10.io.Console.OUT.println("here.id="+here.id+ " here.next()=" 
 				   + here.next()+" here.prev()"+here.prev());
 		return true;
 	}

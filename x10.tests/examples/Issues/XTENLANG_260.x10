@@ -15,8 +15,8 @@ class XTENLANG_260 extends x10Test {
         val b = 1.2;
         val c = a / b;
         
-        Console.OUT.println("c==(a/b) " + (c==(a/b)));
-        Console.OUT.println("c-(a/b) " + (c-(a/b)));
+        x10.io.Console.OUT.println("c==(a/b) " + (c==(a/b)));
+        x10.io.Console.OUT.println("c-(a/b) " + (c-(a/b)));
         
         val d = 1.0293402938409823;
         val e = 2.0932840928340983;

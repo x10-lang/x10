@@ -51,10 +51,10 @@ public class BlockDistWithPlaceSet extends x10Test {
 			val q: int = totalPoints%np;
 			var offsWithinPlace: int = 0;
 			var pn: int = 0;
-			//Console.OUT.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
+			//x10.io.Console.OUT.println("np = " + np + " lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" p = "+p+" q = "+q);
 
 			for (val (i,j): Point in R) {
-				//Console.OUT.println("placeNum = "+placeNums[pn]+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock[i,j].id);
+				//x10.io.Console.OUT.println("placeNum = "+placeNums[pn]+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DBlock[i,j] = "+DBlock[i,j].id);
 				chk(DBlock(i, j) == P(placeNums(pn)));
 				chk(P(placeNums(pn)).id == placeNums(pn));
 				offsWithinPlace++;

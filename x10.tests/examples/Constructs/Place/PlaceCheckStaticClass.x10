@@ -27,7 +27,7 @@ public class PlaceCheckStaticClass extends x10Test {
             } catch (e:BadPlaceException) {
                 return true;
             }
-            Console.OUT.println("01 fails");
+            x10.io.Console.OUT.println("01 fails");
             return false;
         };
         return f.force();
@@ -40,7 +40,7 @@ public class PlaceCheckStaticClass extends x10Test {
             } catch (e:BadPlaceException) {
                 return true;
             }
-            Console.OUT.println("02 fails");
+            x10.io.Console.OUT.println("02 fails");
             return false;
         };
         return f.force();
@@ -53,7 +53,7 @@ public class PlaceCheckStaticClass extends x10Test {
             } catch (e:BadPlaceException) {
                 return true;
             }
-            Console.OUT.println("03 fails");
+            x10.io.Console.OUT.println("03 fails");
             return false;
         };
         return f.force();
@@ -66,7 +66,7 @@ public class PlaceCheckStaticClass extends x10Test {
             } catch (e:BadPlaceException) {
                 return true;
             }
-            Console.OUT.println("04 fails");
+            x10.io.Console.OUT.println("04 fails");
             return false;
         };
         return f.force();
@@ -79,7 +79,7 @@ public class PlaceCheckStaticClass extends x10Test {
             } catch (e:BadPlaceException) {
                 return true;
             }
-            Console.OUT.println("05 fails");
+            x10.io.Console.OUT.println("05 fails");
             return false;
         };
         return f.force();
@@ -93,7 +93,7 @@ public class PlaceCheckStaticClass extends x10Test {
             } catch (e:BadPlaceException) {
                 return true;
             }
-            Console.OUT.println("06 fails");
+            x10.io.Console.OUT.println("06 fails");
             return false;
         };
         return f.force();

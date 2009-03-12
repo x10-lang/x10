@@ -157,7 +157,7 @@ public class MG extends MGBase {
 		timer.stop(T_bench);
 
 		var tinit: double = timer.readTimer(T_init);
-		Console.OUT.println(" Initialization time: "+tinit+" seconds");
+		x10.io.Console.OUT.println(" Initialization time: "+tinit+" seconds");
 		var rnm2: double = norm2u3(r, n1, n2, n3, rnmu, nx(lt-1), ny(lt-1), nz(lt-1));
 		verified = verify(rnm2);
 		var tm: double = timer.readTimer(T_bench);
@@ -185,13 +185,13 @@ public class MG extends MGBase {
 			} else if (CLASS == 'C') {
 				verify_value = 0.570674826298E-6;
 			}
-			Console.OUT.println(" L2 Norm is "+rnm2);
+			x10.io.Console.OUT.println(" L2 Norm is "+rnm2);
 			if (Math.abs(rnm2 - verify_value) < epsilon) {
 				verified = 1;
-				Console.OUT.println(" Deviation is   "+(rnm2 - verify_value));
+				x10.io.Console.OUT.println(" Deviation is   "+(rnm2 - verify_value));
 			} else {
 				verified = 0;
-				Console.OUT.println(" The correct L2 Norm is "+verify_value);
+				x10.io.Console.OUT.println(" The correct L2 Norm is "+verify_value);
 			}
 		} else {
 			verified = -1;
@@ -215,13 +215,13 @@ public class MG extends MGBase {
                 var lnz: int = 32;
 		var f2: File = new File("mg.input");
 		if (f2.exists()) {
-			Console.OUT.println("Reading from input file mg.input");
+			x10.io.Console.OUT.println("Reading from input file mg.input");
 			try {
 				var fis: FileInputStream = new FileInputStream(f2);
 				var datafile: DataInputStream = new DataInputStream(fis);
 				lt = datafile.readInt();
 				if (lt>maxlevel) {
-					Console.OUT.println("lt="+lt+" Maximum allowable = "+maxlevel);
+					x10.io.Console.OUT.println("lt="+lt+" Maximum allowable = "+maxlevel);
 					System.exit(0);
 				}
 				lnx = datafile.readInt();
@@ -230,7 +230,7 @@ public class MG extends MGBase {
 				nit = datafile.readInt();
 				fis.close();
 			} catch (var e: java.lang.Exception) {
-				Console.ERR.println("Error reading from file mg.input");
+				x10.io.Console.ERR.println("Error reading from file mg.input");
 			}
 			if (lnx != lny||lnx != lnz) CLASS = 'U';
 			else if (lnx == 32&&nit == 4)     CLASS = 'S';
@@ -239,9 +239,9 @@ public class MG extends MGBase {
 			else if (lnx == 512&&nit == 20)CLASS = 'C';
 			else if (lnx == 256&&nit == 4)     CLASS = 'A';
 			else CLASS = 'U';
-		} else Console.OUT.println(" No input file mg.input, Using compiled defaults");
+		} else x10.io.Console.OUT.println(" No input file mg.input, Using compiled defaults");
 
-		Console.OUT.println(" Size:  "+nx(lt-1)+"x"+ny(lt-1)+"x"+nz(lt-1)+" Iterations:   " +nit);
+		x10.io.Console.OUT.println(" Size:  "+nx(lt-1)+"x"+ny(lt-1)+"x"+nz(lt-1)+" Iterations:   " +nit);
 		return nit;
 	}
 
@@ -262,16 +262,16 @@ public class MG extends MGBase {
 	}
 
 	public def printTimers(): void = { //% of the ime should be fixed
-		Console.OUT.println("  SECTION   Time (secs)");
+		x10.io.Console.OUT.println("  SECTION   Time (secs)");
 		var tmax: double = timer.readTimer(T_bench);
 		if (tmax == 0.0) tmax = 1.0;
 		for (var i: int = T_bench; i <= T_last; i++) {
 			var t: double = timer.readTimer(i);
 			if (i == T_resid2) {
 				t = timer.readTimer(T_resid) - t;
-Console.OUT.printf("      --> total mg-resid %.3f (%.3f%%)", [t, t*100./tmax]);
+x10.io.Console.OUT.printf("      --> total mg-resid %.3f (%.3f%%)", [t, t*100./tmax]);
 			} else {
-Console.OUT.printf("    %s  %.3f (%.3f%%)", [t_names(i), t, t*100./tmax]);
+x10.io.Console.OUT.printf("    %s  %.3f (%.3f%%)", [t_names(i), t, t*100./tmax]);
 			}
 		}
 	}
@@ -468,7 +468,7 @@ Console.OUT.printf("    %s  %.3f (%.3f%%)", [t_names(i), t, t*100./tmax]);
 		var rnm2: double = 0.0;
 		for (val (i3,i2,i1): Point in [1..n3-2, 1..n2-2, 1..n1-2]) rnm2 += r(i1+n1*(i2+n2*i3))*r(i1+n1*(i2+n2*i3));
 		rnm2 = Math.sqrt(rnm2 / ((n1*n2*n3) as double));
-		Console.OUT.println("*****TestNorm  "+rnm2);
+		x10.io.Console.OUT.println("*****TestNorm  "+rnm2);
 		return rnm2;
 	}
 

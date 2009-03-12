@@ -34,7 +34,7 @@ abstract class Benchmark extends x10Test {
     const TIMING = 10.0;  // how long to run tests in secs
 
     def this() {
-        out = Console.OUT;
+        out = x10.io.Console.OUT;
     }
 
     public def run():boolean {

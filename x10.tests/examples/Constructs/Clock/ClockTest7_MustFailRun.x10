@@ -49,13 +49,13 @@ public class ClockTest7_MustFailRun extends x10Test {
 
 		finish foreach (val (i): Point in 0..(N-1)) {
 			atomic val++;
-			Console.OUT.println("Activity "+i+" phase 0");
+			x10.io.Console.OUT.println("Activity "+i+" phase 0");
 			next;
 			atomic chk(val == N);
-			Console.OUT.println("Activity "+i+" phase 1");
+			x10.io.Console.OUT.println("Activity "+i+" phase 1");
 			next;
 			atomic val++;
-			Console.OUT.println("Activity "+i+" phase 2");
+			x10.io.Console.OUT.println("Activity "+i+" phase 2");
 			c.next();
 		}
 

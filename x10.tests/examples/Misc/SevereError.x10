@@ -60,7 +60,7 @@ public class SevereError extends x10Test {
 				shortSeqLength = N; longSeqLength = M;
 			} else {
 				shortSeqLength = M; longSeqLength = N;
-				Console.OUT.println("Warning.. #rows < #columns.. performance will be equal to serial");
+				x10.io.Console.OUT.println("Warning.. #rows < #columns.. performance will be equal to serial");
 			}
 			val blockWidth: int = (int)(Math.ceil(1.5*(double)shortSeqLength));
 			val D: dist = Dist.makeConstant(([0..N, 0..M]), here);
@@ -124,15 +124,15 @@ public class SevereError extends x10Test {
 			}
 		}
 		public def printMatrix(): void = {
-			Console.OUT.println("Minimum Matrix EditDistance is: " + e(N, M));
-			Console.OUT.println("Matrix EditDistance is:");
-			Console.OUT.print(pad(' '));
-			for (val (j): point in [0..M]) Console.OUT.print(pad(c2.s(j)));
-			Console.OUT.println();
+			x10.io.Console.OUT.println("Minimum Matrix EditDistance is: " + e(N, M));
+			x10.io.Console.OUT.println("Matrix EditDistance is:");
+			x10.io.Console.OUT.print(pad(' '));
+			for (val (j): point in [0..M]) x10.io.Console.OUT.print(pad(c2.s(j)));
+			x10.io.Console.OUT.println();
 			for (val (i): point in [0..N]) {
-				Console.OUT.print(pad(c1.s(i)));
-				for (val (j): point in [0..M]) Console.OUT.print(pad(e(i, j)));
-				Console.OUT.println();
+				x10.io.Console.OUT.print(pad(c1.s(i)));
+				for (val (j): point in [0..M]) x10.io.Console.OUT.print(pad(e(i, j)));
+				x10.io.Console.OUT.println();
 			}
 		}
 		static def min4(var w: int, var x: int, var y: int, var z: int): int = {

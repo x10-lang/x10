@@ -70,7 +70,7 @@ public class Psinv extends MGWorker {
 		//		c---------------------------------------------------------------------
 		//		c     exchange boundary points
 		//		c---------------------------------------------------------------------
-		//		Console.OUT.println(id+" "+start+" "+end);
+		//		x10.io.Console.OUT.println(id+" "+start+" "+end);
 		for (var i3: int = start; i3 <= end; i3++)
 			for (var i2: int = 1; i2<n2-1; i2++) {
 				u(uoff+n1*(i2+n2*i3)) = u(uoff+n1-2+n1*(i2+n2*i3));

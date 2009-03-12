@@ -117,19 +117,19 @@ public class ClockPascal2 extends x10Test {
 	}
 
 	static def pr1(var i: int, var j: int, var n: int): void = {
-		Console.OUT.println(tim()+" sec: About to do next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
+		x10.io.Console.OUT.println(tim()+" sec: About to do next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 	}
 
 	static def pr2(var i: int, var j: int, var n: int): void = {
-		Console.OUT.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
+		x10.io.Console.OUT.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 	}
 
 	static def pr3(var i: int, var j: int, var A: Array[int]): void = {
-		Console.OUT.println(tim()+" sec: About to do next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
+		x10.io.Console.OUT.println(tim()+" sec: About to do next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
 	}
 
 	static def pr4(var i: int, var j: int, var A: Array[int]): void = {
-		Console.OUT.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
+		x10.io.Console.OUT.println(tim()+" sec: Passed next "+(i+j-1)+" of "+(i+j-1)+" (produce output): A["+i+","+j+"] = "+A(i, j));
 	}
 
 	/**

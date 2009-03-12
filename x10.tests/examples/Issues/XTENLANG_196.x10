@@ -14,7 +14,7 @@ class XTENLANG_196 extends x10Test {
         val o2:Object = 3.2;
         val o3:Object = "bye";
         val x = String.format("hi %d %8.3f %s", [o1,o2,o3]);
-        Console.OUT.println(x);
+        x10.io.Console.OUT.println(x);
         return x.equals("hi 17    3.200 bye");
     }
 

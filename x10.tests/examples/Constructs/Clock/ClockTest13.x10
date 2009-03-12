@@ -97,17 +97,17 @@ public class ClockTest13 extends x10Test {
 
 	def taskA(val a: Clock): void = {
 		for (val (k): Point in 1..N) {
-			Console.OUT.println(k+" A new phase");
+			x10.io.Console.OUT.println(k+" A new phase");
 			atomic phaseA++;
-			Console.OUT.println(k+" A resuming a");
+			x10.io.Console.OUT.println(k+" A resuming a");
 			a.resume();
 			if (k <= M-chainLength) {
-				Console.OUT.println(k+" Waiting for forward phase shift");
+				x10.io.Console.OUT.println(k+" Waiting for forward phase shift");
 				when (phaseB == phaseA+1 &&
 						phaseC == phaseB+1 &&
 						phaseD == phaseC+1)
 				{
-					Console.OUT.println(k+" Max forward phase shift reached");
+					x10.io.Console.OUT.println(k+" Max forward phase shift reached");
 				}
 			}
 			next;
@@ -115,44 +115,44 @@ public class ClockTest13 extends x10Test {
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
 		for (val (k): Point in 1..N) {
-			Console.OUT.println(k+" B new phase");
+			x10.io.Console.OUT.println(k+" B new phase");
 			atomic phaseB++;
-			Console.OUT.println(k+" B resuming a");
+			x10.io.Console.OUT.println(k+" B resuming a");
 			a.resume();
-			Console.OUT.println(k+" B resuming b");
+			x10.io.Console.OUT.println(k+" B resuming b");
 			b.resume();
-			Console.OUT.println(k+" B before next");
+			x10.io.Console.OUT.println(k+" B before next");
 			next;
 		}
 	}
 	def taskC(val b: Clock, val c: Clock): void = {
 		for (val (k): Point in 1..N) {
-			Console.OUT.println(k+" C new phase");
+			x10.io.Console.OUT.println(k+" C new phase");
 			atomic phaseC++;
-			Console.OUT.println(k+" C resuming b");
+			x10.io.Console.OUT.println(k+" C resuming b");
 			b.resume();
-			Console.OUT.println(k+" C resuming c");
+			x10.io.Console.OUT.println(k+" C resuming c");
 			c.resume();
-			Console.OUT.println(k+" C before next");
+			x10.io.Console.OUT.println(k+" C before next");
 			next;
 		}
 	}
 	def taskD(val c: Clock): void = {
 		for (val (k): Point in 1..N) {
-			Console.OUT.println(k+" D new phase");
+			x10.io.Console.OUT.println(k+" D new phase");
 			atomic phaseD++;
-			Console.OUT.println(k+" D resuming c");
+			x10.io.Console.OUT.println(k+" D resuming c");
 			c.resume();
 			if (k >= M && k <= N-chainLength) {
-				Console.OUT.println(k+" Waiting for reverse phase shift");
+				x10.io.Console.OUT.println(k+" Waiting for reverse phase shift");
 				when (phaseC == phaseD+1 &&
 						phaseB == phaseC+1 &&
 						phaseA == phaseB+1)
 				{
-					Console.OUT.println(k+" Max reverse phase shift reached");
+					x10.io.Console.OUT.println(k+" Max reverse phase shift reached");
 				}
 			}
-			Console.OUT.println(k+" D before next");
+			x10.io.Console.OUT.println(k+" D before next");
 			next;
 		}
 	}

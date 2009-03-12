@@ -18,8 +18,8 @@ public class PrimitiveDepTypeAssignmentOverflow extends x10Test {
 
 	 
 	 public def run(): boolean = {
-		 Console.OUT.println("long " + overIntMax);
-		 Console.OUT.println("long as int " + (overIntMax as int));
+		 x10.io.Console.OUT.println("long " + overIntMax);
+		 x10.io.Console.OUT.println("long as int " + (overIntMax as int));
 		
 		 var res: boolean = false;
 		 

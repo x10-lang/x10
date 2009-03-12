@@ -17,8 +17,8 @@ class XTENLANG_298 extends x10Test {
 
     public def run(): boolean {
         val c = new C(1);
-        Console.OUT.println("c.p " + c.p);
-        Console.OUT.println("c.q " + c.q);
+        x10.io.Console.OUT.println("c.p " + c.p);
+        x10.io.Console.OUT.println("c.q " + c.q);
         return true;
     }
 

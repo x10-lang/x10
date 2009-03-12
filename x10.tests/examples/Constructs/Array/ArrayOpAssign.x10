@@ -20,16 +20,16 @@ public class ArrayOpAssign extends x10Test {
         ia(1, 1) = 1;
         ia(1, 1) += ia(1, 1);
         result &= (2 == ia(1, 1));
-        Console.OUT.println("ia[1,1])" + ia(1, 1));
+        x10.io.Console.OUT.println("ia[1,1])" + ia(1, 1));
         ia(1, 1) *= 2;
-        Console.OUT.println("ia[1,1])" + ia(1, 1));
+        x10.io.Console.OUT.println("ia[1,1])" + ia(1, 1));
         result &= (4 == ia(1, 1));
         var id: Array[double](2) = Array.make[double](R->here, (Point)=>0D);
         id(1, 1) += 42;
         result &= (42 == id(1, 1));
-        Console.OUT.println("id[1,1])" + id(1, 1));
+        x10.io.Console.OUT.println("id[1,1])" + id(1, 1));
         id(1, 1) *= 2;
-        Console.OUT.println("id[1,1])" + id(1, 1));
+        x10.io.Console.OUT.println("id[1,1])" + id(1, 1));
         result &= (84 == id(1, 1));
         return result;
     }

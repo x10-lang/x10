@@ -11,9 +11,9 @@ public class PlaceCast2 extends x10Test {
 	var nplaces: int = 0;
 	public def run(): boolean = {
 		val d: Dist = dist.factory.unique(Place.places);
-		Console.OUT.println("num places = " + Place.MAX_PLACES);
+		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
 		val disagree: Array[BoxedBoolean]{dist==d} = Array.make[BoxedBoolean](d, ((p): Point): BoxedBoolean => {
-				Console.OUT.println("The currentplace is:" + here);
+				x10.io.Console.OUT.println("The currentplace is:" + here);
 				return new BoxedBoolean();
 			});
 		finish ateach (val (p): Point in d) {
@@ -23,10 +23,10 @@ public class PlaceCast2 extends x10Test {
 				var x: BoxedBoolean = disagree(p) as BoxedBoolean!d(p);
 				async(this.location) { atomic { nplaces++; } }
 			} catch (x: BadPlaceException)  {
-				Console.OUT.println("Caught bad place exception for " + p);
+				x10.io.Console.OUT.println("Caught bad place exception for " + p);
 			}
 		}
-		Console.OUT.println("nplaces == " + nplaces);
+		x10.io.Console.OUT.println("nplaces == " + nplaces);
 		return nplaces == Place.places.size();
 	}
 

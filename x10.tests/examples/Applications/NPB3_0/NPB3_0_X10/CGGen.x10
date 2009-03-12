@@ -82,21 +82,21 @@ public class CGGen {
 		var acol: Rail[int] = new Rail[int](nz+1);
 
 		if (false)
-			Console.OUT.println("na=" + n + " nz=" + nz + " a.length=" + a.length + " colidx.length="  + colidx.length
+			x10.io.Console.OUT.println("na=" + n + " nz=" + nz + " a.length=" + a.length + " colidx.length="  + colidx.length
 					+ " rowstr.length=" + rowstr.length + " nonzer=" + nonzer + " rcond=" + rcond
 					+ " arow.length=" + arow.length + " acol.length=" + acol.length + " aelt.length=" + aelt.length
 					+ " v.length=" + v.length + " iv.length=" + iv.length + " shift=" + shift
 					+ " firstrow=" + firstrow + " lastrow=" + lastrow + " firstcol=" + firstcol + " lastcol=" + lastcol
 					+ " rng=" + rng);
 		if (false) {
-			for (var i: int = 0; i < a.length; i++) if (a(i) != 0) Console.OUT.println("a[" + i + "]=" + a(i));
-			for (var i: int = 0; i < colidx.length; i++) if (colidx(i) != 0) Console.OUT.println("colidx[" + i + "]=" + colidx(i));
-			for (var i: int = 0; i < rowstr.length; i++) if (rowstr(i) != 0) Console.OUT.println("rowstr[" + i + "]=" + rowstr(i));
-			for (var i: int = 0; i < arow.length; i++) if (arow(i) != 0) Console.OUT.println("arow[" + i + "]=" + arow(i));
-			for (var i: int = 0; i < acol.length; i++) if (acol(i) != 0) Console.OUT.println("acol[" + i + "]=" + acol(i));
-			for (var i: int = 0; i < aelt.length; i++) if (aelt(i) != 0) Console.OUT.println("aelt[" + i + "] = " + aelt(i));
-			for (var i: int = 0; i < v.length; i++) if (v(i) != 0) Console.OUT.println("v[" + i + "]=" + v(i));
-			for (var i: int = 0; i < iv.length; i++) if (iv(i) != 0) Console.OUT.println("iv[" + i + "]=" + iv(i));
+			for (var i: int = 0; i < a.length; i++) if (a(i) != 0) x10.io.Console.OUT.println("a[" + i + "]=" + a(i));
+			for (var i: int = 0; i < colidx.length; i++) if (colidx(i) != 0) x10.io.Console.OUT.println("colidx[" + i + "]=" + colidx(i));
+			for (var i: int = 0; i < rowstr.length; i++) if (rowstr(i) != 0) x10.io.Console.OUT.println("rowstr[" + i + "]=" + rowstr(i));
+			for (var i: int = 0; i < arow.length; i++) if (arow(i) != 0) x10.io.Console.OUT.println("arow[" + i + "]=" + arow(i));
+			for (var i: int = 0; i < acol.length; i++) if (acol(i) != 0) x10.io.Console.OUT.println("acol[" + i + "]=" + acol(i));
+			for (var i: int = 0; i < aelt.length; i++) if (aelt(i) != 0) x10.io.Console.OUT.println("aelt[" + i + "] = " + aelt(i));
+			for (var i: int = 0; i < v.length; i++) if (v(i) != 0) x10.io.Console.OUT.println("v[" + i + "]=" + v(i));
+			for (var i: int = 0; i < iv.length; i++) if (iv(i) != 0) x10.io.Console.OUT.println("iv[" + i + "]=" + iv(i));
 		}
 
 		//---------------------------------------------------------------------
@@ -161,9 +161,9 @@ public class CGGen {
 						if (irow >= firstrow && irow <= lastrow) {
 							nnza = nnza + 1;
 							if (nnza > nz) {
-								Console.OUT.println("Space for matrix elements exceeded in makea");
-								Console.OUT.println("nnza, nzmax = " + nnza +", " + nz);
-								Console.OUT.println(" iouter = " + iouter);
+								x10.io.Console.OUT.println("Space for matrix elements exceeded in makea");
+								x10.io.Console.OUT.println("nnza, nzmax = " + nnza +", " + nz);
+								x10.io.Console.OUT.println(" iouter = " + iouter);
 								System.exit(0);
 							}
 							acol(nnza) = jcol;
@@ -185,9 +185,9 @@ public class CGGen {
 				var iouter: int = n + i;
 				nnza = nnza + 1;
 				if (nnza > nz) {
-					Console.OUT.println("Space for matrix elements exceeded in makea");
-					Console.OUT.println("nnza, nzmax = " + nnza +", " + nz);
-					Console.OUT.println(" iouter = " + iouter);
+					x10.io.Console.OUT.println("Space for matrix elements exceeded in makea");
+					x10.io.Console.OUT.println("nnza, nzmax = " + nnza +", " + nz);
+					x10.io.Console.OUT.println(" iouter = " + iouter);
 					System.exit(0);
 				}
 				acol(nnza) = i;
@@ -206,8 +206,8 @@ public class CGGen {
 
 		/*
 		for (int ii = 0; ii < rowstr.length; ii++) {
-			Console.OUT.print(" rowstr[" + ii + "]="+rowstr[ii]);
-			if (ii % 10 == 0) Console.OUT.println();
+			x10.io.Console.OUT.print(" rowstr[" + ii + "]="+rowstr[ii]);
+			if (ii % 10 == 0) x10.io.Console.OUT.println();
 		}
 		*/
 		return;
@@ -234,7 +234,7 @@ public class CGGen {
 			}
 			var vecelt: double = rng.randlc(amult);
 			var vecloc: double = rng.randlc(amult);
-			//	Console.OUT.println("vecelt="  + vecelt + " vecloc = " + vecloc);
+			//	x10.io.Console.OUT.println("vecelt="  + vecelt + " vecloc = " + vecloc);
 			idx = (int) (vecloc*nn1)+1;
 			if (idx > n || idx == 0) continue; // vj .. added idx = 0
 

@@ -41,8 +41,8 @@ public class ForLoop4 extends x10Test {
 		var i: int = v(0);
 		var j: int = v(1);
 		var k: int = v(2);
-		//Console.OUT.println("Prev:"+i+" "+j+" "+k);
-		//Console.OUT.println("Actual:"+ p.get(0)+" "+p.get(1)+" "+p.get(2));
+		//x10.io.Console.OUT.println("Prev:"+i+" "+j+" "+k);
+		//x10.io.Console.OUT.println("Actual:"+ p.get(0)+" "+p.get(1)+" "+p.get(2));
 		k++;
 		if (k == N) {
 			k = 0;
@@ -52,7 +52,7 @@ public class ForLoop4 extends x10Test {
 				i++;
 			}
 		}
-		//Console.OUT.println("Expected:"+i+" "+j+" "+k);
+		//x10.io.Console.OUT.println("Expected:"+i+" "+j+" "+k);
 		if (i != p(0)) return false;
 		if (j != p(1)) return false;
 		if (k != p(2)) return false;

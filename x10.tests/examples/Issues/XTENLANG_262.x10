@@ -11,7 +11,7 @@ class XTENLANG_262 extends x10Test {
 
     public def run(): boolean = {
         val x = 1.0;
-        Console.OUT.println(x.toString());
+        x10.io.Console.OUT.println(x.toString());
         return x.toString().equals("1.0");
     }
 

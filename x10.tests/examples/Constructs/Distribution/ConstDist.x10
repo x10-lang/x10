@@ -17,7 +17,7 @@ public class ConstDist extends x10Test {
         val a = Array.make[double](Dist.makeConstant(R, here));
         val b = Array.make[double](Dist.makeConstant(R, here));
         
-        Console.OUT.println("results are " + a + " " + b);
+        x10.io.Console.OUT.println("results are " + a + " " + b);
 
         return true;
     }

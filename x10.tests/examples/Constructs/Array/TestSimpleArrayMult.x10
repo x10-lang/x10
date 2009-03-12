@@ -32,16 +32,16 @@ public class TestSimpleArrayMult extends x10Test {
         var expectedValue: int = (N * (N+1));
 
         //expectedValue = expectedValue * 2;
-        Console.OUT.println("expected vaule:"+expectedValue);
+        x10.io.Console.OUT.println("expected vaule:"+expectedValue);
         chk(sum == expectedValue);
         
         var regionTime: long = regionStop = start1;
         var constructTime: long = initStop - regionStop;
         var multTime: long = multStop - initStop;
 
-        Console.OUT.println("Region construction time:"+(regionTime/1000.0));
-        Console.OUT.println("Array construction time :"+(constructTime/1000.0));
-        Console.OUT.println("Multiplication time     :"+(multTime/1000.0));
+        x10.io.Console.OUT.println("Region construction time:"+(regionTime/1000.0));
+        x10.io.Console.OUT.println("Array construction time :"+(constructTime/1000.0));
+        x10.io.Console.OUT.println("Multiplication time     :"+(multTime/1000.0));
 
         return true;
     }

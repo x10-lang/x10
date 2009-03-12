@@ -18,7 +18,7 @@ public class NoForEachInAtomic_MustFailCompile extends x10Test {
 	public def run(): boolean = {
 		atomic {
 		  foreach (val p: Point in [1..10]) {
-		    Console.OUT.println("Cannot reach this point.");
+		    x10.io.Console.OUT.println("Cannot reach this point.");
 		  }
 		  }
 		  return true;

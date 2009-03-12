@@ -68,7 +68,7 @@ class FRA {
     public static def main(args:Rail[String]) {
 
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
-            Console.OUT.println("The number of places must be a power of 2.");
+            x10.io.Console.OUT.println("The number of places must be a power of 2.");
             return;
         }
 
@@ -83,12 +83,12 @@ class FRA {
         val init = (p:Point) => new LocalTable(localTableSize);
         val tables = Array.make[LocalTable](Dist.makeUnique(),
             (p:Point) => new LocalTable(localTableSize));
-        Console.OUT.println("tables dist " + tables.dist);
+        x10.io.Console.OUT.println("tables dist " + tables.dist);
 
         // print some info
-        Console.OUT.println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
-        Console.OUT.println("Number of places = " + NUM_PLACES);
-        Console.OUT.println("Number of updates = " + NUM_UPDATES);
+        x10.io.Console.OUT.println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
+        x10.io.Console.OUT.println("Number of places = " + NUM_PLACES);
+        x10.io.Console.OUT.println("Number of updates = " + NUM_UPDATES);
 
         // time it
         var cpuTime:double = -now();  
@@ -97,8 +97,8 @@ class FRA {
 
         // print statistics
         val GUPs = (cpuTime > 0.0 ? 1.0 / cpuTime : -1.0) * NUM_UPDATES / 1e9;
-        Console.OUT.printf("CPU time used  = %.2f seconds\n", cpuTime);
-        Console.OUT.printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
+        x10.io.Console.OUT.printf("CPU time used  = %.2f seconds\n", cpuTime);
+        x10.io.Console.OUT.printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
 
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
@@ -107,7 +107,7 @@ class FRA {
             var err:int = 0;
             for ((q):Point in l.a) if (l.a(q) != q) err++;
             val msg = "Found " + err + " errors.";
-            Console.OUT.println(msg);
+            x10.io.Console.OUT.println(msg);
         }
     }
 

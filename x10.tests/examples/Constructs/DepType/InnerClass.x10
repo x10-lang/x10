@@ -21,9 +21,9 @@ public class InnerClass extends x10Test {
 	}
 	
 	public def run(): boolean = {
-	   Console.OUT.println((new I() {
+	   x10.io.Console.OUT.println((new I() {
 		   public def test(): void = {
-			   Console.OUT.println("Inner Class test invoked.");
+			   x10.io.Console.OUT.println("Inner Class test invoked.");
 		   }
 		   public def whatever() = this;
 	   }).whatever() + " hmm.. this worked");

@@ -36,11 +36,11 @@ public class Stencil1D {
     public static def main(args: Rail[String]) {
 	   var n: int = args.length > 0 ? Int.parseInt(args(0)) : 1000;
 	   var p: int = args.length > 1 ? Int.parseInt(args(1)) : 2;
-	   Console.ERR.println("Starting: N=" + n + " P=" + p);
+	   x10.io.Console.ERR.println("Starting: N=" + n + " P=" + p);
 	   var time: Long = -System.nanoTime();
 	   val s = new Stencil1D(n, p); s.run();
 	   time += System.nanoTime();
-	   Console.ERR.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" 
+	   x10.io.Console.ERR.println("N=" + n + " P=" + p + " Iters=" + s.iters + " time=" 
 			   + time/(1000*1000) + " ms");
     }
 }

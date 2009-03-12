@@ -23,7 +23,7 @@ public class DimCheck_MustFailCompile extends x10Test {
         // then the initializer cannot specify the arity of the point. Otherwise the arity of the
         // point must be the same as the arity of the distribution.
         var a1: Array[int] = new Array[int](Dist.makeConstant([0..2, 0..3], here), (var p: Point[i]): int => { return i; });
-        Console.OUT.println(a1);
+        x10.io.Console.OUT.println(a1);
         return true;
     }
 

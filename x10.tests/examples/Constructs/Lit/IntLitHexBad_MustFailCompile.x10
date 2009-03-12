@@ -15,7 +15,7 @@ import harness.x10Test;
 public class IntLitHexBad_MustFailCompile extends x10Test {
 
 	public def run(): boolean ={
-		Console.OUT.println(0xR);
+		x10.io.Console.OUT.println(0xR);
 		return true;
 	}
 

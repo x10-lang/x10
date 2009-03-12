@@ -23,16 +23,16 @@ public class FinishTest2 extends x10Test {
 				atomic foo = 123;
 				async (here) {
 					atomic foo = 42;
-					Console.OUT.print("waiting ...");
+					x10.io.Console.OUT.print("waiting ...");
 					x10.lang.Runtime.sleep(2000);
-					Console.OUT.println("done.");
+					x10.io.Console.OUT.println("done.");
 					atomic flag = true;
 				}
 			}
 		}
 		var b: boolean;
 		atomic b = flag;
-		Console.OUT.println("The flag is b = " + b + " (should be true).");
+		x10.io.Console.OUT.println("The flag is b = " + b + " (should be true).");
 		return (b == true);
 	}
 

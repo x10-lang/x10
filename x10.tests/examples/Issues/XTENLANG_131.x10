@@ -14,8 +14,8 @@ class XTENLANG_131 extends x10Test {
     public def run():boolean {
         val x = future(Place.places(1)) {new C()};
         val y = x.force();
-        Console.OUT.println("Place.places(1) " + Place.places(1));
-        Console.OUT.println("y.location() " + y.location());
+        x10.io.Console.OUT.println("Place.places(1) " + Place.places(1));
+        x10.io.Console.OUT.println("y.location() " + y.location());
         return Place.places(1)==y.location();
     }
 

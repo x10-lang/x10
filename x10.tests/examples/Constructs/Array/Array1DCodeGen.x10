@@ -46,7 +46,7 @@ public class Array1DCodeGen extends x10Test {
         val a = Array.make[double](Dist.makeConstant(R, here));
         val b  = Array.make[double](Dist.makeConstant(R, here));
 
-        Console.OUT.println("runtime type of 3dZeroBasedRect array is " + a.className());
+        x10.io.Console.OUT.println("runtime type of 3dZeroBasedRect array is " + a.className());
 
         val result = matgen(a,b);
         val S = [0..9, 0..9, 0..9] as Region;
@@ -54,8 +54,8 @@ public class Array1DCodeGen extends x10Test {
         val bb  =  Array.make[double](Dist.makeConstant(S, here));
         var result1: double = matgen(aa,bb);
 
-        Console.OUT.println("runtime type of unknown array is " + aa.className());
-        Console.OUT.println("results are " + result + " " + result1);
+        x10.io.Console.OUT.println("runtime type of unknown array is " + aa.className());
+        x10.io.Console.OUT.println("results are " + result + " " + result1);
 
         var diff: double = result-result1;
 

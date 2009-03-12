@@ -33,13 +33,13 @@ public class ClockTest12 extends x10Test {
 		var tmp: int;
 		x10.lang.Runtime.sleep(1000);
 		atomic tmp = phase;
-		Console.OUT.println(id+" observed current phase = "+tmp);
+		x10.io.Console.OUT.println(id+" observed current phase = "+tmp);
 		chk(tmp == 0);
 		c.resume(); //  1st next advances in activity #2
 		x10.lang.Runtime.sleep(1000);
 		c.resume(); // not an error, still in phase 0
 		when (phase > 0) {
-			Console.OUT.println(id+" observed future phase = "+phase);
+			x10.io.Console.OUT.println(id+" observed future phase = "+phase);
 			chk(phase == 1);
 			x10.lang.Runtime.sleep(5000);
 			chk(phase == 1); // cannot go beyond next phase
@@ -47,13 +47,13 @@ public class ClockTest12 extends x10Test {
 		next;
 		x10.lang.Runtime.sleep(1000);
 		atomic tmp = phase;
-		Console.OUT.println(id+" observed current phase = "+tmp);
+		x10.io.Console.OUT.println(id+" observed current phase = "+tmp);
 		chk(tmp == 1);
 		c.resume(); // 2nd next advances in activity #2
 		c.resume(); // not an error still in phase 1
 		c.resume();
 		when (phase>1) {
-			Console.OUT.println(id+" observed future phase = "+phase);
+			x10.io.Console.OUT.println(id+" observed future phase = "+phase);
 			chk(phase == 2);
 			x10.lang.Runtime.sleep(5000);
 			chk(phase == 2); // cannot go beyond next phase
@@ -65,17 +65,17 @@ public class ClockTest12 extends x10Test {
 	def taskB(val c: Clock): void = {
 		var tmp: int;
 		atomic tmp = phase;
-		Console.OUT.println("now in phase "+tmp);
+		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();
 		next;
 		atomic phase++;
 		atomic tmp = phase;
-		Console.OUT.println("now in phase "+tmp);
+		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();
 		next;
 		atomic phase++;
 		atomic tmp = phase;
-		Console.OUT.println("now in phase "+tmp);
+		x10.io.Console.OUT.println("now in phase "+tmp);
 		c.resume();
 		next;
 	}

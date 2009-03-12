@@ -27,7 +27,7 @@ public class FS {
         val localSize =  N0;
         val localRegion = 0..localSize-1;
 
-        Console.OUT.println("localSize=" + localSize);
+        x10.io.Console.OUT.println("localSize=" + localSize);
 
         finish async {
 
@@ -72,9 +72,9 @@ public class FS {
     static def printStats(N:int, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
-        Console.OUT.println("Number of places=" + Place.MAX_PLACES);
-        Console.OUT.println("Size of arrays: " + size +" MB (total)" + size/Place.MAX_PLACES + " MB (per place)");
-        Console.OUT.println("Min time: " + time + " rate=" + rate + " GB/s");
-        Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
+        x10.io.Console.OUT.println("Number of places=" + Place.MAX_PLACES);
+        x10.io.Console.OUT.println("Size of arrays: " + size +" MB (total)" + size/Place.MAX_PLACES + " MB (per place)");
+        x10.io.Console.OUT.println("Min time: " + time + " rate=" + rate + " GB/s");
+        x10.io.Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
     }                                
 }

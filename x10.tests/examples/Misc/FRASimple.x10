@@ -26,11 +26,11 @@ value LocalTable {
 
 class FRASimple {
 
-    @Native("java", "Console.OUT.println(#1)")
+    @Native("java", "x10.io.Console.OUT.println(#1)")
     @Native("c++", "printf(\"%s\\n\", (#1)->c_str()); fflush(stdout)")
     public static native def println(x:String):void;
 
-    @Native("java", "Console.OUT.printf(#1,#2)")
+    @Native("java", "x10.io.Console.OUT.printf(#1,#2)")
     @Native("c++", "printf((#1)->c_str(), #2); fflush(stdout)")
     public static native def printf(x:String, o:Object):void;
 

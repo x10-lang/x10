@@ -216,7 +216,7 @@ public class CG {
 		var rnorm: double = 0;
 
 		BMArgs.Banner(BMName, CLASS, serial, num_threads);
-		Console.OUT.println(" Size: " + na +" Iterations: " + niter);
+		x10.io.Console.OUT.println(" Size: " + na +" Iterations: " + niter);
 
 		timer.resetAllTimers();
 		setTimers();
@@ -322,7 +322,7 @@ public class CG {
 			}
 			tnorm2 = 1.0 / Math.sqrt(tnorm2);
 			zeta = shift + 1.0 /tnorm1;
-			Console.OUT.println("    "+ itt + "       " + rnorm +" " + zeta);
+			x10.io.Console.OUT.println("    "+ itt + "       " + rnorm +" " + zeta);
 			//---------------------------------------------------------------------
 			//  Normalize z to obtain x
 			//---------------------------------------------------------------------
@@ -380,13 +380,13 @@ public class CG {
 		var verified: int = 0;
 		var epsilon: double = 1.0E-10;
 		if (CLASS != 'U') {
-			Console.OUT.println(" Zeta is   " + zeta);
+			x10.io.Console.OUT.println(" Zeta is   " + zeta);
 			if (Math.abs(zeta - zeta_verify_value) <= epsilon) {
 				verified = 1;
-				Console.OUT.println(" Deviation is   " + (zeta-zeta_verify_value));
+				x10.io.Console.OUT.println(" Deviation is   " + (zeta-zeta_verify_value));
 			} else {
 				verified = 0;
-				Console.OUT.println(" The correct zeta is " + zeta_verify_value);
+				x10.io.Console.OUT.println(" The correct zeta is " + zeta_verify_value);
 			}
 		} else {
 			verified = -1;
@@ -527,18 +527,18 @@ public class CG {
 	}
 
 	private def PrintTimers(): void = {
-		Console.OUT.println("  SECTION   Time (secs)");
+		x10.io.Console.OUT.println("  SECTION   Time (secs)");
 		var ttot: double = timer.readTimer(t_bench);
 		if (ttot == 0.0) ttot = 1.0;
 		for (var i: int = 1; i <= t_last; i++) {
 			var tm: double = timer.readTimer(i);
 			if (i == t_init) {
-				Console.OUT.printf("  %s:%.3f", [t_names(i), tm]);
+				x10.io.Console.OUT.printf("  %s:%.3f", [t_names(i), tm]);
 			} else {
-				Console.OUT.printf("  %s:%.3f (%.3f%%)", [t_names(i), tm, tm*100.0/ttot]);
+				x10.io.Console.OUT.printf("  %s:%.3f (%.3f%%)", [t_names(i), tm, tm*100.0/ttot]);
 				if (i == t_conj_grad) {
 					tm = ttot - tm;
-					Console.OUT.printf("    --> total rest :%.3f (%.3f%%)", [tm, tm*100.0/ttot]);
+					x10.io.Console.OUT.printf("    --> total rest :%.3f (%.3f%%)", [tm, tm*100.0/ttot]);
 				}
 			}
 		}

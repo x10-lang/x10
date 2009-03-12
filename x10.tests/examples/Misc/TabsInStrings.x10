@@ -21,9 +21,9 @@ public class TabsInStrings extends x10Test {
 	public def run(): boolean = {
 		var t: double = 25;
 		var tmax: double = 200;
-		Console.OUT.println("	--> total mg-resid "+fmt.format(t)+
+		x10.io.Console.OUT.println("	--> total mg-resid "+fmt.format(t)+
 				" ("+fmt.format(t*100./tmax)+"%)");
-		Console.OUT.println("		Hello		world!		");
+		x10.io.Console.OUT.println("		Hello		world!		");
 		return true;
 	}
 

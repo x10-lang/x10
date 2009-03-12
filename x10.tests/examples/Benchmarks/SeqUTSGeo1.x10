@@ -79,8 +79,8 @@ class SeqUTSGeo1 extends Benchmark {
         if (first) {
             val obsBranch = (sumb as double) / size;
             val balancedSize = (Math.pow(b0, d+1)-1) / (obsBranch-1);
-            Console.OUT.printf("balancedSize / size %.2f\n", balancedSize / size);
-            Console.OUT.printf("obsBranch / b0 %.2f\n", obsBranch / b0);
+            x10.io.Console.OUT.printf("balancedSize / size %.2f\n", balancedSize / size);
+            x10.io.Console.OUT.printf("obsBranch / b0 %.2f\n", obsBranch / b0);
         } 
         first = false;
 

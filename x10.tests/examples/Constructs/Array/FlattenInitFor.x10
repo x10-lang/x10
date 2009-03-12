@@ -22,7 +22,7 @@ public class FlattenInitFor extends x10Test {
     
     public def run(): boolean = {
         for (var e: int = (future (a.dist(1, 1)) { a(1, 1) }).force(); e < 3 ; e++) 
-            Console.OUT.println("done.");        
+            x10.io.Console.OUT.println("done.");        
         return true;
     }
 

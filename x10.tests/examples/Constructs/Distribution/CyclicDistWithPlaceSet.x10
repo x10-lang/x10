@@ -44,10 +44,10 @@ public class CyclicDistWithPlaceSet extends x10Test {
 			val totalPoints: int = (ub1-lb1+1)*(ub2-lb2+1);
 			var offsWithinPlace: int = 0;
 			var pn: int = 0;
-			//Console.OUT.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints);
+			//x10.io.Console.OUT.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints);
 
 			for (val (i,j): Point in R) {
-				Console.OUT.println("placeNum = "+placeNums(pn)+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DCyclic[i,j] = "+DCyclic(i, j).id);
+				x10.io.Console.OUT.println("placeNum = "+placeNums(pn)+" offsWithinPlace = "+offsWithinPlace+" i = "+i+" j = "+j+" DCyclic[i,j] = "+DCyclic(i, j).id);
 				chk(P(placeNums(pn)).id == placeNums(pn));
 				chk(DCyclic(i, j) == P(placeNums(pn)));
 				pn++;

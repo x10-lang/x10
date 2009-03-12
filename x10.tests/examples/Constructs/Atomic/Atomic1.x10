@@ -48,7 +48,7 @@ public class Atomic1 extends x10Test {
 		var t2: int;
 		atomic t1 = cnt;
 		atomic t2 = cnt_broken;
-		Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);
+		x10.io.Console.OUT.println("Atomic1: " + t1 + " =?= " + t2);
 		return t1 == 8*N && t1 >= t2;
 	}
 

@@ -12,7 +12,7 @@ class XTENLANG_165 extends x10Test {
     public def run():boolean {
         for (p:Place in Place.places)
             async(p)
-                Console.OUT.println("hi");
+                x10.io.Console.OUT.println("hi");
         return true;
     }
 

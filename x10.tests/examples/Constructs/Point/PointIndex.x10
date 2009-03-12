@@ -27,7 +27,7 @@ public class PointIndex extends x10Test {
         } catch (var e: ArrayIndexOutOfBoundsException) {
             gotException = true;
         }
-        Console.OUT.println("1: sum = "+sum+" gotException = "+gotException);
+        x10.io.Console.OUT.println("1: sum = "+sum+" gotException = "+gotException);
         if (!(sum == 0 && gotException)) return false;
 
         gotException = false;
@@ -36,7 +36,7 @@ public class PointIndex extends x10Test {
         } catch (var e: ArrayIndexOutOfBoundsException) {
             gotException = true;
         }
-        Console.OUT.println("2: sum = "+sum+" gotException = "+gotException);
+        x10.io.Console.OUT.println("2: sum = "+sum+" gotException = "+gotException);
         return sum == 0 && gotException;
     }
 

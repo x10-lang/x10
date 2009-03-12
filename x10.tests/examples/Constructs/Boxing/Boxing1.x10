@@ -14,26 +14,26 @@ import harness.x10Test;
 public class Boxing1 extends x10Test {
 	public def run(): boolean = {
 		var o: x10.lang.Object = X.five();
-		Console.OUT.println("int");
+		x10.io.Console.OUT.println("int");
 		if (!(o instanceof Box[int])) return false;
-		Console.OUT.println("double");
+		x10.io.Console.OUT.println("double");
 		if (o instanceof Box[double]) return false;
 		var i: int = (o as int) + 1;
-		Console.OUT.println("6");
+		x10.io.Console.OUT.println("6");
 		if (i != 6) return false;
 		var d: _dummy = new _complex(1,2);
 		o = d;
-		Console.OUT.println("d _complex");
+		x10.io.Console.OUT.println("d _complex");
 		if (!(d instanceof Box[_complex])) return false;
-		Console.OUT.println("o _dummy");
+		x10.io.Console.OUT.println("o _dummy");
 		if (!(o instanceof _dummy)) return false;
-		Console.OUT.println("o _complex");
+		x10.io.Console.OUT.println("o _complex");
 		if (!(o instanceof Box[_complex])) return false;
 		var d2: _dummy = new _dummy();
-		Console.OUT.println("d2 _complex");
+		x10.io.Console.OUT.println("d2 _complex");
 		if (d2 instanceof _complex) return false;
 		var c: _complex = (d as _complex).add(new _complex(1,1));
-		Console.OUT.println("c _complex");
+		x10.io.Console.OUT.println("c _complex");
 		if (c != (new _complex(2,3))) return false;
 		return true;
 	}

@@ -18,7 +18,7 @@ public class NoAsyncInAtomic_MustFailCompile extends x10Test {
 	public def run(): boolean = {
 		atomic {
 		  async {
-		    Console.OUT.println("Cannot reach this point.");
+		    x10.io.Console.OUT.println("Cannot reach this point.");
 		  }
 		  }
 		  return true;

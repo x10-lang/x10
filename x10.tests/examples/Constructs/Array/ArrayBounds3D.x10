@@ -72,7 +72,7 @@ public class ArrayBounds3D extends x10Test {
      * print a string
      */
     private static def pr(var s: String): void = {
-        Console.OUT.println(s);
+        x10.io.Console.OUT.println(s);
     }
 
     /**
