@@ -52,6 +52,8 @@ import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10Use;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Job;
+import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
@@ -686,6 +688,17 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
+    	
+    	// Check that we're in the right file.
+    	if (flags.flags().isPublic() && type.isTopLevel()) {
+    	    Job job = tc.job();
+    	    if (job != null) {
+    	        Source s = job.source();
+    	        if (! s.name().startsWith(type.name() + ".")) {
+    	            throw new SemanticException("Public type " + type.fullName() + " must be declared in " + type.name() + ".x10.", result.position());
+    	        }
+    	    }
+    	}
 
     	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
     	
