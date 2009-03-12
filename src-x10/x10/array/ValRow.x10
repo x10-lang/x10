@@ -25,9 +25,9 @@ public value class ValRow extends Row {
         row = Rail.makeVal[int](cols, init);
     }
     
-    public def apply(i:nat) = row(i);
+    public safe def apply(i:nat) = row(i);
     
-    public def set(v:int, i:nat):int {
+    public safe def set(v:int, i:nat):int {
         throw new IllegalOperationException("ValRow.set");
     }
 }

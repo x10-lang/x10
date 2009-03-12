@@ -58,6 +58,12 @@ public abstract value class BaseArray[T] extends Array[T] {
             as Array[T]{rank==1 && rect && zeroBased}; // XXXX
     }
 
+    public static def makeVar1[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased} {
+        val r = Region.makeRectangular(0, rail.length-1);
+        return makeVar[T](r, ((p:Point)=>rail(p(0))) as Box[(Point)=>T])
+            as Array[T]{rank==1 && rect && zeroBased}; // XXXX
+    }
+
 
     //
     // expose these if performance demands
@@ -72,16 +78,16 @@ public abstract value class BaseArray[T] extends Array[T] {
     // high-performance methods are in subclass to facilitate inlining
     //     
 
-    public final def apply(pt: Point(rank)): T {
+    public final safe def apply(pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         return raw()(layout().offset(pt));
     }
 
-    public final def get(pt: Point(rank)): T = apply(pt);
+    public final safe def get(pt: Point(rank)): T = apply(pt);
 
     // XXXX settable order
-    public final def set(v: T, pt: Point(rank)): T {
+    public final safe def set(v: T, pt: Point(rank)): T {
         if (checkPlace) checkPlace(pt);
         if (checkBounds) checkBounds(pt);
         raw()(layout().offset(pt)) = v;
@@ -112,43 +118,43 @@ public abstract value class BaseArray[T] extends Array[T] {
     val place = (pt:Point):RuntimeException =>
         new BadPlaceException("point " + pt + " not defined at " + here);
 
-    def checkBounds(pt: Point(rank)) {
+    safe def checkBounds(pt: Point(rank)) {
         (region as BaseRegion(rank)).check(bounds, pt);
     }
 
-    def checkBounds(i0: int) {
+    safe def checkBounds(i0: int) {
         (region as BaseRegion).check(bounds, i0);
     }
 
-    def checkBounds(i0: int, i1: int) {
+    safe def checkBounds(i0: int, i1: int) {
         (region as BaseRegion).check(bounds, i0, i1);
     }
 
-    def checkBounds(i0: int, i1: int, i2: int) {
+    safe def checkBounds(i0: int, i1: int, i2: int) {
         (region as BaseRegion).check(bounds, i0, i1, i2);
     }
 
-    def checkBounds(i0: int, i1: int, i2: int, i3: int) {
+    safe def checkBounds(i0: int, i1: int, i2: int, i3: int) {
         (region as BaseRegion).check(bounds, i0, i1, i2, i3);
     }
 
-    def checkPlace(pt: Point(rank)) {
+    safe def checkPlace(pt: Point(rank)) {
         (dist.get(here) as BaseRegion(rank)).check(place, pt);
     }
 
-    def checkPlace(i0: int) {
+    safe def checkPlace(i0: int) {
         (dist.get(here) as BaseRegion).check(place, i0);
     }
 
-    def checkPlace(i0: int, i1: int) {
+    safe def checkPlace(i0: int, i1: int) {
         (dist.get(here) as BaseRegion).check(place, i0, i1);
     }
 
-    def checkPlace(i0: int, i1: int, i2: int) {
+    safe def checkPlace(i0: int, i1: int, i2: int) {
         (dist.get(here) as BaseRegion).check(place, i0, i1, i2);
     }
 
-    def checkPlace(i0: int, i1: int, i2: int, i3: int) {
+    safe def checkPlace(i0: int, i1: int, i2: int, i3: int) {
         (dist.get(here) as BaseRegion).check(place, i0, i1, i2, i3);
     }
 
@@ -158,16 +164,16 @@ public abstract value class BaseArray[T] extends Array[T] {
     // views
     //
 
-    public def restriction(r: Region(rank)): Array[T] {
+    public safe def restriction(r: Region(rank)): Array[T] {
         return restriction(dist.restriction(r));
     }
 
-    public def restriction(p: Place): Array[T] {
+    public safe def restriction(p: Place): Array[T] {
         return restriction(dist.restriction(p));
     }
 
     // must be internal only - assumes Dist places match
-    protected abstract def restriction(d: Dist): Array[T];
+    protected abstract safe def restriction(d: Dist): Array[T];
 
 
     //
@@ -177,33 +183,33 @@ public abstract value class BaseArray[T] extends Array[T] {
     public def lift(op:(T)=>T): Array[T](dist)
         = Array.make[T](dist, (p:Point)=>op(this(p as Point(rank))));
 
-    incomplete public def reduce(op:(T,T)=>T, unit:T):T;
+    //    incomplete public def reduce(op:(T,T)=>T, unit:T):T;
 
 //
 // seems to be causing non-deterministic typechecking failures in
 // a(pt).  perhaps related to XTENLANG-128 and/or XTENLANG-135
 //
-//    public def reduce(op:(T,T)=>T, unit:T):T {
-//
-//        // scatter
-//        val ps = dist.places();
-//        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
-//            future (ps(p)) {
-//                var result: T = unit;
-//                val a = (this | here) as Array[T](rank);
-//                for (pt:Point(rank) in a)
-//                    result = op(result, a(pt));
-//                return result;
-//            }
-//        });
-//
-//        // gather
-//        var result: T = unit;
-//        for (var i:int=0; i<results.length; i++)
-//            result = op(result, results(i).force());
-//
-//        return result;
-//    }            
+    public def reduce(op:(T,T)=>T, unit:T):T {
+
+        // scatter
+        val ps = dist.places();
+        val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
+            future(ps(p)) {
+                var result: T = unit;
+                val a = (this | here) as Array[T](rank);
+                for (pt:Point(rank) in a)
+                    result = op(result, a(pt));
+                return result;
+            }
+        });
+
+        // gather
+        var result: T = unit;
+        for (var i:int = 0; i < results.length; i++) 
+            result = op(result, results(i).force());
+
+        return result;
+    }            
 
     // LocalArray only for now!
     incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
@@ -213,24 +219,24 @@ public abstract value class BaseArray[T] extends Array[T] {
     // ops
     //
 
-    public def $bar(r: Region(rank)): Array[T] = restriction(r);
-    public def $bar(p: Place): Array[T] = restriction(p);
+    public safe def $bar(r: Region(rank)): Array[T] = restriction(r);
+    public safe def $bar(p: Place): Array[T] = restriction(p);
 
-    incomplete public def $plus(): Array[T];
-    incomplete public def $minus(): Array[T];
+    incomplete public safe def $plus(): Array[T];
+    incomplete public safe def $minus(): Array[T];
 
-    incomplete public def $plus(that: Array[T]): Array[T];
-    incomplete public def $minus(that: Array[T]): Array[T];
-    incomplete public def $times(that: Array[T]): Array[T];
-    incomplete public def $over(that: Array[T]): Array[T];
-    incomplete public def $percent(that: Array[T]): Array[T];
+    incomplete public safe def $plus(that: Array[T]): Array[T];
+    incomplete public safe def $minus(that: Array[T]): Array[T];
+    incomplete public safe def $times(that: Array[T]): Array[T];
+    incomplete public safe def $over(that: Array[T]): Array[T];
+    incomplete public safe def $percent(that: Array[T]): Array[T];
 
-    incomplete public def $eq(x: Array[T]): boolean;
-    incomplete public def $lt(x: Array[T]): boolean;
-    incomplete public def $gt(x: Array[T]): boolean;
-    incomplete public def $le(x: Array[T]): boolean;
-    incomplete public def $ge(x: Array[T]): boolean;
-    incomplete public def $ne(x: Array[T]): boolean;
+    incomplete public safe def $eq(x: Array[T]): boolean;
+    incomplete public safe def $lt(x: Array[T]): boolean;
+    incomplete public safe def $gt(x: Array[T]): boolean;
+    incomplete public safe def $le(x: Array[T]): boolean;
+    incomplete public safe def $ge(x: Array[T]): boolean;
+    incomplete public safe def $ne(x: Array[T]): boolean;
 
     // incomplete public def sum(): T; // XTENLANG-116
 
