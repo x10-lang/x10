@@ -56,7 +56,7 @@ abstract public value class BaseRegion extends Region {
     }        
 
     // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular1(min: int, max: int): Region{rank==1 && rect /*&& zeroBased==(min==0)*/} { // XTENLANG-4
+    public static def makeRectangular1(min: int, max: int): Region{self.rank==1 && self.rect /*&& self.zeroBased==(min==0)*/} { // XTENLANG-4
         return RectRegion.make1(min, max);
     }        
 

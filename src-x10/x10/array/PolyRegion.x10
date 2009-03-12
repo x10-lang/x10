@@ -276,7 +276,7 @@ public value class PolyRegion extends BaseRegion {
     }
 
     public static def makeUpperTriangular2(rowMin: int, colMin: int, size: int): Region(2) {
-        var pmb: PolyMatBuilder{rank==2} = new PolyMatBuilder(2);
+        var pmb: PolyMatBuilder{self.rank==2} = new PolyMatBuilder(2);
         pmb.add(ROW, pmb.GE, rowMin);
         pmb.add(COL, pmb.LE, colMin+size-1);
         pmb.add(COL-ROW, pmb.GE, colMin-rowMin);
@@ -309,7 +309,7 @@ public value class PolyRegion extends BaseRegion {
             return new PolyRegion(pm, false);
     }
 
-    protected def this(val pm: PolyMat, hack198:boolean): PolyRegion{rank==pm.rank} {
+    protected def this(val pm: PolyMat, hack198:boolean): PolyRegion{self.rank==pm.rank} {
 
         super(pm.rank, pm.isRect(), pm.isZeroBased());
 
