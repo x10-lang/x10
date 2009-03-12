@@ -278,7 +278,7 @@ public class BMResults implements Serializable {
 				out.newLine();
 				out.flush();
 			} catch (e: Exception) {
-				System.err.println("Res.print: write file: "+e.toString());
+				Console.ERR.println("Res.print: write file: "+e.toString());
 			}
 		}
 	}
@@ -289,7 +289,7 @@ public class BMResults implements Serializable {
 		try {
 			in = new BufferedReader(new FileReader(filename));
 		} catch (e: Exception) {
-			System.err.println("BMResults.getFromFile: filename "+e.toString());
+			Console.ERR.println("BMResults.getFromFile: filename "+e.toString());
 			return 0;
 		}
 		var line: String = "";
@@ -317,7 +317,7 @@ public class BMResults implements Serializable {
 				}
 			}
 		} catch (var e: Exception) {
-			System.err.println("BMResults.getFromFile: "+e.toString());
+			Console.ERR.println("BMResults.getFromFile: "+e.toString());
 			return 0;
 		}
 		//print();
