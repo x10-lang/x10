@@ -133,6 +133,7 @@ import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Here_c;
+import polyglot.ext.x10.ast.LocalTypeDef_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.ParExpr_c;
 import polyglot.ext.x10.ast.PropertyDecl_c;
@@ -264,10 +265,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     public void visit(TypeDecl_c n) {
         // FIXME: I think we need to put a typedef for a TypeDecl.
         // verify. [Krishna]
+    	sw.write(" /* " + n + " *" + "/ ");
     }
 
 	public void visit(X10ClassDecl_c n) {
 		processClass(n);
+	}
+	
+	public void visit(LocalTypeDef_c n) {
+		// do nothing
+		sw.write(" /* " + n + " *" + "/ ");
 	}
 
 	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
