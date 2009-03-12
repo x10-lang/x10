@@ -5,7 +5,6 @@
  *  This file is part of X10 Test.
  *
  */
-import x10.lang.Object;
 
 public class BasicList(n: int{self >=0}) {
   

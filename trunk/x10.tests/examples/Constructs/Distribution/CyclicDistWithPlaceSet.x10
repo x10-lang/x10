@@ -7,7 +7,7 @@
  */
 import x10.util.Set;
 import x10.util.HashSet;
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Testing cyclic dist.

@@ -16,7 +16,7 @@ import harness.x10Test;
 public class JavaArrayNotInitialized_MustFailCompile extends x10Test {
 
     public def run(): boolean = {
-        var array: Rail[X10DepTypeClassTwo] = new Array[X10DepTypeClassTwo](1);
+        var array: Rail[JavaArrayNotInitialized_MustFailCompile] = new Array[JavaArrayNotInitialized_MustFailCompile](1);
         return array(0) != null;
     }
 

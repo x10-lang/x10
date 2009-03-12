@@ -1,8 +1,7 @@
 //OPTIONS: -PLUGINS=dims.plugin.DimensionTypePlugin
 
 import harness.x10Test;
-import x10.lang.*;
-import dims.*;;
+import dims.*;
 
 public class DimTest2 extends harness.x10Test {
     public def run(): boolean = {

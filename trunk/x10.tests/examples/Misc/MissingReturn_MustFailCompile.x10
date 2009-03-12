@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 public class MissingReturn_MustFailCompile extends x10Test {
 
@@ -16,7 +16,7 @@ public class MissingReturn_MustFailCompile extends x10Test {
 		return true;
 	}
 
-	public static def main(var args: Rail[String][]): void = {
+	public static def main(var args: Rail[String]): void = {
 		new MissingReturn_MustFailCompile().execute();
 	}
 }

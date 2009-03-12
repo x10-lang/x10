@@ -5,16 +5,17 @@
  *  This file is part of X10 Test.
  *
  */
-/** Ref to same field in a dependent clause.
- *@author pvarma
- *
- */
+import harness.x10Test;
 
-import harness.x10Test;;
+/**
+ * Ref to same field in a dependent clause.
+ *
+ * @author pvarma
+ */
 
 public class RefToSameFieldInDepClause extends x10Test { 
 
-	var v: int{v == 0};
+    var v: int{v == 0};
 	
     public def run(): boolean = {
 	

@@ -5,7 +5,6 @@
  *  This file is part of X10 Test.
  *
  */
-import x10.lang.Object;
 import harness.x10Test;
 
 /**

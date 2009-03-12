@@ -5,13 +5,14 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * OLD SEMANTICS:
  * The x10 compiler must conservatively check if an activity can
  * potentially pass a clock it already dropped, to a subactivity.
  * If so, it must report a compile time error.
+ * TODO: rename to ClockTest16a and check for exception
  *
  * Language clarification needed on disambiguation
  * algorithm to use.
@@ -148,7 +149,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 	 * // free variables
 	 */
 	static interface foo {
-		public  def apply(): void;;
+		public  def apply(): void;
 	}
 
 	/**

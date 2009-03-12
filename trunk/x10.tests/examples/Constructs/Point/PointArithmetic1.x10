@@ -20,8 +20,8 @@ class PointArithmetic1 extends TestPoint {
 
         // points
         prPoint("p", p);
-        prPoint("q", q);;
-        prPoint("r", r);;
+        prPoint("q", q);
+        prPoint("r", r);
 
         // unary ops
         prPoint("+p", +p);

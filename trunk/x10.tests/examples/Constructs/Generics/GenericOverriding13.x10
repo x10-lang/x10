@@ -16,11 +16,11 @@ import x10.compiler.ArithmeticOps;
 public class GenericOverriding13 extends GenericTest {
 
     class A[T] {
-        def m[U](T) = 0;
+        def m[U](T): int = 0;
     }
 
     class B[T] extends A[T] {
-        def m[U](T) = 1;
+        def m[U](T): int = 1;
     }
 
     val a = new A[int]();

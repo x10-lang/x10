@@ -11,7 +11,7 @@
  * CG
  */
 import NPB3_0_X10.*;
-import harness.x10Test;;
+import harness.x10Test;
 
 public class cg extends x10Test {
 

@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Minimal package and import test
@@ -15,7 +15,7 @@ import harness.x10Test;;
 public class ImportTest extends x10Test {
 
 	public def run(): boolean = {
-		return (future(here) ( _T2.m2(49) )).force();
+		return (future(here) { _T2.m2(49) }).force();
 	}
 
 	public static def main(var args: Rail[String]): void = {

@@ -1,4 +1,3 @@
-****Error: examples/Constructs/Cast/PrimitiveDependentTypeCast/CastPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile.x10:20:35:20:35:0:-1:9: ";" inserted to complete scope
 /*
  *
  * (C) Copyright IBM Corporation 2006
@@ -18,7 +17,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained_MustFailCompile exte
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 1} = 1
+			var i: int{self == 1} = 1;
 			var j: int{self == 0} = i as int{self == 0};
 		}catch(e: Throwable) {
 			return false;

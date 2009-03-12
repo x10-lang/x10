@@ -5,13 +5,14 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * It is not allowed to transmit a clock c to a subactivity,
  * after the current activity has resumed the clock c,
  * until the current activity has executed next.
  * Doing so will result in a run-time error.
+ * TODO: rename to ClockTest18 and check for exception
  *
  * @author kemal, 6/2005
  */
@@ -85,7 +86,7 @@ public class ClockTest18_MustFailRun extends x10Test {
 	 * // free variables
 	 */
 	static interface foo {
-		public  def apply(): void;;
+		public  def apply(): void;
 	}
 
 	/**

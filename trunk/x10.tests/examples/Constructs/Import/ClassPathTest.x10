@@ -6,7 +6,7 @@
  *
  */
 import testPackage.*;
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Testing if -classpath './x10lib' is recognized

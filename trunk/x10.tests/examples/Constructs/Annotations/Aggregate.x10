@@ -1,5 +1,4 @@
 import harness.x10Test;
-import x10.lang.*;;
 
 public class AggregateTest extends harness.x10Test {
     var x: int = 1;

@@ -5,11 +5,12 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Testing that disjoint union of dists
  * actually checks for disjointness.
+ * TODO: rename to DistAlgebra3 and check for exception
  *
  * @author kemal 4/2005
  */

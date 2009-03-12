@@ -16,11 +16,11 @@ import x10.compiler.ArithmeticOps;
 public class GenericOverriding11_MustFailCompile extends GenericTest {
 
     class A[T] {
-        def m[U]() = 0;
+        def m[U](): int = 0;
     }
 
     class B[T] extends A[T] {
-        def m[U](){T<:U} = 1;
+        def m[U](){T<:U}: int = 1;
     }
 
     public def run() = true;

@@ -1,21 +1,20 @@
 //OPTIONS: -PLUGINS=dims.plugin.DimensionTypePlugin
 
 import harness.x10Test;
-import x10.lang.*;
-import dims.*;;
+import dims.*;
 
-public class DimTest_MustFailCompile extends harness.x10Test {
+public class DimTest3_MustFailCompile extends harness.x10Test {
     public def run(): boolean = {
     	// This test case simulates the failure of the Mars Climate Orbiter.
     	
-// The Mars Climate Orbiter?s reaction wheels were kept within their linear
+// The Mars Climate Orbiter's reaction wheels were kept within their linear
 // (unsaturated) range through thruster firings in a procedure called Angular
 // Momentum Desaturation (AMD). When an AMD event occurred, relevant spacecraft
 // data was telemetered to the ground, processed, and placed into a file called
 // the AMD file. The JPL operations navigation team used data derived from the
 // AMD file to model the forces on the spacecraft resulting from these specific
 // thruster firings. Modeling of these small forces is critical for accurately
-// determining the spacecraft?s trajectory. Immediately after the thruster
+// determining the spacecraft's trajectory. Immediately after the thruster
 // firing, the velocity change ("delta-V") is computed using the firing time for
 // each of the thrusters, and an impulse bit, which models each thruster's
 // performance. The calculation of the thruster performance is carried out both
@@ -37,11 +36,11 @@ public class DimTest_MustFailCompile extends harness.x10Test {
 	
     	var model: double = 1.0;
     	var actual: double = model;
-        var diff: double = ((double) actual * 4.45) - (double) model;
+        var diff: double = (actual * 4.45) - model;
         return -0.001 <= diff && diff <= 0.001;
     }
 
     public static def main(var args: Rail[String]): void = {
-        new DimTest_MustFailCompile().execute();
+        new DimTest3_MustFailCompile().execute();
     }
 }

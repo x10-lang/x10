@@ -5,11 +5,12 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Combination of finish and clocks.
  * Finish cannot pass any clock to a subactivity.
+ * TODO: rename to ClockTest7 and check for exception
  *
  * OLD SEMANTICS:
  * Language clarification needed:

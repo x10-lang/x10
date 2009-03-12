@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Purpose: Checks Unboxing from a primitive constrained cast works.
@@ -29,7 +29,6 @@ import harness.x10Test;;
 
 		return res2;
 	}
-	
 
 	public static def main(var args: Rail[String]): void = {
 		new UnboxPrimitiveConstrained1_MustFailCompile().execute();

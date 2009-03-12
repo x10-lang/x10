@@ -12,13 +12,13 @@ import x10.compiler.ArithmeticOps;
 public class GenericOverriding05 extends GenericTest {
 
     class A[T] {
-        def m() = 0;
-        def m(T) = 1;
-        def m(int,T) = 2;
+        def m(): Int = 0;
+        def m(T): Int = 1;
+        def m(int,T): Int = 2;
     }
 
     class B[T] extends A[T] {
-        def m() = 3;
+        def m(): Int = 3;
     }
 
     val a = new A[int]();

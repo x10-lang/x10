@@ -1,3 +1,5 @@
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
 /*
  *
  * (C) Copyright IBM Corporation 2006
@@ -5,7 +7,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Remote accesses in atomic must be checked by the compiler.
@@ -14,9 +16,6 @@ import harness.x10Test;;
  *
  * @author Kemal 4/2005, vj
  */
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
-
 public class AtomicNonLocal_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {

@@ -17,8 +17,8 @@ import harness.x10Test;
 public class SevereError extends x10Test {
 	public def run(): boolean {
 		var startTime: long = System.currentTimeMillis();
-		final val N: int = 10;
-		final val M: int = 100;
+		val N: int = 10;
+		val M: int = 100;
 		var r: Random = new Random(1);
 		var c1: RandCharStr = new RandCharStr(r,N);
 		var c2: RandCharStr = new RandCharStr(r,M);
@@ -62,26 +62,26 @@ public class SevereError extends x10Test {
 				shortSeqLength = M; longSeqLength = N;
 				System.out.println("Warning.. #rows < #columns.. performance will be equal to serial");
 			}
-			final val blockWidth: int = (int)(Math.ceil(1.5*(double)shortSeqLength));
-			final val D: dist = Dist.makeConstant(([0..N, 0..M]), here);
-			final val D_inner: dist{rank==D.rank} = D | [1..N, 1..M];
-			final val D_boundary: dist = D - D_inner;
+			val blockWidth: int = (int)(Math.ceil(1.5*(double)shortSeqLength));
+			val D: dist = Dist.makeConstant(([0..N, 0..M]), here);
+			val D_inner: dist{rank==D.rank} = D | [1..N, 1..M];
+			val D_boundary: dist = D - D_inner;
 			e = new Array[int](D);
 			for (val point[i,j]: point in D_boundary) e(i, j) = 0;
-			min4Count = new Array[int](distmakeUnique());
+			min4Count = new Array[int](Dist.makeUnique());
 			var localArr: Array[int];
 			finish {
-				ateach (val p: point in distmakeUnique()) {
-					final val p_id: int = (here).id;
-					final val num_loops: int = (int)(Math.ceil((double)M / ((double)place.MAX_PLACES*(double)blockWidth)));
+				ateach (val p: point in Dist.makeUnique()) {
+					val p_id: int = (here).id;
+					val num_loops: int = (int)(Math.ceil((double)M / ((double)place.MAX_PLACES*(double)blockWidth)));
 					for (var loop_id: int = 0; loop_id<num_loops; loop_id++) {
 						var startCol: int = (p_id*blockWidth+place.MAX_PLACES*blockWidth*loop_id+1);
 						var endCol: int = (p_id*blockWidth+place.MAX_PLACES*blockWidth*loop_id+blockWidth);
 						endCol = Math.min(endCol,M);
 						if (startCol <= M) {
 							if (startCol == 1) {
-								final val leftEndPt: int = 1;
-								final val tempArr: Array[int] = new Array[int](Dist.makeConstant(([1..N, leftEndPt..endCol]), here));
+								val leftEndPt: int = 1;
+								val tempArr: Array[int] = new Array[int](Dist.makeConstant(([1..N, leftEndPt..endCol]), here));
 								for (val (i,j): point in [1..N, leftEndPt..endCol]) {
 									var topCell: int; var leftCell: int; var diagCell: int;
 									if (i>1) topCell = tempArr(i-1, j); else topCell = 0;
@@ -89,7 +89,7 @@ public class SevereError extends x10Test {
 									if (i>1 && j>leftEndPt) diagCell = tempArr(i-1, j-1); else diagCell = 0;
 									tempArr(i, j) = min4(0, topCell+iGapPen, leftCell+iGapPen, diagCell + (c1.s(i) == c2.s(j) ? iMatch : iMisMatch));
 								}
-								final val tempArr2: Array[int] = new Array[int](Dist.makeConstant(([1..N, leftEndPt..endCol]), here), (var point[i,j]: point): int => {
+								val tempArr2: Array[int] = new Array[int](Dist.makeConstant(([1..N, leftEndPt..endCol]), here), (var point[i,j]: point): int => {
 									return tempArr(i, j);
 								});
 								finish {
@@ -99,8 +99,8 @@ public class SevereError extends x10Test {
 								}
 							}
 							else {
-								final val leftEndPt: int = startCol-blockWidth;
-								final val tempArr: Array[int] = new Array[int](Dist.makeConstant([1..N, leftEndPt..endCol], here));
+								val leftEndPt: int = startCol-blockWidth;
+								val tempArr: Array[int] = new Array[int](Dist.makeConstant([1..N, leftEndPt..endCol], here));
 								for (val (i,j): point in [1..N, leftEndPt..endCol]) {
 									var topCell: int; var leftCell: int; var diagCell: int;
 									if (i>1) topCell = tempArr(i-1, j); else topCell = 0;
@@ -109,7 +109,7 @@ public class SevereError extends x10Test {
 									tempArr(i, j) = min4(0, topCell+iGapPen, leftCell+iGapPen,
 											diagCell + (c1.s(i) == c2.s(j) ? iMatch : iMisMatch));
 								}
-								final val tempArr2: Array[int] = new Array[int](Dist.makeConstant([1..N, leftEndPt..endCol], here), (var point[i,j]: point): int => {
+								val tempArr2: Array[int] = new Array[int](Dist.makeConstant([1..N, leftEndPt..endCol], here), (var point[i,j]: point): int => {
 									return tempArr(i, j);
 								});
 								finish {
@@ -141,7 +141,7 @@ public class SevereError extends x10Test {
 		static def pad(var x: int): String = { return pad(x + ""); }
 		static def pad(var x: char): String = { return pad(x + ""); }
 		static def pad(var s: String): String = {
-			final val n: int = 3;
+			val n: int = 3;
 			while (s.length() < n) s = " " + s;
 			return " " + s + " ";
 		}

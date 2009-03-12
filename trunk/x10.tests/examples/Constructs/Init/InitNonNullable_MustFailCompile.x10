@@ -1,3 +1,5 @@
+//LIMITATION:
+//This test case will not meet expectations. It is a limitation of the current release.
 /*
  *
  * (C) Copyright IBM Corporation 2006
@@ -5,9 +7,7 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
-//This test case will not meet expectations. It is a limitation of the current release.
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * All non-nullable fields, array elements and local variables should

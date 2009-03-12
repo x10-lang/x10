@@ -5,14 +5,14 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Expression parentheses test.
  */
 public class ExpressionParentheses extends x10Test {
 
-	var x: int = x10.lang.Integer.MIN_VALUE;
+	var x: int = Int.MIN_VALUE;
 	var n: int = 16;
 	var z: int;
 

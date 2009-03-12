@@ -6,7 +6,6 @@
  *
  */
 import harness.x10Test;
-import x10.lang.Math;
 
 /**
  *

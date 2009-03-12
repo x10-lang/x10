@@ -5,8 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import x10.lang.Object;
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Testing the ability to assign to the field of an object

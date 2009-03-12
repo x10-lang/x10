@@ -56,8 +56,7 @@ package NPB3_0_X10;
 
 import NPB3_0_X10.CGThreads.*;
 import NPB3_0_X10.BMInOut.*;
-import java.io.*;
-import java.text.*;;
+import x10.io.*;
 
 public class CG {
 	public const BMName: String = "CG";
@@ -528,21 +527,18 @@ public class CG {
 	}
 
 	private def PrintTimers(): void = {
-		var fmt: DecimalFormat = new DecimalFormat("0.000");
 		System.out.println("  SECTION   Time (secs)");
 		var ttot: double = timer.readTimer(t_bench);
 		if (ttot == 0.0) ttot = 1.0;
 		for (var i: int = 1; i <= t_last; i++) {
 			var tm: double = timer.readTimer(i);
 			if (i == t_init) {
-				System.out.println("  "+t_names(i)+":"+fmt.format(tm));
+				System.out.printf("  %s:%.3f", [t_names(i), tm]);
 			} else {
-				System.out.println("  "+t_names(i)+":"+fmt.format(tm)
-						+" ("+fmt.format(tm*100.0/ttot)+"%)");
+				System.out.printf("  %s:%.3f (%.3f%%)", [t_names(i), tm, tm*100.0/ttot]);
 				if (i == t_conj_grad) {
 					tm = ttot - tm;
-					System.out.println("    --> total rest :" + fmt.format(tm)
-							+" ("+fmt.format(tm*100.0/ttot)+"%)");
+					System.out.printf("    --> total rest :%.3f (%.3f%%)", [tm, tm*100.0/ttot]);
 				}
 			}
 		}

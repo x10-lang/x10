@@ -1,4 +1,4 @@
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Literal test, for java literals

@@ -151,7 +151,7 @@ public class ClockTest16 extends x10Test {
 	 * // free variables
 	 */
 	static interface foo {
-		public def apply(): void;;
+		public def apply(): void;
 	}
 
 	/**

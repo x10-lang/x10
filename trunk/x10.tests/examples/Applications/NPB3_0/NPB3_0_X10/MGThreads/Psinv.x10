@@ -49,7 +49,7 @@
  */
 package NPB3_0_X10.MGThreads;
 
-import NPB3_0_X10.MG;;
+import NPB3_0_X10.MG;
 
 public class Psinv extends MGWorker {
 	val r1: Rail[double];

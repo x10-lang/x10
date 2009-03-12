@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 	
 public class RefB(f2: RefA) extends x10Test {
 	public def this(f2: RefA) { 
