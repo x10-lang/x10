@@ -16,10 +16,6 @@ public class System {
 
     private def this() {}
     
-    public const err = Console.ERR;
-    public const input = Console.IN;
-    public const out = Console.OUT;
-
     public static def currentTimeMillis() = Timer.milliTime();
     public static def nanoTime() = Timer.nanoTime();
 
