@@ -16,9 +16,9 @@ public class NullableObjectEqualsPrimitive extends x10Test {
 
 	public def run(): boolean = {
 		var x: Box[Object] = null;
-		var res: boolean = 3==x;
-		res &= x==3;
-		return !res;
+		var res1: boolean = 3==x; // should be false
+		var res2: boolean = x==3; // should be false
+		return !res1 && !res2;
 	}
 
 	public static def main(var args: Rail[String]): void = {
