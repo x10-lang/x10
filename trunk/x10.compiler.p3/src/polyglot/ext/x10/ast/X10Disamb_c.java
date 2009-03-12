@@ -70,7 +70,7 @@ public class X10Disamb_c extends Disamb_c {
 	    	
 	    	if (exprOK()) {
 	    		// First try local variables.
-	    		VarInstance<?> vi = c.findVariableSilent(name.id());
+	    		VarInstance<?> vi = c.pop().findVariableSilent(name.id());
 
 	    		if (vi != null && vi.def() == c.varWhoseTypeIsBeingElaborated()) {
 	    		    Expr e = ((X10NodeFactory) nf).Self(pos); 
@@ -90,6 +90,11 @@ public class X10Disamb_c extends Disamb_c {
 	    		     fi = ts.findField(t, ts.FieldMatcher(t, this.name.id()), c.currentClassDef());
 	    		}
 	    		catch (SemanticException ex) {
+	    		}
+
+	    		if (fi != null && vi instanceof FieldInstance) {
+	    		    Receiver e = makeMissingFieldTarget((FieldInstance) vi);
+	    		    throw new SemanticException("Ambiguous reference to field " + this.name + "; both self." + name + " and " + e + "." + name + " match.", pos);
 	    		}
 	    		
 	    		Expr prop = null;
