@@ -153,16 +153,16 @@ public class MGBase {
 		nr = (8*(nv+nm*nm+5*nm+7*lm))/7;
 		nm2 = 2*nm*nm;
 
-//		System.out.println(" Allocation of grids: nr="+nr+" words nv="+nv+" words");
-//		System.out.print(" r="+(nr*8/(1024*1024))+" MB...");
+//		Console.OUT.println(" Allocation of grids: nr="+nr+" words nv="+nv+" words");
+//		Console.OUT.print(" r="+(nr*8/(1024*1024))+" MB...");
 		r = new Rail[double](nr);
-//		System.out.println(" OK.");
-//		System.out.print(" v="+(nv*8/(1024*1024))+" MB...");
+//		Console.OUT.println(" OK.");
+//		Console.OUT.print(" v="+(nv*8/(1024*1024))+" MB...");
 		v = new Rail[double](nv);
-//		System.out.println(" OK.");
-//		System.out.print(" u="+(nr*8/(1024*1024))+" MB...");
+//		Console.OUT.println(" OK.");
+//		Console.OUT.print(" u="+(nr*8/(1024*1024))+" MB...");
 		u = new Rail[double](nr);
-//		System.out.println(" OK.");
+//		Console.OUT.println(" OK.");
 
 		a = [ -8.0/3.0, 0.0, 1.0/6.0, 1.0/12.0 ];
 
@@ -175,7 +175,7 @@ public class MGBase {
 	public static def checksum(var arr: Rail[int], var name: String, var stop: boolean): void = {
 		var csum: double = 0;
 		for (var i: int = 0; i<arr.length; i++) csum += arr(i);
-		System.out.println(name + " checksum MG " + csum);
+		Console.OUT.println(name + " checksum MG " + csum);
 		if (stop) System.exit(0);
 	}
 	public static def dmax1(var a: double, var b: double): double = { return (a < b) ? b : a; }

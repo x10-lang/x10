@@ -29,7 +29,7 @@ public class PointIndexTuple extends x10Test {
         } catch (var e: ArrayIndexOutOfBoundsException) {
             gotException = true;
         }
-        System.out.println("1: sum = "+sum+" gotException = "+gotException);
+        Console.OUT.println("1: sum = "+sum+" gotException = "+gotException);
         if (!(sum == 0 && gotException)) return false;
 
         gotException = false;
@@ -38,7 +38,7 @@ public class PointIndexTuple extends x10Test {
         } catch (var e: ArrayIndexOutOfBoundsException) {
             gotException = true;
         }
-        System.out.println("2: sum = "+sum+" gotException = "+gotException);
+        Console.OUT.println("2: sum = "+sum+" gotException = "+gotException);
         return sum == 0 && gotException;
     }
 

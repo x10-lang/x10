@@ -18,7 +18,7 @@ class XTENLANG_162 extends x10Test {
         val ps = new Printer(os);
     
         ps.printf("hi");
-        System.out.println(os.toString());
+        Console.OUT.println(os.toString());
 
         return true;
     }

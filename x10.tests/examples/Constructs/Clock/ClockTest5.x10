@@ -70,15 +70,15 @@ public class ClockTest5 extends x10Test {
 		/*Activity_6B*/async(here) clocked(d, e) { m("6B", "(d, e)", 0); next; m("6B", "(d, e)", 1); next; }
 		/*Activity_7A*/async(here) clocked(c, d, e) { m("7A", "(c, d, e)", 0); next; m("7A", "(c, d, e)", 1); next; }
 		/*Activity_7B*/async(here) clocked(c, d, e) { m("7B", "(c, d, e)", 0); next; m("7B", "(c, d, e)", 1); next; }
-		async(here) clocked(c, d, e) finish async(here) System.out.println("Parent activity in phase 0 of (c,d,e)");
+		async(here) clocked(c, d, e) finish async(here) Console.OUT.println("Parent activity in phase 0 of (c,d,e)");
 		next;
-		async(here) clocked(e, c, d) finish async(here) System.out.println("Parent activity in phase 1 of (c,d,e)");
+		async(here) clocked(e, c, d) finish async(here) Console.OUT.println("Parent activity in phase 1 of (c,d,e)");
 		next;
 		return true;
 	}
 
 	static def m(var a: String, var clocks: String, var phase: int): void = {
-		System.out.println("Actitivity "+a+" in phase "+phase+" of clocks "+clocks);
+		Console.OUT.println("Actitivity "+a+" in phase "+phase+" of clocks "+clocks);
 	}
 
 	public static def main(var args: Rail[String]): void = {

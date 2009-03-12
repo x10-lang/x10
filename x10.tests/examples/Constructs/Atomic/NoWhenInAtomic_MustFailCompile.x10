@@ -18,7 +18,7 @@ public class NoWhenInAtomic_MustFailCompile extends x10Test {
 	public def run(): boolean = {
 		atomic {
 		  when (b) {
-		    System.out.println("Cannot come here"); // must be caught at compile time.
+		    Console.OUT.println("Cannot come here"); // must be caught at compile time.
 		  }
 		  }
 		  return true;

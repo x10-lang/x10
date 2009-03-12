@@ -34,7 +34,7 @@ public class SeqStream1 extends Benchmark {
 
     public def once() {
         for (var p:int=0; p<PARALLELISM; p++) {
-            System.out.println("p " + p);
+            Console.OUT.println("p " + p);
             val a = as(p);
             val b = bs(p);
             val c = cs(p);

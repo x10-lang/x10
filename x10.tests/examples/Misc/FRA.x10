@@ -68,7 +68,7 @@ class FRA {
     public static def main(args:Rail[String]) {
 
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
-            System.out.println("The number of places must be a power of 2.");
+            Console.OUT.println("The number of places must be a power of 2.");
             return;
         }
 
@@ -83,12 +83,12 @@ class FRA {
         val init = (p:Point) => new LocalTable(localTableSize);
         val tables = Array.make[LocalTable](Dist.makeUnique(),
             (p:Point) => new LocalTable(localTableSize));
-        System.out.println("tables dist " + tables.dist);
+        Console.OUT.println("tables dist " + tables.dist);
 
         // print some info
-        System.out.println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
-        System.out.println("Number of places = " + NUM_PLACES);
-        System.out.println("Number of updates = " + NUM_UPDATES);
+        Console.OUT.println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
+        Console.OUT.println("Number of places = " + NUM_PLACES);
+        Console.OUT.println("Number of updates = " + NUM_UPDATES);
 
         // time it
         var cpuTime:double = -now();  
@@ -97,8 +97,8 @@ class FRA {
 
         // print statistics
         val GUPs = (cpuTime > 0.0 ? 1.0 / cpuTime : -1.0) * NUM_UPDATES / 1e9;
-        System.out.printf("CPU time used  = %.2f seconds\n", cpuTime);
-        System.out.printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
+        Console.OUT.printf("CPU time used  = %.2f seconds\n", cpuTime);
+        Console.OUT.printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
 
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
@@ -107,7 +107,7 @@ class FRA {
             var err:int = 0;
             for ((q):Point in l.a) if (l.a(q) != q) err++;
             val msg = "Found " + err + " errors.";
-            System.out.println(msg);
+            Console.OUT.println(msg);
         }
     }
 

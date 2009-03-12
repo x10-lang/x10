@@ -61,7 +61,7 @@ abstract class TypedefTest extends x10Test {
     }
 
     def pr(s:String):void = {
-        System.out.println(s);
+        Console.OUT.println(s);
     }
 
 }

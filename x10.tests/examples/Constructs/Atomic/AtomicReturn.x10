@@ -30,7 +30,7 @@ public class AtomicReturn extends x10Test {
 	public def run(): boolean = {
 		update1();
 		update3();
-		System.out.println(a);
+		Console.OUT.println(a);
 		return a == 2;
 	}
 

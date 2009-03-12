@@ -22,7 +22,7 @@ public class FieldDepType extends x10Test {
 	}
 	public def run(): boolean = {
 		m(f);
-		System.out.println("f[0] = " + f(0));
+		Console.OUT.println("f[0] = " + f(0));
 		return true;
 	}
 	public static def main(var a: Rail[String]): void = {

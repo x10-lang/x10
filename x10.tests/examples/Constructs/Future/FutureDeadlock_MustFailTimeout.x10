@@ -40,7 +40,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		x10.lang.Runtime.sleep(5000); // to make deadlock occur deterministically
 		var tmpf: Box[Future[Int]] = null;
 		atomic tmpf = f2;
-		System.out.println("Activity #1 about to force "+tmpf+" to wait for #2 to complete");
+		Console.OUT.println("Activity #1 about to force "+tmpf+" to wait for #2 to complete");
 		return (tmpf as Future[Int])();
 	}
 
@@ -48,7 +48,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		x10.lang.Runtime.sleep(5000); // to make deadlock occur deterministically
 	    var tmpf: Box[Future[Int]] = null;
 		atomic tmpf = f1;
-		System.out.println("Activity #2 about to force "+tmpf+" to wait for #1 to complete");
+		Console.OUT.println("Activity #2 about to force "+tmpf+" to wait for #1 to complete");
 		return (tmpf as Future[Int])();
 	}
 
@@ -57,7 +57,7 @@ public class FutureDeadlock_MustFailTimeout extends x10Test {
 		atomic f1 = tmpf1 as Box[Future[Int]];
 		var tmpf2: Future[Int] = future(here) { a2() };
 		atomic f2 = tmpf2 as Box[Future[Int]];
-		System.out.println("Activity #0 spawned both activities #1 and #2, waiting for completion of #1");
+		Console.OUT.println("Activity #0 spawned both activities #1 and #2, waiting for completion of #1");
 		return (tmpf1 as Future[Int])() == 42;
 	}
 

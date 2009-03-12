@@ -16,7 +16,7 @@ public class DepTypeRef extends x10Test {
 	public def run(): boolean = {
   	  var R: Region{rect} = [1..2, 1..2];
 	  var a: Array[double]{rect} = Array.makeFromRegion[double](R, (p: Point) => 1.0);
-		//System.out.println("" );//+ foo(a));
+		//Console.OUT.println("" );//+ foo(a));
 	   return true;
 	}
 	public static def main(var args: Rail[String]): void = {

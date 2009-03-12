@@ -18,16 +18,16 @@ public class RemoteAccessCheck extends x10Test {
 	public def run()  {
 		val d = Dist.makeUnique(Place.places);
 		if (d.region.size() < 2) {
-			System.out.println("RemoteAccessCheck requires 2 or more places.");
+			Console.OUT.println("RemoteAccessCheck requires 2 or more places.");
 			return false;
 		}
 		val a = (future(d(0)) new A()).force();
 		val error = (future(d(1)) checkField(a) ).force();
-		if (error != 0) System.out.println(error);
+		if (error != 0) Console.OUT.println(error);
 		val error2 = (future(d(1)) checkMethod(a)).force();
 		if (error2 != 0)
-			System.out.println(error2);
-			System.out.println("error=" + error + " error2=" + error2);
+			Console.OUT.println(error2);
+			Console.OUT.println("error=" + error + " error2=" + error2);
 		return error == 0 && error2 == 0;
 	}
 

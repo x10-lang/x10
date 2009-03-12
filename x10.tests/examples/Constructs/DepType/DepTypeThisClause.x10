@@ -22,7 +22,7 @@ public class DepTypeThisClause(i:int, j:int) extends x10Test {
 
     //  a method whose return type is a deptype
    public def run(){this.i==3}:boolean(true) = { 
-        System.out.println("i (=3?) = " + i); //property ref.
+        Console.OUT.println("i (=3?) = " + i); //property ref.
         return true;
     }
     

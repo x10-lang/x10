@@ -184,24 +184,24 @@ public class DistAlgebra extends x10Test {
     }
 
     static def pr(var s: String, var d: Dist(2)): void = {
-        System.out.println();
-        System.out.println("printing dist "+s);
+        Console.OUT.println();
+        Console.OUT.println("printing dist "+s);
         var k: int = 0;
         val N: int = 8;
         for (val (i,j): Point in ([0..N-1, 0..N-1] as Region)) {
-            System.out.print(" "+(d.contains([i, j] as Point) ? (""+d(i, j).id) : "."));
-            if ((++k) % N == 0) System.out.println();
+            Console.OUT.print(" "+(d.contains([i, j] as Point) ? (""+d(i, j).id) : "."));
+            if ((++k) % N == 0) Console.OUT.println();
         }
     }
 
     static def pr(var s: String, var r: Region(2)): void = {
-        System.out.println();
-        System.out.println("printing region "+s);
+        Console.OUT.println();
+        Console.OUT.println("printing region "+s);
         var k: int = 0;
         val N: int = 8;
         for (val (i,j): Point in ([0..N-1, 0..N-1] as Region)) {
-            System.out.print(" "+(r.contains([i, j] as Point) ? "+" : "."));
-            if ((++k) % N == 0) System.out.println();
+            Console.OUT.print(" "+(r.contains([i, j] as Point) ? "+" : "."));
+            if ((++k) % N == 0) Console.OUT.println();
         }
     }
 

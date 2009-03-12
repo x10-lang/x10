@@ -40,7 +40,7 @@ public class AtomicOrdered extends x10Test {
 				r.v2 = t;
 			}
 		}
-		System.out.println("v1 = "+r.v1+" v2 = "+r.v2);
+		Console.OUT.println("v1 = "+r.v1+" v2 = "+r.v2);
 		// not both could have read the old value
 		atomic chk(!(r.v1 == 0 && r.v2 == 0));
 		return true;

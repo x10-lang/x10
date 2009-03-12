@@ -55,28 +55,28 @@ public class ClockTest10a extends x10Test {
 	def taskA(val a: Clock): void = {
 		for ((k) in 1..N) {
 			varA(ph(k)) = k;
-			System.out.println(k + " A producing " + varA(ph(k)));
+			Console.OUT.println(k + " A producing " + varA(ph(k)));
 			next;
 		}
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
 		for ((k) in 1..N) {
 			varB(ph(k)) = varA(ph(k-1))+varA(ph(k-1));
-			System.out.println(k + " B consuming oldA producing " + varB(ph(k)));
+			Console.OUT.println(k + " B consuming oldA producing " + varB(ph(k)));
 			next;
 		}
 	}
 	def taskC(val a: Clock, val c: Clock): void = {
 		for ((k) in 1..N) {
 			varC(ph(k)) = varA(ph(k-1))*varA(ph(k-1));
-			System.out.println(k+" C consuming oldA producing "+ varC(ph(k)));
+			Console.OUT.println(k+" C consuming oldA producing "+ varC(ph(k)));
 			next;
 		}
 	}
 	def taskD(val b: Clock, val c: Clock): void = {
 		for ((k) in 1..N) {
 			varD(ph(k)) = varB(ph(k-1))+varC(ph(k-1))+10;
-			System.out.println(k+" D consuming oldC producing "+varD(ph(k)));
+			Console.OUT.println(k+" D consuming oldC producing "+varD(ph(k)));
 			var n: int = k-pipeDepth;
 			chk(!(k>pipeDepth) || varD(ph(k)) == n+n+n*n+10);
 			next;
@@ -85,7 +85,7 @@ public class ClockTest10a extends x10Test {
 	def taskE(val c: Clock): void = {
 		for ((k) in 1..N) {
 			varE(ph(k)) = varC(ph(k-1))*7;
-			System.out.println(k+" E consuming oldC producing "+varE(ph(k)));
+			Console.OUT.println(k+" E consuming oldC producing "+varE(ph(k)));
 			var n: int = k-pipeDepth;
 			chk(!(k>pipeDepth) || varE(ph(k)) == n*n*7);
 			next;

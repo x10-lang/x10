@@ -32,7 +32,7 @@ public class ArrayOfRegions extends x10Test {
         }
 
         for ((i): Point in ra)
-            System.out.println("ra["+i+"] = "+ra(i));
+            Console.OUT.println("ra["+i+"] = "+ra(i));
 
         for ((i): Point in ra)
             chk(ra(i).equals([10*i+1..10*i+9]));

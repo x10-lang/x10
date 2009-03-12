@@ -216,7 +216,7 @@ public class CG {
 		var rnorm: double = 0;
 
 		BMArgs.Banner(BMName, CLASS, serial, num_threads);
-		System.out.println(" Size: " + na +" Iterations: " + niter);
+		Console.OUT.println(" Size: " + na +" Iterations: " + niter);
 
 		timer.resetAllTimers();
 		setTimers();
@@ -322,7 +322,7 @@ public class CG {
 			}
 			tnorm2 = 1.0 / Math.sqrt(tnorm2);
 			zeta = shift + 1.0 /tnorm1;
-			System.out.println("    "+ itt + "       " + rnorm +" " + zeta);
+			Console.OUT.println("    "+ itt + "       " + rnorm +" " + zeta);
 			//---------------------------------------------------------------------
 			//  Normalize z to obtain x
 			//---------------------------------------------------------------------
@@ -380,13 +380,13 @@ public class CG {
 		var verified: int = 0;
 		var epsilon: double = 1.0E-10;
 		if (CLASS != 'U') {
-			System.out.println(" Zeta is   " + zeta);
+			Console.OUT.println(" Zeta is   " + zeta);
 			if (Math.abs(zeta - zeta_verify_value) <= epsilon) {
 				verified = 1;
-				System.out.println(" Deviation is   " + (zeta-zeta_verify_value));
+				Console.OUT.println(" Deviation is   " + (zeta-zeta_verify_value));
 			} else {
 				verified = 0;
-				System.out.println(" The correct zeta is " + zeta_verify_value);
+				Console.OUT.println(" The correct zeta is " + zeta_verify_value);
 			}
 		} else {
 			verified = -1;
@@ -527,18 +527,18 @@ public class CG {
 	}
 
 	private def PrintTimers(): void = {
-		System.out.println("  SECTION   Time (secs)");
+		Console.OUT.println("  SECTION   Time (secs)");
 		var ttot: double = timer.readTimer(t_bench);
 		if (ttot == 0.0) ttot = 1.0;
 		for (var i: int = 1; i <= t_last; i++) {
 			var tm: double = timer.readTimer(i);
 			if (i == t_init) {
-				System.out.printf("  %s:%.3f", [t_names(i), tm]);
+				Console.OUT.printf("  %s:%.3f", [t_names(i), tm]);
 			} else {
-				System.out.printf("  %s:%.3f (%.3f%%)", [t_names(i), tm, tm*100.0/ttot]);
+				Console.OUT.printf("  %s:%.3f (%.3f%%)", [t_names(i), tm, tm*100.0/ttot]);
 				if (i == t_conj_grad) {
 					tm = ttot - tm;
-					System.out.printf("    --> total rest :%.3f (%.3f%%)", [tm, tm*100.0/ttot]);
+					Console.OUT.printf("    --> total rest :%.3f (%.3f%%)", [tm, tm*100.0/ttot]);
 				}
 			}
 		}

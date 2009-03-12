@@ -109,7 +109,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -117,7 +117,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -129,7 +129,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -137,7 +137,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -145,7 +145,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -153,7 +153,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -161,7 +161,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -169,7 +169,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -179,7 +179,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		if (!serial) {
 			outbuf = new StringBuffer("                          "
@@ -188,12 +188,12 @@ public class BMResults implements Serializable {
 			outbuf.insert(0, outline);
 			outbuf.setLength(len);
 			outbuf.insert(len-1,"*");
-			System.out.println(outbuf.toString());
+			Console.OUT.println(outbuf.toString());
 		}
 
 		outbuf = new StringBuffer("*                               "
 				+"                               *");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -201,7 +201,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -209,7 +209,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -217,7 +217,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		outbuf = new StringBuffer("                          "
 				+"                         *");
@@ -226,7 +226,7 @@ public class BMResults implements Serializable {
 		outbuf.insert(0, outline);
 		outbuf.setLength(len);
 		outbuf.insert(len-1,"*");
-		System.out.println(outbuf.toString());
+		Console.OUT.println(outbuf.toString());
 
 		if (out != null) {
 			try {
@@ -327,27 +327,27 @@ public class BMResults implements Serializable {
 	public static def printVerificationStatus(var clss: char, var verified: int, var BMName: String): void = {
 		if (clss == 'U'||verified == -1) {
 			verified = -1;
-			System.out.println(" Problem size unknown");
-			System.out.println(BMName+"."+clss+": Verification Not Performed");
+			Console.OUT.println(" Problem size unknown");
+			Console.OUT.println(BMName+"."+clss+": Verification Not Performed");
 		} else if (verified == 1) {
-			System.out.println(BMName+"."+clss+": Verification Successful");
+			Console.OUT.println(BMName+"."+clss+": Verification Successful");
 		} else {
-			System.out.println(BMName+"."+clss+": Verification Failed");
+			Console.OUT.println(BMName+"."+clss+": Verification Failed");
 		}
 	}
 
 	public static def printComparisonStatus(var clss: char, var verified: int, var epsilon: double, var xcr: Rail[double], var xcrref: Rail[double], var xcrdif: Rail[double]): int = {
 		for (var m: int = 0; m < xcr.length; m++) {
 			if (clss == 'U') {
-				System.out.println(m+". "+xcr(m));
+				Console.OUT.println(m+". "+xcr(m));
 			} else {
 				if (xcrdif(m) <= epsilon) {
 					if (verified ==-1) verified = 1;
 				} else {
 					verified = 0;
-					System.out.print("FAILURE: ");
+					Console.OUT.print("FAILURE: ");
 				}
-				System.out.println(m+". "+xcr(m)+" "+xcrref(m)+" "+xcrdif(m));
+				Console.OUT.println(m+". "+xcr(m)+" "+xcrref(m)+" "+xcrdif(m));
 			}
 		}
 		return verified;
@@ -355,15 +355,15 @@ public class BMResults implements Serializable {
 
 	public static def printComparisonStatus(clss: char, var verified: int, epsilon: double, xcr: double, xcrref: double, xcrdif: double): int = {
 		if (clss == 'U') {
-			System.out.println(" "+xcr);
+			Console.OUT.println(" "+xcr);
 		} else {
 			if (xcrdif <= epsilon) {
 				if (verified ==-1) verified = 1;
 			} else {
 				verified = 0;
-				System.out.print("FAILURE: ");
+				Console.OUT.print("FAILURE: ");
 			}
-			System.out.println(xcr+" "+xcrref+" "+xcrdif);
+			Console.OUT.println(xcr+" "+xcrref+" "+xcrdif);
 		}
 		return verified;
 	}

@@ -24,7 +24,7 @@ public class DistUtil {
     /*	public static def main(Rail[String]):Void  = {
 		val  R = block(1..22, 4);	
         for(var i:Int=0; i < R.length; i++)
-          System.out.println("i=" + i + " " + R(i));	
+          Console.OUT.println("i=" + i + " " + R(i));	
 		
 	  }*/
   

@@ -17,7 +17,7 @@ public class Array3DoubleSwapped extends x10Test {
         val r  = [1..10, 1..10] as Region;
         val ia = Array.make[Double](r, (x:Point)=>0.0D);
         ia(1, 1) = 42.0D;
-        System.out.println("ia(1,1)=" + ia(1,1));
+        Console.OUT.println("ia(1,1)=" + ia(1,1));
         return ia(1,1) == 42.0D;
     }
 

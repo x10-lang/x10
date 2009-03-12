@@ -74,9 +74,9 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 		// it is hard to determine if this is invoked inside
 		// an atomic, at compile time.
 		public def apply(val l: lockStruct): void = {
-			System.out.println("in f0:#1");
+			Console.OUT.println("in f0:#1");
 			when (!l.lock0) l.lock0 = true;
-			System.out.println("in f0:#2");
+			Console.OUT.println("in f0:#2");
 		}
 	}
 
@@ -84,9 +84,9 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 		// it is hard to determine if this is invoked inside
 		// an atomic, at compile time.
 		public def apply(val l: lockStruct): void = {
-			System.out.println("in f1:#1");
+			Console.OUT.println("in f1:#1");
 			when (!l.lock1) l.lock1 = true;
-			System.out.println("in f1:#2");
+			Console.OUT.println("in f1:#2");
 		}
 	}
 
@@ -94,21 +94,21 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 		// it is hard to determine if this is invoked inside
 		// an atomic, at compile time.
 		public def apply(val l: lockStruct): void = {
-			System.out.println("in f2:#1");
+			Console.OUT.println("in f2:#1");
 			l.c.resume();
-			System.out.println("in f2:#2");
+			Console.OUT.println("in f2:#2");
 			finish async { };
-			System.out.println("in f2:#3");
+			Console.OUT.println("in f2:#3");
 			var x: int = (future { l.futureInt.force() }).force();
-			System.out.println("in f2:#4");
+			Console.OUT.println("in f2:#4");
 			next;
-			System.out.println("in f2:#5");
+			Console.OUT.println("in f2:#5");
 		}
 	}
 
 	static class f3 implements foo {
 		public def apply(val l: lockStruct): void = {
-			System.out.println("in f3");
+			Console.OUT.println("in f3");
 		}
 	}
 

@@ -17,7 +17,7 @@ import harness.x10Test;
 public class IntLitOct extends x10Test {
 
 	public def run(): boolean = {
-		System.out.println(01124563);
+		Console.OUT.println(01124563);
 		return 01124563==305523;
 	}
 

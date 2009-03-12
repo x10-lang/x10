@@ -19,7 +19,7 @@ abstract public class TestArray extends x10Test {
             out = new Printer(os);
         } catch (e:Exception) {
             //e.printStackTrace();
-            System.out.println(e.toString());
+            Console.OUT.println(e.toString());
         }
     }
 
@@ -30,9 +30,9 @@ abstract public class TestArray extends x10Test {
         if (got.equals(expected())) {
             return true;
         } else {
-            System.out.println("=== got:\n" + got);
-            System.out.println("=== expected:\n" + expected());
-            System.out.println("=== ");
+            Console.OUT.println("=== got:\n" + got);
+            Console.OUT.println("=== expected:\n" + expected());
+            Console.OUT.println("=== ");
             return false;
         }
     }
@@ -299,7 +299,7 @@ abstract public class TestArray extends x10Test {
     }
 
     static def xxx(s: String): void {
-        System.out.println("xxx " + s);
+        Console.OUT.println("xxx " + s);
     }
 
     // substitute for [a:b,c:d]

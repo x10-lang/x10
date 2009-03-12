@@ -19,20 +19,20 @@ public class ArrayTypeCheck extends x10Test {
 
         var a1: Array[int] = Array.make[int](Dist.makeConstant([0..2, 0..3], here), (var p(i): Point): int => { return i; });
 
-        System.out.println("1");
+        Console.OUT.println("1");
 
         val E: Dist = Dist.makeConstant(-1..-2, here);
 
         try {
-            System.out.println("a1.dist " + a1.dist);
-            System.out.println("E " + E);
-            System.out.println("== " + (a1.dist==E));
-            // System.out.println(".equals " + a1.dist.equals(E)); XXXX
+            Console.OUT.println("a1.dist " + a1.dist);
+            Console.OUT.println("E " + E);
+            Console.OUT.println("== " + (a1.dist==E));
+            // Console.OUT.println(".equals " + a1.dist.equals(E)); XXXX
             var a2: Array[int] = a1 as Array[int](E);
-            System.out.println("did not get exception");
+            Console.OUT.println("did not get exception");
             return false;
         } catch (var z: ClassCastException) {
-            System.out.println("2");
+            Console.OUT.println("2");
         }
 
         try {
@@ -40,7 +40,7 @@ public class ArrayTypeCheck extends x10Test {
             var a3: Array[int] = a1 as Array[int](D);
             return false;
         } catch (var z: ClassCastException) {
-            System.out.println("3");
+            Console.OUT.println("3");
         }
         
         var i: int = 1;
@@ -54,12 +54,12 @@ public class ArrayTypeCheck extends x10Test {
         
 /*
         var gotException: boolean;
-        System.out.println("5");
+        Console.OUT.println("5");
         try {
             return a1(i) == a1(i, j, k);
         } catch (var e: RankMismatchException) {
             gotException = true;
-            System.out.println("Caught "+e);
+            Console.OUT.println("Caught "+e);
         }
         if (!gotException) return false;
 */

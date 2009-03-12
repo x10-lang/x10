@@ -18,7 +18,7 @@ import harness.x10Test;
 public class IntLitOctBad_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		System.out.println(09);
+		Console.OUT.println(09);
 		return true;
 	}
 

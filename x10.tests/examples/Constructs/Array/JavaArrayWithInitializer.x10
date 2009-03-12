@@ -21,12 +21,12 @@ public class JavaArrayWithInitializer extends x10Test {
 
         val foo1  = Array.make[int](0..N-1->here, ((i): Point)=> i);
 
-        System.out.println("1");
+        Console.OUT.println("1");
 
         for (val (i): Point in 0..N-1) chk(foo1(i) == i);
         val foo2  = Array.make[int](0..N-1 -> here, ((i): Point)=>i);
 
-        System.out.println("2");
+        Console.OUT.println("2");
 
         for (val (i): Point(1) in 0..N-1) chk(foo2(i) == i);
 

@@ -25,34 +25,34 @@ public class Initialization extends x10Test {
 		val OneDSize: int = kArraySize * kArraySize;
 
 		start = System.currentTimeMillis();
-		System.out.println("creating java array size "+OneDSize);
+		Console.OUT.println("creating java array size "+OneDSize);
 		x_javaArray = Array.make[double](OneDSize);
 		stop = System.currentTimeMillis();
-		System.out.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
+		Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
 		start = System.currentTimeMillis();
-		System.out.println("creating array size "+OneDSize);
+		Console.OUT.println("creating array size "+OneDSize);
 		var r: Region = [0..OneDSize];
 		val D: Dist = Dist.makeBlock(r);
 		x_doubleArray1D = Array.make[double](D);
 		stop = System.currentTimeMillis();
-		System.out.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
+		Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
 
-		System.out.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
+		Console.OUT.println("creating array ["+kArraySize+","+kArraySize+"] ("+(kArraySize*kArraySize)+")");
 		var r2: Region = [0..kArraySize, 0..kArraySize];
 		val D2: Dist = Dist.makeBlock(r2);
-		System.out.println("Start allocation...");
+		Console.OUT.println("Start allocation...");
 		start = System.currentTimeMillis();
 		x_doubleArray2D = Array.make[double](D2);
 		stop = System.currentTimeMillis();
-		System.out.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
-		System.out.println("finished allocating");
+		Console.OUT.println("Created array in "+(((stop-start) as double)/1000)+" seconds");
+		Console.OUT.println("finished allocating");
 
 		start = System.currentTimeMillis();
 		x_intArray1D = Array.make[int](D);
 		stop = System.currentTimeMillis();
-		System.out.println("Created int array in "+(((stop-start) as double)/1000)+" seconds");
-		System.out.println("finished allocating");
+		Console.OUT.println("Created int array in "+(((stop-start) as double)/1000)+" seconds");
+		Console.OUT.println("finished allocating");
 		return true;
 	}
 

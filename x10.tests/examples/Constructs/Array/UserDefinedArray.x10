@@ -31,7 +31,7 @@ public class UserDefinedArray extends x10Test {
 
         chk(a.dist(0) == D(0));
         chk((future(a.dist(0)){a(0)}).force() == v1);
-        System.out.println("v1.location() " + v1.location() + " D(1) " + D(1));
+        Console.OUT.println("v1.location() " + v1.location() + " D(1) " + D(1));
         chk(v1.location() == D(1));
         chk((future(v1.location){v1.v}).force() == 1);
 

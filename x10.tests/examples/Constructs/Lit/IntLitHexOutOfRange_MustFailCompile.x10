@@ -17,7 +17,7 @@ import harness.x10Test;
 public class IntLitHexOutOfRange_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		System.out.println(0xABCABCABCABC7);
+		Console.OUT.println(0xABCABCABCABC7);
 		return true;
 	}
 

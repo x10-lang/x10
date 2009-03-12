@@ -14,26 +14,26 @@ import harness.x10Test;
 public class Boxing1 extends x10Test {
 	public def run(): boolean = {
 		var o: x10.lang.Object = X.five();
-		System.out.println("int");
+		Console.OUT.println("int");
 		if (!(o instanceof Box[int])) return false;
-		System.out.println("double");
+		Console.OUT.println("double");
 		if (o instanceof Box[double]) return false;
 		var i: int = (o as int) + 1;
-		System.out.println("6");
+		Console.OUT.println("6");
 		if (i != 6) return false;
 		var d: _dummy = new _complex(1,2);
 		o = d;
-		System.out.println("d _complex");
+		Console.OUT.println("d _complex");
 		if (!(d instanceof Box[_complex])) return false;
-		System.out.println("o _dummy");
+		Console.OUT.println("o _dummy");
 		if (!(o instanceof _dummy)) return false;
-		System.out.println("o _complex");
+		Console.OUT.println("o _complex");
 		if (!(o instanceof Box[_complex])) return false;
 		var d2: _dummy = new _dummy();
-		System.out.println("d2 _complex");
+		Console.OUT.println("d2 _complex");
 		if (d2 instanceof _complex) return false;
 		var c: _complex = (d as _complex).add(new _complex(1,1));
-		System.out.println("c _complex");
+		Console.OUT.println("c _complex");
 		if (c != (new _complex(2,3))) return false;
 		return true;
 	}

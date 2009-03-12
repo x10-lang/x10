@@ -108,7 +108,7 @@ public class ClockPascal extends x10Test {
 				}
 			}
 		}
-		System.out.println("sum = "+A.sum());
+		Console.OUT.println("sum = "+A.sum());
 		return A.sum() == EXPECTED_CHECKSUM;
 	}
 
@@ -128,11 +128,11 @@ public class ClockPascal extends x10Test {
 	}
 
 	static def pr1(var i: int, var j: int, var n: int): void = {
-		System.out.println(tim()+" sec: About to do next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
+		Console.OUT.println(tim()+" sec: About to do next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 	}
 
 	static def pr2(var i: int, var j: int, var n: int): void = {
-		System.out.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
+		Console.OUT.println(tim()+" sec: Passed next " +(n-2) + " of " + (i+j-1)+ " (wait for input): ["+i+","+j+"]");
 	}
 
 	public static val maxW = Rail.makeVar[Int](1, (x:nat)=>0);
@@ -146,12 +146,12 @@ public class ClockPascal extends x10Test {
 		}
 		val s: String = oo ? " Out of order!" : "";
 
-		System.out.println(tim()+" sec: About to do next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j)+s);
+		Console.OUT.println(tim()+" sec: About to do next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j)+s);
 	}
 
 	static def pr4(var i: int, var j: int, var A: Array[int]): void = {
 		var w: int = i+j-1; // wave number
-		System.out.println(tim()+" sec: Passed next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j));
+		Console.OUT.println(tim()+" sec: Passed next "+w+" of "+w+" (produce output): A["+i+","+j+"] = "+A(i, j));
 	}
 
 	/**
