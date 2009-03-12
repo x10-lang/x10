@@ -29,6 +29,7 @@ import polyglot.types.FunctionDef;
 import polyglot.types.InitializerDef;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -91,9 +92,13 @@ public class X10Return_c extends Return_c {
 	@Override
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		Context c = tc.context();
+		X10Context c = (X10Context) tc.context();
 	
 		CodeDef ci = c.currentCode();
+		
+		if (ci == ts.asyncCodeInstance(true) || ci == ts.asyncCodeInstance(false)) {
+		    throw new SemanticException("Cannot return from an async.");
+		}
 		
 		// If the return type is not yet known, set it to the type of the value being returned.
 		if (ci instanceof FunctionDef) {
