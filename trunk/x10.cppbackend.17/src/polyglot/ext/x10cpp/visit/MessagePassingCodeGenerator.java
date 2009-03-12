@@ -2235,8 +2235,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.kind() == IntLit_c.LONG)
 			val = Long.toString(n.value()) + "ll";
 		else if (n.kind() == IntLit_c.INT) {
-			if ((n.value() & 0x80000000L) != 0)
-			    val = Long.toString(n.value()<0 ? (-n.value() & 0xFFFFFFFFL) : n.value()) + "u";
+			if (n.value() >= 0x80000000L)
+			    val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
 			else
 			    val = Long.toString((int) n.value());
 		} else
@@ -3347,8 +3347,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    NodeFactory nf = tr.nodeFactory();
 	    Binary.Operator op = n.operator();
 
-	    if (op == Binary.EQ || op == Binary.NE) { // TODO
-	        visit((Binary_c)n);
+	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
+	        sw.write("("); sw.begin(0);
+	        if (op == Binary.NE)
+	            sw.write("!");
+	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
+	        n.print(left, sw, tr);
+	        sw.write(",");
+	        sw.allowBreak(0, " ");
+	        n.print(right, sw, tr);
+	        sw.end(); sw.write(")");
+	        sw.end(); sw.write(")");
 	        return;
 	    }
 	    if (l.isNumeric() && r.isNumeric()) { // TODO: get rid of this special case by defining native operators
