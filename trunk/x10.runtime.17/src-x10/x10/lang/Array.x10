@@ -82,6 +82,8 @@ public abstract value class Array[T](dist:Dist)
 
     public static def make[T](rail: Rail[T]): Array[T]{rank==1&&rect&&zeroBased}
         = BaseArray.makeVar1[T](rail);
+    public static def make[T](rail: ValRail[T]): Array[T]{rank==1&&rect&&zeroBased}
+        = BaseArray.makeVar1[T](rail);
 
     public static def make[T](size: nat, init: Box[(Point)=>T]): Array[T](1)
         = makeVar[T](0..size-1, init) as Array[T](1);
@@ -103,31 +105,31 @@ public abstract value class Array[T](dist:Dist)
     // operations
     //
 
-    public abstract def apply(pt: Point(rank)): T;
-    public abstract def apply(i0: int) {rank==1}: T;
-    public abstract def apply(i0: int, i1: int) {rank==2}: T;
-    public abstract def apply(i0: int, i1: int, i2: int) {rank==3}: T;
-    public abstract def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
+    public abstract safe def apply(pt: Point(rank)): T;
+    public abstract safe def apply(i0: int) {rank==1}: T;
+    public abstract safe def apply(i0: int, i1: int) {rank==2}: T;
+    public abstract safe def apply(i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract safe def apply(i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
     
-    public abstract def set(v:T, pt: Point(rank)): T;
-    public abstract def set(v:T, i0: int) {rank==1}: T;
-    public abstract def set(v:T, i0: int, i1: int) {rank==2}: T;
-    public abstract def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
-    public abstract def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
+    public abstract safe def set(v:T, pt: Point(rank)): T;
+    public abstract safe def set(v:T, i0: int) {rank==1}: T;
+    public abstract safe def set(v:T, i0: int, i1: int) {rank==2}: T;
+    public abstract safe def set(v:T, i0: int, i1: int, i2: int) {rank==3}: T;
+    public abstract safe def set(v:T, i0: int, i1: int, i2: int, i3:int) {rank==4}: T;
 
-    public abstract def restriction(r: Region(rank)): Array[T];
-    public abstract def restriction(p: Place): Array[T];
+    public abstract safe def restriction(r: Region(rank)): Array[T];
+    public abstract safe def restriction(p: Place): Array[T];
 
-    public abstract def $plus(): Array[T];
-    public abstract def $minus(): Array[T];
+    public abstract safe def $plus(): Array[T];
+    public abstract safe def $minus(): Array[T];
 
-    public abstract def $plus(that: Array[T]): Array[T];
-    public abstract def $minus(that: Array[T]): Array[T];
-    public abstract def $times(that: Array[T]): Array[T];
-    public abstract def $over(that: Array[T]): Array[T];
+    public abstract safe def $plus(that: Array[T]): Array[T];
+    public abstract safe def $minus(that: Array[T]): Array[T];
+    public abstract safe def $times(that: Array[T]): Array[T];
+    public abstract safe def $over(that: Array[T]): Array[T];
 
-    public abstract def $bar(r: Region(rank)): Array[T];
-    public abstract def $bar(p: Place): Array[T];
+    public abstract safe def $bar(r: Region(rank)): Array[T];
+    public abstract safe def $bar(p: Place): Array[T];
 
 
     //
@@ -155,8 +157,9 @@ public abstract value class Array[T](dist:Dist)
     //
     //
 
-    incomplete public static def $convert[T](r: Rail[T]): Array[T];
-    incomplete public static def $convert[T](r: ValRail[T]): Array[T];
+    public static def $convert[T](r: Rail[T]): Array[T] = make(r);
+    public static def $convert[T](r: ValRail[T]): Array[T] = make(r);
+
 
     public def iterator(): Iterator[Point(rank)] = region.iterator() as Iterator[Point(rank)];
 

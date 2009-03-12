@@ -8,27 +8,28 @@
 import harness.x10Test;
 
 /**
- * Code generation for clocked async uses "clocks" as the name of the clock
- * list.
- * This test will fail at runtime, because the wrong clocks variable is being used.
+ * Test that creating an array of clocks will not work -- you need to
+ * do the following instead:
+	    val clocks = Array.make[Clock](0..5, (point)=>null);
+	    for ((i) in 0..5) clocks(i) = Clock.make();
+
  * @author Tong Wen 7/2006
  */
 public class ClockAsyncTest extends x10Test {
 
-	public def run(): boolean = {
-		finish async{
-			val clocks: Array[Clock] = Array.make[Clock]([0..5], ((i): Point): Clock => Clock.make());
-			val i: int = 0;
-			async (here) clocked (clocks(i)){
-				next;
-			}
-		}
-		return true;
+    public def run(): boolean = {
+	try {
+	    val clocks = Array.make[Clock](0..5, (Point)=>Clock.make());
+	    finish async (here) clocked (clocks(0)){
+		next;
+	    }
+	} catch (x:ClockUseException) {
+	    return true;
 	}
+	return false;
+    }
 
-	
-
-	public static def main(var args: Rail[String]): void = {
-		new ClockAsyncTest().execute();
-	}
+    public static def main(var args: Rail[String]) {
+	new ClockAsyncTest().execute();
+    }
 }

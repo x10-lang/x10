@@ -36,25 +36,25 @@ public final value class FastArray[T] extends BaseArray[T] {
     val delta2: int;
     val delta3: int;
 
-    final public def apply(i0: int): T {
+    final public safe def apply(i0: int): T {
         var offset:int = i0;
         return raw(offset);
     }
 
-    final public def apply(i0: int, i1: int): T {
+    final public safe def apply(i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         return raw(offset);
     }
 
-    final public def apply(i0: int, i1: int, i2: int): T {
+    final public safe def apply(i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
         return raw(offset);
     }
 
-    final public def apply(i0: int, i1: int, i2: int, i3: int): T {
+    final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
@@ -66,20 +66,20 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
     //
 
-    final public def set(v: T, i0: int): T {
+    final public safe def set(v: T, i0: int): T {
         var offset:int = i0;
         raw(offset) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int): T {
+    final public safe def set(v: T, i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         raw(offset) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int): T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
@@ -87,7 +87,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
@@ -168,7 +168,7 @@ public final value class FastArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public def restriction(d: Dist): Array[T] {
+    public safe def restriction(d: Dist): Array[T] {
         return new FastArray[T](this, d as Dist{constant});
     }
 
