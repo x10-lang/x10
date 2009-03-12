@@ -9,11 +9,11 @@ import harness.x10Test;
 
 class XTENLANG_12 extends x10Test {
 
-    interface I[T] {
+    static interface I[T] {
         def next(): T;
     }
 
-    class AL[T] {
+    static class AL[T] {
 
         private static class It[T] implements I[T] {
             incomplete public def next(): T;
