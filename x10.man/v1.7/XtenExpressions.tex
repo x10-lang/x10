@@ -516,16 +516,14 @@ The cast operation may be used to cast an expression to a given type:
 \begin{grammar}
 UnaryExpression \: CastExpression \\
 CastExpression \: UnaryExpression \xcd"as" Type \\
-\| UnaryExpression \xcd"to" Type \\
 \end{grammar}
 
 The result of this operation is a value of the given type if the cast
 is permissible at run time.
 
-The \xcd"as" operation checks if the value being coerced is of
-the given type.  Object identity is preserved; that is,
-\xcd"e == e as T".
-The \xcd"to" operation converts the value to the given type. 
+The \xcd"as" operation converts the value to the given type or
+throws \xcd"x10.lang.ClassCastException" if the value cannot be 
+converted.
 Object identity need not be preserved by the conversion.
 Type conversion is checked according to the
 rules of the \java{} language (e.g., \cite[\S 5.5]{jls2}).
@@ -533,9 +531,10 @@ For constrained types, both the base
 type and the constraint are checked.
 If the
 value cannot be cast to the appropriate type, a
-\xcd"TypeCastException"
-is thrown. If the value cannot be cast to the
-appropriate place type a \xcd"BadPlaceException" is thrown. 
+\xcd"ClassCastException"
+is thrown.
+%If the value cannot be cast to the
+%appropriate place type a \xcd"BadPlaceException" is thrown. 
 
 % Any attempt to cast an expression of a reference type to a value type
 % (or vice versa) results in a compile-time error. Some casts---such as

@@ -1121,68 +1121,6 @@ As objects, closure body may refer to
 \xcd"this", which is a reference to the current function,
 and use it to invoke the closure recursively.
 
-\section{Boxed types}
-\label{BoxedTypes}
-\label{BoxType}
-
-\index{types!boxed type}
-\index{\Xcd{Box}}
-
-The reference type \xcd"x10.lang.Box[T]" is a \emph{boxed type},
-and allows a value type \xcd"T" to be used at a
-reference type.
-%
-If \xcd"T" is a value type, \xcd"Box[T]" is a reference type
-with the same methods and fields as \xcd"T".
-If \xcd"T" is a reference type, \xcd"Box[T]" is equivalent to
-\xcd"T".
-
-Fields and methods of \xcd"T" may be accessed through an
-expression of type \xcd"Box[T]".
-If \xcd"T" implements an interface \xcd"I", then
-\xcd"Box[T]" also implements \xcd"I". 
-%% It used to say 
-%% Note that if \xcd"T" is a subtype of \xcd"S",
-%% then \xcd"Box[T]" and \xcd"Box[S]" are unrelated
-%% But what have we said before that would allow the reader to infer this?
-
-If \xcd"T" is a subtype of \xcd"S", then \xcd"Box[T]" and \xcd"Box[S]"
-are unrelated.
-
-There are implicit coercions from value objects to boxed value
-objects (\Sref{XtenConversions}).
-
-% The type \xcd"Box[T]" is a subtype of \xcd"T".
-
-The \xcd"to" expression may be used to convert to and from a
-boxed type:
-
-\begin{xten}
-val x = new Box[Int](0); // box using constructor call
-val y = x to Int;        // unbox using to-operation
-val z = y to Box;        // box using to-operation
-\end{xten}
-
-Assignment of a value type \xcd"T" into a variable of compatible reference type
-(either \xcd"Box[T]", \xcd"Ref", \xcd"Object", or an interface that is
-implemented by \xcd"T")
-automatically boxes the value.  Assignment of a boxed type
-\xcd"Box[T]" into
-a variable of value type \xcd"T" automatically unboxes the value.
-
-\eat{
-Access to a field of a value of boxed type
-automatically unboxes the value and accesses the field
-of the unboxed value; that is, if \xcd"x: Box[T]",
-then \xcd"x.f" is equivalent to \xcd"(x to T).f".
-
-A method invocation on a value of boxed type
-automatically unboxes the value and 
-invokes the method on the unboxed value; that is, if \xcd"x: Box[T]",
-then \xcd"x.m()" is equivalent to \xcd"(x to T).m()".
-}
-
-
 \section{Annotated types}
 \label{AnnotatedTypes}
 
@@ -1392,7 +1330,7 @@ Binary and unary operations produce new instances of these
 classes.
 
 Values of one numeric class may be coerced into values of
-another value class via the \xcd"to" operation.
+another numeric class via the \xcd"as" operation.
 
 \futureext{
 \Xten{} may provide mechanisms in the future to permit the programmer

@@ -1,14 +1,14 @@
 \chapter{Clocks}\label{XtenClocks}\index{clocks}
 
-The standard library for \Xten{}, \xcd"x10.lang" defines a
-final value class", \xcd"Clock" intended for repeated quiescence detection
+The standard library for \Xten{}, \xcd"x10.lang", defines a
+final value class \xcd"Clock" intended for repeated quiescence detection
 of arbitrary, data-dependent collection of activities. Clocks are a
 generalization of {\em barriers}. They permit dynamically created
 activities to register and deregister. An activity may be registered
 with multiple clocks at the same time. In particular, nested clocks
 are permitted: an activity may create a nested clock and within one
 phase of the outer clock schedule activities to run to completion on
-the nested clock.  Nevertheless the design of clocks ensures that
+the nested clock.  Nevertheless, the design of clocks ensures that
 deadlock cannot be introduced by using clock operations, and that
 clock operations do not introduce any races.
 
@@ -77,17 +77,22 @@ clocks (e.g. \xcd"drop").
 Clocks are created using the nullary constructor for \xcd"x10.lang.Clock":
 
 \begin{xten}
-timeSynchronizer: Clock = new Clock();
+timeSynchronizer: Clock = Clock.make();
 \end{xten}
 
+\eat{
 All clocked variables are implicitly final. The initializer for a
 local variable declaration of type \xcd"Clock" must be a new clock
 expression. Thus \Xten{} does not permit aliasing of clocks.
+}
 Clocks are created in the place global heap and hence outlive the
 lifetime of the creating activity.  Clocks are instances of value
 classes, hence may be freely copied from place to
-place. (Clock instances typically contain references to mutable state
+place.
+\eat{
+(Clock instances typically contain references to mutable state
 that maintains the current state of the clock.)
+}
 
 The current activity is automatically registered with the newly
 created clock.  It may deregister using the \xcd"drop" method on

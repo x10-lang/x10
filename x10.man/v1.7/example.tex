@@ -15,7 +15,7 @@ public class Jacobi {
    const EXPECTED_ITERS: int  = 97;
    const double EXPECTED_ERR: double = 0.0018673382039402497;
      
-   val B: Array[double](D) = new Array[double](D,
+   val B: Array[double](D) = Array.make[double](D,
         (p(i,j): point) => DBoundary.contains(p) ? (N-1)/2 : N*(i-1)+(j-1));
     
    public def run(): boolean {

@@ -1,15 +1,12 @@
 \chapter{Arrays}\label{XtenArrays}\index{arrays}
 
-An array is a mapping from a distribution to a range data
-type. Multiple arrays may be declared with the same underlying
-distribution. 
-
-Each array has a field \xcd"a.dist" which may be used to
-obtain the underlying
-distribution.\index{arrays!distribution@{\tt distribution}}
-
+An array is a mapping from a region (set of points) to a range data
+type distributed over one or more places.
+Multiple arrays may be declared with the same underlying
+distribution.
 The distribution underlying an array \xcd"a" may be obtained through
 the field \xcd"a.dist".
+\index{arrays!distribution@{\tt distribution}}
 
 \section{Points}\label{point-syntax}\index{point syntax}
 
@@ -38,15 +35,17 @@ p: Point = new Point([1,2]);
 
 Points implement the function type \xcd"(Int) => Int"; thus, the
 \xcd"i"the element of a point \xcd"p" may be accessed as \xcd"p(i)".
+If \xcd"i" is out of range, an
+\xcd"ArrayIndexOutOfBoundsException" is thrown.
 
 \input{XtenRegions}
 \input{XtenDistributions}
 \section{Array initializer}\label{ArrayInitializer}\label{array!creation}
 
-Arrays are instantiated by invoking the constructor for the
-classes
-\xcd"Array" or \xcd"ValArray".
+Arrays are instantiated by invoking a factory method for the
+class \xcd"Array".
 
+\eat{
 An array instantiation may be annotated
 \xcd"unsafe"
 if it is intended to be
@@ -55,6 +54,7 @@ code). A value array is an immutable array. An array creation
 must take either an \xcd"Int" as an argument or a \xcd"Dist". In the first
 case an array is created over the distribution \xcd"[0:N-1]->here";
 in the second over the given distribution. 
+}
 
 An array creation operation may also specify an initializer
 function.
@@ -67,17 +67,17 @@ distribution).
 For instance:
 \begin{xten}
 val data : Array[Int]
-    = new Array[Int](1000->here, Point(i) => i);
+    = Array.make[Int](1000->here, Point(i) => i);
 val data2 : Array[Int]
-    = new ValArray[Int]([1:1000,1:1000]->here, Point(i,j) => i*j);
+    = Array.make[Int]([1:1000,1:1000]->here, Point(i,j) => i*j);
 \end{xten}
 
 {}\noindent 
-The first declaration stores in \xcd"data" a reference to a mutable
+The first declaration stores in \xcd"data" a reference to a
 array with \xcd"1000" elements each of which is located in the
 same place as the array. Each array component is initialized to \xcd"i".
 
-The second declaration stores in \xcd"data2" an (immutable)
+The second declaration stores in \xcd"data2" a
 2-d array over \xcd"[1:1000, 1:1000]" initialized with \xcd"i*j"
 at point \xcd"[i,j]". It uses a more abbreviated form to specify 
 the array initializer function.
@@ -85,11 +85,11 @@ the array initializer function.
 Other examples:
 \begin{xten}
 val data : Array[Int]
-    = new Array[Int](1000) ((i): Point => i*i);
+    = Array.make[Int](1000, ((i): Point) => i*i);
 val d : Array[Float](D)
-   = new Array[Float](D) ((i): point) => 10.0*i);
+    = Array.make[Float](D, ((i): Point) => 10.0*i);
 val result : Array[Float](D)
-   = new Array[Float](D) ((i,j): point) => i+j);
+    = Array.make[Float](D, ((i,j): Point) => i+j);
 \end{xten}
 
 \section{Operations on arrays}
@@ -115,7 +115,7 @@ sites hosting \xcd"D".
 \subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
 
 For a distribution \xcd"D" and a constant or final variable \xcd"v" of
-type \xcd"T" the expression \xcd"new Array[T](D, (p: Point) => v)"
+type \xcd"T" the expression \xcd"Array.make[T](D, (p: Point) => v)"
 denotes the mutable array with
 distribution \xcd"D" and base type \xcd"T" initialized with \xcd"v"
 at every point.

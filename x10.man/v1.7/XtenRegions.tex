@@ -1,18 +1,11 @@
 \section{Regions}\label{XtenRegions}\index{region}
 
-A region is a set of points.  {}\Xten{}
+A region is a set of points all having a common rank.  {}\Xten{}
 provides a built-in value class, \xcd"x10.lang.Region", to allow the
-creation of new regions and to perform operations on regions. This
-class is {\tt final} in {}\XtenCurrVer; future versions of the
-language may permit user-definable regions.
-% Since regions play a dual
-% role (values as well as types), variables of type \xcd"Region" must be
-% initialized and are implicitly final.
-Regions are first-class
-objects---they may be stored in fields of objects, passed as
-arguments to methods, returned from methods etc.
-
-
+creation of new regions and to perform operations on regions.
+%This
+%class is {\tt final} in {}\XtenCurrVer; future versions of the
+%language may permit user-definable regions.
 
 Each region \xcd"R" has a constant rank, \xcd"R.rank", which is a
 non-negative integer. The literal \xcd"[]" represents the {\em empty
@@ -40,7 +33,8 @@ If \xcdmath"a$_1$"
 is greater than \xcdmath"a$_2$", the region is empty.
 
 A region may be constructed by converting from a rail of
-regions or a rail of points, typically using a rail constructor
+regions or from a rail of points.  Regions are typically 
+initialized using the rail constructor syntax
 (\Sref{RailConstructors})
 (e.g., \xcd"R4" above).
 The region constructed from a rail of points represents the
@@ -48,7 +42,7 @@ region containing just those points.
 The region constructed from a rail of regions
 represents
 the Cartesian product of each of the arguments.
-\XtenCurrVer{} does not support hierarchical regions.
+%\XtenCurrVer{} does not support hierarchical regions.
 
 \index{region!upperTriangular}
 \index{region!lowerTriangular}\index{region!banded}
