@@ -212,7 +212,7 @@ public abstract value class Dist(
      *       ... p ...
      */
 
-    public def iterator(): Iterator[Point{rank==region.rank}] = region.iterator() as Iterator[Point{rank==region.rank}];
+    public def iterator(): Iterator[Point{self.rank==region.rank}] = region.iterator() as Iterator[Point{self.rank==region.rank}];
 
 
     //
