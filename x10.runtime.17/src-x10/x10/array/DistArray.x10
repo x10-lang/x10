@@ -31,25 +31,25 @@ final value class DistArray[T] extends BaseArray[T] {
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public def apply(i0: int): T {
+    final public safe def apply(i0: int): T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         return raw()(layout().offset(i0));
     }
 
-    final public def apply(i0: int, i1: int): T {
+    final public safe def apply(i0: int, i1: int): T {
         if (checkPlace) checkPlace(i0, i1);
         if (checkBounds) checkBounds(i0, i1);
         return raw()(layout().offset(i0,i1));
     }
 
-    final public def apply(i0: int, i1: int, i2: int): T {
+    final public safe def apply(i0: int, i1: int, i2: int): T {
         if (checkPlace) checkPlace(i0, i1, i2);
         if (checkBounds) checkBounds(i0, i1, i2);
         return raw()(layout().offset(i0,i1,i2));
     }
 
-    final public def apply(i0: int, i1: int, i2: int, i3: int): T {
+    final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
         if (checkPlace) checkPlace(i0, i1, i2, i3);
         if (checkBounds) checkBounds(i0, i1, i2, i3);
         return raw()(layout().offset(i0,i1,i2,i3));
@@ -61,28 +61,28 @@ final value class DistArray[T] extends BaseArray[T] {
     // XXX but ref to here and rail accesses make this not so high performance
     //
 
-    final public def set(v: T, i0: int): T {
+    final public safe def set(v: T, i0: int): T {
         if (checkPlace) checkPlace(i0);
         if (checkBounds) checkBounds(i0);
         raw()(layout().offset(i0)) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int): T {
+    final public safe def set(v: T, i0: int, i1: int): T {
         if (checkPlace) checkPlace(i0, i1);
         if (checkBounds) checkBounds(i0, i1);
         raw()(layout().offset(i0,i1)) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int): T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int): T {
         if (checkPlace) checkPlace(i0, i1, i2);
         if (checkBounds) checkBounds(i0, i1, i2);
         raw()(layout().offset(i0,i1,i2)) = v;
         return v;
     }
 
-    final public def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
+    final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         if (checkPlace) checkPlace(i0, i1, i2, i3);
         if (checkBounds) checkBounds(i0, i1, i2, i3);
         raw()(layout().offset(i0,i1,i2,i3)) = v;
@@ -123,7 +123,7 @@ final value class DistArray[T] extends BaseArray[T] {
      * restriction view
      */
 
-    public def restriction(d: Dist) {
+    public safe def restriction(d: Dist) {
         if (d.constant)
             return new LocalArray[T](this, d as Dist{constant});
         else
