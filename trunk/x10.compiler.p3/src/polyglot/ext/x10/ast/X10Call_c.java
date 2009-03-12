@@ -36,11 +36,14 @@ import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -329,9 +332,12 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		    try {
 		        if (name == Name.make("equals") && argTypes.size() == 1 && typeArgs.size() == 0 && xts.isParameterType(targetType) && xts.isParameterType(argTypes.get(0))) {
 		            // Check that both equals(Ref) and equals(Value) are present
-		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value())), currentClassDef);
-		            mi = null;
 		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Ref())), currentClassDef);
+		            mi = null;
+		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value())), currentClassDef);
+		            mi = (X10MethodInstance) mi.formalTypes(Collections.singletonList(targetType));
+		            LocalInstance d = mi.formalNames().get(0);
+		            mi = (X10MethodInstance) mi.formalNames(Collections.singletonList(d.type(targetType)));
 		            args = n.arguments;
 		        }
 		    }
