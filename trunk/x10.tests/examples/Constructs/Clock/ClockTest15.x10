@@ -80,7 +80,7 @@ public class ClockTest15 extends x10Test {
 				next;
 				var tmp: int;
 				atomic tmp = x;
-				Console.OUT.println("A1 advanced, x = "+tmp);
+				x10.io.Console.OUT.println("A1 advanced, x = "+tmp);
 				chk (tmp == 2);
 				next;
 			}
@@ -89,7 +89,7 @@ public class ClockTest15 extends x10Test {
 				next;
 				var tmp: int;
 				atomic tmp = x;
-				Console.OUT.println("A2 advanced, x = "+tmp);
+				x10.io.Console.OUT.println("A2 advanced, x = "+tmp);
 				chk (tmp == 3);
 				next;
 			}
@@ -99,7 +99,7 @@ public class ClockTest15 extends x10Test {
 				next;
 				var tmp: int;
 				atomic tmp = x;
-				Console.OUT.println("A3 advanced, x = "+tmp);
+				x10.io.Console.OUT.println("A3 advanced, x = "+tmp);
 				chk (tmp == 3);
 				next;
 			}

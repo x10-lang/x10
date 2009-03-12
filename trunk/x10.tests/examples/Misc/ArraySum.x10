@@ -35,22 +35,22 @@ public class ArraySum {
         if (args.length >=1)
             size = Int.parseInt(args(0));
 
-        Console.OUT.println("initializing");
+        x10.io.Console.OUT.println("initializing");
         var a: ArraySum = new ArraySum(size);
         val numThreads = [1,2,4];
 
         //warmup loop
-        Console.OUT.println("doing warmup");
+        x10.io.Console.OUT.println("doing warmup");
         for (var i: int = 0; i < numThreads.length; i++) 
             a.sum(numThreads(i));
         
         for (var i: int = 0; i < numThreads.length; i++) {
-            Console.OUT.println("starting with " + i + " threads");
+            x10.io.Console.OUT.println("starting with " + i + " threads");
             a.sum=0;
             var time: long = - System.nanoTime();
             a.sum(numThreads(i));
             time += System.nanoTime();
-            Console.OUT.println("For p=" + numThreads(i) 
+            x10.io.Console.OUT.println("For p=" + numThreads(i) 
                     + " result: " + a.sum 
                     + ((size==a.sum)? " ok" : "  bad") 
                     + " (time=" + (time/(1000*1000)) + " ms)");

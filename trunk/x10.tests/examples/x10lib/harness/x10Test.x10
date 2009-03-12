@@ -84,5 +84,5 @@ abstract public class x10Test {
         return lb + myRand.nextInt(ub-lb+1);
     }
 
-    protected static def println(s:String) = Console.OUT.println(s);
+    protected static def println(s:String) = x10.io.Console.OUT.println(s);
 }

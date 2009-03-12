@@ -29,15 +29,15 @@ public class ClockFuture extends x10Test {
     public def run(): boolean = {
 	c: Clock = Clock.make();
 	var f: Future[int] = future (here) { m() };
-	Console.OUT.print("1 ... ");
+	x10.io.Console.OUT.print("1 ... ");
 	// this next should not wait on the future
 	next;
-	Console.OUT.print("2 ... ");
+	x10.io.Console.OUT.print("2 ... ");
 	atomic { clock_has_advanced = true; }
-	Console.OUT.print("3 ...");
+	x10.io.Console.OUT.print("3 ...");
 	var result: int = f.force();
 	chk(result == 42);
-	Console.OUT.println("4");
+	x10.io.Console.OUT.println("4");
 	return true;
     }
 

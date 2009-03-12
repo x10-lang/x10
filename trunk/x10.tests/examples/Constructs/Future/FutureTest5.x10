@@ -43,7 +43,7 @@ public class FutureTest5 extends x10Test {
 		var t2: Future[Int];
 		when (fut != null) { t2 = fut as Future[Int]; }
 		var fortytwo: int = t2.force();
-		Console.OUT.println("up done");
+		x10.io.Console.OUT.println("up done");
 		return fortytwo == 42;
 	}
 
@@ -54,7 +54,7 @@ public class FutureTest5 extends x10Test {
 		val fut_l = future (here) { 42 } ;
 		finish async (here) {
 			var fortytwo: int = fut_l.force();
-			Console.OUT.println("down done");
+			x10.io.Console.OUT.println("down done");
 		};
 		return true;
 	}
@@ -74,7 +74,7 @@ public class FutureTest5 extends x10Test {
 			var t2: Future[Int];
 			when (fut != null) { t2 = fut as Future[Int]; }
 			var fortytwo: int = t2.force();
-			Console.OUT.println("sibling done");
+			x10.io.Console.OUT.println("sibling done");
 		};
 		return true;
 	}

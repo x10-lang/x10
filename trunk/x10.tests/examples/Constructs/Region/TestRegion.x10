@@ -26,7 +26,7 @@ abstract public class TestRegion extends x10Test {
             out = new Printer(os);
         } catch (e:Exception) {
             //e.printStackTrace();
-            Console.OUT.println(e.toString());
+            x10.io.Console.OUT.println(e.toString());
         }
     }
 
@@ -37,9 +37,9 @@ abstract public class TestRegion extends x10Test {
         if (got.equals(expected())) {
             return true;
         } else {
-            Console.OUT.println("=== got:\n" + got);
-            Console.OUT.println("=== expected:\n" + expected());
-            Console.OUT.println("=== ");
+            x10.io.Console.OUT.println("=== got:\n" + got);
+            x10.io.Console.OUT.println("=== expected:\n" + expected());
+            x10.io.Console.OUT.println("=== ");
             return false;
         }
     }

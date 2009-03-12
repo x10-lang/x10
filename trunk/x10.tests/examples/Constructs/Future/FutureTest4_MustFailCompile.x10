@@ -34,7 +34,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 			//=== >compiler error: i, s not final
 			x += (future(A.dist([i, s%N] as Point)) { A(i, s%N) }).force();
 		}
-		Console.OUT.println("x = "+x);
+		x10.io.Console.OUT.println("x = "+x);
 		if (x != 252) return false;
 		x = 0;
 		s = 0;
@@ -45,7 +45,7 @@ public class FutureTest4_MustFailCompile extends x10Test {
 				x += (future(A.dist([I, S%N] as Point)) A(I, S%N) ).force();
 			
 		}
-		Console.OUT.println("x = "+x);
+		x10.io.Console.OUT.println("x = "+x);
 		return (x == 252);
 	}
 

@@ -17,9 +17,9 @@ public class FutureForce extends x10Test {
 	var foo: Int;
 
 	public def bar(): Int = {
-		Console.OUT.print("waiting ...");
+		x10.io.Console.OUT.print("waiting ...");
 		x10.lang.Runtime.sleep(2000);
-		Console.OUT.println("done.");
+		x10.io.Console.OUT.println("done.");
 		atomic flag = true;
 		return 42;
 	}
@@ -35,7 +35,7 @@ public class FutureForce extends x10Test {
 		r1();
 		var b: Boolean;
 		atomic b = flag;
-		Console.OUT.println("The flag is b=" + b + " (should be true).");
+		x10.io.Console.OUT.println("The flag is b=" + b + " (should be true).");
 		return (b == true);
 	}
 

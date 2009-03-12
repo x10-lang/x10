@@ -65,7 +65,7 @@ public class FutureTest3 extends x10Test {
 
 		// (need atomic here if there is sharing. x10 should support atomic { expression } )
 		var r1: int = (future (here) {A(K) += 1}).force();
-		Console.OUT.println("1");
+		x10.io.Console.OUT.println("1");
 		atomic chk(A(K) == 1);
 		chk(r1 == 1);
 
@@ -77,7 +77,7 @@ public class FutureTest3 extends x10Test {
 		} catch (var e: ArrayIndexOutOfBoundsException) {
 			gotException = true;
 		}
-		Console.OUT.println("2");
+		x10.io.Console.OUT.println("2");
 		chk(r2 == -1 && gotException);
 
 		//subactivities of e must be finished
@@ -89,10 +89,10 @@ public class FutureTest3 extends x10Test {
 		} catch (var e: Throwable) {
 			gotException = true;
 		}
-		Console.OUT.println("3");
+		x10.io.Console.OUT.println("3");
 		chk(r3 == 1 && !gotException);
 		// must read new values of A here
-		for (val (i): Point in A) Console.OUT.println("A["+i+"] = "+A(i));
+		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		chk(A(K) == 2);
 		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 1));
 
@@ -105,17 +105,17 @@ public class FutureTest3 extends x10Test {
 		} catch (var e: Throwable) {
 			gotException = true;
 		}
-		Console.OUT.println("4" + gotException + " r4 = " + r4);
+		x10.io.Console.OUT.println("4" + gotException + " r4 = " + r4);
 		chk(r4 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): Point in A) Console.OUT.println("A["+i+"] = "+A(i));
+		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 3);
 		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
 
 		//Only force() throws the exception,
 		//a plain future call just spawns the expression
 		val fr5  = future(here) { m2(A, K) };
-		Console.OUT.println("5");
+		x10.io.Console.OUT.println("5");
 		// must read old values of A here
 		atomic chk(A(K) == 3);
 		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 2));
@@ -128,7 +128,7 @@ public class FutureTest3 extends x10Test {
 		}
 		chk(r5 ==-1 && gotException);
 		// must read new values of A here
-		for (val (i): Point in A) Console.OUT.println("A["+i+"] = "+A(i));
+		for (val (i): Point in A) x10.io.Console.OUT.println("A["+i+"] = "+A(i));
 		atomic chk(A(K) == 4);
 		for (val (i): Point in A) atomic chk(imp(i != K, A(i) == 3));
 

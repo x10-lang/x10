@@ -13,7 +13,7 @@ class XTENLANG_257 extends x10Test {
     
     public def run():boolean {
         val e = new E();
-        Console.OUT.println("e.location() " + e.location());
+        x10.io.Console.OUT.println("e.location() " + e.location());
         return true;
     }
 

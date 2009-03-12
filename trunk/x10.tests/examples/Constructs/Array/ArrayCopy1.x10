@@ -97,7 +97,7 @@ public class ArrayCopy1 extends x10Test {
 
         } catch (e:Error) {
             //e.printStackTrace();
-            Console.OUT.println(e.toString());
+            x10.io.Console.OUT.println(e.toString());
             return false;
         }
     }

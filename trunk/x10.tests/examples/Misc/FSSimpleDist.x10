@@ -33,7 +33,7 @@ public class FSSimpleDist {
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
 
-        Console.OUT.println("localSize=" + localSize);
+        x10.io.Console.OUT.println("localSize=" + localSize);
 
         finish {
 
@@ -80,9 +80,9 @@ public class FSSimpleDist {
     static def printStats(N:int, time:double, verified:boolean) {
         val size = (3*8*N/MEG);
         val rate = (3*8*N) / (1.0E9*time);
-        Console.OUT.println("Number of places=" + NUM_PLACES);
-        Console.OUT.println("Size of arrays: " + size +" MB (total)" + size/NUM_PLACES + " MB (per place)");
-        Console.OUT.println("Min time: " + time + " rate=" + rate + " GB/s");
-        Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
+        x10.io.Console.OUT.println("Number of places=" + NUM_PLACES);
+        x10.io.Console.OUT.println("Size of arrays: " + size +" MB (total)" + size/NUM_PLACES + " MB (per place)");
+        x10.io.Console.OUT.println("Min time: " + time + " rate=" + rate + " GB/s");
+        x10.io.Console.OUT.println("Result is " + (verified ? "verified." : "NOT verified."));
     }                                
 }

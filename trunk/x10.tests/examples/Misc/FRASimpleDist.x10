@@ -136,6 +136,6 @@ class FRASimpleDist {
 
     static def now() = Timer.nanoTime() * 1e-9D;
 
-    static def println(s:String) = Console.OUT.println(s);
+    static def println(s:String) = x10.io.Console.OUT.println(s);
 
 }

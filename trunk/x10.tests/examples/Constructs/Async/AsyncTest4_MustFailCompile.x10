@@ -20,7 +20,7 @@ public class AsyncTest4_MustFailCompile extends x10Test {
 		var s: int = 0;
 		for (var i: int = 0; i < N; i++) {
 			//==> compiler error expected here
-			finish async(here) Console.OUT.println("s="+s+" i="+i);
+			finish async(here) x10.io.Console.OUT.println("s="+s+" i="+i);
 			s += i;
 		}
 		// no compiler error here
@@ -29,14 +29,14 @@ public class AsyncTest4_MustFailCompile extends x10Test {
 			{
 				val i1: int = i;
 				val s1: int = s;
-				finish async(here) Console.OUT.println("s1="+s1+" i1="+i1);
+				finish async(here) x10.io.Console.OUT.println("s1="+s1+" i1="+i1);
 			}
 			s += i;
 		}
 		val y: int;
 		//==> Compiler error expected here
 		finish async(here) { async(here) y = 3; }
-		Console.OUT.println("y="+y);
+		x10.io.Console.OUT.println("y="+y);
 		return true;
 	}
 

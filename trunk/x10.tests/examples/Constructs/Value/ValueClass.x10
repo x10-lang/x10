@@ -26,26 +26,26 @@ public class ValueClass extends x10Test {
 		var y: myval = new myval(1, new complex(2,3), f, Array.make[int](d));
 		// even if x and y are different objects
 		// their fields are equal, and thus they are ==
-		Console.OUT.println("1");
+		x10.io.Console.OUT.println("1");
 		if (x != y) return false;
 		val one: complex = new complex(1,1);
 		val minusone: complex = new complex(-1,-1);
 		val t: complex = x.cval.add(one).add(minusone);
 		y = new myval(x.intval, t, x.refval, x.arrayval);
 		// x and y are still equal
-		Console.OUT.println("2");
+		x10.io.Console.OUT.println("2");
 		if (x != y) return false;
 		// objects with different values are not equal
 		y = new myval(2, new complex(6,3), f, x.arrayval);
-		Console.OUT.println("3");
+		x10.io.Console.OUT.println("3");
 		if (x == y) return false;
 		y = x;
 		x.refval.w++;
 		// ensure foo is treated as a reference object
 		// so both x and y see the update
-		Console.OUT.println("4");
+		x10.io.Console.OUT.println("4");
 		if (y.refval.w != x.refval.w) return false;
-		Console.OUT.println("5");
+		x10.io.Console.OUT.println("5");
 		if (y.refval.w != 20) return false;
 		val P0: Place = here;
 		// the "place" of a value class instance is here
@@ -55,7 +55,7 @@ public class ValueClass extends x10Test {
 				(here != P0) ? -1 : y0.intval
 			)).force();
 		}
-		Console.OUT.println("6");
+		x10.io.Console.OUT.println("6");
 		return n != -1;
 	}
 

@@ -36,7 +36,7 @@ public class AsyncTest3 extends x10Test {
 		
 			finish async(here) { A(1) += 1; }
 			A(1) += 1; //  remote communication
-			Console.OUT.println("1");
+			x10.io.Console.OUT.println("1");
 			
 		finish async(here) { A(x.zero()) += 1; }
 		A(x.zero()) += 1;
@@ -45,11 +45,11 @@ public class AsyncTest3 extends x10Test {
 		
 			finish async(here) { A(0) += A(x.one()); }
 			A(0) += A(x.one());//  remote communication
-			Console.OUT.println("2");
+			x10.io.Console.OUT.println("2");
 		
 
 			chk(A(0) == 8 && A(1) == 2);
-			Console.OUT.println("3");
+			x10.io.Console.OUT.println("3");
 		
 
 		return true;

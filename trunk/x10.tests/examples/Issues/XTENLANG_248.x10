@@ -13,12 +13,12 @@ class XTENLANG_248 extends x10Test {
     
         val r = (0..2) - (1..1);
     
-        Console.OUT.println("r " + r);
-        Console.OUT.println("rect " + r.rect);
+        x10.io.Console.OUT.println("r " + r);
+        x10.io.Console.OUT.println("rect " + r.rect);
     
-        Console.OUT.print("indexes: ");
+        x10.io.Console.OUT.print("indexes: ");
         for (val (i): Point in r) {
-            Console.OUT.print(i + " ");
+            x10.io.Console.OUT.print(i + " ");
             if (i==1) return false;
         }
         return true;

@@ -35,7 +35,7 @@ public class ClockTest11 extends x10Test {
 			val c = Clock.make();
 			val d = Clock.make();
 			async clocked(d) {
-			    async clocked(c) { Console.OUT.println("hello"); }
+			    async clocked(c) { x10.io.Console.OUT.println("hello"); }
 			}
 		    }
 		    return false;

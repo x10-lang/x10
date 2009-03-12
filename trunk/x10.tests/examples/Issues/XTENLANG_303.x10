@@ -13,7 +13,7 @@ class XTENLANG_303 extends x10Test {
         try {
             throw new Exception("hi");
         } catch (e: Exception) {
-            Console.OUT.println("e: " + e);
+            x10.io.Console.OUT.println("e: " + e);
         }
         return true;
     }

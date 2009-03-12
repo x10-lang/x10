@@ -41,7 +41,7 @@ public class IntArrayIndexing extends x10Test {
 		_intArray3D = Array.make[int](dist.factory.constant(range3D,here));
 		_intArray4D = Array.make[int](dist.factory.constant(range4D,here));
 		var stop: long = System.currentTimeMillis();
-		Console.OUT.println("int arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
+		x10.io.Console.OUT.println("int arrays allocated in "+(((stop-start) as double)/1000)+ "seconds");
 	}
 
 	def verify3D(var array: Array[int]): boolean {
@@ -58,11 +58,11 @@ public class IntArrayIndexing extends x10Test {
 		for (var i: int = l1; i <= h1; ++i)
 			for (var j: int = l2; j <= h2; ++j)
 				for (var k: int = l3; k <= h3; ++k) {
-					//Console.OUT.println("value is:"+array[i,j,k]);
+					//x10.io.Console.OUT.println("value is:"+array[i,j,k]);
 					array(i, j, k) = array(i, j, k);
-					if (verbose) Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
+					if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+"] = "+count);
 					if ( array(i, j, k) != count) {
-						Console.OUT.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+count);
+						x10.io.Console.OUT.println("failed a["+i+","+j+","+k+"] ("+array(i, j, k)+") != "+count);
 						return false;
 					}
 					++count;
@@ -84,9 +84,9 @@ public class IntArrayIndexing extends x10Test {
 				for (var k: int = l3; k <= h3; ++k)
 					for (var l: int = l4; l <= h4; ++l) {
 						array(i, j, k, l) = array(i, j, k, l); // ensure set works as well
-						if (verbose) Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
+						if (verbose) x10.io.Console.OUT.println("a["+i+","+j+","+k+","+l+"] = "+count);
 						if ( array(i, j, k, l) != count) {
-							Console.OUT.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+count);
+							x10.io.Console.OUT.println("failed a["+i+","+j+","+k+","+l+"] ("+array(i, j, k, l)+") != "+count);
 							return false;
 						}
 						++count;
@@ -99,18 +99,18 @@ public class IntArrayIndexing extends x10Test {
 		var count: int = 0;
 		for (val p: Point in array.dist.region) {
 			array(p) = count++;
-			if (verbose) Console.OUT.println("init:"+p+" = "+count);
+			if (verbose) x10.io.Console.OUT.println("init:"+p+" = "+count);
 		}
 	}
 
 	def runIntTests(var repeatCount: int): boolean {
-		Console.OUT.println("Testing Ints...");
+		x10.io.Console.OUT.println("Testing Ints...");
 		var start: long = System.currentTimeMillis();
 		initialize(_intArray3D);
 		while (repeatCount-- > 0)
 			if (!verify3D(_intArray3D)) return false;
 
-		Console.OUT.println("Testing of 3D int arrays took "+(((System.currentTimeMillis()-start) as double)/1000));
+		x10.io.Console.OUT.println("Testing of 3D int arrays took "+(((System.currentTimeMillis()-start) as double)/1000));
 		initialize(_intArray4D);
 		if (false) {
 			while (repeatCount-- > 0)
@@ -118,7 +118,7 @@ public class IntArrayIndexing extends x10Test {
 		}
 
 		var stop: long = System.currentTimeMillis();
-		Console.OUT.println("Testing of int arrays took "+(((stop-start) as double)/1000));
+		x10.io.Console.OUT.println("Testing of int arrays took "+(((stop-start) as double)/1000));
 		return true;
 	}
 

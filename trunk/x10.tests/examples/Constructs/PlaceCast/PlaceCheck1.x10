@@ -13,10 +13,10 @@ public class PlaceCheck1 extends x10Test {
 
 	public def run(): boolean = {
 		var ret: boolean;
-		Console.OUT.println("num places = " + Place.MAX_PLACES);
+		x10.io.Console.OUT.println("num places = " + Place.MAX_PLACES);
 		// this test only works with > 1 place
 		if (Place.places.size() <= 1) {
-			Console.OUT.println("This test requires at least 2 places.");
+			x10.io.Console.OUT.println("This test requires at least 2 places.");
 			ret = false;
 		} else {
 			ret = checkFieldAccess();
@@ -50,17 +50,17 @@ public class PlaceCheck1 extends x10Test {
 		try {
 			val obj_here: PlaceCheck1 = new PlaceCheck1();
 			obj_here.foo = 123;
-			// Console.OUT.println("DEBUG - creating object in place p = " + here);
+			// x10.io.Console.OUT.println("DEBUG - creating object in place p = " + here);
 			var other_place: Place = getNotHere();
 			finish async (other_place) {
 				var xxx: int;
 				atomic { xxx = obj_here.foo; }
 				if (xxx != 123)
-					Console.OUT.println(xxx);
+					x10.io.Console.OUT.println(xxx);
 			};
-			Console.OUT.println("WARN - expected exception/error for remote field read in atomic");
+			x10.io.Console.OUT.println("WARN - expected exception/error for remote field read in atomic");
 		} catch (e: BadPlaceException) {
-			Console.OUT.println("OK - got BadPlaceException in field access");
+			x10.io.Console.OUT.println("OK - got BadPlaceException in field access");
 			ret = true;
 		}
 		return ret;
@@ -74,9 +74,9 @@ public class PlaceCheck1 extends x10Test {
 			finish async (other_place) {
 				atomic { obj_here.foo = 123; }
 			};
-			Console.OUT.println("WARN - expected exception/error for remote field write in atomic");
+			x10.io.Console.OUT.println("WARN - expected exception/error for remote field write in atomic");
 		} catch (e: BadPlaceException) {
-			Console.OUT.println("OK - got BadPlaceException for in field assign");
+			x10.io.Console.OUT.println("OK - got BadPlaceException for in field assign");
 			ret = true;
 		}
 		return ret;
@@ -90,9 +90,9 @@ public class PlaceCheck1 extends x10Test {
 			finish async (other_place) {
 				atomic { obj_here.foo_method(); }
 			};
-			Console.OUT.println("WARN - expected exception/error for remote method call in atomic");
+			x10.io.Console.OUT.println("WARN - expected exception/error for remote method call in atomic");
 		} catch (e: BadPlaceException) {
-			Console.OUT.println("OK - got BadPlaceException for method call");
+			x10.io.Console.OUT.println("OK - got BadPlaceException for method call");
 			ret = true;
 		}
 		return ret;
@@ -105,9 +105,9 @@ public class PlaceCheck1 extends x10Test {
 		try {
 			var other_place: Place = getNotHere();
 			atomic { arr(other_place.id) = 123; }
-			Console.OUT.println("WARN - expected exception/error for remote array element write in atomic");
+			x10.io.Console.OUT.println("WARN - expected exception/error for remote array element write in atomic");
 		} catch (var e: BadPlaceException) {
-			Console.OUT.println("OK - got BadPlaceException in array access");
+			x10.io.Console.OUT.println("OK - got BadPlaceException in array access");
 			ret = true;
 		}
 		return ret;
@@ -122,10 +122,10 @@ public class PlaceCheck1 extends x10Test {
 			var xxx: int;
 			atomic { xxx = arr(other_place.id);}
 			if (xxx != 123)
-				Console.OUT.println(xxx);
-			Console.OUT.println("WARN - expected exception/error for remote array element read in atomic");
+				x10.io.Console.OUT.println(xxx);
+			x10.io.Console.OUT.println("WARN - expected exception/error for remote array element read in atomic");
 		} catch (var e: BadPlaceException) {
-			Console.OUT.println("OK - got BadPlaceException in array access");
+			x10.io.Console.OUT.println("OK - got BadPlaceException in array access");
 			ret = true;
 		}
 		return ret;

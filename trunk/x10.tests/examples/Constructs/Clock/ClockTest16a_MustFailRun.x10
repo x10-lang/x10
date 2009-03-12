@@ -91,12 +91,12 @@ public class ClockTest16a_MustFailRun extends x10Test {
 			// must have a compiler error
 			Y.test(fooArray(x.one()));
 
-			Console.OUT.println("point #1");
+			x10.io.Console.OUT.println("point #1");
 			// Compiler: MAYBE, actual: YES
 			// must have a compiler error
 			Y.test(fooArray(x.zero()));
 
-			Console.OUT.println("point #2");
+			x10.io.Console.OUT.println("point #2");
 			// Compiler: MAYBE, actual: YES
 			// must have a compiler error
 			{
@@ -106,7 +106,7 @@ public class ClockTest16a_MustFailRun extends x10Test {
 				}
 			}
 
-			Console.OUT.println("point #3");
+			x10.io.Console.OUT.println("point #3");
 			// Compiler: YES, actual: YES
 			// must have a compiler error
 			{
