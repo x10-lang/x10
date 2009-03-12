@@ -20,13 +20,13 @@ class XTENLANG_38 extends x10Test {
         // the bug as originally reported was that this would output
         // the string "97" instead of the byte "a", but that's not
         // testable by our automated test scripts
-        //System.out.write(b);
+        //Console.OUT.write(b);
 
         // however we can reproduce the same bug in a testable way
         val os = new StringWriter();
         val ps = new Printer(os);
         try { ps.write(b); } catch (e:IOException) {}
-        System.out.println("got " + os.toString());
+        Console.OUT.println("got " + os.toString());
 
         return os.toString().equals("a");
     }

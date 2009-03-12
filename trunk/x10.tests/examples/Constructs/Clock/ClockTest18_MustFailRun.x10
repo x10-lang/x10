@@ -27,7 +27,7 @@ public class ClockTest18_MustFailRun extends x10Test {
 			public def apply(): void = {
 				/* Activity A3 */
 				async {
-					System.out.println("#A3: hello from A3");
+					Console.OUT.println("#A3: hello from A3");
 				}
 			}
 		};
@@ -36,27 +36,27 @@ public class ClockTest18_MustFailRun extends x10Test {
 			public def apply(): void = {
 				/*Activity A2*/
 				async clocked(c0) {
-					System.out.println("#A2 before resume");
+					Console.OUT.println("#A2 before resume");
 					c0.resume();
-					System.out.println("#A2 before next");
+					Console.OUT.println("#A2 before next");
 					next;
-					System.out.println("#A2 after next");
+					Console.OUT.println("#A2 after next");
 				}
 			}
 		};
 
 		var fooArray: Rail[foo] = [f0,f1];
-		System.out.println("#A0 before resume");
+		Console.OUT.println("#A0 before resume");
 		c0.resume();
-		System.out.println("#A0 before spawning A3");
+		Console.OUT.println("#A0 before spawning A3");
 		Y.test(fooArray(x.zero()));
-		System.out.println("#A0 before spawning A2");
+		Console.OUT.println("#A0 before spawning A2");
 		Y.test(fooArray(x.one()));
-		System.out.println("#A0 before spawning A1");
-		async clocked(c0) { System.out.println("#A1: hello from A1"); }
-		System.out.println("#A0 before next");
+		Console.OUT.println("#A0 before spawning A1");
+		async clocked(c0) { Console.OUT.println("#A1: hello from A1"); }
+		Console.OUT.println("#A0 before next");
 		next;
-		System.out.println("#A0 after next");
+		Console.OUT.println("#A0 after next");
 
 		return true;
 	}

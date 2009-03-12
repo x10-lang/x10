@@ -49,7 +49,7 @@ public class ClockTest8_MustFailRun extends x10Test {
 			//async clocked(ca[U.zero()])
 			val c4: Clock = ca(U.zero());
 			async clocked(c4) {
-				async clocked(c2) { System.out.println("hello"); }
+				async clocked(c2) { Console.OUT.println("hello"); }
 			}
 		}
 		return true;

@@ -20,24 +20,24 @@ public class RegionWithHoles2 extends x10Test {
         r = r - r1;
         r = r - r2;
 
-        System.out.println("r " + r);
-        System.out.println("r.boundingBox() " + r.boundingBox());
+        Console.OUT.println("r " + r);
+        Console.OUT.println("r.boundingBox() " + r.boundingBox());
 
         val a = Array.makeVal[short](r);
 
         // check if r is convex - it should not!
         var cv: boolean = r.isConvex();
-        System.out.println("convex: " + cv + " (should be false)");
+        Console.OUT.println("convex: " + cv + " (should be false)");
         chk(!cv);
 
-        System.out.print("indexes: ");
+        Console.OUT.print("indexes: ");
         for (val (i): Point in r) {
-            System.out.print(i + " ");
+            Console.OUT.print(i + " ");
         }
 
-        System.out.println();
+        Console.OUT.println();
         for (val (i): Point in r) {
-            System.out.println("val[" + i + "] = " + a(i));
+            Console.OUT.println("val[" + i + "] = " + a(i));
         }
 
         return true;

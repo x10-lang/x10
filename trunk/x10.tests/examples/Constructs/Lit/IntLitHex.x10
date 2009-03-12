@@ -16,7 +16,7 @@ import harness.x10Test;
 public class IntLitHex extends x10Test {
 
 	public def run(): boolean = {
-		System.out.println(0xABCABC);
+		Console.OUT.println(0xABCABC);
 		return true;
 	}
 

@@ -47,10 +47,10 @@ public class BlockCyclicDistWithPlaceSet extends x10Test {
 			val offsWithinPlace = Array.makeUnique[int](np);
 			var pn: int = 0;
 			var offsWithinBlock: int = 0;
-			//System.out.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" bSize = "+bSize);
+			//Console.OUT.println("lb1 = "+lb1+" ub1 = "+ub1+" lb2 = "+lb2+" ub2 = "+ub2+" totalPoints = "+totalPoints+" bSize = "+bSize);
 
 			for (val (i,j): Point(2) in R) {
-				//System.out.println("placeNum = "+placeNums[pn]+" offsWithinPlace[pn] = "+offsWithinPlace[pn]+" offsWithinBlock = "+offsWithinBlock+" i = "+i+" j = "+j+" DBlockCyclic[i,j] = "+DBlockCyclic[i,j].id);
+				//Console.OUT.println("placeNum = "+placeNums[pn]+" offsWithinPlace[pn] = "+offsWithinPlace[pn]+" offsWithinBlock = "+offsWithinBlock+" i = "+i+" j = "+j+" DBlockCyclic[i,j] = "+DBlockCyclic[i,j].id);
 				chk(DBlockCyclic(i, j) == P(placeNums(pn)));
 				offsWithinPlace(pn)++;
 				offsWithinBlock++;

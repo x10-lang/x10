@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_14 extends x10Test {
 
     static {
-        System.out.println("hi");
+        Console.OUT.println("hi");
     }
 
     public def run(): boolean {

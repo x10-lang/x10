@@ -26,7 +26,7 @@ public class AwaitTest extends x10Test {
 		await (val == 42);
 		var temp: int;
 		atomic temp = val;
-		System.out.println("temp = " + temp);
+		Console.OUT.println("temp = " + temp);
 		if (temp != 42)
 			return false;
 		atomic val = 0;
@@ -34,7 +34,7 @@ public class AwaitTest extends x10Test {
 		next;
 		var temp2: int;
 		atomic temp2 = val;
-		System.out.println("val = " + temp2);
+		Console.OUT.println("val = " + temp2);
 		return temp2 == 42;
 	}
 

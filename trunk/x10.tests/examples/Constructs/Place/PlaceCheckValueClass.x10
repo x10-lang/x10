@@ -25,7 +25,7 @@ public class PlaceCheckValueClass extends x10Test {
             try {
                 val a = c.p;
             } catch (e:BadPlaceException) {
-                System.out.println("01 fails");
+                Console.OUT.println("01 fails");
                 return false;
             }
             return true;
@@ -39,7 +39,7 @@ public class PlaceCheckValueClass extends x10Test {
             try {
                 val a = c.x;
             } catch (e:BadPlaceException) {
-                System.out.println("02 fails");
+                Console.OUT.println("02 fails");
                 return false;
             }
             return true;
@@ -53,7 +53,7 @@ public class PlaceCheckValueClass extends x10Test {
             try {
                 c.foo();
             } catch (e:BadPlaceException) {
-                System.out.println("04 fails");
+                Console.OUT.println("04 fails");
                 return false;
             }
             return true;
@@ -67,7 +67,7 @@ public class PlaceCheckValueClass extends x10Test {
             try {
                 c.foo(1);
             } catch (e:BadPlaceException) {
-                System.out.println("05 fails");
+                Console.OUT.println("05 fails");
                 return false;
             }
             return true;
@@ -82,7 +82,7 @@ public class PlaceCheckValueClass extends x10Test {
             try {
                 c.foo("1");
             } catch (e:BadPlaceException) {
-                System.out.println("06 fails");
+                Console.OUT.println("06 fails");
                 return false;
             }
             return true;

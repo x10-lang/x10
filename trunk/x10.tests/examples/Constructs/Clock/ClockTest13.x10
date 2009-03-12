@@ -97,17 +97,17 @@ public class ClockTest13 extends x10Test {
 
 	def taskA(val a: Clock): void = {
 		for (val (k): Point in 1..N) {
-			System.out.println(k+" A new phase");
+			Console.OUT.println(k+" A new phase");
 			atomic phaseA++;
-			System.out.println(k+" A resuming a");
+			Console.OUT.println(k+" A resuming a");
 			a.resume();
 			if (k <= M-chainLength) {
-				System.out.println(k+" Waiting for forward phase shift");
+				Console.OUT.println(k+" Waiting for forward phase shift");
 				when (phaseB == phaseA+1 &&
 						phaseC == phaseB+1 &&
 						phaseD == phaseC+1)
 				{
-					System.out.println(k+" Max forward phase shift reached");
+					Console.OUT.println(k+" Max forward phase shift reached");
 				}
 			}
 			next;
@@ -115,44 +115,44 @@ public class ClockTest13 extends x10Test {
 	}
 	def taskB(val a: Clock, val b: Clock): void = {
 		for (val (k): Point in 1..N) {
-			System.out.println(k+" B new phase");
+			Console.OUT.println(k+" B new phase");
 			atomic phaseB++;
-			System.out.println(k+" B resuming a");
+			Console.OUT.println(k+" B resuming a");
 			a.resume();
-			System.out.println(k+" B resuming b");
+			Console.OUT.println(k+" B resuming b");
 			b.resume();
-			System.out.println(k+" B before next");
+			Console.OUT.println(k+" B before next");
 			next;
 		}
 	}
 	def taskC(val b: Clock, val c: Clock): void = {
 		for (val (k): Point in 1..N) {
-			System.out.println(k+" C new phase");
+			Console.OUT.println(k+" C new phase");
 			atomic phaseC++;
-			System.out.println(k+" C resuming b");
+			Console.OUT.println(k+" C resuming b");
 			b.resume();
-			System.out.println(k+" C resuming c");
+			Console.OUT.println(k+" C resuming c");
 			c.resume();
-			System.out.println(k+" C before next");
+			Console.OUT.println(k+" C before next");
 			next;
 		}
 	}
 	def taskD(val c: Clock): void = {
 		for (val (k): Point in 1..N) {
-			System.out.println(k+" D new phase");
+			Console.OUT.println(k+" D new phase");
 			atomic phaseD++;
-			System.out.println(k+" D resuming c");
+			Console.OUT.println(k+" D resuming c");
 			c.resume();
 			if (k >= M && k <= N-chainLength) {
-				System.out.println(k+" Waiting for reverse phase shift");
+				Console.OUT.println(k+" Waiting for reverse phase shift");
 				when (phaseC == phaseD+1 &&
 						phaseB == phaseC+1 &&
 						phaseA == phaseB+1)
 				{
-					System.out.println(k+" Max reverse phase shift reached");
+					Console.OUT.println(k+" Max reverse phase shift reached");
 				}
 			}
-			System.out.println(k+" D before next");
+			Console.OUT.println(k+" D before next");
 			next;
 		}
 	}

@@ -22,7 +22,7 @@ class XTENLANG_198 extends x10Test {
     }
     
     public def run():boolean {
-        System.out.println("new B().x: " + (new B().x));
+        Console.OUT.println("new B().x: " + (new B().x));
         return new B().x.equals("B");
     }
 

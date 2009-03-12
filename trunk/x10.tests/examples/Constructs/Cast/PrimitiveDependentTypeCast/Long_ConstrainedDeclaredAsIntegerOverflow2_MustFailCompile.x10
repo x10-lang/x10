@@ -20,7 +20,7 @@ public class Long_ConstraintDeclaredAsIntegerOverFlow2_MustFailCompile extends x
 		var result: boolean = false;
 		val notAnInt: long = 2147493648L ;
 		val b: int{self == -2147473648} = notAnInt as int{self== -2147473648};
-		System.out.println("" + " bound=" + b
+		Console.OUT.println("" + " bound=" + b
 				+ " notAnInt=" + notAnInt);
 		try {
 		//  this time constraint is a long but value to assign is an overflowed integer

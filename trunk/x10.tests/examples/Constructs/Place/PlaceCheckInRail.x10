@@ -25,7 +25,7 @@ public class PlaceCheckInRail extends x10Test {
         } catch (BadPlaceException) {
             return true;
         }
-        System.out.println("01 fails");
+        Console.OUT.println("01 fails");
         return false;
     }
 
@@ -39,7 +39,7 @@ public class PlaceCheckInRail extends x10Test {
         } catch (BadPlaceException) {
             return true;
         }
-        System.out.println("01 fails");
+        Console.OUT.println("01 fails");
         return false;
     }
 
@@ -53,7 +53,7 @@ public class PlaceCheckInRail extends x10Test {
         } catch (BadPlaceException) {
             return true;
         }
-        System.out.println("01 fails");
+        Console.OUT.println("01 fails");
         return false;
     }
 
@@ -67,7 +67,7 @@ public class PlaceCheckInRail extends x10Test {
         } catch (BadPlaceException) {
             return true;
         }
-        System.out.println("01 fails");
+        Console.OUT.println("01 fails");
         return false;
     }
 

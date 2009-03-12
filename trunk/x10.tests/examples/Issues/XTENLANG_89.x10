@@ -13,7 +13,7 @@ class XTENLANG_89 extends x10Test {
     
     public def run(): boolean {
         val c = new C();
-        System.out.println("c " + c);
+        Console.OUT.println("c " + c);
         return true;
     }
 

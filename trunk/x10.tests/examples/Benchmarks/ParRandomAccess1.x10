@@ -102,7 +102,7 @@ class ParRandomAccess1 extends Benchmark {
                         errors++;
             }
             first = false;
-            System.out.printf("%d error(s); allowed %d\n", errors, tableSize/100);
+            Console.OUT.printf("%d error(s); allowed %d\n", errors, tableSize/100);
             return (errors * 100 / tableSize) as double; // <.01*tableSize counts as 0
         } else
             return 0.0;

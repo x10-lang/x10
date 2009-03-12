@@ -79,7 +79,7 @@ public class DistBounds2D extends x10Test {
      * print a string
      */
     private static def pr(var s: String): void = {
-        System.out.println(s);
+        Console.OUT.println(s);
     }
 
     /**

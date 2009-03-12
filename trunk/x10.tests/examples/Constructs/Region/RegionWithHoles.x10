@@ -23,21 +23,21 @@ public class RegionWithHoles extends x10Test {
         val a = Array.make[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
-        System.out.println("convex: " + r.isConvex() + " (should be false)");
+        Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
 
-        System.out.print("indexes: ");
+        Console.OUT.print("indexes: ");
         for (val (i): Point in r) {
-            System.out.print(i + " ");
+            Console.OUT.print(i + " ");
         }
 
         try {
             for (val (i): Point in r) {
                 if (a(i) != 0)
-                    System.out.println("val[" + i + "] = " + a(i));
+                    Console.OUT.println("val[" + i + "] = " + a(i));
             }
         }
         catch (var t: Throwable) {
-            System.out.println(t);
+            Console.OUT.println(t);
             return false;
         }
         return true;
@@ -45,7 +45,7 @@ public class RegionWithHoles extends x10Test {
 
     def test2D(): boolean = {
 
-        System.out.println("testing 2d");
+        Console.OUT.println("testing 2d");
         // all of those are contiguous
         var r: Region{rank==2} = [0..10, 0..3];
         var r1: Region{rank==2} = [1..2, 0..3];
@@ -58,17 +58,17 @@ public class RegionWithHoles extends x10Test {
         val a = Array.make[short](r);
 
         // check if r is convex - it should not!
-        System.out.println("convex: " + r.isConvex() + " (should be false)");
+        Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
         chk(!r.isConvex());
 
         try {
             for (val (i,j): Point in r) {
                 if (a(i, j) != 0)
-                    System.out.println("val[" + i + "] = " + a(i, j));
+                    Console.OUT.println("val[" + i + "] = " + a(i, j));
             }
         }
         catch (var t: Throwable) {
-            System.out.println(t);
+            Console.OUT.println(t);
             return false;
         }
         return true;
@@ -87,16 +87,16 @@ public class RegionWithHoles extends x10Test {
         val a = Array.make[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
-        System.out.println("convex: " + r.isConvex() + " (should be false)");
+        Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
 
         try {
             for ((i,j,k): Point in r) {
                 if (a(i, j, k) != 0)
-                    System.out.println("val[" + i + "] = " + a(i, j, k));
+                    Console.OUT.println("val[" + i + "] = " + a(i, j, k));
             }
         }
         catch (var t: Throwable) {
-            System.out.println(t);
+            Console.OUT.println(t);
             return false;
         }
         return true;
@@ -115,23 +115,23 @@ public class RegionWithHoles extends x10Test {
         val a = Array.make[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
-        System.out.println("4d:convex: " + r.isConvex() + " (should be false)");
+        Console.OUT.println("4d:convex: " + r.isConvex() + " (should be false)");
 
         if (false) {
-            System.out.print("indexes: ");
+            Console.OUT.print("indexes: ");
             for ((i): Point in r) {
-                System.out.print(i + " ");
+                Console.OUT.print(i + " ");
             }
         }
 
         try {
             for ((i,j,k,l): Point in r) {
                 if (a(i, j, k, l) != 0)
-                    System.out.println("val[" + i + "] = " + a(i, j, k, l));
+                    Console.OUT.println("val[" + i + "] = " + a(i, j, k, l));
             }
         }
         catch (var e: x10.lang.Exception) {
-            System.out.println(e);
+            Console.OUT.println(e);
             return false;
         }
         return true;
@@ -139,7 +139,7 @@ public class RegionWithHoles extends x10Test {
 
     def testPoint(): boolean = {
 
-        System.out.println("testing point");
+        Console.OUT.println("testing point");
         // all of those are contiguous
         var r: Region{rank==1} = [0..10];
         var r1: Region{rank==1} = [1..2];
@@ -152,16 +152,16 @@ public class RegionWithHoles extends x10Test {
         val a = Array.make[short](r);
         chk(!r.isConvex());
         // check if r is convex - it should not!
-        System.out.println("convex: " + r.isConvex() + " (should be false)");
+        Console.OUT.println("convex: " + r.isConvex() + " (should be false)");
 
         try {
             for (val p: Point in r) {
                 if (a(p as Point{rank==1}) != 0) // XTENLANG-128
-                    System.out.println("val[" + p + "] = " + a(p as Point{rank==1}));
+                    Console.OUT.println("val[" + p + "] = " + a(p as Point{rank==1}));
             }
         }
         catch (var t: Throwable) {
-            System.out.println(t);
+            Console.OUT.println(t);
             return false;
         }
         return true;

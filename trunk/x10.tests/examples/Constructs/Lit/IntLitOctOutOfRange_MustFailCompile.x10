@@ -17,7 +17,7 @@ import harness.x10Test;
 public class IntLitOctOutOfRange_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		System.out.println(077777777777777777777);
+		Console.OUT.println(077777777777777777777);
 		return true;
 	}
 

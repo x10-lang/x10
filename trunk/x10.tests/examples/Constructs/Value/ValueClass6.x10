@@ -25,39 +25,39 @@ public class ValueClass6 extends x10Test {
 		// reference objects, must be equal
 		val X1: Array[foo] = Array.make[foo](D, (p(i): Point): foo => new foo());
 		val Y1: Array[foo] = Array.make[foo](D, (p(i): Point): foo => X1(i));
-		System.out.println("1");
+		Console.OUT.println("1");
 		if (X1 != Y1) return false;
 		// different value arrays whose elements are different
 		// value objects
 		// that have the same contents, must be ==
 		val X2: Array[complex] = Array.make[complex](D, (p(i): Point): complex => {
-			System.out.println("The currentplace for X2" + i  + " is " + ( here));
+			Console.OUT.println("The currentplace for X2" + i  + " is " + ( here));
 			return new complex(i,i);
 		});
 		val Y2: Array[complex] = Array.make[complex](D, (p(i): Point): complex => {
-			System.out.println("The currentplace for Y2" + i  + " is " + ( here));
+			Console.OUT.println("The currentplace for Y2" + i  + " is " + ( here));
 			return new complex(i,i);
 		});
-		System.out.println("2");
+		Console.OUT.println("2");
 		if (X2 != Y2) return false;
 		// different value arrays whose elements are
 		// different reference objects
 		// which have the same contents, must not be ==
 		val X3: Array[foo] = Array.make[foo](D, (p(i): Point): foo => {
-			System.out.println("The currentplace for X3" + i  + " is " + ( here));
+			Console.OUT.println("The currentplace for X3" + i  + " is " + ( here));
 			return new foo();
 		});
 		val Y3: Array[foo] = Array.make[foo](D, (p(i): Point): foo => {
-			System.out.println("The currentplace for Y3" + i  + " is " + ( here));
+			Console.OUT.println("The currentplace for Y3" + i  + " is " + ( here));
 			return new foo();
 		});
-		System.out.println("3");
+		Console.OUT.println("3");
 		if (X3 == Y3) return false;
 		// different reference arrays must never be ==
 		// even the arrays have the same contents
 		val X4: Array[foo] = Array.make[foo](D, (p(i): Point) => new foo());
 		val Y4: Array[foo] = Array.make[foo](D, (p(i): Point) => X4(i));
-		System.out.println("4");
+		Console.OUT.println("4");
 		if (X4 == Y4) return false;
 		return true;
 	}

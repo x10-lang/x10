@@ -46,14 +46,14 @@ public class RegionBanded extends x10Test {
 	}
 
 	static def pr(var s: String, var r: Region): void = {
-		System.out.println();
-		System.out.println("printing region "+s);
+		Console.OUT.println();
+		Console.OUT.println("printing region "+s);
 		var k: int = 0;
 		val N: int = 8;
 		for (val (i,j): Point in [0..N-1, 0..N-1]) {
 
-			System.out.print(" "+(r.contains([i, j]) ? "+" : "."));
-			if ((++k) % N == 0) System.out.println();
+			Console.OUT.print(" "+(r.contains([i, j]) ? "+" : "."));
+			if ((++k) % N == 0) Console.OUT.println();
 		}
 	}
 

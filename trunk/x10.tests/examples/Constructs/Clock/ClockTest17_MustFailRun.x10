@@ -49,7 +49,7 @@ public class ClockTest17_MustFailRun extends x10Test {
 		var f0: foo = new foo() {
 			public def apply(): void = {
 				async {
-					System.out.println("hello from finish async S");
+					Console.OUT.println("hello from finish async S");
 				}
 			}
 		};
@@ -58,9 +58,9 @@ public class ClockTest17_MustFailRun extends x10Test {
 			public def apply(): void = {
 				/*Activity A1*/
 				async clocked(c0) {
-					System.out.println("#1 before next");
+					Console.OUT.println("#1 before next");
 					next;
-					System.out.println("#1 after next");
+					Console.OUT.println("#1 after next");
 				}
 			}
 		};
@@ -71,18 +71,18 @@ public class ClockTest17_MustFailRun extends x10Test {
 		Y.test(fooArray(x.zero()));
 		// Finish in Y.test completes and then the following executes.
 		//No deadlock occurs here.
-		System.out.println("#0a before next");
+		Console.OUT.println("#0a before next");
 		next;
-		System.out.println("#0a after next");
+		Console.OUT.println("#0a after next");
 
 		// This is invoking Y.test(f1) but not clear to a compiler
 		Y.test(fooArray(x.one()));
 		// Execution never reaches here (deadlock occurs) since:
 		// A1 inside Y.test(f1) must first finish, but it
 		// cannot since A0 has not executed next on clock c0 yet.
-		System.out.println("#0b before next");
+		Console.OUT.println("#0b before next");
 		next;
-		System.out.println("#0b after next");
+		Console.OUT.println("#0b after next");
 
 		return true;
 	}

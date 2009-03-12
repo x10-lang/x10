@@ -79,7 +79,7 @@ public class BMArgs implements Serializable {
 				if (argv(i).length()>6)
 					CLASS.val = argv(i)(6).toUpperCase();
 				if (CLASS.val != 'A' && CLASS.val != 'B' && CLASS.val != 'C' && CLASS.val != 'S' && CLASS.val != 'W') {
-					System.out.println("classes allowed are A,B,C,W and S.");
+					Console.OUT.println("classes allowed are A,B,C,W and S.");
 					commandLineError(BMName);
 				}
 			} else if (argv(i).startsWith("np=")
@@ -92,7 +92,7 @@ public class BMArgs implements Serializable {
 						num_threads.val = Int.parseInt(argv(i).substring(3));
 					serial.val = false;
 				} catch (e: Exception) {
-					System.out.println("argument to " + argv(i).substring(0, 3)
+					Console.OUT.println("argument to " + argv(i).substring(0, 3)
 							+" must be an integer.");
 					commandLineError(BMName);
 				}
@@ -101,9 +101,9 @@ public class BMArgs implements Serializable {
 	}
 
 	public static def commandLineError(BMName: String): void = {
-		System.out.println("synopsis: java "+BMName
+		Console.OUT.println("synopsis: java "+BMName
 				+" CLASS=[ABCWS] -serial [-NPnnn]");
-		System.out.println("[ABCWS] is the size class \n"
+		Console.OUT.println("[ABCWS] is the size class \n"
 				+"-serial specifies the serial version and\n"
 				+"-NP specifies number of threads where nnn "
 				+"is an integer");
@@ -111,15 +111,15 @@ public class BMArgs implements Serializable {
 	}
 
 	public static def outOfMemoryMessage(): void = {
-		System.out.println("The java maximum heap size is "
+		Console.OUT.println("The java maximum heap size is "
 				+"to small to run this benchmark class");
-		System.out.println("To allocate more memory, use the -mxn option"
+		Console.OUT.println("To allocate more memory, use the -mxn option"
 				+" where n is the number of bytes to be allocated");
 	}
 
 	public static def Banner(BMName: String, clss: char, serial: boolean, np: int): void = {
-		System.out.println(" NAS Parallel Benchmarks X10 version (NPB3_0_X10)");
-		if (serial) System.out.println(" Serial Version "+BMName+"."+clss);
-		else System.out.println(" Multithreaded Version "+BMName+"."+clss+" np="+np);
+		Console.OUT.println(" NAS Parallel Benchmarks X10 version (NPB3_0_X10)");
+		if (serial) Console.OUT.println(" Serial Version "+BMName+"."+clss);
+		else Console.OUT.println(" Multithreaded Version "+BMName+"."+clss+" np="+np);
 	}
 }

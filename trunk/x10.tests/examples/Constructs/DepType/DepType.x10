@@ -52,11 +52,11 @@ public class DepType(i:int, j:int) extends x10Test {
 	
     //  a method whose return type is a deptype
    public def run3():boolean{self==true} = { 
-        System.out.println("i (=3?) = " + i);
+        Console.OUT.println("i (=3?) = " + i);
         return true;
     }
     public def run4( j:int):boolean = {
-        System.out.println("i (=3?) = " + i);
+        Console.OUT.println("i (=3?) = " + i);
         return true;
     }
     public static def main(args: Rail[String]):void = {

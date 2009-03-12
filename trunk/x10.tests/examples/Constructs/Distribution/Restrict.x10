@@ -18,12 +18,12 @@ public class Restrict extends x10Test {
         val R = [r,r] as Region;
         val d = R->here;
         val R2  = (d | here).region;
-        System.out.println("R " + R);
-        System.out.println("R2 " + R2);
-        System.out.println("R.size() " + R.size());
-        System.out.println("R2.size() " + R2.size());
-        System.out.println("d " + d);
-        System.out.println("(d|here) " + (d|here));
+        Console.OUT.println("R " + R);
+        Console.OUT.println("R2 " + R2);
+        Console.OUT.println("R.size() " + R.size());
+        Console.OUT.println("R2.size() " + R2.size());
+        Console.OUT.println("d " + d);
+        Console.OUT.println("(d|here) " + (d|here));
         return (R.size() == R2.size());
     }
 

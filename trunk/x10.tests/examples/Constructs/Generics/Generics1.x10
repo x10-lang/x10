@@ -20,8 +20,8 @@ public class Generics1 extends x10Test {
 
 	public def run(): boolean = {
                 val c: Generics1 = new Get[Generics1](this).get();
-                System.out.println("c = " + c);
-                System.out.println("this = " + this);
+                Console.OUT.println("c = " + c);
+                Console.OUT.println("this = " + this);
 		return c == this;
 	}
 

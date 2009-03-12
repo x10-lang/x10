@@ -93,7 +93,7 @@ public class CGWorker {
 			var sum: double = 0.0;
 			for (var k: int = rowstr(j); k<rowstr(j+1); k++) {
 				sum = sum + a(k)*p(colidx(k));
-				if (colidx(k) == 0 && p(0) != 0.0) System.out.println("Phantom contribution!" + p(0));
+				if (colidx(k) == 0 && p(0) != 0.0) Console.OUT.println("Phantom contribution!" + p(0));
 			}
 			q(j) = sum;
 		}
@@ -113,7 +113,7 @@ public class CGWorker {
 		//---------------------------------------------------------------------
 		var rho: double = 0.0;
 		for (var j: int = start1; j <= end1; j++) rho += r(j)*r(j);
-		// System.out.println("step1: rhomaster[" + id + "]=" + rho);
+		// Console.OUT.println("step1: rhomaster[" + id + "]=" + rho);
 		rhomaster(id) = rho;
 	}
 
@@ -145,7 +145,7 @@ public class CGWorker {
 			for (var k: int = rowstr(j); k <= rowstr(j+1)-1; k++) {
 				sum += a(k)*z(colidx(k));
 				if (colidx(k) == 0 && z(0) != 0.0)
-					System.out.println("z[colidx[k]=0] = " + z(colidx(k)));
+					Console.OUT.println("z[colidx[k]=0] = " + z(colidx(k)));
 			}
 			r(j) = sum;
 		}
