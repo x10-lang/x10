@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Check that a method arg can have a deptype and it is propagated into the body.

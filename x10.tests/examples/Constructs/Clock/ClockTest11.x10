@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Cannot register a child with a clock

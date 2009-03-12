@@ -1,3 +1,5 @@
+//LIMITATION:
+//Anonymous inner classes with new methods defined on them are not correctly handled.
 /*
  *
  * (C) Copyright IBM Corporation 2006
@@ -5,9 +7,7 @@
  *  This file is part of X10 Test.
  *
  */
-//LIMITATION:
-//Anonymous inner classes with new methods defined on them are not correctly handled.
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * The test checks that final fields can be accessed in a depclause.
@@ -16,7 +16,7 @@ import harness.x10Test;;
  */
 public class InnerClass extends x10Test {
 	interface I  {
-		 def test(): void;;
+		 def test(): void;
 		 def whatever():I;
 	}
 	

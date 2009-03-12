@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Given two horizontal strip regions R1 and R2 and a vertical strip

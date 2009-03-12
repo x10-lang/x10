@@ -1,9 +1,8 @@
 //OPTIONS: -PLUGINS=dims.plugin.DimensionsTypePlugin
 
 import harness.x10Test;
-import x10.lang.*;
 import x10.lang.annotations.*;
-import dims.*;;
+import dims.*;
 
 public class DimTest extends harness.x10Test {
     def move(var x0: double, var v0: double, var a: double, var t: double) =

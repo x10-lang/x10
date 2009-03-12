@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
 Test that a deptype for a method arg that depends on a previous arg is handled correctly.

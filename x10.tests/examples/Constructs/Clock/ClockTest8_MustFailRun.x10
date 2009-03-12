@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Tests if we can assign a clock to an array element or
@@ -16,6 +16,7 @@ import harness.x10Test;;
  * ca[0] = c1; ca[1] = ca[0];
  * // ca[0] and ca[1] are "aliased"
  * The language definition needs to be cleared up, to define the behavior of this test.
+ * TODO: rename to ClockTest8 and check for exception
  *
  * NEW SEMANTICS: Clock Use Exception such as
  *

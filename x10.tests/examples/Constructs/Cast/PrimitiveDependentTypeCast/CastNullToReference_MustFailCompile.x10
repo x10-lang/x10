@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Purpose: Checks null litteral can't be cast to a non-nullable type.

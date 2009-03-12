@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 public class PlaceCast2 extends x10Test {
 	var nplaces: int = 0;

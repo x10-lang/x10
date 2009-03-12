@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Test for for loop with for (Point p:[1:N,1:N,1:N]) syntax.

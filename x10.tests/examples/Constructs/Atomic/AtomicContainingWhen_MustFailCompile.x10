@@ -6,7 +6,7 @@
  *
  */
 
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * 
@@ -66,7 +66,7 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 	/**
 	 * An interface to use like a simple 'function pointer'
 	 */
-	interface static interface foo {
+	static interface foo {
 		public public def apply(var l: lockStruct): void;
 	}
 
@@ -99,7 +99,7 @@ public class AtomicContainingWhen_MustFailCompile extends x10Test {
 			System.out.println("in f2:#2");
 			finish async { };
 			System.out.println("in f2:#3");
-			var x: int = future { l.futureInt.force() }.force();
+			var x: int = (future { l.futureInt.force() }).force();
 			System.out.println("in f2:#4");
 			next;
 			System.out.println("in f2:#5");

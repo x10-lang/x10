@@ -14,7 +14,7 @@ import harness.x10Test;
 public class ClosureExample4 extends ClosureTest {
 
     def fib(n: Int): Int {
-        val f = (n: Int) : Point {
+        val f = (n: Int) : Point => {
             if (n < 1) return new Point(1,0);
             val (n,n1): Point = this(n-1);
             new Point(n+n1,n)
@@ -27,7 +27,7 @@ public class ClosureExample4 extends ClosureTest {
         
         // XXX just syntax and type check for now
 
-        return result;
+        return true;
     }
 
 

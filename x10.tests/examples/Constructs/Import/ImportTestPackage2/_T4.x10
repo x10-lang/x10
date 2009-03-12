@@ -12,6 +12,6 @@ package ImportTestPackage2;
  */
 public class _T4 {
 	public static def m4(val x: int): boolean = {
-		return (future(here) ( x == 49)).force();
+		return (future(here) { x == 49 }).force();
 	}
 }

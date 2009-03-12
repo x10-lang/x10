@@ -7,7 +7,7 @@
  */
 import x10.util.HashSet;
 import x10.util.Set;
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Testing block dist.

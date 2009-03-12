@@ -5,7 +5,7 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * Testing point arithmetic operations.
@@ -47,6 +47,6 @@ public class PointArithmetic_MustFailCompile extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new PointArithmetic().execute();
+        new PointArithmetic_MustFailCompile().execute();
     }
 }

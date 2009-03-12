@@ -10,7 +10,6 @@ import harness.x10Test;
 This produces an infinite loop for the type checker, on 06/25/06
 */
 
-import x10.lang.Object;
 public class ListTest extends x10Test {
 	public static class List {
 		public val n: int;

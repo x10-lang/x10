@@ -12,11 +12,11 @@ import x10.compiler.ArithmeticOps;
 public class GenericOverriding01 extends GenericTest {
 
     class A[T] {
-        def m(T) = 0;
+        def m(T): int = 0;
     }
         
     class B[T] extends A[T] {
-        def m(T) = 1;
+        def m(T): int = 1;
     }
 
     public def run(): boolean = {

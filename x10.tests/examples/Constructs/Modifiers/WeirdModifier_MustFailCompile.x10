@@ -8,10 +8,10 @@
 import harness.x10Test;
 
 /**
- * Check that a wierd annotation is not recognized.
+ * Check that a weird annotation is not recognized.
  * @author vj  9/2006
  */
-public class WierdModifierMustFail extends x10Test {
+public class WeirdModifier_MustFailCompile extends x10Test {
 
     public what void m() = { }
 
@@ -21,7 +21,7 @@ public class WierdModifierMustFail extends x10Test {
 	}
 
 	public static def main(args: Rail[String]) {
-		new WierdModifierMustFail().execute();
+		new WeirdModifier_MustFailCompile().execute();
 	}
 
 	

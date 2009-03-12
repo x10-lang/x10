@@ -56,8 +56,7 @@ package NPB3_0_X10;
 
 import NPB3_0_X10.CGThreads.*;
 import NPB3_0_X10.BMInOut.*;
-import java.io.*;
-import java.text.*;;
+import x10.io.*;
 
 public class CGGen {
 	public const amult: double = 1220703125.0;

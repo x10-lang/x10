@@ -16,7 +16,7 @@ import harness.x10Test;
 public class GenericInference4 extends GenericTest {
 
     class V           {const name = "V";};
-    class W extends V {const name = "W";}
+    class W extends V {const name = "W";};
     class X extends V {const name = "X";};
     class Y extends X {const name = "Y";};
     class Z extends X {const name = "Z";};
@@ -25,7 +25,7 @@ public class GenericInference4 extends GenericTest {
 
     public def run(): boolean = {
 
-        val d = m(new Y(), new Z());;
+        val d = m(new Y(), new Z());
         check("d", d, "XX");
 
         return result;

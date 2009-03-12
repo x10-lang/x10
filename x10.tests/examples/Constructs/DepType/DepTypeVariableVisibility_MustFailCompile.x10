@@ -9,7 +9,7 @@
 // visibility checking not currently implemented.  And Nate, at
 // least, thinks it never should be.
 
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * A local variable referenced in a deptype in a method declaration must have 

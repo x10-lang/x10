@@ -6,7 +6,7 @@
  *
  */
 
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * An error must be thrown by the compiler on encountering a lit with type int and the value
@@ -17,7 +17,7 @@ import harness.x10Test;;
 public class IntLitOctOutOfRange_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		System.out.println(0x77777777777777777777);
+		System.out.println(077777777777777777777);
 		return true;
 	}
 

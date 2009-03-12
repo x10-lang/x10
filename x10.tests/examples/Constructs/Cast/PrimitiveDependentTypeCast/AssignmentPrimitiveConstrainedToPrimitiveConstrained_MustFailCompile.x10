@@ -17,9 +17,9 @@ public class AssignmentPrimitiveConstrainedToPrimitiveConstrained_MustFailCompil
 	public def run(): boolean = {
 		
 		try { 
-			var i: int{self == 1} = 1
+			var i: int{self == 1} = 1;
 			var j: int{self == 0} = i;
-		}catch(e: Throwable) {
+		} catch(e: Throwable) {
 			return false;
 		}
 

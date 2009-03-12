@@ -5,9 +5,11 @@
  *  This file is part of X10 Test.
  *
  */
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
+ * TODO: rename to ClockTest17 and check for exception
+
  * OLD SEMANTICS:
  * Clarification of language definition needed here:
  * Whether async clocked(c) S occurs inside a finish
@@ -112,7 +114,7 @@ public class ClockTest17_MustFailRun extends x10Test {
 	 * // free variables
 	 */
 	static interface foo {
-		 def apply(): void;;
+		 def apply(): void;
 	}
 
 	/**

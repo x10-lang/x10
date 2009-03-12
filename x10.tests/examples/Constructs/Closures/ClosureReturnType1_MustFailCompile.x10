@@ -16,8 +16,8 @@ public class ClosureReturnType1_MustFailCompile extends ClosureTest {
     def foo() = {}
 
     public def run(): boolean = {
-        
         val f = ():void => {foo(); 1};
+        return true;
     }
 
     public static def main(var args: Rail[String]): void = {

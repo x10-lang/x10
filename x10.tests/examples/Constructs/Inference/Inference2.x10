@@ -12,7 +12,7 @@ import harness.x10Test;
  *
  * @author nystrom 8/2008
  */
-public class Inference5 extends x10Test {
+public class Inference2 extends x10Test {
         def m[T](x: T) = x;
 
 	public def run(): boolean = {
@@ -22,7 +22,7 @@ public class Inference5 extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new Inference5().execute();
+		new Inference2().execute();
 	}
 }
 

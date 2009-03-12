@@ -57,8 +57,7 @@ package NPB3_0_X10;
 import NPB3_0_X10.MGThreads.*;
 
 import NPB3_0_X10.BMInOut.*;
-import java.io.*;
-import java.text.*;;
+import x10.io.*;
 
 public class MG extends MGBase {
 	private val epsilon: double = 1.0E-8;
@@ -263,7 +262,6 @@ public class MG extends MGBase {
 	}
 
 	public def printTimers(): void = { //% of the ime should be fixed
-		var fmt: DecimalFormat = new DecimalFormat("0.000");
 		System.out.println("  SECTION   Time (secs)");
 		var tmax: double = timer.readTimer(T_bench);
 		if (tmax == 0.0) tmax = 1.0;
@@ -271,11 +269,9 @@ public class MG extends MGBase {
 			var t: double = timer.readTimer(i);
 			if (i == T_resid2) {
 				t = timer.readTimer(T_resid) - t;
-System.out.println("      --> total mg-resid "+fmt.format(t)+
-fmt.format(t*100./tmax)+"%)");
+System.out.printf("      --> total mg-resid %.3f (%.3f%%)", [t, t*100./tmax]);
 			} else {
-System.out.println("    "+t_names(i)+"  "+fmt.format(t)+
-fmt.format(t*100./tmax)+"%)");
+System.out.printf("    %s  %.3f (%.3f%%)", [t_names(i), t, t*100./tmax]);
 			}
 		}
 	}

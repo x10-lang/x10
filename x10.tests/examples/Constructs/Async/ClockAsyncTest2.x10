@@ -5,6 +5,8 @@
  *  This file is part of X10 Test.
  *
  */
+import harness.x10Test;
+
 /**
  * Code generation for clocked async uses "clocks" as the name of the clock
  * list.
@@ -13,7 +15,6 @@
  * @author Tong Wen 7/2006
  * @author vj 7/2006
  */
- import harness.x10Test;;
 public class ClockAsyncTest2 extends x10Test {
 
 	public def run(): boolean = {

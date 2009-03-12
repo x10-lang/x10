@@ -10,7 +10,7 @@ import harness.x10Test;
 class XTENLANG_48 extends x10Test {
 
     static class R(rank:nat) {
-    	def this() { property(0); }
+        def this() { property(0); }
     }
     
     static class C[T] {
@@ -18,8 +18,8 @@ class XTENLANG_48 extends x10Test {
     }
     
     class Bug(foo:nat) {
-    	def this() { property(0); }
-    	
+        def this() { property(0); }
+
         //var a: Rail[R{rank==foo}] = Rail.makeVar[R{rank==foo}](10);
         var a: C[R{rank==foo}] = C.make[R{rank==foo}]();
     }

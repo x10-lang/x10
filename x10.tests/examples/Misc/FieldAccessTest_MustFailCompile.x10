@@ -6,8 +6,6 @@
  *
  */
 import harness.x10Test;
-import x10.lang.Object;
-import x10.lang.Integer;;
 
 /**
  * This produces an infinite loop for the type checker, on 06/25/06
@@ -21,7 +19,6 @@ public class FieldAccessTest_MustFailCompile extends x10Test {
 	 * The problem is that this incorrect program causes the compiler to loop.
 	 */
 	public def n(): FieldAccessTest_MustFailCompile = n;
-	}
 
 	public def run()  = true;
 

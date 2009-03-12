@@ -6,7 +6,7 @@
  *
  */
 
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * An error must be thrown by the compiler on encountering a lit with type int and the value

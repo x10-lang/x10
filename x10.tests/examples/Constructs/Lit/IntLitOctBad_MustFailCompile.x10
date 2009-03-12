@@ -8,7 +8,7 @@
 //LIMITATION:
 //This test is a limitation of the current release.
 //Oct literals are not being checked for well-formedness.
-import harness.x10Test;;
+import harness.x10Test;
 
 /**
  * An error must be thrown by the compiler on encountering an oct literal that

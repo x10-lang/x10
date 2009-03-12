@@ -15,8 +15,8 @@ import x10.compiler.ArithmeticOps;
 
 public class GenericOverloading07_MustFailCompile extends GenericTest {
 
-    static def m[T]() = 0;
-    static def m[U]() = 1;
+    static def m[T](): int = 0;
+    static def m[U](): int = 1;
 
     public def run(): boolean = true;
 

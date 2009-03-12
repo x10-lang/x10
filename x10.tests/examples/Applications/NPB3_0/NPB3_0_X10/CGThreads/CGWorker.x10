@@ -50,7 +50,7 @@
  */
 package NPB3_0_X10.CGThreads;
 
-import NPB3_0_X10.CG;;
+import NPB3_0_X10.CG;
 
 public class CGWorker {
 

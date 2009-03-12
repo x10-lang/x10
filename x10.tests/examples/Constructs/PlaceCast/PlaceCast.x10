@@ -7,7 +7,7 @@
  */
 //LIMITATION:
 //BadPlaceExceptions not being thrown correctly.
-import harness.x10Test;;
+import harness.x10Test;
 
 public class PlaceCast extends x10Test {
 	var nplaces: int = 0;

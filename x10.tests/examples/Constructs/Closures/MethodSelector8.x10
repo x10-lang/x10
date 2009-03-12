@@ -23,12 +23,12 @@ import harness.x10Test;
 
 public class MethodSelector8 extends ClosureTest {
 
-    def foo() = 10;
-    def foo(i:int) = i*10;
+    def foo(): int = 10;
+    def foo(i:int): int = i*10;
 
     static class C8[T] {
-        def foo[U](j:U) = j;
-        def foo[U](i:T,j:U) = j;
+        def foo[U](j:U): U = j;
+        def foo[U](i:T,j:U): U = j;
     }
 
     public def run(): boolean = {

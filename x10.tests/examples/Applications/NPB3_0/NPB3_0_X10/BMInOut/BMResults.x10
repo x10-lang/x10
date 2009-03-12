@@ -49,10 +49,8 @@ Ported to X10 by Vijay Saraswat
 */
 package NPB3_0_X10.BMInOut;
 
-import java.io.*;
+import x10.io.*;
 import java.text.*;
-import java.lang.Exception;
-import java.lang.Double;;
 
 public class BMResults implements Serializable {
 	public var name: String;
@@ -303,8 +301,8 @@ public class BMResults implements Serializable {
 					keyword = new String("Time in seconds =");
 					idx1 = line.indexOf(keyword);
 					idx1 += keyword.length();
-					var dbl: Double = new Double(line.substring(idx1));
-					acctime = wctime = dbl.doubleValue();
+					var dbl: Double = Double.parseDouble(line.substring(idx1));
+					acctime = wctime = dbl;
 				} else if (line.indexOf("Verification    =") >= 0) {
 					verified = 0;
 					if (line.indexOf("successful") >= 0&&line.indexOf("successful")<0
@@ -314,8 +312,8 @@ public class BMResults implements Serializable {
 					keyword = new String("Mop/s total     =");
 					idx1 = line.indexOf(keyword);
 					idx1 += keyword.length();
-					var dbl: Double = new Double(line.substring(idx1));
-					mops = dbl.doubleValue();
+					var dbl: Double = Double.parseDouble(line.substring(idx1));
+					mops = dbl;
 				}
 			}
 		} catch (var e: Exception) {

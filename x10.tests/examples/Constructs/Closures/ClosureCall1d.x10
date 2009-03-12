@@ -25,7 +25,7 @@ public class ClosureCall1d extends ClosureTest {
 
     public def run(): boolean = {
 
-        val d = ([T,U](t:T,u:U){T<:X && U<:X} => T.name + U.name)(new Y(), new Z());;
+        val d = ([T,U](t:T,u:U){T<:X && U<:X} => T.name + U.name)(new Y(), new Z());
         check("d", d, "YZ");
 
         return result;

@@ -7,24 +7,24 @@ import harness.x10Test;
  * @author bdlucas 10/2008
  */
 
-interface I[T] {
-    def next(): T;
-}
-
-class AL[T] {
-
-    private static class It[T] implements I[T] {
-        incomplete public def next(): T;
-        def this(al:AL[T]) {}
-    }
-
-    public def it(): I[T] {
-        return new It[T](this);
-    }
-
-}
-
 class XTENLANG_12 extends x10Test {
+
+    interface I[T] {
+        def next(): T;
+    }
+
+    class AL[T] {
+
+        private static class It[T] implements I[T] {
+            incomplete public def next(): T;
+            def this(al:AL[T]) {}
+        }
+
+        public def it(): I[T] {
+            return new It[T](this);
+        }
+
+    }
 
     public def run(): boolean {
         return true;

@@ -15,11 +15,11 @@ import harness.x10Test;
 
 public class GenericInference3 extends GenericTest {
 
-    class V           {const name = "V"};
-    class W extends V {const name = "W"};
-    class X extends V {const name = "X"};
-    class Y extends X {const name = "Y"};
-    class Z extends X {const name = "Z"};
+    class V           {const name = "V";};
+    class W extends V {const name = "W";};
+    class X extends V {const name = "X";};
+    class Y extends X {const name = "Y";};
+    class Z extends X {const name = "Z";};
 
     def m[T](t1:T,t2:T){T<:V} = V.name;
 

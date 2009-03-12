@@ -51,7 +51,7 @@
  */
 package NPB3_0_X10.MGThreads;
 
-import NPB3_0_X10.*;;
+import NPB3_0_X10.*;
 
 public class MGBase {
 	public const BMName: String = "MG";
