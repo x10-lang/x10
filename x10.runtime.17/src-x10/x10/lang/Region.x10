@@ -79,7 +79,7 @@ public abstract value class Region(
      */
 
     // XTENLANG-109 prevents zeroBased==(min==0)
-    public static def makeRectangular(min: int, max: int): Region{rank==1 && /*zeroBased==(min==0) &&*/ rect}
+    public static def makeRectangular(min: int, max: int): Region{self.rank==1 && /*self.zeroBased==(min==0) &&*/ self.rect}
         = BaseRegion.makeRectangular1(min, max);
 
     /**

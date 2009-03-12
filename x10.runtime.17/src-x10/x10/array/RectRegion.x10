@@ -31,7 +31,7 @@ final value class RectRegion extends PolyRegion{rect} {
      * allow unbounded regions
      */
 
-    def this(val pm: PolyMat): RectRegion{rank==pm.rank && rect} {
+    def this(val pm: PolyMat): RectRegion{self.rank==pm.rank && self.rect} {
 
         super(pm, true);
 
@@ -48,7 +48,7 @@ final value class RectRegion extends PolyRegion{rect} {
         max3 = rank>=4 && pm.isBounded()? max(3) : 0;
     }
 
-    public static def make1(val min: Rail[int], val max: Rail[int]): Region{rank==min.length&&rect} { // XTENLANG-4
+    public static def make1(val min: Rail[int], val max: Rail[int]): Region{self.rank==min.length&&self.rect} { // XTENLANG-4
 
         if (max.length!=min.length)
             throw U.illegal("min and max must have same length");
@@ -65,8 +65,8 @@ final value class RectRegion extends PolyRegion{rect} {
 
 
     // XTENLANG-109
-    public static def make1(min: int, max: int): Region{rect && rank==1 /*&& zeroBased==(min==0)*/} {
-        return make1([min], [max]) as Region{rect && rank==1 /*&& zeroBased==(min==0)*/};
+    public static def make1(min: int, max: int): Region{self.rect && self.rank==1 /*&& self.zeroBased==(min==0)*/} {
+        return make1([min], [max]) as Region{self.rect && self.rank==1 /*&& self.zeroBased==(min==0)*/};
     }
 
     private def computeSize(): int {

@@ -40,7 +40,7 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val regions = Rail.makeVal[Region](ps.length, init);
 
         // overall region
-        val overall = Region.makeRectangular(0, ps.length-1);
+        val overall: Region{self.rank==1} = Region.makeRectangular(0, ps.length-1);
 
         return new BaseDist(overall, ps, regions);
     }
