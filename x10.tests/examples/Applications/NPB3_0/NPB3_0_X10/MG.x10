@@ -230,7 +230,7 @@ public class MG extends MGBase {
 				nit = datafile.readInt();
 				fis.close();
 			} catch (var e: java.lang.Exception) {
-				System.err.println("Error reading from file mg.input");
+				Console.ERR.println("Error reading from file mg.input");
 			}
 			if (lnx != lny||lnx != lnz) CLASS = 'U';
 			else if (lnx == 32&&nit == 4)     CLASS = 'S';
