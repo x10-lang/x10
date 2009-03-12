@@ -15,7 +15,7 @@ public class PlaceCheckGenericClass extends x10Test {
         var y:S;
         def foo() {}
         def foo(x:S) {}
-        def foo[T](x:T) {}
+        final def foo[T](x:T) {}
         def this(s:S) {
             x = s;
             y = s;
@@ -103,7 +103,13 @@ public class PlaceCheckGenericClass extends x10Test {
         return f.force();
     }
 
-    public def run() = run01() && run02() && run03() && run04() && run05() && run06();
+    public def run(): boolean {
+    	if (Place.MAX_PLACES == 1) {
+    		x10.io.Console.OUT.println("not enough places to run this test");
+    		return false;
+    	}
+    	return run01() && run02() && run03() && run04() && run05() && run06();
+	}
 
     //
     //

@@ -72,7 +72,13 @@ public class PlaceCheckInRail extends x10Test {
     }
 
 
-    public def run() = run01() && run02() && run03() && run04();
+    public def run(): boolean {
+    	if (Place.MAX_PLACES == 1) {
+    		x10.io.Console.OUT.println("not enough places to run this test");
+    		return false;
+    	}
+    	return run01() && run02() && run03() && run04();
+	}
 
     public static def main(var args: Rail[String]): void = {
         new PlaceCheckInRail().execute();
