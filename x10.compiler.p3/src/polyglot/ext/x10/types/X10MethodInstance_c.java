@@ -1464,6 +1464,9 @@ public class X10MethodInstance_c extends MethodInstance_c implements X10MethodIn
     }
     
     public static Type subst(Type t, XVar[] actual, XRoot[] var) throws SemanticException {
+        if (t == null)
+            return null;
+        
 	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 	    
 	    Type base = X10TypeMixin.baseType(t);
