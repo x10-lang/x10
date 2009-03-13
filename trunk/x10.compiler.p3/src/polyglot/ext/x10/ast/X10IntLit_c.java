@@ -51,9 +51,6 @@ public class X10IntLit_c extends IntLit_c {
 			  {
 				  throw new SemanticException("Integer literal " + value + " is out of range.",position());
 			  }
-			  if (boundary()) {
-				  value = - (int) value;
-			  }
 		  }
 		  X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 		  X10Type Type = (X10Type) (kind==INT ? xts.Int() : xts.Long());

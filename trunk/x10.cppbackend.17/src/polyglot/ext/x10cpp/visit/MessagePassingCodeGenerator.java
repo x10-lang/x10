@@ -2231,20 +2231,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(IntLit_c n) {
-		String val;
-		if (n.kind() == IntLit_c.LONG)
-			val = Long.toString(n.value()) + "ll";
-		else if (n.kind() == IntLit_c.INT) {
-			if (n.value() >= 0x80000000L)
-			    val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
-			else
-			    val = Long.toString((int) n.value());
-		} else
-			throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
-		sw.write("("); sw.begin(0);
-		sw.write("(" + emitter.translateType(n.type(), true) + ")");
-		sw.write(val);
-		sw.end(); sw.write(")");
+	    String val;
+	    if (n.kind() == IntLit_c.LONG) {
+	        if (n.boundary())
+	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "llu";
+	        else
+	            val = Long.toString(n.value()) + "ll";
+	    } else if (n.kind() == IntLit_c.INT) {
+	        if (n.value() >= 0x80000000L)
+	            val = "0x" + Long.toHexString(n.value()).toUpperCase() + "u";
+	        else if (n.boundary())
+	            val = "0x" + Long.toHexString(-n.value()).toUpperCase() + "u";
+	        else
+	            val = Long.toString((int) n.value());
+	    } else
+	        throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
+	    sw.write("("); sw.begin(0);
+	    sw.write("(" + emitter.translateType(n.type(), true) + ")");
+	    sw.write(val);
+	    sw.end(); sw.write(")");
 	}
 
 	public void visit(NullLit_c n) {
@@ -3321,9 +3326,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Unary_c n) {
 		Unary_c.Operator operator = n.operator();
 		Expr expr = n.expr();
-		if (operator == Unary_c.NEG && expr instanceof IntLit && ((IntLit) expr).boundary()) {
-			sw.write(operator.toString());
-			sw.write(((IntLit) expr).positiveToString());
+		if (operator == Unary_c.NEG && expr instanceof IntLit) {
+		    IntLit_c lit = (IntLit_c) expr;
+		    n.printSubExpr(lit.value(-lit.longValue()), true, sw, tr);
 		}
 		else if (operator.isPrefix()) {
 			sw.write(operator.toString());
@@ -3349,12 +3354,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
 	        sw.write("("); sw.begin(0);
+	        Type c = l;
+	        if (l.isNumeric() && r.isNumeric()) {
+	            try {
+	                c = xts.promote(l, r);
+	            } catch (SemanticException e) { assert (false); }
+	        }
 	        if (op == Binary.NE)
 	            sw.write("!");
 	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
+	        if (!xts.typeEquals(c, l))
+	            sw.write("(" + emitter.translateType(c) + ")");
 	        n.print(left, sw, tr);
 	        sw.write(",");
 	        sw.allowBreak(0, " ");
+	        if (!xts.typeEquals(c, r))
+	            sw.write("(" + emitter.translateType(c) + ")");
 	        n.print(right, sw, tr);
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");
