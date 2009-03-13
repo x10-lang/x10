@@ -42,6 +42,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.Import_c;
 import polyglot.ast.Instanceof;
+import polyglot.ast.IntLit_c;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
@@ -1199,7 +1200,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
 		// Remove duplicates.
 		for (ListIterator<MethodInstance> i = methods.listIterator(); i.hasNext(); ) {
-			MethodInstance mi = i.next();	        
+			MethodInstance mi = i.next();
 			if (seen(seen, mi))
 				i.remove();
 		}
@@ -2703,6 +2704,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 		        visit((Node)n);
 
 		}
+	}
+
+	public void visit(IntLit_c n) {
+	    String val;
+	    if (n.kind() == IntLit_c.LONG)
+	        val = Long.toString(n.value()) + "L";
+	    else if (n.kind() == IntLit_c.INT) {
+	        if (n.value() >= 0x80000000L)
+	            val = "0x" + Long.toHexString(n.value());
+	        else
+	            val = Long.toString((int) n.value());
+	    } else
+	        throw new InternalCompilerError("Unrecognized IntLit kind " + n.kind());
+	    w.write(val);
 	}
 
 //	private Stmt optionalBreak(Stmt s) {
