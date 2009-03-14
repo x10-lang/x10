@@ -263,20 +263,21 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 
     public void visit(TypeDecl_c n) {
-        // FIXME: I think we need to put a typedef for a TypeDecl.
-        // verify. [Krishna]
-    	sw.write(" /* " + n + " *" + "/ ");
+        // do nothing
+        sw.write(" /* " + n + " *" + "/ ");
+        sw.newline();
+    }
+
+    public void visit(LocalTypeDef_c n) {
+        // do nothing
+        sw.write(" /* " + n + " *" + "/ ");
+        sw.newline();
     }
 
 	public void visit(X10ClassDecl_c n) {
 		processClass(n);
 	}
 	
-	public void visit(LocalTypeDef_c n) {
-		// do nothing
-		sw.write(" /* " + n + " *" + "/ ");
-	}
-
 	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (context.pendingStaticDecls.size() == 0)
@@ -2000,9 +2001,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		int counter = 0;
 		for (Expr a : n.arguments()) {
 		    Type fType = mi.formalTypes().get(counter);
-		    a = cast(a, fType);
+		    if (!xts.typeEquals(fType, a.type()) && !(xts.isParameterType(fType) && a.type().isNull()))
+		        a = cast(a, fType);
 		    args.add(a);
 		    counter++;
+		}
+
+		// [IP] FIXME: accommodate the frontend hack for the equals method
+		if (mi.name() == Name.make("equals") && args.size() == 1 && mi.typeParameters().size() == 0 &&
+                xts.isParameterType(mi.formalTypes().get(0)))
+		{
+		    args.set(0, cast(args.get(0), xts.Object()));
 		}
 
 		String pat = getCppImplForDef(md);
@@ -3354,7 +3363,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    if (op == Binary.EQ || op == Binary.NE) { // FIXME: get rid of this special case
 	        sw.write("("); sw.begin(0);
-	        Type c = l;
+	        Type c = null;
 	        if (l.isNumeric() && r.isNumeric()) {
 	            try {
 	                c = xts.promote(l, r);
@@ -3363,13 +3372,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        if (op == Binary.NE)
 	            sw.write("!");
 	        sw.write(STRUCT_EQUALS+"("); sw.begin(0);
-	        if (!xts.typeEquals(c, l))
-	            sw.write("(" + emitter.translateType(c) + ")");
+	        if (c != null && !xts.isParameterType(c) && !xts.typeEquals(c, l))
+	            sw.write("(" + emitter.translateType(c, true) + ")");
 	        n.print(left, sw, tr);
 	        sw.write(",");
 	        sw.allowBreak(0, " ");
-	        if (!xts.typeEquals(c, r))
-	            sw.write("(" + emitter.translateType(c) + ")");
+	        if (c != null && !xts.isParameterType(c) && !xts.typeEquals(c, r))
+	            sw.write("(" + emitter.translateType(c, true) + ")");
 	        n.print(right, sw, tr);
 	        sw.end(); sw.write(")");
 	        sw.end(); sw.write(")");

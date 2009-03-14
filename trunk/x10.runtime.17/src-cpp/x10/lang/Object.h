@@ -12,9 +12,9 @@ namespace x10 {
 
     namespace lang {
 
-
         class String;
-
+        class Ref;
+        class Value;
 
         class Object {
 
@@ -76,7 +76,17 @@ namespace x10 {
                 return x10aux::DeserializationDispatcher::create<T>(buf);
             }
 
-            virtual x10_boolean equals(x10aux::ref<Object> id0) = 0;
+            x10_boolean equals(x10aux::ref<Object> other) {
+                if (x10aux::instanceof<Value>(other))
+                    return this->equals(x10aux::ref<Value>((Value*)other.get()));
+                if (x10aux::instanceof<Ref>(other))
+                    return this->equals(x10aux::ref<Ref>((Ref*)other.get()));
+                assert (false && "Unknown reference type");
+                return false;
+            }
+
+            virtual x10_boolean equals(x10aux::ref<Ref> other) = 0;
+            virtual x10_boolean equals(x10aux::ref<Value> other) = 0;
             virtual x10_int hashCode() = 0;
             virtual x10aux::ref<String> toString() = 0;
 

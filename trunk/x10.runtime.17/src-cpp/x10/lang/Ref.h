@@ -70,8 +70,12 @@ namespace x10 {
 
             virtual x10aux::ref<String> toString();
 
-            virtual bool equals(x10aux::ref<Object> other) {
+            virtual x10_boolean equals(x10aux::ref<Ref> other) {
                 if (other == x10aux::ref<Ref>(this)) return true;
+                return false;
+            }
+
+            virtual x10_boolean equals(x10aux::ref<Value> other) {
                 return false;
             }
 
