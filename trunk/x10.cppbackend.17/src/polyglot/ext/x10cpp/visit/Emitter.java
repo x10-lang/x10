@@ -820,7 +820,7 @@ public class Emitter {
                 h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
                 h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
                 h.write(    "if (this_ == x10aux::null) {"); h.newline(4); h.begin(0);
-                h.write(        "V v;"); h.newline(); // needed when we serialise uninitialised values
+                h.write(        klass+" v;"); h.newline(); // needed when we serialise uninitialised values
                 h.write(        "v._serialize_body(buf, m);"); h.end(); h.newline();
                 h.write(    "} else {"); h.newline(4); h.begin(0);
                 h.write(        "this_->_serialize_body(buf, m);"); h.end(); h.newline();
