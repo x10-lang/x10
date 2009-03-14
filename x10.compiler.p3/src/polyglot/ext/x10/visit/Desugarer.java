@@ -187,7 +187,7 @@ public class Desugarer extends ContextVisitor {
             xts.Place(), closure.closureDef().asType()
         }));
         if (named) {
-            args.add(xnf.StringLit(pos, pos.nameAndLineString()));
+            args.add(xnf.StringLit(pos, pos.nameAndLineString()).type(xts.String()));
             mArgs.add(xts.String());
         }
         List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
@@ -241,7 +241,7 @@ public class Desugarer extends ContextVisitor {
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
         List<Expr> args = Arrays.asList(new Expr[] { place, clockRail, closure, pString });
         List<Type> mArgs = Arrays.asList(new Type[] {
             xts.Place(), clockRailType, closure.closureDef().asType(), xts.String()
@@ -258,7 +258,7 @@ public class Desugarer extends ContextVisitor {
     private Stmt async(Position pos, Stmt body, Expr place, String prefix) throws SemanticException {
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
         List<Expr> args = Arrays.asList(new Expr[] { place, closure, pString });
         List<Type> mArgs = Arrays.asList(new Type[] {
             xts.Place(), closure.closureDef().asType(), xts.String()
@@ -278,7 +278,7 @@ public class Desugarer extends ContextVisitor {
         Tuple clockRail = (Tuple) xnf.Tuple(pos, clocks).type(clockRailType);
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
         List<Expr> args = Arrays.asList(new Expr[] { clockRail, closure, pString });
         List<Type> mArgs = Arrays.asList(new Type[] {
             clockRailType, closure.closureDef().asType(), xts.String()
@@ -295,7 +295,7 @@ public class Desugarer extends ContextVisitor {
     private Stmt async(Position pos, Stmt body, String prefix) throws SemanticException {
         Block block = body instanceof Block ? (Block) body : xnf.Block(body.position(), body);
         Closure closure = closure(body.position(), xts.Void(), Collections.EMPTY_LIST, block);
-        StringLit pString = xnf.StringLit(pos, prefix + pos.nameAndLineString());
+        StringLit pString = (StringLit) xnf.StringLit(pos, prefix + pos.nameAndLineString()).type(xts.String());
         List<Expr> args = Arrays.asList(new Expr[] { closure, pString });
         List<Type> mArgs = Arrays.asList(new Type[] {
             closure.closureDef().asType(), xts.String()
