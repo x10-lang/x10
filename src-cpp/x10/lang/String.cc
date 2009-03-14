@@ -20,15 +20,6 @@ x10_int String::hashCode() {
     return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
 }
 
-// TODO: merge with _struct_equals
-x10_boolean String::equals(ref<Object> other) {
-    if (!x10aux::concrete_instanceof<String>(other)) return false;
-    // now we can downcast the Object to String
-    ref<String> other_str = other;
-    return !strcmp(FMGL(content),other_str->FMGL(content));
-}
-
-
 x10_int String::indexOf(ref<String> str, x10_int i) {
     const char *needle = str->FMGL(content);
     // TODO: bounds check

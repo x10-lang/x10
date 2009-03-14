@@ -29,7 +29,9 @@ namespace x10aux {
 
         T next() { return (T)(_from->next()); }
 
-        x10_boolean equals(ref<x10::lang::Object> o) { return _from->equals(o); }
+        x10_boolean equals(ref<x10::lang::Ref> o) { return _from->equals(o); }
+
+        x10_boolean equals(ref<x10::lang::Value> o) { return false; }
 
         x10_int hashCode() { return _from->hashCode(); }
 
