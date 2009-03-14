@@ -14,7 +14,7 @@ import x10.compiler.NativeRep;
 @NativeRep("java", "x10.core.Rail<#1>", "x10.core.Rail.BoxedRail", "new x10.core.Rail.RTT(#2)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Rail<#1 > >", "x10::lang::Rail<#1 >", null)
 public abstract class Rail[T](length: nat)
-    implements (nat) => T, Settable[nat,T], Iterable[T]
+    implements Settable[nat,T], Iterable[T]
 {
 
     // need to declare a constructor to shut up the initialization checker
