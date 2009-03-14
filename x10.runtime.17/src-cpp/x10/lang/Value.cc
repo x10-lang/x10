@@ -13,7 +13,7 @@ const serialization_id_t Value::_serialization_id =
     DeserializationDispatcher::addDeserializer(Value::_deserializer<Object>);
 
 x10aux::ref<x10::lang::String> x10::lang::Value::toString() {
-    return String::Lit("The empty value");
+    return String::Lit("Value without toString defined.");
 }
 
 DEFINE_RTT(Value);
