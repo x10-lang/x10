@@ -335,9 +335,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Ref())), currentClassDef);
 		            mi = null;
 		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value())), currentClassDef);
-		            mi = (X10MethodInstance) mi.formalTypes(Collections.singletonList(targetType));
+		            mi = (X10MethodInstance) mi.formalTypes(Collections.singletonList(X10TypeMixin.baseType(targetType)));
 		            LocalInstance d = mi.formalNames().get(0);
-		            mi = (X10MethodInstance) mi.formalNames(Collections.singletonList(d.type(targetType)));
+		            mi = (X10MethodInstance) mi.formalNames(Collections.singletonList(d.type(X10TypeMixin.baseType(targetType))));
 		            args = n.arguments;
 		        }
 		    }
