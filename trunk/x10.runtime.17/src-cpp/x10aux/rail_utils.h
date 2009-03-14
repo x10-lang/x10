@@ -14,16 +14,14 @@ namespace x10 { namespace lang {
 } }
 #include <x10/lang/Iterator.h>
 
-#include <x10/lang/Fun_0_1.h>
+#include <x10/lang/Iterable.h>
 #include <x10/lang/ArrayIndexOutOfBoundsException.h>
 
 namespace x10aux {
 
     void _check_bounds(x10_int index, x10_int length);
 
-    template<class T> class AnyRail :
-                public virtual x10::lang::Fun_0_1<x10_int,T> {
-
+    template<class T> class AnyRail : public virtual x10::lang::Iterable<T> { 
         public:
 
         // 32 bit array indexes
