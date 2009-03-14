@@ -3,6 +3,7 @@
 
 #include <x10/lang/Object.h>
 #include <x10/lang/Ref.h>
+#include <x10/lang/Value.h>
 
 
 using namespace x10::lang;
@@ -23,6 +24,15 @@ void Object::_serialize(x10aux::ref<Object> this_,
     this_->_serialize_id(buf, m);
     _S_("Serializing the "ANSI_SER"body"ANSI_RESET" of the interface to buf: "<<&buf);
     this_->_serialize_body(buf, m);
+}
+
+x10_boolean Object::equals(x10aux::ref<Object> other) {
+    if (x10aux::instanceof<Value>(other))
+        return this->equals(x10aux::ref<Value>(dynamic_cast<Value*>(other.get())));
+    if (x10aux::instanceof<Ref>(other))
+        return this->equals(x10aux::ref<Ref>(dynamic_cast<Ref*>(other.get())));
+    assert (false && "Unknown reference type");
+    return false;
 }
 
 DEFINE_RTT(Object);
