@@ -211,7 +211,7 @@ depend:
 
 
 clean:
-	find . -name gen -prune -o \( -name '*.h.gch' -o -name '*.o' \) -print0 | xargs -r0 -t rm -fr
+	find . -name gen -prune -o \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -r0 -t rm -fr
 	rm -rf gen $(XRCPP_ARCHIVE) $(XRX_ARCHIVE) $(XRX_MANIFEST)
 
 
