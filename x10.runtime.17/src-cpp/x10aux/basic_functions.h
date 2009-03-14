@@ -39,7 +39,17 @@ namespace x10aux {
     }
 
     template<class T, class U>
-    static inline x10_boolean equals(ref<T> x, ref<U> y) { return x->equals(y); }
+    class Equals {
+        public: static inline x10_boolean _(ref<T> x, ref<U> y) { return x->equals(y); }
+    };
+
+    template<class T>
+    class Equals<T, x10::lang::Object> {
+        public: static inline x10_boolean _(ref<T> x, ref<x10::lang::Object> y) { return x->x10::lang::Object::equals(y); }
+    };
+
+    template<class T, class U>
+    static inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
 
     template<class T>
     static inline x10_boolean equals(ref<T> x, x10_double y) { return false; }
@@ -85,7 +95,11 @@ namespace x10aux {
     static inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
     template<class T, class U>
-    static inline x10_boolean struct_equals(ref<T> x, ref<U> y) { return x->_struct_equals(y); }
+    static inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
+        if (x.isNull())
+            return y.isNull();
+        return x->_struct_equals(y);
+    }
 
     template<class T>
     static inline x10_boolean struct_equals(ref<T> x, x10_double y) { return false; }

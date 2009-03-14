@@ -96,12 +96,16 @@ namespace x10 {
                     return new (x10aux::alloc<String>()) String();
                 }
 
-                virtual x10_boolean equals(x10aux::ref<Object> other) {
+                virtual x10_boolean equals(x10aux::ref<Ref> other) {
                     if (!x10aux::concrete_instanceof<Iterator>(other)) return false;
                     x10aux::ref<Iterator> other_i = other;
                     if (other_i->rail != rail) return false;
                     if (other_i->i != i) return false;
                     return true;
+                }
+
+                virtual x10_boolean equals(x10aux::ref<Value> other) {
+                    return this->Ref::equals(other);
                 }
 
             };

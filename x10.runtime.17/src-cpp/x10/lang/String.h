@@ -82,8 +82,6 @@ namespace x10 {
 
             x10_int hashCode();
 
-            x10_boolean equals(x10aux::ref<Object> s);
-
             x10_int length() { return (x10_int) FMGL(content_length); }
             x10_int indexOf(x10aux::ref<String> s, x10_int i = 0);
             x10_int indexOf(x10_char c, x10_int i = 0);

@@ -69,9 +69,14 @@ namespace x10 {
 
             virtual x10aux::ref<String> toString();
 
-            virtual x10_boolean equals(x10aux::ref<Object> other) {
+            virtual x10_boolean equals(x10aux::ref<Value> other) {
+                if (other == x10aux::ref<Value>(this)) return true;
                 if (!x10aux::instanceof<Value>(other)) return false;
                 return this->_struct_equals(other);
+            }
+
+            virtual x10_boolean equals(x10aux::ref<Ref> other) {
+                return false;
             }
 
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
