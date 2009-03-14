@@ -15,11 +15,11 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
 public interface Object {
     @Native("java", "#0.equals(#1)")
-    @Native("c++", "x10aux::equals(#0,#1)")
+    @Native("c++", "x10aux::equals(#0, #1)")
     public def equals(Ref): Boolean;
     
     @Native("java", "#0.equals(#1)")
-    @Native("c++", "x10aux::equals(#0,#1)")
+    @Native("c++", "x10aux::equals(#0, #1)")
     public def equals(Value): Boolean;
     
     @Native("java", "#0.hashCode()")
