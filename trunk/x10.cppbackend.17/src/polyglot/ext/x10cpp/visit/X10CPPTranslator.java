@@ -287,6 +287,8 @@ public class X10CPPTranslator extends Translator {
 				sw.getNewStream(StreamWrapper.Closures, true);
 				// [IP] FIXME: This hack is to ensure the .cc is always generated.
 				sw.getNewStream(StreamWrapper.CC, true);
+                // [DC] TODO: This hack is to ensure the .h is always generated.
+                sw.getNewStream(StreamWrapper.Header, true);
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				assert (!opfPath.endsWith("$"));
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);

@@ -342,7 +342,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	/**
 	 * Gets a local or field of a particular name.
 	 */
-	public VarInstance findVariableSilent(Name name) {
+	public VarInstance<?> findVariableSilent(Name name) {
 		return super.findVariableSilent(name);
 	}
 
