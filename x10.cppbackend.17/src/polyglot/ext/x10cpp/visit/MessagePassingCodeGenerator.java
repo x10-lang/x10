@@ -136,6 +136,7 @@ import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.LocalTypeDef_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.ParExpr_c;
+import polyglot.ext.x10.ast.PropertyDecl;
 import polyglot.ext.x10.ast.PropertyDecl_c;
 import polyglot.ext.x10.ast.RegionMaker_c;
 import polyglot.ext.x10.ast.SettableAssign_c;
@@ -280,7 +281,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	
 	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (context.pendingStaticDecls.size() == 0)
+		if (context.pendingStaticDecls().size() == 0)
 			return false;
 		boolean hasInits = false;
 		w.write("template <> class ");
@@ -291,7 +292,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		w.newline(4); w.begin(0);
         w.write("public:"); w.newline();
 		// First process all classes
-		for (ClassMember dec : context.pendingStaticDecls) {
+		for (ClassMember dec : context.pendingStaticDecls()) {
 			if (dec instanceof ClassDecl_c) {
                 assert false : "nested class alert! "+cd.position();
 				ClassDecl_c cdecl = (ClassDecl_c) dec;
@@ -310,7 +311,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
 		}
 		// Then process all fields and methods
-		for (ClassMember dec : context.pendingStaticDecls) {
+		for (ClassMember dec : context.pendingStaticDecls()) {
 			if (dec instanceof FieldDecl_c) {
 				FieldDecl_c fd = (FieldDecl_c) dec;
 				((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
@@ -360,7 +361,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    ArrayList<FieldDecl_c> inits = new ArrayList<FieldDecl_c>();
 	    String container = translate_mangled_FQN(cd.fullName().toString())+voidTemplateInstantiation(cd.typeParameters().size());
-	    for (ClassMember dec : context.pendingStaticDecls) {
+	    for (ClassMember dec : context.pendingStaticDecls()) {
 	        if (dec instanceof FieldDecl_c) {
 	            FieldDecl_c fd = (FieldDecl_c) dec;
 	            ((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
@@ -422,45 +423,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        } else if (dec instanceof X10ClassDecl_c) {
 	            assert (false) : ("Nested class alert!");
 
-	            X10ClassDecl_c cdecl = (X10ClassDecl_c) dec;
-	            ((X10CPPTranslator)tr).setContext(cdecl.enterScope(context)); // FIXME
-
-	            X10ClassDef def = (X10ClassDef) cdecl.classDef();
-	            if (getCppRep(def) != null) {
-	                // emit no c++ code as this is a native rep class
-	                continue;
-	            }
-	            ClassifiedStream h = sw.header();
-	            emitter.printTemplateSignature(((X10ClassType)def.asType()).typeArguments(), h);
-	            h.write("class "+container+"::"+Emitter.mangled_non_method_name(def.name().toString()));
-	            h.allowBreak(0, " ");
-	            // [DC]: the following function adds the : public B, public C etc
-	            emitter.printInheritance(cdecl, h ,tr);
-	            h.allowBreak(0, " ");
-
-	            context.setinsideClosure(false);
-	            context.hasInits = false;
-
-	            assert (def.isNested());
-	            if (!def.flags().isStatic())
-	                throw new InternalCompilerError("Instance Inner classes not supported");
-
-	            ArrayList<ClassMember> opsd = context.pendingStaticDecls;
-	            context.pendingStaticDecls = new ArrayList<ClassMember>();
-
-	            cdecl.print(cdecl.body(), sw, tr);
-
-	            processNestedClasses(cdecl);
-
-	            if (extractGenericStaticDecls((X10ClassDef)cdecl.classDef(), h)) {
-	                extractGenericStaticInits((X10ClassDef)cdecl.classDef());
-	            }
-
-	            context.pendingStaticDecls = opsd;
-
-	            h.newline();
-
-	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	        }
 	    }
 	    if (inits.size() > 0) {
@@ -584,23 +546,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		return false;
 	}
 
-	private void processNestedClasses(X10ClassDecl_c n) {
-		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		boolean generic = ((X10ClassDef)n.classDef()).typeParameters().size() != 0;
-		for (Iterator i = n.body().members().iterator(); i.hasNext(); ) {
-			ClassMember member = (ClassMember) i.next();
-			if (member instanceof ClassDecl_c) {
-				X10ClassDecl_c cd = (X10ClassDecl_c) member;
-				if (generic && cd.flags().flags().isStatic()) {
-					context.pendingStaticDecls.add(cd);
-					continue;
-				}
-				processClass(cd);
-			}
-		}
-	}
-
-
 	private void extractAllClassTypes(Type t, List<ClassType> types, Set<ClassType> dupes) {
         X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
         t = xts.expandMacros(t);
@@ -654,8 +599,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     void processClass(X10ClassDecl_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-        assert (!context.inLocalClass()) : ("Local classes should have been removed earlier");
-
 		X10ClassDef def = (X10ClassDef) n.classDef();
 
 		if (getCppRep(def) != null) {
@@ -682,7 +625,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         ClassifiedStream z = sw.getNewStream(StreamWrapper.Header, false);
         sw.set(h, w);
 
-        context.setinsideClosure(false);
+        context.setInsideClosure(false);
         context.hasInits = false;
 
         // Write the header for the class
@@ -842,8 +785,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    w.forceNewline(0);
 		}
 
+        /* [DC] since we don't have nested classes anymore, processClass is never called from
+         * inside processClass, so this stack device is no-longer needed.
 		ArrayList<ClassMember> opsd = context.pendingStaticDecls;
-		context.pendingStaticDecls = new ArrayList<ClassMember>();
+        assert opsd.isEmpty() : "Should not occur without nested classes";
+         */
+
+        /*
+         * Ideally, classProperties would be added to the child context
+         * that will be created for processing the classBody, but there
+         * is no way to do that.  So instead we add and remove the properties
+         * in the global context, for each class.
+         */
+		context.resetStateForClass(n.properties());
+        
 
 		if (def.typeParameters().size() != 0) {
 			// Pre-declare the void specialization for statics
@@ -862,28 +817,20 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		emitter.printHeader(n, h, tr, false);
 		h.allowBreak(0, " ");
 
-		/*
-		 * Ideally, classProperties would be added to the child context
-		 * that will be created for processing the classBody, but there
-		 * is no way to do that.  So instead we add and remove the properties
-		 * around the call to visiting the class body.
-		 */
-		context.classProperties.addAll(n.properties());
 		n.print(n.body(), sw, tr);		
-		context.classProperties.clear();
 
         ((X10CPPTranslator)tr).setContext(n.enterChildScope(n.body(), context)); // FIXME
         /*
          * TODO: [IP] Add comment about dependences between the method calls.
          */
-        processNestedClasses(n);
 
         if (extractGenericStaticDecls(def, h)) {
             extractGenericStaticInits(def);
         }
         ((X10CPPTranslator)tr).setContext(context); // FIXME
 
-		context.pendingStaticDecls = opsd;
+		// [DC] disabled, see (commented out) definition of opsd above for details
+        // context.pendingStaticDecls = opsd;
 
 		h.newline();
 
@@ -1032,11 +979,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("public:"); h.newline();
 		emitter.printRTT(currentClass, h);
 		sw.begin(0);
-		for (Iterator pi = context.classProperties.iterator(); pi.hasNext();) {
-			PropertyDecl_c p = (PropertyDecl_c) pi.next();
+		for (PropertyDecl p : context.classProperties()) {
 			n.print(p, sw, tr);
 		}
-		context.classProperties = new ArrayList();
+        // [DC] without inner classes i see no reason to reset this here
+		//context.classProperties = new ArrayList();
 
 		List<ClassMember> members = n.members();
 		if (!members.isEmpty()) {
@@ -1244,7 +1191,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				emitter.generateSerializationMethods(currentClass, sw);
 			}
 
-			context.resetMainMethod();
 		}
 
 		h.end();
@@ -1296,7 +1242,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10MethodInstance mi = (X10MethodInstance) def.asInstance();
 		X10ClassType container = (X10ClassType) mi.container();
 		if ((container.x10Def().typeParameters().size() != 0) && flags.isStatic()) {
-			context.pendingStaticDecls.add(dec);
+			context.pendingStaticDecls().add(dec);
 			return;
 		}
 		if (query.isMainMethod(dec))
@@ -1489,7 +1435,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    if ((((X10ClassDef)((X10ClassType)dec.fieldDef().asInstance().container()).def()).typeParameters().size() != 0) &&
 	            dec.flags().flags().isStatic())
 	    {
-	        context.pendingStaticDecls.add(dec);
+	        context.pendingStaticDecls().add(dec);
 	        return;
 	    }
 
@@ -1948,7 +1894,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			Position pos = a.position();
 			a = nf.X10Cast(pos, nf.CanonicalTypeNode(pos, fType), a,
 					X10Cast.ConversionType.CHECKED).type(fType);
-		}
+        }
 		return a;
 	}
 
@@ -2200,9 +2146,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(Local_c n) {
 		X10CPPContext_c c = (X10CPPContext_c) tr.context();
 		LocalInstance var = n.localInstance();
-		if (c.insideClosure)
+		if (c.isInsideClosure())
 			c.saveEnvVariableInfo(n.name().toString());
-		sw.write(c.getCurrentName(var));
+		sw.write(mangled_non_method_name(var.name().toString()));
 	}
 
 	public void visit(New_c n) {
@@ -2382,7 +2328,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 
 	    X10CPPContext_c c = (X10CPPContext_c) context.pushBlock();
-	    c.setinClosure(true);
+	    c.setInClosure();
 	    ((X10CPPTranslator)tr).setContext(c); // FIXME
 	    emitter.enterClosure(c);
 
@@ -2411,7 +2357,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	    String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
 
-	    c.setinsideClosure(true);
+	    c.setInsideClosure(true);
 
 	    int id = getConstructorId(c);
 
@@ -2861,7 +2807,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 //               n.qualifier()+" "+n.kind()+" "+n.position().nameAndLineString();
 
         if (n.kind().equals(X10Special_c.THIS)) {
-            if (context.insideClosure) {
+            if (context.isInsideClosure()) {
                 sw.write(SAVED_THIS);
                 context.saveEnvVariableInfo(THIS);
             } else {
@@ -2870,9 +2816,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         } else if (n.kind().equals(X10Special_c.SUPER)) {
             sw.write(emitter.translateType(context.currentClass().superClass()));
         } else if (n.isSelf()) {
+            assert false: "I do not believe we ever visit over constraints.";
             // FIXME: Why are we printing the string "self"?
             // Confirm with Igor. [Krishna]
-            sw.write((context.Self() == null)? "self":context.Self());
+            //sw.write((context.Self() == null)? "self":context.Self());
         } else assert (false) : n.kind();
 
     }
@@ -2915,7 +2862,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
 
-        c.setinsideClosure(true);
+        c.setInsideClosure(true);
 
         int id = getConstructorId(c);
 
@@ -3116,7 +3063,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             String name = var.name().toString();
             if (!name.equals(THIS))
                 name = mangled_non_method_name(name);
-            else if (((X10CPPContext_c)c.pop()).insideClosure)  // FIXME: hack
+            else if (((X10CPPContext_c)c.pop()).isInsideClosure())  // FIXME: hack
                 name = SAVED_THIS;
             sw.write(name);
         }

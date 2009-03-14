@@ -310,12 +310,6 @@ public class Emitter {
 			VarInstance var = (VarInstance)c.variables.get(i);
 			if (!omitType) {
 				Type t = var.type();
-				if (c.isSPMDVar(var)) {
-					assert (t.isClass());
-					X10ClassType ct = (X10ClassType) t;
-					assert (ct.typeArguments().size() == 1);
-					t = ct.typeArguments().get(0);
-				}
 				String type = translateType(t, true);
 				w.write(type + " ");
 			}
@@ -740,7 +734,7 @@ public class Emitter {
 	}
 	
 	void enterClosure(X10CPPContext_c c) {
-		c.incClosureId();
+		c.advanceClosureId();
 	}
 	void exitClosure(X10CPPContext_c c) {
 	}
@@ -748,10 +742,10 @@ public class Emitter {
     void printExplicitTarget(Call_c n, Receiver target, X10CPPContext_c context, CodeWriter w) {
 		if (target instanceof X10Special_c &&
 				((X10Special_c)target).kind().equals(X10Special_c.THIS) &&
-				(context.inlining || context.insideClosure))
+				context.isInsideClosure())
 		{
 			w.write(SAVED_THIS);
-			if (context.insideClosure)
+			if (context.isInsideClosure())
 				context.saveEnvVariableInfo(THIS);
 		}
 		else if (target instanceof Expr) {
@@ -773,36 +767,19 @@ public class Emitter {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance var = (VarInstance)vars.get(i);
 			Type t = var.type();
-			if (c.isSPMDVar(var)) {
-				assert (t.isClass());
-				X10ClassType ct = (X10ClassType) t;
-				assert (ct.typeArguments().size() == 1);
-				t = ct.typeArguments().get(0);
-			}
 			String type = translateType(t, true);
 			if (writable && !var.name().toString().equals(THIS)) // this is a temporary ref
 			    type = type + "&"; // FIXME: Hack to get writable args in finally closures
-			List names = c.getRenameMapping(var);
-			if (names == null) {
-				String name = var.name().toString();
-				if (saved_this_mechanism && name.equals(THIS)) {
-					assert (c.inlining || c.insideClosure); // FIXME: Krishna, why did you add this test?
-					name = SAVED_THIS;
-				}
-				else {
-					if (c.isGlobalVar(var) && c.getDuplicateId(var) != null)
-						name += c.getDuplicateId(var);
-					name = mangled_non_method_name(name);
-				}
-				w.write(type + " " + name + ";");
-				w.newline();
-			} else {
-				for (Iterator n = names.iterator(); n.hasNext(); ) {
-					String name = (String) n.next();
-					w.write(type + " " + name + ";");
-					w.newline();
-				}
+			String name = var.name().toString();
+			if (saved_this_mechanism && name.equals(THIS)) {
+				assert (c.isInsideClosure()); // FIXME: Krishna, why did you add this test?
+				name = SAVED_THIS;
 			}
+			else {
+				name = mangled_non_method_name(name);
+			}
+			w.write(type + " " + name + ";");
+			w.newline();
 		}
 	}
 
@@ -1038,10 +1015,7 @@ public class Emitter {
     private void prettyPrint(Object o, Translator tr, CodeWriter w) {
         if (o instanceof Node) {
             Node n = (Node) o;
-            X10CPPContext_c context = (X10CPPContext_c) tr.context();
-            ((X10CPPTranslator) tr).setContext(n.del().enterScope(context));
-            n.del().translate(w, tr);
-            ((X10CPPTranslator) tr).setContext(context);
+            tr.print(null, n, w);
         } else if (o instanceof Type) {
             w.write(translateType((Type)o, true));
         } else if (o != null) {

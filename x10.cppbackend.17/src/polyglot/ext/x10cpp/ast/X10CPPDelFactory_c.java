@@ -66,7 +66,7 @@ public class X10CPPDelFactory_c extends X10DelFactory_c {
 		return new TD() {
 			public Context enterScope(Context c) {
 				X10CPPContext_c context = (X10CPPContext_c) super.enterScope(c);
-				context.setinClosure(true);
+				context.setInClosure();
 				return context;
 			}
 		};

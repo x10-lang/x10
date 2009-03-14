@@ -63,30 +63,6 @@ public class ASTQuery {
 	public ASTQuery(Translator tr) {
 		this.tr = tr;
 	}
-	
-	static final HashMap<String,String> arrayRuntimeNameToType = new HashMap<String,String>();
-	static {
-	    arrayRuntimeNameToType.put("booleanArray", "boolean");
-	    arrayRuntimeNameToType.put("BooleanReferenceArray", "boolean");
-	    arrayRuntimeNameToType.put("byteArray", "byte");
-	    arrayRuntimeNameToType.put("ByteReferenceArray", "byte");
-	    arrayRuntimeNameToType.put("charArray", "char");
-	    arrayRuntimeNameToType.put("CharReferenceArray", "char");
-	    arrayRuntimeNameToType.put("shortArray", "short");
-	    arrayRuntimeNameToType.put("ShortReferenceArray", "short");
-	    arrayRuntimeNameToType.put("intArray", "int");
-	    arrayRuntimeNameToType.put("IntReferenceArray", "int");
-	    arrayRuntimeNameToType.put("longArray", "long");
-	    arrayRuntimeNameToType.put("LongReferenceArray", "long");
-	    arrayRuntimeNameToType.put("floatArray", "float");
-	    arrayRuntimeNameToType.put("FloatReferenceArray", "float");
-	    arrayRuntimeNameToType.put("doubleArray", "double");
-	    arrayRuntimeNameToType.put("DoubleReferenceArray", "double");
-	}
-
-	boolean isMainMethod(X10CPPContext_c context) {
-	    return context.isMainMethod() && !context.insideClosure;
-	}
 
     boolean isSyntheticField(String name) {
 		if (name.startsWith("jlc$")) return true;

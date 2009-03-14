@@ -14,6 +14,7 @@ package polyglot.ext.x10cpp.types;
  * @author igor
  * @author pvarma
  * @author nvk
+ * @author Dave Cunningham
  * @see X10Context_c
  */
 import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
@@ -25,10 +26,10 @@ import java.util.List;
 
 import polyglot.ast.ClassMember;
 import polyglot.ast.Stmt;
+import polyglot.ext.x10.ast.PropertyDecl;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodDef;
-import polyglot.types.Context_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
@@ -37,13 +38,72 @@ import x10c.util.ClassifiedStream;
 
 public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c implements X10Context {
 
-	public X10CPPContext_c(TypeSystem ts) {
-		super(ts);
-		finish_depth = 0;
-		ateach_depth = 0;
-		inprocess = false;
-		mainMethod = false;
-	}
+    // The global object is fresh for each brand new instance of the context,
+    // but is aliased for each clone of the context (cloned via copy()).
+    // The only thing that belongs in here is primitive data that needs a level
+    // of indirection to allow aliasing after cloning.
+
+    protected static class Global {
+        public int closureId;
+    }
+    protected Global g = new Global();
+
+    public void advanceClosureId() { g.closureId++; }
+    public int closureId() { return g.closureId; }
+    protected void resetClosureId() { g.closureId = -1; }
+
+    protected ArrayList<ClassMember> pendingStaticDecls;
+    protected ArrayList<PropertyDecl> classProperties;
+    
+    public List<PropertyDecl> classProperties() { return classProperties; }
+    public List<ClassMember> pendingStaticDecls() { return pendingStaticDecls; }
+
+    // Here, for each new class we reset the above structures, ready for fresh accumulation of data.
+    public void resetStateForClass(List<PropertyDecl> props) {
+        assert kind == SOURCE;
+        pendingStaticDecls = new ArrayList<ClassMember>();
+        classProperties = new ArrayList<PropertyDecl>(props);
+        resetClosureId();
+    }
+
+    
+    private String label;
+    public String getLabel() { return label; }
+
+    private Stmt stmt;
+    public Stmt getLabeledStatement() { return stmt; }
+
+    public void setLabel(String label, Stmt stmt) {
+        this.label = label;
+        this.stmt = stmt;
+    }
+
+    
+    private String excVar;
+    public void setExceptionVar(String var) { this.excVar = var; }
+    public String getExceptionVar() { return excVar; }
+
+    // used internally, shallow
+	protected boolean inClosure;
+    public void setInClosure() { inClosure = true; }
+
+    // used externally, deep
+	protected boolean insideClosure;
+    public boolean isInsideClosure() { return insideClosure; }
+    public void setInsideClosure(boolean b) { insideClosure = b; }
+
+    
+    public boolean hasInits = false;
+
+    
+    public ClassifiedStream templateFunctions = null;
+
+	public ArrayList<VarInstance> variables = new ArrayList<VarInstance>();
+
+    
+    public X10CPPContext_c(TypeSystem ts) {
+        super(ts);
+    }
 
     public boolean inTemplate() {
         X10ClassDef cd = (X10ClassDef)currentClassDef();
@@ -60,224 +120,37 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
         return (!staticMethod && genericClass) || genericMethod;
     }
 
-	public boolean inClosure;
-	public boolean insideClosure;
-
-	public ArrayList variables = new ArrayList();
-	public ArrayList SPMDVars = new ArrayList();
-	public ArrayList GlobalVars = new ArrayList();
-	public HashSet Unbroadcastable = new HashSet();
-
-	public HashMap InlineMap = new HashMap();
-	public HashMap RenameMap = new HashMap();
-	public HashMap duplicateId = new HashMap();
-	public boolean inlining;
-	public static String returnLabel;
-	public static String returnVar;
-	public static String lastReturnVar;
-	public boolean canInline;
-
-	public static ArrayList<ClassMember> pendingStaticDecls = new ArrayList<ClassMember>();
-	public static HashMap classesWithAsyncSwitches = new HashMap();
-	public static HashMap classesWithArrayCopySwitches = new HashMap();
-	public ArrayList classProperties = new ArrayList();
-
-	public HashSet warnedAbout = new HashSet();
-
-	public void setinClosure(boolean b) {
-		inClosure = b;
-	}
-
-	public void setinsideClosure(boolean b) {
-		insideClosure = b;
-	}
-
-	protected Context_c push() {
-		X10CPPContext_c v = (X10CPPContext_c) super.push();
-		return v;
-	}
-
-    static int closureId = -1;
-    public void incClosureId() { closureId++; }
-    public int closureId() { return closureId; }
     
 	public void saveEnvVariableInfo(String name) {
 		VarInstance vi = findVariableInThisScope(Name.make(name));
 		if (vi != null) {  // found declaration 
-			return;  // local variable
+			// local variable (do nothing)
 		} else if (inClosure) {
-			addVar(name);
-			return;  // local variable
+			addVar(name); // local variable
 		} else {  // Captured Variable
 			((X10CPPContext_c) outer).saveEnvVariableInfo(name);
 		}
 	}
 
-	public void addVar(String name) {
+    
+    private VarInstance lookup(String name) {
+        VarInstance vi = findVariableInThisScope(Name.make(name));
+        if (vi != null) return vi;
+        else if (outer != null) return ((X10CPPContext_c) outer).lookup(name);
+        else return null;
+    }
+
+    private void addVar(String name) {
 		VarInstance vi = lookup(name);
 		boolean contains = false;
-		for (int i = 0; i < variables.size(); i++) {
-			if (((VarInstance) variables.get(i)).name().toString().equals(vi.name().toString())) {
-				contains = true;
-				break;
-			}
-		}
+        for (VarInstance vi2 : variables) {
+            // [DC]: what is wrong with vi2.equals(vi)?
+            if (vi2.name().toString().equals(vi.name().toString())) {
+                contains = true;
+                break;
+            }
+        }
 		if (!contains) variables.add(vi);
-	}
-
-
-	private boolean listContains(ArrayList list, Object val) {
-		for (int i = 0; i < list.size(); i++)
-			if (val == list.get(i))
-				return true;
-		return false;
-	}
-
-	public boolean isSPMDVar(VarInstance var) {
-		if (!mainMethod)
-			return false;  // Cannot have a global outside of main
-		if (var instanceof LocalInstance && isInlineMapped(var))
-			var = getInlineMapping(var);
-		if (listContains(SPMDVars, var))
-			return true;
-		if (outer != null)
-			return ((X10CPPContext_c) outer).isSPMDVar(var);
-		return false;
-	}
-
-	public void addSPMDVar(VarInstance var) {
-		if (isSPMDVar(var))
-			return;
-		assert (!isSPMDVar(var));
-		assert (mainMethod);
-		SPMDVars.add(var);
-	}
-
-	public void addGlobalVar(VarInstance var, Integer id) {
-		if (isGlobalVar(var)) //if it is the exact same instance, then don't add.
-			return;
-		assert (mainMethod);
-		assert (!isGlobalVar(var));
-		X10CPPContext_c outer = (X10CPPContext_c) this.outer;
-		// [IP] The condition below is too strict.
-		// We can also have global vars inside conditionals.
-//		assert (outer.isCode());
-		assert (outer.isMainMethod());
-
-		// If it is a different varInstance but same name then
-		// rename.
-		if (findGlobalVarSilent(var.name().toString()) != null) {
-			duplicateId.put(var,id);
-		}
-		GlobalVars.add(var);
-	}
-
-	public boolean isGlobalVar(VarInstance var) {
-		if (!mainMethod)
-			return false;  // Cannot have a global outside of main
-		// TODO: should we go via the inline mapping here as well?
-		if (GlobalVars.contains(var))
-			return true;
-		if (outer != null)
-			return ((X10CPPContext_c) outer).isGlobalVar(var);
-		return false;
-	}
-
-	public ArrayList getGlobals() {
-		return GlobalVars;
-	}
-
-	public VarInstance findGlobalVarSilent(String name) {
-		for (int i = 0; i < GlobalVars.size(); i++) {
-			VarInstance var = (VarInstance)GlobalVars.get(i);
-			if (var.name().toString().equals(name))
-				return var;
-		}
-		return null;
-	}
-
-	public void addUnbroadcastable(VarInstance var) {
-		if (isUnbroadcastable(var))
-			return;
-		assert (mainMethod);
-		assert (!isUnbroadcastable(var));
-		Unbroadcastable.add(var);
-	}
-
-	public boolean isUnbroadcastable(VarInstance var) {
-		if (!mainMethod)
-			return false;  // Cannot have a global outside of main
-		// TODO: should we go via the inline mapping here as well?
-		if (Unbroadcastable.contains(var))
-			return true;
-		if (outer != null)
-			return ((X10CPPContext_c) outer).isUnbroadcastable(var);
-		return false;
-	}
-
-	public void addInlineMapping(LocalInstance alias, LocalInstance var) {
-		if (isInlineMapped(alias))
-			return;
-		assert (!isInlineMapped(alias));
-		X10CPPContext_c outer = (X10CPPContext_c) this.outer;
-		assert (outer.isMainMethod());
-		InlineMap.put(alias, var);
-	}
-
-	public boolean isInlineMapped(VarInstance var) {
-		if (InlineMap.containsKey(var))
-			return true;
-		if (outer != null)
-			return ((X10CPPContext_c) outer).isInlineMapped(var);
-		return false;
-	}
-
-	public LocalInstance getInlineMapping(VarInstance var) {
-		assert (var instanceof LocalInstance);
-		LocalInstance result = (LocalInstance) InlineMap.get(var);
-		if (result == null && outer != null) {
-			result = ((X10CPPContext_c) outer).getInlineMapping(var);
-		}
-		return result;
-	}
-	public Object getDuplicateId(VarInstance var) {
-		 return duplicateId.get(var);
-	}
-
-	public void addRenameMapping(VarInstance var, String newName) {
-		assert (inlining);
-		List names = (List) RenameMap.get(var);
-		if (names == null)
-			RenameMap.put(var, names = new ArrayList());
-		names.add(newName);
-	}
-
-	public String getCurrentName(VarInstance var) {
-		String D = "";
-		if (insideClosure && isGlobalVar(var) && getDuplicateId(var) != null) {
-			D = getDuplicateId(var).toString();
-		}
-		if (!inlining)
-			return mangled_non_method_name(var.name().toString() + D); 
-		List names = getRenameMapping(var);
-		if (names == null)
-			return mangled_non_method_name(var.name().toString() + D); 
-		return mangled_non_method_name((String) names.get(names.size()-1) + D);
-	}
-
-	public List getRenameMapping(VarInstance var) {
-		return (List) RenameMap.get(var);
-	}
-
-	public void removeRenameMapping(VarInstance var) {
-		RenameMap.remove(var);
-	}
-
-	private VarInstance lookup(String name) {
-		VarInstance vi = findVariableInThisScope(Name.make(name));
-		if (vi != null) return vi;
-		else if (outer != null) return ((X10CPPContext_c) outer).lookup(name);
-		else return null;
 	}
 
 	public void finalizeClosureInstance() {
@@ -294,117 +167,16 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name().toString());
 		}
 	}
+    
+    
+    
 
 	public Object copy() {
 		X10CPPContext_c res = (X10CPPContext_c) super.copy();
-		res.variables = new ArrayList();  // or whatever the initial value is
+		res.variables = new ArrayList<VarInstance>();  // or whatever the initial value is
 		res.inClosure = false;
-		res.InlineMap = new HashMap();
 		return res;
 	}
 
-	private boolean mainMethod;
-
-	public boolean isMainMethod() {
-		return mainMethod;
-	}
-
-	public void setMainMethod() {
-		mainMethod = true;
-	}
-
-	public void resetMainMethod() {
-		mainMethod = false;
-	}
-
-	private boolean asyncInlinable;
-
-	// this variable is set, if we are inside a loop structure or
-	// nested asyncs, throw statement, or conditional atomics. Q: How
-	// to detect if there are messages that are being initiated?
-	// -Krishna.
-	public boolean inlinableAsyncsOnly() {
-		return asyncInlinable;
-	}
-
-	public void setInlinableAsyncsOnly() {
-		asyncInlinable = true;
-	}
-
-	public void resetInlinableAsyncsOnly() {
-		asyncInlinable = false;
-	}
-
-	private boolean seqCode;
-
-	public boolean noAtEachCode() {
-		return seqCode;
-	}
-
-	public void setAtEachCode() {
-		seqCode = true;
-	}
-
-	public void resetAtEachCode() {
-		seqCode = false;
-	}
-
-	public static int async_depth = 0;
-
-	public static int finish_cnt = 0;
-
-	public int finish_depth;
-
-	public int ateach_depth;
-
-	public boolean inprocess;
-
-	public static boolean inplace0;
-
-	// I would think that we do not need static here.
-	// But someone is overwriting the context and I am
-	// ending up having wrong labels.
-	// -Krishna. TODO: Fixit.
-	public static int nextLabel;
-
-	private String label;
-
-	private Stmt stmt;
-
-	public void setLabel(String label, Stmt stmt) {
-		this.label = label;
-		this.stmt = stmt;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public Stmt getLabeledStatement() {
-		return stmt;
-	}
-
-	private String excVar;
-
-	public boolean hasInits = false;
-
-	public void setExceptionVar(String var) {
-		this.excVar = var;
-	}
-
-	public String getExceptionVar() {
-		return excVar;
-	}
-	private static int localClassDepth;
-	public boolean inLocalClass(){ return localClassDepth != 0; }
-	public void pushInLocalClass(){ localClassDepth ++ ; }
-	public void popInLocalClass(){ localClassDepth--; }
-
-	private static String selfStr;
-	public void setSelf(String str){ selfStr = str; };
-	public void resetSelf() { selfStr = null; };
-	public String Self() { return selfStr; };
-
-	public ClassifiedStream templateFunctions = null;
 }
 //vim:tabstop=4:shiftwidth=4:expandtab
