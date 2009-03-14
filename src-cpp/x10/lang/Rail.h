@@ -8,6 +8,7 @@
 #include <x10aux/rail_utils.h>
 
 #include <x10/lang/Ref.h>
+#include <x10/lang/Settable.h>
 #include <x10/lang/ValRail.h>
 
 
@@ -17,7 +18,9 @@ namespace x10 {
 
         template<class P1, class R> class Fun_0_1;
 
-        template<class T> class Rail : public Ref, public x10aux::AnyRail<T> {
+        template<class T> class Rail : public Ref,
+                                       public x10::lang::Settable<x10_int,T>,
+                                       public x10aux::AnyRail<T> {
 
             public:
 
@@ -25,8 +28,9 @@ namespace x10 {
                 public:
                 static RTT * const it;
 
-                virtual void init() { initParents(2,x10aux::getRTT<Ref>(),
-                                                    x10aux::getRTT<Fun_0_1<x10_int,T> >()); }
+                virtual void init() { initParents(3,x10aux::getRTT<Ref>(),
+                                                    x10aux::getRTT<Settable<x10_int,T> >(),
+                                                    x10aux::getRTT<Iterable<T> >()); }
 
                 virtual const char *name() const {
                     static const char *name =
@@ -50,6 +54,10 @@ namespace x10 {
             Rail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
 
             ~Rail() { }
+
+            GPUSAFE virtual T set(T v, x10_int index) { 
+                return (*this)[index] = v; 
+            } 
 
             class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
 
@@ -115,7 +123,6 @@ namespace x10 {
             virtual x10aux::ref<x10::lang::Iterator<T> > iterator() {
                 return new (x10aux::alloc<Iterator>()) Iterator (this);
             }   
-
 
             static x10aux::ref<Rail<T> > make(x10_int length) {
                 x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);

@@ -7,6 +7,8 @@
 #include <x10aux/RTT.h>
 
 
+#include <x10/lang/Fun_0_1.h>
+
 #include <x10aux/rail_utils.h>
 
 
@@ -16,7 +18,9 @@ namespace x10 {
 
         template<class P1, class R> class Fun_0_1;
 
-        template<class T> class ValRail : public Value, public x10aux::AnyRail<T> {
+        template<class T> class ValRail : public Value,
+                                          public virtual Fun_0_1<x10_int,T>,
+                                          public x10aux::AnyRail<T> {
 
             public:
 
@@ -24,8 +28,9 @@ namespace x10 {
                 public:
                 static RTT * const it;
 
-                virtual void init() { initParents(2,x10aux::getRTT<Value>(),
-                                                    x10aux::getRTT<Fun_0_1<x10_int,T> >()); }
+                virtual void init() { initParents(3,x10aux::getRTT<Value>(),
+                                                    x10aux::getRTT<Fun_0_1<x10_int,T> >(),
+                                                    x10aux::getRTT<Iterable<T> >()); }
 
                 virtual const char *name() const {
                     static const char *name =
@@ -48,6 +53,11 @@ namespace x10 {
             ValRail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
 
             ~ValRail() { }
+
+            GPUSAFE T apply(x10_int index) { 
+                // do bounds check 
+                return apply(index);
+            }    
 
             class Iterator : public Ref, public virtual x10::lang::Iterator<T> {
 
