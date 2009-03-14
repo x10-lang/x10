@@ -8,14 +8,14 @@
 import harness.x10Test;
 
 /**
- * Test a generics class with an invariant parameter.
+ * Test a the invocation of .equals on a method type parameter.
  *
  * @author nystrom 8/2008
  */
 public class GenericMethodEquals extends x10Test {
 
     static class A {
-        public def equals(A) {
+        public def equals(Ref) {
             return true;
         }
     }
@@ -24,17 +24,16 @@ public class GenericMethodEquals extends x10Test {
 
     }
 
-
     public static def test[T] (a:T) {
         return a.equals(a);
     }
 
-	public def run(): boolean = {
+    public def run(): boolean = {
         return test[B](new B());
-	}
+    }
 
-	public static def main(var args: Rail[String]): void = {
-		new GenericMethodEquals().execute();
-	}
+    public static def main(var args: Rail[String]): void = {
+        new GenericMethodEquals().execute();
+    }
 }
 
