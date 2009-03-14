@@ -800,8 +800,8 @@ public class Emitter {
 
 		if (!type.flags().isAbstract()) {
             // _serialization_id
-            h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";");
-            h.newline();
+            h.write("public: static const x10aux::serialization_id_t "+SERIALIZATION_ID_FIELD+";"); h.newline();
+            h.forceNewline();
             printTemplateSignature(ct.typeArguments(), w);
             w.write("const x10aux::serialization_id_t "+klass+"::"+SERIALIZATION_ID_FIELD+" = ");
             w.newline(4);
@@ -818,9 +818,15 @@ public class Emitter {
                 h.write("static void "+SERIALIZE_METHOD+"("); h.begin(0);
                 h.write(make_ref(klass)+" this_,"); h.newline();
                 h.write(SERIALIZATION_BUFFER+"& buf,"); h.newline();
-                h.write("x10aux::addr_map& m) "); h.end(); h.newline();
-                h.write("{ this_->_serialize_body(buf, m); }"); h.newline();
-                h.newline(0); h.forceNewline();
+                h.write("x10aux::addr_map& m) {"); h.end(); h.newline(4); h.begin(0);
+                h.write(    "if (this_ == x10aux::null) {"); h.newline(4); h.begin(0);
+                h.write(        "V v;"); h.newline(); // needed when we serialise uninitialised values
+                h.write(        "v._serialize_body(buf, m);"); h.end(); h.newline();
+                h.write(    "} else {"); h.newline(4); h.begin(0);
+                h.write(        "this_->_serialize_body(buf, m);"); h.end(); h.newline();
+                h.write(    "}"); h.end(); h.newline();
+                h.write("}"); h.newline();
+                h.forceNewline();
             }
         }
 
@@ -831,9 +837,9 @@ public class Emitter {
                 h.write("virtual ");
             h.write("void "+SERIALIZE_ID_METHOD+"("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
             h.newline(4); h.begin(0);
-            h.write("buf.write(this->"+SERIALIZATION_ID_FIELD+",m);"); h.newline();
-            h.end() ; h.newline();
-            h.write("}"); h.newline(); h.forceNewline();
+            h.write("buf.write(this->"+SERIALIZATION_ID_FIELD+",m);"); h.end(); h.newline();
+            h.write("}"); h.newline();
+            h.forceNewline();
         }
     
 
