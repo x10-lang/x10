@@ -149,17 +149,21 @@ public class X10Return_c extends Return_c {
 		        }
 		    }
 
-		    if (typeRef.get().isVoid() && expr != null && implicit) {
+		   /* vj: Commented out -- per X10 1.7 manual a void method or closure body
+		    * cannot have a terminating expression.
+		    * See test 
+		    * examples/Constructs/Closures/ClosureReturn5_MustFailCompile.
+		    * if (typeRef.get().isVoid() && expr != null && implicit) {
 			NodeFactory nf = tc.nodeFactory();
 			if (expr instanceof Call || expr instanceof New || expr instanceof Assign)
 			    return nf.Block(position(), nf.Eval(expr.position(), expr), nf.Return(position()));
-		    }
+		    }*/
 
 		    if (expr == null && ! typeRef.getCached().isVoid()) {
 			throw new SemanticException("Must return value from non-void method.", position());
 		    }
 		    if (expr != null && typeRef.getCached().isVoid()) {
-			throw new SemanticException("Cannot return value from void method.", position());
+			throw new SemanticException("Cannot return value from void method or closure.", position());
 		    }
 		}
 		
