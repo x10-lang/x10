@@ -154,10 +154,19 @@ public class X10Return_c extends Return_c {
 		    * See test 
 		    * examples/Constructs/Closures/ClosureReturn5_MustFailCompile.
 		    * if (typeRef.get().isVoid() && expr != null && implicit) {
-			NodeFactory nf = tc.nodeFactory();
-			if (expr instanceof Call || expr instanceof New || expr instanceof Assign)
-			    return nf.Block(position(), nf.Eval(expr.position(), expr), nf.Return(position()));
-		    }*/
+		    	NodeFactory nf = tc.nodeFactory();
+		    	if (expr instanceof Call || expr instanceof New || expr instanceof Assign)
+		    		return nf.Block(position(), nf.Eval(expr.position(), expr), nf.Return(position()));
+		    }
+		    */
+		    // Note that for the code def m(args) = e;
+		    // the e is translated into a return e;
+		    // Now we must make sure that if e is of type void, then
+		    // the return e; is replaced by {eval(e); return;}
+		    if (expr != null && implicit && expr.type().isVoid()) {
+		    	NodeFactory nf = tc.nodeFactory();
+		    	return nf.Block(position(), nf.Eval(expr.position(), expr), nf.Return(position()));
+		    }
 
 		    if (expr == null && ! typeRef.getCached().isVoid()) {
 			throw new SemanticException("Must return value from non-void method.", position());
