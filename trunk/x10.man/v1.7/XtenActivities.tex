@@ -156,10 +156,19 @@ variables, \Sref{XtenClocks}) provided that such variables are
 (implicitly or explicitly) \xcd"final".
 \end{staticrule*}
 
-The body of an  \xcd"async S" is not permitted to contain a 
-\xcd"return" statement. Programmers wishing to use
-a \xcd"return" statement in \xcd"S" should use the idiom
-\xcd"val x=()=>S;async x();" instead.
+\paragraph{Returning from within an \xcd"async".}
+The body \xcd"S" of an  \xcd"async S" is not permitted to contain a 
+\xcd"return" statement since there are two candidate scopes from which
+the programmer might intend the return: the   
+\xcd"async" itself, and the enclosing method.
+
+Programmers wishing to use a \xcd"return" statement in \xcd"S" to
+return from the \xcd"async S" should use the idiom \xcd"val
+x=()=>S;async x();" instead (for some new variable \xcd"x". (Note that
+it does not make sense for code executing in the body of an
+\xcd"async" to attempt to return from the enclosing method -- the
+method may already have returned asynchronously.)
+
 
 \section{Place changes}\label{AtStatement}
 
