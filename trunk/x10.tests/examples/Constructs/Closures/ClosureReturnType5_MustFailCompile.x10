@@ -15,12 +15,12 @@ public class ClosureReturnType5_MustFailCompile extends ClosureTest {
 
     def x() = 1;
 
-    public def run(): boolean = {
+    public def run(){
         val foo = ():void => x();
         return true;
     }
 
-    public static def main(var args: Rail[String]): void = {
+    public static def main(Rail[String]) {
         new ClosureReturnType5_MustFailCompile().execute();
     }
 }
