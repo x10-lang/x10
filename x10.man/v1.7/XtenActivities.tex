@@ -156,6 +156,11 @@ variables, \Sref{XtenClocks}) provided that such variables are
 (implicitly or explicitly) \xcd"final".
 \end{staticrule*}
 
+The body of an  \xcd"async S" is not permitted to contain a 
+\xcd"return" statement. Programmers wishing to use
+a \xcd"return" statement in \xcd"S" should use the idiom
+\xcd"val x=()=>S;async x();" instead.
+
 \section{Place changes}\label{AtStatement}
 
 An activity may change place using the \xcd"at" statement or
