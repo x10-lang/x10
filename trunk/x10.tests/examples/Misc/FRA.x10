@@ -13,8 +13,7 @@ value LocalTable {
     }
 }
 
-
-class FRA {
+public class FRA {
 
     const POLY = 0x0000000000000007L;
     const PERIOD = 1317624576693539401L;
@@ -65,16 +64,10 @@ class FRA {
     }
 
 
-    public static def main(args:Rail[String]) {
-
-        if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
-            x10.io.Console.OUT.println("The number of places must be a power of 2.");
-            return;
-        }
+    public def run():boolean {
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?
-            int.parseInt(args(1)) : 10;
+        val logLocalTableSize = 10;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*NUM_PLACES;
         val NUM_UPDATES = 4*tableSize;
@@ -83,32 +76,20 @@ class FRA {
         val init = (p:Point) => new LocalTable(localTableSize);
         val tables = Array.make[LocalTable](Dist.makeUnique(),
             (p:Point) => new LocalTable(localTableSize));
-        x10.io.Console.OUT.println("tables dist " + tables.dist);
-
-        // print some info
-        x10.io.Console.OUT.println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
-        x10.io.Console.OUT.println("Number of places = " + NUM_PLACES);
-        x10.io.Console.OUT.println("Number of updates = " + NUM_UPDATES);
 
         // time it
         var cpuTime:double = -now();  
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
         cpuTime += now();
 
-        // print statistics
-        val GUPs = (cpuTime > 0.0 ? 1.0 / cpuTime : -1.0) * NUM_UPDATES / 1e9;
-        x10.io.Console.OUT.printf("CPU time used  = %.2f seconds\n", cpuTime);
-        x10.io.Console.OUT.printf("%.6f Billion(10^9) Updates per second (GUP/s)\n", GUPs);
-
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
+	val result = Array.make[Int](Dist.makeUnique(), (Point)=>0);
         for (p:Place in Place.places) async(p) {
             val l = tables(p.id);
-            var err:int = 0;
-            for ((q):Point in l.a) if (l.a(q) != q) err++;
-            val msg = "Found " + err + " errors.";
-            x10.io.Console.OUT.println(msg);
+            for ((q):Point in l.a) if (l.a(q) != q) result(p.id)++;
         }
+	return result.reduce(Int.+,0)==0;
     }
 
     static def now() = System.nanoTime() * 1e-9D;

@@ -1,16 +1,17 @@
 import x10.io.Console;
+import harness.x10Test;
 
-public class ArraySum {
+public class ArraySum extends x10Test {
 
     var sum: int;
     val size: int;
     val data: Rail[int];
     val R:Region{rail};
 
-    public def this(n: int): ArraySum = {
+    public def this(n: int)  {
         size=n;
-        R= 0..n-1 as Region{rail};
-        data = Rail.makeVar[int](n, (x:nat)=>0 as int);
+        R = 0..n-1 as Region{rail};
+        data = Rail.makeVar[int](n, (x:nat)=>0);
         for (var i: int = 0; i < n; i++) data(i)=1;
         sum=0;
     }
@@ -21,7 +22,7 @@ public class ArraySum {
         return mySum;
     }
 
-    def sum(val numThreads: int): void = {
+    def sum(val numThreads: int) {
         val mySize: int = size/numThreads;
         finish foreach ((p) in 0..numThreads-1) {
             var mySum: int = sum(data, p*mySize, (p+1)*mySize);
@@ -29,33 +30,23 @@ public class ArraySum {
         }
     }
     
-    public static def main(args: Rail[String]): void = {
-
-        var size: int = 5*1000*1000;
-        if (args.length >=1)
-            size = Int.parseInt(args(0));
-
-        x10.io.Console.OUT.println("initializing");
+    public def run(): boolean {
+        var size: int = 5*1000;
         var a: ArraySum = new ArraySum(size);
         val numThreads = [1,2,4];
-
-        //warmup loop
-        x10.io.Console.OUT.println("doing warmup");
-        for (var i: int = 0; i < numThreads.length; i++) 
-            a.sum(numThreads(i));
-        
-        for (var i: int = 0; i < numThreads.length; i++) {
-            x10.io.Console.OUT.println("starting with " + i + " threads");
+        var good:boolean=true;
+        for (var i: int = 0; i < numThreads.length && good; i++) {
             a.sum=0;
             var time: long = - System.nanoTime();
             a.sum(numThreads(i));
             time += System.nanoTime();
-            x10.io.Console.OUT.println("For p=" + numThreads(i) 
-                    + " result: " + a.sum 
-                    + ((size==a.sum)? " ok" : "  bad") 
-                    + " (time=" + (time/(1000*1000)) + " ms)");
+	    good &= size==a.sum;
         }
-        
-        
+        return good;
     }
+   
+    	public static def main(var args: Rail[String]){
+    		new ArraySum(1).execute();
+    	}
+    
 }

@@ -23,7 +23,6 @@ value LocalTable {
     }
 }
 
-
 class FRASimpleDist {
 
     const POLY = 0x0000000000000007L;
@@ -80,33 +79,24 @@ class FRASimpleDist {
     }
 
 
-    public static def main(args:Rail[String]) {
-
+    public def run():boolean {
         if ((NUM_PLACES & (NUM_PLACES-1)) > 0) {
             println("The number of places must be a power of 2.");
-            return;
+            return false;
         }
 
         // calculate the size of update array (must be a power of 2)
-        val logLocalTableSize = args.length > 1 && args(0).equals("-m")?
-            int.parseInt(args(1)) : 12;
+        val logLocalTableSize = 12;
         val localTableSize = 1<<logLocalTableSize;
         val tableSize = localTableSize*NUM_PLACES;
         val NUM_UPDATES = 4*tableSize;
 
         // create local tables
-        val varTables = Rail.makeVar[LocalTable](Place.MAX_PLACES);
-        finish for (var p:int=0; p<Place.MAX_PLACES; p++) {
-            val pp = p;
-            async (Place.places(p)) {
-                val t = new LocalTable(localTableSize);
-                async (Place.places(0))
-                    varTables(pp) = t;
-            }
-        }
-        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, (x:Int) => varTables(x));
+	val tableMaker = (x:Int)=> 
+	    at(Place.places(x)){new LocalTable(localTableSize)};
+        val tables = Rail.makeVal[LocalTable](Place.MAX_PLACES, tableMaker);
 
-        // print some info
+	// print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + NUM_PLACES+" = " + tableSize+ " words");
         println("Number of places = " + NUM_PLACES);
         println("Number of updates = " + NUM_UPDATES);
@@ -116,22 +106,25 @@ class FRASimpleDist {
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
         cpuTime += now();
 
-        // print statistics
+      // print statistics
         val GUPs = (cpuTime > 0.0 ? 1.0 / cpuTime : -1.0) * NUM_UPDATES / 1e9;
         println("CPU time used  = "+cpuTime+" seconds");
         println(GUPs+" Billion(10^9) Updates per second (GUP/s)");
 
         // repeat for testing.
         randomAccessUpdate(NUM_UPDATES, logLocalTableSize, tables);
-        for (var i:int=0; i<Place.MAX_PLACES; i++) {
+	val result = Array.make[Int](Dist.makeUnique(), (Point)=>0);
+        for ((i) in  0..Place.MAX_PLACES-1) {
             val table = tables(i);
             async (Place.places(i)) {
-                var err:int = 0;
-                for (var j:int=0; j<table.a.length; j++)
-                    if (table.a(j) != j) err++;
-                println("Found " + err + " errors.");
+                for ((j) in 0 .. table.a.length-1)
+                    if (table.a(j) != j) {
+			result(i)++;
+			println("Found error at j=" + j + " " + table.a(j));
+		    }
             }
         }
+	return result.reduce(Int.+,0)==0;
     }
 
     static def now() = Timer.nanoTime() * 1e-9D;
