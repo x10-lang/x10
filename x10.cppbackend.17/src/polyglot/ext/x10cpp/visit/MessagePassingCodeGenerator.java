@@ -3145,9 +3145,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            c.print(a, sw, tr);
 	            sw.write(";");
 	            sw.newline();
+	            i++;
 	        }
-	        i++;
 	    }
+	    // Enter the context of the body
+	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	    X10CPPContext_c ctx = (X10CPPContext_c) closure.del().enterScope(context);
+	    ctx.setInsideClosure(true);
+	    ((X10CPPTranslator)tr).setContext(ctx); // FIXME
 	    int i = 0;
 	    for (Expr a : args) {
 	        Formal f = closure.formals().get(i);
@@ -3156,8 +3161,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.allowBreak(2, " ");
 	        if (clashes)
 	            sw.write(alt[i]);
-	        else
+	        else {
+	            // Arguments are evaluated in the outside context
+	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	            c.print(a, sw, tr);
+	            ((X10CPPTranslator)tr).setContext(ctx); // FIXME
+	        }
 	        sw.write(";");
 	        sw.newline();
 	        i++;
@@ -3175,6 +3184,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            printInlinedClosureStmt(s, sw, null, null, closure);
 	        }
 	    }
+	    ctx.finalizeClosureInstance();
+	    ((X10CPPTranslator)tr).setContext(context); // FIXME
 	    sw.end(); sw.newline();
 	    sw.write("})"); sw.newline();
 	    return true;
