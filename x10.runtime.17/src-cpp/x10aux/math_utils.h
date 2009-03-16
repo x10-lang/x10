@@ -14,6 +14,9 @@ namespace x10aux {
         static x10_double log10(x10_double x);
         static x10_double log1p(x10_double x);
         static x10_double sqrt(x10_double x);
+        static x10_double ceil(x10_double x);
+        static x10_double floor(x10_double x);
+        static x10_double round(x10_double x);
     };
 }
 
