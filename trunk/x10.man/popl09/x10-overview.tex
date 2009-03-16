@@ -1,11 +1,11 @@
 
 This section presents an informal description of 
-dependent and generic types in \Xten{}.  
-
-XXX we simplify a great deal.  Parameters vs. properties.
+dependent and generic types in \Xten{}.  In this presentation,
+we simplify and elide many details of the \Xten{} semantics.
 
 \Xten{} is a class-based object-oriented language.
 The language has a sequential core similar to Java or Scala, but
+also
 constructs for concurrency and distribution, as well as constrained
 types, described here.  Like Java, the language provides single class
 inheritance and multiple interface inheritance.
@@ -19,7 +19,8 @@ constraint.  Constraints are drawn from a constraint language that,
 syntactically, is a subset of the boolean expressions of \Xten{}.  For
 brevity, the constraint may be omitted and interpreted as \xcd"true".
 
-To illustrate the features of dependent types in \Xten{}, we develop a \xcd"List"
+To illustrate the features of dependent types in \Xten{}, we
+develop a \xcd"List"
 class.  We will present several versions of \xcd"List" as we
 introduce new features.
 A \xcd"List" class with a type property \xcd"T" and an \xcd"int"
@@ -33,7 +34,7 @@ value properties.
 class List[T](length: int) {
   var head: T;
   val tail: List[T];
-  def get(i: int) {
+  def get(i: int): T {
     if (i == 0) return head;
     else return tail.get(i-1);
   }
@@ -129,7 +130,8 @@ class List[T](length: int){length >= 0} {
 
 Properties of a class may be constrained with 
 a \emph{class invariant}.   
-The \xcd"List" declaration's class invariant specifies that the length of
+The \xcd"List" declaration's class invariant in
+Figure~\ref{fig:list} specifies that the length of
 the list be non-negative.  
 The class invariant must be established by all constructors of
 the class and can subsequently be assumed for all instances of the class.
@@ -148,10 +150,10 @@ class Tree[T]{T $\extends$ Comparable[T]} {
 \subsection{Class member invariants}
 
 Class and interface member declarations may have additional
-constraints that must be satisfied for access.
+constraints, or \emph{guards}, that must be satisfied for access.
 
-The field  declarations in Figure~\ref{fig:list}
-each have a \emph{field constraint}.  The field constraint on
+The field declarations in Figure~\ref{fig:list}
+each have a guard.  The guard on
 \xcd"head" requires that \xcd"length" \xcd">" \xcd"0";
 that is \xcd"this.head" may not be dereferenced
 unless \xcd"this" has type \xcd"List{length>0}".  Similarly,
@@ -166,19 +168,19 @@ specialization is described in Section~\ref{sec:impl}.
 The method \xcd"get" in Figure~\ref{fig:list}
 has a constraint on the type of \xcd"i" that requires
 that it be within the list bounds.
-The method also has a \emph{method constraint} that
+The method also has a guard that
 requires that the actual
 receiver's
 \xcd"length" field must be non-zero---calls to \xcd"get" on empty lists are not
 permitted.
-A method with a method constraint is called a \emph{conditional method}.
-The constraint on \xcd"get" ensures that the field constraint on
+A method with a guard is called a \emph{conditional method}.
+The constraint on \xcd"get" ensures that the guard on 
 \xcd"tail" is satisfied in the method body.
 In the method body, the \xcd"head" of the list is returned for
 position \xcd"0"; otherwise, the call recurses on \xcd"tail".
 Note that for this example to type-check, the constraint system
-must establish the field constraint on \xcd"tail"
-and the method constraint on the recursive call;
+must establish the guard on \xcd"tail"
+and the guard on the recursive call to \xcd"get";
 that is, it must be able
 guarantee that the \xcd"tail" is non-empty and that
 \xcd"i-1" is within the bounds of \xcd"tail".
@@ -197,9 +199,9 @@ Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
 superclass.  An overridden method may have a return type that is
 a subtype of the superclass method's return type.
-A method constraint may be weakened by an overriding
-method; that is, the method constraint in the superclass must entail the  
-method constraint in the subclass.
+A method guard may be weakened by an overriding
+method; that is, the guard in the superclass must entail the  
+guard in the subclass.
 
 Methods may also have type parameters.  
 For instance, the \xcd"map" method in Figure~\ref{fig:list} 
@@ -249,7 +251,7 @@ to a variable of type \xcd"l.T" or of type \xcd"Object".
 The type property \xcd"T" is bound to \xcd"float".
 For a final expression \xcd"l" of this type,
 \xcd"l.T" and \xcd"float" are equivalent types and can be used
-interchangeable wherever \xcd"l" is in scope.
+interchangeably.
 
 \item \xcdmath"List{T$\extends$Collection}".
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
@@ -257,14 +259,16 @@ All instances of this type must bind \xcd"T" to a subtype of
 \xcd"Collection"; for example \xcd"List[Set]" (i.e.,
 \xcd"List{T==Set}") is a subtype of
 \xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
-\xcdmath"T$\extends$Collection".
+\xcdmath"T"
+\xcdmath"$\extends$"
+\xcdmath"Collection".
 %
 If \xcd"l" has the type \xcdmath"List{T$\extends$Collection}",
 then the return type of \xcd"get" has type \xcd"l.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
 
-\item \xcd"List{T:>String}".  This type bounds the type property
+\item \xcd"List{T$\super$String}".  This type bounds the type property
 \xcd"T"
 from below.  For a \xcd"List" \xcd"l" of this type, any
 supertype of \xcd"String" may flow into a variable of type \xcd"l.T".
@@ -280,7 +284,7 @@ with
 a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
 if \xcd"X" is a type property, then
 the syntax \xcd"C[+T]" is shorthand for \xcdmath"C{X$\extends$T}" and
-\xcd"C[-T]" is shorthand for \xcd"C{X:>T}"; of course,
+\xcd"C[-T]" is shorthand for \xcdmath"C{X$\super$T}"; of course,
 \xcd"C[T]" is shorthand for \xcd"C{X==T}".
 
 
