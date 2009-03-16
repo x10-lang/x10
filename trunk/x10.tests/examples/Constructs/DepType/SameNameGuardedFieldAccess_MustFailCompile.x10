@@ -1,4 +1,4 @@
-/**
+/*
  *
  * (C) Copyright IBM Corporation 2006
  *
@@ -10,7 +10,6 @@ import harness.x10Test;
 /**
  * Tests that two guarded fields may not have the same name, even if their guard
  * conditions are disjoint.
- * [IP] This looks wrong.  Has the syntax for the guard changed?
  *
  * @author pvarma
  */
@@ -30,7 +29,7 @@ public class SameNameGuardedFieldAccess_MustFailCompile extends x10Test {
         t.value = t.value + 10;
         return true;
     }
-	
+
     public static def main(var args: Rail[String]): void = {
         new SameNameGuardedFieldAccess_MustFailCompile().execute();
     }
