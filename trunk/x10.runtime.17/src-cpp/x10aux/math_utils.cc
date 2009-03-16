@@ -34,4 +34,16 @@ x10_double x10aux::math_utils::sqrt(x10_double x) {
     return ::sqrt(x);
 }
 
+x10_double x10aux::math_utils::ceil(x10_double x) {
+    return ::ceil(x);
+}
+
+x10_double x10aux::math_utils::floor(x10_double x) {
+    return ::floor(x);
+}
+
+x10_double x10aux::math_utils::round(x10_double x) {
+    return ::round(x);
+}
+
 // vim:tabstop=4:shiftwidth=4:expandtab
