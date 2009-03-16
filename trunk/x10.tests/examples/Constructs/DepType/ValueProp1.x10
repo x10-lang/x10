@@ -14,17 +14,17 @@ import harness.x10Test;
  */
 public class ValueProp1 extends x10Test {
 
-   class Value2(i:int, j:int{self==i})  {
+    static class Value2(i:int, j:int{self==i}) {
+        public def this(k:int):Value2{self.i==k} = {
+            property(k,k);
+        }
+    }
 
-	public def this(k:int):Value2{i==j} = {
-	    property(k,k);
-	}
-	}
-	public def run():boolean = {
-	     new Value2(4);
-	    return true;
-	}
-	public static def main(var args: Rail[String]): void = {
-		new ValueProp1().execute();
-	}
+    public def run():boolean = {
+        new Value2(4);
+        return true;
+    }
+    public static def main(var args: Rail[String]): void = {
+        new ValueProp1().execute();
+    }
 }

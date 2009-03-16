@@ -14,17 +14,16 @@ import harness.x10Test;
  */
 public class PropsMustBeVisibleInValueInvariant extends x10Test {
 
-   value Value2(i:int, j:int){i==j}  {
-
-	public def this(k:int):Value2{self.i==k} = {
-	    property(k,k);
-	}
-	}
-	public def run()  {
-	    new Value2(4);
-	    return true;
-	}
-	public static def main(Rail[String]) {
-		new PropsMustBeVisibleInValueInvariant().execute();
-	}
+    static value Value2(i:int, j:int){i==j}  {
+        public def this(k:int):Value2{self.i==k} = {
+            property(k,k);
+        }
+    }
+    public def run() = {
+        new Value2(4);
+        return true;
+    }
+    public static def main(Rail[String]): void = {
+        new PropsMustBeVisibleInValueInvariant().execute();
+    }
 }

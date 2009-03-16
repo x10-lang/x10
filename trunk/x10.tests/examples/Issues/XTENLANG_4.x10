@@ -10,11 +10,11 @@ import harness.x10Test;
 class XTENLANG_4 extends x10Test {
 
     class R(rank:int) {
-        incomplete def m(val r: int): R{rank==r};
+        incomplete def m(val r: int): R{self.rank==r};
     }
     
     class B extends R {
-        incomplete def m(val r: int): R{rank==r};
+        incomplete def m(val r: int): R{self.rank==r};
     }
 
     public def run(): boolean {

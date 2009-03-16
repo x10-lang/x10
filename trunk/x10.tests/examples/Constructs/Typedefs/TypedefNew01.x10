@@ -20,8 +20,8 @@ public class TypedefNew01 extends TypedefTest {
     public def run(): boolean = {
         
         class A(k:int) {
-            def this():A{k==0} = property(0);
-            def this(i:int):A{k==i} = property(i);
+            def this():A{self.k==0} = property(0);
+            def this(i:int):A{self.k==i} = property(i);
         }
         
         type T(i:int) = A{k==i};
@@ -33,9 +33,9 @@ public class TypedefNew01 extends TypedefTest {
         val a2 = new A(0);
 
         // allowed
-        val t1:A{k==0} = new T0();  // A{k==0} <: A{k==0}
-        val t2:A{k==0} = new T0(0); // A{k==0} <: A{k==0}
-        val t3:A{k==1} = new T1(1); // A{k==1} <: A{k==1}
+        val t1:A{self.k==0} = new T0();  // A{k==0} <: A{k==0}
+        val t2:A{self.k==0} = new T0(0); // A{k==0} <: A{k==0}
+        val t3:A{self.k==1} = new T1(1); // A{k==1} <: A{k==1}
 
         return result;
     }

@@ -20,8 +20,8 @@ class XTENLANG_108 extends x10Test {
         var b: X(1) = a; // does not typecheck
 
         // above should be equivalent to these, which do typecheck
-        var c: R{rank==1&&rect};
-        var d: R{rank==1} = c;
+        var c: R{self.rank==1&&rect};
+        var d: R{self.rank==1} = c;
     }
 
     public def run(): boolean {

@@ -20,13 +20,13 @@ public class TypedefNew06_MustFailCompile extends TypedefTest {
     public def run(): boolean = {
         
         class A(k:int) {
-            def this():A{k==0} = property(0);
-            def this(i:int):A{k==i} = property(i);
+            def this():A{self.k==0} = property(0);
+            def this(i:int):A{self.k==i} = property(i);
         }
         
-        type T(i:int) = A{k==i};
-        type T0 = A{k==0};
-        type T1 = A{k==1};
+        type T(i:int) = A{self.k==i};
+        type T0 = A{self.k==0};
+        type T1 = A{self.k==1};
 
         // not allowed
         val t = new T1();  // A(1) !<: A(0)

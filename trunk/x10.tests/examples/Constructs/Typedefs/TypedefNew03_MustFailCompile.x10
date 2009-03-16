@@ -20,13 +20,13 @@ public class TypedefNew03 extends TypedefTest {
     public def run(): boolean = {
         
         class A(k:int) {
-            def this():A{k==0} = property(0);
-            def this(i:int):A{k==i} = property(i);
+            def this():A{self.k==0} = property(0);
+            def this(i:int):A{self.k==i} = property(i);
         }
         
-        type T(i:int) = A{k==i};
-        type T0 = A{k==0};
-        type T1 = A{k==1};
+        type T(i:int) = A{self.k==i};
+        type T0 = A{self.k==0};
+        type T1 = A{self.k==1};
 
         // not allowed - T has value parameter
         val t = new T(0);
