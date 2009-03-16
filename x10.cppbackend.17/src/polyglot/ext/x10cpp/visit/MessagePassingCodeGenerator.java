@@ -3151,7 +3151,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // Enter the context of the body
 	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
 	    X10CPPContext_c ctx = (X10CPPContext_c) closure.del().enterScope(context);
-	    ctx.setInsideClosure(true);
 	    ((X10CPPTranslator)tr).setContext(ctx); // FIXME
 	    int i = 0;
 	    for (Expr a : args) {
