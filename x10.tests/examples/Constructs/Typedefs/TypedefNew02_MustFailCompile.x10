@@ -15,18 +15,18 @@ import harness.x10Test;
  * @author bdlucas 9/2008
  */
 
-public class TypedefNew02 extends TypedefTest {
+public class TypedefNew02_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
         class A(k:int) {
-            def this():A{k==0} = property(0);
-            def this(i:int):A{k==i} = property(i);
+            def this():A{self.k==0} = property(0);
+            def this(i:int):A{self.k==i} = property(i);
         }
         
-        type T(i:int) = A{k==i};
-        type T0 = A{k==0};
-        type T1 = A{k==1};
+        type T(i:int) = A{self.k==i};
+        type T0 = A{self.k==0};
+        type T1 = A{self.k==1};
 
         // not allowed - T has value parameter
         val t = new T();
@@ -35,6 +35,6 @@ public class TypedefNew02 extends TypedefTest {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new TypedefNew02().execute();
+        new TypedefNew02_MustFailCompile().execute();
     }
 }
