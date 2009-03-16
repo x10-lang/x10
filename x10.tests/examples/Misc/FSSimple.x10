@@ -34,11 +34,11 @@ public class FSSimple {
     // const NUM_PLACES = NUM_PLACES;
     const NUM_PLACES = 4;
 
-    public static def main(args:Rail[String]) {
+    public def run():Boolean {
 
         val verified: Rail[boolean] = [true];
         val times = Rail.makeVar[double](NUM_TIMES);
-        val N0 = args.length>0? int.parseInt(args(0)) : DEFAULT_SIZE;
+        val N0 = DEFAULT_SIZE;
         val N = N0 * NUM_PLACES;
         val localSize =  N0;
 
@@ -75,6 +75,7 @@ public class FSSimple {
             if (times(j) < min)
                 min = times(j);
         printStats(N, min, verified(0));
+	return verified(0);
     }
 
     static def now():double = Timer.nanoTime() * 1e-9;

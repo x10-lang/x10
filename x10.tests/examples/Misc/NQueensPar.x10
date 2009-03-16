@@ -73,24 +73,26 @@ public class NQueensPar {
     	}
     }
 
-    public static def main(args: Rail[String])  {
-        val n = args.length > 0 ? Int.parseInt(args(0)) : 8;
+    public static def run():Boolean  {
+        val n = 8;
     	println("N=" + n);
     	//warmup
     	//finish new NQueensPar(12, 1).start();
     	val ps= [1,2,4];
+	var result:Boolean = true;
     	for (var i:Int=0; i < ps.length; i++) {
             println("starting " + ps(i) + " threads");
             val nq = new NQueensPar(n,ps(i));
             var start:Long = -System.nanoTime();
             finish nq.start();
-            val result = nq.nSolutions==expectedSolutions(nq.N);
+            result &= nq.nSolutions==expectedSolutions(nq.N);
             start += System.nanoTime();
             start /= 1000000;
             println("NQueensPar " + nq.N + "(P=" + ps(i) 
                 + ") has " + nq.nSolutions + " solutions" +
                 (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
     	}
+	return result;
     }
 
     static def println(s:String) = x10.io.Console.OUT.println(s);
