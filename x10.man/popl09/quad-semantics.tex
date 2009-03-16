@@ -1,4 +1,9 @@
 \newcommand{\constraint}{{\tt constraint}}
+\newcommand\cj[2]{{#1} \vdash {#2}~\constraint}
+\newcommand\cjj[3]{{#1} \vdash {#2}~\constraint, {#3}~\constraint}
+\newcommand\wj[2]{{#1} \vdash {#2}~\type}
+\newcommand\tj[3]{{#1} \vdash {#2} \ty {#3}}
+\newcommand\stj[3]{{#1} \vdash {#2} \subtype {#3}}
 
 We now describe the semantics of languages in the \FX{} family.
 For uniformity we declare type-valued parameters and properties
@@ -94,18 +99,18 @@ In the following, $\Gamma$ is always a
 The judgments of interest are as follows.
 \begin{enumerate}
 	\item Well-formedness:\\
-	  $\tt\Gamma\vdash T~\type$ \hfill  type {\tt T} is well formed\\
-	  $\tt\Gamma\vdash c~\constraint$ \hfill constraint {\tt c} is well formed
+	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed\\
+	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well formed
 	\item Member lookup:\\
-	  $\tt\Gamma\vdash \fields(x)=\tbar{f}:\tbar{T}$ \hfill variable {\tt x} has fields \tbar{f} of type \tbar{T}\\
-	  $\tt\Gamma\vdash x~\has~f:T$ \hfill variable {\tt x} has field {\tt f} of type {\tt T}\\
-	  $\tt\Gamma\vdash x~\has~m(\tbar{x}:\tbar{T})\{c\}:T=e$ \hfill variable {\tt x} has method {\tt m}
+	  $\Gamma\vdash \fields({\tt x})=\tbar{f}:\tbar{T}$ \hfill variable {\tt x} has fields \tbar{f} of type \tbar{T}\\
+	  $\Gamma\vdash {\tt x}~\has~{\tt f}:{\tt T}$ \hfill variable {\tt x} has field {\tt f} of type {\tt T}\\
+	  $\Gamma\vdash {\tt x}~\has~{\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt T}={\tt e}$ \hfill variable {\tt x} has method {\tt m}
 	\item Constraints:\\
-	  $\tt\Gamma\vdash c$ \hfill constraint {\tt c} holds
+	  $\Gamma\vdash {\tt c}$ \hfill constraint {\tt c} holds
 	\item Typing:\\
-	  $\tt\Gamma\vdash e:T$ \hfill expression {\tt e} has type {\tt T}\\
-	  $\tt\vdash def~m(\tbar{y}:\tbar{W})\{d\}:T=e~{\rm ok~in}~C$ \\ $~$ \hfill method {\tt m} in class {\tt C} is properly declared\\
-	  $\tt\vdash class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}~\rm ok$ \\ $~$ \hfill class {\tt C} is properly declared
+	  $\Gamma\vdash {\tt e}:{\tt T}$ \hfill expression {\tt e} has type {\tt T}\\
+	  $\vdash {\tt def}~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt T}={\tt e}~{\rm ok~in}~{\tt C}$ \\ $~$ \hfill method {\tt m} in class {\tt C} is properly declared\\
+	  $\vdash {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~{\rm ok}$ \\ $~$ \hfill class {\tt C} is properly declared
 	\item Subtyping:\\
 	  $\Gamma \vdash {\tt S} \subtype {\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
 \end{enumerate}
@@ -208,39 +213,39 @@ for some values $\bar{\tt v}$ of the given type.
 \begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[\RField]
-	{\tt x:C\vdash\fields(x)=\tbar{f}:\tbar{T}}
-	{\tt\new~C(\tbar{e}).f_i \derives e_i}
+	{{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{T}}
+	{\new~{\tt C}(\tbar{e}).{\tt f}_i \derives {\tt e}_i}
 
 \infrule[\RCField]
-	{\tt e\derives e'}
-	{\tt e.f\derives e'.f}
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}.{\tt f}\derives {\tt e}'.{\tt f}}
 
 \infrule[\RCast]
-	{\tt\vdash C\{\self==\new~C(\tbar{e})\}\subtype T}
-	{\tt\new~C(\tbar{e})~\as~T\derives\new~C(\tbar{e})}
+	{\vdash {\tt C}\{\self==\new~{\tt C}(\tbar{e})\}\subtype {\tt T}}
+	{\new~{\tt C}(\tbar{e})~\as~{\tt T}\derives\new~{\tt C}(\tbar{e})}
 
 \infrule[\RCCast]
-	{\tt e\derives e'}
-	{\tt e~\as~T\derives e'~\as~T}
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}~\as~{\tt T}\derives {\tt e}'~\as~{\tt T}}
 
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[\RInvk]
-	{\tt x:C\vdash x~\has~m(\tbar{f}:\tbar{T})\{c\}:U=e}
-	{\tt\new~C(\tbar{b}).m(\tbar{a})\derives e[\new~C(\tbar{b}),\tbar{a}/\this,\tbar{f}]}
+	{{\tt x}:{\tt C}\vdash {\tt x}~\has~{\tt m}(\tbar{f}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}}
+	{\new~{\tt C}(\tbar{b}).m(\tbar{a})\derives {\tt e}[\new~{\tt C}(\tbar{b}),\tbar{a}/\this,\tbar{f}]}
 
 \infrule[\RCInvkRecv]
-	{\tt e\derives e'}
-	{\tt e.m(\tbar{a})\derives e'.m(\tbar{a})}
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}.{\tt m}(\tbar{a})\derives {\tt e}'.{\tt m}(\tbar{a})}
 
 \infrule[\RCInvkArg]
-	{\tt a_i\derives a'_i}
-	{\tt e.m(\ldots,a_i,\ldots)\derives e.m(\ldots,a'_i,\ldots)}
+	{{\tt a}_i\derives {\tt a}'_i}
+	{{\tt e}.{\tt m}(\ldots,{\tt a}_i,\ldots)\derives {\tt e}.{\tt m}(\ldots,{\tt a}'_i,\ldots)}
 
 \infrule[\RCNewArg]
-	{\tt e_i\derives e'_i}
-	{\tt\new~C(\ldots,e_i,\ldots)\derives\new~C(\ldots,e'_i,\ldots)}
+	{{\tt e}_i\derives {\tt e}'_i}
+	{\new~{\tt C}(\ldots,{\tt e}_i,\ldots)\derives\new~{\tt C}(\ldots,{\tt e}'_i,\ldots)}
 \end{minipage}
 \caption{\FX{} operational semantics}
 \label{fig:sos}
@@ -251,33 +256,33 @@ for some values $\bar{\tt v}$ of the given type.
 \begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[W-True]
-  {\vdash\true~\constraint}
+  {\cj{}{\true}}
 
 \infrule[W-Equals]
-	{\tt\mathcal{F}(t==u)\subseteq\mathcal{D}(\Gamma)} 
-	{\tt\Gamma\vdash t==u~\constraint} 
+	{\mathcal{F}({\tt t}=={\tt u})\subseteq\mathcal{D}(\Gamma)} 
+	{\cj{\Gamma}{{\tt t}=={\tt u}}}
 
 \infrule[W-And]
-	{\tt\Gamma\vdash c~\constraint,d~\constraint}
-	{\tt\Gamma\vdash c,d~\constraint}
+	{\cjj{\Gamma}{\tt c}{\tt d}}
+	{\cj{\Gamma}{\tt c}, {\tt d}}
 
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXX}
 \infax[W-Object]
-  {\tt\vdash Object~\type}
+  {\wj{}{\tt Object}}
 
 \infrule[W-Class]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in~P}
-	{\tt\vdash C~\type} 
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\} \in {\tt P}}
+  {\wj{}{\tt C}}
 
 \infrule[W-Exists]
-	{\tt\Gamma\vdash V~\type,W~\type}
-	{\tt\Gamma\vdash\exists x:V.~W~\type} 
+        {\wj{\Gamma}{\tt V} \andalso \wj{\Gamma, {\tt x} \ty {\tt V}}{\tt W}}
+        {\wj{\Gamma}{\exists {\tt x} \ty {\tt V}.~{\tt W}}}
 
 \infrule[W-Dep]
-	{\tt\Gamma\vdash T~\type \andalso \Gamma,\self:T\vdash c~\constraint}
-	{\tt\Gamma\vdash T\{c\}~\type} 
+        {\wj{\Gamma}{\tt T} \andalso \cj{\Gamma, \self \ty {\tt T}}{\tt c}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}}
 \end{minipage}
 \caption{\FX{} well-formed constraints and types}
 \label{fig:well}
@@ -288,18 +293,20 @@ for some values $\bar{\tt v}$ of the given type.
 \begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[Sel]
-  {\tt x:C\vdash\fields(x)=\tbar{f}:\tbar{V}}
-  {\tt\vdashX\new~C(\tbar{t}).f_i==t_i}
+  {{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{V}}
+  {\vdashX\new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i}
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[Proj]
-  {\tt\Gamma\vdash t:T\{c\}}
-  {\tt\sigma(\Gamma)\vdashX c[t/\self]}
+  {\Gamma\vdash {\tt t}:{\tt T}\{{\tt c}\}}
+  {\sigma(\Gamma)\vdashX {\tt c}[{\tt t}/\self]}
 
 \infrule[Inv]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso \Gamma\vdash t:C}
-  {\tt\sigma(\Gamma)\vdashX c[t/\this]}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+   \andalso
+   \Gamma\vdash {\tt t}:{\tt C}}
+  {\sigma(\Gamma)\vdashX {\tt c}[{\tt t}/\this]}
 \end{minipage}%
 \caption{\FX{} object constraint system}
 \label{fig:object}
@@ -311,34 +318,39 @@ for some values $\bar{\tt v}$ of the given type.
   {\tt x:Object\vdash\fields(x)=\bullet}
 
 \infrule[L-Fields-I]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso
-    x:D\vdash\fields(x)=\tbar{g}:\tbar{W}}
-  {\tt x:C\vdash\fields(x)=\tbar{g}: \tbar{W}, \tbar{f}: \tbar{V}[x/\this]}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+   \andalso
+    {\tt x}\ty {\tt D}\vdash\fields({\tt x})=\tbar{g}:\tbar{W}}
+   {
+    {\tt x}\ty {\tt C}\vdash\fields({\tt x})=\tbar{g}: \tbar{W}, \tbar{f}: \tbar{V}[{\tt x}/\this]}
 
 \infrule[L-Field]
-  {\tt x:C\vdash\fields(x)=\tbar{f}:\tbar{V}}
-  {\tt x:C\vdash x~\has~f_i:V_i}
+  {{\tt x}\ty {\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{V}}
+  {{\tt x}\ty {\tt C}\vdash {\tt x}~\has~{\tt f}_i:{\tt V}_i}
 
 \infrule[L-Field-C,E]
-  {\tt\Gamma,x:T\vdash x~\has~f:V \andalso y~\rm fresh}
-  {\tt\Gamma,x:T\{c\}\vdash x~\has~f:V\{c[x/{\self}]\} \\
-    \tt\Gamma,x:\exists y:W.~T\vdash x~\has~f:\exists y:W.~V}
+  {\Gamma,{\tt x}\ty {\tt T}\vdash {\tt x}~\has~{\tt f}\ty {\tt V} \andalso {\tt y}~{\rm fresh}}
+  {\Gamma,{\tt x}\ty {\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt f}\ty {\tt V}\{{\tt c}[{\tt x}/{\self}]\} \\
+   \Gamma,{\tt x}\ty \exists {\tt y}\ty {\tt W}.~{\tt T}\vdash {\tt x}~\has~{\tt f}:\exists {\tt y}:{\tt W}.~{\tt V}}
 
 \infrule[L-Method-B]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso
-    def~m(\tbar{y}:\tbar{W})\{d\}:T=e\in \tbar{M}}
-  {\tt x:C\vdash x~\has~m(\tbar{y}:\tbar{W}[x/\this])\{d[x/\this]\}:T[x/\this]=e}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+   \andalso
+   {\tt def}~{\tt m}(\tbar{y}\ty \tbar{W})\{{\tt d}\}\ty {\tt T}={\tt e}\in \tbar{M}}
+  {{\tt x}\ty {\tt C}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W}[{\tt x}/\this])\{{\tt d}[{\tt x}/\this]\}:{\tt T}[{\tt x}/\this]={\tt e}}
 
 \infrule[L-Method-I]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P \andalso
-    x:D\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T=e \andalso
-    m\not\in\tbar{M}}
-  {\tt x:C\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T=e}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+   \andalso
+   {\tt x}:{\tt D}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt T}={\tt e}
+   \andalso
+   {\tt m}\not\in\tbar{M}}
+  {{\tt x}:C\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt T}={\tt e}}
 
 \infrule[L-Method-C,E]
-  {\tt\Gamma,x:U\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T=e \andalso z~\rm fresh}
-  {\tt\Gamma,x:U\{c\}\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:T\{c[x/\self]\}=e \\
-    \tt\Gamma,x:\exists z:V.~U\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:\exists z:V.~T=e}
+  {\Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt T}={\tt e} \andalso {\tt z}~\rm fresh}
+  {\Gamma,{\tt x}:{\tt U}\{{\tt c}\}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt T}\{{\tt c}[{\tt x}/\self]\}={\tt e} \\
+   \Gamma,{\tt x}:\exists {\tt z}:{\tt V}.~{\tt U}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:\exists {\tt z}:{\tt V}.~{\tt T}={\tt e}}
 \caption{\FX{} member lookup}
 \label{fig:lookup}
 \end{figure*}
@@ -347,36 +359,36 @@ for some values $\bar{\tt v}$ of the given type.
 \begin{figure*}
 \quad\typicallabel{XXXXXX}
 \infax[T-Var]
-  {\tt\Gamma,x:T\vdash x:T\{\self==x\}}
+  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}:{\tt T}\{\self=={\tt x}\}}
 
 \infrule[T-Field]
-	{\tt\Gamma\vdash e:T \andalso \Gamma,x:T\vdash x~\has~f:U \andalso x~\rm fresh}
-	{\tt\Gamma\vdash e.f:\exists x:T.~U\{\self==x.f\}}
+	{\Gamma\vdash {\tt e}:{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt f}:{\tt U} \andalso {\tt x}~\rm fresh}
+	{\Gamma\vdash {\tt e}.{\tt f}:\exists {\tt x}:{\tt T}.~{\tt U}\{\self=={\tt x}.{\tt f}\}}
 
 \infrule[T-Invk]
-	{\tt\Gamma\vdash e:T,\tbar{a}:\tbar{V} \andalso 
-	  \Gamma,x:T,\tbar{y}:\tbar{V}\vdash x~\has~m(\tbar{y}:\tbar{W})\{d\}:U=e,
-		\tbar{V}\subtype\tbar{W},d \andalso x,\tbar{y}~\rm fresh}
-	{\tt\Gamma\vdash e.m(\tbar{a}):\exists x:T.~\exists\tbar{y}:\tbar{V}.~U}
+	{\Gamma\vdash {\tt e}:{\tt T},\tbar{a}:\tbar{V} \andalso 
+	  \Gamma,{\tt x}:{\tt T},\tbar{y}:\tbar{V}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt U}={\tt e},
+		\tbar{V}\subtype\tbar{W},{\tt d} \andalso {\tt x},\tbar{y}~\rm fresh}
+	{\Gamma\vdash {\tt e}.{\tt m}(\tbar{a}):\exists {\tt x}:{\tt T}.~\exists\tbar{y}:\tbar{V}.~{\tt U}}
 
 \infrule[T-New]
-	{\tt\Gamma\vdash\tbar{e}:\tbar{T} \andalso
-    \Gamma,x:C,\tbar{y}:\tbar{T},x.\tbar{f}==\tbar{y}\vdash
-    \tbar{T}\subtype\tbar{U},c[x/\this],\fields(x)=\tbar{f}:\tbar{U} \andalso x,\tbar{y}~\rm fresh}
-	{\tt\Gamma\vdash\new~C(\tbar{e}):\exists\tbar{y}:\tbar{T}.~C\{\self==\new~C(\tbar{y})\}}
+	{\Gamma\vdash\tbar{e}:\tbar{T} \andalso
+    \Gamma,{\tt x}:{\tt C},\tbar{y}:\tbar{T},{\tt x}.\tbar{f}==\tbar{y}\vdash
+    \tbar{T}\subtype\tbar{U},{\tt c}[{\tt x}/\this],\fields({\tt x})=\tbar{f}:\tbar{U} \andalso {\tt x},\tbar{y}~\rm fresh}
+	{\Gamma\vdash\new~{\tt C}(\tbar{e}):\exists\tbar{y}:\tbar{T}.~{\tt C}\{\self==\new~{\tt C}(\tbar{y})\}}
         
 \infrule[T-Cast]
-	{\tt\Gamma\vdash e:U}
-	{\tt\Gamma\vdash e~\as~T:T}
+	{\Gamma\vdash {\tt e}:{\tt U}}
+	{\Gamma\vdash {\tt e}~\as~{\tt T}:{\tt T}}
 	
 \infrule[T-Method]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in~P \andalso
-    \this:C,\tbar{y}:\tbar{W},d\vdash T~\type,\tbar{W}~\type,d~\constraint,e:U,U\subtype T}
-  {\tt def~m(\tbar{y}:\tbar{W})\{d\}:T=e~{\rm ok~in}~C}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P} \andalso
+    \this:{\tt C},\tbar{y}:\tbar{W},{\tt d}\vdash {\tt T}~\type,\tbar{W}~\type,{\tt d}~\constraint,{\tt e}:{\tt U},{\tt U}\subtype {\tt T}}
+  {{\tt def}~{\tt m}(\tbar{y}:\tbar{W})\{{\tt d}\}:{\tt T}={\tt e}~{\rm ok~in}~{\tt C}}
 
 \infrule[T-Class]
-  {\tt\tbar{M}~{\rm ok~in}~C \andalso \this:C,\tbar{f}:\tbar{V},c\vdash\tbar{V}~\type,c~\constraint}
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}~\rm ok}
+  {\tt\tbar{M}~{\rm ok~in}~C \andalso \this:C,\tbar{f}:\tbar{V},{\tt c}\vdash\tbar{V}~\type,{\tt c}~\constraint}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm ok}
 \caption{\FX{} typing rules}\label{fig:FX}
 \end{figure*}
 
@@ -385,34 +397,34 @@ for some values $\bar{\tt v}$ of the given type.
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Extends]
-  {\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D~\{~\tbar{M}~\}\in P}
-  {\tt\Gamma\vdash C\subtype D}
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}}
+  {\Gamma\vdash {\tt C}\subtype {\tt D}}
 
 \infrule[S-Id]
-  {\tt\Gamma\vdash W~\type}
-  {\tt\Gamma\vdash W\subtype W}
+  {\Gamma\vdash {\tt W}~\type}
+  {\Gamma\vdash {\tt W}\subtype {\tt W}}
 
 \infrule[S-Trans]
-	{\tt\Gamma\vdash V\subtype W, W\subtype X}
-	{\tt\Gamma\vdash V\subtype X}
+	{\Gamma\vdash {\tt V}\subtype {\tt W}, {\tt W}\subtype {\tt X}}
+	{\Gamma\vdash {\tt V}\subtype {\tt X}}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Const-L]
-	{\tt\Gamma,c\vdash V\subtype W}
-	{\tt\Gamma\vdash V\{c\}\subtype W}
+	{\Gamma,{\tt c}\vdash {\tt V}\subtype {\tt W}}
+	{\Gamma\vdash {\tt V}\{{\tt c}\}\subtype {\tt W}}
 
 \infrule[S-Const-R]
-	{\tt\Gamma\vdash V\subtype W \andalso\Gamma,\self:V\vdash c}
-	{\tt\Gamma\vdash V\subtype W\{c\}}
+	{\Gamma\vdash {\tt V}\subtype {\tt W} \andalso\Gamma,\self:{\tt V}\vdash {\tt c}}
+	{\Gamma\vdash {\tt V}\subtype {\tt W}\{{\tt c}\}}
 
 \infrule[S-Exists-L]
-  {\tt\Gamma\vdash V\subtype W \andalso x~\rm fresh}
-  {\tt\Gamma\vdash\exists x:X.~V\subtype W}
+  {\Gamma\vdash {\tt V}\subtype {\tt W} \andalso {\tt x}~\rm fresh}
+  {\Gamma\vdash\exists {\tt x}:{\tt X}.~{\tt V}\subtype {\tt W}}
 
 \infrule[S-Exists-R]
-  {\tt\Gamma\vdash t:X \andalso \Gamma\vdash V\subtype W[t/x]}
-  {\tt\Gamma\vdash V\subtype\exists x:X.~W}
+  {\Gamma\vdash {\tt t}:{\tt X} \andalso \Gamma\vdash {\tt V}\subtype {\tt W}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash {\tt V}\subtype\exists {\tt x}:{\tt X}.~{\tt W}}
 \end{minipage}        
 \caption{\FX{} subtyping rules}\label{fig:subtyping}
 \end{figure*}
@@ -422,31 +434,35 @@ for some values $\bar{\tt v}$ of the given type.
 \centering
 \begin{tabular}{r@{\quad}rcl}
   (Type)& {\tt T} &{::=}& ${\tt t}$ \alt \type \\
-  (Constraint) & {\tt c} &{::=}& $\tt t\extends C\{c\}$
+  (Constraint) & {\tt c} &{::=}& $\tt {\tt t}\extends {\tt C}\{{\tt c}\}$
 \end{tabular}
 
 \infrule[G-Extends]
-	{\tt class~C(\tbar{f}:\tbar{V})\{c\}~extends~D\{~\tbar{M}~\}\in P \andalso \Gamma\vdash c:\constraint}
-	{\tt\Gamma\vdash t\extends C\{c\}~\constraint}
+	{{\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}\{~\tbar{M}~\}\in {\tt P} \andalso \Gamma\vdash {\tt c}~\constraint}
+	{\Gamma\vdash {\tt t}\extends {\tt C}\{{\tt c}\}~\constraint}
 
 \infax[G-Var]
-	{\tt\Gamma,x:\type\vdash x~\type}
+	{\Gamma,{\tt x}:\type\vdash {\tt x}~\type}
 
 \infrule[G-Path]
-	{\tt\Gamma\vdash t:T \andalso \Gamma,x:T\vdash x~\has~f:\type}
-	{\tt\Gamma\vdash t.f~\type}
+	{\Gamma\vdash {\tt t}:{\tt T}
+         \andalso
+         \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt f}:\type}
+	{\Gamma\vdash {\tt t}.{\tt f}~\type}
 	
 \infrule[G-Has]
-	{\tt\Gamma\vdash t\extends C\{c\} \andalso \Gamma,x:C\{c\}\vdash x~\has~I}
-	{\tt\Gamma\vdash t~\has~I}
+	{\Gamma\vdash {\tt t}\extends {\tt C}\{{\tt c}\}
+         \andalso
+         \Gamma,{\tt x}:{\tt C}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}}
+	{\Gamma\vdash {\tt t}~\has~{\tt I}}
 
 \infrule[G-Subtype]
-	{\tt\Gamma\vdash t\extends C\{c\}}
-	{\tt\Gamma\vdash t\subtype C\{c\}}
+	{\Gamma\vdash {\tt t}\extends {\tt C}\{{\tt c}\}}
+	{\Gamma\vdash {\tt t}\subtype {\tt C}\{{\tt c}\}}
 
 \infrule[G-Id]
-  {\tt\Gamma\vdash t~\type}
-  {\tt\Gamma\vdash t\extends t}
+  {\Gamma\vdash {\tt t}~\type}
+  {\Gamma\vdash {\tt t}\extends {\tt t}}
 \caption{\FXG}
 \label{fig:FXG}
 \end{figure*}
@@ -461,8 +477,10 @@ for some values $\bar{\tt v}$ of the given type.
 \end{tabular}
 
 \infrule[A-Pred]
-	{\tt\Gamma\vdash\tbar{t}~\constraint}
-	{\tt\Gamma\vdash p(\tbar{t})~\constraint}
+	{\Gamma\vdash\tbar{t}~\constraint
+\mbox{XXX this rule is wrong: should be $\tbar{t} \ty {\tt T}$}
+}
+	{\Gamma\vdash {\tt p}(\tbar{t})~\constraint}
 \caption{\FXD}
 \end{figure*}
 
@@ -503,10 +521,10 @@ Section~\ref{sec:structural-typing}.}}
 \begin{figure*}
 \quad\\[-12pt]
 \infrule[Path]
-	{\Gamma \vdash {\tt p:T} \andalso \Gamma, {\tt x:T} \vdash {\tt x}\ \has\ {\tt X}:\ \type}
-	{\Gamma \vdash {\tt p.X}\ {\tt ok}} 
+	{\Gamma \vdash {\tt p}:{\tt T} \andalso \Gamma, {\tt x:T} \vdash {\tt x}\ \has\ {\tt X}:\ \type}
+	{\Gamma \vdash {\tt p}.{\tt X}\ {\tt ok}} 
 
-\infax[Type-Var]{\Gamma, {\tt X:\type} \vdash {\tt X}\ \type}
+\infax[Type-Var]{\Gamma, {\tt X}:\type \vdash {\tt X}~\type}
 
 \infax[Equals]{{\tt S==T} \vdash S \extends T, T \extends S}
 
