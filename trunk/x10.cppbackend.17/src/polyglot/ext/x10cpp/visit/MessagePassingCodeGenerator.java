@@ -1062,26 +1062,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             h.write("virtual ");
                         }
                         emitter.printType(replaceType(dropzone.returnType(), typeMap), h);
-                        h.write(" "+mangled_method_name(mname.toString()));
+                        h.write(" "+mangled_method_name(mname.toString())+"(");
+                        h.begin(0);
                         int counter = 0;
                         for (Type formal : formals) {
-                            h.write(counter == 0 ? "(" : ", ");
+                            h.write(counter == 0 ? "" : ", ");
                             emitter.printType(replaceType(formal, typeMap), h);
                             h.write(" p"+counter++);
                         }
+                        h.end();
                         h.write(");"); h.newline();
 
                         emitter.printTemplateSignature(currentClass.typeArguments(), sw);
                         emitter.printTemplateSignature(newTypeParameters, sw);
                         emitter.printType(replaceType(dropzone.returnType(), typeMap), sw);
                         sw.write(" " + emitter.translateType(currentClass, false) +
-                                "::" + mangled_method_name(mname.toString()));
+                                "::" + mangled_method_name(mname.toString()) + "(");
+                        sw.begin(0);
                         counter = 0;
                         for (Type formal : formals) {
-                            sw.write(counter == 0 ? "(" : ", ");
+                            sw.write(counter == 0 ? "" : ", ");
                             emitter.printType(replaceType(formal, typeMap), sw);
                             sw.write(" p"+counter++);
                         }
+                        sw.end();
                         sw.write(") {"); sw.newline(4); sw.begin(0);
                         if (!dropzone.returnType().isVoid())
                             sw.write("return ");
@@ -1103,7 +1107,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             emitter.dumpRegex("Native", components, tr, pat, sw);
                         } else {
                             sw.write(emitter.translateType(superClass, false) +
-                                    "::" + mangled_method_name(mname.toString()));
+                                    "::" + mangled_method_name(mname.toString()) + "(");
+                            sw.begin(0);
                             if (newTypeParameters.size() != 0) {
                                 String prefix = "<";
                                 for (Type t : newTypeParameters) {
@@ -1115,9 +1120,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             }
                             counter = 0;
                             for (Type formal : formals) {
-                                sw.write(counter == 0 ? "(" : ", ");
+                                sw.write(counter == 0 ? "" : ", ");
                                 sw.write("p" + (counter++));
                             }
+                            sw.end();
                             sw.write(")");
                         }
                         sw.write(";"); sw.end(); sw.newline();
