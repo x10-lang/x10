@@ -12,12 +12,11 @@
 
 Modern architectural advances are leading to the development of
 complex computational systems, such as heterogeneous multi-core
-systems (e.g., Cell), large CPU count systems such as the Blue Gene,
+systems, large CPU-count systems such as the Blue Gene,
 and hybrid accelerated clusters such as the Road Runner.
-The \Xten{} programming language \cite{X10-concur,x10-oopsla05,x10} was
-designed to address the 
-challenge of allowing developers to write
-high-performance applications for such machines while building on the
+The \Xten{} programming language \cite{X10-concur,x10-oopsla05,X10} was
+designed to address the challenge of developing
+high-performance applications for such machines, building on the
 productivity gains of modern object-oriented languages.
 
 The design of \Xten{} requires the development of a rich type system
@@ -166,9 +165,7 @@ used to specify both value- and type-dependency of types.
   Consider the class \Xcd{Array} declared as:
 {\footnotesize
 \begin{xten}
-class Array {
-  val T: type;
-  val r: Region;
+class Array[T](r: Region) {
   def get(p: Point{self in this.r}): this.T = ...;
   def set(p: Point{self in this.r}, v: this.T) = ...;
   ...
@@ -212,8 +209,12 @@ naturally in this extended framework for constrained types.
 %
 We illustrate these by discussing the design of
 the \Xten{} language and of various
-programming idioms. Besides constrained types, the language supports
-function types. Since there may be a large number of constrained types
+programming idioms.
+We also discuss relationship with virtual types, \Java{} wildcards,
+self types and structural constraints.
+
+%Besides constrained types, the language supports function types.
+Since there may be a large number of constrained types
 in a program, a pure heterogeneous translation may lead to significant
 code bloat. Instead we use a hybrid implementation scheme that
 combines ideas from NextGen~\cite{nextgen,allen03,allen04} and
@@ -222,9 +223,6 @@ introspection and instantiation of generic types on primitive types.
 The performance of primitive arrays, especially, is critical for the
 high-performance applications for which \Xten{} is intended.  Our
 design does not require primitive values be boxed.
-
-We also discuss relationship with virtual types, \Java{} wildcards,
-self types and structural constraints.
 
 \subsection{The \FX($\cal C$) family}
 To further the foundations of constrained types, we develop the \FX{}
