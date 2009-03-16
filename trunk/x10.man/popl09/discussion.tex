@@ -2,20 +2,34 @@ Generic constrained types generalize virtual types and
 have a connection to parametric types with use-site variance
 annotations, such as Java's wildcards.  
 
-\subsection{Parameters vs. properties}
-
-Parameters not type properties.
-Definition-side variance.
-
 \subsection{Contracts}
 
-Tying constraints to types: avoids well-foundedness problems,
-mutability problems.  Contracts do not allow
-parametrizing a class on a constraint.
+Constrained types have may similarities to contracts~\cite{xxx}.
+Contracts are constraint annotations on methods and classes.
+Object invariants.
 
-\subsection{Avoiding run-time constraint solving}
-
-Covariance, mutability, erasure.
+Integration of constrained types and generic types 
+effectively allow parameterization of classes on constraints.
+Consider the \xcd"List" class in Figure~\ref{fig:list0}.
+If the class is instantiated on a constrained type \xcd"C{c}",
+i.e., \xcd"List[C{c}]",
+then all elements of the list satisfy \xcd"c".  To achieve this
+using contracts, one would write introduce an invariant on the
+\xcd"head" and \xcd"tail" of the list:
+{
+\begin{xten}
+class List[T] {
+  val head: T;
+  val tail: List[T];
+  val p: (T) => Boolean;
+  invariant p(head) && this.p == tail.p;
+  def get(i: int): T ensures p(\return)
+    { ... }
+  ...
+}
+\end{xten}}
+\noindent
+This is a more awkward solution; if indeed it is possible.
 
 \subsection{Virtual types}
 
@@ -65,7 +79,7 @@ as well as covariantly.
 Thorup~\cite{thorup97}
 proposed adding genericity to Java using virtual types.  For example,
 a generic \xcd"List" class can be written as follows:
-{\footnotesize
+{
 \begin{xten}
 abstract class List {
   abstract typedef T;
@@ -74,7 +88,7 @@ abstract class List {
 \end{xten}}
 \noindent
 This class can be refined by binding the virtual type \xcd"T":
-{\footnotesize
+{
 \begin{xten}
 abstract class NumberList extends List {
   abstract typedef T as Number;
@@ -89,10 +103,10 @@ can be non-abstract.
 %
 The analogous definition of 
 \xcd"List" in \Xten{} using type properties is as follows:
-{\footnotesize
+{
 \begin{xten}
 class List[T] {
-  def get(i: int): T = { ... }
+  def get(i: int): T { ... }
 }
 \end{xten}}
 
@@ -185,7 +199,7 @@ of the class parameter \xcd"T" to the method type parameter \xcd"S":
 {\footnotesize
 \begin{xten}
 class List[T] {
-  def map[S](fun: Object{self :> T} => S) : List[S] = { ... }
+  def map[S](fun: Object{self :> T} => S) : List[S] { ... }
 }
 \end{xten}}
 }
@@ -194,9 +208,9 @@ Constrained types also support
 \emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
 \xcd"reverse"
 operation can operate on \xcd"List" of any type:
-{\footnotesize
+{
 \begin{xten}
-def reverse(list: List) = {
+def reverse(list: List) {
   for (i: int in [0..list.length-1])
     swap(list, i, list.length-1-i);
 }
@@ -233,11 +247,11 @@ class Map[Key, Value]{Key <: Comparable, Value <: Object}
 {
     private nodes: Vector[Node[Key, Value](this)](this);
 
-    public def put(key: Key, value: Value): Void = {
+    public def put(key: Key, value: Value): Void {
         nodes.add(new Node[Key, Value](key, value, this)());
     }
 
-    public def get(key: Key): Value = {
+    public def get(key: Key): Value {
         for (mn: Node[Key, Value](this) in nodes) {
             if (mn.key.equals(key))
                 return mn.value;
@@ -317,9 +331,9 @@ structural \emph{where clauses}~\cite{where-clauses}.
 For example, a sorted list class % from Figure~\ref{fig:sorted}
 could be
 be written as follows in PolyJ:
-{\footnotesize
+{
 \begin{xten}
-class SortedList[T] where T {int compareTo(T)} {
+class SortedList[T] where T {int compareTo(T);} {
     void add(T x) { ... x.compareTo(y) ... }
     ...
 }
@@ -329,10 +343,10 @@ method \xcd"compareTo" with the given signature.
 
 The analogous code for \xcd"SortedList" in the structural
 extension of \Xten{} would be:
-{\footnotesize
+{
 \begin{xten}
 class SortedList[T]{T has def compareTo(T): int} {
-    def add(x: T) = { ... x.compareTo(y) ... }
+    def add(x: T) { ... x.compareTo(y) ... }
     ...
 }
 \end{xten}}
@@ -366,10 +380,11 @@ Function-typed properties provide a useful alternative to
 structural constraints.
 Consider the following version of the
 \xcd"SortedList" class:
-{\footnotesize
+{
 \begin{xten}
-class SortedList(compare: (T,T)=>int) extends List {
-    def add(x: T) = { ... compare(x, y) ... }
+class SortedList(compare: (T,T)=>int)
+  extends List {
+    def add(x: T) { ... compare(x, y) ... }
     ...
 }
 \end{xten}}
@@ -380,13 +395,14 @@ returns an \xcd"int".
 
 Using this definition, one can create lists with distinct types
 of, for example, case-sensitive and case-insensitive strings:
-{\footnotesize\begin{xten}
+{
+\begin{xten}
 val unixFiles
   = new SortedList[String]
-        (String.compareTo.(String));
+      (String.compareTo.(String));
 val windowsFiles
   = new SortedList[String]
-        (String.compareToIgnoreCase.(String));
+      (String.compareToIgnoreCase.(String));
 \end{xten}}
 
 \noindent
@@ -401,11 +417,14 @@ vice versa.
 Structural method constraints permit the introduction of
 CLU-style optional methods~\cite{clu}.  Consider the following
 \xcd"Array" class:
-{\footnotesize
+{
 \begin{xten}
 class Array[T] {
   def add(a: Array[S])
-    {T has add(S): U}: Array[U] = { ... }
+    {T has add(S): U}: Array[U] {
+    return new Array[U](
+      (p:Point) => this(p)+a(p));
+  }
   ...
 }
 \end{xten}}
@@ -422,7 +441,7 @@ has a method \xcd"add" (corresponding to the \xcd"+" operation)
 that adds an \xcd"int" and a \xcd"double", retuning a
 \xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
 the \xcd"add" operation because \xcd"Rabbit" does not have an
-\xcd"add" method.
+\xcd"add" method.\footnote{It may have a \xcd"multiply" method.}
 
 
 
@@ -441,9 +460,9 @@ and so the \xcd"append" methods below are illegal:
 {\footnotesize
 \begin{xten}
 class List[+T] {
-  def append(other: T): List[T] = { ... }
+  def append(other: T): List[T] { ... }
       // illegal
-  def append(other: List[T]): List[T] = { ... }
+  def append(other: List[T]): List[T] { ... }
       // illegal
 }
 \end{xten}}
@@ -455,9 +474,9 @@ For example, in the following code,
 \begin{xten}
 class List[+T] {
   def append[U](other: U)
-      {T <: U}: List[U] = { ... }
+      {T <: U}: List[U] { ... }
   def append[U](other: List[U])
-      {T <: U}: List[U] = { ... }
+      {T <: U}: List[U] { ... }
 }
 \end{xten}}
 
@@ -476,3 +495,33 @@ the call to \xcd"ys.append" is not allowed because the caller cannot show that
 $\Xcd{Number} \subtype \Xcd{Double}$.
 
 }
+
+\subsection{Run-time constraint solving}
+
+Covariance, mutability, erasure.
+
+Constraints are normally evaluated symbolically at compile time.
+However, with run-time casts, constraints may be evaluated at
+run time.  With constraints on values, this evaluation consists
+of simply evaluating the constraint expression.
+With constraints on types, however, subtyping tests must be
+perfomed at run-time.  This can require constraint solving.
+
+Consider again the \xcd"List" class in Figure~\ref{fig:list0}.
+If \xcd"C" extends \xcd"B", then an instance of
+\xcd"List{T==C}" is a subtype of 
+\xcd"List{T \extends B}"
+A run-time cast of this instance to
+\xcd"List{T \extends B}"
+must check
+that the object is an instance of \xcd"List"
+and that \xcd"T==C" entails \xcd"T \extends B".
+This is true if \xcd"C \extends B".
+To answer this query,
+constraint solving in {\cal O} must be performed at 
+run time.
+The implementation of a generic class must store suficient
+information for each type property to solve constraints at
+run-time.
+
+Restrictions to be efficient.
