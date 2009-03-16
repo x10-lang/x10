@@ -20,6 +20,13 @@ public final value Math {
    public static safe def abs(a:Float):Float=a<=0?0-a:a;
    public static safe def abs(a:Long):Long=a<0?-a:a;
 
+
+   @Native("java", "java.lang.Math.ceil(#1)")
+   public static native safe def ceil(a:Double):Double;
+
+   @Native("java", "java.lang.Math.floor(#1)")
+   public static native safe def floor(a:Double):Double;
+
    @Native("java", "java.lang.Math.pow(#1, #2)")
    @Native("c++", "x10aux::math_utils::pow(#1,#2)")
    public static native def pow(a:Double, b:Double):Double;
