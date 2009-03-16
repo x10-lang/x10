@@ -28,13 +28,13 @@ class PolyRegionListBuilder(rank: int) extends ArrayList[PolyRegion{self.rank==t
     }
 
     def add(r:Region(rank)) {
-        if (r instanceof PolyRegion{self.rank==this.rank}) {
+        if (r instanceof PolyRegion) {
             if (!r.isEmpty())
-                super.add(r as PolyRegion{self.rank==this.rank});
-        } else if (r instanceof UnionRegion(rank)) {
-            u: UnionRegion(rank) = r as UnionRegion(rank);
+                super.add(r as PolyRegion(r.rank));
+        } else if (r instanceof UnionRegion(r.rank)) {
+            u: UnionRegion(rank) = r as UnionRegion(r.rank);
             for (var j:int=0; j<u.regions.length; j++)
-                add(u.regions(j) as Region(rank)); // XXXX why?
+                add(u.regions(j) as Region(r.rank)); // XXXX why?
         } else
             throw new Error("unknown region type " + r);
     }
