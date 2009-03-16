@@ -542,6 +542,9 @@ public class X10CPPTranslator extends Translator {
             assert (PLATFORM.startsWith("win32_"));
         }
 
+        /** Disable for now.  TODO: enable */
+        protected boolean gcEnabled() { return false; }
+
         protected void addPreArgs(ArrayList<String> cxxCmd) {
             super.addPreArgs(cxxCmd);
             for (int i = 0; i < preArgsCygwin.length; i++) {
@@ -603,7 +606,7 @@ public class X10CPPTranslator extends Translator {
         /** These go before the files */
         public static final String[] preArgsAIX = new String[] {
             USE_XLC ? DUMMY : "-Wno-long-long",
-            USE_XLC ? "-qsuppress=1540-0809" : "-Wno-unused-parameter",
+            USE_XLC ? "-qsuppress=1540-0809:1500-029" : "-Wno-unused-parameter",
             USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
             USE_XLC ? "-qrtti=all" : DUMMY,
             //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
@@ -611,11 +614,11 @@ public class X10CPPTranslator extends Translator {
         /** These go after the files */
         public static final String[] postArgsAIX = new String[] {
             USE_XLC ? "-bbigtoc" : "-Wl,-bbigtoc",
-            USE_XLC ? DUMMY : "-Wl,-binitfini:poe_remote_main",
-            USE_XLC ? DUMMY : "-L/usr/lpp/ppe.poe/lib",
-            USE_XLC ? DUMMY : "-lmpi_r",
-            USE_XLC ? DUMMY : "-lvtd_r",
-            USE_XLC ? DUMMY : "-llapi_r",
+            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-Wl,-binitfini:poe_remote_main",
+            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-L/usr/lpp/ppe.poe/lib",
+            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_r",
+            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lvtd_r",
+            USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-llapi_r",
         };
 
         public AIX_CXXCommandBuilder(Options options) {
