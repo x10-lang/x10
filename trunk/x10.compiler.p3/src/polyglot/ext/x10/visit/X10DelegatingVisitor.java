@@ -106,6 +106,7 @@ import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.ForLoop_c;
 import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Here_c;
+import polyglot.ext.x10.ast.LocalTypeDef_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.Now_c;
 import polyglot.ext.x10.ast.ParExpr_c;
@@ -189,6 +190,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof For_c) { visit((For_c)n); return; }
 		if (n instanceof Do_c) { visit((Do_c)n); return; }
 		if (n instanceof Loop_c) { visit((Loop_c)n); return; }
+		if (n instanceof LocalTypeDef_c) { visit((LocalTypeDef_c)n); return; }
 		if (n instanceof X10LocalDecl_c) { visit((X10LocalDecl_c)n); return; }
 		if (n instanceof LocalDecl_c) { visit((LocalDecl_c)n); return; }
 		if (n instanceof LocalClassDecl_c) { visit((LocalClassDecl_c)n); return; }
@@ -418,6 +420,7 @@ public class X10DelegatingVisitor {
 				public void visit(LocalClassDecl_c n) { visit((Stmt_c)n); }
 				public void visit(LocalDecl_c n) { visit((Stmt_c)n); }
 					public void visit(X10LocalDecl_c n) { visit((LocalDecl_c)n); }
+				public void visit(LocalTypeDef_c n) { visit((Stmt_c)n); }
 				public void visit(Loop_c n) { visit((Stmt_c)n); }
 					public void visit(Do_c n) { visit((Loop_c)n); }
 					public void visit(For_c n) { visit((Loop_c)n); }
