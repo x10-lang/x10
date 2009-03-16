@@ -40,11 +40,21 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import polyglot.visit.LocalClassRemover;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 
 public class X10LocalClassRemover extends LocalClassRemover {
+
+    /**
+     * The type to be extended when translating an anonymous class that
+     * implements an interface.
+     */
+    protected TypeNode defaultSuperType(Position pos) {
+        X10TypeSystem ts = (X10TypeSystem) this.ts;
+        return nf.CanonicalTypeNode(pos, ts.Ref());
+    }
 
     protected static TypeParamSubst subst(X10ClassType container) {
         X10ClassDef def = (X10ClassDef) container.def();
