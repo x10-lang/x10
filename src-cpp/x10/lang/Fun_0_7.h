@@ -13,7 +13,7 @@ namespace x10 {
                 public:
                 static RTT * const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
-                virtual char *name() const {
+                virtual const char *name() const {
                     static const char *name =
                         x10aux::alloc_printf("x10.lang.Fun_0_7[%s,%s,%s,%s,%s,%s,%s,%s]",
                                              x10aux::getRTT<P1>()->name(),
