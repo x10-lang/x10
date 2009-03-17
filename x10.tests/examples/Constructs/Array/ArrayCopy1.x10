@@ -6,6 +6,7 @@
  *
  */
 import harness.x10Test;
+import x10.io.*;
 
 /**
  * Test for arrays, regions and dists.
@@ -127,7 +128,7 @@ public class ArrayCopy1 extends x10Test {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 case CYCLIC: return Dist.makeCyclic(r, 0);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 3, 0);
+                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
                 case CONSTANT: return r->here;
                 //case RANDOM: return Dist.makeRandom(r);
                 //case ARBITRARY:return Dist.makeArbitrary(r);
