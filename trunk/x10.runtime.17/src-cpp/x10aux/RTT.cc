@@ -10,10 +10,14 @@ using namespace x10aux;
 using namespace x10::lang;
 
 bool x10aux::RuntimeType::instanceOf (const ref<Object> &other) const {
+    if (other.isNull())
+        return false;
     return other->_type()->subtypeOf(this);
 }
 
 bool x10aux::RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
+    if (other.isNull())
+        return false;
     return other->_type()->equals(this);
 }
 

@@ -1151,7 +1151,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 emitter.printType(xts.Object(), sw);
                 sw.write(" p0");
                 sw.write(") {"); sw.newline(4); sw.begin(0);
-                sw.write("if (p0.operator->() == this) return true; // short-circuit trivial equality");
+                sw.write("if (p0.get() == this) return true; // short-circuit trivial equality");
                 sw.newline();
                 sw.write("if (!this->" + emitter.translateType(superClass) + "::" +
                          mangled_method_name(STRUCT_EQUALS_METHOD) + "(p0))");
