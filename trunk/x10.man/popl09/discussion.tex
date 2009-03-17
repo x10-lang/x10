@@ -498,38 +498,9 @@ $\Xcd{Number} \subtype \Xcd{Double}$.
 
 \subsection{Run-time casts}
 
-Covariance, mutability, erasure.
-
-Constraints are normally evaluated symbolically at compile time.
-However, with run-time casts, constraints may be evaluated at
-run time.  With constraints on values, this evaluation consists
-of simply evaluating the constraint expression.
-With constraints on types, however, subtyping tests must be
-perfomed at run-time.  This can require constraint solving.
-
-Consider again the \xcd"List" class in Figure~\ref{fig:list0}.
-If \xcd"C" extends \xcd"B", then an instance of
-\xcd"List{T==C}" is a subtype of 
-\xcd"List{T \extends B}"
-A run-time cast of this instance to
-\xcd"List{T \extends B}"
-must check
-that the object is an instance of \xcd"List"
-and that \xcd"T==C" entails \xcd"T \extends B".
-This is true if \xcd"C \extends B".
-To answer this query,
-constraint solving in {\cal O} must be performed at 
-run time.
-The implementation of a generic class must store suficient
-information for each type property to solve constraints at
-run-time.
-
-Restrictions to be efficient.
-
-----------------
-
 \Xten{} supports run-time casts to constrained types and to type properties.
-For instance, the expression
+Consider again the \xcd"List" class in Figure~\ref{fig:list0}.
+The expression
         \xcd"xs as List{T==int,length==n}" casts \xcd"xs" to  
         \xcd"List" and checks that it is a list of \xcd"int" and that
         its length is \xcd"n".
