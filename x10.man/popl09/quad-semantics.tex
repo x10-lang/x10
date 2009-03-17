@@ -123,7 +123,9 @@ The judgments of interest are as follows.
 
 A program type checks iff all its classes are provably OK.
 
-\paragraph{Well-formedness.} The rules for well-formedness of types in Figure~\ref{fig:well} are straightforward. A constraint $\tt c$ is well-formed for context $\Gamma$ iff its free variables are declared in $\Gamma$, i.e., $\tt\mathcal{F}(c)\subseteq\mathcal{D}(\Gamma)$. $\mathcal{D}$ and $\mathcal{F}$ are defined as usual.\footnote{Constraints such as ``$\new~{\tt C}(\bullet)==\new~{\tt D}(\bullet)$'' are well formed even if inconsistent. By design, it will not be possible to derive an inconsistent constraint from a consistent context.}
+\paragraph{Well-formedness.} The rules for well-formedness of
+types in Figure~\ref{fig:well} are straightforward. A constraint
+$\tt c$ is well-formed for context $\Gamma$ iff its free variables are declared in $\Gamma$, i.e., $\mathcal{F}({\tt c})\subseteq\mathcal{D}(\Gamma)$. $\mathcal{D}$ and $\mathcal{F}$ are defined as usual.\footnote{Constraints such as ``$\new~{\tt C}(\bullet)==\new~{\tt D}(\bullet)$'' are well formed even if inconsistent. By design, it will not be possible to derive an inconsistent constraint from a consistent context.}
 
 We say a program, context, or judgment is well formed iff all the constraints and types occurring it contains are well formed. By design, if a program type checks then it is well formed. Moreover, every judgment derived from a well formed context is also well formed.
 
