@@ -20,7 +20,8 @@ namespace x10 {
 
         template<class T> class ValRail : public Value,
                                           public virtual Fun_0_1<x10_int,T>,
-                                          public x10aux::AnyRail<T> {
+                                          public x10aux::AnyRail<T>
+        {
 
             public:
 
@@ -125,7 +126,7 @@ namespace x10 {
             }
 
             virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
-                if (other.operator->() == this) return true; // short-circuit trivial equality
+                if (other.get() == this) return true; // short-circuit trivial equality
                 if (!this->Value::_struct_equals(other)) return false;
                 x10aux::ref<ValRail> other_rail = other;
                 // different sizes so false
