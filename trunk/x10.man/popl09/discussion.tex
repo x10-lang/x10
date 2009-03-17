@@ -496,7 +496,7 @@ $\Xcd{Number} \subtype \Xcd{Double}$.
 
 }
 
-\subsection{Run-time constraint solving}
+\subsection{Run-time casts}
 
 Covariance, mutability, erasure.
 
@@ -525,3 +525,70 @@ information for each type property to solve constraints at
 run-time.
 
 Restrictions to be efficient.
+
+----------------
+
+\Xten{} supports run-time casts to constrained types and to type properties.
+For instance, the expression
+        \xcd"xs as List{T==int,length==n}" casts \xcd"xs" to  
+        \xcd"List" and checks that it is a list of \xcd"int" and that
+        its length is \xcd"n".
+        If the check fails, a \xcd"ClassCastException"
+        is thrown.  
+
+A compilcation arises with subtyping and type equality constraints.
+        Consider
+        \xcdmath"xs as List{T$\extends$int{self>=0}}".
+        If \xcd"xs" is a \xcd"List{T==int{self==1}}",
+        then the runtime system must check that
+                         \xcd"T==int{self==1}" entails
+                       \xcdmath"T$\extends$int{self>=0}".
+                       This holds if \xcd"self==1" entails \xcd"self>=0".
+
+Expressions can also be cast to type properties.  To implement this,
+the compiler must generate code to represent the type property at
+run time and to check if a value is an instance of that type.
+
+Constraints can be evaluated at run time using casts.
+ for instance, the expression 
+        \xcd"xs as List{length==n}" checks not only 
+        that \xcd"xs"
+         is an instance of
+        \xcd"List", but also that \xcd"xs.length" equals \xcd"n".
+        If the check fails, a \xcd"ClassCastException"
+        is thrown.  
+In this example, the test of the constraint is not require runtime constraint
+solving.  The constraint can be checked for the given value \xcd"xs"  by simply
+evaluating the \xcd"length" property of \xcd"xs" and comparing against \xcd"n".
+However, the situation is more complicated if the constraint  is over type
+properties.
+
+With type constraints we need the ability to check at run time that a given
+type is a subtype of another type.  Since subtyping of constrained types with
+requires entailment checking, we must be able to check entailment at runtime.
+
+One way to achieve this is to compile the constraints into a representation
+that allows entailment to be checked easily. The obvious solution is to embed
+the constraint solver itself into the runtime system.
+This solution,  however, can be inefficient when
+entailment checking for the given constraint system is expensive.
+
+A different approach to have the compiler precomputed results follow common
+checks. This is done by analyzing the program to identify which pairs of
+constraints might be tested for entailment at run time and then generating a
+graph were each node is a constraint and there is an directed edge between
+nodes in an entailment relationship.
+We explain this solution briefly in the next section.
+
+Finally, we can restrict the language so that entailment checking is
+efficient. Note that entailment checking is performed only for subtype
+constraints. For equality constraints, one can  simply test equality on
+canonical representations of each constraint.
+
+XXX not right
+For fast subtyping constraint entailment checking we can rely on a property of value types.
+
+We were  restrict subtyping constraints to be used only on value types.  since
+the value cannot been mutated we can use the value itself rather than a the
+values typed properties to test membership.
+
