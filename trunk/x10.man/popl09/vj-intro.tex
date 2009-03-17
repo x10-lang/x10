@@ -45,6 +45,8 @@ have been extensively developed over the past few decades in the
 context of logic and functional programming---they permit types to be
 parametrized by \emph{values}.
 
+\subsection{Constrained types}
+
 The key idea behind our approach is to focus on the notion of a {\em
 constraint system}. Constraint systems were originally developed in
 \cite{cccc} to provide a simple framework for a large variety of
@@ -58,18 +60,25 @@ quantification is supported. The entailment relation is required to
 support a certain set of inference rules arising from a Gentzen-style
 formulation of intuitionistic logic.
 
-In applying constraint systems to OO languages\footnote{The use of constraints for types has a distinguished
-history going back to Mitchell~\cite{mitchell84}. Our work is closely related to the \hmx{}
-approach \cite{sulzmann97type}---see Section~\ref{sec:related} for details.}, the principal insight
+In applying constraint systems to object-oriented
+languages\footnote{The use of constraints for types has a
+distinguished history going back to Mitchell~\cite{mitchell84}.
+Our work is closely related to the \hmx{} approach
+\cite{sulzmann97type}---see Section~\ref{sec:related} for
+details.}, the principal insight
 is that objects typically have some immutable state, and constraints on
 this state are of interest to the application.  For instance, in \Java{}
 the length of an array may not be statically known but is fixed once
 the array is created. Hence we can enrich the notion of a type: for a
-class \Xcd{C} we permit a type \Xcd{C\{c\}} where \Xcd{c} is a
-constraint on the immutable fields, or \emph{properties}, of the class. Thus, 
+class \Xcd{C} we permit a \emph{constrained type} \Xcd{C\{c\}} where \Xcd{c} is a
+constraint on the immutable fields, or \emph{properties}, of the
+class~\cite{constrained-types}. Thus, 
 \Xcd{Array\{self.length==N\}} is a type satisfied by any array whose length
 is \Xcd{N}---a (final) variable whose value may be unknown
-statically. Subtyping is easily defined: a type \Xcd{C\{c\}} is a
+statically. In a constraint, \Xcd{self} refers to 
+to a value of the base type being constrained; in this case
+\Xcd{self} has type \Xcd{Array}.
+Subtyping is easily defined: a type \Xcd{C\{c\}} is a
 subtype of \Xcd{D\{d\}} 
 % (in the sense that any value satisfying \Xcd{C\{c\}} may be used wherever a value satisfying \Xcd{D\{d\}} is
 %expected) 
@@ -140,8 +149,10 @@ closure of the extends relation.
 %If the user program does not specify that a class \Xcd{C}
 %extends \Xcd{D} (transitively), then \Xcd{C} does \emph{not} extend
 %\Xcd{D} (closed world assumption). 
+\eat{
 Section~\ref{sec:O} describes the
 resulting Object constraint system, $\cal O$, in more detail.
+}
 
 The next question is: where should type variables be permitted?
 Clearly, one must permit methods to have type parameters (as permitted
@@ -172,8 +183,8 @@ class Array[T](r: Region) {
 }
 \end{xten}}
 {}\noindent The class has two properties: a type-valued property
-\Xcd{T} and a value property \Xcd{r} of type
-\Xcd{Region}. The \Xcd{get} method for the array requires a
+\Xcd{T} and a value property \Xcd{r} of type \Xcd{Region}.
+The \Xcd{get} method for the array requires a
 point \Xcd{p} which must lie in the object's region.\footnote{Within the body of
 a class, class members may be referenced without using the
 ``\Xcd{this.}'' selector, as usual for OO languages. Hence occurrences of
@@ -184,12 +195,12 @@ respectively.}
 
 The type \Xcd{Array\{self.T==int\}} specifies the type of all arrays
 whose element type (\Xcd{T}) is \Xcd{int}.
-\Xcdmath{Array\{self.T $\extends$ Number,} \Xcd{self.r.rank==2\}}
+\Xcdmath{Array\{T$\extends$Number,} \Xcd{r.rank==2\}}
 specifies the type of all arrays whose base
 type is a subtype of \Xcd{Number}, and whose region has rank
 \Xcd{2}.
 The type 
-\Xcd{Array\{self.T==List\{self.length==N\},} \Xcd{self.r.rank==N\}}
+\Xcd{Array\{T==List\{length==N\},} \Xcd{r.rank==N\}}
 specifies an \Xcd{N}-dimensional array whose elements are lists (of
 unknown type) that are precisely \Xcd{N} long.
 
