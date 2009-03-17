@@ -20,87 +20,83 @@ public class ArrayCopy2 extends x10Test {
      * Returns true iff point x is not in the domain of
      * dist D
      */
-    static def outOfRange(val D: Dist, val x: Point): boolean = {
-        var gotException: boolean = false;
+    static def outOfRange(D: Dist, x: Point): boolean {
         try {
-            async(D(x)) {}; // dummy op just to use D[x]
-        } catch (var e: Throwable) {
-            gotException = true;
+            async(D(x)) {}; // dummy op just to use D(x)
+        } catch (Throwable) {
+            return true;
         }
-        return gotException;
+        return false;
     }
 
     /**
-     * Does not throw an error iff A[i] == B[i] for all points i.
+     * Does not throw an error iff A(i) == B(i) for all points i.
      */
-    public def arrayEqual(val A: Array[int], val B: Array[int]): void = {
-        val D: Dist = A.dist;
-        val E: Dist = B.dist;
+    public def arrayEqual[T](A: Array[T], B: Array[T](A.rank)) {
         // Spawn an activity for each index to
-        // fetch the B[i] value
-        // Then compare it to the A[i] value
+        // fetch the B(i) value
+        // Then compare it to the A(i) value
         finish
-            ateach (val p: Point in D) {
-            val v = (future (E(p)) B(p))();
+            ateach (p:Point(B.rank) in A.dist) {
+            val v = at (B.dist(p)) B(p);
             chk(A(p) == v);
-            }
+	}
     }
 
     /**
-     * Set A[i] = B[i] for all points i.
+     * Set A(i) = B(i) for all points i.
      * A and B can have different dists whose
      * regions are equal.
      * Throws an error iff some assertion failed.
      */
-    public def arrayCopy(val A: Array[int], val B: Array[int]): void = {
+    public def arrayCopy(val A: Array[int], val B: Array[int](A.rank)) {
 
-        val D: Dist = A.dist;
-        val E: Dist = B.dist;
+        val D = A.dist;
+        val E = B.dist;
 
         // Spawn one activity per place
-        val D_1: Dist = Dist..makeUnique(D.places());
+        val D_1 = Dist.makeUnique(D.places());
 
         // number of times elems of A are accessed
-        val accessed_a: Array[int] = Array.make[Int](D);
+        val accessed_a = Array.make[Int](D);
 
         // number of times elems of B are accessed
-        val accessed_b: Array[int] = Array.make[Int](E);
+        val accessed_b = Array.make[Int](E);
 
         finish
-            ateach (val x: Point in D_1) {
-                val px: Place = D_1(x);
+            ateach (x in D_1) {
+                val px = D_1(x);
                 chk(px == here);
-                val D_local:Dist(D.rank)  = (D | px);
-                for (val i: Point in D_local) {
-                    // assignment to A[i] may need to be atomic
+                val D_local  = (D | px);
+                for (i:Point(E.rank) in D_local) {
+                    // assignment to A(i) may need to be atomic
                     // unless disambiguator has high level
                     // knowledge about dists
-                    async (E(i)) {
-                        chk(E(i) == here);
-                        atomic accessed_b(i) += 1;
-                    }
-                    A(i) = (future(E(i)){B(i)}).force();
-                    atomic accessed_a(i) += 1;
+                    A(i) = at(E(i)){ 
+			atomic accessed_b(i)++;
+			B(i)
+		    };
+                    atomic accessed_a(i)++;
                 }
                 // check if dist ops are working
 
                 val D_nonlocal = D - D_local;
                 chk((D_local || D_nonlocal).equals(D));
-                for (val k: Point in D_local) {
+                for (k in D_local) {
                     chk(outOfRange(D_nonlocal, k));
                     chk(D_local(k) == px);
                 }
-                for (val k: Point in D_nonlocal) {
+                for (k in D_nonlocal) {
                     chk(outOfRange(D_local, k));
                     chk(D_nonlocal(k) != px);
                 }
             }
 
         // ensure each A[i] was accessed exactly once
-        finish ateach (val i: Point in D) chk(accessed_a(i) == 1);
+        finish ateach (i:Point(D.rank) in D) chk(accessed_a(i) == 1);
 
         // ensure each B[i] was accessed exactly once
-        finish ateach (val i: Point in E) chk(accessed_b(i) == 1);
+        finish ateach (i:Point(E.rank) in E) chk(accessed_b(i) == 1);
     }
 
     public const N: int = 3;
@@ -111,15 +107,25 @@ public class ArrayCopy2 extends x10Test {
      */
     public def run(): boolean = {
 
-        val R: Region = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
-        val TestDists: Region = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
+        val R:Region(4) = [0..N-1, 0..N-1, 0..N-1, 0..N-1];
+        val TestDists = [0..dist2.N_DIST_TYPES-1, 0..dist2.N_DIST_TYPES-1];
 
-        for (val distP(dX,dY): Point in TestDists) {
-            val D: Dist = dist2.getDist(dX, R);
-            val E: Dist = dist2.getDist(dY, R);
+        for (distP(dX,dY):Point(2) in TestDists) {
+            val D= dist2.getDist(dX, R);
+            val E = dist2.getDist(dY, R);
+	    /*
+	    x10.io.Console.OUT.println("dX,dY=" + dX + "," + dY);
+	    x10.io.Console.OUT.println("E.region=" + E.region 
+				       + " D.region=" + D.region
+				       + " R=" + R);
+	    x10.io.Console.OUT.println("D.region.equals(E.region)=" 
+				       + D.region.equals(E.region));
+	    x10.io.Console.OUT.println("D.region.equals(R)=" 
+				       + D.region.equals(R));
+	    */
             chk(D.region.equals(E.region) && D.region.equals(R));
-            val A: Array[int] = Array.make[int](D);
-            val B: Array[int] = Array.make[int](E, (var p(i,j,k,l): Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
+            val A = Array.make[int](D);
+            val B = Array.make[int](E, (p(i,j,k,l): Point) => { val x = ((i*N+j)*N+k)*N+l; x*x+1 });
             arrayCopy(A, B);
             arrayEqual(A, B);
         }
@@ -137,24 +143,17 @@ public class ArrayCopy2 extends x10Test {
     static class dist2 {
 
         const BLOCK: int = 0;
-        const CYCLIC: int = 1;
-        const BLOCKCYCLIC: int = 2;
-        const CONSTANT: int = 3;
-        const RANDOM: int = 4;
-        const ARBITRARY: int = 5;
-        const N_DIST_TYPES: int = 6;
-
+        const BLOCKCYCLIC: int = 1;
+        const CONSTANT: int = 2;
+	const N_DIST_TYPES=3;
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(distType: Int, r: Region): Dist(r) = {
+        public static def getDist(distType: Int, R: Region): Dist(R) = {
             switch(distType) {
-                case BLOCK: return Dist.makeBlock(r);
-                case CYCLIC: return Dist.makeCyclic(r);
-                case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 3);
-                case CONSTANT: return r->here;
-                case RANDOM: return Dist.makeRandom(r);
-                case ARBITRARY:return Dist.makeArbitrary(r);
+                case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
+                case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
+                case CONSTANT: return (R->here) as Dist(R);
                 default: throw new Error();
             }
         }

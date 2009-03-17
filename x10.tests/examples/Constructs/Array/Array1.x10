@@ -23,8 +23,8 @@ public class Array1 extends x10Test {
         val d = r->here;
         val ia: Array[int](d) = Array.make[int](d, (Point)=>0);
 
-        for (val p(i) in e) {
-            for (val q(j) in e) {
+        for (p(i) in e) {
+            for (q(j) in e) {
                 chk(ia(i,j) == 0);
                 ia(i,j) = i+j;
             }
