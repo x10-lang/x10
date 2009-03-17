@@ -648,7 +648,9 @@ generics and value-dependent types.
 \subsection{Results}
 The following results hold for \FXGD.
 
-\begin{theorem}[Subject Reduction] If $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$ then for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
+\begin{theorem}[Subject Reduction] If $\Gamma \vdash {\tt e:T}$
+and $\Gamma \vdash {\tt T}~\type$ and ${\tt e} \derives {\tt e'}$, then
+for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
 \end{theorem}
 
 The theorem needs the Substitution Lemma:
@@ -660,7 +662,8 @@ The theorem needs the Substitution Lemma:
 
 We let values be of the form $\tt v ::= \new\ C(\bar{\tt v})$. 
 \begin{theorem}[Progress]
-If $\vdash {\tt e:T}$ then one of the following conditions holds:
+If $\vdash {\tt e:T}$ and $\vdash {\tt T}~\type$
+then one of the following conditions holds:
 \begin{enumerate}
 \item {\tt e} is a value,
 \item {\tt e} contains a cast sub-expression which is stuck,
@@ -669,7 +672,8 @@ If $\vdash {\tt e:T}$ then one of the following conditions holds:
 \end{theorem}
 
 \begin{theorem}[Type soundness]
-If $\vdash {\tt e:T}$ and {\tt e} reduces to a normal form ${\tt e'}$ then
+If $\vdash {\tt e:T}$ and $\vdash {\tt T}~\type$ and {\tt e}
+reduces to a normal form ${\tt e'}$, then
 either $\tt e'$ is a value {\tt v} and $\vdash {\tt v:S},{\tt S\subtype T}$ or
 ${\tt e'}$ contains  a stuck cast sub-expression.
 \end{theorem}
