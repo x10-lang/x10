@@ -2225,7 +2225,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(CharLit_c lit) {
-		sw.write("'"+StringUtil.escape(lit.charValue())+"'");
+		sw.write("((x10_char)'"+StringUtil.escape(lit.charValue())+"')");
 	}
 
 	public void visit(BooleanLit_c lit) {
