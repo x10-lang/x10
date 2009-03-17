@@ -40,12 +40,15 @@ public value class BaseDist extends Dist /*implements Map[Place,Region]*/ {
         val regions = Rail.makeVal[Region](ps.length, init);
 
         // overall region
-        val overall: Region{self.rank==1} = Region.makeRectangular(0, ps.length-1);
+        val overall = Region.makeRectangular(0, ps.length-1);
 
         return new BaseDist(overall, ps, regions);
     }
 
     public static def makeBlockCyclic1(r: Region, axis: int, blockSize: int): Dist(r.rank) { // XTENLANG-4
+
+        if (blockSize<=0)
+            throw new IllegalArgumentException("blocksize is " + blockSize + "; it must be >0");
 
         val b = r.boundingBox();
         val min = b.min()(axis);
