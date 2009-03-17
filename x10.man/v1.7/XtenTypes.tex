@@ -149,11 +149,37 @@ singleton classes to carry mutable static state.
 \index{\Xcd{Object}}
 \index{\Xcd{x10.lang.Object}}
 
+\index{class!reference class}
+\index{reference class type}
+\index{types!value class types}
+\index{class!value class}
+\index{value class declaration}
+\index{declaration!value class declaration}
+
+        Classes may be declared to be either reference classes,
+        or value classes.
+A \emph{value class type}, declared with the \xcd"value"
+modifier,
+is a class type in which all fields of the class are final.
+%
+Variables of reference class type may be \xcd"null"; 
+variables of value class type may not be \xcd"null".
+
+\index{\Xcd{Ref}}
+\index{\Xcd{x10.lang.Ref}}
+\index{\Xcd{Value}}
+\index{\Xcd{x10.lang.Value}}
+
         Classes
         are structured in a
         single-inheritance hierarchy.  All reference classes
-        extend the class \xcd"x10.lang.Ref".
-        All value classes extend the class \xcd"x10.lang.Value".
+        implicitly extend the class \xcd"x10.lang.Ref".
+        All value classes implicitly extend the class \xcd"x10.lang.Value".
+        It is a static error if a value class explicitly extends
+        \xcd"Ref" (or any subclass of \xcd"Ref").
+        It is a static error if a reference class explicitly extends
+        \xcd"Value" (or any subclass of \xcd"Value").
+
         Classes are declared to extend a single
         superclass (except for \xcd"Ref" and \xcd"Value", which extend
         no other class),
@@ -174,34 +200,6 @@ public interface Object {
 }
 \end{xten}
 
-
-\index{class!reference class}
-\index{reference class type}
-\index{types!value class types}
-\index{class!value class}
-\index{value class declaration}
-\index{declaration!value class declaration}
-\index{\Xcd{Ref}}
-\index{\Xcd{x10.lang.Ref}}
-\index{\Xcd{Value}}
-\index{\Xcd{x10.lang.Value}}
-
-        Classes may be declared to be either reference classes,
-        or value classes.
-A \emph{value class type}
-is a class type in which all fields of the class are final.
-%
-Variables of reference class type may be \xcd"null"; 
-variables of value class type may not be \xcd"null".
-%
-        All reference classes extend the
-        \xcd"x10.lang.Ref" class; all value classes
-        extend the \xcd"x10.lang.Value" class.
-
-        It is a static error if a value class extends
-        \xcd"Ref" (or any subclass of \xcd"Ref").
-        It is a static error if a reference class extends
-        \xcd"Value" (or any subclass of \xcd"Value").
 
 \xcd"Ref" and \xcd"Value" have the following signatures:
 
@@ -253,6 +251,9 @@ interface. A class implements an interface if it is declared to
 and if
 it implements all the methods and properties defined in the interface.
 
+% @@@### how are types related to classes.  type equivalence.
+% structural?  nominal, etc
+% ... can construct types from classes
 \subsection{Value properties}
 
 \index{properties!value properties}
@@ -276,6 +277,7 @@ class Point(x: Int, y: Int) {
         constrained with a boolean expression.  The type
         \xcd"Point{x==0}" is the set of all points whose \xcd"x"
         property is \xcd"0".
+
 
 
 \iftypeparams
@@ -427,10 +429,32 @@ This declares a class \xcd"Cell" with a type parameter \xcd"X".
 \xcd"Cell" alone is not a legal type because the parameter is
 not bound.
 
-Parameters may be declares as invariant, covariant, or
-contravariant.  The \xcd"X" parameter of \xcd"Cell" above is
-invariant.  
-Consider the following classes:
+Parameters may be declared as invariant, covariant (``\xcd"+"''),
+or contravariant (``\xcd"-"'').
+
+Given types \xcd"S" and \xcd"T".
+\begin{itemize}
+\item
+If a parameter \xcd"X" of a class or interface \xcd"C" is
+\emph{covariant}, then 
+\xcd"C[S]" is a subtype of \xcd"C[T]" if
+\xcd"S" is a {\em subtype} of \xcd"T".
+
+\item
+If a parameter \xcd"X" of a class or interface \xcd"C" is
+\emph{covariant}, then 
+\xcd"C[S]" is a subtype of \xcd"C[T]" if
+\xcd"S" is a {\em supertype} of \xcd"T".
+
+\item
+If a parameter \xcd"X" of a class or interface \xcd"C" is
+\emph{invariant}, then 
+if \xcd"S" is a {\em supertype} of \xcd"T", then
+\xcd"C[S]" is a subtype of \xcd"C[T]" if
+\xcd"S" is {\em equal} to \xcd"T".
+\end{itemize}
+
+Consider the following class declarations:
 \begin{xten}
 class Get[+X] {
     var x: X;
@@ -447,26 +471,22 @@ class Set[-X] {
 The \xcd"X" parameter of the \xcd"Get" class is covariant;
 the \xcd"X" parameter of the \xcd"Set" class is contravariant.
 
-Given types \xcd"S" and \xcd"T".
-\begin{itemize}
-\item
-If the parameter of \xcd"Get" is covariant, then
-\xcd"Get[S]" is a subtype of \xcd"Get[T]" if
-\xcd"S" is a {\em subtype} of \xcd"T".
+In this example, \xcd"Get[Integer]" is a subtype of
+\xcd"Get[Number]" since \xcd"Integer" is a subtype of
+\xcd"Number";
+\xcd"Set[Number]" is a subtype of
+\xcd"Get[Integer]" since \xcd"Number" is a supertype of
+\xcd"Integer".
 
-\item
-If the parameter of \xcd"Set" is covariant, then
-\xcd"Set[S]" is a subtype of \xcd"Set[T]" if
-\xcd"S" is a {\em supertype} of \xcd"T".
+The \xcd"X" parameter of the \xcd"Cell" class above is invariant.
+Thus, \xcd"Cell[Integer]" and \xcd"Cell[Number]" are
+incomparable;
+      \xcd"Cell[Integer]" is a (reflexive) subtype of \xcd"Cell[Integer]"
+      and
+      \xcd"Cell[Number]" is a (reflexive) subtype of
+      \xcd"Cell[Number]".
 
-\item
-If the parameter of \xcd"Cell" is invariant, then
-\xcd"Cell[S]" is a subtype of \xcd"Cell[T]" if
-\xcd"S" is a {\em equal} to \xcd"T".
-\end{itemize}
-
-\fi
-
+% @@@### 
 
 
 \section{Type definitions}

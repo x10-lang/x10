@@ -53,6 +53,7 @@ class Point(x: Int, y: Int) {
 The class has integer value properties \xcd"x" and \xcd"y".
 The \xcd"add" method creates and returns a new point by
 element-wise addition.
+% @@@### This sentence is out of place.  Define.
 The dependent type \xcd"Point{x==0}" is the type of all points 
 with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
@@ -76,7 +77,7 @@ class List[T] {
     var head: T;
     var tail: List[T];
     def this(h: T, t: List[T]) { head = h; tail = t; }
-    def append(x: T) {
+    def add(x: T) {
         if (this.tail == null)
             this.tail = new List(x, null);
         else
@@ -113,7 +114,7 @@ efficiently. Methods may be invoked on such an object from any place.
 \Xten{} has no primitive classes. However, the standard library
 \xcd"x10.lang" supplies (final) value classes \xcd"Boolean", \xcd"Byte",
 \xcd"Short", \xcd"Char", \xcd"Int", \xcd"Long", \xcd"Float",
-\xcd"Double", \xcd"Complex" and \xcd"String". The user may defined
+\xcd"Double", \xcd"Complex" and \xcd"String". The user may define
 additional arithmetic value classes using the facilities of the
 language.
 
@@ -135,7 +136,9 @@ environment.  Closures are used implicitly in asyncs, futures, and array
 initializers.
 %
 For example, the following method uses a closure to increment
-elements of an array.
+elements of an array by invoking the \xcd"lift" method on the
+array.  The syntax \xcd"(x: Int) => x+1" specifies a closure
+that takes an integer argument \xcd"x" and returns \xcd"x+1".
 \begin{xten}
 def incr(A: Array[Int]): Array[Int] = {
     val f = (x: Int) => x+1; // e.g., f(1) == 2
