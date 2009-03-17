@@ -16,6 +16,10 @@ value class EmptyRegion extends UnionRegion {
         super(new PolyRegionListBuilder(rank));
     }
 
+    public def product(r: Region): Region(rank) {
+        return this;
+    }
+
     protected def computeBoundingBox(): Region(rank) {
         throw new IllegalOperationException("bounding box not not defined for empty region");
     }
