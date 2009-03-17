@@ -27,7 +27,7 @@ abstract class Benchmark extends x10Test {
     val out:Printer;
 
     @Native("java", "\"java\"")
-    @Native("c++", "String::Lit(\"cpp\")")
+    @Native("c++", "x10::lang::String::Lit(\"cpp\")")
     const lg = "";
 
     const WARMUP = 30.0;  // java warmup time in secs
