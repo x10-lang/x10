@@ -1107,8 +1107,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                             emitter.dumpRegex("Native", components, tr, pat, sw);
                         } else {
                             sw.write(emitter.translateType(superClass, false) +
-                                    "::" + mangled_method_name(mname.toString()) + "(");
-                            sw.begin(0);
+                                    "::" + mangled_method_name(mname.toString()));
                             if (newTypeParameters.size() != 0) {
                                 String prefix = "<";
                                 for (Type t : newTypeParameters) {
@@ -1118,6 +1117,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                                 }
                                 sw.write(">");
                             }
+                            sw.write("(");
+                            sw.begin(0);
                             counter = 0;
                             for (Type formal : formals) {
                                 sw.write(counter == 0 ? "" : ", ");
