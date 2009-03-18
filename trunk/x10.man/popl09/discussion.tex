@@ -541,29 +541,34 @@ that a given type is a subtype of another.  Since subtyping
 of constrained types requires checking entailment of
 constraints, the generated code must be be able to check
 entailment at runtime.
-
-One way to achieve this is to compile the constraints into a representation
-that allows entailment to be checked easily. The obvious solution is to embed
+One way to achieve this is to embed
 the constraint solver itself into the runtime system.
-This solution,  however, can be inefficient when
-entailment checking for the given constraint system is expensive.
+This solution, however, can result in inefficient run-time casts
+if entailment checking for the given constraint system is expensive.
 
-A different approach to have the compiler precomputed results follow common
-checks. This is done by analyzing the program to identify which pairs of
+A different approach to have the compiler precompute the results of
+entailment checks.
+This is done by analyzing the program to identify which pairs of
 constraints might be tested for entailment at run time and then generating a
 graph were each node is a constraint and there is an directed edge between
-nodes in an entailment relationship.
-We explain this solution briefly in the next section.
+nodes in an entailment relationship.  Run-time entailment
+checking is thus implemented as reachability checking. 
+This solution is a whole program analysis; all
+constraints must be visible to generate the graph.
 
-Finally, we can restrict the language so that entailment checking is
-efficient. Note that entailment checking is performed only for subtype
-constraints. For equality constraints, one can  simply test equality on
+Finally, the language can be restricted so that entailment checking is
+efficient.
+For equality constraints on types, one can simply test equality on
+the base types and on 
 canonical representations of each constraint.
-
-XXX not right
-For fast subtyping constraint entailment checking we can rely on a property of value types.
 %
-We were  restrict subtyping constraints to be used only on value types.  since
-the value cannot been mutated we can use the value itself rather than a the
-values typed properties to test membership.
+We restrict subtyping constraints to be used only on value types.  Since
+the value cannot been mutated we can use the value itself rather than the
+value's type properties to test entailment.
+For instance, for an immutable \xcd"List" class, for the cast
+\xcd"xs as List{T==int}", we test that \xcd"xs.head" is an
+instance of \xcd"int" and recursively test \xcd"xs.tail".
+Since all elements of \xcd"xs" are \xcd"int" and since the list
+is immutable, it is safe to treat \xcd"xs" as 
+\xcd"List{T==int}".
 
