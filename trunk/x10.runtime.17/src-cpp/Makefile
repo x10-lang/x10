@@ -114,6 +114,8 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/NativeFile.o \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
+	x10/lang/OutOfMemoryError.o \
+	x10/lang/Error.o \
 	x10/lang/ArrayIndexOutOfBoundsException.o \
 	x10/lang/BadPlaceException.o \
 	x10/lang/ClassCastException.o \
