@@ -1,13 +1,24 @@
+#include <x10aux/config.h>
+
 #include <x10aux/alloc.h>
 
 #include <cstdio>
 #include <cstdarg>
+
+#include <x10aux/throw.h>
+#include <x10/lang/OutOfMemoryError.h>
 
 using namespace x10aux;
 
 #ifdef __CYGWIN__
 extern "C" int vsnprintf(char *, size_t, const char *, va_list); 
 #endif
+
+// do not call this if NO_EXCEPTIONS is defined
+// defined here because it depends on OutOfMemoryError and we don't want a header cycle
+void x10aux::throwOOME() {
+    throwException<x10::lang::OutOfMemoryError>();
+}
 
 char *x10aux::alloc_printf(const char *fmt, ...) {
     va_list args;
