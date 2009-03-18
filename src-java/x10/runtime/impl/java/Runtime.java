@@ -40,10 +40,7 @@ public abstract class Runtime implements Runnable {
 	 * Body of main x10 thread
 	 */
 	public void run() {
-		// preload classes
-		if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
-			PreLoader.preLoad(this.getClass().getEnclosingClass(), Boolean.getBoolean("x10.PRELOAD_STRINGS"));
-		}
+		try { Class.forName("x10.lang.Place"); } catch (ClassNotFoundException e) { }
 
 		// execute root x10 activity
 		main(x10.core.RailFactory.<java.lang.String>makeRailFromJavaArray(args));
