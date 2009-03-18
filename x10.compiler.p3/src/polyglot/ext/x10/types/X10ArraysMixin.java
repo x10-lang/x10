@@ -8,6 +8,8 @@
 
 package polyglot.ext.x10.types;
 
+import java.util.Collections;
+
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Name;
@@ -92,71 +94,7 @@ public class X10ArraysMixin {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		    XConstraint r = X10TypeMixin.realX(t);
 
-		    // try self.dist.region.p
-		    X10FieldInstance dfi = getProperty(t, Name.make("dist"));
-		    if (dfi != null) {
-		        X10FieldInstance rfi = getProperty(dfi.rightType(), Name.make("region"));
-		        if (rfi != null) {
-		            X10FieldInstance fi = getProperty(rfi.rightType(), propName);
-		            if (fi != null) {
-		                try {
-		                    XConstraint c = new XConstraint_c();
-		                    XVar dist = xts.xtypeTranslator().trans(c, c.self(), dfi);
-		                    XVar region = xts.xtypeTranslator().trans(c, dist, rfi);
-		                    XVar term = xts.xtypeTranslator().trans(c, region, fi);
-		                    c.addBinding(term, xts.xtypeTranslator().trans(true));
-		                    return r.entails(c);
-		                }
-		                catch (XFailure f) {
-		                    // fall thru
-		                }
-		                catch (SemanticException f) {
-		                    // fall thru
-		                }
-		            }
-		        }
-
-		        // try self.dist.p
-		        X10FieldInstance fi = getProperty(dfi.rightType(), propName);
-		        if (fi != null) {
-		            try {
-		                XConstraint c = new XConstraint_c();
-		                XVar dist = xts.xtypeTranslator().trans(c, c.self(), dfi);
-		                XVar term = xts.xtypeTranslator().trans(c, dist, fi);
-		                c.addBinding(term, xts.xtypeTranslator().trans(true));
-		                return r.entails(c);
-		            }
-		            catch (XFailure f) {
-		                // fall thru
-		            }
-		            catch (SemanticException f) {
-		                // fall thru
-		            }
-		        }
-		    }
-
-		    // try self.region.p
-		    X10FieldInstance rfi = getProperty(t, Name.make("region"));
-		    if (rfi != null) {
-		        X10FieldInstance fi = getProperty(rfi.rightType(), propName);
-		        if (fi != null) {
-		            try {
-		                XConstraint c = new XConstraint_c();
-		                XVar region = xts.xtypeTranslator().trans(c, c.self(), rfi);
-		                XVar term = xts.xtypeTranslator().trans(c, region, fi);
-		                c.addBinding(term, xts.xtypeTranslator().trans(true));
-		                return r.entails(c);
-		            }
-		            catch (XFailure f) {
-		                // fall thru
-		            }
-		            catch (SemanticException f) {
-		                // fall thru
-		            }
-		        }
-		    }
-
-		    // finally, try self.p
+		    // first try self.p
 		    X10FieldInstance fi = getProperty(t, propName);
 		    if (fi != null) {
 			    try {
@@ -172,7 +110,23 @@ public class X10ArraysMixin {
 				    return false;
 			    }
 		    }
-		    return false;
+		    else {
+		        // try self.p()
+		            try {
+		                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST), null);
+		                XTerm body = mi.body();
+		                XConstraint c = new XConstraint_c();
+		                body = body.subst(c.self(), mi.x10Def().thisVar());
+		                c.addTerm(body);
+		                return r.entails(c);
+		            }
+		            catch (XFailure f) {
+		                return false;
+		            }
+		            catch (SemanticException f) {
+		                return false;
+		            }
+		    }
 	    }
 
 	    public static boolean isRect(Type t) {
