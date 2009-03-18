@@ -2615,24 +2615,40 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10Formal form = (X10Formal) n.formal();
 
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-		Type dType = n.domain().type();
+		Expr domain = n.domain();
+		Type dType = domain.type();
 		if (Configuration.LOOP_OPTIMIZATIONS &&
 		        form.hasExplodedVars() && form.isUnnamed() && xts.isPoint(form.type().type()) &&
 		        (X10ArraysMixin.isRect(dType)))
 		{
 		    assert (xts.isPoint(form.type().type()));
-		    assert (xts.isDistribution(dType) || xts.isRegion(dType));
+		    assert (xts.isX10Array(dType) || xts.isDistribution(dType) || xts.isRegion(dType));
+
+		    // TODO: move this to the Desugarer
+		    X10NodeFactory xnf = (X10NodeFactory) tr.nodeFactory();
+		    if (xts.isX10Array(dType)) {
+		        Position pos = domain.position();
+		        FieldInstance fDist = dType.toClass().fieldNamed(Name.make("dist"));
+		        dType = fDist.type();
+		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("dist"))).fieldInstance(fDist).type(dType);
+		    }
+		    if (xts.isDistribution(dType)) {
+		        Position pos = domain.position();
+		        FieldInstance fRegion = dType.toClass().fieldNamed(Name.make("region"));
+		        dType = fRegion.type();
+		        domain = xnf.Field(pos, domain, xnf.Id(pos, Name.make("region"))).fieldInstance(fRegion).type(dType);
+		    }
 
 		    sw.write("{");
 		    sw.newline(4); sw.begin(0);
 
-		    String domain = getId();
+		    String dom = getId();
 		    LocalDef[] lis = form.localInstances();
 		    List<Formal> vars = form.vars();
 		    int rank = lis.length;
 		    String[] limit = new String[rank];
 		    emitter.printType(dType, sw);
-		    sw.write(" " + domain + ";");
+		    sw.write(" " + dom + ";");
 		    sw.newline();
 		    for (int i = 0; i < rank; i++) {
 		        LocalInstance f = lis[i].asInstance();
@@ -2648,18 +2664,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.newline();
 		    }
 
-		    sw.write(domain + " = ");
-		    n.print(n.domain(), sw, tr);
+		    sw.write(dom + " = ");
+		    n.print(domain, sw, tr);
 		    sw.write(";");
 		    sw.newline();
 		    for (int i = 0; i < rank; i++) {
 		        LocalInstance f = lis[i].asInstance();
 		        assert (f.type().isInt());
-		        sw.write(limit[i] + " = " + domain + "->max(" + i + ");");
+		        sw.write(limit[i] + " = " + dom + "->max(" + i + ");");
 		        sw.newline();
 		        sw.write("for (");
 		        sw.write(mangled_non_method_name(f.name().toString()));
-		        sw.write(" = " + domain + "->min(" + i + "); ");
+		        sw.write(" = " + dom + "->min(" + i + "); ");
 		        sw.write(mangled_non_method_name(f.name().toString()));
 		        sw.write(" <= " + limit[i] + "; ");
 		        sw.write(mangled_non_method_name(f.name().toString()));
@@ -2710,7 +2726,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("x10aux::convert_iterator"+chevrons(fType+","+emitter.translateType(itType, true)));
         }
         sw.write("((");
-		n.print(n.domain(), sw, tr);
+		n.print(domain, sw, tr);
 		sw.write(")->iterator());");
 		sw.newline();
 
