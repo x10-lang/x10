@@ -92,6 +92,71 @@ public class X10ArraysMixin {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		    XConstraint r = X10TypeMixin.realX(t);
 
+		    // try self.dist.region.p
+		    X10FieldInstance dfi = getProperty(t, Name.make("dist"));
+		    if (dfi != null) {
+		        X10FieldInstance rfi = getProperty(dfi.rightType(), Name.make("region"));
+		        if (rfi != null) {
+		            X10FieldInstance fi = getProperty(rfi.rightType(), propName);
+		            if (fi != null) {
+		                try {
+		                    XConstraint c = new XConstraint_c();
+		                    XVar dist = xts.xtypeTranslator().trans(c, c.self(), dfi);
+		                    XVar region = xts.xtypeTranslator().trans(c, dist, rfi);
+		                    XVar term = xts.xtypeTranslator().trans(c, region, fi);
+		                    c.addBinding(term, xts.xtypeTranslator().trans(true));
+		                    return r.entails(c);
+		                }
+		                catch (XFailure f) {
+		                    // fall thru
+		                }
+		                catch (SemanticException f) {
+		                    // fall thru
+		                }
+		            }
+		        }
+
+		        // try self.dist.p
+		        X10FieldInstance fi = getProperty(dfi.rightType(), propName);
+		        if (fi != null) {
+		            try {
+		                XConstraint c = new XConstraint_c();
+		                XVar dist = xts.xtypeTranslator().trans(c, c.self(), dfi);
+		                XVar term = xts.xtypeTranslator().trans(c, dist, fi);
+		                c.addBinding(term, xts.xtypeTranslator().trans(true));
+		                return r.entails(c);
+		            }
+		            catch (XFailure f) {
+		                // fall thru
+		            }
+		            catch (SemanticException f) {
+		                // fall thru
+		            }
+		        }
+		    }
+
+		    // try self.region.p
+		    X10FieldInstance rfi = getProperty(t, Name.make("region"));
+		    if (rfi != null) {
+		        X10FieldInstance fi = getProperty(rfi.rightType(), propName);
+		        if (fi != null) {
+		            try {
+		                XConstraint c = new XConstraint_c();
+		                XVar region = xts.xtypeTranslator().trans(c, c.self(), rfi);
+		                XVar term = xts.xtypeTranslator().trans(c, region, fi);
+		                c.addBinding(term, xts.xtypeTranslator().trans(true));
+		                return r.entails(c);
+		            }
+		            catch (XFailure f) {
+		                // fall thru
+		            }
+		            catch (SemanticException f) {
+		                // fall thru
+		            }
+		        }
+		    }
+
+		    // finally, try self.p
 		    X10FieldInstance fi = getProperty(t, propName);
 		    if (fi != null) {
 			    try {
@@ -121,6 +186,8 @@ public class X10ArraysMixin {
 	    private static XTerm findProperty(Type t, Name propName) {
 	        XConstraint c = X10TypeMixin.realX(t);
 	        if (c == null) return null;
+	        
+	        // TODO: check dist.region.p and region.p
 	        try {
 	        	FieldInstance fi = getProperty(t, propName);
 	        	if (fi != null)
