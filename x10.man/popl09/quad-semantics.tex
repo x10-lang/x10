@@ -444,11 +444,11 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Const-L]
-	{\Gamma,{\tt c}\vdash {\tt T}\subtype {\tt U}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso \Gamma\vdash {\tt T}\subtype {\tt U}}
 	{\Gamma\vdash {\tt T}\{{\tt c}\}\subtype {\tt U}}
 
 \infrule[S-Const-R]
-	{\Gamma\vdash {\tt T}\subtype {\tt U} \andalso\Gamma,\self:{\tt T}\vdash {\tt c}}
+	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}, {\tt T}\subtype {\tt U} \andalso\Gamma,\self:{\tt T}\vdash {\tt c}}
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-L]
