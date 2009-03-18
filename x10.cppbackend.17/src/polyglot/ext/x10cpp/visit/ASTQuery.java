@@ -94,7 +94,8 @@ public class ASTQuery {
             (dec.formals().size() == 1) &&
             ((Formal)dec.formals().get(0)).type().type().typeEquals(ts.Rail(ts.String()));
         if (result) {
-            if (seenMain && !warnedAboutMain && Configuration.MAIN_CLASS == null) {
+            boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;
+            if (seenMain && !warnedAboutMain && !dash_c && Configuration.MAIN_CLASS == null) {
                 tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
                                                          "Multiple main() methods encountered.  " +
                                                          "Please specify MAIN_CLASS.");
