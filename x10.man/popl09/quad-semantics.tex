@@ -116,7 +116,7 @@ The judgments of interest are as follows.
 	\item Typing:\\
 	  $\Gamma\vdash {\tt e}:{\tt T}$ \hfill expression {\tt e} has type {\tt T}\\
 	  $\vdash {\tt def}~{\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}~{\rm OK~in}~{\tt C}$ \\ $~$ \hfill method {\tt m} in class {\tt C} type checks\\
-	  $\vdash {\tt class}~{\tt C}(\tbar{f}:\tbar{V})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~{\rm OK}$ \\ $~$ \hfill class {\tt C} type checks
+	  $\vdash {\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~{\rm OK}$ \\ $~$ \hfill class {\tt C} type checks
 	\item Subtyping:\\
 	  $\Gamma \vdash {\tt S} \subtype {\tt T}$ \hfill type {\tt S} is a subtype of type {\tt T}
 \end{enumerate}
@@ -389,7 +389,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
   {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}:{\tt T}\{\self=={\tt x}\}}
 
 \infrule[T-Cast]
-	{\Gamma\vdash {\tt e}:{\tt U}}
+	{\Gamma\vdash {\tt e}:{\tt U}\andalso\wj{\Gamma}{\tt T}}
 	{\Gamma\vdash {\tt e}~\as~{\tt T}:{\tt T}}
 	
 \infrule[T-Field]
@@ -412,11 +412,15 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \infrule[T-Method]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P} \andalso
     {\tt def}~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}\in\tbar{M}\\
-    \this:{\tt C},\tbar{y}:\tbar{U},{\tt d}\vdash {\tt V}~\type,\tbar{U}~\type,{\tt d}~\constraint,{\tt e}:{\tt W},{\tt W}\subtype {\tt V}}
+    \this:{\tt C}\vdash \tbar{U}~\type
+    \andalso
+    \this:{\tt C},\tbar{y}:\tbar{U}\vdash {\tt d}~\constraint
+    \andalso
+    \this:{\tt C},\tbar{y}:\tbar{U},{\tt d}\vdash {\tt e}:{\tt W},{\tt W}\subtype {\tt V}}
   {{\tt def}~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}~{\rm OK~in}~{\tt C}}
 
 \infrule[T-Class]
-  {\tt\tbar{M}~{\rm ok~in}~C \andalso \this:C,\tbar{f}:\tbar{T},{\tt c}\vdash\tbar{T}~\type,{\tt c}~\constraint}
+  {\tt\tbar{M}~{\rm OK~in}~C \andalso \this:C\vdash\tbar{T}~\type \andalso \this:C,\tbar{f}:\tbar{T}\vdash{\tt c}~\constraint}
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
 \caption{\FX{} typing rules}\label{fig:FX}
 \end{figure*}
@@ -448,7 +452,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-L]
-  {\Gamma\vdash {\tt T}\subtype {\tt U} \andalso {\tt x}~\rm fresh}
+  {\Gamma\vdash {\tt T}\subtype {\tt U} \andalso \wj{\Gamma}{\tt V} \andalso {\tt x}~\rm fresh}
   {\Gamma\vdash\exists {\tt x}:{\tt V}.~{\tt T}\subtype {\tt U}}
 
 \infrule[S-Exists-R]
@@ -462,42 +466,46 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \begin{figure*}
 \centering
 \begin{tabular}{r@{\quad}rcl}
-  (Type)& {\tt T} &{::=}& ${\tt t}$ \alt \type \\
-  (Constraint) & {\tt c} &{::=}& $\tt {\tt t}\extends {\tt C}\{{\tt c}\}$
+  (Expression)& {\tt e} &{::=}& ${\tt C}\{{\tt c}\}$ \\
+  (Path)& {\tt p} &{::=}& ${\tt x}$ \alt {\tt p}.{\tt f} \\
+  (Type)& {\tt T} &{::=}& ${\tt p}$ \alt \type \\
+  (Constraint term)& {\tt t} &{::=}& ${\tt T}$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt T}\extends {\tt T}$
 \end{tabular}
 
-\infrule[W-Extends]
-	{{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}\{~\tbar{M}~\}\in {\tt P}
-	 \andalso \wj{\Gamma}{\tt t}
-	 \andalso \cj{\Gamma}{\tt d}}
-	{\cj{\Gamma}{{\tt t}\extends {\tt C}\{{\tt d}\}}}
+\infax[W-Type]
+	{\wj{}{\type}}
 
 \infax[W-Var]
 	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
 
 \infrule[W-Path]
-	{\Gamma\vdash {\tt t}:{\tt T}
+	{\Gamma\vdash {\tt p}:{\tt T}
          \andalso
-         \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt f}:\type
-         \andalso
-         {\tt x}~\rm fresh}
-	{\wj{\Gamma}{{\tt t}.{\tt f}}}
+         \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt f}:\type}
+	{\wj{\Gamma}{{\tt p}.{\tt f}}}
 	
+\infrule[W-Extends]
+	{\wj{\Gamma}{\tt T} \andalso \wj{\Gamma}{{\tt U}}}
+	{\cj{\Gamma}{{\tt T}\extends {\tt U}}}
+
 \infrule[L-Extends]
-	{\Gamma\vdash {\tt t}\extends {\tt C}\{{\tt c}\}
+	{\Gamma\vdash {\tt T}\extends {\tt U}
          \andalso
-         \Gamma,{\tt x}:{\tt C}\{{\tt c}\}\vdash {\tt x}~\has~{\tt I}
-         \andalso
-         {\tt x}~\rm fresh}
-	{\Gamma\vdash {\tt t}~\has~{\tt I}}
+         \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\has~{\tt I}}
+	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt I}}
 
 \infrule[S-Extends]
-	{\Gamma\vdash {\tt t}\extends {\tt C}\{{\tt c}\}}
-	{\Gamma\vdash {\tt t}\subtype {\tt C}\{{\tt c}\}}
+	{\Gamma\vdash {\tt T}\extends {\tt U}}
+	{\Gamma\vdash {\tt T}\subtype {\tt U}}
 
-\infrule[S-Refl]
-  {\wj{\Gamma}{\tt t}}
-  {\Gamma\vdash {\tt t}\extends {\tt t}}
+\infrule[X-Subtype]
+	{\Gamma\vdash {\tt T}\subtype {\tt U}}
+	{\Gamma\vdash {\tt T}\extends {\tt U}}
+
+\infrule[T-Type]
+        {\wj{\Gamma}{\tt C\{{\tt c}\}}}
+  {\Gamma\vdash{\tt C}\{{\tt c}\}:\type}
 \caption{\FXG}
 \label{fig:FXG}
 \end{figure*}
@@ -692,8 +700,8 @@ ${\tt e'}$ contains  a stuck cast sub-expression.
   (Member) & {\tt I} &{::=}& ${\tt f}: {\tt T}$ \alt ${\tt m}(\tbar{x} : \tbar{T})\{{\tt c}\}: {\tt T} = {\tt e}$ \\
   (Hypothesis) & {\tt h} &{::=}& ${\tt c}$ \alt ${\tt x}:{\tt T}$ \\
   (Consequence) & {\tt k} &{::=}& ${\tt c}$ \alt ${\tt e}:{\tt T}$ \alt ${\tt x\ \has\ I}$ \alt $\fields({\tt x})=\tbar{f}:\tbar{T}$ \alt ${\tt T}\subtype{\tt T}$ \\
-  (Judgement) & {\tt j} &{::=}& $\tbar{h}\vdash\tbar{k}$
+  (Judgment) & {\tt j} &{::=}& $\tbar{h}\vdash\tbar{k}$
 \end{tabular} 
-\caption{\FX{} judgements}
+\caption{\FX{} judgments}
 \end{figure*}
 }
