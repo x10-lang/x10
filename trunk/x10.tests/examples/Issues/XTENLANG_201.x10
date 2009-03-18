@@ -9,13 +9,12 @@ import harness.x10Test;
 
 class XTENLANG_201 extends x10Test {
 
-
     public def run(): boolean {
         try {
             val r = Rail.makeVar[Rail[int]](100);
             for (var i:int=0; i<100; i++)
-                r(i) = Rail.makeVar[int](100*1000*1000);
-        } catch (Throwable) {
+                r(i) = Rail.makeVar[int](1000*1000*1000);
+        } catch (Error) {
             return true;
         }
         return false;
