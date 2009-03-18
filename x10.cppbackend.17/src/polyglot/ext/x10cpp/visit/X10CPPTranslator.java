@@ -664,6 +664,8 @@ public class X10CPPTranslator extends Translator {
         return new CXXCommandBuilder(options);
     }
 
+    public static final String postcompile = "postcompile";
+
     /**
 	 * The post-compiler option has the following structure:
 	 * "[pre-command with options (usually g++)] [(#|%) [post-options (usually extra files)] [(#|%) [library options]]]".
@@ -677,7 +679,7 @@ public class X10CPPTranslator extends Translator {
             Collection<String> outputFiles = compiler.outputFiles();
             String[] cxxCmd = getCXXCommandBuilder(options, eq).buildCXXCommandLine(outputFiles);
 
-			if (Report.should_report("postcompile", 1)) {
+			if (Report.should_report(postcompile, 1)) {
 				StringBuffer cmdStr = new StringBuffer();
 				for (int i = 0; i < cxxCmd.length; i++)
 					cmdStr.append(cxxCmd[i]+" ");
