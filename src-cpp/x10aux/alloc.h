@@ -18,6 +18,8 @@
 
 namespace x10aux {
 
+    void throwOOME();
+
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
 #ifdef X10_USE_BDWGC        
@@ -28,6 +30,11 @@ namespace x10aux {
         _M_("\t-> " << (void*)ret);
         if (ret == NULL && size > 0) {
             _M_("Out of memory allocating " << size << " bytes");
+            #ifndef NO_EXCEPTIONS
+            throwOOME();
+            #else
+            assert(false && "Out of memory");
+            #endif
         }
         return ret;
     }
