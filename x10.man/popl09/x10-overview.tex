@@ -10,10 +10,10 @@ constructs for concurrency and distribution, as well as constrained
 types, described here.  Like Java, the language provides single class
 inheritance and multiple interface inheritance.
 
-A constrained type in \Xten{} is written \xcd"C{e}", where \xcd"C" is the
-name of a class and \xcd"e" is a constraint on the properties of
-\xcd"C" and the final variables in scope at the type.  The
-constraint \xcd"e" may refer to the value being constrained through
+A constrained type in \Xten{} is written \xcd"C{c}", where \xcd"C" is the
+name of a class and \xcd"c" is a constraint on the properties of
+\xcd"C" and the immutable state in scope at the type.  The
+constraint \xcd"c" may refer to the value being constrained through
 the special variable \xcd"self", which has type \xcd"C" in the
 constraint.  Constraints are drawn from a constraint language that,
 syntactically, is a subset of the boolean expressions of \Xten{}.  For
@@ -24,25 +24,26 @@ develop a \xcd"List"
 class.  We will present several versions of \xcd"List" as we
 introduce new features.
 A \xcd"List" class with a type property \xcd"T" and an \xcd"int"
-property \xcd"length" is declared as in Figure~\ref{fig:list0}.
+property \xcd"len" is declared as in Figure~\ref{fig:list0}.
 Classes in \Xten{} may be declared with any number of type properties and
 value properties.
 
 \begin{figure}
-{\footnotesize
+{
 \begin{xtennoindent}
-class List[T](length: int) {
-  var head: T;
-  val tail: List[T];
-  def get(i: int): T {
-    if (i == 0) return head;
-    else return tail.get(i-1);
-  }
-  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) {
-    property[S](tl.length+1);
-    head = hd; tail = tl;
-  }
-}
+    class List[T](len: int) {
+      var head: T;
+      val tail: List[T];
+      def get(i: int): T {
+        if (i == 0) return head;
+        else return tail.get(i-1);
+      }
+      def this[S](hd: S, tl: List[S]):
+          List[S]{len==tl.len+1} {
+        property[S](tl.len+1);
+        head = hd; tail = tl;
+      }
+    }
 \end{xtennoindent}
 }
 \caption{List example, simplified}
@@ -74,8 +75,8 @@ the properties of the new object.  The constructor in
 Figure~\ref{fig:list0} takes a type argument \xcd"S"
 and two value arguments \xcd"hd" and \xcd"tl".  The constructor
 return type specifies that the constructor initializes the
-object to have type \xcd"List[S](tl.length+1)", that is,
-\xcd"List{self.T==S," \xcd"self.length==tl.length+1}".
+object to have type \xcd"List[S]{len==tl.len+1}", that is,
+\xcd"List{self.T==S," \xcd"self.len==tl.len+1}".
 The formal parameter types and return types of both methods and
 constructors may refer to final parameters of the same
 declaration.
@@ -88,82 +89,77 @@ entail the constructor return type.
 The remainder of the constructor assigns the fields of the
 instance with the constructor arguments.
 
-We next present a version of \xcd"List" where we write
-invariants to be enforced statically.  Consider the new version
+We next illustrate more features of \Xten by
+presenting a new version of \xcd"List", shown
 in Figure~\ref{fig:list}.
 
 \begin{figure}
 {\footnotesize
 \begin{xtenmathnoindent}
-class List[T](length: int){length >= 0} {
-  var head{length>0}: T;
-  val tail{length>1}: List[T](length-1);
+class List[T](len: int){len >= 0, T $\extends$ Comparable[T]} {
+  var head: T;
+  val tail: List[T]{self.len==this.len-1};
 
-  def get(i: int{0 <= i, i < length}){length > 0} {
-    return i==0 ? head : tail.get(i-1);
+  def get(i: int{0 <= self, self < len}){len > 0}: T {
+    if (i == 0)
+      return head;
+    val tl = tail as List{len>0};
+    val i1 = i-1 as int{0 <= self,self < tail.len};
+    return tl.get(i1);
   }
 
-  def map[S](f: T => S): List[S] {
-    if (length==0)
-      return new List[S](0);
-    else if (length==1)
-      return new List[S](f(head));
-    else
-      return new List[S](f(head), tail.map[S](f));
+  def map[S](f: T => S): List[S]{self.len==this.len} {
+    return new List[S](f(head), tail.map[S](f));
   }
 
-  def this[S](): List[S](0) = property[S](0);
-  def this[S](hd: S): List[S](1) {
-    property[S](1); head = hd;
-  }
-  def this[S](hd: S, tl: List[S]): List[S](tl.length+1) {
-    property[S](tl.length+1);
+  def this[S](hd: S, tl: List[S])
+      {S $\extends$ Comparable[S]}: List[S]{len==tl.len+1} {
+    property[S](tl.len+1);
     head = hd; tail = tl;
   }
 }
 \end{xtenmathnoindent}}
-\caption{List example, with more constraints}
+\caption{List example, with more functionality and more
+constraints.}
 \label{fig:list}
 \end{figure}
 
 \subsection{Class invariants}
 
 Properties of a class may be constrained with 
-a \emph{class invariant}.   
+a \emph{class invariant}.
 The \xcd"List" declaration's class invariant in
 Figure~\ref{fig:list} specifies that the length of
-the list be non-negative.  
+the list be non-negative and that the element type be
+a subtype of \xcd"Comparable".
 The class invariant must be established by all constructors of
 the class and can subsequently be assumed for all instances of the class.
-
 For generic types, the invariant is used to provide subtyping
-bounds on the type properties.  For instance, a binary
-tree class
-might require that its elements implement the \xcd"Comparable"
-interface:
-\begin{xtenmath}
-class Tree[T]{T $\extends$ Comparable[T]} {
-  left, right: Tree[T]; ...
-}
-\end{xtenmath}
+bounds on the type properties.
 
-\subsection{Class member invariants}
+\subsection{Methods}
 
-Class and interface member declarations may have additional
+Method declarations in \Xten
+may have additional
 constraints, or \emph{guards}, that must be satisfied for access.
 
+\eat{
 The field declarations in Figure~\ref{fig:list}
 each have a guard.  The guard on
-\xcd"head" requires that \xcd"length" \xcd">" \xcd"0";
+\xcd"head" requires that \xcd"len" \xcd">" \xcd"0";
 that is \xcd"this.head" may not be dereferenced
-unless \xcd"this" has type \xcd"List{length>0}".  Similarly,
+unless \xcd"this" has type \xcd"List{len>0}".  Similarly,
 \xcd"tail" cannot be accessed unless the list has a non-empty tail.  The
 compiler is free to generate optimized representations of
 instances of \xcd"List" with a given length: it may remove the
 the \xcd"head" and \xcd"tail" fields for empty lists, for
 instance.  Similarly, the compiler may specialize instances of
-\xcd"List" with a given concrete type for \xcd"T".  This
+\xcd"List" with a given concrete type for \xcd"T".
+\eat{
+This
 specialization is described in Section~\ref{sec:impl}.
+}
+}
 
 The method \xcd"get" in Figure~\ref{fig:list}
 has a constraint on the type of \xcd"i" that requires
@@ -171,29 +167,34 @@ that it be within the list bounds.
 The method also has a guard that
 requires that the actual
 receiver's
-\xcd"length" field must be non-zero---calls to \xcd"get" on empty lists are not
-permitted.
+\xcd"len" property must be positive---calls to \xcd"get" on empty
+lists are not permitted.
 A method with a guard is called a \emph{conditional method}.
 The constraint on \xcd"get" ensures that the guard on 
 \xcd"tail" is satisfied in the method body.
 In the method body, the \xcd"head" of the list is returned for
 position \xcd"0"; otherwise, the call recurses on \xcd"tail".
-Note that for this example to type-check, the constraint system
-must establish the guard on \xcd"tail"
-and the guard on the recursive call to \xcd"get";
-that is, it must be able
-guarantee that the \xcd"tail" is non-empty and that
-\xcd"i-1" is within the bounds of \xcd"tail".
+For this example to type-check, the constraint system
+must establish
+\eat{
+the guard on \xcd"tail" and
+}
+the guard on the recursive call to \xcd"get".
+This is done explicitly by performing run-time casts using the
+\xcd"as" operator.\footnote{Support for flow-sensitive constraints
+would obviate the need for
+run-time casts in this context.}
 \eat{
 The constraint solver must prove
 {\footnotesize
 $$
 \begin{array}[t]{l}
-\tt length > 0, tail.length=length-1, 0 \leq i, i < length, i \not= 0 \\
-\tt \quad\vdash tail.length > 0, 0 \leq i-1,i-1 < tail.length 
+\tt len > 0, tail.len=len-1, 0 \leq i, i < len, i \not= 0 \\
+\tt \quad\vdash tail.len > 0, 0 \leq i-1,i-1 < tail.len 
 \end{array}
 $$}
 }
+Method guards can also be constraints on type properties.
 
 Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
@@ -212,12 +213,14 @@ expression arguments (see recursive call to
 \xcd"map").\footnote{Actual type arguments can be inferred from the types
 of the value arguments. Type inference is out of the scope of this paper.}
 
+\eat{
 \xcd"List" also defines three constructors: the first
 constructor takes no value arguments and initializes
 the length to \xcd"0".  Note that \xcd"head" and \xcd"tail" are
 not assigned since they are inaccessible.
 The second constructor takes an argument for the head of the
 list; the third takes both a head and tail.
+}
 
 \subsection{Type constraints and variance}
 \label{sec:variance}
