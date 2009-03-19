@@ -1,0 +1,14 @@
+'''Reference classes'''
+
+
+''The class x10.lang.Object''
+
+
+*Random questions
+
+** Should there be an implicit nullary constructor for all classes? What is its accessibility?
+
+** Develop syntax for infix methods, after Kava.
+
+
+

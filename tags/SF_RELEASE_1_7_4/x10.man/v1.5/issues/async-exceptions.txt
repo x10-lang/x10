@@ -1,0 +1,54 @@
+This issue may be summarized as follows. 
+
+The X10 activity invocation model today is very simple. An activity
+may invoke other activities through async and future. It may detect
+the termination of the invoked activity by using finish and
+force. (More generally, it can detect repeated quiescence of the
+activity using clocks.) The invoking and invoked activity may
+communicate with each other via shared memory.
+
+This addresses the normal completion of activities, but does not
+address abrupt termination. Since there is a natural "join point"
+between a future and its spawned activity, namely the invocation of a
+force on the future, X10 v 0.41 supports propagation of exceptions
+across activity boundaries in this case. If the execution of the
+expression results in an exception, the exception is recorded with the
+future, and all subsequent forces on the future rethrow the exception
+synchronously in the activity invoking the force. (Note that this
+activity may not be the invoking activity, if this future was written
+into memory and read by a different activity.)
+
+Now, the finish statement offers a similar join point. The root
+activity is suspended waiting for the invoked activities to
+terminate. Clearly, there is an opportunity to propagate an exception
+thrown in a spawned activity into an exception thrown
+
+finish S ==> 
+invoked activities.
+
+Here are some relevant use cases.
+
+(I) Support for speculative computation. An activity A spawns
+activities A1,..., Ak to evaluate or-parallel branches. e.g. potential
+solutions for a problem. (See or-parallel execution in AKL, Andorra
+and various parallel Prologs.) The programmer is interested in a
+single solution; once one of these activities has terminated
+successfully, there must be a way to terminate the other activities.
+
+Design problem to be solved: How is the kill message to be
+communicated to other activities? How can gratuitious race conditions
+be avoided? The activties may be side-effecting memory ... how does
+one guarantee that all the objects the spawned activities are
+operating on are left in a consistent state? Killing activities from
+the outside can be extremely error-prone resulting in bugs that are
+very difficult to reproduce and debug.
+
+(II) 
+
+An activity using future or finish to spawn a remote activity has a
+way of
+
+future and finish both have the property that there is a way for the root activity to receive information about abrupt termination of the invoked acti
+
+See mail message exchanges between Kemal/CVP/vj mail root
+01/18/05 3:43 pm.

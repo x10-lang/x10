@@ -1,0 +1,8 @@
+// SYNOPSIS: #0.main(...)
+
+##include <x10/runtime/Runtime.h>
+extern "C" { int main(int ac, char **av) { return x10aux::template_main<x10::runtime::Runtime,#0 >(ac,av); } }
+
+
+// the original app-main method
+
