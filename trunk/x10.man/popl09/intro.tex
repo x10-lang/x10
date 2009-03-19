@@ -47,8 +47,8 @@ parametrized by \emph{values}.
 
 \subsection{Constrained types}
 
-The key idea behind our approach is to focus on the notion of a {\em
-constraint system}. Constraint systems were originally developed in
+The key idea behind our approach is to focus on the notion of a
+\emph{constraint system}. Constraint systems were originally developed in
 \cite{cccc} to provide a simple framework for a large variety of
 inference systems used in programming languages, in particular as a
 foundation for constraint programming languages.  Patterned after
@@ -70,14 +70,14 @@ is that objects typically have some immutable state, and constraints on
 this state are of interest to the application.  For instance, in \Java{}
 the length of an array may not be statically known but is fixed once
 the array is created. Hence we can enrich the notion of a type: for a
-class \Xcd{C} we permit a \emph{constrained type} \Xcd{C\{c\}} where \Xcd{c} is a
+class \Xcd{C} we permit a \emph{constrained type} \Xcd{C\{c\}} where \Xcd{c}
+is a
 constraint on the immutable fields, or \emph{properties}, of the
 class~\cite{constrained-types}. Thus, 
 \Xcd{Array\{self.length==N\}} is a type satisfied by any array whose length
 is \Xcd{N}---a (final) variable whose value may be unknown
 statically. In a constraint, \Xcd{self} refers to 
-to a value of the base type being constrained; in this case
-\Xcd{self} has type \Xcd{Array}.
+to a value of the base type being constrained, in this case \Xcd{Array}.
 Subtyping is easily defined: a type \Xcd{C\{c\}} is a
 subtype of \Xcd{D\{d\}} 
 % (in the sense that any value satisfying \Xcd{C\{c\}} may be used wherever a value satisfying \Xcd{D\{d\}} is
@@ -92,10 +92,10 @@ to check at run time that the properties of the given object satisfy
 the given constraint.
 
 The constrained types approach enjoys many nice properties in contrast
-to similar approaches such as DML(X)\cite{xi99dependent}.  Constrained
+to similar approaches such as DML(X)~\cite{xi99dependent}.  Constrained
 types are a natural extension to OO languages, and quite easy to
 use. Constraints may also be used to specify class invariants, and
-conditions on the availability of fields and methods (conditional
+conditions on the accessibility of fields and methods (conditional
 fields and methods).  Final variables in the computation can be used
 directly in types; there is no need for a separate parallel universe
 of index expressions in the type system.  Constrained types always
@@ -105,8 +105,8 @@ not just over the built-in constraint system.
 
 \subsection{Generic types}
 
-In this paper we extend the constrained types approach to handle {\em
-generic
+In this paper we extend the constrained types approach to handle
+\emph{generic
 types}~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics}---types
 such as \Xcd{List<T>} in Java that are parametrized by other
 types. Generic types are vital for implementing type-safe, reusable
