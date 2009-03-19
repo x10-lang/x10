@@ -1,0 +1,13 @@
+\section{Future type constructor}
+For any type {\tt t}, {\tt future<t>} is a type:
+\begin{x10}
+424   Type ::=   future < Type >  
+\end{x10}
+The type  represents a value which when forced will return a value of type
+{\tt t}. Thus the type makes available the following methods:
+
+\begin{x10}
+  public Type force() {}
+\end{x10}
+
+%% Nothing to say about future/nullable yet.

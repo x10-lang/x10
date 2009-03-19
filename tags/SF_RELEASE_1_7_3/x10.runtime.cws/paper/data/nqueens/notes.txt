@@ -1,0 +1,57 @@
+05/01/2007
+Vijay Saraswat wrote:
+
+> Consider NQueens and NQueens2. NQueens is a modificatoin of ur code
+>to compute the number of solutions. Does this by using an
+>AtomicInteger and bumping it up by 1 each time.  NQueeens2 instead
+>has an int[] array, with one element per thread. The thread locally
+>updates the loacal count -- no need to use AtomicInteger. At the end,
+>after computation has terminated, the array is summed up serially.
+>The idea is to separate out a "top-level" finish and implement that
+>more efficiently.  This leads to about a 15%-30% speedup for
+>N=8,16,32.
+
+From Doug:
+
+It might be even nicer to do a tree-based reduction up from
+counts sitting in the tasks themselves: Less cache contention (*)
+than on linear array, plus the tree structure already exists
+from initial forks so it should be easy to arrange parallel-reduce.
+
+05/01/07 Vijay
+
+Here are the results.
+NQueens -- Use an atomic int to accumulate.
+NQueens2 -- Use an array of p elements, one element per area, explicitly
+iterate down the list to sum.
+NQueens3 -- Make NQueens be a ForkJoinTask<Integer>. (Return null
+instead of 0.)
+NQueens4 -- Use an int field in NQueens to return the result.
+
+Conclusion:
+On Moxie, 2/3/4 are roughly equivalent, and each 15-20% better than
+NQueens. 2 is very marginally best.
+On altair, there doesnt seem to be much difference between the 4!
+Surprisingly the best on the 8 proc altair (19) is far better than the
+best on the 32 proc moxie (51).
+
+Will try on rlsecomp1 as well.
+
+From Doug:
+
+Try the attached -- hacks of your (1) and (4) version to instead
+embed successor list rather than use standalone ArrayList.
+Seems around 10% faster. Moral: allocating memory at leaf tasks
+(whether an ArrayList or a boxed Integer) hurts. But if you do
+any allocation at all, it seems not to matter if you create one
+vs two objects -- there's approx still the same GC pressure.
+(The GC effects mainly exist because they increase the numbers
+of objects allocated by one thread but used by another.)
+
+(Atomic is NQueensCS; reduction is NQueensCSR. I forget why
+"CS" -- done while on a telecon :-)
+
+I think the reason you don't see much effect is that the atomic int
+just isn't contended very much -- #solutions/#tasks is low.
+Also, the Integer version isn't so bad because almost all returns
+are 0 or 1, which are special cased in hotspot not to allocate.

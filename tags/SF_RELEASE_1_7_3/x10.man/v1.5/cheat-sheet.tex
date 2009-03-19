@@ -1,0 +1,29 @@
+Comprehensive Language constructs cheat sheet
+
+
+Program Unit
+
+  ClassMods value ClassName Super
+
+Statements
+
+  async (p) S
+  when (c_1) S_1 or (c_2) S_2 ... or (c_k) S_k
+  foreach ( i : r ) S 
+  o -> m(e1,..., en)
+
+Expressions
+  f = future (p) {e}
+  e = f.force();
+
+Abbreviations
+
+  atomic S = when (true) S
+  await c = when (c) {;}
+  ateach (i : dist) S = 
+    foreach( i : dist.region )
+      async ( dist[i] ) S
+
+  Mods atomic T m(T1 x1, ... Tk xk) throws U1,..,Um { S } =
+      Mods T m(T1 x1,..., Tk xk) throws  U1,...,Um { atomic { S }}
+        

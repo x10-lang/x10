@@ -1,0 +1,17 @@
+6/12/2004
+o Need to respond to Kielstra note.
+o Need to figure out whether annotations are to be allowed.
+
+o Need to figure out whether enumerations are allowed. Can we just use
+  JSR 201 here?
+
+
+----------------------
+
+''' To do list'''
+
+The following pages contain TodoItems in situ
+
+*XtenEnums
+*
+

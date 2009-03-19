@@ -1,0 +1,886 @@
+############################################################
+# Benchmark Host: moxie
+# Number Of Processors: 32
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/18/2008 - 02:46:40
+############################################################
+#
+# Run: 1
+#
+
+## Size: 250000
+
+### nproc: 1
+../../../../SVBlock.sparcv9 --nproc 1 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.533811 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.sparcv9 --nproc 2 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.295021 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.sparcv9 --nproc 4 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.361370 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.sparcv9 --nproc 8 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.406630 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.sparcv9 --nproc 16 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.413076 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../SVBlock.sparcv9 --nproc 20 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.457146 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../SVBlock.sparcv9 --nproc 24 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.432206 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../SVBlock.sparcv9 --nproc 30 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.535846 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../SVBlock.sparcv9 --nproc 32 2 250000 4 64
+n_vertics=250000, estimated n_edges=1000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 531868
+    checking done, connected components are 1
+    making connected done, there are finanlly 531868 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 249999 and N = 250000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 0.428161 s
+Work = 0.000000 s
+
+## Size: 1000000
+
+### nproc: 1
+../../../../SVBlock.sparcv9 --nproc 1 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.968527 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.sparcv9 --nproc 2 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 2.019983 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.sparcv9 --nproc 4 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.347946 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.sparcv9 --nproc 8 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.268212 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.sparcv9 --nproc 16 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.345878 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../SVBlock.sparcv9 --nproc 20 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.374236 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../SVBlock.sparcv9 --nproc 24 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.369911 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../SVBlock.sparcv9 --nproc 30 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.406832 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../SVBlock.sparcv9 --nproc 32 2 1000000 4 64
+n_vertics=1000000, estimated n_edges=4000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 2127396
+    checking done, connected components are 1
+    making connected done, there are finanlly 2127396 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 999999 and N = 1000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 1.438481 s
+Work = 0.000000 s
+
+## Size: 4000000
+
+### nproc: 1
+../../../../SVBlock.sparcv9 --nproc 1 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 30.346011 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.sparcv9 --nproc 2 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 15.432364 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.sparcv9 --nproc 4 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 9.554645 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.sparcv9 --nproc 8 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.935885 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.sparcv9 --nproc 16 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.839237 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../SVBlock.sparcv9 --nproc 20 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.404827 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../SVBlock.sparcv9 --nproc 24 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.560294 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../SVBlock.sparcv9 --nproc 30 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.190324 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../SVBlock.sparcv9 --nproc 32 2 4000000 4 64
+n_vertics=4000000, estimated n_edges=16000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 8509031
+    checking done, connected components are 1
+    making connected done, there are finanlly 8509031 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 3999999 and N = 4000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 3.246423 s
+Work = 0.000000 s
+
+## Size: 9000000
+
+### nproc: 1
+../../../../SVBlock.sparcv9 --nproc 1 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 1 processor(s)
+
+options: number of elements = 111
+
+Running time = 79.459195 s
+Work = 0.000000 s
+
+### nproc: 2
+../../../../SVBlock.sparcv9 --nproc 2 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 2 processor(s)
+
+options: number of elements = 111
+
+Running time = 40.446486 s
+Work = 0.000000 s
+
+### nproc: 4
+../../../../SVBlock.sparcv9 --nproc 4 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 4 processor(s)
+
+options: number of elements = 111
+
+Running time = 21.272966 s
+Work = 0.000000 s
+
+### nproc: 8
+../../../../SVBlock.sparcv9 --nproc 8 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 8 processor(s)
+
+options: number of elements = 111
+
+Running time = 11.891653 s
+Work = 0.000000 s
+
+### nproc: 16
+../../../../SVBlock.sparcv9 --nproc 16 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 16 processor(s)
+
+options: number of elements = 111
+
+Running time = 7.871921 s
+Work = 0.000000 s
+
+### nproc: 20
+../../../../SVBlock.sparcv9 --nproc 20 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 20 processor(s)
+
+options: number of elements = 111
+
+Running time = 6.951915 s
+Work = 0.000000 s
+
+### nproc: 24
+../../../../SVBlock.sparcv9 --nproc 24 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 24 processor(s)
+
+options: number of elements = 111
+
+Running time = 6.550286 s
+Work = 0.000000 s
+
+### nproc: 30
+../../../../SVBlock.sparcv9 --nproc 30 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 30 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.996771 s
+Work = 0.000000 s
+
+### nproc: 32
+../../../../SVBlock.sparcv9 --nproc 32 2 9000000 4 64
+n_vertics=9000000, estimated n_edges=36000000 n_workers=64
+k_graph generator:
+    checking if it is connected, the current number of edges is 19146880
+    checking done, connected components are 1
+    making connected done, there are finanlly 19146880 edges 
+k_graph finished
+graph is generated
+allocating auxiliary arrays 
+Starting timing session 
+enter SV
+out of SV
+Computation finished and starting verification 
+ sum = 8999999 and N = 9000000 verify_SV succeeded! 
+Critical path = 0.000000 s
+
+ running on 32 processor(s)
+
+options: number of elements = 111
+
+Running time = 5.931712 s
+Work = 0.000000 s
+
+############################################################
+# End Time: 02/18/2008 - 03:08:47
+############################################################

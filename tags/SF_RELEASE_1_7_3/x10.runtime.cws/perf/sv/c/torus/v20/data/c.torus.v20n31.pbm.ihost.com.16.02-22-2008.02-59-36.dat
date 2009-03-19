@@ -1,0 +1,990 @@
+############################################################
+# Benchmark Host: v20n31.pbm.ihost.com
+# Number Of Processors: 16
+#
+# Number Of Scheduled Runs: 1
+# Start Time: 02/22/2008 - 02:59:36
+############################################################
+#
+# Run: 1
+#
+
+## Size: 500
+
+### nproc: 1
+../../../../span.pwr5 -t 1 -- 1 500
+THREADS: 1
+METRICS: seed is 568 
+n_edges=0
+ count=1000008
+ count=1000008
+ count=1000008
+ count=1000008
+ count=1000008
+Best time used on TRAVERSE2 is 0.076850 s
+Best time used on DFS is 0.053203 s
+Best time used on SV is 0.013878 s
+Best time used on CRCW_spinlock is 0.007593 s
+Takes 502 iterations
+Takes 502 iterations
+Takes 502 iterations
+Takes 502 iterations
+Takes 502 iterations
+Best time used on BFS is 0.042039 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.047089 s
+
+### nproc: 2
+../../../../span.pwr5 -t 2 -- 1 500
+THREADS: 2
+METRICS: seed is 568 
+n_edges=0
+ count=999283
+ count=997731
+ count=996979
+ count=997431
+ count=998279
+Best time used on TRAVERSE2 is 0.051996 s
+Best time used on DFS is 0.031603 s
+Best time used on SV is 0.008879 s
+Best time used on CRCW_spinlock is 0.009943 s
+Takes 502 iterations
+Takes 502 iterations
+Takes 502 iterations
+Takes 502 iterations
+Takes 502 iterations
+Best time used on BFS is 0.029468 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.041013 s
+
+### nproc: 4
+../../../../span.pwr5 -t 4 -- 1 500
+THREADS: 4
+METRICS: seed is 568 
+n_edges=0
+ count=982085
+ count=986141
+ count=986957
+ count=985949
+ count=985101
+Best time used on TRAVERSE2 is 0.050054 s
+Best time used on DFS is 0.030757 s
+Best time used on SV is 0.005488 s
+Best time used on CRCW_spinlock is 0.006091 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.037383 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.081964 s
+
+### nproc: 6
+../../../../span.pwr5 -t 6 -- 1 500
+THREADS: 6
+METRICS: seed is 568 
+n_edges=0
+ count=961879
+ count=986391
+ count=963583
+ count=956439
+ count=986899
+Best time used on TRAVERSE2 is 0.037644 s
+Best time used on DFS is 0.022312 s
+Best time used on SV is 0.004155 s
+Best time used on CRCW_spinlock is 0.004444 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.049216 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.122248 s
+
+### nproc: 8
+../../../../span.pwr5 -t 8 -- 1 500
+THREADS: 8
+METRICS: seed is 568 
+n_edges=0
+ count=997413
+ count=996369
+ count=994781
+ count=996897
+ count=998685
+Best time used on TRAVERSE2 is 0.018627 s
+Best time used on DFS is 0.012011 s
+Best time used on SV is 0.003689 s
+Best time used on CRCW_spinlock is 0.003784 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.060662 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.165415 s
+
+### nproc: 10
+../../../../span.pwr5 -t 10 -- 1 500
+THREADS: 10
+METRICS: seed is 568 
+n_edges=0
+ count=997748
+ count=996972
+ count=997136
+ count=997796
+ count=996644
+Best time used on TRAVERSE2 is 0.021149 s
+Best time used on DFS is 0.012082 s
+Best time used on SV is 0.003273 s
+Best time used on CRCW_spinlock is 0.003383 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.074656 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.207426 s
+
+### nproc: 12
+../../../../span.pwr5 -t 12 -- 1 500
+THREADS: 12
+METRICS: seed is 568 
+n_edges=0
+ count=1008314
+ count=1007706
+ count=1008274
+ count=1007550
+ count=1006566
+Best time used on TRAVERSE2 is 0.015852 s
+Best time used on DFS is 0.010142 s
+Best time used on SV is 0.003120 s
+Best time used on CRCW_spinlock is 0.004338 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.087750 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.258002 s
+
+### nproc: 14
+../../../../span.pwr5 -t 14 -- 1 500
+THREADS: 14
+METRICS: seed is 568 
+n_edges=0
+ count=1013600
+ count=1014408
+ count=1013516
+ count=1012960
+ count=1014256
+Best time used on TRAVERSE2 is 0.017758 s
+Best time used on DFS is 0.010937 s
+Best time used on SV is 0.003172 s
+Best time used on CRCW_spinlock is 0.003066 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.099121 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.297924 s
+
+### nproc: 16
+../../../../span.pwr5 -t 16 -- 1 500
+THREADS: 16
+METRICS: seed is 568 
+n_edges=0
+ count=1027774
+ count=1027170
+ count=1027802
+ count=1026446
+ count=1026994
+Best time used on TRAVERSE2 is 0.015502 s
+Best time used on DFS is 0.009591 s
+Best time used on SV is 0.003088 s
+Best time used on CRCW_spinlock is 0.003107 s
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Takes 503 iterations
+Best time used on BFS is 0.108694 s
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+there are 502 levels
+Best time used on BFS_localq is 0.299898 s
+
+## Size: 1000
+
+### nproc: 1
+../../../../span.pwr5 -t 1 -- 1 1000
+THREADS: 1
+METRICS: seed is 568 
+n_edges=0
+ count=4000008
+ count=4000008
+ count=4000008
+ count=4000008
+ count=4000008
+Best time used on TRAVERSE2 is 0.534285 s
+Best time used on DFS is 0.408234 s
+Best time used on SV is 0.082977 s
+Best time used on CRCW_spinlock is 0.045162 s
+Takes 1002 iterations
+Takes 1002 iterations
+Takes 1002 iterations
+Takes 1002 iterations
+Takes 1002 iterations
+Best time used on BFS is 0.378855 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.369225 s
+
+### nproc: 2
+../../../../span.pwr5 -t 2 -- 1 1000
+THREADS: 2
+METRICS: seed is 568 
+n_edges=0
+ count=3998403
+ count=3991187
+ count=3991111
+ count=3991783
+ count=3991887
+Best time used on TRAVERSE2 is 0.303993 s
+Best time used on DFS is 0.214710 s
+Best time used on SV is 0.050540 s
+Best time used on CRCW_spinlock is 0.056600 s
+Takes 1002 iterations
+Takes 1002 iterations
+Takes 1002 iterations
+Takes 1002 iterations
+Takes 1002 iterations
+Best time used on BFS is 0.194558 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.217211 s
+
+### nproc: 4
+../../../../span.pwr5 -t 4 -- 1 1000
+THREADS: 4
+METRICS: seed is 568 
+n_edges=0
+ count=3977005
+ count=3982385
+ count=3981453
+ count=3982917
+ count=3981381
+Best time used on TRAVERSE2 is 0.282866 s
+Best time used on DFS is 0.187796 s
+Best time used on SV is 0.029187 s
+Best time used on CRCW_spinlock is 0.047417 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.130937 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.222822 s
+
+### nproc: 6
+../../../../span.pwr5 -t 6 -- 1 1000
+THREADS: 6
+METRICS: seed is 568 
+n_edges=0
+ count=3827791
+ count=3826175
+ count=3844615
+ count=3898139
+ count=3829907
+Best time used on TRAVERSE2 is 0.240898 s
+Best time used on DFS is 0.167465 s
+Best time used on SV is 0.021260 s
+Best time used on CRCW_spinlock is 0.022749 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.155627 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.273895 s
+
+### nproc: 8
+../../../../span.pwr5 -t 8 -- 1 1000
+THREADS: 8
+METRICS: seed is 568 
+n_edges=0
+ count=3777697
+ count=3762517
+ count=3760081
+ count=3755593
+ count=3766517
+Best time used on TRAVERSE2 is 0.158096 s
+Best time used on DFS is 0.110131 s
+Best time used on SV is 0.017000 s
+Best time used on CRCW_spinlock is 0.026369 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.178394 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.348734 s
+
+### nproc: 10
+../../../../span.pwr5 -t 10 -- 1 1000
+THREADS: 10
+METRICS: seed is 568 
+n_edges=0
+ count=3995583
+ count=3995531
+ count=3995423
+ count=3997011
+ count=3997899
+Best time used on TRAVERSE2 is 0.071098 s
+Best time used on DFS is 0.045531 s
+Best time used on SV is 0.014339 s
+Best time used on CRCW_spinlock is 0.022030 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.199382 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.438372 s
+
+### nproc: 12
+../../../../span.pwr5 -t 12 -- 1 1000
+THREADS: 12
+METRICS: seed is 568 
+n_edges=0
+ count=3998677
+ count=4003193
+ count=4005077
+ count=4000625
+ count=4004285
+Best time used on TRAVERSE2 is 0.062221 s
+Best time used on DFS is 0.040374 s
+Best time used on SV is 0.012552 s
+Best time used on CRCW_spinlock is 0.013091 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.227476 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.517009 s
+
+### nproc: 14
+../../../../span.pwr5 -t 14 -- 1 1000
+THREADS: 14
+METRICS: seed is 568 
+n_edges=0
+ count=4000195
+ count=4010607
+ count=3994019
+ count=3994567
+ count=4010627
+Best time used on TRAVERSE2 is 0.067600 s
+Best time used on DFS is 0.045070 s
+Best time used on SV is 0.011413 s
+Best time used on CRCW_spinlock is 0.011819 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.248679 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.595085 s
+
+### nproc: 16
+../../../../span.pwr5 -t 16 -- 1 1000
+THREADS: 16
+METRICS: seed is 568 
+n_edges=0
+ count=3879373
+ count=3969525
+ count=4023837
+ count=4019385
+ count=4018317
+Best time used on TRAVERSE2 is 0.059924 s
+Best time used on DFS is 0.042381 s
+Best time used on SV is 0.010234 s
+Best time used on CRCW_spinlock is 0.010548 s
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Takes 1003 iterations
+Best time used on BFS is 0.263232 s
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+there are 1002 levels
+Best time used on BFS_localq is 0.609751 s
+
+## Size: 2000
+
+### nproc: 1
+../../../../span.pwr5 -t 1 -- 1 2000
+THREADS: 1
+METRICS: seed is 568 
+n_edges=0
+ count=16000008
+ count=16000008
+ count=16000008
+ count=16000008
+ count=16000008
+Best time used on TRAVERSE2 is 3.446687 s
+Best time used on DFS is 2.730962 s
+Best time used on SV is 0.433265 s
+Best time used on CRCW_spinlock is 0.231517 s
+Takes 2002 iterations
+Takes 2002 iterations
+Takes 2002 iterations
+Takes 2002 iterations
+Takes 2002 iterations
+Best time used on BFS is 2.517043 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 2.124071 s
+
+### nproc: 2
+../../../../span.pwr5 -t 2 -- 1 2000
+THREADS: 2
+METRICS: seed is 568 
+n_edges=0
+ count=15995399
+ count=15994747
+ count=15987375
+ count=15985747
+ count=15999255
+Best time used on TRAVERSE2 is 1.713355 s
+Best time used on DFS is 1.322300 s
+Best time used on SV is 0.300709 s
+Best time used on CRCW_spinlock is 0.473674 s
+Takes 2002 iterations
+Takes 2002 iterations
+Takes 2002 iterations
+Takes 2002 iterations
+Takes 2002 iterations
+Best time used on BFS is 1.211026 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 1.151601 s
+
+### nproc: 4
+../../../../span.pwr5 -t 4 -- 1 2000
+THREADS: 4
+METRICS: seed is 568 
+n_edges=0
+ count=15962317
+ count=15967013
+ count=15964913
+ count=15967781
+ count=15942937
+Best time used on TRAVERSE2 is 1.617532 s
+Best time used on DFS is 1.217810 s
+Best time used on SV is 0.176369 s
+Best time used on CRCW_spinlock is 0.278667 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.616489 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 0.799492 s
+
+### nproc: 6
+../../../../span.pwr5 -t 6 -- 1 2000
+THREADS: 6
+METRICS: seed is 568 
+n_edges=0
+ count=15569843
+ count=15594991
+ count=15553287
+ count=15601683
+ count=15595551
+Best time used on TRAVERSE2 is 1.505546 s
+Best time used on DFS is 1.132983 s
+Best time used on SV is 0.125304 s
+Best time used on CRCW_spinlock is 0.194949 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.686738 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 0.775825 s
+
+### nproc: 8
+../../../../span.pwr5 -t 8 -- 1 2000
+THREADS: 8
+METRICS: seed is 568 
+n_edges=0
+ count=15499033
+ count=15509001
+ count=15514869
+ count=15647289
+ count=15493721
+Best time used on TRAVERSE2 is 1.251774 s
+Best time used on DFS is 0.956732 s
+Best time used on SV is 0.095555 s
+Best time used on CRCW_spinlock is 0.147634 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.677104 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 0.881589 s
+
+### nproc: 10
+../../../../span.pwr5 -t 10 -- 1 2000
+THREADS: 10
+METRICS: seed is 568 
+n_edges=0
+ count=15892375
+ count=15893439
+ count=15891547
+ count=15893827
+ count=15891315
+Best time used on TRAVERSE2 is 0.896640 s
+Best time used on DFS is 0.609395 s
+Best time used on SV is 0.085325 s
+Best time used on CRCW_spinlock is 0.131515 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.762736 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 0.995438 s
+
+### nproc: 12
+../../../../span.pwr5 -t 12 -- 1 2000
+THREADS: 12
+METRICS: seed is 568 
+n_edges=0
+ count=15962685
+ count=15928357
+ count=15963261
+ count=15960513
+ count=15961501
+Best time used on TRAVERSE2 is 0.336933 s
+Best time used on DFS is 0.267471 s
+Best time used on SV is 0.066909 s
+Best time used on CRCW_spinlock is 0.101814 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.775257 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 1.108830 s
+
+### nproc: 14
+../../../../span.pwr5 -t 14 -- 1 2000
+THREADS: 14
+METRICS: seed is 568 
+n_edges=0
+ count=15930923
+ count=15862819
+ count=15902703
+ count=15858327
+ count=15917723
+Best time used on TRAVERSE2 is 0.313817 s
+Best time used on DFS is 0.223245 s
+Best time used on SV is 0.063596 s
+Best time used on CRCW_spinlock is 0.096628 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.865697 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 1.269435 s
+
+### nproc: 16
+../../../../span.pwr5 -t 16 -- 1 2000
+THREADS: 16
+METRICS: seed is 568 
+n_edges=0
+ count=16001269
+ count=15966433
+ count=16001697
+ count=15995981
+ count=15998249
+Best time used on TRAVERSE2 is 0.277697 s
+Best time used on DFS is 0.190679 s
+Best time used on SV is 0.056579 s
+Best time used on CRCW_spinlock is 0.085009 s
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Takes 2003 iterations
+Best time used on BFS is 0.855998 s
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+there are 2002 levels
+Best time used on BFS_localq is 1.261398 s
+
+## Size: 3000
+
+### nproc: 1
+../../../../span.pwr5 -t 1 -- 1 3000
+THREADS: 1
+METRICS: seed is 568 
+n_edges=0
+ count=36000008
+ count=36000008
+ count=36000008
+ count=36000008
+ count=36000008
+Best time used on TRAVERSE2 is 8.978593 s
+Best time used on DFS is 7.368861 s
+Best time used on SV is 1.399652 s
+Best time used on CRCW_spinlock is 0.730029 s
+Takes 3002 iterations
+Takes 3002 iterations
+Takes 3002 iterations
+Takes 3002 iterations
+Takes 3002 iterations
+Best time used on BFS is 6.594504 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 5.514312 s
+
+### nproc: 2
+../../../../span.pwr5 -t 2 -- 1 3000
+THREADS: 2
+METRICS: seed is 568 
+n_edges=0
+ count=35995431
+ count=35978699
+ count=35996359
+ count=35961335
+ count=35999191
+Best time used on TRAVERSE2 is 4.419460 s
+Best time used on DFS is 3.522037 s
+Best time used on SV is 0.998335 s
+Best time used on CRCW_spinlock is 1.582418 s
+Takes 3002 iterations
+Takes 3002 iterations
+Takes 3002 iterations
+Takes 3002 iterations
+Takes 3002 iterations
+Best time used on BFS is 3.246924 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 2.865495 s
+
+### nproc: 4
+../../../../span.pwr5 -t 4 -- 1 3000
+THREADS: 4
+METRICS: seed is 568 
+n_edges=0
+ count=35916481
+ count=35904645
+ count=35928645
+ count=35944197
+ count=35916505
+Best time used on TRAVERSE2 is 4.330802 s
+Best time used on DFS is 3.307470 s
+Best time used on SV is 0.587209 s
+Best time used on CRCW_spinlock is 0.930494 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.623293 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 1.874976 s
+
+### nproc: 6
+../../../../span.pwr5 -t 6 -- 1 3000
+THREADS: 6
+METRICS: seed is 568 
+n_edges=0
+ count=35341543
+ count=35373979
+ count=35353127
+ count=35368139
+ count=35345063
+Best time used on TRAVERSE2 is 4.096757 s
+Best time used on DFS is 3.166353 s
+Best time used on SV is 0.415903 s
+Best time used on CRCW_spinlock is 0.639931 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.660931 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 1.577878 s
+
+### nproc: 8
+../../../../span.pwr5 -t 8 -- 1 3000
+THREADS: 8
+METRICS: seed is 568 
+n_edges=0
+ count=34514933
+ count=34846849
+ count=34991401
+ count=35024829
+ count=34959669
+Best time used on TRAVERSE2 is 3.551321 s
+Best time used on DFS is 2.857215 s
+Best time used on SV is 0.326370 s
+Best time used on CRCW_spinlock is 0.507203 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.706055 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 1.619255 s
+
+### nproc: 10
+../../../../span.pwr5 -t 10 -- 1 3000
+THREADS: 10
+METRICS: seed is 568 
+n_edges=0
+ count=35835203
+ count=35851795
+ count=35836955
+ count=35846427
+ count=35836871
+Best time used on TRAVERSE2 is 3.014175 s
+Best time used on DFS is 2.225605 s
+Best time used on SV is 0.276600 s
+Best time used on CRCW_spinlock is 0.432170 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.777327 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 1.716517 s
+
+### nproc: 12
+../../../../span.pwr5 -t 12 -- 1 3000
+THREADS: 12
+METRICS: seed is 568 
+n_edges=0
+ count=35850801
+ count=35832385
+ count=35849109
+ count=35851817
+ count=35844249
+Best time used on TRAVERSE2 is 1.999078 s
+Best time used on DFS is 1.525301 s
+Best time used on SV is 0.234458 s
+Best time used on CRCW_spinlock is 0.364492 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.846209 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 1.885170 s
+
+### nproc: 14
+../../../../span.pwr5 -t 14 -- 1 3000
+THREADS: 14
+METRICS: seed is 568 
+n_edges=0
+ count=35951755
+ count=35941899
+ count=35940015
+ count=35950571
+ count=35944171
+Best time used on TRAVERSE2 is 0.851041 s
+Best time used on DFS is 0.660110 s
+Best time used on SV is 0.199074 s
+Best time used on CRCW_spinlock is 0.318220 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.968314 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 2.041659 s
+
+### nproc: 16
+../../../../span.pwr5 -t 16 -- 1 3000
+THREADS: 16
+METRICS: seed is 568 
+n_edges=0
+ count=35546617
+ count=35518513
+ count=35529417
+ count=35523361
+ count=35559785
+Best time used on TRAVERSE2 is 0.807733 s
+Best time used on DFS is 0.596565 s
+Best time used on SV is 0.178592 s
+Best time used on CRCW_spinlock is 0.274157 s
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Takes 3003 iterations
+Best time used on BFS is 1.980304 s
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+there are 3002 levels
+Best time used on BFS_localq is 2.095520 s

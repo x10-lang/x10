@@ -1,0 +1,155 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+/**
+LU Factorization with partial pivoting. 
+A literal translation of the following Matlab code:
+                function [L,U,p] = lutx(A)
+                %LUTX  Triangular factorization, textbook version
+                %   [L,U,p] = lutx(A) produces a unit lower triangular matrix L,
+                %   an upper triangular matrix U, and a permutation vector p,
+                %   so that L*U = A(p,:)
+
+                [n,n] = size(A);
+                p = (1:n)';
+
+                for k = 1:n-1
+
+                   % Find index of largest element below diagonal in k-th column
+                   [r,m] = max(abs(A(k:n,k)));
+                   m = m+k-1;
+
+                   % Skip elimination if column is zero
+                   if (A(m,k) ~= 0)
+                   
+                      % Swap pivot row
+                      if (m ~= k)
+                         A([k m],:) = A([m k],:);
+                         p([k m]) = p([m k]);
+                      end
+
+                      % Compute multipliers
+                      i = k+1:n;
+                      A(i,k) = A(i,k)/A(k,k);
+
+                      % Update the remainder of the matrix
+                      j = k+1:n;
+                      A(i,j) = A(i,j) - A(i,k)*A(k,j); 
+                   end
+                end
+
+                % Separate result
+                L = tril(A,-1) + eye(n,n);
+                U = triu(A);
+ *
+ *
+ * @author Tong
+ */
+public class LU(D: Dist{(rank==2)&&rect},
+                A: Array[double](D),
+                L: Array[double](D),
+                U: Array[double](D),
+                P: Array[int]{rank==1&&rect}) extends x10Test {
+
+    const epsilon2: double = 0.000000000001;
+    val n: int;
+    publid def this(D: Dist{(rank==2)&&rect},
+                A: Array[double](D),
+                L: Array[double](D),
+                U: Array[double](D),
+                P: Array[int]{rank==1&&rect}): LU(D,A,L,U,P) = {
+	property(D,A,L,U,P);
+        n=D.region.rank(0).size();
+    }
+
+    def afterK(k: int): Region{rank==1} = [k..n-1];
+    def afterKK(k: int): Region{rank==2} = [k..n-1,k..n-1];
+
+    public def lu(): void = {
+        val A: Array[double] = new Array[double](afterKK(0),
+                                ((i,j): point => LU.this.A(i,j)));
+	finish foreach ((i): point in P) P(i)=i;
+            
+        for ((k): point in 0..n-1) {
+	    // Find index of largest element below diagonal in k-th column
+            var max: double = A(k,k);
+            var maxIdx: int=k;
+	    for ((i): point in afterK(k+1))
+		if (Math.abs(A(i,k))>Math.abs(max)){
+		    max=A(i,k); maxIdx=i;
+		}
+
+	    val m: int=maxIdx;
+	    // Skip elimination if column is zero
+	    if (max!=0) {
+                    // Swap pivot row
+                    if (m!=k){
+                        finish foreach ((j): point in afterK(0)){
+                            temp: double =A(k,j);
+                            A(k,j)=A(m,j); 
+                            A(m,j)=temp;
+                        }
+                        P(m)=P(k);
+                        P(k)=m;
+                    }
+                    
+                    // Compute multipliers
+                    finish foreach ((i): point in afterK(k+1))
+                        A(i,k)/=A(k,k);
+                    
+                    // Update the remainder of the matrix
+                    finish foreach ((i,j): point afterKK(k+1))
+                        A(i,j)-=A(i,k)*A(k,j);
+                }
+            }
+            
+            //Separate result
+  	    finish foreach (val (i,j): point in afterKK(0)) {
+               if (i>j) L(i, j)=A(i, j); 
+               else if (i==j) {U(i, j)=A(i, j); L(i, j)=1;}
+                    else U(i, j)=A(i, j);
+	    }
+     }
+
+     public static def initialize(): LU = {
+         final val size: int = 10;
+	 final val Size: region{rank==1 && rect} = [0..size-1];
+	 final val R: region{rank==2} = [Size, Size];
+	 final val D: dist{rank==2&&rect} = (dist{rank==2&&rect})) (Dist.makeConstant(R, here));
+	 final val A: Array[double]{distribution==D} = new Array[double](D, (var point [i,j]: point): double => {
+		 var res: int = i%2;
+		 if (i-1==j) res=i*(res==0?-1:1);
+		 return res;
+	     });
+                
+	 var L: Array[double]{distribution==D} = new Array[double](D)var U: Array[double]{distribution==D} = new Array[double](D);
+	 var p: Array[int]{rank==1&&rect} = (Array[int]{rank==1&&rect}) new Array[int](Size);
+            
+	 return new LU(D,A,L,U,p);
+     }
+     public def verify(): boolean = {
+        var temp1: double = 0; var temp2: int = 0;
+        var UDiag: Array[double] = {1, -2, 2, -4, 4, -6, 6, -8, 8, 0};
+        var PP: Array[int] = {1,2,3,4,5,6,7,8,9,0};
+        for (val (i): point in afterK(0)) {
+        	temp1+=UDiag(i)-U(i, i);
+        	temp2+=P(i)-PP(i);
+        }
+        return temp1 < epsilon2 && temp2==0;
+     }
+     public def run(): boolean = {
+	 lu();
+         return verify();
+     }
+    
+    public static def main(var args: Rail[String]): void = {
+        var lu: LU = initialize();
+        lu.execute();
+    }
+}
