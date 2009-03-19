@@ -6,7 +6,6 @@ while (<>) {
   $in = 0 if /\\end{abstract}/;
   next unless $in;
   s/\\Xten{}|{\\Xten}/X10/g;
-  s/\\gxx{}|{\\Xten}/X10/g;
   s/\\Xcd{(.*?)}|/$1/g;
   s/\\xcd"(.*?)"|/$1/g;
   s/\$\\cal C\$/C/g;
