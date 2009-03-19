@@ -11,9 +11,8 @@
 % This work...
 
 Modern architectural advances are leading to the development of
-complex computational systems, such as heterogeneous multi-core
-systems, large CPU-count systems such as the Blue Gene,
-and hybrid accelerated clusters such as the Road Runner.
+complex computational systems, such as heterogeneous multi-core,
+hardware accelerators, and large CPU-count hybrid clusters.
 The \Xten{} programming language \cite{X10-concur,x10-oopsla05,X10} was
 designed to address the challenge of developing
 high-performance applications for such machines, building on the
@@ -21,25 +20,26 @@ productivity gains of modern object-oriented languages.
 
 The design of \Xten{} requires the development of a rich type system
 to enable code reuse, permit a large variety of errors to be caught at
-compile-time, and to generate efficient code. For instance, a central
+compile-time, and to generate efficient code.  A central
 data structure in \Xten{} is the dense, distributed, multi-dimensional
-array. Arrays are defined over a set of indices known as \emph{regions},
-may support arbitrary base types, and accesses through {\em
+array.  Arrays are defined over a set of indices known as \emph{regions},
+and support arbitrary base types and accesses through {\em
 points} that must lie in the underlying region. For performance it is
-necessary that as far as possible array index accesses are
-bounds-checked statically. Further, certain regions (such as
-rectangular regions) may be represented particularly
-efficiently. Hence if a variable is to range only over
-rectangular regions, it is important that this information be conveyed
+necessary that array accesses are
+bounds-checked statically as far as possible.
+Further, certain regions (such as
+polyhedral regions) may be represented particularly
+efficiently.  Hence, if a variable is to range only over
+polyhedral regions, it is important that this information be conveyed
 statically (through the type system) to the code 
 generator. To support $P$-way data parallelism it is often necessary
 to logically partition an array into $P$ pieces. A type system that
-can establish that a given division is a partition will ensure that no
+can establish that a given division is a partition can ensure that no
 race conditions arise due to simultaneous accesses by
 multiple activities to different pieces.
 
 These requirements motivated us to develop a framework for dependent
-types in OO languages \cite{constrained-types}.  \emph{Dependent type
+types in object-oriented languages \cite{constrained-types}.  \emph{Dependent type
 systems}~\cite{dependent-types,xi99dependent,ocrz-ecoop03,aspinall-attapl,cayenne,epigram-matter,calc-constructions}
 have been extensively developed over the past few decades in the
 context of logic and functional programming---they permit types to be
