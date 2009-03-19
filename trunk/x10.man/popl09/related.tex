@@ -267,12 +267,12 @@ achieve  this effect in \FXG{} simply by leaving \xcd"X" unconstrained.
 
 \eat{
 Parametric types with use-site variance are related to existential types:
-\xcd"C<+T>" corresponds to the bounded existential $\exists\tcd{X<:T}.C<X>$;
-\xcd"C<-T>" corresponds to the bounded existential $\exists\tcd{X:>T}.C<X>$;
+\xcd"C<+T>" corresponds to the bounded existential $\exists\tcd{X<=T}.C<X>$;
+\xcd"C<-T>" corresponds to the bounded existential $\exists\tcd{X>=T}.C<X>$;
 \xcd"C<*>" corresponds to the unbounded existential $\exists\tcd{X}.C<X>$.
 \FXG{} has a similar correspondence:
-\xcd"C{X<:T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}:C.self.X<:T\}";
-\xcd"C{X:>T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}";
+\xcd"C{X<=T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}:C.self.X<=T\}";
+\xcd"C{X>=T}" corresponds to the bounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}";
 \xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
 }
 

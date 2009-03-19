@@ -141,7 +141,7 @@ Consider the code in Figure~\ref{fig:translation1}.  It contains most of the
 features of generics that have to be translated.
 \begin{figure*}[tp]
 {\footnotesize
-\begin{xten}
+\begin{xtenmath}
 class C[T] {
     var x: T;
     def this[T](x: T) { this.x = x; }
@@ -156,7 +156,7 @@ abstract class F[T,S] { S _(T x); }
 
 val x : C = new C[String]();
 val y : C[Int] = new C[Int]();
-val z : C{T <: Array} = new C[Array[Int]]();
+val z : C{T $\extends$ Array} = new C[Array[Int]]();
 val f : F[String,Int] = ...;
 x.map[Int](f);
 new C[Int{self==3}]() instanceof C[Int{self<4}];

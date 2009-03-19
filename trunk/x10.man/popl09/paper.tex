@@ -23,6 +23,13 @@
 \usepackage{ifpdf}
 \usepackage{listings}
 \usepackage{x10}
+\usepackage{color}
+
+\ifpreprint
+\newcommand\todo[1]{{\color{red}{#1}}}
+\else
+\newcommand\todo[1]{}
+\fi
 
   %\hyphenpenalty=1000
 
@@ -47,8 +54,10 @@
 \newcommand\self{\mbox{\tt self}}
 \newcommand\this{\mbox{\tt this}}
 \newcommand\new{\mbox{\tt new}}
-\newcommand\extends{\unlhd}
-\newcommand\super{\unrhd}
+%\newcommand\extends{\unlhd}
+%\newcommand\super{\unrhd}
+\newcommand\extends{\mbox{\tt <=}}
+\newcommand\super{\mbox{\tt >=}}
 \newcommand\return{\mbox{\tt return}}
 \newcommand\true{\mbox{\tt true}}
 \newcommand\as{\mbox{\tt as}}
