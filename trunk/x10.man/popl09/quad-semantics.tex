@@ -317,7 +317,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \infrule[X-Sel]
   {{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{T}
   	\andalso
-  	\Gamma\vdash\new~{\tt C}(\tbar{t}):\tbar{U}}
+  	\Gamma\vdash\new~{\tt C}(\tbar{t}):{\tt U}}
   {\sigma(\Gamma)\vdashX\new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i}
 \end{minipage}
 
@@ -332,7 +332,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \infrule[X-Inv]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
    \andalso
-   \Gamma\vdash {\tt t}:{\tt T},{\tt T}\subtype{\tt C}}
+   \Gamma\vdash {\tt t}:{\tt U},{\tt U}\subtype{\tt C}}
   {\sigma(\Gamma)\vdashX {\tt c}[{\tt t}/\this]}
 \end{minipage}%
 \caption{\FX{} object constraint system}
