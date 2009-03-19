@@ -49,6 +49,16 @@
 
 \renewcommand\bar[1]{\overline{#1}}
 
+% define \textlt and \textgt
+\let\angle@lt=<%
+\let\angle@gt=>%
+\catcode`\<=\active%
+\catcode`\>=\active%
+\def\textlt{\angle@lt}
+\def\textgt{\angle@gt}
+\catcode`\<=12
+\catcode`\>=12
+
 \newcommand{\starderives}{\derives^*}
 
 % \newcommand\rn[1]{\textsc{#1}}
@@ -57,10 +67,10 @@
 \def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
 \def\derives{\rightarrow}
 \newcommand\subclass{\ensuremath{\preceq}}
-%\newcommand\subtype{\ensuremath{\,\Xcd{<:}\,}}
-%\newcommand\notsubtype{\ensuremath{\,\Xcdmath{$\not$<}\Xcd{:}\,}}
-\newcommand\subtype{\ensuremath{\le}}
-\newcommand\notsubtype{\ensuremath{\not\le}}
+\newcommand\subtype{\ensuremath{\,\Xcd{<:}\,}}
+\newcommand\notsubtype{\ensuremath{\,\Xcdmath{$\not$<}\Xcd{:}\,}}
+%\newcommand\subtype{\ensuremath{\le}}
+%\newcommand\notsubtype{\ensuremath{\not\le}}
 \newcommand\equals{\ensuremath{\,\Xcd{==}\,}}
 \newcommand\equalsC{\ensuremath{\,\Xcd{==}\,}}
 \newcommand\dotclass[2]{\Xcd{class(}#1,#2\Xcd{)}}
