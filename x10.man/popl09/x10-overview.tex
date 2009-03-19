@@ -103,7 +103,7 @@ class List[T](length: int){length >= 0} {
     return i==0 ? head : tail.get(i-1);
   }
 
-  def map[S](f: Object{self $\super$ T} => S): List[S] {
+  def map[S](f: T => S): List[S] {
     if (length==0)
       return new List[S](0);
     else if (length==1)
@@ -206,7 +206,7 @@ guard in the subclass.
 Methods may also have type parameters.  
 For instance, the \xcd"map" method in Figure~\ref{fig:list} 
 has a type parameter \xcd"S" and a value parameter that is a
-function from a supertype of \xcd"T" to \xcd"S".
+function from \xcd"T" to \xcd"S".
 A parametrized method is invoked by giving type arguments before the
 expression arguments (see recursive call to
 \xcd"map").\footnote{Actual type arguments can be inferred from the types
@@ -268,7 +268,7 @@ then the return type of \xcd"get" has type \xcd"l.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
 
-\item \xcd"List{T$\super$String}".  This type bounds the type property
+\item \xcdmath"List{T$\super$String}".  This type bounds the type property
 \xcd"T"
 from below.  For a \xcd"List" \xcd"l" of this type, any
 supertype of \xcd"String" may flow into a variable of type \xcd"l.T".
@@ -355,17 +355,17 @@ subtypes of the \xcd"Printable" interface.
 Optional methods generalize to optional interfaces.
 
 {\footnotesize
-\begin{xten}
+\begin{xtenmath}
 interface Printable { def print(); }
 
-class List[T] implements Printable if {T <: Printable} {
+class List[T] implements Printable if {T $\extends$ Printable} {
     ...
-    def print(){T <: Printable} {
+    def print(){T $\extends$ Printable} {
         for (x: T in this)
             x.print();
     }
 }
-\end{xten}}
+\end{xtenmath}}
 
 In this case \xcd"List" implements the \xcd"Printable" interface
 only if \xcd"List.T" implements \xcd"Printable".
@@ -376,7 +376,7 @@ are subtypes of \xcd"Printable", but
 
 
 Without optional interfaces, \xcd"List" cannot be a subtype
-of \xcd"Printable".  The constraint \xcd"{T <: Printable}" on
+of \xcd"Printable".  The constraint \xcdmath"{T $\extends$ Printable}" on
 the \xcd"print" method is more restrictive than the 
 constraint (i.e., \xcd"true") on 
 \xcd"Printable.print".

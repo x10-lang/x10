@@ -57,8 +57,10 @@
 \def\rname#1\from#2\infer#3{{{\textstyle #2}\over{\textstyle #3}}{\ \textstyle(\mbox{\rn{#1}})}}
 \def\derives{\rightarrow}
 \newcommand\subclass{\ensuremath{\preceq}}
-\newcommand\subtype{\ensuremath{\,\Xcd{<:}\,}}
-\newcommand\notsubtype{\ensuremath{\,\Xcdmath{$\not$<}\Xcd{:}\,}}
+%\newcommand\subtype{\ensuremath{\,\Xcd{<:}\,}}
+%\newcommand\notsubtype{\ensuremath{\,\Xcdmath{$\not$<}\Xcd{:}\,}}
+\newcommand\subtype{\ensuremath{\le}}
+\newcommand\notsubtype{\ensuremath{\not\le}}
 \newcommand\equals{\ensuremath{\,\Xcd{==}\,}}
 \newcommand\equalsC{\ensuremath{\,\Xcd{==}\,}}
 \newcommand\dotclass[2]{\Xcd{class(}#1,#2\Xcd{)}}
@@ -182,9 +184,3 @@
   \em
   \begin{tabular}{rcl}
   }{\unskip\end{tabular}}
-
-\ifpreprint
-\newcommand\todo[1]{{\textbf{todo:} #1}}
-\else
-\newcommand\todo[1]{}
-\fi
