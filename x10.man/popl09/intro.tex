@@ -110,7 +110,7 @@ In this paper we extend the constrained types approach to handle
 types}~\cite{clu,ada,GJ,java-popl97,thorup97,Java3,csharp-generics}---types
 such as \Xcd{List<T>} in Java that are parametrized by other
 types. Generic types are vital for implementing type-safe, reusable
-libraries, especially collections classes. For instance the data type
+libraries, especially collections classes. For instance, the data type
 \Xcd{Array} discussed above is generic on its member type.
 
 To permit genericity, variables \Xcd{X} must be admitted over types.
@@ -141,11 +141,15 @@ particular member---a field with a given name and type, or a method
 with a given name and signature. We introduce the constraints 
 \Xcd{T has f:T} and \Xcdmath{T has m($\tbar{x}\ty\tbar{S}$):T} to express this.
 
+\todo{check status of extends relation transitivity}
+\eat{
 The entailment relation between these pieces of partial information is
 straightforward to specify, given the interpretation specified in the
-previous paragraph. For instance, the $\subtype$ relation on class
-names must be transitive and is precisely given by the transitive
-closure of the extends relation.
+previous paragraph.
+For instance, the subtyping relation on class names, $\subtype$,
+must be transitive and is precisely given by the transitive
+closure of the extends relation, $\extends$.
+}
 %If the user program does not specify that a class \Xcd{C}
 %extends \Xcd{D} (transitively), then \Xcd{C} does \emph{not} extend
 %\Xcd{D} (closed world assumption). 
@@ -156,21 +160,21 @@ resulting Object constraint system, $\cal O$, in more detail.
 
 The next question is: where should type variables be permitted?
 Clearly, one must permit methods to have type parameters (as permitted
-for instance in Java~\cite{Java3}, Scala~\cite{scala} and in
+for instance in Java~\cite{Java3}, Scala~\cite{scala}, and in
 functional languages such as ML~\cite{ml} and Haskell~\cite{haskell}).
 It is necessary as well to permit classes to be dependent on types---for
 instance, \Xcd{Array} should be dependent on the type of its
-member elements. While it is possible to develop an approach that
+member elements. While it is possible to develop an approach in which
 classes have type \emph{parameters} \cite{Java3}, the constrained
 type approach suggests an alternative: classes may have type-valued
 properties. To create an instance of such
 a class, a type must be supplied to initialize this property. As with
-other state of the object, this value is available at runtime and
+other object state, this value is available at runtime and
 can hence be used in dynamic cast expressions.
 
 A pleasing aspect of the resulting design is that the same fundamental
 mechanism of constrained types---imposing constraints on properties---is
-used to specify both value- and type-dependency of types.
+used to specify both value-dependency and type-dependency of types.
 
 \begin{example}[Array]
   Consider the class \Xcd{Array} declared as:
@@ -185,15 +189,18 @@ class Array[T](r: Region) {
 {}\noindent The class has two properties: a type-valued property
 \Xcd{T} and a value property \Xcd{r} of type \Xcd{Region}.
 The \Xcd{get} method for the array requires a
-point \Xcd{p} which must lie in the object's region.\footnote{Within the body of
+point \Xcd{p} that must lie in the object's region and returns a
+value of type \Xcd{T}.\footnote{Within the body of
 a class, class members may be referenced without using the
 ``\Xcd{this.}'' selector, as usual for OO languages. Hence occurrences of
 \Xcd{this.r} and \Xcd{this.T} can be replaced by \Xcd{r} and
-\Xcd{T}
-respectively.}
+\Xcd{T} respectively.}
+Similarly, the \Xcd{set} method takes a point in the region and
+a value of type \Xcd{T}.
 \end{example}
 
-The type \Xcd{Array\{self.T==int\}} specifies the type of all arrays
+The constrained type \Xcd{Array\{self.T==int\}} specifies the type of all
+arrays
 whose element type (\Xcd{T}) is \Xcd{int}.
 \Xcdmath{Array\{T$\extends$Number,} \Xcd{r.rank==2\}}
 specifies the type of all arrays whose base
@@ -221,12 +228,17 @@ naturally in this extended framework for constrained types.
 We illustrate these by discussing the design of
 the \Xten{} language and of various
 programming idioms.
-We also discuss relationship with virtual types, \Java{} wildcards,
-self types and structural constraints.
 
+This framework forms the basis of the \Xten type system.
+\todo{more more more}
+
+\todo{implementation}
 %Besides constrained types, the language supports function types.
 Since there may be a large number of constrained types
-in a program, a pure heterogeneous translation may lead to significant
+in a program, a pure heterogeneous translation
+in which a class is instantiated multiple times on different
+constraints
+may lead to significant
 code bloat. Instead we use a hybrid implementation scheme that
 combines ideas from NextGen~\cite{nextgen,allen03,allen04} and
 PolyJ~\cite{java-popl97}. The implementation supports run-time type
@@ -238,8 +250,9 @@ design does not require primitive values be boxed.
 \subsection{The \FX($\cal C$) family}
 To further the foundations of constrained types, we develop the \FX{}
 family of languages. The core expression language is essentially
-Featherweight Java (\FJ \cite{FJ}), with constrained types and constraints on classes, fields
-and methods. A single set of rules specifies the static and dynamic
+Featherweight Java (\FJ \cite{FJ}) with constrained types over
+value and type constraints.
+A single set of rules specifies the static and dynamic
 semantics for all languages in the family.  The static semantics is
 shown to be sound with respect to the operational semantics.
 
@@ -247,15 +260,16 @@ Different members of the family are associated with different
 constraint systems. \FXZ{} is
 \FX{} instantiated over the vacuous constraint system---the only
 user-specifiable constraint permitted is the vacuous \Xcd{true}. \FXZ{}
-corresponds to \FJ. \FXG{} permits user-specifiable constraints from the 
-Object constraint system $\cal O$ described above---it corresponds to
+corresponds to \FJ. \FXG{} permits user-specifiable subtyping
+and type equality constraints; it corresponds to
 \FGJ{} (being somewhat richer in permitting path types and
-structural constraints). \FXD{} permits
-the use of constraints from some constraint system $\cal A$---it
+structural constraints \todo{really?}). \FXD{} permits
+the use of constraints from some constraint system $\cal A$ over
+values; it
 corresponds to a language with a pure value-dependent type system as
-described in \cite{constrained-types}. \FXGD{} permits the use of constraints
-from $\cal O$ and $\cal A$---thus permitting value- and
-type-dependence---and is the main topic for this paper.
+described in \cite{constrained-types}. Finally, \FXGD{} permits the
+use of both value and type constraints,
+and is the main topic of this paper.
 
 
 \paragraph{Contributions.}
@@ -276,8 +290,10 @@ The rest of the paper is organized as follows.
 %
 An informal overview of generic constrained types in \Xten{}
 is presented in
-Section~\ref{sec:lang}.  The implementation of generics in \Xten{} by translation to Java is described in 
-Section~\ref{sec:translation}.
+Section~\ref{sec:lang}.
+%
+\todo{implementation} The implementation of generics in \Xten{} is
+described in Section~\ref{sec:translation}.
 %
 Section~\ref{sec:semantics} presents a formal semantics and a
 proof of soundness.
