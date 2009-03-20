@@ -1,0 +1,65 @@
+Sat Aug 18 18:46:42 2007
+
+06/04/2007
+Vijay Saraswat wrote:
+
+> BTW, I dont understand your global quiescence argument (RCU-like argument).
+> How can it work in general?
+>
+
+There are basically three states (-1, 0, >0) == {active, uncertain, idle}.
+Starting out active, if you scan all unsuccessfully once, you are still
+uncertain, because someone else scanning could have succeeded to steal
+and become active. Checking again allows you to transition to idle.
+Any other idle thread checking all states will eventually see them all idle.
+The reason this can be non-volatile is mostly coincidental. You need
+to read volatile sp/base indices for other threads first anyway, so cannot
+early-read status. And if you successfully steal, then there is a
+write barrier on the other side.
+
+This is all reminiscent of Dijstra color-based parallel GC.
+
+
+As I mentioned, my code for this could stand to be improved a bunch.
+Besides lack of time, I've resisted because to do it better, I have
+to distinguish between contended-returns vs known-empty-returns
+from steal() , which is a little ugly to do in Java.
+
+(Speaking of no time, I'm about to enter catch-up mode for
+other stuff probably for rest of day.)
+
+-Doug
+
+06/17/2007
+
+A couple of follow-ups on our conversations.
+
+I fixed the main problems I was seeing with counter-based
+schemes: Rapid flickering of active/inactive settings (votes),
+consequent CAS contention on counter, as well as narrow
+windows during which consensus is reached.
+
+It helps tremendously just to be more accurate about
+when to transition from inactive to active. Using my
+Chase-Lev-style scheme, I only do this when a victim
+queue appears to be non-empty but before CAS'ing out
+a task. This preserves the overlap needed to avoid
+false alarms, while minimizing wasted transitions etc.
+(This might be hard to apply to other forms of work-stealing
+queues.)
+
+On a few tests to exercise this, I see almost no
+CAS contention on counter, and rapid detection.
+(Even without any yields/sleeps, although I still
+do infrequently use those in some cases for sake
+of good citizenship.)
+
+This works better than my multi-pass scheme, who's
+main problem (besides needing a fix to correctly
+detect change on secondary pass) was that the answer
+wasn't (easily) cacheable, thus requiring
+continual recomputation.
+
+-Doug
+
+

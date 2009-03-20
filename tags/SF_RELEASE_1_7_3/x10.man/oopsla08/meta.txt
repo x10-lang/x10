@@ -1,0 +1,66 @@
+Constrained types for Object-Oriented Languages
+
+(Constrained types = Constraint-based Dependent Types)
+
+I Motivation and Overview
+
+  Criteria
+
+  Examples
+
+  Overview of design
+   Constrained types are types.
+
+   every type should be const
+  
+  Related work
+  Pottier
+  HM(X)
+  Pfenning and Xi
+  Ada depedent types
+  Scala
+  F-bounded polymorphism (Theta and PolyJ)
+
+  Liskov/Myers -- where clause on types (not dependent)
+
+II Language Design Details
+  Constraint system (generic presentation). Design is constraint system agnostic.
+
+  Principal clause
+
+
+III Examples
+ (Specific constraint systems used when developing specific examples)
+
+ Nullable types ( T(:self != null))
+ Array/Region/Distribution types (examples from X10)
+ Place types (examples from X10)
+ Clock types
+ Capabilities (from Radha and my paper on neighborhoods)
+ Ownership types
+
+ Dependent types are of use in annotations.
+
+IV Implementation
+
+V Future work and conclusions 
+  Type-inference
+
+  Extensions
+
+  Acknowledgements
+
+VI Appendix
+
+Formal calculus. 
+
+Formal language is Featherweight Java + assignment + constrained
+types.
+
+operational semantics
+Static semantics
+
+Subject reductiont theorem: Typing is preserved by the operational semantics.
+Safety theorem: Well typed programs do not go wrong.
+ No method not found errors.
+ No field not found errors.

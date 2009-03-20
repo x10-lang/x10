@@ -1,0 +1,48 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+public class X10DepTypeSubClassOne(public val a: int, ) extends X10DepTypeClassOne /*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+public class X10DepTypeSubClassOne(int a) extends X10DepTypeClassOne {
+
+	public def this(var a: int, var q: int): X10DepTypeSubClassOne = {
+	    super(a);
+	    this.a=q;
+	}/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+public class X10DepTypeSubClassOne(int aint*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;
+
+public class X10DepTypeSubClassOne(int a) extends X10DepTypeClassOne {
+
+	public X10DepTypeSubClassOne(int a,int q) {
+	    super(a);
+	    this.a=q;
+	}
+}

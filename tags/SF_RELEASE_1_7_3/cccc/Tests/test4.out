@@ -1,0 +1,82 @@
+Warning: line: 13: Value read not written by preceding write
+Warning: line: 13: Variable a has non-linear write chain
+0.0 a a 0
+1.0 a a 1
+2.0 a a 2
+3.0 a a 3
+4.0 a a 4
+# Manually specified dependencies
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+# Program-order dependencies
+# Propagated dependencies
+Happens-before dependencies for task 0
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 0 sees cycle
+Happens-before dependencies for task 1
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 1 sees cycle
+Happens-before dependencies for task 2
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 2 sees cycle
+Happens-before dependencies for task 3
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 3 sees cycle
+Happens-before dependencies for task 4
+0.0 -> 1.0
+1.0 -> 2.0
+2.0 -> 3.0
+3.0 -> 4.0
+4.0 -> 0.0
+Cycle located:
+0.0 -> 1.0  (manual)
+1.0 -> 2.0  (manual)
+2.0 -> 3.0  (manual)
+3.0 -> 4.0  (manual)
+4.0 -> 0.0  (manual)
+Task 4 sees cycle
+Cycle found: illegal CCCC execution
+2 warnings issued, please fix and rerun

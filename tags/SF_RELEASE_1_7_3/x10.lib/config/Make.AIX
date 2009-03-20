@@ -1,0 +1,38 @@
+#
+# (c) IBM Coporation 2007
+#
+# $Id: Make.AIX,v 1.3 2008-06-05 04:52:04 ipeshansky Exp $
+# This file is part of X10 Runtime System.
+#
+
+# Platform independent common definitions.
+include $(TOP)/config/Make.defs
+
+# Platform specific makefile definitions.
+
+# Build using XLC by default.
+ARCH = pwr5
+X10_DEVEL_HOME = /vol/x10
+CC = mpcc_r -q64 #-qarch=$(ARCH)
+CFLAGS = -g -O3 -qtune=$(ARCH) -qinline -qhot
+CXX = mpCC_r -q64 #-qarch=$(ARCH)
+CXXFLAGS = -g #-O3 -qtune=$(ARCH) -qinline -qhot #-qpath=ILbc:$(X10_DEVEL_HOME)/patches/xlC/070919/exe
+X10CXX = $(X10_DEVEL_HOME)/x10/x10.backend/bin/x10c++
+X10CXXFLAGS =
+
+# uncomment the following for GCC on Power.
+#GCC_HOME = $(X10_DEVEL_HOME)/gcc.4.1.1
+#CC = $(GCC_HOME)/bin/gcc -maix64 -pthread
+#CFLAGS = -O3
+#CXX = $(GCC_HOME)/bin/g++ -maix64 -pthread
+#INCLUDES += -I$(GCC_HOME)/include/c++/4.1.1 -I$(GCC_HOME)/include/c++/4.1.1/powerpc-ibm-aix5.3.0.0/bits -I/opt/rsct/lapi/include
+#LIBDIRS += -L$(GCC_HOME)/lib/pthread/ppc64
+
+LINKFLAGS += -r -b64
+
+AR = ar
+ARFLAGS = -r -X64
+RANLIB = ranlib -X64
+
+# build rules
+include $(TOP)/config/Make.rules

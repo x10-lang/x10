@@ -1,0 +1,92 @@
+
+\chapter{Variables}\label{XtenVariables}\index{variables}
+
+A variable is a storage location. All
+variables are initialized with a value and cannot be observed
+without
+a value.
+
+Variables whose value may not be changed after initialization
+are called {\em final variables} (or sometimes {\em constants}).
+The programmer indicates that a variable is final by declaring
+it with the \xcd"val" keyword rather than the \xcd"var" keyword.
+Variables that are annotated neither \xcd"val" nor \xcd"var"
+are considered final.
+
+A variable of a reference data type \xcd"T" where \xcd"T" is the name
+of a reference class (possibly with type arguments) always holds a
+reference to an instance of the class \xcd"T" or a class that is a
+subclass of \xcd"T", or a \xcd"null" reference.
+
+A variable of a reference rail type \xcd"Rail[T]" has
+as many variables as the size of the rail.
+
+%XXX
+%A variable of a nullable (reference or value) data type \xcd"nullable[T]"
+%always holds either the value (named by) \xcd"null" or a value of
+%type \xcd"T" (these cases are not mutually exclusive).
+
+A variable of an interface type \xcd"I" always holds either a
+reference to a reference class implementing \xcd"I" (including possibly
+a boxed value class that implements \xcd"I"), or a \xcd"null"
+reference.
+
+A variable of a value data type \xcd"T" where \xcd"T" is the name of a
+value class always holds a reference to an instance of \xcd"T" (or a
+class that is a subclass of \xcd"T") or to an instance of \xcd"T" (or a
+class that is a subclass of \xcd"T"). No program can distinguish
+between the two cases.
+
+A variable of an function type always holds an instance
+of a value class with implementing the function type.
+
+A variable of a reference rail type \xcd"ValRail[T]" has
+as many variables as the size of the rail.
+Each of these variables is immutable and has the type \xcd"T".
+
+\Xten{} supports seven kinds of variables: constant {\em class
+variables} (static variables), {\em instance variables} (the instance
+fields of a class), {\em array components}, {\em method parameters},
+{\em constructor parameters}, {\em exception-handler parameters} and
+{\em local variables}.
+
+\section{Final variables}\label{FinalVariable}\index{variable!final}\index{final variable}
+A final variable satisfies two conditions: 
+\begin{itemize}
+\item it can be assigned to at most once, 
+\item it must be assigned to before use. 
+\end{itemize}
+
+\Xten{} follows \java{} language rules in this respect \cite[\S
+4.5.4,8.3.1.2,16]{jls2}. Briefly, the compiler must undertake a
+specific analysis to statically guarantee the two properties above.
+
+Final local variables and fields are defined by the \xcd"val"
+keyword.  Elements of value arrays are also final.
+
+\oldtodo{Check if this analysis needs to be revisited.}
+
+\section{Initial values of variables}
+\label{NullaryConstructor}\index{nullary constructor}
+
+Every variable declared at a type must always contain a value of that type.
+
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer or a static block. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit initializer or a constructor.
+Non-final instance variables of reference type are 
+assumed to have an initializer that sets the value to \xcd"null".
+Non-final instance variables of value type are 
+assumed to have an initializer that sets the value to the
+result of invoking the nullary constructor on the class. 
+An initializer is required if the default initial value is not
+assignable to the variable's type.
+
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment \cite[\S~16]{jls2}.
+

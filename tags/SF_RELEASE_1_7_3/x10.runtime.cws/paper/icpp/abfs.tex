@@ -1,0 +1,39 @@
+   final class V  extends Vertex {
+     V [] neighbors;
+     V parent;
+     V(int i){super(i);}
+     void compute(Worker ww) throws StealAbort {
+      MyWorker w = (MyWorker) ww;
+      w.popAndReturnFrame();
+      V newList = w.batch;
+      int newLength = w.batchSize;
+      V oldList = this;
+      V par = parent;
+      do {
+        V v = oldList;
+        V[] edges = v.neighbors;
+        oldList = v.next;
+        int nedges = edges.length;
+        for (int k = 0; k < nedges; ++k) {
+          V e = edges[k];
+          if (e != null && e.level == 0 &&
+          UPDATER.compareAndSet(e,0,1)) {
+            //System.out.println("Linking in " + e);
+            e.parent = par;
+            e.next = newList;
+            newList = e;
+            if (++newLength >= w.maxBatchSize) {
+              w.addNextPhaseSize(newLength);
+              newLength=0;
+              w.pushFrameNext(newList);
+              newList = null;
+            }
+          }
+        }
+      } while (oldList != null);
+      // write back current unfinished list into worker.
+      w.batchSize=newLength;
+      w.batch=newList;
+     }
+}
+        

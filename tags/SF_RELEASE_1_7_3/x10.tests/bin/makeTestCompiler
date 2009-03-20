@@ -1,0 +1,250 @@
+#!/bin/bash
+# Author: praun, 9/2005
+# Author: igor, 8/2006
+# A script to generate JUnit test cases.
+
+MYDIR="`dirname $0`"
+
+X10="`cd "$MYDIR/.." && pwd`"
+# TODO: Add options to change this
+RESULTFILE="$X10/src/polyglot/ext/x10/tests/TestCompiler.java"
+TESTDIR="$X10/examples"
+
+usage() {
+# print usage message and exit with nonzero return code
+
+echo "
+Usage:
+
+makeTestCompiler
+
+Automatically generates a java file suitable for use by
+junit. Tests are generated for all the *.x10 files in the given
+test directory, and recursively for subdirectories thereof.
+
+Currently, the java result is placed in
+$RESULTFILE
+
+The test directory is set to
+$TESTDIR
+
+This script expects to live in x10.tests/bin.
+
+An X10 test case file *.x10 contains a single public class, which
+has a \"public boolean run()\" instance method, and a \"public
+static void main(String args[])\" method.  The run method must
+contain the actual test and must return true if the test passed.
+run() must throw an exception or return false to indicate failure.
+The main method must create the class with an empty constructor,
+invoke its run method, print the result (Test succeeded or Test
+failed), and exit with a zero return code if the test succeeded,
+and a nonzero return code otherwise.  This makes the test case
+compatible with both the x10c/x10 command (which invokes the main
+method) and junit (which invokes the run method on a new instance).
+
+Test cases are found recursively starting at the top test
+directory, and are executed in the same order as returned by GNU
+find.
+
+To avoid treating an *.x10 file as a test case, do not put a
+\"public static void main\" method in it.  This is the way to
+define auxiliary classes that are not themselves test cases.
+
+Test cases that are supposed to fail timeout (*_MustFailTimeout)
+are currently ignored, since there is no timeout mechanism in
+JUnit.
+
+Way to invoke :
+
+makeTestCompiler
+"
+
+exit 1
+
+}
+
+checkGNU() {
+# check whether a particular tool is from GNU or exit with nonzero return code
+# TODO: make this look through all instances and find the GNU one if any
+
+    local tool="$1"
+
+    if ! "$tool" --version &> /dev/null; then
+      TOOL=`type -p $tool`
+      [ -n "$TOOL" ] && TOOLLOC="; $tool is $TOOL"
+      echo "Cannot find GNU $tool in the PATH$TOOLLOC"
+      exit 2
+    fi
+}
+
+checkUsage() {
+# Process the arguments.
+# Also perform simple checks before running script.
+
+  checkGNU egrep
+  checkGNU find
+  checkGNU sed
+
+  if [[ "$1" = "-h" || "$1" = "--help" || "$1" = "-help" || $# -ne 0 ]]; then
+    usage
+  fi
+  if [[ -z "$X10" ]]; then
+    echo "X10 environment variable must be set (e.g., to ~/x10.tests)"
+    usage
+  fi
+}
+
+testForMain() {
+# test if there is a main method in file f
+# and filename is of the form *.x10
+
+    local f="$1"
+    local tail="$2"
+    if [[ "$tail" != *.x10 ]] ; then return 1; fi
+    egrep '(public[[:space:]]+static|static[[:space:]]+public)[[:space:]]+void[[:space:]]+main\b' "$f" >/dev/null
+    return $?
+}
+
+extractPackage() {
+# extract the package path from a *.x10 file f
+
+    local f="$1"
+    RESULT="`sed -ne 's|\.|/|g' -e 's|^\s*package \([^;]*\);|\1|p' "$f"`"
+}
+
+genTest() {
+# Top level call will be: genTest "."
+
+# This function finds all tests that match the pattern, and then
+# generates corresponding JUnit invocations for them in the order
+# they were returned by "find".  If the
+# test contains a package declaration, the path to the package is
+# checked to make sure the directory structure matches the package,
+# and the test path is set to the package root directory.
+# Otherwise, the path for the test is set to the directory
+# containing the test.
+#
+# A test is a *.x10 file that contains a "public static void main()"
+# method.
+# A test is an x10 class that extends harness.x10Test.
+
+  local topDir="$1"  #top directory
+
+  local tail=""
+  # TODO: rewrite to use pipes properly
+  TESTS="`find . -type d -name CVS -prune -o -type f -name '*.x10' -print`"
+  while read f; do
+    file="${f##*/}"    # if f is a/b/c file will be c
+    path="${f%/$file}" # if f is a/b/c path will be a/b
+    # do not include infinite loop tests -- junit does not have time-out
+    if testForMain "$f" "$file" && [[ "$file" != *MustFailTimeout* ]]; then
+      # an actual .x10 file containing a main method
+      # and also matches one of the specified filename patterns
+      extractPackage "$f"
+      pkg="$RESULT"
+      path="${path%/$pkg}"
+      [ -n "$pkg" ] || pkg='.'
+      genJava "$pkg" "$path" ${file%.x10} # generate the actual x10 test case
+    fi
+  done <<<"$TESTS"
+  return 0
+}
+
+changeSlashToDot() {
+# convert a/b/c to a.b.c, but ./foo becomes foo
+
+  local str=$1
+  str=${str#\.\/}
+  #str=${str//\//\.}
+  str=`echo "$str" | sed -e 's/\//\./g'`
+  RESULT="$str"
+}
+
+transformFileName() {
+# convert a.b.c to a_b_c, and a_b to a$b
+
+  local str=$1
+  str=`echo "$str" | sed -e 's/_/$/g' -e 's/\./_/g' `
+  RESULT="$str"
+}
+
+genJava() {
+# write a run method (suitable for use with junit) for srcDir/test.x10
+
+  local srcDir="$1"
+  local testDir="$2"
+  local test="$3"
+  local x10FileName="$srcDir/$test.x10" #a/b/c.x10
+  changeSlashToDot "$srcDir/$test"
+  local className="$RESULT"             #a.b.c
+  local localTestTreeRoot="$testDir"
+  changeSlashToDot "$testDir"
+  local localTestTreeRootName="$RESULT"
+  transformFileName "$localTestTreeRootName"
+  local name1="$RESULT"
+  transformFileName "$className"
+  local name2="$RESULT"
+
+  echo "
+	public void test_${name1}_${name2}() {
+		//run(\"$x10FileName\",\"$className\",\"$localTestTreeRoot\");
+		runHelper();
+	}" >> "$RESULTFILE"
+}
+
+openTestCompiler() {
+# generate the header for the test compiler Java source
+
+  cat << END_HEADER
+// Automatically generated by $0 $@
+// Do not edit
+/*
+ * Generated by $USER on `date +"%b %-d, %Y"`
+ */
+package polyglot.ext.x10.tests;
+
+import junit.framework.TestSuite;
+
+/**
+ * @author vj Jan 11, 2005
+ */
+public class TestCompiler extends TestX10_Compiler {
+
+	/**
+	 * @param name
+	 */
+	public TestCompiler(String name) {
+		super(name);
+	}
+END_HEADER
+}
+
+closeTestCompiler() {
+# generate the footer for the test compiler Java source
+
+  cat << END_FOOTER
+
+	public static void main(String args[]) {
+		TestX10_Compiler.Main(TestCompiler.class);
+	}
+
+	public static TestSuite suite() {
+		return TestX10_Compiler.suite(TestCompiler.class);
+	}
+}
+
+END_FOOTER
+}
+
+
+
+main() {
+  checkUsage "$@" # check arguments and current directory
+  cd "$TESTDIR"
+  openTestCompiler > "$RESULTFILE"
+  genTest "." # generate junit tests in current directory and subdirectories
+  closeTestCompiler >> "$RESULTFILE"
+}
+
+main "$@"
+exit 0

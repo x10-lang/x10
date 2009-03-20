@@ -1,0 +1,181 @@
+Fri Mar 20 19:02:41 EDT 2009
+
+Release 1.7.3
+
+This release includes both the C++ and Java code generation backends.
+
+The C++ backend is now in the publicly-visible SourceForge SVN repository.
+
+This release makes the following language change since 1.7.2:
+- "to" is no longer used for casts, use "as"
+- X10 now supports "at" statements
+
+The following features described in the 1.7 language manual do not
+currently work with the Java backend and will be fixed in the subsequent
+releases:
+
+- Type parameters on closures
+- Non-static type definitions as class or interface members
+  (static type defs do work)
+- Type definitions as package members (i.e., in the outermost scope of
+  a compilation unit)
+- AST externalization to XML
+- Shared local variables
+- Extern methods
+
+Additionally, the following features described in the 1.7 language
+manual do not currently work with the C++ backend and will be fixed in
+the subsequent releases:
+
+- Garbage collection
+- Generic virtual methods
+- Exception stack traces on Cygwin and AIX
+- Finally blocks with return, break or continue.
+
+Here's a list of known issues with the C++ backend:
+
+- Default values are not assigned to some value types
+- Static initialization is sometimes incorrectly ordered (at the moment
+  it's very brittle, though somewhat controllable by the link order of
+  files)
+- Operator overloading does not work correctly sometimes
+- Hash codes are not computed correctly for some classes
+
+Below is a detailed list of JIRA issues addressed for the X10 1.7.3 release.
+
+** Bug
+    * [XTENLANG-2] - Conflicting x10.{lang,util}.Iterator
+    * [XTENLANG-8] - "attempting to use incompatible return type" for class implementing Iterator[int]
+    * [XTENLANG-10] - Problem with remove() in Iterator[T]
+    * [XTENLANG-12] - Type parameter of nested static class is interpreted incorrectly
+    * [XTENLANG-13] - "variable T might not have been initialized" for Rail.makeVar[T](n) in class A[T]
+    * [XTENLANG-14] - Static initialization blocks fail typechecking
+    * [XTENLANG-17] - Rail[Rail[X]] doesn't work
+    * [XTENLANG-22] - "reference to m is ambiguous, multiple methods match" when inheriting from both a class and an interface
+    * [XTENLANG-31] - "cannot find symbol constructor X" in constructor for class A(p) extends X[C]
+    * [XTENLANG-32] - "... Box incompatible with x10.core.fun..." when using Rail[T] as (nat)=>T
+    * [XTENLANG-38] - PrintStream.write(int) converts arg to String
+    * [XTENLANG-39] - Null pointer exception in Rail.makeVar[boolean]()
+    * [XTENLANG-46] - == for value classes incorrectly returns false
+    * [XTENLANG-48] - variable of type C[R{...}] incompatible with method returning C[R{...}] under some conditions
+    * [XTENLANG-50] - return type not being propagated from foo to bar in def foo() = bar() under some conditions
+    * [XTENLANG-53] - "cannot find symbol: class _"
+    * [XTENLANG-90] - ") expected" in generated code when casting Box[int] to int
+    * [XTENLANG-91] - + (and other operators) don't take Box[x] as args
+    * [XTENLANG-105] - Order of evaluation should be defined by language specification
+    * [XTENLANG-106] - "set$ cannot be applied to..." error in generated code when doing conversion on assignment in a(i)=e
+    * [XTENLANG-108] - type X(...){...} does not match X(...)
+    * [XTENLANG-111] - problem with generated code for a(i)=e when an implicit conversion is involved
+    * [XTENLANG-112] - Bad generated code for val a: A[int] = A.make[int](d);
+    * [XTENLANG-113] - equality test gives wrong answer when comparing results of methods returning int
+    * [XTENLANG-117] - Bad generated code when unboxing a value object
+    * [XTENLANG-128] - puzzling compilation failure appears to depend on current working directory and sourcepaths
+    * [XTENLANG-129] - inferred type of closures does not include type constraints of return value
+    * [XTENLANG-133] - Stack overflow when comparing distributions
+    * [XTENLANG-138] - Incorrect type propagation in type inference
+    * [XTENLANG-158] - Double.MAX_VALUE generates bad code
+    * [XTENLANG-162] - Printer.printf gets exception
+    * [XTENLANG-163] - "cannot find symble ... class Box"
+    * [XTENLANG-164] - runtime ClassCastException assigning ValRail value to Iterable variable
+    * [XTENLANG-165] - System.out.println is not place-safe
+    * [XTENLANG-177] - Bad generated code for rails of variables
+    * [XTENLANG-191] - Using finish in scope that defines variable "t" causes bad generated Java code
+    * [XTENLANG-192] - Invalid Java code when assigning from type with constraints to type without constraints
+    * [XTENLANG-193] - Bad generated C++ code for const initializer in generic
+    * [XTENLANG-194] - Bad generated C++ code for HashMap[Value,Value]
+    * [XTENLANG-195] - Bad generated C++ code assigning int to Value
+    * [XTENLANG-196] - printf doesn't work with C++ back end
+    * [XTENLANG-198] - virtual calls in constructors in C++ give erroneous results
+    * [XTENLANG-201] - Out-of-memory error seems to give assertion error rather than OutOfMemoryException
+    * [XTENLANG-202] - All strings hash to 0 in C++ runtime
+    * [XTENLANG-203] - Implement finally blocks in C++
+    * [XTENLANG-208] - Operators generate bad C++ code
+    * [XTENLANG-209] - Assertion failure with user-defined $plus
+    * [XTENLANG-210] - Assigning a(i)=d where a is Rail[Object] and d is double generates bad C++ code
+    * [XTENLANG-211] - Downcasting Object to double generates bad C++ code
+    * [XTENLANG-215] - Accessing field of outer class in initializer of inner class causes null pointer exception
+    * [XTENLANG-217] - Bad generated C++ code for a(i)=v
+    * [XTENLANG-218] - == gives wrong answer for primitive values as Objects
+    * [XTENLANG-219] - Boolean.toString gives 0 and 1 instead of false and true
+    * [XTENLANG-220] - C++ runtime reserved names don't get mangled
+    * [XTENLANG-221] - instanceof doesn't work for generics with more than one parameter
+    * [XTENLANG-225] - Assertion failure creating anonymous inner class
+    * [XTENLANG-229] - "Primitive" classes missing equals() and hashCode() implementations
+    * [XTENLANG-230] - Bad generated Java code casting Int to Box[Int]
+    * [XTENLANG-232] - Box[T] where T is "primitive" gets a default hashCode in the C++ runtime
+    * [XTENLANG-233] - Methods and fields in BoxType_c are broken
+    * [XTENLANG-234] - Multiple main() functions are not detected properly
+    * [XTENLANG-237] - Bad C++ code generated when casting long to double
+    * [XTENLANG-239] - Compiler null pointer exception for closures that access fields in outer scope
+    * [XTENLANG-240] - Bad generated C++ code with array acces in c-style loop
+    * [XTENLANG-241] - Bad C++ code generated for unary $minus()
+    * [XTENLANG-242] - Object.className() gives different results in C++
+    * [XTENLANG-243] - Bad generated C++ code for expressions like s.substring(...).equals(...)
+    * [XTENLANG-244] - == gives wrong answer for primitive values as Objects in Java
+    * [XTENLANG-248] - Incorrect generated C++ code for non-rectangular regions
+    * [XTENLANG-252] - Compiler complains about multiple main methods when compiling with -c
+    * [XTENLANG-257] - Bad C++ code when accessing location field via location() method
+    * [XTENLANG-258] - Bad C++ code for r(i)+=x for rails
+    * [XTENLANG-259] - Bad C++ code for ++ and -- on classes that implement set and apply
+    * [XTENLANG-260] - Numeric expressions produce different results in different contexts
+    * [XTENLANG-262] - C++ and Java back-ends disagree about  value of (1.0).toString()
+    * [XTENLANG-264] - Bad generated C++ code for return statement in constructor
+    * [XTENLANG-265] - Bad generated C++ code for ateach
+    * [XTENLANG-267] - Shorthand syntax for property specification does not work for interfaces
+    * [XTENLANG-270] - Code generation problem with asyncs --  no matching function for a call
+    * [XTENLANG-273] - Typechecker allows Point iteration over a Tuple
+    * [XTENLANG-275] - Floating point modulus operator ('%') does not work in C++
+    * [XTENLANG-277] - Bad C++ code for variables named "and"
+    * [XTENLANG-278] - Subtype tests not supported in the C++ backend
+    * [XTENLANG-283] - Bad C++ code calling super.printStackTrace()
+    * [XTENLANG-284] - Bad C++ code overriding printStackTrace()
+    * [XTENLANG-286] - The spec still refers to "char" as a numeric type
+    * [XTENLANG-288] - a(i)++ does not typecheck, even though a(i)+=1 does
+    * [XTENLANG-290] - Misleading error message
+    * [XTENLANG-292] - Performance of generic classes
+    * [XTENLANG-295] - Performance of X10-style loops with destructured points over rectangular arrays
+    * [XTENLANG-298] - Field initializer sees uninitialized value of property
+    * [XTENLANG-299] - Two independent classes using same property name generate conflicting C++ names
+    * [XTENLANG-302] - Covariant return types don't type check
+    * [XTENLANG-303] - Exception.toString() returns the string "true"
+    * [XTENLANG-304] - Ambiguous or incorrect reference to "now", section 15.1.3
+    * [XTENLANG-305] - "Cannot find symbol class Fun_0_5" with Java back-end since new op= code
+    * [XTENLANG-307] - Given r:Rail[char], r(0) = Char.chr('a'.ord()+1) generates bad Java code
+    * [XTENLANG-309] - C++ version of examples/Constructs/GC/RemoteRef.x10 fails with exception in Clock_c register_c
+    * [XTENLANG-310] - Bad C++ code for inner where outer class declares a property
+    * [XTENLANG-311] - t++ broken
+    * [XTENLANG-312] - Support for inlining final methods with C++ back-end
+    * [XTENLANG-319] - Java backend generates code that requires ecj as a post compiler
+    * [XTENLANG-320] - ensure 8 byte-alignment of rails of double on linux
+    * [XTENLANG-322] - v.equals(v) returns false for x10 values
+    * [XTENLANG-326] - Compiler null pointer exception in field initialization checking
+    * [XTENLANG-328] - Object.className() is no longer virtual in C++
+    * [XTENLANG-329] - Segmentation violation using exceptions
+    * [XTENLANG-330] - Confusing message for non-static generic methods
+    * [XTENLANG-333] - exit code generation bug [x10/c++ backned] - C++ regression tests dependency
+    * [XTENLANG-339] - Output not flushed at exit
+    * [XTENLANG-340] - PGAS Runtime relies on an absolute path
+    * [XTENLANG-345] - C++ backend cannot deal with user interface with same name as an x10.util interface
+    * [XTENLANG-346] - == on values is implemented as reference equality instead of structural equality
+
+** Improvement
+    * [XTENLANG-5] - Keyword "to" is unfortunate
+    * [XTENLANG-140] - Decrease compilation time for X10 1.7
+    * [XTENLANG-216] - Casts should be left-associative
+    * [XTENLANG-253] - Do not generate names for unnamed formals.
+
+** New Feature
+    * [XTENLANG-143] - Add at statement
+
+** Task
+    * [XTENLANG-317] - Release C++ backend on sourceforge
+
+For a full list of JIRA issues fixed in this release, see
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/14695
+
+Additional bug fixes have been made throughout the system.
+
+Please use the X10 JIRA to report bugs, after ensuring the problem is
+not already reported:
+http://jira.codehaus.org/secure/IssueNavigator.jspa?reset=true&&pid=11812&resolution=-1
+

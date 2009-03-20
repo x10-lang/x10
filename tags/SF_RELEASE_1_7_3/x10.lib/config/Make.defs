@@ -1,0 +1,20 @@
+#
+# (c) IBM Coporation 2007
+#
+# $Id: Make.defs,v 1.3 2008-06-05 13:37:38 srkodali Exp $
+# This file is part of X10 Runtime System.
+#
+
+# Platform independent common definitions.
+#MAKE = make
+
+# uncomment the following for GNU Make
+#MAKE = gmake
+DEFS = -DNDEBUG -DX10_DLEVEL=0
+INCLUDES = -I. -I$(TOP)/include
+LIBDIR = $(TOP)/lib
+LINKFLAGS =
+RM = rm -f
+CP = cp -p
+LD = ld
+MKDIR = mkdir -p

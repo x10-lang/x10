@@ -1,0 +1,27 @@
+\subsection{ARMCI}
+
+ARMCI is a portable communication library that provides one-sided communication facility. It provides the functions for
+memory to memory transfer operations, accumulation, read-modify-write operations, memory allocation etc. 
+The data transfer operations are available in the form of two noncontiguous operations : ARMCI\_PutV and ARMCI\_PutS.
+ARMCI\_PutV uses general I/O vectors to describe the source and destination memory locations. This is useful
+for transferring any kind of data, with even non-constant stride (e.g. triangular section of an array).
+ARMCI\_PutS is useful for transferring strides region with constant strides. For more information on these
+functions, refer to ~\cite{armci}.
+
+ARMCI also provides two atomic operations : {\em accumulate} and {\em read-modify-write}. Accumulate operation
+combines the local and remote data atomically : {\tt $x = x + a \times y$}. Read-modify-write updates a
+remote {\tt integral} variable according to a specified operation and returns the old value.
+
+ARMCI also provides a simple progress and ordering rules. The progress rule is
+that all the ARMCI one-sided operations complete regardless of
+the actions taken by the receiver. That is, there is no need for the remote
+process to make occasional communication calls or poll in order to assure
+that communication calls issued by other processes to this process can
+complete. 
+
+The ARMCI operations issued to the same destination process complete
+in order. Operations issued to different processors can complete in an
+arbitrary order. Additionally, when a  put or accumulate operation completes,
+the data has been copied out of calling process memory but has not 
+necessarily arrived at its destination. This is a local completion. A global
+completion can be achieved by calling ARMCI\_Fence operation. 

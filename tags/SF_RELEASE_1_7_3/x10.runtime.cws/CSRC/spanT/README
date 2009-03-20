@@ -1,0 +1,10 @@
+span.c			: main program	
+span_CRCW_lock.c	: CRCW implementation with locks
+span_CRCW_spinlock.c	: CRCW implementation with spinlocks
+span_CRCW_cas.c		: CRCW implementation with atomic primitives
+span_breadth_B1.c	: graph traversal implemenation
+locksMacros.il       	: spinlock  
+cas.il               	: compare&swap 
+prefix_sum.c         	: helper routine -- prefix sum 
+graph.h              	: header for data structures 
+r_graph.c            	: random graph generator 
