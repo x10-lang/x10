@@ -1,7 +1,9 @@
 import x10.util.Random;
+import x10.io.Console;
+
 public class MontyPi {
     public static @fun def main(s: Rail[String]) {
-	assert s.length >= 1;
+	assert s.length >= 1 : "Usage: MontyPi <number of points>";
 	val N = int.parseInt(s(0));
 	val initializer = (i:Point) => @fun {
 	    val r = new Random();
@@ -14,6 +16,6 @@ public class MontyPi {
 	};
 	val result = Array.make[Double](Dist.makeUnique(), initializer);
 	val pi = 4*result.reduce(Double.+,0)/(N*Place.MAX_PLACES);
-	System.out.println("The value of pi is " + pi);
+	Console.OUT.println("The value of pi is " + pi);
     }
 }

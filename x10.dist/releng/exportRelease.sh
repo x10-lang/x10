@@ -41,6 +41,7 @@ for i in \
 	x10.common.17 \
 	x10.compiler.p3 \
 	x10.constraints \
+	x10.cppbackend.17 \
 	x10.dist \
 	x10.runtime.17 \
 	x10.tests
@@ -49,37 +50,4 @@ do
 done
 )
 
-(
-echo
-echo building polyglot
-cd $workdir/x10-$revision/polyglot3-dev
-ant eclipse-plugin-jar
-)
-
-(
-echo
-echo building x10
-cd $workdir/x10-$revision/x10.dist
-LOCAL_POLYGLOT_JAR=$workdir/x10-$revision/polyglot3-dev/lib/polyglot-epl.jar
-export LOCAL_POLYGLOT_JAR
-ant zips
-)
-
-
-#echo
-#echo building $tarfile file
-#cd $distdir
-#chmod -Rf u+w *
-#ls -l
-#cd ..
-#tar zcf $tarfile $(basename $distdir)
-#
-#echo building $tarfile2 file
-#tar jcf $tarfile2 $(basename $distdir)
-#
-#echo
-#date
-#echo
-#echo done.
-
-echo "The distribution ($tarfile) is now in the directory $workdir"
+echo "The distribution is now exported to the directory $workdir"

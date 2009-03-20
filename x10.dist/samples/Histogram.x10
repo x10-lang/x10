@@ -1,5 +1,6 @@
 import x10.util.Random;
 import x10.io.Console;
+
 public class Histogram {
     public  incomplete static def all[T](x:Array[T]):Set[Object];
     public  incomplete static def all[T](x:Rail[T]):Set[Object];
@@ -23,12 +24,9 @@ public class Histogram {
     }
     public static def main(args:Rail[String]) {
 	@fun {
-	    if (args.length != 2) {
-		System.out.println("Usage: x10 Histogram N M");
-		System.out.println("(N must be a multiple of M.)");
-	    }
+	    assert args.length == 2 : "Usage: Histogram N M";
 	    val N = int.parseInt(args(0)), M=int.parseInt(args(1));
-	    assert N%M==0;
+	    assert N%M==0 : "Usage: N must be a multiple of M";
 	    val a = Array.make[int](0..N-1, (q:Point)=> q(0));
 	    val b = Rail.makeVar[int](M);
 	    run(a, b);
