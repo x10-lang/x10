@@ -233,7 +233,9 @@ Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
 \paragraph{Passing type arguments.}
 
 For types visible at run time, annotations are used to
-pass actual type arguments.  The annotation \xcd"@InstantiateClass"
+pass actual type arguments to the class loader.
+The annotation \xcd"@InstantiateClass"
+specifies the type parameter and
 is placed on
 fields, methods,
 method parameters, and classes to
@@ -245,8 +247,11 @@ by \xcd"@InstantiateInterfaces".
 The annotation
 \xcd"@Instantiation"
 is used for parametrized exceptions.
-
-\todo{IP: explain what the annotations are used for. --NN}
+The class loader uses the arguments to the annotations to
+propagate the instantiation information of the enclosing class
+to the instantiation of annotated entities.  It then turns these
+entities into references to the appropriate dynamically
+instantiated classes.
 
 Type arguments are passed to allocation expressions as
 synthetic constructor arguments.  Run-time type tests and casts
