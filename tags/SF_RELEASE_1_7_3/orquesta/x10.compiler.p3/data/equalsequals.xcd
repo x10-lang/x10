@@ -1,2 +1,0 @@
-// SYNOPSIS: #0 == #1 (for values, also works for reference == operations)
-x10.types.Equality.equalsequals(#0,#1)

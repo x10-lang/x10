@@ -1,7 +1,0 @@
-log*
-ErrorsLog
-*_x10stub.c
-*.class
-*.java
-*.Jacobi
-harness
