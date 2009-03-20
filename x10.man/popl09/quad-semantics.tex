@@ -219,7 +219,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
   (Expression)& {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C(\tbar{e})$ \alt $\tt e.m(\tbar{e})$ \alt $\tt e~\as~T$ \\
   (Type)& {\tt T} &{::=}& $\tt C$ \alt $\tt T\{c\}$ \alt $\tt \exists x:T.~T$ \\
   (Constraint term) & {\tt t} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C(\tbar{t})$ \\
-  (Constraint) & {\tt c} &{::=}& $\true$ \alt $\tt t==t$ \alt $\tt c,c$ \\
+  (Constraint) & {\tt c} &{::=}& $\true$ \alt $\tt t==t$ \alt $\tt c,c$ \alt $\tt \exists x:T.~c$ \\
 \end{tabular} 
 \par\flushleft
 {\tt C} ranges over class names, {\tt f} over field names, {\tt m} over method names, {\tt x} over variable names.
@@ -272,22 +272,25 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 
 
 \begin{figure*}
-\begin{minipage}{.4\textwidth}
-\quad\typicallabel{XXXXXX}
-\infax[W-True]
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXX}
+\infax[C-True]
   {\cj{}{\true}}
 
-\infrule[W-Equals]
+\infrule[C-Equals]
 	{\mathcal{F}({\tt t}=={\tt u})\subseteq\mathcal{D}(\Gamma)} 
 	{\cj{\Gamma}{{\tt t}=={\tt u}}}
 
-\infrule[W-And]
+\infrule[C-And]
 	{\cjj{\Gamma}{\tt c}{\tt d}}
 	{\cj{\Gamma}{{\tt c}, {\tt d}}}
 
+\infrule[C-Exists]
+  {\wj{\Gamma}{\tt T} \andalso \cj{\Gamma, {\tt x} \ty {\tt T}}{\tt c}}
+  {\cj{\Gamma}{\exists {\tt x} \ty {\tt T}.~{\tt c}}}
 \end{minipage}%
-\begin{minipage}{.6\textwidth}
-\quad\typicallabel{XXXX}
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXX}
 \infax[W-Object]
   {\wj{}{\tt Object}}
 
@@ -311,6 +314,13 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \begin{figure*}
 \begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
+\infrule[X-Exists]
+  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash{\tt c}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash \exists {\tt x}:{\tt T}.~{\tt c}}
+
+\infrule[X-Proj]
+  {\Gamma\vdash {\tt t}:{\tt T}\{{\tt c}\}}
+  {\Gamma\vdash {\tt c}[{\tt t}/\self]}
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXX}
@@ -318,22 +328,24 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
   {{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{T}
   	\andalso
   	\Gamma\vdash\new~{\tt C}(\tbar{t}):{\tt U}}
-  {\sigma(\Gamma)\vdashX\new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i}
-\end{minipage}
+  {\Gamma\vdash\new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i}
 
-\begin{minipage}{.4\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[X-Proj]
-  {\Gamma\vdash {\tt t}:{\tt T}\{{\tt c}\}}
-  {\sigma(\Gamma)\vdashX {\tt c}[{\tt t}/\self]}
-\end{minipage}%
-\begin{minipage}{.6\textwidth}
-\quad\typicallabel{XXXX}
 \infrule[X-Inv]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
    \andalso
    \Gamma\vdash {\tt t}:{\tt U},{\tt U}\subtype{\tt C}}
-  {\sigma(\Gamma)\vdashX {\tt c}[{\tt t}/\this]}
+  {\Gamma\vdash {\tt c}[{\tt t}/\this]}
+\end{minipage}%
+
+\begin{minipage}{\textwidth}
+\quad\typicallabel{XXXX}
+\infrule[X-New]
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+   \andalso
+   {\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{g}:\tbar{V}
+   \andalso
+   \Gamma\vdash\exists{\tt x}:{\tt C}\{{\tt d}\}.~{\tt e}}
+  {\Gamma\vdash\exists \tbar{y}:\tbar{U}.~\tbar{U}\subtype\tbar{V},{\tt x}==\new~{\tt C}(\tbar{y}),{\tt c}[{\tt x}/\this],{\tt d}[{\tt x}/\self],{\tt e}}
 \end{minipage}%
 \caption{\FX{} object constraint system}
 \label{fig:object}
@@ -357,8 +369,8 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 
 \infrule[L-Field-C,E]
   {\Gamma,{\tt x}\ty {\tt T}\vdash {\tt x}~\has~{\tt f}\ty {\tt U} \andalso {\tt y}~{\rm fresh}}
-  {\Gamma,{\tt x}\ty {\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt f}\ty {\tt U}\{{\tt c}[{\tt x}/{\self}]\} \\
-   \Gamma,{\tt x}\ty \exists {\tt y}\ty {\tt V}.~{\tt T}\vdash {\tt x}~\has~{\tt f}:\exists {\tt y}:{\tt V}.~{\tt U}}
+  {\Gamma,{\tt x}\ty {\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt f}\ty {\tt U} \\
+   \Gamma,{\tt x}\ty \exists {\tt y}\ty {\tt V}.~{\tt T}\vdash {\tt x}~\has~{\tt f}:{\tt U}}
 
 \infrule[L-Method-B]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
@@ -376,8 +388,8 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 
 \infrule[L-Method-C,E]
   {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e} \andalso {\tt z}~\rm fresh}
-  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}\{{\tt c}[{\tt x}/\self]\}={\tt e} \\
-   \Gamma,{\tt x}:\exists {\tt z}:{\tt W}.~{\tt T}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:\exists {\tt z}:{\tt W}.~{\tt V}={\tt e}}
+  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e} \\
+   \Gamma,{\tt x}:\exists {\tt z}:{\tt W}.~{\tt T}\vdash {\tt x}~\has~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}}
 \caption{\FX{} member lookup}
 \label{fig:lookup}
 \end{figure*}
@@ -403,10 +415,12 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 	{\Gamma\vdash {\tt e}.{\tt m}(\tbar{a}):\exists {\tt x}:{\tt T}.~\exists\tbar{y}:\tbar{U}.~{\tt W}[\tbar{y}/\tbar{z}]}
 
 \infrule[T-New]
-	{{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P} \\
+	{{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+		\andalso
+		{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{g}:\tbar{V} \\
 	  \Gamma\vdash\tbar{e}:\tbar{U} \andalso
     \Gamma,{\tt x}:{\tt C},\tbar{y}:\tbar{U},{\tt x}.\tbar{g}==\tbar{y}\vdash
-    \tbar{U}\subtype\tbar{V},{\tt c}[{\tt x}/\this],\fields({\tt x})=\tbar{g}:\tbar{V} \andalso {\tt x},\tbar{y}~\rm fresh}
+    \tbar{U}\subtype\tbar{V},{\tt c}[{\tt x}/\this] \andalso {\tt x},\tbar{y}~\rm fresh}
 	{\Gamma\vdash\new~{\tt C}(\tbar{e}):\exists\tbar{y}:\tbar{U}.~{\tt C}\{\self==\new~{\tt C}(\tbar{y})\}}
         
 \infrule[T-Method]
@@ -420,7 +434,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
   {{\tt def}~{\tt m}(\tbar{y}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}~{\rm OK~in}~{\tt C}}
 
 \infrule[T-Class]
-  {\tt\tbar{M}~{\rm OK~in}~C \andalso \this:C\vdash\tbar{T}~\type \andalso \this:C,\tbar{f}:\tbar{T}\vdash{\tt c}~\constraint}
+  {\this:{\tt C}\vdash\tbar{T}~\type \andalso \this:{\tt C},\tbar{f}:\tbar{T}\vdash{\tt c}~\constraint \andalso \wj{}{\tt D} \andalso \tbar{M}~{\rm OK~in}~{\tt C}}
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
 \caption{\FX{} typing rules}\label{fig:FX}
 \end{figure*}
@@ -444,13 +458,13 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Const-L]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}\andalso \Gamma\vdash {\tt T}\subtype {\tt U}}
+	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}, {\tt T}\subtype {\tt U}}
 	{\Gamma\vdash {\tt T}\{{\tt c}\}\subtype {\tt U}}
 
 \infrule[S-Const-R]
 	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}, {\tt T}\subtype {\tt U} \andalso\Gamma,\self:{\tt T}\vdash {\tt c}}
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
-
+\eat{
 \infrule[S-Exists-L]
   {\Gamma\vdash {\tt T}\subtype {\tt U} \andalso \wj{\Gamma}{\tt V} \andalso {\tt x}~\rm fresh}
   {\Gamma\vdash\exists {\tt x}:{\tt V}.~{\tt T}\subtype {\tt U}}
@@ -458,6 +472,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \infrule[S-Exists-R]
   {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash {\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
   {\Gamma\vdash {\tt U}\subtype\exists {\tt x}:{\tt T}.~{\tt V}}
+}
 \end{minipage}        
 \caption{\FX{} subtyping rules}\label{fig:subtyping}
 \end{figure*}
