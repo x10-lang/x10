@@ -1,5 +1,5 @@
 This section describes an implementation approach for generic types in
-\Xten{} on a JVM, with byte-code rewriting.
+\Xten{} on a JVM, with bytecode rewriting.
 
 The design is a hybrid design combining techniques of run-time
 instantiation from
@@ -8,17 +8,18 @@ PolyJ~\cite{java-popl97}.  Generic classes are translated
 into ``template'' classes that are instantiated on demand at run time by
 binding the type properties to concrete types.
 %
-Value constraints are erased from type references.
+Constraints on values are erased from type references.
 Adapter objects are used to represent type
 properties and constraints.  
 Run-time type tests (e.g., casts) are translated
 into code that checks those constraints at run time.
 %
 This design has been implemented in the \Xten{} compiler, built
-on the Polyglot framework, which
-translates \Xten{} source to Java source.\footnote{There is also
+on the Polyglot compiler framework~\cite{ncm03}.  The compiler
+translates \Xten{} source to Java source, which is then compiled
+to Java bytecode using an off-the-shelf Java compiler.\footnote{There is also
 a translation from \Xten{} to C++ source, not described here.}
-The \Xten{} runtime was augmented with a class loader
+The \Xten{} runtime is augmented with a class loader
 implementation that performs run-time instantiation.
 
 \paragraph{Classes.}
@@ -28,46 +29,46 @@ to produce a class file.
 At run time, when a constrained type \xcd"C{c}" is first referenced, a
 class loader loads the template class for \xcd"C" and then
 transforms its bytecode, specializing it to the constraint
-\xcd"c".  The implementation specializes constraints on
-types, not values; we leave value-constraint specialization to
+\xcd"c".  The implementation specializes code based on type constraints,
+not value constraints; we leave value-constraint specialization to
 future work.
 %
 For example, consider the following classes.
-{\footnotesize
+{
 \begin{xten}
-class A[T] {
-    var a: T;
+class A[X] {
+  var a: X;
 }
 \end{xten}}
-{\footnotesize
+{
 \begin{xten}
 class C {
-    val x: A[int] = new A[int]();
-    val y: int = x.a;
+  val x: A[int] = new A[int]();
+  val y: int = x.a;
 }
 \end{xten}}
 
-The compiler generates the following code:
-{\footnotesize
+The compiler generates the following Java code:
+{
 \begin{xten}
-@Parameters({"T"})
+@Parameters({"X"})
 class A {
-    @TypeProperty public static class T { }
-    public x10.runtime.Type T;
-    T a;
-    @Synthetic public A(Class T) { this(); }
+  @TypeProperty public static class X { }
+  public x10.runtime.Type X;
+  X a;
+  @Synthetic public A(Class X) { this(); }
 }
 \end{xten}}
-{\footnotesize
+{
 \begin{xten}
 class C {
-    final A x = new A(int.class);
-    final int y = Runtime.to$int(x.a);
+  final A x = new A(int.class);
+  final int y = Runtime.to$int(x.a);
 }
 \end{xten}}
 
-The member class \xcd"A.T" is used in place of the
-type property \xcd"T".   The field \xcd"T" of type
+The member class \xcd"A.X" is used in place of the
+type property \xcd"X".   The field \xcd"X" of type
 \xcd"x10.runtime.Type" captures the actual constrained type on which \xcd"A"
 is instantiated, and is used for run-time type tests.
 The \xcd"@Parameters" annotation on \xcd"A" is used during
@@ -82,34 +83,34 @@ the class \xcd"C" is loaded.
 The class loader transforms the bytecode as if it had
 been written as follows:
 
-{\footnotesize
+{
 \begin{xten}
 class C {
-    final A$$int x = new A$$int();
-    final int y = x.a;
+  final A$$int x = new A$$int();
+  final int y = x.a;
 }
 \end{xten}}
 
 The class loader rewrites allocations of template classes
-(e.g., \xcd"A") with allocations of the
-instantiated classes (e.g., \xcd"A$$int").
-The name of the instantiated class is a mangled name derived from the name
-of the template class and the type properties.
+(e.g., \xcd"new A(int.class)") into allocations of the
+instantiated classes (i.e., \xcd"new A$$int()").
+The template class name and actual type arguments are mangled to
+derive the name of the instantiated class.
 This code cannot be generated directly because
 class \xcd"A$$int" does not yet exist; the Java source compiler
 would fail to compile \xcd"C".
 
 Upon evaluation of the constructor,
-class \xcd"A$$int" is loaded.
+the class \xcd"A$$int" is loaded.
 The class loader intercepts
 this, demangles the name, and loads the bytecode for the
 template class \xcd"A".
-The bytecode is transformed, replacing the type property \xcd"T"
+The bytecode is transformed, replacing the type property \xcd"X"
 with the concrete type \xcd"int".
 
 Parameter types are coerced to and from the actual type
-\xcd"X" (a Java primitive type or \xcd"Object") using
-methods \xcd"Runtime.to$X(Object)" and \xcd"Runtime.from(X)",
+\xcd"T" (a Java primitive type or \xcd"Object") using
+methodr \xcd"Runtime.to$T(Object)" and \xcd"Runtime.from(T)",
 possibly with additional casts.
 Both are eliminated from the transformed
 bytecode, but are needed for the template class to type-check.
@@ -232,14 +233,16 @@ Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
 \paragraph{Passing type arguments.}
 
 For types visible at run time, annotations are used to
-pass actual type arguments.  \xcd"@InstantiateClass"
-annotates fields, methods,
+pass actual type arguments.  The annotation \xcd"@InstantiateClass"
+is placed on
+fields, methods,
 method parameters, and classes to
 indicate instantiation parameters for field
 types, method return types, method parameters, and superclasses,
 respectively.
 Interface instantiations are similarly handled
 by \xcd"@InstantiateInterfaces".
+The annotation
 \xcd"@Instantiation"
 is used for parametrized exceptions.
 
