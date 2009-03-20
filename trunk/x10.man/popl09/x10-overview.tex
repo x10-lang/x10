@@ -117,6 +117,12 @@ class List[T](len: int){len >= 0, T $\extends$ Comparable[T]} {
     property[S](tl.len+1);
     head = hd; tail = tl;
   }
+
+  def print(){T $\extends$ Printable} {
+    head.print();
+    println(", ");
+    tail.print();
+  }
 }
 \end{xtenmathnoindent}}
 \caption{List example, with more functionality and more
@@ -141,7 +147,8 @@ bounds on the type properties.
 
 Method declarations in \Xten
 may have additional
-constraints, or \emph{guards}, on the method parameters which must be satisfied for access.
+constraints, or \emph{guards}, on the method parameters
+that must be satisfied for access.
 The guard holds throughout the method body.
 
 \eat{
@@ -152,7 +159,7 @@ that is \xcd"this.head" may not be dereferenced
 unless \xcd"this" has type \xcd"List{len>0}".  Similarly,
 \xcd"tail" cannot be accessed unless the list has a non-empty tail.  The
 compiler is free to generate optimized representations of
-instances of \xcd"List" with a given length: it may remove the
+instances of \xcd"List" with a given length: it may remove
 the \xcd"head" and \xcd"tail" fields for empty lists, for
 instance.  Similarly, the compiler may specialize instances of
 \xcd"List" with a given concrete type for \xcd"T".
@@ -195,7 +202,17 @@ $$
 \end{array}
 $$}
 }
+
 Method guards can also be constraints on type properties.
+For instance, the \xcd"print" method can be invoked only if
+\xcd"T" is instantiated on a type that implements
+\xcd"Printable".  Since the guard holds in the body of the
+method, the \xcd"print" method can be invoked on \xcd"head"---it
+is guaranteed to implement \xcd"Printable".
+This feature is similar to optional methods in CLU~\cite{clu}.
+Using structural constraints on \xcd"T" would give more
+expressive power; optional methods are discussed further in
+Section~\ref{sec:discussion}.
 
 Method overriding is similar to Java: a method of a subclass
 with the same name and parameter types overrides a method of the
@@ -225,16 +242,18 @@ list; the third takes both a head and tail.
 
 \subsection{Type constraints and variance}
 \label{sec:variance}
-Use-site variance based on structural virtual types were proposed by
+
+Type properties and subtyping constraints may be used in \Xten{} to 
+provide \emph{use-site variance}
+constraints.
+Use-site variance based on structural virtual types was proposed by
 Thorup and Torgerson~\cite{unifying-genericity} and extended for
 parametrized type systems by Igarashi and
 Viroli~\cite{variant-parametric-types}.  The latter type system lead
 to the development of wildcards in
-Java~\cite{Java3,adding-wildcards,wildcards-safe}.
-
-Type properties and subtyping constraints may be used in \Xten{} to 
-provide use-site variance
-constraints.
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.  \Xten's
+support for use-site variance
+has similar expressive power.
 
 Consider the following subtypes  of \xcd"List" from
 Figure~\ref{fig:list}.
@@ -245,17 +264,19 @@ Any type that constrains \xcd"T",
 is a subtype of \xcd"List".  The type \xcd"List" is equivalent to
 \xcd"List{true}".
 %
-For a \xcd"List" \xcd"l", the return type of the \xcd"get" method
-is \xcd"l.T".
+For a \xcd"List" \xcd"xs", the return type of the \xcd"get" method
+is \xcd"xs.T".
 Since the property \xcd"T" is unconstrained,
 the caller can only assign the return value of \xcd"get"
-to a variable of type \xcd"l.T" or of type \xcd"Object".
+to a variable of type \xcd"xs.T" or of type \xcd"Object".
 
 \item \xcd"List{T==float}".
 The type property \xcd"T" is bound to \xcd"float".
-For a final expression \xcd"l" of this type,
-\xcd"l.T" and \xcd"float" are equivalent types and can be used
+For a final expression \xcd"xs" of this type,
+\xcd"xs.T" and \xcd"float" are equivalent types and can be used
 interchangeably.
+The syntax \xcd"List[float]" is used as
+shorthand for \xcd"List{T==float}".
 
 \item \xcdmath"List{T$\extends$Collection}".
 This type constrains \xcd"T" to be a subtype of \xcd"Collection".
@@ -267,26 +288,26 @@ All instances of this type must bind \xcd"T" to a subtype of
 \xcdmath"$\extends$"
 \xcdmath"Collection".
 %
-If \xcd"l" has the type \xcdmath"List{T$\extends$Collection}",
-then the return type of \xcd"get" has type \xcd"l.T", which is an unknown but
+If \xcd"xs" has the type \xcdmath"List{T$\extends$Collection}",
+then the return type of \xcd"get" has type \xcd"xs.T", which is an unknown but
 fixed subtype of \xcd"Collection"; the return value can be
 assigned into a variable of type \xcd"Collection".
 
 \item \xcdmath"List{T$\super$String}".  This type bounds the type property
 \xcd"T"
-from below.  For a \xcd"List" \xcd"l" of this type, any
-supertype of \xcd"String" may flow into a variable of type \xcd"l.T".
+from below.  For a \xcd"List" \xcd"xs" of this type, any
+supertype of \xcd"String" may flow into a variable of type \xcd"xs.T".
 The return type of the \xcd"get"
 method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
 
-In the shortened syntax for types (e.g., \xcd"List[T](n)"),
+In the shortened syntax for types (e.g., \xcd"List[T]"),
 an actual type argument \xcd"T" may optionally
 be annotated
 with
-a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
-if \xcd"X" is a type property, then
+a \emph{use-site variance tag}, either ``\xcd"+"'' or ``\xcd"-"'':
+if \xcd"X" is a type property of \xcd"C", then
 the syntax \xcd"C[+T]" is shorthand for \xcdmath"C{X$\extends$T}" and
 \xcd"C[-T]" is shorthand for \xcdmath"C{X$\super$T}"; of course,
 \xcd"C[T]" is shorthand for \xcd"C{X==T}".
