@@ -2,7 +2,7 @@
 
 This program is controlled by the Eclipse Public Licence v1.0.
 
-This is a distribution of the 1.7.2 release of the X10 Programming Language.
+This is a distribution of the 1.7.3 release of the X10 Programming Language.
 http://x10-lang.org/
 http://x10.sf.net/
 
@@ -24,7 +24,9 @@ See "bin/x10 --help" for command-line help.
 C++ backend instructions
 ------------------------
 Make sure the X10LIB environment variable points to an installation
-of the PGAS common runtime.
+of the PGAS common runtime.  If the PGAS common runtime is
+installed into the same directory as the X10 distribution, the
+X10LIB variable does not need to be set.
 
 To compile an X10 source program using the C++ backend, invoke
 "bin/x10c++ -MAIN_CLASS=<class_name> <class_name>.x10".  This will
@@ -51,5 +53,5 @@ files not specified on the command line to not be generated, even
 if they are in the sourcepath and are used to validate the files
 that are specified.
 
-December 2, 2008
+March 20, 2009
 
