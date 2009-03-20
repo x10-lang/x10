@@ -276,3 +276,32 @@ Parametric types with use-site variance are related to existential types:
 \xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
 }
 
+\subsection{Contracts}
+
+Constrained types have may similarities to contracts~\cite{xxx}.
+Contracts are constraint annotations on methods and classes.
+Object invariants.
+
+Integration of constrained types and generic types
+effectively allow parameterization of classes on constraints.
+Consider the \xcd"List" class in Figure~\ref{fig:list0}.
+If the class is instantiated on a constrained type \xcd"C{c}",
+i.e., \xcd"List[C{c}]",
+then all elements of the list satisfy \xcd"c".  To achieve this
+using contracts, one would write introduce an invariant on the
+\xcd"head" and \xcd"tail" of the list:
+{
+\begin{xten}
+class List[T] {
+  val head: T;
+  val tail: List[T];
+  val p: (T) => Boolean;
+  invariant p(head) && this.p == tail.p;
+  def get(i: int): T ensures p(\return)
+    { ... }
+  ...
+}
+\end{xten}}
+\noindent
+This is a more awkward solution; if indeed it is possible.
+
