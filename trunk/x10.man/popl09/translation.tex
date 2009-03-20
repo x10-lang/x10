@@ -260,8 +260,10 @@ receive type parameters via the \xcd"Runtime.cast$" and
 
 \paragraph{Eliminating method type parameters.}
 
-For each parametrized method, a parametrized
-adapter class with an \xcd"apply" method.  The adapter class
+A parametrized
+adapter class with an \xcd"apply" method
+is generated for each parametrized method,
+The adapter class
 is annotated with \xcd"@ParametricMethod".
 The parametrized method is invoked by instantiating the adapter
 class through a generated factory method
