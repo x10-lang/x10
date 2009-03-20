@@ -246,6 +246,8 @@ The annotation
 \xcd"@Instantiation"
 is used for parametrized exceptions.
 
+\todo{IP: explain what the annotations are used for. --NN}
+
 Type arguments are passed to allocation expressions as
 synthetic constructor arguments.  Run-time type tests and casts
 receive type parameters via the \xcd"Runtime.cast$" and
@@ -253,12 +255,12 @@ receive type parameters via the \xcd"Runtime.cast$" and
 
 \paragraph{Eliminating method type parameters.}
 
-For each parametrized method, we generate a parametrized
-adapter class annotated with \xcd"@ParametricMethod" and a
-factory method.
-A parametrized method is invoked by calling the factory method
-and invoking its
-\xcd"apply()" method on the resulting adapter object.
+For each parametrized method, a parametrized
+adapter class with an \xcd"apply" method.  The adapter class
+is annotated with \xcd"@ParametricMethod".
+The parametrized method is invoked by instantiating the adapter
+class through a generated factory method
+and invoking its \xcd"apply()" method.
 
 \paragraph{Parametrized exceptions.}
 
@@ -270,8 +272,10 @@ bytecode are rewritten with the new exception types.
 
 \paragraph{Run-time instantiation.}
 
-We translate \xcd"instanceof" and cast operations on
+The
+\xcd"instanceof" and cast operations on
 constrained types or type variables
+are translated
 to
 similar operations on the instantiated type followed by calls
 to
