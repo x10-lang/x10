@@ -1,4 +1,0 @@
-// SYNOPSIS: #0=generated_index_var #1=region_var #2=index #3=limit_var
-
-for (int #0 = #1.min(#2), #3 = #1.max(#2); #0 <= #3; #0++)
-
