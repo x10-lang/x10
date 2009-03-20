@@ -1,0 +1,176 @@
+#
+# (c) Copyright IBM Corporation 2007
+#
+# $Id: Makefile,v 1.9 2007-12-10 17:22:27 srkodali Exp $
+# This file is part of X10 Runtime System.
+#
+# Makefile for sample programs.
+#
+
+.SUFFIXES: .cc .cxx .cpp .C .h .c .o
+
+LIBNAME = x10
+LIBTARGET = lib$(LIBNAME).a
+CXX = mpCC_r -q64 -qarch=pwr5
+CC = mpcc_r -q64 -qarch=pwr5
+DEFS = #-DDEBUG
+CXXFLAGS = -qtune=pwr5 -O3 -qhot
+CCFLAGS = -qtune=pwr5 -O3 -qhot
+INCLUDES = -I. -I../include
+LIBDIRS = -L../lib
+LIBS = -l$(LIBNAME)
+LINKFLAGS =
+RM = rm -f
+
+TARGET1 = hello_cc
+SRCS1 = $(TARGET1).cc
+OBJS1 = $(TARGET1).o
+
+TARGET2 = hello_c
+SRCS2 = $(TARGET2).c
+OBJS2 = $(TARGET2).o
+
+TARGET3 = addr_c
+SRCS3 = $(TARGET3).c
+OBJS3 = $(TARGET3).o
+
+TARGET4 = recv_c
+SRCS4 = $(TARGET4).c
+OBJS4 = $(TARGET4).o
+
+TARGET5 = addr_cc
+SRCS5 = $(TARGET5).cc
+OBJS5 = $(TARGET5).o
+
+TARGET6 = recv_cc
+SRCS6 = $(TARGET6).cc
+OBJS6 = $(TARGET6).o
+
+TARGET7 = acc_ret_c
+SRCS7 = $(TARGET7).c
+OBJS7 = $(TARGET7).o
+
+TARGET8 = acc_ret_cc
+SRCS8 = $(TARGET8).cc
+OBJS8 = $(TARGET8).o
+
+TARGET9 = async_cc
+SRCS9 = $(TARGET9).cc
+OBJS9 = $(TARGET9).o
+
+TARGET10 = async_array_put_cc
+SRCS10 = $(TARGET10).cc
+OBJS10 = $(TARGET10).o
+
+TARGET11 = dist_array_onesided_cc
+SRCS11 = $(TARGET11).cc
+OBJS11 = $(TARGET11).o
+
+TARGET12 = dist_array_spmd_cc
+SRCS12 = $(TARGET12).cc
+OBJS12 = $(TARGET12).o
+
+TARGET13 = reduce_cc
+SRCS13 = $(TARGET13).cc
+OBJS13 = $(TARGET13).o
+
+TARGET14 = region_cc
+SRCS14 = $(TARGET14).cc
+OBJS14 = $(TARGET14).o
+
+TARGET15 = finish_cc
+SRCS15 = $(TARGET15).cc
+OBJS15 = $(TARGET15).o
+
+TARGETS = $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4) $(TARGET5) \
+			$(TARGET6) $(TARGET7) $(TARGET8) $(TARGET9) \
+			$(TARGET10) $(TARGET11) $(TARGET12) $(TARGET13) \
+			$(TARGET14) $(TARGET15)
+
+all: $(TARGETS)
+
+$(TARGET1): $(OBJS1)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS1) -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET2): $(OBJS2)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS2)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET3): $(OBJS3)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS3)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET4): $(OBJS4)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS4)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET5): $(OBJS5)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS5)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET6): $(OBJS6)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS6)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET7): $(OBJS7)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS7)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET8): $(OBJS8)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS8)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET9): $(OBJS9)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS9)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET10): $(OBJS10)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS10)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET11): $(OBJS11)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS11)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET12): $(OBJS12)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS12)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET13): $(OBJS13)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS13)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET14): $(OBJS14)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS14)  -o $@ $(LIBDIRS) $(LIBS)
+
+$(TARGET15): $(OBJS15)
+	$(RM) $@
+	$(CXX) $(LINKFLAGS) $(OBJS15)  -o $@ $(LIBDIRS) $(LIBS)
+
+install:
+	@echo "Nothing to \"install\" in \"examples\" subdir."
+
+clean:
+	$(RM) $(TARGETS) *.o
+
+.cc.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.cxx.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.cpp.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.C.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS) $(DEFS) $(INCLUDES) -c $< -o $@
+
+.c.o:
+	$(RM) $@
+	$(CXX) $(CXXFLAGS)  $(DEFS) $(INCLUDES) -c $< -o $@

@@ -1,0 +1,5 @@
+package dims;
+
+interface public interface Capacitance extends Measure { 
+    @DerivedUnit(SI.farad) var farad: double = Measure._, F = Measure._var F: double = Measure._;
+}

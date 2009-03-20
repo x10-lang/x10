@@ -1,0 +1,406 @@
+\documentclass{article}
+%\usepackage{proof}
+\usepackage{fullpage}
+\usepackage{amssymb}
+\bibliographystyle{abbrv}
+
+%\newcommand \limp {\hbox{ $-\!\!\,\circ $ } }
+\newcommand \inp[2] {\hbox{in}~#1~#2}
+\newcommand \outp[2] {\hbox{out}~#1~#2}
+\newcommand \inpL {\hbox{in}\Lscr}
+\newcommand \inpR {\hbox{in}\Rscr}
+\newcommand \limp {\multimap}
+\newcommand \limpR {\limp\Rscr}
+\newcommand \limpL {\limp\Lscr}
+\newcommand \nuR {\nu\Rscr}
+\newcommand \nuL {\nu\Lscr}
+\newcommand \nme {\hbox{\sl name}~}
+\newcommand \ws {\hbox{\sl ws}}
+\newcommand \sst {\hbox{\sl ss}}
+\newcommand \rss {\hbox{\sl rs}}
+\newcommand \IMLL {\hbox{\sl IMLL}}
+\newcommand \IMLLnd {\hbox{\sl IMLL}_\nu^{\Delta}}
+\newcommand \vvec[1]{\stackrel{\rightarrow}{#1}}
+\newcommand \en[1]{[\![#1]\!]}
+\newcommand \ens[1]{\lceil #1 \rceil}
+\newcommand \enf[1]{\langle #1 \rangle}
+\newcommand \act[3]{\hbox{\sl act}~#1~#2~#3}
+\newcommand \fvar[1] {\hbox{fn}(#1)}
+\newcommand{\alt}{{\;{\tt\char`\|}\;}}
+\newcommand{\Hat}{{\;{\tt\char`\^}\;}}
+\newcommand{\now}{\mbox{\bf\tt now}}
+\newcommand{\every}{\mbox{\bf\tt every}}
+\newcommand{\then}{\rightarrow}
+\newcommand{\Else}{\Rightarrow}
+\newcommand{\next}{\mbox{\bf\tt next}}
+\newcommand{\sync}{\mbox{\bf\tt sync}}
+
+\def\nforall{\mu}
+\def\nexists{\nu}
+%\def\tr{\triangleright}
+%\def\tl{\triangleleft}
+\def\tr{\triangleright}
+\def\tl{\triangleleft}
+\def\emp{\emptyset}
+\def\derives{\longrightarrow}
+\def\equiderives{\longleftrightarrow}
+\def\from#1\infer#2{{{\textstyle #1}\over{\textstyle #2}}}
+\def\ccfont{\sf}
+\def\cc{{\ccfont cc}}
+\def\tcc{{\ccfont tcc}}
+\def\x10{{\ccfont x10}}
+\def\X10{{\ccfont X10}}
+\def\fx10{{\ccfont fx10}}
+\def\java{{\sc Java}}
+\def\kava{{\sc Kava}}
+\newcommand \todo[1] {\begin{quotation}{\bf Todo:} {\footnotesize\em #1}\end{quotation}}
+\newcommand \metanote[1] {\begin{quotation}{\bf MetaNote:} {\footnotesize\em #1}\end{quotation}}
+\begin{document}
+\title{\X10{} Design Notes: Values\\
+}
+\author{{\sc PERCS} Area II\footnote{Contact: Vijay Saraswat, {\tt vsaraswa@us.ibm.com} This note is intended primarily for people working on or evaluating the \x10{} design.}\\ 
+{\sc ****DRAFT*** v0.02}\\ 
+(Please do not circulate)
+}
+
+\maketitle
+
+This note contains a proposal for the introduction of values into
+\x10, based on the {\sc Kava} design, and on the need to have
+high-performance user-defined types for numerical computation, e.g.{}
+a variety of {\tt Complex} numbers.
+
+Below, by a {\em scalar class} we mean a class defined with the usual
+{\tt class} definition. Such a definition explicitly specifies a
+sequence of fields for the class by naming them.  By an {\em array
+class} we mean classes defined implicitly through array declarations
+(e.g. {\tt Complex[]}).\footnote{Note that \x10{} arrays are much more
+sophisticated than \java{} arrays.} Such a definition implicitly
+specifies the sequence of fields for the class, one for each element
+in the domain of the array, together with some {\tt final} fields
+representing the domain of the array.
+
+\section{Values} 
+This section is normative.
+
+\X10{} singles out a certain set of classes for additional support. A
+(scalar or array) class is said to be {\em stateless} if all of its
+fields are declared to be {\tt final}, otherwise it is {\em
+stateful}. (\X10{} has syntax for specifying an array class with {\tt
+final} fields, unlike \java.) A {\em stateless (stateful) object} is
+an instance of a stateless (stateful) class.
+
+A final variable satisfies two conditions: (1)~it can be assigned to
+at most once, (2)~it must be assigned to before use. \X10{} follows
+\java{} language rules in this respect \cite[Sections
+4.5.4,8.3.1.2,Chapter 16]{jls}. Briefly, the compiler must undertake a
+specific analysis to statically guarantee the two properties above.\footnote{Todo: Check if this analysis needs to be revisited.}
+
+\X10{} allows the programmer to signify that a class (and all its
+descendents) are stateless. Such a class is called a {\em value
+class}.  The programmer specifies a value class by prefixing the
+modifier {\tt value} before the keyword {\tt class} in a class
+declaration.  (A class not declared to be a value class will be called
+a {\em reference class}.)  Each instance field of a value class is
+treated as {\tt final}. It is legal (but neither required nor
+recommended) for fields in a value class to be declared {\tt final}.
+It is a compile-time error for a value class to inherit from a
+stateful class or for a reference class to inherit from a value class.
+For brevity, the \x10{} compiler allows the programmer to omit the
+keyword {\tt class} after {\tt value} in a value class declaration.
+
+The infix operator {\tt ==} tests {\em stable equality}. Its behavior
+cannot be overridden by user code.  In more detail, it checks to see
+if its two arguments are equal and will stay equal regardless of any
+operation that can be performed by a program. For reference types,
+this translates to checking if the two arguments are a reference to
+the same object. For value types, this translates to checking that
+both objects are of the same type, and their corresponding fields are
+{\tt ==}. For aggregate types, this translates to checking that the
+domain of the two objects is the same, and their values at each point
+in the domain is {\tt ==}.
+
+The method {\tt .equals(Object o)} is defined on {\tt x10.lang.Object}
+to behave like {\tt ==}, but may be overridden on subclasses.
+
+%% Aggregate and scalar?
+
+%% Have to determine behavior of ==, equals, and hashcode.
+
+The {\tt nullary} type constructor
+(Section~\ref{NullaryTypeConstructor}) can be used to declare
+variables whose value may be null or a variable type.
+
+Each type has a nullary constructor. If the programmer does not supply
+one, one is provided by default. This default constructor
+automatically initializes each field (if any) as follows. If the field
+is of {\tt nullable} type, it is initialized to {\tt null}. Otherwise,
+if it is of scalar type it is initialized with the value returned by
+invoking the nullary constructor of that type.  If the field is an
+aggregate type with a dynamically determined region, the region is
+chosen to be the smallest region of the given type. If the region is
+non-empty then each variable in that region is intialized with the
+value returned by calling the nullary constructor of the declared base
+type of the aggregate.
+
+Variables declared at a value or reference type can never be observed
+in an uninitialized state outside the constructor of that type.
+
+A value class may implement interfaces, just like a reference
+class. Indeed the same interface may be implemented by a value class
+and a reference class. 
+
+% The modifier {\tt value} may be used in the
+% type-specified of a method argument to indicate that the argument must
+% be an instance of a value type implementing that interface.
+% How would that help the programmer or the implementation?
+
+\paragraph{Representation.}
+Since value objects do not contain any updatable locations, they can
+be freely copied from place to place. An implementation may use
+copying techniques even within a place to implement value types,
+rather than references. This is transparent to the programmer.
+
+More explicitly, \X10{} guarantees that an implementation must always
+behave as if a variable of a reference type takes up as much space as
+needed to store a reference that is either null or is bound to an
+object allocated on the (appropriate) heap. However, \X10{} makes no
+such guarantees about the representation of a variable of value
+type. The implementation is free to behave as if the value is stored
+``inline'', allocated on the heap (and a reference stored in the
+variable) or use any other scheme (such as structure-sharing) it may
+deem appropriate. Indeed, an implementation may even dynamically
+change the representation of an object of a value type, or dynamically
+use different representations for different instances (that is,
+implement automatic box/unboxing of values).
+
+Implementations are strongly encouraged to implement value types as
+space-efficiently as possible (e.g.{} inlining them or passing them in
+registers, as appropriate).  Implementations are expected to cache
+values of remote final value variables by default. If a value is
+large, the programmer may wish to consider spawning a remote activity
+(at the place the value was created) rather than referencing the
+containing variable (thus forcing it to be cached).
+
+\todo{vj: Need to figure out whether we should let the programmer be
+aware of lazy pull vs full-value push of value objects. This is the
+idea of introducing a $\star$-annotation. Need to make a decision on
+this.
+
+Could leave this for resolution in v0.7.
+}
+
+\paragraph{The value class {\tt x10.lang.Value}}
+
+{\tt x10.lang.Value} is a value class extending {\tt x10.lang.Object},
+an immutable reference class.  All value classes directly or
+indirectly extend {\tt x10.lang.Value}.
+
+In Version 0.5 of the language no methods are defined on {\tt
+x10.lang.Value}. The class has no fields.
+
+\todo{vj: Need to consider syntax for allowing literals to be
+ introduced for value-defined classes.}
+
+\paragraph{Built-in types.}
+\X10{} provides built in implementations for the {\tt final} value classes:
+\begin{enumerate}
+\item {\tt bit}: 1-bit value (either {\tt 0} or {\tt 1})
+\item {\tt nibble}: 4-bit unsigned values, ({\tt 0}, {\tt 1}, {\tt 2}, {\tt 3})
+\item {\tt byte}: 8-bit unsigned values
+\item {\tt short}: 16-bit integers
+\item {\tt int}: 32-bit integers
+\item {\tt long}: 64-bit integers
+\item {\tt float}: 32-bit (IEEE???) floating point numbers
+\item {\tt double}: 64-bit (IEEE???) floating point numbers
+\item {\tt doubledouble}: 128-bit (IEEE???) floating point numbers
+\item {\tt boolean}: with two values {\tt false} and {\tt true}
+\end{enumerate}
+
+\metanote{Perhaps all the int types should be thought of as enums.}
+
+\todo{TBD if there is an interface of the same name.}
+
+\todo{Possibly define a {\tt toString} method for value types whose
+default implementation produces some parsable serialized value.
+
+Maybe there should be two forms -- a toXML, and a toString?
+}
+
+
+\subsection{Idioms of usage}
+This section is descriptive.
+
+\subsection{Design rationale}
+Logically, one could allow a stateless reference class to inherit from
+a value class. But this will cause more confusion than its worth,
+because we are thinking of a value class as an explicit assertion by
+the programmer that all its descendants will also be value classes. A
+stateless reference class is a reference class that happens to be
+stateless (e.g. because the programmer just deleted a stateful field
+while debugging the program); a value class is {\em intentionally}
+stateless.
+
+\metanote{Describe why value classes are allowed to be as general as
+reference classes. X10 only has pass by value, like \java; the value
+of a reference variable is a reference to the object. In contrast,
+\csharp{} has pass by value and pass by reference; a programmer must
+make this distinction when writing code for the class and must know
+whether a type is a value type or a reference type when using a value
+of that type.  
+}
+
+\paragraph{The null value.}
+\csharp{} permits {\tt null} as a legal value for every reference
+type, like \java{}. \x10{} uses a different, orthogonal design
+(Section~\ref{NullTypeConstructor}) which permits value types to have
+the value {\tt null}.
+
+In an alternative design, value classes may optionally be declared to
+permit a null value, e.g.{} through a {\tt nullable}
+qualifier. Reference classes are always implicitly {\tt
+nullable}. Variables declared at a nullable class may optionally be
+qualified as nullable. Only such variables may be assigned a nullable
+value. 
+
+\subsection{\java{} compatibility issues.}
+Note that \X10{} objects do not have any associated lock and the
+associated \java{} methods ({\tt wait}, {\tt notify}, {\tt
+synchronize}) are not avaiable in \x10. 
+
+Define a {\em concrete} value class to be a final value class which
+implements no interfaces which have members and none of whose fields
+are dynamically sized arrays.
+
+\todo{vj: Need to check if anything special needs to be done for inner
+or anonymous classes.  Is there any need to distinguish an anoymous
+value class from an anonymous stateless reference class?  
+}
+\todo{vj: Determine if we need finalizers for reference
+objects. finalizers should never be called for value objects, since
+they can be copied freely.}
+
+\todo{vj: Determine whether objects will have a hashcode field, and
+how the default behavior of {\tt ==} is to be specified.}
+
+\todo{vj: Specify infix, prefix and postfix operations, and compound assignment operations on (value {\em and} reference) classes.}
+
+\subsection{\csharp{} compatibility}
+
+Unlike \csharp{}, \x10{} value classes are immutable, may be abstract,
+and may be subclassable. {\tt final} \x10{} value classes correspond
+to \csharp{} structs all of whose fields are {\tt readOnly} ({\tt
+final}).
+
+
+\subsection{Implementation notes}
+Boxing/unboxing for upcalls. 
+
+The central characteristic of value objects is that they are 
+immutable. Once an object is created the pattern of bits representing
+the object is completely known and will never change for the lifetime
+of the object.\footnote{In contrast, the pattern of bits representing
+an object with a non-final field could change with every assignment to
+that field.} Therefore an assignment at a value type may always be
+correctly implemented by simply copying the entire bit representation
+of the source object into the target location (in exactly the same
+fashion as, say, the assignment of an integer to a register in {\sc
+Fortran} or {\sc C}).\footnote{Alternatively, the compiler could use
+advanced techniques (such as structure-sharing, developed in {\sc
+Prolog} and functional language implementations) for a compact
+representation for a set of such values.}  Note that this is a correct
+implementation technique even if a field is typed at a reference class
+or an array value class with dynamic size (in which case the field is
+represented by a reference). The technique is incorrect for a
+reference type, which must use (and copy) a reference to correctly
+represent sharing of updatable locations.
+
+To facilitate such efficient direct-copying implementations, it is
+often necessary for the compiler to determine whether a value type is
+{\em explicit}, i.e.{} whether the size of memory needed to represent
+the entire state of its instance is statically known.  For instance,
+enumeration types are explicit. Recursive classes
+\footnote{Informally, a class is recursive if it has a self-typed field. More formally, consider a directed graph created from the set of all class declarations, with each node labeled with a class and with an edge from $A$ to $B$ if
+the class $A$ has a field of type $B$. Now a class is recursive if the
+graph has a loop involving the node labeled with the class.}  are not
+explicit. A class with an array field whose size is not known
+statically is not explicit.\footnote{\x10{} allows the declaration of
+aggregates with known size, e.g. {\tt int[32] a;} } An example of an
+explicit class is {\tt Complex} declared with two {\tt double} fields.
+
+In general, it is not hard to see that a value class is explicit iff
+the type of any field with a value type is explicit, and the size of
+any array field with a value type is statically known. (The size of
+a field with a reference type is considered to be the size of the
+reference.)
+
+Instances of an explicit type may be {\em inlined}, often resulting in
+considerable efficiency. Note however that when such an instance is
+assigned to a variable of a super type the instance must be boxed.
+
+Not all the conditions for explicitness need to be met for the class
+to be efficiently implementable. For instance it may be possible to
+efficiently accomodate arrays of dynamic size via indirection through
+a size word.
+
+%% Hmm..why not represent the size in there explicitly, as we did in the presence and instant messaging protocol?
+
+Further, the instance needs a pointer to the virtual function table
+for the class only if the class is not final or it implements an
+interface which defines at least one method.
+
+\todo{vj: Allow graphs of values to be created.}
+
+
+\end{document}
+
+\todo{vj: Results of referencing remote clocked final values are cached locally. The cache is flushed when the clock ticks.}
+
+A final variable (also called a {\em constant}) satisfies two conditions:
+(1)~it can be assigned to at most once, (2)~it must be assigned to
+before use.
+
+Every compiler must attempt to check these two conditions. The
+compiler will accept the program if it can be shown to satisfy these
+conditions, reject if it if it can be shown to not satisfy these
+conditions, and issue a warning if it is not sure. In the last case,
+it must generate code to ensure that an UseBeforeInitializationError
+or SecondAssignmentToFinalError error is thrown at runtime (as
+appropriate).
+
+Design alternative is to specify a particular analysis that must be
+run by the compiler.
+
+Any class all of whose fields are final is said to be a {\em value} class.
+
+We must introduce the concept of a constant array as well, an array of
+final locations.
+
+final final int[1..3] a = {41,42,43}
+
+Formally one reads this as: a is a final location that is bound to an
+array of final ints with domain 1..3.
+
+Informally, this is read as saying a is a final variable (so its
+binding does not change). And it is going to be bound to an unchanging
+map from the domain 1..3 to int. Any attempt to assign to one of the
+array locations, e.g.  a[1]=45 is a compile-time error.
+
+OK good.. so here is a thought...we introduce generalized arrays. A
+generalized array is a map from a region to a value domain. A region
+can be a cross product. And there are other operations on a region:
+extend a region with a vector. (ZPL operations). 
+
+
+One can iterate over a region.
+
+Regions can be mapped to places.
+
+
+%% Need to support operator overloading. See Kava. 
+
+
+
+
+
+

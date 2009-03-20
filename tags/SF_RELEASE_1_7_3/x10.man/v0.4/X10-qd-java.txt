@@ -1,0 +1,62 @@
+23 June 2004
+
+Outline of a QD implementation of X10 atop Java.
+
+
+This note outlines the design of a quick and dirty implementation of
+X10 in Java.
+
+The implementation is intended to run on a shared memory
+multiprocessor, such as a 32-/64-way Regatta. It is intended to allow
+users to write simple X10 programs and experiment with the
+language. 
+
+The basic idea is to (a) do a source-to-source translator from X10 to
+Java, (b) and implement the X10 runtime system within Java. 
+
+The implementation runs within a single JVM, and lets the JVM handle
+the mapping of threads onto processors. The implementation will take
+care to use few threads so that the JVM m/n threads to processor
+mapping does not come in the way. Typically, threads will be drawn
+from a small thread pool as needed.
+
+Activities are represented as objects on the heap (representing
+closures). A method can be called on the activity to run it to its
+next yield point. Only one activity is run in a place at a time. This
+automatically guarantees atomicity.
+
+A place is represented as a collection of such objects. X10 classes
+are mapped into Java classes. The implementation of arrays is
+TBD. Aggregate objects distributed across multiple places are
+implemented in shared memory -- there is no explicit distribution. The
+compilability of the X10 program guarantees that the thread servicing
+each place will be able to progress (not deadlock because of cyclic
+contention for shared locks).
+
+An asynchronous activity is implemented by instantiating a new
+instance of a class and adding it to the queue of activities at the
+target place.
+
+Value classes are implemented as reference classes. 
+
+The X10 compiler will automatically generate code to box value types
+whenever a generic class is instantiated with a primitive type.
+
+A virtue of this implementation is that we should be able to get it
+off the ground and running in short order. It should run on any
+standard JVM. Additional enhancements made to the JVM or the JIT
+compiler (e.g. to implement value types, native arrays, floating
+point, relaxed exceptions etc) to increase performance can be folded
+in incrementally.
+
+Clocks are implemented as special objects in the runtime which keep a
+count of the number of outstanding references. The X10 compiler
+automatically generates code to increment and decrement this
+count. The thread executing next c; places the activity to which next
+c; belongs in a special "suspended state", and queues the activity
+object onto the clock. Once the queue of such suspended activities has
+reached the reference size, all the activities are dequeued and placed
+back in their places from where they will get scheduled again in the
+usual way. (We may decide not to implement multi-clock synchronization 
+in the first version of the system.)
+

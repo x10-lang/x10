@@ -1,0 +1,97 @@
+\chapter{Places}\label{XtenPlaces}\index{places}
+\cbstart 
+An \Xten{} place is a repository for data and activities. Each place
+is to be thought of as a locality boundary: the activities running in
+a place may access data items located at that place with the
+efficiency of on-chip access. Accesses to remote places may take
+orders of magnitude longer.
+
+{}\Xten{} provides a built-in value class, {\tt x10.lang.place}; all
+places are instances of this class.  This class is {\tt final} in
+{}\XtenCurrVer.
+
+In \XtenCurrVer{}, the set of places available to a computation is
+determined at the time that the program is run and remains fixed
+through the run of the program. The number of places available 
+may be determined by reading ({\cf place.MAX\_PLACES}). (This number
+is specified from the command line/configuration information; 
+see associated {\tt README} documentation.)
+
+All scalar objects created during program execution are located in one
+place, though they may be referenced from other places. Aggregate
+objects (arrays) may be distributed across multiple places using
+distributions.
+
+The set of all places in a running instance of an \Xten{} program may
+be obtained through the {\tt const} field {\tt place.places}.  (This
+set may be used to define distributions, for instance,
+\S~\ref{XtenDistributions}.) 
+
+
+The set of all places is totally ordered.  The first place may be
+obtained by reading {\tt place.FIRST\_PLACE}. The initial activity for
+an \Xten{} computation starts in this place
+(\S~\ref{initial-computation}). For any place, the operation{\tt next()}
+returns the next place in the total order (wrapping around at the
+end). Further details on the methods and fields available on this
+class may be obtained by consulting the API documentation.
+
+{\em Note: Future versions of the language may permit user-definable
+places, and the ability to dynamically create places. }
+
+\paragraph{Static semantics.}
+Variables of type {\cf place} must be initialized and are implicitly
+{\tt final}.  
+
+\cbend
+\subsection{Place expressions}
+Any expression of type {\tt place} is called a place expression. 
+Examples of place expressions are {\tt this.location} (the place
+at which the current object lives), {\tt place.FIRST\_PLACE}
+(the first place in the system in canonical order). 
+
+Place expressions are used in the following contexts: 
+\begin{itemize}
+%\item As a  place type in a type (\S~\ref{PlaceTypes}).
+\item As a target for an {\tt async} activity or a future
+(\S~\ref{AsyncActivity}).
+\item In a class cast expression  (\S~\ref{ClassCast}).
+\item In an {\tt instanceof} expression (\S~\ref{instanceOf}).
+\item In stable equality comparisons, at type {\tt place}.
+\end{itemize}
+
+Like values of any other type, places may be passed as arguments
+to methods, returned from methods, stored in fields etc.
+
+\subsection{{\tt here}}\index{here}\label{Here}
+\Xten{} supports a special indexical constant\footnote{
+An indexical constant is one whose value depends on its context of use.}
+  {\tt here}:
+\begin{x10}
+22 ExpressionName ::= here
+\end{x10}
+The constant evaluates to the place at which the current activity is
+running. Unlike other place expressions, this constant cannot be 
+used as the placetype of fields, since the type of a field 
+should be independent of the activity accessing it.
+
+\paragraph{Example.}
+The code:
+\begin{x10}
+public class F \{
+   public void m( F a ) \{
+     place OldHere = here;
+     async ( a ) \{
+      System.out.println("OldHere == here:" 
+                         + (OldHere == here));
+     \}
+   \}
+  public static void main(String[] s) \{
+     new F().m(future( place.FIRST\_PLACE.next())
+                \{ new F()\}.force());
+  \}
+\}  
+\end{x10}
+\noindent will print out {\tt true} iff the computation was configured
+to start with the number of places set to {\tt 1}. 
+

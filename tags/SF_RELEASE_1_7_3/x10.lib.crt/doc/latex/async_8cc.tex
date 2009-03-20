@@ -1,0 +1,192 @@
+\section{async.cc File Reference}
+\label{async_8cc}\index{async.cc@{async.cc}}
+{\tt \#include $<$assert.h$>$}\par
+{\tt \#include \char`\"{}rts\_\-messaging.h\char`\"{}}\par
+{\tt \#include \char`\"{}queue.h\char`\"{}}\par
+{\tt \#include \char`\"{}x10.h\char`\"{}}\par
+\subsection*{Data Structures}
+\begin{CompactItemize}
+\item 
+struct {\bf \_\-\_\-x10\_\-normal\_\-async\_\-descr\_\-t}
+\item 
+struct {\bf \_\-\_\-x10\_\-global\_\-async\_\-descr\_\-t}
+\item 
+struct {\bf \_\-\_\-x10\_\-async\_\-descr\_\-t}
+\end{CompactItemize}
+\subsection*{Enumerations}
+\begin{CompactItemize}
+\item 
+enum {\bf \_\-\_\-x10\_\-async\_\-type\_\-t} \{ {\bf NORMAL\_\-ASYNC}, 
+{\bf GLOBAL\_\-ASYNC}, 
+{\bf CLOCKED\_\-NORMAL\_\-ASYNC}, 
+{\bf CLOCKED\_\-GLOBAL\_\-ASYNC}
+ \}
+\end{CompactItemize}
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+EXTERN void {\bf \_\-\_\-x10\_\-callback\_\-asyncswitch} ({\bf x10\_\-async\_\-closure\_\-t} $\ast$closure, {\bf x10\_\-finish\_\-record\_\-t} $\ast$frecord, {\bf x10\_\-clock\_\-t} $\ast$clocks, int num\_\-clocks)
+\item 
+void {\bf \_\-\_\-x10\_\-finish\_\-bookeeping\_\-outgoing} (const {\bf x10\_\-finish\_\-record\_\-t} $\ast$finish\_\-record, {\bf x10\_\-place\_\-t} tgt)
+\item 
+void {\bf \_\-\_\-x10\_\-finish\_\-bookeeping\_\-incoming} ({\bf x10\_\-finish\_\-record\_\-t} $\ast$finish\_\-record)
+\item 
+void {\bf \_\-\_\-x10\_\-async\_\-dispatch} ({\bf \_\-\_\-x10\_\-async\_\-descr\_\-t} $\ast$)
+\item 
+void {\bf \_\-\_\-x10\_\-flush} ()
+\item 
+void {\bf \_\-\_\-x10\_\-async\_\-queue\_\-add} (void $\ast$async\_\-descr)
+\begin{CompactList}\small\item\em AM handlers (internal). \item\end{CompactList}\item 
+\_\-\_\-xlupc\_\-local\_\-addr\_\-t {\bf \_\-\_\-x10\_\-normal\_\-async\_\-handler} (const \_\-\_\-upcrt\_\-AMHeader\_\-t $\ast$header, \_\-\_\-upcrt\_\-AMCompl\-Handler\_\-t $\ast$$\ast$comp\_\-h, void $\ast$$\ast$arg)
+\item 
+\_\-\_\-xlupc\_\-local\_\-addr\_\-t {\bf \_\-\_\-x10\_\-global\_\-async\_\-handler} (const \_\-\_\-upcrt\_\-AMHeader\_\-t $\ast$header, \_\-\_\-upcrt\_\-AMCompl\-Handler\_\-t $\ast$$\ast$comp\_\-h, void $\ast$$\ast$arg)
+\item 
+void {\bf \_\-\_\-x10\_\-async\_\-init} ()
+\item 
+{\bf x10\_\-comm\_\-handle\_\-t} {\bf x10\_\-async\_\-spawn} (const {\bf x10\_\-place\_\-t} tgt, const {\bf x10\_\-async\_\-closure\_\-t} $\ast$closure, const size\_\-t cl\_\-size, const {\bf x10\_\-finish\_\-record\_\-t} $\ast$frecord, const {\bf x10\_\-clock\_\-t} $\ast$clocks, const int num\_\-clocks)
+\begin{CompactList}\small\item\em asyncs spawn an async on given target (NON-BLOCKING). x10lib assumes SPMD programming model; code is replicated everywhere \item\end{CompactList}\item 
+{\bf x10\_\-err\_\-t} {\bf x10\_\-async\_\-spawn\_\-wait} ({\bf x10\_\-comm\_\-handle\_\-t} req)
+\begin{CompactList}\small\item\em wait for the async\_\-spawn to complete locally (BLOCKING) \item\end{CompactList}\item 
+{\bf x10\_\-err\_\-t} {\bf x10\_\-probe} ()
+\begin{CompactList}\small\item\em check for any asyncs in the internal async queue and execute them. This method should be used on the receiver side to make progress (NON-BLOCKING) \item\end{CompactList}\end{CompactItemize}
+\subsection*{Variables}
+\begin{CompactItemize}
+\item 
+{\bf x10\_\-place\_\-t} {\bf \_\-\_\-x10\_\-here}
+\item 
+unsigned int {\bf \_\-\_\-x10\_\-numplaces}
+\item 
+{\bf x10\_\-finish\_\-record\_\-t} {\bf \_\-\_\-x10\_\-global\_\-frecord} = \{0, 0\}
+\item 
+{\bf x10\_\-async\_\-queue\_\-t} {\bf \_\-\_\-x10\_\-async\_\-queue}
+\end{CompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\index{async.cc@{async.cc}!__x10_async_type_t@{\_\-\_\-x10\_\-async\_\-type\_\-t}}
+\index{__x10_async_type_t@{\_\-\_\-x10\_\-async\_\-type\_\-t}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}enum {\bf \_\-\_\-x10\_\-async\_\-type\_\-t}}\label{async_8cc_a20}
+
+
+\begin{Desc}
+\item[Enumeration values: ]\par
+\begin{description}
+\index{NORMAL_ASYNC@{NORMAL\_\-ASYNC}!async.cc@{async.cc}}\index{async.cc@{async.cc}!NORMAL_ASYNC@{NORMAL\_\-ASYNC}}\item[{\em 
+NORMAL\_\-ASYNC\label{async_8cc_a20a4}
+}]\index{GLOBAL_ASYNC@{GLOBAL\_\-ASYNC}!async.cc@{async.cc}}\index{async.cc@{async.cc}!GLOBAL_ASYNC@{GLOBAL\_\-ASYNC}}\item[{\em 
+GLOBAL\_\-ASYNC\label{async_8cc_a20a5}
+}]\index{CLOCKED_NORMAL_ASYNC@{CLOCKED\_\-NORMAL\_\-ASYNC}!async.cc@{async.cc}}\index{async.cc@{async.cc}!CLOCKED_NORMAL_ASYNC@{CLOCKED\_\-NORMAL\_\-ASYNC}}\item[{\em 
+CLOCKED\_\-NORMAL\_\-ASYNC\label{async_8cc_a20a6}
+}]\index{CLOCKED_GLOBAL_ASYNC@{CLOCKED\_\-GLOBAL\_\-ASYNC}!async.cc@{async.cc}}\index{async.cc@{async.cc}!CLOCKED_GLOBAL_ASYNC@{CLOCKED\_\-GLOBAL\_\-ASYNC}}\item[{\em 
+CLOCKED\_\-GLOBAL\_\-ASYNC\label{async_8cc_a20a7}
+}]\end{description}
+\end{Desc}
+
+
+
+\subsection{Function Documentation}
+\index{async.cc@{async.cc}!__x10_async_dispatch@{\_\-\_\-x10\_\-async\_\-dispatch}}
+\index{__x10_async_dispatch@{\_\-\_\-x10\_\-async\_\-dispatch}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void \_\-\_\-x10\_\-async\_\-dispatch ({\bf \_\-\_\-x10\_\-async\_\-descr\_\-t} $\ast$)}\label{async_8cc_a11}
+
+
+\index{async.cc@{async.cc}!__x10_async_init@{\_\-\_\-x10\_\-async\_\-init}}
+\index{__x10_async_init@{\_\-\_\-x10\_\-async\_\-init}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void \_\-\_\-x10\_\-async\_\-init ()}\label{async_8cc_a16}
+
+
+\index{async.cc@{async.cc}!__x10_async_queue_add@{\_\-\_\-x10\_\-async\_\-queue\_\-add}}
+\index{__x10_async_queue_add@{\_\-\_\-x10\_\-async\_\-queue\_\-add}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void \_\-\_\-x10\_\-async\_\-queue\_\-add (void $\ast$ {\em async\_\-descr})\hspace{0.3cm}{\tt  [static]}}\label{async_8cc_a13}
+
+
+AM handlers (internal). 
+
+\index{async.cc@{async.cc}!__x10_callback_asyncswitch@{\_\-\_\-x10\_\-callback\_\-asyncswitch}}
+\index{__x10_callback_asyncswitch@{\_\-\_\-x10\_\-callback\_\-asyncswitch}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN void \_\-\_\-x10\_\-callback\_\-asyncswitch ({\bf x10\_\-async\_\-closure\_\-t} $\ast$ {\em closure}, {\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em frecord}, {\bf x10\_\-clock\_\-t} $\ast$ {\em clocks}, int {\em num\_\-clocks})}\label{async_8cc_a8}
+
+
+\index{async.cc@{async.cc}!__x10_finish_bookeeping_incoming@{\_\-\_\-x10\_\-finish\_\-bookeeping\_\-incoming}}
+\index{__x10_finish_bookeeping_incoming@{\_\-\_\-x10\_\-finish\_\-bookeeping\_\-incoming}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void \_\-\_\-x10\_\-finish\_\-bookeeping\_\-incoming ({\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em finish\_\-record})}\label{async_8cc_a10}
+
+
+\index{async.cc@{async.cc}!__x10_finish_bookeeping_outgoing@{\_\-\_\-x10\_\-finish\_\-bookeeping\_\-outgoing}}
+\index{__x10_finish_bookeeping_outgoing@{\_\-\_\-x10\_\-finish\_\-bookeeping\_\-outgoing}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void \_\-\_\-x10\_\-finish\_\-bookeeping\_\-outgoing (const {\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em finish\_\-record}, {\bf x10\_\-place\_\-t} {\em tgt})}\label{async_8cc_a9}
+
+
+\index{async.cc@{async.cc}!__x10_flush@{\_\-\_\-x10\_\-flush}}
+\index{__x10_flush@{\_\-\_\-x10\_\-flush}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}void \_\-\_\-x10\_\-flush ()}\label{async_8cc_a12}
+
+
+\index{async.cc@{async.cc}!__x10_global_async_handler@{\_\-\_\-x10\_\-global\_\-async\_\-handler}}
+\index{__x10_global_async_handler@{\_\-\_\-x10\_\-global\_\-async\_\-handler}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-xlupc\_\-local\_\-addr\_\-t \_\-\_\-x10\_\-global\_\-async\_\-handler (const \_\-\_\-upcrt\_\-AMHeader\_\-t $\ast$ {\em header}, \_\-\_\-upcrt\_\-AMCompl\-Handler\_\-t $\ast$$\ast$ {\em comp\_\-h}, void $\ast$$\ast$ {\em arg})\hspace{0.3cm}{\tt  [static]}}\label{async_8cc_a15}
+
+
+\index{async.cc@{async.cc}!__x10_normal_async_handler@{\_\-\_\-x10\_\-normal\_\-async\_\-handler}}
+\index{__x10_normal_async_handler@{\_\-\_\-x10\_\-normal\_\-async\_\-handler}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}\_\-\_\-xlupc\_\-local\_\-addr\_\-t \_\-\_\-x10\_\-normal\_\-async\_\-handler (const \_\-\_\-upcrt\_\-AMHeader\_\-t $\ast$ {\em header}, \_\-\_\-upcrt\_\-AMCompl\-Handler\_\-t $\ast$$\ast$ {\em comp\_\-h}, void $\ast$$\ast$ {\em arg})\hspace{0.3cm}{\tt  [static]}}\label{async_8cc_a14}
+
+
+\index{async.cc@{async.cc}!x10_async_spawn@{x10\_\-async\_\-spawn}}
+\index{x10_async_spawn@{x10\_\-async\_\-spawn}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-comm\_\-handle\_\-t} x10\_\-async\_\-spawn (const {\bf x10\_\-place\_\-t} {\em tgt}, const {\bf x10\_\-async\_\-closure\_\-t} $\ast$ {\em closure}, const size\_\-t {\em cl\_\-size}, const {\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em frecord}, const {\bf x10\_\-clock\_\-t} $\ast$ {\em clocks}, const int {\em num\_\-clocks})}\label{async_8cc_a17}
+
+
+asyncs spawn an async on given target (NON-BLOCKING). x10lib assumes SPMD programming model; code is replicated everywhere 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em tgt}]target place \item[{\em closure}]pointer to async closure (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})}) \item[{\em cl\_\-size}]size of the async closure \item[{\em frecord}]pointer to the finish record (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})}) \item[{\em clocks}]clock set for the async (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})}) \item[{\em num\_\-clocks}]number of clocks in the clock set\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]handle to wait for \end{Desc}
+\index{async.cc@{async.cc}!x10_async_spawn_wait@{x10\_\-async\_\-spawn\_\-wait}}
+\index{x10_async_spawn_wait@{x10\_\-async\_\-spawn\_\-wait}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-err\_\-t} x10\_\-async\_\-spawn\_\-wait ({\bf x10\_\-comm\_\-handle\_\-t} {\em handle})}\label{async_8cc_a18}
+
+
+wait for the async\_\-spawn to complete locally (BLOCKING) 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em handle}]handle returned by x10\_\-async\_\-spawn (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})})\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]returns an error or success \end{Desc}
+\index{async.cc@{async.cc}!x10_probe@{x10\_\-probe}}
+\index{x10_probe@{x10\_\-probe}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-err\_\-t} x10\_\-probe ()}\label{async_8cc_a19}
+
+
+check for any asyncs in the internal async queue and execute them. This method should be used on the receiver side to make progress (NON-BLOCKING) 
+
+
+
+\subsection{Variable Documentation}
+\index{async.cc@{async.cc}!__x10_async_queue@{\_\-\_\-x10\_\-async\_\-queue}}
+\index{__x10_async_queue@{\_\-\_\-x10\_\-async\_\-queue}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-async\_\-queue\_\-t} {\bf \_\-\_\-x10\_\-async\_\-queue}}\label{async_8cc_a3}
+
+
+\index{async.cc@{async.cc}!__x10_global_frecord@{\_\-\_\-x10\_\-global\_\-frecord}}
+\index{__x10_global_frecord@{\_\-\_\-x10\_\-global\_\-frecord}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-finish\_\-record\_\-t} {\bf \_\-\_\-x10\_\-global\_\-frecord} = \{0, 0\}\hspace{0.3cm}{\tt  [static]}}\label{async_8cc_a2}
+
+
+\index{async.cc@{async.cc}!__x10_here@{\_\-\_\-x10\_\-here}}
+\index{__x10_here@{\_\-\_\-x10\_\-here}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-place\_\-t} {\bf \_\-\_\-x10\_\-here}}\label{async_8cc_a0}
+
+
+\index{async.cc@{async.cc}!__x10_numplaces@{\_\-\_\-x10\_\-numplaces}}
+\index{__x10_numplaces@{\_\-\_\-x10\_\-numplaces}!async.cc@{async.cc}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}unsigned int {\bf \_\-\_\-x10\_\-numplaces}}\label{async_8cc_a1}
+
+

@@ -1,0 +1,7 @@
+assert this->contains(p) failed: 0 ../../include/x10/region.tcc, line 61
+assert this->contains(p) failed: 0 ../../include/x10/region.tcc, line 61
+assert this->contains(p) failed: 0 ../../include/x10/region.tcc, line 61
+assert this->contains(p) failed: 0 ../../include/x10/region.tcc, line 61
+assert this->contains(p) failed: 0 ../../include/x10/region.tcc, line 61
+assert this->contains(p) failed: 0 ../../include/x10/region.tcc, line 61
+Test_region PASSED

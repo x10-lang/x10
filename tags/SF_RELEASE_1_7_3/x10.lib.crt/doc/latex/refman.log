@@ -1,0 +1,578 @@
+This is pdfeTeX, Version 3.141592-1.21a-2.2 (Web2C 7.5.4) (format=latex 2008.1.6)  20 MAY 2008 16:27
+entering extended mode
+**refman.tex
+(./refman.tex
+LaTeX2e <2003/12/01>
+Babel <v3.8d> and hyphenation patterns for american, french, german, ngerman, b
+ahasa, basque, bulgarian, catalan, croatian, czech, danish, dutch, esperanto, e
+stonian, finnish, greek, icelandic, irish, italian, latin, magyar, norsk, polis
+h, portuges, romanian, russian, serbian, slovak, slovene, spanish, swedish, tur
+kish, ukrainian, nohyphenation, loaded.
+(/usr/local/tetex/texmf/tex/latex/base/book.cls
+Document Class: book 2004/02/16 v1.4f Standard LaTeX document class
+(/usr/local/tetex/texmf/tex/latex/base/bk10.clo
+File: bk10.clo 2004/02/16 v1.4f Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/local/tetex/texmf/tex/latex/a4wide/a4wide.sty
+Package: a4wide 1994/08/30
+
+(/usr/local/tetex/texmf/tex/latex/ntgclass/a4.sty
+Package: a4 2004/04/15 v1.2g A4 based page layout
+))
+(/usr/local/tetex/texmf/tex/latex/base/makeidx.sty
+Package: makeidx 2000/03/29 v1.0m Standard LaTeX package
+)
+(/usr/local/tetex/texmf/tex/latex/fancyhdr/fancyhdr.sty
+\fancy@headwidth=\skip43
+\f@ncyO@elh=\skip44
+\f@ncyO@erh=\skip45
+\f@ncyO@olh=\skip46
+\f@ncyO@orh=\skip47
+\f@ncyO@elf=\skip48
+\f@ncyO@erf=\skip49
+\f@ncyO@olf=\skip50
+\f@ncyO@orf=\skip51
+)
+(/usr/local/tetex/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/tetex/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/usr/local/tetex/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 2001/07/07 v1.0n Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/tetex/texmf/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/local/tetex/texmf/tex/latex/graphics/graphics.cfg
+File: graphics.cfg 2005/02/03 v1.3 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: dvips.def on input line 80.
+
+(/usr/local/tetex/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+(/usr/local/tetex/texmf/tex/latex/tools/multicol.sty
+Package: multicol 2004/02/14 v1.6e multicolumn formatting (FMi)
+\c@tracingmulticols=\count88
+\mult@box=\box26
+\multicol@leftmargin=\dimen105
+\c@unbalance=\count89
+\c@collectmore=\count90
+\doublecol@number=\count91
+\multicoltolerance=\count92
+\multicolpretolerance=\count93
+\full@width=\dimen106
+\page@free=\dimen107
+\premulticols=\dimen108
+\postmulticols=\dimen109
+\multicolsep=\skip52
+\multicolbaselineskip=\skip53
+\partial@page=\box27
+\last@line=\box28
+\mult@rightbox=\box29
+\mult@grightbox=\box30
+\mult@gfirstbox=\box31
+\mult@firstbox=\box32
+\@tempa=\box33
+\@tempa=\box34
+\@tempa=\box35
+\@tempa=\box36
+\@tempa=\box37
+\@tempa=\box38
+\@tempa=\box39
+\@tempa=\box40
+\@tempa=\box41
+\@tempa=\box42
+\@tempa=\box43
+\@tempa=\box44
+\@tempa=\box45
+\@tempa=\box46
+\@tempa=\box47
+\@tempa=\box48
+\@tempa=\box49
+\c@columnbadness=\count94
+\c@finalcolumnbadness=\count95
+\last@try=\dimen110
+\multicolovershoot=\dimen111
+\multicolundershoot=\dimen112
+\mult@nat@firstbox=\box50
+\colbreak@box=\box51
+)
+(/usr/local/tetex/texmf/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count96
+\float@exts=\toks15
+\float@box=\box52
+\@float@everytoks=\toks16
+\@floatcapt=\box53
+)
+(/usr/local/tetex/texmf/tex/latex/base/textcomp.sty
+Package: textcomp 2004/02/22 v1.99f Standard LaTeX package
+Package textcomp Info: Sub-encoding information:
+(textcomp)               5 = only ISO-Adobe without \textcurrency
+(textcomp)               4 = 5 + \texteuro
+(textcomp)               3 = 4 + \textohm
+(textcomp)               2 = 3 + \textestimated + \textcurrency
+(textcomp)               1 = TS1 - \textcircled - \t
+(textcomp)               0 = TS1 (full)
+(textcomp)             Font families with sub-encoding setting implement
+(textcomp)             only a restricted character set as indicated.
+(textcomp)             Family '?' is the default used for unknown fonts.
+(textcomp)             See the documentation for details.
+Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 71.
+
+(/usr/local/tetex/texmf/tex/latex/base/ts1enc.def
+File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
+)
+LaTeX Info: Redefining \oldstylenums on input line 266.
+Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 281.
+Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 282.
+Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 283.
+Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 284.
+Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 285.
+Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 286.
+Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 287.
+Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 288.
+Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 289.
+Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 290.
+Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 291.
+Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 292.
+Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 293.
+Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 294.
+Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 295.
+Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 296.
+Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 297.
+Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 298.
+Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 299.
+Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 300.
+Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 301.
+Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 302.
+Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 303.
+Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 304.
+
+Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 305.
+Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 306.
+Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 307.
+Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 308.
+Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 309.
+Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 310.
+Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 311.
+Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 312.
+Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 313.
+Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 314.
+Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 315.
+Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 316.
+Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 317.
+Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 318.
+Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 319.
+Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 320.
+Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 321.
+Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 322.
+Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 323.
+Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 324.
+Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 325.
+Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 326.
+)
+(/usr/local/tetex/texmf/tex/latex/base/alltt.sty
+Package: alltt 1997/06/16 v2.0g defines alltt environment
+) (./doxygen.sty
+Package: doxygen 
+
+(/usr/local/tetex/texmf/tex/latex/tools/calc.sty
+Package: calc 1998/07/07 v4.1b Infix arithmetic (KKT,FJ)
+\calc@Acount=\count97
+\calc@Bcount=\count98
+\calc@Adimen=\dimen113
+\calc@Bdimen=\dimen114
+\calc@Askip=\skip54
+\calc@Bskip=\skip55
+LaTeX Info: Redefining \setlength on input line 59.
+LaTeX Info: Redefining \addtolength on input line 60.
+\calc@denominator=\count99
+)
+(/usr/local/tetex/texmf/tex/latex/tools/array.sty
+Package: array 2003/12/17 v2.4a Tabular extension package (FMi)
+\col@sep=\dimen115
+\extrarowheight=\dimen116
+\NC@list=\toks17
+\extratabsurround=\skip56
+\backup@length=\skip57
+)
+\tmplength=\skip58
+)
+(/usr/local/tetex/texmf/tex/latex/base/fontenc.sty
+Package: fontenc 2004/02/22 v1.99f Standard LaTeX package
+
+(/usr/local/tetex/texmf/tex/latex/base/t1enc.def
+File: t1enc.def 2004/02/22 v1.99f Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 43.
+))
+\@indexfile=\write3
+\openout3 = `refman.idx'.
+
+
+Writing index file refman.idx
+(./refman.aux (./struct____x10__global__async__descr__t.aux)
+(./struct____x10__normal__async__descr__t.aux) (./structAsyncQueue.aux)
+(./structAsyncQueueEl.aux) (./structfinish__compl__message__t.aux)
+(./structfinish__message__t.aux) (./structtuple.aux)
+(./structx10__async__closure__t.aux) (./structx10__clock__t.aux)
+(./structx10__comm__handle__t.aux) (./structx10__finish__record__t.aux)
+(./structx10__proxy__t.aux) (./finish_8cc.aux) (./init_8cc.aux)
+(./queue_8cc.aux) (./queue_8h.aux) (./refs_8cc.aux) (./x10_8h.aux)
+(./x10__types_8h.aux))
+\openout1 = `refman.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
+LaTeX Font Info:    ... okay on input line 14.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 14.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 14.
+ (/usr/local/tetex/texmf/tex/latex/base/ts1cmr.fd
+File: ts1cmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 14.
+
+[1
+
+
+] [2
+
+] (./refman.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 2.
+)
+\tf@toc=\write4
+\openout4 = `refman.toc'.
+
+ [1
+
+] [2]
+Chapter 1.
+(./annotated.tex) [1
+
+
+] [2
+
+]
+Chapter 2.
+(./files.tex) [3] [4
+
+]
+Chapter 3.
+(./struct____x10__async__descr__t.tex) [5]
+\openout2 = `struct____x10__global__async__descr__t.aux'.
+
+
+(./struct____x10__global__async__descr__t.tex) [6
+
+]
+\openout2 = `struct____x10__normal__async__descr__t.aux'.
+
+
+(./struct____x10__normal__async__descr__t.tex) [7
+
+
+]
+\openout2 = `structAsyncQueue.aux'.
+
+ (./structAsyncQueue.tex
+LaTeX Font Info:    Try loading font information for T1+cmtt on input line 3.
+
+(/usr/local/tetex/texmf/tex/latex/base/t1cmtt.fd
+File: t1cmtt.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)) [8
+
+
+]
+\openout2 = `structAsyncQueueEl.aux'.
+
+
+(./structAsyncQueueEl.tex) [9
+
+
+]
+\openout2 = `structfinish__compl__message__t.aux'.
+
+ (./structfinish__compl__message__t.tex) [10
+
+
+]
+\openout2 = `structfinish__message__t.aux'.
+
+
+(./structfinish__message__t.tex) [11
+
+
+]
+\openout2 = `structtuple.aux'.
+
+ (./structtuple.tex) [12
+
+
+]
+\openout2 = `structx10__async__closure__t.aux'.
+
+
+(./structx10__async__closure__t.tex) [13
+
+
+]
+\openout2 = `structx10__clock__t.aux'.
+
+ (./structx10__clock__t.tex) [14
+
+
+]
+\openout2 = `structx10__comm__handle__t.aux'.
+
+
+(./structx10__comm__handle__t.tex) [15
+
+
+]
+\openout2 = `structx10__finish__record__t.aux'.
+
+ (./structx10__finish__record__t.tex)
+[16
+
+
+]
+\openout2 = `structx10__proxy__t.aux'.
+
+ (./structx10__proxy__t.tex) [17
+
+
+] [18
+
+
+]
+Chapter 4.
+(./async_8cc.tex
+Underfull \hbox (badness 10000) in paragraph at lines 19--24
+[]\T1/cmr/m/n/10 enum \T1/cmr/bx/n/10 _-_-x10_-async_-type_-t \T1/cmr/m/n/10 { 
+\T1/cmr/bx/n/10 NORMAL_-ASYNC\T1/cmr/m/n/10 , \T1/cmr/bx/n/10 GLOBAL_-ASYNC\T1/
+cmr/m/n/10 ,
+ []
+
+
+Underfull \hbox (badness 2261) in paragraph at lines 28--30
+[]\T1/cmr/m/n/10 EXTERN void \T1/cmr/bx/n/10 _-_-x10_-callback_-asyncswitch \T1
+/cmr/m/n/10 (\T1/cmr/bx/n/10 x10_-async_-closure_-t $\OMS/cmsy/m/n/10 ^^C$\T1/c
+mr/m/n/10 closure,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 40--42
+[]\T1/cmr/m/n/10 _-_-xlupc_-local_-addr_-t \T1/cmr/bx/n/10 _-_-x10_-normal_-asy
+nc_-handler \T1/cmr/m/n/10 (const _-_-upcrt_-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 42--44
+[]\T1/cmr/m/n/10 _-_-xlupc_-local_-addr_-t \T1/cmr/bx/n/10 _-_-x10_-global_-asy
+nc_-handler \T1/cmr/m/n/10 (const _-_-upcrt_-
+ []
+
+[19]
+Underfull \hbox (badness 10000) in paragraph at lines 72--72
+
+ []
+
+[20]
+Underfull \hbox (badness 10000) in paragraph at lines 143--143
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 148--148
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 157--157
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 162--162
+
+ []
+
+[21]) [22]
+\openout2 = `finish_8cc.aux'.
+
+ (./finish_8cc.tex
+Underfull \hbox (badness 10000) in paragraph at lines 32--34
+[]\T1/cmr/m/n/10 _-_-xlupc_-local_-addr_-t \T1/cmr/bx/n/10 _-_-x10_-finish_-han
+dler \T1/cmr/m/n/10 (const _-_-upcrt_-AMHeader_-t
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 42--44
+[]\T1/cmr/bx/n/10 x10_-err_-t x10_-finish_-begin_-global \T1/cmr/m/n/10 (\T1/cm
+r/bx/n/10 x10_-finish_-record_-t $\OMS/cmsy/m/n/10 ^^C$\T1/cmr/m/n/10 frecord, 
+void
+ []
+
+
+Underfull \hbox (badness 1342) in paragraph at lines 44--45
+[]\T1/cmr/bx/n/10 x10_-err_-t x10_-finish_-end \T1/cmr/m/n/10 (const \T1/cmr/bx
+/n/10 x10_-finish_-record_-t $\OMS/cmsy/m/n/10 ^^C$\T1/cmr/m/n/10 frecord, int 
+$\OMS/cmsy/m/n/10 ^^C$\T1/cmr/m/n/10 num_-
+ []
+
+[23
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 127--127
+
+ []
+
+[24]
+Underfull \hbox (badness 10000) in paragraph at lines 144--144
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--156
+
+ []
+
+) [25]
+\openout2 = `init_8cc.aux'.
+
+ (./init_8cc.tex) [26
+
+
+] [27]
+\openout2 = `queue_8cc.aux'.
+
+ (./queue_8cc.tex) [28
+
+
+]
+\openout2 = `queue_8h.aux'.
+
+ (./queue_8h.tex)
+[29
+
+
+]
+\openout2 = `refs_8cc.aux'.
+
+ (./refs_8cc.tex) [30
+
+
+]
+\openout2 = `x10_8h.aux'.
+
+ (./x10_8h.tex
+Underfull \hbox (badness 3058) in paragraph at lines 20--21
+[]\T1/cmr/m/n/10 EXTERN \T1/cmr/bx/n/10 x10_-err_-t x10_-finish_-begin \T1/cmr/
+m/n/10 (\T1/cmr/bx/n/10 x10_-finish_-record_-t $\OMS/cmsy/m/n/10 ^^C$\T1/cmr/m/
+n/10 frecord, void
+ []
+
+[31
+
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 66--66
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 71--71
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 80--80
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 85--85
+
+ []
+
+[32]
+Underfull \hbox (badness 10000) in paragraph at lines 132--132
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 149--149
+
+ []
+
+[33]
+Underfull \hbox (badness 10000) in paragraph at lines 161--161
+
+ []
+
+) [34]
+\openout2 = `x10__types_8h.aux'.
+
+ (./x10__types_8h.tex
+Underfull \hbox (badness 10000) in paragraph at lines 87--87
+
+ []
+
+[35
+
+
+]) [36] (./refman.ind [37
+
+
+] [38] [39] [40]) (./refman.aux
+(./struct____x10__global__async__descr__t.aux)
+(./struct____x10__normal__async__descr__t.aux) (./structAsyncQueue.aux)
+(./structAsyncQueueEl.aux) (./structfinish__compl__message__t.aux)
+(./structfinish__message__t.aux) (./structtuple.aux)
+(./structx10__async__closure__t.aux) (./structx10__clock__t.aux)
+(./structx10__comm__handle__t.aux) (./structx10__finish__record__t.aux)
+(./structx10__proxy__t.aux) (./finish_8cc.aux) (./init_8cc.aux)
+(./queue_8cc.aux) (./queue_8h.aux) (./refs_8cc.aux) (./x10_8h.aux)
+(./x10__types_8h.aux)) ) 
+Here is how much of TeX's memory you used:
+ 1986 strings out of 94501
+ 27675 string characters out of 1175812
+ 76728 words of memory out of 1000000
+ 5002 multiletter control sequences out of 10000+50000
+ 15715 words of font info for 31 fonts, out of 500000 for 2000
+ 580 hyphenation exceptions out of 1000
+ 30i,11n,43p,887b,406s stack positions out of 1500i,500n,5000p,200000b,5000s
+
+Output written on refman.dvi (44 pages, 74756 bytes).

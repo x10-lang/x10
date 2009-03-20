@@ -1,0 +1,25 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Tests declaration of arrays, storing in local variables, accessing and
+ * updating for 2D arrays.
+ */
+public class Array3 extends x10Test {
+
+	public def run(): boolean = {
+		var ia: Array[int] = new Array[int](Dist.makeConstant([1..10, 1..10], here));
+		ia(1, 1) = 42;
+		return 42 == ia(1, 1);
+	}
+
+	public static def main(var args: Rail[String]): void = {
+		new Array3().execute();
+	}
+}
