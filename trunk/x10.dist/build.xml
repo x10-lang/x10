@@ -428,7 +428,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
             <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar}"/>
             <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.cppbackend.17" dir="${x10.cppbackend.location}" excludes="releng/**,**/.*.swp,classes/**"/>
-            <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.common.17" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>
