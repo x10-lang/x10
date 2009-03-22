@@ -484,12 +484,10 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
   (Constraint term)& {\tt t} &{::=}& ${\tt T}$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt T}\extends {\tt T}$
 \end{tabular}
-
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXX}
 \infax[W-Type]
 	{\wj{}{\type}}
-
-\infax[W-Var]
-	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
 
 \infrule[W-Path]
 	{\Gamma\vdash {\tt p}:{\tt T}
@@ -497,19 +495,24 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
          \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:\type}
 	{\wj{\Gamma}{{\tt p}.{\tt f}}}
 	
-\infrule[W-Extends]
-	{\Gamma\vdash{\tt T}:\type,{\tt U}:\type}
-	{\cj{\Gamma}{{\tt T}\extends {\tt U}}}
+\infrule[S-Extends]
+	{\Gamma\vdash {\tt T}\extends {\tt U}}
+	{\Gamma\vdash {\tt T}\subtype {\tt U}}
 
 \infrule[L-Extends]
 	{\Gamma\vdash {\tt T}\extends {\tt U}
          \andalso
          \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\underline\has~{\tt I}}
 	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXX}
+\infax[W-Var]
+	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
 
-\infrule[S-Extends]
-	{\Gamma\vdash {\tt T}\extends {\tt U}}
-	{\Gamma\vdash {\tt T}\subtype {\tt U}}
+\infrule[C-Extends]
+	{\Gamma\vdash{\tt T}:\type,{\tt U}:\type}
+	{\cj{\Gamma}{{\tt T}\extends {\tt U}}}
 
 \infrule[X-Subtype]
 	{\Gamma\vdash{\tt T}:\type,{\tt U}:\type,{\tt T}\subtype {\tt U}}
@@ -518,6 +521,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \infrule[T-Type]
         {\wj{\Gamma}{\tt C\{{\tt c}\}}}
   {\Gamma\vdash{\tt C}\{{\tt c}\}:\type}
+\end{minipage}
 \caption{\FXG}
 \label{fig:FXG}
 \end{figure*}
@@ -527,14 +531,22 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \centering
 \begin{tabular}{r@{\quad}rcl}
   (Type)& {\tt T} &{::=}& \mbox{new base types, e.g., {\tt int}} \\
-%  (Expression) & {\tt e} &{::=}& ${\tt f}(\tbar{e})$ \\
+  (Expression) & {\tt e} &{::=}& ${\tt f}(\tbar{e})$ \\
   (Constraint term) & {\tt t} &{::=}& ${\tt f}(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
 \end{tabular}
-
-\infrule[W-Pred]
-	{\mathcal{F}({\tt p}(\tbar{t}))\subseteq\mathcal{D}(\Gamma)} 
+\begin{minipage}{.45\textwidth}
+\quad\typicallabel{XXX}
+\infrule[C-Pred]
+	{{\tt p}(\tbar{T})\in \mathcal{A} \andalso \Gamma\vdash\tbar{t}:\tbar{U},\tbar{U}<:\tbar{T}} 
 	{\cj{\Gamma}{{\tt p}(\tbar{t})}}
+\end{minipage}%
+\begin{minipage}{.55\textwidth}
+\quad\typicallabel{XXX}
+\infrule[T-Fun]
+	{{\tt f}(\tbar{T})\Rightarrow{\tt U}\in \mathcal{A} \andalso \Gamma\vdash\tbar{e}:\tbar{V},\tbar{V}<:\tbar{T}\andalso \tbar{y}~\rm fresh} 
+	{\Gamma\vdash{{\tt e}(\tbar{t})}:\exists\tbar{y}:\tbar{V}.~{\tt U}\{\self=={\tt f}(\tbar{y})\}}
+\end{minipage}%
 \caption{\FXD}
 \end{figure*}
 
