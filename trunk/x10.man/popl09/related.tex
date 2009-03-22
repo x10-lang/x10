@@ -150,6 +150,13 @@ the Coq formulae; however, there is an impedance mismatch
 caused by the differing syntax, representation, and behavior
 of OCaml versus Coq.
 
+Ynot~\cite{ynot} is an extension to Coq for reasoning about 
+dependently-typed functional programs with side-effects using a
+form of separation logic.
+Constrained types permit a more natural expression of constraints
+than Coq formulae, but do not capture side-effects since they constrain
+only mutable object state.
+
 \eat{
 Cayenne~\cite{cayenne} is a Haskell-like language with fully dependent types.
 There is no distinction between static and dynamic types.
@@ -252,7 +259,7 @@ instantiation approach for greater efficiency.
 CLR~\cite{csharp-generics}.  Type parameters may be declared
 with definition-site variance tags.
 Generalized type constraints were proposed for
-\csharp~\cite{emir06}.  Methods can be annotated with subtyping
+\csharp~\cite{emir06}: methods can be annotated with subtyping
 constraints that must be satisfied to invoke the method.
 Generic \Xten{} supports these constraints, as well as constraints
 on values, with method and constructor where clauses.
@@ -276,34 +283,28 @@ Parametric types with use-site variance are related to existential types:
 \xcd"C" corresponds to the unbounded existential \xcdmath"C\{\exists\tcd{self}.C<X\}".
 }
 
-\subsection{Contracts}
+\paragraph{Contracts.}
 
-Constrained types have may similarities to contracts~\cite{xxx}.
-Contracts are constraint annotations on methods and classes.
-Object invariants.
-
+Constrained types have may similarities to
+contracts~\cite{Parnas72,eiffel,Findler02},
+constraint annotations on methods and classes.
+A key difference is that contracts are dynamically enforced
+assertions; whereas, constrained types are statically enforced.
+Dynamic enforcement enables a more expressive assertion language
+at the cost of possible run-time failures.
 Integration of constrained types and generic types
 effectively allow parameterization of classes on constraints.
 Consider the \xcd"List" class in Figure~\ref{fig:list0}.
 If the class is instantiated on a constrained type \xcd"C{c}",
 i.e., \xcd"List[C{c}]",
-then all elements of the list satisfy \xcd"c".  To achieve this
-using contracts, one would write introduce an invariant on the
-\xcd"head" and \xcd"tail" of the list:
-{
-\begin{xten}
-class List[T] {
-  val head: T;
-  val tail: List[T];
-  val p: (T) => Boolean;
-  invariant p(head) && this.p == tail.p;
-  def get(i: int): T ensures p(\return)
-    { ... }
-  ...
-}
-\end{xten}}
-\noindent
-This is a more awkward solution; if indeed it is possible.
+then all elements of the list satisfy \xcd"c".
+Guha et al.~\cite{GMFK07} 
+explore polymorphic contracts as a way to achieve this
+parameterization in a functional language.
+
+ESC/Java~\cite{escjava}, Spec\#~\cite{specsharp}, and
+JML~\cite{jml-overview,leavens00jml} are instances of
+static assertion checkers for OO languages.  Contrained types
+offer a less expressive, but more modular, solution.
 
 
-Parametric contracts~\cite{GMFK07}.
