@@ -85,25 +85,12 @@ Type properties can also be refined contravariantly.
 For instance, one can write the type \xcdmath"List{T$\super$Integer}",
 and even \xcdmath"List{Integer$\extends$T, T$\extends$Number}".
 
-\subsection{Type parameters and wildcards}
-\label{sec:parameters-vs-fields}
+\subsection{Wildcards}
 
-Type properties are also similar to type
-parameters.  The key difference is that type properties are
-instance members bound during object construction.  Type
-properties are thus accessible through expressions---\xcd"e.T" is
-a legal type---and are inherited by subclasses.
-
-We can make the type system behave as if type properties were
-type parameters very simply:  First, we make the syntax \xcd"e.T"
-illegal and permit type properties to be accessible only
-from within the body of their class definition via the implicit \xcd"this"
-qualifier and within constraints via \xcd"self".  In addition,
-we change the inheritance rules for properties so that a
-class may inherit more than one type property with the same name
-without conflict.
-
-Constrained types can also provide a characterization of
+As discussed in Section~\ref{sec:parameters-vs-fields},
+type properties are similar to type
+parameters.
+Constrained types can provide a characterization of
 wildcards in Java~\cite{Java3,adding-wildcards}.
 Wildcards can be motivated
 by the following example from Torgersen et al.~\cite{adding-wildcards}:
@@ -170,14 +157,15 @@ class List[T] {
 \end{xtenmath}}
 }
 
-Constrained types also support
+Like wildcards,
+constrained types support
 \emph{proper abstraction}~\cite{adding-wildcards}.  To illustrate, a
 \xcd"reverse"
 operation can operate on \xcd"List" of any type:
 {
 \begin{xten}
 def reverse(list: List) {
-  for (i: int in [0..list.length-1])
+  for (i: int in 0..list.length-1)
     swap(list, i, list.length-1-i);
 }
 \end{xten}}

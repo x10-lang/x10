@@ -1,18 +1,31 @@
 
 This section presents an informal description of 
-dependent and generic types in \Xten{}.  In this presentation,
-we simplify and elide many details of the \Xten{} semantics.
+dependent and generic types in \Xten{}.  
+As implemented, \Xten simplifies the 
+semantics presented here, limiting expressiveness in favor of usability.
+After implementing the design presented here
+and using it to implement part of the \Xten runtime library,
+we found that the semantics are
+often difficult for the uninitiated to use.
+%---indeed, they
+%provide comparable expressive power to Java wildcards, whose usability
+%issues are well-known~\cite{wildcards-are-evil}.
+We explore usability issues in Section~\ref{sec:usability}.
+The semantics presented here do not have the restrictions
+imposed by the \Xten compiler; instead, they represent the core
+of the \Xten type system.
 
 \Xten{} is a class-based object-oriented language.
 The language has a sequential core similar to Java or Scala, but
 also
 constructs for concurrency and distribution, as well as constrained
 types, described here.  Like Java, the language provides single class
-inheritance and multiple interface inheritance.
+inheritance and multiple interface inheritance.\footnote{We plan
+to support traits in a future version of the language.}
 
 A constrained type in \Xten{} is written \xcd"C{c}", where \xcd"C" is the
-name of a class and \xcd"c" is a constraint on the properties of
-\xcd"C" and the immutable state in scope at the type.  The
+name of a class and \xcd"c" is a constraint on the properties
+of \xcd"C" and the immutable state in scope at the type.  The
 constraint \xcd"c" may refer to the value being constrained through
 the special variable \xcd"self", which has type \xcd"C" in the
 constraint.  Constraints are drawn from a constraint language that,
@@ -397,7 +410,7 @@ only if \xcd"List.T" implements \xcd"Printable".
 Thus \xcd"List{T==String}"
 and \xcd"List{T==List[String]}"
 are subtypes of \xcd"Printable", but
-\xcd"List{T" \xcd"==DirtyWord}" is not.
+\xcd"List{T" \xcd"==FourLetterWord}" is not.
 
 
 Without optional interfaces, \xcd"List" cannot be a subtype
@@ -406,3 +419,78 @@ the \xcd"print" method is more restrictive than the
 constraint (i.e., \xcd"true") on 
 \xcd"Printable.print".
 }
+
+\subsection{Usability}
+\label{sec:usability}
+\label{sec:parameters-vs-fields}
+
+As previously mentioned, after using the \Xten design described above,
+we encountered some usability problems.
+The fundamental problem is that programmers are used to
+\emph{type parameters} rather than \emph{type properties};
+providing similar functionality with often subtle distinctions
+can be difficult for novices users of the language.
+% Second, permitting type constraints at the use site
+% of a type rather than at the definition site, can lead to 
+% subtle design bugs.
+
+The key difference between type parameters and type properties
+is that type properties are
+instance members bound during object construction.  Type
+properties are thus accessible through expressions---\xcd"e.T" is
+a legal type (if \xcd"e" is final)---and are inherited by subclasses.
+These features gives type properties more expressive power than
+parameters, but are unfamiliar to many programmers.
+
+Since type properties are inherited, the language design needs
+to account for ambiguities introduced when the same name is
+used for different type properties inherited into the same class.
+These can be disambiguated
+by ``casting'' the target up to the desired supertype,
+e.g., \xcd"(e as C).X"
+to specify the property \xcd"X" inherited from \xcd"C".
+
+As an example, in the following \Xten code, \xcd"HashMap" 
+inherits the properties \xcd"K" and \xcd"V" from \xcd"Map".
+\begin{xten}
+interface Map[K,V] {
+    def get(K): V;
+    def put(K, V): V;
+}
+
+class HashMap extends Map {
+    def get(k: K): V = ...;
+    def put(k: K, v: V): V = ...;
+}
+\end{xten}
+If a user is used to type parameters, \xcd"HashMap" would be
+declared as follows:
+\begin{xten}
+class HashMap[K,V] extends Map[K,V] {
+    def get(k: K): V = ...;
+    def put(k: K, v: V): V = ...;
+}
+\end{xten}
+This introduces a new set of type properties named \xcd"K" and
+\xcd"V" that shadow the inherited properties,
+and adds to the class invariant of \xcd"HashMap" the constraint
+\xcd"{(this as Map).K==K," \xcd"(this as Map).V==V}".
+A naive implementation of type properties would store run-time
+type information about all four properties in each instance
+of \xcd"HashMap".
+
+To correct this problem, the revised \Xten design imposes
+restrictions on type properties so that they 
+behave similarly to type parameters.
+We make the syntax \xcd"e.X"
+illegal and permit type properties to be accessible only from
+within the body of their class definition via the
+implicit \xcd"this" qualifier, and we require that type
+constraints be written using the shortened \xcd"C[T]"
+(or \xcd"C[+T]", etc.) syntax 
+rather than as \xcd"C{X==T}" (\xcd"C{X<=T}").  The compiler also handles the
+inheritance problem by ensuring inherited type properties are
+not visible from subclasses.
+
+
+\todo{This is still all a lie.  We support definition-site variance only}
