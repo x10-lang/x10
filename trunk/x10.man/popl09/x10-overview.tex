@@ -1,4 +1,7 @@
 
+\newif\ifwild
+\wildtrue
+
 This section presents an informal description of 
 dependent and generic types in \Xten{}.  
 As implemented, \Xten simplifies the 
@@ -6,12 +9,16 @@ semantics presented here, limiting expressiveness in favor of usability.
 After implementing the design presented here
 and using it to implement part of the \Xten runtime library,
 we found that the semantics are
-often difficult for the uninitiated to use.
-%---indeed, they
-%provide comparable expressive power to Java wildcards, whose usability
-%issues are well-known~\cite{wildcards-are-evil}.
-We explore usability issues in Section~\ref{sec:usability}.
-The semantics presented here do not have the restrictions
+often difficult for the uninitiated to
+\ifwild
+use---indeed, they
+provide comparable expressive power to Java wildcards, whose usability
+issues are well-known~\cite{wildcards-are-evil}.
+\else
+use.
+\fi
+We explore these usability problems in Section~\ref{sec:usability}.
+The semantics that follow do not have the restrictions
 imposed by the \Xten compiler; instead, they represent the core
 of the \Xten type system.
 
@@ -426,13 +433,21 @@ constraint (i.e., \xcd"true") on
 
 As previously mentioned, after using the \Xten design described above,
 we encountered some usability problems.
-The fundamental problem is that programmers are used to
-\emph{type parameters} rather than \emph{type properties};
+\ifwild
+The first
+\else
+The fundamental
+\fi
+problem is that programmers are used to
+\emph{type parameters} rather than \emph{type properties}:
 providing similar functionality with often subtle distinctions
 can be difficult for novices users of the language.
-% Second, permitting type constraints at the use site
-% of a type rather than at the definition site, can lead to 
-% subtle design bugs.
+\ifwild
+Second, permitting type constraints at the use site
+of a type rather than at the definition site, as is done for
+instance in Java~\cite{adding-wildcards}, can lead to 
+subtle design bugs in programs.
+\fi
 
 The key difference between type parameters and type properties
 is that type properties are
@@ -479,18 +494,71 @@ A naive implementation of type properties would store run-time
 type information about all four properties in each instance
 of \xcd"HashMap".
 
-To correct this problem, the revised \Xten design imposes
+The second problem encountered was the difficulty with using use-site
+variance annotations.
+When writing a generic type in, say, a method signature, it is often not 
+clear whether to constrain the generic's type property with an
+equality constraint or with a subtyping constraint.
+For example, in the following code, \xcd"C.list()" returns a \xcd"List[X]".
+\begin{xtenmath}
+class List[T] {
+    def add(x: T) = ...;
+}
+class C[X] {
+    def list(): List[X] = ...;
+}
+\end{xtenmath}
+\noindent
+But, it could just return
+\xcdmath"List{T $\extends$ X}" instead.
+Which to use depends on whether the developer of \xcd"C"
+expects the list to be mutated or not: if \xcd"xs"
+is of type
+\xcdmath"List{T $\extends$ A}", then \xcd"xs.add" cannot be
+invoked with a value of static type \xcd"A"---the compiler
+cannot demonstrate that \xcd"A" is a subtype of \xcd"xs.T".
+If the developer chooses wrongly, correcting the problem can
+cascade thoughtout the program.
+
+To correct these problem, the revised \Xten design imposes
 restrictions on type properties so that they 
-behave similarly to type parameters.
-We make the syntax \xcd"e.X"
+behave similarly to type parameters with definition-site
+variance.
+
+First,
+we make the syntax \xcd"e.X"
 illegal and permit type properties to be accessible only from
 within the body of their class definition via the
 implicit \xcd"this" qualifier, and we require that type
 constraints be written using the shortened \xcd"C[T]"
-(or \xcd"C[+T]", etc.) syntax 
-rather than as \xcd"C{X==T}" (\xcd"C{X<=T}").  The compiler also handles the
+\ifwild
+syntax rather than as \xcd"C{X==T}".
+\else
+(or \xcd"C[+T]", etc.) syntax rather than as \xcd"C{X==T}" (\xcd"C{X<=T}").
+\fi
+The compiler also handles the
 inheritance problem by ensuring inherited type properties are
 not visible from subclasses.
 
+Second, we allow the programmer to specify
+\emph{definition-site}
+variance annotations.
+If a type property \xcd"X" of \xcd"C" is declared ``\xcd"+X"'', it is
+covariant.
+This simply means that \xcd"C[T]"
+is shorthand for \xcd"C{X<=T}" rather than for \xcd"C{X==T}".
+In addition, the compiler checks that in the body of \xcd"C",
+\xcd"X" is only used in positive positions (method return types
+and types of final (\xcd"val") fields).
+As far as the programmer is concerned, then, if \xcd"A"
+is a subtype of \xcd"B", then
+\xcd"C[A]" is a subtype of \xcd"C[B]".
+This follows because \xcd"X<=A" entails \xcd"X<=B" if \xcd"A<=B".
+Dually, a property \xcd"X" can be declared contravariant 
+using ``\xcd"-X"'', meaning \xcd"C[T]" is shorthand for
+\xcd"C{X>=T}".  \xcd"X" may not appear only in negative
+positions (method argument types).
 
-\todo{This is still all a lie.  We support definition-site variance only}
+With these
+modifications, explicit type constraints continue to be allowed
+for method and constructor guards and in class invariants.
