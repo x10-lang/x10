@@ -141,7 +141,7 @@ particular member---a field with a given name and type, or a method
 with a given name and signature. We introduce the constraints 
 \Xcd{T has f:T} and \Xcdmath{T has m($\tbar{x}\ty\tbar{S}$):T} to express this.
 
-\todo{check status of extends relation transitivity}
+%\todo{check status of extends relation transitivity}
 \eat{
 The entailment relation between these pieces of partial information is
 straightforward to specify, given the interpretation specified in the
@@ -175,29 +175,26 @@ can hence be used in dynamic cast expressions.
 A pleasing aspect of the resulting design is that the same fundamental
 mechanism of constrained types---imposing constraints on properties---is
 used to specify both value-dependency and type-dependency of types.
-
-\begin{example}[Array]
-  Consider the class \Xcd{Array} declared as:
-{\footnotesize
+Consider the class \Xcd{Array} declared as:
+{
 \begin{xten}
 class Array[T](r: Region) {
-  def get(p: Point{self in this.r}): this.T = ...;
-  def set(p: Point{self in this.r}, v: this.T) = ...;
+  def get(p: Point{self in r}): T = ...;
+  def set(p: Point{self in r}, v: T) = ...;
   ...
 }
 \end{xten}}
-{}\noindent The class has two properties: a type-valued property
+\noindent The class has two properties: a type-valued property
 \Xcd{T} and a value property \Xcd{r} of type \Xcd{Region}.
 The \Xcd{get} method for the array requires a
 point \Xcd{p} that must lie in the object's region and returns a
-value of type \Xcd{T}.\footnote{Within the body of
+value of type \Xcd{T}. Within the body of
 a class, class members may be referenced without using the
 ``\Xcd{this.}'' selector, as usual for OO languages. Hence occurrences of
-\Xcd{this.r} and \Xcd{this.T} can be replaced by \Xcd{r} and
-\Xcd{T} respectively.}
+\Xcd{this.r} and \Xcd{this.T} can be written \Xcd{r} and
+\Xcd{T}, respectively.
 Similarly, the \Xcd{set} method takes a point in the region and
 a value of type \Xcd{T}.
-\end{example}
 
 The constrained type \Xcd{Array\{self.T==int\}} specifies the type of all
 arrays
