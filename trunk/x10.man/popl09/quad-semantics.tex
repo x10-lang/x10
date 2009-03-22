@@ -233,15 +233,15 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \quad\typicallabel{XXXXXX}
 \infrule[\RField]
 	{{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{T}}
-	{\new~{\tt C}(\tbar{e}).{\tt f}_i \derives {\tt e}_i}
+	{\new~{\tt C}(\tbar{t}).{\tt f}_i \derives {\tt t}_i}
 
 \infrule[\RCField]
 	{{\tt e}\derives {\tt e}'}
 	{{\tt e}.{\tt f}\derives {\tt e}'.{\tt f}}
 
 \infrule[\RCast]
-	{\vdash {\tt C}\{\self==\new~{\tt C}(\tbar{e})\}\subtype {\tt T}}
-	{\new~{\tt C}(\tbar{e})~\as~{\tt T}\derives\new~{\tt C}(\tbar{e})}
+	{\vdash {\tt C}\{\self==\new~{\tt C}(\tbar{t})\}\subtype {\tt T}}
+	{\new~{\tt C}(\tbar{t})~\as~{\tt T}\derives\new~{\tt C}(\tbar{t})}
 
 \infrule[\RCCast]
 	{{\tt e}\derives {\tt e}'}
@@ -251,8 +251,8 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[\RInvk]
-	{{\tt x}:{\tt C}\vdash {\tt x}~\has~{\tt m}(\tbar{f}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt b}}
-	{\new~{\tt C}(\tbar{e}).{\tt m}(\tbar{a})\derives {\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/{\tt x},\tbar{f}]}
+	{{\tt x}:{\tt C}\vdash {\tt x}~\has~{\tt m}(\tbar{f}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}}
+	{\new~{\tt C}(\tbar{t}).{\tt m}(\tbar{a})\derives {\tt b}[\new~{\tt C}(\tbar{t}),\tbar{a}/{\tt x},\tbar{f}]}
 
 \infrule[\RCInvkRecv]
 	{{\tt e}\derives {\tt e}'}
@@ -312,18 +312,20 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 
 
 \begin{figure*}
-\begin{minipage}{.4\textwidth}
+\begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[X-Exists]
-  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash{\tt c}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash {\tt t}:{\tt T},{\tt c}[{\tt t}/{\tt x}]}
   {\Gamma\vdash \exists {\tt x}:{\tt T}.~{\tt c}}
+\eat{
+\infrule[X-Lift]
+  {\Gamma\vdash {\tt t}:{\tt T}, {\tt c}[{\tt t}/\self]}
+  {\Gamma\vdash {\tt t}:{\tt T}\{{\tt c}\}}
 
 \infrule[X-Proj]
   {\Gamma\vdash {\tt t}:{\tt T}\{{\tt c}\}}
   {\Gamma\vdash {\tt c}[{\tt t}/\self]}
-\end{minipage}%
-\begin{minipage}{.6\textwidth}
-\quad\typicallabel{XXXX}
+}
 \infrule[X-Sel]
   {{\tt x}:{\tt C}\vdash\fields({\tt x})=\tbar{f}:\tbar{T}
   	\andalso
@@ -336,7 +338,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
    \Gamma\vdash {\tt t}:{\tt U},{\tt U}\subtype{\tt C}}
   {\Gamma\vdash {\tt c}[{\tt t}/\this]}
 \end{minipage}%
-
+\eat{
 \begin{minipage}{\textwidth}
 \quad\typicallabel{XXXX}
 \infrule[X-New]
@@ -345,6 +347,7 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
    \Gamma\vdash\exists{\tt x}:{\tt T}.~{\tt c}}
   {\Gamma\vdash{\tt C}~\type,\tbar{V}~\type,\tbar{V}\subtype\tbar{U},\exists\tbar{y}:\tbar{V}.~\exists{\tt x}:{\tt T}.~{\tt c},{\tt x}==\new~{\tt C}(\tbar{y})}
 \end{minipage}%
+}
 \caption{\FX{} object constraint system}
 \label{fig:object}
 \end{figure*}
@@ -454,11 +457,11 @@ Following from \FJ{}, the typing rules do not preclude the existence of cycles i
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Const-L]
-	{\wj{\Gamma}{{\tt T}\{{\tt c}\}}, {\tt T}\subtype {\tt U}}
+	{\Gamma,{\tt self}:{\tt T},{\tt c}\vdash{\tt T}\subtype {\tt U}}
 	{\Gamma\vdash {\tt T}\{{\tt c}\}\subtype {\tt U}}
 
 \infrule[S-Const-R]
-	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}, {\tt T}\subtype {\tt U} \andalso\Gamma,\self:{\tt T}\vdash {\tt c}}
+	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}\andalso\Gamma,\self:{\tt T}\vdash {\tt c},{\tt T}\subtype {\tt U} }
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-L]
