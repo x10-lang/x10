@@ -15,21 +15,20 @@ import harness.x10Test;
  * @author bdlucas 8/2008
  */
 
-public class ClosureCall1b extends ClosureTest {
+public class ClosureCall1b extends x10Test {
 
-    class V           {const name = "V";}
-    class W extends V {const name = "W";}
-    class X extends V {const name = "X";}
-    class Y extends X {const name = "Y";}
-    class Z extends X {const name = "Z";}
+    class V           {val name = "V";}
+    class W extends V {val name = "W";}
+    class X extends V {val name = "X";}
+    class Y extends X {val name = "Y";}
+    class Z extends X {val name = "Z";}
 
     public def run(): boolean = {
-
-        val y = ([T](t:T){T<:X} => T.name)(new Y());
-        val z = ([T](t:T){T<:X} => T.name)(new Z());
-        check("y", y, "Y");
-        check("z", z, "Z");
-
+	val v = [T](t:T){T<:X} => t.name;
+        val y = v(new Y());
+	assert y.equals("Y") : "Y expected, obtained " + y;
+        val z = v(new Z());
+	assert z.equals("Z") : "Z expected, obtained " + z;
         return result;
     }
 
