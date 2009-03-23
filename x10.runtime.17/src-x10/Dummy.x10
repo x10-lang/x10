@@ -101,7 +101,6 @@ class Dummy {
     var f109 : x10.lang._;
     var f113 : x10.runtime.Clock_c;
     var f115 : x10.runtime.Future_c[Dummy];
-    var f117 : x10.runtime.InterruptedException;
     var f118 : x10.runtime.Lock;
     var f121 : x10.runtime.NativeRuntime;
     var f123 : x10.runtime.Runtime;
