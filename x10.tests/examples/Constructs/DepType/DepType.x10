@@ -31,7 +31,7 @@ public class DepType(i:int, j:int) extends x10Test {
     // thisClause on a class, and extension of a deptyped class
     static class Test3 extends DepType {
         val k:int;
-        def this(v:int):Test3{self.j==k} {
+        def this(v:int):Test3{self.j==this.k} {
             super(v,v);
             k = v;
         }
@@ -47,7 +47,7 @@ public class DepType(i:int, j:int) extends x10Test {
 
     // a local variable with a dep clause.
     public  def  run():boolean = {
-        val d:DepType{i==3} = new DepType(3,6);
+        val d:DepType{self.i==3} = new DepType(3,6);
         return true;
     }
 

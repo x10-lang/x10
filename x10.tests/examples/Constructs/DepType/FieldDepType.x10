@@ -14,18 +14,16 @@ import harness.x10Test;
  *
  */
 public class FieldDepType extends x10Test {
-	var f: Array[double]{rank==1 && rect &&zeroBased} 
+    var f: Array[double](0..10)
 	= Array.make[double](0..10, (i: Point)=> (10-i(0)) as double);
 	
-	def m(var a: Array[double]{rank==1&&rect&&zeroBased}): void = {
-		
+	def m(a: Array[double]{rank==1&&rect&&zeroBased}): void = {
 	}
 	public def run(): boolean = {
 		m(f);
-		x10.io.Console.OUT.println("f[0] = " + f(0));
-		return true;
+		return f(0)==10.0D;
 	}
-	public static def main(var a: Rail[String]): void = {
+	public static def main(Rail[String]): void = {
 		new FieldDepType().execute();
 	}
 }
