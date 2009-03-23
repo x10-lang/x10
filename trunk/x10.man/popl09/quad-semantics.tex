@@ -75,6 +75,9 @@ semantics once for the entire family of \FX{} languages,
 specifying the other members of the family as extensions
 to these core semantics.
 
+Existential constraints are introduced for convenience only:
+${\tt T}\{\exists {\tt x}:{\tt U}.~{\tt c}\}$ is equivalent to $\exists {\tt y}:{\tt U}.~{\tt T}\{{\tt c}[{\tt y}/{\tt x}]\}$ choosing {\tt y} not free in {\tt T}.
+
 \paragraph{Dynamic semantics.}
 The operational semantics, shown in Figure~\ref{fig:sos},
 is straightforward and essentially identical
@@ -475,9 +478,9 @@ for some values $\bar{\tt y}$ of the given types.
          \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:\type}
 	{\wj{\Gamma}{{\tt p}.{\tt f}}}
 
-\infrule[E-Relf]
+\infrule[E-Refl]
 	{\Gamma\vdash {\tt T}:\type}
-	{\Gamma\vdash {\tt T}\subtype {\tt T}}
+	{\Gamma\vdash {\tt T}\extends{\tt T}}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXX}
@@ -608,6 +611,16 @@ class SortedList(T: type)
 }
 \end{xtenmath}
 \end{example}
+
+\paragraph{Type casts.}Consider the program:
+\begin{xten}
+class C() extends Object {}
+class D(f:type, g:this.f) extends Object {}
+\end{xten}
+Class {\tt D} has a type parameter {\tt f} and a value field {\tt g} of type {\tt f}.
+Thanks to contraints, expression {\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}()) can be shown to have type {\tt C}.
+In contrast $({\tt e}~\as~{\tt D})$ has type $\exists {\tt x}:{\tt D}.{\tt x}.{\tt f}\{\self=={\tt x.g}\}$. The type of $({\tt e}~\as~{\tt D})$ is essentially ``unknown'' because the cast erased all information about it. In X10, we choose to shield users from existential types and permit casts of the form $({\tt e}~\as~{\tt D}\{\self.{\tt f}=={\tt t}\})$ where {\tt t} is a type in scope (class type, type parameter, or path type).
+
 
 \subsection{\FXGD} 
 
