@@ -130,7 +130,7 @@ We say a program, context, or judgment is well formed iff all the constraints an
 \paragraph{Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each class. We impose restrictions on inheritance as follows. Classes may only be extended by classes with stronger invariants. Fields cannot be overridden.
 A method may only be overridden by a method with the same name, arity, parameter types, a weaker guard, and a return type that is a subtype of the overridden return type.
 
-We distinguish members available on variables from class members to prepare for the introduction of generic types. In \FXZ, ${\tt x}:{\tt C}~\underline\has~{\tt I}$ iff ${\tt C}~\has~{\tt I}$.
+We distinguish members available on variables from class members to prepare for the introduction of generic types later. For now, ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
 
 In order to capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
 
@@ -432,15 +432,15 @@ for some values $\bar{\tt y}$ of the given types.
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}}
   {\Gamma\vdash {\tt C}\subtype {\tt D}}
 
-\infrule[S-Const-R]
-	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}\andalso\Gamma,\self:{\tt T}\vdash {\tt c},{\tt T}\subtype {\tt U} }
-	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXX}
 \infrule[S-Exists-L]
   {\wj{\Gamma}{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt U}\subtype {\tt V} \andalso {\tt x}~\rm fresh}
   {\Gamma\vdash\exists {\tt x}:{\tt T}.~{\tt U}\subtype {\tt V}}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXX}
+\infrule[S-Const-R]
+	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}\andalso\Gamma,\self:{\tt T}\vdash {\tt c},{\tt T}\subtype {\tt U} }
+	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-R]
   {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash {\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
