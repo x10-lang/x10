@@ -5,23 +5,26 @@
 \newcommand\tj[3]{{#1} \vdash {#2} \ty {#3}}
 \newcommand\stj[3]{{#1} \vdash {#2} \subtype {#3}}
 
-We now describe the semantics of languages in the \FX{} family. We start with a core \FXZ{} language that support simple \FJ-like types, then add value-dependent types, type-dependent types, and both. For uniformity we declare type-valued parameters and properties to be of ``type'' \type, instead of using square brackets to demarcate them.
+We now describe the semantics of languages in the \FX{} family.
+We start with a core \FXZ{} language that support simple
+\FJ-like types, then add value-dependent types, and type-dependent
+types, separately, then finally add both. For uniformity we declare type-valued parameters and properties to be of ``type'' \type, instead of using square brackets to demarcate them.
 
 \subsection{\FXZ}
 
 The grammar for \FXZ{} is shown in Figure~\ref{fig:fx-grammar}.
 The syntax is essentially that of \FJ{}.
-Following the convention for \FJ{}, we use $\bar{x}$ to denote a
-list $x_1, \dots, x_n$ and $\bullet$ to denote the empty
+Following the convention of \FJ{}, we use $\bar{x}$ to denote a
+list $x_1, \dots, x_n$, and use $\bullet$ to denote the empty
 list.
 
 A program {\tt P} is a set of class declarations \tbar{L}.
-Class names {\tt C} in {\tt P} range over the declared classes in {\tt P} 
+Class names {\tt C} range over the declared classes in {\tt P} 
 and {\tt Object}.
 Classes have
 properties (i.e., immutable fields) \tbar{f} and methods \tbar{M}.  We omit constructors
 and require that the \new{} expression provide initializers
-for all fields (including inherited fields). 
+for all fields, including inherited fields. 
 Methods are introduced with the {\tt def} keyword.
 
 Both classes and methods may have constraint clauses
@@ -29,7 +32,8 @@ Both classes and methods may have constraint clauses
 {\em invariant} satisfied by all instances of the class; in the case of
 methods, {\tt c} is an additional condition, or {\em guard},
 that must be satisfied by
-{\tt this} and the actual arguments of the method in order for the method to
+the receiver 
+and the actual arguments of the method in order for the method to
 be applicable.
 
 Expressions {\tt e} are either parameters {\tt x} (including the implicit
@@ -52,7 +56,7 @@ $\tt U[q/x]$.
 The syntax for constraints in \FXZ{} is specified in
 Figure~\ref{fig:fx-grammar}. As expected, constraints
 relate property fields of objects. Neither casts
-nor method invocations are permitted.
+nor method invocations are permitted in constraints.
 
 We distinguish a subset of these constraints as
 {\em user constraints}---these are permitted to occur in
@@ -64,9 +68,9 @@ standard class and method definitions of \FJ{}.
 The constraints permitted by the syntax in
 Figure~\ref{fig:fx-grammar} that
 are not user constraints are used to define the static and
-dynamic semantics of \FXZ{} (see, e.g., the rule \TField{} in Figure~\ref{fig:FX}).
+dynamic semantics of \FXZ{} (see, e.g., rule \TField{} in Figure~\ref{fig:FX}).
 The use of this richer constraint set as well as constrained and existential types is
-not necessary; it simply enables us to present the static and dynamic
+not necessary in \FXZ; it simply enables us to present the static and dynamic
 semantics once for the entire family of \FX{} languages,
 specifying the other members of the family as extensions
 to these core semantics.
@@ -76,7 +80,7 @@ The operational semantics, shown in Figure~\ref{fig:sos},
 is straightforward and essentially identical
 to \FJ \cite{FJ}. It is described in terms of a non-deterministic
 reduction relation on expressions.\footnote{
-For simplivity, we enforce call-by-value-like semantics:
+For simplicity, we enforce call-by-value-like semantics:
 \RField, \RInvk, and \RCast{} require receivers of the form
 ``$\new~{\tt C}(\tbar{t})$'' instead of ``$\new~{\tt C}(\tbar{e})$''.
 Otherwise, we would have to distinguish compile-time constraints over constraint terms from run-time constraints over expressions.}
@@ -84,11 +88,11 @@ The only novelty is the use of the
 subtyping relation to check that the cast is satisfied. In \FXZ, this
 test simply involves checking that the class of which the object is an
 instance is a subclass of the class specified in the given type; in
-richer languages with richer notions of type this operation may
+languages with richer notions of type this operation may
 involve run-time constraint solving using the properties of the object.
 
 \paragraph{Static Semantics.}
-Each language in the family is defined over a given input constraint system $\mathcal{X}$ that is required to to support the trivial constraint \true{}, conjunction, existential quantification, and equality on constraint terms. Given a program {\tt P}, we now show how to derive from $\mathcal{X}$ a larger deduction system that captures the object-oriented structure of {\tt P} and let us decide whether {\tt P} is well typed.
+Each language in the family is defined over a given input constraint system $\mathcal{X}$ that is required to support the trivial constraint \true{}, conjunction, existential quantification, and equality on constraint terms. Given a program {\tt P}, we now show how to derive from $\mathcal{X}$ a larger deduction system that captures the object-oriented structure of {\tt P} and lets us decide whether {\tt P} is well-typed.
 
 In the following, the context $\Gamma$ is always a
 (finite, possibly empty) sequence of formulas $\tt x:T$ and constraints $\tt c$ satisfying:
@@ -101,11 +105,12 @@ In the following, the context $\Gamma$ is always a
   formula $\tt x:T$ in $\Gamma$.
 \end{enumerate}
 
+\noindent
 The judgments of interest are as follows.
 \begin{enumerate}
 	\item Well-formedness:\\
-	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well formed\\
-	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed
+	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well-formed\\
+	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well-formed
 	\item Member lookup:\\
 	  $\fields({\tt C})=\tbar{f}:\tbar{T}$ \hfill class {\tt C} has fields \tbar{f} of type \tbar{T}\\
 	  $\Gamma\vdash {\tt C}~\has~{\tt I}$ \hfill class {\tt C} has member {\tt I}\\
@@ -123,9 +128,9 @@ The judgments of interest are as follows.
 
 A program type checks iff all its classes do.
 
-\paragraph{Well-formedness.} A constraint {\tt c} is well formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff its free variables are declared in $\Gamma$. The rules in Figure~\ref{fig:well} extend this requirement to types.
+\paragraph{Well-formedness.} A constraint {\tt c} is well-formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff its free variables are declared in $\Gamma$. The rules in Figure~\ref{fig:well} extend this requirement to types.
 
-We say a program, context, or judgment is well formed iff all the constraints and types involved are well formed. By design, every judgment derived from a well formed context is also well formed. As a consequence, if a program type checks then it is well formed. 
+We say a program, context, or judgment is well-formed iff all the constraints and types involved are well-formed. By design, every judgment derived from a well-formed context is also well-formed. As a consequence, if a program type checks, then it is well-formed. 
 
 \paragraph{Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each class. We impose restrictions on inheritance as follows. Classes may only be extended by classes with stronger invariants. Fields cannot be overridden.
 A method may only be overridden by a method with the same name, arity, parameter types, a weaker guard, and a return type that is a subtype of the overridden return type.
@@ -215,7 +220,7 @@ call. {\sc T-New} also uses the same proxy reasoning: however in this case
 we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
 for some values $\bar{\tt y}$ of the given types.
 
-{\sc T-Method} and {\sc T-Class} ensure that the types and constraints occurring in a program are well formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc T-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc T-Class} makes sure all methods of the class type check.
+{\sc T-Method} and {\sc T-Class} ensure that the types and constraints occurring in a program are well-formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc T-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc T-Class} makes sure all methods of the class type check.
 
 
 \paragraph{Subtyping rules.} The subtyping rules in Figure~\ref{fig:subtyping} are straightforward.
@@ -233,8 +238,8 @@ for some values $\bar{\tt y}$ of the given types.
   (Constraint) & {\tt c} &{::=}& $\true$ \alt $\tt t==t$ \alt $\tt c,c$ \alt $\tt \exists x:T.~c$ \\
 \end{tabular} 
 \par\flushleft
-{\tt C} ranges over class names, {\tt f} over field names, {\tt m} over method names, {\tt x} over variable names.
-\caption{\FX{} productions}
+\caption{\FX{} productions.
+{\tt C} ranges over class names, {\tt f} over field names, {\tt m} over method names, {\tt x} over variable names.}
 \label{fig:fx-grammar}
 \end{figure*}
 
@@ -613,7 +618,7 @@ generics and value-dependent types.
 \subsection{Results}
 The following results hold for \FXGD supposing the program {\tt P} type checks.
 
-\begin{theorem}[Subject Reduction] If $\Gamma$ is well formed and $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$, then
+\begin{theorem}[Subject Reduction] If $\Gamma$ is well-formed and $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$, then
 for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
 \end{theorem}
 
