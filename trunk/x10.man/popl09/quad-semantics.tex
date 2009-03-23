@@ -149,7 +149,6 @@ For now, ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\h
 To capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
 \todo{Is there a rule for this?}
 
-
 \paragraph{Constraints.}
 \todo{awk}
 In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. For simplicity, we define $\Gamma \vdash {\tt c}$ to mean
@@ -200,21 +199,22 @@ self==x}, which records that any value of this type is known
 statically to be equal to {\tt x}. This constraint is actually very
 crucial---as we shall see in the other rules, once we establish that
 an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
-type to a freshly chosen variable {\tt z}. If in fact {\tt e} has a
+type to a freshly chosen variable {\tt z}.  If, in fact, {\tt e} has a
 static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
 equal to {\tt x}, i.e., {\tt e} is of type {\tt T\{self==x\}}), then
 {\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., {\tt z}
-equals {\tt x}. Thus {\sc T-Var} provides an important base case for
+equals {\tt x}.  \todo{ieeeeee}
+Thus {\sc T-Var} provides an important base case for
 reasoning statically about equality of values in the environment.
 
-We do away with the three casts provided in \FJ{} in favor of a single
-cast, requiring only that {\tt e} be of some type {\tt U}. At run time
+We do away with the three cast rules in \FJ{} in favor of a single
+cast rule, requiring only that {\tt e} be of some type {\tt U}.  At run time,
 {\tt e} will be checked to see if it is actually of type {\tt T} (see
-Rule~{\sc R-Cast}).
+{\sc R-Cast} in Figure~\ref{fig:sos}).
 
 {\sc T-Field} may be understood through ``proxy'' reasoning as
-follows.  Given the context $\Gamma$ assume the receiver {\tt e} can
-be established to be of type {\tt T}. Now we do not know the run-time
+follows:  Given the context $\Gamma$, assume the receiver {\tt e} can
+be established to be of type {\tt T}. Now, we do not know the run-time
 value of {\tt e}, so we shall assume that it is some fixed but unknown
 ``proxy'' value {\tt x} (of type {\tt T}) that is ``fresh'' in that it
 is not known to be related to any known value (i.e., those recorded
@@ -227,13 +227,15 @@ by {\tt x}.}, then we can assert that
 Hence, we can assert that {\tt e.f} has type 
 $\exists {\tt x}:{\tt T}.~{\tt U}\{\self={\tt x}.{\tt f}\}$.
 
-{\sc T-Invk} has a very similar structure to {\sc T-Field}: we use
-``proxy'' reasoning for the receiver and the arguments of the method
+{\sc T-Invk} has a similar structure to {\sc T-Field}: we use
+proxy reasoning for the receiver and the arguments of the method
 call. {\sc T-New} also uses the same proxy reasoning: however in this case
 we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
 for some values $\bar{\tt y}$ of the given types.
 
-{\sc T-Method} and {\sc T-Class} ensure that the types and constraints occurring in a program are well-formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc T-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc T-Class} makes sure all methods of the class type check.
+{\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well-formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
+\todo{What about overriding?  The rules are stated informally above,
+but shoud be in OK-Class.}
 
 
 \paragraph{Subtyping rules.} The subtyping rules in Figure~\ref{fig:subtyping} are straightforward.
@@ -407,7 +409,7 @@ for some values $\bar{\tt y}$ of the given types.
     \tbar{V}\subtype\tbar{U}[{\tt x}/\this],{\tt c}[{\tt x}/\this] \andalso {\tt x},\tbar{y}~\rm fresh}
 	{\Gamma\vdash\new~{\tt C}(\tbar{e}):\exists\tbar{y}:\tbar{V}.~{\tt C}\{\self==\new~{\tt C}(\tbar{y})\}}
         
-\infrule[T-Method]
+\infrule[OK-Method]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P} \andalso
     {\tt def}~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}\in\tbar{M}\\
     \this:{\tt C},\tbar{x}:\tbar{U}\vdash\tbar{U}~\type,{\tt d}~\constraint
@@ -415,7 +417,7 @@ for some values $\bar{\tt y}$ of the given types.
     \this:{\tt C},\tbar{x}:\tbar{U},{\tt d}\vdash {\tt e}:{\tt W},{\tt W}\subtype {\tt V}}
   {{\tt def}~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}~{\rm OK~in}~{\tt C}}
 
-\infrule[T-Class]
+\infrule[OK-Class]
   {\this:{\tt C},\tbar{f}:\tbar{T}\vdash\tbar{T}~\type,{\tt c}~\constraint \andalso \wj{}{\tt D} \andalso \tbar{M}~{\rm OK~in}~{\tt C}}
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
 \end{minipage}
@@ -520,10 +522,12 @@ for some values $\bar{\tt y}$ of the given types.
 
 \subsection{\FXD}
 
-Turning \FXZ{} into a language with value-dependent types is straightforward since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is built in the typing rules already.
+Turning \FXZ{} into a language with value-dependent types is straightforward
+since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is already built into the typing rules.
 
-First, we assume given a constraint system $\cal A$, with a vocabulary of primitive types ${\tt A}$,
-predicates ${\tt p}$, and functions ${\tt f}$. 0-ary functions encode constants.
+First, we assume we are given a constraint system $\cal A$ with a vocabulary of primitive types ${\tt A}$,
+predicates ${\tt p}$, and functions ${\tt f}$.  Zero arity
+functions encode constants.
 
 Second, we extend the productions of \FXZ{} as follows.
 \begin{center}
@@ -538,10 +542,10 @@ Second, we extend the productions of \FXZ{} as follows.
 The obvious rule is needed to type function calls.
 
 \infrule[T-Fun]
-	{{\tt f}{\rm~has~type~(\tbar{A})=>{\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
+	{{\tt f}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
 	{\Gamma\vdash{{\tt f}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt f}(\tbar{x})\}}}
 
-Third, we authorize users to write constraints (except for existential constraints) in programs.
+Third, we authorize users to write constraints in $\cal A$ (except for existential constraints) in programs.
 
 For instance, if $\mathcal{A}$ defines the type {\tt int}, the constant {\tt 0} and the successor function {\tt s}, we can declare:
 
@@ -552,8 +556,14 @@ class Count(n:int) extends Object {
 }
 \end{xten}
 
+\FXD corresponds to the {\sf Constrained \FJ} calculus presented
+in prior work~\cite{constrained-types}.  As described there, \Xten
+supports equality constraints and has been extended with constraint
+systems for Presburger arithmetic and for set constraints over
+\Xten's array sublanguage.
+
 \subsection{\FXG}
-We now turn to showing how \FGJ{} style generics can be supported in the \FX{} family.
+We now turn to showing how \FGJ{}-style generics can be supported in the \FX{} family.
 \FXG{} is the language obtained by adding to \FXZ{} the productions and deduction rules of Figure~\ref{fig:FXG}.
 
 First we introduce the ``type'' \type. \FGJ{} method type
