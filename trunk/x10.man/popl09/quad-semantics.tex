@@ -407,30 +407,37 @@ for some values $\bar{\tt y}$ of the given types.
 
 
 \begin{figure*}
+\begin{minipage}{.333\textwidth}
+\quad\typicallabel{XXX}
+\infrule[S-Refl]
+  {\wj{\Gamma}{\tt T}}
+  {\Gamma\vdash {\tt T}\subtype {\tt T}}
+\end{minipage}%
+\begin{minipage}{.333\textwidth}
+\quad\typicallabel{XXX}
+\infrule[S-Trans]
+	{\Gamma\vdash {\tt T}\subtype {\tt U}, {\tt U}\subtype {\tt V}}
+	{\Gamma\vdash {\tt T}\subtype {\tt V}}
+\end{minipage}%
+\begin{minipage}{.333\textwidth}
+\quad\typicallabel{XXX}
+\infrule[S-Const-L]
+	{\Gamma,{\tt c}\vdash{\tt T}\subtype {\tt U}}
+	{\Gamma\vdash {\tt T}\{{\tt c}\}\subtype {\tt U}}
+\end{minipage}%
+
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXX}
 \infrule[S-Class]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}}
   {\Gamma\vdash {\tt C}\subtype {\tt D}}
 
-\infrule[S-Refl]
-  {\wj{\Gamma}{\tt T}}
-  {\Gamma\vdash {\tt T}\subtype {\tt T}}
-
-\infrule[S-Trans]
-	{\Gamma\vdash {\tt T}\subtype {\tt U}, {\tt U}\subtype {\tt V}}
-	{\Gamma\vdash {\tt T}\subtype {\tt V}}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXX}
-\infrule[S-Const-L]
-	{\Gamma,{\tt c}\vdash{\tt T}\subtype {\tt U}}
-	{\Gamma\vdash {\tt T}\{{\tt c}\}\subtype {\tt U}}
-
 \infrule[S-Const-R]
 	{\wj{\Gamma}{{\tt U}\{{\tt c}\}}\andalso\Gamma,\self:{\tt T}\vdash {\tt c},{\tt T}\subtype {\tt U} }
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
-
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXX}
 \infrule[S-Exists-L]
   {\wj{\Gamma}{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt U}\subtype {\tt V} \andalso {\tt x}~\rm fresh}
   {\Gamma\vdash\exists {\tt x}:{\tt T}.~{\tt U}\subtype {\tt V}}
@@ -462,7 +469,11 @@ for some values $\bar{\tt y}$ of the given types.
          \andalso
          \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:\type}
 	{\wj{\Gamma}{{\tt p}.{\tt f}}}
-	\end{minipage}%
+
+\infrule[E-Relf]
+	{\Gamma\vdash {\tt T}:\type}
+	{\Gamma\vdash {\tt T}\subtype {\tt T}}
+\end{minipage}%
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXX}
 \infax[W-Var]
@@ -473,7 +484,7 @@ for some values $\bar{\tt y}$ of the given types.
   {\Gamma\vdash{\tt C}\{{\tt c}\}:\type\{\self=={\tt C}\{{\tt c}\}\}}
 
 \infrule[L-Extends]
-	{\Gamma\vdash {\tt T}\subtype{\tt U}
+	{\Gamma\vdash {\tt T}\extends{\tt U}
          \andalso
          \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\underline\has~{\tt I}}
 	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
@@ -481,6 +492,10 @@ for some values $\bar{\tt y}$ of the given types.
 \infrule[S-Extends]
 	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
 	{\Gamma\vdash {\tt T}\subtype {\tt U}}
+	
+\infrule[E-Trans]
+	{\Gamma\vdash {\tt T}\extends {\tt U}, {\tt U}\extends {\tt V}}
+	{\Gamma\vdash {\tt T}\extends {\tt V}}	
 \end{minipage}
 \caption{\FXG}
 \label{fig:FXG}
@@ -514,7 +529,7 @@ Third, we authorize users to write constraints (except for existential constrain
 For instance, if $\mathcal{A}$ defines the type {\tt int}, the constant {\tt 0} and the successor function {\tt s}, we can declare:
 
 \begin{xten}
-class Count(n:int) {
+class Count(n:int) extends Object {
   def inc():Count{self.n==s(this.n)} =
   	new Count(s(this.n));
 }
@@ -543,7 +558,7 @@ types {\tt x} as well as \emph{path types} (cf. \cite{scala}), that is use type-
 used as types. This does indeed make sense, but developing
 this theory further is beyond the scope of this paper.}.
 
-Reciprocally, we permit class types ${\tt C}\{{\tt c}\}$ to be used as expressions. We type them accordingly ({\sc T-Type}). In contrast, the ``type'' \type{} is neither a valid expression nor a class type: it has no field, method, subclass, or superclass. It may however be constrained as usual as for instance in rule ({\sc T-Type}), that is to say we permit equality constraints among types.
+Reciprocally, we permit class types ${\tt C}\{{\tt c}\}$ to be used as expressions. We type them accordingly ({\sc T-Type}). In contrast, the ``type'' \type{} is neither a valid expression nor a class type: it has no field, method, subclass, or superclass. It may however be constrained as usual as for instance in rule ({\sc T-Type}), that is to say we permit equality constraints over types.
 
 The key idea is that information about type-valued expressions can
 be accumulated through constraints. Specifically we introduce 
