@@ -12,10 +12,9 @@ import x10.util.Collection;
  * @author bdlucas 8/2008
  */
 
-public class ClosureExample3 extends ClosureTest {
-
+public class ClosureExample3 extends x10Test {
+    var result: Boolean = true;
     def allPositive(c: Collection): Boolean {
-        shared var result: Boolean = true;
         c.applyToAll((x: Int) => { if (x < result) atomic {result=false;}});
         return result;
     }
