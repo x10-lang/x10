@@ -420,11 +420,11 @@ but shoud be in OK-Class.}
     \this:{\tt C},\tbar{x}:\tbar{U}\vdash\tbar{U}~\type,{\tt d}~\constraint
     \andalso
     \this:{\tt C},\tbar{x}:\tbar{U},{\tt d}\vdash {\tt e}:{\tt W},{\tt W}\subtype {\tt V}}
-  {{\tt def}~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}~{\rm OK~in}~{\tt C}}
+  {\vdash {\tt def}~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}~{\rm OK~in}~{\tt C}}
 
 \infrule[OK-Class]
   {\this:{\tt C},\tbar{f}:\tbar{T}\vdash\tbar{T}~\type,{\tt c}~\constraint \andalso \wj{}{\tt D} \andalso \tbar{M}~{\rm OK~in}~{\tt C}}
-  {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
+  {\vdash {\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
 \end{minipage}
 \caption{\FX{} typing rules}\label{fig:FX}
 \end{figure*}
