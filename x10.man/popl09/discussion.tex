@@ -252,7 +252,7 @@ Restrictions:
 \label{sec:structural}
 \label{sec:structural-typing}
 
-Type constraints need not be limited to subtyping constraints.
+Constraints on types need not be limited to subtyping.
 By introducing structural constraints on types, one can
 instantiate
 type properties on any type with a given set
@@ -261,19 +261,19 @@ A structural constraint is satisfied if the type has a member of
 the appropriate name and with a compatible type.
 This feature is useful for reusing code
 from separate libraries; it does not require
-code of one library to implement an interface to satisfy a
-constraint of the other library.
+code of one library to implement a named interface of the other
+library to interoperate.
 
-We consider an extension of the \Xten{} type system
+Here, we consider an extension, not yet implemented, of the \Xten{} type system
 that supports structural type constraints.
 Formally, the extension
 is straightforward; indeed the \FX{} family already supports structural
 constraints
-via the rules for ``\Xcd{x} \Xcd{has} \Xcd{I}'' in
+via the rules for ``{\tt x \underline{has} I}'' in
 Figure~\ref{fig:lookup}.
-Note that this extension is not yet implemented.
 
 Structural constraints on types are found in many languages.
+For instance,
 Haskell supports type
 classes~\cite{haskell,haskell-type-classes}.
 %
@@ -281,11 +281,12 @@ classes~\cite{haskell,haskell-type-classes}.
 %structural signatures~\cite{ml}.
 In Modula-3, type equivalence is structural
 rather than nominal as in object-oriented languages of the C
-family such as C++, Java, Scala, and \Xten{}.
+family (e.g., C++, Java, and \Xten{}).
 Unity~\cite{malayeriIntegrating08}
 is another language with structural subtyping.
-%
-The language PolyJ~\cite{java-popl97} allows type parameters to be
+
+Using structural constraints in \Xten was inspired by 
+the language PolyJ~\cite{java-popl97}, which allows type parameters to be
 bounded using
 structural \emph{where clauses}~\cite{where-clauses}.
 For example, a sorted list class % from Figure~\ref{fig:sorted}
@@ -528,6 +529,7 @@ Another approach is to restrict the language
 to rule out casts to type parameters 
 and to generic types with subtyping constraints.
 
+\eat{
 \todo{cut the rest of the section}
 
 To introduce the third solution,
@@ -583,4 +585,4 @@ Similarly, \Xcd{x instanceof List\{X==Number\}} will return true
 even if \xcd"x" is instantiated as \Xcd{List\{X==Integer\}} if the type is
 immutable.  But check if \xcd"List" takes \xcd"X" as a param even it if
 doesn't mutate an \xcd"X".
-
+}
