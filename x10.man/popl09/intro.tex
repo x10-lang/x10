@@ -18,9 +18,10 @@ designed to address the challenge of developing
 high-performance applications for such machines, building on the
 productivity gains of modern object-oriented languages.
 
-The design of \Xten{} requires the development of a rich type system
-to enable code reuse, permit a large variety of errors to be caught at
-compile-time, and to generate efficient code.  A central
+\Xten{} requires a rich type system
+to enable code reuse, rule out a large variety of errors at
+compile-time, and to generate efficient code.
+A central
 data structure in \Xten{} is the dense, distributed, multi-dimensional
 array.  Arrays are defined over a set of indices known as \emph{regions},
 and support arbitrary base types and accesses through {\em
@@ -262,8 +263,8 @@ constraint systems. \FXZ{} is
 user-specifiable constraint permitted is the vacuous \Xcd{true}. \FXZ{}
 corresponds to \FJ. \FXG{} permits user-specifiable subtyping
 and type equality constraints; it corresponds to
-\FGJ{} (being somewhat richer in permitting path types and
-structural constraints \todo{really?}). \FXD{} permits
+\FGJ{} (being somewhat richer in permitting path types). \FXD{} permits
+%and structural constraints \todo{really?}
 the use of constraints from some constraint system $\cal A$ over
 values; it
 corresponds to a language with a pure value-dependent type system as
