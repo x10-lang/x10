@@ -27,8 +27,9 @@ The language has a sequential core similar to Java or Scala, but
 also
 constructs for concurrency and distribution, as well as constrained
 types, described here.  Like Java, the language provides single class
-inheritance and multiple interface inheritance.\footnote{We plan
-to support traits in a future version of the language.}
+inheritance and multiple interface inheritance.
+%\footnote{We plan
+%to support traits in a future version of the language.}
 
 A constrained type in \Xten{} is written \xcd"C{c}", where \xcd"C" is the
 name of a class and \xcd"c" is a constraint on the properties
@@ -76,10 +77,8 @@ with type properties
 \xcdmath"X$_1$",
 \dots,
 \xcdmath"X$_k$",
-we permit the positional syntax
-\xcdmath"C[T$_1$,$\dots$,T$_k$]"
-as a shortened form of
-\xcdmath"C{X$_1$==T$_1$,$\dots$,X$_k$==T$_k$}".
+we permit the positional syntax \xcdmath"C[T$_1$,$\dots$,T$_k$]"
+to mean \xcdmath"C{X$_1$==T$_1$,$\dots$,X$_k$==T$_k$}".
 
 Like in Scala, fields are declared using the keywords \xcd"var"
 or \xcd"val".  The \xcd"List" class has a mutable \xcd"head"
