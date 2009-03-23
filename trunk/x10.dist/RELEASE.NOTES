@@ -6,8 +6,11 @@ This release includes both the C++ and Java code generation backends.
 
 The C++ backend is now in the publicly-visible SourceForge SVN repository.
 
-This release makes the following language change since 1.7.2:
+This release makes the following language changes since 1.7.2:
 - "to" is no longer used for casts, use "as"
+- System.out, System.err, and System.in have been deprecated in favor
+  of x10.io.Console.OUT, x10.io.Console.ERR, and x10.io.Console.IN,
+  respectively.
 - X10 now supports "at" statements
 
 The following features described in the 1.7 language manual do not
