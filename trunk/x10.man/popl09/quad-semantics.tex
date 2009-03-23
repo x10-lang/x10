@@ -154,6 +154,14 @@ In the fourth rule we assume that alpha-equivalence is used to
 choose a variable {\tt z} that does not
 occur in the context under construction.
 
+We say that a context $\Gamma$ is {\em consistent} if all (finite)
+subsets of $\{\sigma(\phi)\alt \Gamma \vdash \phi\}$ are consistent.
+In all type judgments presented below ({\sc T-Cast}, {\sc T-Field}
+etc) we make the implicit assumption that the context $\Gamma$ is
+consistent; if it is inconsistent, the rule cannot be used and the
+type of the given expression cannot be established (type-checking
+fails).
+
 In order to capture the object-oriented structure of the program {\tt P}, we add:
 \infrule[Sel]
   {\vdash\fields({\tt C})=\tbar{f}:\tbar{T}
@@ -161,10 +169,14 @@ In order to capture the object-oriented structure of the program {\tt P}, we add
   	\Gamma\vdash\new~{\tt C}(\tbar{t}):{\tt U}}}
   {\Gamma\vdash\new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i}
 
-The following rule governs the introduction of existential constraints:
-\infrule[Exists]
-  {\Gamma\vdash {\tt e}:{\tt T} \andalso \Gamma, {\tt x}:{\tt T}\vdash{\tt c}}
+The following rules govern existential constraints:
+\infrule[Exists-R]
+  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash{\tt c}[{\tt t}/{\tt x}]}
   {\Gamma\vdash \exists {\tt x}:{\tt T}.~{\tt c}}
+
+\infrule[Exists-L]
+  {\Gamma,{\tt x}:{\tt T},{\tt c}\vdash {\tt d} \andalso {\tt x}~\rm fresh}
+  {\Gamma,\exists {\tt x}:{\tt T}.~{\tt c}\vdash {\tt d}}
 
 \paragraph{Typing rules.} The typing rules are specified in Figure~\ref{fig:FX}.
 
@@ -423,11 +435,11 @@ for some values $\bar{\tt y}$ of the given types.
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-L]
-  {\Gamma\vdash {\tt T}\subtype {\tt U} \andalso \wj{\Gamma}{\tt V} \andalso {\tt x}~\rm fresh}
-  {\Gamma\vdash\exists {\tt x}:{\tt V}.~{\tt T}\subtype {\tt U}}
+  {\wj{\Gamma}{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt U}\subtype {\tt V} \andalso {\tt x}~\rm fresh}
+  {\Gamma\vdash\exists {\tt x}:{\tt T}.~{\tt U}\subtype {\tt V}}
 
 \infrule[S-Exists-R]
-  {\Gamma\vdash {\tt e}:{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt U}\subtype {\tt V}}
+  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash {\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
   {\Gamma\vdash {\tt U}\subtype\exists {\tt x}:{\tt T}.~{\tt V}}
 \end{minipage}        
 \caption{\FX{} subtyping rules}\label{fig:subtyping}
