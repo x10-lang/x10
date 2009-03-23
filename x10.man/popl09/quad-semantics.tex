@@ -1,3 +1,6 @@
+%\setlength{\afterruleskip}{\smallskipamount}
+%\setlength{\afterruleskip}{\medskipamount}
+
 \newcommand{\constraint}{{\tt constraint}}
 \newcommand\cj[2]{{#1} \vdash {#2}~\constraint}
 \newcommand\cjj[3]{{#1} \vdash {#2}~\constraint, {#3}~\constraint}
@@ -270,7 +273,8 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 
 
 \begin{figure*}
-\begin{minipage}{.5\textwidth}
+\vspace{-\bigskipamount}
+\begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[\RField]
 	{\fields({\tt C})=\tbar{f}:\tbar{T}}
@@ -289,7 +293,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 	{{\tt e}~\as~{\tt T}\derives {\tt e}'~\as~{\tt T}}
 
 \end{minipage}%
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[\RInvk]
 	{{\tt C}~\has~{\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}}
@@ -313,6 +317,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 
 
 \begin{figure*}
+\vspace{-\bigskipamount}
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[W-Object]
@@ -337,6 +342,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \end{figure*}
 
 \begin{figure*}
+\vspace{-\bigskipamount}
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[L-Fields-Object]
@@ -391,12 +397,14 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \end{figure*}
 
 \begin{figure*}
-\begin{minipage}{\textwidth}
+\begin{minipage}[t]{.2\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[X-Proj]
   {\sigma(\Gamma)\vdashX{\tt c}}
   {\Gamma\vdash {\tt c}}
-
+\end{minipage}
+\begin{minipage}[t]{.8\textwidth}
+\quad\typicallabel{XXXXXX}
 \infrule[X-Sel]
   {\vdash\fields({\tt C})=\tbar{f}:\tbar{T}
   	\andalso
@@ -416,15 +424,19 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \end{figure*}
 
 \begin{figure*}
-\begin{minipage}{\textwidth}
+\begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[T-Var]
   {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}:{\tt T}\{\self=={\tt x}\}}
-
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\quad{}\typicallabel{XXXXXX}
 \infrule[T-Cast]
 	{\Gamma\vdash {\tt e}:{\tt U}\andalso\wj{\Gamma}{\tt T}}
 	{\Gamma\vdash {\tt e}~\as~{\tt T}:{\tt T}}
-
+\end{minipage}
+\begin{minipage}{\textwidth}
+\quad{}\typicallabel{XXXXXX}
 \infrule[T-Field]
 	{\Gamma\vdash {\tt e}:{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:{\tt U} \andalso {\tt x}~\rm fresh}
 	{\Gamma\vdash {\tt e}.{\tt f}:\exists {\tt x}:{\tt T}.~{\tt U}\{\self=={\tt x}.{\tt f}\}}
@@ -505,39 +517,33 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 
 
 \begin{figure*}
-\begin{minipage}[b]{.5\textwidth}
-\centering
-\begin{tabular}{r@{\quad}rcl}
-  (Expression)& {\tt e} &{::=}& ${\tt C}\{{\tt c}\}$ \\
-  (Path)& {\tt p} &{::=}& ${\tt x}$ \alt {\tt p}.{\tt f} \\
-  (Type)& {\tt T} &{::=}& ${\tt p}$ \alt \type \\
-  (Constraint term)& {\tt t} &{::=}& ${\tt T}$ \\
-  (Constraint) & {\tt c} &{::=}& ${\tt T}\extends {\tt T}$
-\end{tabular}
+\vspace{-\bigskipamount}
+\begin{minipage}{.5\textwidth}
+\quad
 \typicallabel{XXX}
-\infrule[L-Extends]
-	{\Gamma\vdash {\tt T}\extends{\tt U}
-         \andalso
-         \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\underline\has~{\tt I}}
-	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
-
-\infrule[S-Extends]
-	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
-	{\Gamma\vdash {\tt T}\subtype {\tt U}}
-\end{minipage}%
-\begin{minipage}[b]{.5\textwidth}
-\quad\typicallabel{XXX}
 \infax[W-Type]
 	{\wj{}{\type}}
-
-\infax[W-Var]
-	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
 
 \infrule[W-Path]
 	{\Gamma\vdash {\tt p}:{\tt T}
          \andalso
          \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:\type}
 	{\wj{\Gamma}{{\tt p}.{\tt f}}}
+
+\infrule[L-Extends]
+	{\Gamma\vdash {\tt T}\extends{\tt U}
+         \andalso
+         \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\underline\has~{\tt I}}
+	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXX}
+\infax[W-Var]
+	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
+
+\infrule[S-Extends]
+	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
+	{\Gamma\vdash {\tt T}\subtype {\tt U}}
 
 \infrule[T-Type]
         {\wj{\Gamma}{\tt C\{{\tt c}\}}}
@@ -591,7 +597,19 @@ systems for Presburger arithmetic and for set constraints over
 
 \subsection{\FXG}
 We now turn to showing how \FGJ{}-style generics can be supported in the \FX{} family.
-\FXG{} is the language obtained by adding to \FXZ{} the productions and deduction rules of Figure~\ref{fig:FXG}.
+\FXG{} is the language obtained by adding to \FXZ{} the
+following productions:
+\begin{center}
+\begin{tabular}{r@{\quad}rcl}
+  (Expression)& {\tt e} &{::=}& ${\tt C}\{{\tt c}\}$ \\
+  (Path)& {\tt p} &{::=}& ${\tt x}$ \alt {\tt p}.{\tt f} \\
+  (Type)& {\tt T} &{::=}& ${\tt p}$ \alt \type \\
+  (Constraint term)& {\tt t} &{::=}& ${\tt T}$ \\
+  (Constraint) & {\tt c} &{::=}& ${\tt T}\extends {\tt T}$
+\end{tabular}
+\end{center}
+\noindent
+and deduction rules of Figure~\ref{fig:FXG}.
 
 First we introduce the ``type'' \type. \FGJ{} method type
 parameters are modeled in \FXG{} as normal parameters of type
