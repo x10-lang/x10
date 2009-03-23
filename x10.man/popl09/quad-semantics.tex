@@ -328,20 +328,11 @@ but shoud be in OK-Class.}
 \begin{figure*}
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[L-Member-C,E]
-  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
-  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\underline\has~{\tt I} \\
-   \Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
-
 \infax[L-Fields-Object]
   {\vdash\fields({\tt Object})=\bullet}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[L-Member-B]
-  {{\tt C}~\has~{\tt I}}
-  {{\tt x}:{\tt C}\vdash {\tt x}~\underline\has~{\tt I}[{\tt x}/\this]}
-
 \infrule[L-Fields-B]
   {\vdash\fields({\tt C})=\tbar{f}:\tbar{T}}
   {{\tt C}~\has~{\tt f}_i:{\tt T}_i}
@@ -369,6 +360,20 @@ but shoud be in OK-Class.}
    \andalso
    {\tt m}\not\in\tbar{M}}
   {\vdash {\tt C}~\has~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}}
+\end{minipage}
+
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Member-C,E]
+  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
+  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\underline\has~{\tt I} \\
+   \Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Member-B]
+  {{\tt C}~\has~{\tt I}}
+  {{\tt x}:{\tt C}\vdash {\tt x}~\underline\has~{\tt I}[{\tt x}/\this]}
 \end{minipage}
 \caption{\FX{} member lookup}
 \label{fig:lookup}
@@ -483,24 +488,21 @@ but shoud be in OK-Class.}
 \infax[W-Type]
 	{\wj{}{\type}}
 
+\infax[W-Var]
+	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
+
 \infrule[W-Path]
 	{\Gamma\vdash {\tt p}:{\tt T}
          \andalso
          \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:\type}
 	{\wj{\Gamma}{{\tt p}.{\tt f}}}
 
-\infrule[E-Refl]
-	{\Gamma\vdash {\tt T}:\type}
-	{\Gamma\vdash {\tt T}\extends{\tt T}}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXX}
-\infax[W-Var]
-	{\wj{\Gamma,{\tt x}:\type}{\tt x}}
-
 \infrule[T-Type]
         {\wj{\Gamma}{\tt C\{{\tt c}\}}}
   {\Gamma\vdash{\tt C}\{{\tt c}\}:\type\{\self=={\tt C}\{{\tt c}\}\}}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXX}
 
 \infrule[L-Extends]
 	{\Gamma\vdash {\tt T}\extends{\tt U}
@@ -511,6 +513,10 @@ but shoud be in OK-Class.}
 \infrule[S-Extends]
 	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
 	{\Gamma\vdash {\tt T}\subtype {\tt U}}
+
+\infrule[E-Refl]
+	{\Gamma\vdash {\tt T}:\type}
+	{\Gamma\vdash {\tt T}\extends{\tt T}}
 	
 \infrule[E-Trans]
 	{\Gamma\vdash {\tt T}\extends {\tt U}, {\tt U}\extends {\tt V}}
