@@ -162,25 +162,25 @@ available on classes.  For now,
 ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
 
 \paragraph{3. Constraints.}
-In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. For simplicity, we define $\Gamma \vdash {\tt c}$ to mean
-$\sigma(\Gamma)\vdashX {\tt c}$, where the {\em constraint
-projection}, $\sigma(\Gamma)$ is defined as follows. 
+In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. We define the {\em constraint
+projection}, $\sigma(\Gamma)$ as follows.
 %
 \begin{center}
 \begin{tabular}{l}
 $\sigma(\epsilon)={\tt true}$\\
-$\sigma({\tt x}:{\tt C}, \Gamma)={\tt c}[{\tt x}/\this],\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt C}, \Gamma)=\sigma(\Gamma)$\\
 $\sigma({\tt x}:{\tt T\{c\}}, \Gamma)={\tt c}[{\tt x}/\self], \sigma({\tt x}:{\tt T},\Gamma)$\\
 $\sigma({\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}, \Gamma)=\sigma({\tt z:T}, {\tt x}:{\tt U[{\tt z}/{\tt y}]},\Gamma)$\\
 $\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$
 \end{tabular}
 \end{center}
 %
-Above, in the second rule, ${\tt c}$ is the class invariant for {\tt C}.
-In the fourth rule we assume that alpha-equivalence is used to
+Above, in the fourth rule, 
+we assume that alpha-equivalence is used to
 choose a variable {\tt z} that does not
 occur in the context under construction.
 
+We define $\Gamma\vdash {\tt c}$ in Figure~\ref{fig:object}. {\sc X-Sel} permits the underlying constraint system $\mathcal{X}$ to interpret field accesses. {\sc X-Inv} handles class invariants. Note the use of subtyping here to prepare for the introduction of bounds on generics types later.
 
 We say that a context $\Gamma$ is {\em consistent} if all (finite)
 subsets of $\{{\tt c}\alt \sigma(\Gamma) \vdash {\tt c}\}$ are consistent.
@@ -189,8 +189,6 @@ etc.), we make the implicit assumption that the context $\Gamma$ is
 consistent; if it is inconsistent, the rule cannot be used and the
 type of the given expression cannot be established (type-checking
 fails).
-
-To capture the object-oriented structure of {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
 
 \eat{
 The following rules govern existential constraints:
@@ -388,22 +386,41 @@ for some values $\bar{\tt y}$ of the given types.
 \label{fig:lookup}
 \end{figure*}
 
+\begin{figure*}
+\begin{minipage}{\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[X-Proj]
+  {\sigma(\Gamma)\vdashX{\tt c}}
+  {\Gamma\vdash {\tt c}}
+
+\infrule[X-Sel]
+  {\vdash\fields({\tt C})=\tbar{f}:\tbar{T}
+  	\andalso
+  	\Gamma\vdash\new~{\tt C}(\tbar{t}):{\tt U}
+  	\andalso
+  	\Gamma, \new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i\vdash {\tt c}}
+  {\Gamma\vdash {\tt c}}
+
+\infrule[X-Inv]
+  {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
+   \andalso
+   \Gamma\vdash {\tt t}:{\tt U},{\tt U}\subtype{\tt C}\andalso \Gamma,{\tt c}[{\tt t}/\this]\vdash {\tt d}}
+  {\Gamma\vdash {\tt d}}
+\end{minipage}%
+\caption{\FX{} object constraint system}
+\label{fig:object}
+\end{figure*}
 
 \begin{figure*}
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[T-Var]
   {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}:{\tt T}\{\self=={\tt x}\}}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXX}
+
 \infrule[T-Cast]
 	{\Gamma\vdash {\tt e}:{\tt U}\andalso\wj{\Gamma}{\tt T}}
 	{\Gamma\vdash {\tt e}~\as~{\tt T}:{\tt T}}
-\end{minipage}%
-	
-\begin{minipage}{\textwidth}
-\quad\typicallabel{XXXXX}
+
 \infrule[T-Field]
 	{\Gamma\vdash {\tt e}:{\tt T} \andalso \Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt f}:{\tt U} \andalso {\tt x}~\rm fresh}
 	{\Gamma\vdash {\tt e}.{\tt f}:\exists {\tt x}:{\tt T}.~{\tt U}\{\self=={\tt x}.{\tt f}\}}
@@ -494,6 +511,18 @@ for some values $\bar{\tt y}$ of the given types.
   (Constraint) & {\tt c} &{::=}& ${\tt T}\extends {\tt T}$
 \end{tabular}
 \typicallabel{XXX}
+\infrule[L-Extends]
+	{\Gamma\vdash {\tt T}\extends{\tt U}
+         \andalso
+         \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\underline\has~{\tt I}}
+	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
+
+\infrule[S-Extends]
+	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
+	{\Gamma\vdash {\tt T}\subtype {\tt U}}
+\end{minipage}%
+\begin{minipage}[b]{.5\textwidth}
+\quad\typicallabel{XXX}
 \infax[W-Type]
 	{\wj{}{\type}}
 
@@ -509,27 +538,6 @@ for some values $\bar{\tt y}$ of the given types.
 \infrule[T-Type]
         {\wj{\Gamma}{\tt C\{{\tt c}\}}}
   {\Gamma\vdash{\tt C}\{{\tt c}\}:\type\{\self=={\tt C}\{{\tt c}\}\}}
-\end{minipage}%
-\begin{minipage}[b]{.5\textwidth}
-\quad\typicallabel{XXX}
-
-\infrule[L-Extends]
-	{\Gamma\vdash {\tt T}\extends{\tt U}
-         \andalso
-         \Gamma,{\tt x}:{\tt U}\vdash {\tt x}~\underline\has~{\tt I}}
-	{\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
-
-\infrule[S-Extends]
-	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
-	{\Gamma\vdash {\tt T}\subtype {\tt U}}
-
-\infrule[E-Refl]
-	{\Gamma\vdash {\tt T}:\type}
-	{\Gamma\vdash {\tt T}\extends{\tt T}}
-	
-\infrule[E-Trans]
-	{\Gamma\vdash {\tt T}\extends {\tt U}, {\tt U}\extends {\tt V}}
-	{\Gamma\vdash {\tt T}\extends {\tt V}}	
 \end{minipage}
 \caption{\FXG}
 \label{fig:FXG}
@@ -598,8 +606,16 @@ requiring ``wildcards''.
 The set of well-formed types is now enhanced to permit some fixed but unknown
 types {\tt x} as well as \emph{path types} (cf. \cite{scala}), that is use type-valued fields of objects as types.\footnote{But we will not permit invocations of methods with return type \type\ to be 
 used as types. This does indeed make sense, but developing
-this theory further is beyond the scope of this paper.}.
-
+this theory further is beyond the scope of this paper.} We extend $\sigma$ in the obvious way:
+%
+\begin{center}
+\begin{tabular}{l}
+$	\sigma({\tt x}:\type, \Gamma)=\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt y}, \Gamma)=\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt p}.{\tt f}, \Gamma)=\sigma(\Gamma)$
+\end{tabular}
+\end{center}
+%
 Reciprocally, we permit class types ${\tt C}\{{\tt c}\}$ to be used as expressions. We type them accordingly ({\sc T-Type}). In contrast, the ``type'' \type{} is neither a valid expression nor a class type: it has no field, method, subclass, or superclass. It may however be constrained as usual as for instance in rule ({\sc T-Type}), that is to say we permit equality constraints over types.
 
 The key idea is that information about type-valued expressions can
@@ -608,7 +624,7 @@ the constraint ${\tt T}\extends{\tt U}$. It may be used, for
 instance, to specify upper bounds on type variables or fields (path
 types).\eat{\footnote{To support structural typing, we permit the
 programmer to use {\tt x\ \has\ I} constraints, see
-Section~\ref{sec:structural-typing}.}}
+Section~\ref{sec:structural-typing}.}} We require the underlying constraint system $\mathcal{G}$ to treat $\extends$ as a partial order relation (reflexive, antisymmetric, and transitive).
 
 As in the previous section, the final step of the construction consists in deciding which constraints are user constraints. In \FXG{}, users are permitted to specify equality and inequality constraints about type variables, fields, and class types.
 
@@ -709,3 +725,20 @@ ${\tt e'}$ contains  a stuck cast sub-expression.
 \caption{\FX{} judgments}
 \end{figure*}
 }
+
+
+
+
+\paragraph{Proof sketch (Subject Reduction).} We proceed by induction on the last rule used in the proof of ${\tt e} \derives {\tt e'}$. The key case is {\sc R-Invk}. Because of rule 
+
+
+\begin{itemize}
+\item {\sc RC-Field}. If $\Gamma\vdash S<:T$ then the fields of $T$ are the first fields of $S$.
+\item {\sc RC-Invk-Recv}. If $\Gamma\vdash S<:T$ and $\Gamma,x:T\vdash x~\underline\has~m(y:U)\{c\}:V=a$ then there exists $d$ and $W$ such that $\Gamma,x:S\vdash x~\underline\has~m(y:U)\{d\}:W=b$ and $d$ entails $c$ and $W<:V$.
+\item {\sc RC-Cast}. Straightforward.
+\item {\sc RC-New-Arg}. If $\Gamma\vdash S<:T$ then $\exists x:T.U<:\exists x:S.U$.
+\item {\sc RC-Invk-Arg}. Same.
+\item {\sc R-Invk}. If $\Gamma,x:C\vdash x~\has~m(y:U)\{c\}:V=a$ then for all $d$ and $W$ such that $\Gamma,x:C\vdash x~\underline\has~m(y:U)\{d\}:W=b$ it is the case that $c$ entails $d$ and $V<:W$.
+\item {\sc R-Field}. We have $\Gamma\vdash t:V$ for some $V$, $\Gamma\vdash \new~C(t).f_i:W_i\{\exists x:(\exists y:V.C\{\self==\new~C(y)\}).\self==x.f_i\}$ where $\Gamma\vdash C~\has~f_i:W_i$. We prove $\Gamma\vdash V_i<:W_i\{\exists x:(\exists y:V.C\{\self==\new~C(y)\}).\self==x.f_i\}$.
+\item {\sc R-Cast}. Straightforward.
+\end{itemize}
