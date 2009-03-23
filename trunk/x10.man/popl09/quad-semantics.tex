@@ -488,28 +488,19 @@ for some values $\bar{\tt y}$ of the given types.
 
 \subsection{\FXD}
 
-Turning \FXZ{} into a language with value-dependent types is easy since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$.
-We assume given a constraint system $\cal A$, with a vocabulary of primitive types ${\tt A}$,
-predicates ${\tt p}:({\tt A})$ and functions ${\tt f}:({\tt A})=>{\tt A}$. 0-ary functions denote constants.
+Turning \FXZ{} into a language with value-dependent types is straightforward since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is built in the typing rules already.
 
-We extend the productions of \FXZ{} as follows.
+First, we assume given a constraint system $\cal A$, with a vocabulary of predicates ${\tt p}$ and functions ${\tt f}$. 0-ary functions denote constants.
+
+Second, we extend the productions of \FXZ{} as follows.
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
-  (Type)& {\tt T} &{::=}& {\tt A} \\
-  (Expression) & {\tt e} &{::=}& ${\tt f}(\tbar{e})$ \\
   (Constraint term) & {\tt t} &{::=}& ${\tt f}(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
 \end{tabular}
 \end{center}
 
-The obvious rule is needed to type function calls.
-
-\infrule[T-Fun]
-	{{\tt f}:(\tbar{A})\Rightarrow{\tt B}\in \mathcal{A} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
-	{\Gamma\vdash{{\tt f}(\tbar{e})}:{\tt B}}
-
-Finally, we have to declare that all constraints except for existential constraints are user constraints, that is, are permitted in programs.
-
+Third, we authorize users to write constraints (expect for existential constraints) in programs.
 
 \subsection{\FXG}
 We now turn to showing how \FGJ{} style generics can be supported in the \FX{} family.
