@@ -628,23 +628,27 @@ class SortedList<T extends Comparator<T>> {
 \noindent can be represented as
 \begin{xtenmath} 
 class Comparator(B: type) {
-  def compare(y:B):int = ...;
-}
+  def compare(y:B):int = ...; }
 class SortedList(T: type)
     {T $\extends$ Comparator{self.B==T}} { 
-  def m(x:T, y:T):int = x.compare(y);
-}
+  def m(x:T, y:T):int = x.compare(y); }
 \end{xtenmath}
 \end{example}
 
-\paragraph{Type casts.}Consider the program:
+\paragraph{Type casts.} 
+Consider the program:
 \begin{xten}
 class C() extends Object {}
 class D(f:type, g:this.f) extends Object {}
 \end{xten}
 Class {\tt D} has a type parameter {\tt f} and a value field {\tt g} of type {\tt f}.
-Thanks to contraints, expression {\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}()) can be shown to have type {\tt C}.
-In contrast $({\tt e}~\as~{\tt D})$ has type $\exists {\tt x}:{\tt D}.{\tt x}.{\tt f}\{\self=={\tt x.g}\}$. The type of $({\tt e}~\as~{\tt D})$ is essentially ``unknown'' because the cast erased all information about it. In X10, we choose to shield users from existential types and permit casts of the form $({\tt e}~\as~{\tt D}\{\self.{\tt f}=={\tt t}\})$ where {\tt t} is a type in scope (class type, type parameter, or path type).
+Thanks to contraints, expression
+${\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}())$ can be shown to
+have type {\tt C}. \todo{HOW!? Shouldn't it have time D?}
+In contrast $({\tt e}~\as~{\tt D})$ has type
+$\exists {\tt x}:{\tt D}.{\tt x}.{\tt f}\{\self=={\tt x.g}\}$.
+The type of $({\tt e}~\as~{\tt D})$ is essentially ``unknown''
+because the cast erased all information about it. In \Xten, we choose to shield users from existential types and permit casts of the form $({\tt e}~\as~{\tt D}\{\self.{\tt f}=={\tt t}\})$ where {\tt t} is a type in scope (class type, type parameter, or path type).
 
 
 \subsection{\FXGD} 
