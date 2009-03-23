@@ -256,16 +256,16 @@ Type constraints need not be limited to subtyping constraints.
 By introducing structural constraints on types, one can
 instantiate
 type properties on any type with a given set
-of methods and fields.
+of methods or fields.
 A structural constraint is satisfied if the type has a member of
 the appropriate name and with a compatible type.
 This feature is useful for reusing code
-in separate libraries since it does not require
+from separate libraries; it does not require
 code of one library to implement an interface to satisfy a
-constraint of another library.
+constraint of the other library.
 
 We consider an extension of the \Xten{} type system
-to support structural type constraints.
+that supports structural type constraints.
 Formally, the extension
 is straightforward; indeed the \FX{} family already supports structural
 constraints
@@ -371,10 +371,14 @@ val windowsFiles
 \end{xten}}
 
 \noindent
+The syntax \xcd"String.compareTo.(String)" selects the
+\xcd"compareTo" method with a \xcd"String" argument from
+from \xcd"String".
+%
 The lists \xcd"unixFiles" and \xcd"windowsFiles" are constrained
 by different comparison functions.  This allows the programmer
 to write code, for instance, in which it is illegal to pass a list of UNIX
-files into a function that expects a list of Windows files, and
+file names into a function that expects a list of Windows file names, and
 vice versa.
 
 \subsubsection{Optional methods}
