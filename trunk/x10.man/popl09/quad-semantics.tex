@@ -116,7 +116,9 @@ $\phi_2$, we adopt the convention that the rule $\Gamma \vdash \phi_1, \phi_2$
 is shorthand for the rules
 $\Gamma \vdash \phi_1$
 and
-$\Gamma \vdash \phi_2$.
+$\Gamma \vdash \phi_2$. Whenever
+we state an assumption of the form ``{\tt x} is fresh'' in a rule we mean
+it is not free in the consequent of the rule.
 
 The judgments of interest are as follows:
 \begin{enumerate}
@@ -145,7 +147,7 @@ in more detail each of these judgments, in turn.
 
 \paragraph{1. Well-formedness.} A constraint {\tt c} is well-formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff its free variables are declared in $\Gamma$. The rules in Figure~\ref{fig:well} extend this requirement to types.
 
-We say a program, context, or judgment is well-formed iff all the constraints and types involved are well-formed. By design, every judgment derived from a well-formed context is also well-formed. As a consequence, if a program type checks, it is well-formed. 
+We say a program, context, or judgment is well-formed iff all the constraints and types involved are well-formed. By design, every judgment derived from a well-formed context is also well-formed. As a consequence, if a program type checks, it is well-formed.
 
 \paragraph{2. Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each class. We impose restrictions on inheritance as follows. Classes may only be extended by classes with stronger invariants. Fields cannot be overridden.
 A method may only be overridden by a method with the same name,
@@ -245,8 +247,10 @@ for some values $\bar{\tt y}$ of the given types.
 {\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well-formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
 
 
-\paragraph{5. Subtyping.} The subtyping rules in Figure~\ref{fig:subtyping} are straightforward.
-
+\paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
+Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
+{\sc S-Exists-L} and {\sc S-Exists-R} handle existential types.
+{\sc S-Const-L} and {\sc S-Const-R} handle constraints. We make sure all types are well formed.
 
 \begin{figure*}
 \centering
