@@ -139,16 +139,18 @@ in more detail each of these judgments, in turn.
 We say a program, context, or judgment is well-formed iff all the constraints and types involved are well-formed. By design, every judgment derived from a well-formed context is also well-formed. As a consequence, if a program type checks, it is well-formed. 
 
 \paragraph{2. Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each class. We impose restrictions on inheritance as follows. Classes may only be extended by classes with stronger invariants. Fields cannot be overridden.
-A method may only be overridden by a method with the same name, arity, parameter types, a weaker guard, and a return type that is a subtype of the overridden return type.
-\todo{NN: Is this formalized somewhere?  It's not in fig \ref{fig:lookup}.}
+A method may only be overridden by a method with the same name,
+arity, parameter types, a return type that is a subtype of the
+overridden return type, and a weaker guard (i.e., the superclass
+method guard must entail the subclass's).
+\footnote{\todo{To avoid cluttering the inference rules, we
+define overriding only informally; a formal definition is
+straightforward.}}
 
-To prepare for the introduction of generic types later,
-We distinguish members available on variables from members available on classes.
-For now, ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
-
-\todo{Does this para belong in the next paragraph?}
-To capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
-\todo{Is there a rule for this?}
+To prepare for the introduction of generic types later, we
+distinguish members that are available on variables from members
+available on classes.  For now,
+${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
 
 \paragraph{3. Constraints.}
 In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. For simplicity, we define $\Gamma \vdash {\tt c}$ to mean
@@ -180,6 +182,8 @@ etc.), we make the implicit assumption that the context $\Gamma$ is
 consistent; if it is inconsistent, the rule cannot be used and the
 type of the given expression cannot be established (type-checking
 fails).
+
+To capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
 
 \eat{
 The following rules govern existential constraints:
