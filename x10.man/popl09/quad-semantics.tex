@@ -139,8 +139,6 @@ We say a program, context, or judgment is well-formed iff all the constraints an
 A method may only be overridden by a method with the same name, arity, parameter types, a weaker guard, and a return type that is a subtype of the overridden return type.
 \todo{NN: Is this formalized somewhere?  It's not in fig \ref{fig:lookup}.}
 
-\todo{Fix names of rules to be more consistent.  Move fields rules to bottom of Fig.}
-
 To prepare for the introduction of generic types later,
 We distinguish members available on variables from members available on classes.
 For now, ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
@@ -333,7 +331,7 @@ but shoud be in OK-Class.}
 \end{minipage}%
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[L-Fields-B]
+\infrule[L-Field-B]
   {\vdash\fields({\tt C})=\tbar{f}:\tbar{T}}
   {{\tt C}~\has~{\tt f}_i:{\tt T}_i}
 
