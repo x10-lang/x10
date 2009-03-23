@@ -204,8 +204,8 @@ an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
 type to a freshly chosen variable {\tt z}.  If, in fact, {\tt e} has a
 static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
 equal to {\tt x}; that is, it has type {\tt T\{self==x\}}), then
-{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., {\tt z}
-equals {\tt x}.  \todo{ieeeeee}
+{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., that {\tt z}
+equals {\tt x}.
 Thus {\sc T-Var} provides an important base case for
 reasoning statically about equality of values in the environment.
 
