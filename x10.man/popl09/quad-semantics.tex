@@ -642,9 +642,10 @@ class C() extends Object {}
 class D(f:type, g:this.f) extends Object {}
 \end{xten}
 Class {\tt D} has a type parameter {\tt f} and a value field {\tt g} of type {\tt f}.
-Thanks to contraints, expression
-${\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}())$ can be shown to
-have type {\tt C}. \todo{HOW!? Shouldn't it have time D?}
+Thanks to contraints, if
+${\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}())$,
+then expression ${\tt e}.{\tt g}$ can be shown to
+have type {\tt C}.
 In contrast $({\tt e}~\as~{\tt D})$ has type
 $\exists {\tt x}:{\tt D}.{\tt x}.{\tt f}\{\self=={\tt x.g}\}$.
 The type of $({\tt e}~\as~{\tt D})$ is essentially ``unknown''
