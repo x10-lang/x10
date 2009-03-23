@@ -285,6 +285,8 @@ to the development of wildcards in
 Java~\cite{Java3,adding-wildcards,wildcards-safe}.  \Xten's
 support for use-site variance
 has similar expressive power.
+Section~\ref{sec:wildcards} describes a characterization of
+wildcards using generic constrained types.
 
 Consider the following subtypes  of \xcd"List" from
 Figure~\ref{fig:list}.
@@ -447,7 +449,7 @@ we encountered some usability problems.
 \ifwild
 The first
 \else
-The fundamental
+The basic
 \fi
 problem is that programmers are more familiar with
 \emph{type parameters} than with \emph{type properties}:
@@ -468,13 +470,14 @@ a legal type (if \xcd"e" is final)---and are inherited by subclasses.
 These features gives type properties more expressive power than
 parameters, but are unfamiliar to many programmers.
 
-Since type properties are inherited, the language design needs
+One compilcation is that,
+since type properties are inherited, the language design needs
 to account for ambiguities introduced when the same name is
-used for different type properties inherited into the same class.
+used for different type properties declared in or inherited into a class.
 These can be disambiguated
 by ``casting'' the target up to the desired supertype,
-e.g., \xcd"(e as C).X"
-to specify the property \xcd"X" inherited from \xcd"C".
+e.g., \xcd"(e as C).X" specifies
+the property \xcd"X" inherited from \xcd"C".
 
 As an example, in the following \Xten code, \xcd"HashMap" 
 inherits the properties \xcd"K" and \xcd"V" from \xcd"Map".
@@ -533,13 +536,17 @@ If the developer chooses wrongly, correcting the problem can
 cascade thoughtout the program.
 \fi
 
-To correct these problems, the revised \Xten design imposes
+To correct these problems, a
+revised \Xten design
+imposes
 restrictions on type properties so that they 
 behave similarly to type
 \ifwild
 parameters with definition-site variance.
 \else
-parameters.
+parameters.\footnote{We have implemented a further
+simplification of this new design, moving variance annotations
+to the definition site.}
 \fi
 
 \ifwild
@@ -585,4 +592,7 @@ positions (method argument types).
 With these
 modifications, explicit type constraints continue to be allowed
 in method and constructor guards and in class invariants.
-Unconstrained types (e.g., \xcd"C") are still legal types.
+\ifwild\else
+In this design, unconstrained types (e.g., \xcd"C") are still legal types.
+\fi
+
