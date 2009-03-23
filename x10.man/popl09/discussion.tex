@@ -91,7 +91,7 @@ As discussed in Section~\ref{sec:parameters-vs-fields},
 type properties are similar to type
 parameters.
 Constrained types can provide a characterization of
-wildcards in Java~\cite{Java3,adding-wildcards}.
+wildcards in Java~\cite{Java3,adding-wildcards,wildcards-safe}.
 Wildcards can be motivated
 by the following example from Torgersen et al.~\cite{adding-wildcards}:
 Consider a \xcd"Set" class and a variable \xcd"EMPTY" containing
@@ -485,9 +485,9 @@ However, with subtyping constraints (e.g., \xcdmath"S $\extends$ T"),
 the generated code must be able to test if the constraint on the
 subtype entails the constraint on the supertype.  Since one or
 both of the types involved in the constraint might be type
-variables, the entailment cannot be checked at run-time.
+variables, the entailment cannot be checked at compile time.
 
-One way to achieve this is to embed
+One way to implement run-time entailment checking is to embed
 the constraint solver into the runtime system.
 This is the solution used in the \Xten{} implementation; however, this
 solution can result in inefficient run-time casts
@@ -519,15 +519,17 @@ Since $a$ and $t$ may be in different environments, \xcd"e" must
 be substituted for \xcd"this" in $a$ and \xcd"self" in $t$.
 }
 
-Another approach is to modify the language
-\eat{ Finally, the language can be restricted }
-so that entailment
-checking can be implemented without a run-time constraint solver.
-As an example, observe that an instance of a generic class \xcd"C[X]"
+Another approach is to restrict the language 
+to rule out casts to type parameters 
+and to generic types with subtyping constraints.
+
+\todo{cut the rest of the section}
+
+To introduce the third solution,
+observe that an instance of a generic class \xcd"C[X]"
 can be tested for membership in the type \xcd"C{X==T}" by
 checking that all fields ${\tt f}_i$ of the instance with
-declared type ${\tt S}_i$ that constrains \xcd"X" (or is equal
-to \xcd"X") contain values
+declared type ${\tt S}_i$ contain values
 that are instances of ${\tt S}_i[{\tt T}/{\tt X}]$.
 For example, given the following declaration of class \xcd"List":
 {
@@ -542,7 +544,8 @@ class List[X] {
 one can test if the object \xcd"xs" is an instance of \xcd"List{X==String}"
 by checking that \xcd"xs.head" is an instance of \xcd"String"
 and that \xcd"xs.tail", recursively, is an instance of \xcd"List{X==String}".
-Importantly, this check is sound only if all such fields are
+For this check to be sound, it is vital that all fields whose
+type depends on \xcd"X" are
 transitively final;
 otherwise, the type membership test is not invariant---the
 result of the test could change as the data is mutated.
@@ -571,10 +574,8 @@ the solution remains sound.
 We leave to future work a proof of this claim.
 \todo{make this more precise}
 
-\todo{similarly \Xcd{List\{X==Number\}} will return true
-even if instantiated on \Xcd{List\{X==Integer\}} if the type is
+Similarly, \Xcd{x instanceof List\{X==Number\}} will return true
+even if \xcd"x" is instantiated as \Xcd{List\{X==Integer\}} if the type is
 immutable.  But check if \xcd"List" takes \xcd"X" as a param even it if
-doesn't mutate an \xcd"X"}
+doesn't mutate an \xcd"X".
 
-\todo{Also, rule out instanceof constrained type with subtype
-constraints.  But this breaks when doing instanceof X}

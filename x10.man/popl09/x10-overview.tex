@@ -1,13 +1,13 @@
 
 \newif\ifwild
-\wildtrue
+\wildfalse
 
 This section presents an informal description of 
 dependent and generic types in \Xten{}.  
-As implemented, \Xten simplifies the 
-semantics presented here, limiting expressiveness in favor of usability.
-After implementing the design presented here
-and using it to implement part of the \Xten runtime library,
+As implemented, \Xten simplifies these 
+semantics, limiting expressiveness in favor of usability.
+After
+using the design presented here to implement part of the \Xten runtime library,
 we found that the semantics are
 often difficult for the uninitiated to
 \ifwild
@@ -17,7 +17,7 @@ issues are well-known~\cite{wildcards-are-evil}.
 \else
 use.
 \fi
-We explore these usability problems in Section~\ref{sec:usability}.
+These usability problems are explored in Section~\ref{sec:usability}.
 The semantics that follow do not have the restrictions
 imposed by the \Xten compiler; instead, they represent the core
 of the \Xten type system.
@@ -69,6 +69,17 @@ value properties.
 \caption{List example, simplified}
 \label{fig:list0}
 \end{figure}
+
+For a class
+\xcd"C"
+with type properties
+\xcdmath"X$_1$",
+\dots,
+\xcdmath"X$_k$",
+we permit the positional syntax
+\xcdmath"C[T$_1$,$\dots$,T$_k$]"
+as a shortened form of
+\xcdmath"C{X$_1$==T$_1$,$\dots$,X$_k$==T$_k$}".
 
 Like in Scala, fields are declared using the keywords \xcd"var"
 or \xcd"val".  The \xcd"List" class has a mutable \xcd"head"
@@ -322,7 +333,7 @@ method is known to be a
 supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
 \end{itemize}
 
-In the shortened syntax for types (e.g., \xcd"List[T]"),
+In the positional syntax for types (e.g., \xcd"List[T]"),
 an actual type argument \xcd"T" may optionally
 be annotated
 with
@@ -427,19 +438,19 @@ constraint (i.e., \xcd"true") on
 \xcd"Printable.print".
 }
 
-\subsection{Usability}
+\subsection{Type properties vs. type parameters}
 \label{sec:usability}
 \label{sec:parameters-vs-fields}
 
-As previously mentioned, after using the \Xten design described above,
+As previously mentioned, after implementing the \Xten design above,
 we encountered some usability problems.
 \ifwild
 The first
 \else
 The fundamental
 \fi
-problem is that programmers are used to
-\emph{type parameters} rather than \emph{type properties}:
+problem is that programmers are more familiar with
+\emph{type parameters} than with \emph{type properties}:
 providing similar functionality with often subtle distinctions
 can be difficult for novices users of the language.
 \ifwild
@@ -486,14 +497,15 @@ class HashMap[K,V] extends Map[K,V] {
     def put(k: K, v: V): V = ...;
 }
 \end{xten}
-This introduces a new set of type properties named \xcd"K" and
+This introduces a new pair of type properties named \xcd"K" and
 \xcd"V" that shadow the inherited properties,
 and adds to the class invariant of \xcd"HashMap" the constraint
 \xcd"{(this as Map).K==K," \xcd"(this as Map).V==V}".
 A naive implementation of type properties would store run-time
-type information about all four properties in each instance
+type information for all four properties in each instance
 of \xcd"HashMap".
 
+\ifwild
 The second problem encountered was the difficulty with using use-site
 variance annotations.
 When writing a generic type in, say, a method signature, it is often not 
@@ -510,36 +522,46 @@ class C[X] {
 \end{xtenmath}
 \noindent
 But, it could just return
-\xcdmath"List{T $\extends$ X}" instead.
+\xcdmath"List{T$\extends$X}" instead.
 Which to use depends on whether the developer of \xcd"C"
 expects the list to be mutated or not: if \xcd"xs"
 is of type
-\xcdmath"List{T $\extends$ A}", then \xcd"xs.add" cannot be
+\xcdmath"List{T$\extends$A}", then \xcd"xs.add" cannot be
 invoked with a value of static type \xcd"A"---the compiler
 cannot demonstrate that \xcd"A" is a subtype of \xcd"xs.T".
 If the developer chooses wrongly, correcting the problem can
 cascade thoughtout the program.
+\fi
 
-To correct these problem, the revised \Xten design imposes
+To correct these problems, the revised \Xten design imposes
 restrictions on type properties so that they 
-behave similarly to type parameters with definition-site
-variance.
+behave similarly to type
+\ifwild
+parameters with definition-site variance.
+\else
+parameters.
+\fi
 
-First,
-we make the syntax \xcd"e.X"
+\ifwild
+First, we
+\else
+We
+\fi
+make the syntax \xcd"e.X"
 illegal and permit type properties to be accessible only from
 within the body of their class definition via the
-implicit \xcd"this" qualifier, and we require that type
+implicit \xcd"this" qualifier.  We require that type
 constraints be written using the shortened \xcd"C[T]"
 \ifwild
 syntax rather than as \xcd"C{X==T}".
 \else
 (or \xcd"C[+T]", etc.) syntax rather than as \xcd"C{X==T}" (\xcd"C{X<=T}").
 \fi
-The compiler also handles the
-inheritance problem by ensuring inherited type properties are
+The compiler also addresses the
+ambiguous type property problem by ensuring inherited type properties are
 not visible from subclasses.
 
+\ifwild
 Second, we allow the programmer to specify
 \emph{definition-site}
 variance annotations.
@@ -558,7 +580,9 @@ Dually, a property \xcd"X" can be declared contravariant
 using ``\xcd"-X"'', meaning \xcd"C[T]" is shorthand for
 \xcd"C{X>=T}".  \xcd"X" may not appear only in negative
 positions (method argument types).
+\fi
 
 With these
 modifications, explicit type constraints continue to be allowed
-for method and constructor guards and in class invariants.
+in method and constructor guards and in class invariants.
+Unconstrained types (e.g., \xcd"C") are still legal types.
