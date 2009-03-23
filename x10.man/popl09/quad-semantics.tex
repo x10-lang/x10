@@ -143,9 +143,9 @@ A method may only be overridden by a method with the same name,
 arity, parameter types, a return type that is a subtype of the
 overridden return type, and a weaker guard (i.e., the superclass
 method guard must entail the subclass's).
-\footnote{\todo{To avoid cluttering the inference rules, we
+\footnote{\todo{remove this?} To avoid cluttering the inference rules, we
 define overriding only informally; a formal definition is
-straightforward.}}
+straightforward.}
 
 To prepare for the introduction of generic types later, we
 distinguish members that are available on variables from members
@@ -167,13 +167,11 @@ $\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$
 \end{tabular}
 \end{center}
 %
-Above, in the second rule, ${\tt c}$ is the invariant for class {\tt C}.
+Above, in the second rule, ${\tt c}$ is the class invariant for {\tt C}.
 In the fourth rule we assume that alpha-equivalence is used to
 choose a variable {\tt z} that does not
 occur in the context under construction.
 
-
-\todo{Does the following para belong in this section?}
 
 We say that a context $\Gamma$ is {\em consistent} if all (finite)
 subsets of $\{{\tt c}\alt \sigma(\Gamma) \vdash {\tt c}\}$ are consistent.
