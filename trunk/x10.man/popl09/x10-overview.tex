@@ -51,19 +51,19 @@ value properties.
 \begin{figure}
 {
 \begin{xtennoindent}
-    class List[T](len: int) {
-      var head: T;
-      val tail: List[T];
-      def get(i: int): T {
-        if (i == 0) return head;
-        else return tail.get(i-1);
+      class List[T](len: int) {
+        var head: T;
+        val tail: List[T];
+        def get(i: int): T {
+          if (i == 0) return head;
+          else return tail.get(i-1);
+        }
+        def this[S](hd: S, tl: List[S]):
+            List[S]{len==tl.len+1} {
+          property[S](tl.len+1);
+          head = hd; tail = tl;
+        }
       }
-      def this[S](hd: S, tl: List[S]):
-          List[S]{len==tl.len+1} {
-        property[S](tl.len+1);
-        head = hd; tail = tl;
-      }
-    }
 \end{xtennoindent}
 }
 \caption{List example, simplified}
@@ -127,7 +127,7 @@ in Figure~\ref{fig:list}.
 \begin{figure}
 {\footnotesize
 \begin{xtenmathnoindent}
-class List[T](len: int){len >= 0, T $\extends$ Comparable[T]} {
+class List[T](len: int){len >= 0} {
   var head: T;
   val tail: List[T]{self.len==this.len-1};
 
@@ -171,8 +171,17 @@ the list be non-negative and that the element type be
 a subtype of \xcd"Comparable".
 The class invariant must be established by all constructors of
 the class and can subsequently be assumed for all instances of the class.
+
 For generic types, the invariant is used to provide subtyping
 bounds on the type properties.
+For example, in the following code, \xcd"SortedList" 
+specifies that the element type \xcd"T"
+is a subtype of \xcd"Comparable".
+\begin{xtenmath}
+class SortedList[T] {T$\extends$Comparable[T]} {
+  def sort() { ... x.compare(y) ... }
+}
+\end{xtenmath}
 
 \subsection{Methods}
 
@@ -356,7 +365,7 @@ If a property \xcd"X" of a class \xcd"C" is covariant,
 then if \xcd"S" is a subtype of
 \xcd"T", the type \xcd"C{X==S}" is a subtype of \xcd"C{X==T}".
 Similarly, if \xcd"X" is contravariant, 
-                  \xcd"C{X==T}" is a subtype of \xcd"C{X==S}".
+\xcd"C{X==T}" is a subtype of \xcd"C{X==S}".
 It is illegal for a covariant property to occur in a negative
 position in its class declaration and for a contravariant
 property to occur in a positive position.  A position is
@@ -396,14 +405,14 @@ static methods in interfaces
 
 Method constraints also provide support for optional methods.
 
-{\footnotesize
+{
 \begin{xtenmath}
 class List[T] {
-    ...
-    def print(){T $\extends$ Printable} {
-        for (x: T in this)
-            x.print();
-    }
+  ...
+  def print(){T $\extends$ Printable} {
+    for (x: T in this)
+      x.print();
+}
 }
 \end{xtenmath}}
 
@@ -417,11 +426,11 @@ Optional methods generalize to optional interfaces.
 interface Printable { def print(); }
 
 class List[T] implements Printable if {T $\extends$ Printable} {
-    ...
-    def print(){T $\extends$ Printable} {
-        for (x: T in this)
-            x.print();
-    }
+  ...
+  def print(){T $\extends$ Printable} {
+    for (x: T in this)
+      x.print();
+  }
 }
 \end{xtenmath}}
 
@@ -483,21 +492,21 @@ As an example, in the following \Xten code, \xcd"HashMap"
 inherits the properties \xcd"K" and \xcd"V" from \xcd"Map".
 \begin{xten}
 interface Map[K,V] {
-    def get(K): V;
-    def put(K, V): V;
+  def get(K): V;
+  def put(K, V): V;
 }
 
 class HashMap extends Map {
-    def get(k: K): V = ...;
-    def put(k: K, v: V): V = ...;
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
 }
 \end{xten}
 If a user is used to type parameters, \xcd"HashMap" would be
 declared as follows:
 \begin{xten}
 class HashMap[K,V] extends Map[K,V] {
-    def get(k: K): V = ...;
-    def put(k: K, v: V): V = ...;
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
 }
 \end{xten}
 This introduces a new pair of type properties named \xcd"K" and
@@ -517,10 +526,10 @@ equality constraint or with a subtyping constraint.
 For example, in the following code, \xcd"C.list()" returns a \xcd"List[X]".
 \begin{xtenmath}
 class List[T] {
-    def add(x: T) = ...;
+  def add(x: T) = ...;
 }
 class C[X] {
-    def list(): List[X] = ...;
+  def list(): List[X] = ...;
 }
 \end{xtenmath}
 \noindent
