@@ -108,8 +108,17 @@ In the following, the context $\Gamma$ is always a
   formula $\tt x:T$ in $\Gamma$.
 \end{enumerate}
 
-\noindent
-The judgments of interest are as follows.
+\medskip
+
+In the judgments that follow, 
+for any formulas $\phi_1$ and
+$\phi_2$, we adopt the convention that the rule $\Gamma \vdash \phi_1, \phi_2$
+is shorthand for the rules
+$\Gamma \vdash \phi_1$
+and
+$\Gamma \vdash \phi_2$.
+
+The judgments of interest are as follows:
 \begin{enumerate}
 	\item Well-formedness:\\
 	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well-formed\\
@@ -181,7 +190,7 @@ consistent; if it is inconsistent, the rule cannot be used and the
 type of the given expression cannot be established (type-checking
 fails).
 
-To capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
+To capture the object-oriented structure of {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
 
 \eat{
 The following rules govern existential constraints:
@@ -562,7 +571,7 @@ class Count(n:int) extends Object {
 }
 \end{xten}
 
-\FXD corresponds to the {\sf Constrained \FJ} calculus presented
+\FXD corresponds to the \CFJ calculus presented
 in prior work~\cite{constrained-types}.  As described there, \Xten
 supports equality constraints and has been extended with constraint
 systems for Presburger arithmetic and for set constraints over
