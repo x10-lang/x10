@@ -490,17 +490,35 @@ for some values $\bar{\tt y}$ of the given types.
 
 Turning \FXZ{} into a language with value-dependent types is straightforward since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is built in the typing rules already.
 
-First, we assume given a constraint system $\cal A$, with a vocabulary of predicates ${\tt p}$ and functions ${\tt f}$. 0-ary functions denote constants.
+First, we assume given a constraint system $\cal A$, with a vocabulary of primitive types ${\tt A}$,
+predicates ${\tt p}$, and functions ${\tt f}$. 0-ary functions encode constants.
 
 Second, we extend the productions of \FXZ{} as follows.
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
+  (Type)& {\tt T} &{::=}& {\tt A} \\
+  (Expression) & {\tt e} &{::=}& ${\tt f}(\tbar{e})$ \\
   (Constraint term) & {\tt t} &{::=}& ${\tt f}(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
 \end{tabular}
 \end{center}
 
+The obvious rule is needed to type function calls.
+
+\infrule[T-Fun]
+	{{\tt f}{\rm~has~type~(\tbar{A})=>{\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
+	{\Gamma\vdash{{\tt f}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt f}(\tbar{x})\}}}
+
 Third, we authorize users to write constraints (except for existential constraints) in programs.
+
+For instance, if $\mathcal{A}$ defines the type {\tt int}, the constant {\tt 0} and the successor function {\tt s}, we can declare:
+
+\begin{xten}
+class Count(n:int) {
+  def inc():Count{self.n==s(this.n)} =
+  	new Count(s(this.n));
+}
+\end{xten}
 
 \subsection{\FXG}
 We now turn to showing how \FGJ{} style generics can be supported in the \FX{} family.
