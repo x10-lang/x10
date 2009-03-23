@@ -236,8 +236,6 @@ we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
 for some values $\bar{\tt y}$ of the given types.
 
 {\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well-formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
-\todo{What about overriding?  The rules are stated informally above,
-but shoud be in OK-Class.}
 
 
 \paragraph{5. Subtyping.} The subtyping rules in Figure~\ref{fig:subtyping} are straightforward.
