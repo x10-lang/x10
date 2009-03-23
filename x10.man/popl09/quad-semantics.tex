@@ -139,12 +139,19 @@ We say a program, context, or judgment is well-formed iff all the constraints an
 A method may only be overridden by a method with the same name, arity, parameter types, a weaker guard, and a return type that is a subtype of the overridden return type.
 \todo{NN: Is this formalized somewhere?  It's not in fig \ref{fig:lookup}.}
 
-We distinguish members available on variables from class members to prepare for the introduction of generic types later. For now, ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
+\todo{Fix names of rules to be more consistent.  Move fields rules to bottom of Fig.}
 
-In order to capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
+To prepare for the introduction of generic types later,
+We distinguish members available on variables from members available on classes.
+For now, ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
+
+\todo{Does this para belong in the next paragraph?}
+To capture the object-oriented structure of the program {\tt P}, we require the constraint system $\mathcal{X}$ to satisfy: $\new~{\tt C}(\tbar{t})=={\tt t}_i$ provided that $\fields({\tt C})=\tbar{f}:\tbar{T}$ for some sequence of types $\tbar{T}$.
+\todo{Is there a rule for this?}
 
 
 \paragraph{Constraints.}
+\todo{awk}
 In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. For simplicity, we define $\Gamma \vdash {\tt c}$ to mean
 $\sigma(\Gamma)\vdashX {\tt c}$, where the {\em constraint
 projection}, $\sigma(\Gamma)$ is defined as follows. 
@@ -165,10 +172,12 @@ choose a variable {\tt z} that does not
 occur in the context under construction.
 
 
+\todo{Does the following para belong in this section?}
+
 We say that a context $\Gamma$ is {\em consistent} if all (finite)
 subsets of $\{{\tt c}\alt \sigma(\Gamma) \vdash {\tt c}\}$ are consistent.
-In all type judgments presented below ({\sc T-Cast}, {\sc T-Field}
-etc) we make the implicit assumption that the context $\Gamma$ is
+In all type judgments presented below ({\sc T-Cast}, {\sc T-Field},
+etc.), we make the implicit assumption that the context $\Gamma$ is
 consistent; if it is inconsistent, the rule cannot be used and the
 type of the given expression cannot be established (type-checking
 fails).
@@ -187,9 +196,9 @@ The following rules govern existential constraints:
 \paragraph{Typing rules.} The typing rules are specified in Figure~\ref{fig:FX}.
 
 {\sc T-Var} is as expected, except that it asserts the constraint {\tt
-self==x} which records the fact that any value of this type is known
+self==x}, which records that any value of this type is known
 statically to be equal to {\tt x}. This constraint is actually very
-crucial---as we shall see in the other rules once we establish that
+crucial---as we shall see in the other rules, once we establish that
 an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
 type to a freshly chosen variable {\tt z}. If in fact {\tt e} has a
 static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
