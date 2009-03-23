@@ -646,9 +646,9 @@ Thanks to contraints, if
 ${\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}())$,
 then expression ${\tt e}.{\tt g}$ can be shown to
 have type {\tt C}.
-In contrast $({\tt e}~\as~{\tt D})$ has type
+In contrast $({\tt e}~\as~{\tt D}).{\tt g}$ has type
 $\exists {\tt x}:{\tt D}.{\tt x}.{\tt f}\{\self=={\tt x.g}\}$.
-The type of $({\tt e}~\as~{\tt D})$ is essentially ``unknown''
+The type of $({\tt e}~\as~{\tt D}).{\tt g}$ is essentially ``unknown''
 because the cast erased all information about it. In \Xten, we choose to shield users from existential types and permit casts of the form $({\tt e}~\as~{\tt D}\{\self.{\tt f}=={\tt t}\})$ where {\tt t} is a type in scope (class type, type parameter, or path type).
 
 
