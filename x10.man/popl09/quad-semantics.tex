@@ -688,7 +688,11 @@ We require the underlying constraint system $\mathcal{G}$ to treat ``$\extends$'
 \item{\sc L-Extends}. If {\tt x} has type {\tt U} then {\tt x} has all the members of type {\tt T}. Note we only extend the ``$\underline\has$'' predicate that is used in typing judgements. On the other hand, the ``$\has$'' predicate used for method lookup in the oprational semantics is not affected.
 \end{itemize}
 
-The modification of the $\underline\has$ lookup predicate is necessary to permit typing method invocations with receivers of generic types. It has the unfortunate side effect that we can no longer ensure that type derivations hence types are unique. For instance, given the class definitions
+The modification of the $\underline\has$ lookup predicate is
+necessary to permit typing method invocations with receivers of
+generic types. It has the unfortunate side effect that we can no
+longer ensure that type derivations---and hence types---are unique.
+For instance, given the class definitions:
 %
 \begin{xten}
 class A() extends Object { def m():A }
@@ -697,7 +701,7 @@ class C(f:type){this.f<=A} extends Object {}
 class D(){this.f<=B} extends C { ..this.f.m().. }
 \end{xten}
 %
-occurrences of $\this.{\tt f}$ in {\tt D} has bound both by {\tt A} and {\tt B} hence 
+occurrences of $\this.{\tt f}$ in {\tt D} are bound both by {\tt A} and {\tt B} hence 
 $\this.{\tt f}.{\tt m}()$ may either be typed using the declaration of {\tt m} in {\tt A} or {\tt B}.
 
 
