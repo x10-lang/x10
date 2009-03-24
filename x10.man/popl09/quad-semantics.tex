@@ -669,8 +669,7 @@ def id(T: type, x: T): T = x;
 class Comparator<B> {
   int compare(B y) { ... } }
 class SortedList<T extends Comparator<T>> { 
-  int m(T x, T y) {
-     return x.compare(y); } }
+  int m(T x, T y) { return x.compare(y); } }
 \end{xten}
 \noindent can be represented as
 \begin{xtenmath} 
