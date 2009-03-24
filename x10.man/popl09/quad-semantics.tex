@@ -645,7 +645,8 @@ it permits powerful idioms using fixed but unknown types without
 requiring ``wildcards''.
 
 The set of well-formed types is now enhanced to permit some fixed but unknown
-types {\tt x} as well as \emph{path types} (cf. \cite{scala}), that is use type-valued fields of objects as types.\footnote{But we will not permit invocations of methods with return type \type\ to be 
+types {\tt x} as well as \emph{path types} (cf. \cite{scala}),
+i.e., type-valued fields of objects as types.\footnote{But we will not permit invocations of methods with return type \type\ to be 
 used as types. This does indeed make sense, but developing
 this theory further is beyond the scope of this paper.} We extend $\sigma$ in the obvious way:
 %
@@ -657,7 +658,12 @@ $\sigma({\tt x}:{\tt p}.{\tt f}, \Gamma)=\sigma(\Gamma)$
 \end{tabular}
 \end{center}
 %
-Reciprocally, we permit class types ${\tt C}\{{\tt c}\}$ to be used as expressions. We type them accordingly ({\sc T-Type}). In contrast, the ``type'' \type{} is neither a valid expression nor a class type: it has no field, method, subclass, or superclass. It may however be constrained as usual as for instance in rule ({\sc T-Type}), that is to say we permit equality constraints over types.\footnote{Type equality is just equality over uninterpreted functions.}
+Reciprocally, we permit class types ${\tt C}\{{\tt c}\}$ to be
+used as expressions. We type them accordingly ({\sc T-Type}). In
+contrast, the ``type'' \type{} is neither a valid expression nor
+a class type: it has no field, method, subclass, or superclass.
+It may however be constrained as usual as, for instance, in rule
+{\sc T-Type}; that is to say, we permit equality constraints over types.\footnote{Type equality is just equality over uninterpreted functions.}
 
 The key idea is that information about type-valued expressions can
 be accumulated through constraints. Specifically we introduce 
@@ -698,7 +704,8 @@ class SortedList(T: type)
 
 We require the underlying constraint system $\mathcal{G}$ to treat ``$\extends$'' as a partial order relation (reflexive, antisymmetric, and transitive). It is possible for a program to specify constraints incompatible with the class hierarchy, e.g., ${\tt x}\extends{\tt C}$ and ${\tt x}\extends{\tt D}$ if both class {\tt C} and class {\tt D} extend {\tt Object}. We therefore require $\mathcal{G}$ to treat as inconsistent all sets of constraints on type-valued variables that admit no valuations where these variables take on classes as values.
 
-The ``$\extends$'' constraint is used in two deduction rules. If type {\tt T} extends type {\tt U} then
+The ``$\extends$'' constraint is used in two deduction rules. If
+type {\tt T} extends type {\tt U}, then
 \begin{itemize}
 \item{\sc S-Extends}. {\tt T} is a subtype of {\tt U}. A method or constructor with argument type {\tt U} may be passed a parameter of type {\tt T}.
 \item{\sc L-Extends}. If {\tt x} has type {\tt U} then {\tt x} has all the members of type {\tt T}. Note we only extend the ``$\underline\has$'' predicate that is used in typing judgments. On the other hand, the ``$\has$'' predicate used for method lookup in the operational semantics is not affected.
