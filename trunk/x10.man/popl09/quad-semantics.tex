@@ -85,13 +85,16 @@ ${\tt T}\{\exists {\tt x}:{\tt U}.~{\tt c}\}$ is equivalent to $\exists {\tt y}:
 The operational semantics, shown in Figure~\ref{fig:sos},
 is straightforward and essentially identical
 to \FJ \cite{FJ}. It is described in terms of a non-deterministic
-reduction relation on expressions.\footnote{
+reduction relation on expressions.\eat{\footnote{
 For simplicity, we enforce call-by-value-like semantics:
 \RField, \RInvk, and \RCast{} require receivers of the form
 ``$\new~{\tt C}(\tbar{t})$'' instead of ``$\new~{\tt C}(\tbar{e})$''.
-Otherwise, we would have to distinguish compile-time constraints over constraint terms from run-time constraints over expressions.}
+Otherwise, we would have to distinguish compile-time constraints over constraint terms from run-time constraints over expressions.}}
+
 The only novelty is the use of the
-subtyping relation to check that the cast is satisfied. In \FXZ, this
+subtyping relation to check that the cast is satisfied.
+The typing rule for casts ({\sc T-New}) in Figure~\ref{fig:FX} specifies that if the arguments $\tbar{e}$ have type $\tbar{V}$ then $\new~{\tt C}(\tbar{e})$ has type $\exists\tbar{y}:\tbar{V}.~{\tt C}\{\self==\new~{\tt C}(\tbar{y})\}$, therefore {\RCast} requires this particular type to be a subtype of {\tt T}.
+In \FXZ, this
 test simply involves checking that the class of which the object is an
 instance is a subclass of the class specified in the given type; in
 languages with richer notions of type this operation may
@@ -253,7 +256,7 @@ for some values $\bar{\tt y}$ of the given types.
 \paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
 Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 {\sc S-Exists-L} and {\sc S-Exists-R} handle existential types.
-{\sc S-Const-L} and {\sc S-Const-R} handle constraints. We make sure all types are well formed.
+{\sc S-Const-L} and {\sc S-Const-R} handle constraints. The rules ensure all types are well formed.
 
 \begin{figure*}
 \centering
@@ -278,38 +281,37 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \quad\typicallabel{XXXXXX}
 \infrule[\RField]
 	{\fields({\tt C})=\tbar{f}:\tbar{T}}
-	{\new~{\tt C}(\tbar{t}).{\tt f}_i \derives {\tt t}_i}
+	{\new~{\tt C}(\tbar{e}).{\tt f}_i \derives {\tt t}_i}
 
 \infrule[\RCField]
 	{{\tt e}\derives {\tt e}'}
 	{{\tt e}.{\tt f}\derives {\tt e}'.{\tt f}}
 
-\infrule[\RCast]
-	{\vdash {\tt C}\{\self==\new~{\tt C}(\tbar{t})\}\subtype {\tt T}}
-	{\new~{\tt C}(\tbar{t})~\as~{\tt T}\derives\new~{\tt C}(\tbar{t})}
+\infrule[\RCInvkRecv]
+	{{\tt e}\derives {\tt e}'}
+	{{\tt e}.{\tt m}(\tbar{a})\derives {\tt e}'.{\tt m}(\tbar{a})}
 
 \infrule[\RCCast]
 	{{\tt e}\derives {\tt e}'}
 	{{\tt e}~\as~{\tt T}\derives {\tt e}'~\as~{\tt T}}
-
 \end{minipage}%
 \begin{minipage}{.6\textwidth}
 \quad\typicallabel{XXXXXX}
-\infrule[\RInvk]
-	{{\tt C}~\has~{\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt e}}
-	{\new~{\tt C}(\tbar{t}).{\tt m}(\tbar{a})\derives {\tt b}[\new~{\tt C}(\tbar{t}),\tbar{a}/\this,\tbar{x}]}
+\infrule[\RCNewArg]
+	{{\tt e}_i\derives {\tt e}'_i}
+	{\new~{\tt C}(\ldots,{\tt e}_i,\ldots)\derives\new~{\tt C}(\ldots,{\tt e}'_i,\ldots)}
 
-\infrule[\RCInvkRecv]
-	{{\tt e}\derives {\tt e}'}
-	{{\tt e}.{\tt m}(\tbar{a})\derives {\tt e}'.{\tt m}(\tbar{a})}
+\infrule[\RInvk]
+	{{\tt C}~\has~{\tt m}(\tbar{x}:\tbar{T})\{{\tt c}\}:{\tt U}={\tt b}}
+	{\new~{\tt C}(\tbar{e}).{\tt m}(\tbar{a})\derives {\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/\this,\tbar{x}]}
 
 \infrule[\RCInvkArg]
 	{{\tt a}_i\derives {\tt a}'_i}
 	{{\tt e}.{\tt m}(\ldots,{\tt a}_i,\ldots)\derives {\tt e}.{\tt m}(\ldots,{\tt a}'_i,\ldots)}
 
-\infrule[\RCNewArg]
-	{{\tt e}_i\derives {\tt e}'_i}
-	{\new~{\tt C}(\ldots,{\tt e}_i,\ldots)\derives\new~{\tt C}(\ldots,{\tt e}'_i,\ldots)}
+\infrule[\RCast]
+	{\vdash \tbar{e}:\tbar{V} \andalso \vdash\exists\tbar{y}:\tbar{V}.~{\tt C}\{\self==\new~{\tt C}(\tbar{y})\}\subtype {\tt T}}
+	{\new~{\tt C}(\tbar{e})~\as~{\tt T}\derives\new~{\tt C}(\tbar{e})}
 \end{minipage}
 \caption{\FX{} operational semantics}
 \label{fig:sos}
@@ -424,6 +426,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \end{figure*}
 
 \begin{figure*}
+\vspace{-\bigskipamount}
 \begin{minipage}{.4\textwidth}
 \quad\typicallabel{XXXXXX}
 \infax[T-Var]
@@ -473,6 +476,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 
 
 \begin{figure*}
+\vspace{-\bigskipamount}
 \begin{minipage}{.333\textwidth}
 \quad\typicallabel{XXX}
 \infrule[S-Refl]
@@ -696,7 +700,7 @@ have type {\tt C}.
 In contrast $({\tt e}~\as~{\tt D}).{\tt g}$ has type
 $\exists {\tt x}:{\tt D}.{\tt x}.{\tt f}\{\self=={\tt x.g}\}$.
 The type of $({\tt e}~\as~{\tt D}).{\tt g}$ is essentially ``unknown''
-because the cast erased all information about it. In \Xten, we choose to shield users from existential types and permit casts of the form $({\tt e}~\as~{\tt D}\{\self.{\tt f}=={\tt t}\})$ where {\tt t} is a type in scope (class type, type parameter, or path type).
+because the cast erased all information about it. In \Xten, we choose to shield users from existential types and only permit casts of the form $({\tt e}~\as~{\tt D}\{\self.{\tt f}=={\tt t}\})$ where {\tt t} is a type in scope (class type, type parameter, or path type).
 
 
 \subsection{\FXGD} 
