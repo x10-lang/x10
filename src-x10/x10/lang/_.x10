@@ -70,4 +70,6 @@ public value _ {
 
     public static type ValRail[T](n:Nat) = ValRail[T]{length==n};
     public static type Rail[T](n:Nat) = Rail[T]{length==n};
+
+    public static type Console = x10.io.Console;
 }
