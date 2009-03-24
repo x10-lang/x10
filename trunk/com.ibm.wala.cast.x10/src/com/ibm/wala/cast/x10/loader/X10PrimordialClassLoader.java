@@ -12,7 +12,7 @@ import com.ibm.wala.util.strings.Atom;
 public class X10PrimordialClassLoader extends ClassLoaderImpl {
     public static Atom X10PrimordialName= Atom.findOrCreateAsciiAtom("X10Primordial");
 
-    public static ClassLoaderReference X10Primordial= new ClassLoaderReference(X10PrimordialName, X10Language.X10);
+    public static ClassLoaderReference X10Primordial= new ClassLoaderReference(X10PrimordialName, X10Language.X10, ClassLoaderReference.Application);
 
     public X10PrimordialClassLoader(ClassLoaderReference loader, ArrayClassLoader arrayClassLoader, IClassLoader parent, SetOfClasses exclusions, IClassHierarchy cha) {
 	super(loader, arrayClassLoader, parent, exclusions, cha);

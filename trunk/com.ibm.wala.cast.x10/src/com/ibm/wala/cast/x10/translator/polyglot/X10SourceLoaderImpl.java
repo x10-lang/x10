@@ -6,6 +6,7 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 import java.io.IOException;
 
 import com.ibm.wala.cast.x10.loader.X10Language;
+import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
@@ -28,7 +29,7 @@ import com.ibm.wala.util.strings.Atom;
 public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     public static Atom X10SourceLoaderName= Atom.findOrCreateAsciiAtom("X10Source");
 
-    public static ClassLoaderReference X10SourceLoader= new ClassLoaderReference(X10SourceLoaderName, X10Language.X10);
+    public static ClassLoaderReference X10SourceLoader= new ClassLoaderReference(X10SourceLoaderName, X10Language.X10, X10PrimordialClassLoader.X10Primordial);
 
     public X10SourceLoaderImpl(ClassLoaderReference loaderRef, IClassLoader parent, SetOfClasses exclusions,
 	    IClassHierarchy cha, IRTranslatorExtension extInfo) throws IOException {
