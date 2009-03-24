@@ -483,10 +483,9 @@ However, the situation is more complicated when casting to a
 type that constrains the value's type properties.
 
 For equality constraints on types, one can simply test equality on
-the a 
 canonical run-time representations of the base types and of the
 constraints.
-However, with subtyping constraints (e.g., \xcdmath"S $\extends$ T"),
+However, with subtyping constraints (e.g., \xcdmath"S$\extends$T"),
 the generated code must be able to test if the constraint on the
 subtype entails the constraint on the supertype.  Since one or
 both of the types involved in the constraint might be type
