@@ -755,14 +755,53 @@ either $\tt e'$ is a value {\tt v} and $\vdash {\tt v:S},{\tt S\subtype T}$ or
 ${\tt e'}$ contains  a stuck cast sub-expression.
 \end{theorem}
 
-\paragraph{Proof sketch.} The proof of the same results for a formal language essentially equivalent to \FXZ{} has been reported in \cite{constrained-types}. We discuss here the key insights that permit to revise this proof in order to encompass \FXGD{}.
+\paragraph{Proof sketch.} The proof of the same results for a
+formal language essentially equivalent to \FXD{} has been
+reported in \cite{constrained-types}. We discuss here the key
+insights that permit us to revise this proof in order to encompass \FXGD{}.
 \begin{itemize}
-\item Subject reduction. Having potentially multiple types for an expression does not make the proof any harder as the subject reduction theorem let us choose {\tt S} among the possible types or ${\tt e}'$.
+\item Subject reduction. Having potentially multiple types for
+an expression does not make the proof any harder as the subject
+reduction theorem lets us choose {\tt S} among the possible types of ${\tt e}'$.
 
-The main novelty of the \FXG{} type system is that it permits the $\underline\has$ predicate to look for methods in arbitrary superclasses or upper bounds of the type under scrutiny. This is not so much a concern for fields as they cannot be overridden. Methods can, we thus have to adapt the proof of subject reduction for the execution step corresponding to a method invocation (\RInvk).
+The main novelty of the \FXG{} type system is that it permits
+the $\underline\has$ predicate to look for methods in arbitrary
+superclasses or upper bounds of the type under scrutiny. This is
+not so much a concern for fields as they cannot be overridden.
+Because methods can, we must adapt the proof of subject reduction for the execution step corresponding to a method invocation (\RInvk).
 
-First we observe that the operational semantics rule for method invocations (\RInvk) is required to employ the ``correct'' method for objects of class {\tt C} that is the first method {\tt m} found on the inheritance path from class {\tt C} to class {\tt Object} traversed from the bottom up. Second, thanks to overriding restrictions, we know that this method must have a return type that is a subtype of any other method {\tt m} defined in any superclass of {\tt C}. Finally, because constraint sets incompatible with the class hierarchy are rejected as inconsistent, we also know that the type of $\new~{\tt C}(\tbar{e})$ cannot be constrained to have any upper bound that is not {\tt C} itself or one of its superclasses. We therefore derive that any method instance one could use to type the expression $\new~{\tt C}(\tbar{e}).{\tt m}(\tbar{a})$ has a return type that is a supertype of the return type of the only method instance that can be used to make a step of execution. We assumed the program type checks, hence by {\sc OK-Method}, we know that the actual residue ${\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/\this,\tbar{x}]$ is guaranteed to have a type that is a subtype of its declared type. Therefore, by transitivity of the subtyping relation, we can derive that if {\tt T} is a type of $\new~{\tt C}(\tbar{e}).{\tt m}(\tbar{a})$ then there exists a type of {\tt S} of ${\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/\this,\tbar{x}]$ that is a subtype of {\tt T}.
-\item Progress. \FXGD{} only differs from \FXZ{} in that it admits a new class of expressions: {\tt C}\{{\tt c}\}. But these are also values, therefore the proof of progress is essentially unchanged.
+First, we observe that the operational semantics rule for method
+invocations (\RInvk) is required to employ the ``correct''
+method for objects of class {\tt C}, that is, the first method
+{\tt m} found on the inheritance path from class {\tt C} to
+class {\tt Object} from the bottom up. Second, thanks
+to overriding restrictions, we know that this method must have a
+return type that is a subtype of any other method {\tt m}
+defined in any superclass of {\tt C}. Finally, because
+constraint sets incompatible with the class hierarchy are
+rejected as inconsistent, we also know that the type of
+$\new~{\tt C}(\tbar{e})$ cannot be constrained to have any upper
+bound that is not {\tt C} itself or one of its superclasses.
+
+We
+therefore derive that any method instance one could use to type
+the expression $\new~{\tt C}(\tbar{e}).{\tt m}(\tbar{a})$ has a
+return type that is a supertype of the return type of the only
+method instance that can be used to make a step of execution. We
+assume the program type checks; hence, by {\sc OK-Method}, we
+know that the actual residue ${\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/\this,\tbar{x}]$ is guaranteed to have a
+type that is a subtype of its declared type. Therefore, by
+transitivity of the subtyping relation, we can derive that if
+{\tt T} is a type of $\new~{\tt C}(\tbar{e}).{\tt m}(\tbar{a})$,
+then there exists a type {\tt S} of
+${\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/\this,\tbar{x}]$
+that is a subtype of {\tt T}.
+
+\item Progress. \FXGD{} only differs from \FXZ{} in that it
+admits a new class of expressions: {\tt C}\{{\tt c}\}. But these
+are also values; therefore, the proof of progress is essentially
+unchanged.
+
 \item{Type soundness}. Direct consequence of the previous two theorems.
 \end{itemize}
 
