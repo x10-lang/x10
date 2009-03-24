@@ -9,8 +9,8 @@
 \newcommand\stj[3]{{#1} \vdash {#2} \subtype {#3}}
 
 We now describe the semantics of languages in the \FX{} family.
-We start with a core \FXZ{} language that support simple
-\FJ-like types, then add value-dependent types, and type-dependent
+We start with a core \FXZ{} language that supports simple
+\FJ-like types, then add value-dependent types and type-dependent
 types, separately, then finally add both. For uniformity we declare type-valued parameters and properties to be of ``type'' \type, instead of using square brackets to demarcate them.
 
 \subsection{\FXZ}
@@ -120,7 +120,7 @@ is shorthand for the rules
 $\Gamma \vdash \phi_1$
 and
 $\Gamma \vdash \phi_2$. Whenever
-we state an assumption of the form ``{\tt x} is fresh'' in a rule we mean
+we state an assumption of the form ``{\tt x} fresh'' in a rule we mean
 it is not free in the consequent of the rule.
 
 The judgments of interest are as follows:
@@ -558,7 +558,7 @@ Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \subsection{\FXD}
 
 Turning \FXZ{} into a language with value-dependent types is straightforward
-since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is already built into the typing rules.
+since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$, and constraint propagation is already built into the typing rules.
 
 First, we assume we are given a constraint system $\cal A$ with a vocabulary of primitive types ${\tt A}$,
 predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$.
@@ -594,9 +594,9 @@ We extend the operational semantics with rules:
 	{{\tt q}(\tbar{v})\derives \SB{{\tt q}(\tbar{v})}}
 where $\SB{{\tt q}(\tbar{v})}$ denotes the result of the evaluation of function {\tt q} on values \tbar{v}.
 
-Finally, we authorize users to write constraints in $\cal A$ (except for existential constraints) in programs.
-
-For instance, if $\mathcal{A}$ defines the type {\tt int}, integer literals, and the usual arithmetic operators we can declare:
+Finally, we permit users to write constraints in $\cal A$ (except for existential constraints) in programs.
+%
+For instance, if $\mathcal{A}$ defines the type {\tt int}, integer literals, and the usual arithmetic operators, then we can declare:
 
 \begin{xten}
 class Count(n:int) extends Object {
