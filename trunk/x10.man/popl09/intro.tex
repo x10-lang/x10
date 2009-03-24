@@ -69,8 +69,8 @@ Our work is closely related to the \hmx{} approach
 details.}, the principal insight
 is that objects typically have some immutable state, and constraints on
 this state are of interest to the application.  For instance, in \Java{}
-the length of an array may not be statically known but is fixed once
-the array is created. Hence we can enrich the notion of a type: for a
+the length of an array might not be statically known, but is fixed once
+the array is created. Hence, we can enrich the notion of a type: for a
 class \Xcd{C} we permit a \emph{constrained type} \Xcd{C\{c\}} where \Xcd{c}
 is a
 constraint on the immutable fields, or \emph{properties}, of the
@@ -93,7 +93,7 @@ to check at run time that the properties of the given object satisfy
 the given constraint.
 
 The constrained types approach enjoys many nice properties in contrast
-to similar approaches such as DML(X)~\cite{xi99dependent}.  Constrained
+to similar approaches such as DML~\cite{xi99dependent}.  Constrained
 types are a natural extension to OO languages, and quite easy to
 use. Constraints may also be used to specify class invariants, and
 conditions on the accessibility of fields and methods (conditional
