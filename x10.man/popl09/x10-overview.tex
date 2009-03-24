@@ -78,7 +78,7 @@ with type properties
 \dots,
 \xcdmath"X$_k$",
 we permit the positional syntax \xcdmath"C[T$_1$,$\dots$,T$_k$]"
-to mean \xcdmath"C{X$_1$==T$_1$,$\dots$,X$_k$==T$_k$}".
+to mean \xcdmath"C{X$_1$==T$_1$," \xcdmath"$\dots$," \xcdmath"X$_k$==T$_k$}".
 
 Like in Scala, fields are declared using the keywords \xcd"var"
 or \xcd"val".  The \xcd"List" class has a mutable \xcd"head"
@@ -119,7 +119,7 @@ entail the constructor return type.
 The remainder of the constructor assigns the fields of the
 instance with the constructor arguments.
 
-We next illustrate more features of \Xten by
+We next illustrate more advanced features of \Xten by
 presenting a new version of \xcd"List", shown
 in Figure~\ref{fig:list}.
 
@@ -166,21 +166,22 @@ Properties of a class may be constrained with
 a \emph{class invariant}.
 The \xcd"List" declaration's class invariant in
 Figure~\ref{fig:list} specifies that the length of
-the list be non-negative and that the element type be
-a subtype of \xcd"Comparable".
+the list is non-negative.
 The class invariant must be established by all constructors of
 the class and can subsequently be assumed for all instances of the class.
 
 For generic types, the invariant is used to provide subtyping
 bounds on the type properties.
-For example, in the following code, \xcd"SortedList" 
+For example, in the following code,
+\xcd"SortedList" 
 specifies that the element type \xcd"T"
-is a subtype of \xcd"Comparable".
+is a subtype of \xcd"Comparable":
 \begin{xtenmath}
 class SortedList[T] {T$\extends$Comparable[T]} {
   def sort() { ... x.compare(y) ... }
 }
 \end{xtenmath}
+
 
 \subsection{Methods}
 
