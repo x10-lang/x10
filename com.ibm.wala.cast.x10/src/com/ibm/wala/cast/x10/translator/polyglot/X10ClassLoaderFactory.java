@@ -5,6 +5,8 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.io.IOException;
 
+import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
+import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
@@ -33,7 +35,7 @@ public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 	    ClassLoaderImpl cl = new X10PrimordialClassLoader(classLoaderReference, scope.getArrayClassLoader(), parent, getExclusions(), cha);
 	    cl.init( scope.getModules( classLoaderReference ));
 	    return cl;
-    } else if (classLoaderReference.equals(EclipseProjectPath.SOURCE_REF)) {
+    } else if (classLoaderReference.equals(JavaSourceAnalysisScope.SOURCE)) {
 		// Don't let the JavaSourceLoaderImpl handle Java source that's generated from
 		// X10 source; that would create pseudo-duplicate classes. The following variant
 		// just skips over such source files.
