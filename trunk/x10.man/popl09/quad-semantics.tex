@@ -287,7 +287,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Member-E]
-  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
+  {\Gamma,{\tt y}:{\tt U},{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
   {\Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
 \end{minipage}
 
