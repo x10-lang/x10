@@ -96,6 +96,8 @@ test simply involves checking that the class of which the object is an
 instance is a subclass of the class specified in the given type; in
 languages with richer notions of type this operation may
 involve run-time constraint solving using the properties of the object.
+See Section~\ref{sec:casts} for further discussion of the casts,
+including decidability issues.
 
 \paragraph{Static Semantics.}
 Each language in the family is defined over a given input constraint system $\mathcal{X}$ that is required to support the trivial constraint \true{}, conjunction, existential quantification, and equality on constraint terms. Given a program {\tt P}, we now show how to derive from $\mathcal{X}$ a larger deduction system that captures the object-oriented structure of {\tt P} and lets us decide whether {\tt P} is well typed.
