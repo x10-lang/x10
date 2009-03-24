@@ -142,8 +142,8 @@ class List[T](len: int){len >= 0} {
     return new List[S](f(head), tail.map[S](f));
   }
 
-  def this[S](hd: S, tl: List[S])
-      {S $\extends$ Comparable[S]}: List[S]{len==tl.len+1} {
+  def this[S](hd: S, tl: List[S]):
+      List[S]{len==tl.len+1} {
     property[S](tl.len+1);
     head = hd; tail = tl;
   }
