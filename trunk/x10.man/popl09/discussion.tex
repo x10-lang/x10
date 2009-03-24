@@ -502,7 +502,7 @@ solution can result in inefficient run-time casts
 if entailment checking for the given constraint system is expensive.
 
 \eat{
-A different approach to have the compiler precompute the results of
+A different approach to have the compiler pre-compute the results of
 entailment checks.
 This might be done by analyzing the program to identify which pairs of
 constraints might be tested for entailment at run time and then generating a
@@ -519,7 +519,7 @@ We leave the design of this analysis for future work.
 If \xcd"e as T" occurs in the program text and \xcd"e" has
 type \xcd"U", the analysis identifies all \xcd"new" expressions
 $a$,
-that create a subtype of \xcd"U" and identifes all type
+that create a subtype of \xcd"U" and identifies all type
 expressions $t$ that could instantiate \xcd"T".
 For each pair $(a,t)$, the analysis checks that the
 type of $a$ (determined by the constructor invoked by $a$) is a subtype of $t$.
