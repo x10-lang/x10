@@ -101,7 +101,7 @@ languages with richer notions of type this operation may
 involve run-time constraint solving using the properties of the object.
 
 \paragraph{Static Semantics.}
-Each language in the family is defined over a given input constraint system $\mathcal{X}$ that is required to support the trivial constraint \true{}, conjunction, existential quantification, and equality on constraint terms. Given a program {\tt P}, we now show how to derive from $\mathcal{X}$ a larger deduction system that captures the object-oriented structure of {\tt P} and lets us decide whether {\tt P} is well-typed.
+Each language in the family is defined over a given input constraint system $\mathcal{X}$ that is required to support the trivial constraint \true{}, conjunction, existential quantification, and equality on constraint terms. Given a program {\tt P}, we now show how to derive from $\mathcal{X}$ a larger deduction system that captures the object-oriented structure of {\tt P} and lets us decide whether {\tt P} is well typed.
 
 In the following, the context $\Gamma$ is always a
 (finite, possibly empty) sequence of formulas $\tt x:T$ and constraints $\tt c$ satisfying:
@@ -129,8 +129,8 @@ it is not free in the consequent of the rule.
 The judgments of interest are as follows:
 \begin{enumerate}
 	\item Well-formedness:\\
-	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well-formed\\
-	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well-formed
+	  $\cj{\Gamma}{\tt c}$ \hfill constraint {\tt c} is well formed\\
+	  $\wj{\Gamma}{\tt T}$ \hfill  type {\tt T} is well formed
 	\item Member lookup:\\
 	  $\fields({\tt C})=\tbar{f}:\tbar{T}$ \hfill class {\tt C} has fields \tbar{f} of type \tbar{T}\\
 	  $\Gamma\vdash {\tt C}~\has~{\tt I}$ \hfill class {\tt C} has member {\tt I}\\
@@ -151,9 +151,9 @@ The judgments of interest are as follows:
 A program type checks iff all its classes do.  We now describe
 in more detail each of these judgments, in turn.
 
-\paragraph{1. Well-formedness.} A constraint {\tt c} is well-formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff its free variables are declared in $\Gamma$. The rules in Figure~\ref{fig:well} extend this requirement to types.
+\paragraph{1. Well-formedness.} A constraint {\tt c} is well formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff its free variables are declared in $\Gamma$. The rules in Figure~\ref{fig:well} extend this requirement to types.
 
-We say a program, context, or judgment is well-formed iff all the constraints and types involved are well-formed. By design, every judgment derived from a well-formed context is also well-formed. As a consequence, if a program type checks, it is well-formed.
+We say a program, context, or judgment is well formed iff all the constraints and types involved are well formed. By design, every judgment derived from a well-formed context is also well formed. As a consequence, if a program type checks, it is well formed.
 
 \paragraph{2. Member lookup.} Figure~\ref{fig:lookup} specifies the fields and methods available on each class. We impose restrictions on inheritance as follows. Classes may only be extended by classes with stronger invariants. Fields cannot be overridden. Methods cannot be overloaded.
 A method may only be overridden by a method with the same name,
@@ -250,7 +250,7 @@ call. {\sc T-New} also uses the same proxy reasoning: however in this case
 we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
 for some values $\bar{\tt y}$ of the given types.
 
-{\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well-formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
+{\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
 
 
 \paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
@@ -383,16 +383,16 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 
 \begin{minipage}{.5\textwidth}
 \quad\typicallabel{XXXXXX}
+\infrule[L-Member-B]
+  {{\tt C}~\has~{\tt I}}
+  {{\tt x}:{\tt C}\vdash {\tt x}~\underline\has~{\tt I}[{\tt x}/\this]}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
 \infrule[L-Member-C,E]
   {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
   {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\underline\has~{\tt I} \\
    \Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[L-Member-B]
-  {{\tt C}~\has~{\tt I}}
-  {{\tt x}:{\tt C}\vdash {\tt x}~\underline\has~{\tt I}[{\tt x}/\this]}
 \end{minipage}
 \caption{\FX{} member lookup}
 \label{fig:lookup}
@@ -732,7 +732,7 @@ generics and value-dependent types.
 \subsection{Results}
 The following results hold for \FXGD supposing the program {\tt P} type checks.
 
-\begin{theorem}[Subject Reduction] If $\Gamma$ is well-formed and $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$, then
+\begin{theorem}[Subject Reduction] If $\Gamma$ is well formed and $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$, then
 for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
 \end{theorem}
 
