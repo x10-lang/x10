@@ -702,7 +702,7 @@ class SortedList(T: type)
 \end{xtenmath}
 \end{example}
 
-We require the underlying constraint system $\mathcal{G}$ to treat ``$\extends$'' as a partial order relation (reflexive, antisymmetric, and transitive). It is possible for a program to specify constraints incompatible with the class hierarchy, e.g., ${\tt x}\extends{\tt C}$ and ${\tt x}\extends{\tt D}$ if both class {\tt C} and class {\tt D} extend {\tt Object}. We therefore require $\mathcal{G}$ to treat as inconsistent all sets of constraints on type-valued variables that admit no valuations where these variables take on classes as values.
+We require the underlying constraint system $\mathcal{G}$ to treat ``$\extends$'' as a partial order relation (reflexive, antisymmetric, and transitive). It is possible for a program to specify constraints incompatible with the class hierarchy, e.g., ${\tt x}\extends{\tt C}$ and ${\tt x}\extends{\tt D}$ if both class {\tt C} and class {\tt D} extend {\tt Object}. We therefore require $\mathcal{G}$ to treat as inconsistent all sets of constraints on type-valued variables that admit no valuations where these variables take on types as values.
 
 The ``$\extends$'' constraint is used in two deduction rules. If
 type {\tt T} extends type {\tt U}, then
