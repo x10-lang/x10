@@ -118,7 +118,7 @@ In the following, the context $\Gamma$ is always a
 
 In the judgments that follow, 
 for any formulas $\phi_1$ and
-$\phi_2$, we adopt the convention that the rule $\Gamma \vdash \phi_1, \phi_2$
+$\phi_2$, we adopt the convention that the rule $\Gamma \vdash \phi_1,~\phi_2$
 is shorthand for the rules
 $\Gamma \vdash \phi_1$
 and
@@ -205,7 +205,7 @@ The following rules govern existential constraints:
   {\Gamma\vdash \exists {\tt x}:{\tt T}.~{\tt c}}
 
 \infrule[Exists-L]
-  {\Gamma,{\tt x}:{\tt T},{\tt c}\vdash {\tt d} \andalso {\tt x}~\rm fresh}
+  {\Gamma,{\tt x}:{\tt T},~{\tt c}\vdash {\tt d} \andalso {\tt x}~\rm fresh}
   {\Gamma,\exists {\tt x}:{\tt T}.~{\tt c}\vdash {\tt d}}
 }
 
@@ -254,7 +254,7 @@ for some values $\bar{\tt y}$ of the given types.
 
 
 \paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
-Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
+Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 {\sc S-Exists-L} and {\sc S-Exists-R} handle existential types.
 {\sc S-Const-L} and {\sc S-Const-R} handle constraints. The rules ensure all types are well formed.
 
@@ -418,7 +418,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \infrule[X-Inv]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P}
    \andalso
-   \Gamma\vdash {\tt t}:{\tt U},{\tt U}\subtype{\tt C}\andalso \Gamma,{\tt c}[{\tt t}/\this]\vdash {\tt d}}
+   \Gamma\vdash {\tt t}:{\tt U},~{\tt U}\subtype{\tt C}\andalso \Gamma,{\tt c}[{\tt t}/\this]\vdash {\tt d}}
   {\Gamma\vdash {\tt d}}
 \end{minipage}%
 \caption{\FX{} object constraint system}
@@ -445,9 +445,9 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 	{\Gamma\vdash {\tt e}.{\tt f}:\exists {\tt x}:{\tt T}.~{\tt U}\{\self=={\tt x}.{\tt f}\}}
 
 \infrule[T-Invk]
-	{\Gamma\vdash {\tt e}:{\tt T},\tbar{a}:\tbar{U} \andalso 
-	  \Gamma,{\tt x}:{\tt T},\tbar{y}:\tbar{U}\vdash {\tt x}~\underline\has~{\tt m}(\tbar{y}:\tbar{V})\{{\tt d}\}:{\tt W}={\tt b},
-		\tbar{U}\subtype\tbar{V},{\tt d} \andalso {\tt x},\tbar{y}~\rm fresh}
+	{\Gamma\vdash {\tt e}:{\tt T},~\tbar{a}:\tbar{U} \andalso 
+	  \Gamma,{\tt x}:{\tt T},\tbar{y}:\tbar{U}\vdash {\tt
+          x}~\underline\has~{\tt m}(\tbar{y}:\tbar{V})\{{\tt d}\}:{\tt W}={\tt b},~\tbar{U}\subtype\tbar{V},~{\tt d} \andalso {\tt x},\tbar{y}~\rm fresh}
 	{\Gamma\vdash {\tt e}.{\tt m}(\tbar{a}):\exists {\tt x}:{\tt T}.~\exists\tbar{y}:\tbar{U}.~{\tt W}}
 
 \infrule[T-New]
@@ -456,19 +456,19 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 		\fields({\tt C})=\tbar{g}:\tbar{U} \\
 	  \Gamma\vdash\tbar{e}:\tbar{V} \andalso
     \Gamma,{\tt x}:{\tt C},\tbar{y}:\tbar{V},{\tt x}.\tbar{g}==\tbar{y}\vdash
-    \tbar{V}\subtype\tbar{U}[{\tt x}/\this],{\tt c}[{\tt x}/\this] \andalso {\tt x},\tbar{y}~\rm fresh}
+    \tbar{V}\subtype\tbar{U}[{\tt x}/\this],~{\tt c}[{\tt x}/\this] \andalso {\tt x},\tbar{y}~\rm fresh}
 	{\Gamma\vdash\new~{\tt C}(\tbar{e}):\exists\tbar{y}:\tbar{V}.~{\tt C}\{\self==\new~{\tt C}(\tbar{y})\}}
         
 \infrule[OK-Method]
   {{\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}\in {\tt P} \andalso
     {\tt def}~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}\in\tbar{M}\\
-    \this:{\tt C},\tbar{x}:\tbar{U}\vdash\tbar{U}~\type,{\tt d}~\constraint
+    \this:{\tt C},\tbar{x}:\tbar{U}\vdash\tbar{U}~\type,~{\tt d}~\constraint
     \andalso
-    \this:{\tt C},\tbar{x}:\tbar{U},{\tt d}\vdash {\tt e}:{\tt W},{\tt W}\subtype {\tt V}}
+    \this:{\tt C},\tbar{x}:\tbar{U},{\tt d}\vdash {\tt e}:{\tt W},~{\tt W}\subtype {\tt V}}
   {\vdash {\tt def}~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}~{\rm OK~in}~{\tt C}}
 
 \infrule[OK-Class]
-  {\this:{\tt C},\tbar{f}:\tbar{T}\vdash\tbar{T}~\type,{\tt c}~\constraint \andalso \wj{}{\tt D} \andalso \tbar{M}~{\rm OK~in}~{\tt C}}
+  {\this:{\tt C},\tbar{f}:\tbar{T}\vdash\tbar{T}~\type,~{\tt c}~\constraint \andalso \wj{}{\tt D} \andalso \tbar{M}~{\rm OK~in}~{\tt C}}
   {\vdash {\tt class}~{\tt C}(\tbar{f}:\tbar{T})\{{\tt c}\}~{\tt extends}~{\tt D}~\{~\tbar{M}~\}~\rm OK}
 \end{minipage}
 \caption{\FX{} typing rules}\label{fig:FX}
@@ -513,7 +513,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-R]
-  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash {\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash {\tt t}:{\tt S},~{\tt S} \subtype {\tt T},~{\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
   {\Gamma\vdash {\tt U}\subtype\exists {\tt x}:{\tt T}.~{\tt V}}
 \end{minipage}        
 \caption{\FX{} subtyping rules}\label{fig:subtyping}
@@ -529,7 +529,7 @@ Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 	{\wj{}{\type}}
 
 \infrule[S-Extends]
-	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,{\tt U}:\type}
+	{\Gamma\vdash {\tt T}\extends {\tt U} \andalso \Gamma\vdash{\tt T}:\type,~{\tt U}:\type}
 	{\Gamma\vdash {\tt T}\subtype {\tt U}}
 
 \infrule[L-Extends]
@@ -597,7 +597,7 @@ class Count(n:int) extends Object {
 in prior work~\cite{constrained-types}.  As described there, \Xten
 supports equality constraints and has been extended with constraint
 systems for Presburger arithmetic and for set constraints over
-\Xten's array sublanguage.
+\Xten's array sub-language.
 
 \subsection{\FXG}
 We now turn to showing how \FGJ{}-style generics can be supported in the \FX{} family.
@@ -686,7 +686,7 @@ We require the underlying constraint system $\mathcal{G}$ to treat ``$\extends$'
 The ``$\extends$'' constraint is used in two deduction rules. If type {\tt T} extends type {\tt U} then
 \begin{itemize}
 \item{\sc S-Extends}. {\tt T} is a subtype of {\tt U}. A method or constructor with argument type {\tt U} may be passed a parameter of type {\tt T}.
-\item{\sc L-Extends}. If {\tt x} has type {\tt U} then {\tt x} has all the members of type {\tt T}. Note we only extend the ``$\underline\has$'' predicate that is used in typing judgements. On the other hand, the ``$\has$'' predicate used for method lookup in the oprational semantics is not affected.
+\item{\sc L-Extends}. If {\tt x} has type {\tt U} then {\tt x} has all the members of type {\tt T}. Note we only extend the ``$\underline\has$'' predicate that is used in typing judgments. On the other hand, the ``$\has$'' predicate used for method lookup in the operational semantics is not affected.
 \end{itemize}
 
 The modification of the lookup predicate is
@@ -712,7 +712,7 @@ class C() extends Object {}
 class D(f:type, g:this.f) extends Object {}
 \end{xten}
 Class {\tt D} has a type parameter {\tt f} and a value field {\tt g} of type {\tt f}.
-Thanks to contraints, if
+Thanks to constraints, if
 ${\tt e}=\new~{\tt D}({\tt C},\new~{\tt C}())$,
 then expression ${\tt e}.{\tt g}$ can be shown to
 have type {\tt C}.
@@ -755,7 +755,7 @@ ${\tt e'}$ contains  a stuck cast sub-expression.
 
 \paragraph{Proof sketch.} The proof of the same results for a formal language essentially equivalent to \FXZ{} has been reported in \cite{constrained-types}. We discuss here the key insights that permit to revise this proof in order to encompass \FXGD{}.
 \begin{itemize}
-\item Subject reduction. Having potentially mutiple types for an expression does not make the proof any harder as the subject reduction theorem let us choose {\tt S} among the possible types or ${\tt e}'$.
+\item Subject reduction. Having potentially multiple types for an expression does not make the proof any harder as the subject reduction theorem let us choose {\tt S} among the possible types or ${\tt e}'$.
 
 The main novelty of the \FXG{} type system is that it permits the $\underline\has$ predicate to look for methods in arbitrary superclasses or upper bounds of the type under scrutiny. This is not so much a concern for fields as they cannot be overridden. Methods can, we thus have to adapt the proof of subject reduction for the execution step corresponding to a method invocation (\RInvk).
 

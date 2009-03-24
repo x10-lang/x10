@@ -110,7 +110,7 @@ with the concrete type \xcd"int".
 
 Parameter types are coerced to and from the actual type
 \xcd"T" (a Java primitive type or \xcd"Object") using
-methodr \xcd"Runtime.to$T(Object)" and \xcd"Runtime.from(T)",
+method \xcd"Runtime.to$T(Object)" and \xcd"Runtime.from(T)",
 possibly with additional casts.
 Both are eliminated from the transformed
 bytecode, but are needed for the template class to type-check.
