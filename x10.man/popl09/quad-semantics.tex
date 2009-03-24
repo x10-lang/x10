@@ -150,7 +150,11 @@ The judgments of interest are as follows:
 A program type checks iff all its classes do.  We now describe
 in more detail each of these judgments, in turn.
 
-\paragraph{1. Well-formedness.} A constraint {\tt c} is well formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff its free variables are declared in $\Gamma$. The rules in Figure~\ref{fig:well} extend this requirement to types.
+\paragraph{1. Well-formedness.} A constraint {\tt c} is well
+formed in context $\Gamma$, written $\cj{\Gamma}{\tt c}$, iff
+both
+its free variables are declared in $\Gamma$ and it is well
+formed for the underlying constraint system. The rules in Figure~\ref{fig:well} extend this requirement to types.
 
 We say a program, context, or judgment is well formed iff all the constraints and types involved are well formed. By design, every judgment derived from a well-formed context is also well formed. As a consequence, if a program type checks, it is well formed.
 
