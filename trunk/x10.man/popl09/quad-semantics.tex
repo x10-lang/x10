@@ -254,17 +254,35 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
 
 \begin{figure*}
 \vspace{-\bigskipamount}
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infax[L-Fields-Object]
-  {\vdash\fields({\tt Object})=\bullet}
+\begin{minipage}{.32\textwidth}
+\quad\typicallabel{XXXXXXXX}
+\infax[L-Fields-Obj]
+  {\vdash\fields({\tt Obj})=\bullet}
 \end{minipage}%
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.31\textwidth}
 \quad\typicallabel{XXXXXX}
 \infrule[L-Field-B]
   {\vdash\fields({\tt C})=\tbar{f}:\tbar{T}}
   {{\tt C}~\has~{\tt f}_i:{\tt T}_i}
+\end{minipage}
+\begin{minipage}{.37\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Member-B]
+  {{\tt C}~\has~{\tt I}}
+  {{\tt x}:{\tt C}\vdash {\tt x}~\underline\has~{\tt I}[{\tt x}/\this]}
+\end{minipage}%
 
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Member-C]
+  {\Gamma,{\tt x}:{\tt T},{\tt c}\vdash {\tt x}~\underline\has~{\tt I}}
+  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\underline\has~{\tt I}}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\quad\typicallabel{XXXXXX}
+\infrule[L-Member-E]
+  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
+  {\Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
 \end{minipage}
 
 \begin{minipage}{\textwidth}
@@ -290,19 +308,6 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   {\vdash {\tt C}~\has~{\tt m}(\tbar{x}:\tbar{U})\{{\tt d}\}:{\tt V}={\tt e}}
 \end{minipage}
 
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[L-Member-B]
-  {{\tt C}~\has~{\tt I}}
-  {{\tt x}:{\tt C}\vdash {\tt x}~\underline\has~{\tt I}[{\tt x}/\this]}
-\end{minipage}%
-\begin{minipage}{.5\textwidth}
-\quad\typicallabel{XXXXXX}
-\infrule[L-Member-C,E]
-  {\Gamma,{\tt x}:{\tt T}\vdash {\tt x}~\underline\has~{\tt I} \andalso {\tt y}~\rm fresh}
-  {\Gamma,{\tt x}:{\tt T}\{{\tt c}\}\vdash {\tt x}~\underline\has~{\tt I} \\
-   \Gamma,{\tt x}:\exists {\tt y}:{\tt U}.~{\tt T}\vdash {\tt x}~\underline\has~{\tt I}}
-\end{minipage}
 \caption{\FX{} member lookup}
 \label{fig:lookup}
 \end{figure*}
