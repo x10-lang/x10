@@ -326,7 +326,7 @@ ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I
   	\andalso
   	\Gamma\vdash\new~{\tt C}(\tbar{t}):{\tt U}
   	\andalso
-  	\Gamma, \new~{\tt C}(\tbar{t}).{\tt f}_i=={\tt t}_i\vdash {\tt c}}
+  	\Gamma, \new~{\tt C}(\tbar{t}).\tbar{f}==\tbar{t}\vdash {\tt c}}
   {\Gamma\vdash {\tt c}}
 
 \infrule[X-Inv]
@@ -804,7 +804,7 @@ to overriding restrictions, we know that this method must have a
 return type that is a subtype of any other method {\tt m}
 defined in any superclass of {\tt C}. Finally, because
 constraint sets incompatible with the class hierarchy are
-rejected as inconsistent, we also know that the type of
+inconsistent, we also know that the type of
 $\new~{\tt C}(\tbar{e})$ cannot be constrained to have any upper
 bound that is not {\tt C} itself or one of its superclasses.
 
