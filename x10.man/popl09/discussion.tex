@@ -297,8 +297,7 @@ be written as follows in PolyJ:
 class SortedList[T]
   where T {int compareTo(T)} {
     void add(T x) {... x.compareTo(y) ...}
-    ...
-}
+    ... }
 \end{xten}}
 The \xcd"where" clause states that the type parameter \xcd"T" must have a
 method \xcd"compareTo" with the given signature.
@@ -310,8 +309,7 @@ extension of \Xten{} would be:
 class SortedList[T]
   {T has compareTo(T): int} {
     def add(x: T) {... x.compareTo(y) ...}
-    ...
-}
+    ... }
 \end{xten}}
 
 \eat{
@@ -348,8 +346,7 @@ following version of the
 class SortedList(compare: (T,T)=>int)
   extends List {
     def add(x: T) {... compare(x, y) ...}
-    ...
-}
+    ... }
 \end{xten}}
 \noindent
 the class has a property \xcd"compare" of type
@@ -395,8 +392,7 @@ class Array[T] {
     return new Array[U](
       (p:Point) => this(p)+a(p));
   }
-  ...
-}
+  ... }
 \end{xten}}
 
 \noindent
@@ -411,7 +407,8 @@ has a method \xcd"add" (corresponding to the \xcd"+" operation)
 that adds an \xcd"int" and a \xcd"double", retuning a
 \xcd"double".  However, \xcd"Array[Rabbit]", for example, does not support
 the \xcd"add" operation because \xcd"Rabbit" does not have an
-\xcd"add" method.\footnote{It may have a \xcd"multiply" method.}
+\xcd"add" method.
+%\footnote{It may have a \xcd"multiply" method.}
 
 
 
