@@ -493,8 +493,13 @@ subtype entails the constraint on the supertype.  Since one or
 both of the types involved in the constraint might be type
 variables, the entailment cannot be checked at compile time.
 
-One way to implement run-time entailment checking is to embed
-the constraint solver into the runtime system.
+One approach is to restrict the language 
+to rule out casts to type parameters 
+and to generic types with subtyping constraints, ensuring that
+entailment checks are not needed at run time.
+
+Alternatively, 
+the constraint solver could be embedded into the runtime system.
 This is the solution used in the \Xten{} implementation; however, this
 solution can result in inefficient run-time casts
 if entailment checking for the given constraint system is expensive.
@@ -525,19 +530,15 @@ Since $a$ and $t$ may be in different environments, \xcd"e" must
 be substituted for \xcd"this" in $a$ and \xcd"self" in $t$.
 }
 
-Another approach is to restrict the language 
-to rule out casts to type parameters 
-and to generic types with subtyping constraints.
-
-\eat{
-\todo{cut the rest of the section}
-
-To introduce the third solution,
-observe that an instance of a generic class \xcd"C[X]"
-can be tested for membership in the type \xcd"C{X==T}" by
-checking that all fields ${\tt f}_i$ of the instance with
+Another option is to test objects cast to \xcd"T" not for membership in the
+type \xcd"T", but rather to test against the
+\emph{interpretation} of \xcd"T".
+Observe that
+if an instance of a generic class \xcd"C[X]"
+is a member of the type \xcd"C{X==U}", then
+all fields ${\tt f}_i$ of the instance with
 declared type ${\tt S}_i$ contain values
-that are instances of ${\tt S}_i[{\tt T}/{\tt X}]$.
+that are instances of ${\tt S}_i[{\tt U}/{\tt X}]$.
 For example, given the following declaration of class \xcd"List":
 {
 \begin{xten}
@@ -548,24 +549,22 @@ class List[X] {
 \end{xten}
 }
 \noindent
-one can test if the object \xcd"xs" is an instance of \xcd"List{X==String}"
+if \xcd"xs" is an instance of \xcd"List{X==String}", then
 by checking that \xcd"xs.head" is an instance of \xcd"String"
-and that \xcd"xs.tail", recursively, is an instance of \xcd"List{X==String}".
+and \xcd"xs.tail" is, recursively, an instance of \xcd"List{X==String}".
+This property can be exploited by implementing cast to check the
+types of all fields of the object
 For this check to be sound, it is vital that all fields whose
-type depends on \xcd"X" are
-transitively final;
-otherwise, the type membership test is not invariant---the
+type depends on the type property \xcd"X" be transitively final;
+otherwise, the test is not invariant---the
 result of the test could change as the data is mutated.
-For
-instance, an \xcd"int" rather than a \xcd"String" could be assigned 
-into the \xcd"head" field.  Care must also be taken to implement the
+Care must also be taken to implement the
 test so that it terminates for cyclic data structures.
 This implementation is inefficient for large data structures.
 
-This solution implements a slightly weaker semantics
-than is desired.
-The problem is best illustrated by considering an empty generic
-class:
+This solution has a more permissive semantics
+than those implemented in \Xten or \FXG.
+The difference is best illustrated by considering an empty generic class:
 {
 \begin{xten}
 class Nil[X] { }
@@ -575,14 +574,9 @@ class Nil[X] { }
 In this case, there is no field of type \xcd"X" to test;
 therefore, an object instantiated as \xcd"Nil[int]" 
 can be considered a member of \xcd"Nil[String]". 
-But, since no instance of \xcd"Nil" can be distinguished (except
-via object identity) based on how \xcd"X" is instantiated,
-the solution remains sound.
+However, the solution remains sound:
+Given a class \xcd"C[X]" and an expression \xcd"e" of type \xcd"t.X", if
+a run-time check finds that \xcd"t" has type \xcd"C[T]", 
+the compiler \emph{cannot} use this information to derive 
+that \xcd"e" has type \xcd"T".
 We leave to future work a proof of this claim.
-\todo{make this more precise}
-
-Similarly, \Xcd{x instanceof List\{X==Number\}} will return true
-even if \xcd"x" is instantiated as \Xcd{List\{X==Integer\}} if the type is
-immutable.  But check if \xcd"List" takes \xcd"X" as a param even it if
-doesn't mutate an \xcd"X".
-}
