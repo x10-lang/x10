@@ -344,9 +344,9 @@ following version of the
 {
 \begin{xten}
 class SortedList(compare: (T,T)=>int)
-  extends List {
-    def add(x: T) {... compare(x, y) ...}
-    ... }
+    extends List {
+  def add(x: T) {... compare(x, y) ...}
+  ... }
 \end{xten}}
 \noindent
 the class has a property \xcd"compare" of type
@@ -358,6 +358,7 @@ using different constraints on the \xcd"compare" property.
 For example, one can define lists of
 both
 case-sensitive and case-insensitive strings:
+\bigskip
 {
 \begin{xten}
 val unixFiles
@@ -369,9 +370,10 @@ val windowsFiles
 \end{xten}}
 
 \noindent
-The syntax \xcd"String.compareTo.(String)" selects the
-\xcd"compareTo" method with a \xcd"String" argument from
-from \xcd"String".
+\xcd"String.compareTo.(String)" selects the
+method named
+\xcd"compareTo" with a \xcd"String" argument from
+class \xcd"String".
 %
 The lists \xcd"unixFiles" and \xcd"windowsFiles" are constrained
 by different comparison functions.  This allows the programmer
