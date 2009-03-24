@@ -561,27 +561,40 @@ Turning \FXZ{} into a language with value-dependent types is straightforward
 since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is already built into the typing rules.
 
 First, we assume we are given a constraint system $\cal A$ with a vocabulary of primitive types ${\tt A}$,
-predicates ${\tt p}$, and functions ${\tt q}$.  Zero arity
-functions encode constants.
+predicates ${\tt p}$, functions ${\tt q}$, and literals ${\tt l}$.
 
 Second, we extend the productions of \FXZ{} as follows.
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
   (Type)& {\tt T} &{::=}& {\tt A} \\
   (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
-  (Values) & {\tt e} &{::=}& ${\tt q}()$~~~~for {\tt q} of arity zero\\
-  (Constraint term) & {\tt t} &{::=}& ${\tt f}(\tbar{t})$ \\
+  (Values) & {\tt e} &{::=}& ${\tt l}$ \\
+  (Constraint term) & {\tt t} &{::=}& ${\tt q}(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
 \end{tabular}
 \end{center}
 
-The obvious rule is needed to type function calls.
+The following rules are needed to type functions and literals:
 
 \infrule[T-Fun]
 	{{\tt q}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
 	{\Gamma\vdash{{\tt q}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt q}(\tbar{x})\}}}
 
-Third, we authorize users to write constraints in $\cal A$ (except for existential constraints) in programs.
+\infrule[T-Lit]
+	{{\tt l}{\rm~has~type~{\tt A} {\rm~in~}\mathcal{A}}} 
+	{\Gamma\vdash{{\tt l}:{\tt A}\{\self=={\tt l}\}}}
+
+We extend the operational semantics with rules:
+\infrule[RC-Fun]
+	{{\tt e}_i\derives {\tt e}'_i}
+	{{\tt q}(\ldots,{\tt e}_i,\ldots)\derives {\tt q}(\ldots,{\tt e}'_i,\ldots)}
+
+\infrule[R-Fun]
+	{{\tt q}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{v}:\tbar{A}} 
+	{{\tt q}(\tbar{v})\derives \SB{{\tt q}(\tbar{v})}}
+where $\SB{{\tt q}(\tbar{v})}$ denotes the result of the evaluation of function {\tt q} on values \tbar{v}.
+
+Finally, we authorize users to write constraints in $\cal A$ (except for existential constraints) in programs.
 
 For instance, if $\mathcal{A}$ defines the type {\tt int}, integer literals, and the usual arithmetic operators we can declare:
 
@@ -589,16 +602,16 @@ For instance, if $\mathcal{A}$ defines the type {\tt int}, integer literals, and
 class Count(n:int) extends Object {
   def inc():Count{self.n==this.n+1} =
   	new Count(this.n+1);
-  
+}
 \end{xten}
 
-In practice, it make sense to distinguish the functions of the constraint language from the function of the base language and define the {\sc T-Fun} method on a case-by-case basis to lift expressions of the base language to the constraint language.
+In practice, it makes sense to distinguish the functions of the constraint language from the functions of the base language and define the {\sc T-Fun} typing judgment on a case-by-case basis to lift expressions of the base language to the constraint language.
 
 \FXD corresponds to the \CFJ calculus presented
 in prior work~\cite{constrained-types}.  As described there, \Xten
 supports equality constraints and has been extended with constraint
 systems for Presburger arithmetic and for set constraints over
-\Xten's array index domains.
+\Xten's array index domains (viz., regions).
 
 \subsection{\FXG}
 We now turn to showing how \FGJ{}-style generics can be supported in the \FX{} family.
@@ -707,7 +720,7 @@ class D(){this.f<=B} extends C { ..this.f.m().. }
 occurrences of $\this.{\tt f}$ in {\tt D} are bounded both by {\tt A} and {\tt B} hence 
 $\this.{\tt f}.{\tt m}()$ may either be typed using the declaration of {\tt m} in {\tt A} or {\tt B}.
 
-\paragraph{Type casts.} 
+Another property of \FXG{} worth noticing is that casts can ``erase'' typing information.
 Consider the program:
 \begin{xten}
 class C() extends Object {}
@@ -728,7 +741,7 @@ because the cast erased all information about it. In \Xten, we choose to shield 
 
 No additional rules are needed beyond those of \FXG{} and \FXD{}. This
 language permits type and value constraints, supporting \FGJ{} style
-generics and value-dependent types.
+generics and value-dependent types. All constraints but existential constraints are now user constraints.
 
 \subsection{Results}
 The following results hold for \FXGD supposing the program {\tt P} type checks.
@@ -737,7 +750,7 @@ The following results hold for \FXGD supposing the program {\tt P} type checks.
 for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
 \end{theorem}
 
-Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt q}() \alt C\{c\}$.
+Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt l} \alt C\{c\}$.
 
 \begin{theorem}[Progress]
 If $\vdash {\tt e:T}$ then one of the following conditions holds:
@@ -797,11 +810,12 @@ then there exists a type {\tt S} of
 ${\tt b}[\new~{\tt C}(\tbar{e}),\tbar{a}/\this,\tbar{x}]$
 that is a subtype of {\tt T}.
 
-\item Progress. \FXGD{} only differs from \FXZ{} in that it
-admits a new class of expressions: {\tt C}\{{\tt c}\}. But these
-are also values; therefore, the proof of progress is essentially
-unchanged.
-
+\item Progress. \FXGD{} only differs from \FXD{} in that it
+admits a new kind of expressions: {\tt C}\{{\tt c}\}. But these are also values, so the proof of progress is essentially unchanged.
+\eat{
+ {\tt l} ~$|$~ {\tt q}(\tbar{e}) ~$|$~ {\tt C}\{{\tt c}\}.
+Both literals and class types are values, we just have to establish progress in the case of function calls (in the context of a proof by induction on the structure of the expression {\tt e}).
+Assume ${\tt q}(tbar{e})$ is well typed then if all \tbar{e} are values progress is possible by rule {\sc R-Fun}. If not, then at leat one of the expressions is not a value and by induction hypothesis applied to this expression we can conclude that it is either stuck on a cast or can make a step of execution step. We conclude using rule {\sc RC-Fun} in the second case.}
 \item{Type soundness}. Direct consequence of the previous two theorems.
 \end{itemize}
 
