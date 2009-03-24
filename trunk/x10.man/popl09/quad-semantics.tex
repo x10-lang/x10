@@ -759,7 +759,7 @@ generics and value-dependent types. All constraints but existential constraints 
 The following results hold for \FXGD supposing the program {\tt P} type checks.
 
 \begin{theorem}[Subject Reduction] If $\Gamma$ is well formed and $\Gamma \vdash {\tt e:T}$ and ${\tt e} \derives {\tt e'}$, then
-for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
+for some type {\tt S}, $\Gamma \vdash {\tt {\tt e}':{\tt S}},~{\tt S} \subtype {\tt T}$.
 \end{theorem}
 
 Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt l} \alt C\{c\}$.
