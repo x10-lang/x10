@@ -251,19 +251,19 @@ assertions; whereas, constrained types are statically enforced.
 Dynamic enforcement enables a more expressive assertion language
 at the cost of possible run-time failures.
 Integration of constrained types and generic types
-effectively allow parameterization of classes on constraints.
+effectively allow parametrization of classes on constraints.
 Consider the \xcd"List" class in Figure~\ref{fig:list0}.
 If the class is instantiated on a constrained type \xcd"C{c}",
 i.e., \xcd"List[C{c}]",
 then all elements of the list satisfy \xcd"c".
 Guha et al.~\cite{GMFK07} 
 explore polymorphic contracts as a way to achieve this
-parameterization in a functional language.
-Generic constrained types provide constraint parameterization
+parametrization in a functional language.
+Generic constrained types provide constraint parametrization
 in a natural extension of object-oriented languages.
 
 ESC/Java~\cite{escjava-pldi02}, Spec\#~\cite{specsharp}, and
 JML~\cite{leavens00jml} are instances of
-static assertion checkers for OO languages.  Contrained types
+static assertion checkers for OO languages.  Constrained types
 offer a less expressive, but more modular, lightweight solution.
 
