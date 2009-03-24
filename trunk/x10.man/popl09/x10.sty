@@ -46,20 +46,22 @@
    %prebreak={},%
   }
 
+\newcommand\codesize\small
+
 \lstnewenvironment{xtenmath}
-  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=1em,mathescape=true}}
+  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=1.3em,mathescape=true,basicstyle=\codesize\normalfont\ttfamily}}
   {}
 
 \lstnewenvironment{xten}
-  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=1em}}
+  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=1.3em,basicstyle=\codesize\normalfont\ttfamily}}
   {}
 
 \lstnewenvironment{xtenmathnoindent}
-  {\lstset{language=X10,breaklines=false,captionpos=b,mathescape=true}}
+  {\lstset{language=X10,breaklines=false,captionpos=b,mathescape=true,basicstyle=\codesize\normalfont\ttfamily}}
   {}
 
 \lstnewenvironment{xtennoindent}
-  {\lstset{language=X10,breaklines=false,captionpos=b}}
+  {\lstset{language=X10,breaklines=false,captionpos=b,basicstyle=\codesize\normalfont\ttfamily}}
   {}
 
 %\newenvironment{x10}{\begin{xten}}{\end{xten}}
