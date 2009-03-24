@@ -703,7 +703,7 @@ class D(){this.f<=B} extends C { ..this.f.m().. }
 occurrences of $\this.{\tt f}$ in {\tt D} are bound both by {\tt A} and {\tt B} hence 
 $\this.{\tt f}.{\tt m}()$ may either be typed using the declaration of {\tt m} in {\tt A} or {\tt B}.
 
-
+It is also possible for a program to specify inconsistent constraints such as ``${\tt x}\extends{\tt A}, {\tt x}\extends{\tt D}$'' using the class definitions above. The type system we have defined for \FXG{} does not necessarily reject programs embedding such constraints. It simply precludes generic classes with inconsistent constraints or generic methods with inconsistent guards to be instantiated on concrete types (since concrete types cannot satisfy these constraints).
 
 
 
