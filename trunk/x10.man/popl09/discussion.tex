@@ -553,7 +553,7 @@ if \xcd"xs" is an instance of \xcd"List{X==String}", then
 by checking that \xcd"xs.head" is an instance of \xcd"String"
 and \xcd"xs.tail" is, recursively, an instance of \xcd"List{X==String}".
 This property can be exploited by implementing cast to check the
-types of all fields of the object
+types of all fields of the object.
 For this check to be sound, it is vital that all fields whose
 type depends on the type property \xcd"X" be transitively final;
 otherwise, the test is not invariant---the
