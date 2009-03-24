@@ -410,7 +410,7 @@ public class ForkJoinWorkerThread extends Thread {
      * Sets sp in store-order.
      */
     private void storeSp(int s) {
-    	// DAVE G: Egregious hack to get code running on IBM SDKs that don't have putOrderedObject.
+    	// DAVE G: Egregious hack to get code running on IBM SDKs that don't have putOrderedInt.
     	// _unsafe.putOrderedInt(this, spOffset, s);
     	_unsafe.putInt(this, spOffset, s);
     }
