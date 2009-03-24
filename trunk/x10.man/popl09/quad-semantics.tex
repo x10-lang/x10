@@ -46,15 +46,12 @@ expressions, or casts (written {\tt e}~\as~{\tt T}).
 The set of types includes classes {\tt C} and is closed under
 constrained types ($\tt T\{c\}$) and existential
 quantification ($\exists \tt x:T.~U$).
-An object {\tt o} is of type {\tt C} if it is an instance of class {\tt C}; it is of type $\tt
+A value {\tt v} is of type {\tt C} if it is an instance of class {\tt C}; it is of type $\tt
 T\{c\}$ if it is of type {\tt T} and it satisfies the constraint $\tt
-c[o/self]$\footnote{Thus the constraint {\tt c} in a type {\tt T\{c\}}
-should be thought of as a unary predicate $\lambda\self.{\tt c}$, an
-object is of this type if it is of type {\tt T} and satisfies this
-predicate.}; it is of type $\exists \tt x:T.~U$
-if there is some object {\tt q}
-of type {\tt T} such that {\tt o} is of type
-$\tt U[q/x]$.
+c[v/self]$; it is of type $\exists \tt x:T.~U$
+if there is some value {\tt w}
+of type {\tt T} such that {\tt v} is of type
+$\tt U[w/x]$.
 
 The syntax for constraints in \FXZ{} is specified in
 Figure~\ref{fig:fx-grammar}. As expected, constraints
@@ -169,95 +166,6 @@ distinguish members that are available on variables from members
 available on classes.  For now,
 ${\tt x}:{\tt C}~\underline\has~{\tt I}[{\tt x}/\this]$ iff ${\tt C}~\has~{\tt I}$.
 
-\paragraph{3. Constraints.}
-In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. We define the {\em constraint
-projection}, $\sigma(\Gamma)$ as follows.
-%
-\begin{center}
-\begin{tabular}{l}
-$\sigma(\epsilon)={\tt true}$\\
-$\sigma({\tt x}:{\tt C}, \Gamma)=\sigma(\Gamma)$\\
-$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)={\tt c}[{\tt x}/\self], \sigma({\tt x}:{\tt T},\Gamma)$\\
-$\sigma({\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}, \Gamma)=\sigma({\tt z:T}, {\tt x}:{\tt U[{\tt z}/{\tt y}]},\Gamma)$\\
-$\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$
-\end{tabular}
-\end{center}
-%
-Above, in the fourth rule, 
-we assume that alpha-equivalence is used to
-choose a variable {\tt z} that does not
-occur in the context under construction.
-
-We define $\Gamma\vdash {\tt c}$ in Figure~\ref{fig:object}. {\sc X-Sel} permits the underlying constraint system $\mathcal{X}$ to interpret field accesses. {\sc X-Inv} handles class invariants. Note the use of subtyping here to prepare for the introduction of bounds on generics types later.
-
-We say that a context $\Gamma$ is {\em consistent} if all (finite)
-subsets of $\{{\tt c}\alt \sigma(\Gamma) \vdash {\tt c}\}$ are consistent.
-In all type judgments presented below ({\sc T-Cast}, {\sc T-Field},
-etc.), we make the implicit assumption that the context $\Gamma$ is
-consistent; if it is inconsistent, the rule cannot be used and the
-type of the given expression cannot be established (type-checking
-fails).
-
-\eat{
-The following rules govern existential constraints:
-\infrule[Exists-R]
-  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash{\tt c}[{\tt t}/{\tt x}]}
-  {\Gamma\vdash \exists {\tt x}:{\tt T}.~{\tt c}}
-
-\infrule[Exists-L]
-  {\Gamma,{\tt x}:{\tt T},~{\tt c}\vdash {\tt d} \andalso {\tt x}~\rm fresh}
-  {\Gamma,\exists {\tt x}:{\tt T}.~{\tt c}\vdash {\tt d}}
-}
-
-\paragraph{4. Typing.} The typing rules are specified in Figure~\ref{fig:FX}.
-
-{\sc T-Var} is as expected, except that it asserts the constraint {\tt
-self==x}, which records that any value of this type is known
-statically to be equal to {\tt x}. This constraint is actually very
-crucial---as we shall see in the other rules, once we establish that
-an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
-type to a freshly chosen variable {\tt z}.  If, in fact, {\tt e} has a
-static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
-equal to {\tt x}; that is, it has type {\tt T\{self==x\}}), then
-{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., that {\tt z}
-equals {\tt x}.
-Thus {\sc T-Var} provides an important base case for
-reasoning statically about equality of values in the environment.
-
-We do away with the three cast rules in \FJ{} in favor of a single
-cast rule, requiring only that {\tt e} be of some type {\tt U}.  At run time,
-{\tt e} will be checked to see if it is actually of type {\tt T} (see
-{\sc R-Cast} in Figure~\ref{fig:sos}).
-
-{\sc T-Field} may be understood through ``proxy'' reasoning as
-follows:  Given the context $\Gamma$, assume the receiver {\tt e} can
-be established to be of type {\tt T}. Now, we do not know the run-time
-value of {\tt e}, so we shall assume that it is some fixed but unknown
-``proxy'' value {\tt x} (of type {\tt T}) that is ``fresh'' in that it
-is not known to be related to any known value (i.e., those recorded
-in $\Gamma$).  If we can establish that {\tt x} has a field {\tt f} of
-type {\tt U}\footnote{Note from the definition of
-\fields{} in Figure~\ref{fig:lookup} that all occurrences of
-\this{} in the declared type of the field {\tt f} will have been replaced
-by {\tt x}.}, then we can assert that
-{\tt e.f} has type {\tt U} and, further, that it equals {\tt x.f}.
-Hence, we can assert that {\tt e.f} has type 
-$\exists {\tt x}:{\tt T}.~{\tt U}\{\self={\tt x}.{\tt f}\}$.
-
-{\sc T-Invk} has a similar structure to {\sc T-Field}: we use
-proxy reasoning for the receiver and the arguments of the method
-call. {\sc T-New} also uses the same proxy reasoning: however in this case
-we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
-for some values $\bar{\tt y}$ of the given types.
-
-{\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
-
-
-\paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
-Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
-{\sc S-Exists-L} and {\sc S-Exists-R} handle existential types.
-{\sc S-Const-L} and {\sc S-Const-R} handle constraints. The rules ensure all types are well formed.
-
 \begin{figure*}
 \centering
 \begin{tabular}{r@{\quad}rcl}
@@ -265,6 +173,7 @@ Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
   (Class declaration) & {\tt L} &{::=}& $\tt class~C(\tbar{f}:\tbar{T})\{c\}~extends~D~\{~\tbar{M}~\}$ \\
   (Method declaration)& {\tt M} &{::=}& $\tt def~m(\tbar{x}:\tbar{T})\{c\}:T=e;$ \\
   (Expression)& {\tt e} &{::=}& $\tt x$ \alt $\tt e.f$ \alt $\tt\new~C(\tbar{e})$ \alt $\tt e.m(\tbar{e})$ \alt $\tt e~\as~T$ \\
+  (Value)& {\tt v} &{::=}& $\tt\new~C(\tbar{v})$ \\
   (Type)& {\tt T} &{::=}& $\tt C$ \alt $\tt T\{c\}$ \alt $\tt \exists x:T.~T$ \\
   (Constraint term) & {\tt t} &{::=}& $\tt x$ \alt $\tt t.f$ \alt $\tt\new~C(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& $\true$ \alt $\tt t==t$ \alt $\tt c,c$ \alt $\tt \exists x:T.~c$ \\
@@ -477,22 +386,22 @@ Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 
 \begin{figure*}
 \vspace{-\bigskipamount}
-\begin{minipage}{.333\textwidth}
+\begin{minipage}{.25\textwidth}
 \quad\typicallabel{XXX}
 \infrule[S-Refl]
   {\wj{\Gamma}{\tt T}}
   {\Gamma\vdash {\tt T}\subtype {\tt T}}
 \end{minipage}%
-\begin{minipage}{.333\textwidth}
+\begin{minipage}{.30\textwidth}
 \quad\typicallabel{XXX}
 \infrule[S-Trans]
 	{\Gamma\vdash {\tt T}\subtype {\tt U}, {\tt U}\subtype {\tt V}}
 	{\Gamma\vdash {\tt T}\subtype {\tt V}}
 \end{minipage}%
-\begin{minipage}{.333\textwidth}
-\quad\typicallabel{XXX}
+\begin{minipage}{.45\textwidth}
+\quad\typicallabel{XXXX}
 \infrule[S-Const-L]
-	{\Gamma,{\tt c}\vdash{\tt T}\subtype {\tt U}}
+	{\Gamma\vdash{\tt T}\{{\tt c}\}~\type \andalso\Gamma,{\tt c}\vdash{\tt T}\subtype {\tt U}}
 	{\Gamma\vdash {\tt T}\{{\tt c}\}\subtype {\tt U}}
 \end{minipage}%
 
@@ -557,20 +466,110 @@ Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 \label{fig:FXG}
 \end{figure*}
 
+\paragraph{3. Constraints.}
+In defining these judgments we will use \mbox{$\Gamma \vdashX {\tt c}$}, the judgment corresponding to the underlying constraint system. Formally, $\cal X$ permits judgments of the form $\Gamma \vdashX {\tt c}$ where $\Gamma::=\tbar{c}$ is a (finite, possibly empty) sequence of constraints. We define the {\em constraint
+projection}, $\sigma(\Gamma)$ as follows.
+%
+\begin{center}
+\begin{tabular}{l}
+$\sigma(\epsilon)={\tt true}$\\
+$\sigma({\tt x}:{\tt C}, \Gamma)=\sigma(\Gamma)$\\
+$\sigma({\tt x}:{\tt T\{c\}}, \Gamma)={\tt c}[{\tt x}/\self], \sigma({\tt x}:{\tt T},\Gamma)$\\
+$\sigma({\tt x}:\exists {\tt y}:{\tt T}.~{\tt U}, \Gamma)=\sigma({\tt z:T}, {\tt x}:{\tt U[{\tt z}/{\tt y}]},\Gamma)$\\
+$\sigma({\tt c},\Gamma) = {\tt c}, \sigma(\Gamma)$
+\end{tabular}
+\end{center}
+%
+Above, in the fourth rule, 
+we assume that alpha-equivalence is used to
+choose a variable {\tt z} that does not
+occur in the context under construction.
+
+We define $\Gamma\vdash {\tt c}$ in Figure~\ref{fig:object}. {\sc X-Sel} permits the underlying constraint system $\mathcal{X}$ to interpret field accesses. {\sc X-Inv} handles class invariants. Note the use of subtyping here to prepare for the introduction of bounds on generics types later.
+
+We say that a context $\Gamma$ is {\em consistent} if all (finite)
+subsets of $\{{\tt c}\alt \sigma(\Gamma) \vdash {\tt c}\}$ are consistent.
+In all type judgments presented below ({\sc T-Cast}, {\sc T-Field},
+etc.), we make the implicit assumption that the context $\Gamma$ is
+consistent; if it is inconsistent, the rule cannot be used and the
+type of the given expression cannot be established (type-checking
+fails).
+
+\eat{
+The following rules govern existential constraints:
+\infrule[Exists-R]
+  {\Gamma\vdash {\tt t}:{\tt T} \andalso \Gamma\vdash{\tt c}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash \exists {\tt x}:{\tt T}.~{\tt c}}
+
+\infrule[Exists-L]
+  {\Gamma,{\tt x}:{\tt T},{\tt c}\vdash {\tt d} \andalso {\tt x}~\rm fresh}
+  {\Gamma,\exists {\tt x}:{\tt T}.~{\tt c}\vdash {\tt d}}
+}
+
+\paragraph{4. Typing.} The typing rules are specified in Figure~\ref{fig:FX}.
+
+{\sc T-Var} is as expected, except that it asserts the constraint {\tt
+self==x}, which records that any value of this type is known
+statically to be equal to {\tt x}. This constraint is actually very
+crucial---as we shall see in the other rules, once we establish that
+an expression {\tt e} is of a given type {\tt T}, we ``transfer'' the
+type to a freshly chosen variable {\tt z}.  If, in fact, {\tt e} has a
+static ``name'' {\tt x} (i.e., {\tt e} is known statically to be
+equal to {\tt x}; that is, it has type {\tt T\{self==x\}}), then
+{\sc T-Var} lets us assert that {\tt z:T\{self==x\}}, i.e., that {\tt z}
+equals {\tt x}.
+Thus {\sc T-Var} provides an important base case for
+reasoning statically about equality of values in the environment.
+
+We do away with the three cast rules in \FJ{} in favor of a single
+cast rule, requiring only that {\tt e} be of some type {\tt U}.  At run time,
+{\tt e} will be checked to see if it is actually of type {\tt T} (see
+{\sc R-Cast} in Figure~\ref{fig:sos}).
+
+{\sc T-Field} may be understood through ``proxy'' reasoning as
+follows:  Given the context $\Gamma$, assume the receiver {\tt e} can
+be established to be of type {\tt T}. Now, we do not know the run-time
+value of {\tt e}, so we shall assume that it is some fixed but unknown
+``proxy'' value {\tt x} (of type {\tt T}) that is ``fresh'' in that it
+is not known to be related to any known value (i.e., those recorded
+in $\Gamma$).  If we can establish that {\tt x} has a field {\tt f} of
+type {\tt U}\footnote{Note from the definition of
+\fields{} in Figure~\ref{fig:lookup} that all occurrences of
+\this{} in the declared type of the field {\tt f} will have been replaced
+by {\tt x}.}, then we can assert that
+{\tt e.f} has type {\tt U} and, further, that it equals {\tt x.f}.
+Hence, we can assert that {\tt e.f} has type 
+$\exists {\tt x}:{\tt T}.~{\tt U}\{\self={\tt x}.{\tt f}\}$.
+
+{\sc T-Invk} has a similar structure to {\sc T-Field}: we use
+proxy reasoning for the receiver and the arguments of the method
+call. {\sc T-New} also uses the same proxy reasoning: however in this case
+we can establish that the resulting value is equal to $\new~{\tt C}(\tbar{y})$
+for some values $\bar{\tt y}$ of the given types.
+
+{\sc OK-Method} and {\sc OK-Class} ensure that the types and constraints occurring in a program are well formed. Following from \FJ{}, these rules do not preclude the existence of cycles in the type declarations. We assume they are acyclic. {\sc OK-Method} checks that the actual type {\tt W} of the method body {\tt e} is a subtype of its declared return type {\tt V}. {\sc OK-Class} makes sure all methods of the class type check.
+
+
+\paragraph{5. Subtyping.} The subtyping relation is defined in Figure~\ref{fig:subtyping}.
+Unsurprinsingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
+{\sc S-Exists-L} and {\sc S-Exists-R} handle existential types.
+{\sc S-Const-L} and {\sc S-Const-R} handle constraints. The rules ensure all types are well formed.
+
 \subsection{\FXD}
 
 Turning \FXZ{} into a language with value-dependent types is straightforward
 since the construction of the previous section is parametric in the underlying constraint system $\mathcal{X}$ and constraint propagation is already built into the typing rules.
 
 First, we assume we are given a constraint system $\cal A$ with a vocabulary of primitive types ${\tt A}$,
-predicates ${\tt p}$, and functions ${\tt f}$.  Zero arity
+predicates ${\tt p}$, and functions ${\tt q}$.  Zero arity
 functions encode constants.
 
 Second, we extend the productions of \FXZ{} as follows.
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
   (Type)& {\tt T} &{::=}& {\tt A} \\
-  (Expression) & {\tt e} &{::=}& ${\tt f}(\tbar{e})$ \\
+  (Expression) & {\tt e} &{::=}& ${\tt q}(\tbar{e})$ \\
+  (Values) & {\tt e} &{::=}& ${\tt q}()$~~~~for {\tt q} of arity zero\\
   (Constraint term) & {\tt t} &{::=}& ${\tt f}(\tbar{t})$ \\
   (Constraint) & {\tt c} &{::=}& ${\tt p}(\tbar{t})$ \\  
 \end{tabular}
@@ -579,19 +578,21 @@ Second, we extend the productions of \FXZ{} as follows.
 The obvious rule is needed to type function calls.
 
 \infrule[T-Fun]
-	{{\tt f}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
-	{\Gamma\vdash{{\tt f}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt f}(\tbar{x})\}}}
+	{{\tt q}{\rm~has~type~\tbar{A} \rightarrow {\tt B}{\rm~in~}\mathcal{A}} \andalso \Gamma\vdash\tbar{e}:\tbar{A}} 
+	{\Gamma\vdash{{\tt q}(\tbar{e}):\exists\tbar{x}:\tbar{A}.~{\tt B}\{\self=={\tt q}(\tbar{x})\}}}
 
 Third, we authorize users to write constraints in $\cal A$ (except for existential constraints) in programs.
 
-For instance, if $\mathcal{A}$ defines the type {\tt int}, the constant {\tt 0} and the successor function {\tt s}, we can declare:
+For instance, if $\mathcal{A}$ defines the type {\tt int}, integer litterals, and the usual arithmetic operators we can declare:
 
 \begin{xten}
 class Count(n:int) extends Object {
-  def inc():Count{self.n==s(this.n)} =
-  	new Count(s(this.n));
-}
+  def inc():Count{self.n==this.n+1} =
+  	new Count(this.n+1);
+  
 \end{xten}
+
+In pratice, it make sense to distinguish the functions of the contraint language from the function of the base language and define the {\sc T-Fun} method on a case-by-case basis to lift expressions of the base language to the constraint language.
 
 \FXD corresponds to the \CFJ calculus presented
 in prior work~\cite{constrained-types}.  As described there, \Xten
@@ -606,6 +607,7 @@ following productions:
 \begin{center}
 \begin{tabular}{r@{\quad}rcl}
   (Expression)& {\tt e} &{::=}& ${\tt C}\{{\tt c}\}$ \\
+  (Value)& {\tt v} &{::=}& ${\tt C}\{{\tt c}\}$ \\
   (Path)& {\tt p} &{::=}& ${\tt x}$ \alt {\tt p}.{\tt f} \\
   (Type)& {\tt T} &{::=}& ${\tt p}$ \alt \type \\
   (Constraint term)& {\tt t} &{::=}& ${\tt T}$ \\
@@ -648,7 +650,7 @@ The key idea is that information about type-valued expressions can
 be accumulated through constraints. Specifically we introduce 
 the ``extends'' constraint ${\tt T}\extends{\tt U}$. It may be used, for
 instance, to specify upper bounds on type variables or fields (path
-types). Users are permitted to specify ``$==$'' and ``$\extends$'' constraints
+types). In \FXG{}, users are permitted to specify ``$==$'' and ``$\extends$'' constraints
 about type variables, fields, and class types.
 
 \begin{example}
@@ -735,7 +737,7 @@ The following results hold for \FXGD supposing the program {\tt P} type checks.
 for some type {\tt S}, $\Gamma \vdash {\tt e':S},{S \subtype T}$.
 \end{theorem}
 
-We let values be of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt C\{c\}$.
+Values are of the form $\tt v ::= \new\ C(\bar{\tt v}) \alt {\tt q}() \alt C\{c\}$.
 
 \begin{theorem}[Progress]
 If $\vdash {\tt e:T}$ then one of the following conditions holds:
