@@ -616,7 +616,12 @@ class Count(n:int) extends Object {
 }
 \end{xten}
 
-In practice, it makes sense to distinguish the functions of the constraint language from the functions of the base language, and to define the {\sc T-Fun} typing judgment on a case-by-case basis to lift expressions of the base language to the constraint language.
+In practice, it makes sense to distinguish the functions of the
+constraint language from the functions of the base language.
+One would define the {\sc T-Fun} typing judgment on a case-by-case
+basis to
+relate the interpretation of \xcd"q" as an expression to
+its interpretation as a constraint term.
 
 \FXD corresponds to the \CFJ calculus presented
 in our prior work on constrained types~\cite{constrained-types}.  As described there, \Xten
