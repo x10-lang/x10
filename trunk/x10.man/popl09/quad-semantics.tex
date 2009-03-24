@@ -513,7 +513,7 @@ Unsurprisingly, it is reflexive ({\sc S-Refl}) and transitive ({\sc S-Trans}).
 	{\Gamma\vdash {\tt T}\subtype {\tt U}\{{\tt c}\}}
 
 \infrule[S-Exists-R]
-  {\Gamma\vdash {\tt t}:{\tt S},~{\tt S} \subtype {\tt T},~{\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
+  {\Gamma\vdash {\tt t}:{\tt T},~{\tt U}\subtype {\tt V}[{\tt t}/{\tt x}]}
   {\Gamma\vdash {\tt U}\subtype\exists {\tt x}:{\tt T}.~{\tt V}}
 \end{minipage}        
 \caption{\FX{} subtyping rules}\label{fig:subtyping}
