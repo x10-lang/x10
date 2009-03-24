@@ -466,8 +466,10 @@ $\Xcd{Number} \subtype \Xcd{Double}$.
 }
 
 \subsection{Run-time casts}
+\label{sec:casts}
 
-Constraints can be evaluated at run time using casts.
+While constraints are normally solved at compile time, 
+constraints can be evaluated at run time by using casts.
 The expression 
 \xcd"xs as List{length==n}" checks not only 
 that \xcd"xs"
