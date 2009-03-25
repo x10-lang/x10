@@ -72,10 +72,6 @@
         </jar>
     </target>
     <target name="prereq-jars">
-        <condition property="runtime.jar.present">
-            <available file="${lib}/${runtime.jar}"/>
-        </condition>
-        <fail message="Unable to find required file ${lib}/${runtime.jar}" unless="runtime.jar.present"/>
         <condition property="polyglot.jar.present">
             <available file="${lib}/${polyglot.jar}"/>
         </condition>
