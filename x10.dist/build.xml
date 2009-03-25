@@ -75,7 +75,7 @@
         <ant antfile="${x10.cppbackend.location}/build.xml" target="clean" inheritAll="false" dir="${x10.cppbackend.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,constraints-jar,runtime-java,compiler-jar"/>
+    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,cppbackend-jar,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
 
