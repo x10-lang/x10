@@ -41,6 +41,13 @@ public value Runtime {
 	 */
 	const pool = new Pool(NativeRuntime.INIT_THREADS - 1);
 
+	/**
+	 * A hueristic estimate of the amount of unscheduled activities
+	 * currently available to worker threads in the pool.
+	 * Intended for use in heuristics that control async spawning
+	 * based on the current amount of surplus work.
+	 */
+	public static def surplusActivityCount():int = pool.pendingActivityCount();
     
 	// current activity, current place
 

@@ -41,7 +41,7 @@ value Pool(count:Int) {
 	 * Pending activities
 	 */
 	private val activities = new Stack[Activity]();
-	
+
 
 	/** 
 	 * Start count threads
@@ -50,6 +50,13 @@ value Pool(count:Int) {
 		property(count);
 		while (that.size < count) allocate(that.size++);
 	}
+
+	/**
+	 * Get an estimate on the number of unscheduled activities
+	 * available to the pool for future execution.
+	 */
+	def pendingActivityCount():int = activities.size();
+
 	
 	/**
 	 * Submit a new activity to the pool
