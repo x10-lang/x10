@@ -2,6 +2,7 @@ package com.ibm.wala.cast.x10.loader;
 
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.classLoader.LanguageImpl;
+import com.ibm.wala.types.TypeName;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.strings.Atom;
 
@@ -39,5 +40,10 @@ public class X10Language extends LanguageImpl {
 
 	public TypeReference[] getArrayInterfaces() {
 		return Language.JAVA.getArrayInterfaces();
+	}
+
+	public TypeName lookupPrimitiveType(String name) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
