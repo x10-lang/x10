@@ -21,18 +21,11 @@ extern "C" {
 
 namespace x10aux {
 
-    #ifdef X10_USE_CUDA_HOST
-    void cuda_init(void);
-    #endif
-
     class PGASInitializer {
         static int count;
     public:
         PGASInitializer() {
             if (count++ == 0) {
-                #ifdef X10_USE_CUDA_HOST
-                cuda_init();
-                #endif
                 #ifdef X10_USE_BDWGC
                 GC_INIT();
                 #endif                
