@@ -120,6 +120,12 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
         return (!staticMethod && genericClass) || genericMethod;
     }
 
+    public X10MethodDef currentMethod() {
+        if (currentCode() instanceof X10MethodDef)
+            return (X10MethodDef) currentCode();
+        return null;
+    }
+
     
 	public void saveEnvVariableInfo(String name) {
 		VarInstance vi = findVariableInThisScope(Name.make(name));
