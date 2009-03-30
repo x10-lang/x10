@@ -14,22 +14,26 @@ namespace x10 {
 namespace x10aux {
 
 #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-    /* References that have been shipped to remote Places,
-     * and therefore must be treated as roots for local GCs
+    /* A utility class to keep track of references that have been
+     * shipped to remote Places,and therefore must be treated as
+     * roots for local GCs
      */
     class ReferenceLogger {
-        void*** escapedReferences;
-        int nextSlot;
+    public:
+        static ReferenceLogger* it;
+    private:
+        class Bucket {
+        public:
+            void *_reference;
+            Bucket *_next;
+        };
+        x10aux::ref<x10::runtime::Lock> _lock;
+        Bucket **_buckets;
+        
     public: 
         ReferenceLogger();
         void log_(void *x);
-        x10aux::ref<x10::runtime::Lock> lock;
-        static ReferenceLogger* it;
-        static void log(void *x) {
-            if (it==NULL)
-                it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
-            it->log_(x);
-        }
+        static void log(void *x) { it->log_(x); }
     };
 
 #endif
