@@ -7,11 +7,17 @@ This release includes both the C++ and Java code generation backends.
 The C++ backend is now in the publicly-visible SourceForge SVN repository.
 
 This release makes the following language changes since 1.7.2:
-- "to" is no longer used for casts, use "as"
+- "to" is no longer used for casts, use "as".
 - System.out, System.err, and System.in have been deprecated in favor
   of x10.io.Console.OUT, x10.io.Console.ERR, and x10.io.Console.IN,
   respectively.
-- X10 now supports "at" statements
+- Box[T] no longer has the same interface as T; it is a regular generic class.
+  For a value type T, the compiler will convert from T to Box[T] when assigning
+  into a Ref.  There is no automatic conversion from Box[T] to T.  Function
+  types are value interfaces.  There is no automatic conversion from Ref types
+  implementing a function interface to a function type; programmers must
+  explicitly create a closure.
+- X10 now supports "at" statements.
 
 The following features described in the 1.7 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
