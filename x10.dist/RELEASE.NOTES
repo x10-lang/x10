@@ -17,7 +17,7 @@ This release makes the following language changes since 1.7.2:
   types are value interfaces.  There is no automatic conversion from Ref types
   implementing a function interface to a function type; programmers must
   explicitly create a closure.
-- X10 now supports "at" statements.
+- X10 now supports "at" statements and expressions.
 
 The following features described in the 1.7 language manual do not
 currently work with the Java backend and will be fixed in the subsequent
