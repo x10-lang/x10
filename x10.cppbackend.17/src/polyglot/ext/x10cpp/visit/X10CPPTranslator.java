@@ -603,6 +603,7 @@ public class X10CPPTranslator extends Translator {
         public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
         //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
         //"mpCC_r -q64 -qrtti=all"
+        public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
         /** These go before the files */
         public static final String[] preArgsAIX = new String[] {
             USE_XLC ? DUMMY : "-Wno-long-long",
@@ -610,6 +611,7 @@ public class X10CPPTranslator extends Translator {
             USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
             USE_XLC ? "-qrtti=all" : DUMMY,
             //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
+            USE_XLC && XLC_EXTRA_FLAGS!=null ? XLC_EXTRA_FLAGS : DUMMY,
         };
         /** These go after the files */
         public static final String[] postArgsAIX = new String[] {
