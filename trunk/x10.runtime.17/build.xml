@@ -115,16 +115,28 @@
             </classpath>
         </ejc>
     </target>
-    <target name="gen-xrx" depends="init">
-        <echo message="Building Java sources for XRX"/>
+    <property name="gen" location="${build}/gen"/>
+    <target name="check-xrx" depends="init">
         <fileset id="xrx.files" dir="${basedir}/src-x10" includes="**/*.x10"/>
-        <pathconvert property="xrx.list" refid="xrx.files" dirsep="/" pathsep=" ">
+        <uptodate property="xrx.uptodate">
+            <srcfiles refid="xrx.files"/>
+            <globmapper from="*.x10" to="${gen}/*.java" handledirsep="true"/>
+        </uptodate>
+    </target>
+    <target name="gen-xrx" depends="init,check-xrx" unless="xrx.uptodate">
+        <echo message="Building Java sources for XRX"/>
+        <fileset id="changed.xrx.files" dir="${basedir}/src-x10" includes="**/*.x10">
+            <depend targetdir="${gen}">
+                <mapper type="glob" from="*.x10" to="*.java"/>
+            </depend>
+        </fileset>
+        <pathconvert property="xrx.list" refid="changed.xrx.files" dirsep="/" pathsep=" ">
             <map from="${basedir}${file.separator}src-x10${file.separator}" to=""/>
         </pathconvert>
         <echo message="x10c -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' -d '${build}/gen' -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' -d '${gen}' -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
     <target name="build-xrx" depends="init,build-java,gen-xrx">
@@ -150,12 +162,12 @@
             </classpath>
         </javac>
         -->
-        <ejc destdir="${build}/gen" source="1.5" target="1.5" debug="on" nowarn="on">
-            <src path="${build}/gen"/>
+        <ejc destdir="${gen}" source="1.5" target="1.5" debug="on" nowarn="on">
+            <src path="${gen}"/>
             <classpath>
               <path refid="project.classpath"/>
               <path>
-                  <pathelement location="${build}/gen"/>
+                  <pathelement location="${gen}"/>
                   <pathelement location="${build}"/>
               </path>
             </classpath>
