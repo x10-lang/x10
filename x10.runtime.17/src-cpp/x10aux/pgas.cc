@@ -47,80 +47,76 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 #include <x10/lang/ValRail.h>
 #include <x10/runtime/Thread.h>
 
-extern "C" {
-
 #if 1
-    // this one for when pgas does not use an internal thread
-    void __x10_callback_asyncswitch(const x10_async_closure_t *cl, x10_clock_t *, int) {
-            _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
-            x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
-            ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
-            _X_("The deserialised async was: "<<async->toString()->c_str());
-            deserialized_bytes += buf.length();
-            async->apply();
-    }
+// this one for when pgas does not use an internal thread
+static void deserialize_remote_closure(const x10_async_closure_t *cl, int) {
+        _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
+        x10aux::serialization_buffer buf(reinterpret_cast<const char*>(cl));
+        ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
+        _X_("The deserialised async was: "<<async->toString()->c_str());
+        deserialized_bytes += buf.length();
+        async->apply();
+}
 #endif
 #if 0
-    // this one otherwise (might have to be rewritten -- contacts are Sreedhar Kodali & Dave C)
-    void __x10_callback_asyncswitch(x10_async_closure_t *cl, x10_clock_t *, int) {
+// this one otherwise (might have to be rewritten -- contacts are Sreedhar Kodali & Dave C)
+static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
 
 #ifndef NO_EXCEPTIONS
-        try {
+    try {
 #endif
 
-            //fprintf(stderr,"pthread: %p\n",pthread_self());
+        //fprintf(stderr,"pthread: %p\n",pthread_self());
 
-            // init XRX info for this internal pgas thread if it's not already done
-            if (x10::runtime::Thread::currentThread()==x10aux::null) {
-                // should happen first time we dispatch on an async or never for lapi
-                (void) X10NEW(x10::runtime::Thread)(x10aux::null,
-                                                    String::Lit("async dispatch thread"));
-            }
-
-            _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
-            x10aux::serialization_buffer buf;
-            buf.set(reinterpret_cast<const char*>(cl));
-            ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
-            _X_("The deserialised async was: "<<async->toString()->c_str());
-            async->apply();
-
-#ifndef NO_EXCEPTIONS
-        /* TODO: need some other mechanism for calling exit() from another place
-        } catch(int exitCode) {
-            x10aux::exitCode = exitCode;
-        */
-
-        } catch(x10aux::__ref& e) {
-
-            using namespace x10::lang;
-            // Assume that only throwables can be thrown
-            x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
-
-            fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
-                                (int)x10_here(), e_->_type()->name().c_str());
-            fprintf(stderr, "%s\n", e_->toString()->c_str());
-
-            x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
-
-            x10aux::ref<Iterator<x10aux::ref<String> > > it = trace->iterator();
-            while (it->hasNext()) {
-                fprintf(stderr, "        at %s\n", it->next()->c_str());
-            }
-
-        } catch(...) {
-
-            fprintf(stderr, "Caught unrecognised exception at place %d\n", (int)x10_here());
-
+        // init XRX info for this internal pgas thread if it's not already done
+        if (x10::runtime::Thread::currentThread()==x10aux::null) {
+            // should happen first time we dispatch on an async or never for lapi
+            (void) X10NEW(x10::runtime::Thread)(x10aux::null,
+                                                String::Lit("async dispatch thread"));
         }
-#endif
+
+        _X_(ANSI_PGAS"Receiving an async, deserialising..."ANSI_RESET);
+        x10aux::serialization_buffer buf;
+        buf.set(reinterpret_cast<const char*>(cl));
+        ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
+        _X_("The deserialised async was: "<<async->toString()->c_str());
+        async->apply();
+
+#ifndef NO_EXCEPTIONS
+    /* TODO: need some other mechanism for calling exit() from another place
+    } catch(int exitCode) {
+        x10aux::exitCode = exitCode;
+    */
+
+    } catch(x10aux::__ref& e) {
+
+        using namespace x10::lang;
+        // Assume that only throwables can be thrown
+        x10aux::ref<Throwable> &e_ = static_cast<x10aux::ref<Throwable>&>(e);
+
+        fprintf(stderr, "Uncaught exception at place %d of type: %s\n",
+                            (int)x10_here(), e_->_type()->name().c_str());
+        fprintf(stderr, "%s\n", e_->toString()->c_str());
+
+        x10aux::ref<ValRail<x10aux::ref<String> > > trace = e_->getStackTrace();
+
+        x10aux::ref<Iterator<x10aux::ref<String> > > it = trace->iterator();
+        while (it->hasNext()) {
+            fprintf(stderr, "        at %s\n", it->next()->c_str());
+        }
+
+    } catch(...) {
+
+        fprintf(stderr, "Caught unrecognised exception at place %d\n", (int)x10_here());
 
     }
 #endif
 
-    void __x10rt_callback_asyncswitch(x10_async_closure_t *cl, int) {
-        __x10_callback_asyncswitch(const_cast<const x10_async_closure_t *>(cl),NULL,0);
-    }
+}
+#endif
 
+void x10aux::remote_closure_callback(x10_async_closure_t *cl, int) {
+    deserialize_remote_closure(const_cast<const x10_async_closure_t *>(cl),0);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
