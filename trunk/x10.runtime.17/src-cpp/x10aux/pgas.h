@@ -21,6 +21,9 @@ extern "C" {
 
 namespace x10aux {
 
+    /* callback */
+    void remote_closure_callback(x10rt_async_closure_t*, const int tag);
+
     class PGASInitializer {
         static int count;
     public:
@@ -31,6 +34,7 @@ namespace x10aux {
                 #endif                
                 _X_("PGAS initialization starting");
                 x10_init();
+                x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
                 _X_("PGAS initialization complete");
             }
         }
