@@ -158,6 +158,10 @@ case "${__cat_system}" in
 		__cat_arch=$(uname -m)
 		__cat_target_address_size=$(getconf LONG_BIT)
 		;;
+	Darwin)
+		__cat_arch=$(uname -m)
+		__cat_target_address_size=$(getconf LONG_BIT)
+		;;
 	CYGWIN)
 		__cat_arch=$(uname -m)
 		__cat_target_address_size=32
