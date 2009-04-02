@@ -1,0 +1,1028 @@
+%\documentclass[preprint,nocopyrightspace,10pt]{sigplanconf}
+\documentclass{article}
+
+\usepackage{charter}
+%\usepackage{times-lite}
+%\usepackage{mathptm}
+\usepackage{txtt}
+\usepackage{stmaryrd}
+\usepackage{code}
+\usepackage{bcprules}
+%\usepackage{ttquot}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{afterpage}
+\usepackage{balance}
+\usepackage{floatflt}
+\usepackage{defs}
+\usepackage{utils}
+\usepackage{graphicx}
+\usepackage{xspace}
+\usepackage{ifpdf}
+\usepackage{listings}
+\usepackage{x10}
+\usepackage{color}
+
+\hfuzz=1pt
+
+\pagestyle{plain}
+
+\ifpdf
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+\fi
+
+\newcommand\Xten{{\sf X10}\xspace}
+\newcommand\xbar[1]{\ensuremath{\bar{\Xcd{#1}}}}
+\newcommand\tbar[1]{\ensuremath{\bar{\tt {#1}}}}
+
+\newcommand\Figref[1]{Figure~\ref{fig:#1}}
+\newcommand\Secref[1]{Section~\ref{sec:#1}}
+
+\newcommand\RED[1]{\textcolor{red}{#1}}
+\newcommand\BLUE[1]{\textcolor{blue}{#1}}
+\newcommand\GREEN[1]{\textcolor{green}{#1}}
+\newcommand\TODO[1]{\RED{#1}}
+
+\begin{document}
+
+\title{Proposal: A Module System for X10}
+
+\author{Nathaniel Nystrom \\
+\small{IBM T.~J. Watson Research~Center,
+P.O.~Box~704, Yorktown~Heights NY 10598 USA} \\
+\small{\texttt{nystrom@us.ibm.com}}}
+
+\date{\today}
+
+\maketitle
+
+\eat{
+\begin{abstract}
+We propose a module system for \Xten.
+\end{abstract}
+}
+
+\section{Introduction}
+\label{sec:intro}
+
+As \Xten scales up to programming of large, high-performance applications,
+the need for a robust module system becomes apparent.
+Modules provide a mechanism for high-level code reuse,
+encapsulation, and abstraction.
+Modules give users control over sharing and separation of data.
+Modules in \Xten are motivated by the following requirements:
+
+\begin{itemize}
+\item
+\Xten classes and interfaces are currently organized into
+packages, which provide limited access control features,
+inadequate for large-scale code reuse.
+\emph{Modules} allow the programmer higher-level control
+over the loading and linking of code.
+
+\item
+\Xten code is intended to be compiled to multiple architectures
+and run on multiple runtime configurations.
+\Xten needs to expose runtime configuration information 
+into the programming language.  \emph{Configuration constants} 
+are link-time or load-time constants.
+
+\item
+For effective static analysis and optimization, the
+\Xten compiler needs to be able to
+statically bind method references to their definitions in order to
+inline or specialize code.
+\emph{Sealed modules} allow the compiler to be made aware of all code
+that refers to a given definition.
+
+\item
+The \Xten specification needs to clarify the 
+initialization order of static data.
+
+\item
+The specification needs to clarify how static state is
+replicated (or not replicated) across places.
+
+\item
+\Xten needs a system for packaging and distributing code spanning
+multiple classes.
+\end{itemize}
+
+We propose a module system for \Xten.  The design is based on
+the module system for Thorn
+designed by Rok Strni\v{s}a~\cite{thorn}, which is in turn based
+on the proposed Java Module System (JAM~\cite{SSP:07}).
+
+The module system is not backward compatible with the current 
+\Xten semantics.  For instance, we remove packages and the semantics for
+\c{import} differ.
+
+The basic unit of the system is the \emph{module}.
+Modules hold \emph{members}---classes, interfaces,
+type definitions, constants, functions.
+Module definitions control access to their members:
+\emph{public} members are \emph{exported} to other
+modules;
+\emph{module-private} members are visible only
+to other members of the module.
+
+Modules can \emph{import} other modules, making the public
+members of those modules visible in the importing module.
+Imported members are not re-exported by default.
+
+\subsection{Things to revisit}
+
+\begin{itemize}
+\item Modules do not nest.
+\item Modules are not inheritable.
+\item Modules are not parameterized on other modules.
+\item Module imports are acyclic, defining initialization order completely.
+\item Consts are only allowed at the module level.
+(Or else define initialization order between classes in a
+module.)
+\item Static methods are only allowed at the module level.
+\end{itemize}
+
+\section{Module definitions}
+
+Any \Xten construct (except modules) with a
+name (class, constant, variable, method,
+function, etc.) is called an \emph{entity}.
+The different kinds of entities nest.  Entities whose parent is
+the module itself are called \emph{members}.
+\TODO{Fix these definitions.}
+Modules may contain the following members:
+\begin{itemize}
+\item class definitions
+\item interface definitions
+\item type definitions\footnote{Note: this will fix the limitation in the current language that type definitions cannot be top-level.}
+\item constants (final static variables)
+\item static functions\footnote{And operators if we add operator
+overloading}
+\end{itemize}
+
+A module definition is instantiated at load-time as a \emph{module instance}.
+Each module instance has its own copy of the
+\c{const} variables defined by the module.
+A given module definition may be instantiated more than once.
+All entities in \Xten belong to exactly one module instance.
+
+Modules are specified in a module file, 
+given by the grammar in \Figref{modfile}.
+An \Xten source file is given by the grammar in \Figref{srcfile}.
+
+\begin{figure}
+\begin{centering}
+\begin{tabular}{rcl}
+\emph{ModuleFile} 
+  & ::= &
+    \emph{ModuleDeclaration}
+    \emph{ModuleMember}$^*$
+    \\
+\emph{ModuleDeclaration} 
+  & ::= &
+    \emph{ModuleFlags} \c{module}
+    \emph{ModuleName} \c{;}
+    \\
+\emph{ModuleFlags}
+  & ::= &
+    \c{sealed}
+  \bnf  
+    $\epsilon$
+    \\
+\emph{ModuleMember}
+  & ::= &
+    \emph{Import}
+    \\
+  & \bnf &
+    \emph{ClassDeclaration}
+    \bnf  
+    \emph{InterfaceDeclaration}
+    \bnf  
+    \emph{TypeDefinition}
+    \\
+  & \bnf &
+    \emph{ConstantDefinition}
+    \bnf  
+    \emph{FunctionDeclaration}
+    \\
+  & \bnf &
+    \emph{RequireDeclaration}
+    \bnf  
+    \emph{ExportDeclaration}
+    \bnf  
+    \emph{IncludeDeclaration}
+    \\
+  & \bnf &
+    \c{;}
+    \\
+\emph{Import}
+  & ::= &
+    \emph{ImportMemberFlags}
+    \c{import} \emph{ImportFlags} \emph{ModuleAlias}
+    \c{.} \emph{Members}
+    \emph{ImportQualifiers}
+    \c{;}
+  \\
+  & \bnf &
+    \emph{ImportMemberFlags}
+    \c{import} \emph{ImportFlags} \emph{ImportSpecifier}
+    \emph{ImportQualifiers}
+    \c{;}
+  \\
+  & \bnf &
+    \c{with} \emph{ImportFlags} \emph{ModuleAlias}
+    \emph{ImportQualifiers}
+    \c{\{}
+    \emph{SimpleImport}$^*$
+    \c{\}}
+  \\
+\emph{ImportQualifiers}
+  & ::= &
+    ( \c{from} \emph{URL} )$^?$
+    ( \c{with} \emph{Initializer} ( \c{,} \emph{Initializer} )$^*$ )$^?$
+    \\
+\emph{Initializer}
+  & ::= &
+    \emph{Identifier} \c{=} \emph{Expression}
+  \\
+  & \bnf &
+    \emph{Identifier} \c{=} \emph{Type}
+  \\
+\emph{SimpleImport}
+  & ::= &
+    \emph{ImportMemberFlags}
+    \c{import} \emph{Members} \c{;}
+  \\
+  & \bnf &
+    \emph{ImportMemberFlags}
+    \c{import} \emph{MemberSpecifier} \c{;}
+  \\
+\emph{ImportFlags}
+  & ::= &
+    \c{own}
+  \bnf
+    $\epsilon$
+    \\
+\emph{ImportMemberFlags}
+  & ::= &
+    \c{public}
+  \bnf
+    $\epsilon$
+    \\
+\emph{Members}
+  & ::= &
+    \c{*} ( \c{except}
+           \emph{Identifier} ( \c{,} \emph{Identifier} )$^*$ )$^?$
+    \\
+  & \bnf &
+    \c{\{} \emph{MemberSpecifier} ( \c{,} \emph{MemberSpecifier} )$^*$ \c{\}}
+    \\
+\emph{ImportSpecifier}
+  & ::= &
+    \emph{ModuleAlias} \c{.} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{class} \emph{ModuleAlias} \c{.} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{interface} \emph{ModuleAlias} \c{.} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{type} \emph{ModuleAlias} \c{.} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{def} \emph{ModuleAlias} \c{.} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{const} \emph{ModuleAlias} \c{.} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+\emph{MemberSpecifier}
+  & ::= &
+    \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{class} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{interface} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{type} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{def} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+  & \bnf &
+    \c{const} \emph{Identifier}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+\emph{RequireDeclaration}
+  & ::= &
+    \c{require} \emph{RequireSpecifier} \c{;}
+    \\
+  & \bnf &
+    \c{require} \emph{Guard} \c{;}
+    \\
+\emph{RequireSpecifier}
+  & ::= &
+    \c{class} \emph{Identifier}
+      \emph{TypeParameters}$^?$
+      \emph{TypeConstraint}$^?$
+    \\
+  & \bnf &
+    \c{interface} \emph{Identifier}
+      \emph{TypeParameters}$^?$
+      \emph{TypeConstraint}$^?$
+    \\
+  & \bnf &
+    \c{type} \emph{Identifier}
+      \emph{TypeParameters}$^?$
+      \emph{FormalParameters}$^?$
+      \emph{Guard}$^?$
+      \emph{TypeConstraint}$^?$
+    \\
+  & \bnf &
+    \c{def} \emph{Identifier}
+      \emph{TypeParameters}$^?$
+      \emph{FormalParameters}
+      \emph{Guard}$^?$
+      \c{:}
+      \emph{Type}
+      \emph{Throws}$^?$
+    \\
+  & \bnf &
+    \c{const} \emph{Identifier}
+      \emph{Guard}$^?$
+      \c{:}
+      \emph{Type}
+    \\
+\emph{TypeConstraint}
+  & ::= &
+    \c{<:} \emph{Type}
+  \bnf
+    \c{:>} \emph{Type}
+      \\
+\emph{ExportDeclaration}
+  & ::= &
+    \c{public} \emph{MemberSpecifier} \c{;}
+    \\
+\emph{IncludeDeclaration}
+  & ::= &
+    \c{include} \emph{URL} \c{;}
+    \\
+\emph{ModuleAlias}
+  & ::= &
+    \emph{ModuleName}
+    ( \c{as} \emph{Identifier} )$^?$
+    \\
+\emph{ModuleName}
+  & ::= &
+    \emph{ModuleName} \c{.} \emph{Identifier}
+  \bnf
+    \emph{Identifier}
+    \\
+\end{tabular}
+\end{centering}
+\caption{Module file grammar}
+\label{fig:modfile}
+\end{figure}
+
+\begin{figure}
+\begin{centering}
+\begin{tabular}{rcl}
+\emph{SourceFile} 
+  & ::= &
+    \emph{ModuleDeclaration}$^?$
+    \emph{SourceFileMember}$^+$
+    \\
+\emph{SourceFileMember}
+  & ::= &
+    \emph{Import}
+    \\
+  & \bnf &
+    \emph{ClassDeclaration}
+    \\
+  & \bnf &
+    \emph{InterfaceDeclaration}
+    \\
+  & \bnf &
+    \emph{TypeDefinition}
+    \\
+  & \bnf &
+    \emph{ConstantDefinition}
+    \\
+  & \bnf &
+    \emph{FunctionDeclaration}
+    \\
+  & \bnf &
+    \emph{ExportDeclaration}
+    \\
+  & \bnf &
+    \c{;}
+    \\
+\end{tabular}
+\end{centering}
+\caption{Source file grammar}
+\label{fig:srcfile}
+\end{figure}
+
+
+\eat{
+Example 1:
+\begin{xten}
+module M;
+import N as O.{x,y,z} from URL;
+\end{xten}
+
+Example 2 is equivalent to Example 1:
+\begin{xten}
+module M;
+with N as O from URL {
+    import x;
+    import y;
+    import z;
+}
+\end{xten}
+
+Example 3:
+\begin{xten}
+module M;
+import N.* from URL;
+\end{xten}
+
+Example 4 is equivalent to Example 3:
+\begin{xten}
+module M;
+with N from URL import *;
+\end{xten}
+}
+
+% Also:
+% require Id [ Bound ];
+% and:
+% import Module { id = Foo }
+% and:
+% export Name as Id; // hides Name, makes Id public
+% (same as alias Id = Name; public Id;)
+% (or: private Name; public Id = Name;}
+
+By default, a module definition includes all declarations in the module
+file and in all
+source files in the current directory.  This can be overridden
+by using \c{include} declarations in the module file to specify
+URLs for source files.  If the module file contains an
+\c{include} declaration, the module contains only the definitions in the
+module file and in the source files 
+explicitly \c{include}d.\footnote{\TODO{Revisit this.}}
+
+These semantics allow the compiler to identify
+precisely which declarations are contained in a given module.
+Combined with \emph{module sealing}, described in
+\Secref{sealed}, this permits the compiler to identify
+all uses of a given declaration.
+
+Modules import \c{public} members from other modules using
+either a module import or a member import statement.
+Both module files and source files 
+may contain both kinds of import statements.
+When compiling a module, the imports in the module file and in
+all source files are collected together into the \emph{module
+dependencies}.
+
+The scope of an import in a module file is the
+entire module; the scope of an import in a source file
+is the source file only.
+Source files do not define their own namespaces.
+Definitions in source files do not shadow definitions in the
+module file, including (explicitly) imported definitions.
+It is an error for a module to contain two members of the same
+name and signature.
+
+The following defines a module for \c{x10.array}.
+
+\begin{xten}
+sealed module x10.array;
+import x10.lang.*;
+public class Array[T];
+public class Region;
+public class Dist;
+public class Point;
+public class NoSuchElementException;
+public class RankMismatchException;
+\end{xten}
+
+This module includes all source files in the directory containing
+the module file (e.g., \texttt{x10/array}).
+The module imports the public members of \c{x10.lang} and
+exports 6 classes of \c{x10.array}.
+The module is sealed: other modules cannot extend any of the
+classes or interfaces defined in the module.
+
+\section{Name resolution}
+
+References to module members can be qualified with a module name,
+e.g, \c{M.x}.  The definition of \c{x} is searched for within
+module \c{M}.
+
+\Xten source can also refer to entities via unqualified names (e.g.,
+\c{x}).  If the name is not resolved in a 
+local scope (e.g., as a local variable, as a field of
+a lexically enclosing class or inherited into the class),
+the module system performs name resolution.
+Name resolution maps unqualified names
+to fully qualified names.  All
+references are resolved at compile time.
+
+If a name in file $F$ in module $M$ is not fully qualified, 
+it is searched for in the following order:
+\begin{enumerate}
+\item within the members of $M$.
+\item within the module imported by $F$ and by $M$.
+\end{enumerate}
+This ordering is chosen to be robust against changes outside the
+source file or module.
+
+Publicly visible namespaces of imported modules are allowed to
+clash.  It is only an error if an imported name that clashes is actually used.
+It is an error if an explicitly imported member's signature clashes
+with another explicitly imported member
+or with a member defined in the importing module.
+
+A qualified reference is unambiguous if the name
+of its prefix is unambiguous.
+
+Modules and members can be aliased on import, 
+e.g., \c{import M as N.*}, \c{import M.C as D}.
+Aliases in a source file are visible only in that file.
+Aliases in a module file are visible to all files in the module.
+Aliases introduce names in the same namespace as module
+members.  It is an error for an alias to clash with the name
+of any member defined in the module or any other alias.
+
+Imported names are invisible to importing modules; that is,
+imports are not transitive.
+Members by default are not exported.
+A module can export the name of a member or of an alias by declaring 
+it \c{public}.
+A module can re-export an imported name \c{x} with the export
+statement 
+(\c{public x}) or by qualifying the \c{import} itself with \c{public}.
+Exported names must not clash.  It is illegal to \c{import}
+\c{*} with a \c{public} flag; only explicitly named members can be
+imported \c{public}.
+
+The module prefix \c{M} of a name \c{M.x} must be the name of a
+directly imported module or its alias.
+It is an error to refer to re-exported 
+entities by using the name of the defining module.  This
+localizes name ambiguity issues.
+
+\section{Imports}
+
+The module import statement \c{import M.*} (and variants)
+adds all public members of \c{M} into the namespace
+of the importing module, and adds a module dependency on \c{M}.
+Module imports subsume
+\Xten 1.7's
+on-demand imports (\c{import p.*}).
+
+A name clash is \emph{not} introduced if an imported module
+contains a member with the same name as another member
+(whether declared in the module or imported); it is only an
+error if that name is used.
+
+Names of imported modules in overlapping scopes must not clash.
+For instance, if a module file imports module \c{M},
+the module file or a source file in the module cannot import a
+module \c{M}.
+This rule allows the user always to be able of resolving ambiguities
+by prefixing a name with the module name.
+Module aliases can be used to avoid clashes.
+
+The member import statement \c{import M.x} (and variants)
+adds only the public member \c{x} in module \c{M} to the namespace
+of the importing module, and adds a module dependency on \c{M}.
+It is a link-time error if \c{M.x} does not exist or is not public.
+
+Member imports are similar to imports in \Xten 1.7 or earlier.
+If a module 
+An \emph{on-demand import} \c{import M.*} adds a dependency on module \c{M}
+and adds all exported members of \c{M} to the namespace of the
+importing module.
+Multiple names can be explicitly imported, e.g., \c{import M.\{x,y,z\}}.
+
+An explicit import may optionally alias the imported entity.
+The statement \c{import y = M.x} adds a dependency on module \c{M}
+and adds \c{y} to the namespace as an alias for \c{x}.
+\c{x} is not added to the namespace.
+
+\subsection{Shared vs. own imports}
+
+A module can define constant static state via \c{const}
+definitions.  Each module instance has its own copy of the
+\c{const} variables defined by the module.
+
+By default all module instances are shared.
+As part of an import statement, a module may be unshared
+by prefixing the imported module with \c{own}.
+
+If a module \c{N} requires its own instance of \c{M}, a new
+instance of \c{M} is created, which recursively creates
+instances of any modules it imports.  Thus, if \c{M} imports
+another module \c{P} as shared, that instance of \c{P} is shared
+with other instances of \c{P} imported transitively by \c{M},
+but not with instances of \c{P} imported by \c{M}'s importer, \c{N}.
+
+Two shared (i.e., non-\c{own}) import statements referring to the same module
+name always refer to the same module instance. 
+Two \c{own} import statements (or an \c{own} import and a
+non-\c{own} import) referring to the same module
+name always refer to different module instances. 
+
+A type defined in one module instance is valid in any
+other; it is only state that is not shared.
+
+Consider the following module:
+\begin{xten}
+module M;
+const x: Object = new Object();
+\end{xten}
+
+In the following, \c{M} is imported twice, shared.  There is a
+single copy of \c{M.x} accessible as \c{N.x} and \c{O.x}.
+\begin{xten}
+module M1;
+import M as N.*; // import shared
+import M as O.*; // import shared
+assert N.x == O.x;
+\end{xten}
+
+In the following, \c{M} is imported twice, unshared.  There are two
+copies of \c{M.x} accessible as \c{N.x} and \c{O.x}.
+\begin{xten}
+module M2;
+import own M as N.*;
+import own M as O.*;
+assert N.x != O.x;
+\end{xten}
+
+\subsection{Distributed vs. global imports}
+
+\TODO{Should we have global vs. distributed \emph{modules} instead?}
+\TODO{Should we have global vs. distributed \c{const} instead?}
+
+A module can be imported either
+\emph{distrubted}\footnote{Alternatively: place-local.} or \emph{global}.
+The default is global. 
+The distribution decision is orthogonal to the sharing decision.
+
+If a module is imported \emph{global}, all places share the
+module instance.
+When a module variable (constant) is accessed, the same value is
+returned regardless of the place from which it is accessed.
+Initialization code must be place-independent.
+In \Xten 2.0, global methods are place-independent; the same
+restrictions apply here.
+Initializer code for a module runs once per module instance.
+
+If a module is imported
+\emph{distributed}, each place (or
+a set of places) has its own module instance; that is, the
+module's state is place-indexed.
+Each place has a replica of the module, each initialized
+separately.
+The runtime system can share
+module instances across multiple places; for example, one could
+map each core of a multicore processor to a different place, but have one 
+module instance shared across all cores.
+Accessing the module's state returns the replca
+for the place that is running the activity doing the access.
+
+\TODO{Distributed modules will not work with dynamic places:
+modules with place-local data cannot be initialized at load-time.}
+
+The name of a constant in a distributed module is accessible
+everywhere, but may contain different values depending on the
+place from which it is accessed.  
+One does not need to \c{async} to access a constant; the
+place-local value is always returned.
+
+\eat{
+\TODO{Fix this.  Really just to simplify things.  I had a better
+reason for this, but forgot it.}
+Note that modules are distributed rather than variables.
+This is to avoid initialization issues: a module constant may
+depend only on other state in the module instance, or in state imported
+from other module instances.  Since imported state is also
+replicated across places, module instance initialization can be entirely
+place-local.  If individual variables are distributed,
+the initialization would have to access both place-local and
+global state.
+}
+
+Consider the following module:
+\begin{xten}
+module M;
+const x: Object = new Object();
+\end{xten}
+
+Module \c{M1} imports \c{M}, shared.
+\c{M.x} at place \c{p1}
+and
+\c{M.x} at place \c{p2}
+are identical.
+\begin{xten}
+module M1;
+import M.*;
+assert (at (p1) M.x) == (at (p2) M.x);
+\end{xten}
+
+Module \c{M2} imports \c{M}, shared.
+\c{M.x} at place \c{p1}
+and
+\c{M.x} at place \c{p2}
+are different values.
+\begin{xten}
+module M2;
+require const S: Partition[Place];
+import distributed(S) M.*;
+assert (at (p1) M.x) != (at (p2) M.x);
+\end{xten}
+
+In this example, \c{M} is parametrized on the constant \c{S}.
+Parametrized modules are discussed further in \Secref{generics}.
+
+Distributed modules are replicated across multiple places
+according to the given partition.   Note the partition
+can be provided by the runtime system or on the command-line via
+configuration constants, discussed in \Secref{config}  
+
+\TODO{We could also just say \c{import distributed M}.  In this
+case, the partitioning is determined by the runtime.  This is
+simpler and may be sufficient.}
+
+\section{Module generics}
+\label{sec:generics}
+
+Modules can be parameterized on members using a \c{require}
+declaration.  Modules importing a parameterized module must
+provide a value for the parameter.  If no value is provided, a
+link error occurs.
+
+Module type parameters have the same restrictions as other type
+parameters.  For instance,
+it is an error to extend or implement a parameter type;
+it is an error to \c{new} a parameter type.
+
+Example:
+
+\begin{xten}
+module M;
+require class A[T];
+require A[T] <: Array[T];
+
+// error: class C extends A[int] { }
+// error: new A[T]();
+
+def sort(a: A[int]) = ...
+\end{xten}
+
+\begin{xten}
+module N;
+import x10.array.FastArray;
+import M.* with A = FastArray;
+sort(Array.makeFast[int](100));
+\end{xten}
+
+Constant parameters and function parameters must specify a type
+for the constant or function.  Class, interface, or type parameters may
+optionally specify a bound on the type.
+
+Constant parameters have an optional \c{default} value.
+It is a load-time error if no value is provided by the runtime
+system and there is no \c{default}.
+
+The following defaults \c{SIZE} to 1000, but sets \c{SIZE} to 10000
+at the import.
+\begin{xten}
+module M;
+require const SIZE: int default 1000;
+... 
+
+module :;
+import M.* with SIZE = 10000;
+\end{xten}
+
+\subsection{Configuration constants}
+\label{sec:config}
+
+A special kind of \c{const} parameter is the \emph{configuration constant},
+a constant defined by the runtime system, usually (but not
+necessarily) either on the
+command-line or via a configuration file.
+
+Example:
+\begin{xten}
+module N;
+config SZ: int default 1000;
+import M.* with SIZE = SZ;
+\end{xten}
+
+The \Xten runtime, \texttt{x10}, is invoked with a
+command-line option to set the value
+\texttt{x10} \texttt{-D:N.SZ=10000}.\footnote{This only
+works for some constants that have a literal syntax.}
+
+\c{config} constants can be provided at \c{import} also:
+\begin{xten}
+module P;
+import N.* with SZ = 10000;
+\end{xten}
+
+\eat{
+\section{Place definitions}
+
+Places in \Xten are associated with module instances.
+
+Need to statically know the capabilities of each place.
+
+A \c{Place} is little more than an identifier.
+The \c{PlaceDescriptor} class associates information with
+a place.
+
+\begin{xten}
+class PlaceDescriptor {
+  def place(): Place;
+}
+\end{xten}
+
+\begin{xten}
+class PPUPlaceDescriptor extends PlaceDescriptor {
+  def spus(): Rail[Place]; // the SPUs on the same processor
+}
+\end{xten}
+
+\begin{xten}
+class SPUPlaceDescriptor extends PlaceDescriptor {
+  def ppu(): Place;        // the PPU on the same processor
+  def spus(): Rail[Place]; // the SPUs on the same processor
+}
+\end{xten}
+
+OR:
+
+\begin{xten}
+module x10.cell;
+
+import x10.{Rail,Place};
+
+const PPU: Place;
+const SPUs: Rail[Place];
+\end{xten}
+
+The boot-up code on Cell creates
+separate module instances of \c{x10.cell} for each processor.
+There are shared instances of other modules (e.g., \c{Math}).
+But, how does that appear to the programmer?  The main module
+runs on the PPU
+
+Could also use different module instances to define \c{here}.
+\begin{xten}
+module x10.places;
+const here: Place;
+\end{xten}
+
+\begin{xten}
+module x10.lang;
+import const x10.places.here distributed with Partition.Unique;
+public const here: Place; // reexport
+\end{xten}
+}
+
+\section{Sealed modules}
+\label{sec:sealed}
+
+A module can be declared \c{sealed}.  It is a link-time error if a class or
+interface extends a class or interface in another module that is sealed.
+This feature generalizes final classes: a class in a sealed module 
+cannot be extended by classes in other modules, but can be extended by modules
+in the current module.
+
+\section{Loading and linking}
+
+\paragraph{Linking.}
+
+Linking begins with the \emph{main module}.  Module linking triggers, first,
+recursive linking of module dependencies.
+Dependencies are
+processed in their order in the module definition.  It is a link-time error if
+there is a cycle in module dependencies.  The order of linking defines the
+\emph{link order}.  The main module is the last module in link order.
+
+\paragraph{Loading.}
+
+When an \Xten program starts, the runtime system loads the main module,
+specified on the command-line.  In the Java implementation, module linking
+now occurs.  Note that all link errors occur on program startup before any
+user-level code is executed.  In the C++ implementation, linking is done
+statically.
+
+After linking, modules are initialized in their link order.
+Any \c{const}
+variables in the module are initialized, in order of definition.
+
+\paragraph{Running.}
+
+After module linking and loading, the runtime invokes the module-level
+function \c{main(Rail[String])} in the main module, passing in the
+command-line arguments.
+
+\section{Default module}
+
+If a source directory does not contain a module file, the following module
+definition is used.
+
+\begin{xtenmath}
+module $\mbox{\normalfont\emph{fresh\_module\_name}}$;
+
+import x10.lang.*;
+import x10.io.Console;
+import x10.arrays.*;
+import x10.math.*;
+\end{xtenmath}
+
+\section{Tin cans}
+
+\Xten sources are compiled into Tincode.
+One or more modules are compiled into a \emph{can}.
+If a module is in a can, then the can should contain all compiled
+sources in the module; otherwise, it is a load-time error.
+
+\eat{
+\section{Properties}
+
+\TODO{Future}
+
+Modules may have properties, for instance a version number.
+These are given by \c{const} fields of the module annotated with
+the \c{property} flag.
+
+When looking up a name, other modules can be filtered by the property.
+
+\begin{xten}
+module M;
+property const Version: String = "1.0";
+\end{xten}
+
+\begin{xten}
+module N;
+import M with V1;
+
+class V1 implements ModuleConstraint {
+    def filter(M: Module) {
+        return M.get("Version") as String == "1.0";
+    }
+}
+\end{xten}
+}
+
+\eat{
+\section{Place-indexed constants}
+
+\TODO{Future}
+
+A \c{const} variable may be declared \c{distributed} over a
+partition of places.   For instance, we can define \c{here} using
+the unique partition.
+
+\begin{xten}
+module x10.lang;
+distributed with Partition.Unique const here: Place;
+\end{xten}
+
+On the Cell, we want to map each place representing a core to
+the other cores on the same processor.
+\begin{xten}
+module x10.cell;
+distributed with Partition.Nodes const ppu: Place;
+distributed with Partition.Nodes const spu: Rail[Place]{length==8};
+\end{xten}
+}
+
+\bibliographystyle{plain}
+\bibliography{master}
+
+\end{document}

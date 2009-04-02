@@ -1,0 +1,89 @@
+\usepackage{listings}
+%\usepackage{lstpatch}
+%\usepackage[keywords]{lstpatch}
+\usepackage{color}
+
+%\definecolor{Brown}{cmyk}{0,0.49,0.71,0.37}
+%\definecolor{RoyalBlue}{cmyk}{0.71,0.53,0,0.12}
+%\definecolor{OliveGreen}{cmyk}{0.64,0,0.95,0.40}
+%\definecolor{Red}{cmyk}{0,0.80,0.80,0.10}
+%\definecolor{Gray}{cmyk}{0.2,0.2,0.2,0.2}
+%\definecolor{Black}{cmyk}{0,0,0,1}
+\definecolor{darkgreen}{cmyk}{0.8,0,1,0.4}
+
+\newif\ifcolor
+\colortrue
+\ifcolor
+\newcommand\condcolor[1]{\color{#1}}
+\else
+\newcommand\condcolor[1]{}
+\fi
+
+\lstdefinelanguage{X10}%
+  {morekeywords={abstract,break,case,catch,class,%
+      const,continue,default,do,else,extends,false,final,%
+      finally,for,goto,if,implements,import,instanceof,%
+      interface,label,native,new,null,package,private,protected,%
+      public,return,static,super,switch,synchronized,this,throw,%
+      throws,transient,true,try,void,volatile,while,%
+      async,atomic,when,foreach,ateach,finish,clocked,%
+      assert,at,%
+      type,here,%
+      self,property,%
+      sealed,config,with,distributed,except,from,own,module,require,include,%
+      future,has,as,var,val,def,where,in,%
+      next,value,or,await,current,any},%
+   basicstyle=\condcolor{blue}\normalfont\ttfamily,%
+   keywordstyle=\condcolor{darkgreen}\bf\ttfamily,%
+   commentstyle=\condcolor{blue}\normalfont\ttfamily,%
+   identifierstyle=\condcolor{blue}\normalfont\ttfamily,%
+   stringstyle=\condcolor{blue}\normalfont\ttfamily,%
+   tabsize=4,%
+   showstringspaces=false,%
+   sensitive,%
+   morecomment=[l]//,%
+   morecomment=[s]{/*}{*/},%
+   morestring=[b]",%
+   morestring=[b]',%
+   columns=fullflexible,%
+   mathescape=false,%
+   keepspaces=true,%
+   showlines=false,%
+   breaklines=true,%
+   breakatwhitespace=true,%
+   postbreak={},%
+   %breakautoindent=true,%
+   %breakindent=0pt,%
+   %prebreak={},%
+  }
+
+\newcommand\codesize\small
+
+\lstnewenvironment{xtenmath}
+  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=1.7em,mathescape=true,basicstyle=\codesize\normalfont\ttfamily}}
+  {}
+
+\lstnewenvironment{xten}
+  {\lstset{language=X10,breaklines=false,captionpos=b,xleftmargin=1.7em,basicstyle=\codesize\normalfont\ttfamily}}
+  {}
+
+\lstnewenvironment{xtenmathnoindent}
+  {\lstset{language=X10,breaklines=false,captionpos=b,mathescape=true,basicstyle=\codesize\normalfont\ttfamily}}
+  {}
+
+\lstnewenvironment{xtennoindent}
+  {\lstset{language=X10,breaklines=false,captionpos=b,basicstyle=\codesize\normalfont\ttfamily}}
+  {}
+
+%\newenvironment{x10}{\begin{xten}}{\end{xten}}
+
+\newcommand\inputxten[1]{\begin{minipage}{\textwidth}\lstinputlisting[language=X10,breaklines=false,captionpos=b,numbers=left,numberstyle=\tiny,xleftmargin=15pt]{#1}\end{minipage}}
+
+\lstset{language=X10,flexiblecolumns}
+
+\let\xcd\lstinline
+\newcommand\xcdmath{\xcd[mathescape=true]}
+
+\renewcommand{\c}[1]{\mbox{\xcd/#1/}}
+\newcommand{\cm}[1]{\mbox{\xcdmath/#1/}}
+
