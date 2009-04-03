@@ -115,8 +115,10 @@ trap 'cleanUpExit 1' INT QUIT TERM
 
 prog=$(basename $0)
 MYDIR=$(dirname $0)
+X10_HOME=$X10_HOME
+## relative to x10.tests/bin
 if [[ -z "$X10_HOME" ]]; then
-	X10_HOME=$(cd $MYDIR/../..; pwd)
+	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
 export CVS_RSH=ssh
@@ -152,10 +154,11 @@ buildX10Module $X10_COMPILER x10
 buildX10Module $X10_TESTS x10
 buildX10Module $X10_CPP x10
 
+X10LIB=$X10LIB
 if [[ -z "$X10LIB" ]]; then
-	X10LIB=$(X10_HOME)/pgas/common/work
+	export X10LIB=$(X10_HOME)/pgas/common/work
 fi
-export X10LIB
+#(cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake -j8 all; gmake -j8 xrx)
 (cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake all; gmake xrx)
 if [[ $? != 0 ]]; then
 	printf "\n[$prog: err]: x10rt/x10lib library build failed!\n"
