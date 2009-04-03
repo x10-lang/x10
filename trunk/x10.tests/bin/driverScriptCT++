@@ -318,6 +318,6 @@ __cat_x10_LOAD=""
 export X10LANG=$X10LANG
 ( \
 	cd $X10_HOME/x10.tests/examples; \
-	$ABSDIR/xtestScriptCT++ -logPath $LOGD -list 'Constructs/For/*.x10 Constructs/Finish/*.x10' -mailAddr srkodali@linux.vnet.ibm.com
+	$ABSDIR/xtestScriptCT++ -logPath $LOGD -mailAddr srkodali@linux.vnet.ibm.com
 )
 cleanUpExit $?
