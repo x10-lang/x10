@@ -628,7 +628,7 @@ function main {
 
 		# create the test root
 		tctarget=$(basename $tc | sed -e 's;.x10;;')
-		__cat_test_name="$className"
+		__cat_test_name="$tctarget"
 		local testDir=$(dirname $tc)
 		local tDir=${testDir#\.\/}
 		tDir=`echo "$testDir" | sed -e 's/\//\./g'`
