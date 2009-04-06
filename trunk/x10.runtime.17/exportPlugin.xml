@@ -15,14 +15,14 @@
 				<pathelement path="${plugin.dependencies}"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
-			<src path="src/"/>
+			<src path="src-java/"/>
 		</javac>
 		<!-- Copy necessary resources -->
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true" overwrite="false">
-			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
+			<fileset dir="src-java/" excludes="**/*.java,**/package.htm*"/>
 		</copy>
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true" overwrite="false">
-			<fileset dir="new/" includes="**/*.x10"/>
+			<fileset dir="src-x10/" includes="**/*.x10"/>
 		</copy>
 		<mkdir dir="${build.result.folder}"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
