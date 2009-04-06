@@ -2139,9 +2139,9 @@ public static class MessageHandler implements IMessageHandler {
                                                : prsStream.getPrevious(getRhsFirstTokenIndex($TypeDeclarationsopt))
                                      : getRhsLastTokenIndex($ImportDeclarationsopt)
                                 );
-                    Import x10LangImport = 
-                    nf.Import(pos(token_pos), Import.PACKAGE, QName.make("x10.lang"));
-                    ImportDeclarationsopt.add(x10LangImport);
+//                    Import x10LangImport = 
+//                    nf.Import(pos(token_pos), Import.PACKAGE, QName.make("x10.lang"));
+//                    ImportDeclarationsopt.add(x10LangImport);
                     setResult(nf.SourceFile(pos(getLeftSpan(), getRightSpan()), PackageDeclarationopt, ImportDeclarationsopt, TypeDeclarationsopt));
           $EndJava
         ./
