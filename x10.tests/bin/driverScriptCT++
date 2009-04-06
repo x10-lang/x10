@@ -155,7 +155,7 @@ export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/poly
 ##### cat feed - init
 __cat_feed_stage=INIT
 __cat_report_version=1.1
-__cat_backend=x10c++
+__cat_backend=x10cpp
 __cat_start_date=$(date +'%Y-%m-%d')
 __cat_start_date2=$(echo "${__cat_start_date}" | sed -e 's;-;;g')
 __cat_start_time=$(date +'%H:%M:%S')
