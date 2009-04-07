@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 runtime
 Bundle-SymbolicName: x10.runtime.17
-Bundle-Version: 1.7.0.2
+Bundle-Version: 1.7.3.1
 Bundle-Localization: plugin
 Eclipse-AutoStart: true
 Bundle-Vendor: rfuhrer@watson.ibm.com
