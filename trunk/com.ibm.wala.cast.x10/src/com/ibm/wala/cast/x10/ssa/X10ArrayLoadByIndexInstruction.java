@@ -3,6 +3,7 @@ package com.ibm.wala.cast.x10.ssa;
 import java.util.Collection;
 
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.TypeReference;
 import com.ibm.wala.util.debug.Assertions;
@@ -37,7 +38,7 @@ public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInst
     }
 
     @Override
-    public SSAInstruction copyForSSA(int[] defs, int[] uses) {
+    public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
 	int newArray = uses == null ? getArrayRef() : uses[0];
 	int[] newIndices = uses == null ? getIndices() : new int[uses.length - 1];
 
@@ -46,7 +47,7 @@ public class X10ArrayLoadByIndexInstruction extends X10ArrayReferenceByIndexInst
 		newIndices[i]= uses[i+1];
 	    }
 	}
-	return new X10ArrayLoadByIndexInstruction(
+	return ((X10InstructionFactory)insts).ArrayLoadByIndex(
 		      defs == null ? result : defs[0],
 		      newArray,
 		      newIndices,

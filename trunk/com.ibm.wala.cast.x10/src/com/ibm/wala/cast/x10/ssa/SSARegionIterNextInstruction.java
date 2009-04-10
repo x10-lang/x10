@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import com.ibm.wala.ssa.SSAAbstractUnaryInstruction;
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
 public class SSARegionIterNextInstruction extends SSAAbstractUnaryInstruction {
@@ -12,8 +13,8 @@ public class SSARegionIterNextInstruction extends SSAAbstractUnaryInstruction {
 	super(nextValue, regionIter);
     }
 
-    public SSAInstruction copyForSSA(int[] defs, int[] uses) {
-	return new SSARegionIterNextInstruction((defs != null ? defs[0] : getDef(0)), (uses != null ? uses[0] : getUse(0)));
+    public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
+	return ((X10InstructionFactory)insts).RegionIterNext((defs != null ? defs[0] : getDef(0)), (uses != null ? uses[0] : getUse(0)));
     }
 
     public String toString(SymbolTable symbolTable) {

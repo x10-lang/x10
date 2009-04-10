@@ -7,6 +7,7 @@ import java.io.IOException;
 
 import com.ibm.wala.cast.x10.loader.X10Language;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.ssa.X10InstructionFactory;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
@@ -80,5 +81,9 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
 
     public String toString() {
       return "X10 Source Loader (classes " + loadedClasses.values() + ")";
+    }
+    
+    public X10Language.InstructionFactory getInstructionFactory() {
+    	return X10Language.X10Lang.instructionFactory();
     }
 }

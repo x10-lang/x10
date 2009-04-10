@@ -17,6 +17,7 @@ import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByPointInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
+import com.ibm.wala.cast.x10.ssa.X10InstructionFactory;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.x10.translator.X10CastNode;
 import com.ibm.wala.cast.x10.visit.X10CAstVisitor;
@@ -47,10 +48,13 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 
     private final JavaCAst2IRTranslator translator;
 
+    private final X10InstructionFactory insts;
+    
     private X10CAst2IRTranslator(JavaCAst2IRTranslator translator) {
 	super(translator);
 	this.translator = translator;
 	this.translator.setArrayOpHandler(this);
+	this.insts = (X10InstructionFactory) translator.loader().getInstructionFactory();
     }
 
     protected boolean visitFunctionExpr(CAstNode n, Context c, CAstVisitor visitor) {
@@ -90,7 +94,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     private void doMaterializeAsync(WalkContext context, int result, int ex, CAstEntity fn) {
 	TypeReference asyncRef= asyncTypeReference(fn);
 
-	context.cfg().addInstruction(SSAInstructionFactory.NewInstruction(result,
+	context.cfg().addInstruction(insts.NewInstruction(result,
 		NewSiteReference.make(context.cfg().getCurrentInstruction(), asyncRef)));
     }
 
@@ -112,7 +116,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     private void doMaterializeClosure(WalkContext context, int result, int ex, CAstEntity fn) {
 	TypeReference closureRef= closureTypeReference(fn);
 
-	context.cfg().addInstruction(SSAInstructionFactory.NewInstruction(result,
+	context.cfg().addInstruction(insts.NewInstruction(result,
 		NewSiteReference.make(context.cfg().getCurrentInstruction(), closureRef)));
     }
 
@@ -167,11 +171,11 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     }
     
 	if (((CAstType.Function) bodyEntity.getType()).getReturnType() == JavaPrimitiveTypeMap.VoidType)
-	    context.cfg().addInstruction(new AsyncInvokeInstruction(new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
+	    context.cfg().addInstruction(insts.AsyncInvoke(new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
 	else {
 	    int retValue = context.currentScope().allocateTempValue();
 
-	    context.cfg().addInstruction(new AsyncInvokeInstruction(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
+	    context.cfg().addInstruction(insts.AsyncInvoke(retValue, new int[] { rcvrValue }, exceptValue, acsr, placeValue, clockValues));
 	    translator.setValue(n, retValue);
 	}
     }
@@ -192,29 +196,29 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
     protected boolean visitAtomicEnter(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveAtomicEnter(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	context.cfg().addInstruction(new SSAAtomicInstruction(true));
+	context.cfg().addInstruction(insts.Atomic(true));
     }
     protected boolean visitAtomicExit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveAtomicExit(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	context.cfg().addInstruction(new SSAAtomicInstruction(false));
+	context.cfg().addInstruction(insts.Atomic(false));
     }
     protected boolean visitFinishEnter(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveFinishEnter(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	context.cfg().addInstruction(new SSAFinishInstruction(true));
+	context.cfg().addInstruction(insts.Finish(true));
     }
     protected boolean visitFinishExit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveFinishExit(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
-	context.cfg().addInstruction(new SSAFinishInstruction(false));
+	context.cfg().addInstruction(insts.Finish(false));
     }
     protected boolean visitForce(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveForce(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
 	int retValue = context.currentScope().allocateTempValue();
-	context.cfg().addInstruction(new SSAForceInstruction(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
+	context.cfg().addInstruction(insts.Force(retValue, targetValue, (TypeReference) n.getChild(1).getValue()));
 	translator.setValue(n, retValue);
     }
     protected boolean visitRegionIterInit(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
@@ -222,7 +226,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
 	int retValue = context.currentScope().allocateTempValue();
-	context.cfg().addInstruction(new SSARegionIterInitInstruction(retValue, targetValue));
+	context.cfg().addInstruction(insts.RegionIterInit(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
     protected boolean visitRegionIterHasNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
@@ -230,7 +234,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
 	int retValue = context.currentScope().allocateTempValue();
-	context.cfg().addInstruction(new SSARegionIterHasNextInstruction(retValue, targetValue));
+	context.cfg().addInstruction(insts.RegionIterHasNext(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
     protected boolean visitRegionIterNext(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
@@ -238,14 +242,14 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	WalkContext context = (WalkContext)c;
 	int targetValue = translator.getValue(n.getChild(0));
 	int retValue = context.currentScope().allocateTempValue();
-	context.cfg().addInstruction(new SSARegionIterNextInstruction(retValue, targetValue));
+	context.cfg().addInstruction(insts.RegionIterNext(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
     protected boolean visitHere(CAstNode n, Context c, CAstVisitor visitor) { /* empty */ return false; }
     protected void leaveHere(CAstNode n, Context c, CAstVisitor visitor) {
 	WalkContext context = (WalkContext)c;
 	int retValue = context.currentScope().allocateTempValue();
-	context.cfg().addInstruction(new SSAHereInstruction(retValue));
+	context.cfg().addInstruction(insts.Here(retValue));
 	translator.setValue(n, retValue);
     }
 
@@ -254,7 +258,7 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 	WalkContext context = (WalkContext)c;
 	int retValue = context.currentScope().allocateTempValue();
 	int targetValue = translator.getValue(n.getChild(0));
-	context.cfg().addInstruction(new SSAPlaceOfPointInstruction(retValue, targetValue));
+	context.cfg().addInstruction(insts.PlaceOfPoint(retValue, targetValue));
 	translator.setValue(n, retValue);
     }
 
@@ -291,10 +295,10 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 
 	if (isRefByPoint(arrayRefNode))
 	    context.cfg().addInstruction(
-		new X10ArrayLoadByPointInstruction(result, arrayValue, dimValues[0], arrayTypeRef));
+		insts.ArrayLoadByPoint(result, arrayValue, dimValues[0], arrayTypeRef));
 	else
 	    context.cfg().addInstruction(
-		new X10ArrayLoadByIndexInstruction(result, arrayValue, dimValues, arrayTypeRef));
+		insts.ArrayLoadByIndex(result, arrayValue, dimValues, arrayTypeRef));
     }
 
     public void doArrayWrite(WalkContext context, int arrayValue, CAstNode arrayRefNode, int[] dimValues, int rval) {
@@ -305,10 +309,10 @@ public class X10CAst2IRTranslator extends X10CAstVisitor implements ArrayOpHandl
 
 	if (isRefByPoint(arrayRefNode))
 	    context.cfg().addInstruction(
-		new X10ArrayStoreByPointInstruction(arrayValue, dimValues[0], rval, arrayTypeRef));
+		insts.ArrayStoreByPoint(arrayValue, dimValues[0], rval, arrayTypeRef));
 	else
 	    context.cfg().addInstruction(
-		new X10ArrayStoreByIndexInstruction(arrayValue, dimValues, rval, arrayTypeRef));
+		insts.ArrayStoreByIndex(arrayValue, dimValues, rval, arrayTypeRef));
     }
 
     @Override

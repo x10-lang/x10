@@ -6,6 +6,7 @@ import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.strings.Atom;
 
@@ -21,5 +22,9 @@ public class X10PrimordialClassLoader extends ClassLoaderImpl {
     @Override
     public Language getLanguage() {
         return X10Language.X10Lang;
+    }
+    
+    public SSAInstructionFactory getInstructionFactory() {
+    	return Language.JAVA.instructionFactory();
     }
 }
