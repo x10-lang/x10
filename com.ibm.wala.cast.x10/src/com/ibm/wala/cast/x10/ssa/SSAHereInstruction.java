@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
 public class SSAHereInstruction extends SSAInstruction {
@@ -13,8 +14,8 @@ public class SSAHereInstruction extends SSAInstruction {
 	this.retValue= retValue;
     }
 
-    public SSAInstruction copyForSSA(int[] defs, int[] uses) {
-	return new SSAHereInstruction(defs != null ? defs[0] : retValue);
+    public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
+	return ((X10InstructionFactory)insts).Here(defs != null ? defs[0] : retValue);
     }
 
     public String toString(SymbolTable symbolTable) {

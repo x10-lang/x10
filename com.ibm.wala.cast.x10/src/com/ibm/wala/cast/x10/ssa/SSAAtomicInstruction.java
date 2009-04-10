@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
 public class SSAAtomicInstruction extends SSAInstruction {
@@ -15,9 +16,8 @@ public class SSAAtomicInstruction extends SSAInstruction {
       super();
       this.isEnter = isEnter;
     }
-    public SSAInstruction copyForSSA(int[] defs, int[] uses) {
-      return
-        new SSAAtomicInstruction(isEnter);
+    public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
+      return ((X10InstructionFactory)insts).Atomic(isEnter);
     }
 
     public String toString(SymbolTable symbolTable) {

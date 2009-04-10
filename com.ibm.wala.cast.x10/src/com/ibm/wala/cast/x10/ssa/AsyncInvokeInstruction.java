@@ -4,6 +4,7 @@ import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.java.ssa.AstJavaInvokeInstruction;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 
 public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
@@ -22,7 +23,7 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
 	  this.clocks = clocks;
     }
 
-    protected AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
+    public AsyncInvokeInstruction(int[] results, int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites, CallSiteReference csr) {
 	super(results, params, exception, csr, lexicalReads, lexicalWrites);
     }
 
@@ -38,11 +39,11 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     }
     
     @Override
-    public SSAInstruction copyForSSA(int[] defs, int[] uses) {
+    public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
 	// Use super to copy all lexical uses/defs; there should be one slot left
 	// at the end for our place expr, and the rest are the clock expressions,
     // if any    		
-	AsyncInvokeInstruction copy = (AsyncInvokeInstruction) super.copyForSSA(defs, uses);
+	AsyncInvokeInstruction copy = (AsyncInvokeInstruction) super.copyForSSA(insts, defs, uses);
 	if (uses != null) {
 	    copy.placeExpr = uses[super.getNumberOfUses()];
 	} else {
@@ -87,8 +88,8 @@ public class AsyncInvokeInstruction extends AstJavaInvokeInstruction {
     }
 
     @Override
-  protected SSAInstruction copyInstruction(int results[], int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
-      return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
+  protected SSAInstruction copyInstruction(SSAInstructionFactory insts, int results[], int[] params, int exception, Access[] lexicalReads, Access[] lexicalWrites) {
+      return ((X10InstructionFactory)insts).AsyncInvoke(results, params, exception, lexicalReads, lexicalWrites, getCallSite());
     }
 
     @Override
