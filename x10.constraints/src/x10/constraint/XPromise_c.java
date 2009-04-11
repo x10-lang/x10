@@ -25,6 +25,7 @@ import java.util.Map.Entry;
  * constraint are either Promise_c's or other implementations of Promise, such
  * as C_Lit and C_Here.
  * 
+ * Invariant: If fields is not empty, then var is an XVar.
  * @author vj
  * 
  */
@@ -326,62 +327,31 @@ public class XPromise_c implements XPromise, Serializable {
         return false;
     }
 
-    public void dump(List<XTerm> result, XRoot oldSelf) {
-        XTerm t1 = term();
-        
+    public void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV) {
+        XTerm t1 = path == null? term() : path;
         if (t1 == null)
             return;
-        
         if (t1.isAtomicFormula()) {
             result.add(t1);
         }
 
-      
         if (value != null) {
-        	XTerm t2 = value.term();
-        	
-        	// /** Does not work with coercions. Start undelete.
-        	if (! XConstraint_c.DUMP_EQV) {
-        	    if (t1.isEQV()) {
-        	        return;
-        	    }
-
-        	    if (t2.isEQV())
-        	        t2 = value.lookup().term();
+        	if (dumpEQV || ! t1.hasEQV()) {
+        		XTerm t2 = lookup().var();
+        		result.add(XTerms.makeEquals(t1, t2));
         	}
- //       	Stop undelete   */
-            /*if (t1.equals(t2)) 
-            	return;*/
-            result.add(XTerms.makeEquals(t1, t2));
-            return;
-        }
-
-        if (fields != null) {
-            for (XPromise p : fields.values()) {
-                p.dump(result, oldSelf);
-            }
-        }
-    }
-
-    public void extDump(List<XTerm> result, XRoot oldSelf) {
-        XTerm t1 = term();
-
-        if (t1 == null)
-            return;
-        
-        if (t1.isAtomicFormula()) {
-            result.add(t1);
-        }
-
-        if (value != null && !t1.hasEQV()) {
-            XTerm t2 = lookup().var();
-            result.add(XTerms.makeEquals(t1, t2));
             return;
         }
         
         if (fields != null) {
-            for (XPromise p : fields.values()) {
-                p.extDump(result, oldSelf);
+        	XVar v = t1 instanceof XVar ? (XVar) t1 : null;
+        	// If t1 is not an XVar, it is an atomic formula, and the fields are its subterms.
+        	// hence v shd be null.
+            for (Map.Entry<XName,XPromise> m : fields.entrySet()) {
+            	XName name = m.getKey();
+            	XPromise p = m.getValue();
+            	XVar path2 =  v==null? null : XTerms.makeField(v, name);
+                p.dump(path2, result, oldSelf, dumpEQV);
             }
         }
     }

@@ -75,7 +75,7 @@ public class FormulaTest extends TestCase {
 		}
 
 		String id = new String(buf, begin, i-begin);
-		XName xid = new XNameWrapper<String>(id);
+		XName xid = XTerms.makeName(id);
 		return new Pair<Integer, XName>(i, xid);
 	}
 	
@@ -206,57 +206,43 @@ public class FormulaTest extends TestCase {
 		return new Pair<Integer,XTerm>(i, XTerms.makeAtom(op, terms.toArray(new XTerm[0])));
 	}
 
-	@Override
-	protected void runTest() throws Throwable {
-
-	
-		XConstraint c1 = parse("(== x y)");
-		XConstraint c2 = parse("(== y x)");
-		XConstraint c3 = parse("(== y x)");
-		XConstraint c4 = parse("(&& (== y x) (== x.f z))");
-		XConstraint c5 = parse("(== y.f z)");
-		XConstraint c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
-		XConstraint c7 = parse("(F y.f z)");
-		XConstraint c8 = parse("(F z x.f)");
-		XConstraint c9 = parse("(! (! (== x y)))");
-//		Constraint c9 = parse("(! (== x y))");
-		
-		System.out.println("c1 = " + c1);
-		System.out.println("c2 = " + c2);
-		System.out.println("c3 = " + c3);
-		System.out.println("c4 = " + c4);
-		System.out.println("c5 = " + c5);
-		System.out.println("c6 = " + c6);
-		System.out.println("c7 = " + c7);
-		System.out.println("c8 = " + c8);
-		
-		boolean ea = c1.entails(c2);
-		System.out.println(c1 + " ==> " + c2 + " = " + ea);
-		
-		boolean eb = c2.entails(c1);
-		System.out.println(c2 + " ==> " + c1 + " = " + eb);
-
-		boolean ec = c3.entails(c1);
-		System.out.println(c3 + " ==> " + c1 + " = " + ec);
-
-		boolean ed = c4.entails(c5);
-		System.out.println(c4 + " ==> " + c5 + " = " + ed);
-		
-		boolean ee = c5.entails(c4);
-		System.out.println(c5 + " ==> " + c4 + " = " + ee);
-		boolean ef = c6.entails(c7);
-		System.out.println(c6 + " ==> " + c7 + " = " + ef);
-		
-		boolean eg = c6.entails(c8);
-		System.out.println(c6 + " ==> " + c8 + " = " + eg);
-
-		boolean eh = c8.entails(c6);
-		System.out.println(c8 + " ==> " + c6 + " = " + eh);
-		
-		boolean ei = c9.entails(c1);
-		System.out.println(c9 + " ==> " + c1 + " = " + ei);
-	
-		boolean ej = c1.entails(c9);
-		System.out.println(c1 + " ==> " + c9 + " = " + ej);
+	XConstraint c1 = parse("(== x y)");
+	XConstraint c2 = parse("(== y x)");
+	XConstraint c3 = parse("(== y x)");
+	XConstraint c4 = parse("(&& (== y x) (== x.f z))");
+	XConstraint c5 = parse("(== y.f z)");
+	XConstraint c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
+	XConstraint c7 = parse("(F y.f z)");
+	XConstraint c8 = parse("(F z x.f)");
+	XConstraint c9 = parse("(! (! (== x y)))");
+	public void test1() throws Throwable {
+		assertTrue(c1.entails(c2));
+	}
+	public void test2() throws Throwable {
+		assertTrue(c2.entails(c1));
+	}
+	public void test3() throws Throwable {
+		assertTrue(c3.entails(c1));
+	}
+	public void test4() throws Throwable {
+		assertTrue(c4.entails(c5));
+	}
+	public void test5() throws Throwable {
+		assertFalse(c5.entails(c4));
+	}
+	public void test6() throws Throwable {
+		assertTrue(c6.entails(c7));
+	}
+	public void test7() throws Throwable {
+		assertTrue(c6.entails(c8));
+	}
+	public void test8() throws Throwable {
+		assertFalse(c8.entails(c6));
+	}
+	public void test9() throws Throwable {
+		assertTrue(c9.entails(c1));
+	}
+	public void test10() throws Throwable {
+		assertTrue(c1.entails(c9));
 	}
 }

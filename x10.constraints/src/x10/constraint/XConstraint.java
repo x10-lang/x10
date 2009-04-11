@@ -268,4 +268,16 @@ public interface XConstraint extends java.io.Serializable {
 	XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure;
 
 	XConstraint saturate() throws XFailure;
+	
+	/**
+	 * Return the list of existentially quantified variables in this constraint.
+	 * @return
+	 */
+	List<XVar> eqvs();
+	
+	/**
+	 * Return the list of atoms (atomic formulas) in this constraint.
+	 * @return
+	 */
+	List<XFormula> atoms();
 }
