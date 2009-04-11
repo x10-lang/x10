@@ -21,27 +21,27 @@ public class XEQV_c extends XLocal_c implements XEQV {
 	public XEQV_c(XName name) {
 		this(name, true);
 	}
-	
+
 	public XEQV_c(XName name, boolean hidden) {
 		super(name);
 		this.hidden = hidden;
 	}
-	
+
 	public boolean hasEQV() {
 		return hidden;
 	}
 	public boolean isEQV() {
 		return hidden;
 	}
-	
-        public List<XEQV> eqvs() {
-            if (hasEQV())
-                return Collections.<XEQV>singletonList(this);
-            return Collections.EMPTY_LIST;
-        }
-        public String toString() {
-        	return (hidden? "exists " : "") + super.toString();
-        }
 
-	
+	public List<XEQV> eqvs() {
+		if (hasEQV())
+			return Collections.<XEQV>singletonList(this);
+		return Collections.EMPTY_LIST;
+	}
+	//public String toString() {
+	//	return (hidden? "exists " : "") + super.toString();
+	//}
+
+
 }

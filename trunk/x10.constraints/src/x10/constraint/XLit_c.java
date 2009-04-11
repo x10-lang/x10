@@ -22,26 +22,26 @@ public class XLit_c extends XTerm_c implements XLit {
 	public Object val() {
 		return val;
 	}
-	
+
 	public XTerm var() {
 		return this;
 	}
-	
-        public List<XEQV> eqvs() {
-            return Collections.EMPTY_LIST;
-        }
+
+	public List<XEQV> eqvs() {
+		return Collections.EMPTY_LIST;
+	}
 
 	public String toString() {
 		if (val == null)
 			return "null";
 		if (val instanceof String)
-		    return "\"" + val.toString() + "\"";
+			return "\"" + val.toString() + "\"";
 		if (val instanceof Character)
-		    return "'" + val.toString() + "'";
+			return "'" + val.toString() + "'";
 		if (val instanceof Float)
-		    return val.toString() + "F";
+			return val.toString() + "F";
 		if (val instanceof Long)
-		    return val.toString() + "L";
+			return val.toString() + "L";
 		return val.toString();
 	}
 
@@ -61,11 +61,11 @@ public class XLit_c extends XTerm_c implements XLit {
 		XLit_c other = (XLit_c) o;
 		return val == null ? o == null : val.equals(other.val);
 	}
-	
+
 	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
-	    return super.subst(y, x, propagate);
+		return super.subst(y, x, propagate);
 	}
-	
+
 	// methods from Promise
 	public XPromise intern(XVar[] vars, int index) throws XFailure {
 		return intern(vars, index, null);
@@ -123,11 +123,8 @@ public class XLit_c extends XTerm_c implements XLit {
 		return this;
 	}
 
-	public void extDump(List<XTerm> result, XRoot oldSelf) {
-		// nothing to dump.
-	}
-	
-	public void dump(List<XTerm> result, XRoot oldSelf) {
+
+	public void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV) {
 		// nothing to dump.
 	}
 
@@ -153,7 +150,7 @@ public class XLit_c extends XTerm_c implements XLit {
 	}
 
 	public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
-	    // nothing to do.
+		// nothing to do.
 	}
 
 	public XPromise value() {

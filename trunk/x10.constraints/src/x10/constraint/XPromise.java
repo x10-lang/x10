@@ -100,21 +100,18 @@ public interface XPromise extends Cloneable {
 	boolean canReach(/*@nonnull*/XPromise p);
 
 	/**
-	 * Traverse the subtree under this promise, and add t1==t2 into result for any term t1 
-	 * which has an outgoing edge to a term t2, and add f(bar t) into result if this is a promise
-	 * for atomic formula f(bar t).
-	 * @param result
-	 * @param oldSelf TODO
-	 */
-	void dump(List<XTerm> result, XRoot oldSelf);
-	/**
-         * Traverse the subtree under this promise, and add t1==t2 into result for any term t1 
-         * which has an outgoing edge to a term t2 and is not an EQV, and add f(bar t) into result
-         * if this is a promise for atomic formula f(bar t).
+	 * Let t1 be path (if path is not null), else the term labeling this promise.
+	 * If this promise has an outgoing edge to t2, and either dumpEQV is true or 
+	 * ! t1.hasEQV(), then output t1==t2 to result.
+	 * If this promise has fields, then recursively continue dumping with 
+	 * the children, passing them a path t1.f (for field f) if  
+	 * t1 is an instance of XVar, otherwise passing a path null (in this case t1 is an
+	 * atom and the children are its subterms). 
+	 * (This takes care of multiple paths entering the promise.)
 	 * @param result
 	 * @param oldSelf 
 	 */
-	void extDump(List<XTerm> result, XRoot oldSelf);
+	void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV);
 
 	/**
 	 * Return the term that labels this promise. This term is intended to be the canonical XTerm

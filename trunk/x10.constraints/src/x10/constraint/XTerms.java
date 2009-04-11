@@ -39,6 +39,9 @@ public class XTerms {
 	public static final XName makeFreshName() {
 	    return makeFreshName("_");
 	}
+	public static final XVar makeEQV(String name) {
+		return new XEQV_c(makeName(name));
+	}
 	public static final XName makeFreshName(String prefix) {
 	    return new XNameWrapper<Object>(new Object(), prefix + (nextId++));
 	}
