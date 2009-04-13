@@ -211,11 +211,11 @@ function findTests {
 	#eval "find $1 -type d -name '.svn' -prune -o -type f -name '*.x10' -print"
 	if [[ -n "$testPat" && "${testPat}" != "." ]]; then
 		#findpat="$(printf "%q " "${testPat}" | sed 's/\\\\\([\*\?]\)/\1/g')"
-		eval "find $testPat -type d -name '.svn' -prune -o -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print | sort"
+		eval "find $testPat -type d -name '.svn' -prune -o -type f -name '*.x10'  -print | sort"
 	else
 		dirlist="$(eval "find -type d -name '.svn' -prune -o -type d -name '*' -print | sort")"
 		dirlist="$(echo $dirlist | tr '\n' ' ')"
-		eval "find $dirlist -maxdepth 1 -type f '(' -name '*.x10' -o -name '*.fwd' ')' -print"
+		eval "find $dirlist -maxdepth 1 -type f -name '*.x10' -print"
 	fi
 }
 
@@ -285,17 +285,18 @@ function execTimeOut {
 	shift
 	typeset outfile=$1
 	shift
-	printf "\n===> $@ > $outfile &\n\n" 1>&2
-	"$MYDIR"/newpgrp "$@" > $outfile &
+	printf "\n===> $@ >> $outfile &\n\n" 1>&2
+	printf "\n" >> $outfile
+	"$MYDIR"/newpgrp "$@" >> $outfile 2>&1 &
 	typeset cmd_pid=$!
-	printf "\n===> sleep $timeout && kill -9 -$cmd_pid 2>/dev/null &\n\n" 1>&2
-	"$MYDIR"/newpgrp "sleep $timeout && kill -9 -$cmd_pid" 2>/dev/null &
+	printf "\n===> sleep $timeout && kill -9 -$cmd_pid >/dev/null 2>&1 &\n\n" 1>&2
+	"$MYDIR"/newpgrp "sleep $timeout && kill -9 -$cmd_pid" >/dev/null 2>&1 &
 	typeset sleep_pid=$!
 	printf "\n===> wait $cmd_pid 2>/dev/null\n\n" 1>&2
-	wait $cmd_pid 2>/dev/null
+	wait $cmd_pid >/dev/null 2>&1
 	typeset rc=$?
 	printf "\n===> kill -9 -$sleep_pid 2>/dev/null\n\n" 1>&2
-	kill -9 -$sleep_pid 2>/dev/null
+	kill -9 -$sleep_pid >/dev/null 2>&1
 	return $rc
 }
 
@@ -354,7 +355,7 @@ function cleanUpExitHarness {
 trap 'cleanUpExitHarness 1' INT QUIT TERM
 
 # default values
-DEFAULT_TIMEOUT=120
+DEFAULT_TIMEOUT=360
 DEFAULT_LOGPATH="log"
 DEFAULT_NPLACES=1
 
@@ -492,14 +493,18 @@ function xmlLog {
 	echo "${__cat_test_x10c_command}" | sed -e 's/</\&lt;/g' \
 		-e 's/>/\&gt;/g' \
 		-e 's/&&/\&amp;\&amp;/g' \
+		-e 's/&/\&amp;/g' \
 		-e 's/ & / \&amp; /g' >> $TLOGF
 	printf "\n\n" >> $TLOGF
+	if [[ -n "${__cat_test_x10_command}" ]]; then
 	printf "## execution:\n" >> $TLOGF
 	echo "${__cat_test_x10_command}" | sed -e 's/</\&lt;/g' \
 		-e 's/>/\&gt;/g' \
 		-e 's/&&/\&amp;\&amp;/g' \
+		-e 's/&/\&amp;/g' \
 		-e 's/ & / \&amp; /g' >> $TLOGF
 	printf "\n\n" >> $TLOGF
+	fi
 	printf "\t\t</command>\n" >> $TLOGF
 	printf "\t\t<parameters>\n" >> $TLOGF
 	printf "\t\t\t<parameter key=\"x10c.sourcepath\" value=\"${__cat_test_x10c_sourcepath}\"/>\n" >> $TLOGF
@@ -520,6 +525,7 @@ function xmlLog {
 		-e 's/>/\&gt;/g' \
 		-e 's/&&/\&amp;\&amp;/g' \
 		-e 's/ & / \&amp; /g' \
+		-e 's/&/\&amp;/g' \
 		-e '/Unexpected character ignored:/d' \
 		$1 >> $TLOGF
 	printf "\t\t\t</output>\n" >> $TLOGF
@@ -588,7 +594,7 @@ function main {
 	# exit code: 3
 	thrunstate=LIST_PREPARATION
 	printf "\n<<Testcase List Preparation>>\n"
-	declare -a tclist=($(findTests '$tcpatlist'))
+	declare -a tclist=($(findTests "$tcpatlist"))
 	if [[ ${#tclist[*]} == 0 ]]; then
 		printf "\n[$prog: err]: zero tests found under $(basename $(pwd))\n"
 		cleanUpExitHarness 3
@@ -628,10 +634,17 @@ function main {
 
 		# create the test root
 		tctarget=$(basename $tc | sed -e 's;.x10;;')
-		__cat_test_name="$tctarget"
+		local tPkg=$(sed -ne 's|\.|/|g' -e 's|^\s*package \([^;]*\);|\1|p' "$tc")
+
+		local className="${tPkg}/${tctarget}"
+		className=${className#\.\/}
+		className=`echo "$className" | sed -e 's/\//\./g'`
+		className=${className#\.}
+		__cat_test_name="$className"
 		local testDir=$(dirname $tc)
-		local tDir=${testDir#\.\/}
-		tDir=`echo "$testDir" | sed -e 's/\//\./g'`
+		local tDir=${testDir%/$tPkg}
+		tDir=${tDir#\.\/}
+		tDir=`echo "$tDir" | sed -e 's/\//\./g'`
 		__cat_current_group="$tDir"
 		if [[ -d ${tcroot} ]]; then
 			rm -rf ${tcroot}
@@ -657,6 +670,9 @@ function main {
 		__cat_test_x10c_directory="$testDir"
 		comp_cmd="${X10CPP} -t -v -commandlineonly -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
 		tccompdat=${tcroot}/${tctarget}.comp
+		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
+
+		__cat_test_x10_command=""
 		__cat_test_x10c_command="$(echo execTimeOut $tccomptout $tccompdat \"${comp_cmd}\")"
 		execTimeOut $tccomptout $tccompdat "${comp_cmd}"
 		rc=$?
@@ -665,51 +681,58 @@ function main {
 			let 'tcfcompcnt += 1'
 			let 'tcpasscnt += 1'
 			printf " *** Y ***"
-			__cat_test_result_explanation="${tctarget} met expectation: MustFailCompile."
+			__cat_test_result_explanation="${className} met expectation: MustFailCompile."
 			__cat_test_result="SUCCESS"
 			__cat_test_exit_code=$rc
+			printf "\n****** $tDir $className succeeded.\n" >> $tccompdat
 			xmlLog $tccompdat
 			continue
 		elif [[ $rc == 0 && "$tcvcode" == "FAIL_COMPILE" ]]; then
 			printf " *** X ***"
 			let 'tcfvcodecnt += 1'
 			let 'tcfailcnt += 1'
-			printf "\n[$prog: err]: invalid validation code for ${tctarget}\n"
-			__cat_test_result_explanation="${tctarget} did not meet expectation: expected=MustFailCompile actual=Succeed (invalid validation code)."
+			printf "\n[$prog: err]: invalid validation code for ${className}\n"
+			__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailCompile actual=Succeed (invalid validation code)."
 			__cat_test_result="FAILURE"
 			__cat_test_exit_code=42
+			printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
 			xmlLog $tccompdat
 			continue
 		elif [[ $rc != 0 && "$tcvcode" != "FAIL_COMPILE" ]]; then
 			let 'tcfcompcnt += 1'
 			let 'tcfailcnt += 1'
 			printf " *** X ***"
-			printf "\n[$prog: err]: can't generate c++ sources for ${tctarget}\n"
-			__cat_test_result_explanation="${tctarget} did not meet expectation: expected=Succeed actual=FailCompile (failed to generate c++ sources)."
+			printf "\n[$prog: err]: can't generate c++ sources for ${className}\n"
+			__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailCompile (failed to generate c++ sources)."
 			__cat_test_result="FAILURE"
 			__cat_test_exit_code=$rc
+			printf "\n****** $tDir $className failed: compile\n" >> $tccompdat
 			xmlLog $tccompdat
 			continue
 		fi
+		printf "\n++++++ Compilation succeeded.\n" >> $tccompdat
 		let 'tccompcnt += 1'
 
 		# try & run the target	
+		# the actual output will be logged here
+		#tcoutdat=${tcroot}/${tctarget}.out
+		tcoutdat=${tccompdat}
 		if [[ `uname -s` == "AIX" ]]; then
 			tchostfile=$tcroot/host.list
 			for (( i = 0; i < DEFAULT_NPLACES; i++ )); do
 				printf "$(hostname)\n" >> $tchostfile
 			done
-			run_cmd="poe ./${tctarget} -procs $DEFAULT_NPLACES -msg_api lapi -hostfile $tchostfile"
+			run_cmd="/usr/bin/time -p poe ./${tctarget} -procs $DEFAULT_NPLACES -msg_api lapi -hostfile $tchostfile"
+			printf "\n${run_cmd}\n" >> $tcoutdat
 		else
-			run_cmd="./${tctarget}"
+			run_cmd="/usr/bin/time -p ./${tctarget}"
+			printf "\nMP_CHILD=$MP_CHILD MP_PROCS=$MP_PROCS PGASRT_HOME_NODE=$PGASRT_HOME_NODE PGAS_NTHREADS=$PGAS_NTHREADS UPC_NTHREADS=$UPC_NTHREADS ${run_cmd}\n" >> $tcoutdat
 		fi
 
-		# the actual output will be logged here
-		tcoutdat=${tcroot}/${tctarget}.out
 		__cat_test_x10_classpath="$EXTRA_CLASSPATH"
 		__cat_test_x10_timeout="$tctoutval"
 		if [[ $tctimeout == 0 ]]; then
-			__cat_test_x10_command="$(echo $run_cmd > $tcoutdat)"
+			__cat_test_x10_command="$(echo $run_cmd >> $tcoutdat)"
 		else
 			__cat_test_x10_command="$(echo execTimeOut $tctoutval $tcoutdat \"${run_cmd}\")"
 		fi
@@ -718,8 +741,8 @@ function main {
 			printf "\n===> cd $tcroot\n" 1>&2; \
 			cd $tcroot; \
 			if [[ $tctimeout == 0 ]]; then \
-				printf "\n===> $run_cmd > $tcoutdat\n\n" 1>&2; \
-				$run_cmd > $tcoutdat; \
+				printf "\n===> $run_cmd >> $tcoutdat\n\n" 1>&2; \
+				$run_cmd >> $tcoutdat; \
 			else \
 				execTimeOut $tctoutval $tcoutdat "${run_cmd}"; \
 			fi;
@@ -729,12 +752,13 @@ function main {
 			let 'tcexeccnt += 1'
 			let 'tcpasscnt += 1'
 			printf " *** Y ***"
-			printf "\n<<==========OUTPUT=======\n"
-			cat ${tcoutdat}
-			printf "=======================>>\n"
-			__cat_test_result_explanation="${tctarget} met expectation: Succeed."
+			#printf "\n<<==========OUTPUT=======\n"
+			#cat ${tcoutdat}
+			#printf "=======================>>\n"
+			__cat_test_result_explanation="${className} met expectation: Succeed."
 			__cat_test_result="SUCCESS"
 			__cat_test_exit_code=$rc
+			printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
 			xmlLog $tcoutdat
 			continue
 		fi
@@ -743,39 +767,43 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcfexeccnt += 1'
 				printf " *** X ***"
-				printf "\n[$prog: err]: failed to execute ${tctarget}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=Succeed actual=FailRun."
+				printf "\n[$prog: err]: failed to execute ${className}\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=$rc
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc == 0 && $tcvcode == "FAIL_RUN" ]]; then
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
-				printf "\n[$prog: err]: invalid validation code for ${tctarget}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=MustFailRun actual=Succeed (invalid validation code)."
+				printf "\n[$prog: err]: invalid validation code for ${className}\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailRun actual=Succeed (invalid validation code)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=42
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc > 0 && $tcvcode == "FAIL_RUN" ]]; then
 				printf " *** Y ***"
 				let 'tcfexeccnt += 1'
 				let 'tcpasscnt += 1'
-				__cat_test_result_explanation="${tctarget} met expectation: MustFailRun."
+				__cat_test_result_explanation="${className} met expectation: MustFailRun."
 				__cat_test_result="SUCCESS"
 				__cat_test_exit_code=0
+				printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			else
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
-				printf "\n[$prog: err]: invalid validation code ${tctarget}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=Succeed actual=FailRun (invalid validation code)."
+				printf "\n[$prog: err]: invalid validation code ${className}\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (invalid validation code)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=42
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			fi
@@ -785,20 +813,22 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
-				printf "\n[$prog: err]: ${tctarget} is killed due to timeout\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=Succeed actual=TimeOut (killed due to timeout)."
+				printf "\n[$prog: err]: ${className} is killed due to timeout\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=TimeOut (killed due to timeout)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=$rc
+				printf "\n****** $tDir $className failed: timeout\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc > 0 && $tcvcode == "SUCCEED" ]]; then
 				printf " *** X ***"
 				let 'tcfailcnt += 1'
 				let 'tcfexeccnt += 1'
-				printf "\n[$prog: err]: failed to execute ${tctarget}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=Succeed actual=FailRun (execution failed)."
+				printf "\n[$prog: err]: failed to execute ${className}\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=Succeed actual=FailRun (execution failed)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=$rc
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc == 0 && $tcvcode == "FAIL_RUN" ]]; then
@@ -806,9 +836,10 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
 				printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=MustFailRun actual=Succeed (invalid vaditation code)."
+				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailRun actual=Succeed (invalid vaditation code)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=42
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc > 128 && $tcvcode == "FAIL_RUN" ]]; then
@@ -816,19 +847,21 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
-				printf "\n[$prog: err]: ${tctarget} is killed due to timeout\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=MustFailRun actual=TimeOut (killed due to timeout)."
+				printf "\n[$prog: err]: ${className} is killed due to timeout\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailRun actual=TimeOut (killed due to timeout)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=$rc
+				printf "\n****** $tDir $className failed: timeout\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc > 0 && $tcvcode == "FAIL_RUN" ]]; then
 				printf " *** Y ***"
 				let 'tcfexeccnt += 1'
 				let 'tcpasscnt += 1'
-				__cat_test_result_explanation="${tctarget} met expectation: MustFailRun."
+				__cat_test_result_explanation="${className} met expectation: MustFailRun."
 				__cat_test_result="SUCCESS"
 				__cat_test_exit_code=0
+				printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc == 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
@@ -836,9 +869,10 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
 				printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=MustFailTimeOut actual=Succeed (invalid validation code)."
+				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=Succeed (invalid validation code)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=42
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc > 128 && $tcvcode == "FAIL_TIMEOUT" ]]; then
@@ -846,9 +880,10 @@ function main {
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
 				let 'tcpasscnt += 1'
-				__cat_test_result_explanation="${tctarget} met expectation: MustFailTimeOut."
+				__cat_test_result_explanation="${className} met expectation: MustFailTimeOut."
 				__cat_test_result="SUCCESS"
 				__cat_test_exit_code=0
+				printf "\n****** $tDir $className succeeded.\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			elif [[ $rc > 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
@@ -856,10 +891,11 @@ function main {
 				let 'tcfailcnt += 1'
 				let 'tcftoutcnt += 1'
 				let 'tcfexeccnt += 1'
-				printf "\n[$prog: err]: failed to execute ${tctarget}\n"
-				__cat_test_result_explanation="${tctarget} did not meet expectation: expected=MustFailTimeOut actual=FailRun (execution failed)."
+				printf "\n[$prog: err]: failed to execute ${className}\n"
+				__cat_test_result_explanation="${className} did not meet expectation: expected=MustFailTimeOut actual=FailRun (execution failed)."
 				__cat_test_result="FAILURE"
 				__cat_test_exit_code=$rc
+				printf "\n****** $tDir $className failed: run\n" >> $tcoutdat
 				xmlLog $tcoutdat
 				continue
 			fi
