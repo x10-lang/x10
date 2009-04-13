@@ -22,6 +22,12 @@ ifdef ENABLE_GC
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 
+ifdef OPTIMIZE
+	CXXFLAGS += -O2 -finline-functions
+	CFLAGS += -O2 -finline-functions
+	X10CPPFLAGS += -optimize
+endif
+
 ifdef ENABLE_CUDA
   CXXFLAGS += -DX10_USE_CUDA_HOST
   INCLUDE_DIRS += -I/usr/local/cuda/include
@@ -160,7 +166,7 @@ XRXFILES  = $(shell find ../src-x10 -name '*.x10')
 gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar test.o
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
-	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | xargs "$(INSTDIR)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c
+	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | xargs "$(INSTDIR)"/bin/x10c++ $(X10CPPFLAGS) -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c
 	touch $@
 
 # $(XRX_MANIFEST) is a list of all .cc files (relative to the ./gen dir) that

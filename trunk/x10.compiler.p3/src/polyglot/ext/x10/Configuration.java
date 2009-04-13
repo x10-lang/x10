@@ -23,7 +23,7 @@ import x10.config.OptionError;
  *
  * @author Christian Grothoff
  * @author Igor Peshansky
- * 
+ *
  * @author barikr: added LOOP_OPTIMIZATIONS 26th Aug 2006
  */
 public final class Configuration extends x10.config.Configuration {
@@ -41,6 +41,9 @@ public final class Configuration extends x10.config.Configuration {
 	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
 
+    public static boolean OPTIMIZE = false;
+    private static final String OPTIMIZE_desc = "Generate optimized code";
+
 	public static boolean LOOP_OPTIMIZATIONS = true;
 	private static final String LOOP_OPTIMIZATIONS_desc = "Generate specialized Java version of for-loop X10 code";
 
@@ -52,7 +55,7 @@ public final class Configuration extends x10.config.Configuration {
 
 	public static String PLUGINS = "";
 	private static final String PLUGINS_desc = "Comma-separated list of compiler plugins to run.";
-	
+
 	public static String PLUGIN_COMPILER = "";
 	private static final String PLUGIN_COMPILER_desc = "Javac-like compiler to use to compile plugins";
 

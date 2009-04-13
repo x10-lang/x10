@@ -7,6 +7,7 @@ dev=""
 rtdev=""
 java_args=""
 args=""
+optimize=""
 
 parse=true
 while [ -n "$1" ]; do
@@ -24,6 +25,7 @@ while [ -n "$1" ]; do
         -config) shift; config="$1.cfg";;
         -ext) shift; ext=$1;;
         -dev) dev="true";;
+        -O|-optimize) optimize="true";;
         -rtdev) rtdev="true";;
         -J*) java_args="${java_args} '${1##-J}'";;
         --) parse=;;
@@ -46,6 +48,7 @@ where [options] includes:
     -disable <pass>          disable compiler pass <pass>
                              valid passes are: async-elimination
     -dev                     developer mode (use unpackaged X10 libraries)
+    -O -optimize             generate optimized code
 
     Use "x10c -- -help" to get more detailed help on compiler options
 EOF
@@ -86,6 +89,11 @@ classpath="${classpath}${LIB_DIR}${FILE_SEP}x10c.jar${PATH_SEP}${LIB_DIR}${FILE_
 [ -z "$rtdev" ] && extargs="$extargs -sourcepath \"${LIB_DIR}${FILE_SEP}x10.jar\""
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
+
+# Set flags to generate optimized code if we've been asked to do so.
+if [[ "$optimize" = "true" ]]; then
+  args=" -BAD_PLACE_RUNTIME_CHECK=false -OPTIMIZE=true $args"
+fi
 
 if [[ "$DEXT" = "x10cpp" ]]; then
   # C++ backend
