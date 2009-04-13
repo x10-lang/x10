@@ -182,7 +182,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public File integratedOutputFile(String packageName, String className, Source source, String ext) {
-			File outputFile = new File(outputDirectory, 
+			File outputFile = new File(outputDirectory,
 			                           integratedOutputName(packageName, className, ext));
 
 			if (source != null && outputFile.getPath().equals(source.path()))
@@ -292,7 +292,7 @@ public class X10CPPTranslator extends Translator {
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				assert (!opfPath.endsWith("$"));
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
-				translateTopLevelDecl(sw, sfn, decl); 
+				translateTopLevelDecl(sw, sfn, decl);
 				if (i.hasNext())
 					wstreams.commitStreams();
 			}
@@ -400,6 +400,12 @@ public class X10CPPTranslator extends Translator {
             X10GC+"/lib/libgc.a",
         };
 
+        /** These go before the files if optimize is true */
+        public static final String[] preArgsOptimize = new String[] {
+            "-O2",
+            "-finline-functions",
+        };
+
         private final X10CPPCompilerOptions options;
 
         public CXXCommandBuilder(Options options) {
@@ -422,6 +428,11 @@ public class X10CPPTranslator extends Translator {
                 for (int i = 0; i < preArgsGC.length; i++) {
                     cxxCmd.add(preArgsGC[i]);
                 }
+            }
+            if (Configuration.OPTIMIZE) {
+              for (String arg : preArgsOptimize) {
+                cxxCmd.add(arg);
+              }
             }
         }
 
