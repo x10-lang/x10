@@ -14,6 +14,7 @@
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
+    <property name="optimize" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -63,6 +64,12 @@
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
         <isset property="bdwgc.enabled" />
     </condition>
+    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="">
+        <isset property="optimize" />
+    </condition>
+    <condition property="x10c.optimize" value="-O" else="">
+        <isset property="optimize" />
+    </condition>
     <target name="available-procs" unless="available.procs">
         <property name="available.procs" value="2"/>
     </target>
@@ -94,6 +101,7 @@
             <arg value="-j${available.procs}" />
             <arg value="install" />
             <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.optimize}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -136,7 +144,7 @@
         <echo message="x10c -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <arg value="'${x10.dist.location}/bin/x10c' -d '${gen}' -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c ${xrx.list}" />
+            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} -d '${gen}' -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
     <target name="build-xrx" depends="init,build-java,gen-xrx">
@@ -178,6 +186,7 @@
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
             <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.optimize}" />
         </exec>
     </target>
 
