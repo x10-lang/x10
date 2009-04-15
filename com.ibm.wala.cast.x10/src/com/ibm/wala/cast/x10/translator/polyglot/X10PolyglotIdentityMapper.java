@@ -8,6 +8,7 @@ import polyglot.types.*;
 
 import com.ibm.wala.cast.java.translator.polyglot.*;
 import com.ibm.wala.types.*;
+import com.ibm.wala.util.debug.Assertions;
 
 class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
 
@@ -30,10 +31,14 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
     }
 
     public String typeToTypeID(Type type) {
-        if (type instanceof NullableType) {
+/*      if (type instanceof NullableType) {
                 return "Lnullable<" + typeToTypeID(((NullableType) type).base()) + ">";
         } else if (type instanceof FutureType) {
                 return "Lfuture<" + typeToTypeID(((FutureType) type).base()) + ">";
+        } else 
+*/        
+        if (type instanceof ParametrizedType) {
+            Assertions.UNREACHABLE("typeToTypeID(ParametrizedType)");
         } else if (type.isClass()
                         && typeTranslationMap.containsKey(((ClassType) type).fullName())) {
                 return typeTranslationMap.get(((ClassType) type).fullName());

@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.ParametrizedType;
+
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
 import polyglot.types.QName;
@@ -26,7 +28,10 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
     }
 
     public CAstType getCAstTypeFor(Object astType) {
-        if (astType instanceof FutureType) {
+        if (astType instanceof ParametrizedType) {
+            Assertions.UNREACHABLE("getCAstTypeFor(ParametrizedType)");
+        }
+/*      if (astType instanceof FutureType) {
             FutureType futureType = (FutureType) astType;
             Type baseType = futureType.base();
             try {
@@ -50,6 +55,7 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
 
             return result;
         }
+*/
         return super.getCAstTypeFor(astType);
     }
 }
