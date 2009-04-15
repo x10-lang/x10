@@ -37,7 +37,7 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
                 return "Lfuture<" + typeToTypeID(((FutureType) type).base()) + ">";
         } else 
 */        
-        if (type instanceof ParametrizedType) {
+        if (type instanceof X10ClassType && ((X10ClassType) type).typeArguments().size() > 0) {
             Assertions.UNREACHABLE("typeToTypeID(ParametrizedType)");
         }
         if (type.isClass()
