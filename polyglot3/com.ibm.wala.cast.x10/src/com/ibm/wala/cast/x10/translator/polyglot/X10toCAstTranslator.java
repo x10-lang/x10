@@ -20,7 +20,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.ClosureType;
-import polyglot.ext.x10.types.FutureType;
+//import polyglot.ext.x10.types.FutureType;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
 import polyglot.types.LocalDef;
@@ -388,13 +388,13 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	public CAstNode visit(Call c, WalkContext wc) {
 	    MethodInstance methodInstance= c.methodInstance();
 	    StructType methodOwner= methodInstance.container();
-
-	    if (methodOwner instanceof FutureType) {
-		FutureType type= (FutureType) methodOwner;
-		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, fIdentityMapper.typeToTypeID(type.base()));
-
-		return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
-	    } else
+// OLIVIER
+//	    if (methodOwner instanceof FutureType) {
+//		FutureType type= (FutureType) methodOwner;
+//		TypeReference typeRef= TypeReference.findOrCreate(fClassLoaderRef, fIdentityMapper.typeToTypeID(type.base()));
+//
+//		return makeNode(wc, c, X10CastNode.FORCE, walkNodes(c.target(), wc), fFactory.makeConstant(typeRef));
+//	    } else
 		return super.visit(c, wc);
 	}
 
@@ -660,11 +660,13 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return closureRef;
 	}
 
+/*	
 	public CAstNode visit(GenParameterExpr gpe, WalkContext context) {
 	    // TODO Auto-generated method stub
 	    return null;
 	}
-
+*/
+	
 	public CAstNode visit(ForLoop f, WalkContext context) {
 		Node breakTarget = makeBreakTarget(f);
 		Node continueTarget = makeContinueTarget(f);
