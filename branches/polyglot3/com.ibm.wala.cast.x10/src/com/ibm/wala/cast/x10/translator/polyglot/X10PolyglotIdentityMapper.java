@@ -39,7 +39,8 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
 */        
         if (type instanceof ParametrizedType) {
             Assertions.UNREACHABLE("typeToTypeID(ParametrizedType)");
-        } else if (type.isClass()
+        }
+        if (type.isClass()
                         && typeTranslationMap.containsKey(((ClassType) type).fullName())) {
                 return typeTranslationMap.get(((ClassType) type).fullName());
         } else {
