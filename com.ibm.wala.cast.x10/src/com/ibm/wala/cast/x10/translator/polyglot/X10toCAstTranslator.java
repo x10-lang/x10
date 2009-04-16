@@ -17,6 +17,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.*;
 import polyglot.ext.x10.types.ClosureType;
@@ -385,9 +386,49 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return bodyNode;
 	}
 
+        public CAstNode visitArrayAccess(Expr access, Expr array, List<Expr> indices, WalkContext wc) {
+            TypeReference eltTypeRef = fIdentityMapper.getTypeRef(array.type());
+            CAstNode[] children= new CAstNode[indices.size()+2];
+
+            int idx= 0;
+            children[idx++]= walkNodes(array, wc);
+            children[idx++]= fFactory.makeConstant(eltTypeRef);
+            for(Expr index: indices) {
+                children[idx++]= walkNodes(index, wc);
+            }
+            return makeNode(wc, fFactory, access, isIndexedByPoint(indices) ? X10CastNode.ARRAY_REF_BY_POINT : CAstNode.ARRAY_REF, children);
+        }
+
+        private boolean isIndexedByPoint(Expr index) {
+            return index.type().isClass() && ((ClassType) index.type()).fullName().toString().equals("x10.lang.point");
+        }
+
+        public CAstNode visitArrayAccess1D(Expr access, Expr array, Expr index, WalkContext wc) {
+            TypeReference eltTypeRef = fIdentityMapper.getTypeRef(array.type());
+            CAstNode[] children= new CAstNode[3];
+
+            int idx= 0;
+            children[idx++]= walkNodes(array, wc);
+            children[idx++]= fFactory.makeConstant(eltTypeRef);
+            children[idx++]= walkNodes(index, wc);
+
+            return makeNode(wc, fFactory, array, isIndexedByPoint(index) ? X10CastNode.ARRAY_REF_BY_POINT : CAstNode.ARRAY_REF, children);
+        }
+
 	public CAstNode visit(Call c, WalkContext wc) {
 	    MethodInstance methodInstance= c.methodInstance();
 	    StructType methodOwner= methodInstance.container();
+
+            //PORT1.7 Array accesses are now represented as ordinary method calls
+	    if (methodOwner instanceof ClassType) {
+	        ClassType classType = (ClassType) methodOwner;
+	        if (classType.name().toString().equals("x10.lang.Rail")) {
+	            Expr array = (Expr) c.target();
+	            List<Expr> indices = c.arguments();
+
+	            return visitArrayAccess(c, array, indices, wc);
+	        }
+	    }
 // OLIVIER
 //	    if (methodOwner instanceof FutureType) {
 //		FutureType type= (FutureType) methodOwner;
@@ -514,134 +555,103 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return index.type().isClass() && ((ClassType) index.type()).fullName().toString().equals("x10.lang.point");
 	}
 
-	public CAstNode visit(X10ArrayAccess aa, WalkContext wc) {
-	    TypeReference eltTypeRef = fIdentityMapper.getTypeRef(aa.type());
-	    CAstNode[] children= new CAstNode[aa.index().size()+2];
-
-	    int idx= 0;
-	    children[idx++]= walkNodes(aa.array(), wc);
-	    children[idx++]= fFactory.makeConstant(eltTypeRef);
-	    for(Iterator iter= aa.index().iterator(); iter.hasNext(); ) {
-		Expr index= (Expr) iter.next();
-		children[idx++]= walkNodes(index, wc);
-	    }
-	    return makeNode(wc, fFactory, aa, isIndexedByPoint(aa.index()) ? X10CastNode.ARRAY_REF_BY_POINT : CAstNode.ARRAY_REF, children);
-	}
-
-	private boolean isIndexedByPoint(Expr index) {
-	    return index.type().isClass() && ((ClassType) index.type()).fullName().toString().equals("x10.lang.point");
-	}
-
-	public CAstNode visit(X10ArrayAccess1 aa, WalkContext wc) {
-	    Expr index= aa.index();
-	    TypeReference eltTypeRef = fIdentityMapper.getTypeRef(aa.type());
-	    CAstNode[] children= new CAstNode[3];
-
-	    int idx= 0;
-	    children[idx++]= walkNodes(aa.array(), wc);
-	    children[idx++]= fFactory.makeConstant(eltTypeRef);
-	    children[idx++]= walkNodes(index, wc);
-
-	    return makeNode(wc, fFactory, aa, isIndexedByPoint(index) ? X10CastNode.ARRAY_REF_BY_POINT : CAstNode.ARRAY_REF, children);
-	}
-
-        private int tempCtr= 0;
-
-	public CAstNode visit(ArrayConstructor ac, WalkContext wc) {
-	    Expr dist= ac.distribution();
-	    Expr init= ac.initializer();
-	    Type arrayType= ac.type();
-	    // TODO Filter arrayType so that e.g. x10.lang.IntReferenceArray becomes int[] so
-	    // that WALA doesn't complain that an array type doesn't seem to be an array type.
-	   /* if (arrayType instanceof X10ParsedClassType_c) {
-	    	X10ParsedClassType_c t = ((X10ParsedClassType_c)arrayType);
-	    	List<Type> ps = t.typeParameters();
-	    	if (ps.size() == 1) {
-	    		arrayType = ps.get(0).arrayOf();
-	    	}
-	    }
-	    // ugly hackish attempt to find array type.  unlikely to be right all the time
-	    */
-	    TypeReference arrayTypeRef= fIdentityMapper.getTypeRef(arrayType);
-	    Type baseType= ac.arrayBaseType().type();
-	    TypeReference baseTypeRef= fIdentityMapper.getTypeRef(baseType);
-
-	    if (init instanceof Closure) {
-		Closure closure= (Closure) init;
-		Formal formal1= (Formal) closure.formals().get(0); // The closure for an array ctor init always has a single argument
-		// Turn this construct into an array allocation followed by a region
-		// iteration whose body calls the initializer and assigns the result
-		// to the corresponding array slot.
-		//
-		// BLOCK_EXPR [
-		//     ASSIGN [ arrayTmp, NEW [ type, dist.region ] ],
-		//     for(point p: dist.region) {
-		//         ASSIGN [ ARRAY_REF [ arrayTmp, p ], CALL [ closure, p ] ]
-		//     }
-		//     tmp
-		// ]
-		//
-		CAstNode closureNode= walkNodes(closure, wc);
-                String arrayTempName= "array temp" + tempCtr;
-                String distTempName= "dist temp" + tempCtr++;
-		CAstSymbol arrayTemp= new AstTranslator.InternalCAstSymbol(arrayTempName, true);
-		CAstSymbol distTemp= new AstTranslator.InternalCAstSymbol(distTempName, true);
-		CAstNode distDeclNode=
-			makeNode(wc, dist, CAstNode.DECL_STMT,
-					fFactory.makeConstant(distTemp),
-					walkNodes(dist, wc));
-		CAstNode arrayNewNode= 
-			makeNode(wc, ac, CAstNode.DECL_STMT,
-				fFactory.makeConstant(arrayTemp),
-				makeNode(wc, ac, CAstNode.NEW,
-					fFactory.makeConstant(arrayTypeRef),
-					makeNode(wc, fFactory, dist, CAstNode.VAR, fFactory.makeConstant(distTempName))));
-		int dummyPC = 0; // Just wrap the kind of call; the "rear end" won't care about anything else...
-		MethodReference closureRef= createMethodRefForClosure(closure);
-		CallSiteReference closureCallSiteRef= CallSiteReference.make(dummyPC, closureRef, IInvokeInstruction.Dispatch.VIRTUAL);
-		CAstNode arrayElemInit= makeNode(wc, closure, CAstNode.BLOCK_EXPR,
-			makeNode(wc, formal1, CAstNode.ASSIGN,
-				makeNode(wc, closure, X10CastNode.ARRAY_REF_BY_POINT,
-					makeNode(wc, closure, CAstNode.VAR, fFactory.makeConstant(arrayTempName)),
-					fFactory.makeConstant(baseTypeRef),
-					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name()))),
-				makeNode(wc, closure, CAstNode.CALL,
-					closureNode,
-					fFactory.makeConstant(closureCallSiteRef),
-					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name())))));
-
-		CAstNode loopBody=
-			walkRegionIterator(formal1, arrayElemInit,
-					makeNode(wc, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), closure.position(), wc);
-
-		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
-			distDeclNode,
-			arrayNewNode,
-			loopBody,
-			makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(arrayTempName)));
-	    } else if (init instanceof ArrayInit) {
-		ArrayInit arrayInit= (ArrayInit) init;
-		// ARRAY_NEW [ type, dist.region, walkNodes(init, wc) ]
-		CAstNode[] eltNodes= new CAstNode[arrayInit.elements().size()+1];
-		int idx= 0;
-		eltNodes[idx++]= makeNode(wc, ac, CAstNode.NEW,
-			fFactory.makeConstant(arrayTypeRef),
-			walkNodes(dist, wc));
-		for(Iterator iter= arrayInit.elements().iterator(); iter.hasNext(); ) {
-		    Expr elem= (Expr) iter.next();
-		    eltNodes[idx++]= walkNodes(elem, wc);
-		}
-		return makeNode(wc, init, CAstNode.ARRAY_LITERAL, eltNodes);
-	    } else if (init == null) {
-		return makeNode(wc, ac, CAstNode.NEW,
-			fFactory.makeConstant(arrayTypeRef),
-			walkNodes(dist, wc));
-	    } else {
-		Assertions.UNREACHABLE("ArrayConstructor has non-closure, non-ArrayInit initializer of type " + init.getClass());
-		return null;
-	    }
-	}
-
+//        private int tempCtr= 0;
+//
+//	public CAstNode visit(ArrayConstructor ac, WalkContext wc) {
+//	    Expr dist= ac.distribution();
+//	    Expr init= ac.initializer();
+//	    Type arrayType= ac.type();
+//	    // TODO Filter arrayType so that e.g. x10.lang.IntReferenceArray becomes int[] so
+//	    // that WALA doesn't complain that an array type doesn't seem to be an array type.
+//	   /* if (arrayType instanceof X10ParsedClassType_c) {
+//	    	X10ParsedClassType_c t = ((X10ParsedClassType_c)arrayType);
+//	    	List<Type> ps = t.typeParameters();
+//	    	if (ps.size() == 1) {
+//	    		arrayType = ps.get(0).arrayOf();
+//	    	}
+//	    }
+//	    // ugly hackish attempt to find array type.  unlikely to be right all the time
+//	    */
+//	    TypeReference arrayTypeRef= fIdentityMapper.getTypeRef(arrayType);
+//	    Type baseType= ac.arrayBaseType().type();
+//	    TypeReference baseTypeRef= fIdentityMapper.getTypeRef(baseType);
+//
+//	    if (init instanceof Closure) {
+//		Closure closure= (Closure) init;
+//		Formal formal1= (Formal) closure.formals().get(0); // The closure for an array ctor init always has a single argument
+//		// Turn this construct into an array allocation followed by a region
+//		// iteration whose body calls the initializer and assigns the result
+//		// to the corresponding array slot.
+//		//
+//		// BLOCK_EXPR [
+//		//     ASSIGN [ arrayTmp, NEW [ type, dist.region ] ],
+//		//     for(point p: dist.region) {
+//		//         ASSIGN [ ARRAY_REF [ arrayTmp, p ], CALL [ closure, p ] ]
+//		//     }
+//		//     tmp
+//		// ]
+//		//
+//		CAstNode closureNode= walkNodes(closure, wc);
+//                String arrayTempName= "array temp" + tempCtr;
+//                String distTempName= "dist temp" + tempCtr++;
+//		CAstSymbol arrayTemp= new AstTranslator.InternalCAstSymbol(arrayTempName, true);
+//		CAstSymbol distTemp= new AstTranslator.InternalCAstSymbol(distTempName, true);
+//		CAstNode distDeclNode=
+//			makeNode(wc, dist, CAstNode.DECL_STMT,
+//					fFactory.makeConstant(distTemp),
+//					walkNodes(dist, wc));
+//		CAstNode arrayNewNode= 
+//			makeNode(wc, ac, CAstNode.DECL_STMT,
+//				fFactory.makeConstant(arrayTemp),
+//				makeNode(wc, ac, CAstNode.NEW,
+//					fFactory.makeConstant(arrayTypeRef),
+//					makeNode(wc, fFactory, dist, CAstNode.VAR, fFactory.makeConstant(distTempName))));
+//		int dummyPC = 0; // Just wrap the kind of call; the "rear end" won't care about anything else...
+//		MethodReference closureRef= createMethodRefForClosure(closure);
+//		CallSiteReference closureCallSiteRef= CallSiteReference.make(dummyPC, closureRef, IInvokeInstruction.Dispatch.VIRTUAL);
+//		CAstNode arrayElemInit= makeNode(wc, closure, CAstNode.BLOCK_EXPR,
+//			makeNode(wc, formal1, CAstNode.ASSIGN,
+//				makeNode(wc, closure, X10CastNode.ARRAY_REF_BY_POINT,
+//					makeNode(wc, closure, CAstNode.VAR, fFactory.makeConstant(arrayTempName)),
+//					fFactory.makeConstant(baseTypeRef),
+//					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name()))),
+//				makeNode(wc, closure, CAstNode.CALL,
+//					closureNode,
+//					fFactory.makeConstant(closureCallSiteRef),
+//					makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(formal1.name())))));
+//
+//		CAstNode loopBody=
+//			walkRegionIterator(formal1, arrayElemInit,
+//					makeNode(wc, dist, CAstNode.VAR, fFactory.makeConstant(distTempName)), closure.position(), wc);
+//
+//		return makeNode(wc, closure, CAstNode.BLOCK_EXPR, // NEED CAstNode.LOCAL_SCOPE or make "array temp" names unique
+//			distDeclNode,
+//			arrayNewNode,
+//			loopBody,
+//			makeNode(wc, fFactory, formal1, CAstNode.VAR, fFactory.makeConstant(arrayTempName)));
+//	    } else if (init instanceof ArrayInit) {
+//		ArrayInit arrayInit= (ArrayInit) init;
+//		// ARRAY_NEW [ type, dist.region, walkNodes(init, wc) ]
+//		CAstNode[] eltNodes= new CAstNode[arrayInit.elements().size()+1];
+//		int idx= 0;
+//		eltNodes[idx++]= makeNode(wc, ac, CAstNode.NEW,
+//			fFactory.makeConstant(arrayTypeRef),
+//			walkNodes(dist, wc));
+//		for(Iterator iter= arrayInit.elements().iterator(); iter.hasNext(); ) {
+//		    Expr elem= (Expr) iter.next();
+//		    eltNodes[idx++]= walkNodes(elem, wc);
+//		}
+//		return makeNode(wc, init, CAstNode.ARRAY_LITERAL, eltNodes);
+//	    } else if (init == null) {
+//		return makeNode(wc, ac, CAstNode.NEW,
+//			fFactory.makeConstant(arrayTypeRef),
+//			walkNodes(dist, wc));
+//	    } else {
+//		Assertions.UNREACHABLE("ArrayConstructor has non-closure, non-ArrayInit initializer of type " + init.getClass());
+//		return null;
+//	    }
+//	}
+//
 	private String castNameForType(Type type) {
 	    return getTypeDict().getCAstTypeFor(type).getName();
 	}
