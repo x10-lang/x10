@@ -1,10 +1,6 @@
-/*
- * Created on Oct 21, 2005
- */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.ast.Node;
-import polyglot.ext.x10.ast.ArrayConstructor;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.Atomic;
@@ -18,8 +14,6 @@ import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.ParExpr;
 import polyglot.ext.x10.ast.When;
-import polyglot.ext.x10.ast.X10ArrayAccess;
-import polyglot.ext.x10.ast.X10ArrayAccess1;
 import polyglot.ext.x10.ast.X10Formal;
 
 import com.ibm.wala.cast.java.translator.polyglot.ASTTraverser;
@@ -30,9 +24,10 @@ public class X10ASTTraverser extends ASTTraverser {
     private X10ASTTraverser() { }
 
     public static CAstNode visit(Node n, X10TranslatorVisitor xtv, WalkContext wc) {
-	if (n instanceof ArrayConstructor)
-	    return xtv.visit((ArrayConstructor) n, wc);
-	else if (n instanceof Async)
+        // PORT1.7 ArrayConstructor in 1.5 was "new T[] { initialize-code }"; now this is represented as an array with a closure for an initializer(?)
+//	if (n instanceof ArrayConstructor)
+//	    return xtv.visit((ArrayConstructor) n, wc);
+	if (n instanceof Async)
 	    return xtv.visit((Async) n, wc);
 	else if (n instanceof AtEach)
 	    return xtv.visit((AtEach) n, wc);
@@ -58,10 +53,11 @@ public class X10ASTTraverser extends ASTTraverser {
 	    return xtv.visit((ParExpr) n, wc);
 	else if (n instanceof When)
 	    return xtv.visit((When) n, wc);
-	else if (n instanceof X10ArrayAccess)
-	    return xtv.visit((X10ArrayAccess) n, wc);
-	else if (n instanceof X10ArrayAccess1)
-	    return xtv.visit((X10ArrayAccess1) n, wc);
+	// PORT1.7 Array accesses now look like ordinary method calls
+//	else if (n instanceof X10ArrayAccess)
+//	    return xtv.visit((X10ArrayAccess) n, wc);
+//	else if (n instanceof X10ArrayAccess1)
+//	    return xtv.visit((X10ArrayAccess1) n, wc);
 	else if (n instanceof X10Formal)
 	    return xtv.visit((X10Formal) n, wc);
 	else
