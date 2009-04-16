@@ -10,8 +10,10 @@ import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.ssa.X10InstructionFactory;
 import com.ibm.wala.cast.x10.translator.X10CAstEntity;
 import com.ibm.wala.cast.ir.translator.AstTranslator.AstLexicalInformation;
+import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
+import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceModuleTranslator;
 import com.ibm.wala.cast.loader.AstMethod.DebuggingInformation;
 import com.ibm.wala.cast.loader.AstMethod.LexicalInformation;
 import com.ibm.wala.cast.tree.CAstEntity;
@@ -20,6 +22,7 @@ import com.ibm.wala.cfg.AbstractCFG;
 import com.ibm.wala.classLoader.IClass;
 import com.ibm.wala.classLoader.IClassLoader;
 import com.ibm.wala.classLoader.Language;
+import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SymbolTable;
@@ -45,6 +48,21 @@ public class X10SourceLoaderImpl extends PolyglotSourceLoaderImpl {
     @Override
     public Language getLanguage() {
         return X10Language.X10Lang;
+    }
+
+    @Override
+    protected SourceModuleTranslator getTranslator() {
+        return new PolyglotSourceModuleTranslator(cha.getScope(), fExtInfo, this, X10SourceLoader) {
+            @Override
+            protected void computeSourcePath(AnalysisScope scope) {
+                // PORT1.7 The X10 front-end needs to see the X10 runtime on the *source path*,
+                // since the generated class files don't contain the dependent-type info. The
+                // runtime jar contains the source of the XRX (X10 Runtime in X10).
+                StringBuilder sb= new StringBuilder();
+                addModulesForLoader(scope, X10PrimordialClassLoader.X10Primordial, sb);
+                fSourcePath= sb.toString();
+            }
+        };
     }
 
     public void defineAsync(CAstEntity fn, TypeReference asyncRef, CAstSourcePositionMap.Position fileName) {
