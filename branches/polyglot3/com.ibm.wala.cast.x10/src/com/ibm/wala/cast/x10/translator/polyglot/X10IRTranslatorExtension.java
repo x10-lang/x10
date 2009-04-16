@@ -2,7 +2,6 @@ package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.util.ArrayList;
 
-import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 
 import com.ibm.wala.cast.x10.analysis.AnalysisJobExt;
@@ -15,24 +14,24 @@ public class X10IRTranslatorExtension extends X10ExtensionInfo {
     @Deprecated private X10IRGoal g;
     private ArrayList<Job> jobList = new ArrayList<Job>();
 
-    /**
-     * getCompileGoal grabs all X10 related Jobs in order to look up the
-     * associated CAstEntities at a later point.
-     */
-    @Override
-    public Goal getCompileGoal(Job job) {
-    	X10IRGoal g = (X10IRGoal) ((WALAScheduler) this.scheduler).IRGenerated(job);
-    	jobList.add(job);
-    	if (this.g == null) 
-    	    this.g = g;
-    	
-	return g;
-    }
-    
-    @Deprecated
-    public JavaCAst2IRTranslator getJavaCAst2IRTranslator(String filepath) {
-    	return g.getJavaCAst2IRTranslator();
-    }
+//    /**
+//     * getCompileGoal grabs all X10 related Jobs in order to look up the
+//     * associated CAstEntities at a later point.
+//     */
+//    @Override
+//    public Goal getCompileGoal(Job job) {
+//    	X10IRGoal g = (X10IRGoal) ((WALAScheduler) this.scheduler).IRGenerated(job);
+//    	jobList.add(job);
+//    	if (this.g == null) 
+//    	    this.g = g;
+//    	
+//	return g;
+//    }
+
+//    @Deprecated
+//    public JavaCAst2IRTranslator getJavaCAst2IRTranslator(String filepath) {
+//    	return g.getJavaCAst2IRTranslator();
+//    }
     
     /**
      * Return the CAstEntity for a given source file
