@@ -15,6 +15,7 @@ import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CallGraphBuilder;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
+import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.collections.HashSetFactory;
 
 public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
@@ -75,13 +76,15 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
         super.buildAnalysisScope();
 
         X10AnalysisScope x10Scope= (X10AnalysisScope) scope;
+        ClassLoaderReference x10PrimordialLoader = x10Scope.getX10PrimordialLoader();
+        ClassLoaderReference x10SourceLoader = x10Scope.getX10SourceLoader();
 
         for( Module M : this.x10SystemEntries) {
-            scope.addToScope(x10Scope.getX10PrimordialLoader(), M);
+            scope.addToScope(x10PrimordialLoader, M);
         }
 
         for( Module M : this.x10SourceEntries) {
-            scope.addToScope(x10Scope.getX10SourceLoader(), M);
+            scope.addToScope(x10SourceLoader, M);
         }
     }
 }
