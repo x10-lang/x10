@@ -35,15 +35,15 @@ public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 	    ClassLoaderImpl cl = new X10PrimordialClassLoader(classLoaderReference, scope.getArrayClassLoader(), parent, getExclusions(), cha);
 	    cl.init( scope.getModules( classLoaderReference ));
 	    return cl;
-    } else if (classLoaderReference.equals(JavaSourceAnalysisScope.SOURCE)) {
-		// Don't let the JavaSourceLoaderImpl handle Java source that's generated from
-		// X10 source; that would create pseudo-duplicate classes. The following variant
-		// just skips over such source files.
-		ClassLoaderImpl cl = new JavaFilteredSourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, getExtensionFor(classLoaderReference));
-        cl.init( scope.getModules( classLoaderReference ));
-		return cl;
-	} else {
-	    return super.makeNewClassLoader(classLoaderReference, cha, parent, scope);
-	}
+ 	} else if (classLoaderReference.equals(JavaSourceAnalysisScope.SOURCE)) {
+ 	    // Don't let the JavaSourceLoaderImpl handle Java source that's generated from
+ 	    // X10 source; that would create pseudo-duplicate classes. The following variant
+ 	    // just skips over such source files.
+ 	    ClassLoaderImpl cl = new JavaFilteredSourceLoaderImpl(classLoaderReference, parent, getExclusions(), cha, getExtensionFor(classLoaderReference));
+ 	    cl.init( scope.getModules( classLoaderReference ));
+ 	    return cl;
+ 	} else {
+ 	    return super.makeNewClassLoader(classLoaderReference, cha, parent, scope);
+ 	}
     }
 }
