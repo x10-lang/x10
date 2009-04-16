@@ -29,6 +29,6 @@ public final value Boolean {
     public native def toString(): String;
     
     @Native("java", "java.lang.Boolean.parseBoolean(#1)")
-    @Native("c++", "x10aux::boolean_utils::parseBoolean(#0)")
+    @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
     public native static def parseBoolean(String): Boolean;
 }
