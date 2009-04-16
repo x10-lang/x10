@@ -781,7 +781,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    Emitter.openNamespaces(h, pkgName);
 		    h.newline(0);
 		    h.forceNewline(0);
-		    Emitter.openNamespaces(w, pkgName);
+		    emitter.emitUniqueNS(pkgName, new ArrayList<String>(), w);
 		    w.newline(0);
 		    w.forceNewline(0);
 		}
@@ -842,10 +842,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    h.forceNewline(0);
 		    Emitter.closeNamespaces(h, pkgName);
 		    h.newline(0);
-		    w.newline(0);
-		    w.forceNewline(0);
-		    Emitter.closeNamespaces(w, pkgName);
-		    w.newline(0);
 		}
 		h.write("#endif // " + cguard); h.newline(0);
         h.forceNewline(0);
