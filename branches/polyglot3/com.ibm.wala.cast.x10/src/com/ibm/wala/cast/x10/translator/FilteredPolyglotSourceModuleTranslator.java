@@ -13,12 +13,13 @@ import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceModuleTranslator;
 import com.ibm.wala.classLoader.SourceFileModule;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
+import com.ibm.wala.types.ClassLoaderReference;
 
 public class FilteredPolyglotSourceModuleTranslator extends PolyglotSourceModuleTranslator {
     private static final String SERIALIZED_TYPE_FIELD_NAME = "jlc$ClassType$x10";
 
-    public FilteredPolyglotSourceModuleTranslator(AnalysisScope scope, IRTranslatorExtension extInfo, PolyglotSourceLoaderImpl sourceLoader) {
-	super(scope, extInfo, sourceLoader);
+    public FilteredPolyglotSourceModuleTranslator(AnalysisScope scope, IRTranslatorExtension extInfo, PolyglotSourceLoaderImpl sourceLoader, ClassLoaderReference searchPathStart) {
+	super(scope, extInfo, sourceLoader, searchPathStart);
     }
 
     @Override
