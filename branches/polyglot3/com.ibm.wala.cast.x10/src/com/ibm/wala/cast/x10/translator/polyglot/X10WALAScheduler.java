@@ -1,10 +1,14 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 
 import com.ibm.wala.cast.java.translator.polyglot.AscriptionGoal;
+import com.ibm.wala.cast.java.translator.polyglot.IRGoal;
 import com.ibm.wala.cast.x10.analysis.AsyncAnalysisGoal;
 import com.ibm.wala.types.ClassLoaderReference;
 
@@ -40,5 +44,28 @@ public class X10WALAScheduler extends X10Scheduler implements WALAScheduler {
 	Goal g= intern(new X10IRGoal(job, loader));
 
 	return g;
+    }
+
+    @Override
+    public List<Goal> goals(Job job) {
+        List<Goal> goals = new ArrayList<Goal>();
+
+        goals.add(Parsed(job));
+        goals.add(TypesInitialized(job));
+        goals.add(ImportTableInitialized(job));
+
+//      goals.add(CastRewritten(job)); // RMF This pass is apparently now a no-op.
+
+        goals.add(PropagateAnnotations(job));
+//      goals.add(LoadJobPlugins(job)); // RMF Do we need plugins for analysis?
+//      goals.add(RegisterPlugins(job));
+        
+        goals.add(PreTypeCheck(job));
+//      goals.add(TypesInitializedForCommandLine()); // RMF Do we need this for analysis?
+        goals.add(TypeChecked(job));
+
+        goals.add(IRGenerated(job));
+        goals.add(End(job));
+        return goals;
     }
 }
