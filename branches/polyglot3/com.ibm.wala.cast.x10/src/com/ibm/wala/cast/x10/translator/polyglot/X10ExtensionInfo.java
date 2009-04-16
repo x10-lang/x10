@@ -1,8 +1,6 @@
 package com.ibm.wala.cast.x10.translator.polyglot;
 
 import polyglot.ext.x10.ExtensionInfo;
-import polyglot.frontend.Goal;
-import polyglot.frontend.Job;
 import polyglot.frontend.JobExt;
 import polyglot.frontend.Scheduler;
 
@@ -38,8 +36,6 @@ public abstract class X10ExtensionInfo extends ExtensionInfo implements IRTransl
     public JobExt jobExt() {
 	return new AnalysisJobExt();
     }
-
-    public abstract Goal getCompileGoal(Job job);
 
     public PolyglotIdentityMapper getIdentityMapper() {
         return fMapper;
