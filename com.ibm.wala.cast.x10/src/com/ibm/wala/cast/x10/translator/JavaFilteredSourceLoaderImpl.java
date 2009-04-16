@@ -2,6 +2,7 @@ package com.ibm.wala.cast.x10.translator;
 
 import java.io.IOException;
 
+import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
 import com.ibm.wala.cast.java.translator.SourceModuleTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotSourceLoaderImpl;
@@ -18,6 +19,6 @@ public class JavaFilteredSourceLoaderImpl extends PolyglotSourceLoaderImpl {
 
     @Override
     protected SourceModuleTranslator getTranslator() {
-	return new FilteredPolyglotSourceModuleTranslator(cha.getScope(), getTranslatorExtension(), this);
+	return new FilteredPolyglotSourceModuleTranslator(cha.getScope(), getTranslatorExtension(), this, JavaSourceAnalysisScope.SOURCE);
     }
 }
