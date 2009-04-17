@@ -29,7 +29,7 @@ class FinishState {
 	/**
 	 * The monitor is used to serialize insertions into the Exception Stack. 
 	 */
-	private val monitor = new Monitor();
+	private val lock = new Lock();
 
 	/**
 	 * Keep track of current number of activities associated with this finish state
@@ -85,8 +85,8 @@ class FinishState {
 	 * Push an exception onto the stack.
 	 */
 	def pushException(t:Throwable):Void {
-		monitor.lock();
+		lock.lock();
 		exceptions.push(t);
-		monitor.unlock();
+		lock.unlock();
 	}
 }
