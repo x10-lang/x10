@@ -140,6 +140,11 @@ if [[ -z "$X10LANG" ]]; then
 	export X10LANG=${X10_HOME}/x10.runtime.17/src-cpp
 fi
 
+X10GC=$X10GC
+if [[ -z "$X10GC" ]]; then
+	export X10GC=${X10_HOME}/x10.runtime.17/src-cpp/bdwgc/install
+fi
+
 LOGD=$LOGD
 if [[ -z "$LOGD" ]]; then
 	LOGD=$(pwd)/log
@@ -224,7 +229,7 @@ else
 	__cat_config_transport="sockets"
 	__cat_config_checks="place|null|bounds|exceptions"
 	__cat_config_debug="none"
-	__cat_config_gc="none"
+	__cat_config_gc="yes"
 fi
 __cat_svn_revision=$(svn info $X10_SVNROOT | egrep '^Revision:' | \
 		awk '{print $2}')

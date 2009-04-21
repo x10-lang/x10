@@ -250,6 +250,8 @@ main() {
 	if (( $status != 0 )); then
 		return $status
 	fi
+	export ENABLE_GC=yes
+	export INCLUDE_DIRS=-I${X10GC}/include
 	buildX10Module $X10_RUNTIME/src-cpp x10rt
 	status=$?
 	if (( $status != 0 )); then
@@ -285,6 +287,10 @@ fi
 
 if [[ -z "$POLYGLOT_CVSROOT" ]]; then
 	export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
+fi
+
+if [[ -z "$X10GC" ]]; then
+	export X10GC=${X10_HOME}/x10.runtime.17/src-cpp/bdwgc/install
 fi
 
 main
