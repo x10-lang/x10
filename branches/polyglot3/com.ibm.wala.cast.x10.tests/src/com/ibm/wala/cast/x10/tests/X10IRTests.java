@@ -54,28 +54,30 @@ public class X10IRTests extends IRTests {
     }
 
     protected JavaSourceAnalysisEngine getAnalysisEngine(final String[] mainClassDescriptors) {
-	JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
-          protected Iterable<Entrypoint>
-            makeDefaultEntrypoints(AnalysisScope scope, IClassHierarchy cha) 
-	  {
-	    return Util.makeMainEntrypoints(X10SourceLoaderImpl.X10SourceLoader, cha, mainClassDescriptors);
-	  }
-	};
-	engine.setExclusionsFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS);
-	return engine;
+        JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine() {
+          protected Iterable<Entrypoint> makeDefaultEntrypoints(AnalysisScope scope, IClassHierarchy cha) {
+              return Util.makeMainEntrypoints(X10SourceLoaderImpl.X10SourceLoader, cha, mainClassDescriptors);
+          }
+        };
+        engine.setExclusionsFile(CallGraphTestUtil.REGRESSION_EXCLUSIONS);
+        return engine;
+    }
+
+    private String testBaseName() {
+        return getName().substring(4);
     }
 
     protected String singleJavaInputForTest() {
-	return getName().substring(4) + ".x10";
+	return testBaseName() + ".x10";
     }
 
     protected String singleJavaPkgInputForTest(String pkgName) {
-	return pkgName + File.separator + getName().substring(4) + ".x10";
+	return pkgName + File.separator + testBaseName() + ".x10";
     }
 
     @Override
     protected void populateScope(JavaSourceAnalysisEngine engine, Collection<String> sources, List<String> libs) throws IOException {
-	super.populateScope(engine, Collections.EMPTY_SET, libs);
+        super.populateScope(engine, Collections.EMPTY_SET, libs);
 
         for(String modPath: x10SystemModules) {
             ((X10SourceAnalysisEngine) engine).addX10SystemModule(new JarFileModule(new JarFile(modPath)));
@@ -86,51 +88,51 @@ public class X10IRTests extends IRTests {
     }
 
     public void testAsync1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
     public void testAsyncInvoke() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
     public void testFuture1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
     public void testFinish1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
     public void testFor1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
     public void testForEach1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
 
     public void testWhen1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
-//    public void testAtEach1() {
-//	runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(), emptyList, true);
-//    }
+//  public void testAtEach1() {
+//      runTest(singleTestSrc(), x10RTJar, simpleTestEntryPoint(), emptyList, true);
+//  }
 
     public void testArrayAccess1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
     public void testArrayAccess2D() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
     public void testArrayAccess3D() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
 
     public void testArrayCtor1() {
-	runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
+        runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), emptyList, true);
     }
     
     public void testPlaces() {
