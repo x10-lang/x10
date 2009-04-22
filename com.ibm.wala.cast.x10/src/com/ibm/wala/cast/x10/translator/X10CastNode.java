@@ -220,4 +220,15 @@ public interface X10CastNode extends CAstNode {
      * </ol>
      */
     public static final int ARRAY_REF_BY_POINT= SUB_LANGUAGE_BASE + 22;
+
+    /**
+     * Kind constant for a CAstNode representing a tuple expression.<br>
+     * Children:
+     * <ol>
+     *   <li>CAstNode.CONSTANT representing the type of the result
+     *   <li>CAstNode.EXPR representing each child expression
+     *   <li>...
+     * </ol>
+     */
+    public static final int TUPLE_EXPR= SUB_LANGUAGE_BASE + 23;
 }

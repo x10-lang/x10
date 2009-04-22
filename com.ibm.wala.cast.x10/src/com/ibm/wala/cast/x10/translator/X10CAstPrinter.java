@@ -39,6 +39,7 @@ public class X10CAstPrinter extends CAstPrinter {
 	    case X10CastNode.REGION_ITER_NEXT: return "REGION_NEXT";
 	    case X10CastNode.PLACE_OF_POINT: return "PLACE_OF_POINT";
 	    case X10CastNode.ARRAY_DISTRIBUTION: return "ARRAY_DISTRIBUTION";
+	    case X10CastNode.TUPLE_EXPR: return "TUPLE";
 	}
         return super.getKindAsString(kind);
     }
