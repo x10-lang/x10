@@ -13,6 +13,8 @@ import polyglot.ext.x10.ast.Future;
 import polyglot.ext.x10.ast.Here;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.ParExpr;
+import polyglot.ext.x10.ast.SettableAssign;
+import polyglot.ext.x10.ast.Tuple;
 import polyglot.ext.x10.ast.When;
 import polyglot.ext.x10.ast.X10Formal;
 
@@ -60,6 +62,10 @@ public class X10ASTTraverser extends ASTTraverser {
 //	    return xtv.visit((X10ArrayAccess1) n, wc);
 	else if (n instanceof X10Formal)
 	    return xtv.visit((X10Formal) n, wc);
+	else if (n instanceof Tuple)
+	    return xtv.visit((Tuple) n, wc);
+	else if (n instanceof SettableAssign)
+	    return xtv.visit((SettableAssign) n, wc);
 	else
 	    return ASTTraverser.visit(n, xtv, wc);
     }
