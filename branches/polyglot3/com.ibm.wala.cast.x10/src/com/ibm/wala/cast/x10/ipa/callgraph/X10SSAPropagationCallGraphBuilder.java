@@ -7,6 +7,7 @@ import com.ibm.wala.cast.ipa.callgraph.AstSSAPropagationCallGraphBuilder;
 import com.ibm.wala.cast.java.ipa.callgraph.AstJavaSSAPropagationCallGraphBuilder;
 import com.ibm.wala.cast.x10.analysis.typeInference.AstX10TypeInference;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
+import com.ibm.wala.cast.x10.ssa.NewTupleInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
@@ -115,6 +116,11 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	public void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction) {
 		// not interesting for now	
 	}
+
+	public void visitNewTuple(NewTupleInstruction instruction) {
+            Assertions._assert(instruction.getUse(0) == vn, "newTuple instruction has bogus use/def info?");
+	    bingo= true;
+	}
     }	
 
     @Override
@@ -192,10 +198,13 @@ public class X10SSAPropagationCallGraphBuilder extends AstJavaSSAPropagationCall
 	public void visitPlaceOfPoint(SSAPlaceOfPointInstruction instruction) {
 		// not interesting for now	
 	}
+
+	public void visitNewTuple(NewTupleInstruction newTupleInstruction) {
+            // TODO model data flow for newTuple
+	}
     }
 
     protected ConstraintVisitor makeVisitor(ExplicitCallGraph.ExplicitNode node) {
 	return new AstX10ConstraintVisitor(this, node);
     }
-
 }
