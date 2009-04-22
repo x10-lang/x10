@@ -3,15 +3,22 @@
  */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
+import polyglot.ext.x10.types.ConstrainedType;
+import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParametrizedType;
 import polyglot.ext.x10.types.X10ClassType;
 
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassType;
+import polyglot.types.PrimitiveType;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -19,6 +26,7 @@ import polyglot.types.TypeSystem;
 
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotJava2CAstTranslator;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotTypeDictionary;
+import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
 import com.ibm.wala.cast.tree.CAstType;
 import com.ibm.wala.cast.x10.translator.polyglot.X10toCAstTranslator.PolyglotJavaParametricType;
 import com.ibm.wala.util.debug.Assertions;
@@ -29,8 +37,40 @@ public class X10TypeDictionary extends PolyglotTypeDictionary {
     }
 
     public CAstType getCAstTypeFor(Object astType) {
+        if (astType instanceof ConstrainedType) {
+          return getCAstTypeFor(((ConstrainedType) astType).baseType().get());
+        }
+        if (astType instanceof MacroType) {
+            return getCAstTypeFor(((MacroType) astType).definedType());
+        }
         if (astType instanceof X10ClassType && ((X10ClassType) astType).typeArguments().size() > 0) {
-            Assertions.UNREACHABLE("getCAstTypeFor(ParametrizedType)");
+            X10ClassType classType = (X10ClassType) astType;
+            Type baseType = classType.def().asType();
+            List<Type> typeArgs = classType.typeArguments();
+            PolyglotJavaParametricType result = ((X10toCAstTranslator) fTranslator).new PolyglotJavaParametricType((ClassType) baseType, typeArgs, this, fTypeSystem);
+
+            return result;
+        }
+        if (astType instanceof PrimitiveType) {
+            PrimitiveType primitiveType = (PrimitiveType) astType;
+            String javaPrimitiveName = X10PolyglotIdentityMapper.getJavaPrimitiveTypeFor(primitiveType.fullName().toString());
+
+            return JavaPrimitiveTypeMap.lookupType(javaPrimitiveName);
+        }
+        if (astType instanceof ParameterType) {
+            final ParameterType parameterType = (ParameterType) astType;
+            return new CAstType() {
+                private Collection<CAstType> justObject = new HashSet<CAstType>();
+//                {
+//                    justObject.add()
+//                }
+                public String getName() {
+                    return parameterType.name().toString();
+                }
+
+                public Collection getSupertypes() {
+                    return justObject;
+                } };
         }
 /*      if (astType instanceof FutureType) {
             FutureType futureType = (FutureType) astType;
