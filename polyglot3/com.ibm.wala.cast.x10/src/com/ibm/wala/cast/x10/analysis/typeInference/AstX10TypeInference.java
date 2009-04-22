@@ -5,6 +5,7 @@ import com.ibm.wala.analysis.typeInference.ConeType;
 import com.ibm.wala.analysis.typeInference.PointType;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
 import com.ibm.wala.cast.x10.ssa.AstX10InstructionVisitor;
+import com.ibm.wala.cast.x10.ssa.NewTupleInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
@@ -114,7 +115,13 @@ public class AstX10TypeInference extends AstJavaTypeInference {
  		 		IClass placeClass = cha.lookupClass(placeType);
  		 		result = new DeclaredTypeOperator(new ConeType(placeClass));
  	}
- 	
+
+ 	public void visitNewTuple(NewTupleInstruction newTupleInstruction) {
+ 	    // This instruction always produces a value of type "x10.lang.Rail".
+ 	    TypeReference type= X10TypeReference.x10LangRail;
+ 	    IClass klass= cha.lookupClass(type);
+ 	    result = new DeclaredTypeOperator(new ConeType(klass));
+ 	}
     }
 
     protected void initialize() {

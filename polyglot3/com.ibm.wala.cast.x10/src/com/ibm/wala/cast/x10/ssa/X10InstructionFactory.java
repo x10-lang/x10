@@ -3,6 +3,7 @@ package com.ibm.wala.cast.x10.ssa;
 import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.java.ssa.AstJavaInstructionFactory;
 import com.ibm.wala.classLoader.CallSiteReference;
+import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.types.TypeReference;
 
 public interface X10InstructionFactory extends AstJavaInstructionFactory {
@@ -36,4 +37,6 @@ public interface X10InstructionFactory extends AstJavaInstructionFactory {
 	X10ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef, int[] indices, int value, TypeReference declaredType);
 	
 	X10ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef, int pointIndex, int value, TypeReference declaredType);
+
+	NewTupleInstruction NewTuple(int retValue, int[] slotValues);
 }

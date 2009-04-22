@@ -29,4 +29,6 @@ public interface AstX10InstructionVisitor extends AstJavaInstructionVisitor {
     void visitArrayStoreByIndex(X10ArrayStoreByIndexInstruction instruction);
 
     void visitArrayLoadByIndex(X10ArrayLoadByIndexInstruction instruction);
+
+    void visitNewTuple(NewTupleInstruction newTupleInstruction);
 }

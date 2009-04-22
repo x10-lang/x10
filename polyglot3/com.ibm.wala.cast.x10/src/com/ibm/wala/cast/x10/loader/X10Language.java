@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.x10.ssa.AsyncInvokeInstruction;
+import com.ibm.wala.cast.x10.ssa.NewTupleInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAAtomicInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAFinishInstruction;
 import com.ibm.wala.cast.x10.ssa.SSAForceInstruction;
@@ -64,135 +65,135 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
 	return Language.JAVA.isNullType(type);
     }
 
-	public TypeReference[] getArrayInterfaces() {
-		return Language.JAVA.getArrayInterfaces();
-	}
+    public TypeReference[] getArrayInterfaces() {
+        return Language.JAVA.getArrayInterfaces();
+    }
 
-	public TypeName lookupPrimitiveType(String name) {
-		return Language.JAVA.lookupPrimitiveType(name);
-	}
+    public TypeName lookupPrimitiveType(String name) {
+        return Language.JAVA.lookupPrimitiveType(name);
+    }
 
-	public Collection<TypeReference> getImplicitExceptionTypes(
-			IInstruction pei) {
-		return Language.JAVA.getImplicitExceptionTypes(pei);
-	}
+    public Collection<TypeReference> getImplicitExceptionTypes(IInstruction pei) {
+        return Language.JAVA.getImplicitExceptionTypes(pei);
+    }
 
-	public Collection<TypeReference> inferInvokeExceptions(
-			MethodReference target, IClassHierarchy cha)
-			throws InvalidClassFileException {
-		return Language.JAVA.inferInvokeExceptions(target, cha);
-	}
+    public Collection<TypeReference> inferInvokeExceptions(MethodReference target, IClassHierarchy cha)
+    throws InvalidClassFileException {
+        return Language.JAVA.inferInvokeExceptions(target, cha);
+    }
 
-	public Object getMetadataToken(Object value) {
-		return Language.JAVA.getMetadataToken(value);
-	}
+    public Object getMetadataToken(Object value) {
+        return Language.JAVA.getMetadataToken(value);
+    }
 
-	public boolean isDoubleType(TypeReference type) {
-		return Language.JAVA.isDoubleType(type);
-	}
+    public boolean isDoubleType(TypeReference type) {
+        return Language.JAVA.isDoubleType(type);
+    }
 
-	public boolean isFloatType(TypeReference type) {
-		return Language.JAVA.isFloatType(type);
-	}
+    public boolean isFloatType(TypeReference type) {
+        return Language.JAVA.isFloatType(type);
+    }
 
-	public boolean isIntType(TypeReference type) {
-		return Language.JAVA.isIntType(type);
-	}
+    public boolean isIntType(TypeReference type) {
+        return Language.JAVA.isIntType(type);
+    }
 
-	public boolean isLongType(TypeReference type) {
-		return Language.JAVA.isLongType(type);
-	}
+    public boolean isLongType(TypeReference type) {
+        return Language.JAVA.isLongType(type);
+    }
 
-	public boolean isMetadataType(TypeReference type) {
-		return Language.JAVA.isMetadataType(type);
-	}
+    public boolean isMetadataType(TypeReference type) {
+        return Language.JAVA.isMetadataType(type);
+    }
 
-	public boolean isStringType(TypeReference type) {
-		return Language.JAVA.isStringType(type);
-	}
+    public boolean isStringType(TypeReference type) {
+        return Language.JAVA.isStringType(type);
+    }
 
-	public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements X10InstructionFactory {
+    public static class InstructionFactory extends JavaSourceLoaderImpl.InstructionFactory implements X10InstructionFactory {
 
-		public X10ArrayLoadByIndexInstruction ArrayLoadByIndex(int result,
-				int arrayRef, int[] dims, TypeReference declaredType) {
-			return new X10ArrayLoadByIndexInstruction(result, arrayRef, dims, declaredType);
-		}
+        public X10ArrayLoadByIndexInstruction ArrayLoadByIndex(int result,
+                int arrayRef, int[] dims, TypeReference declaredType) {
+            return new X10ArrayLoadByIndexInstruction(result, arrayRef, dims, declaredType);
+        }
 
-		public X10ArrayLoadByPointInstruction ArrayLoadByPoint(int result,
-				int arrayRef, int pointIndex, TypeReference declaredType) {
-			return new X10ArrayLoadByPointInstruction(result, arrayRef, pointIndex, declaredType);
-		}
+        public X10ArrayLoadByPointInstruction ArrayLoadByPoint(int result,
+                int arrayRef, int pointIndex, TypeReference declaredType) {
+            return new X10ArrayLoadByPointInstruction(result, arrayRef, pointIndex, declaredType);
+        }
 
-		public X10ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef,
-				int[] indices, int value, TypeReference declaredType) {
-			return new X10ArrayStoreByIndexInstruction(arrayRef, indices, value, declaredType);
-		}
+        public X10ArrayStoreByIndexInstruction ArrayStoreByIndex(int arrayRef,
+                int[] indices, int value, TypeReference declaredType) {
+            return new X10ArrayStoreByIndexInstruction(arrayRef, indices, value, declaredType);
+        }
 
-		public X10ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef,
-				int pointIndex, int value, TypeReference declaredType) {
-			return new X10ArrayStoreByPointInstruction(arrayRef, pointIndex, value, declaredType);
-		}
+        public X10ArrayStoreByPointInstruction ArrayStoreByPoint(int arrayRef,
+                int pointIndex, int value, TypeReference declaredType) {
+            return new X10ArrayStoreByPointInstruction(arrayRef, pointIndex, value, declaredType);
+        }
 
-		public AsyncInvokeInstruction AsyncInvoke(int result, int[] params,
-				int exception, CallSiteReference site, int placeExpr,
-				int[] clocks) {
-			return new AsyncInvokeInstruction(result, params, exception, site, placeExpr, clocks);
-		}
+        public AsyncInvokeInstruction AsyncInvoke(int result, int[] params,
+                int exception, CallSiteReference site, int placeExpr,
+                int[] clocks) {
+            return new AsyncInvokeInstruction(result, params, exception, site, placeExpr, clocks);
+        }
 
-		public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception,
-				CallSiteReference site, int placeExpr, int[] clocks) {
-			return new AsyncInvokeInstruction(params, exception, site, placeExpr, clocks);
-		}
+        public AsyncInvokeInstruction AsyncInvoke(int[] params, int exception,
+                CallSiteReference site, int placeExpr, int[] clocks) {
+            return new AsyncInvokeInstruction(params, exception, site, placeExpr, clocks);
+        }
 
-		public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params,
-				int exception, Access[] lexicalReads, Access[] lexicalWrites,
-				CallSiteReference csr) {
-			return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
-		}
+        public AsyncInvokeInstruction AsyncInvoke(int[] results, int[] params,
+                int exception, Access[] lexicalReads, Access[] lexicalWrites,
+                CallSiteReference csr) {
+            return new AsyncInvokeInstruction(results, params, exception, lexicalReads, lexicalWrites, csr);
+        }
 
-		public SSAAtomicInstruction Atomic(boolean isEnter) {
-			return new SSAAtomicInstruction(isEnter);
-		}
+        public SSAAtomicInstruction Atomic(boolean isEnter) {
+            return new SSAAtomicInstruction(isEnter);
+        }
 
-		public SSAFinishInstruction Finish(boolean isEnter) {
-			return new SSAFinishInstruction(isEnter);
-		}
+        public SSAFinishInstruction Finish(boolean isEnter) {
+            return new SSAFinishInstruction(isEnter);
+        }
 
-		public SSAForceInstruction Force(int retValue, int targetValue,
-				TypeReference valueType) {
-			return new SSAForceInstruction(retValue, targetValue, valueType);
-		}
+        public SSAForceInstruction Force(int retValue, int targetValue,
+                TypeReference valueType) {
+            return new SSAForceInstruction(retValue, targetValue, valueType);
+        }
 
-		public SSAHereInstruction Here(int retValue) {
-			return new SSAHereInstruction(retValue);
-		}
+        public SSAHereInstruction Here(int retValue) {
+            return new SSAHereInstruction(retValue);
+        }
 
-		public SSAPlaceOfPointInstruction PlaceOfPoint(int hasNextValue,
-				int regionIter) {
-			return new SSAPlaceOfPointInstruction(hasNextValue, regionIter);
-		}
+        public SSAPlaceOfPointInstruction PlaceOfPoint(int hasNextValue,
+                int regionIter) {
+            return new SSAPlaceOfPointInstruction(hasNextValue, regionIter);
+        }
 
-		public SSARegionIterHasNextInstruction RegionIterHasNext(
-				int hasNextValue, int regionIter) {
-			return new SSARegionIterHasNextInstruction(hasNextValue, regionIter);
-		}
+        public SSARegionIterHasNextInstruction RegionIterHasNext(
+                int hasNextValue, int regionIter) {
+            return new SSARegionIterHasNextInstruction(hasNextValue, regionIter);
+        }
 
-		public SSARegionIterInitInstruction RegionIterInit(int iterVal,
-				int regionVal) {
-			return new SSARegionIterInitInstruction(iterVal, regionVal);
-		}
+        public SSARegionIterInitInstruction RegionIterInit(int iterVal,
+                int regionVal) {
+            return new SSARegionIterInitInstruction(iterVal, regionVal);
+        }
 
-		public SSARegionIterNextInstruction RegionIterNext(int nextValue,
-				int regionIter) {
-			return new SSARegionIterNextInstruction(nextValue, regionIter);
-		}
-		
-	}
+        public SSARegionIterNextInstruction RegionIterNext(int nextValue,
+                int regionIter) {
+            return new SSARegionIterNextInstruction(nextValue, regionIter);
+        }
+
+        public NewTupleInstruction NewTuple(int retValue, int[] slotValues) {
+            return new NewTupleInstruction(retValue, slotValues);
+        }
+    }
+
+    private static final InstructionFactory insts = new InstructionFactory();
 	
-	private static final InstructionFactory insts = new InstructionFactory();
-	
-	public InstructionFactory instructionFactory() {
-		return insts;
-	}
-
+    public InstructionFactory instructionFactory() {
+        return insts;
+    }
 }
