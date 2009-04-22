@@ -31,9 +31,11 @@ public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Point p, WalkContext context);
     CAstNode visit(Region r, WalkContext context);
     CAstNode visit(Range r, WalkContext context);
+    CAstNode visit(Tuple t, WalkContext context);
     CAstNode visit(When w, WalkContext context);
     // PORT1.7 - Array accesses are now represented by ordinary method calls
 //    CAstNode visit(X10ArrayAccess aa, WalkContext context);
 //    CAstNode visit(X10ArrayAccess1 aa, WalkContext context);
     CAstNode visit(X10Formal f, WalkContext context);
+    CAstNode visit(SettableAssign n, WalkContext wc);
 }
