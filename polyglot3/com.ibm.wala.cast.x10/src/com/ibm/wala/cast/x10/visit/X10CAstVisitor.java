@@ -192,12 +192,22 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
 		break;
 	    }
 	    case X10CastNode.PLACE_OF_POINT: {
-			if (visitor.visitPlaceOfPoint(n, context, visitor))
-			    break;
-			visitor.visit(n.getChild(0), context, visitor); // the point expr
-			visitor.leavePlaceOfPoint(n, context, visitor);
-			break;
-		    }
+	        if (visitor.visitPlaceOfPoint(n, context, visitor))
+	            break;
+	        visitor.visit(n.getChild(0), context, visitor); // the point expr
+	        visitor.leavePlaceOfPoint(n, context, visitor);
+	        break;
+	    }
+	    case X10CastNode.TUPLE_EXPR: {
+	        if (visitor.visitTupleExpr(n, context, visitor))
+	            break;
+                // n.getChild(0) is a TypeReference for the tuple element type...
+	        for(int i=1; i < n.getChildCount(); i++) {
+	            visitor.visit(n.getChild(i), context, visitor);
+	        }
+	        visitor.leaveTupleExpr(n, context, visitor);
+	        break;
+	    }
 	    default:
 		return super.doVisit(n, context, visitor);
 	}
@@ -353,5 +363,16 @@ public abstract class X10CAstVisitor extends DelegatingCAstVisitor {
      * @param c a visitor-specific context
      */
     protected boolean visitPlaceOfPoint(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
+    /**
+     * Visit a TUPLE_EXPR node.
+     * @param n the node to process
+     * @param c a visitor-specific context
+     */
+    protected boolean visitTupleExpr(CAstNode n, Context c, CAstVisitor visitor) { return visitor.visitNode(n, c, visitor); }
+    /**
+     * Leave a TUPLE_EXPR node.
+     * @param n the node to process
+     * @param c a visitor-specific context
+     */
+    protected void leaveTupleExpr(CAstNode n, Context c, CAstVisitor visitor) { visitor.leaveNode(n, c, visitor); }
 }
-
