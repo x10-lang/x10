@@ -12,4 +12,8 @@ public class X10TypeReference {
     private final static TypeName x10LangPlaceName = TypeName.string2TypeName("Lx10/lang/place");
     public final static TypeReference x10LangPlace =
 	      TypeReference.findOrCreate(ClassLoaderReference.Primordial, x10LangPlaceName);
+
+    private final static TypeName x10LangRailName = TypeName.string2TypeName("Lx10/lang/Rail");
+    public final static TypeReference x10LangRail =
+              TypeReference.findOrCreate(ClassLoaderReference.Primordial, x10LangRailName);
 }
