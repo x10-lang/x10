@@ -12,7 +12,7 @@ package polyglot.ext.x10cpp;
 public class Version extends polyglot.main.Version {
 	public String name() { return "x10c++"; }
 
-	public int major() { return 0; }
-	public int minor() { return 1; }
-	public int patch_level() { return 0; }
+	public int major() { return 1; }
+	public int minor() { return 7; }
+	public int patch_level() { return 4; }
 }
