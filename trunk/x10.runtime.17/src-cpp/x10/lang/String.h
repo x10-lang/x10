@@ -103,7 +103,12 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
-                this_->_serialize_body(buf, m);
+                if (this_==x10aux::null) {
+                    String v;
+                    v._serialize_body(buf,m);
+                } else {
+                    this_->_serialize_body(buf, m);
+                }
             }
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
