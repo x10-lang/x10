@@ -64,7 +64,7 @@
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
         <isset property="bdwgc.enabled" />
     </condition>
-    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="">
+    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DEBUG=1">
         <istrue value="${optimize}" />
     </condition>
     <condition property="x10c.optimize" value="-O" else="">
