@@ -41,7 +41,7 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean DISABLE_GC = false;
     private static final String DISABLE_GC_desc = "Disable the linking in of the BDW conservative garbage collector";
 
-    public static boolean OPTIMIZE = true;
+    public static boolean OPTIMIZE = false;
     private static final String OPTIMIZE_desc = "Generate optimized code";
 
     public static String MANIFEST = null;
