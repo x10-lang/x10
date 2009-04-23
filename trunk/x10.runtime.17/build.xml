@@ -65,10 +65,10 @@
         <isset property="bdwgc.enabled" />
     </condition>
     <condition property="cppmake.optimize" value="OPTIMIZE=1" else="">
-        <isset property="optimize" />
+        <istrue value="${optimize}" />
     </condition>
     <condition property="x10c.optimize" value="-O" else="">
-        <isset property="optimize" />
+        <istrue value="${optimize}" />
     </condition>
     <target name="available-procs" unless="available.procs">
         <property name="available.procs" value="2"/>
