@@ -51,6 +51,7 @@ namespace x10 {
 
             public:
 
+            ValRail() : x10aux::AnyRail<T>(0) { }
             ValRail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
 
             ~ValRail() { }
@@ -186,7 +187,13 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
-                this_->_serialize_body(buf,m);
+                if (this_ == x10aux::null) {
+                    ValRail<T> v;
+                    v._serialize_body(buf, m);
+                } else {
+                    this_->_serialize_body(buf, m);
+                }
+
             }
             void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(_serialization_id, m);
