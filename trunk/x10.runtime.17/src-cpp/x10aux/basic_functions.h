@@ -98,6 +98,8 @@ namespace x10aux {
     inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
         if (x.isNull())
             return y.isNull();
+        if (y.isNull())
+            return false; // x != null, needed for remote refs
         return x->_struct_equals(y);
     }
 
