@@ -19,7 +19,7 @@ public class TypedefConstraint2c_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
-        type C[T] = FOO[T]{Y<:T};
+        type C[T]{Y<:T} = FOO[T];
         c1:C[Z] = new FOO[Z](); // inconsistent
         //check("c1.name", c1.name, "Z");
 
