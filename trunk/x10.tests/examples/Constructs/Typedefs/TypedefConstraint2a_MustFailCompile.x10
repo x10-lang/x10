@@ -19,7 +19,7 @@ public class TypedefConstraint2a_MustFailCompile extends TypedefTest {
 
     public def run(): boolean = {
         
-        type A[T] = FOO[T]{T==Y};
+        type A[T]{T==Y} = FOO[T];
         a1:A[Z] = new FOO[Z]();
         //check("a1.name", a1.name, "Z");
 
