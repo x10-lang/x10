@@ -58,7 +58,10 @@
 
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
-        <os family="unix" name="linux"/>
+        <or>
+            <os family="unix" name="linux"/>
+            <os family="windows"/>
+        </or>
         <!-- <istrue value="false"/> -->
     </condition>
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
@@ -78,13 +81,13 @@
     <target name="clean-java">
         <delete dir="${build}"/>
     </target>
-    <target name="clean-cpp" depends="available-procs">
+    <target name="clean-cpp" depends="available-procs,clean-bdwgc">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
             <arg value="-j${available.procs}" />
             <arg value="clean"/>
         </exec>
     </target>
-    <target name="clean-bdwgc" depends="clean">
+    <target name="clean-bdwgc" if="bdwgc.enabled">
         <delete dir="${bdwgc.dir}/install"/>
         <exec executable="${make.exe}" failonerror="true" dir="${bdwgc.dir}/src">
             <arg value="distclean"/>
@@ -194,11 +197,13 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,available-procs" unless="bdwgc.skip.build">
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
         <sequential>
-            <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
+            <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
+            <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                <arg value="${bdwgc.dir}/src/configure" />
                 <arg value="-enable-threads=posix" />
-                <arg value="--prefix=${bdwgc.dir}/install" />
+                <arg value="--prefix=${bdwgc.platform.dir}/install" />
             </exec>
             <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
                 <arg value="-j${available.procs}" />
@@ -232,19 +237,36 @@
 
     </target>
 
+    <target name="convert-bdwgc-paths-cygwin" depends="check-bdwgc" if="running.on.cygwin">
+        <exec executable="cygpath" outputproperty="bdwgc.platform.dir" errorproperty="bdwgc.conversion.errors">
+            <arg value="${bdwgc.dir}" />
+        </exec>
+    </target>
+    <target name="convert-bdwgc-paths-other" depends="check-bdwgc" unless="running.on.cygwin">
+        <property name="bdwgc.platform.dir" value="${bdwgc.dir}" />
+    </target>
+    <target name="convert-bdwgc-paths" depends="convert-bdwgc-paths-cygwin,convert-bdwgc-paths-other" />
+
     <target name="check-bdwgc">
         <sequential>
             <condition property="bdwgc.skip.download">
                 <or>
                     <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
-                    <isfalse value="${bdwgc.enabled}" />
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
                 </or>
             </condition>
             <condition property="bdwgc.skip.build">
                 <or>
                     <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
-                    <isfalse value="${bdwgc.enabled}" />
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
                 </or>
+            </condition>
+            <condition property="running.on.cygwin">
+                <os family="windows"/>
             </condition>
         </sequential>
     </target>
