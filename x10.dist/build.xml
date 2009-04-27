@@ -36,9 +36,9 @@
 
     <target name="init">
         <tstamp/>
-	<mkdir dir="${etc}" />
-	<mkdir dir="${incdir}" />
-	<mkdir dir="${lib}" />
+        <mkdir dir="${etc}" />
+        <mkdir dir="${incdir}" />
+        <mkdir dir="${lib}" />
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
@@ -63,11 +63,11 @@
 
     <target name="distclean" depends="clean">
         <delete dir="${etc}" />
-	<mkdir dir="${etc}" />
+        <mkdir dir="${etc}" />
         <delete dir="${incdir}" />
-	<mkdir dir="${incdir}" />
+        <mkdir dir="${incdir}" />
         <delete dir="${lib}" />
-	<mkdir dir="${lib}" />
+        <mkdir dir="${lib}" />
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -418,6 +418,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
             <zipfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <zipfileset prefix="lib" dir="${lib}" includes="*.jar"/>
+            <zipfileset prefix="samples" dir="${basedir}/samples" excludes="**/.*.swp"/>
         </zip>
     </target>
     <target name="src-zip" depends="srczip"/>
@@ -425,7 +426,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar}"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.cppbackend.17" dir="${x10.cppbackend.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
