@@ -2359,7 +2359,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.end(); sw.newline();
 		sw.write("}");
 		if (n.finallyBlock() != null) {
-			n.printBlock(n.finallyBlock(), sw, tr);
 			sw.end(); sw.newline();
 			sw.write("} catch (...) {");
 			sw.newline(4); sw.begin(0);
@@ -2368,6 +2367,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("throw;");
 			sw.end(); sw.newline();
 			sw.write("}");
+			sw.newline();
+			n.printBlock(n.finallyBlock(), sw, tr);
 		}
 	}
 
