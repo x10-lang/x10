@@ -117,7 +117,7 @@ public interface Marshal[T] {
         public def read(r: Reader): Short throws IOException {
             val b1 = r.read();
             val b2 = r.read();
-            return ((b1 << 8) | b2) as Short;
+            return (((b1 & 0xff) << 8) | b2) as Short;
         }
 
         public def write(w: Writer, s: Short): Void throws IOException {
@@ -135,7 +135,7 @@ public interface Marshal[T] {
             val b2 = r.read();
             val b3 = r.read();
             val b4 = r.read();
-            return ((b1 << 24) | (b2 << 16) | (b3 << 8) | b4) as Int;
+            return (((b1 & 0xff) << 24) | ((b2 & 0xff) << 16) | ((b3 & 0xff) << 8) | (b4 & 0xff)) as Int;
         }
         
         public def write(w: Writer, i: Int): Void throws IOException {
@@ -154,9 +154,8 @@ public interface Marshal[T] {
         public def read(r: Reader): Long throws IOException {
             var l: Long = 0l;
             for (var i: Int = 0; i < 8; i++) {
-                l <<= 8;
                 val b = r.read();
-                l = (l << 8) | b;
+                l = (l << 8) | (b & 0xff);
             }
             return l;
         }
