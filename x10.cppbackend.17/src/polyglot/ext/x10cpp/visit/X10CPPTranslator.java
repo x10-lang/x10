@@ -553,8 +553,7 @@ public class X10CPPTranslator extends Translator {
             assert (PLATFORM.startsWith("win32_"));
         }
 
-        /** Disable for now.  TODO: enable */
-        protected boolean gcEnabled() { return false; }
+        protected boolean gcEnabled() { return true; }
 
         protected void addPreArgs(ArrayList<String> cxxCmd) {
             super.addPreArgs(cxxCmd);
