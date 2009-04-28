@@ -92,7 +92,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 	}
 
 	public static class X10CPPScheduler extends polyglot.ext.x10.ExtensionInfo.X10Scheduler {
-		X10CPPScheduler(ExtensionInfo extInfo) {
+		protected X10CPPScheduler(ExtensionInfo extInfo) {
 			super(extInfo);
 		}
 		@Override
