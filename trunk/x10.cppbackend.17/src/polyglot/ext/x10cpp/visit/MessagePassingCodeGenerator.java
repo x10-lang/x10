@@ -1224,7 +1224,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    private void processMain(X10ClassType container) {
+    protected void processMain(X10ClassType container) {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass() && !container.typeArguments().isEmpty()) {
             List<Type> args = Arrays.asList(new Type[] { xts.Void() });
