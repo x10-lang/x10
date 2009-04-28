@@ -260,6 +260,7 @@
             <condition property="bdwgc.skip.build">
                 <or>
                     <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+                    <available file="${bdwgc.dir}/install/lib/libgc.a" property="bdwgc.built"/>
                     <not>
                         <isset property="bdwgc.enabled" />
                     </not>
