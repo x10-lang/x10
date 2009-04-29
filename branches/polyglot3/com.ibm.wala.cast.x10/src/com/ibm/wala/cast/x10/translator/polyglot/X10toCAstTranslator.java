@@ -29,6 +29,7 @@ import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.ParametrizedType;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10ParsedClassType;
 //import polyglot.ext.x10.types.FutureType;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
@@ -788,7 +789,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    fBodyAst= bodyAst;
 	    fPosition= makePosition(node.position());
 	    fEnclosingType= getTypeDict().getCAstTypeFor(enclosingType);
-	    fBodyType= new ClosureBodyType((ClosureType) node.type(), fEnclosingType);
+	    fBodyType= new ClosureBodyType((ClosureType) ((X10ParsedClassType) node.type()).interfaces().get(0), fEnclosingType);
 	}
 	public CAstNode getAST() {
 	    return fBodyAst;
