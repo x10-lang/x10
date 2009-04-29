@@ -58,10 +58,15 @@
 
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
-        <or>
-            <os family="unix" name="linux"/>
-            <os family="windows"/>
-        </or>
+        <and>
+            <or>
+                <os family="unix" name="linux"/>
+                <os family="windows"/>
+            </or>
+            <not>
+                <isset property="DISABLE_GC"/>
+            </not>
+        </and>
         <!-- <istrue value="false"/> -->
     </condition>
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
