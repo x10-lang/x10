@@ -683,139 +683,136 @@ public class X10StaAnIRTests extends IRTests {
 	}
 
 	public void testClock() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	
 	public void testClockPipeline()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 		
 	public void testClockKernel()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockEdmiston() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 
 	public void testClockAllReductionBarrier()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	
 	public void testClockLUOverlap()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockJGFMolDynBenchSizeA()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	
 	public void testClockSieve()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockPascalTriangle()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 
 	
 	public void testClockFFTDist()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	
 	public void testClockQueensList()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockLinearSearch()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 		
 	public void testClockTest1() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockTest2() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockTest3()  throws Exception{
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockTest4() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 
 	}
 	
 	public void testClockTest5() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest6() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 
 	public void testClockTest7_MustFailTimeout() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest8_MustFailRun() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest9() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest10() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest11() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest12() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest13() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest14() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest15() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 	
 	public void testClockTest16() throws Exception {
-		Pair p = runTest(singleTestSrc(), rtJar, simpleTestEntryPoint(), false);
+		Pair p = runTest(singleTestSrc("Clock"), rtJar, simpleTestEntryPoint(), false);
 	}
 }
-
-
-
 
