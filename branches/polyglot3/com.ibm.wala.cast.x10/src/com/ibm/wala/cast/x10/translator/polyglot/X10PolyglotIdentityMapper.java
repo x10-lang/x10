@@ -10,6 +10,7 @@ import polyglot.types.*;
 
 import com.ibm.wala.cast.java.translator.polyglot.*;
 import com.ibm.wala.cast.java.types.JavaPrimitiveTypeMap;
+import com.ibm.wala.cast.tree.CAstEntity;
 import com.ibm.wala.types.*;
 
 class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
@@ -55,14 +56,15 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
             StringBuilder sb= new StringBuilder();
 
             sb.append("L");
-            sb.append(classType.fullName());
-            sb.append("<");
-            int idx= 0;
-            for(Type typeParam: classType.typeArguments()) {
-                if (idx++ > 0) { sb.append(","); }
-                sb.append(typeToTypeID(typeParam));
-            }
-            sb.append(">");
+            sb.append(classType.fullName().toString().replace('.', '/'));
+            // Ignore the type arguments - they're not part of the type's "name"
+//            sb.append("<");
+//            int idx= 0;
+//            for(Type typeParam: classType.typeArguments()) {
+//                if (idx++ > 0) { sb.append(","); }
+//                sb.append(typeToTypeID(typeParam));
+//            }
+//            sb.append(">");
             return sb.toString();
         }
         if (type instanceof ParameterType) {
@@ -85,5 +87,12 @@ class X10PolyglotIdentityMapper extends PolyglotIdentityMapper {
             }
         }
         return super.typeToTypeID(type);
+    }
+
+    public String getBaseTypeName(ClassType classType) {
+        StringBuilder sb= new StringBuilder();
+        sb.append("L");
+        sb.append(classType.fullName());
+        return sb.toString();
     }
 }
