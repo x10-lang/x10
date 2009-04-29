@@ -18,6 +18,7 @@ public interface X10TranslatorVisitor extends TranslatingVisitor {
     CAstNode visit(Await a, WalkContext context);
     CAstNode visit(Clocked c, WalkContext context);
     CAstNode visit(Closure closure, WalkContext context);
+    CAstNode visit(ClosureCall closureCall, WalkContext context);
     CAstNode visit(Finish f, WalkContext context);
     CAstNode visit(ForLoop f, WalkContext context);
     CAstNode visit(ForEach f, WalkContext context);

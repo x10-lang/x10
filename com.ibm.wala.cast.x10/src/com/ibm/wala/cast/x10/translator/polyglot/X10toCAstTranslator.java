@@ -767,6 +767,10 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	    return closureNode;
 	}
 
+	public CAstNode visit(ClosureCall closureCall, WalkContext wc) {
+	    return null; // TODO
+	}
+
 	public CAstNode visit(ParExpr pe, WalkContext wc) {
 	    return walkNodes(pe.expr(), wc);
 	}
