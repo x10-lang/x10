@@ -101,14 +101,14 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
         @Override
         public String getName() {
           StringBuilder sb= new StringBuilder();
-          sb.append(fIdentityMapper.getTypeRef(fType).getName());
-          int idx= 0;
-          sb.append("<");
-          for(Type typeParam: fPolyglotTypeParameters) {
-            if (idx++ > 0) { sb.append(", "); }
-            sb.append(fIdentityMapper.getTypeRef(typeParam).getName());
-          }
-          sb.append(">");
+          sb.append(((X10PolyglotIdentityMapper) fIdentityMapper).getBaseTypeName(fType).replace('.', '/'));
+//          int idx= 0;
+//          sb.append("<");
+//          for(Type typeParam: fPolyglotTypeParameters) {
+//            if (idx++ > 0) { sb.append(", "); }
+//            sb.append(fIdentityMapper.getTypeRef(typeParam).getName());
+//          }
+//          sb.append(">");
           return sb.toString();
         }
 
