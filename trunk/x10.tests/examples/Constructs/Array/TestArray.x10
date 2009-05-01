@@ -204,13 +204,15 @@ abstract public class TestArray extends x10Test {
             if (r.rank==0) {
                 pr("ERROR rank==0");
             } else if (r.rank==1) {
+                val a2 = a as Array[double](1);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
-                    if (bump) a(i0) = a(i0)+1;
-                    grid.set(i0, a(i0));
+                    if (bump) a2(i0) = a2(i0)+1;
+                    grid.set(i0, a2(i0));
                 }
             } else if (r.rank==2) {
+                val a2 = a as Array[double](2);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -218,11 +220,12 @@ abstract public class TestArray extends x10Test {
                     var min1: int = s.min(1);
                     var max1: int = s.max(1);
                     for (var i1: int = min1; i1<=max1; i1++) {
-                        if (bump) a(i0, i1) = a(i0, i1) + 1;
-                        grid.set(i0, i1, a(i0,i1));
+                        if (bump) a2(i0, i1) = a2(i0, i1) + 1;
+                        grid.set(i0, i1, a2(i0,i1));
                     }
                 }
             } else if (r.rank==3) {
+                val a2 = a as Array[double](3);
                 var min0: int = s.min(0);
                 var max0: int = s.max(0);
                 for (var i0: int = min0; i0<=max0; i0++) {
@@ -234,8 +237,8 @@ abstract public class TestArray extends x10Test {
                         var min2: int = s.min(2);
                         var max2: int = s.max(2);
                         for (var i2: int = min2; i2<=max2; i2++) {
-                            if (bump) a(i0, i1, i2) = a(i0, i1, i2) + 1;
-                            grid.set(i0, i1, i2, a(i0,i1,i2));
+                            if (bump) a2(i0, i1, i2) = a2(i0, i1, i2) + 1;
+                            grid.set(i0, i1, i2, a2(i0,i1,i2));
                         }
                     }
                 }
@@ -253,14 +256,17 @@ abstract public class TestArray extends x10Test {
         for (p:Point in a.region) {
             //var v: double = a(p as Point(a.rank));
             if (p.rank==1) {
-                if (bump) a(p(0)) = a(p(0)) + 1;
-                grid.set(p(0), a(p(0)));
+                val a2 = a as Array[double](1);
+                if (bump) a2(p(0)) = a2(p(0)) + 1;
+                grid.set(p(0), a2(p(0)));
             } else if (p.rank==2) {
-                if (bump) a(p(0), p(1)) = a(p(0), p(1)) + 1;
-                grid.set(p(0), p(1), a(p(0),p(1)));
+                val a2 = a as Array[double](2);
+                if (bump) a2(p(0), p(1)) = a2(p(0), p(1)) + 1;
+                grid.set(p(0), p(1), a2(p(0),p(1)));
             } else if (p.rank==3) {
-                if (bump) a(p(0), p(1), p(2)) = a(p(0), p(1), p(2)) + 1;
-                grid.set(p(0), p(1), p(2), a(p(0),p(1),p(2)));
+                val a2 = a as Array[double](3);
+                if (bump) a2(p(0), p(1), p(2)) = a2(p(0), p(1), p(2)) + 1;
+                grid.set(p(0), p(1), p(2), a2(p(0),p(1),p(2)));
             }
         }
         grid.pr(a.rank);
