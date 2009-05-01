@@ -16,10 +16,10 @@ public class AtEachLoopOnArray extends x10Test {
 	var success: boolean = true;
 
 	public def run(): boolean = {
-		val A: Array[double] =
+		val A: Array[double](1) =
                         Array.make[double]([0..10]->here, ((i): Point): double => i as double);
 
-		finish ateach (val (i): Point in A)
+		finish ateach (val (i): Point(1) in A)
                         if (A(i) != i)
 				async (this.location) atomic { success = false; }
 

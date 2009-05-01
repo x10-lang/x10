@@ -48,7 +48,7 @@ public class UserArrayBounds2D extends x10Test {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+i+" "+j);
 
-        var a: Array[boxedInt] = Array.make[boxedInt](
+        var a: Array[boxedInt](2) = Array.make[boxedInt](
            Dist.makeConstant([lb1..ub1, lb2..ub2], here), 
            ((i,j): Point)=> new boxedInt(0));
 

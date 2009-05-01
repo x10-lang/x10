@@ -52,7 +52,7 @@ public class UserArrayBounds3D extends x10Test {
 
         //pr(lb1+" "+ub1+" "+lb2+" "+ub2+" "+lb3+" "+ub3+" "+i+" "+j+" "+k);
 
-        var a: Array[boxedInt] = Array.make[boxedInt](
+        var a: Array[boxedInt](3) = Array.make[boxedInt](
             Dist.makeConstant([lb1..ub1, lb2..ub2, lb3..ub3], here), 
             ((i,j,k): Point)=> new boxedInt(0));
 

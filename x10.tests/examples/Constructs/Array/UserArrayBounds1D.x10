@@ -44,7 +44,7 @@ public class UserArrayBounds1D extends x10Test {
    private static def arrayAccess(var lb1: int, var ub1: int, var i: int): boolean = {
       //pr(lb1+" "+ub1+" "+i);
 
-      var a: Array[boxedInt] = Array.make[boxedInt](
+      var a: Array[boxedInt](1) = Array.make[boxedInt](
           Dist.makeConstant([lb1..ub1], here), 
           ((i): Point): boxedInt => { return new boxedInt(0); });
 
