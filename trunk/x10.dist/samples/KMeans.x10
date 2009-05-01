@@ -21,7 +21,6 @@ public class KMeans {
 
             val count = Rail.makeVar(CLUSTERS, (i:Int)=>0);
 
-            // PART 1
             for (var p:Int=0 ; p<POINTS ; ++p) { 
                 var closest:Int = -1;
                 var closest_dist:Float = Float.MAX_VALUE;
@@ -42,7 +41,6 @@ public class KMeans {
                 count(closest)++;
             }
 
-            // PART 2
             for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
                 for (var d:Int=0 ; d<DIM ; ++d) { 
                     new_clusters(k*DIM+d) /= count(k);
