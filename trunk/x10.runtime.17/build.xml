@@ -15,6 +15,7 @@
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="optimize" value="false" />
+    <property name="DISABLE_GC" value="true" /><!-- Globally disable GC -->
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
