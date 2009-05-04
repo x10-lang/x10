@@ -429,7 +429,7 @@ public class X10CPPTranslator extends Translator {
                     cxxCmd.add(preArgsGC[i]);
                 }
             }
-            if (Configuration.OPTIMIZE) {
+            if (polyglot.ext.x10.Configuration.OPTIMIZE) {
               for (String arg : preArgsOptimize) {
                 cxxCmd.add(arg);
               }

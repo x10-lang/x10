@@ -37,6 +37,8 @@ public final class Configuration extends x10.config.Configuration {
 	public static String COMPILER_FRAGMENT_DATA_DIRECTORY = "data/";
 	private static final String COMPILER_FRAGMENT_DATA_DIRECTORY_desc = "Advanced functionality: Directory for compiler templates";
 
+    public static boolean OPTIMIZE = false;
+    private static final String OPTIMIZE_desc = "Generate optimized code";
 
 	public static boolean BAD_PLACE_RUNTIME_CHECK = true;
 	private static final String BAD_PLACE_RUNTIME_CHECK_desc = "Generate runtime place checks";
