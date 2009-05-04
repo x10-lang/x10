@@ -64,11 +64,8 @@
                 <os family="unix" name="linux"/>
                 <os family="windows"/>
             </or>
-            <not>
-                <isset property="DISABLE_GC"/>
-            </not>
+            <isfalse value="${DISABLE_GC}" />
         </and>
-        <!-- <istrue value="false"/> -->
     </condition>
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
         <isset property="bdwgc.enabled" />
