@@ -101,7 +101,11 @@ public class X10IRTests extends IRTests {
     public void testArrayCopy3() {
         runTest(singleTestSrc("Array"), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
-    
+
+    public void testArrayAccess1() {
+        runTest(singleTestSrc("Array"), rtJar, simpleTestEntryPoint(), emptyList, false);
+    }
+
     public void testBoxArrayAssign() {
         runTest(singleTestSrc("Array"), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
