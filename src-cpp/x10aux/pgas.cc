@@ -17,7 +17,7 @@ using namespace x10aux;
 volatile x10_long x10aux::serialized_bytes = 0;
 volatile x10_long x10aux::deserialized_bytes = 0;
 
-int PGASInitializer::count = 0;
+volatile int PGASInitializer::count = 0;
 
 void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
