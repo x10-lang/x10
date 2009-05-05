@@ -24,12 +24,12 @@ Rail<ref<String> > *x10aux::convert_args(int ac, char **av) {
     return arr;
 }
 
-void x10aux::free_args(const ref<Rail<ref<String> > > &arr) {
-    //cerr << "free_args: freeing " << arr->length << " elements" << endl;
+void x10aux::free_args(ref<Rail<ref<String> > > arr) {
+    //std::cerr << "free_args: freeing " << arr->FMGL(length) << " elements" << std::endl;
     //x10_int length = arr->length;
-    //cerr << "free_args: freeing array " << arr << endl;
-    free_rail<Rail<ref<String> > >(arr);
-    //cerr << "free_args: freed array " << arr << endl;
+    //std::cerr << "free_args: freeing array " << arr.get() << std::endl;
+    free_rail<ref<String>, Rail<ref<String> > >(arr);
+    //std::cerr << "free_args: freed array " << arr.get() << std::endl;
 }
 
 ref<String> x10aux::vrc_to_string(ref<ValRail<x10_char> > v) {

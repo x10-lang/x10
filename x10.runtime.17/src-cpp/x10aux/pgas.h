@@ -25,7 +25,7 @@ namespace x10aux {
     void remote_closure_callback(x10rt_async_closure_t*, const int tag);
 
     class PGASInitializer {
-        static int count;
+        static volatile int count;
     public:
         PGASInitializer() {
             if (count++ == 0) {
@@ -33,8 +33,8 @@ namespace x10aux {
                 GC_INIT();
                 #endif                
                 _X_("PGAS initialization starting");
-                x10_init();
                 x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
+                x10_init();
                 _X_("PGAS initialization complete");
             }
         }

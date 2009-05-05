@@ -42,7 +42,11 @@ ifeq ($(shell uname -s),AIX)
   ifdef USE_XLC
     CXX = mpCC_r
     override CXXFLAGS -= -g
-    override CXXFLAGS += -q64
+    ifndef USE_32BIT
+      override CXXFLAGS += -q64
+    else
+      override CXXFLAGS += -q32
+    endif
     override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
     override CXXFLAGS += -qrtti=all
     override CXXFLAGS += -qsuppress=1540-0809:1500-029
@@ -55,7 +59,11 @@ ifeq ($(shell uname -s),AIX)
   endif
 
   # FIXME
-  ARFLAGS := -X64 $(ARFLAGS)
+  ifndef USE_32BIT
+    ARFLAGS := -X64 $(ARFLAGS)
+  else
+    ARFLAGS := -X32 $(ARFLAGS)
+  endif
 
 else
 
@@ -178,7 +186,7 @@ $(XRX_MANIFEST): gen/all-cpp-generated
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
-	CXXFLAGS="$(CXXFLAGS) -Igen" $(MAKE) $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST))
+	CXXFLAGS="$(CXXFLAGS) -Igen" $(MAKE) $(MAKEFLAGS) $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST))
 	touch $@
 
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)

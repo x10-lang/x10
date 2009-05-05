@@ -18,7 +18,7 @@ namespace x10aux {
 
     x10::lang::Rail<ref<x10::lang::String> > *convert_args(int ac, char **av);
 
-    void free_args(const ref<x10::lang::Rail<ref<x10::lang::String> > > &arr);
+    void free_args(ref<x10::lang::Rail<ref<x10::lang::String> > > arr);
 
     template<class T> bool is_null(ref<T> v) { return v.isNull(); }
     template<class T> bool is_null(T v) { return false; }
