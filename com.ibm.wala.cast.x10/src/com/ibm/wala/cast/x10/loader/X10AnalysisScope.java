@@ -11,7 +11,8 @@ public class X10AnalysisScope extends JavaSourceAnalysisScope {
     private static final Set<Language> languages = new HashSet<Language>(2);
 
     static {
-      languages.add(Language.JAVA);
+        // RMF 5/1/2009 - For now, we will only analyze X10 code. Any Java code will have to be modeled.
+//      languages.add(Language.JAVA);
       languages.add(X10Language.X10Lang);
     }
 
