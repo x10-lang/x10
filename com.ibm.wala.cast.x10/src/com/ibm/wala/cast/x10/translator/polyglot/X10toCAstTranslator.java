@@ -150,10 +150,19 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
     protected CAstEntity walkClosureEntity(final Closure rootNode, final Node bodyNode, final WalkContext context) {
 	Map<CAstNode,CAstEntity> childEntities= new HashMap<CAstNode,CAstEntity>();
-	final CodeBodyContext closureContext= new CodeBodyContext(context, childEntities);
+	final MethodContext closureContext= new MethodContext(rootNode.closureDef().asInstance(), childEntities, context);
 	final CAstNode bodyAST= walkNodes(bodyNode, closureContext);
 
-	return new ClosureBodyEntity(childEntities, rootNode, closureContext, bodyAST, context.getEnclosingType());
+    List/* <Formal> */formals = rootNode.formals();
+    String[] argNames;
+    int i = 0;
+    argNames = new String[formals.size()];
+    for (Iterator iter = formals.iterator(); iter.hasNext(); i++) {
+      Formal formal = (Formal) iter.next();
+      argNames[i] = formal.name().toString();
+    }
+
+	return new ClosureBodyEntity(childEntities, rootNode, closureContext, bodyAST, context.getEnclosingType(), argNames);
     }
 
     private final class AsyncBodyType implements CAstType.Method {
@@ -768,7 +777,24 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public CAstNode visit(ClosureCall closureCall, WalkContext wc) {
-	    return null; // TODO
+        MethodInstance instance = closureCall.closureInstance();
+        MethodReference methodRef = fIdentityMapper.getMethodRef(instance);
+
+        int dummyPC = 0;
+        CallSiteReference callSiteRef = CallSiteReference.make(dummyPC, methodRef, IInvokeInstruction.Dispatch.VIRTUAL);
+
+        CAstNode[] children = new CAstNode[1 + 1 + instance.formalTypes().size()];
+        int i = 0;
+        children[i++] = walkNodes(closureCall.target(), wc);
+        children[i++] = fFactory.makeConstant(callSiteRef);
+        for (Iterator iter = closureCall.arguments().iterator(); iter.hasNext();) {
+            Expr arg = (Expr) iter.next();
+            children[i++] = walkNodes(arg, wc);
+        }
+
+        CAstNode result = makeNode(wc, fFactory, closureCall, CAstNode.CALL, children);
+        wc.cfg().map(closureCall, result);
+        return result;
 	}
 
 	public CAstNode visit(ParExpr pe, WalkContext wc) {
@@ -787,13 +813,16 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 
 	private final CAstType fEnclosingType;
 
-	public ClosureBodyEntity(Map<CAstNode,CAstEntity> entities, Closure node, CodeBodyContext context, CAstNode bodyAst, Type enclosingType) {
+    private final String[] argumentNames;
+
+	public ClosureBodyEntity(Map<CAstNode,CAstEntity> entities, Closure node, CodeBodyContext context, CAstNode bodyAst, Type enclosingType, String[] argumentNames) {
 	    super(entities);
 	    fContext= context;
 	    fBodyAst= bodyAst;
 	    fPosition= makePosition(node.position());
 	    fEnclosingType= getTypeDict().getCAstTypeFor(enclosingType);
 	    fBodyType= new ClosureBodyType((ClosureType) ((X10ParsedClassType) node.type()).interfaces().get(0), fEnclosingType);
+	    this.argumentNames = argumentNames;
 	}
 	public CAstNode getAST() {
 	    return fBodyAst;
@@ -808,7 +837,7 @@ public class X10toCAstTranslator extends PolyglotJava2CAstTranslator {
 	}
 
 	public String[] getArgumentNames() {
-	    return new String[] { "p" }; // TODO where to get the arg names?
+	     return argumentNames;
 	}
 
 	public CAstControlFlowMap getControlFlow() {
