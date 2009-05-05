@@ -19,6 +19,7 @@ import com.ibm.wala.cast.x10.ssa.X10ArrayLoadByPointInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByIndexInstruction;
 import com.ibm.wala.cast.x10.ssa.X10ArrayStoreByPointInstruction;
 import com.ibm.wala.cast.x10.ssa.X10InstructionFactory;
+import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.BytecodeLanguage;
 import com.ibm.wala.classLoader.CallSiteReference;
 import com.ibm.wala.classLoader.Language;
@@ -41,6 +42,8 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
 
     public static X10Language X10Lang = new X10Language();
 
+    public static TypeReference X10LangObject = TypeReference.findOrCreate(X10SourceLoaderImpl.X10SourceLoader, "Lx10/lang/Object");
+
     private X10Language() {
 	super(Language.JAVA);
     }
@@ -50,7 +53,7 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
     }
 
     public TypeReference getRootType() {
-	return null;
+	return X10LangObject;
     }
 
     public TypeReference getThrowableType() {
