@@ -1,12 +1,28 @@
 package com.ibm.wala.cast.x10.ipa.callgraph;
 
+import sun.security.action.GetLongAction;
+
+import com.ibm.wala.cast.ipa.callgraph.AstCallGraph;
 import com.ibm.wala.cast.ipa.callgraph.MiscellaneousHacksContextSelector;
+import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
+import com.ibm.wala.classLoader.IClass;
+import com.ibm.wala.classLoader.IClassLoader;
+import com.ibm.wala.eclipse.util.CancelException;
 import com.ibm.wala.ipa.callgraph.*;
 import com.ibm.wala.ipa.callgraph.impl.DefaultContextSelector;
 import com.ibm.wala.ipa.callgraph.impl.DelegatingContextSelector;
+import com.ibm.wala.ipa.callgraph.impl.Everywhere;
+import com.ibm.wala.ipa.callgraph.impl.ExplicitCallGraph;
+import com.ibm.wala.ipa.callgraph.impl.FakeRootClass;
+import com.ibm.wala.ipa.callgraph.impl.FakeRootMethod;
 import com.ibm.wala.ipa.callgraph.propagation.SSAContextInterpreter;
 import com.ibm.wala.ipa.callgraph.propagation.cfa.*;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
+import com.ibm.wala.types.Descriptor;
+import com.ibm.wala.types.MethodReference;
+import com.ibm.wala.types.Selector;
+import com.ibm.wala.types.TypeReference;
+import com.ibm.wala.util.strings.Atom;
 
 public class X10ZeroXCFABuilder extends X10CFABuilder {
 
@@ -74,5 +90,33 @@ public class X10ZeroXCFABuilder extends X10CFABuilder {
       setInstanceKeys(
         new X10ScopeMappingInstanceKeys(cha, this, 
           new ZeroXInstanceKeys(options, cha, contextInterpreter, instancePolicy)));
+    }
+
+    @Override
+    protected ExplicitCallGraph createEmptyCallGraph(IClassHierarchy cha, AnalysisOptions options) {
+        return new AstCallGraph(cha, options, getAnalysisCache()) {
+            @Override
+            protected CGNode makeFakeRootNode() throws CancelException {
+                final TypeReference fakeTypeRef = TypeReference.findOrCreate(X10SyntheticLoaderImpl.X10SyntheticLoader, FakeRootClass.FAKE_ROOT_CLASS.getName());
+                Atom fakeMethodName = FakeRootMethod.name;
+                Descriptor fakeMethodDesc = FakeRootMethod.descr;
+                MethodReference fakeMethodRef = MethodReference.findOrCreate(fakeTypeRef, fakeMethodName, fakeMethodDesc);
+                IClass fakeClass = new FakeRootClass(fakeTypeRef, cha) {
+                    @Override
+                    public TypeReference getReference() {
+                        return fakeTypeRef;
+                    }
+                    @Override
+                    public IClassLoader getClassLoader() {
+                        return getClassHierarchy().getLoader(getReference().getClassLoader());
+                    }
+                };
+                return findOrCreateNode(new AstFakeRoot(fakeMethodRef, fakeClass, cha, options, getAnalysisCache()), Everywhere.EVERYWHERE);
+            }
+            @Override
+            protected CGNode makeFakeWorldClinitNode() throws CancelException {
+                return null;
+            }
+        };
     }
 }
