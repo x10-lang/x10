@@ -21,9 +21,11 @@ public class X10AnalysisScope extends JavaSourceAnalysisScope {
 
 	loadersByName.put(X10PrimordialClassLoader.X10PrimordialName, X10PrimordialClassLoader.X10Primordial);
 	loadersByName.put(X10SourceLoaderImpl.X10SourceLoaderName, X10SourceLoaderImpl.X10SourceLoader);
+	loadersByName.put(X10SyntheticLoaderImpl.X10SyntheticLoaderName, X10SyntheticLoaderImpl.X10SyntheticLoader);
 	
 	setLoaderImpl(X10SourceLoaderImpl.X10SourceLoader, "com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl");
 	setLoaderImpl(X10PrimordialClassLoader.X10Primordial, "com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader");
+	setLoaderImpl(X10SyntheticLoaderImpl.X10SyntheticLoader, "com.ibm.wala.ipa.summaries.BypassSyntheticClassLoader");
 
 	initSynthetic(X10SourceLoaderImpl.X10SourceLoader);
     }
