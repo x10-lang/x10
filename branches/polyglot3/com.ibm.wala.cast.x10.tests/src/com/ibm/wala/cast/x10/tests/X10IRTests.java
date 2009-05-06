@@ -14,6 +14,8 @@ import java.util.jar.JarFile;
 import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.test.IRTests;
 import com.ibm.wala.cast.x10.client.X10SourceAnalysisEngine;
+import com.ibm.wala.cast.x10.loader.X10Language;
+import com.ibm.wala.cast.x10.translator.polyglot.X10ClassLoaderFactory;
 import com.ibm.wala.cast.x10.translator.polyglot.X10SourceLoaderImpl;
 import com.ibm.wala.classLoader.JarFileModule;
 import com.ibm.wala.classLoader.SourceFileModule;
@@ -21,6 +23,7 @@ import com.ibm.wala.core.tests.callGraph.CallGraphTestUtil;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.Entrypoint;
 import com.ibm.wala.ipa.callgraph.impl.Util;
+import com.ibm.wala.ipa.cha.ClassHierarchy;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.types.ClassLoaderReference;
 
@@ -83,9 +86,28 @@ public class X10IRTests extends IRTests {
             ((X10SourceAnalysisEngine) engine).addX10SourceModule(new SourceFileModule(new File(modPath), modPath));
         }
     }
-    
+
+    public void runHierarchyTest(Collection<String> sources, List<String> libs, String[] mainClassDescriptors) {
+        try {
+            JavaSourceAnalysisEngine engine = getAnalysisEngine(mainClassDescriptors);
+
+            populateScope(engine, sources, libs);
+            engine.buildAnalysisScope();
+
+            IClassHierarchy cha = engine.buildClassHierarchy();
+
+            System.out.println(cha);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testTrivial() {
+        runHierarchyTest(singleTestSrc(), rtJar, simpleTestEntryPoint());
+    }
+
     // --- Array
-    
+
     public void testArray1() {
         runTest(singleTestSrc("Array"), rtJar, simpleTestEntryPoint(), emptyList, false);
     }
