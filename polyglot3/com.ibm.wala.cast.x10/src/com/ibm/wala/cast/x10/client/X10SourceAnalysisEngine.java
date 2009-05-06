@@ -72,7 +72,7 @@ public class X10SourceAnalysisEngine extends PolyglotJavaSourceAnalysisEngine {
     }
 
     @Override
-    protected void buildAnalysisScope() throws IOException {
+    public void buildAnalysisScope() throws IOException {
         super.buildAnalysisScope();
 
         X10AnalysisScope x10Scope= (X10AnalysisScope) scope;
