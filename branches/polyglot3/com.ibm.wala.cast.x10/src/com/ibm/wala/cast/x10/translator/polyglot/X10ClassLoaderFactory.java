@@ -1,19 +1,15 @@
-/*
- * Created on Apr 28, 2006
- */
 package com.ibm.wala.cast.x10.translator.polyglot;
 
 import java.io.IOException;
 
 import com.ibm.wala.cast.java.ipa.callgraph.JavaSourceAnalysisScope;
-import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.java.translator.polyglot.PolyglotClassLoaderFactory;
 import com.ibm.wala.cast.x10.loader.X10PrimordialClassLoader;
+import com.ibm.wala.cast.x10.loader.X10SyntheticLoaderImpl;
 import com.ibm.wala.cast.x10.translator.JavaFilteredSourceLoaderImpl;
 import com.ibm.wala.classLoader.ClassLoaderImpl;
 import com.ibm.wala.classLoader.IClassLoader;
-import com.ibm.wala.eclipse.util.EclipseProjectPath;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.impl.SetOfClasses;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
@@ -35,6 +31,11 @@ public class X10ClassLoaderFactory extends PolyglotClassLoaderFactory {
 	    ClassLoaderImpl cl = new X10PrimordialClassLoader(classLoaderReference, scope.getArrayClassLoader(), parent, getExclusions(), cha);
 	    cl.init( scope.getModules( classLoaderReference ));
 	    return cl;
+ 	} else if (classLoaderReference.equals(X10SyntheticLoaderImpl.X10SyntheticLoader)) {
+ 	    IClassLoader cl = new X10SyntheticLoaderImpl(classLoaderReference, parent, getExclusions(), cha);
+
+ 	    cl.init(scope.getModules(classLoaderReference));
+ 	    return cl;
  	} else if (classLoaderReference.equals(JavaSourceAnalysisScope.SOURCE)) {
  	    // Don't let the JavaSourceLoaderImpl handle Java source that's generated from
  	    // X10 source; that would create pseudo-duplicate classes. The following variant
