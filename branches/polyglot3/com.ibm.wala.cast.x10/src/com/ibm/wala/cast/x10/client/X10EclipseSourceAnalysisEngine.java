@@ -103,7 +103,7 @@ public class X10EclipseSourceAnalysisEngine extends EclipseProjectSourceAnalysis
     }
 
     @Override
-    protected void buildAnalysisScope() {
+    public void buildAnalysisScope() {
         super.buildAnalysisScope();
 
         X10AnalysisScope x10Scope= (X10AnalysisScope) scope;
