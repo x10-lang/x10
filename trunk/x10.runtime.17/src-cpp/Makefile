@@ -146,6 +146,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
+	x10/runtime/Deque.o \
 	x10/runtime/InterruptedException.o \
 	x10/runtime/Lock.o \
 	x10/runtime/Thread.o 
