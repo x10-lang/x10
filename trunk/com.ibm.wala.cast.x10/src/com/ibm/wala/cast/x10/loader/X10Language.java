@@ -195,4 +195,8 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
 		return insts;
 	}
 
+	public boolean isVoidType(TypeReference type) {
+		return Language.JAVA.isVoidType(type);
+	}
+
 }
