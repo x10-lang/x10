@@ -5,6 +5,7 @@ Bundle-SymbolicName: x10.cppbackend.17
 Bundle-Version: 1.0.0
 Export-Package: polyglot.ext.x10cpp,
  polyglot.ext.x10cpp.ast,
+ polyglot.ext.x10cpp.debug,
  polyglot.ext.x10cpp.extension,
  polyglot.ext.x10cpp.main,
  polyglot.ext.x10cpp.types,

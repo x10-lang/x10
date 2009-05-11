@@ -17,11 +17,8 @@ package polyglot.ext.x10cpp.types;
  * @author Dave Cunningham
  * @see X10Context_c
  */
-import static polyglot.ext.x10cpp.visit.Emitter.mangled_non_method_name;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 import polyglot.ast.ClassMember;
@@ -30,7 +27,6 @@ import polyglot.ext.x10.ast.PropertyDecl;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.types.VarInstance;
@@ -52,13 +48,37 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
     public int closureId() { return g.closureId; }
     protected void resetClosureId() { g.closureId = -1; }
 
+    /**
+     * Every context has some arbitrary data, associated with string keys.
+     * To get the data from the current context, use {@link #getData(String)}.
+     * To find the data in the current or ancestor context, use {@link #findData(String)}.
+     * To add data to the current context, use {@link #addData(String, Object)}.
+     */
+    protected HashMap<String, Object> data = new HashMap<String, Object>(1, 1.0f);
+
+    /** @see #data. */
+    public void addData(String key, Object value) { data.put(key, value); }
+    /** @see #data. */
+    public Object getData(String key) { return data.get(key); }
+    /** @see #data. */
+    public Object findData(String key) {
+        Object value = getData(key);
+        if (value == null && outer != null)
+            return ((X10CPPContext_c) outer).findData(key);
+        return value;
+    }
+
     protected ArrayList<ClassMember> pendingStaticDecls;
     protected ArrayList<PropertyDecl> classProperties;
     
     public List<PropertyDecl> classProperties() { return classProperties; }
     public List<ClassMember> pendingStaticDecls() { return pendingStaticDecls; }
 
-    // Here, for each new class we reset the above structures, ready for fresh accumulation of data.
+    /**
+     * For each new class reset the classProperties and pendingStaticDecls structures,
+     * ready for fresh accumulation of data.
+     * @param props the initial set of class properties
+     */
     public void resetStateForClass(List<PropertyDecl> props) {
         assert kind == SOURCE;
         pendingStaticDecls = new ArrayList<ClassMember>();
@@ -66,6 +86,15 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
         resetClosureId();
     }
 
+    /**
+     * Clear the classProperties and pendingStaticDecls structures, to avoid AST node
+     * leakage.
+     */
+    public void clearStateForClass() {
+        assert kind == SOURCE;
+        pendingStaticDecls = null;
+        classProperties = null;
+    }
     
     private String label;
     public String getLabel() { return label; }
@@ -181,6 +210,7 @@ public class X10CPPContext_c extends polyglot.ext.x10.types.X10Context_c impleme
 		X10CPPContext_c res = (X10CPPContext_c) super.copy();
 		res.variables = new ArrayList<VarInstance>();  // or whatever the initial value is
 		res.inClosure = false;
+		res.data = new HashMap<String, Object>(1, 1.0f);
 		return res;
 	}
 

@@ -799,7 +799,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
          * in the global context, for each class.
          */
 		context.resetStateForClass(n.properties());
-        
 
 		if (def.typeParameters().size() != 0) {
 			// Pre-declare the void specialization for statics
@@ -828,6 +827,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (extractGenericStaticDecls(def, h)) {
             extractGenericStaticInits(def);
         }
+
+        /*
+         * See comment about resetStateForClass() above.
+         */
+        context.clearStateForClass();
+
         ((X10CPPTranslator)tr).setContext(context); // FIXME
 
 		// [DC] disabled, see (commented out) definition of opsd above for details
@@ -1392,6 +1397,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         for (Stmt s : body.statements()) {
+            // FIXME: constructor calls won't get line number information
             if (s instanceof ConstructorCall) {
                 ConstructorCall call = (ConstructorCall)s;
                 if (call.kind() == ConstructorCall.SUPER) {
