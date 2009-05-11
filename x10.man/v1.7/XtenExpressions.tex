@@ -463,7 +463,8 @@ the result is \xcd"false".
 
 If the operands both have numeric type, binary promotion
 (\Sref{XtenPromotions}) is performed on the operands before the
-comparison.
+comparison.  If the operands do not have numeric type, no
+conversions are performed.
 
 The predicate \xcd"!=" returns \xcd"true" (\xcd"false") on two
 arguments if and only if the operand \xcd"==" returns \xcd"false"
