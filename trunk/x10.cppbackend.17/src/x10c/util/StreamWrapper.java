@@ -98,5 +98,9 @@ public class StreamWrapper extends SimpleCodeWriter {
     @Override public void close() throws IOException { cs.close(); }
     public void forceNewline() { cs.forceNewline(); }
     public void forceNewline(int n) { cs.forceNewline(n); }
+
+    public String getStreamName(String ext) {
+        return ws.getStreamName(ext);
+    }
 }
 // vim:tabstop=4:shiftwidth=4:expandtab
