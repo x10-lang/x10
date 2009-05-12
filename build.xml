@@ -15,7 +15,7 @@
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="optimize" value="false" />
-    <property name="DISABLE_GC" value="true" /><!-- Globally disable GC -->
+    <property name="DISABLE_GC" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -60,11 +60,10 @@
     <!-- Determine whether or not we should be building with GC enabled -->
     <condition property="bdwgc.enabled">
         <and>
+            <isfalse value="${DISABLE_GC}" />
             <or>
                 <os family="unix" name="linux"/>
-                <os family="windows"/>
             </or>
-            <isfalse value="${DISABLE_GC}" />
         </and>
     </condition>
     <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
