@@ -260,7 +260,6 @@ public class Emitter {
 				}
 				else {
 					if (ct.def().isNested()) {
-						assert (false) : ("Nested class alert!");
 						Name mangled = StaticNestedClassRemover.mangleName(ct.def());
 						QName pkg = ct.package_() != null ? ct.package_().fullName() : null;
 						QName full = QName.make(pkg, mangled);
