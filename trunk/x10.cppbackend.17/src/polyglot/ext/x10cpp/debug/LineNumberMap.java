@@ -157,4 +157,50 @@ public class LineNumberMap {
         assert (!st.hasMoreTokens());
         return res;
     }
+
+    /**
+     * Inverts the current map.  Creates a full (file,line)->(file,line) map.
+     * @return the resulting inverted map
+     */
+    public HashMap<String, LineNumberMap> invert() {
+    	HashMap<String, LineNumberMap> res = new HashMap<String, LineNumberMap>();
+    	for (Integer line : map.keySet()) {
+			Entry e = map.get(line);
+			String f = files.get(e.fileId);
+			int l = e.line;
+			LineNumberMap m = res.get(f);
+			if (m == null)
+				res.put(f, m = new LineNumberMap(f));
+			m.put(l, filename, line.intValue());
+		}
+    	return res;
+    }
+
+	/**
+	 * Creates a new map.
+	 * @return new map
+	 */
+	public static HashMap<String, LineNumberMap> initMap() {
+		return new HashMap<String, LineNumberMap>();
+	}
+
+	/**
+	 * Merges a set of new entries into a given map.  Changes the map in place!
+	 * @param map the target map (changed in place!)
+	 * @param newEntries the set of new entries
+	 */
+	public static void mergeMap(HashMap<String, LineNumberMap> map, HashMap<String, LineNumberMap> newEntries) {
+		assert (map != null);
+		for (String f : newEntries.keySet()) {
+			LineNumberMap n = newEntries.get(f);
+			LineNumberMap m = map.get(f);
+			if (m == null)
+				map.put(f, m = new LineNumberMap(f));
+			for (int l : n.map.keySet()) {
+				assert (!m.map.containsKey(l));
+				Entry e = n.map.get(l);
+				m.put(l, n.files.get(e.fileId), e.line);
+			}
+		}
+	}
 }
