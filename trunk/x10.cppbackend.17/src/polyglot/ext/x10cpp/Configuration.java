@@ -38,7 +38,7 @@ public final class Configuration extends x10.config.Configuration {
     public static boolean VIM_MODELINE = true;
     private static final String VIM_MODELINE_desc = "Generate a modeline (formatting instructions) for VIm";
 
-    public static boolean DISABLE_GC = true;
+    public static boolean DISABLE_GC = false;
     private static final String DISABLE_GC_desc = "Disable the linking in of the BDW conservative garbage collector";
 
     public static String MANIFEST = null;
