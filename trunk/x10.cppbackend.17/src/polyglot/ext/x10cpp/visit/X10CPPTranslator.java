@@ -391,8 +391,6 @@ public class X10CPPTranslator extends Translator {
 					ext.compilerName());
 			if (!okay)
 				return false;
-			if (!System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
-				return postCompile(options, job.compiler(), eq);
 			return true;
 		}
 		else if (ast instanceof SourceCollection) {
