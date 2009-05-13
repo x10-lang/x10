@@ -2,21 +2,32 @@ package x10.effects.constraints;
 
 /**
  * The implement of effect annotations.
- * An effect annotation is either @fun(r,w,a) or @parfun(r,w,a), where r, w, and a are sets 
+ * 
+ * <p>An effect annotation is either @fun(r,w,a) or @parfun(r,w,a), where r, w, and a are sets 
  * of (mutable) locations.
  * 
  * <p> We use an XTerm to represent a location. 
  * 
  * <p> Two distinct Effects do not share any mutable state except for XTerms that they may 
  * have in common.
+ * <p> Effects are created using the Factory.makeEffect(b) method. XTerms should then be added
+ * to the read, write and atomicInc sets of the effect.
  * 
+ * <p> Effects are composed using the methods: 
+ * <ul>
+ * <li> followedBy(Effect) (for sequencing and conditionals),
+ * <li> exists(XVar) (for local variable declarations), 
+ * <li> forall(XVar) (for for loops),
+ * <li> makeParFun() (for async), and 
+ * <li> makeFun() (for finish), and clone().
+ * </ul>
  * @author vj 05/13/09
  *
  */
 import java.util.*;
 import x10.constraint.*;
 
-public interface Effect {
+public interface Effect extends Cloneable {
 	/**
 	 * An effect set is associated with either an @fun annotation or an @parfun annotation. 
 	 * 
@@ -101,5 +112,22 @@ public interface Effect {
 	 * @return
 	 */
 	Effect makeFun();
+	
+	/**
+	 * Add t to the read set for this. Modified in place.
+	 * @param t
+	 */
+	void addRead(XTerm t);
+	/**
+	 * Add t to the read set for this. Modified in place.
+	 * @param t
+	 */
+	void addWrite(XTerm t);
+	/**
+	 * Add t to the read set for this. Modified in place.
+	 * @param t
+	 */
+	void addAtomicInc(XTerm t);
+	
 
 }
