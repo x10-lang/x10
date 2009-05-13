@@ -4,7 +4,6 @@
 package x10.array;
 
 import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
 /**
  * The BaseArray class is the base of the hierarchy of classes that
@@ -123,19 +122,19 @@ public abstract value class BaseArray[T] extends Array[T] {
     }
 
     safe def checkBounds(i0: int) {
-        (region as BaseRegion).check(bounds, i0);
+        (region as BaseRegion(1)).check(bounds, i0);
     }
 
     safe def checkBounds(i0: int, i1: int) {
-        (region as BaseRegion).check(bounds, i0, i1);
+        (region as BaseRegion(2)).check(bounds, i0, i1);
     }
 
     safe def checkBounds(i0: int, i1: int, i2: int) {
-        (region as BaseRegion).check(bounds, i0, i1, i2);
+        (region as BaseRegion(3)).check(bounds, i0, i1, i2);
     }
 
     safe def checkBounds(i0: int, i1: int, i2: int, i3: int) {
-        (region as BaseRegion).check(bounds, i0, i1, i2, i3);
+        (region as BaseRegion(4)).check(bounds, i0, i1, i2, i3);
     }
 
     safe def checkPlace(pt: Point(rank)) {
@@ -143,19 +142,19 @@ public abstract value class BaseArray[T] extends Array[T] {
     }
 
     safe def checkPlace(i0: int) {
-        (dist.get(here) as BaseRegion).check(place, i0);
+        (dist.get(here) as BaseRegion(1)).check(place, i0);
     }
 
     safe def checkPlace(i0: int, i1: int) {
-        (dist.get(here) as BaseRegion).check(place, i0, i1);
+        (dist.get(here) as BaseRegion(2)).check(place, i0, i1);
     }
 
     safe def checkPlace(i0: int, i1: int, i2: int) {
-        (dist.get(here) as BaseRegion).check(place, i0, i1, i2);
+        (dist.get(here) as BaseRegion(3)).check(place, i0, i1, i2);
     }
 
     safe def checkPlace(i0: int, i1: int, i2: int, i3: int) {
-        (dist.get(here) as BaseRegion).check(place, i0, i1, i2, i3);
+        (dist.get(here) as BaseRegion(4)).check(place, i0, i1, i2, i3);
     }
 
 
