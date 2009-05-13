@@ -3440,8 +3440,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.ADD, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.ADD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . -
@@ -3451,8 +3451,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.SUB, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.SUB, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . *
@@ -3462,8 +3462,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.MUL, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.MUL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . /
@@ -3473,8 +3473,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.DIV, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.DIV, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . '%'
@@ -3484,8 +3484,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.MOD, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.MOD, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . &
@@ -3495,8 +3495,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.BIT_AND, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.BIT_AND, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . '|'
@@ -3506,8 +3506,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.BIT_OR, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.BIT_OR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . ^
@@ -3517,8 +3517,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.BIT_XOR, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.BIT_XOR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . <<
@@ -3528,8 +3528,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.SHL, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.SHL, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . >>
@@ -3539,8 +3539,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.SHR, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.SHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . >>>
@@ -3550,8 +3550,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.USHR, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.USHR, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . <
@@ -3561,8 +3561,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.LT, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.LT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . <=
@@ -3572,8 +3572,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.LE, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.LE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . >=
@@ -3583,8 +3583,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.GE, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.GE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . >
@@ -3594,8 +3594,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.GT, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.GT, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . ==
@@ -3605,8 +3605,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.EQ, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.EQ, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        | TypeName . !=
@@ -3616,8 +3616,8 @@ public static class MessageHandler implements IMessageHandler {
                     formals.add(nf.Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), TypeName.toType(), nf.Id(pos(), "y")));
                     TypeNode tn = nf.CanonicalTypeNode(pos(), ts.Boolean());
                     setResult(nf.Closure(pos(), Collections.EMPTY_LIST, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
-                                                               Binary.NE, nf.Local(pos(), nf.Id(pos(), "y")))))));
+                                         nf.X10Return(pos(), nf.Binary(pos(), nf.Local(pos(), nf.Id(pos(), "x")),
+                                                               Binary.NE, nf.Local(pos(), nf.Id(pos(), "y"))), true))));
           $EndJava
         ./
                        
@@ -3777,9 +3777,9 @@ public static class MessageHandler implements IMessageHandler {
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(), nf.X10Call(pos(), MethodName.prefix == null
+                                         nf.X10Return(pos(), nf.X10Call(pos(), MethodName.prefix == null
                                                                  ? null
-                                                                 : MethodName.prefix.toReceiver(), MethodName.name, typeArgs, actuals)))));
+                                                                 : MethodName.prefix.toReceiver(), MethodName.name, typeArgs, actuals), true))));
           $EndJava
         ./
                        | Primary . Identifier . TypeParametersopt ( FormalParameterListopt )
@@ -3790,8 +3790,8 @@ public static class MessageHandler implements IMessageHandler {
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(),
-                                                   nf.X10Call(pos(), Primary, Identifier, typeArgs, actuals)))));
+                                         nf.X10Return(pos(),
+                                                   nf.X10Call(pos(), Primary, Identifier, typeArgs, actuals), true))));
           $EndJava
         ./
                        | super . Identifier . TypeParametersopt ( FormalParameterListopt )
@@ -3802,8 +3802,8 @@ public static class MessageHandler implements IMessageHandler {
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(),
-                                                   nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, typeArgs, actuals)))));
+                                         nf.X10Return(pos(),
+                                                   nf.X10Call(pos(), nf.Super(pos(getLeftSpan())), Identifier, typeArgs, actuals), true))));
           $EndJava
         ./
                        | ClassName . super$sup . Identifier . TypeParametersopt ( FormalParameterListopt )
@@ -3814,8 +3814,8 @@ public static class MessageHandler implements IMessageHandler {
                     List<Expr> actuals = toActuals(FormalParameterListopt);
                     TypeNode tn = nf.UnknownTypeNode(pos());
                     setResult(nf.Closure(pos(), typeParams, formals, (DepParameterExpr) null, tn, Collections.EMPTY_LIST, nf.Block(pos(),
-                                         nf.Return(pos(),
-                                                   nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier, typeArgs, actuals)))));
+                                         nf.X10Return(pos(),
+                                                   nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex($sup)), ClassName.toType()), Identifier, typeArgs, actuals), true))));
           $EndJava
         ./
 
