@@ -1,5 +1,5 @@
 
-//#line 18 "/home/tardieu/workspace/x10.compiler.p3/src/x10/parser/x10.g"
+//#line 18 "/Users/nystrom/work/x10/old/1.7-sexp/x10.compiler.p3/src/x10/parser/x10.g"
 //
 // Licensed Material
 // (C) Copyright IBM Corp, 2006
