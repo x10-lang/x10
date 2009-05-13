@@ -8,9 +8,6 @@
 
 package x10.util;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
-
 /** Random number generator. */
 public class Random {
     public def this() {

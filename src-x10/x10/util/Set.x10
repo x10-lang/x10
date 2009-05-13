@@ -8,6 +8,4 @@
 
 package x10.util;
 
-import x10.compiler.NativeRep;
-
 public interface Set[T] extends Collection[T] {}
