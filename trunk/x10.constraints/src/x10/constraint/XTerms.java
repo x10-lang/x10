@@ -124,4 +124,7 @@ public class XTerms {
 		assert arg != null;
 		return new XNot_c(arg);
 	}
+	public static XConstraint makeTrueConstraint() {
+		return new XConstraint_c();
+	}
 }
