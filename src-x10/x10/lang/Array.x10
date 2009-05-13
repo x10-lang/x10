@@ -95,10 +95,10 @@ public abstract value class Array[T](dist:Dist)
         = makeVar[T](dist, null as Box[(Point)=>T]) as FastArray[T];
 
     public static def makeFast[T](region: Region, init: (Point)=>T): FastArray[T]
-        = BaseArray.makeVar1[T](region, init) as FastArray[T];
+        = BaseArray.makeVar1[T](region, (init as (Point)=>T) as Box[(Point)=>T]) as FastArray[T];
 
     public static def makeFast[T](dist: Dist, init: (Point)=>T): FastArray[T]
-        = BaseArray.makeVar1[T](dist, init) as FastArray[T];
+        = BaseArray.makeVar1[T](dist, (init as (Point)=>T) as Box[(Point)=>T]) as FastArray[T];
 
 
     //
