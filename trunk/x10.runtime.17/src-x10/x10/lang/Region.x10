@@ -95,7 +95,7 @@ public abstract value class Region(
      */
 
     public static def make(regions: ValRail[Region/*(1)*/]): RectRegion(regions.length)
-        = BaseRegion.make1(regions);
+        = BaseRegion.make1(regions as Rail[Region/*(1)*/]);
 
 
     //
