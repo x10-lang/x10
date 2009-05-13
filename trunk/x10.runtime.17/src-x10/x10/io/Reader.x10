@@ -15,8 +15,6 @@
  */    
 package x10.io;
 
-import x10.compiler.NativeRep;
-
 public abstract value Reader {
     public abstract def close(): Void throws IOException;
 

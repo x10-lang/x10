@@ -9,7 +9,6 @@
 package x10.lang;
 
 import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
 public final value Math {
    public const E = 2.718281828459045D;
