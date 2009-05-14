@@ -2,29 +2,32 @@
 
 The constraint system is defined over the following terms:
 
-<verbatim>
+<p>
+<pre>
 (Terms) t ::= x -- local variables
               l  -- literals
               C.f  -- static field
               t.f  -- field access
               a(i) -- array access
               f(t1,..., tn) -- arbitrary function application
-</verbatim>
+</pre>
 
+<p>
 For arbitrary function application, no particular propagation rule is implemented. (Need to add
 at least the uninterpreted function application rules, i.e. 
-
-<verbatim>
+<p>
+<pre>
 s1=t1,..., sn=tn <=> f(s1,..., sn)=f(t1,..., tn)
-</verbatim>
+</pre>
 
+<p>
 The constraints are:
-
-<verbatim>
+<p>
+<pre>
 (Constraints) c ::= t == t -- equality constraint
                     ! c    -- negation, no particular constraint propagation rules
                     a(t1,..., tn) -- atomic formula
                     c,c    -- conjunction
                     x^c    -- existential quantification
-</verbatim>
+</pre>
 
