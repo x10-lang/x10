@@ -20,7 +20,6 @@ public class Main extends polyglot.main.Main {
 
 	public static void main(String[] args) {
 		try {
-			System.setProperty("x10.postcompile", "FALSE");
 			new Main().start(args);
 		}
 		catch (TerminationException te) {
