@@ -38,11 +38,6 @@ namespace x10aux {
         AnyRail(x10_int length_)
           : FMGL(length)(length_) { }
 
-        virtual ~AnyRail() {
-            for (int i=0; i<FMGL(length); i++)
-                data[i].~T();
-        }
-
         void _check_bounds(x10_int index) const {
             #ifndef NO_BOUNDS_CHECKS
             x10aux::_check_bounds(index, FMGL(length));
@@ -244,7 +239,6 @@ namespace x10aux {
 
 
     template<class T, class R> void free_rail(x10aux::ref<R> rail) {
-        rail->~R();
         x10aux::dealloc<R >(&*rail);
     }
 
