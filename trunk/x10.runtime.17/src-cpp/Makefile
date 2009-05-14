@@ -36,7 +36,6 @@ endif
 
 CXXFLAGS += $(INCLUDE_DIRS)
 
-
 ifeq ($(shell uname -s),AIX)
 
   ifdef USE_XLC
@@ -101,6 +100,7 @@ xrx: $(XRX_ARCHIVE)
 ALL_XRCPP_OBJECTS = \
 	x10aux/alloc.o \
 	x10aux/assert.o \
+	x10aux/atomic_ops.o \
 	x10aux/basic_functions.o \
 	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \

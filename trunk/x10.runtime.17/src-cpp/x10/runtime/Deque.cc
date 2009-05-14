@@ -5,9 +5,9 @@
  */
 
 #include <x10aux/config.h>
+#include <x10aux/atomic_ops.h>
 
 #include <x10/runtime/Deque.h>
-#include <x10/runtime/Lock.h>
 
 #include <errno.h>
 #ifdef XRX_DEBUG
@@ -21,7 +21,6 @@ using namespace x10aux;
 ref<Deque> Deque::_constructor() {
     queue = x10aux::alloc<ref<Object> >(INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>));
     queueCapacity = INITIAL_QUEUE_CAPACITY;
-    lock = Lock::_make();
     return this;
 }
 
@@ -30,33 +29,19 @@ void Deque::_destructor() {
 }
 
 void Deque::setSlot(ref<Object> *q, int i, ref<Object> t) {
-    lock->lock();   // TODO: using locking instead of low-level CAS for initial debugging
-    queue[i] = t;
-    lock->unlock(); // TODO: using locking instead of low-level CAS for initial debugging
+    q[i] = t;
+    atomic_ops::store_store_barrier();
 }
 
 bool Deque::casSlotNull(ref<Object> *q, int i, ref<Object> t) {
-    bool res;
-    lock->lock();   // TODO: using locking instead of low-level CAS for initial debugging
-
-    ref<Object> oldValue = queue[i];
-    if (oldValue == t) {
-        res = true;
-        queue[i] = NULL;
-    } else {
-        res = false;
-    }
-
-    lock->unlock(); // TODO: using locking instead of low-level CAS for initial debugging
-
-    return res;
+    void *unwrapped = (void*)t.get();
+    void *oldValue = atomic_ops::compareAndSet_ptr((volatile void**)&(q[i]), unwrapped, NULL);
+    return oldValue == unwrapped;
 }
 
-
 void Deque::storeSp(int s) {
-    lock->lock();   // TODO: using locking instead of low-level CAS for initial debugging
     sp = s;
-    lock->unlock(); // TODO: using locking instead of low-level CAS for initial debugging
+    atomic_ops::store_store_barrier();
 }
 
 void Deque::growQueue() {
