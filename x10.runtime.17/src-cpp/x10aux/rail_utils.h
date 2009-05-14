@@ -56,13 +56,6 @@ namespace x10aux {
             return operator[](index);
         }   
 
-/* [DC] I suspect this is not needed as we don't have any const AnyRails
-        const T& operator[](x10_int index) const {
-            _check_bounds(index);
-            return data[index];
-        }   
-*/
-
         GPUSAFE T& operator[](x10_int index) {
             _check_bounds(index);
             return data[index];

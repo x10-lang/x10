@@ -172,6 +172,17 @@ namespace x10 {
                 return rail;
             }
 
+            static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other) {
+                x10_int length = other->FMGL(length);
+                x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+                for (x10_int i=0 ; i<length ; ++i) {
+                        (*rail)[i] = (*other)[i];
+                }
+                return rail;
+            }
+
+            // [DC] I believe this is not used?
+/*
             static x10aux::ref<ValRail<T> > make(x10aux::ref<ValRail<T> > other) {
                 x10_int length = other->FMGL(length);
                 x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
@@ -180,6 +191,7 @@ namespace x10 {
                 }
                 return rail;
             }
+*/
 
             static const x10aux::serialization_id_t _serialization_id;
 
