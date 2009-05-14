@@ -10,12 +10,12 @@ import java.util.List;
  */
 public class XArrayElement_c extends XFormula_c  implements XArrayElement {
 
-	public XArrayElement_c(XTerm array, XTerm index) {
+	public XArrayElement_c(XArray array, XTerm index) {
 		super(XTerms.arrayAccessName, array, index);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public XTerm array() { return arguments.get(0);}
+	public XArray array() { return (XArray) arguments.get(0);}
 	public XTerm index() { return arguments.get(1);}
 	public XVar rootVar() { return this;}
 	public XVar[] vars() { return new XVar[] { this};}
