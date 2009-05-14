@@ -21,7 +21,7 @@ import x10me.opt.ir.operand.*;
 /**
  * Class file for Newarray Instruction class.
  */
-public final class Newarray extends NewArray {
+public final class Newarray extends NewArrayParent {
 
   /**
     * Constructor for Newarray.

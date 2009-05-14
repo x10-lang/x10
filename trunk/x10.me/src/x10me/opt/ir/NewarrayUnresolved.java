@@ -21,7 +21,7 @@ import x10me.opt.ir.operand.*;
 /**
  * Class file for NewarrayUnresolved Instruction class.
  */
-public final class NewarrayUnresolved extends NewArray {
+public final class NewarrayUnresolved extends NewArrayParent {
 
   /**
     * Constructor for NewarrayUnresolved.
