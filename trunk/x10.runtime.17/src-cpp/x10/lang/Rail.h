@@ -53,8 +53,6 @@ namespace x10 {
 
             Rail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
 
-            ~Rail() { }
-
             GPUSAFE virtual T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
             } 
