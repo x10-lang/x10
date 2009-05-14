@@ -99,5 +99,9 @@ public class RailFactory {
         Rail<T> r = makeRailFromJavaArray(array);
         return new ValRail<T>(r.type, r.length, r.value);
     }
+
+    public static <T> ValRail<T> makeValRailFromRail(Type type, Rail<T> r) {
+        return new ValRail<T>(r.type, r.length, r.getBackingArray());
+    }
     
 }
