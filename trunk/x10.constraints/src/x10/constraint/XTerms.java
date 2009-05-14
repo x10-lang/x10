@@ -33,6 +33,9 @@ public class XTerms {
 	static final XName andName = new XNameWrapper<String>("&&&");
 	static final XName notName = new XNameWrapper<String>("!!!");
 	static final XName arrayAccessName = new XNameWrapper<String>("(.)");
+	static final XName plusName = new XNameWrapper<String>("+");
+	static final XName minusName = new XNameWrapper<String>("-");
+	static final XName modName = new XNameWrapper<String>("%");
 
     // used in generating a new name.
 	static int nextId = 0;
@@ -89,8 +92,10 @@ public class XTerms {
 		return makeAtom(op, true, terms);
 	}
 	/**
-       Make and return op(terms1,..., termsn) -- an atomic formula
-       with operator op and terms terms.
+       Make and return op(terms1,..., termsn) -- an expression 
+       with operator op and arguments terms. If atomicFormula is true
+       then this is marked as an atomicFormula, else it is considered a term 
+       (a function application term).
 	 */
 
 	public static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
@@ -110,6 +115,13 @@ public class XTerms {
     with function name op and arguments terms. Uses varargs.
 	 */
 	public static XTerm makeTerm(XName op, XTerm... terms) {
+		if (op.equals(plusName)) {
+			return new XPlus_c(terms);
+		}
+		if (op.equals(minusName)) {
+			return new XMinus_c(terms);
+		}
+		
 		return makeAtom(op, false, Arrays.asList(terms));
 	}
  
