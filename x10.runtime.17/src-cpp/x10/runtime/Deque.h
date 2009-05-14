@@ -50,19 +50,26 @@ namespace x10 {
             ~Deque() { _destructor(); }
 
         private:
+            class Slots {
+            public:
+                x10_int capacity;
+                x10aux::ref<x10::lang::Object> data[1];
+            };
+
+            
             void _destructor();
 
             /**
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
              */
-            void setSlot(x10aux::ref<x10::lang::Object> *q, int i, x10aux::ref<x10::lang::Object> t);
+            void setSlot(Slots *q, int i, x10aux::ref<x10::lang::Object> t);
 
             /**
              * CAS given slot of q to null. Caller must ensure q is nonnull
              * and index is in range.
              */
-            bool casSlotNull(x10aux::ref<x10::lang::Object> *q, int i, x10aux::ref<x10::lang::Object> t);
+            bool casSlotNull(Slots *q, int i, x10aux::ref<x10::lang::Object> t);
 
             /**
              * Sets sp in store-order.
@@ -122,12 +129,19 @@ namespace x10 {
              */
             static const int MAXIMUM_QUEUE_CAPACITY = 1 << 28;
 
-            // FIXME: Really need to embed queueCapacity into struct with the queue data
-            //        queue to get same semantics as java (capacity == array length)
-            x10aux::ref<x10::lang::Object> *queue;
-            int queueCapacity;
+            /**
+             * Backing array for queue
+             */
+            Slots *queue;
 
+            /**
+             * top of stack index
+             */
             volatile int sp;
+
+            /**
+             * bottom of stack
+             */
             volatile int base;
         };
     }
