@@ -61,6 +61,9 @@ public class XTerms {
 	public static final XLocal makeLocal(XName name) {
 		return new XLocal_c(name);
 	}
+	public static final XLocal makeArray(XName name) {
+		return new XArray_c(name);
+	}
 
 	public static final XField makeField(XVar receiver, XName field) {
 		return new XField_c(receiver, field);
