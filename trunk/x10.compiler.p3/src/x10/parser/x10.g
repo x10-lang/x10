@@ -955,6 +955,163 @@ public static class MessageHandler implements IMessageHandler {
           }
           $EndJava
         ./
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
+              TypeParametersopt,
+              Arrays.<Formal>asList(fp1, fp2),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (! md.flags().flags().isStatic())
+              syntaxError("Binary operator with two parameters must be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
+              TypeParametersopt,
+              Collections.<Formal>singletonList(fp2),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (! md.flags().flags().isStatic())
+              syntaxError("Unary operator with two parameters must be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.binaryMethodName(BinOp)),
+              TypeParametersopt,
+              Collections.<Formal>singletonList(fp2),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (md.flags().flags().isStatic())
+              syntaxError("Binary operator with this parameter cannot be static.", md.position());
+              
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           Name op = X10Binary_c.invBinaryMethodName(BinOp);
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(getRhsFirstTokenIndex($BinOp)), X10Binary_c.invBinaryMethodName(BinOp)),
+              TypeParametersopt,
+              Collections.<Formal>singletonList(fp1),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (md.flags().flags().isStatic())
+              syntaxError("Binary operator with this parameter cannot be static.", md.position());
+              
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(getRhsFirstTokenIndex($PrefixOp)), X10Unary_c.unaryMethodName(PrefixOp)),
+              TypeParametersopt,
+              Collections.EMPTY_LIST,
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (md.flags().flags().isStatic())
+              syntaxError("Unary operator with this parameter cannot be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(), Name.make("apply")),
+              TypeParametersopt,
+              FormalParameters,
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (md.flags().flags().isStatic())
+              syntaxError("Apply operator cannot be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(), Name.make("set")),
+              TypeParametersopt,
+              CollectionUtil.append(Collections.singletonList(fp2), FormalParameters),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (md.flags().flags().isStatic())
+              syntaxError("Set operator cannot be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              Type,
+              nf.Id(pos(), Name.make("$convert")),
+              TypeParametersopt,
+              Collections.<Formal>singletonList(fp1),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (! md.flags().flags().isStatic())
+              syntaxError("Conversion operator must be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt ResultTypeopt Throwsopt MethodBody
+        /.$BeginJava
+           MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
+              extractFlags(MethodModifiersopt),
+              ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
+              nf.Id(pos(), Name.make("$convert")),
+              TypeParametersopt,
+              Collections.<Formal>singletonList(fp1),
+              WhereClauseopt,
+              Throwsopt,
+              MethodBody);
+          if (! md.flags().flags().isStatic())
+              syntaxError("Conversion operator must be static.", md.position());
+          md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(MethodModifiersopt));
+          setResult(md);
+          $EndJava
+        ./
+        
 
     PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
         /.$BeginJava
