@@ -21,13 +21,13 @@ import x10me.opt.ir.operand.*;
  * The NewArray instruction class.
  *
  * The header comment for {@link Instruction} contains
- * an explanation of the role of these interior class in 
+ * an explanation of the role of these interior class in
  * opt compiler's IR.
  */
-public abstract class NewArray extends Instruction
+public abstract class NewArrayParent extends Instruction
   implements HasResult {
 
-  /**        
+  /**
     * result def Operand.
     */
   private Operand result;
@@ -43,8 +43,8 @@ public abstract class NewArray extends Instruction
   }
 
   /**
-   * Get the operand called result from this instruction clearing its 
-   * instruction pointer. The returned operand will not point to 
+   * Get the operand called result from this instruction clearing its
+   * instruction pointer. The returned operand will not point to
    * any containing instruction.
    * @return the operand called result
    */
@@ -65,7 +65,7 @@ public abstract class NewArray extends Instruction
   public final void setResult(Operand o) {
     if (o == null) {
       result = null;
-    } else {      
+    } else {
       assert o.instruction == null;
       result = o;
       o.instruction = this;
@@ -84,7 +84,7 @@ public abstract class NewArray extends Instruction
   }
 
 
-  /**        
+  /**
     * type use TypeOperand.
     */
   private TypeOperand type;
@@ -100,8 +100,8 @@ public abstract class NewArray extends Instruction
   }
 
   /**
-   * Get the operand called type from this instruction clearing its 
-   * instruction pointer. The returned operand will not point to 
+   * Get the operand called type from this instruction clearing its
+   * instruction pointer. The returned operand will not point to
    * any containing instruction.
    * @return the operand called type
    */
@@ -122,7 +122,7 @@ public abstract class NewArray extends Instruction
   public final void setType(TypeOperand o) {
     if (o == null) {
       type = null;
-    } else {      
+    } else {
       assert o.instruction == null;
       type = o;
       o.instruction = this;
@@ -141,7 +141,7 @@ public abstract class NewArray extends Instruction
   }
 
 
-  /**        
+  /**
     * size use Operand.
     */
   private Operand size;
@@ -157,8 +157,8 @@ public abstract class NewArray extends Instruction
   }
 
   /**
-   * Get the operand called size from this instruction clearing its 
-   * instruction pointer. The returned operand will not point to 
+   * Get the operand called size from this instruction clearing its
+   * instruction pointer. The returned operand will not point to
    * any containing instruction.
    * @return the operand called size
    */
@@ -179,7 +179,7 @@ public abstract class NewArray extends Instruction
   public final void setSize(Operand o) {
     if (o == null) {
       size = null;
-    } else {      
+    } else {
       assert o.instruction == null;
       size = o;
       o.instruction = this;
@@ -205,7 +205,7 @@ public abstract class NewArray extends Instruction
     * @param type
     * @param size
     */
-  NewArray (Operand result, TypeOperand type, Operand size) {
+  NewArrayParent (Operand result, TypeOperand type, Operand size) {
     this.result = result;
     this.type = type;
     this.size = size;
@@ -223,7 +223,7 @@ public abstract class NewArray extends Instruction
 
   @Override
   public final int getNumberOfUses() {
-      return 2; 
+      return 2;
   }
 
   @Override

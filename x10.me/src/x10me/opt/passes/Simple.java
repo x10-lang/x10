@@ -394,7 +394,7 @@ public final class Simple extends CompilerPhase {
       if (!(instr instanceof Newarray || instr instanceof NewarrayUnresolved)) {
         continue;
       }
-      NewArray na = (NewArray)instr;
+      NewArrayParent na = (NewArrayParent)instr;
       Operand sizeOp = na.getSize();
       // check for an array whose length is a compile-time constant
       // or an SSA register

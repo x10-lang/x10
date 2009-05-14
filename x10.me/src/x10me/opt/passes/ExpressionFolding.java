@@ -297,7 +297,7 @@ public class ExpressionFolding {
       return ((InstanceOf)s).getRef().asRegister();
 
 
-    } else if (s instanceof NewArray || s instanceof New) {
+    } else if (s instanceof NewArrayParent || s instanceof New) {
       return null;
     } else {
       throw new Error();
@@ -347,9 +347,9 @@ public class ExpressionFolding {
       return ((NullCheck)s).getGuardResult();
     } else if (s instanceof InstanceOf) {
       return ((InstanceOf)s).getResult().asRegister();
-    } else if (s instanceof NewArray) {
+    } else if (s instanceof NewArrayParent) {
       if (first) {
-	return ((NewArray)s).getResult().asRegister();
+	return ((NewArrayParent)s).getResult().asRegister();
       } else {
 	return null;
       }
@@ -2438,7 +2438,7 @@ public class ExpressionFolding {
       if (FOLD_CHECKS) {
 	if (def instanceof Newarray) {
 	  // x = newarray xxx[c1]; y = boundscheck x, c2;
-	  int c1 = getIntValue(((NewArray)def).getSize());
+	  int c1 = getIntValue(((NewArrayParent)def).getSize());
 	  int c2 = getIntValue(((BoundsCheck)s).getIndex());
 	  if (c2 >= 0 && c2 < c1) {
 	    return new GuardMove(y.copyRO(), ((BoundsCheck)def).getGuard().copy());
@@ -2464,7 +2464,7 @@ public class ExpressionFolding {
 	  newType = ((New)def).getType().getType();
 	} else if (def instanceof Newarray) {
 	  // x = newarray xxx; y = instanceof x, zzz;
-	  newType = ((NewArray)def).getType().getType();
+	  newType = ((NewArrayParent)def).getType().getType();
 	} else {
 	  return null;
 	}
@@ -2481,7 +2481,7 @@ public class ExpressionFolding {
       if (FOLD_CHECKS) {
 	if (def instanceof Newarray) {
 	  // x = newarray xxx[c1]; y = arraylength x;
-	  return new IntMove(y.copyRO(), ((NewArray)def).getSize().copy());
+	  return new IntMove(y.copyRO(), ((NewArrayParent)def).getSize().copy());
 	}
       }
       return null;
@@ -2839,10 +2839,10 @@ public class ExpressionFolding {
       return ((InstanceOf)s).getResult().asRegister().getRegister();
     }
     case Operators.Newarray: {
-      Operand size = ((NewArray)s).getSize();
+      Operand size = ((NewArrayParent)s).getSize();
       if (size.isConstant()) {
 	// don't worry about the input and output bring the same as their types differ
-	return ((NewArray)s).getResult().asRegister().getRegister();
+	return ((NewArrayParent)s).getResult().asRegister().getRegister();
       }
       return null;
     }
