@@ -32,6 +32,7 @@ public class XTerms {
 	static final XName equalsName = new XNameWrapper<String>("===");
 	static final XName andName = new XNameWrapper<String>("&&&");
 	static final XName notName = new XNameWrapper<String>("!!!");
+	static final XName arrayAccessName = new XNameWrapper<String>("(.)");
 
     // used in generating a new name.
 	static int nextId = 0;
@@ -72,26 +73,46 @@ public class XTerms {
 		return new XLit_c(o);
 	}
 	
-    /**
-       Make and return op(terms1,..., termsn) -- an atomic formula
-       with operator op and terms terms. Uses varargs.
-     */
+	/**
+    Make and return op(terms1,..., termsn) -- an atomic formula
+    with operator op and terms terms. Uses varargs.
+	 */
 	public static XTerm makeAtom(XName op, XTerm... terms) {
-	    return makeAtom(op, Arrays.asList(terms));
+		return makeAtom(op, true, Arrays.asList(terms));
 	}
 
-    /**
+	/**
+    Make and return op(terms1,..., termsn) -- a function application 
+    with function name op and arguments terms. Uses varargs.
+	 */
+	public static XTerm makeAtom(XName op, List<XTerm> terms) {
+		return makeAtom(op, true, terms);
+	}
+	/**
        Make and return op(terms1,..., termsn) -- an atomic formula
        with operator op and terms terms.
-     */
+	 */
 
-	public static XTerm makeAtom(XName op, List<XTerm> terms) {
+	public static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
 		assert op != null;
 		assert terms != null;
 		XFormula f = new XFormula_c(op, terms);
-		f.markAsAtomicFormula();
+		if (atomicFormula) {
+			f.markAsAtomicFormula();
+		}
 		return f;
 	}
+
+
+
+	/**
+    Make and return op(terms1,..., termsn) -- a function application 
+    with function name op and arguments terms. Uses varargs.
+	 */
+	public static XTerm makeTerm(XName op, XTerm... terms) {
+		return makeAtom(op, false, Arrays.asList(terms));
+	}
+ 
     /**
        Make and return left == right.
      */
@@ -124,7 +145,17 @@ public class XTerms {
 		assert arg != null;
 		return new XNot_c(arg);
 	}
+	/**
+	 * Return the constraint true.
+	 * @return
+	 */
 	public static XConstraint makeTrueConstraint() {
 		return new XConstraint_c();
+	}
+	/**
+	 * 
+	 */
+	public static XArrayElement makeArrayElement(XTerm array, XTerm index) {
+		return new XArrayElement_c(array, index);
 	}
 }
