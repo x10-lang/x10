@@ -165,9 +165,11 @@ public class XTerms {
 		return new XConstraint_c();
 	}
 	/**
-	 * 
+	 * Create a term representing an array access a(t)
+	 * @arg array -- a
+	 * @arg index -- t
 	 */
-	public static XArrayElement makeArrayElement(XTerm array, XTerm index) {
+	public static XArrayElement makeArrayElement(XArray array, XTerm index) {
 		return new XArrayElement_c(array, index);
 	}
 }

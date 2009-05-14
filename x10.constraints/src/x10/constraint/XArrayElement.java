@@ -1,7 +1,7 @@
 package x10.constraint;
 
 public interface XArrayElement extends XRoot {
-	XTerm array();
+	XArray array();
 	XTerm index();
 
 }
