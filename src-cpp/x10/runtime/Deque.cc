@@ -22,6 +22,8 @@ ref<Deque> Deque::_constructor() {
     queue = x10aux::alloc<Slots>(sizeof(Slots) + (INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>)));
     memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>)));
     queue->capacity = INITIAL_QUEUE_CAPACITY;
+    sp = 0;
+    base = 0;
     return this;
 }
 
@@ -46,7 +48,29 @@ void Deque::storeSp(int s) {
 }
 
 void Deque::growQueue() {
-    assert(false);
+    Slots *oldQ = queue;
+    int oldSize = oldQ->capacity;
+    int newSize = oldSize << 1;
+    if (newSize > MAXIMUM_QUEUE_CAPACITY) {
+        assert(false); /* throw new RuntimeException("Queue capacity exceeded"); */
+    }
+    Slots *newQ = x10aux::alloc<Slots>(sizeof(Slots) + (newSize * sizeof(ref<Object>)));
+    memset(newQ->data, 0, (newSize * sizeof(ref<Object>)));
+    newQ->capacity = newSize;
+    queue = newQ;
+    
+    int b = base;
+    int bf = b + oldSize;
+    int oldMask = oldSize - 1;
+    int newMask = newSize - 1;
+    do {
+        int oldIndex = b & oldMask;
+        ref<Object> t = oldQ->data[oldIndex];
+        if (t != null && !casSlotNull(oldQ, oldIndex, t)) {
+            t = null;
+        }
+        setSlot(newQ, b & newMask, t);
+    } while (++b != bf);
 }
 
 void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
