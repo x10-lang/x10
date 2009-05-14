@@ -19,8 +19,9 @@ using namespace x10::runtime;
 using namespace x10aux;
 
 ref<Deque> Deque::_constructor() {
-    queue = x10aux::alloc<ref<Object> >(INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>));
-    queueCapacity = INITIAL_QUEUE_CAPACITY;
+    queue = x10aux::alloc<Slots>(sizeof(Slots) + (INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>)));
+    memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>)));
+    queue->capacity = INITIAL_QUEUE_CAPACITY;
     return this;
 }
 
@@ -28,14 +29,14 @@ void Deque::_destructor() {
     x10aux::dealloc(queue);
 }
 
-void Deque::setSlot(ref<Object> *q, int i, ref<Object> t) {
-    q[i] = t;
+void Deque::setSlot(Slots *q, int i, ref<Object> t) {
+    q->data[i] = t;
     atomic_ops::store_store_barrier();
 }
 
-bool Deque::casSlotNull(ref<Object> *q, int i, ref<Object> t) {
+bool Deque::casSlotNull(Slots *q, int i, ref<Object> t) {
     void *unwrapped = (void*)t.get();
-    void *oldValue = atomic_ops::compareAndSet_ptr((volatile void**)&(q[i]), unwrapped, NULL);
+    void *oldValue = atomic_ops::compareAndSet_ptr((volatile void**)&(q->data[i]), unwrapped, NULL);
     return oldValue == unwrapped;
 }
 
@@ -49,8 +50,8 @@ void Deque::growQueue() {
 }
 
 void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
-    ref<Object>* q = queue;
-    int mask = queueCapacity - 1;
+    Slots *q = queue;
+    int mask = q->capacity - 1;
     int s = sp;
     setSlot(q, s & mask, t);
     storeSp(++s);
@@ -63,12 +64,12 @@ void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
 
 ref<Object> Deque::deqTask() {
     ref<Object> t;
-    ref<Object> *q;
+    Slots *q;
     int i;
     int b;
     if (sp != (b = base) &&
         (q = queue) != null && // must read q after b
-        (t = q[i = (queueCapacity - 1) & b]) != null &&
+        (t = q->data[i = (q->capacity - 1) & b]) != null &&
         casSlotNull(q, i, t)) {
         base = b + 1;
         return t;
@@ -79,10 +80,10 @@ ref<Object> Deque::deqTask() {
 ref<Object> Deque::popTask() {
     int s = sp;
     while (s != base) {
-        ref<Object> *q = queue;
-        int mask = queueCapacity - 1;
+        Slots *q = queue;
+        int mask = q->capacity - 1;
         int i = (s - 1) & mask;
-        ref<Object> t = q[i];
+        ref<Object> t = q->data[i];
         if (t.isNull() || !casSlotNull(q, i, t))
             break;
         storeSp(s - 1);
@@ -92,8 +93,8 @@ ref<Object> Deque::popTask() {
 }
                 
 ref<Object> Deque::peekTask() {
-    ref<Object> *q = queue;
-    return q == NULL ? NULL : q[(sp - 1) & (queueCapacity - 1)];
+    Slots *q = queue;
+    return q == NULL ? NULL : q->data[(sp - 1) & (q->capacity - 1)];
 }
 
 int Deque::getQueueSize() {
