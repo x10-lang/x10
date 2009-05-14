@@ -26,7 +26,7 @@ import java.util.Set;
  * @author vj
  *
  */
-public class XConstraint_c implements XConstraint, Cloneable {
+public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
 
     /** Variable to use for self in the constraint. */
     XRoot self;
