@@ -12,8 +12,6 @@
 namespace x10 {
     namespace runtime {
 
-        class Lock;
-        
        /**
         * A Deque for use by the workstealing implementation.
         *
@@ -131,9 +129,6 @@ namespace x10 {
 
             volatile int sp;
             volatile int base;
-
-            // TEMPORARY: Used to debug Deque independent of CAS implementation
-            x10aux::ref<Lock> lock;
         };
     }
 }
