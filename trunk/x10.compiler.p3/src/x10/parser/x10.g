@@ -955,7 +955,6 @@ public static class MessageHandler implements IMessageHandler {
           }
           $EndJava
         ./
-        
 
     PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
         /.$BeginJava
@@ -1326,6 +1325,32 @@ public static class MessageHandler implements IMessageHandler {
                    
     FieldDeclaration ::= FieldModifiersopt FieldKeyword FieldDeclarators ;
         /.$BeginJava
+                        FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
+        
+                    List l = new TypedList(new LinkedList(), ClassMember.class, false);
+                        for (Iterator i = FieldDeclarators.iterator(); i.hasNext(); )
+                        {
+                            Object[] o = (Object[]) i.next();
+                            Position pos = (Position) o[0];
+                            Id name = (Id) o[1];
+                            if (name == null) name = nf.Id(pos, Name.makeFresh());
+                            List exploded = (List) o[2];
+                            TypeNode type = (TypeNode) o[3];
+                            if (type == null) type = nf.UnknownTypeNode(name.position());
+                            Expr init = (Expr) o[4];
+                            FieldDecl ld = nf.FieldDecl(pos, fn,
+                                               type, name, init);
+                            ld = (FieldDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(FieldModifiersopt));
+                            l.add(ld);
+                        }
+                    setResult(l);
+          $EndJava
+        ./
+        
+                   
+                       | FieldModifiersopt FieldDeclarators ;
+        /.$BeginJava
+                        List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
                         FlagsNode fn = extractFlags(FieldModifiersopt, FieldKeyword);
         
                     List l = new TypedList(new LinkedList(), ClassMember.class, false);
