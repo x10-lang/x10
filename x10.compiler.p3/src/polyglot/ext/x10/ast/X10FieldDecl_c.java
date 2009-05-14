@@ -53,24 +53,12 @@ import polyglot.visit.TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
-    DepParameterExpr guard;
-
-    public X10FieldDecl_c(Position pos, DepParameterExpr guard, FlagsNode flags, TypeNode type,
+    public X10FieldDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, type, name, init);
-        this.guard = guard;
     }
     
-    protected X10FieldDecl_c(Position pos,  FlagsNode flags, TypeNode type,
-            Id name, Expr init) {
-        this(pos, null, flags, type, name, init);
-    }
-    
-    public DepParameterExpr guard() {
-        return guard;
-    }
-
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.type) {
 			X10Context xc = (X10Context) c.pushBlock();
@@ -82,21 +70,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		Context cc = super.enterChildScope(child, c);
 		return cc;
 	}
-
-    public X10FieldDecl guard(DepParameterExpr guard) {
-        if (guard == this.guard)
-            return this;
-        X10FieldDecl_c n = (X10FieldDecl_c) copy();
-        n.guard = guard;
-        return n;
-    }
-    
-    @Override
-    public Node visitSignature(NodeVisitor v) {
-        X10FieldDecl_c n = (X10FieldDecl_c) super.visitSignature(v);
-        DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
-        return n.guard(guard);
-    }
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         Node result = super.conformanceCheck(tc);
