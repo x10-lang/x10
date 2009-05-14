@@ -191,15 +191,6 @@ namespace x10aux {
             return _val == NULL;
         }
 
-        /* TODO: come back to this later once i find out why we need it [DC]
-        bool operator==(const T* val) const {
-            return _val == val;
-        }
-        bool operator!=(const T* val) const {
-            return _val != val;
-        }
-        */
-
         // trivial operations that compare the contents of the two refs
         bool operator==(const ref<T>& _ref) const { return _val == _ref._val; }
         bool operator!=(const ref<T>& _ref) const { return _val != _ref._val; }
