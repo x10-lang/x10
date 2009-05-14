@@ -65,7 +65,10 @@ public class LineNumberMap {
      * @return X10 filename
      */
     public String getSourceFile(int lineNumber) {
-        return files.get(map.get(lineNumber).fileId);
+        Entry entry = map.get(lineNumber);
+        if (entry == null)
+        	return null;
+		return files.get(entry.fileId);
     }
 
     /**
@@ -73,7 +76,10 @@ public class LineNumberMap {
      * @return X10 line number
      */
     public int getSourceLine(int lineNumber) {
-        return map.get(lineNumber).line;
+        Entry entry = map.get(lineNumber);
+        if (entry == null)
+        	return -1;
+		return entry.line;
     }
 
     public String toString() {
