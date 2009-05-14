@@ -589,10 +589,10 @@ public class X10NodeFactory_c extends NodeFactory_c implements X10NodeFactory {
 		return n;
 	}
 
-	public FieldDecl FieldDecl(Position pos, DepParameterExpr guard, FlagsNode flags, TypeNode type,
+	public FieldDecl FieldDecl(Position pos, FlagsNode flags, TypeNode type,
 							   Id name, Expr init)
 	{
-		FieldDecl n = new X10FieldDecl_c(pos, guard, flags, type, name, init);
+		FieldDecl n = new X10FieldDecl_c(pos, flags, type, name, init);
 		n = (FieldDecl) n.ext(extFactory().extFieldDecl());
 		n = (FieldDecl) n.del(delFactory().delFieldDecl());
 		return n;

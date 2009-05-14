@@ -258,6 +258,10 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 		methodNameMap.put(LE, "$le");
 		methodNameMap.put(GE, "$ge");
 		
+		// these should not be overridable
+		methodNameMap.put(EQ, "$eq");
+		methodNameMap.put(NE, "$ne");
+		
 		String methodName = methodNameMap.get(op);
 		if (methodName == null)
 		    return null;
@@ -266,6 +270,8 @@ public class X10Binary_c extends Binary_c implements X10Binary {
 	
 	public static Name invBinaryMethodName(Binary.Operator op) {
 	    Name n = binaryMethodName(op);
+	    if (n == null)
+	        return null;
 	    return Name.make("inv" + n.toString());
 	}
 

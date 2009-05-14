@@ -30,8 +30,11 @@
     import java.util.Iterator;
     import java.util.LinkedList;
     import java.util.List;
+    import java.util.Arrays;
     import java.io.File;
 
+    import polyglot.ext.x10.ast.X10Binary_c;
+    import polyglot.ext.x10.ast.X10Unary_c;
     import polyglot.types.QName;
     import polyglot.types.Name;
     import polyglot.ast.AmbExpr;
@@ -121,6 +124,7 @@
     import polyglot.util.InternalCompilerError;
     import polyglot.util.Position;
     import polyglot.util.TypedList;
+    import polyglot.util.CollectionUtil;
 
     import lpg.runtime.BacktrackingParser;
     import lpg.runtime.BadParseException;
@@ -320,7 +324,7 @@
             this.source = source;
             this.eq = q;
         }
-
+        
         public $action_type(ILexStream lexStream, TypeSystem t, NodeFactory n, FileSource source, ErrorQueue q)
         {
             this(lexStream);
@@ -453,6 +457,12 @@ public static class MessageHandler implements IMessageHandler {
                 return new String(prsStream.getInputChars(), offset(), endOffset() - offset() + 1);
             }
         }
+        
+        public void syntaxError(String msg, Position pos) {
+                    unrecoverableSyntaxError = true;
+                    eq.enqueue(ErrorInfo.SYNTAX_ERROR, msg, pos);
+                }   
+        
 
         public $ast_class parse() {
             try
@@ -933,7 +943,6 @@ public static class MessageHandler implements IMessageHandler {
               else {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
-              
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
               Identifier,
               TypeParametersopt,
@@ -946,6 +955,7 @@ public static class MessageHandler implements IMessageHandler {
           }
           $EndJava
         ./
+        
 
     PropertyMethodDeclaration ::= MethodModifiersopt property Identifier TypeParametersopt FormalParameters WhereClauseopt ResultTypeopt Throwsopt MethodBody
         /.$BeginJava
@@ -1326,11 +1336,10 @@ public static class MessageHandler implements IMessageHandler {
                             Id name = (Id) o[1];
                             if (name == null) name = nf.Id(pos, Name.makeFresh());
                             List exploded = (List) o[2];
-                            DepParameterExpr guard = (DepParameterExpr) o[3];
-                            TypeNode type = (TypeNode) o[4];
+                            TypeNode type = (TypeNode) o[3];
                             if (type == null) type = nf.UnknownTypeNode(name.position());
-                            Expr init = (Expr) o[5];
-                            FieldDecl ld = nf.FieldDecl(pos, guard, fn,
+                            Expr init = (Expr) o[4];
+                            FieldDecl ld = nf.FieldDecl(pos, fn,
                                                type, name, init);
                             ld = (FieldDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(FieldModifiersopt));
                             l.add(ld);
@@ -3244,14 +3253,14 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
     
-    FieldDeclarator ::= Identifier WhereClauseopt : Type
+    FieldDeclarator ::= Identifier : Type
         /.$BeginJava
-                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, WhereClauseopt, Type, null });
+                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, Type, null });
           $EndJava
         ./
-                         | Identifier WhereClauseopt ResultTypeopt = VariableInitializer
+                         | Identifier ResultTypeopt = VariableInitializer
         /.$BeginJava
-                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, WhereClauseopt, ResultTypeopt, VariableInitializer });
+                    setResult(new Object[] { pos(), Identifier, Collections.EMPTY_LIST, ResultTypeopt, VariableInitializer });
           $EndJava
         ./
                     
@@ -4360,6 +4369,125 @@ public static class MessageHandler implements IMessageHandler {
         /.$NullAction./
                        | ,
 
+    PrefixOp ::= +
+        /.$BeginJava
+                    setResult(Unary.POS);
+          $EndJava
+        ./
+      | -
+        /.$BeginJava
+                    setResult(Unary.NEG);
+          $EndJava
+        ./
+      | !
+        /.$BeginJava
+                    setResult(Unary.NOT);
+          $EndJava
+        ./
+      | ~
+        /.$BeginJava
+                    setResult(Unary.BIT_NOT);
+          $EndJava
+        ./
+        
+    BinOp ::= +
+        /.$BeginJava
+                    setResult(Binary.ADD);
+          $EndJava
+        ./
+      | -
+        /.$BeginJava
+                    setResult(Binary.SUB);
+          $EndJava
+        ./
+      | *
+        /.$BeginJava
+                    setResult(Binary.MUL);
+          $EndJava
+        ./
+      | /
+        /.$BeginJava
+                    setResult(Binary.DIV);
+          $EndJava
+        ./
+      | %
+        /.$BeginJava
+                    setResult(Binary.MOD);
+          $EndJava
+        ./
+      | &
+        /.$BeginJava
+                    setResult(Binary.BIT_AND);
+          $EndJava
+        ./
+      | '|'
+        /.$BeginJava
+                    setResult(Binary.BIT_OR);
+          $EndJava
+        ./
+      | ^
+        /.$BeginJava
+                    setResult(Binary.BIT_XOR);
+          $EndJava
+        ./
+      | &&
+        /.$BeginJava
+                    setResult(Binary.COND_AND);
+          $EndJava
+        ./
+      | '||'
+        /.$BeginJava
+                    setResult(Binary.COND_OR);
+          $EndJava
+        ./
+      | <<
+        /.$BeginJava
+                    setResult(Binary.SHL);
+          $EndJava
+        ./
+      | >>
+        /.$BeginJava
+                    setResult(Binary.SHR);
+          $EndJava
+        ./
+      | >>>
+        /.$BeginJava
+                    setResult(Binary.USHR);
+          $EndJava
+        ./
+      | >=
+        /.$BeginJava
+                    setResult(Binary.GE);
+          $EndJava
+        ./
+      | <=
+        /.$BeginJava
+                    setResult(Binary.LE);
+          $EndJava
+        ./
+      | >
+        /.$BeginJava
+                    setResult(Binary.GT);
+          $EndJava
+        ./
+      | <
+        /.$BeginJava
+                    setResult(Binary.LT);
+          $EndJava
+        ./
+        
+      -- FIXME: == and != shouldn't be allowed to be overridden.
+              
+      | ==
+        /.$BeginJava
+                    setResult(Binary.EQ);
+          $EndJava
+        ./
+      | !=
+        /.$BeginJava
+                    setResult(Binary.NE);
+          $EndJava
+        ./
 %End
 
 %Types
@@ -4570,4 +4698,6 @@ public static class MessageHandler implements IMessageHandler {
     Expr ::= SubtypeConstraint
     Expr ::= RangeExpression
     TypeDecl ::= TypeDefDeclaration
+    Binary.Operator ::= BinOp
+    Unary.Operator ::= PrefixOp
 %End

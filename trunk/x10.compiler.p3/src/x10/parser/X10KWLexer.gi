@@ -115,6 +115,7 @@
     now
     null
     or
+    operator
     package
     private
     property
@@ -462,6 +463,12 @@
               | n u l l
         /.$BeginAction
                 $setResult($_null);
+          $EndAction
+        ./
+
+              | o p e r a t o r
+        /.$BeginAction
+                $setResult($_operator);
           $EndAction
         ./
 
