@@ -7,6 +7,7 @@
 #ifndef X10_RUNTIME_DEQUE_H
 #define X10_RUNTIME_DEQUE_H
 
+#include <x10rt17.h>
 #include <x10/lang/Ref.h>
 
 namespace x10 {
@@ -47,8 +48,6 @@ namespace x10 {
 
             x10aux::ref<Deque> _constructor();
 
-            ~Deque() { _destructor(); }
-
         private:
             class Slots {
             public:
@@ -57,24 +56,33 @@ namespace x10 {
             };
 
             
-            void _destructor();
-
             /**
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
              */
-            void setSlot(Slots *q, int i, x10aux::ref<x10::lang::Object> t);
+            inline void setSlot(Slots *q, int i, x10aux::ref<x10::lang::Object> t) {
+                q->data[i] = t;
+                x10aux::atomic_ops::store_store_barrier();
+            }
+
 
             /**
              * CAS given slot of q to null. Caller must ensure q is nonnull
              * and index is in range.
              */
-            bool casSlotNull(Slots *q, int i, x10aux::ref<x10::lang::Object> t);
+            inline bool casSlotNull(Slots *q, int i, x10aux::ref<x10::lang::Object> t) {
+                void *unwrapped = (void*)t.get();
+                void *oldValue = x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&(q->data[i]), unwrapped, NULL);
+                return oldValue == unwrapped;
+            }
 
             /**
              * Sets sp in store-order.
              */
-            void storeSp(int s);
+            inline void storeSp(int s) {
+                sp = s;
+                x10aux::atomic_ops::store_store_barrier();
+            }
 
             /**
              * Doubles queue array size. Transfers elements by emulating
@@ -106,12 +114,18 @@ namespace x10 {
             /**
              * Returns next task to pop.
              */
-            x10aux::ref<x10::lang::Object> peekTask();
+            inline x10aux::ref<x10::lang::Object> peekTask() {
+                Slots *q = queue;
+                return q == NULL ? NULL : q->data[(sp - 1) & (q->capacity - 1)];
+            }
 
             /**
              * Returns an estimate of the number of tasks in the queue.
              */
-            int getQueueSize();
+            inline int getQueueSize() {
+                int n = sp - base;
+                return n < 0 ? 0 : n; // suppress momentarily negative values
+            }
             
         private:
             /**

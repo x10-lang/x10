@@ -27,26 +27,6 @@ ref<Deque> Deque::_constructor() {
     return this;
 }
 
-void Deque::_destructor() {
-    x10aux::dealloc(queue);
-}
-
-void Deque::setSlot(Slots *q, int i, ref<Object> t) {
-    q->data[i] = t;
-    atomic_ops::store_store_barrier();
-}
-
-bool Deque::casSlotNull(Slots *q, int i, ref<Object> t) {
-    void *unwrapped = (void*)t.get();
-    void *oldValue = atomic_ops::compareAndSet_ptr((volatile void**)&(q->data[i]), unwrapped, NULL);
-    return oldValue == unwrapped;
-}
-
-void Deque::storeSp(int s) {
-    sp = s;
-    atomic_ops::store_store_barrier();
-}
-
 void Deque::growQueue() {
     Slots *oldQ = queue;
     int oldSize = oldQ->capacity;
@@ -116,15 +96,6 @@ ref<Object> Deque::popTask() {
     return NULL;
 }
                 
-ref<Object> Deque::peekTask() {
-    Slots *q = queue;
-    return q == NULL ? NULL : q->data[(sp - 1) & (q->capacity - 1)];
-}
-
-int Deque::getQueueSize() {
-    int n = sp - base;
-    return n < 0 ? 0 : n; // suppress momentarily negative values
-}
             
 DEFINE_RTT(Deque);
 
