@@ -253,12 +253,27 @@ public class X10CPPTranslator extends Translator {
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
 				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
-				lineNumberMap.put(w.currentStream().getLineNumber(), file, line);
+				int outputLine = w.currentStream().getLineNumber();
+				lineNumberMap.put(outputLine, file, line);
 			}
 		}
 
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
 		super.print(parent, n, w_);
+
+		if (n != null && n.position().endLine() > 0 && (n instanceof Block))
+		{
+			if (polyglot.ext.x10.Configuration.DEBUG) {
+				X10CPPContext_c c = (X10CPPContext_c)context;
+				HashMap<String, LineNumberMap> fileToLineNumberMap =
+					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+				int endLine = n.position().endLine();
+				String file = n.position().file();
+				int outputLine = w.currentStream().getLineNumber();
+				lineNumberMap.put(outputLine, file, endLine);
+			}
+		}
 	}
 
 	/**
