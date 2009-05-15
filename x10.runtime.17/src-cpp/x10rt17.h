@@ -21,6 +21,7 @@
 #include <x10aux/init_dispatcher.h>
 #include <x10aux/hash.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/atomic_ops.h>
 
 #include <x10aux/boolean_utils.h>
 #include <x10aux/byte_utils.h>
