@@ -762,4 +762,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return succs;
     }
 
+    protected ConstructorDecl createDefaultConstructor(ClassDef thisType,
+    		TypeSystem ts, NodeFactory nf) throws SemanticException
+    {
+        ConstructorDecl ctor = super.createDefaultConstructor(thisType, ts, nf);
+        return ctor.name(nf.Id(ctor.name().position(), "this"));
+    }
+
 } 
