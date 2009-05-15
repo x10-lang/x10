@@ -149,9 +149,8 @@ namespace x10aux {
 
         static inline x10_long compareAndSet_64(volatile x10_long* address, x10_long oldValue, x10_long newValue) {
 #if !defined(_LP64)
-            /* TODO: in theory on i586 hardware we could do this with inline asm and cmpxchg8b,
-             * but it isn't trivial to get the register constrants to work correctly.
-             * On ppc hardare in 32 bit mode, there is no way to do this without an external mutex.
+            /* TODO: in theory on i586 hardware we could do this with inline asm and cmpxchg8b instead of a mutex,
+             * but it isn't trivial to get the register constraints to work correctly.
              */
             lock();
             x10_long curValue = *address;
