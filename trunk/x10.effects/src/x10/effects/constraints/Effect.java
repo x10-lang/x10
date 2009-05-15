@@ -34,9 +34,14 @@ public interface Effect extends Cloneable {
 	 * @return true if this effect is associated with an @fun, false if it is associated with @parfun.
 	 */
 	boolean isFun();
-	Set<XTerm> readSet();
-	Set<XTerm> writeSet();
-	Set<XTerm> atomicIncSet();
+	/**
+	 * Comment out for now. Customers of this API should not need to
+	 * manipulate these.
+	
+	Set<Locs> readSet();
+	Set<Locs> writeSet();
+	Set<Locs> atomicIncSet();
+	*/
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint())
 	 * @param e
@@ -117,17 +122,17 @@ public interface Effect extends Cloneable {
 	 * Add t to the read set for this. Modified in place.
 	 * @param t
 	 */
-	void addRead(XTerm t);
+	void addRead(Locs t);
 	/**
 	 * Add t to the read set for this. Modified in place.
 	 * @param t
 	 */
-	void addWrite(XTerm t);
+	void addWrite(Locs t);
 	/**
 	 * Add t to the read set for this. Modified in place.
 	 * @param t
 	 */
-	void addAtomicInc(XTerm t);
+	void addAtomicInc(Locs t);
 	
 
 }

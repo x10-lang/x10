@@ -19,27 +19,27 @@ import x10.constraint.XVar;
  */
 public class Effect_c implements Effect {
 
-	protected Set<XTerm> readSet, writeSet, atomicIncSet;
+	protected Set<Locs> readSet, writeSet, atomicIncSet;
 	protected boolean isFun;
 
 	public Effect_c(boolean b) {
 		isFun = b;
-		readSet = new TreeSet<XTerm>();
-		writeSet = new TreeSet<XTerm>();
-		atomicIncSet = new TreeSet<XTerm>();
+		readSet = new TreeSet<Locs>();
+		writeSet = new TreeSet<Locs>();
+		atomicIncSet = new TreeSet<Locs>();
 	}
 	
 	public Effect_c clone() {
 		try {
 		Effect_c result = (Effect_c) super.clone();
 		result.isFun=isFun;
-		result.readSet = new TreeSet<XTerm>();
+		result.readSet = new TreeSet<Locs>();
 		result.readSet.addAll(readSet());
 		
-		result.writeSet = new TreeSet<XTerm>();
+		result.writeSet = new TreeSet<Locs>();
 		result.writeSet.addAll(writeSet());
 		
-		result.atomicIncSet = new TreeSet<XTerm>();
+		result.atomicIncSet = new TreeSet<Locs>();
 		result.atomicIncSet.addAll(atomicIncSet());
 		return result;
 		
@@ -52,7 +52,7 @@ public class Effect_c implements Effect {
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#atomicIncSet()
 	 */
-	public Set<XTerm> atomicIncSet() {
+	public Set<Locs> atomicIncSet() {
 		return atomicIncSet;
 	}
 
@@ -122,7 +122,7 @@ public class Effect_c implements Effect {
 	 */
 	public Effect makeFun() {
 		Effect_c result = clone();
-		result.isFun = Factory.FUN;
+		result.isFun = Effects.FUN;
 		return result;
 	}
 
@@ -131,30 +131,30 @@ public class Effect_c implements Effect {
 	 */
 	public Effect makeParFun() {
 		Effect_c result = clone();
-		result.isFun = Factory.PAR_FUN;
+		result.isFun = Effects.PAR_FUN;
 		return result;
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#readSet()
 	 */
-	public Set<XTerm> readSet() {
+	public Set<Locs> readSet() {
 		return readSet;
 	}
 
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#writeSet()
 	 */
-	public Set<XTerm> writeSet() {
+	public Set<Locs> writeSet() {
 		return writeSet;
 	}
-	public void addRead(XTerm t) {
+	public void addRead(Locs t) {
 		readSet.add(t);
 	}
-	public void addWrite(XTerm t) {
+	public void addWrite(Locs t) {
 		writeSet.add(t);
 	}
-	public void addAtomicInc(XTerm t) {
+	public void addAtomicInc(Locs t) {
 		atomicIncSet.add(t);
 	}
 
