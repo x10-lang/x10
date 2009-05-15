@@ -149,7 +149,8 @@ ALL_XRCPP_OBJECTS = \
 	x10/runtime/Deque.o \
 	x10/runtime/InterruptedException.o \
 	x10/runtime/Lock.o \
-	x10/runtime/Thread.o 
+	x10/runtime/Thread.o \
+	x10/util/concurrent/atomic/AtomicInteger.o 
 
 
 $(XRCPP_ARCHIVE): $(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
