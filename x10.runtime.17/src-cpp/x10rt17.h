@@ -86,6 +86,7 @@
 #include <x10/runtime/InterruptedException.h>
 
 #include <x10/util/GrowableRail.h>
+#include <x10/util/concurrent/atomic/AtomicInteger.h>
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
