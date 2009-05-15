@@ -14,6 +14,7 @@ import java.util.List;
 import polyglot.ast.Call_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
+import polyglot.ast.Local;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
@@ -25,7 +26,6 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MemberDef;
-import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -34,27 +34,24 @@ import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
-import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
-import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.UnknownType;
 import polyglot.util.CollectionUtil;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 
 /**
@@ -232,8 +229,8 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 		Expr cc = null;
 		
-		try {
-			// Check if target.name is a field or local of function type; if so, convert to a closure call.
+		{
+		    // Check if target.name is a field or local of function type; if so, convert to a closure call.
 			X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 			X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
@@ -265,12 +262,22 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 				X10MethodInstance ci = (X10MethodInstance) ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking closure call."));
 				ccx = ccx.closureInstance(ci);
 				Node n = ccx;
-				n = n.del().disambiguate(tc);
-				n = n.del().typeCheck(tc);
-				cc = (Expr) n;
+				try {
+				    n = n.del().disambiguate(tc);
+				    n = n.del().typeCheck(tc);
+				    cc = (Expr) n;
+				}
+				catch (SemanticException ex) {
+				    // Check for this case:
+				    // val x = x();
+				    if (e instanceof Local && e.type() instanceof UnknownType) {
+				        throw new SemanticException("Possible closure call on uninitialized variable " + ((Local) e).name() + ".", position());
+				    }
+				    else {
+				        // fall through to method call case.
+				    }
+				}
 			}
-		}
-		catch (SemanticException e) {
 		}
 
 		/////////////////////////////////////////////////////////////////////
