@@ -51,6 +51,8 @@ public interface XConstraint extends java.io.Serializable {
 	 * @throws XFailure
 	 */
 	boolean entails(XConstraint c) throws XFailure;
+	
+	boolean entails(XTerm a, XTerm b) throws XFailure;
 
 	/**
 	 * Do the two constraints entail each other?

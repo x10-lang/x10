@@ -494,7 +494,7 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
     }
 
     /** Return true if this constraint entails that t1==t2. */
-    private boolean entails(XTerm t1, XTerm t2) throws XFailure {
+    public boolean entails(XTerm t1, XTerm t2) throws XFailure {
         if (!consistent)
             return true;
         
