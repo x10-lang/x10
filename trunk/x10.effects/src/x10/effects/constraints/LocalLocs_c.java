@@ -26,4 +26,9 @@ public class LocalLocs_c extends Locs_c implements LocalLocs {
 		LocalLocs_c o = (LocalLocs_c) other;
 		return local.equals(o.local());
 	}
+
+	@Override
+	public String toString() {
+	    return local.name().toString();
+	}
 }

@@ -27,4 +27,8 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 		}
 	}
 
+	@Override
+	public String toString() {
+	    return designator.toString();
+	}
 }
