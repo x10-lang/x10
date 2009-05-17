@@ -29,4 +29,8 @@ public class ArrayElementLocs_c extends Locs_c implements ArrayElementLocs {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+	    return a.toString() + "[" + t + "]";
+	}
 }
