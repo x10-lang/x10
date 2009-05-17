@@ -71,7 +71,7 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static Locs makeLocalLocs(XLocal x) {
+	public static LocalLocs makeLocalLocs(XLocal x) {
 		return new LocalLocs_c(x);
 	}
 	
