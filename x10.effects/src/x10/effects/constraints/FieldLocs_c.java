@@ -26,4 +26,8 @@ public class FieldLocs_c extends Locs_c implements FieldLocs {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+	    return obj.toString() + "." + fieldName.toString();
+	}
 }
