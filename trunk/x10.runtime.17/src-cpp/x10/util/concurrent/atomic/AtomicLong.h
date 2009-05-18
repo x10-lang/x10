@@ -102,7 +102,7 @@ namespace x10 {
                     }
 	
                     x10aux::ref<x10::lang::String> toString() {
-                        return x10aux::int_utils::toString(_val);
+                        return x10aux::long_utils::toString(_val);
                     }
 
                     x10_int intValue() {
