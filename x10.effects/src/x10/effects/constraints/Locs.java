@@ -1,6 +1,8 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 /**
  * Locs represents a set of mutable locations in the source code corresponding
  * to a single source expression -- 
@@ -32,5 +34,26 @@ public interface Locs {
 	 * @return
 	 */
 	boolean disjointFrom(Locs other, XConstraint c);
+	
+	/**
+	 * Return the term underlying this Locs.
+	 */
+	
+	// XTerm term();
+	/**
+	 * Does the XTerm underlying this Locs contain t as a subterm.
+	 * @param t
+	 * @return
+	 */
+	//boolean hasSubterm(XTerm t);
+	
+	/**
+	 * Let u be the term underlying this. Return a new Locs whose underlying term 
+	 * is u[ t / s ], i.e. u with t replacing s.
+	 * @param l
+	 * @param t
+	 * @return
+	 */
+	Locs substitute(XTerm t, XRoot s);
 
 }

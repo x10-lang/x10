@@ -75,6 +75,8 @@ public class Effects {
 		return new LocalLocs_c(x);
 	}
 	
+
+	
 	/**
 	 * Returns a Locs corresponding to the local variable
 	 * designated by x. 
@@ -83,12 +85,12 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static FieldLocs makeFieldLocs(ObjLocs o, XName field) {
+	public static FieldLocs makeFieldLocs(XTerm o, XName field) {
 		return new FieldLocs_c(o, field);
 	}
 	
-	public static ArrayElementLocs makeArrayElementLocs(ArrayLocs o, Index t) {
-		return new ArrayElementLocs_c(o, t);
+	public static ArrayElementLocs makeArrayElementLocs(XTerm a, XTerm t) {
+		return new ArrayElementLocs_c(a, t);
 	}
 
 }

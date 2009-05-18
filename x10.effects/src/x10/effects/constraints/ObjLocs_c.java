@@ -2,6 +2,7 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 
 /**
@@ -16,15 +17,22 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 		super(d);
 	}
 
+	public Locs substitute(XTerm t, XRoot s) {
+		XTerm old = designator();
+		XTerm result = old.subst(t, s);
+		return (result.equals(old)) ? this : Effects.makeObjLocs(result);
+	}
+	
 	// TODO: Should really be return c.disEntails(designator(), o.designator())
 	public boolean disjointFrom(Locs other, XConstraint c) {
-		if (! (other instanceof ObjLocs_c)) return true;
-		ObjLocs_c o = (ObjLocs_c) other;
 		try {
-			return ! c.entails(designator(), o.designator());
+			if (other instanceof ObjLocs) {
+				return ! c.entails(designator(), ((ObjLocs) other).designator());
+			}
 		} catch (XFailure z) {
 			return false;
 		}
+		return true;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package x10.effects.constraints;
 
 import x10.constraint.XName;
+import x10.constraint.XTerm;
 
 /**
  * A field represents the mutable location o.f where o is an object
@@ -8,8 +9,8 @@ import x10.constraint.XName;
  * @author vj
  *
  */
-public interface FieldLocs extends Locs {
-	ObjLocs obj();
+public interface FieldLocs extends Locs, RigidTerm {
+	XTerm obj();
 	XName field();
 
 }
