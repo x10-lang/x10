@@ -86,6 +86,7 @@
 #include <x10/runtime/InterruptedException.h>
 
 #include <x10/util/GrowableRail.h>
+#include <x10/util/concurrent/atomic/AtomicBoolean.h>
 #include <x10/util/concurrent/atomic/AtomicInteger.h>
 #include <x10/util/concurrent/atomic/AtomicLong.h>
 
