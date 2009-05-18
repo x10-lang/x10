@@ -19,8 +19,8 @@ using namespace x10::runtime;
 using namespace x10aux;
 
 ref<Deque> Deque::_constructor() {
-    queue = x10aux::alloc<Slots>(sizeof(Slots) + (INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>)));
-    memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(ref<Object>)));
+    queue = x10aux::alloc<Slots>(sizeof(Slots) + (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
+    memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
     queue->capacity = INITIAL_QUEUE_CAPACITY;
     sp = 0;
     base = 0;
@@ -34,8 +34,8 @@ void Deque::growQueue() {
     if (newSize > MAXIMUM_QUEUE_CAPACITY) {
         assert(false); /* throw new RuntimeException("Queue capacity exceeded"); */
     }
-    Slots *newQ = x10aux::alloc<Slots>(sizeof(Slots) + (newSize * sizeof(ref<Object>)));
-    memset(newQ->data, 0, (newSize * sizeof(ref<Object>)));
+    Slots *newQ = x10aux::alloc<Slots>(sizeof(Slots) + (newSize * sizeof(void*)));
+    memset(newQ->data, 0, (newSize * sizeof(void*)));
     newQ->capacity = newSize;
     queue = newQ;
     
@@ -45,9 +45,9 @@ void Deque::growQueue() {
     int newMask = newSize - 1;
     do {
         int oldIndex = b & oldMask;
-        ref<Object> t = oldQ->data[oldIndex];
-        if (t != null && !casSlotNull(oldQ, oldIndex, t)) {
-            t = null;
+        Object *t = (Object*)(oldQ->data[oldIndex]);
+        if (t != NULL && !casSlotNull(oldQ, oldIndex, t)) {
+            t = NULL;
         }
         setSlot(newQ, b & newMask, t);
     } while (++b != bf);
@@ -57,7 +57,7 @@ void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
     Slots *q = queue;
     int mask = q->capacity - 1;
     int s = sp;
-    setSlot(q, s & mask, t);
+    setSlot(q, s & mask, t.get());
     storeSp(++s);
     if ((s -= base) == 1) {
         ;
@@ -67,13 +67,13 @@ void Deque::pushTask(x10aux::ref<x10::lang::Object> t) {
 }
 
 ref<Object> Deque::deqTask() {
-    ref<Object> t;
+    Object *t;
     Slots *q;
     int i;
     int b;
     if (sp != (b = base) &&
-        (q = queue) != null && // must read q after b
-        (t = q->data[i = (q->capacity - 1) & b]) != null &&
+        (q = queue) != NULL && // must read q after b
+        (t = ((Object*)q->data[i = (q->capacity - 1) & b])) != NULL &&
         casSlotNull(q, i, t)) {
         base = b + 1;
         return t;
@@ -87,8 +87,8 @@ ref<Object> Deque::popTask() {
         Slots *q = queue;
         int mask = q->capacity - 1;
         int i = (s - 1) & mask;
-        ref<Object> t = q->data[i];
-        if (t.isNull() || !casSlotNull(q, i, t))
+        Object *t = (Object*)(q->data[i]);
+        if (t == NULL || !casSlotNull(q, i, t))
             break;
         storeSp(s - 1);
         return t;
