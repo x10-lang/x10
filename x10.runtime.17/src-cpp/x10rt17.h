@@ -87,6 +87,7 @@
 
 #include <x10/util/GrowableRail.h>
 #include <x10/util/concurrent/atomic/AtomicInteger.h>
+#include <x10/util/concurrent/atomic/AtomicLong.h>
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

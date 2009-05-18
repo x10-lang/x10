@@ -79,4 +79,3 @@ public class AtomicInteger {
 	@Native("c++", "(#0)->doubleValue()")
 	public native def doubleValue():double;
 }
- 
