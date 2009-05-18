@@ -16,7 +16,7 @@ namespace x10 {
        /**
         * A Deque for use by the workstealing implementation.
         *
-        * This code is derived from a Java implementation that was 
+        * Some code of this class is derived from a Java implementation that was 
         * written by Doug Lea with assistance from members of JCP JSR-166
         * Expert Group and released to the public domain, as explained at
         * http://creativecommons.org/licenses/publicdomain
@@ -52,7 +52,7 @@ namespace x10 {
             class Slots {
             public:
                 x10_int capacity;
-                x10aux::ref<x10::lang::Object> data[1];
+                volatile void* data[1];
             };
 
             
@@ -60,7 +60,7 @@ namespace x10 {
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
              */
-            inline void setSlot(Slots *q, int i, x10aux::ref<x10::lang::Object> t) {
+            inline void setSlot(Slots *q, int i, x10::lang::Object *t) {
                 q->data[i] = t;
                 x10aux::atomic_ops::store_store_barrier();
             }
@@ -70,10 +70,8 @@ namespace x10 {
              * CAS given slot of q to null. Caller must ensure q is nonnull
              * and index is in range.
              */
-            inline bool casSlotNull(Slots *q, int i, x10aux::ref<x10::lang::Object> t) {
-                void *unwrapped = (void*)t.get();
-                void *oldValue = x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&(q->data[i]), unwrapped, NULL);
-                return oldValue == unwrapped;
+            inline bool casSlotNull(Slots *q, int i, x10::lang::Object* t) {
+                return x10aux::atomic_ops::compareAndSet_ptr(&(q->data[i]), t, NULL) == t;
             }
 
             /**
@@ -116,7 +114,7 @@ namespace x10 {
              */
             inline x10aux::ref<x10::lang::Object> peekTask() {
                 Slots *q = queue;
-                return q == NULL ? NULL : q->data[(sp - 1) & (q->capacity - 1)];
+                return q == NULL ? NULL : (x10::lang::Object*)(q->data[(sp - 1) & (q->capacity - 1)]);
             }
 
             /**
