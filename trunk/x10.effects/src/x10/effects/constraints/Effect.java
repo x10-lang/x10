@@ -34,14 +34,12 @@ public interface Effect extends Cloneable {
 	 * @return true if this effect is associated with an @fun, false if it is associated with @parfun.
 	 */
 	boolean isFun();
-	/**
-	 * Comment out for now. Customers of this API should not need to
-	 * manipulate these.
+	
 	
 	Set<Locs> readSet();
 	Set<Locs> writeSet();
 	Set<Locs> atomicIncSet();
-	*/
+	
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint())
 	 * @param e
@@ -65,7 +63,7 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	boolean commutesWithForall(XVar x);
+	boolean commutesWithForall(XLocal x);
 	
 	/**
 	 * Given constraint c, does this commute with a copy of itself under the assumption that x varies? This is
@@ -75,7 +73,7 @@ public interface Effect extends Cloneable {
 	 * @param e
 	 * @return
 	 */
-	boolean commutesWithForall(XVar x, XConstraint c);
+	boolean commutesWithForall(XLocal x, XConstraint c);
 	
 	/**
 	 * Return the Effect obtained by quantifying the current effect for all values of x. Essentially, 
@@ -84,14 +82,30 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	Effect forall(XVar x);
+	Effect forall(XLocal x);
 	
 	/**
-	 * Return the Effect obtained by eliminating the variable x from this. Essentially, all terms
+	 * Return the Effect obtained by eliminating the variable x from this. 
+	 * Essentially, all Locs in the various sets associated with this whose
+	 * underlying term s contains the term underlying x is replaced by a new
+	 * Loc whose underlying term is s [ t / x ]. Should be called to propagate
+	 * the current effect through val x = t.
 	 * @param x
 	 * @return
 	 */
-	Effect exists(XVar x);
+	Effect exists(XLocal x, XTerm t);
+	
+	/**
+	 * Return the Effect obtained by eliminating the variable x from this. 
+	 * Should be called to propagate the current effect through var x = ....
+	 * (As of 05/18/09 implementation assumes that only rigid terms 
+	 * can be used in effect sets, hence the only term in the effect sets
+	 * that can be affected is x itself. So this is implemented simply by 
+	 * deleting x from all the effect sets.)
+	 * @param x
+	 * @return
+	 */
+	Effect exists(LocalLocs x);
 	
 	/**
 	 * Given constraint c, return the effect this; e, using the rules for sequential composition of effect annotations.
@@ -133,6 +147,8 @@ public interface Effect extends Cloneable {
 	 * @param t
 	 */
 	void addAtomicInc(Locs t);
+	
+	Effect substitute(XTerm t, XRoot r);
 	
 
 }
