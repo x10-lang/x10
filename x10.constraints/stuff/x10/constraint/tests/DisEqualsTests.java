@@ -19,6 +19,7 @@ public class DisEqualsTests extends TestCase {
 	XTerm zero = XTerms.makeLit(new Integer(0));
 	XTerm one = XTerms.makeLit(new Integer(1));
 	XTerm two = XTerms.makeLit(new Integer(2));
+	XTerm NULL = XTerms.makeLit(null);
 	XVar v0 = XTerms.makeLocal(XTerms.makeName("v0"));
 	XVar v1 = XTerms.makeLocal(XTerms.makeName("v1"));
 	XVar v2 = XTerms.makeLocal(XTerms.makeName("v2"));
@@ -120,6 +121,42 @@ public class DisEqualsTests extends TestCase {
 		
 		boolean b = c.disEntails(v0,v2);
 		assertTrue(b);
+	}
+	// |- 0 != 1
+	public void test8() throws Throwable {
+		XConstraint c = new XConstraint_c();
+		boolean b = c.disEntails(zero,one);
+		assertTrue(b);
+	}
+	
+	// |/- 0 != 0
+	public void test9() throws Throwable {
+		XConstraint c = new XConstraint_c();
+		boolean b = c.disEntails(zero,zero);
+		assertFalse(b);
+	}
+	
+	//  v != null |- v != null
+	public void test10() throws Throwable {
+		XConstraint c = new XConstraint_c();
+		c.addDisBinding(v0,NULL);
+		
+		boolean b = c.disEntails(v0, NULL);
+		assertTrue(b);
+	}
+
+	//  v0 == v1, v0 != v1 |- v2==v3
+	public void test11() throws Throwable {
+		try {
+			XConstraint c = new XConstraint_c();
+			c.addDisBinding(v0,v1);
+			c.addBinding(v0, v1);
+			assertTrue(false);
+		} catch (XFailure z) {
+			assertTrue(true);
+			return;
+		}
+		assertTrue(false);
 	}
 
 
