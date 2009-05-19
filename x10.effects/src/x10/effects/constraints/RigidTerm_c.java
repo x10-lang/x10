@@ -24,7 +24,7 @@ public class RigidTerm_c implements RigidTerm {
 	}
 	
 	public boolean equals(RigidTerm other, XConstraint c) {
-		if (! (other instanceof Index_c)) return false;
+		if (! (other instanceof RigidTerm_c)) return false;
 		RigidTerm_c o = (RigidTerm_c) other;
 		try {
 			return c.entails(designator(), o.designator());

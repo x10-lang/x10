@@ -29,13 +29,13 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 		try {
 			if (other instanceof ObjLocs) {
 				ObjLocs o = (ObjLocs) other;
-				return (! c.entails(obj(), o.designator()));
+				return (c.disEntails(obj(), o.designator()));
 			}
 			if  (other instanceof FieldLocs) {
 				FieldLocs o = (FieldLocs) other;
-
-				if (c.entails(obj(), o.obj()))
-					return ! fieldName.equals(o.field());
+				if (c.disEntails(obj(), o.obj()))
+					return true;
+				return ! fieldName.equals(o.field());
 			}
 		} catch (XFailure f) {
 			//hmm this should be an error.

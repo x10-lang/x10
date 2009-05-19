@@ -41,12 +41,13 @@ public class ArrayElementLocs_c extends RigidTerm_c implements ArrayElementLocs 
 		try {
 			if (other instanceof ArrayLocs) {
 				ArrayLocs o = (ArrayLocs) other;
-				return (! c.entails(array(), o.designator()));
+				return (c.disEntails(array(), o.designator()));
 			}
 			if (other instanceof ArrayElementLocs) {
 				ArrayElementLocs o = (ArrayElementLocs) other;
-				if (c.entails(array(), o.array())) 
-					return ! index().equals(o.index());
+				if (c.disEntails(array(), o.array()))
+					return true;
+				return c.disEntails(index(), o.index());
 			}
 		} catch (XFailure z) {
 			// hmm should not happen

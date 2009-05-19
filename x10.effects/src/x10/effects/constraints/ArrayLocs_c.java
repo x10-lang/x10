@@ -25,12 +25,11 @@ public class ArrayLocs_c extends RigidTerm_c implements ArrayLocs {
 		return (result.equals(old)) ? this : Effects.makeArrayLocs(result);
 	}
 	
-	// TODO: Should really be return c.disEntails(designator(), o.designator())
 	public boolean disjointFrom(Locs other, XConstraint c) {
 		try {
 			if (other instanceof ArrayLocs_c) {
 				ArrayLocs_c o = (ArrayLocs_c) other;
-				return ! c.entails(designator(), o.designator());
+				return c.disEntails(designator(), o.designator());
 			}
 		} catch (XFailure z) {
 			return false;

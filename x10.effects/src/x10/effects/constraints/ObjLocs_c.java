@@ -23,11 +23,10 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 		return (result.equals(old)) ? this : Effects.makeObjLocs(result);
 	}
 	
-	// TODO: Should really be return c.disEntails(designator(), o.designator())
 	public boolean disjointFrom(Locs other, XConstraint c) {
 		try {
 			if (other instanceof ObjLocs) {
-				return ! c.entails(designator(), ((ObjLocs) other).designator());
+				return c.disEntails(designator(), ((ObjLocs) other).designator());
 			}
 		} catch (XFailure z) {
 			return false;
