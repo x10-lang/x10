@@ -204,6 +204,7 @@ public final class ConstantPoolParser implements SnConstants {
             try {
                 int len = getInt(offset+1);
                 int count = len / CP_INDEX_SIZE;
+                offset += 5;
                 Object[] a = new Object[count];
                 for (int k = 0; k < count; k++) {
                     int index = getInt(offset);
@@ -212,7 +213,7 @@ public final class ConstantPoolParser implements SnConstants {
                     if (index == 0)
                         a[k] = null;
                     else {
-                        int kind = getByte(cpOffsets[k]);
+                        int kind = getByte(cpOffsets[index]);
                         switch (kind) {
                         case CONSTANT_Array:
                             a[k] = getCPArray(index);
@@ -226,6 +227,9 @@ public final class ConstantPoolParser implements SnConstants {
                         case CONSTANT_Float:
                             a[k] = getCPDouble(index);
                             break;
+                        case CONSTANT_Boolean:
+                        	a[k] = getCPBoolean(index);
+                        	break;
                         case CONSTANT_Integer:
                             a[k] = getCPInt(index);
                             break;
@@ -239,15 +243,17 @@ public final class ConstantPoolParser implements SnConstants {
                             a[k] = getCPType(index);
                             break;
                         case CONSTANT_Utf8:
-                            a[k] = getCPUtf8(index);
-                            break;
+                        	a[k] = getCPUtf8(index);
+                        	break;
+                        default:
+                        	throw new InvalidClassFileException(offset, "cp entry #" + index + " is not an array element.");
                         }
                     }
                 }
                 s = transform(a);
             }
             catch (IllegalArgumentException ex) {
-                throw new InvalidClassFileException(offset, "Invalid string at constant pool item #" + i + ": " + ex.getMessage());
+                throw new InvalidClassFileException(offset, "Invalid array at constant pool item #" + i + ": " + ex.getMessage());
             }
             cpItems[i] = s;
         }
@@ -391,15 +397,29 @@ public final class ConstantPoolParser implements SnConstants {
     /**
      * @return the value of the Integer at constant pool item i
      */
-    public int getCPInt(int i) throws InvalidClassFileException {
+    public boolean getCPBoolean(int i) throws InvalidClassFileException {
         if (i < 1 || i >= cpItems.length) {
             throw new IllegalArgumentException("Constant pool item #" + i + " out of range");
         }
         int offset = cpOffsets[i];
-        if (offset == 0 || getByte(offset) != CONSTANT_Integer) {
-            throw new IllegalArgumentException("Constant pool item #" + i + " is not an Integer");
+        if (offset == 0 || getByte(offset) != CONSTANT_Boolean) {
+            throw new IllegalArgumentException("Constant pool item #" + i + " is not a Boolean");
         }
-        return getInt(offset + 1);
+        return getByte(offset + 1) != 0;
+    }
+    
+    /**
+     * @return the value of the Integer at constant pool item i
+     */
+    public int getCPInt(int i) throws InvalidClassFileException {
+    	if (i < 1 || i >= cpItems.length) {
+    		throw new IllegalArgumentException("Constant pool item #" + i + " out of range");
+    	}
+    	int offset = cpOffsets[i];
+    	if (offset == 0 || getByte(offset) != CONSTANT_Integer) {
+    		throw new IllegalArgumentException("Constant pool item #" + i + " is not an Integer");
+    	}
+    	return getInt(offset + 1);
     }
 
     /**
@@ -577,6 +597,9 @@ public final class ConstantPoolParser implements SnConstants {
                 bytes.getCPIndex();
                 bytes.getCPIndex();
                 break;
+            case CONSTANT_Boolean:
+            	bytes.getByte();
+            	break;
             case CONSTANT_Integer:
                 bytes.getInt();
                 break;

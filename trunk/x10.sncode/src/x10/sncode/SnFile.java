@@ -10,16 +10,16 @@
  *******************************************************************************/
 package x10.sncode;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import x10.sncode.Container.Mapper;
-import x10.sncode.Tree.Branch;
 
 public class SnFile implements SnConstants {
     /** The constant pool */
-    ConstantPool cp;
+    private ConstantPool cp;
 
     /** Sn file major version. */
     int majorVersion;
@@ -71,14 +71,15 @@ public class SnFile implements SnConstants {
     }
     
     public void addClass(ClassEditor e) {
-        tree.add(e.makeTree());
+        Tree t = e.makeTree();
+		tree.add(t);
     }
 
     public List<ClassEditor> classes() throws InvalidClassFileException {
         return Container.mapList(tree.findAll("Class"), new Mapper<Tree, ClassEditor, InvalidClassFileException>() {
             @Override
             ClassEditor map(Tree s) throws InvalidClassFileException {
-                ClassEditor e = new ClassEditor();
+            	ClassEditor e = new ClassEditor();
                 e.readFrom(SnFile.this, s);
                 return e;
             }
@@ -100,7 +101,12 @@ public class SnFile implements SnConstants {
 
         int count = p.getCount();
         cp = new ConstantPool();
-        cp.setRawCP(new ConstantPoolParser(p, count));
+        
+        ByteBuffer p2 = new ByteBuffer(p.getBytes());
+        p2.seek(p.offset());
+        ConstantPoolParser cpp = new ConstantPoolParser(p2, count);
+		p.seek(p2.offset());
+        cp.setRawCP(cpp);
 
         Tree t = Tree.readFrom(this, p);
         if (t instanceof Tree.Branch)
@@ -163,4 +169,26 @@ public class SnFile implements SnConstants {
         else
             return new ArrayList<T>(l);
     }
+
+	public Tree.Branch tree() {
+		return tree;
+	}
+
+	public void setCp(ConstantPool cp) {
+		this.cp = cp;
+	}
+
+	public ConstantPool getConstantPool() {
+		return cp;
+	}
+
+	public void dump(PrintStream out) {
+		out.println("major: " + majorVersion);
+		out.println("minor: " + minorVersion);
+		out.println("constant pool:");
+		cp.dump(out);
+		out.println("tree:");
+		tree.dump(out);
+		out.println();
+	}
 }

@@ -5,15 +5,22 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import x10.sncode.Constraint.Term;
-
-public class FieldEditor extends MemberEditor {
+public class LocalEditor extends Container {
+    String name;
     Type type;
     Object value;
     boolean isConstant;
 
-    public FieldEditor() {
+    public LocalEditor() {
         super();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String n) {
+        name = n;
     }
 
     public Type getType() {
@@ -39,7 +46,7 @@ public class FieldEditor extends MemberEditor {
 
     @Override
     public Tree makeTree() {
-        Tree.Branch t = new Tree.Branch("Field", new Tree.Leaf("Name", name), new Tree.Leaf("Type", type));
+        Tree.Branch t = new Tree.Branch("Local", new Tree.Leaf("Name", name), new Tree.Leaf("Type", type));
         if (isConstant) {
             String ctype;
             if (value == null)
@@ -120,4 +127,9 @@ public class FieldEditor extends MemberEditor {
                 attributes.add(ti);
         }
     }
+
+	public void setFlags(List<String> flags) {
+		for (String f : flags)
+			attributes.add(new Tree.Leaf("Flag", f));
+	}
 }

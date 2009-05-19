@@ -5,87 +5,41 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class MethodEditor extends Container {
-    String name;
-    List<Type> typeArgs;
-    List<Type> args;
-    Type ret;
-    Constraint retConstraint;
-    List<Type> exceptions;
-    Constraint guard;
+import x10.sncode.Constraint.Term;
+
+public class MethodEditor extends ProcEditor {
     // int typeGuard;
-    Constraint body;
+    Term body;
 
     public MethodEditor() {}
 
-    public String getName() {
-        return name;
-    }
 
-    public void setName(String n) {
-        name = n;
-    }
-
-    public Type getReturnType() {
-        return ret;
-    }
-
-    public void setReturnType(Type t) {
-        ret = t;
-    }
-
-    public Constraint getReturnConstraint() {
-        return retConstraint;
-    }
-
-    public void setReturnConstraint(Constraint c) {
-        retConstraint = c;
-    }
-
-    public List<Type> getFormals() {
-        return args;
-    }
-
-    public void setFormals(Type[] t) {
-        setFormals(Arrays.asList(t));
-    }
-
-    public void setFormals(List<Type> l) {
-        args = l;
-    }
-    
-    public void setExceptions(Type[] t) {
-        setExceptions(Arrays.asList(t));
-    }
-
-    private void setExceptions(List<Type> l) {
-        exceptions = l;
-    }
-
-    public Constraint getPropertyBody() {
+    public Term getPropertyBody() {
         return body;
     }
 
-    public void setPropertyBody(Constraint t) {
-        body = t;
-    }
-
-    public void setGuard(Constraint c) {
-        guard = c;
+    public void setPropertyBody(Term term) {
+        body = term;
     }
 
     @Override
     public Tree makeTree() {
         Tree.Branch t = new Tree.Branch("Method");
+        
         t.add(new Tree.Leaf("Name", name));
         t.add(new Tree.Leaf("TypeFormals", SnFile.nonnull(typeArgs).toArray(new Type[0])));
-        t.add(new Tree.Leaf("Formals", SnFile.nonnull(args).toArray(new Type[0])));
         t.add(new Tree.Leaf("ReturnType", ret));
-        t.add(new Tree.Leaf("ReturnConstraint", retConstraint));
         t.add(new Tree.Leaf("Guard", guard));
         t.add(new Tree.Leaf("Throws", SnFile.nonnull(exceptions).toArray(new Type[0])));
+
+        List<Tree> fs = new ArrayList<Tree>();
+        for (LocalEditor f : args) {
+            fs.add(f.makeTree());
+        }
+        t.add(new Tree.Branch("Formals", fs));
+
         if (body != null)
-            t.add(new Tree.Leaf("PropertyBody", body));
+        	t.add(new Tree.Leaf("PropertyBody", new Constraint(body)));
         for (Tree a : attributes) {
             t.add(a);
         }
@@ -93,15 +47,26 @@ public class MethodEditor extends Container {
     }
     
     @Override
-    public void readFrom(SnFile sn, Tree tree) throws InvalidClassFileException {
+    public void readFrom(final SnFile sn, Tree tree) throws InvalidClassFileException {
         name = (String) tree.find("Name");
-        args = SnFile.toList(tree.find("Formals"));
         typeArgs = SnFile.toList(tree.find("TypeFormals"));
         ret = (Type) tree.find("ReturnType");
-        retConstraint = (Constraint) tree.find("ReturnConstraint");
         guard = (Constraint) tree.find("Guard");
         exceptions = SnFile.toList(tree.find("Throws"));
-        body = (Constraint) tree.find("PropertyBody");
+        
+        Constraint c = (Constraint) tree.find("PropertyBody");
+		body = c != null && c.getTerms().size() == 1 ? c.getTerms().get(0)
+				: null;
+
+        Tree f = tree.findTree("Formals");
+        
+        args = mapList(f.findAll("Local"), new Mapper<Tree, LocalEditor, InvalidClassFileException>() {
+        	LocalEditor map(Tree t) throws InvalidClassFileException {
+            	LocalEditor e = new LocalEditor();
+                e.readFrom(sn, t);
+                return e;
+            }
+        });
 
         String[] keys = new String[] { "Name", "Formals", "TypeFormals", "ReturnType", "ReturnConstraint", "Guard", "Throws", "PropertyBody" };
 

@@ -5,73 +5,50 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class TypedefEditor extends Container {
-    String name;
-    List<Type> typeArgs;
-    List<Type> args;
-    Type ret;
-    Constraint retConstraint;
-    Constraint guard;
+import x10.sncode.Container.Mapper;
 
+public class TypedefEditor extends ProcEditor {
     public TypedefEditor() {}
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String n) {
-        name = n;
-    }
-
-    public Type getReturnType() {
-        return ret;
-    }
-
-    public void setReturnType(Type t) {
-        ret = t;
-    }
-
-    public Constraint getReturnConstraint() {
-        return retConstraint;
-    }
-
-    public void setReturnConstraint(Constraint c) {
-        retConstraint = c;
-    }
-
-    public void setFormals(Type[] t) {
-        args = Arrays.asList(t);
-    }
-
-    public void setGuard(Constraint c) {
-        guard = c;
-    }
 
     @Override
     public Tree makeTree() {
-        Tree.Branch t = new Tree.Branch("Method");
+        Tree.Branch t = new Tree.Branch("Typedef");
+        
         t.add(new Tree.Leaf("Name", name));
-        t.add(new Tree.Leaf("TypeFormals", new ArrayList(typeArgs).toArray(new Type[0])));
-        t.add(new Tree.Leaf("Formals", new ArrayList(args).toArray(new Type[0])));
+        t.add(new Tree.Leaf("TypeFormals", SnFile.nonnull(typeArgs).toArray(new Type[0])));
         t.add(new Tree.Leaf("ReturnType", ret));
-        t.add(new Tree.Leaf("ReturnConstraint", retConstraint));
         t.add(new Tree.Leaf("Guard", guard));
+
+        List<Tree> fs = new ArrayList<Tree>();
+        for (LocalEditor f : args) {
+            fs.add(f.makeTree());
+        }
+        t.add(new Tree.Branch("Formals", fs));
+
         for (Tree a : attributes) {
             t.add(a);
         }
         return t;
     }
-
+    
     @Override
-    public void readFrom(SnFile sn, Tree tree) throws InvalidClassFileException {
+    public void readFrom(final SnFile sn, Tree tree) throws InvalidClassFileException {
         name = (String) tree.find("Name");
-        args = SnFile.toList(tree.find("Formals"));
         typeArgs = SnFile.toList(tree.find("TypeFormals"));
         ret = (Type) tree.find("ReturnType");
-        retConstraint = (Constraint) tree.find("ReturnConstraint");
         guard = (Constraint) tree.find("Guard");
 
-        String[] keys = new String[] { "Name", "Formals", "TypeFormals", "ReturnType", "ReturnConstraint", "Guard" };
+        Tree f = tree.findTree("Formals");
+        
+        args = mapList(f.findAll("Local"), new Mapper<Tree, LocalEditor, InvalidClassFileException>() {
+        	LocalEditor map(Tree t) throws InvalidClassFileException {
+            	LocalEditor e = new LocalEditor();
+                e.readFrom(sn, t);
+                return e;
+            }
+        });
+
+        String[] keys = new String[] { "Name", "Formals", "TypeFormals", "ReturnType", "ReturnConstraint", "Guard", "Throws", "PropertyBody" };
 
         attributes = new ArrayList<Tree>(tree.getChildren().size());
         for (Iterator<Tree> i = tree.getChildren().iterator(); i.hasNext();) {

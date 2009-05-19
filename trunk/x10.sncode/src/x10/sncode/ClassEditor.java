@@ -10,12 +10,11 @@
  *******************************************************************************/
 package x10.sncode;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
 
 /**
  * This is the core class for reading class file data.
@@ -23,7 +22,12 @@ import java.util.List;
  * ClassReader performs lazy parsing, and thus most of the methods can throw an
  * InvalidClassFileException.
  */
-public final class ClassEditor extends Container implements SnConstants {
+public final class ClassEditor extends MemberEditor implements SnConstants {
+
+    public final static int INV = 0;
+    public final static int COV = 1;
+    public final static int CONTRAV = -1;
+
     /** List of fields */
     List<FieldEditor> fields;
     /** List of methods */
@@ -35,15 +39,14 @@ public final class ClassEditor extends Container implements SnConstants {
     /** List of member classes */
     List<ClassEditor> memberClasses;
 
-    List<Tree> attributes;
-
-    String className;
+    String packageName;
     Type superClass;
 
     List<Type> interfaces;
     List<Type> typeFormals;
     List<Type> typeActuals;
     List<Constraint> typeActualConstraints;
+    List<Integer> variances;
 
     Constraint classInvariant;
 
@@ -52,6 +55,7 @@ public final class ClassEditor extends Container implements SnConstants {
         typeFormals = new ArrayList<Type>(0);
         typeActuals = new ArrayList<Type>(0);
         typeActualConstraints = new ArrayList<Constraint>(0);
+        variances = new ArrayList<Integer>(0);
 
         fields = new ArrayList<FieldEditor>(1);
         methods = new ArrayList<MethodEditor>(1);
@@ -60,14 +64,14 @@ public final class ClassEditor extends Container implements SnConstants {
         memberClasses = new ArrayList<ClassEditor>(1);
         attributes = new ArrayList<Tree>(1);
     }
-
-    public String getName() {
-        return className;
+    
+    public String getPackageName() {
+    	return packageName;
     }
     
-    public void setName(String s) {
-        className = s;
-    }
+	public void setPackage(String pkg) {
+		packageName = pkg;
+	}
 
     public void setSuperClass(Type t) {
         superClass = t;
@@ -84,9 +88,10 @@ public final class ClassEditor extends Container implements SnConstants {
     public List<Type> getInterfaces() {
         return interfaces;
     }
-
-    public void addTypeFormal(Type t) {
+    
+    public void addTypeFormal(Type t, int variance) {
         typeFormals.add(t);
+        variances.add(variance);
     }
 
     public List<Type> getTypeFormals() {
@@ -109,15 +114,15 @@ public final class ClassEditor extends Container implements SnConstants {
         return typeActualConstraints;
     }
 
-    Constraint getClassInvariant() {
+    public Constraint getClassInvariant() {
         return classInvariant;
     }
 
-    void setClassInvariant(Constraint t) {
+    public void setClassInvariant(Constraint t) {
         classInvariant = t;
     }
 
-    List<FieldEditor> fields() {
+    public List<FieldEditor> fields() {
         return fields;
     }
 
@@ -125,15 +130,15 @@ public final class ClassEditor extends Container implements SnConstants {
         return methods;
     }
 
-    List<ConstructorEditor> constructors() {
+    public List<ConstructorEditor> constructors() {
         return constructors;
     }
 
-    List<TypedefEditor> typedefs() {
+    public List<TypedefEditor> typedefs() {
         return typedefs;
     }
 
-    List<ClassEditor> memberClasses() {
+    public List<ClassEditor> memberClasses() {
         return memberClasses;
     }
     
@@ -144,8 +149,9 @@ public final class ClassEditor extends Container implements SnConstants {
     }
 
     public void readFrom(final SnFile sn, Tree tree) throws InvalidClassFileException {
-        className = (String) tree.find("Name");
+        name = (String) tree.find("Name");
         typeFormals = (List) toList(tree.find("TypeFormals"));
+        variances = (List) toList(tree.find("Variances"));
         typeActuals = (List) toList(tree.find("TypeActuals"));
         typeActualConstraints = (List) toList(tree.find("TypeActualConstraints"));
         classInvariant = (Constraint) tree.find("ClassInvariant");
@@ -154,7 +160,7 @@ public final class ClassEditor extends Container implements SnConstants {
 
         typedefs = mapList(tree.findAll("Typedef"), new Mapper<Tree, TypedefEditor, InvalidClassFileException>() {
             TypedefEditor map(Tree t) throws InvalidClassFileException {
-                TypedefEditor e = new TypedefEditor();
+            	TypedefEditor e = new TypedefEditor();
                 e.readFrom(sn, t);
                 return e;
             }
@@ -202,8 +208,11 @@ public final class ClassEditor extends Container implements SnConstants {
     }
 
     public Tree makeTree() {
-        Tree.Branch t = new Tree.Branch("Class", new Tree.Leaf("Name", className),
+        Tree.Branch t = new Tree.Branch("Class",
+        		                        new Tree.Leaf("Package", packageName),
+        		                        new Tree.Leaf("Name", name),
                                         new Tree.Leaf("TypeFormals", SnFile.nonnull(typeFormals).toArray(new Type[0])),
+                                        new Tree.Leaf("Variances", SnFile.nonnull(variances).toArray(new Integer[0])),
                                         new Tree.Leaf("TypeActuals", SnFile.nonnull(typeActuals).toArray(new Type[0])),
                                         new Tree.Leaf("TypeActualConstraints", SnFile.nonnull(typeActualConstraints).toArray(new Constraint[0])),
                                         new Tree.Leaf("ClassInvariant", classInvariant), new Tree.Leaf("SuperClass", superClass),
@@ -217,7 +226,7 @@ public final class ClassEditor extends Container implements SnConstants {
         for (ConstructorEditor c : constructors) {
             t.add(c.makeTree());
         }
-        for (TypedefEditor d : typedefs) {
+        for (ProcEditor d : typedefs) {
             t.add(d.makeTree());
         }
         for (ClassEditor c : memberClasses) {
@@ -229,4 +238,7 @@ public final class ClassEditor extends Container implements SnConstants {
         return t;
     }
 
+	public List<Integer> getTypeFormalVariances() {
+		return variances;
+	}
 }
