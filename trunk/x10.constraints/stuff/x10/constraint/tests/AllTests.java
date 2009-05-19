@@ -19,6 +19,7 @@ public class AllTests {
 		suite.addTestSuite(EntailmentTest.class);
 		suite.addTestSuite(FormulaTest.class);
 		suite.addTestSuite(EQVEntailmentTests.class);
+		suite.addTestSuite(DisEqualsTests.class);
 		//$JUnit-END$
 		return suite;
 	}
