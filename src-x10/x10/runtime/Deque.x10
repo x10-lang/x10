@@ -21,15 +21,15 @@ public class Deque {
   @Native("c++", "(#0)->getQueueSize()")
   public native def size():Int;
 
-  @Native("java", "((x10.runtime.Activity) #0.popTask())")
+  @Native("java", "#0.popTask()")
   @Native("c++", "(#0)->popTask()")
-  public native def poll():Activity;
+  public native def poll():Object;
 
   @Native("java", "#0.pushTask(#1)")
   @Native("c++", "(#0)->pushTask(#1)")
-  public native def push(t:Activity):Void;
+  public native def push(t:Object):Void;
 
-  @Native("java", "((x10.runtime.Activity) #0.deqTask())")
+  @Native("java", "#0.deqTask()")
   @Native("c++", "(#0)->deqTask()")
-  public native def steal():Activity;
+  public native def steal():Object;
 }
