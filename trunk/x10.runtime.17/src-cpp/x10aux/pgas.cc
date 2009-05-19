@@ -38,6 +38,18 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
 }
 
+x10_int x10aux::num_threads() {
+
+	x10_int num = 1;
+	const char* env = getenv("X10_NTHREADS");
+	if (NULL != env) {
+		num = (x10_int) strtol(env, NULL, 10);
+		assert (num > 0); 
+	}
+	return num;
+
+}
+
 
 #include <pthread.h>
 #include <x10/lang/Iterator.h>
