@@ -61,4 +61,17 @@ public class ArrayElementLocs_c extends RigidTerm_c implements ArrayElementLocs 
 	public String toString() {
 	    return array().toString() + "(" + index() + ")";
 	}
+	
+	@Override
+	public int hashCode() {
+		return array().hashCode() + index().hashCode();
+	}
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) return true;
+		if (! (other instanceof ArrayElementLocs_c)) return false;
+		ArrayElementLocs_c o = (ArrayElementLocs_c) other;
+		return array().equals(o.array()) 
+		&& index().equals(o.index());
+	}
 }

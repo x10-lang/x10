@@ -38,4 +38,15 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 	public String toString() {
 	    return designator.toString();
 	}
+	@Override
+	public int hashCode() {
+		return designator().hashCode();
+	}
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) return true;
+		if (! (other instanceof ObjLocs_c)) return false;
+		ObjLocs_c o = (ObjLocs_c) other;
+		return designator().equals(o.designator());
+	}
 }

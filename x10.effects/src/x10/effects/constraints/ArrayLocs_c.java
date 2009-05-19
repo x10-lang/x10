@@ -37,4 +37,20 @@ public class ArrayLocs_c extends RigidTerm_c implements ArrayLocs {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return designator().toString();
+	}
+	@Override
+	public int hashCode() {
+		return designator().hashCode();
+	}
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) return true;
+		if (! (other instanceof ArrayLocs_c)) return false;
+		ArrayLocs_c o = (ArrayLocs_c) other;
+		return designator().equals(o.designator());
+		
+	}
 }
