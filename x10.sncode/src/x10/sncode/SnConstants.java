@@ -39,6 +39,7 @@ public interface SnConstants {
   public static final byte CONSTANT_Constraint = 13;
   public static final byte CONSTANT_Type = 14;
   public static final byte CONSTANT_Array = 15;
+  public static final byte CONSTANT_Boolean = 16;
 
   public static final short ACC_PUBLIC = 0x1;
   public static final short ACC_PRIVATE = 0x2;

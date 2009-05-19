@@ -24,6 +24,8 @@ public abstract class Type {
         public ConstrainedType(Type base, Constraint c) {
             this.base = base;
             this.c = c;
+            assert base != null;
+            assert c != null;
         }
 
         public ConstrainedType(ConstantPoolParser cp, ByteBuffer r) throws InvalidClassFileException {

@@ -10,7 +10,9 @@
  *******************************************************************************/
 package x10.sncode;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +81,9 @@ public final class ConstantPool implements SnConstants {
             case CONSTANT_Integer:
                 addCPInt(cp.getCPInt(i));
                 break;
+            case CONSTANT_Boolean:
+            	addCPBoolean(cp.getCPBoolean(i));
+            	break;
             case CONSTANT_Float:
                 addCPFloat(cp.getCPFloat(i));
                 break;
@@ -121,6 +126,12 @@ public final class ConstantPool implements SnConstants {
             i = new Integer(index);
             inverseMap.put(o, i);
             cpItems.add(o);
+            
+            boolean asserts = false;
+            assert asserts = true;
+            if (asserts)
+            	copyInto(new ByteBuffer());
+            
             return index;
         }
     }
@@ -148,8 +159,17 @@ public final class ConstantPool implements SnConstants {
      * 
      * @return the index of a constant pool item with the right value
      */
+    public int addCPBoolean(boolean b) {
+        return addCPEntry(new Boolean(b));
+    }
+    
+    /**
+     * Add an Integer to the constant pool if necessary.
+     * 
+     * @return the index of a constant pool item with the right value
+     */
     public int addCPInt(int i) {
-        return addCPEntry(new Integer(i));
+    	return addCPEntry(new Integer(i));
     }
 
     /**
@@ -361,6 +381,10 @@ public final class ConstantPool implements SnConstants {
                 int bytes = w.offset() - startOffset;
                 w.setInt(lenOffset, bytes);
             }
+            else if (o instanceof Boolean) {
+            	w.addByte(CONSTANT_Boolean);
+            	w.addByte(((Boolean) o).booleanValue() ? 1 : 0);
+            }
             else if (o instanceof Integer) {
                 w.addByte(CONSTANT_Integer);
                 w.addInt(((Integer) o).intValue());
@@ -433,7 +457,7 @@ public final class ConstantPool implements SnConstants {
                 c.writeInto(this, w);
             }
             else {
-                throw new IllegalArgumentException("bad cp item " + o + " at " + i);
+                throw new IllegalArgumentException("bad cp item " + o + ": " + o.getClass().getName() + " at " + i);
             }
         }
 
@@ -462,6 +486,8 @@ public final class ConstantPool implements SnConstants {
             return CONSTANT_Null;
         if (o instanceof String)
             return CONSTANT_Utf8;
+        if (o instanceof Boolean)
+        	return CONSTANT_Boolean;
         if (o instanceof Integer)
             return CONSTANT_Integer;
         if (o instanceof Long)
@@ -719,5 +745,34 @@ public final class ConstantPool implements SnConstants {
             return CONSTANT_NameAndType;
         }
     }
+
+	public void dump(PrintStream out) {
+		for (int i = 0; i < cpItems.size(); i++) {
+			out.print(i + ": ");
+			Object item = cpItems.get(i);
+			if (item instanceof Object[]) {
+				out.print("array ");
+				item = Arrays.asList((Object[]) item);
+			}
+			if (item instanceof Integer)
+				out.print("int ");
+			if (item instanceof Long)
+				out.print("long ");
+			if (item instanceof Float)
+				out.print("float ");
+			if (item instanceof Double)
+				out.print("double ");
+			if (item instanceof Type)
+				out.print("type ");
+			if (item instanceof String)
+				out.print("utf8 ");
+			if (item instanceof CWNameAndType)
+				out.print("nat ");
+			if (item instanceof CWString)
+				out.print("string ");
+			out.print(item);
+			out.println();
+		}
+	}
 
 }

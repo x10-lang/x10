@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import x10.sncode.ByteBuffer;
 import x10.sncode.ClassEditor;
 import x10.sncode.InvalidClassFileException;
+import x10.sncode.LocalEditor;
 import x10.sncode.MethodEditor;
 import x10.sncode.SnFile;
 import x10.sncode.Type;
@@ -18,7 +19,7 @@ public class ClassFileTest extends TestCase {
         MethodEditor m = new MethodEditor();
         c.methods().add(m);
         m.setName("m");
-        m.setFormals(new Type[0]);
+        m.setFormals(new LocalEditor[0]);
         m.setReturnType(TypeTest.parse("V"));
         sn.addClass(c);
 

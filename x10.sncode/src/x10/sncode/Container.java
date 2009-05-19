@@ -20,6 +20,10 @@ public abstract class Container implements SnConstants {
         attributes = new ArrayList<Tree>();
     }
 
+	public List<Tree> getAttributes() {
+		return attributes;
+	}
+
     static <S, T, X extends Exception> List<T> mapList(List<S> ss, Mapper<S, T, X> m) throws X {
         List<T> ts = new ArrayList<T>();
         for (S s : ss) {
