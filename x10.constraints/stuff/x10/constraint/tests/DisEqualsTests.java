@@ -22,6 +22,9 @@ public class DisEqualsTests extends TestCase {
 	XVar v0 = XTerms.makeLocal(XTerms.makeName("v0"));
 	XVar v1 = XTerms.makeLocal(XTerms.makeName("v1"));
 	XVar v2 = XTerms.makeLocal(XTerms.makeName("v2"));
+	XVar v3 = XTerms.makeLocal(XTerms.makeName("v3"));
+	XVar v4 = XTerms.makeLocal(XTerms.makeName("v4"));
+	XVar v5 = XTerms.makeLocal(XTerms.makeName("v5"));
 	
 	/**
 	 * Test v0 != v1 |- v0 != v1
@@ -101,6 +104,22 @@ public class DisEqualsTests extends TestCase {
 		d.addDisBinding(v0, v2);
 		boolean b = c.entails(d);
 		assertFalse(b);
+	}
+	
+	/**
+	 * v0 = v1, v1 != v2, v2=v3, v3=v4|- v0 !=v4
+	 * @throws Throwable
+	 */
+	public void test7() throws Throwable {
+		XConstraint c = new XConstraint_c();
+		c.addBinding(v0, v1);
+		c.addDisBinding(v1, v2);
+		c.addBinding(v2, v3);
+		c.addBinding(v3, v4);
+	
+		
+		boolean b = c.disEntails(v0,v2);
+		assertTrue(b);
 	}
 
 

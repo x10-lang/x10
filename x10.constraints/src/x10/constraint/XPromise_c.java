@@ -354,6 +354,16 @@ public class XPromise_c implements XPromise, Serializable {
                     return true;
         return false;
     }
+    
+    public boolean canReachThroughValue(XPromise p) {
+    	XPromise temp = this;
+    	while (temp != null) {
+    		if (temp == p)
+    			return true;
+    		temp = temp.value();
+    	}
+        return false;
+    }
 
     public void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV) {
         XTerm t1 = path == null? term() : path;
@@ -449,6 +459,10 @@ public class XPromise_c implements XPromise, Serializable {
     public boolean isDisBoundTo(XPromise other) {
     	if (disEquals == null)
     		return false;
-    	return disEquals.contains(other);
+    	for (XPromise p : disEquals) {
+    		if (p.canReach(other))
+    			return true;
+    	}
+    	return false;
     }
 }
