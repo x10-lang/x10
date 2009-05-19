@@ -2,7 +2,7 @@ package x10.constraint;
 
 import java.util.List;
 
-public class XDisEquals_c extends XFormula_c implements XNotEquals {
+public class XDisEquals_c extends XFormula_c implements XDisEquals {
 
 
 	public XDisEquals_c(XTerm left, XTerm right) {
