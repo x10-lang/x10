@@ -39,8 +39,8 @@ public value NativeRuntime {
   public const MAX_PLACES = 4;
 
   @Native("java", "x10.runtime.impl.java.Runtime.INIT_THREADS")
-  @Native("c++", "(x10_int) 3")
-  public const INIT_THREADS = 3;
+  @Native("c++", "x10aux::num_threads()")
+  public const INIT_THREADS = 1;
     
   /**
    * Run body at place(id).

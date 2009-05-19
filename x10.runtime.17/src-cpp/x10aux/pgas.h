@@ -102,6 +102,8 @@ namespace x10aux {
         return x10_nplaces();
     }
 
+    x10_int num_threads();
+
     inline void event_loop() {
         x10_wait();
     }
