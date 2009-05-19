@@ -474,7 +474,16 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
             if (entails(left, right)) {
                 return true;
             }
-        } else if (t instanceof XFormula) {
+        } else if (t instanceof XDisEquals) {
+            XDisEquals f = (XDisEquals) t;
+            XTerm left = f.left();
+            XTerm right = f.right();
+            
+            if (disEntails(left, right)) {
+                return true;
+            }
+        }
+        else if (t instanceof XFormula) {
         	XFormula f = (XFormula) t;
         	XName op = f.operator();
         	List<XTerm> args = f.arguments();
@@ -924,6 +933,11 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
             XTerm left = eq.left();
             XTerm right = eq.right();
             addBinding(left, right);
+        } else if (term instanceof XDisEquals) {
+        	XDisEquals dq = (XDisEquals) term;
+        	   XTerm left = dq.left();
+               XTerm right = dq.right();
+               addDisBinding(left, right);
         }
         else {
             throw new XFailure("Unexpected term |" + term + "|");

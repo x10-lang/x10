@@ -391,7 +391,8 @@ public class XPromise_c implements XPromise, Serializable {
     public String toString() {
         return var + ((value != null) 
         		? "->" + value 
-        				: ((fields != null) ? fields.toString() : ""));
+        				: ((fields != null) ? fields.toString() : "")
+        				+ (disEquals != null ? " != " + disEquals.toString() : ""));
     }
 
     public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
