@@ -39,7 +39,7 @@ public value Runtime {
 	/**
 	 * One thread pool per node
 	 */
-	const pool = new Pool(NativeRuntime.INIT_THREADS - 1);
+	const pool = new Pool(NativeRuntime.INIT_THREADS);
 
 	/**
 	 * A hueristic estimate of the amount of unscheduled activities
@@ -54,7 +54,7 @@ public value Runtime {
 	/**
 	 * Return the current activity
 	 */
-	private static def current():Activity = Thread.currentThread().activity() as Activity;
+	private static def current():Activity = pool.worker().activity();
 	
 	/**
 	 * Return the current place
@@ -72,9 +72,8 @@ public value Runtime {
 //		try {
 			if (master.loc() == 0) {
 				val rootFinish = new FinishState();
-				val activity = new Activity(body, rootFinish, "root");
-				master.activity(activity);
-				activity.now();
+				rootFinish.notifySubActivitySpawn();
+				pool.execute(new Activity(body, rootFinish, "root"));
 				rootFinish.waitForFinish();
 				pool.quit();
 				//NativeRuntime.println("Root activity completed");
@@ -292,6 +291,7 @@ public value Runtime {
 	 * onto the finish state.
 	 */
 	public static def pushException(t:Throwable):Void  {
+		NativeRuntime.println(t);
 		currentState().pushException(t);
 	}
 }

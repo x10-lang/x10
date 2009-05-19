@@ -41,6 +41,7 @@ class FinishState {
 	 * FinishState have terminated either normally or abruptly.
 	 */
 	def waitForFinish():Void {
+		Runtime.pool.join(this);
 		latch.await();
 		if (null != exceptions) {
 			if (exceptions.size() == 1) {
