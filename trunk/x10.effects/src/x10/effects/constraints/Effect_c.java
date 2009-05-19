@@ -272,4 +272,17 @@ public class Effect_c implements Effect {
 		result.atomicIncSet.addAll(e.atomicIncSet());
 		return result;
 	}
+
+    @Override
+    public String toString() {
+        StringBuilder sb= new StringBuilder();
+        sb.append("{ r: ");
+        sb.append(readSet.toString());
+        sb.append(", w: ");
+        sb.append(writeSet.toString());
+        sb.append(", a: ");
+        sb.append(atomicIncSet.toString());
+        sb.append(" }");
+        return sb.toString();
+    }
 }
