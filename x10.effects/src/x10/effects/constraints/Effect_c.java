@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
@@ -31,24 +32,26 @@ public class Effect_c implements Effect {
 	}
 	
 	public Effect_c clone() {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		try {
-		Effect_c result = (Effect_c) super.clone();
-		result.isFun=isFun;
-		result.readSet = new TreeSet<Locs>();
-		result.readSet.addAll(readSet());
-		
-		result.writeSet = new TreeSet<Locs>();
-		result.writeSet.addAll(writeSet());
-		
-		result.atomicIncSet = new TreeSet<Locs>();
-		result.atomicIncSet.addAll(atomicIncSet());
-		return result;
-		
+			Effect_c result = (Effect_c) super.clone();
+			result.isFun=isFun;
+			result.readSet = new TreeSet<Locs>();
+			result.readSet.addAll(readSet());
+
+			result.writeSet = new TreeSet<Locs>();
+			result.writeSet.addAll(writeSet());
+
+			result.atomicIncSet = new TreeSet<Locs>();
+			result.atomicIncSet.addAll(atomicIncSet());
+			return result;
+
 		} catch (CloneNotSupportedException z) {
 			// not reachable
 			return null;
 		}
-		
+
 	}
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#atomicIncSet()
@@ -68,6 +71,8 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#commutesWith(x10.effects.constraints.Effect, x10.constraint.XConstraint)
 	 */
 	public boolean commutesWith(Effect e, XConstraint c) {
+		if (e == Effects.BOTTOM_EFFECT)
+			return false;
 		for (Locs l : readSet()) {
 			for (Locs m: e.writeSet()) {
 				if (! l.disjointFrom(m, c))
@@ -129,17 +134,26 @@ public class Effect_c implements Effect {
 		 * c.addNotEquals(x1, x2);
 		 * 
 		 */
+		if (this == Effects.BOTTOM_EFFECT)
+			return false;
 		XLocal x1 = (XLocal) x.clone(), x2 = (XLocal) x.clone();
 		Effect e1 = substitute( x1, x), e2 = substitute(x2, x);
 		XConstraint c2 = c.copy();
-		// TODO: ADd this. c2.addNotBinding(x1, x2);
+		try {
+			c2.addDisBinding(x1, x2);
+		} catch (XFailure z) {
+			// should never happen
+		}
+
 		boolean result = e1.commutesWith(e2,  c2);
 		return result;
-		
+
 	}
 
 	
 	public Effect substitute(XTerm t, XRoot r) {
+		if (this==Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = new Effect_c(isFun());
 		for (Locs l : readSet()) {
 			result.readSet().add(l.substitute(t,r));
@@ -153,6 +167,8 @@ public class Effect_c implements Effect {
 		return result;
 	}
 	public Effect exists(LocalLocs x) {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = new Effect_c(isFun());
 		result.readSet().remove(x);
 		result.writeSet().remove(x);
@@ -163,6 +179,8 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#exists(x10.constraint.XVar)
 	 */
 	public Effect exists(XLocal x, XTerm t) {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = new Effect_c(isFun());
 		for (Locs l : readSet()) {
 			if (l.equals(x)) 
@@ -210,6 +228,8 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#forall(x10.constraint.XVar)
 	 */
 	public Effect forall(XLocal x) {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = clone();
 		generalize(result.readSet(), x);
 		generalize(result.writeSet(), x);
@@ -228,6 +248,8 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#makeFun()
 	 */
 	public Effect makeFun() {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = clone();
 		result.isFun = Effects.FUN;
 		return result;
@@ -237,6 +259,8 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#makeParFun()
 	 */
 	public Effect makeParFun() {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = clone();
 		result.isFun = Effects.PAR_FUN;
 		return result;
@@ -256,16 +280,24 @@ public class Effect_c implements Effect {
 		return writeSet;
 	}
 	 public void addRead(Locs t) {
-		readSet.add(t);
+		 if (this != Effects.BOTTOM_EFFECT)
+
+			 readSet.add(t);
 	}
 	public void addWrite(Locs t) {
+		if (this == Effects.BOTTOM_EFFECT)
+		
 		writeSet.add(t);
 	}
 	public void addAtomicInc(Locs t) {
+		if (this == Effects.BOTTOM_EFFECT)
+			
 		atomicIncSet.add(t);
 	}
 
 	public Effect union(Effect e) {
+		if (this == Effects.BOTTOM_EFFECT)
+			return this;
 		Effect_c result = clone();
 		result.readSet.addAll(e.readSet());
 		result.writeSet.addAll(e.writeSet());
@@ -275,6 +307,8 @@ public class Effect_c implements Effect {
 
     @Override
     public String toString() {
+    	if (this == Effects.BOTTOM_EFFECT)
+    		return "BOTTOM_EFFECT";
         StringBuilder sb= new StringBuilder();
         sb.append("{ r: ");
         sb.append(readSet.toString());
