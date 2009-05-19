@@ -85,18 +85,25 @@ public interface Effect extends Cloneable {
 	Effect forall(XLocal x);
 	
 	/**
-	 * Return the Effect obtained by eliminating the variable x from this. 
+	 * 
+	 * Here is how this should be used. If m is the effect for statement S, 
+	 * then m.exists(x,t) is the effect for val x=t; S.
+	 * 
+	 * <p> Return the Effect obtained by eliminating the final variable x from this. 
 	 * Essentially, all Locs in the various sets associated with this whose
 	 * underlying term s contains the term underlying x is replaced by a new
-	 * Loc whose underlying term is s [ t / x ]. Should be called to propagate
-	 * the current effect through val x = t.
+	 * Loc whose underlying term is s [ t / x ]. 
+	
 	 * @param x
 	 * @return
 	 */
 	Effect exists(XLocal x, XTerm t);
 	
 	/**
-	 * Return the Effect obtained by eliminating the variable x from this. 
+	 * Here is how this method should be used. If m is the effect for statement S (and the 
+	 * evaluation of the term t), then m.exists(x) is the effect for var x = t; S.
+	 * 
+	 * <p>Return the Effect obtained by eliminating the variable x from this. 
 	 * Should be called to propagate the current effect through var x = ....
 	 * (As of 05/18/09 implementation assumes that only rigid terms 
 	 * can be used in effect sets, hence the only term in the effect sets
