@@ -169,7 +169,7 @@ public class Effect_c implements Effect {
 	public Effect exists(LocalLocs x) {
 		if (this == Effects.BOTTOM_EFFECT)
 			return this;
-		Effect_c result = new Effect_c(isFun());
+		Effect_c result = clone();
 		result.readSet().remove(x);
 		result.writeSet().remove(x);
 		result.atomicIncSet().remove(x);
@@ -318,5 +318,15 @@ public class Effect_c implements Effect {
         sb.append(atomicIncSet.toString());
         sb.append(" }");
         return sb.toString();
+    }
+    public boolean equals(Object other ) {
+    	if (this == other) return true;
+    	if (! (other instanceof Effect_c)) return false;
+    	Effect_c o = (Effect_c) other;
+    	return isFun() == o.isFun()
+    	&& readSet().equals(o.readSet())
+    	&& writeSet().equals(o.writeSet())
+    	&& atomicIncSet().equals(o.atomicIncSet());
+    	
     }
 }
