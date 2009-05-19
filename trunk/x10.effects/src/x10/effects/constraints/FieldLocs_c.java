@@ -19,8 +19,9 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 	
 	public Locs substitute(XTerm t, XRoot s) {
 		XTerm old = designator();
-		XTerm result = old.subst(t, s);
-		return (result.equals(old)) ? this : Effects.makeFieldLocs(result, fieldName);
+		XTerm result = old.clone().subst(t, s);
+		return (result.equals(old)) ? this
+				: Effects.makeFieldLocs(result, fieldName);
 	}
 	
 	public XTerm obj() { return designator();}
@@ -47,5 +48,17 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 	@Override
 	public String toString() {
 	    return obj().toString() + "." + fieldName.toString();
+	}
+	@Override
+	public int hashCode() {
+		return designator().hashCode() + field().hashCode();
+	}
+	@Override
+	public boolean equals(Object other) {
+		if (this == other) return true;
+		if (! (other instanceof FieldLocs_c)) return false;
+		FieldLocs_c o = (FieldLocs_c) other;
+		return designator().equals(o.designator())
+		&& field().equals(o.field());
 	}
 }

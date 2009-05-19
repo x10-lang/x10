@@ -3,8 +3,8 @@
  */
 package x10.effects.constraints;
 
+import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
@@ -26,9 +26,9 @@ public class Effect_c implements Effect {
 
 	public Effect_c(boolean b) {
 		isFun = b;
-		readSet = new TreeSet<Locs>();
-		writeSet = new TreeSet<Locs>();
-		atomicIncSet = new TreeSet<Locs>();
+		readSet = new HashSet<Locs>();
+		writeSet = new HashSet<Locs>();
+		atomicIncSet = new HashSet<Locs>();
 	}
 	
 	public Effect_c clone() {
@@ -37,13 +37,13 @@ public class Effect_c implements Effect {
 		try {
 			Effect_c result = (Effect_c) super.clone();
 			result.isFun=isFun;
-			result.readSet = new TreeSet<Locs>();
+			result.readSet = new HashSet<Locs>();
 			result.readSet.addAll(readSet());
 
-			result.writeSet = new TreeSet<Locs>();
+			result.writeSet = new HashSet<Locs>();
 			result.writeSet.addAll(writeSet());
 
-			result.atomicIncSet = new TreeSet<Locs>();
+			result.atomicIncSet = new HashSet<Locs>();
 			result.atomicIncSet.addAll(atomicIncSet());
 			return result;
 
@@ -280,18 +280,15 @@ public class Effect_c implements Effect {
 		return writeSet;
 	}
 	 public void addRead(Locs t) {
-		 if (this != Effects.BOTTOM_EFFECT)
-
+		 if (this == Effects.BOTTOM_EFFECT) return;
 			 readSet.add(t);
 	}
 	public void addWrite(Locs t) {
-		if (this == Effects.BOTTOM_EFFECT)
-		
+		if (this == Effects.BOTTOM_EFFECT) return;
 		writeSet.add(t);
 	}
 	public void addAtomicInc(Locs t) {
-		if (this == Effects.BOTTOM_EFFECT)
-			
+		if (this == Effects.BOTTOM_EFFECT) return;
 		atomicIncSet.add(t);
 	}
 
@@ -319,6 +316,12 @@ public class Effect_c implements Effect {
         sb.append(" }");
         return sb.toString();
     }
+    @Override
+    public int hashCode() {
+    	return (isFun()? 0: 1) + readSet().hashCode() + writeSet().hashCode()
+    	+ atomicIncSet().hashCode();
+    }
+    @Override
     public boolean equals(Object other ) {
     	if (this == other) return true;
     	if (! (other instanceof Effect_c)) return false;

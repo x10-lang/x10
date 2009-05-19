@@ -39,14 +39,23 @@ public class LocalLocs_c extends Locs_c implements LocalLocs {
 		assert false : "Should never have to replace " + s + " by " + t + " in " + this;
 		return this;
 	}
+	@Override
 	public boolean equals(Object other) {
-		if (! (other instanceof LocalLocs_c)) return false;
+		if (other == this) return true;
+		if (! (other instanceof LocalLocs_c)) 
+			return false;
 		LocalLocs_c o = (LocalLocs_c) other;
 		return local.equals(o.local());
 	}
 
+	@Override 
+	public int hashCode() {
+		return local.hashCode();
+	}
 	@Override
 	public String toString() {
 	    return local.name().toString();
 	}
+	
+	
 }
