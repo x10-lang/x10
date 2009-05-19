@@ -24,7 +24,7 @@ class FinishState {
 	 * The Exception Stack is used to collect exceptions 
 	 * issued when activities associated with this finish state terminate abruptly. 
 	 */
-	private val exceptions = new Stack[Throwable]();
+	private var exceptions:Stack[Throwable];
 
 	/**
 	 * The monitor is used to serialize insertions into the Exception Stack. 
@@ -42,7 +42,7 @@ class FinishState {
 	 */
 	def waitForFinish():Void {
 		latch.await();
-		if (!exceptions.isEmpty()) {
+		if (null != exceptions) {
 			if (exceptions.size() == 1) {
 				val t = exceptions.pop();
 				if (t instanceof Error) {
@@ -86,7 +86,10 @@ class FinishState {
 	 */
 	def pushException(t:Throwable):Void {
 		lock.lock();
+		if (null == exceptions) exceptions = new Stack[Throwable]();
 		exceptions.push(t);
 		lock.unlock();
 	}
+
+	def done():Boolean = latch.getCount() == 0;	
 }
