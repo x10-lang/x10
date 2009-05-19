@@ -30,6 +30,7 @@ public class XTerms {
 	public static final XLit OPERATOR = new XLit_c(new Object()) { public String toString() { return "o"; } };
 
 	static final XName equalsName = new XNameWrapper<String>("===");
+	static final XName disEqualsName = new XNameWrapper<String>("!==");
 	static final XName andName = new XNameWrapper<String>("&&&");
 	static final XName notName = new XNameWrapper<String>("!!!");
 	static final XName arrayAccessName = new XNameWrapper<String>("(.)");
@@ -141,6 +142,19 @@ public class XTerms {
 		            return XTerms.FALSE;
 		}
 		return new XEquals_c(left, right);
+	}
+	
+	public static XTerm makeDisEquals(XTerm left, XTerm right) {
+		assert left != null;
+		assert right != null;
+		if (left instanceof XLit && right instanceof XLit) {
+			
+		        if (left.equals(right))
+		            return XTerms.FALSE;
+		        else
+		            return XTerms.TRUE;
+		}
+		return new XDisEquals_c(left, right);
 	}
 
     /**

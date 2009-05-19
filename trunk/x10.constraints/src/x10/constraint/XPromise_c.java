@@ -11,6 +11,7 @@
 package x10.constraint;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,7 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * An implementation of a Promise. The nodes in a graph maintained by a
@@ -41,6 +41,11 @@ public class XPromise_c implements XPromise, Serializable {
      * the reference to n. Can be null.
      */
     protected XPromise value;
+    
+    /**
+     * Lazily created collection of XPromises to which this one has been disequated.
+     */
+    protected Collection<XPromise> disEquals;
 
     /**
      * fields captures constraints on fields of this variable, if any.
@@ -51,7 +56,7 @@ public class XPromise_c implements XPromise, Serializable {
      * calls) as promises with fields representing the operator and the
      * operands.
      */
-    protected HashMap<XName, XPromise> fields;
+    protected Map<XName, XPromise> fields;
 
     /**
      * Create a new promise labeled with the external term c.
@@ -105,7 +110,7 @@ public class XPromise_c implements XPromise, Serializable {
     }
 
     public void setTerm(XTerm term) {
-        HashSet<XPromise> visited = new HashSet<XPromise>();
+        Set<XPromise> visited = new HashSet<XPromise>();
         visited.add(this);
         setTerm(term, visited);
     }
@@ -238,7 +243,7 @@ public class XPromise_c implements XPromise, Serializable {
         assert index >= 1;
 
         // follow the eq link if there is one.
-        if (value != null)
+        if (value != null )
             return value.intern(vars, index, last);
         if (index == vars.length)
             return this;
@@ -272,9 +277,9 @@ public class XPromise_c implements XPromise, Serializable {
         XPromise child = (XPromise) fields.get(s);
 
         if (child != null) {
-            while (child.value() != null)
+            while (child.forwarded())
                 child = child.value();
-            while (orphan.value() != null)
+            while (orphan.forwarded())
                 orphan = orphan.value();
 
             orphan.bind(child);
@@ -282,13 +287,24 @@ public class XPromise_c implements XPromise, Serializable {
         }
         fields.put(s, orphan);
     }
+    
+   
 
     public boolean bind(/* @nonnull */XPromise target) throws XFailure {
         assert target.value() == null;
 
-        if (!target.equals(value) && !target.equals(var)) {
+        if (disEquals != null) 
+      	  for (XPromise i : disEquals) 
+      		  // Note: i's value may be set.. so need to get to the end of the chain.
+      		  if (i.lookup().equals(target))
+      			  throw new XFailure("The promise " + this 
+      					  + " cannot be bound to the already disequated " 
+      					  + target + ".");
+          
+        if (!(target.equals(value)) && !target.equals(var)) {
             if (forwarded())
-                throw new XFailure("The promise " + this + " is already bound to " + value + "; cannot bind it to " + target + ".");
+                throw new XFailure("The promise " + this + " is already bound to " + value 
+                		+ "; cannot bind it to " + target + ".");
             if (this == target) // nothing to do!
                 return false;
 
@@ -300,13 +316,27 @@ public class XPromise_c implements XPromise, Serializable {
             }
             value = target;
         }
-        if (fields != null) {
+        if (fields != null) { // transfer fields
             for (Map.Entry<XName, XPromise> i : fields.entrySet()) {
                 target.addIn(i.getKey(), i.getValue());
             }
             fields = null;
         }
+        
+        if (disEquals != null) { // transfer disequals links
+        	  for (XPromise i : disEquals) 
+                  target.addDisEquals(i.lookup());
+              disEquals = null;
+        }
         return true;
+    }
+    
+    public boolean disBind(/* @nonnull */XPromise target) throws XFailure {
+        assert target.value() == null;
+        if (disEquals == null) disEquals = new HashSet<XPromise>();
+        boolean result = disEquals.add(target);
+        return result;
+        //if (!target.equals(value) && !target.equals(var)) {
     }
 
     /**
@@ -319,11 +349,9 @@ public class XPromise_c implements XPromise, Serializable {
         if (value != null)
             return value.canReach(p);
         if (fields != null)
-            for (Iterator it = fields.values().iterator(); it.hasNext();) {
-                XPromise q = (XPromise) it.next();
+        	for (XPromise q : fields.values())
                 if (q.canReach(p))
                     return true;
-            }
         return false;
     }
 
@@ -336,10 +364,10 @@ public class XPromise_c implements XPromise, Serializable {
         }
 
         if (value != null) {
-        	if (dumpEQV || ! t1.hasEQV()) {
-        		XTerm t2 = lookup().var();
-        		result.add(XTerms.makeEquals(t1, t2));
-        	}
+        		if (dumpEQV || ! t1.hasEQV()) {
+        			XTerm t2 = lookup().var();
+        			result.add( XTerms.makeEquals(t1, t2));
+        		}
             return;
         }
         
@@ -354,14 +382,20 @@ public class XPromise_c implements XPromise, Serializable {
                 p.dump(path2, result, oldSelf, dumpEQV);
             }
         }
+        if (disEquals != null) {
+        	for (XPromise i : disEquals) 
+        		result.add(XTerms.makeDisEquals(t1, i.lookup().var()));
+        }
     }
 
     public String toString() {
-        return var + ((value != null) ? "->" + value : ((fields != null) ? fields.toString() : ""));
+        return var + ((value != null) 
+        		? "->" + value 
+        				: ((fields != null) ? fields.toString() : ""));
     }
 
     public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
-        if (value != null) {
+        if (value != null ) {
             if (value.equals(x)) {
                 if (this.equals(y)) {
                     // don't create a self-cycle; it's redundant!
@@ -400,7 +434,20 @@ public class XPromise_c implements XPromise, Serializable {
         return var;
     }
 
-    public HashMap<XName, XPromise> fields() {
+    public Map<XName, XPromise> fields() {
         return fields;
+    }
+    public void addDisEquals(XPromise other) {
+    	if (disEquals == null) 
+    		disEquals = new HashSet<XPromise>();
+    	disEquals.add(other);
+    }
+    public boolean hasDisBindings() { 
+    	return disEquals != null || ! disEquals.isEmpty();
+    }
+    public boolean isDisBoundTo(XPromise other) {
+    	if (disEquals == null)
+    		return false;
+    	return disEquals.contains(other);
     }
 }

@@ -26,7 +26,10 @@ public class XLit_c extends XTerm_c implements XLit {
 	public XTerm var() {
 		return this;
 	}
+	
+	public boolean hasDisBindings() { return false; }
 
+	public XTermKind kind() { return XTermKind.LITERAL;}
 	public List<XEQV> eqvs() {
 		return Collections.EMPTY_LIST;
 	}
@@ -114,6 +117,19 @@ public class XLit_c extends XTerm_c implements XLit {
 			throw new XFailure("Cannot bind literal " + this + " to " + target);
 		return false;
 	}
+	
+	public boolean disBind(XPromise target) throws XFailure {
+		XTerm t = target.term();
+		if (t.equals(this))
+			return false;
+		if (t  instanceof XLit) 
+			return true; // these two literals are not equal.
+		if (t instanceof XVar) 
+			return target.disBind(this);
+		if (equals(target))
+			throw new XFailure("Cannot bind literal " + this + " to " + target);
+		return true;
+	}
 
 	public boolean canReach(XPromise other) {
 		return equals(other);
@@ -169,5 +185,22 @@ public class XLit_c extends XTerm_c implements XLit {
 
 	public XPromise internIntoConstraint(XConstraint constraint, XPromise last) throws XFailure {
 		throw new XFailure("Internal error -- should not be called.");
+	}
+	public void addDisEquals(XPromise p) throws XFailure {
+		if (p instanceof XLit) {
+			if (equals(p))
+				throw new XFailure("Literals " + this + " and " + p 
+						+ " are equal, hence cannot be disequated.");
+			// otherwise there is nothing to do.
+			return;
+		}
+		// otherwise must be an XPromise_c .. make it record that it must disequal this.
+		p.addDisEquals(this);
+	}
+	public boolean isDisBoundTo(XPromise o) { 
+		if (o instanceof XLit) {
+			return ! equals(o);
+		}
+		return o.isDisBoundTo(this);
 	}
 }

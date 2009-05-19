@@ -309,6 +309,21 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         valid &= !modified;
     }
 
+    public void addDisBinding(XTerm left, XTerm right) throws XFailure {
+    	assert left != null;
+    	assert right !=null;
+    	if (! consistent)
+    		return;
+    	if (roots == null)
+    		roots = new LinkedHashMap<XTerm, XPromise>();
+    	XPromise p1 = intern(left);
+    	XPromise p2 = intern(right);
+    	if (p1.equals(p2)) {
+    		throw new XFailure(this + " already entails " + left + "==" + right);
+    	}
+    	boolean modified = p1.disBind(p2);
+        valid &= !modified;
+    }
     /**
      * Add the atomic formula t.
      * @param t
@@ -493,6 +508,17 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         return false;
     }
 
+    public boolean disEntails(XTerm t1, XTerm t2) throws XFailure {
+    	if (! consistent) return true;
+    	XPromise p1 = lookup(t1);
+    	if (p1 == null) // this constraint knows nothing about t1.
+    		return false;
+    	XPromise p2 = lookup(t2);
+    	if (p2 == null)
+    		return false;
+    	return p1.isDisBoundTo(p2);
+    	
+    }
     /** Return true if this constraint entails that t1==t2. */
     public boolean entails(XTerm t1, XTerm t2) throws XFailure {
         if (!consistent)
@@ -724,8 +750,8 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         replace(q, p);
 
         {
-            HashMap<XName, XPromise> pfields = p.fields();
-            HashMap<XName, XPromise> qfields = q.fields();
+            Map<XName, XPromise> pfields = p.fields();
+            Map<XName, XPromise> qfields = q.fields();
 
             if (pfields != null && qfields != null)
                 for (XName field : pfields.keySet()) {
@@ -786,7 +812,7 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         else {
             // p is no longer a root, but fields reachable from p may still mention x rather than y (or more precisely, q.term()).
             // Replace the term in p with q's term; this will fix up fields of x to be fields of y.
-            HashMap<XName,XPromise> fields = p.fields(); 
+            Map<XName,XPromise> fields = p.fields(); 
             if (fields != null) {
                 for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
                     XPromise p1 = entry.getValue();

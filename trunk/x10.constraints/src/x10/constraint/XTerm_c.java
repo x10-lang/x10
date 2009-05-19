@@ -16,6 +16,8 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		super();
 	}
 
+	// The default is OBJECT. May be overridden by subclasses.
+	public XTermKind kind() { return XTermKind.OBJECT;}
 	public Solver solver() {
 		return null;
 	}

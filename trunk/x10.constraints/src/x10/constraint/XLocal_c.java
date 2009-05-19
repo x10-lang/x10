@@ -22,7 +22,7 @@ public class XLocal_c extends XVar_c implements XLocal {
 	public XLocal_c(XName name) {
 		this.name = name;
 	}
-
+	public XTermKind kind() { return XTermKind.LOCAL;}
 	public XVar[] vars() {
 		return new XVar[] { this };
 	}

@@ -9,6 +9,7 @@ package x10.constraint;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -71,6 +72,14 @@ public interface XPromise extends Cloneable {
 	 * @param child -- the s child of the source of the eq link.
 	 */
 	void addIn(XName s, XPromise child) throws XFailure;
+	
+	/**
+	 * An eq link entering this has just been established. Now the 
+	 * disEquals targets of the source of the link have to be transferred to this.
+	 * 
+	 * @param other -- the XPromise this is to be disequated to
+	 */
+	void addDisEquals(XPromise other) throws XFailure;
 
 	/**
 	 * Bind this promise to the given target. All the children of this, if any, have to be
@@ -80,17 +89,34 @@ public interface XPromise extends Cloneable {
 	 * @param target
 	 */
 	boolean bind(XPromise target) throws XFailure;
+	
+	/**
+	 * Bind this promise to the given target using a NOT link. target should satisfy the condition
+	 * that it is not forwarded. Note that the following is consistent: X !=Y, X.f=Y.f.
+	 * @param target The term to be notBound to.
+	 * @return true if the execution of this operation caused a change in the constraint graph;
+	 * false otherwise.
+	 * @throws XFailure in case this is already bound to target.
+	 */
+	boolean disBind(XPromise target) throws XFailure;
 
 	/** Has this promise been forwarded?
 	 * 
 	 * @return true if it has been forwarded (its value !=null)
 	 */
 	boolean forwarded();
+	
 
 	/** Does this node have children?
-	 * A node cannot both have children and be forwaded.
+	 * A node cannot both have children and be forwarded.
 	 */
 	boolean hasChildren();
+	
+	/** Does this node have disEquals bindings?
+	 * A node cannot both have disEquals bindings and be forwarded.
+	 * @return true iff this node has disEquals bindings.
+	 */
+	boolean hasDisBindings();
 
 	/**
 	 * Is there a path from here to p? 
@@ -145,7 +171,7 @@ public interface XPromise extends Cloneable {
 	XPromise value();
 
 	/** Map from field names f to promises term().f */
-	HashMap<XName, XPromise> fields();
+	Map<XName, XPromise> fields();
 
 	/**
 	 * Replace a reference to any descendant that is equal to x with a reference to y.
@@ -159,4 +185,11 @@ public interface XPromise extends Cloneable {
 	 * @return null -- if this promise is forwarded.
 	 */
 	XTerm var();
+	
+	/**
+	 * Is this promise asserted to be disequal to other?
+	 * @param other
+	 * @return
+	 */
+	boolean isDisBoundTo(XPromise other);
 }
