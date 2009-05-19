@@ -11,7 +11,7 @@
 package x10.sncode;
 
 /**
- * This interface defines class file constants used by ShrikeCT. The names and
+ * This interface defines .sn file constants. The names and
  * values are taken directly from the JVM spec.
  */
 public interface SnConstants {
@@ -40,18 +40,4 @@ public interface SnConstants {
   public static final byte CONSTANT_Type = 14;
   public static final byte CONSTANT_Array = 15;
   public static final byte CONSTANT_Boolean = 16;
-
-  public static final short ACC_PUBLIC = 0x1;
-  public static final short ACC_PRIVATE = 0x2;
-  public static final short ACC_PROTECTED = 0x4;
-  public static final short ACC_STATIC = 0x8;
-  public static final short ACC_FINAL = 0x10;
-  public static final short ACC_SYNCHRONIZED = 0x20;
-  public static final short ACC_SUPER = 0x20;
-  public static final short ACC_VOLATILE = 0x40;
-  public static final short ACC_TRANSIENT = 0x80;
-  public static final short ACC_NATIVE = 0x100;
-  public static final short ACC_INTERFACE = 0x200;
-  public static final short ACC_ABSTRACT = 0x400;
-  public static final short ACC_STRICT = 0x800;
 }
