@@ -155,7 +155,7 @@ fi
 
 export CVS_RSH=ssh
 export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
-export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
+export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 
 ##### cat feed - init
 __cat_feed_stage=INIT

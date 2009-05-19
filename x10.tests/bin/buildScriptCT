@@ -113,8 +113,8 @@ buildX10Module() {
 
 main() {
 	declare -i status;
-	POLYGLOT_HOME=$X10_HOME/polyglot3-dev
-	cvsUpdate $POLYGLOT_HOME $POLYGLOT_CVSROOT
+	POLYGLOT_HOME=$X10_HOME/polyglot
+	svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
 	status=$?
 	if (( $status != 0 )); then
 		return $status
@@ -210,8 +210,8 @@ if [[ -z "$X10_SVNROOT" ]]; then
 	export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
 fi
 
-if [[ -z "$POLYGLOT_CVSROOT" ]]; then
-	export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
+if [[ -z "$POLYGLOT_SVNROOT" ]]; then
+	export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 fi
 
 main
