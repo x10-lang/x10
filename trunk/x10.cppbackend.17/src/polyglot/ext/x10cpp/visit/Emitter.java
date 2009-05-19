@@ -202,7 +202,7 @@ public class Emitter {
 	/**
 	 * Translate a type name.
 	 */
-	static String translateType(Type type) {
+	public static String translateType(Type type) {
 		return translateType(type, false);
 	}
 
@@ -214,7 +214,7 @@ public class Emitter {
 	 * @param asRef whether to make a reference
 	 * @return a string representation of the type
 	 */
-	static String translateType(Type type, boolean asRef) {
+	public static String translateType(Type type, boolean asRef) {
 		assert (type != null);
 		X10TypeSystem_c xts = (X10TypeSystem_c) type.typeSystem();
 		type = xts.expandMacros(type);
