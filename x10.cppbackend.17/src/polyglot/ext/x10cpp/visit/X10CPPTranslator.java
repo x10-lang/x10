@@ -256,6 +256,13 @@ public class X10CPPTranslator extends Translator {
 				int outputLine = w.currentStream().getLineNumber();
 				lineNumberMap.put(outputLine, file, line);
 			}
+			if (n instanceof MethodDecl) {
+				X10CPPContext_c c = (X10CPPContext_c)context;
+				HashMap<String, LineNumberMap> fileToMethodMap =
+					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+				LineNumberMap methodMap = fileToMethodMap.get(w.getStreamName(w.currentStream().ext));
+				methodMap.addMethodMapping(((MethodDecl) n).methodDef());
+			}
 		}
 
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
