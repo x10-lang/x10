@@ -53,6 +53,8 @@ public interface XConstraint extends java.io.Serializable {
 	boolean entails(XConstraint c) throws XFailure;
 	
 	boolean entails(XTerm a, XTerm b) throws XFailure;
+	
+	boolean disEntails(XTerm a, XTerm b) throws XFailure;
 
 	/**
 	 * Do the two constraints entail each other?
@@ -97,6 +99,17 @@ public interface XConstraint extends java.io.Serializable {
 	 * @throws XFailure
 	 */
 	void addBinding(XTerm var, XTerm val) throws XFailure;
+	
+
+	/**
+	 * Add t1 != t2 to the constraint.
+	 * 
+	 * @param var
+	 * @param t
+	 * @return new constraint with t1 !=t2 added.
+	 * @throws XFailure if the resulting constraint is inconsistent
+	 */
+	void addDisBinding(XTerm var, XTerm val) throws XFailure;
 
 	/**
 	 * For each pair (t1,t2) in result, add t1 -> t2 to the constraint, and

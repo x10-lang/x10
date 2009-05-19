@@ -11,5 +11,6 @@ public class XArray_c extends XLocal_c implements XArray {
 		super(name);
 		
 	}
+	public XTermKind kind() { return XTermKind.ARRAY;}
 
 }

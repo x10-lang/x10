@@ -20,6 +20,7 @@ public class XField_c extends XVar_c implements XField {
 		this.field = field;
 	}
 
+	public XTermKind kind() { return XTermKind.FIELD_ACCESS;}
 	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
 		XVar newReceiver = (XVar) receiver.subst(y, x);
 		XField_c n = (XField_c) super.subst(y, x, propagate);
