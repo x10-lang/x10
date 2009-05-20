@@ -254,7 +254,7 @@ public class LineNumberMap {
      */
     public String exportMap() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("F{");
+        sb.append("N{\"").append(filename).append("\"} F{");
         for (int i = 0; i < strings.size(); i++)
             sb.append(i).append(":\"").append(StringUtil.escape(strings.get(i))).append("\","); // FIXME: might need to escape
         sb.append("} L{");
@@ -274,14 +274,20 @@ public class LineNumberMap {
 
     /**
      * Parses a string into a LineNumberMap.
-     * @param file the filename to associate the map with
      * @param input the input string
      */
-    public static LineNumberMap importMap(String file, String input) {
-        LineNumberMap res = new LineNumberMap(file);
+    public static LineNumberMap importMap(String input) {
         StringTokenizer st = new QuotedStringTokenizer(input, " ", "\"\'", '\\', true);
         String s = st.nextToken("{}");
-        assert (s.equals("F"));
+        assert (s.equals("N"));
+        s = st.nextToken();
+        assert (s.equals("{"));
+        String file = st.nextToken();
+        s = st.nextToken();
+        assert (s.equals("}"));
+        LineNumberMap res = new LineNumberMap(file);
+        s = st.nextToken("{}");
+        assert (s.equals(" F"));
         s = st.nextToken();
         assert (s.equals("{"));
         while (st.hasMoreTokens()) {
@@ -296,6 +302,8 @@ public class LineNumberMap {
             t = st.nextToken();
             assert (t.equals(","));
         }
+        if (!st.hasMoreTokens())
+        	return res;
         s = st.nextToken("{}");
         assert (s.equals(" L"));
         s = st.nextToken();
@@ -317,6 +325,8 @@ public class LineNumberMap {
             t = st.nextToken();
             assert (t.equals(","));
         }
+        if (!st.hasMoreTokens())
+        	return res;
         s = st.nextToken("{}");
         assert (s.equals(" M"));
         s = st.nextToken();
