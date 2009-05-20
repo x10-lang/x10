@@ -199,4 +199,16 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
 		return Language.JAVA.isVoidType(type);
 	}
 
+	public TypeReference getPointerType(TypeReference pointee) throws UnsupportedOperationException {
+		throw new UnsupportedOperationException("X10 does not permit explicit pointers");
+	}
+
+	public TypeReference getMetadataType() {
+		return Language.JAVA.getMetadataType();
+	}
+
+	public TypeReference getStringType() {
+		return Language.JAVA.getStringType();
+	}
+
 }
