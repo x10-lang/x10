@@ -394,8 +394,8 @@ public class X10CPPTranslator extends Translator {
 //		sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
 		sw.write("extern \"C\" const char* LNMAP_"+lnmName+"_"+ext+" = \"");
 		sw.write(StringUtil.escape(map.exportMap()));
-		String v = map.exportMap();
-		LineNumberMap m = LineNumberMap.importMap(fName, v);
+//		String v = map.exportMap();
+//		LineNumberMap m = LineNumberMap.importMap(v);
 		sw.write("\";");
 		sw.newline();
 	}
