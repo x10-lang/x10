@@ -25,6 +25,7 @@ package x10.effects.constraints;
  *
  */
 import java.util.*;
+
 import x10.constraint.*;
 
 public interface Effect extends Cloneable {
@@ -75,6 +76,18 @@ public interface Effect extends Cloneable {
 	 */
 	boolean commutesWithForall(XLocal x, XConstraint c);
 	
+    /**
+     * Like commutesWith(XLocal), but quantifies over a set of variables.
+     * @return
+     */
+    public boolean commutesWithForall(List<XLocal> xs);
+
+    /**
+     * Like commutesWith(XLocal, XConstraint), but quantifies over a set of variables.
+     * @return
+     */
+    public boolean commutesWithForall(List<XLocal> xs, XConstraint c);
+
 	/**
 	 * Return the Effect obtained by quantifying the current effect for all values of x. Essentially, 
 	 * all locations a(f) in read/write/atomic sets which are such that x occurs in f are replaced by

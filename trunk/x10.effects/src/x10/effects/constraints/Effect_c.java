@@ -3,7 +3,10 @@
  */
 package x10.effects.constraints;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import x10.constraint.XConstraint;
@@ -146,6 +149,48 @@ public class Effect_c implements Effect {
 
 	}
 
+	private static class Pair<T1,T2> {
+	    public T1 fst;
+	    public T2 snd;
+	    public Pair(T1 t1, T2 t2) {
+	        fst= t1;
+	        snd= t2;
+	    }
+	}
+
+	public boolean commutesWithForall(List<XLocal> xs) {
+        return commutesWithForall(xs, XTerms.makeTrueConstraint());
+	}
+
+	public boolean commutesWithForall(List<XLocal> xs, XConstraint c) {
+        if (this == Effects.BOTTOM_EFFECT)
+            return false;
+        Effect e1 = this;
+        Effect e2 = this;
+        List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
+        for(XLocal x: xs) {
+            XLocal x1= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
+            XLocal x2= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
+
+            freshVars.add(new Pair<XLocal, XLocal>(x1, x2));
+            e1 = e1.substitute(x1, x);
+            e2 = e2.substitute(x2, x);
+        }
+        XConstraint c2 = c.copy();
+        try {
+            for(Pair<XLocal,XLocal> freshVar: freshVars) {
+                XLocal x1= freshVar.fst;
+                XLocal x2= freshVar.snd;
+                c2.addDisBinding(x1, x2);
+            }
+        } catch (XFailure z) {
+            // should never happen
+        }
+
+        boolean result = e1.commutesWith(e2,  c2);
+        return result;
+
+    }
 	
 	public Effect substitute(XTerm t, XRoot r) {
 		if (this==Effects.BOTTOM_EFFECT)
