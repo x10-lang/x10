@@ -128,15 +128,11 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#commutesWithForall(x10.constraint.XVar, x10.constraint.XConstraint)
 	 */
 	public boolean commutesWithForall(XLocal x, XConstraint c) {
-		// Right now just deal with the simple case in which x does not occur in 
-		// The right thing to do is
-		/* XVar x1 = new XVar(), x2= new XVar();
-		 * c.addNotEquals(x1, x2);
-		 * 
-		 */
 		if (this == Effects.BOTTOM_EFFECT)
 			return false;
-		XLocal x1 = (XLocal) x.clone(), x2 = (XLocal) x.clone();
+		XLocal x1 = XTerms.makeLocal(XTerms.makeFreshName());
+		XLocal x2 = XTerms.makeLocal(XTerms.makeFreshName());
+	
 		Effect e1 = substitute( x1, x), e2 = substitute(x2, x);
 		XConstraint c2 = c.copy();
 		try {

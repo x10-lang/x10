@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 import x10.effects.constraints.ArrayElementLocs;
+import x10.effects.constraints.ArrayLocs;
 import x10.effects.constraints.Effect;
 import x10.effects.constraints.Effect_c;
 import x10.effects.constraints.Effects;
@@ -290,4 +291,44 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
+	
+	public void test16() throws Throwable {
+		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
+		XLocal A = XTerms.makeLocal(XTerms.makeName("A"));
+		ArrayLocs L1 = Effects.makeArrayLocs(L);
+		LocalLocs Al = Effects.makeLocalLocs(A);
+		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
+		Effect e1 = new Effect_c(Effects.FUN);	
+		e1.addRead(L1);
+		e1.addRead(Al);
+        e1.addWrite(LA);
+		
+		Effect e = e1.forall(A);
+		
+		Effect e2 = new Effect_c(Effects.FUN);
+		e2.addRead(L1);
+		e2.addRead(Al);
+		e2.addWrite(L1);
+		 
+		boolean result = e.equals(e2);
+		assertTrue(result);
+		
+	}
+	
+	public void test17() throws Throwable {
+		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
+		XLocal A = XTerms.makeLocal(XTerms.makeName("A"));
+		ArrayLocs L1 = Effects.makeArrayLocs(L);
+		LocalLocs Al = Effects.makeLocalLocs(A);
+		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
+		Effect e1 = new Effect_c(Effects.FUN);	
+		e1.addRead(L1);
+		e1.addRead(Al);
+        e1.addWrite(LA);
+		boolean result = e1.commutesWithForall(A);
+		
+		assertTrue(result);
+		
+	}
+	
 }
