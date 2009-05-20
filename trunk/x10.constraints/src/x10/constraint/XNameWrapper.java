@@ -7,6 +7,15 @@
  */
 package x10.constraint;
 
+/**
+ * A wrapper for a named entity of type T that holds the entity itself,
+ * and the name. The name can be explicitly supplied by the client, or
+ * obtained from the entity via <code>toString()</code>. Because
+ * <code>XName</code>'s are used by the constraint framework to identify
+ * entities, either instances of the type T must be canonicalized, or T
+ * must implement <code>equals()</code> properly.
+ * @param <T> the type of entity being wrapped
+ */
 public class XNameWrapper<T> implements XName {
 	T v;
 	String s;
