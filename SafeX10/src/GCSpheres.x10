@@ -39,21 +39,18 @@ class GCSpheres {
 	}
 
 	public def processFrame (x:Real, y:Real, z:Real) {
-
-	    var next : Int = 0;
-
-	    //for (val i0 : Point in [0..spheres.length]) {
-	    //        val i = i0(0);
-	    for (var i : Int = 0 ; i<spheres.length ; ++i ) {
-		if (spheres(i).intersects(new Vector3(x,y,z))) {
-		    result(next++) = i;
+		
+	val vec = new Vector3(x,y,z);
+	for (val i0(i):Point(1)  in [0..spheres.length-1]) {
+		if (spheres(i).intersects(vec)) {
+			result(i) = i;
 		}
-	    }
+	}
 
 	    //Arrays.sort(result);
-	    val result2 = Rail.makeVar[Int](next);
-	    arraycopy[Int](result,0,result2,0,next);
-	    return result2;
+	   // val result2 = Rail.makeVar[Int](next);
+	    //arraycopy[Int](result,0,result2,0,next);
+	    return result;
 	}
 
     }
@@ -64,26 +61,16 @@ class GCSpheres {
 	    this.y = y;
 	    this.z = z;
 	}
-	public def getX () { return x; }
-	public def getY () { return y; }
-	public def getZ () { return z; }
-	public def add (other:Vector3) {
-	    return new Vector3(this.x+other.x,
+	public def getX ()=x; 
+	public def getY ()=y;
+	public def getZ ()=z;
+	public def add (other:Vector3) =new Vector3(this.x+other.x,
 			       this.y+other.y,
 			       this.z+other.z);
-	}
-	public def neg () : Vector3 = {
-	    return new Vector3(-this.x, -this.y, -this.z);
-	}
-	public def sub (other:Vector3) = {
-	    return add(other.neg());
-	}
-	public def length () = {
-	    return Math.sqrt(length2());
-	}
-	public def length2 () = {
-	    return x*x + y*y + z*z;
-	}
+	public def neg () =new Vector3(-this.x, -this.y, -this.z);
+	public def sub (other:Vector3) = add(other.neg());
+	public def length () = Math.sqrt(length2());
+	public def length2 () = x*x + y*y + z*z;
 	protected val x : Real;
 	protected val y : Real;
 	protected val z : Real;
@@ -106,13 +93,13 @@ class GCSpheres {
         static class VarBox[T] {
                 var f: T;
                 def this (x : T) { set(x); }
-                def get () { return f; }
+                def get ()=f;
                 def set (x : T) { f = x; }
         }
 
         private static val spheres = new VarBox[ValRail[Sphere]](Rail.makeVal[Sphere](0));
 
-        public static def getSpheres() = { return spheres.get(); }
+        public static def getSpheres() = spheres.get(); 
 
         public static def main (args : Rail[String]) throws Exception = {
 /*
@@ -149,7 +136,7 @@ class GCSpheres {
 
                 var total_frame_time : Long = 0;
 
-                for (var frame:Int = 0 ; frame<reps ; ++frame) {
+                for (_(frame):Point(1) in  [1..reps]) {
                         val x = ran.nextDouble()*10000;
                         val y = ran.nextDouble()*10000;
                         val z = ran.nextDouble()*10000;
