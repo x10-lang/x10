@@ -48,7 +48,7 @@ ifeq ($(shell uname -s),AIX)
     endif
     override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
     override CXXFLAGS += -qrtti=all
-    override CXXFLAGS += -qsuppress=1540-0809:1500-029
+    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
     ifeq ($(AR),ar) # use AIX default ar
       AR = /usr/bin/ar

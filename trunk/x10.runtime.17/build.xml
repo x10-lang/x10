@@ -180,6 +180,7 @@
         -->
         <ejc destdir="${gen}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${gen}"/>
+            <size value="50" when="more"/>
             <classpath>
               <path refid="project.classpath"/>
               <path>
