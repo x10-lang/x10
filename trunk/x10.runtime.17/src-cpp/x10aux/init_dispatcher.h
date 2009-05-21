@@ -7,7 +7,6 @@
 
 namespace x10aux {
 
-    // [DC] if this doesn't work for you then you haven't updated cvs :)
     typedef void (*Initializer)();
 
     class InitDispatcher {

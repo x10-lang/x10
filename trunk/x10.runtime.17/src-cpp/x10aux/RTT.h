@@ -45,13 +45,7 @@ namespace x10aux {
 
         virtual const char *name() const = 0;
 
-        virtual bool subtypeOf(const RuntimeType * const other) const {
-            if (equals(other)) return true; // trivial case
-            for (int i = 0; i < parentsc; ++i) {
-                if (parents[i]->subtypeOf(other)) return true;
-            }
-            return false;
-        }
+        virtual bool subtypeOf(const RuntimeType * const other) const;
 
         // use "const ref<t> &" here to break circular dependency
         virtual bool instanceOf(const x10aux::ref<x10::lang::Object> &other) const;

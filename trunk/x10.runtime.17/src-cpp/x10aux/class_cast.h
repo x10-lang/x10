@@ -186,31 +186,11 @@ namespace x10aux {
     PRIMITIVE_VALUE_CAST2(x10_float);
     PRIMITIVE_VALUE_CAST2(x10_double);
 
-    // ClassCastBothRef
-    template<class T, class F> struct ClassCastBothRef { static GPUSAFE ref<T> _(ref<F> obj) {
+    template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Object> obj) {
         if (obj == x10aux::null) {
             // NULL passes any class cast check and remains NULL
             _CAST_("Special case: null gets cast to "<<TYPENAME(ref<T>));
             return obj;
-        }
-        if (obj.isRemote()) {
-            //compare static types as we can't get at the dynamic type
-            const RuntimeType *from = getRTT<ref<F> >();
-            const RuntimeType *to = getRTT<ref<T> >();
-            (void) from;
-            (void) to;
-            #ifndef NO_PLACE_CHECKS
-            #ifndef NO_EXCEPTIONS
-            if (!from->subtypeOf(to)) {
-                // can only upcast remote refs
-                throwException<x10::lang::BadPlaceException>();
-            }
-            #else
-            _CAST_("REMOTE! "<<from->name()<<" to "<<to->name());
-            #endif
-            #endif
-            _CAST_("Special case: remote reference gets upcast to "<<TYPENAME(ref<T>));
-            return ref<T>(reinterpret_cast<T*>(obj.get()));
         }
         const RuntimeType *from = obj->_type();
         const RuntimeType *to = getRTT<ref<T> >();
@@ -224,6 +204,11 @@ namespace x10aux {
         _CAST_("UNCHECKED! "<<from->name()<<" to "<<to->name());
         #endif
         return static_cast<ref<T> >(obj);
+    }
+
+    // ClassCastBothRef
+    template<class T, class F> struct ClassCastBothRef { static GPUSAFE ref<T> _(ref<F> obj) {
+        return real_class_cast<T>(obj);
     } };
 
     // Boxing of ref types

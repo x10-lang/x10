@@ -9,6 +9,14 @@
 using namespace x10aux;
 using namespace x10::lang;
 
+bool x10aux::RuntimeType::subtypeOf(const RuntimeType * const other) const {
+    if (equals(other)) return true; // trivial case
+    for (int i = 0; i < parentsc; ++i) {
+        if (parents[i]->subtypeOf(other)) return true;
+    }
+    return false;
+}
+
 bool x10aux::RuntimeType::instanceOf (const ref<Object> &other) const {
     if (other.isNull())
         return false;
