@@ -5,6 +5,7 @@
 #include <x10/lang/Throwable.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/lang/Box.h>
 
 #ifdef __GLIBC__
 #   include <execinfo.h> // for backtrace()
