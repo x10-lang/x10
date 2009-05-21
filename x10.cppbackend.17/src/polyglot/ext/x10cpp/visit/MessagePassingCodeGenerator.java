@@ -2251,20 +2251,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (tn instanceof X10CanonicalTypeNode) {
 				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-                Type t = X10TypeMixin.baseType(xtn.type());
-                Type f = X10TypeMixin.baseType(c.expr().type());
+				Type t = X10TypeMixin.baseType(xtn.type());
 
-                Type t_ = X10TypeMixin.stripConstraints(t);
-                Type f_ = X10TypeMixin.stripConstraints(f);
+				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 
-                X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-
-
-				if (xts.isSubtype(f_, t_)) {
+				if (false || xts.typeDeepBaseEquals(t,c.expr().type())) {
 					c.printSubExpr(c.expr(), true, sw, tr);
 				} else {
 					sw.write("x10aux::class_cast<");
-					emitter.printType(t_, sw);
+					emitter.printType(t, sw);
 					sw.write(" >(");
 					c.printSubExpr(c.expr(), true, sw, tr);
 					sw.write(")");
