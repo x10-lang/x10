@@ -70,10 +70,34 @@ public class Effect_c implements Effect {
 		return commutesWith(e, XTerms.makeTrueConstraint());
 	}
 
+	private boolean disjoint(Set<Locs> a, Set<Locs> b, XConstraint c) {
+		for (Locs l : a)
+			for (Locs m: b) {
+				if (! l.disjointFrom(m, c))
+					return false;
+			}
+		return true;
+	}
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#commutesWith(x10.effects.constraints.Effect, x10.constraint.XConstraint)
 	 */
 	public boolean commutesWith(Effect e, XConstraint c) {
+		if (e == Effects.BOTTOM_EFFECT)
+			return false;
+		final Set<Locs> r = readSet(), w=writeSet(), a=atomicIncSet();
+		final Set<Locs> er = e.readSet(), ew=e.writeSet(), ea=e.atomicIncSet();
+		return 
+		disjoint(r,ew,c) 
+		&& disjoint(r,ea,c) 
+		&& disjoint(w, er,c)
+		&& disjoint(w, ew,c)
+		&& disjoint(w, ea,c)
+		&& disjoint(a, er,c)
+		&& disjoint(a, ew,c)
+		&& disjoint(a, ea,c);
+	}
+/*
+public boolean commutesWith(Effect e, XConstraint c) {
 		if (e == Effects.BOTTOM_EFFECT)
 			return false;
 		for (Locs l : readSet()) {
@@ -118,8 +142,7 @@ public class Effect_c implements Effect {
 			}
 		}
 		return true;
-	}
-
+	}*/
 	/* (non-Javadoc)
 	 * @see x10.effects.constraints.Effect#commutesWithForall(x10.constraint.XVar)
 	 */
