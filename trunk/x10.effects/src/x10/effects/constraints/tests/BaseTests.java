@@ -322,7 +322,7 @@ public class BaseTests extends TestCase {
 		LocalLocs Al = Effects.makeLocalLocs(A);
 		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
 		Effect e1 = new Effect_c(Effects.FUN);	
-		e1.addRead(L1);
+		//e1.addRead(L1);
 		e1.addRead(Al);
         e1.addWrite(LA);
 		boolean result = e1.commutesWithForall(A);
