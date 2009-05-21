@@ -3,72 +3,111 @@ import x10.util.Random;
 
 public class KMeans {
 
-    static val DIM=2, CLUSTERS=4, POINTS=2000, ITERATIONS=50;
-
+    const DIM=2, CLUSTERS=4, POINTS=2000, ITERATIONS=50;
+    const EPS=0.01F;
+    
+    static type ValVector(k:Int) = ValRail[Float](k);
+    static type ValVector = ValVector(DIM);
+    
+    static type Vector(m:Int) = V{self.k==m};
+    static type Vector = Vector(DIM);
+    static class V(k:Int) implements (Int(k))=>Float {
+    	var vec: Rail[Float](k);
+    	var count:Int;
+    	def this(k:Int, init:(Int)=>Float): Vector(k) {
+    	   property(k);
+    	   vec = Rail.makeVar[Float](this.k, init);
+    	   count = 0;
+    	}
+    	public def apply(i:Int(k)) = vec(i);
+    	def makeZero() {
+            for ((i) in 0..k-1) 
+          	vec(i) =0.0F;	
+            count=0;
+    	}
+    	def addIn(a:ValVector(k)) {
+            for ((i) in 0..k-1) 
+    		vec(i) += a(i);
+            count++;
+    	}
+    	def div(f:Int) {
+            for ((i) in 0..k-1)
+    		vec(i) /= f;
+    	}
+    	def dist(a:ValVector(k)):Float {
+    	    var dist:Float=0.0F;
+    	    for ((i) in 0..k-1) {
+    		val tmp = vec(i)-a(i);
+    		dist += tmp*tmp;
+    	    }
+            return dist;	
+    	}
+    	def dist(a:Vector(k)):Float {
+    		 var dist:Float=0.0F;
+	    for ((i) in 0..k-1) {
+		val tmp = vec(i)-a(i);
+		dist += tmp*tmp;
+	    }
+        return dist;	
+    	}
+    	def print() {
+    		Console.OUT.println();
+    		for ((i) in 0..k-1) {
+    			Console.OUT.print((i>0? " " : "") + vec(i));
+    		}
+    	}
+    	def  normalize() { div(count);};
+    }
+  
+  
     public static def main (args : Rail[String]) {
-
         val rnd = new Random(0);
+        val points = Rail.makeVal[ValVector](POINTS, 
+        		(Int)=>Rail.makeVal[Float](DIM, (Int)=>rnd.nextFloat()));
+        // annoying bug... specifying static type KMeans = Rail[Vector(DIM)](CLUSTERS), and 
+        // declaring clusters:KMeans does not work :-(.
+        		
+        var redCluster : Rail[Vector](CLUSTERS) = 
+        	Rail.makeVar[Vector](CLUSTERS, (i:Int)=> new V(DIM, (j:Int)=>points(i)(j)));
+        var blackCluster : Rail[Vector](CLUSTERS) = 
+        	Rail.makeVar[Vector](CLUSTERS, (i:Int)=> new V(DIM, (j:Int)=>0.0F));
 
-        val points = Rail.makeVal(DIM*POINTS, (i:Int)=>rnd.nextFloat());
 
-        var clusters : Rail[Float] = Rail.makeVar(CLUSTERS*DIM, (i:Int)=>points(i));
-
-        for (i in 1..ITERATIONS) {
-
-            Console.OUT.println("Iteration: "+i);
-
-            val new_clusters = Rail.makeVar(CLUSTERS*DIM, (i:Int)=>0 as Float);
-
-            val count = Rail.makeVar(CLUSTERS, (i:Int)=>0);
-
-            for (var p:Int=0 ; p<POINTS ; ++p) { 
-                var closest:Int = -1;
-                var closest_dist:Float = Float.MAX_VALUE;
-                for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                    var dist : Float = 0;
-                    for (var d:Int=0 ; d<DIM ; ++d) { 
-                        val tmp = points(p*DIM+d) - clusters(k*DIM+d);
-                        dist += tmp * tmp;
-                    }
-                    if (dist < closest_dist) {
-                        closest_dist = dist;
-                        closest = k;
-                    }
-                }
-                for (var d:Int=0 ; d<DIM ; ++d) { 
-                    new_clusters(closest*DIM+d) += points(p*DIM+d);
-                }
-                count(closest)++;
-            }
-
-            for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                for (var d:Int=0 ; d<DIM ; ++d) { 
-                    new_clusters(k*DIM+d) /= count(k);
-                }
-            }
-
-            // TEST FOR CONVERGENCE
-            var b:Boolean = true;
-            for (var j:Int=0 ; j<clusters.length ; ++j) { 
-                if (clusters(j)!=new_clusters(j)) {
-                    b = false;
-                    break;
-                }
-            }
-            if (b) break;
-
-            clusters = new_clusters;
-
+        for ((i) in 1..ITERATIONS) {
+        	val tmp = redCluster;
+        	redCluster = blackCluster;
+        	blackCluster=tmp;
+        	for ((p) in 0..POINTS-1) { 
+        		var closest:Int = -1;
+        		var closestDist:Float = Float.MAX_VALUE;
+        	        val point = points(p);
+        		for ((k) in 0..CLUSTERS-1) { // compute closest mean in cluster.
+        			val dist = blackCluster(k).dist(point);
+        			if (dist < closestDist) {
+        				closestDist = dist;
+        				closest = k;
+        			}
+        		}
+        		redCluster(closest).addIn(point);
+        	}
+        	
+        	for ((k) in 0..CLUSTERS-1) 
+        		redCluster(k).normalize(); 
+        	
+        	var b:Boolean = true;
+        	 for ((k) in 0..CLUSTERS-1) {
+        		 if (redCluster(k).dist(blackCluster(k)) > EPS) {
+        			 b=false;
+        			 break;
+        		 }
+        	 }
+        	if (b) 
+        		break;
+        	for ((k) in 0..CLUSTERS-1) 
+        		blackCluster(k).makeZero(); 	
         }
 
-        for (var d:Int=0 ; d<DIM ; ++d) { 
-            for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
-                if (k>0)
-                    Console.OUT.print(" ");
-                Console.OUT.print(clusters(k*DIM+d));
-            }
-            Console.OUT.println();
-        }
+        for ((k) in 0..CLUSTERS-1) redCluster(k).print();
     }
 }
 

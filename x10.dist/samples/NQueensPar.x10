@@ -66,12 +66,8 @@ public class NQueensPar {
             }
             if (q.length == 0) {
                 val R = block(0..N-1, P);
-                //foreach ((q) in 0..P-1)
-                //  search(R(q));
-                for (var q:Int = 0; q < P; ++q) {
-                    val q_ = q;
-                    async (here) search(R(q_));
-                }
+                foreach ((q) in 0..P-1)
+                  search(R(q));
             } else search(0..N-1);
         }
     }

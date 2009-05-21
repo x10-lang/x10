@@ -2,10 +2,10 @@ import x10.util.Random;
 import x10.io.Console;
 
 public class MontyPi {
-    public static @fun def main(s: Rail[String]) {
+    public static  def main(s: Rail[String]) {
 	assert s.length >= 1 : "Usage: MontyPi <number of points>";
 	val N = int.parseInt(s(0));
-	val initializer = (i:Point) => @fun {
+	val initializer = (i:Point) => {
 	    val r = new Random();
 	    var result:double=0.0D;
 	    for(j in 1..N) {
