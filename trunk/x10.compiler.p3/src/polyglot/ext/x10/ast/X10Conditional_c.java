@@ -63,23 +63,18 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	  public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	        X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        
+	        if (! cond.type().isBoolean()) {
+	            throw new SemanticException(
+	                                        "Condition of ternary expression must be of type boolean.",
+	                                        cond.position());
+	        }
+	        
 	        Expr e1 = consequent;
 	        Expr e2 = alternative;
 	      
 	        X10Type t1 = (X10Type) e1.type();
 	        X10Type t2 = (X10Type) e2.type();
 	      
-	        if (t1.isNull() && t2.isNumeric())
-	            return type(ts.boxOf(t2.position(), Types.ref((X10NamedType) t2)));
-	        if (t1.isNumeric() && t2.isNull())
-	            return type(ts.boxOf(t1.position(), Types.ref((X10NamedType) t1)));
-
-	        if (! cond.type().isBoolean()) {
-	            throw new SemanticException(
-	                                        "Condition of ternary expression must be of type boolean.",
-	                                        cond.position());
-	        }
-
 	        // From the JLS, section:
 	        // If the second and third operands have the same type (which may be
 	        // the null type), then that is the type of the conditional expression.
