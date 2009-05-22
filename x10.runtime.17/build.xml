@@ -14,8 +14,9 @@
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
-    <property name="optimize" value="false" />
+    <property name="optimize" value="true" />
     <property name="DISABLE_GC" value="false" />
+    <property name="NO_CHECKS" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -72,6 +73,9 @@
     <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DEBUG=1">
         <istrue value="${optimize}" />
     </condition>
+    <condition property="cppmake.no_checks" value="NO_CHECKS=1" else="CHECKS=1">
+        <istrue value="${NO_CHECKS}" />
+    </condition>
     <condition property="x10c.optimize" value="-O" else="">
         <istrue value="${optimize}" />
     </condition>
@@ -110,6 +114,7 @@
             <arg value="install" />
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.no_checks}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -196,6 +201,7 @@
             <arg value="-j${available.procs}" />
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.no_checks}" />
         </exec>
     </target>
 
