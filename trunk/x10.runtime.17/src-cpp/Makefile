@@ -28,6 +28,11 @@ ifdef OPTIMIZE
 	X10CPPFLAGS += -optimize
 endif
 
+ifdef NO_CHECKS
+	CXXFLAGS += -DNDEBUG -DNO_CHECKS
+	CFLAGS += -DNDEBUG -DNO_CHECKS
+endif
+
 ifdef ENABLE_CUDA
   CXXFLAGS += -DX10_USE_CUDA_HOST
   INCLUDE_DIRS += -I/usr/local/cuda/include
