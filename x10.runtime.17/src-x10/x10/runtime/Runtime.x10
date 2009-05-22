@@ -37,9 +37,11 @@ public value Runtime {
 	// thread pool
 	
 	/**
-	 * One thread pool per node
+	 * Create one fewer thread on Node 0, because its master thread executes the root activity
+	 * and therefore participates in the work pool. On all other nodes, the master thread enters
+         * the NativeRuntime.event_loop and therefore is not available to participate in the work pool.
 	 */
-	const pool = new Pool(NativeRuntime.INIT_THREADS - 1);
+	const pool = new Pool(NativeRuntime.INIT_THREADS - (NativeRuntime.local(0) ? 1 : 0));
 
 	/**
 	 * A hueristic estimate of the amount of unscheduled activities
