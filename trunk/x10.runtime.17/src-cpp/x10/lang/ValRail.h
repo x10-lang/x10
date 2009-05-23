@@ -27,7 +27,6 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static RTT * const it;
 
                 virtual void init() { initParents(3,x10aux::getRTT<Value>(),
                                                     x10aux::getRTT<Fun_0_1<x10_int,T> >(),
@@ -40,6 +39,7 @@ namespace x10 {
                 }
                  
             };
+            static RTT * const rtt;
 
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<ValRail<T> >();
@@ -70,8 +70,6 @@ namespace x10 {
 
                 class RTT : public x10aux::RuntimeType {
                     public:
-                    static RTT * const it;
-
                     virtual void init() {
                        initParents(2,x10aux::getRTT<x10::lang::Iterator<T> >(),
                                      x10aux::getRTT<Ref>());
@@ -85,6 +83,8 @@ namespace x10 {
                     }
 
                 };
+                static RTT * const rtt;
+
                 virtual const x10aux::RuntimeType *_type() const {
                     return x10aux::getRTT<Iterator>();
                 }
@@ -230,11 +230,11 @@ namespace x10 {
             x10aux::DeserializationDispatcher
                 ::addDeserializer(ValRail<T>::template _deserialize<Object>);
 
-        template<class T> typename ValRail<T>::RTT * const ValRail<T>::RTT::it =
+        template<class T> typename ValRail<T>::RTT * const ValRail<T>::rtt =
             new (x10aux::alloc<typename ValRail<T>::RTT>()) typename ValRail<T>::RTT();
 
         template<class T> typename ValRail<T>::Iterator::RTT * const
-            ValRail<T>::Iterator::RTT::it =
+            ValRail<T>::Iterator::rtt =
                 new (x10aux::alloc<typename ValRail<T>::Iterator::RTT>())
                     typename ValRail<T>::Iterator::RTT();
 

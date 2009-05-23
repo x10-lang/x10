@@ -11,7 +11,6 @@ namespace x10 {
             public:
             class RTT : public x10aux::RuntimeType {
                 public:
-                static RTT * const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
                 virtual const char *name() const {
                     static const char *name =
@@ -21,13 +20,14 @@ namespace x10 {
                     return name;
                 }
             };
+            static RTT * const rtt;
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<x10::lang::Settable<I, V> >();
             }
 
             virtual V set(V v, I i) = 0;
         };
-        template<class I, class V> typename Settable<I, V>::RTT * const Settable<I, V>::RTT::it =
+        template<class I, class V> typename Settable<I, V>::RTT * const Settable<I, V>::rtt =
             new (x10aux::alloc<typename Settable<I, V>::RTT>()) typename Settable<I, V>::RTT();
     }
 }

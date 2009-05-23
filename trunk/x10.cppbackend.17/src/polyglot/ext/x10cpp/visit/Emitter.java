@@ -100,7 +100,7 @@ public class Emitter {
         "x10_boolean", "x10_byte", "x10_char", "x10_short", "x10_int",
         "x10_long", "x10_float", "x10_double",
         // X10 implementation names
-        "FMGL", "TYPENAME", "RTT", "DEFINE_RTT", "DEFINE_SPECIAL_RTT",
+        "FMGL", "TYPENAME", "RTT", "rtt", "DEFINE_RTT", "DEFINE_SPECIAL_RTT",
         // Additionally, anything starting with a '_' is reserved, and may clash
     };
     private static boolean isCPPKeyword(String name) {
@@ -546,7 +546,6 @@ public class Emitter {
 		int num_parents = 1 + ct.interfaces().size();
 		h.write("class RTT : public x10aux::RuntimeType {"); h.newline(4); h.begin(0);
 			h.write("public:"); h.newline();
-			h.write("static RTT * const it;"); h.newline();
 			h.write("virtual void init() {"); h.newline(4); h.begin(0);
 				h.write("initParents("+num_parents);
 				h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
@@ -579,6 +578,7 @@ public class Emitter {
 				}
 			h.write("}"); h.end(); h.newline();
 		h.write("};"); h.newline();
+        h.write("static RTT * const rtt;"); h.newline();
 		h.write("virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
 			h.write("return x10aux::getRTT"+chevrons(translateType(ct))+"();"); h.end(); h.newline();
 		h.write("}"); h.newline(); h.forceNewline();
@@ -588,7 +588,7 @@ public class Emitter {
 			h.write("DEFINE_RTT("+translateType(ct)+");");
 		} else {
     		printTemplateSignature(ct.typeArguments(), h);
-			h.write("typename "+translateType(ct)+"::RTT * const "+translateType(ct)+"::RTT::it = ");
+			h.write("typename "+translateType(ct)+"::RTT * const "+translateType(ct)+"::rtt = ");
 			h.newline(4);
 			h.write("new (x10aux::alloc<typename "+translateType(ct)+"::RTT>()) "+
 					"typename "+translateType(ct)+"::RTT();");

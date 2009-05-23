@@ -2,10 +2,10 @@
 #define X10AUX_RTT_H
 
 #define DEFINE_RTT(T) \
-    DEFINE_SPECIAL_RTT(T::RTT)
+    DEFINE_SPECIAL_RTT(T, T::RTT)
 
-#define DEFINE_SPECIAL_RTT(T) \
-    T * const T::it = new (x10aux::alloc<T >()) T()
+#define DEFINE_SPECIAL_RTT(T, RTT)                       \
+    RTT * const T::rtt = new (x10aux::alloc<RTT >()) RTT()
 
 // [DC] can't do RTT macros for generic classes because they would have to be
 // variadic to handle the varying number of type parameters
@@ -61,7 +61,7 @@ namespace x10aux {
     };
 
     template<class T> struct RTT_WRAP { static const RuntimeType *_() {
-        RuntimeType *it = T::RTT::it;
+        RuntimeType *it = T::rtt;
         if (it == NULL) return NULL;
         if (!it->initialized()) {
             it->init();
@@ -102,19 +102,19 @@ namespace x10aux {
 #define DECLARE_PRIMITIVE_RTT(C,P) \
     class C##Type : public RuntimeType { \
     public: \
-        static C##Type * const it; \
+        static C##Type * const rtt; \
         virtual void init() { primitive_init(this); } \
         virtual ~C##Type() { } \
         virtual const char *name() const { return "x10.lang."#C; } \
     }; \
     template<> struct RTT_WRAP<C##Type> { static RuntimeType *_() { \
-        return C##Type::it; \
+        return C##Type::rtt; \
     } }; \
     template<> struct RTT_WRAP<x10_##P> { static RuntimeType *_() { \
-        return C##Type::it; \
+        return C##Type::rtt; \
     } }
 #define DEFINE_PRIMITIVE_RTT(C) \
-    DEFINE_SPECIAL_RTT(C##Type)
+    DEFINE_SPECIAL_RTT(C##Type, C##Type)
 
     DECLARE_PRIMITIVE_RTT(Boolean, boolean);
     DECLARE_PRIMITIVE_RTT(Byte, byte);

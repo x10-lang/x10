@@ -11,7 +11,6 @@ namespace x10 {
             public:
             class RTT : public x10aux::RuntimeType {
                 public:
-                static RTT * const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
                 virtual const char *name() const {
                     static const char *name =
@@ -20,6 +19,7 @@ namespace x10 {
                     return name;
                 }
             };
+            static RTT * const rtt;
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<VoidFun_0_1<P1> >();
             }
@@ -27,7 +27,7 @@ namespace x10 {
             virtual ~VoidFun_0_1() { }
             virtual void apply(P1 p1) = 0;
         };
-        template<class P1> typename VoidFun_0_1<P1>::RTT * const VoidFun_0_1<P1>::RTT::it =
+        template<class P1> typename VoidFun_0_1<P1>::RTT * const VoidFun_0_1<P1>::rtt =
             new (x10aux::alloc<typename VoidFun_0_1<P1>::RTT>()) typename VoidFun_0_1<P1>::RTT();
     }
 }

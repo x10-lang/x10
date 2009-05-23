@@ -26,7 +26,6 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static RTT * const it;
 
                 virtual void init() { initParents(3,x10aux::getRTT<Ref>(),
                                                     x10aux::getRTT<Settable<x10_int,T> >(),
@@ -40,6 +39,7 @@ namespace x10 {
                 }
                  
             };
+            static RTT * const rtt;
 
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<Rail<T> >();
@@ -68,7 +68,6 @@ namespace x10 {
 
                 class RTT : public x10aux::RuntimeType {
                     public:
-                    static RTT * const it;
 
                     virtual void init() {
                        initParents(2,x10aux::getRTT<Ref>(),
@@ -83,6 +82,7 @@ namespace x10 {
                     }
 
                 };
+                static RTT * const rtt;
                 virtual const x10aux::RuntimeType *_type() const {
                     return x10aux::getRTT<Iterator>();
                 }   
@@ -157,10 +157,10 @@ namespace x10 {
 
         };
 
-        template<class T> typename Rail<T>::RTT * const Rail<T>::RTT::it =
+        template<class T> typename Rail<T>::RTT * const Rail<T>::rtt =
             new (x10aux::alloc<typename Rail<T>::RTT>()) typename Rail<T>::RTT();
 
-        template<class T> typename Rail<T>::Iterator::RTT * const Rail<T>::Iterator::RTT::it =
+        template<class T> typename Rail<T>::Iterator::RTT * const Rail<T>::Iterator::rtt =
             new (x10aux::alloc<typename Rail<T>::Iterator::RTT>())
                 typename Rail<T>::Iterator::RTT();
 
