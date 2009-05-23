@@ -2841,7 +2841,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("const x10aux::RuntimeType *_type() const {"+
                   " return x10aux::getRTT<"+superType+" >(); }");
         inc.newline();
-        inc.write("struct RTT { static x10aux::RuntimeType * it; };");
+        inc.write("static x10aux::RuntimeType * rtt;");
         inc.newline(); inc.forceNewline();
 
         inc.write(emitter.translateType(xts.String(), true)+" toString() {");
@@ -2855,7 +2855,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("x10aux::RuntimeType * "+cnamet+"::RTT::it = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
+        inc.write("x10aux::RuntimeType * "+cnamet+"::rtt = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
         inc.newline(); inc.forceNewline();
 
         if (in_template_closure)

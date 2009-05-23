@@ -22,8 +22,6 @@ namespace x10 {
                 public:
                     class RTT : public x10aux::RuntimeType {
                     public: 
-                        static RTT* const it;
-                        
                         virtual void init() {
                             initParents(1,x10aux::getRTT<x10::lang::Ref>());
                         }
@@ -33,6 +31,8 @@ namespace x10 {
                         }
                     
                     };
+                    static RTT* const rtt;
+                        
                     virtual const x10aux::RuntimeType *_type() const {
                         return x10aux::getRTT<AtomicLong>();
                     }

@@ -46,8 +46,8 @@ x10_int x10aux::num_threads() {
 		num = (x10_int) strtol(env, NULL, 10);
 		assert (num > 0); 
 	}
-	return num;
 
+    return num;
 }
 
 
@@ -93,7 +93,7 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
         ref<VoidFun_0_0> async = x10aux::DeserializationDispatcher::create<VoidFun_0_0>(buf);
         _X_("The deserialised async was: "<<async->toString()->c_str());
         async->apply();
-
+        
 #ifndef NO_EXCEPTIONS
     /* TODO: need some other mechanism for calling exit() from another place
     } catch(int exitCode) {

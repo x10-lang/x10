@@ -11,7 +11,6 @@ namespace x10 {
             public:
             class RTT : public x10aux::RuntimeType {
                 public:
-                static RTT * const it;
                 virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
                 virtual const char *name() const {
                     static const char *name =
@@ -20,13 +19,14 @@ namespace x10 {
                     return name;
                 }
             };
+            static RTT * const rtt;
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<Iterable<T> >();
             }
 
             virtual x10aux::ref<Iterator<T > > iterator() = 0;
         };
-        template<class T> typename Iterable<T>::RTT * const Iterable<T>::RTT::it =
+        template<class T> typename Iterable<T>::RTT * const Iterable<T>::rtt =
             new (x10aux::alloc<typename Iterable<T>::RTT>()) typename Iterable<T>::RTT();
 
     }

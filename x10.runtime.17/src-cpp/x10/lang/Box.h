@@ -22,7 +22,6 @@ namespace x10 {
 
             class RTT : public x10aux::RuntimeType {
                 public:
-                static RTT *it;
 
                 virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
 
@@ -33,6 +32,7 @@ namespace x10 {
                 }
                  
             };
+            static RTT *rtt;
 
             virtual const x10aux::RuntimeType *_type() const {
                 return x10aux::getRTT<Box<T> >();
@@ -61,7 +61,7 @@ namespace x10 {
 
         };
 
-        template<class T> typename Box<T>::RTT *Box<T>::RTT::it =
+        template<class T> typename Box<T>::RTT *Box<T>::rtt =
             new (x10aux::alloc<typename Box<T>::RTT>()) typename Box<T>::RTT();
 
     }
