@@ -116,8 +116,12 @@ public class LineNumberMap {
 			return new MethodDescriptor(r, c, n, a);
 		}
     	public String toPrettyString(ArrayList<String> strings) {
+			return toPrettyString(strings, true);
+		}
+		public String toPrettyString(ArrayList<String> strings, boolean includeReturnType) {
     		StringBuilder res = new StringBuilder();
-			res.append(strings.get(returnType)).append(" ");
+    		if (includeReturnType)
+    			res.append(strings.get(returnType)).append(" ");
     		res.append(strings.get(container)).append("::");
     		res.append(strings.get(name)).append("(");
     		boolean first = true;
@@ -200,7 +204,6 @@ public class LineNumberMap {
 	}
 
 	/**
-	 * @param method C++ method signature
 	 * @param sourceMethod X10 method signature
 	 */
 	public void addMethodMapping(MethodDef sourceMethod) {
@@ -228,6 +231,19 @@ public class LineNumberMap {
 		methods.put(tgt, src);
 	}
 
+	/**
+	 * @param method target method signature
+	 * @return source method signature
+	 */
+	public String getMappedMethod(String method) {
+		for (MethodDescriptor m : methods.keySet()) {
+			String mm = m.toPrettyString(strings, false);
+			if (mm.equals(method))
+				return methods.get(m).toPrettyString(strings, false);
+		}
+		return null;
+	}
+
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append(filename).append(":\n");
@@ -239,8 +255,8 @@ public class LineNumberMap {
         sb.append("\n");
         for (MethodDescriptor md : methods.keySet()) {
 			MethodDescriptor sm = methods.get(md);
-			sb.append("  ").append(md.toPrettyString(strings)).append("->");
-			sb.append(sm.toPrettyString(strings)).append("\n");
+			sb.append("  ").append(md.toPrettyString(strings, true)).append("->");
+			sb.append(sm.toPrettyString(strings, true)).append("\n");
 		}
         return sb.toString();
     }
@@ -410,6 +426,21 @@ public class LineNumberMap {
 				assert (!m.map.containsKey(l));
 				Entry e = n.map.get(l);
 				m.put(l, n.strings.get(e.fileId), e.line);
+			}
+			for (MethodDescriptor d : n.methods.keySet()) {
+				assert (!m.methods.containsKey(d));
+				MethodDescriptor e = n.methods.get(d);
+				String[] a = new String[d.args.length];
+				for (int i = 0; i < a.length; i++) {
+					a[i] = n.strings.get(d.args[i]);
+				}
+				MethodDescriptor dp = m.createMethodDescriptor(n.strings.get(d.container), n.strings.get(d.name), n.strings.get(d.returnType), a);
+				a = new String[e.args.length];
+				for (int i = 0; i < a.length; i++) {
+					a[i] = n.strings.get(e.args[i]);
+				}
+				MethodDescriptor ep = m.createMethodDescriptor(n.strings.get(e.container), n.strings.get(e.name), n.strings.get(e.returnType), a);
+				m.methods.put(dp, ep);
 			}
 		}
 	}
