@@ -139,6 +139,16 @@ namespace x10 {
                 }
             }
 
+            static x10aux::ref<String> valueOf(x10aux::ref<Object> v);
+            static x10aux::ref<String> valueOf(x10_boolean v);
+            static x10aux::ref<String> valueOf(x10_char v);
+            static x10aux::ref<String> valueOf(x10_byte v);
+            static x10aux::ref<String> valueOf(x10_short v);
+            static x10aux::ref<String> valueOf(x10_int v);
+            static x10aux::ref<String> valueOf(x10_long v);
+            static x10aux::ref<String> valueOf(x10_float v);
+            static x10aux::ref<String> valueOf(x10_double v);
+
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<ValRail<x10aux::ref<Object> > > parms);
 
