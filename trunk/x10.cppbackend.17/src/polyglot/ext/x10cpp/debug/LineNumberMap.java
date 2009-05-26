@@ -423,7 +423,7 @@ public class LineNumberMap {
 			if (m == null)
 				map.put(f, m = new LineNumberMap(f));
 			for (int l : n.map.keySet()) {
-				assert (!m.map.containsKey(l));
+//				assert (!m.map.containsKey(l));
 				Entry e = n.map.get(l);
 				m.put(l, n.strings.get(e.fileId), e.line);
 			}
