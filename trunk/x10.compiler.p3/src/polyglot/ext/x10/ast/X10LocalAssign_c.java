@@ -77,16 +77,8 @@ public class X10LocalAssign_c extends LocalAssign_c {
         if (op == ADD_ASSIGN) {
             // t += s
             if (ts.typeEquals(t, ts.String()) && ts.canCoerceToString(s, tc.context())) {
-                if (! right.type().isSubtype(ts.String())) {
-                    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-                    Node newRight = nf.X10Call(right.position(), nf.CanonicalTypeNode(right.position(), ts.String()),
-                                               nf.Id(right.position(), Name.make("valueOf")),
-                                               Collections.EMPTY_LIST, Collections.singletonList(right));
-                    return newRight.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
-                }
-                else {
-                    return n.type(ts.String());
-                }
+                Expr newRight = X10Binary_c.coerceToString(tc, right);
+                return n.right(newRight).type(ts.String());
             }                
 
             if (t.isNumeric() && s.isNumeric()) {
