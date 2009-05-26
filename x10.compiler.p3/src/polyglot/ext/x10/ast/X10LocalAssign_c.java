@@ -8,16 +8,18 @@
 
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
+
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.Node;
-import polyglot.ast.Assign.Operator;
-import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -75,8 +77,17 @@ public class X10LocalAssign_c extends LocalAssign_c {
         if (op == ADD_ASSIGN) {
             // t += s
             if (ts.typeEquals(t, ts.String()) && ts.canCoerceToString(s, tc.context())) {
-                return n.type(ts.String());
-            }
+                if (! right.type().isSubtype(ts.String())) {
+                    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+                    Node newRight = nf.X10Call(right.position(), nf.CanonicalTypeNode(right.position(), ts.String()),
+                                               nf.Id(right.position(), Name.make("valueOf")),
+                                               Collections.EMPTY_LIST, Collections.singletonList(right));
+                    return newRight.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+                }
+                else {
+                    return n.type(ts.String());
+                }
+            }                
 
             if (t.isNumeric() && s.isNumeric()) {
                 return n.type(ts.promote(t, s));
