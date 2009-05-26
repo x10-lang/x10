@@ -162,6 +162,62 @@ static ref<String> format_impl(ref<String> format, ref<AnyRail<ref<Object> > > p
     return String::Lit(ss.str().c_str());
 }
 
+ref<String> String::valueOf(x10_boolean v) {
+    if (v) {
+        return String::Lit("true");
+    }
+    else {
+        return String::Lit("false");
+    }
+}
+
+ref<String> String::valueOf(x10_char v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%c", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(x10_byte v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%d", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(x10_short v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%d", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(x10_int v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%d", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(x10_long v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%lld", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(x10_float v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%f", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(x10_double v) {
+    std::ostringstream ss;
+    ss << x10aux::alloc_printf("%llf", v);
+    return String::Lit(ss.str().c_str());
+}
+
+ref<String> String::valueOf(ref<Object> v) {
+    if (v.isNull()) return String::Lit("null");
+    return v->toString();
+}
+
 ref<String> String::format(ref<String> format, ref<ValRail<ref<Object> > > parms) {
     return format_impl(format, ref<AnyRail<ref<Object> > >(parms));
 }
