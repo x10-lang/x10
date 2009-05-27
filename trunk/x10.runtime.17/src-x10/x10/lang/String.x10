@@ -71,39 +71,39 @@ public final value String implements (nat) => Char {
     public native def lastIndexOf(Char): Int;
     
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::safe_to_string(#1)")
     public native static def valueOf(Object): String;
 
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Boolean): String;
     
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Char): String;
 
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Byte): String;
 
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Short): String;
 
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Int): String;
     
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Long): String;
     
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Float): String;
     
     @Native("java", "java.lang.String.valueOf(#1)")
-    @Native("c++", "x10::lang::String::valueOf(#1)")
+    @Native("c++", "x10aux::to_string(#1)")
     public native static def valueOf(Double): String;
 
     @Native("java", "java.lang.String.format(#1, new Object() { final Object[] unbox(Object[] a) { Object[] b = new Object[a.length]; for (int i = 0; i < a.length; i++) { if (a[i] instanceof x10.lang.Box) b[i] = ((x10.lang.Box) a[i]).value(); else b[i] = a[i]; } return b; } }.unbox(#2.getBoxedArray()))")
