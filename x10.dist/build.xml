@@ -10,14 +10,14 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
-    <property name="lpg.jar.url" value="http://lpg.sourceforge.net/updates/plugins/lpg.runtime_2.0.16.jar"/>
+    <property name="lpg.jar.url" value="http://lpg.sourceforge.net/updates/plugins/lpg.runtime_2.0.17.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <!-- NOTE: Eventually, the 3.4 stream will get moved to archive.eclipse.org. When that happens, move to 3.5 or get 3.4 from the archive -->
     <property name="ecj.url" value="http://download.eclipse.org/eclipse/downloads/drops/R-3.4.1-200809111700"/>
     <property name="ecj.jar.url" value="${ecj.url}/ecj-3.4.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
     <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates3/plugins"/>
-    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot_3.0.0.jar"/>
+    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot_3.0.2.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common.17"/>
