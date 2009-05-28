@@ -5,19 +5,33 @@
 # Note: assumes everything is built
 # FIXME: check out afresh
 
-set -e
-set -x
+while [ $# != 0 ]; do
 
-if (( $# == 0 )) || [ x$1 = x-h -o x$1 = x--help ] ; then
-  echo usage: $0 symbolic_revision
-  exit 1
+  case $1 in
+    -version)
+	export X10_VERSION=$2
+	shift
+    ;;
+
+    -platform)
+	export PLATFORM=$2
+	shift
+    ;;
+   esac
+   shift
+done
+
+if [[ -z "$X10_VERSION" ]]; then
+    echo "usage: $0 must give X10 version as -version <version>"
+    exit 1
 fi
 
-date
+if [[ -z "$PLATFORM" ]]; then
+    echo "usage: $0 must give target platform as -platform <platform>"
+    exit 1
+fi
 
-revision="$1"
-
-tarfile="x10-$revision.tgz"
+tarfile="x10-$X10_VERSION""_$PLATFORM.tgz"
 
 mydir="`dirname "$0"`"
 top="`cd "$mydir"/.. && pwd`"
