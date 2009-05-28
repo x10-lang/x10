@@ -21,29 +21,19 @@ namespace x10 {
         template<class T> class Rail : public Ref,
                                        public x10::lang::Settable<x10_int,T>,
                                        public x10aux::AnyRail<T> {
-
             public:
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-
-                virtual void init() { initParents(3,x10aux::getRTT<Ref>(),
-                                                    x10aux::getRTT<Settable<x10_int,T> >(),
-                                                    x10aux::getRTT<Iterable<T> >()); }
-
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.Rail[%s]",
-                                             x10aux::getRTT<T>()->name());
-                    return name;
-                }
-                 
-            };
-            static RTT * const rtt;
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Rail<T> >();
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.Rail[%s]", x10aux::getRTT<T>()->name());
+                const x10aux::RuntimeType *p1 = x10::lang::Ref::getRTT();
+                const x10aux::RuntimeType *p2 = x10aux::getRTT<Settable<x10_int,T> >();
+                const x10aux::RuntimeType *p3 = x10aux::getRTT<Iterable<T> >();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 3, p1, p2, p3);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             private:
 
@@ -65,27 +55,17 @@ namespace x10 {
                 x10aux::ref<Rail<T> > rail;
 
                 public:
-
-                class RTT : public x10aux::RuntimeType {
-                    public:
-
-                    virtual void init() {
-                       initParents(2,x10aux::getRTT<Ref>(),
-                                     x10aux::getRTT<x10::lang::Iterator<T> >());
-                    }
-
-                    virtual const char *name() const {
-                        static const char *name =
-                            x10aux::alloc_printf("x10.lang.Rail.Iterator[%s]",
-                                                 x10aux::getRTT<T>()->name());
-                        return name;
-                    }
-
-                };
-                static RTT * const rtt;
-                virtual const x10aux::RuntimeType *_type() const {
-                    return x10aux::getRTT<Iterator>();
-                }   
+                static const x10aux::RuntimeType* rtt;
+                static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+                static const x10aux::RuntimeType* _initRTT() {
+                    const char *name =
+                        x10aux::alloc_printf("x10.lang.Rail.Iterator[%s]", x10aux::getRTT<T>()->name());
+                    const x10aux::RuntimeType *p1 = x10::lang::Ref::getRTT();
+                    const x10aux::RuntimeType *p2 = x10aux::getRTT<x10::lang::Iterator<T> >();
+                    const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 2, p1, p2);
+                    return x10aux::RuntimeType::installRTT(&rtt, cand);
+                }
+                virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
                 Iterator (x10aux::ref<Rail> rail_)
                         : i(0), rail(rail_) { }
@@ -157,13 +137,8 @@ namespace x10 {
 
         };
 
-        template<class T> typename Rail<T>::RTT * const Rail<T>::rtt =
-            new (x10aux::alloc<typename Rail<T>::RTT>()) typename Rail<T>::RTT();
-
-        template<class T> typename Rail<T>::Iterator::RTT * const Rail<T>::Iterator::rtt =
-            new (x10aux::alloc<typename Rail<T>::Iterator::RTT>())
-                typename Rail<T>::Iterator::RTT();
-
+        template<class T> const x10aux::RuntimeType* Rail<T>::rtt = NULL;
+        template<class T> const x10aux::RuntimeType* Rail<T>::Iterator::rtt = NULL;
     }
 }
 

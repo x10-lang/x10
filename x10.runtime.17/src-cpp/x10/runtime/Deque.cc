@@ -97,6 +97,6 @@ ref<Object> Deque::popTask() {
 }
                 
             
-DEFINE_RTT(Deque);
+RTT_CC_DECLS1(Deque, "x10.runtime.Deque", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

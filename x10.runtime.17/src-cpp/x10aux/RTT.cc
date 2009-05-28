@@ -9,7 +9,7 @@
 using namespace x10aux;
 using namespace x10::lang;
 
-bool x10aux::RuntimeType::subtypeOf(const RuntimeType * const other) const {
+bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
     if (equals(other)) return true; // trivial case
     for (int i = 0; i < parentsc; ++i) {
         if (parents[i]->subtypeOf(other)) return true;
@@ -17,47 +17,77 @@ bool x10aux::RuntimeType::subtypeOf(const RuntimeType * const other) const {
     return false;
 }
 
-bool x10aux::RuntimeType::instanceOf (const ref<Object> &other) const {
+bool RuntimeType::instanceOf (const ref<Object> &other) const {
     if (other.isNull())
         return false;
     return other->_type()->subtypeOf(this);
 }
 
-bool x10aux::RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
+bool RuntimeType::concreteInstanceOf (const ref<Object> &other) const {
     if (other.isNull())
         return false;
     return other->_type()->equals(this);
 }
 
-void x10aux::RuntimeType::initParents(int parentsc_, ...) {
-    parentsc = parentsc_;
-    parents = x10aux::alloc<const RuntimeType*>
-              (parentsc * sizeof(const RuntimeType*));
-    _RTT_("Initialising RTT: "<<name());
+RuntimeType::RuntimeType(const char* n, int pc, ...) : parentsc(pc) {
+    typeName = n;
+    parents = alloc<const RuntimeType*>(parentsc * sizeof(const RuntimeType*));
     va_list parentsv;
-    va_start(parentsv, parentsc_);
+    va_start(parentsv, pc);
     for (int i=0 ; i<parentsc ; ++i)
         parents[i] = va_arg(parentsv,const RuntimeType*);
     va_end(parentsv);
 }
-
-x10aux::RuntimeType::~RuntimeType() {
-    _RTT_("Deconstructing RTT: "<<std::hex<<this<<std::dec);
-    dealloc(parents);
+    
+const RuntimeType*
+RuntimeType::installRTT(const RuntimeType **location, const RuntimeType *rtt) {
+    pthread_mutex_lock(&installLock);
+    if (NULL == *location) {
+        *location = rtt;
+    }
+    pthread_mutex_unlock(&installLock);
+    return *location;
 }
 
+void
+RuntimeType::bootstrap() {
+    /* Initialize mutex used to install RTT objects */
+	(void)pthread_mutexattr_init(&installLockAttr);
+	pthread_mutexattr_settype(&installLockAttr, PTHREAD_MUTEX_RECURSIVE);
+    (void)pthread_mutex_init(&installLock, &installLockAttr);
 
-void x10aux::primitive_init(x10aux::RuntimeType* t) {
-    t->initParents(1, getRTT<x10::lang::Object>());
+    /* Initialize RTTs for Object and builtin primitive types */
+    ObjectType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Object", 0);
+    BooleanType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Boolean", 1, ObjectType);
+    ByteType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Byte", 1, ObjectType);
+    CharType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Char", 1, ObjectType);
+    ShortType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Short", 1, ObjectType);
+    IntType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Int", 1, ObjectType);
+    FloatType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Float", 1, ObjectType);
+    LongType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Long", 1, ObjectType);
+    DoubleType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Double", 1, ObjectType);
 }
 
-DEFINE_PRIMITIVE_RTT(Boolean);
-DEFINE_PRIMITIVE_RTT(Byte);
-DEFINE_PRIMITIVE_RTT(Char);
-DEFINE_PRIMITIVE_RTT(Short);
-DEFINE_PRIMITIVE_RTT(Int);
-DEFINE_PRIMITIVE_RTT(Long);
-DEFINE_PRIMITIVE_RTT(Float);
-DEFINE_PRIMITIVE_RTT(Double);
+pthread_mutex_t RuntimeType::installLock;
+pthread_mutexattr_t RuntimeType::installLockAttr;
+
+const RuntimeType* RuntimeType::ObjectType = NULL;
+const RuntimeType* RuntimeType::BooleanType= NULL;
+const RuntimeType* RuntimeType::ByteType = NULL;
+const RuntimeType* RuntimeType::CharType = NULL;
+const RuntimeType* RuntimeType::ShortType = NULL;
+const RuntimeType* RuntimeType::IntType = NULL;
+const RuntimeType* RuntimeType::FloatType = NULL;
+const RuntimeType* RuntimeType::LongType = NULL;
+const RuntimeType* RuntimeType::DoubleType = NULL;
+
+template<> const x10aux::RuntimeType *getRTT<x10_boolean>() { return x10aux::RuntimeType::BooleanType; }
+template<> const x10aux::RuntimeType *getRTT<x10_byte>() { return x10aux::RuntimeType::ByteType; }
+template<> const x10aux::RuntimeType *getRTT<x10_short>() { return x10aux::RuntimeType::ShortType; }
+template<> const x10aux::RuntimeType *getRTT<x10_char>() { return x10aux::RuntimeType::CharType; }
+template<> const x10aux::RuntimeType *getRTT<x10_int>() { return x10aux::RuntimeType::IntType; }
+template<> const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
+template<> const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
+template<> const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

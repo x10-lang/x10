@@ -8,8 +8,7 @@ using namespace x10aux;
 
 const serialization_id_t EOFException::_serialization_id =
         DeserializationDispatcher::addDeserializer(EOFException::_deserializer<Object>);
-                
-                
 
-DEFINE_RTT(EOFException);
+RTT_CC_DECLS1(EOFException, "x10.io.EOFException", IOException)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

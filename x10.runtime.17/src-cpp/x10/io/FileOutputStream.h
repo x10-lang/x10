@@ -12,22 +12,7 @@ namespace x10 {
                                  public x10::io::NativeOutputStream {
 
         public:
-            class RTT : public x10aux::RuntimeType {
-                public: 
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<NativeOutputStream>());
-                    }
-                    
-                    virtual const char *name() const {
-                        return "x10.io.FileWriter.FileOutputStream";
-                    }
-                    
-            };
-            static RTT* const rtt;
-                    
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<FileOutputStream>();
-            }   
+            RTT_H_DECLS;
 
             FileOutputStream(FILE *f)
               : FILEPtrOutputStream(f) { }

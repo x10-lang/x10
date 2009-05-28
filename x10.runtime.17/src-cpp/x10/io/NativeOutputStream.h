@@ -14,22 +14,7 @@ namespace x10 {
 
         class NativeOutputStream : public x10::lang::Value {
             public:
-            class RTT : public x10aux::RuntimeType {
-                public:
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Value>());
-                    }
-                    
-                    virtual const char *name() const {
-                        return "x10.io.OutputStreamWriter.OutputStream";
-                    }
-
-            };
-            static RTT* const rtt;
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<NativeOutputStream>();
-            }
+            RTT_H_DECLS;
 
             virtual void write(const char* str) = 0;
 

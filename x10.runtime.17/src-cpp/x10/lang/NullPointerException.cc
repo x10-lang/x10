@@ -8,6 +8,6 @@ using namespace x10aux;
 const serialization_id_t NullPointerException::_serialization_id =
     DeserializationDispatcher::addDeserializer(NullPointerException::_deserializer<Object>);
 
-
-DEFINE_RTT(NullPointerException);
+RTT_CC_DECLS1(NullPointerException, "x10.lang.NullPointerException", RuntimeException)
+    
 // vim:tabstop=4:shiftwidth=4:expandtab

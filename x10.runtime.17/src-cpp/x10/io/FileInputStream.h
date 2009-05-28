@@ -12,21 +12,7 @@ namespace x10 {
                                 public NativeInputStream {
 
         public:
-                class RTT : public x10aux::RuntimeType {
-                public:                     
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<NativeInputStream>());
-                    }
-                    
-                    virtual const char *name() const {
-                        return "x10.io.FileReader.FileInputStream";
-                    }
-
-            };
-            static RTT* const rtt;
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<FileInputStream>();
-            }   
+            RTT_H_DECLS;
 
             FileInputStream(FILE *f)
               : FILEPtrInputStream(f) { }

@@ -9,6 +9,6 @@
 using namespace x10::lang;
 using namespace x10::util::concurrent::atomic;
 
-DEFINE_RTT(AtomicBoolean);
+RTT_CC_DECLS1(AtomicBoolean, "x10.util.concurrent.atomic.AtomicBoolean", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

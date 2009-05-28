@@ -274,6 +274,6 @@ x10_boolean Throwable::_struct_equals(ref<Object> p0) {
     return true;
 }
 
+RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Value)
 
-DEFINE_RTT(Throwable);
 // vim:tabstop=4:shiftwidth=4:expandtab

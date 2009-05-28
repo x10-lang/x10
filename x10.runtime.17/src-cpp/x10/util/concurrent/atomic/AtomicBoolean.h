@@ -20,22 +20,7 @@ namespace x10 {
                  */
                 class AtomicBoolean : public x10::lang::Ref {
                 public:
-                    class RTT : public x10aux::RuntimeType {
-                    public: 
-                        virtual void init() {
-                            initParents(1,x10aux::getRTT<x10::lang::Ref>());
-                        }
-                    
-                        virtual const char *name() const {
-                            return "x10.util.concurrent.atomic.AtomicBoolean";
-                        }
-                    
-                    };
-                    static RTT* const rtt;
-                        
-                    virtual const x10aux::RuntimeType *_type() const {
-                        return x10aux::getRTT<AtomicBoolean>();
-                    }
+                    RTT_H_DECLS;
 
                     static x10aux::ref<AtomicBoolean> _make() {
                         x10aux::ref<AtomicBoolean> this_ = new (x10aux::alloc<AtomicBoolean>()) AtomicBoolean();

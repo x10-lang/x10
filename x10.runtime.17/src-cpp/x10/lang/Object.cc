@@ -35,5 +35,4 @@ x10_boolean Object::equals(x10aux::ref<Object> other) {
     return false;
 }
 
-DEFINE_RTT(Object);
 // vim:tabstop=4:shiftwidth=4:expandtab

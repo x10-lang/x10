@@ -33,5 +33,6 @@ x10_boolean NativeInputStream::_struct_equals(ref<Object> p0) {
 }
 
 
-DEFINE_RTT(NativeInputStream);
+RTT_CC_DECLS1(NativeInputStream, "x10.io.InputStreamReader.InputStream", Value)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

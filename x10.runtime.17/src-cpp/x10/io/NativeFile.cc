@@ -6,5 +6,6 @@ using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
 
-DEFINE_RTT(NativeFile);
+RTT_CC_DECLS1(NativeFile, "x10.io.File.NativeFile", Ref)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

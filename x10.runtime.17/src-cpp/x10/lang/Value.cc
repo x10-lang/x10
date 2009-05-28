@@ -16,5 +16,6 @@ x10aux::ref<x10::lang::String> x10::lang::Value::toString() {
     return String::Lit("Value without toString defined.");
 }
 
-DEFINE_RTT(Value);
+RTT_CC_DECLS1(Value, "x10.lang.Value", Object)
+
 // vim:tabstop=4:shiftwidth=4:expandtab
