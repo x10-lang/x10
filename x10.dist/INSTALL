@@ -2,7 +2,7 @@
 
 This program is controlled by the Eclipse Public Licence v1.0.
 
-This is a distribution of the 1.7.3 release of the X10 Programming Language.
+This is a distribution of the 1.7.4 release of the X10 Programming Language.
 http://x10-lang.org/
 http://x10.sf.net/
 
@@ -52,6 +52,3 @@ on the command line.  Note that this will cause the code for user
 files not specified on the command line to not be generated, even
 if they are in the sourcepath and are used to validate the files
 that are specified.
-
-March 20, 2009
-

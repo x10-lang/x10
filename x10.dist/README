@@ -2,7 +2,7 @@
 
 This program is controlled by the Eclipse Public Licence v1.0.
 
-This directory contains the 1.7.3 release of X10, including
+This directory contains the 1.7.4 release of X10, including
 the X10 C++ code generation backend.
 
 To build both backends, run "ant" in x10.dist.
@@ -16,6 +16,3 @@ Prerequisites for the C++ backend:
 Download and install the PGAS common runtime tarball.
 Set the X10LIB environment variable to point to the
 PGAS installation location.
-
-March 20, 2009
-
