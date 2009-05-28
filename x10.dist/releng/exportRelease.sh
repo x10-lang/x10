@@ -24,17 +24,17 @@ while [ $# != 0 ]; do
 done
 
 if [[ -z "$X10_VERSION" ]]; then
-    echo "usage: $0 must give X10 version as -x10-tag <tag>"
+    echo "usage: $0 must give X10 version as -version <version>"
     exit 1
 fi
 
 if [[ -z "$X10_TAG" ]]; then
-    echo "usage: $0 must give X10 tag as -x10-tag <tag>"
+    echo "usage: $0 must give X10 tag as -x10-tag <svn tag>"
     exit 1
 fi
 
 if [[ -z "$POLYGLOT_TAG" ]]; then
-    echo "usage: $0 must give polyglot tag as -polyglot-tag <tag>"
+    echo "usage: $0 must give polyglot tag as -polyglot-tag <svn tag>"
     exit 1
 fi
 
