@@ -539,52 +539,7 @@ public class Emitter {
 		}
 		printTemplateSignature(((X10ClassType)cd.asType()).typeArguments(), h);
 	}
-
   
-  	void printRTTOriginal(X10ClassType ct, ClassifiedStream h) {
-		X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-		String x10name = ct.fullName().toString();
-		int num_parents = 1 + ct.interfaces().size();
-		h.write("class RTT : public x10aux::RuntimeType {"); h.newline(4); h.begin(0);
-			h.write("public:"); h.newline();
-			h.write("virtual void init() {"); h.newline(4); h.begin(0);
-				h.write("initParents("+num_parents);
-				h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
-				for (Type iface : ct.interfaces()) {
-					h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
-				}
-				h.write(");"); h.end(); h.newline();
-			h.write("}"); h.newline();
-			h.write("virtual const char *name() const { ");
-				//TODO: type parameters
-				if (ct.typeArguments().isEmpty()) {
-					h.write("return \""+x10name+"\"; ");
-				} else {
-                    h.newline(4); h.begin(0);
-					h.write("static const char *name = "); h.newline(4);
-					h.write("x10aux::alloc_printf("); h.begin(0);
-                    h.write("\""+x10name+"[");
-					String comma = "";
-					for (Type param : ct.typeArguments()) {
-						h.write(comma+"%s");
-						comma = ",";
-					}
-                    h.write("]\"");
-					for (Type param : ct.typeArguments()) {
-						h.write(","); h.newline();
-                        h.write("x10aux::getRTT"+chevrons(translateType(param))+"()->name()");
-					}
-					h.write(");") ; h.end(); h.newline();
-					h.write("return name;"); h.end(); h.newline();
-				}
-			h.write("}"); h.end(); h.newline();
-		h.write("};"); h.newline();
-        h.write("static RTT * const rtt;"); h.newline();
-		h.write("virtual const x10aux::RuntimeType *_type () const {"); h.newline(4); h.begin(0);
-			h.write("return x10aux::getRTT"+chevrons(translateType(ct))+"();"); h.end(); h.newline();
-		h.write("}"); h.newline(); h.forceNewline();
-	}
-
     void printRTT(X10ClassType ct, ClassifiedStream h) {
         X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
 		String x10name = ct.fullName().toString();
@@ -638,19 +593,6 @@ public class Emitter {
         } else {
     		printTemplateSignature(ct.typeArguments(), h);
 			h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;");
-		}
-		h.newline();
-	}
-
-    void printRTTDefnOriginal(X10ClassType ct, CodeWriter h) {
-		if (ct.typeArguments().isEmpty()) {
-			h.write("DEFINE_RTT("+translateType(ct)+");");
-		} else {
-    		printTemplateSignature(ct.typeArguments(), h);
-			h.write("typename "+translateType(ct)+"::RTT * const "+translateType(ct)+"::rtt = ");
-			h.newline(4);
-			h.write("new (x10aux::alloc<typename "+translateType(ct)+"::RTT>()) "+
-					"typename "+translateType(ct)+"::RTT();");
 		}
 		h.newline();
 	}
