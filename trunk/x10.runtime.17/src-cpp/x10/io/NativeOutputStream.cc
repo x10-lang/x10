@@ -55,6 +55,6 @@ void NativeOutputStream::printf(const ref<String>& format) {
 }
 */
 
+RTT_CC_DECLS1(NativeOutputStream, "x10.io.OutputStreamWriter.OutputStream", Value)
 
-DEFINE_RTT(NativeOutputStream);
 // vim:tabstop=4:shiftwidth=4:expandtab

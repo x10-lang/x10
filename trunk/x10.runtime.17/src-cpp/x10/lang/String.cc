@@ -183,5 +183,6 @@ x10_boolean String::_struct_equals(ref<Object> p0) {
 const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserialize<Object>);
 
-DEFINE_RTT(String);
+RTT_CC_DECLS1(String, "x10.lang.String", Value)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

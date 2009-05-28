@@ -9,26 +9,23 @@ namespace x10 {
     namespace lang {
         template<class I, class V> class Settable : public virtual Object {
             public:
-            class RTT : public x10aux::RuntimeType {
-                public:
-                virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.Settable[%s,%s]",
-                                             x10aux::getRTT<I>()->name(),
-                                             x10aux::getRTT<V>()->name());
-                    return name;
-                }
-            };
-            static RTT * const rtt;
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<x10::lang::Settable<I, V> >();
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.Settable[%s,%s]",
+                                         x10aux::getRTT<I>()->name(),
+                                         x10aux::getRTT<V>()->name());
+                const x10aux::RuntimeType *parent = x10::lang::Object::getRTT();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, parent);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             virtual V set(V v, I i) = 0;
         };
-        template<class I, class V> typename Settable<I, V>::RTT * const Settable<I, V>::rtt =
-            new (x10aux::alloc<typename Settable<I, V>::RTT>()) typename Settable<I, V>::RTT();
+
+        template<class I, class V> const x10aux::RuntimeType *Settable<I, V>::rtt = NULL;
     }
 }
 #endif

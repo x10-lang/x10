@@ -23,22 +23,7 @@ namespace x10 {
         */
         class Deque : public x10::lang::Ref {
         public:
-            class RTT : public x10aux::RuntimeType {
-                public: 
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
-                    }
-                    
-                    virtual const char *name() const {
-                        return "x10.runtime.Deque";
-                    }
-                    
-            };
-            static RTT* const rtt;
-                    
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Deque>();
-            }
+            RTT_H_DECLS;
 
             static x10aux::ref<Deque> _make() {
                 x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();

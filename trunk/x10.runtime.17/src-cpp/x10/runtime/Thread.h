@@ -49,16 +49,7 @@ namespace x10 {
         */
         class Thread : public x10::lang::Ref {
         public:
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-                virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
-                virtual const char *name() const { return "x10.runtime.Thread"; }
-            };
-            static RTT* const rtt;
-
-            virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<Thread>(); }
-
+            RTT_H_DECLS;
 
             // [constructors] Allocates a new Thread object.
             static x10aux::ref<Thread> _make(x10aux::ref<x10::lang::VoidFun_0_0> task,

@@ -18,5 +18,6 @@ x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
 const serialization_id_t Ref::serialization_id =
     DeserializationDispatcher::addDeserializer(Ref::_deserialize<Object>);
 
-DEFINE_RTT(Ref);
+RTT_CC_DECLS1(Ref, "x10.lang.Ref", Object)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

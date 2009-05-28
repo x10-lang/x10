@@ -1,6 +1,7 @@
 #include <x10aux/config.h>
 
 #include <x10aux/pgas.h>
+#include <x10aux/RTT.h>
 
 #include <x10aux/cuda/cuda_utils.h>
 
@@ -129,6 +130,11 @@ static void deserialize_remote_closure(x10_async_closure_t *cl, int) {
 
 void x10aux::remote_closure_callback(x10_async_closure_t *cl, int) {
     deserialize_remote_closure(const_cast<const x10_async_closure_t *>(cl),0);
+}
+
+void
+x10aux::PGASInitializer::bootstrapRTT() {
+    RuntimeType::bootstrap();
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

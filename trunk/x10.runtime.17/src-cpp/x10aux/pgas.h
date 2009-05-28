@@ -25,13 +25,16 @@ namespace x10aux {
     void remote_closure_callback(x10rt_async_closure_t*, const int tag);
 
     class PGASInitializer {
+    private:
         static volatile int count;
+        static void bootstrapRTT();
     public:
         PGASInitializer() {
             if (count++ == 0) {
                 #ifdef X10_USE_BDWGC
                 GC_INIT();
-                #endif                
+                #endif
+                bootstrapRTT();
                 _X_("PGAS initialization starting");
                 x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
                 x10_init();

@@ -9,6 +9,6 @@
 using namespace x10::lang;
 using namespace x10::util::concurrent::atomic;
 
-DEFINE_RTT(AtomicLong);
+RTT_CC_DECLS1(AtomicLong, "x10.util.concurrent.atomic.AtomicLong", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

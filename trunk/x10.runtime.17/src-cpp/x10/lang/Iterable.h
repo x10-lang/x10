@@ -9,26 +9,21 @@ namespace x10 {
     namespace lang {
         template<class T> class Iterable : public virtual Object {
             public:
-            class RTT : public x10aux::RuntimeType {
-                public:
-                virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.Iterable[%s]",
-                                             x10aux::getRTT<T>()->name());
-                    return name;
-                }
-            };
-            static RTT * const rtt;
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Iterable<T> >();
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.Iterable[%s]",x10aux::getRTT<T>()->name());
+                const x10aux::RuntimeType *parent = x10::lang::Object::getRTT();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, parent);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             virtual x10aux::ref<Iterator<T > > iterator() = 0;
         };
-        template<class T> typename Iterable<T>::RTT * const Iterable<T>::rtt =
-            new (x10aux::alloc<typename Iterable<T>::RTT>()) typename Iterable<T>::RTT();
 
+        template<class T> const x10aux::RuntimeType *Iterable<T>::rtt = NULL;
     }
 }
 #endif

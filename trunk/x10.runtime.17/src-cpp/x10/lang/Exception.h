@@ -13,17 +13,7 @@ namespace x10 {
 
         class Exception : public Throwable {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                virtual void init() { initParents(1,x10aux::getRTT<Throwable>()); }
-                virtual const char *name() const { return "x10.lang.Exception"; }
-            };
-            static RTT* const rtt; 
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Exception>();
-            }
-
+            RTT_H_DECLS;
 
             static x10aux::ref<Exception> _make()
             { return (new (x10aux::alloc<Exception>()) Exception())->_constructor(); }

@@ -62,7 +62,8 @@ namespace x10aux {
         #endif
 
         public:
-
+        static const x10aux::RuntimeType* getRTT() { return T::getRTT(); }
+        
         GPUSAFE ~ref() { DEC(_val); }
 
         // Copy between refs of the same type
@@ -122,7 +123,7 @@ namespace x10aux {
             assert(isNull() == _ref.isNull() && "Invalid c++ cast");
             INC(_val);
         }
-        
+
         // Allow the assignment of a ref<S> to a ref<T>
         template<class S> GPUSAFE const ref<T> &operator=(const ref<S>& _ref) {
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless

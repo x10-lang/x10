@@ -12,17 +12,7 @@ namespace x10 {
 
         class NullPointerException : public RuntimeException {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                virtual void init() { initParents(1,x10aux::getRTT<x10::lang::RuntimeException>());}
-                virtual const char *name() const { return "x10.lang.NullPointerException"; } 
-            };
-            static RTT* const rtt; 
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<NullPointerException>();
-            }
-
+            RTT_H_DECLS;
 
             static x10aux::ref<NullPointerException> _make()
             {
