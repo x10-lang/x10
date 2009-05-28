@@ -25,8 +25,6 @@
  *   DEBUG             - general debug trace printouts
  *
  *   REF_STRIP_TYPE    - experimental option: erase the exact content type in references
- *   REF_COUNTING      - experimental option: enable reference counting
- * 
  */
 
 #ifdef __CUDA_ARCH__
