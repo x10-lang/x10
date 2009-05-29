@@ -1,0 +1,45 @@
+#!/bin/bash
+usage() {
+echo "
+
+cvsAdd dst
+
+will add dst to CVS, recursively adding any subdirectories as well.
+"
+
+exit 1
+}
+
+cvsAdd() {
+#add dstFile to cvs
+
+local dstFile="$1"
+
+if [[ -f $dstFile ]]; then # just add a regular file
+  echo "adding $dstFile."
+  cvs add "$dstFile"
+elif [[ -d "$dstFile" ]]; then #recursively process directories
+  cvs add "$dstFile"
+  for f in $dstFile/* ; do 
+    local tail=${f##*/}
+    if [[ "$tail" != "CVS" ]]; then
+        cvsAdd "$dstFile/$tail"; 
+    fi
+  done
+fi
+}
+
+main() {
+# main method
+
+#check parameters
+if [[ ! ( $# -eq 1 && -e "$1" ) || "$1" == "-help" || "$1" == "--help" ]]; then 
+  usage
+fi
+shopt -s dotglob # also consider files beginning with .
+local dstFile="$1"
+cvsAdd "$dstFile" 
+}
+
+main $*
+exit 0

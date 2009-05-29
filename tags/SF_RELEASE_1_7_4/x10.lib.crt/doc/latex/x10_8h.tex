@@ -1,0 +1,227 @@
+\section{x10.h File Reference}
+\label{x10_8h}\index{x10.h@{x10.h}}
+{\tt \#include $<$stdio.h$>$}\par
+{\tt \#include \char`\"{}x10\_\-types.h\char`\"{}}\par
+\subsection*{Functions}
+\begin{CompactItemize}
+\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-init} ()
+\begin{CompactList}\small\item\em init/finalize \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-finalize} ()
+\item 
+EXTERN {\bf x10\_\-comm\_\-handle\_\-t} {\bf x10\_\-async\_\-spawn} (const {\bf x10\_\-place\_\-t} tgt, const {\bf x10\_\-async\_\-closure\_\-t} $\ast$closure, const size\_\-t cl\_\-size, const {\bf x10\_\-finish\_\-record\_\-t} $\ast$frecord, const {\bf x10\_\-clock\_\-t} $\ast$clocks, const int num\_\-clocks)
+\begin{CompactList}\small\item\em asyncs spawn an async on given target (NON-BLOCKING). x10lib assumes SPMD programming model; code is replicated everywhere \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-async\_\-spawn\_\-wait} ({\bf x10\_\-comm\_\-handle\_\-t} handle)
+\begin{CompactList}\small\item\em wait for the async\_\-spawn to complete locally (BLOCKING) \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-probe} ()
+\begin{CompactList}\small\item\em check for any asyncs in the internal async queue and execute them. This method should be used on the receiver side to make progress (NON-BLOCKING) \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-infinite\_\-poll} ()
+\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-finish\_\-begin} ({\bf x10\_\-finish\_\-record\_\-t} $\ast$frecord, void $\ast$mult\_\-ex\_\-buf, int $\ast$ex\_\-offsets, int max\_\-ex\_\-buf\_\-size, int max\_\-num\_\-exceptions)
+\begin{CompactList}\small\item\em finish start the finish\_\-scope (called by root activity only) \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-finish\_\-begin\_\-global} ({\bf x10\_\-finish\_\-record\_\-t} $\ast$frecord, void $\ast$mult\_\-ex\_\-buf, int $\ast$ex\_\-offsets, int max\_\-ex\_\-buf\_\-size, int max\_\-num\_\-exceptions)
+\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-finish\_\-end} (const {\bf x10\_\-finish\_\-record\_\-t} $\ast$finish\_\-record, int $\ast$num\_\-exceptions)
+\begin{CompactList}\small\item\em end the finish\_\-scope (called by root activity only). Waits for global termination of all the activities (BLOCKING) \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-finish\_\-child} (const {\bf x10\_\-finish\_\-record\_\-t} $\ast$frecord, void $\ast$ex\_\-buf, int ex\_\-buf\_\-size)
+\begin{CompactList}\small\item\em notify the \char`\"{}root\char`\"{} that I have finished (called by children activity only) \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-clock\_\-init} ({\bf x10\_\-clock\_\-t} $\ast$c)
+\begin{CompactList}\small\item\em clocks initialize a clock c (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})} for {\bf x10\_\-clock\_\-t}{\rm (p.\,\pageref{structx10__clock__t})}) \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-clock\_\-free} ({\bf x10\_\-clock\_\-t} $\ast$c)
+\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-clock\_\-resume} ({\bf x10\_\-clock\_\-t} $\ast$c)
+\begin{CompactList}\small\item\em perform a resume operation on clock c \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-clock\_\-drop} ({\bf x10\_\-clock\_\-t} $\ast$c)
+\begin{CompactList}\small\item\em drop a clock c \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-next} ({\bf x10\_\-clock\_\-t} $\ast$c)
+\begin{CompactList}\small\item\em perform a next operation \item\end{CompactList}\item 
+EXTERN {\bf x10\_\-err\_\-t} {\bf x10\_\-next\_\-all} ()
+\item 
+EXTERN {\bf x10\_\-remote\_\-ref\_\-t} {\bf x10\_\-serialize\_\-ref} (void $\ast$ref)
+\begin{CompactList}\small\item\em remote reference serialize a reference (local or remote) \item\end{CompactList}\item 
+EXTERN void $\ast$ {\bf x10\_\-deserialize\_\-ref} ({\bf x10\_\-remote\_\-ref\_\-t} ref)
+\begin{CompactList}\small\item\em deserialize a remote reference \item\end{CompactList}\item 
+EXTERN int {\bf x10\_\-get\_\-loc} (void $\ast$ref)
+\item 
+EXTERN bool {\bf x10\_\-is\_\-localref} (void $\ast$ref)
+\begin{CompactList}\small\item\em check if the reference is local \item\end{CompactList}\end{CompactItemize}
+\subsection*{Variables}
+\begin{CompactItemize}
+\item 
+{\bf x10\_\-place\_\-t} {\bf \_\-\_\-x10\_\-here}
+\item 
+unsigned int {\bf \_\-\_\-x10\_\-numplaces}
+\end{CompactItemize}
+
+
+\subsection{Function Documentation}
+\index{x10.h@{x10.h}!x10_async_spawn@{x10\_\-async\_\-spawn}}
+\index{x10_async_spawn@{x10\_\-async\_\-spawn}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-comm\_\-handle\_\-t} x10\_\-async\_\-spawn (const {\bf x10\_\-place\_\-t} {\em tgt}, const {\bf x10\_\-async\_\-closure\_\-t} $\ast$ {\em closure}, const size\_\-t {\em cl\_\-size}, const {\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em frecord}, const {\bf x10\_\-clock\_\-t} $\ast$ {\em clocks}, const int {\em num\_\-clocks})}\label{x10_8h_a4}
+
+
+asyncs spawn an async on given target (NON-BLOCKING). x10lib assumes SPMD programming model; code is replicated everywhere 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em tgt}]target place \item[{\em closure}]pointer to async closure (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})}) \item[{\em cl\_\-size}]size of the async closure \item[{\em frecord}]pointer to the finish record (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})}) \item[{\em clocks}]clock set for the async (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})}) \item[{\em num\_\-clocks}]number of clocks in the clock set\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]handle to wait for \end{Desc}
+\index{x10.h@{x10.h}!x10_async_spawn_wait@{x10\_\-async\_\-spawn\_\-wait}}
+\index{x10_async_spawn_wait@{x10\_\-async\_\-spawn\_\-wait}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-async\_\-spawn\_\-wait ({\bf x10\_\-comm\_\-handle\_\-t} {\em handle})}\label{x10_8h_a5}
+
+
+wait for the async\_\-spawn to complete locally (BLOCKING) 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em handle}]handle returned by x10\_\-async\_\-spawn (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})})\end{description}
+\end{Desc}
+\begin{Desc}
+\item[Returns:]returns an error or success \end{Desc}
+\index{x10.h@{x10.h}!x10_clock_drop@{x10\_\-clock\_\-drop}}
+\index{x10_clock_drop@{x10\_\-clock\_\-drop}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-clock\_\-drop ({\bf x10\_\-clock\_\-t} $\ast$ {\em c})}\label{x10_8h_a15}
+
+
+drop a clock c 
+
+\index{x10.h@{x10.h}!x10_clock_free@{x10\_\-clock\_\-free}}
+\index{x10_clock_free@{x10\_\-clock\_\-free}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-clock\_\-free ({\bf x10\_\-clock\_\-t} $\ast$ {\em c})}\label{x10_8h_a13}
+
+
+\index{x10.h@{x10.h}!x10_clock_init@{x10\_\-clock\_\-init}}
+\index{x10_clock_init@{x10\_\-clock\_\-init}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-clock\_\-init ({\bf x10\_\-clock\_\-t} $\ast$ {\em c})}\label{x10_8h_a12}
+
+
+clocks initialize a clock c (see {\bf x10\_\-types.h}{\rm (p.\,\pageref{x10__types_8h})} for {\bf x10\_\-clock\_\-t}{\rm (p.\,\pageref{structx10__clock__t})}) 
+
+\index{x10.h@{x10.h}!x10_clock_resume@{x10\_\-clock\_\-resume}}
+\index{x10_clock_resume@{x10\_\-clock\_\-resume}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-clock\_\-resume ({\bf x10\_\-clock\_\-t} $\ast$ {\em c})}\label{x10_8h_a14}
+
+
+perform a resume operation on clock c 
+
+\index{x10.h@{x10.h}!x10_deserialize_ref@{x10\_\-deserialize\_\-ref}}
+\index{x10_deserialize_ref@{x10\_\-deserialize\_\-ref}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN void$\ast$ x10\_\-deserialize\_\-ref ({\bf x10\_\-remote\_\-ref\_\-t} {\em ref})}\label{x10_8h_a19}
+
+
+deserialize a remote reference 
+
+\index{x10.h@{x10.h}!x10_finalize@{x10\_\-finalize}}
+\index{x10_finalize@{x10\_\-finalize}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-finalize ()}\label{x10_8h_a3}
+
+
+\index{x10.h@{x10.h}!x10_finish_begin@{x10\_\-finish\_\-begin}}
+\index{x10_finish_begin@{x10\_\-finish\_\-begin}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-finish\_\-begin ({\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em frecord}, void $\ast$ {\em mult\_\-ex\_\-buf}, int $\ast$ {\em ex\_\-offsets}, int {\em max\_\-ex\_\-buf\_\-size}, int {\em max\_\-num\_\-exceptions})}\label{x10_8h_a8}
+
+
+finish start the finish\_\-scope (called by root activity only) 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em frecord}]the finish record \item[{\em multi\_\-ex\_\-buf}]buffer for the resulting multi\_\-exceptions (if any) \item[{\em ex\_\-offsets}]offsets array for individual exceptions \item[{\em max\_\-ex\_\-buf\_\-size}]maximum size of the multi\_\-ex\_\-buf \item[{\em max\_\-num\_\-exceptions}]maximum number of individual exceptions \end{description}
+\end{Desc}
+\index{x10.h@{x10.h}!x10_finish_begin_global@{x10\_\-finish\_\-begin\_\-global}}
+\index{x10_finish_begin_global@{x10\_\-finish\_\-begin\_\-global}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-finish\_\-begin\_\-global ({\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em frecord}, void $\ast$ {\em mult\_\-ex\_\-buf}, int $\ast$ {\em ex\_\-offsets}, int {\em max\_\-ex\_\-buf\_\-size}, int {\em max\_\-num\_\-exceptions})}\label{x10_8h_a9}
+
+
+\index{x10.h@{x10.h}!x10_finish_child@{x10\_\-finish\_\-child}}
+\index{x10_finish_child@{x10\_\-finish\_\-child}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-finish\_\-child (const {\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em frecord}, void $\ast$ {\em ex\_\-buf}, int {\em ex\_\-buf\_\-size})}\label{x10_8h_a11}
+
+
+notify the \char`\"{}root\char`\"{} that I have finished (called by children activity only) 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em frecord}]finish record \item[{\em ex\_\-buf}]exception buffer \item[{\em ex\_\-buf\_\-size}]size of the exception buffer \end{description}
+\end{Desc}
+\index{x10.h@{x10.h}!x10_finish_end@{x10\_\-finish\_\-end}}
+\index{x10_finish_end@{x10\_\-finish\_\-end}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-finish\_\-end (const {\bf x10\_\-finish\_\-record\_\-t} $\ast$ {\em finish\_\-record}, int $\ast$ {\em num\_\-exceptions})}\label{x10_8h_a10}
+
+
+end the finish\_\-scope (called by root activity only). Waits for global termination of all the activities (BLOCKING) 
+
+\begin{Desc}
+\item[Parameters:]
+\begin{description}
+\item[{\em finish\_\-record}]pointer to finish\_\-record \item[{\em num\_\-exceptions}]total number of exceptions \end{description}
+\end{Desc}
+\index{x10.h@{x10.h}!x10_get_loc@{x10\_\-get\_\-loc}}
+\index{x10_get_loc@{x10\_\-get\_\-loc}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN int x10\_\-get\_\-loc (void $\ast$ {\em ref})}\label{x10_8h_a20}
+
+
+$\backslash$ brief get the location of a reference \index{x10.h@{x10.h}!x10_infinite_poll@{x10\_\-infinite\_\-poll}}
+\index{x10_infinite_poll@{x10\_\-infinite\_\-poll}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-infinite\_\-poll ()}\label{x10_8h_a7}
+
+
+Performs x10\_\-probe infinitely, until a termination message is received (BLOCKING) \index{x10.h@{x10.h}!x10_init@{x10\_\-init}}
+\index{x10_init@{x10\_\-init}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-init ()}\label{x10_8h_a2}
+
+
+init/finalize 
+
+\index{x10.h@{x10.h}!x10_is_localref@{x10\_\-is\_\-localref}}
+\index{x10_is_localref@{x10\_\-is\_\-localref}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN bool x10\_\-is\_\-localref (void $\ast$ {\em ref})}\label{x10_8h_a21}
+
+
+check if the reference is local 
+
+\index{x10.h@{x10.h}!x10_next@{x10\_\-next}}
+\index{x10_next@{x10\_\-next}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-next ({\bf x10\_\-clock\_\-t} $\ast$ {\em c})}\label{x10_8h_a16}
+
+
+perform a next operation 
+
+\index{x10.h@{x10.h}!x10_next_all@{x10\_\-next\_\-all}}
+\index{x10_next_all@{x10\_\-next\_\-all}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-next\_\-all ()}\label{x10_8h_a17}
+
+
+\index{x10.h@{x10.h}!x10_probe@{x10\_\-probe}}
+\index{x10_probe@{x10\_\-probe}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-err\_\-t} x10\_\-probe ()}\label{x10_8h_a6}
+
+
+check for any asyncs in the internal async queue and execute them. This method should be used on the receiver side to make progress (NON-BLOCKING) 
+
+\index{x10.h@{x10.h}!x10_serialize_ref@{x10\_\-serialize\_\-ref}}
+\index{x10_serialize_ref@{x10\_\-serialize\_\-ref}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}EXTERN {\bf x10\_\-remote\_\-ref\_\-t} x10\_\-serialize\_\-ref (void $\ast$ {\em ref})}\label{x10_8h_a18}
+
+
+remote reference serialize a reference (local or remote) 
+
+
+
+\subsection{Variable Documentation}
+\index{x10.h@{x10.h}!__x10_here@{\_\-\_\-x10\_\-here}}
+\index{__x10_here@{\_\-\_\-x10\_\-here}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}{\bf x10\_\-place\_\-t} {\bf \_\-\_\-x10\_\-here}}\label{x10_8h_a0}
+
+
+\index{x10.h@{x10.h}!__x10_numplaces@{\_\-\_\-x10\_\-numplaces}}
+\index{__x10_numplaces@{\_\-\_\-x10\_\-numplaces}!x10.h@{x10.h}}
+\subsubsection{\setlength{\rightskip}{0pt plus 5cm}unsigned int {\bf \_\-\_\-x10\_\-numplaces}}\label{x10_8h_a1}
+
+

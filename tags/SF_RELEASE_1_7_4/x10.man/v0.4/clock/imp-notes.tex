@@ -1,0 +1,21 @@
+\subsection{Implementation Notes}
+Clocks may be implemented efficiently with message passing, e.g.{} by
+using short-circuit ideas in \cite{SaraswatPODC88}.  Recall that every
+activity is spawned with references to a fixed number of clocks. Each
+reference should be thought of as a global pointer to a location in
+some place representing the clock. (We shall discuss a further
+optimization below.) Each clock keeps two counters: the total number
+of outstanding references to the clock, and the number of activities
+that are currently suspended on the clock.
+
+When an activity $A$ spawns another activity $B$ that will reference a
+clock $c$ referenced by $A$, $A$ {\em splits} the reference by sending
+a message to the clock. Whenever an activity drops a reference to a
+clock, or suspends on it, it sends a message to the clock. 
+
+The optimization is that the clock can be represented in a distributed
+fashion. Each place keeps a local counter for each clock that is
+referenced by an activity in that place. The global location for the
+clock simply keeps track of the places that have references and that
+are quiescent. This can reduce the inter-place message traffic
+significantly.

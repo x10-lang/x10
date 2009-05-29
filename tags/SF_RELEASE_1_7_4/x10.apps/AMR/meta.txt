@@ -1,0 +1,9 @@
+Challenges in AMR
+
+-- Irregular data access and computation. Arises from handling the
+   boundary conditions at the boundaries between adjacent levels of
+   the nested hierarchy of grids.
+
+   For the computation at a grid at level l, values are needed through
+   interpolation from the grid at level l-1 (coarser), and through
+   averaging at grid level l+1.

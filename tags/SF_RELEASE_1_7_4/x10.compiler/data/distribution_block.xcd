@@ -1,0 +1,3 @@
+// SYNOPSIS: distribution.blocked(#0,#1) #0=region #1=set-of-places
+// SYNOPSIS: [IP] I don't think this is used
+(Runtime.factory.getDistributionFactory().block(#0,#1))

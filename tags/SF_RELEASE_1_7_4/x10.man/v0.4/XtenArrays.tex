@@ -1,0 +1,188 @@
+\chapter{Arrays}\label{XtenArrays}\index{arrays}
+
+An array is a mapping from a distribution to a range data
+type. Multiple arrays may be declared with the same underlying
+distribution. 
+
+Each array has a field {\tt a.distribution} which may be used to
+obtain the underlying distribution.\index{arrays!distribution@\tt distribution}
+
+The distribution underlying an array {\tt a} may be obtained through
+the field {\tt a.distribution}.
+
+\input{XtenRegions}
+\input{XtenDistributions}
+\section{Array initializer}\label{ArrayInitializer}\label{array!creation}
+
+\begin{x10}
+450 ArrayCreationExpression ::= 
+       new ArrayBaseType Unsafeopt [] 
+         ArrayInitializer
+451  | new ArrayBaseType Unsafeopt 
+       [ Expression ]
+452  | new ArrayBaseType Unsafeopt 
+       [ Expression ] Expression
+453  | new ArrayBaseType Unsafeopt 
+       [ Expression ] 
+       (FormalParameter) MethodBody
+454  | new ArrayBaseType value Unsafeopt 
+       [ Expression ]
+455  | new ArrayBaseType value Unsafeopt 
+       [ Expression ] Expression
+456  | new ArrayBaseType value Unsafeopt 
+       [ Expression ] 
+       ( FormalParameter ) MethodBody
+457 ArrayBaseType ::= PrimitiveType
+458  | ClassOrInterfaceType
+530 Unsafeopt ::=
+531  | unsafe
+\end{x10}
+
+An array may be declared {\tt unsafe} if it is intended to be
+allocated in an unmanaged region (e.g.{} for communication with native
+code). A {\tt value} array is an immutable array. An array creation
+must take either an int as an argument or a distribution. In the first
+case an array is created over the distribution {\tt [0:N-1]-> here};
+in the second over the given distribution. 
+
+An array creation operation may also specify an initializer using the
+abbreviated formalparameter/methodbody functional syntax. The formal
+parameter may contain exploded parameters
+(Section~\ref{exploded-syntax}). The function is applied in parallel
+at all points in the domain of the distribution. The array
+construction operation terminates locally only when the array has been
+fully created and initialized (at all places in the range of the
+distribution).
+
+For instance:
+\begin{x10}
+int[.] data 
+    = new int[1000->here] 
+         new intArray.pointwiseOp()\{
+             public int apply(point p[i])\{
+               return i;
+           \}
+     \};
+int[.] data2 
+    = new int value [[1:1000,1:1000]->here] 
+        (point p[i,j])\{ return i*j; \};
+\end{x10}
+
+{}\noindent 
+The first declaration stores in {\tt data} a reference to a mutable
+array with {\tt 1000} elements each of which is located in the
+same place as the array. Each array component is initialized to {\tt i}.
+
+The second declaration stores in {\tt data2} an (immutable)
+2-d array over {\tt [1:1000, 1:1000]} initialized with {\tt i*j}
+at point {\tt [i,j]}. It uses a more abbreviated form to specify 
+the array initializer function.
+
+Other examples:
+\begin{x10}
+int[.] data 
+   = new int[1000](point [i])\{return i*i;\};
+float[D] d 
+   = new float[D] (point [i])\{return 10.0*i;\}; 
+float[D] result 
+   = new float[D] 
+     (point [i,j]) \{return i + j; \};
+\end{x10}
+
+\section{Operations on arrays}
+In the following let {\tt a} be an array with distribution {\tt D} and
+base type {\tt T}. {\tt a} may be mutable or immutable, unless
+indicated otherwise.
+
+\subsection{Element operations}\index{array!access}
+The value of {\tt a} at a point {\tt p} in its region of definition is
+obtained by using the indexing operation {\tt a[p]}. This operation
+may be used on the left hand side of an assignment operation to update
+the value. The operator assignments {\tt a[i] op= e} are also available
+in \Xten{}.
+
+\subsection{Constant promotion}\label{ConstantArray}\index{arrays!constant promotion}
+
+For a distribution {\tt D} and a constant or final variable {\tt v} of
+type {\tt T} the expression {\tt new T[D](point p) \{ return v;\}}
+{\tt D v} denotes the mutable array with
+distribution {\tt D} and base type {\tt T} initialized with {\tt v}.
+
+\subsection{Restriction of an array}\index{array!restriction}
+
+Let {\tt D1} be a sub-distribution of {\tt D}. Then {\tt a | D1}
+represents the sub-array of {\tt a} with the distribution {\tt D1}.
+
+Recall that a rich set of operators are available on distributions
+(\S~\ref{XtenDistributions}) to obtain sub-distributions
+(e.g. restricting to a sub-region, to a specific place etc).
+
+\subsection{Assembling an array}
+Let {\tt a1,a2} be arrays of the same base type {\tt T} defined over
+distributions {\tt D1} and {\tt D2} respectively. Assume that both
+arrays are value or reference arrays. 
+\paragraph{Assembling arrays over disjoint regions}\index{array!union!disjoint}
+
+If {\tt D1} and {\tt D2} are disjoint then the expression {\tt a1 ||
+a2} denotes the unique array of base type {\tt T} defined over the
+distribution {\tt D1 || D2} such that its value at point {\tt p} is
+{\tt a1[p]} if {\tt p} lies in {\tt D1} and {\tt a2[p]}
+otherwise. This array is a reference (value) array if {\tt a1} is.
+
+\paragraph{Overlaying an array on another}\index{array!union!asymmetric}
+The expression
+{\tt a1.overlay(a2)} (read: the array {\tt a1} {\em overlaid with} {\tt a2})
+represents an array whose underlying region is the union of that of
+{\tt a1} and {\tt a2} and whose distribution maps each point {\tt p}
+in this region to {\tt D2[p]} if that is defined and to {\tt D1[p]}
+otherwise. The value {\tt a1.overlay(a2)[p]} is {\tt a2[p]} if it is defined and {\tt a1[p]} otherwise.
+
+This array is a reference (value) array if {\tt a1} is.
+
+The expression {\tt a1.update(a2)} updates the array {\tt a1} in place
+with the result of {\tt a1.overlay(a2)}.
+\todo{Define Flooding of arrays}
+
+\todo{Wrapping an array}
+
+\todo{Extending an array in a given direction.}
+
+\subsection{Global operations }
+\paragraph{Pointwise operations}\label{ArrayPointwise}\index{array!pointwise operations}
+Suppose that {\tt m} is an operation defined on type {\tt T} that
+takes an argument of type {\tt S} and returns a value of type {\tt
+R}. Such an operation can be lifted pointwise to operate on a {\tt T}
+array and an {\tt S} array defined over the same distribution {\tt D}
+to return an {\tt R} array defined over {\tt D}, using the
+{\tt lift} operation, {\tt a.lift(f, b)}.
+
+
+\paragraph{Reductions}\label{ArrayReductions}\index{array!reductions}
+
+Let {\tt f} be a {\tt binaryOp} defined on type {\tt T} (e.g.{} see
+the specification of the classes {\tt x10.lang.intArray}).  Let {\tt
+a} be a value or reference array over base type {\tt T}. Then the
+operation {\tt a.reduce(f)} returns a value of type {\tt T} obtained
+by performing {\tt m} on all points in {\tt a} in some order, and in
+parallel.
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation guarantees that
+only one value of type {\tt T} is communicated from a place as part of
+this reduction process.
+
+\paragraph{Scans}\label{ArrayScans}\index{array!scans}
+
+Let {\tt m} be a reduction operator defined on type {\tt T}. Let {\tt
+a} be a value or reference array over base type {\tt T} and
+distribution {\tt D}. Then the operation {\tt a||m()} returns an array
+of base type {\tt T} and distribution {\tt D} whose {\tt i}th element
+(in canonical order) is obtained by performing the reduction {\tt m}
+on the first {\tt i} elements of {\tt a} (in canonical order).
+
+This operation involves communication between the places over which
+the array is distributed. The \Xten{} implementation will endeavour to
+minimize the communication between places to implement this operation.
+
+Other operations on arrays may be found in {\tt x10.lang.intArray} and
+other related classes.

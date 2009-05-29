@@ -1,0 +1,148 @@
+- Whenever a global name is needed, especially for a collection, a
+  singleton is created. XXManager classes fall into this category.
+- All singletons, and any classes registering active methods, have
+  Init() and Finalize() static methods in which this happens. This is
+  done to endure thread-safety and avoid memory allocation or GPC
+  registration from within an active method. 
+- Some (potential) errors/limitations in the code are flagged FIXME,
+  TODO, or WARNING. Grep for them once in a while to see what might be
+  broken. Another tag of note would be KLUDGE.
+- When compiled and linked with GA4.0/GA4.0.1, note the following:
+  - gpc.h and gpc.c differ in declaration/definition of two
+  functions. I have worked around them by declaring them in the code.
+  - When the code is executed in parallel on a single node, active
+  methods might seg fault. This is because the buffers are initialized
+  in ARMCI only when #nodes>1. One might have to comment this check
+  out in armci/src/armci.c:ARMCI_Init() that restricts the invocation
+  of armci_start_server(). 
+- In ARMCI, the active methods are executed in a communicator thread
+  spawned by ARMCI. The methods executed in this thread should be
+  thread-safe and not perform any communication.
+- In theory (and whenever pthreads is not available), the communicator
+  thread can be a separate process that does not share any address
+  space with the spawning process. In either case, the communicator
+  thread cannot have access to the singleton objects in all the
+  processes in an SMP node. Thus the best way to design it would be to
+  have each process(place) create a list in pinned memory and make
+  this visible to the active methods. Active methods either malloc()
+  buffers with the required method info and add them to the list, or
+  deserialize them (this would be cleaner) and enter objects into the
+  list. 
+  The key issue here is memory management. First, the list needs to be
+  created with an allocator that manages a pinned memory region
+  assigned to it. Thus we need to implement/find a memory allocator
+  that can manage a pre-allocated buffer. Same is true with
+  de-serializing from within active methods. 
+- Memory management: There are two groups of memory allocated at a
+  process. Ones that are allocated by the code initiated by the user
+  at the process, and those that result from active methods that
+  arrive at that place. Any memory allocated due to active methods are
+  cleaned up automatically. Memory allocated otherwise needs to be
+  cleaned up by user code. There is only one exception: pointers added
+  to the process lists (ready lists, nonthread-safe list, etc.) are to
+  be deleted by the ActivityManager.
+
+Directions::
+===========
+- Clocks
+  - Synchronization of activities.
+  - Barrier-type and multi-phase clocks
+  - A recurring form of finish
+  - More dynamic than form process groups
+  - Do subscribers change for different quiessence steps? In other
+    words, in a typical application do the activities that sync in a
+    clock stay the same/similar for different clock steps?
+  - Example application demonstrating use of clocks
+  - Might benefit from a balanced organization of the reporting
+    relationships, as compared to say repeated Dijkstra-Scholten
+    algorithm. 
+  - Need to understand Vijay's algorithm thoroughly.
+
+- SMP implementation
+  - Understand ARMCI semantics thoroughly, in both thread-based and
+    process-based data server model.
+  - One process/place per SMP
+    - One thread per core + one communicator thread
+    - Assuming malloc() and new/delete are thread-safe, no additional
+      memory management support.
+    - Mechanisms to distribute the ready activities among the
+      cores. Locking, load balancing, and locality. Any wrinkles to
+      optimize for multi-core?
+    - An understanding of its limitations. What happens when pthreads
+      is not available. What happens on BG/L or BG/P?
+    - Possibly lower communication costs. 
+    - Studying papers on task scheduling in SMP (there should be
+      some). 
+  - One process/place per core/chip
+    - One communicator thread/process per SMP node again.
+    - One separate queue of ready activities per process. 
+    - Communicator thread communicates with each of the processes
+      through pinned memory allocated by them. 
+    - A memory management module to manage a pre-allocated pinned
+      buffer shared by each process with the communicator thread. 
+    - No load-balancing, etc. across processes in a core. Each has its
+      own set of activities. 
+    - Less locking costs (possibly)	
+    - More communication/copy costs for interaction within an SMP
+      node.
+
+- Performance
+  - Micro-benchmarks
+    - Cost of serialization/deserialization using boost
+    - Ping/pong latency & bandwidth
+    - Global spawning of activities
+  - Optimization
+    - Remove round-trip latency from spawning in invocation of GPC
+      calls. 
+  
+- Shared Arrays
+  - Global memory allocation and activity spawning. 
+  - Non-collective handling of shared array identifiers.
+    - Check Calin's PLDI paper to see if there are any insights into
+      performance issues. 
+  - Caching of meta-data so that ARMCI intrinsics can be used for
+    subsequent data accesses.
+  - Performance
+    - Basic ones through GPC calls
+    - Optimized ones through ARMCI intrinsics.
+
+- Application
+  - Implement a reasonable application on top of what we have. 
+  - Implement functionality as needed. 
+  - Eg., some tree codes
+
+- Other implementation
+  - ARMCI intrinsics - Wrappers over ARMCI RDMA methods.
+  - Futures
+
+- Load-balancing
+  - For X10 performance - within an SMP
+  - On top of X10
+    - Migrateable tasks
+    - Migrateable data
+    - Load-balancing across SMP nodes
+
+Tasks:
+=====
+- Managing a place
+  - Initialize
+  - Finalize
+  - Define here() and #places
+  - Spawning an activity
+  - Waiting on a finish scope
+
+- Managing finish scopes
+  - Create unique finish scopes
+  - Create finish records for finish scopes
+  - Identify finish records for a finish scope at a give place. 
+
+Classes:
+- FinishScopeManager - Create finish scopes
+- FinishScope - Assignable globally unique id for a scope
+- FinishRecord - Manage a finish record at a place
+- FinishRecordManager - map(FinishScope->FinishRecord)
+- ActivityMaker - Serializable seed of an Activity
+- Activity - Running entity
+
+
+

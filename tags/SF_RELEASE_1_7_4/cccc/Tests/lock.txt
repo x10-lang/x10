@@ -1,0 +1,9 @@
+# Test lock-release-acquire scenario.
+
+0.0 W x 1
+0.1 W l 0
+1.0 A l 0 1
+1.1 R x 0
+
+0.1 -> 1.0
+1.1 -> 0.0

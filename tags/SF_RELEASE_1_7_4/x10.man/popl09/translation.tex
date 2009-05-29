@@ -1,0 +1,293 @@
+This section describes an implementation approach for generic types in
+\Xten{} on a JVM, with bytecode rewriting.
+
+The design is a hybrid design combining techniques of run-time
+instantiation from
+NextGen~\cite{nextgen,allen03} and type-passing from
+PolyJ~\cite{java-popl97}.  Generic classes are translated
+into ``template'' classes that are instantiated on demand at run time by
+binding the type properties to concrete types.
+%
+Constraints on values are erased from type references.
+Adapter objects are used to represent type
+properties and constraints.  
+Run-time type tests (e.g., casts) are translated
+into code that checks those constraints at run time.
+%
+This design has been implemented in the \Xten{} compiler, built
+on the Polyglot compiler framework~\cite{ncm03}.  The compiler
+translates \Xten{} source to Java source, which is then compiled
+to Java bytecode using an off-the-shelf Java compiler.\footnote{There is also
+a translation from \Xten{} to C++ source, not described here.}
+The \Xten{} runtime is augmented with a class loader
+implementation that performs run-time instantiation.
+
+\paragraph{Classes.}
+Each class is translated into a \emph{template class}.
+The template class is compiled by a Java compiler (e.g., javac)
+to produce a class file.
+At run time, when a constrained type \xcd"C{c}" is first referenced, a
+class loader loads the template class for \xcd"C" and then
+transforms its bytecode, specializing it to the constraint
+\xcd"c".  The implementation specializes code based on type constraints,
+not value constraints; we leave value-constraint specialization to
+future work.
+%
+For example, consider the following classes.
+{
+\begin{xten}
+class A[X] {
+  var a: X;
+}
+\end{xten}}
+{
+\begin{xten}
+class C {
+  val x: A[int] = new A[int]();
+  val y: int = x.a;
+}
+\end{xten}}
+
+The compiler generates the following Java code:
+{
+\begin{xten}
+@Parameters({"X"})
+class A {
+  @TypeProperty public static class X { }
+  public x10.runtime.Type X;
+  X a;
+  @Synthetic public A(Class X) { this(); }
+}
+\end{xten}}
+{
+\begin{xten}
+class C {
+  final A x = new A(int.class);
+  final int y = Runtime.to$int(x.a);
+}
+\end{xten}}
+
+The member class \xcd"A.X" is used in place of the
+type property \xcd"X".   The field \xcd"X" of type
+\xcd"x10.runtime.Type" captures the actual constrained type on which \xcd"A"
+is instantiated, and is used for run-time type tests.
+The \xcd"@Parameters" annotation on \xcd"A" is used during
+run-time instantiation to identify the type properties.
+Synthetic constructors with added \xcd"Class" parameters are
+used to pass instantiation arguments to the \xcd"new"
+expression.
+This code is compiled to Java bytecode.
+
+When an expression (e.g., \xcd"new C()") is evaluated,
+the class \xcd"C" is loaded.
+The class loader transforms the bytecode as if it had
+been written as follows:
+
+{
+\begin{xten}
+class C {
+  final A$$int x = new A$$int();
+  final int y = x.a;
+}
+\end{xten}}
+
+The class loader rewrites allocations of template classes
+(e.g., \xcd"new A(int.class)") into allocations of the
+instantiated classes (i.e., \xcd"new A$$int()").
+The template class name and actual type arguments are mangled to
+derive the name of the instantiated class.
+This code cannot be generated directly because
+class \xcd"A$$int" does not yet exist; the Java source compiler
+would fail to compile \xcd"C".
+
+Upon evaluation of the constructor,
+the class \xcd"A$$int" is loaded.
+The class loader intercepts
+this, demangles the name, and loads the bytecode for the
+template class \xcd"A".
+The bytecode is transformed, replacing the type property \xcd"X"
+with the concrete type \xcd"int".
+
+Parameter types are coerced to and from the actual type
+\xcd"T" (a Java primitive type or \xcd"Object") using
+method \xcd"Runtime.to$T(Object)" and \xcd"Runtime.from(T)",
+possibly with additional casts.
+Both are eliminated from the transformed
+bytecode, but are needed for the template class to type-check.
+
+\eat{
+Currently, the class loader instantiates the template for
+every encountered combination of parameters.  If desired,
+it is possible (and relatively easy) to optimize this scheme
+to instantiate only for the Java primitive types and Object,
+giving nine possible instantiations per parameter.
+}
+
+%Instantiations are used for representation.
+%Adapter objects are used for run time type information.
+%
+%Could do instantiation eagerly, but quickly gets out of hand without
+%whole-program analysis to limit the number of instantiations: 9
+%instantiations for one type property, 81 for two type
+%properties, 729 for three.
+
+%Constructors are translated to static methods of their
+%enclosing
+%class.
+%Constructor calls
+%are translated to calls to static methods.
+
+\eat{
+Consider the code in Figure~\ref{fig:translation1}.  It contains most of the
+features of generics that have to be translated.
+\begin{figure*}[tp]
+{\footnotesize
+\begin{xtenmath}
+class C[T] {
+    var x: T;
+    def this[T](x: T) { this.x = x; }
+    def set(x: T) { this.x = x; }
+    def get(): T { return this.x; }
+    def map[S](f: F[T,S]): S { return f._(this.x); }
+    def d() { return new D[T](); }
+    def t() { return new T(); } // FIXME
+    def isa(y: Object): boolean { return y instanceof C[T]; }
+}
+abstract class F[T,S] { S _(T x); }
+
+val x : C = new C[String]();
+val y : C[Int] = new C[Int]();
+val z : C{T $\extends$ Array} = new C[Array[Int]]();
+val f : F[String,Int] = ...;
+x.map[Int](f);
+new C[Int{self==3}]() instanceof C[Int{self<4}];
+\end{xten}}
+\caption{Code to translate}
+\label{fig:translation1}
+\end{figure*}
+
+The translated version is shown in Figure~\ref{fig:translation2}.
+\begin{figure*}[tp]
+{\footnotesize
+\begin{xten}
+@Parameters({"T"})
+class C {
+    @TypeProperty public static class T { }
+    T x;
+    C(T x) { this.x = x; }
+    @Synthetic C(Class T, T x) { this(x); }
+    @Synthetic public static boolean instanceof\$(Object o, String constraint) { assert(false); return true; }
+    public static boolean instanceof\$(Object o, String constraint, boolean b) { /*check constraint*/; return b; }
+    public static Object cast\$(Object o, String constraint) { /*check constraint*/; return (C)o; }
+    void set(T x) { this.x = x; }
+    T get() { return this.x; }
+    @Synthetic
+    @Parameters("S")
+    public static class map {
+        public static class S { };
+        public C c;
+        public map(C c) { this.c = c; }
+        @Synthetic
+        public map(Class S, C c) { this(c); }
+        public S apply(@InstantiateClass({"C\$T", "C\$map\$S"}) F f) { return f._(c.x); }
+        @Synthetic
+        public T apply(Class T, T x, T y) { return apply(x, y); } // We might only need one
+    }
+    @Synthetic
+    @ParametricMethod("T")
+    Object make\$map(Class T) { assert(false); return null; }
+    @Synthetic
+    Object make\$map(Class T, boolean ignored) {
+        Object retval = null;
+        try {
+            X10RuntimeClassloader cl = (X10RuntimeClassloader)C.class.getClassLoader();
+            Class<?> c = cl.instantiate(map.class, T); 
+            retval = c.getDeclaredConstructor(new Class[] { C.class }).newInstance(this);
+        }
+        catch (IllegalAccessException e) { }
+        catch (NoSuchMethodException e) { }
+        catch (InstantiationException e) { }
+        catch (InvocationTargetException e) { }
+        return retval;
+    }
+    @InstantiateClass({"C\$T"}) D d() { return new D(T.class); }
+    T t() { return new T(); } // FIXME
+    boolean isa(Object y) { return Runtime.instanceof\$(C.instanceof\$(y, null), T.class); }
+}
+@Parameters({"T","S"})
+abstract class F { ... }
+
+C x = new C(String.class);
+C y = new C(int.class);
+C z = new C(((X10RuntimeClassloader)C.class.getClassLoader()).getClass("Array\$\$int"));
+F f = ...;
+((C.map)(Object)(C.map)x.make\$map(int.class)).apply(int.class, f);
+
+Runtime.instanceof\$(C.instanceof\$(new C(int.class)(), "self<4"), int.class);
+\end{xten}}
+\caption{Translated code}
+\label{fig:translation2}
+\end{figure*}
+}
+
+\paragraph{Passing type arguments.}
+
+For types visible at run time, annotations are used to
+pass actual type arguments to the class loader.
+The annotation \xcd"@InstantiateClass"
+specifies the type parameter and
+is placed on
+fields, methods,
+method parameters, and classes to
+indicate instantiation parameters for field
+types, method return types, method parameters, and superclasses,
+respectively.
+Interface instantiations are similarly handled
+by \xcd"@InstantiateInterfaces".
+The annotation
+\xcd"@Instantiation"
+is used for parametrized exceptions.
+The class loader uses the arguments of the annotations to
+propagate the instantiation information of the enclosing class
+to the instantiation of annotated entities.  It then turns these
+entities into references to the appropriate dynamically
+instantiated classes.
+
+Type arguments are passed to allocation expressions as
+synthetic constructor arguments.  Run-time type tests and casts
+receive type parameters via the \xcd"Runtime.cast$" and
+\xcd"Runtime.instanceof$" helper methods.
+
+\paragraph{Eliminating method type parameters.}
+
+A parametrized
+adapter class with an \xcd"apply" method
+is generated for each parametrized method,
+The adapter class
+is annotated with \xcd"@ParametricMethod".
+The parametrized method is invoked by instantiating the adapter
+class through a generated factory method
+and invoking its \xcd"apply()" method.
+
+\paragraph{Parametrized exceptions.}
+
+Parametrized exceptions are treated just like other classes.
+Synthetic local classes, annotated with \xcd"@Instantiation",
+are generated for each catch block with an instantiated
+generic exception class.  Exception tables in the
+bytecode are rewritten with the new exception types.
+
+\paragraph{Run-time instantiation.}
+
+The
+\xcd"instanceof" and cast operations on
+constrained types or type variables
+are translated
+to
+similar operations on the instantiated type followed by calls
+to
+methods of the adapter object for the type
+that evaluate the constraint.
+% run-time constraint solving or other
+% complex code that cannot be easily substituted in when rewriting
+% the bytecode during instantiation.

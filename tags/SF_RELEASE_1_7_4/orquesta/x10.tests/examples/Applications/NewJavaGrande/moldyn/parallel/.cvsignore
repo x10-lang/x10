@@ -1,0 +1,8 @@
+*.java
+*.class
+harness
+x10
+*.swp
+.*.swp
+*.swo
+.*.swo

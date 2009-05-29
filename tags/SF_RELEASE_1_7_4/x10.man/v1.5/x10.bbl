@@ -1,0 +1,69 @@
+\begin{thebibliography}{10}
+
+\bibitem{kava}
+David Bacon.
+\newblock {Kava}: A {J}ava dialect with a uniform object model for lightweight
+  classes.
+\newblock {\em Concurrency -- Practice and Experience}, 15:185--206, 2003.
+
+\bibitem{pgas}
+William Carlson, Tarek El-Ghazawi, Bob Numrich, and Kathy Yelick.
+\newblock {P}rogramming in the {P}artitioned {G}lobal {A}ddress {S}pace
+  {M}odel, 2003.
+\newblock Presentation at SC 2003, http://www.gwu.edu/{~}upc/tutorials.html.
+
+\bibitem{zpl}
+Bradford~L.{} Chamberlain, Sung-Eun Choi, Steven~J. Deitz, and Lawrence Snyder.
+\newblock The high-level parallel language {ZPL} improves productivity and
+  performance.
+\newblock In {\em Proceedings of the IEEE International Workshop on
+  Productivity and Performance in High-End Computing}, 2004.
+
+\bibitem{xten}
+P.~Charles, C.~Grothoff, C.~Donawa, K.~Ebcioglu, A.~Kielstra, C.~von Praun,
+  V.~Saraswat, and V.~Sarkar.
+\newblock X10: An object-oriented approach to non-uniform cluster computing.
+\newblock In {\em Proceedings of OOPSLA}, 2005.
+\newblock To appear.
+
+\bibitem{gjspec}
+Gilad~Bracha et~al.
+\newblock {A}dding {G}enerics to the {J}ava {P}rogramming {L}anguage, 2001.
+\newblock JSR 014, http://www.jcp.org/en/jsr/detail?id=014.
+
+\bibitem{jls2}
+J.~Gosling, W.~Joy, G.~Steele, and G.~Bracha.
+\newblock {\em The Java Language Specification}.
+\newblock Addison Wesley, 2000.
+
+\bibitem{herlihy91waitfree}
+Maurice Herlihy.
+\newblock Wait-free synchronization.
+\newblock {\em ACM Transactions on Programming Languages and Systems},
+  13(1):124--149, January 1991.
+
+\bibitem{moreira00java}
+Jose~E. Moreira, Samuel~P. Midkiff, Manish Gupta, Pedro~V. Artigas, Marc Snir,
+  and Richard~D. Lawrence.
+\newblock Java programming for high-performance numerical computing.
+\newblock {\em IBM Systems Journal}, 39(1):21--, 2000.
+
+\bibitem{X10-concur05}
+V.~Saraswat and R.~Jagadeesan.
+\newblock Concurrent clustered programming.
+\newblock In {\em Concur '05, to appear}, 2005.
+
+\bibitem{mpi}
+A.~Skjellum, E.~Lusk, and W.~Gropp.
+\newblock {\em {U}sing {MPI}: {P}ortable {P}arallel {P}rogramming with the
+  {M}essage {P}assing {I}interface}.
+\newblock MIT Press, 1999.
+
+\bibitem{titanium}
+K.~A. Yelick, L.~Semenzato, G.~Pike, C.~Miyamoto, B.~Liblit, A.~Krishnamurthy,
+  P.~N. Hilfinger, S.~L. Graham, D.~Gay, P.~Colella, and A.~Aiken.
+\newblock Titanium: A high-performance java dialect.
+\newblock {\em Concurrency - Practice and Experience}, 10(11-13):825--836,
+  1998.
+
+\end{thebibliography}

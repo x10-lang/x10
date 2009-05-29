@@ -1,0 +1,26 @@
+// SYNOPSIS: #0.main(...)
+
+extern "C" {
+    int main(int ac, char **av) {
+        ref<Rail<x10aux::ref<String> > > args = x10aux::convert_args(ac, av);
+        try {
+            x10::runtime::Runtime::start(
+                new (x10aux::alloc<VoidFun>(sizeof(BootStrapClosure)))
+                    x10aux::BootStrapClosure(#0::main,args)  );
+        } catch(int exitCode) {
+            x10aux::exitCode = exitCode;
+        } catch(x10aux::__ref& e) {
+            fprintf(stderr, "%d: ", (int)__here__);
+            //fprintf(stderr, "Caught %p\n", ((const x10aux::ref<Exception>&)e)._val);
+            ((const x10aux::ref<Exception>&)e)->printStackTrace(System::x10__out);
+            x10aux::exitCode = 1;
+        } catch(...) {
+            fprintf(stderr, "%d: Caught exception\n", (int)__here__);
+            x10aux::exitCode = 1;
+        }
+        x10aux::free_args(args);
+        return x10aux::exitCode;
+    }
+}
+// the original app-main method
+

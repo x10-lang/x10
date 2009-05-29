@@ -1,0 +1,34 @@
+ public 
+     class FixedPoint<value T implements Field, D[0..M+1]> {
+     config int N = 6;
+     final T epsilon;
+
+     public FixedPoint(T eps) {
+	 this.epsilon = eps;
+     }
+     void int fixed(final T[D] a) {
+	 clock l = new clock();
+	 clocked(l) final T[D] b = (0'T[D[0]] || a[D[1..M]] || new T(M+1)[D[M+1]]);
+	 int iters := 0;
+	 do {
+	     next l;
+	     final _ temp 
+		 = new T[D[1..M]] (i) {
+		     now (l) {
+			 return async {b[i+1]} + async {b[i-1]}/(1'T+1'T);
+		     }
+		 }
+	     next l;
+	     T err = abs(b-tmp)>>+;
+	     next(l) b = temp;
+	     iters++;
+	 } while (err >= delta);
+	 return iters;
+     }
+     public static void main() {
+	 distribution D = [0..N+1] block;
+	 int i = new FixedPoint<double, D>(0.000001'double).fixed(new double[D]);
+	 System.out.println("Iterations: " + i);
+     }
+ }
+
