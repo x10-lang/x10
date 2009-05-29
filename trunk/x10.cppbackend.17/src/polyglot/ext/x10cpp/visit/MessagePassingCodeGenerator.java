@@ -2872,7 +2872,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			}
             if (!freeTypeParams.isEmpty())
                 emitter.printTemplateSignature(freeTypeParams, inc);
-    		inc.write("const char* "+cname+"::"+ClosureVariableMap.VARIABLE_NAME+" = \"");
+    		inc.write("const char* "+cnamet+"::"+ClosureVariableMap.VARIABLE_NAME+" = \"");
     		inc.write(StringUtil.escape(map.exportMap()));
     		String v = map.exportMap();
     		ClosureVariableMap m = ClosureVariableMap.importMap(v);
