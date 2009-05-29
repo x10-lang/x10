@@ -81,13 +81,4 @@ const RuntimeType* RuntimeType::FloatType = NULL;
 const RuntimeType* RuntimeType::LongType = NULL;
 const RuntimeType* RuntimeType::DoubleType = NULL;
 
-template<> const x10aux::RuntimeType *getRTT<x10_boolean>() { return x10aux::RuntimeType::BooleanType; }
-template<> const x10aux::RuntimeType *getRTT<x10_byte>() { return x10aux::RuntimeType::ByteType; }
-template<> const x10aux::RuntimeType *getRTT<x10_short>() { return x10aux::RuntimeType::ShortType; }
-template<> const x10aux::RuntimeType *getRTT<x10_char>() { return x10aux::RuntimeType::CharType; }
-template<> const x10aux::RuntimeType *getRTT<x10_int>() { return x10aux::RuntimeType::IntType; }
-template<> const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
-template<> const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
-template<> const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
-
 // vim:tabstop=4:shiftwidth=4:expandtab

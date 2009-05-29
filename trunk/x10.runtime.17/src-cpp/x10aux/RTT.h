@@ -87,15 +87,15 @@ namespace x10aux {
         return T::getRTT();
     }
     // specializations of getRTT template for primitive types
-    template<> const x10aux::RuntimeType *getRTT<x10_boolean>();
-    template<> const x10aux::RuntimeType *getRTT<x10_byte>();
-    template<> const x10aux::RuntimeType *getRTT<x10_short>();
-    template<> const x10aux::RuntimeType *getRTT<x10_char>();
-    template<> const x10aux::RuntimeType *getRTT<x10_int>();
-    template<> const x10aux::RuntimeType *getRTT<x10_float>();
-    template<> const x10aux::RuntimeType *getRTT<x10_long>();
-    template<> const x10aux::RuntimeType *getRTT<x10_double>();
-    
+	template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() { return x10aux::RuntimeType::BooleanType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() { return x10aux::RuntimeType::ByteType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_short>() { return x10aux::RuntimeType::ShortType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_char>() { return x10aux::RuntimeType::CharType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_int>() { return x10aux::RuntimeType::IntType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
+
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {
         const RuntimeType *t = getRTT<T>();
