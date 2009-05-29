@@ -157,6 +157,7 @@ import polyglot.ext.x10.ast.X10Instanceof_c;
 import polyglot.ext.x10.ast.X10Local_c;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.ext.x10.ast.X10NodeFactory;
+import polyglot.ext.x10.ast.X10Return_c;
 import polyglot.ext.x10.ast.X10Special_c;
 import polyglot.ext.x10.ast.X10Unary_c;
 import polyglot.ext.x10.extension.X10Ext;
@@ -780,7 +781,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    Emitter.openNamespaces(h, pkgName);
 		    h.newline(0);
 		    h.forceNewline(0);
-		    Emitter.openNamespaces(w, pkgName);
+		    emitter.emitUniqueNS(pkgName, new ArrayList<String>(), w);
 		    w.newline(0);
 		    w.forceNewline(0);
 		}
@@ -798,7 +799,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
          * in the global context, for each class.
          */
 		context.resetStateForClass(n.properties());
-        
 
 		if (def.typeParameters().size() != 0) {
 			// Pre-declare the void specialization for statics
@@ -827,6 +827,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (extractGenericStaticDecls(def, h)) {
             extractGenericStaticInits(def);
         }
+
+        /*
+         * See comment about resetStateForClass() above.
+         */
+        context.clearStateForClass();
+
         ((X10CPPTranslator)tr).setContext(context); // FIXME
 
 		// [DC] disabled, see (commented out) definition of opsd above for details
@@ -841,10 +847,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    h.forceNewline(0);
 		    Emitter.closeNamespaces(h, pkgName);
 		    h.newline(0);
-		    w.newline(0);
-		    w.forceNewline(0);
-		    Emitter.closeNamespaces(w, pkgName);
-		    w.newline(0);
 		}
 		h.write("#endif // " + cguard); h.newline(0);
         h.forceNewline(0);
@@ -1227,7 +1229,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
 
-    private void processMain(X10ClassType container) {
+    protected void processMain(X10ClassType container) {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
         if (container.isClass() && !container.typeArguments().isEmpty()) {
             List<Type> args = Arrays.asList(new Type[] { xts.Void() });
@@ -1395,6 +1397,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         for (Stmt s : body.statements()) {
+            // FIXME: constructor calls won't get line number information
             if (s instanceof ConstructorCall) {
                 ConstructorCall call = (ConstructorCall)s;
                 if (call.kind() == ConstructorCall.SUPER) {
@@ -1568,11 +1571,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	}
 
 	public void visit(Branch_c br) {
-		// Note: The break statements inside a switch statement are always
-		// non-labeled.
-		// FIXME: [IP] The above assumption is incorrect!!!
 		if (br.labelNode() != null) {
-			if (br.kind().toString() == "continue")
+			if (br.kind() == Branch_c.CONTINUE)
 				sw.write("goto " + br.labelNode().id().toString() + "_next_");
 			else
 				sw.write("goto " + br.labelNode().id().toString() + "_end_");
@@ -2251,15 +2251,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			if (tn instanceof X10CanonicalTypeNode) {
 				X10CanonicalTypeNode xtn = (X10CanonicalTypeNode) tn;
 
-				Type t = X10TypeMixin.baseType(xtn.type());
+                Type t = X10TypeMixin.baseType(xtn.type());
+                Type f = X10TypeMixin.baseType(c.expr().type());
 
-				X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+                Type t_ = X10TypeMixin.stripConstraints(t);
+                Type f_ = X10TypeMixin.stripConstraints(f);
 
-				if (false || xts.typeDeepBaseEquals(t,c.expr().type())) {
+                X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
+
+
+                if (xts.typeEquals(f_, t_)) {
+                    c.printSubExpr(c.expr(), true, sw, tr);
+                } else if (c.conversionType()==X10Cast_c.ConversionType.SUBTYPE && xts.isSubtype(f_, t_)) {
 					c.printSubExpr(c.expr(), true, sw, tr);
 				} else {
 					sw.write("x10aux::class_cast<");
-					emitter.printType(t, sw);
+					emitter.printType(t_, sw);
 					sw.write(" >(");
 					c.printSubExpr(c.expr(), true, sw, tr);
 					sw.write(")");
@@ -2327,216 +2334,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write(");");
 	}
 
-	// FIXME: this code is copied from visit(Closure_c), but heavily modified.  Refactor.
-	public void createFinallyClosure(Try_c n) {
-	    assert (n.finallyBlock() != null);
-
-	    X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	    X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
-
-	    X10CPPContext_c c = (X10CPPContext_c) context.pushBlock();
-	    c.setInClosure();
-	    ((X10CPPTranslator)tr).setContext(c); // FIXME
-	    emitter.enterClosure(c);
-
-	    X10ClassDef hostClassDef = (X10ClassDef) c.currentClassDef();
-	    X10ClassType hostClassType = (X10ClassType) hostClassDef.asType();
-	    CodeDef code = c.currentCode();
-	    CodeInstance ci = code.asInstance();
-
-	    List<Type> freeTypeParams = new ArrayList<Type>();
-	    while (ci instanceof ClosureInstance)
-	        ci = ((ClosureDef) ci.def()).methodContainer().get();
-	    if (ci instanceof X10MethodInstance) {
-	        X10MethodInstance xmi = (X10MethodInstance) ci;
-	        // in X10, static methods do not inherit the template params of their classes
-	        if (!xmi.flags().isStatic())
-	            freeTypeParams.addAll(hostClassDef.typeParameters());
-	        freeTypeParams.addAll(xmi.typeParameters());
-	    } else if (ci instanceof InitializerInstance) {
-	        InitializerInstance ii = (InitializerInstance) ci;
-	        if (!ii.def().flags().isStatic())
-	            freeTypeParams.addAll(hostClassDef.typeParameters());
-	    } else {
-	        // could be a constructor or other non-static thing
-	        freeTypeParams.addAll(hostClassDef.typeParameters());
-	    }
-
-	    String hostClassName = emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
-
-	    c.setInsideClosure(true);
-
-	    int id = getConstructorId(c);
-
-	    String cname = getClosureName(hostClassName, id);
-
-	    final boolean in_template_closure = !freeTypeParams.isEmpty();
-
-	    // create closure and packed arguments
-
-	    // Prepend this stream to closures.  Closures are created from the outside in.
-	    // Thus, later closures can be used by earlier ones, but not vice versa.
-	    ClassifiedStream inc_s = in_template_closure ?
-	            sw.getNewStream(StreamWrapper.Header, sw.header(), false) :
-	            sw.getNewStream(StreamWrapper.Closures, true);
-	    sw.pushCurrentStream(inc_s);
-
-	    StreamWrapper inc = sw;
-
-	    if (in_template_closure) {
-	        String guard = getHeaderGuard(cname);
-	        inc.write("#ifndef "+guard+"_CLOSURE"); inc.newline();
-	        inc.write("#define "+guard+"_CLOSURE"); inc.newline();
-	    }
-
-	    //String className = emitter.translateType(c.currentClass());
-	    String superType = emitter.translateType(xts.closureBaseInterfaceDef(0, 0, true).asType());
-
-	    // class header
-	    if (in_template_closure)
-	        emitter.printTemplateSignature(freeTypeParams, inc);
-	    inc.write("class "+cname+" : "); inc.begin(0);
-	    inc.write("public "+emitter.translateType(xts.Value())+", "); inc.newline();
-	    inc.write("public virtual "+superType); inc.end(); inc.newline();
-	    inc.write("{") ; inc.newline(4); inc.begin(0);
-	    inc.write("public:") ; inc.newline(); inc.forceNewline();
-
-	    inc.write("// closure body"); inc.newline();
-	    inc.write(VOID+" apply() ");
-	    n.print(n.finallyBlock(), inc, tr);
-	    inc.newline(); inc.forceNewline();
-
-	    inc.write("// captured environment"); inc.newline();
-	    emitter.printDeclarationList(inc, c, c.variables, true, true); // writable args!
-	    inc.forceNewline();
-
-	    // This closure will never escape, thus does not need the usual RTT and serialization code
-	    // Also, have to use the initialization mechanism for references, not assignments
-
-	    ArrayList<String> argNames = new ArrayList<String>();
-	    inc.write(cname+"(");
-	    inc.begin(0);
-	    for (int i = 0; i < c.variables.size(); i++) {
-	        if (i > 0) {
-	            inc.write(",");
-	            inc.allowBreak(0, " ");
-	        }
-	        VarInstance var = (VarInstance) c.variables.get(i);
-	        String name = getId();
-	        argNames.add(name);
-	        if (var.name().toString().equals(THIS))
-	            inc.write("const ");
-	        inc.write(emitter.translateType(var.type(), true) + "& " + name);
-	    }
-	    inc.end();
-	    inc.write(") ");
-	    for (int i = 0 ; i < c.variables.size() ; i++) {
-	        if (i == 0) inc.write(":");
-	        else        inc.write(",");
-	        inc.allowBreak(4, " ");
-	        VarInstance var = (VarInstance) c.variables.get(i);
-	        String name = var.name().toString();
-	        if (name.equals(THIS))
-	            name = SAVED_THIS;
-	        else name = mangled_non_method_name(name);
-	        inc.write(name + "(" + argNames.get(i) + ")");
-	    }
-	    inc.write(" { }"); inc.newline(); inc.forceNewline();
-
-	    inc.write("const x10aux::RuntimeType *_type() const { return NULL; }");
-	    inc.newline(); inc.forceNewline();
-
-	    // FIXME: this should not be needed
-	    inc.write(emitter.translateType(xts.String(), true)+" toString() {");
-	    inc.newline(4); inc.begin(0);
-	    inc.write("return "+emitter.translateType(xts.String())+"::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
-	    inc.end(); inc.newline();
-	    inc.write("}");
-	    inc.end(); inc.newline(); inc.forceNewline();
-
-	    inc.write("};"); inc.newline(); inc.forceNewline();
-
-	    if (in_template_closure) {
-	        String guard = getHeaderGuard(cname);
-	        inc.write("#endif // "+guard+"_CLOSURE"); inc.newline();
-	    }
-
-	    sw.popCurrentStream();
-
-	    // create closure instantiation (not in inc but where the closure was defined)
-	    // note that we alloc using the typeof the superType but we pass in the correct size
-	    // this is because otherwise alloc may (when debugging is on) try to examine the
-	    // RTT of the closure (which doesn't exist)
-
-	    // first get the template arguments (if any)
-	    String prefix="<";
-	    StringBuffer sb = new StringBuffer();
-	    for (Type t : freeTypeParams) {
-	        sb.append(prefix+emitter.translateType(t, true));
-	        prefix = ",";
-	    }
-	    if (prefix.equals(",")) sb.append(" >");
-	    String templateArgs = sb.toString();
-
-	    sw.write(make_ref(superType));
-	    sw.write("(new");
-	    sw.allowBreak(4, " ");
-	    sw.write("(x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
-	    sw.allowBreak(4, " ");
-	    sw.write(cname+templateArgs+"(");
-	    for (int i = 0; i < c.variables.size(); i++) {
-	        if (i > 0) sw.write(", ");
-	        VarInstance var = (VarInstance) c.variables.get(i);
-	        String name = var.name().toString();
-	        if (!name.equals(THIS))
-	            name = mangled_non_method_name(name);
-	        if (name.equals(THIS))
-	            sw.write(emitter.translateType(var.type(), true)+"(");
-	        sw.write(name);
-	        if (name.equals(THIS))
-	            sw.write(")");
-	    }
-	    sw.write("))");
-
-	    c.finalizeClosureInstance();
-	    emitter.exitClosure(c);
-
-	    ((X10CPPTranslator)tr).setContext(context); // FIXME
-	}
-
 	public void visit(Try_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		X10TypeSystem_c xts = (X10TypeSystem_c) tr.typeSystem();
 		if (n.finallyBlock() != null) {
-			// FIXME: break, continue, and return don't work
-			sw.write("{");
+			sw.write("try {");
 			sw.newline(0); sw.begin(0);
-			// Create a closure with C++ reference fields that encapsulates the finally block.
-			// Create a local class that stores the closure and invokes it in the destructor.
-			// The object is created before the try block.
-			String tempClass = getId();
-			String tempClassDef = tempClass+"def";
-			sw.write("struct " + tempClassDef + " {");
-			sw.newline(4); sw.begin(0);
-			String closureType = emitter.translateType(xts.closureBaseInterfaceDef(0, 0, true).asType(), true);
-			sw.write(closureType+" _closure;"); sw.newline();
-
-			String closureName = getId();
-			sw.write(tempClassDef+ "("+closureType+" "+closureName+")");
-			sw.allowBreak(4, " ");
-			sw.write(": _closure("+closureName+") { }");
-			sw.newline();
-			sw.write("~" + tempClassDef + "() { _closure->apply(); }");
-			sw.end(); sw.newline();
-			sw.write("} ");
-			sw.write(tempClass + "(");
-			sw.begin(0);
-			createFinallyClosure(n);
-			sw.end();
-			sw.write(");");
-			sw.newline();
 		}
-		sw.write("try ");
+		sw.write("try");
 		assert (n.tryBlock() instanceof Block_c);
 		n.printSubStmt(n.tryBlock(), sw, tr);
 		sw.newline(0);
@@ -2568,7 +2373,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("}");
 		if (n.finallyBlock() != null) {
 			sw.end(); sw.newline();
+			sw.write("} catch (...) {");
+			sw.newline(4); sw.begin(0);
+			n.printBlock(n.finallyBlock(), sw, tr);
+			sw.newline();
+			sw.write("throw;");
+			sw.end(); sw.newline();
 			sw.write("}");
+			sw.newline();
+			n.printBlock(n.finallyBlock(), sw, tr);
 		}
 	}
 
@@ -3028,7 +2841,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("const x10aux::RuntimeType *_type() const {"+
                   " return x10aux::getRTT<"+superType+" >(); }");
         inc.newline();
-        inc.write("struct RTT { static x10aux::RuntimeType * it; };");
+        inc.write("static x10aux::RuntimeType * rtt;");
         inc.newline(); inc.forceNewline();
 
         inc.write(emitter.translateType(xts.String(), true)+" toString() {");
@@ -3042,7 +2855,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
-        inc.write("x10aux::RuntimeType * "+cnamet+"::RTT::it = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
+        inc.write("x10aux::RuntimeType * "+cnamet+"::rtt = const_cast<x10aux::RuntimeType *>(x10aux::getRTT<"+superType+" >());");
         inc.newline(); inc.forceNewline();
 
         if (in_template_closure)

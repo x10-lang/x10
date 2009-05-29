@@ -12,24 +12,8 @@ namespace x10 {
     namespace io {
 
         class NativeInputStream : public x10::lang::Value {
-            public:
-            class RTT : public x10aux::RuntimeType {
-                public: 
-                    static RTT* const it;
-                    
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Value>());
-                    }
-                    
-                    virtual const char *name() const {
-                        return "x10.io.InputStreamReader.InputStream";
-                    }   
-                    
-            };
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<NativeInputStream>();
-            }   
-
+        public:
+            RTT_H_DECLS;
 
         protected:
 
@@ -63,7 +47,6 @@ namespace x10 {
             virtual x10_boolean markSupported() { return false; }
 
         };
-
     }
 }
 

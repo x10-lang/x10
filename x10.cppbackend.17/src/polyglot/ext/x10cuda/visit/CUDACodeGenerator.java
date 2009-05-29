@@ -13,6 +13,8 @@
 
 package polyglot.ext.x10cuda.visit;
 
+import java.util.ArrayList;
+
 import polyglot.ast.ArrayInit_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign_c;
@@ -49,6 +51,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.NullLit_c;
 import polyglot.ast.PackageNode_c;
 import polyglot.ast.Return_c;
+import polyglot.ast.Stmt;
 import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
@@ -178,13 +181,6 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
     public void visit(New_c n) {
         assert !generatingCuda() : "New not allowed in @Cudable code.";
         super.visit(n);
-    }
-
-
-    @Override
-    public void createFinallyClosure(Try_c n) {
-        // TODO Auto-generated method stub
-        super.createFinallyClosure(n);
     }
 
 

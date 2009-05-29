@@ -8,5 +8,6 @@ using namespace x10aux;
 const serialization_id_t Error::_serialization_id =
     DeserializationDispatcher::addDeserializer(Error::_deserializer<Object>);
 
-DEFINE_RTT(Error);
+RTT_CC_DECLS1(Error, "x10.lang.Error", Throwable)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -12,15 +12,6 @@ namespace x10aux {
                                                        public x10::lang::Iterator<T> {
         x10::lang::Iterator<F>* _from;
     public:
-
-        class RTT : public RuntimeType {
-            public:
-            static RuntimeType *it;
-            bool _initialized() { return true; }
-            void _init() { }
-            virtual const char *name() const { return "IteratorAdapter<...>"; }
-        };
-
         IteratorAdapter(ref<x10::lang::Iterator<F> > from) : _from(from.get()) { }
 
         x10::lang::Iterator<F>* operator->() { return _from; }

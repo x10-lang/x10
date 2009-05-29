@@ -36,22 +36,27 @@ public final value class FastArray[T] extends BaseArray[T] {
     val delta2: int;
     val delta3: int;
 
+    val offset0: int;
+    val offset1: int;
+    val offset2: int;
+    val offset3: int;
+
     final public safe def apply(i0: int): T {
         var offset:int = i0;
-        return raw(offset);
+        return raw(-offset0 + offset);
     }
 
     final public safe def apply(i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
-        return raw(offset);
+        return raw(-offset1 + offset);
     }
 
     final public safe def apply(i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
-        return raw(offset);
+        return raw(-offset2 + offset);
     }
 
     final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
@@ -59,7 +64,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
         offset = offset*delta3 + i3;
-        return raw(offset);
+        return raw(-offset3 + offset);
     }
 
     //
@@ -68,14 +73,14 @@ public final value class FastArray[T] extends BaseArray[T] {
 
     final public safe def set(v: T, i0: int): T {
         var offset:int = i0;
-        raw(offset) = v;
+        raw(offset - offset0) = v;
         return v;
     }
 
     final public safe def set(v: T, i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
-        raw(offset) = v;
+        raw(offset - offset1) = v;
         return v;
     }
 
@@ -83,7 +88,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
-        raw(offset) = v;
+        raw(offset - offset2) = v;
         return v;
     }
 
@@ -92,7 +97,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         offset = offset*delta1 + i1;
         offset = offset*delta2 + i2;
         offset = offset*delta3 + i3;
-        raw(offset) = v;
+        raw(offset - offset3) = v;
         return v;
     }
 
@@ -161,6 +166,10 @@ public final value class FastArray[T] extends BaseArray[T] {
         delta1 = layout.delta1;
         delta2 = layout.delta2;
         delta3 = layout.delta3;
+        offset0 = (layout.min0);
+        offset1 = (offset0)*layout.delta1 + layout.min1;
+        offset2 = offset1*layout.delta2 + layout.min2;
+        offset3 = offset2*layout.delta3 + layout.min3;
     }
 
 
@@ -183,6 +192,12 @@ public final value class FastArray[T] extends BaseArray[T] {
         delta1 = layout.delta1;
         delta2 = layout.delta2;
         delta3 = layout.delta3;
+
+        offset0 = (layout.min0);
+        offset1 = (offset0)*layout.delta1 + layout.min1;
+        offset2 = offset1*layout.delta2 + layout.min2;
+        offset3 = offset2*layout.delta3 + layout.min3;
+      
     }
 
 }

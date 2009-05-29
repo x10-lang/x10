@@ -23,9 +23,11 @@ import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
+import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldDef;
 import polyglot.ext.x10.types.X10InitializerDef;
@@ -43,6 +45,7 @@ import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
 import polyglot.visit.AscriptionVisitor;
 import polyglot.visit.ContextVisitor;
@@ -53,24 +56,12 @@ import polyglot.visit.TypeChecker;
 
 public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
-    DepParameterExpr guard;
-
-    public X10FieldDecl_c(Position pos, DepParameterExpr guard, FlagsNode flags, TypeNode type,
+    public X10FieldDecl_c(Position pos, FlagsNode flags, TypeNode type,
             Id name, Expr init)
     {
         super(pos, flags, type, name, init);
-        this.guard = guard;
     }
     
-    protected X10FieldDecl_c(Position pos,  FlagsNode flags, TypeNode type,
-            Id name, Expr init) {
-        this(pos, null, flags, type, name, init);
-    }
-    
-    public DepParameterExpr guard() {
-        return guard;
-    }
-
 	public Context enterChildScope(Node child, Context c) {
 		if (child == this.type) {
 			X10Context xc = (X10Context) c.pushBlock();
@@ -82,21 +73,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		Context cc = super.enterChildScope(child, c);
 		return cc;
 	}
-
-    public X10FieldDecl guard(DepParameterExpr guard) {
-        if (guard == this.guard)
-            return this;
-        X10FieldDecl_c n = (X10FieldDecl_c) copy();
-        n.guard = guard;
-        return n;
-    }
-    
-    @Override
-    public Node visitSignature(NodeVisitor v) {
-        X10FieldDecl_c n = (X10FieldDecl_c) super.visitSignature(v);
-        DepParameterExpr guard = (DepParameterExpr) visitChild(this.guard, v);
-        return n.guard(guard);
-    }
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         Node result = super.conformanceCheck(tc);
@@ -222,7 +198,46 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    }
 		    return super.setResolverOverride(parent, v);
 	    }
-	    
+
+	        @Override
+	        public Node typeCheckOverride(Node parent, ContextVisitor tc) throws SemanticException {
+	            if (type() instanceof UnknownTypeNode) {
+	                NodeVisitor childtc = tc.enter(parent, this);
+	                
+	                Expr init = (Expr) this.visitChild(init(), childtc);
+	                if (init != null) {
+	                    Type t = init.type();
+	                    if (t instanceof X10ClassType) {
+	                        X10ClassType ct = (X10ClassType) t;
+	                        if (ct.isAnonymous()) {
+	                            if (ct.interfaces().size() > 0)
+	                                t = ct.interfaces().get(0);
+	                            else
+	                                t = ct.superClass();
+	                        }
+	                    }
+	                    LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
+	                    r.update(t);
+	                    
+	                    FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
+	                    Id name = (Id) this.visitChild(name(), childtc);
+	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+	                    
+	                    Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init), childtc);
+	                    List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
+	                    if (oldAnnotations == null || oldAnnotations.isEmpty()) {
+	                            return n;
+	                    }
+	                    List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+	                    if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
+	                            return ((X10Del) n.del()).annotations(newAnnotations);
+	                    }
+	                    return n;
+	                }
+	            }
+	            return super.typeCheckOverride(parent, tc);
+	        }
+	        
 	    @Override
 	        public Node typeCheck(ContextVisitor tc) throws SemanticException {
 	            if (this.type().type().isVoid())

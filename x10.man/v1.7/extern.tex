@@ -142,7 +142,7 @@ public class IntArrayExternUnsafe {
   static { System.loadLibrary("IntArrayExternUnsafe"); }
   public static def main(args: Rail[String]) {
      val b = (new IntArrayExternUnsafe()).run();
-     System.out.println("++++++ Test "
+     Console.OUT.println("++++++ Test "
                          +(b?"succeeded.":"failed."));
      System.exit(b?0:1);
   }
@@ -156,7 +156,7 @@ public class IntArrayExternUnsafe {
     for (val (j) in y.region) {
       val expected = j+100;
       if(y(j) != expected) {
-        System.out.println("y("+j+")="
+        Console.OUT.println("y("+j+")="
                            +y(j)+" != "+expected);
         return false;
        }

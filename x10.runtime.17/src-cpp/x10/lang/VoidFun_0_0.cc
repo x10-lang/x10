@@ -5,5 +5,6 @@
 
 using namespace x10::lang;
 
-DEFINE_RTT(VoidFun_0_0);
+RTT_CC_DECLS1(VoidFun_0_0, "x10.lang.VoidFun", Object)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

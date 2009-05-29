@@ -30,47 +30,18 @@ namespace x10aux {
     #else
     #  define REF_INIT(v) __ref(v)
     #endif
-    #ifdef REF_COUNTING
-    #  define INC(x) _inc(x)
-    #  define DEC(x) _dec(x)
-    #else
-    #  define INC(x)
-    #  define DEC(x)
-    #endif
 
     template<class T> class ref : public __ref {
-
-        //typedef typename T::RTT RTT;
-
-        #ifdef REF_COUNTING
-        void _inc(T* o) { // TODO
-            if (o != NULL) {
-                o->__count++;
-                //_R_("    type=" << TYPENAME(o));
-                //_R_("    count=" << o->__count);
-            }
-        }
-        void _dec(T* o) { // TODO
-            if (o != NULL) {
-                o->__count--;
-                //_R_("    type=" << TYPENAME(o));
-                //_R_("    count=" << o->__count);
-                // TODO
-                //if (!o->__count) { o->~T(); dealloc(o); }
-            }
-        }
-        #endif
-
         public:
-
-        GPUSAFE ~ref() { DEC(_val); }
+        static const x10aux::RuntimeType* getRTT() { return T::getRTT(); }
+        
+        GPUSAFE ~ref() { }
 
         // Copy between refs of the same type
         GPUSAFE ref(const ref<T>& _ref) : REF_INIT(_ref._val) {
             _R_("Copying reference " << &_ref << "(" << _ref._val
                                      << ") of type " << TYPENAME(T)
                                      << " to " << this);
-            INC(_val);
         }
 
         // Copy between refs of the same type
@@ -81,14 +52,12 @@ namespace x10aux {
             _R_("Assigning reference " << &_ref << "(" << _ref._val
                                        << ") of type " << TYPENAME(T)
                                        << " to " << this);
-            INC(_val);
             return *this;
         }
 
         // This is the big one -- turns a pointer into a ref
         // currently an implicit conversion
         GPUSAFE ref(T* const val = NULL) : REF_INIT(val) {
-            INC(_val);
         }
 
         // Allow explicit casting between ref<S> and ref<T> dynamic_cast is
@@ -120,9 +89,8 @@ namespace x10aux {
                                      << " into " << this << "("<<_val<<")");
             // assert that the above dynamic_cast was successful
             assert(isNull() == _ref.isNull() && "Invalid c++ cast");
-            INC(_val);
         }
-        
+
         // Allow the assignment of a ref<S> to a ref<T>
         template<class S> GPUSAFE const ref<T> &operator=(const ref<S>& _ref) {
             // (S*) cast needed when REF_STRIP_TYPE defined, otherwise harmless
@@ -133,7 +101,6 @@ namespace x10aux {
                                      << " into " << this << "("<<_val<<")");
             // assert that the above dynamic_cast was successful
             assert(isNull() == _ref.isNull() && "Invalid c++ cast");
-            INC(_val);
             return *this;
         }
 
@@ -190,15 +157,6 @@ namespace x10aux {
                                       << ") of type " << TYPENAME(T));
             return _val == NULL;
         }
-
-        /* TODO: come back to this later once i find out why we need it [DC]
-        bool operator==(const T* val) const {
-            return _val == val;
-        }
-        bool operator!=(const T* val) const {
-            return _val != val;
-        }
-        */
 
         // trivial operations that compare the contents of the two refs
         bool operator==(const ref<T>& _ref) const { return _val == _ref._val; }

@@ -13,18 +13,8 @@ namespace x10 {
 
         class Error : public Throwable {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<Throwable>()); }
-                virtual const char *name() const { return "x10.lang.Error"; }
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Error>();
-            }
-
-
+            RTT_H_DECLS;
+            
             static x10aux::ref<Error> _make()
             { return (new (x10aux::alloc<Error>()) Error())->_constructor(); }
 

@@ -13,7 +13,10 @@
     <property name="jar" value="x10.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="make.exe" value="make"/>
-    <property name="cvs.exe" value="cvs"/>
+    <property name="bash.exe" value="bash"/>
+    <property name="optimize" value="false" />
+    <property name="DISABLE_GC" value="false" />
+    <property name="NO_CHECKS" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -31,27 +34,71 @@
     <!-- get the environment variables -->
     <property environment="env"/>
 
-    <!-- Determine whether or not we should be building with GC enabled -->
-    <condition property="bdwgc.enabled">
-        <!--<os family="unix" name="linux"/>-->
-        <istrue value="false"/>
-    </condition>
-    <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
-	<isset property="bdwgc.enabled" />
-    </condition>
+    <!-- set up to use ECJ -->
+    <property name="ejc.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+    <property name="ejc.classpath" location="${lib}/ecj.jar"/>
 
     <target name="init">
         <mkdir dir="${build}"/>
+        <javac destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
+            <src path="${x10.common.location}/contrib/ant"/>
+            <include name="Ejc.java"/>
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        </javac>
+        <!-- Allow using the Eclipse compiler -->
+        <taskdef name="ejc" classname="Ejc">
+            <classpath>
+                <pathelement location="${ejc.classpath}"/>
+                <pathelement location="${build}"/>
+            </classpath>
+        </taskdef>
+        <!-- use ECJ instead of javac (needs ecj.jar on the classpath) -->
+        <!--<property name="build.compiler" value="${ejc.compiler}"/>-->
     </target>
-    <target name="clean">
+
+    <!-- Determine whether or not we should be building with GC enabled -->
+    <condition property="bdwgc.enabled">
+        <and>
+            <isfalse value="${DISABLE_GC}" />
+            <or>
+                <os family="unix" name="linux"/>
+            </or>
+        </and>
+    </condition>
+    <condition property="cppmake.gcarg" value="ENABLE_GC=1" else="DISABLE_GC=1">
+        <isset property="bdwgc.enabled" />
+    </condition>
+    <condition property="cppmake.optimize" value="OPTIMIZE=1" else="DEBUG=1">
+        <istrue value="${optimize}" />
+    </condition>
+    <condition property="cppmake.no_checks" value="NO_CHECKS=1" else="CHECKS=1">
+        <istrue value="${NO_CHECKS}" />
+    </condition>
+    <condition property="x10c.optimize" value="-O" else="">
+        <istrue value="${optimize}" />
+    </condition>
+    <target name="available-procs" unless="available.procs">
+        <property name="available.procs" value="2"/>
+    </target>
+
+    <target name="clean" depends="clean-java,clean-cpp"/>
+    <target name="clean-java">
         <delete dir="${build}"/>
-        <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
-	    <arg value="clean"/>
-	</exec>
     </target>
-    <target name="clean-bdwgc" depends="clean">
-        <delete dir="${bdwgc.dir}/install"/>
-        <exec executable="${make.exe}" failonerror="true" dir ="${bdwgc.dir}/src">
+    <target name="clean-cpp" depends="available-procs,clean-bdwgc">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <arg value="-j${available.procs}" />
+            <arg value="clean"/>
+        </exec>
+    </target>
+    <target name="prepare-clean-bdwgc" if="bdwgc.enabled">
+        <delete dir="${bdwgc.dir}/install" quiet="true"/>
+        <available file="${bdwgc.dir}/src/Makefile" property="bdwgc.makefile.present"/>
+    </target>
+    <target name="clean-bdwgc" depends="prepare-clean-bdwgc" if="bdwgc.makefile.present">
+        <exec executable="${make.exe}" failonerror="true" dir="${bdwgc.dir}/src">
             <arg value="distclean"/>
         </exec>
     </target>
@@ -61,53 +108,121 @@
             <fileset dir="${build}" includes="${jar}"/>
         </copy>
     </target>
-    <target name="dist-cpp" depends="build-cpp">
-      <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
-        <arg value="-j2" />
-        <arg value="install" />
-        <arg value="${cppmake.gcarg}" />
-      </exec>
+    <target name="dist-cpp" depends="build-cpp,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <arg value="-j${available.procs}" />
+            <arg value="install" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.no_checks}" />
+        </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
     </target>
-    <target name="jar" depends="build-java">
+    <target name="jar" depends="build-java,build-xrx">
         <jar jarfile="${build}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
+            <fileset dir="${build}/gen" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
             <fileset dir="${x10.constraints.location}/classes" includes="x10/constraint/**" excludes="x10/constraint/test/**"/>
             <fileset dir="${x10.common.location}/classes" includes="x10/**"/>
         </jar>
     </target>
     <target name="build-java" depends="init">
-        <javac destdir="${build}" source="1.5" target="1.5" debug="on">
+        <ejc destdir="${build}" source="1.5" target="1.5" debug="on" nowarn="on">
             <src path="${src}"/>
             <classpath>
               <path refid="project.classpath"/>
             </classpath>
+        </ejc>
+    </target>
+    <property name="gen" location="${build}/gen"/>
+    <target name="check-xrx" depends="init">
+        <fileset id="xrx.files" dir="${basedir}/src-x10" includes="**/*.x10"/>
+        <uptodate property="xrx.uptodate">
+            <srcfiles refid="xrx.files"/>
+            <globmapper from="*.x10" to="${gen}/*.java" handledirsep="true"/>
+        </uptodate>
+    </target>
+    <target name="gen-xrx" depends="init,check-xrx" unless="xrx.uptodate">
+        <echo message="Building Java sources for XRX"/>
+        <fileset id="changed.xrx.files" dir="${basedir}/src-x10" includes="**/*.x10">
+            <depend targetdir="${gen}">
+                <mapper type="glob" from="*.x10" to="*.java"/>
+            </depend>
+        </fileset>
+        <pathconvert property="xrx.list" refid="changed.xrx.files" dirsep="/" pathsep=" ">
+            <map from="${basedir}${file.separator}src-x10${file.separator}" to=""/>
+        </pathconvert>
+        <echo message="x10c -c ${xrx.list}"/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
+            <arg value="-c" />
+            <arg value="'${x10.dist.location}/bin/x10c' ${x10c.optimize} -d '${gen}' -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c ${xrx.list}" />
+        </exec>
+    </target>
+    <target name="build-xrx" depends="init,build-java,gen-xrx">
+        <!--
+        <fileset id="generated.files" dir="${build}/gen" includes="**/*.java"/>
+        <pathconvert property="generated.list" refid="generated.files" dirsep="/" pathsep=" "/>
+        <java jar="${lib}/ecj.jar" fork="true" dir="${build}/gen" failonerror="true">
+            <arg value="-1.5"/>
+            <arg value="-nowarn"/>
+            <arg line="-classpath .${path.separator}.."/>
+            <arg line="${generated.list}"/>
+        </java>
+        -->
+        <!--
+        <javac destdir="${build}/gen" compiler="${ejc.compiler}" source="1.5" target="1.5" debug="on" nowarn="on">
+            <src path="${build}/gen"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${build}/gen"/>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
         </javac>
+        -->
+        <ejc destdir="${gen}" source="1.5" target="1.5" debug="on" nowarn="on">
+            <src path="${gen}"/>
+            <size value="50" when="more"/>
+            <classpath>
+              <path refid="project.classpath"/>
+              <path>
+                  <pathelement location="${gen}"/>
+                  <pathelement location="${build}"/>
+              </path>
+            </classpath>
+        </ejc>
     </target>
 
-    <target name="build-cpp" depends="init,dist-bdwgc">
-      <exec executable="${make.exe}" failonerror="true" dir ="${basedir}/src-cpp">
-        <arg value="-j2" />
-        <arg value="${cppmake.gcarg}" />
-      </exec>
+    <target name="build-cpp" depends="init,dist-bdwgc,available-procs">
+        <exec executable="${make.exe}" failonerror="true" dir="${basedir}/src-cpp">
+            <arg value="-j${available.procs}" />
+            <arg value="${cppmake.gcarg}" />
+            <arg value="${cppmake.optimize}" />
+            <arg value="${cppmake.no_checks}" />
+        </exec>
     </target>
 
     <target name="build" depends="build-java,build-cpp">
         <echo message="${ant.project.name}: ${ant.file}"/>
     </target>
 
-    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc" unless="bdwgc.skip.build">
+    <target name="build-bdwgc" depends="check-bdwgc,download-bdwgc,convert-bdwgc-paths,available-procs" unless="bdwgc.skip.build">
         <sequential>
-	   <exec executable="${bdwgc.dir}/src/configure" dir="${bdwgc.dir}/src" failonerror="true">
-	      <arg value="-enable-threads=posix" />
-	      <arg value="--prefix=${bdwgc.dir}/install" />
-	   </exec>
-	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true"></exec>
-	   <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
-	       <arg value="install" />
-           </exec>
+            <echo message="Installing BDWGC to ${bdwgc.platform.dir}"/>
+            <exec executable="${bash.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                <arg value="${bdwgc.dir}/src/configure" />
+                <arg value="-enable-threads=posix" />
+                <arg value="--prefix=${bdwgc.platform.dir}/install" />
+            </exec>
+            <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                <arg value="-j${available.procs}" />
+            </exec>
+            <exec executable="${make.exe}" dir="${bdwgc.dir}/src" failonerror="true">
+                <arg value="install" />
+            </exec>
         </sequential>
     </target>
 
@@ -123,30 +238,48 @@
 
     <target name="download-bdwgc" depends="check-bdwgc" unless="bdwgc.skip.download">
         <sequential>
-	    <cvs cvsRoot=":pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc"
-	         package="bdwgc"
+            <cvs cvsRoot=":pserver:anonymous@bdwgc.cvs.sourceforge.net:/cvsroot/bdwgc"
+                 package="bdwgc"
                  tag="gc7_1"
                  dest="${bdwgc.dir}"
-	         failonerror="true"
-            />
-	    <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
+                 failonerror="true"
+             />
+            <move file="${bdwgc.dir}/bdwgc" tofile="${bdwgc.dir}/src" />
         </sequential>
-	
+
     </target>
+
+    <target name="convert-bdwgc-paths-cygwin" depends="check-bdwgc" if="running.on.cygwin">
+        <exec executable="cygpath" outputproperty="bdwgc.platform.dir" errorproperty="bdwgc.conversion.errors">
+            <arg value="${bdwgc.dir}" />
+        </exec>
+    </target>
+    <target name="convert-bdwgc-paths-other" depends="check-bdwgc" unless="running.on.cygwin">
+        <property name="bdwgc.platform.dir" value="${bdwgc.dir}" />
+    </target>
+    <target name="convert-bdwgc-paths" depends="convert-bdwgc-paths-cygwin,convert-bdwgc-paths-other" />
 
     <target name="check-bdwgc">
         <sequential>
             <condition property="bdwgc.skip.download">
-	      <or>
-	        <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
-		<isfalse value="${bdwgc.enabled}" />
-	      </or>
+                <or>
+                    <available file="${bdwgc.dir}/src/configure" property="bdwgc.available"/>
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
+                </or>
             </condition>
             <condition property="bdwgc.skip.build">
-	      <or>
-	        <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
-		<isfalse value="${bdwgc.enabled}" />
-	      </or>
+                <or>
+                    <available file="${bdwgc.dir}/install/lib/libgc.so" property="bdwgc.built"/>
+                    <available file="${bdwgc.dir}/install/lib/libgc.a" property="bdwgc.built"/>
+                    <not>
+                        <isset property="bdwgc.enabled" />
+                    </not>
+                </or>
+            </condition>
+            <condition property="running.on.cygwin">
+                <os family="windows"/>
             </condition>
         </sequential>
     </target>

@@ -23,6 +23,7 @@ public interface XTerm extends Serializable, Cloneable {
         List<XEQV> eqvs();
         
         Solver solver();
+        XTermKind kind();
         
         /** 
          * Returns true if the variable v occurs in this term.

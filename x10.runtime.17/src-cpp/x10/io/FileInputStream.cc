@@ -7,6 +7,6 @@ using namespace x10::io;
 x10aux::ref<FileInputStream> FileInputStream::STANDARD_IN
     = new (x10aux::alloc<FileInputStream>()) FileInputStream(stdin);
 
+RTT_CC_DECLS1(FileInputStream, "x10.io.FileReader.FileInputStream", NativeInputStream)
 
-DEFINE_RTT(FileInputStream);
 // vim:tabstop=4:shiftwidth=4:expandtab

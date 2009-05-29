@@ -1113,7 +1113,7 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 		catch (SemanticException e) {
 			Globals.Compiler().errorQueue().enqueue(ErrorInfo.INTERNAL_ERROR, "Cannot load X10 runtime class \"" + name + "\".  Is the X10 runtime library in your classpath or sourcepath?");
 			Goal goal = Globals.currentGoal();
-			if (goal == null)
+			if (goal != null)
 				goal.fail();
 			return createFakeClass(qualName);
 		}
@@ -2936,9 +2936,10 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        }
 	        
 	        if (type1 instanceof X10ClassType && type2 instanceof X10ClassType) {
+	            X10ClassType ct1 = (X10ClassType) type1;
+	            X10ClassType ct2 = (X10ClassType) type2;
+	            
 	            if (hasSameClassDef(type1, type2)) {
-	                X10ClassType ct1 = (X10ClassType) type1;
-	                X10ClassType ct2 = (X10ClassType) type2;
 	                int n = ct1.typeArguments().size();
 	                List<Type> newArgs = new ArrayList<Type>(n);
 	                for (int i = 0; i < n; i++) {
@@ -2969,11 +2970,22 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	                }
 	                return ct1.typeArguments(newArgs);
 	            }
+	            
+
+	            if (ct1.isAnonymous()) {
+	        	Type sup = ct1.interfaces().size() > 0 ? ct1.interfaces().get(0) : ct1.superClass();
+	        	return leastCommonAncestor(sup, ct2);
+	            }
+	            
+	            if (ct2.isAnonymous()) {
+	                Type sup = ct2.interfaces().size() > 0 ? ct2.interfaces().get(0) : ct2.superClass();
+	                return leastCommonAncestor(ct1, sup);
+	            }
 	        }
 
 	        if (type1.isReference() && type2.isNull()) return type1;
 	        if (type2.isReference() && type1.isNull()) return type2;
-
+	        
 	        // Don't consider interfaces.
 	        if (type1.isClass() && type1.toClass().flags().isInterface()) {
 	            return Object();
@@ -2988,8 +3000,6 @@ public class X10TypeSystem_c extends TypeSystem_c implements X10TypeSystem {
 	        
 	        if (isSubtype(type1, X10TypeMixin.baseType(type2))) return X10TypeMixin.baseType(type2);
 	        if (isSubtype(type2, X10TypeMixin.baseType(type1))) return X10TypeMixin.baseType(type1);
-	        
-	        
 
 	        if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
 	            // Walk up the hierarchy

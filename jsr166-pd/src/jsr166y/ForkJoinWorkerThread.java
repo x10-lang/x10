@@ -392,7 +392,9 @@ public class ForkJoinWorkerThread extends Thread {
      */
     private static void setSlot(ForkJoinTask<?>[] q, int i,
                                 ForkJoinTask<?> t){
-        _unsafe.putOrderedObject(q, (i << qShift) + qBase, t);
+    	// DAVE G: Egregious hack to get code running on IBM SDKs that don't have putOrderedObject.
+        // _unsafe.putOrderedObject(q, (i << qShift) + qBase, t);
+        _unsafe.putObject(q, (i << qShift) + qBase, t);
     }
 
     /**
@@ -408,7 +410,9 @@ public class ForkJoinWorkerThread extends Thread {
      * Sets sp in store-order.
      */
     private void storeSp(int s) {
-        _unsafe.putOrderedInt(this, spOffset, s);
+    	// DAVE G: Egregious hack to get code running on IBM SDKs that don't have putOrderedInt.
+    	// _unsafe.putOrderedInt(this, spOffset, s);
+    	_unsafe.putInt(this, spOffset, s);
     }
 
     // Main queue methods

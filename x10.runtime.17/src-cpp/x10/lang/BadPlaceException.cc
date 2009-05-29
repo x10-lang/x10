@@ -8,5 +8,6 @@ using namespace x10aux;
 const serialization_id_t BadPlaceException::_serialization_id =
     DeserializationDispatcher::addDeserializer(BadPlaceException::_deserializer<Object>);
 
-DEFINE_RTT(BadPlaceException);
+RTT_CC_DECLS1(BadPlaceException, "x10.lang.BadPlaceException", x10::lang::RuntimeException)
+
 // vim:tabstop=4:shiftwidth=4:expandtab

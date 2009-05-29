@@ -19,24 +19,14 @@ namespace x10 {
         template<class T> class ValRail;
 
         class String : public Value {
-
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
             public:
-
             const char *c_str() const { return FMGL(content); }
 
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT* const it;
-                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
-                virtual const char *name() const { return "x10.lang.String"; }
-            };
-
-            virtual const x10aux::RuntimeType *_type() const { return x10aux::getRTT<String>(); }
-
-
+            RTT_H_DECLS;
+            
             // Set steal to true if you have just allocated the char * with
             // alloc_printf or it's otherwise OK if the String frees it.  Leave
             // steal false for string literals which ought not to be freed.
@@ -103,7 +93,12 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
-                this_->_serialize_body(buf, m);
+                if (this_==x10aux::null) {
+                    String v;
+                    v._serialize_body(buf,m);
+                } else {
+                    this_->_serialize_body(buf, m);
+                }
             }
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){

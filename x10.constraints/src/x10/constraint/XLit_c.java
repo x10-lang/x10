@@ -22,26 +22,29 @@ public class XLit_c extends XTerm_c implements XLit {
 	public Object val() {
 		return val;
 	}
-	
+
 	public XTerm var() {
 		return this;
 	}
 	
-        public List<XEQV> eqvs() {
-            return Collections.EMPTY_LIST;
-        }
+	public boolean hasDisBindings() { return false; }
+
+	public XTermKind kind() { return XTermKind.LITERAL;}
+	public List<XEQV> eqvs() {
+		return Collections.EMPTY_LIST;
+	}
 
 	public String toString() {
 		if (val == null)
 			return "null";
 		if (val instanceof String)
-		    return "\"" + val.toString() + "\"";
+			return "\"" + val.toString() + "\"";
 		if (val instanceof Character)
-		    return "'" + val.toString() + "'";
+			return "'" + val.toString() + "'";
 		if (val instanceof Float)
-		    return val.toString() + "F";
+			return val.toString() + "F";
 		if (val instanceof Long)
-		    return val.toString() + "L";
+			return val.toString() + "L";
 		return val.toString();
 	}
 
@@ -61,11 +64,11 @@ public class XLit_c extends XTerm_c implements XLit {
 		XLit_c other = (XLit_c) o;
 		return val == null ? o == null : val.equals(other.val);
 	}
-	
+
 	public XTerm subst(XTerm y, XRoot x, boolean propagate) {
-	    return super.subst(y, x, propagate);
+		return super.subst(y, x, propagate);
 	}
-	
+
 	// methods from Promise
 	public XPromise intern(XVar[] vars, int index) throws XFailure {
 		return intern(vars, index, null);
@@ -114,6 +117,19 @@ public class XLit_c extends XTerm_c implements XLit {
 			throw new XFailure("Cannot bind literal " + this + " to " + target);
 		return false;
 	}
+	
+	public boolean disBind(XPromise target) throws XFailure {
+		XTerm t = target.term();
+		if (t.equals(this))
+			return false;
+		if (t  instanceof XLit) 
+			return true; // these two literals are not equal.
+		if (t instanceof XVar) 
+			return target.disBind(this);
+		if (equals(target))
+			throw new XFailure("Cannot bind literal " + this + " to " + target);
+		return true;
+	}
 
 	public boolean canReach(XPromise other) {
 		return equals(other);
@@ -123,11 +139,8 @@ public class XLit_c extends XTerm_c implements XLit {
 		return this;
 	}
 
-	public void extDump(List<XTerm> result, XRoot oldSelf) {
-		// nothing to dump.
-	}
-	
-	public void dump(List<XTerm> result, XRoot oldSelf) {
+
+	public void dump(XVar path, List<XTerm> result, XRoot oldSelf, boolean dumpEQV) {
 		// nothing to dump.
 	}
 
@@ -153,7 +166,7 @@ public class XLit_c extends XTerm_c implements XLit {
 	}
 
 	public void replaceDescendant(XPromise y, XPromise x, XConstraint c) {
-	    // nothing to do.
+		// nothing to do.
 	}
 
 	public XPromise value() {
@@ -172,5 +185,22 @@ public class XLit_c extends XTerm_c implements XLit {
 
 	public XPromise internIntoConstraint(XConstraint constraint, XPromise last) throws XFailure {
 		throw new XFailure("Internal error -- should not be called.");
+	}
+	public void addDisEquals(XPromise p) throws XFailure {
+		if (p instanceof XLit) {
+			if (equals(p))
+				throw new XFailure("Literals " + this + " and " + p 
+						+ " are equal, hence cannot be disequated.");
+			// otherwise there is nothing to do.
+			return;
+		}
+		// otherwise must be an XPromise_c .. make it record that it must disequal this.
+		p.addDisEquals(this);
+	}
+	public boolean isDisBoundTo(XPromise o) { 
+		if (o instanceof XLit) {
+			return ! equals(o);
+		}
+		return o.isDisBoundTo(this);
 	}
 }

@@ -23,9 +23,9 @@ public interface Map[-K,V] /* @EQ {K <: Equals[K]} */ {
 	
 	public def entries(): Set[Entry[K,V]];
 	
-	public interface Entry[K,V] {
-	    public def getKey(): K;
-	    public def getValue(): V;
-	    public def setValue(V): void;
+	public interface Entry[Key,Val] {
+	    public def getKey(): Key;
+	    public def getValue(): Val;
+	    public def setValue(Val): void;
 	}
 }

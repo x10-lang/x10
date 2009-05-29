@@ -14,10 +14,12 @@ import junit.framework.TestSuite;
 public class AllTests {
 
 	public static Test suite() {
-		TestSuite suite = new TestSuite(EntailmentTest.class);
+		TestSuite suite = new TestSuite();
 		//$JUnit-BEGIN$
-		//suite.addTest(new FormulaTest());
-		//suite.addTest(new EntailmentTest());
+		suite.addTestSuite(EntailmentTest.class);
+		suite.addTestSuite(FormulaTest.class);
+		suite.addTestSuite(EQVEntailmentTests.class);
+		suite.addTestSuite(DisEqualsTests.class);
 		//$JUnit-END$
 		return suite;
 	}

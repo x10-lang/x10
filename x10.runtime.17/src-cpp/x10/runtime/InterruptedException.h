@@ -21,23 +21,7 @@ namespace x10 {
 
         class InterruptedException : public x10::lang::Exception {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-            
-                virtual void init() {
-                    initParents(1,x10aux::getRTT<x10::lang::Exception>());
-                }
-                
-                virtual const char *name() const {
-                    return "x10.runtime.InterruptedException";
-                }
-
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<InterruptedException>();
-            }
+            RTT_H_DECLS;
 
             InterruptedException() { }
 

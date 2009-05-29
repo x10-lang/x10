@@ -121,5 +121,14 @@ public class WriterStreams {
         }
         return cs;
     }
+
+    /**
+     * Return the name of the file for stream type ext.
+     * @param ext
+     * @return the name of the file
+     */
+    public String getStreamName(String ext) {
+        return targetFactory.integratedOutputName(pkg, className, ext);
+    }
 }
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -1,18 +1,24 @@
 #ifndef X10AUX_RTT_H
 #define X10AUX_RTT_H
 
-#define DEFINE_RTT(T) \
-    DEFINE_SPECIAL_RTT(T::RTT)
-
-#define DEFINE_SPECIAL_RTT(T) \
-    T * const T::it = new (x10aux::alloc<T >()) T()
-
-// [DC] can't do RTT macros for generic classes because they would have to be
-// variadic to handle the varying number of type parameters
-
-
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
+
+#include <pthread.h>
+
+/* Macro to use in class declaration for boilerplace RTT junk */
+#define RTT_H_DECLS \
+    static const x10aux::RuntimeType* rtt; \
+    static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; } \
+    static const x10aux::RuntimeType* _initRTT(); \
+    virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
+
+#define RTT_CC_DECLS1(TYPE,NAME,P1) \
+    const x10aux::RuntimeType* TYPE::rtt = NULL; \
+    const x10aux::RuntimeType * TYPE::_initRTT() { \
+        const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(NAME, 1, P1::getRTT()); \
+        return x10aux::RuntimeType::installRTT(&rtt, cand); \
+    }
 
 namespace x10 {
     namespace lang {
@@ -25,65 +31,70 @@ namespace x10aux {
     template<class T> class ref;
 
     class RuntimeType {
+    private:
+        static pthread_mutex_t installLock;
+        static pthread_mutexattr_t installLockAttr;
+        
+    public:
+        /*
+         * RTT objects for all builtin primitive types.
+         * These are created by the bootstrap method
+         */
+        static const RuntimeType* BooleanType;
+        static const RuntimeType* ByteType;
+        static const RuntimeType* CharType;
+        static const RuntimeType* ShortType;
+        static const RuntimeType* IntType;
+        static const RuntimeType* FloatType;
+        static const RuntimeType* LongType;
+        static const RuntimeType* DoubleType;
 
-        public:
+        /**
+         * RTT object for x10::lang::Object
+         * Created by the bootstrap method because it
+         * is needed as the parent object for the primitive RTT's
+         */
+        static const RuntimeType* ObjectType;
+        
+    public:
+        const int parentsc;
+        const RuntimeType **parents;
+        const char* typeName;
+        
+        RuntimeType(const char* n, int pc, ...);
 
-        int parentsc;
-        const RuntimeType ** parents;
+        const char *name() const { return typeName; }
 
-        RuntimeType() : parentsc(-1), parents(0) {
-            _RTT_("Creating uninitialised RTT: "<<std::hex<<this<<std::dec);
-        }
-
-        bool initialized() { return parentsc>=0; }
-
-        virtual void init() = 0;
-
-        void initParents(int parentsc_, ...);
-
-        virtual ~RuntimeType();
-
-        virtual const char *name() const = 0;
-
-        virtual bool subtypeOf(const RuntimeType * const other) const {
-            if (equals(other)) return true; // trivial case
-            for (int i = 0; i < parentsc; ++i) {
-                if (parents[i]->subtypeOf(other)) return true;
-            }
-            return false;
-        }
+        bool subtypeOf(const RuntimeType * const other) const;
 
         // use "const ref<t> &" here to break circular dependency
-        virtual bool instanceOf(const x10aux::ref<x10::lang::Object> &other) const;
+        bool instanceOf(const x10aux::ref<x10::lang::Object> &other) const;
 
         // use "const ref<t> &" here to break circular dependency
-        virtual bool concreteInstanceOf(const x10aux::ref<x10::lang::Object> &other) const;
+        bool concreteInstanceOf(const x10aux::ref<x10::lang::Object> &other) const;
 
-        virtual bool equals(const RuntimeType * const other) const {
-            if (other == this) return true;
-            return false;
+        bool equals(const RuntimeType * const other) const {
+            return other == this;
         }
 
+        static const RuntimeType* installRTT(const RuntimeType **location, const RuntimeType *rtt);
+        static void bootstrap();
     };
 
-    template<class T> struct RTT_WRAP { static const RuntimeType *_() {
-        RuntimeType *it = T::RTT::it;
-        if (it == NULL) return NULL;
-        if (!it->initialized()) {
-            it->init();
-        }
-        return it;
-    } };
-
-    template<class T> struct RTT_WRAP<ref<T> > { static const RuntimeType *_() {
-        return RTT_WRAP<T>::_();
-    } };
 
     // this is the function we use to get runtime types from types
-    template<class T> const RuntimeType *getRTT() {
-        return RTT_WRAP<T>::_();
+    template<class T> const x10aux::RuntimeType* getRTT() {
+        return T::getRTT();
     }
-
+    // specializations of getRTT template for primitive types
+	template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() { return x10aux::RuntimeType::BooleanType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_byte>() { return x10aux::RuntimeType::ByteType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_short>() { return x10aux::RuntimeType::ShortType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_char>() { return x10aux::RuntimeType::CharType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_int>() { return x10aux::RuntimeType::IntType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_float>() { return x10aux::RuntimeType::FloatType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_long>() { return x10aux::RuntimeType::LongType; }
+	template<> inline const x10aux::RuntimeType *getRTT<x10_double>() { return x10aux::RuntimeType::DoubleType; }
 
     // This is different to getRTT because it distinguishes between T and ref<T>
     template<class T> struct TypeName { static const char *_() {
@@ -102,36 +113,6 @@ namespace x10aux {
     template<class T> const char *typeName() {
         return TypeName<T>::_();
     }
-
-    void primitive_init(RuntimeType* t);
-
-#define DECLARE_PRIMITIVE_RTT(C,P) \
-    class C##Type : public RuntimeType { \
-    public: \
-        static C##Type * const it; \
-        virtual void init() { primitive_init(this); } \
-        virtual ~C##Type() { } \
-        virtual const char *name() const { return "x10.lang."#C; } \
-    }; \
-    template<> struct RTT_WRAP<C##Type> { static RuntimeType *_() { \
-        return C##Type::it; \
-    } }; \
-    template<> struct RTT_WRAP<x10_##P> { static RuntimeType *_() { \
-        return C##Type::it; \
-    } }
-#define DEFINE_PRIMITIVE_RTT(C) \
-    DEFINE_SPECIAL_RTT(C##Type)
-
-    DECLARE_PRIMITIVE_RTT(Boolean, boolean);
-    DECLARE_PRIMITIVE_RTT(Byte, byte);
-    DECLARE_PRIMITIVE_RTT(Char, char);
-    DECLARE_PRIMITIVE_RTT(Short, short);
-    DECLARE_PRIMITIVE_RTT(Int, int);
-    DECLARE_PRIMITIVE_RTT(Long, long);
-    DECLARE_PRIMITIVE_RTT(Float, float);
-    DECLARE_PRIMITIVE_RTT(Double, double);
-
-#undef DECLARE_PRIMITIVE_RTT
 
     #define TYPENAME(T) x10aux::typeName<T>()
     class place;

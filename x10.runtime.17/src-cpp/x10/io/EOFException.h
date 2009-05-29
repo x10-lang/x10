@@ -12,16 +12,7 @@ namespace x10 {
 
         class EOFException : public IOException {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<IOException>()); }
-                virtual const char *name() const { return "x10.io.EOFException"; }
-            };
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<EOFException>();
-            }
-
+            RTT_H_DECLS;
 
             static x10aux::ref<EOFException> _make()
             { return (new (x10aux::alloc<EOFException>()) EOFException()) ->_constructor(); }
@@ -53,10 +44,7 @@ namespace x10 {
                 this_->_deserialize_body(buf);
                 return this_;
             }
-
-
         };
-
     }
 }
 

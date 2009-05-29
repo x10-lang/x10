@@ -12,18 +12,8 @@ namespace x10 {
 
         class OutOfMemoryError : public Error {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<x10::lang::Error>());}
-                virtual const char *name() const { return "x10.lang.OutOfMemoryError"; } 
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<OutOfMemoryError>();
-            }
-
-
+            RTT_H_DECLS;
+            
             static x10aux::ref<OutOfMemoryError> _make()
             {
                 return (new (x10aux::alloc<OutOfMemoryError>()) OutOfMemoryError())

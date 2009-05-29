@@ -19,7 +19,7 @@ public class TypedefConstraint2c extends TypedefTest {
 
     public def run(): boolean = {
         
-        type C[T] = FOO[T]{T<:Y};
+        type C[T]{T<:Y} = FOO[T];
         c:C[Z] = new FOO[Z]();
         //check("c.name", c.name, "X");
 

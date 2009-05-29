@@ -22,6 +22,17 @@ ifdef ENABLE_GC
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 
+ifdef OPTIMIZE
+	CXXFLAGS += -O2 -finline-functions
+	CFLAGS += -O2 -finline-functions
+	X10CPPFLAGS += -optimize
+endif
+
+ifdef NO_CHECKS
+	CXXFLAGS += -DNDEBUG -DNO_CHECKS
+	CFLAGS += -DNDEBUG -DNO_CHECKS
+endif
+
 ifdef ENABLE_CUDA
   CXXFLAGS += -DX10_USE_CUDA_HOST
   INCLUDE_DIRS += -I/usr/local/cuda/include
@@ -30,22 +41,33 @@ endif
 
 CXXFLAGS += $(INCLUDE_DIRS)
 
-
 ifeq ($(shell uname -s),AIX)
 
   ifdef USE_XLC
     CXX = mpCC_r
     override CXXFLAGS -= -g
-    override CXXFLAGS += -q64
+    ifndef USE_32BIT
+      override CXXFLAGS += -q64
+    else
+      override CXXFLAGS += -q32
+    endif
     override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
     override CXXFLAGS += -qrtti=all
-    override CXXFLAGS += -qsuppress=1540-0809:1500-029
+    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
+    override CXXFLAGS += $(XLC_EXTRA_FLAGS)
+    ifeq ($(AR),ar) # use AIX default ar
+      AR = /usr/bin/ar
+    endif
   else
     override CXXFLAGS += -maix64
   endif
 
   # FIXME
-  ARFLAGS := -X64 $(ARFLAGS)
+  ifndef USE_32BIT
+    ARFLAGS := -X64 $(ARFLAGS)
+  else
+    ARFLAGS := -X32 $(ARFLAGS)
+  endif
 
 else
 
@@ -83,6 +105,7 @@ xrx: $(XRX_ARCHIVE)
 ALL_XRCPP_OBJECTS = \
 	x10aux/alloc.o \
 	x10aux/assert.o \
+	x10aux/atomic_ops.o \
 	x10aux/basic_functions.o \
 	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \
@@ -128,9 +151,13 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
+	x10/runtime/Deque.o \
 	x10/runtime/InterruptedException.o \
 	x10/runtime/Lock.o \
-	x10/runtime/Thread.o 
+	x10/runtime/Thread.o \
+	x10/util/concurrent/atomic/AtomicBoolean.o \
+	x10/util/concurrent/atomic/AtomicInteger.o \
+	x10/util/concurrent/atomic/AtomicLong.o 
 
 
 $(XRCPP_ARCHIVE): $(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
@@ -156,7 +183,7 @@ XRXFILES  = $(shell find ../src-x10 -name '*.x10')
 gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar test.o
 	@echo "Regenerating XRX cc/h/inc files"
 	mkdir -p gen
-	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | xargs "$(INSTDIR)"/bin/x10c++ -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c
+	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | xargs "$(INSTDIR)"/bin/x10c++ $(X10CPPFLAGS) -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c
 	touch $@
 
 # $(XRX_MANIFEST) is a list of all .cc files (relative to the ./gen dir) that
@@ -168,7 +195,7 @@ $(XRX_MANIFEST): gen/all-cpp-generated
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
-	CXXFLAGS="$(CXXFLAGS) -Igen" $(MAKE) $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST))
+	CXXFLAGS="$(CXXFLAGS) -Igen" $(MAKE) $(MAKEFLAGS) $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST))
 	touch $@
 
 $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)

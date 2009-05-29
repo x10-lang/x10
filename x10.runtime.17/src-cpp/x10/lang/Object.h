@@ -20,31 +20,11 @@ namespace x10 {
 
             public:
 
-#ifdef REF_COUNTING
-            int __count; // Ref counting implementation
-#endif
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT* const it;
+            /* Note special RTT code block because Object is predefined by RuntimeType */
+            static const x10aux::RuntimeType* getRTT() { return x10aux::RuntimeType::ObjectType; }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
             
-                virtual void init() { initParents(0); }
-
-                virtual const char *name() const {
-                    return "x10.lang.Object";
-                }
-
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Object>();
-            }
-
-            Object()
-#ifdef REF_COUNTING
-                : __count(0)
-#endif      
-            { }
+            Object(){ }
 
             virtual ~Object() { }
 

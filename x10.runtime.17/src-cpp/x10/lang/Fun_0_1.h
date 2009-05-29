@@ -9,28 +9,24 @@ namespace x10 {
     namespace lang {
         template<class P1, class R> class Fun_0_1 : public virtual Object {
             public:
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT * const it;
-                virtual void init() { initParents(1,x10aux::getRTT<Object>()); }
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.Fun_0_1[%s,%s]",
-                                             x10aux::getRTT<P1>()->name(),
-                                             x10aux::getRTT<R>()->name());
-                    return name;
-                }
-            };
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Fun_0_1<P1,R> >();
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.Fun_0_1[%s,%s]",
+                                         x10aux::getRTT<P1>()->name(),
+                                         x10aux::getRTT<R>()->name());
+                const x10aux::RuntimeType *parent = x10::lang::Object::getRTT();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, parent);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             virtual ~Fun_0_1() { }
             virtual R apply(P1 p1) = 0;
         };
-        template<class P1, class R> typename Fun_0_1<P1,R>::RTT * const Fun_0_1<P1,R>::RTT::it =
-            new (x10aux::alloc<typename Fun_0_1<P1,R>::RTT>())
-                typename Fun_0_1<P1,R>::RTT();
+
+        template<class P1, class R> const x10aux::RuntimeType* Fun_0_1<P1,R>::rtt = NULL;
     }
 }
 #endif

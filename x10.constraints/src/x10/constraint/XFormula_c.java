@@ -28,7 +28,7 @@ public class XFormula_c extends XTerm_c implements XFormula {
             this.arguments.add(arg);
         }
     }
-    
+    public XTermKind kind() { return XTermKind.FN_APPLICATION;}
     public List<XEQV> eqvs() {
         List<XEQV> eqvs = new ArrayList<XEQV>();
         for (XTerm arg : arguments) {

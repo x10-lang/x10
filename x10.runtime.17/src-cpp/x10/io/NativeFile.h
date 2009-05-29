@@ -17,22 +17,7 @@ namespace x10 {
 
         class NativeFile : public x10::lang::Ref {
             public:
-            class RTT : public x10aux::RuntimeType {
-                public:
-                    static RTT* const it;
-
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
-                    }
-
-                    virtual const char *name() const {
-                        return "x10.io.File.NativeFile";
-                    }
-
-            };
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<NativeFile>();
-            }
+            RTT_H_DECLS;
 
         private:
 

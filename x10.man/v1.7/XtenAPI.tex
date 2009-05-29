@@ -13,6 +13,8 @@ public interface Object {
     public def equals(o: Object): Boolean;
     public def hashCode(): Int;
     public def toString(): String;
+    /** Return the full name of the class, e.g., "x10.lang.String" */
+    public def className(): String;
 }
 
 /**

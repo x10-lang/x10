@@ -1,12 +1,16 @@
 package x10.constraint.tests;
 
+//import polyglot.ext.x10.types.X10TypeMixin;
 import junit.framework.TestCase;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XName;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.constraint.XRef_c;
+import x10.constraint.*;
 
 public class EntailmentTest extends TestCase {
 	public EntailmentTest() {
@@ -106,6 +110,10 @@ public class EntailmentTest extends TestCase {
 		assertTrue(result);
 		
 	}
+	/**
+	 *  |/= exists x1. v1=x1, v2=x2
+	 * @throws Throwable
+	 */
 	public void test6() throws Throwable {
 		XConstraint c = new XConstraint_c();
 		
@@ -260,21 +268,35 @@ public class EntailmentTest extends TestCase {
             final XVar v0 = XTerms.makeLocal(XTerms.makeName("v0"));
             final XVar v1 = XTerms.makeLocal(XTerms.makeName("v1"));
 
-            XConstraint s = new XConstraint_c();
+            final XConstraint s = new XConstraint_c();
             s.addBinding(v1, s.self());
-            v0.setSelfConstraint(s);
+            v0.setSelfConstraint(new XRef_c<XConstraint>() {
+            		public XConstraint compute() { 
+            			return s; }});
 
             XConstraint c = new XConstraint_c();
-
+            c.addTerm(v0);
+            
             XConstraint d = new XConstraint_c();
             d.addBinding(v0, v1);
-            
-//            XConstraint e = d.saturate();
-
-//            System.out.println(c);
-//            System.out.println(d);
-//            System.out.println(e);
-
+            System.out.println();
+            System.out.println("EntailmentTest.test14: v0 : _{self=v1} |- v0=v1");
+            System.out.println("c:" + c + " saturated: " + c.saturate());
+            System.out.println("d: " + d + " ext:" + d.extConstraints());
+            assertTrue(c.entails(d));
+        }
+        /**
+         * |- exists x. x.a=x.b
+         * @throws Throwable
+         */
+        public void test15() throws Throwable {
+           
+            XConstraint c = new XConstraint_c();
+            XConstraint d = new XConstraint_c();
+            XVar X = d.genEQV(true);
+            XField Xa = XTerms.makeField(X, XTerms.makeName("a"));
+            XField Xb = XTerms.makeField(X, XTerms.makeName("b"));
+            d.addBinding(Xa, Xb); 
             assertTrue(c.entails(d));
         }
 

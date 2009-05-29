@@ -8,33 +8,33 @@
 
 namespace x10aux {
 
-    template<class T> static inline ref<x10::lang::String> class_name(ref<T> x) {
+    template<class T> inline ref<x10::lang::String> class_name(ref<T> x) {
         return x10::lang::String::Lit(x->_type()->name());
     }
 
-    static inline ref<x10::lang::String> class_name(const x10_double) {
+    inline ref<x10::lang::String> class_name(const x10_double) {
         return x10::lang::String::Lit(getRTT<x10_double>()->name());
     }
-    static inline ref<x10::lang::String> class_name(const x10_float) {
+    inline ref<x10::lang::String> class_name(const x10_float) {
         return x10::lang::String::Lit(getRTT<x10_float>()->name());
     }
-    static inline ref<x10::lang::String> class_name(const x10_long) {
+    inline ref<x10::lang::String> class_name(const x10_long) {
         return x10::lang::String::Lit(getRTT<x10_long>()->name());
     }
 
-    static inline ref<x10::lang::String> class_name(const x10_int) {
+    inline ref<x10::lang::String> class_name(const x10_int) {
         return x10::lang::String::Lit(getRTT<x10_int>()->name());
     }
-    static inline ref<x10::lang::String> class_name(const x10_short) {
+    inline ref<x10::lang::String> class_name(const x10_short) {
         return x10::lang::String::Lit(getRTT<x10_short>()->name());
     }
-    static inline ref<x10::lang::String> class_name(const x10_byte) {
+    inline ref<x10::lang::String> class_name(const x10_byte) {
         return x10::lang::String::Lit(getRTT<x10_byte>()->name());
     }
-    static inline ref<x10::lang::String> class_name(const x10_char) {
+    inline ref<x10::lang::String> class_name(const x10_char) {
         return x10::lang::String::Lit(getRTT<x10_char>()->name());
     }
-    static inline ref<x10::lang::String> class_name(const x10_boolean) {
+    inline ref<x10::lang::String> class_name(const x10_boolean) {
         return x10::lang::String::Lit(getRTT<x10_boolean>()->name());
     }
 
@@ -49,120 +49,122 @@ namespace x10aux {
     };
 
     template<class T, class U>
-    static inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
+    inline x10_boolean equals(ref<T> x, ref<U> y) { return Equals<T, U>::_(x, y); }
 
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_double y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_double y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_float y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_float y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_long y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_long y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_int y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_int y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_short y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_short y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_byte y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_byte y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_char y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_char y) { return false; }
     template<class T>
-    static inline x10_boolean equals(ref<T> x, x10_boolean y) { return false; }
+    inline x10_boolean equals(ref<T> x, x10_boolean y) { return false; }
 
     template<class T>
-    static inline x10_boolean equals(x10_double y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_double y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_float y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_float y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_long y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_long y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_int y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_int y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_short y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_short y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_byte y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_byte y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_char y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_char y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean equals(x10_boolean y, ref<T> x) { return false; }
+    inline x10_boolean equals(x10_boolean y, ref<T> x) { return false; }
 
-    static inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
-    static inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
-    static inline x10_boolean equals(const x10_long x,    const x10_long y)    { return x==y; }
-    static inline x10_boolean equals(const x10_int x,     const x10_int y)     { return x==y; }
-    static inline x10_boolean equals(const x10_short x,   const x10_short y)   { return x==y; }
-    static inline x10_boolean equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    static inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x==y; }
-    static inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
+    inline x10_boolean equals(const x10_double x,  const x10_double y)  { return x==y; }
+    inline x10_boolean equals(const x10_float x,   const x10_float y)   { return x==y; }
+    inline x10_boolean equals(const x10_long x,    const x10_long y)    { return x==y; }
+    inline x10_boolean equals(const x10_int x,     const x10_int y)     { return x==y; }
+    inline x10_boolean equals(const x10_short x,   const x10_short y)   { return x==y; }
+    inline x10_boolean equals(const x10_byte x,    const x10_byte y)    { return x==y; }
+    inline x10_boolean equals(const x10_char x,    const x10_char y)    { return x==y; }
+    inline x10_boolean equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
     template<class T, class U>
-    static inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
+    inline x10_boolean struct_equals(ref<T> x, ref<U> y) {
         if (x.isNull())
             return y.isNull();
+        if (y.isNull())
+            return false; // x != null, needed for remote refs
         return x->_struct_equals(y);
     }
 
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_double y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_double y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_float y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_float y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_long y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_long y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_int y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_int y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_short y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_short y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_byte y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_byte y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_char y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_char y) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(ref<T> x, x10_boolean y) { return false; }
+    inline x10_boolean struct_equals(ref<T> x, x10_boolean y) { return false; }
 
     template<class T>
-    static inline x10_boolean struct_equals(x10_double y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_double y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_float y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_float y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_long y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_long y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_int y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_int y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_short y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_short y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_byte y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_byte y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_char y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_char y, ref<T> x) { return false; }
     template<class T>
-    static inline x10_boolean struct_equals(x10_boolean y, ref<T> x) { return false; }
+    inline x10_boolean struct_equals(x10_boolean y, ref<T> x) { return false; }
 
-    static inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
-    static inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
-    static inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
-    static inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
-    static inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
-    static inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    static inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x==y; }
-    static inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
+    inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
+    inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
+    inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
+    inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
+    inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
-    template<class T> static inline x10_int hash_code(ref<T> x) {
+    template<class T> inline x10_int hash_code(ref<T> x) {
         return x->hashCode();
     }
 
-    static inline x10_int hash_code(const x10_double x) {
+    inline x10_int hash_code(const x10_double x) {
         return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
     }
-    static inline x10_int hash_code(const x10_float x) {
+    inline x10_int hash_code(const x10_float x) {
         return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
     }
-    static inline x10_int hash_code(const x10_long x) {
+    inline x10_int hash_code(const x10_long x) {
         return hash(reinterpret_cast<const unsigned char*>(&x), sizeof(x));
     }
 
-    static inline x10_int hash_code(const x10_int x) { return x; }
-    static inline x10_int hash_code(const x10_short x) { return x; }
-    static inline x10_int hash_code(const x10_byte x) { return x; }
-    static inline x10_int hash_code(const x10_char x) { return x; }
-    static inline x10_int hash_code(const x10_boolean x) { return x; }
+    inline x10_int hash_code(const x10_int x) { return x; }
+    inline x10_int hash_code(const x10_short x) { return x; }
+    inline x10_int hash_code(const x10_byte x) { return x; }
+    inline x10_int hash_code(const x10_char x) { return x; }
+    inline x10_int hash_code(const x10_boolean x) { return x; }
 
 
 

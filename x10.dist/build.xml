@@ -10,14 +10,14 @@
     <property name="lib" location="${basedir}/lib"/>
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.url" value="http://easynews.dl.sourceforge.net/sourceforge/lpg"/>
-    <property name="lpg.jar.url" value="http://lpg.sourceforge.net/updates/plugins/lpg.runtime_2.0.16.jar"/>
+    <property name="lpg.jar.url" value="http://lpg.sourceforge.net/updates/plugins/lpg.runtime_2.0.17.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
     <!-- NOTE: Eventually, the 3.4 stream will get moved to archive.eclipse.org. When that happens, move to 3.5 or get 3.4 from the archive -->
     <property name="ecj.url" value="http://download.eclipse.org/eclipse/downloads/drops/R-3.4.1-200809111700"/>
     <property name="ecj.jar.url" value="${ecj.url}/ecj-3.4.1.jar"/>
     <property name="polyglot.jar" value="polyglot3.jar"/>
-    <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates/plugins"/>
-    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot3_latest.jar"/>
+    <property name="polyglot.url" value="http://www.cs.cornell.edu/Projects/polyglot/eclipseUpdates3/plugins"/>
+    <property name="polyglot.jar.url" value="${polyglot.url}/polyglot_3.0.2.jar"/>
     <property name="x10.constraints.location" location="${x10.home}/x10.constraints"/>
     <property name="constraints.jar" value="x10constraints.jar"/>
     <property name="x10.common.location" location="${x10.home}/x10.common.17"/>
@@ -36,9 +36,9 @@
 
     <target name="init">
         <tstamp/>
-	<mkdir dir="${etc}" />
-	<mkdir dir="${incdir}" />
-	<mkdir dir="${lib}" />
+        <mkdir dir="${etc}" />
+        <mkdir dir="${incdir}" />
+        <mkdir dir="${lib}" />
         <condition property="local.polyglot.jar" value="${env.LOCAL_POLYGLOT_JAR}">
             <isset property="env.LOCAL_POLYGLOT_JAR"/>
         </condition>
@@ -63,11 +63,11 @@
 
     <target name="distclean" depends="clean">
         <delete dir="${etc}" />
-	<mkdir dir="${etc}" />
+        <mkdir dir="${etc}" />
         <delete dir="${incdir}" />
-	<mkdir dir="${incdir}" />
+        <mkdir dir="${incdir}" />
         <delete dir="${lib}" />
-	<mkdir dir="${lib}" />
+        <mkdir dir="${lib}" />
         <ant antfile="${x10.constraints.location}/build.xml" target="clean" inheritAll="false" dir="${x10.constraints.location}"/>
         <ant antfile="${x10.common.location}/build.xml" target="clean" inheritAll="false" dir="${x10.common.location}"/>
         <ant antfile="${x10.runtime.location}/build.xml" target="clean" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -75,7 +75,7 @@
         <ant antfile="${x10.cppbackend.location}/build.xml" target="clean" inheritAll="false" dir="${x10.cppbackend.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,constraints-jar,runtime-java,compiler-jar"/>
+    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,cppbackend-jar,runtime-cpp"/>
     <target name="dist" depends="dist-java,dist-cpp"/>
 
@@ -418,6 +418,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
             <zipfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <zipfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <zipfileset prefix="lib" dir="${lib}" includes="*.jar"/>
+            <zipfileset prefix="samples" dir="${basedir}/samples" excludes="**/.*.swp"/>
         </zip>
     </target>
     <target name="src-zip" depends="srczip"/>
@@ -425,10 +426,10 @@ if [[ "$UNAME" = CYGWIN* ]]; then JAVA_HOME="$(cygpath -am "$JAVA_HOME")"; fi
         <zip destfile="${src.zip.location}/x10-${src.zip.version}.zip">
             <zipfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,BUILD"/>
             <zipfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar}"/>
+            <zipfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,bin/x10c++,lib/${polyglot.jar},lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
             <zipfileset prefix="x10.compiler.p3" dir="${x10.compiler.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.cppbackend.17" dir="${x10.cppbackend.location}" excludes="releng/**,**/.*.swp,classes/**"/>
-            <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**"/>
+            <zipfileset prefix="x10.runtime.17" dir="${x10.runtime.location}" excludes="releng/**,**/.*.swp,classes/**,src-cpp/gen/**"/>
             <zipfileset prefix="x10.constraints" dir="${x10.constraints.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.common.17" dir="${x10.common.location}" excludes="releng/**,**/.*.swp,classes/**"/>
             <zipfileset prefix="x10.tests" dir="${x10.tests.location}" excludes="releng/**,**/.*.swp,lib/**,etc/**" includes="build*,README,bin/*.in,bin/testScript*,bin/newpgrp,bin/listFailures,examples/README,**/*.x10,**/.ThisIsAnX10TestDirectory"/>

@@ -21,6 +21,7 @@
 #include <x10aux/init_dispatcher.h>
 #include <x10aux/hash.h>
 #include <x10aux/basic_functions.h>
+#include <x10aux/atomic_ops.h>
 
 #include <x10aux/boolean_utils.h>
 #include <x10aux/byte_utils.h>
@@ -79,11 +80,15 @@
 #include <x10/lang/VoidFun_0_2.h>
 #include <x10/lang/VoidFun_0_3.h>
 
+#include <x10/runtime/Deque.h>
 #include <x10/runtime/Lock.h>
 #include <x10/runtime/Thread.h>
 #include <x10/runtime/InterruptedException.h>
 
 #include <x10/util/GrowableRail.h>
+#include <x10/util/concurrent/atomic/AtomicBoolean.h>
+#include <x10/util/concurrent/atomic/AtomicInteger.h>
+#include <x10/util/concurrent/atomic/AtomicLong.h>
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

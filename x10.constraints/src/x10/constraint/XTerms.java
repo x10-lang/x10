@@ -30,14 +30,22 @@ public class XTerms {
 	public static final XLit OPERATOR = new XLit_c(new Object()) { public String toString() { return "o"; } };
 
 	static final XName equalsName = new XNameWrapper<String>("===");
+	static final XName disEqualsName = new XNameWrapper<String>("!==");
 	static final XName andName = new XNameWrapper<String>("&&&");
 	static final XName notName = new XNameWrapper<String>("!!!");
+	static final XName arrayAccessName = new XNameWrapper<String>("(.)");
+	static final XName plusName = new XNameWrapper<String>("+");
+	static final XName minusName = new XNameWrapper<String>("-");
+	static final XName modName = new XNameWrapper<String>("%");
 
     // used in generating a new name.
 	static int nextId = 0;
 	
 	public static final XName makeFreshName() {
 	    return makeFreshName("_");
+	}
+	public static final XVar makeEQV(String name) {
+		return new XEQV_c(makeName(name));
 	}
 	public static final XName makeFreshName(String prefix) {
 	    return new XNameWrapper<Object>(new Object(), prefix + (nextId++));
@@ -54,6 +62,9 @@ public class XTerms {
 	public static final XLocal makeLocal(XName name) {
 		return new XLocal_c(name);
 	}
+	public static final XLocal makeArray(XName name) {
+		return new XArray_c(name);
+	}
 
 	public static final XField makeField(XVar receiver, XName field) {
 		return new XField_c(receiver, field);
@@ -69,26 +80,55 @@ public class XTerms {
 		return new XLit_c(o);
 	}
 	
-    /**
-       Make and return op(terms1,..., termsn) -- an atomic formula
-       with operator op and terms terms. Uses varargs.
-     */
+	/**
+    Make and return op(terms1,..., termsn) -- an atomic formula
+    with operator op and terms terms. Uses varargs.
+	 */
 	public static XTerm makeAtom(XName op, XTerm... terms) {
-	    return makeAtom(op, Arrays.asList(terms));
+		return makeAtom(op, true, Arrays.asList(terms));
 	}
 
-    /**
-       Make and return op(terms1,..., termsn) -- an atomic formula
-       with operator op and terms terms.
-     */
-
+	/**
+    Make and return op(terms1,..., termsn) -- a function application 
+    with function name op and arguments terms. Uses varargs.
+	 */
 	public static XTerm makeAtom(XName op, List<XTerm> terms) {
+		return makeAtom(op, true, terms);
+	}
+	/**
+       Make and return op(terms1,..., termsn) -- an expression 
+       with operator op and arguments terms. If atomicFormula is true
+       then this is marked as an atomicFormula, else it is considered a term 
+       (a function application term).
+	 */
+
+	public static XTerm makeAtom(XName op, boolean atomicFormula, List<XTerm> terms) {
 		assert op != null;
 		assert terms != null;
 		XFormula f = new XFormula_c(op, terms);
-		f.markAsAtomicFormula();
+		if (atomicFormula) {
+			f.markAsAtomicFormula();
+		}
 		return f;
 	}
+
+
+
+	/**
+    Make and return op(terms1,..., termsn) -- a function application 
+    with function name op and arguments terms. Uses varargs.
+	 */
+	public static XTerm makeTerm(XName op, XTerm... terms) {
+		if (op.equals(plusName)) {
+			return new XPlus_c(terms);
+		}
+		if (op.equals(minusName)) {
+			return new XMinus_c(terms);
+		}
+		
+		return makeAtom(op, false, Arrays.asList(terms));
+	}
+ 
     /**
        Make and return left == right.
      */
@@ -102,6 +142,19 @@ public class XTerms {
 		            return XTerms.FALSE;
 		}
 		return new XEquals_c(left, right);
+	}
+	
+	public static XTerm makeDisEquals(XTerm left, XTerm right) {
+		assert left != null;
+		assert right != null;
+		if (left instanceof XLit && right instanceof XLit) {
+			
+		        if (left.equals(right))
+		            return XTerms.FALSE;
+		        else
+		            return XTerms.TRUE;
+		}
+		return new XDisEquals_c(left, right);
 	}
 
     /**
@@ -120,5 +173,20 @@ public class XTerms {
 	public static XTerm makeNot(XTerm arg) {
 		assert arg != null;
 		return new XNot_c(arg);
+	}
+	/**
+	 * Return the constraint true.
+	 * @return
+	 */
+	public static XConstraint makeTrueConstraint() {
+		return new XConstraint_c();
+	}
+	/**
+	 * Create a term representing an array access a(t)
+	 * @arg array -- a
+	 * @arg index -- t
+	 */
+	public static XArrayElement makeArrayElement(XArray array, XTerm index) {
+		return new XArrayElement_c(array, index);
 	}
 }

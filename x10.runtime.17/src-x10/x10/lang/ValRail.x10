@@ -27,6 +27,10 @@ public value class ValRail[+T](length: nat)
     @Native("c++", "x10::lang::ValRail<#1 >::make(#4, #5)")
     public native static def make[T](length: Nat, init: (Nat) => T): ValRail[T](length);
 
+    @Native("java", "x10.core.RailFactory.<#2>makeValRailFromRail(#3, #4)")
+    @Native("c++", "x10::lang::ValRail<#1 >::make(#4)")
+    public native static def $convert[U](r: Rail[U]): ValRail[U]{self.length==r.length};
+
     @Native("java", "#0.get(#1)")
     @Native("c++", "(#0)->get(#1)")
     public native def get(i: nat): T;

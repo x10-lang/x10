@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,9 +26,7 @@ import java.util.Set;
  * @author vj
  *
  */
-public class XConstraint_c implements XConstraint, Cloneable {
-
-    public static final boolean DUMP_EQV = true;
+public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
 
     /** Variable to use for self in the constraint. */
     XRoot self;
@@ -37,6 +36,15 @@ public class XConstraint_c implements XConstraint, Cloneable {
 
     public HashMap<XTerm, XPromise> roots() {
         return roots;
+    }
+    public List<XVar> eqvs() {
+    	List<XVar> xvars = new LinkedList<XVar>();
+    	if (roots==null) return xvars;
+    	for (XTerm xt : roots.keySet()) {
+    		if (xt.isEQV())
+    			xvars.add((XVar) xt);
+    	}
+    	return xvars;
     }
     
     public XRoot self() {
@@ -125,6 +133,15 @@ public class XConstraint_c implements XConstraint, Cloneable {
         }
     }
 
+    public List<XFormula> atoms() {
+    	List<XFormula> r = new LinkedList<XFormula>();
+    	for (XTerm t : roots.keySet()) {
+    		if (t instanceof XFormula) {
+    			r.add((XFormula) t);
+    		}
+    	}
+    	return r;
+    }
     /**
      * Is the constraint consistent? i.e. X=s and X=t have not been added to it,
      * where s and t are not equal.
@@ -292,6 +309,21 @@ public class XConstraint_c implements XConstraint, Cloneable {
         valid &= !modified;
     }
 
+    public void addDisBinding(XTerm left, XTerm right) throws XFailure {
+    	assert left != null;
+    	assert right !=null;
+    	if (! consistent)
+    		return;
+    	if (roots == null)
+    		roots = new LinkedHashMap<XTerm, XPromise>();
+    	XPromise p1 = intern(left);
+    	XPromise p2 = intern(right);
+    	if (p1.equals(p2)) {
+    		throw new XFailure(this + " already entails " + left + "==" + right);
+    	}
+    	boolean modified = p1.disBind(p2);
+        valid &= !modified;
+    }
     /**
      * Add the atomic formula t.
      * @param t
@@ -357,7 +389,7 @@ public class XConstraint_c implements XConstraint, Cloneable {
             return true;
 //        if (other.toString().equals(toString()))
 //        	return true;
-        List<XTerm> otherConstraints = other.constraints();
+        List<XTerm> otherConstraints = other.extConstraints();
         XRoot otherSelf = other.self();
         return entails(otherConstraints, otherSelf);
     }
@@ -370,7 +402,13 @@ public class XConstraint_c implements XConstraint, Cloneable {
         if (roots == null)
             return result;
         for (XPromise p : roots.values()) {
-            p.dump(result, self);
+        	// vj: To check if c entails exists X1...Xn.d
+        	// where exists X1...Xn. d is satisfiable, 
+        	// simply check that all the constraints in d
+        	// that do not involve X1,..., Xn are entailed by c.
+        	//if (p.term() ==null ||  p.term().isEQV())
+        	//	continue;
+        	p.dump(null, result, self, true);
         }
         return result;
     }
@@ -383,186 +421,31 @@ public class XConstraint_c implements XConstraint, Cloneable {
         if (roots == null)
             return result;
         for (XPromise p : roots.values()) {
-            p.extDump(result, self);
+            p.dump(null, result, self, false);
         }
         return result;
     }
 
     private boolean entails(List<XTerm> conjuncts, XRoot self) throws XFailure {
-        XConstraint_c me = saturate();
-        if (me == this) me = copy();
-        
-        List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
+    	XConstraint_c me = saturate();
+    	if (me == this) me = copy();
+    	if (! me.consistent()) return true;
+    	List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
         for (XTerm term : conjuncts) {
             XTerm t = term.subst(me.self(), self);
             subst.add(t);            
         }
-        
         Set<XTerm> visited = new HashSet<XTerm>();
         for (XTerm term : subst) {
             term.saturate(me, visited);
         }
         visited = null; // free up for gc
-        
-        if (! me.consistent()) {
-            return true;
-        }
-        
-        class BruteForceEQVHelper {
-            void put(Map<XTerm,List<XTerm>> m, XTerm v, XTerm t) {
-                if (v.equals(t))
-                    return;
-                List<XTerm> l = m.get(v);
-                if (l == null) {
-                    l = new ArrayList<XTerm>(1);
-                    m.put(v, l);
-                }
-                if (! l.contains(t))
-                    l.add(t);
-            }
-            
-            /** Add mappings for EQVs in the left term by unifying with the right term. */
-            void unify(Map<XTerm,List<XTerm>> m, XTerm left, XTerm right) {
-                if (left.isEQV()) {
-                    put(m, left, right);
-                }
-                if (left instanceof XField && right instanceof XField) {
-                    XField l = (XField) left;
-                    XField r = (XField) right;
-                    if (l.field().equals(r.field())) {
-                        unify(m, l.receiver(), r.receiver());
-                    }
-                }
-                if (left instanceof XEquals && right instanceof XEquals) {
-                    XFormula l = (XFormula) left;
-                    XFormula r = (XFormula) right;
-                    if (DUMP_EQV) {
-                        unify(m, l.left(), r.left());
-                        unify(m, l.right(), r.right());
-                        unify(m, l.right(), r.left());
-                        unify(m, l.left(), r.right());
-                    }
-                    return;
-                }
-                if (left instanceof XFormula && right instanceof XFormula) {
-                    XFormula l = (XFormula) left;
-                    XFormula r = (XFormula) right;
-                    if (l.operator().equals(r.operator()) && l.arguments().size() == r.arguments().size()) {
-                        for (int i = 0; i < l.arguments().size(); i++) {
-                            unify(m, l.arguments().get(i), r.arguments().get(i));
-                        }
-                    }
-                }
-            }
-            void unify(Map<XTerm,List<XTerm>> m, XTerm term, XConstraint c) {
-                // Try to find a term in c that unifies with term.
-                for (XTerm t : c.constraints()) {
-                    unify(m, term, t);
-                }
-            }
-            
-            /** Compute all possible bindings for EQVs in the terms list by unifying with the terms in c.  This should over-approximate the set of bindings. */
-            Map<XTerm, List<XTerm>> eqvBindings(XConstraint c, List<XTerm> terms) {
-                Map<XTerm,List<XTerm>> m = new LinkedHashMap<XTerm,List<XTerm>>();
-                for (XTerm term : terms) {
-                    if (term instanceof XEquals) {
-                        XEquals eq = (XEquals) term;
-                        XTerm left = eq.left();
-                        XTerm right = eq.right();
-                        unify(m, left, right);
-                        unify(m, right, left);
-                        if (! DUMP_EQV) {
-                            continue;
-                        }
-                    }
-                    unify(m, term, c);
-                }
-                return m;
-            }
-
-            /** Check if me entails terms (with me.self for self) by trying all possible EQV bindings. */
-            boolean entailsWithEQV(XConstraint_c me, List<XTerm> terms, XRoot self, Map<XTerm, List<XTerm>> eqvBindings) throws XFailure {
-                // If we've bound all the EQVs, check entailment.
-                if (eqvBindings.isEmpty()) {
-                    for (XTerm term : terms) {
-                        XTerm t = term.subst(me.self(), self);
-                        if (! me.entails(t))
-                            return false;
-                    }
-                    return true;
-                }
-                
-                // Otherwise, try all possible bindings for each EQV.
-                // This loop binds one EQV, then recurses, removing that EQV from the map.
-                for (Map.Entry<XTerm, List<XTerm>> e : eqvBindings.entrySet()) {
-                    XTerm v = e.getKey();
-                    List<XTerm> ts = e.getValue();
-                    
-                    Map<XTerm,List<XTerm>> m = new LinkedHashMap<XTerm, List<XTerm>>(eqvBindings);
-                    m.remove(v);
-
-                    if (ts == null || ts.size() == 0) {
-                        if (entailsWithEQV(me, terms, self, m))
-                            return true;
-                    }
-                    else {
-                        for (int i = 0; i < ts.size(); i++) {
-                            XTerm t = ts.get(i);
-                            XConstraint_c me2 = me.copy();
-                            try {
-                                XTerm t2 = t.subst(me.self(), self);
-                                XTerm t3 = t2.subst(me2.self(), me.self());
-                                me2.addBinding(v, t3);
-                            }
-                            catch (XFailure z) {
-                                continue;
-                            }
-                            if (! me2.consistent())
-                                continue;
-                            if (entailsWithEQV(me2, terms, self, m))
-                                return true;
-                        }
-                    }
-                }
-                
-                return false;
-            }
-        }
-        
-        BruteForceEQVHelper helper = new BruteForceEQVHelper();
-        Map<XTerm,List<XTerm>> eqvBindings = helper.eqvBindings(me, conjuncts);
-        
-if (true)
-    return helper.entailsWithEQV(me, conjuncts, self, eqvBindings);
-        
-        
-        // DOES NOT WORK. NEEDS TO BE FIXED.
-        // Fails entailment tests test9 and test10.
-        /* Start Deletion. When deleting, uncomment related section in XPromise_c.dump.*/
-if (false) {
-        try {
-            for (XTerm term : subst) {
-                if (term.hasEQV()) {
-                    me.addTerm(term);
-                }
-            }
-        }
-        catch (XFailure z) {
-            return false;
-        }
-        
-        if (! me.consistent()) {
-            return false;
-        }
-        /* Stop Deletion. */
-}
-
-        for (XTerm term : subst) {
-            if (! me.entails(term))
-                return false;
-        }
-        
-        return true;
+        if (! me.consistent()) return true;
+    	for (XTerm term : subst) {
+    		if (! me.entails(term))
+    			return false;
+    	}
+    	return true;
     }
 
     /** Traverse the terms in the constraint, adding in their self constraints. */
@@ -582,7 +465,7 @@ if (false) {
     }
 
     /** Return true if this constraint entails t. */
-    private boolean entails(XTerm t) throws XFailure {
+    boolean entails(XTerm t) throws XFailure {
         if (t instanceof XEquals) {
             XEquals f = (XEquals) t;
             XTerm left = f.left();
@@ -591,8 +474,32 @@ if (false) {
             if (entails(left, right)) {
                 return true;
             }
+        } else if (t instanceof XDisEquals) {
+            XDisEquals f = (XDisEquals) t;
+            XTerm left = f.left();
+            XTerm right = f.right();
+            
+            if (disEntails(left, right)) {
+                return true;
+            }
         }
-
+        else if (t instanceof XFormula) {
+        	XFormula f = (XFormula) t;
+        	XName op = f.operator();
+        	List<XTerm> args = f.arguments();
+        	int n = args.size();
+        	for (XFormula x : atoms()) {
+        		if (x.operator().equals(op)) {
+        			List<XTerm> xargs = x.arguments();
+        			if (n!= xargs.size())
+        				continue;
+        			int i=0;
+        			while(i < n && entails(args.get(i), xargs.get(i))) i++;
+        			if (i==n) return true;
+        		}
+        	}
+        	return false;
+        }
         List<XTerm> atoms = constraints();
 
         if (t.solver() != null) {
@@ -610,8 +517,19 @@ if (false) {
         return false;
     }
 
+    public boolean disEntails(XTerm t1, XTerm t2) throws XFailure {
+    	if (! consistent) return true;
+    	XPromise p1 = lookup(t1);
+    	if (p1 == null) // this constraint knows nothing about t1.
+    		return false;
+    	XPromise p2 = lookup(t2);
+    	if (p2 == null)
+    		return false;
+    	return p1.isDisBoundTo(p2);
+    	
+    }
     /** Return true if this constraint entails that t1==t2. */
-    private boolean entails(XTerm t1, XTerm t2) throws XFailure {
+    public boolean entails(XTerm t1, XTerm t2) throws XFailure {
         if (!consistent)
             return true;
         
@@ -692,11 +610,10 @@ if (false) {
         return result == null ? null : result.term();
     }
     
-    private static boolean printEQV = false;
+   // private static boolean printEQV = true;
 
     public String toString() {
         XConstraint c = this;
-        
         
         if (! c.consistent()) {
             return "{inconsistent}";
@@ -705,27 +622,23 @@ if (false) {
         try {
 //            XConstraint c2 = this.substitute(this.genEQV(XTerms.makeName("xyzzy"), false), this.self());
             c = saturate();
-        }
-        catch (XFailure z) {
-            return "{inconsistent}";
-        }
-
-        try {
             c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
         }
         catch (XFailure z) {
             return "{inconsistent}";
         }
 
-        String str;
+        String str ="";
 
-        if (printEQV)
-            str = c.constraints().toString();
-        else
-            str = c.extConstraints().toString();
-
-        str = str.substring(1, str.length() - 1);
-
+        List<XVar> eqvs = eqvs();
+        if (! eqvs.isEmpty()) {
+        	String temp = eqvs.toString();
+        	str = "exists " + temp.substring(1,temp.length()-1) + ".";
+        }
+        
+        String constr = c.constraints().toString();
+        str += constr.substring(1, constr.length()-1);
+        
         return "{" + str + "}";
     }
 
@@ -846,8 +759,8 @@ if (false) {
         replace(q, p);
 
         {
-            HashMap<XName, XPromise> pfields = p.fields();
-            HashMap<XName, XPromise> qfields = q.fields();
+            Map<XName, XPromise> pfields = p.fields();
+            Map<XName, XPromise> qfields = q.fields();
 
             if (pfields != null && qfields != null)
                 for (XName field : pfields.keySet()) {
@@ -908,7 +821,7 @@ if (false) {
         else {
             // p is no longer a root, but fields reachable from p may still mention x rather than y (or more precisely, q.term()).
             // Replace the term in p with q's term; this will fix up fields of x to be fields of y.
-            HashMap<XName,XPromise> fields = p.fields(); 
+            Map<XName,XPromise> fields = p.fields(); 
             if (fields != null) {
                 for (Map.Entry<XName, XPromise> entry : fields.entrySet()) {
                     XPromise p1 = entry.getValue();
@@ -1020,6 +933,11 @@ if (false) {
             XTerm left = eq.left();
             XTerm right = eq.right();
             addBinding(left, right);
+        } else if (term instanceof XDisEquals) {
+        	XDisEquals dq = (XDisEquals) term;
+        	   XTerm left = dq.left();
+               XTerm right = dq.right();
+               addDisBinding(left, right);
         }
         else {
             throw new XFailure("Unexpected term |" + term + "|");

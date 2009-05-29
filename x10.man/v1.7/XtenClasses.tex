@@ -417,7 +417,7 @@ Consider a class definition
 \begin{xtenmath}
 $\mbox{\emph{ClassModifiers}}^{\mbox{?}}$
 class C(x$_1$: P$_1$, $\dots$, x$_n$: P$_n$) extends D{d}
-   implements I$_1$(:c$_1$), $\dots$, I$_k${c$_k$}
+   implements I$_1${c$_1$}, $\dots$, I$_k${c$_k$}
 $\mbox{\emph{ClassBody}}$
 \end{xtenmath}
 
@@ -639,7 +639,7 @@ conditional field.
 
 \begin{rationale}
 It might seem attractive to require that \xcd"D.f"
-hides \xcd"C.f" only if \xcd"d" entails \xcd"c". This would seem
+hides \xcd"C.f" only if \xcd"d" implies \xcd"c". This would seem
 to necessitate a rather complex implementation structure for classes,
 requiring some kind of a heterogenous translation for
 constrained types of \xcd"C"

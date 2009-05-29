@@ -2,19 +2,18 @@
  * Usage:
  *
  * try {
- *   val in = new File(inputFileName);
- *   val out = new File(outputFileName);
- *   val p = out.printer();
- *   for (line in in.lines()) {
- *      line = line.chop();
- *      p.println(line);
- *   }
+ *    val input = new File(inputFileName);
+ *    val output = new File(outputFileName);
+ *    val i = input.openRead();
+ *    val p = output.printer();
+ *    for (line in i.lines()) {
+ *       line = line.chop();
+ *       p.println(line);
+ *    }
  * }
- * catch (IOException e) { }
+ * catch (IOException) { }
  */    
 package x10.io;
-
-import x10.compiler.NativeRep;
 
 public abstract value Reader {
     public abstract def close(): Void throws IOException;

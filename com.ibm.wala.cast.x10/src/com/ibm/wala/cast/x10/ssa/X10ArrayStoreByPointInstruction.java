@@ -3,6 +3,7 @@ package com.ibm.wala.cast.x10.ssa;
 import java.util.Collection;
 
 import com.ibm.wala.ssa.SSAInstruction;
+import com.ibm.wala.ssa.SSAInstructionFactory;
 import com.ibm.wala.ssa.SymbolTable;
 import com.ibm.wala.types.TypeReference;
 
@@ -19,8 +20,8 @@ public class X10ArrayStoreByPointInstruction extends X10ArrayReferenceByPointIns
     }
 
     @Override
-    public SSAInstruction copyForSSA(int[] defs, int[] uses) {
-	return new X10ArrayStoreByPointInstruction(
+    public SSAInstruction copyForSSA(SSAInstructionFactory insts, int[] defs, int[] uses) {
+	return ((X10InstructionFactory)insts).ArrayStoreByPoint(
 		uses == null ? arrayRef : uses[0],
 		uses == null ? pointIndex : uses[1],
 		uses == null ? value : uses[2],

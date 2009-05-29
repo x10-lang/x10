@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface XFormula extends XTerm {
 	List<XTerm> arguments();
-
 	XName operator();
 
 	boolean isUnary();

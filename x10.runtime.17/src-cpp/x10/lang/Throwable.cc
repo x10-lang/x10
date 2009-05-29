@@ -5,6 +5,7 @@
 #include <x10/lang/Throwable.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Rail.h>
+#include <x10/lang/Box.h>
 
 #ifdef __GLIBC__
 #   include <execinfo.h> // for backtrace()
@@ -273,6 +274,6 @@ x10_boolean Throwable::_struct_equals(ref<Object> p0) {
     return true;
 }
 
+RTT_CC_DECLS1(Throwable, "x10.lang.Throwable", Value)
 
-DEFINE_RTT(Throwable);
 // vim:tabstop=4:shiftwidth=4:expandtab

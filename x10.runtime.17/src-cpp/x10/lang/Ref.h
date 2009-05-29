@@ -16,23 +16,7 @@ namespace x10 {
 
         class Ref : public virtual Object {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-            
-                virtual void init() {
-                    initParents(1,x10aux::getRTT<Object>());
-                }
-                
-                virtual const char *name() const {
-                    return "x10.lang.Ref";
-                }
-
-            };
-            
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Ref>();
-            }
+            RTT_H_DECLS;
 
             static x10aux::ref<Ref> _make() {
                 return (new (x10aux::alloc<Ref>()) Ref())->_constructor();

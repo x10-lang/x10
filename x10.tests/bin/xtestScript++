@@ -1,4 +1,4 @@
-#!/usr/bin/ksh93
+#!/bin/bash
 
 #
 # (c) Copyright IBM Corporation 2009
@@ -29,6 +29,38 @@ function writeLogTail {
 	printf "############################################################\n\n"
 }
 
+# mail results
+# usage: mailResults
+function mailResults {
+	# set mail subject
+	case ${thrunstate} in
+		"PARSING_CMDLINE")
+			mesg="Failed Command Line Parsing"
+			;;
+		"LIST_PREPARATION")
+			mesg="Failed List Preparation"
+			;;
+		"TEST_PROCESSING")
+			mesg="Failed Test Processing"
+			;;
+		"REPORT_GENERATION")
+			mesg="${tcvalidcnt} Tests/${tcpasscnt} Passed/${tcfailcnt} Failures"
+			;;
+		"UNKNOWN_STATE")
+			mesg="Unknown Error"
+			;;
+	esac
+	# let's stick with the single timestamp
+	mailsubj="X10/C++ Test Harness [Started ${tcdate}"
+	mailsubj="${mailsubj} ${tctime} @ $(hostname)]: ${mesg}"
+	# send mail
+	if [[ -n "${tcmaillist}" ]]; then
+		mail -s "${mailsubj}" -c "${tcmaillist}" ${tcmailaddr} < ${tcrlogfile}
+	else
+		mail -s "${mailsubj}" ${tcmailaddr} < ${tcrlogfile}
+	fi
+}
+
 # display command-line help
 # usage: printUsage excode detail
 function printUsage {
@@ -36,6 +68,8 @@ function printUsage {
 	printf "Usage: xtestScript++ [-t|-timeOut [secs]] [-f|-force]\n"
 	printf "    [-logPath dir] [[-listFile file]|"
 	printf "[-l|-list \"test1 test2 ... testn\"]]\n"
+	printf "    [-mailAddr user@host] "
+	printf "[-mailList \"user1@host ... usern@host\"]\n"
 	printf "    [-v|-verbose] [-h|-help]\n\n"
 	if [[ $2 > 0 ]]; then
 		printf "The xtestScript++ runs the pre-validated *.x10 test cases"
@@ -68,6 +102,10 @@ function printUsage {
 		printf "  Alternatively, use this option to indicate the file"
 		printf " pattern(s)\nfor the tests to run.  With these options,"
 		printf " only the specified tests\nare run.\n\n"
+		printf -- "-mailAddr user@host\n"
+		printf "  Test harness administrator mail address.\n\n"
+		printf -- "-mailList user1@host ... usern@host\n"
+		printf "  List of users who should receive the run log.\n\n"
 		printf -- "-h | -help\n"
 		printf "  Print this help message.\n\n"
 	fi
@@ -116,9 +154,19 @@ function parseCmdLine {
 				tcpatlist="$2"
 				shift 2
 			fi
+		elif [[ "$1" == "-mailAddr" ]]; then
+			if (( $# >= 2 )); then
+				tcmailaddr="$2"
+				shift 2
+			fi
+		elif [[ "$1" == "-mailList" ]]; then
+			if (( $# >= 2 )); then
+				tcmaillist="$2"
+				shift 2
+			fi
 		elif [[ "$1" == "-help" || "$1" == "-h" ]]; then
 			printUsage 0 1
-		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-l" || "$1" == "-list" ]]; then
+		elif [[ "$1" == "-logPath" || "$1" == "-listFile" || "$1" == "-l" || "$1" == "-list" || "$1" == "-mailAddr" || "$1" == "-mailList" ]]; then
 			printf "\n[${prog}: err]: Option $1 needs argument\n\n"
 			printUsage 1 0
 		elif [[ "$1" == -* ]]; then
@@ -226,23 +274,26 @@ function execTimeOut {
 	typeset outfile=$1
 	shift
 	printf "\n===> $@ > $outfile &\n\n" 1>&2
-	eval "$@" > $outfile &
+	"$MYDIR"/newpgrp "$@" > $outfile &
 	typeset cmd_pid=$!
-	printf "\n===> sleep $timeout && kill -KILL $cmd_pid 2>/dev/null &\n\n" 1>&2
-	sleep $timeout && kill -KILL $cmd_pid 2>/dev/null &
+	printf "\n===> sleep $timeout && kill -9 -$cmd_pid 2>/dev/null &\n\n" 1>&2
+	"$MYDIR"/newpgrp "sleep $timeout && kill -9 -$cmd_pid" 2>/dev/null &
 	typeset sleep_pid=$!
 	printf "\n===> wait $cmd_pid 2>/dev/null\n\n" 1>&2
 	wait $cmd_pid 2>/dev/null
 	typeset rc=$?
-	printf "\n===> kill -KILL $sleep_pid 2>/dev/null\n\n" 1>&2
-	kill -KILL $sleep_pid 2>/dev/null
+	printf "\n===> kill -9 -$sleep_pid 2>/dev/null\n\n" 1>&2
+	kill -9 -$sleep_pid 2>/dev/null
 	return $rc
 }
 
 # the following needs to be defined outside main
 # program name
 MYDIR=$(dirname $0)
-X10_HOME=$(cd $MYDIR/../..; pwd)
+X10_HOME=$X10_HOME
+if [[ -z "$X10_HOME" ]]; then
+	X10_HOME=$(cd $MYDIR/../..; pwd)
+fi
 X10TEST_PATH=$X10_HOME/x10.tests/examples
 prog=x10c++th
 
@@ -254,7 +305,7 @@ if [[ $? == 0 ]]; then
 fi
 
 # generate unique timestamp (tctimestamp)
-tcdate=$(date '+%Y-%d-%m')
+tcdate=$(date '+%Y-%m-%d')
 tctime=$(date '+%H:%M:%S')
 tctimestamp="$(echo $tcdate | sed -e 's;-;;g').$(echo $tctime | sed -e 's;:;;g')"
 
@@ -280,6 +331,7 @@ function cleanUpExit {
 				cat ${tctmprhlog} ${tctmprlog} > ${tcrlogfile}
 			fi
 			cat ${tctmpelog} > ${tcelogfile}
+			mailResults
 		fi
 		rm -rf $tctmpdir
 	fi
@@ -316,7 +368,7 @@ typeset -i tctimeout=1
 
 # default timeout value, if timeout is enabled
 typeset -i tctoutval=$DEFAULT_TIMEOUT
-
+typeset -i tccomptout=360
 # run tests even if the script is launched in a non-test dir
 # default: no
 typeset -i tcforce=0
@@ -331,6 +383,12 @@ typeset tcpatfile=""
 # test pattern list
 # default: none
 typeset tcpatlist=""
+
+# target mail address and mailling list
+DEFAULT_MAILADDR="srkodali@linux.vnet.ibm.com"
+DEFAULT_MAILLIST=""
+typeset tcmailaddr="${DEFAULT_MAILADDR}"
+typeset tcmaillist="${DEFAULT_MAILLIST}"
 
 # path to temporary log file(s)
 # run and error logs
@@ -465,7 +523,7 @@ function main {
 	# exit code: 3
 	thrunstate=LIST_PREPARATION
 	printf "\n<<Testcase List Preparation>>\n"
-	set -A tclist $(findTests '$tcpatlist')
+	declare -a tclist=($(findTests '$tcpatlist'))
 	if [[ ${#tclist[*]} == 0 ]]; then
 		printf "\n[$prog: err]: zero tests found under $(basename $(pwd))\n"
 		cleanUpExit 3
@@ -481,6 +539,14 @@ function main {
 	printf "#\tE - execution step\n\n"
 	printf "#\tX - test failed\n"
 	printf "#\tY - test passed\n"
+
+	if [[ `uname -s` != "AIX" ]]; then
+		export MP_CHILD=0
+		export MP_PROCS=1
+		export PGASRT_HOME_NODE=127.0.0.1
+		export PGAS_NTHREADS=1
+		export UPC_NTHREADS=1
+	fi
 
 	for tc in ${tclist[*]}; do
 		let 'tcproccnt += 1'
@@ -508,9 +574,17 @@ function main {
 		
 		# try & generate sources
 		printf " +C [COMPILATION]"
-		printf "===> \n${X10CPP} -t -v -commandlineonly -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc ${X10TEST_PATH}/x10lib/harness/x10Test.x10 >/dev/null\n\n" 1>&2
-		${X10CPP} -t -v -commandlineonly -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc ${X10TEST_PATH}/x10lib/harness/x10Test.x10 >/dev/null
+		extends="$(sed -ne 's|^.*extends\s*\(.*\)\s*[{]|\1|p' $tc | sed -n '1,1p')"
+		if [[ -n "$extends" && "$extends" != *x10Test* ]]; then
+			extendList=$(echo "$(dirname $tc)/$extends.x10" | tr -d ' \r')
+		else
+			extendList=""
+		fi
+		comp_cmd="${X10CPP} -t -v -commandlineonly -MAIN_CLASS=$tctarget -sourcepath $tcroot -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		tccompdat=${tcroot}/${tctarget}.comp
+		execTimeOut $tccomptout $tccompdat "${comp_cmd}"
 		rc=$?
+		cat ${tccompdat} 1>&2
 		if [[ $rc != 0 && "$tcvcode" == "FAIL_COMPILE" ]]; then
 			let 'tcfcompcnt += 1'
 			let 'tcpasscnt += 1'
@@ -539,7 +613,7 @@ function main {
 			done
 			run_cmd="poe ./${tctarget} -procs $DEFAULT_NPLACES -msg_api lapi -hostfile $tchostfile"
 		else
-			run_cmd="${RUNX10} ./${tctarget}"
+			run_cmd="./${tctarget}"
 		fi
 
 		# the actual output will be logged here
@@ -624,7 +698,7 @@ function main {
 				continue
 			elif [[ $rc == 0 && $tcvcode == "FAIL_TIMEOUT" ]]; then
 				printf " *** X ***"
-				Let 'tcfailcnt += 1'
+				let 'tcfailcnt += 1'
 				let 'tcfvcodecnt += 1'
 				printf "\n[$prog: err]: invalid validation code ${tcvcode}\n"
 				continue

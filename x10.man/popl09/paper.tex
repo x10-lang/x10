@@ -1,4 +1,4 @@
-\documentclass[preprint,nocopyrightspace,10pt]{sigplanconf}
+\documentclass[preprint,nocopyrightspace,9pt]{sigplanconf}
 %\documentclass{llncs}
 
 \newif\iflncs
@@ -26,10 +26,11 @@
 \usepackage{color}
 
 \ifpreprint
-\newcommand\todo[1]{{\color{red}{#1}}}
+\newcommand\todo[1]{\textcolor{red}{#1}}
 \else
 \newcommand\todo[1]{}
 \fi
+\renewcommand\todo[1]{}
 
   %\hyphenpenalty=1000
 
@@ -65,11 +66,11 @@
 \newcommand\type{\mbox{\tt type}}
 \newcommand\mtype{\mbox{\sf mtype}}
 \newcommand\field{\mbox{\sf field}}
-\newcommand\CFJ{{\sf CFJ}}
-\newcommand\FJ{{\sf FJ}}
-\newcommand\Java{{\sf Java}}
+\newcommand\CFJ{{\sf CFJ}\xspace}
+\newcommand\FJ{{\sf FJ}\xspace}
+\newcommand\Java{Java\xspace}
 
-\newcommand\gxx{FX\xspace}
+\newcommand\Xten{{\sf X10}\xspace}
 \newcommand\csharp{C$^{\sharp}$\xspace}
 \newcommand\hmx{$\mathrm{HM}(X)$\xspace}
 \newcommand\clpx{$\mathrm{CLP}(X)$\xspace}
@@ -82,12 +83,12 @@
 \newcommand\extytyty[7]{\ensuremath{\exists}#1\ty#2,#3\ty#4,#5\ty#6.~#7}
 \def\inv{\mathit{inv}}
 
-\def\FGJ{{\sf FGJ}}
-\def\FX{{\sf FX}}
-\def\FXZ{{\sf FX($\cdot$)}}
-\def\FXG{{\sf FX($\cal G$)}}
-\def\FXD{{\sf FX($\cal A$)}}
-\def\FXGD{{\sf FX(${\cal G},{\cal A}$)}}
+\def\FGJ{{\sf FGJ}\xspace}
+\def\FX{{\sf FX}\xspace}
+\def\FXZ{{\sf FX($\cdot$)}\xspace}
+\def\FXG{{\sf FX($\cal G$)}\xspace}
+\def\FXD{{\sf FX($\cal A$)}\xspace}
+\def\FXGD{{\sf FX(${\cal G},{\cal A}$)}\xspace}
 \def\has{\mbox{\tt has}}
 \def\TConstr{\mbox{\sc T-Constr}}
 \def\TInv{\mbox{\sc T-Inv}}
@@ -140,11 +141,11 @@
 \author{
 Nathaniel Nystrom\inst{1}
 \and
+Olivier Tardieu\inst{1}
+\and
 Igor Peshansky\inst{1}
 \and
 Vijay Saraswat\inst{1}
-\and
-Olivier Tardieu\inst{1}
 }
 
 \institute{IBM T.~J. Watson Research~Center,
@@ -153,10 +154,13 @@ P.O.~Box~704, Yorktown~Heights NY 10598 USA,
 
 \else
 
-\authorinfo{Nathaniel Nystrom \and Igor Peshansky \and Vijay
-Saraswat \and Olivier Tardieu}{IBM T.~J. Watson Research
+\authorinfo{Nathaniel Nystrom
+        \and Olivier Tardieu
+        \and Igor Peshansky
+        \and Vijay Saraswat
+        }{IBM T.~J. Watson Research
 Center, P.O. Box 704, Yorktown Heights NY 10598 USA}
-  {\{nystrom,igorp,vsaraswa,tardieu\}@us.ibm.com}
+  {\{nystrom,tardieu,igorp,vsaraswa\}@us.ibm.com}
 
 % \conferenceinfo{POPL'08}{XXX}
 % \copyrightyear{2008}
@@ -180,18 +184,16 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}
 \label{sec:lang}
 \input{x10-overview}
 
-\eat{
-\section{Translation}
-\label{sec:translation}
-\label{sec:impl}
-\input{translation.tex}
-}
-
 \eat{\input{constraint-solver.tex}}
 
 \section{Semantics}
 \label{sec:semantics}
 \input{quad-semantics}
+
+\section{Translation}
+\label{sec:translation}
+\label{sec:impl}
+\input{translation.tex}
 
 \section{Discussion}
 \label{sec:discussion}
@@ -207,11 +209,6 @@ Center, P.O. Box 704, Yorktown Heights NY 10598 USA}
 We have presented a constraint-based framework \FX{} for type-
 and value-dependent types in an object-oriented language.
 %
-The framework captures the essence of object-oriented type
-systems in a constraint system 
-$\cal O$.  Instantiations of the framework augment the core
-object-oriented features with generic types and dependent types.
-%
 The use of constraints on type properties allows the design to
 capture many features of generics in object-oriented languages
 and then to extend these features with more
@@ -224,16 +221,19 @@ To improve the expressiveness of \Xten{}, we plan to implement
 a type inference algorithm that infers constraints over types
 and values, and to support user-defined constraints.
 
+
+\eat{
 \section*{Acknowledgments} 
 
-The authors thank Bob Blainey, 
-Doug Lea, Jens Palsberg, Lex Spoon, and Olivier Tardieu
+The authors thank Bob Blainey,
+Doug Lea, Jens Palsberg, and Lex Spoon
 for valuable feedback on versions of the language.
 We thank
 Andrew Myers and
 Michael Clarkson for providing us with their implementation of
 PolyJ, on which our implementation was based, and for many
 discussions over the years about parametrized types in Java.
+}
 
 \bibliographystyle{plain}
 \bibliography{master}

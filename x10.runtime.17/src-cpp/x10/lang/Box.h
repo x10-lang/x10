@@ -17,26 +17,17 @@ namespace x10 {
         class String;
 
         template<class T> class Box : public Ref {
-
-            public:
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT *it;
-
-                virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
-
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.Box[%s]",x10aux::getRTT<T>()->name());
-                    return name;
-                }
-                 
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Box<T> >();
+        public:
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.Box[%s]",x10aux::getRTT<T>()->name());
+                const x10aux::RuntimeType *parent = x10::lang::Ref::getRTT();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, parent);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             static x10aux::ref<Box<T> > _make(T contents_) {
                 return (new (x10aux::alloc<Box<T> >())Box<T>())->_constructor(contents_);
@@ -61,9 +52,7 @@ namespace x10 {
 
         };
 
-        template<class T> typename Box<T>::RTT *Box<T>::RTT::it =
-            new (x10aux::alloc<typename Box<T>::RTT>()) typename Box<T>::RTT();
-
+        template<class T> const x10aux::RuntimeType *Box<T>::rtt = NULL;
     }
 }
 

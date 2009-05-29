@@ -1,56 +1,73 @@
 import x10.io.Console;
 
+/**
+ * A simple illustration of loop parallelization within a single place.
+ * @author ??
+ * @author vj
+ */
+
 public class ArraySum {
 
-    var sum: int;
-    val size: int;
-    val data: Rail[int];
+    var sum: Int;
+    val size: Int;
+    val data: Rail[Int];
     val R:Region{rail};
 
-    public def this(n: int): ArraySum = {
+    public def this(n: Int) {
         size=n;
         R= 0..n-1 as Region{rail};
-        data = Rail.makeVar[int](n, (x:nat)=>0 as int);
-        for (var i: int = 0; i < n; i++) data(i)=1;
+        data = Rail.makeVar[Int](n, (x:nat)=>0);
+        // for ((i) in R) S executes S for each point in R.
+        // R must be a 1-d region. (i) decomposes the 1-d point
+        // to retrieve the index in the 0th dimension.
+        // Thus for iteration over a 2d point, you would use
+        // the idiom for ((i,j) in R) S
+        // The syntax for (p in R) S will also work, but p
+        // will be bound to the points in R. 
+        
+        for ((i) in 0..n-1) data(i)=1;
         sum=0;
     }
 
-    def sum(a: Rail[int], start: int, last: int): int = {
-        var mySum: int = 0;
-        for (var i: int = start; i < last; i++) mySum += a(i);
+    def sum(a: Rail[Int], start: Int, last: Int): Int = {
+        var mySum: Int = 0;
+        for ((i) in start..last-1) mySum += a(i);
         return mySum;
     }
 
-    def sum(val numThreads: int): void = {
-        val mySize: int = size/numThreads;
+    def sum(numThreads: Int) {
+        val mySize = size/numThreads;
         finish foreach ((p) in 0..numThreads-1) {
-            var mySum: int = sum(data, p*mySize, (p+1)*mySize);
+            val mySum = sum(data, p*mySize, (p+1)*mySize);
+            // Multiple activities will simultaneously update
+            // this location -- so use an atomic operation.
             atomic sum += mySum;
         }
     }
     
-    public static def main(args: Rail[String]): void = {
+    public static def main(args: Rail[String]) {
 
-        var size: int = 5*1000*1000;
+        var size:Int = 5*1000*1000;
         if (args.length >=1)
             size = Int.parseInt(args(0));
 
-        Console.OUT.println("initializing");
-        var a: ArraySum = new ArraySum(size);
-        val numThreads = [1,2,4];
+        Console.OUT.println("Initializing.");
+        val a = new ArraySum(size);
+        val P = [1,2,4];
 
         //warmup loop
-        Console.OUT.println("doing warmup");
-        for (var i: int = 0; i < numThreads.length; i++) 
-            a.sum(numThreads(i));
+        val R = 0..P.length-1;
+        Console.OUT.println("Warming up.");
+        for ((i) in R)
+            a.sum(P(i));
         
-        for (var i: int = 0; i < numThreads.length; i++) {
-            Console.OUT.println("starting with " + i + " threads");
+        for ((i) in R) {
+            Console.OUT.println("Starting with " + P(i) + " threads.");
             a.sum=0;
             var time: long = - System.nanoTime();
-            a.sum(numThreads(i));
+            a.sum(P(i));
             time += System.nanoTime();
-            Console.OUT.println("For p=" + numThreads(i) 
+            Console.OUT.println("For p=" + P(i) 
                     + " result: " + a.sum 
                     + ((size==a.sum)? " ok" : "  bad") 
                     + " (time=" + (time/(1000*1000)) + " ms)");

@@ -7,35 +7,43 @@ using namespace x10::runtime;
 using namespace x10aux;
 
 #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
-ReferenceLogger *x10aux::ReferenceLogger::it;
 
-#define SPINE_SIZE 1024
-#define BUCKET_LOG_SIZE 12
-#define BUCKET_SIZE (1<<BUCKET_LOG_SIZE)
-#define BUCKET_MASK ((1<<BUCKET_LOG_SIZE)-1)
+#define NUM_BUCKETS 4096
+#define ADDR_SHIFT 7
+
+#define GATHER_STATS 1
+
+ReferenceLogger *x10aux::ReferenceLogger::it = new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
 
 ReferenceLogger::ReferenceLogger() {
-    escapedReferences = x10aux::alloc<void**>(SPINE_SIZE*sizeof(void**));
-    nextSlot = 0;
-    lock = Lock::_make();
+    _lock = Lock::_make();
+    _buckets = x10aux::alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
+    memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
 }
 
 void ReferenceLogger::log_(void *x) {
 
     // Critical section guarded by lock:
-    //   (1) Get a slot assigned to log this reference
-    //   (2) If that reference would be the first one in a bucket, allocate the backing bucket.
-    lock->lock();
-    int mySlot = nextSlot++;
-    int spineIndex = mySlot >> BUCKET_LOG_SIZE;
-    int bucketIndex = mySlot & BUCKET_MASK;
-    if (0 == bucketIndex) {
-        assert(spineIndex<SPINE_SIZE); /* TODO: We've logged so many references that we're out of space to log them */
-        escapedReferences[spineIndex] = x10aux::alloc<void*>(BUCKET_SIZE*sizeof(void*));
-    }
-    lock->unlock();
+    // Lookup x in hashmap.
+    //   If found; done.
+    //   If not found, allocate a new bucket to contain x and add it.
+    _lock->lock();
 
-    // Actually log the reference in its assigned slot.  Don't have to hold the lock to do this work.
-    escapedReferences[spineIndex][bucketIndex] = x;
+    // Hash function: throw out low bits and mod by NUM_BUCKETS.
+    int bucket = (((size_t)(x)) >> ADDR_SHIFT) % NUM_BUCKETS;
+    Bucket *cur = _buckets[bucket];
+    while (cur != NULL) {
+        if (cur->_reference == x) {
+            _lock->unlock();
+            return;
+        }
+        cur = cur->_next;
+    }
+    Bucket *newBucket = x10aux::alloc<Bucket>();
+    newBucket->_reference = x;
+    newBucket->_next = _buckets[bucket];
+    _buckets[bucket] = newBucket;
+
+    _lock->unlock();
 }
 #endif /* X10_USE_BDWGC */

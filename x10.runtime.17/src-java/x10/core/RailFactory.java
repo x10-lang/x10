@@ -82,7 +82,9 @@ public class RailFactory {
     }
     
     public static <T> Rail<T> makeRailFromValRail(Type type, ValRail<T> r) {
-        return new Rail<T>(type, r.length, r.getBackingArray());
+        Object newArray = type.makeArray(r.length);
+        System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
+        return new Rail<T>(type, r.length, newArray);
     }
     
     public static <T> Rail<T> makeRailFromJavaArray(Type type, Object array) {
@@ -98,6 +100,12 @@ public class RailFactory {
     public static <T> ValRail<T> makeValRailFromJavaArray(Object array) {
         Rail<T> r = makeRailFromJavaArray(array);
         return new ValRail<T>(r.type, r.length, r.value);
+    }
+
+    public static <T> ValRail<T> makeValRailFromRail(Type type, Rail<T> r) {
+        Object newArray = type.makeArray(r.length);
+        System.arraycopy(r.getBackingArray(), 0, newArray, 0, r.length);
+        return new ValRail<T>(r.type, r.length, newArray);
     }
     
 }

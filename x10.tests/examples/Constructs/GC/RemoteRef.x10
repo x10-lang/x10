@@ -6,6 +6,7 @@
  *
  */
 import harness.x10Test;
+import x10.io.Console;
 
 /**
  * Create remote references and see if local GCs are 
@@ -13,6 +14,8 @@ import harness.x10Test;
  */
 
 public class RemoteRef extends x10Test {
+
+    static val Debug = false;
 
     static class AnObject {
       var f:Int = 0;
@@ -23,28 +26,36 @@ public class RemoteRef extends x10Test {
     }
 
     public def run(): boolean = {
-        val iterCount = 20;
-        val c = Clock.make();
-        val res = new ResultHolder();
-        spawnRemoteTask(c, iterCount, res);
-        for (var i:int=0; i<iterCount; i++) {
-            // TODO: Try to force GC to happen here by doing lots of allocation
-            next;
-        }
-        next;
-        return res.success;
+	val iterCount = 20;
+	val c = Clock.make();
+	val res = new ResultHolder();
+	spawnRemoteTask(c, iterCount, res);
+	for (var i:int=0; i<iterCount; i++) {
+	    // TODO: Try to force GC to happen here by doing lots of allocation
+	    if (Debug) Console.OUT.println("Local before next: "+i);
+	    next;
+	    if (Debug) Console.OUT.println("Local after next: "+i);
+	}
+	if (Debug) Console.OUT.println("Local: before last next");
+	next;
+	if (Debug) Console.OUT.println("Local: after last next");
+	return res.success;
     }
 
     public def spawnRemoteTask(c:Clock, iterCount:Int, res:ResultHolder) {
-        val v = new AnObject();
-        async (here.next()) clocked(c) {
-            for (var i:int = 0; i<iterCount; i++) {
-                next;
-                async (v.location) v.f++; 
+	val v = new AnObject();
+	async (here.next()) clocked(c) {
+	    for (var i:int = 0; i<iterCount; i++) {
+		if (Debug) Console.OUT.println("Remote before next: "+i);
+	        next;
+		if (Debug) Console.OUT.println("Remote after next: "+i);
+	        at (v.location) v.f++; 
             }
-            at (res.location) { res.success = (at (v.location) v.f == iterCount); }
-            next;
-        }
+	    if (Debug) Console.OUT.println("Remote: before last next");
+	    at (res.location) { res.success = (at (v.location) v.f == iterCount); }
+	    next;
+	    if (Debug) Console.OUT.println("Remote: after last next next");
+	}
     }
 
     public static def main(var args: Rail[String]): void = {

@@ -161,6 +161,6 @@ Lock::getHoldCount()
 	*/
 }
 
-DEFINE_RTT(Lock);
+RTT_CC_DECLS1(Lock, "x10.runtime.Lock", Ref)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

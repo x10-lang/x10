@@ -8,16 +8,18 @@
 
 package polyglot.ext.x10.ast;
 
+import java.util.Collections;
+
 import polyglot.ast.Assign;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign_c;
 import polyglot.ast.Node;
-import polyglot.ast.Assign.Operator;
-import polyglot.ext.x10.types.X10FieldInstance;
+import polyglot.ast.NodeFactory;
 import polyglot.ext.x10.types.X10LocalInstance;
 import polyglot.types.LocalInstance;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -75,8 +77,9 @@ public class X10LocalAssign_c extends LocalAssign_c {
         if (op == ADD_ASSIGN) {
             // t += s
             if (ts.typeEquals(t, ts.String()) && ts.canCoerceToString(s, tc.context())) {
-                return n.type(ts.String());
-            }
+                Expr newRight = X10Binary_c.coerceToString(tc, right);
+                return n.right(newRight).type(ts.String());
+            }                
 
             if (t.isNumeric() && s.isNumeric()) {
                 return n.type(ts.promote(t, s));

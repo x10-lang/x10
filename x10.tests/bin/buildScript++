@@ -115,18 +115,20 @@ trap 'cleanUpExit 1' INT QUIT TERM
 
 prog=$(basename $0)
 MYDIR=$(dirname $0)
+X10_HOME=$X10_HOME
+## relative to x10.tests/bin
 if [[ -z "$X10_HOME" ]]; then
-	X10_HOME=$(cd $MYDIR/../..; pwd)
+	export X10_HOME=$(cd $MYDIR/../..; pwd)
 fi
 
 export CVS_RSH=ssh
 export X10_SVNROOT="https://x10.svn.sf.net/svnroot/x10/trunk"
-export POLYGLOT_CVSROOT=":pserver:anonymous@gforge.cis.cornell.edu:/cvsroot/polyglot"
+export POLYGLOT_SVNROOT="http://polyglot-compiler.googlecode.com/svn/trunk"
 #export X10CPP_CVSROOT=":ext:userid@orquesta.watson.ibm.com:/usr/src/cvs/X10_FLASH"
 export X10CPP_CVSROOT=":ext:sreedhar@localhost:/usr/src/cvs/X10_FLASH"
 
-POLYGLOT_HOME=$X10_HOME/polyglot3-dev
-cvsUpdate $POLYGLOT_HOME $POLYGLOT_CVSROOT
+POLYGLOT_HOME=$X10_HOME/polyglot
+svnUpdate $POLYGLOT_HOME $POLYGLOT_SVNROOT
 X10_COMMON=$X10_HOME/x10.common.17
 svnUpdate $X10_COMMON $X10_SVNROOT
 X10_COMPILER=$X10_HOME/x10.compiler.p3
@@ -152,10 +154,11 @@ buildX10Module $X10_COMPILER x10
 buildX10Module $X10_TESTS x10
 buildX10Module $X10_CPP x10
 
+X10LIB=$X10LIB
 if [[ -z "$X10LIB" ]]; then
-	X10LIB=$(X10_HOME)/pgas/common/work
+	export X10LIB=$(X10_HOME)/pgas/common/work
 fi
-export X10LIB
+#(cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake -j8 all; gmake -j8 xrx)
 (cd $X10_RUNTIME/src-cpp; gmake squeakyclean; gmake all; gmake xrx)
 if [[ $? != 0 ]]; then
 	printf "\n[$prog: err]: x10rt/x10lib library build failed!\n"

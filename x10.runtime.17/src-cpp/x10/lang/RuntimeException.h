@@ -12,16 +12,7 @@ namespace x10 {
 
         class RuntimeException : public Exception {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<Exception>()); }
-                virtual const char *name() const { return "x10.lang.RuntimeException"; }
-            };
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<RuntimeException>();
-            }
-
+            RTT_H_DECLS;
 
             static x10aux::ref<RuntimeException> _make()
             { return (new (x10aux::alloc<RuntimeException>()) RuntimeException())->_constructor(); }

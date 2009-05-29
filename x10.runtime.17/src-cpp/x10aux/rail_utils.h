@@ -38,11 +38,6 @@ namespace x10aux {
         AnyRail(x10_int length_)
           : FMGL(length)(length_) { }
 
-        virtual ~AnyRail() {
-            for (int i=0; i<FMGL(length); i++)
-                data[i].~T();
-        }
-
         void _check_bounds(x10_int index) const {
             #ifndef NO_BOUNDS_CHECKS
             x10aux::_check_bounds(index, FMGL(length));
@@ -55,13 +50,6 @@ namespace x10aux {
             // do bounds check
             return operator[](index);
         }   
-
-/* [DC] I suspect this is not needed as we don't have any const AnyRails
-        const T& operator[](x10_int index) const {
-            _check_bounds(index);
-            return data[index];
-        }   
-*/
 
         GPUSAFE T& operator[](x10_int index) {
             _check_bounds(index);
@@ -251,7 +239,6 @@ namespace x10aux {
 
 
     template<class T, class R> void free_rail(x10aux::ref<R> rail) {
-        rail->~R();
         x10aux::dealloc<R >(&*rail);
     }
 

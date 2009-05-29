@@ -12,32 +12,14 @@
 #include <x10/lang/Box.h>
 
 namespace x10 {
-
-/*
-    namespace io {
-        class Printer;
-    }
-*/
-
     namespace lang {
 
         class String;
         template<class T> class ValRail;
 
         class Throwable : public virtual Value {
-
-            public:
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<Value>()); }
-                virtual const char *name() const { return "x10.lang.Throwable"; }
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Throwable>();
-            }
+        public:
+            RTT_H_DECLS;
 
             x10aux::ref<Box<x10aux::ref<Throwable> > > FMGL(cause);
             x10aux::ref<String> FMGL(message);

@@ -1,40 +1,26 @@
 import x10.util.Random;
 import x10.io.Console;
-public class Histogram {
-    public  incomplete static def all[T](x:Array[T]):Set[Object];
-    public  incomplete static def all[T](x:Rail[T]):Set[Object];
-    public  incomplete static def loc[T](x:T):Set[T];
-    public  incomplete static def read[T](x:Set[T]):Effects;
-    public  incomplete static def write[T](x:Set[T]):Effects;
-    public  incomplete static def touch[T](x:Set[T]):Effects;
-    public  incomplete static def atomicInc[T](x:Set[T]):Effects ;
-    public  incomplete static def atomicDec[T](x:Set[T]):Effects;
 
+public class Histogram {
+    /**
+      * Compute the histogram of the array a in the rail b.
+    */
     public static  def run(a:Array[int], b: Rail[int]) {
-	@fun(touch(all(b)).and(read(all(a))))
-	    finish 
-	    @parfun(atomicInc(all(b)).and(read(all(a)))) {
-	    foreach((i) in a.region) 
-		@fun(atomicInc(all(b)).and(read(loc(a(i))))) {
-		val bin:int(0..b.length-1) = a(i)% b.length;
-		atomic b(bin)++;
+	finish 
+	    foreach((i) in a.region) {
+	       val bin = a(i)% b.length;
+	       atomic b(bin)++;
 	    }
-	}
     }
     public static def main(args:Rail[String]) {
-	@fun {
-	    if (args.length != 2) {
-		System.out.println("Usage: x10 Histogram N M");
-		System.out.println("(N must be a multiple of M.)");
-	    }
-	    val N = int.parseInt(args(0)), M=int.parseInt(args(1));
-	    assert N%M==0;
-	    val a = Array.make[int](0..N-1, (q:Point)=> q(0));
-	    val b = Rail.makeVar[int](M);
-	    run(a, b);
-	    val v = b(0);
-	    for (x in b) assert x==v;
-	    Console.OUT.println("Test ok.");
-	}
+	assert args.length == 2 : "Usage: Histogram SizeOfArray Buckets";
+	val N = int.parseInt(args(0));
+	val S=int.parseInt(args(1));
+	val a = Array.make[int](0..N-1, ((i):Point)=> i);
+	val b = Rail.makeVar[int](S);
+	run(a, b);
+	val v = b(0);
+	for (x in b) assert x==v;
+	Console.OUT.println("Test ok.");
     }
 }

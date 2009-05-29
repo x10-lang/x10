@@ -12,20 +12,7 @@ namespace x10 {
 
         class IOException : public x10::lang::Exception {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-            
-                virtual void init() {
-                    initParents(1,x10aux::getRTT<x10::lang::Exception>());
-                }
-                
-                virtual const char *name() const { return "x10.io.IOException"; }
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<IOException>();
-            }
+            RTT_H_DECLS;
 
             static x10aux::ref<IOException> _make()
             { return (new (x10aux::alloc<IOException>()) IOException()) ->_constructor(); }
@@ -56,13 +43,9 @@ namespace x10 {
                 this_->_deserialize_body(buf);
                 return this_;
             }
-
-
         };
-
     }
 }
-
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

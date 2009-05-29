@@ -20,7 +20,7 @@ public class ArrayOfArraysShorthand extends x10Test {
         val r1: Region(1) = 0..7;
         val r2: Region(1) = 0..9;
         val r: Region(2) = Region.make([r1, r2]);
-        val ia: Array[Array[Int]] =  Array.make[Array[Int]](r1->here, (Point)=> Array.make[Int](r2->here, (Point)=>0));
+        val ia: Array[Array[Int]{rank==1}]{rank==1} = Array.make[Array[Int]{rank==1}](r1->here, (Point)=> Array.make[Int](r2->here, (Point)=>0));
 
         for (val (i,j): Point in r) chk(ia(i)(j) == 0);
 

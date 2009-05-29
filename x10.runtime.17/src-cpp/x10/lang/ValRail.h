@@ -24,26 +24,18 @@ namespace x10 {
         {
 
             public:
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT * const it;
-
-                virtual void init() { initParents(3,x10aux::getRTT<Value>(),
-                                                    x10aux::getRTT<Fun_0_1<x10_int,T> >(),
-                                                    x10aux::getRTT<Iterable<T> >()); }
-
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.ValRail[%s]",x10aux::getRTT<T>()->name());
-                    return name;
-                }
-                 
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<ValRail<T> >();
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.ValRail[%s]",x10aux::getRTT<T>()->name());
+                const x10aux::RuntimeType *p1 = x10::lang::Value::getRTT();
+                const x10aux::RuntimeType *p2 = x10aux::getRTT<Fun_0_1<x10_int,T> >();
+                const x10aux::RuntimeType *p3 = x10aux::getRTT<Iterable<T> >();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 3, p1, p2, p3);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             private:
 
@@ -51,9 +43,8 @@ namespace x10 {
 
             public:
 
+            ValRail() : x10aux::AnyRail<T>(0) { }
             ValRail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
-
-            ~ValRail() { }
 
             GPUSAFE T apply(x10_int index) { 
                 // do bounds check 
@@ -68,27 +59,17 @@ namespace x10 {
                 x10aux::ref<ValRail<T> > rail;
 
                 public:
-
-                class RTT : public x10aux::RuntimeType {
-                    public:
-                    static RTT * const it;
-
-                    virtual void init() {
-                       initParents(2,x10aux::getRTT<x10::lang::Iterator<T> >(),
-                                     x10aux::getRTT<Ref>());
-                    }
-
-                    virtual const char *name() const {
-                        static const char *name =
-                            x10aux::alloc_printf("x10.lang.ValRail.Iterator[%s]",
-                                                 x10aux::getRTT<T>()->name());
-                        return name;
-                    }
-
-                };
-                virtual const x10aux::RuntimeType *_type() const {
-                    return x10aux::getRTT<Iterator>();
+                static const x10aux::RuntimeType* rtt;
+                static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+                static const x10aux::RuntimeType* _initRTT() {
+                    const char *name =
+                        x10aux::alloc_printf("x10.lang.ValRail.Iterator[%s]", x10aux::getRTT<T>()->name());
+                    const x10aux::RuntimeType *p1 = x10::lang::Ref::getRTT();
+                    const x10aux::RuntimeType *p2 = x10aux::getRTT<x10::lang::Iterator<T> >();
+                    const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 2, p1, p2);
+                    return x10aux::RuntimeType::installRTT(&rtt, cand);
                 }
+                virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
                 Iterator (const x10aux::ref<ValRail> &rail_)
                         : i(0), rail(rail_) { }
@@ -171,7 +152,7 @@ namespace x10 {
                 return rail;
             }
 
-            static x10aux::ref<ValRail<T> > make(x10aux::ref<ValRail<T> > other) {
+            static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other) {
                 x10_int length = other->FMGL(length);
                 x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
                 for (x10_int i=0 ; i<length ; ++i) {
@@ -180,13 +161,31 @@ namespace x10 {
                 return rail;
             }
 
+            // [DC] I believe this is not used?
+/*
+            static x10aux::ref<ValRail<T> > make(x10aux::ref<ValRail<T> > other) {
+                x10_int length = other->FMGL(length);
+                x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+                for (x10_int i=0 ; i<length ; ++i) {
+                        (*rail)[i] = (*other)[i];
+                }
+                return rail;
+            }
+*/
+
             static const x10aux::serialization_id_t _serialization_id;
 
             static void _serialize(x10aux::ref<ValRail<T> > this_,
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
-                this_->_serialize_body(buf,m);
+                if (this_ == x10aux::null) {
+                    ValRail<T> v;
+                    v._serialize_body(buf, m);
+                } else {
+                    this_->_serialize_body(buf, m);
+                }
+
             }
             void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(_serialization_id, m);
@@ -213,14 +212,9 @@ namespace x10 {
             x10aux::DeserializationDispatcher
                 ::addDeserializer(ValRail<T>::template _deserialize<Object>);
 
-        template<class T> typename ValRail<T>::RTT * const ValRail<T>::RTT::it =
-            new (x10aux::alloc<typename ValRail<T>::RTT>()) typename ValRail<T>::RTT();
+        template<class T> const x10aux::RuntimeType* ValRail<T>::rtt = NULL;
 
-        template<class T> typename ValRail<T>::Iterator::RTT * const
-            ValRail<T>::Iterator::RTT::it =
-                new (x10aux::alloc<typename ValRail<T>::Iterator::RTT>())
-                    typename ValRail<T>::Iterator::RTT();
-
+        template<class T> const x10aux::RuntimeType* ValRail<T>::Iterator::rtt = NULL;
     }
 }
 

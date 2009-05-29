@@ -30,8 +30,8 @@ public class Jacobi {
         B.update(Temp);
         iters++; 
       }
-      System.out.println("Error="+err);
-      System.out.println("Iterations="+iters);
+      Console.OUT.println("Error="+err);
+      Console.OUT.println("Iterations="+iters);
       return Math.abs(err-EXPECTED_ERR)<epsilon2 
           && iters==EXPECTED_ITERS;
    }
@@ -40,8 +40,8 @@ public class Jacobi {
    }
    public static def main(args: Array[String]) {
       val b = new Jacobi().run();
-      System.out.println("++++++ "
-                         + (b? "Test succeeded."
+      Console.OUT.println("++++++ "
+                          + (b? "Test succeeded."
                              :"Test failed."));
       System.exit(b?0:1);
    }

@@ -197,6 +197,7 @@ public interface Object {
     public def toString(): String;
     public def equals(Object): Boolean;
     public def hashCode(): Int;
+    /** Return the full name of the class, e.g., "x10.lang.String" */
     public def className(): String;
 }
 \end{xten}
@@ -469,15 +470,13 @@ class Set[-X] {
     def set(x: X) = { this.x = x: }
 }
 \end{xten}
-The \xcd"X" parameter of the \xcd"Get" class is covariant;
-the \xcd"X" parameter of the \xcd"Set" class is contravariant.
-
 In this example, \xcd"Get[Integer]" is a subtype of
 \xcd"Get[Number]" since \xcd"Integer" is a subtype of
-\xcd"Number";
+\xcd"Number" and the parameter \xcd"X" of \xcd"Get" is covariant;
 \xcd"Set[Number]" is a subtype of
 \xcd"Get[Integer]" since \xcd"Number" is a supertype of
-\xcd"Integer".
+\xcd"Integer"
+ and the parameter \xcd"X" of \xcd"Set" is contravariant;
 
 The \xcd"X" parameter of the \xcd"Cell" class above is invariant.
 Thus, \xcd"Cell[Integer]" and \xcd"Cell[Number]" are
@@ -634,6 +633,14 @@ the path type \xcd"T.this.X".
         For reference types, the constraint may
         specify the places at which the object resides.
 
+        The constraint expression \xcd"e" is evaluated symbolically by the
+        compiler; there is no run-time check when assigning to a
+        variable with a constrained type.  Constraints are
+        written in a restricted subset of the expression
+        language so that the compile-time check is decidable.
+        We discuss this subset further in
+        Section~\ref{sec:constraints}.
+
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
 \if 0
@@ -670,24 +677,30 @@ the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
 Constraints on properties induce a natural subtyping relationship:
 \xcd"C{c}" is a subtype of
 \xcd"D{d}" if \xcd"C" is a subclass of \xcd"D" and
-\xcd"c" entails \xcd"d".
+\xcd"c" implies \xcd"d".
 
-Type parameters cannot be constrained.
+Type parameters \xcd"X" cannot be constrained; that is,
+\xcd"X{c}" is not legal.
 
 \subsection{Constraints}
+\label{sec:constraints}
 
 \def\withmath#1{\relax\ifmmode#1\else{$#1$}\fi}
 \def\LL#1{\withmath{\lbrack\!\lbrack #1\rbrack\!\rbrack}}
 
+% @@@ KZ: remove plugins from the language spec.  This is an
+% implementation detail.
+% 
+% @@@ KZ: emph don't require a run-time check.  only compile time
+
 Expressions used as constraints are restricted by the
 constraint system in use to ensure that the constraints can
-be solved at compile time.  The \Xten{} compiler allows compiler
-plugins to be installed to extend the constraint language and
-the
-constraint system.
+be solved at compile time.
+% The \Xten{} compiler allows compiler
+% plugins to be installed to extend the constraint language and
+% the constraint system.
 Constraints must be of type \xcd"Boolean".
-The
-compiler supports the following constraint syntax.
+The compiler supports the following constraint syntax.
 
 \iftypeparams
 
@@ -904,6 +917,11 @@ objects that belong to \xcd"C{c}".
 
 \subsection{Type invariants}\label{DepType:TypeInvariant}\index{Type invariant}
 \label{DepType:Guard}
+
+% @@@ KZ no motivating example -- why do we need this?
+% @@@ KZ what does it do for you?  "air guitar"
+% @@@ KZ cute, but completely unmotivated.
+% @@@ KZ seems very trivial, or requires run-time checks
 
 A class or interface declaration may specify a {\em guard},
 an invariant on all
@@ -1178,10 +1196,6 @@ of any interfaces it is declared to implement.
 
 \paragraph{Interface types.}  An interface type is a direct
 subtype of any interfaces it is declared to extend.
-
-\paragraph{Boxed types.}
-The type \xcd"Box[T]" is a subtype of any interface implemented
-by \xcd"T".
 
 \paragraph{Function types.}
 

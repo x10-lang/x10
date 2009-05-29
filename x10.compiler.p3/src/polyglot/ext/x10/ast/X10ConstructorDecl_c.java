@@ -410,4 +410,9 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
         return n;
     }
+
+    public String toString() {
+        return flags.flags().translate() + "this(...)";
+    }
+
 }

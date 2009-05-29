@@ -13,10 +13,10 @@ import harness.x10Test;
  * @author vj
  */
 public class DepTypeInMethodRet extends x10Test {
-  
-    public def m(t: true)=t;
+
+    public def m(t: Boolean(true))=t;
     public def run() =m(true);
-	public static def main(var args: Rail[String]): void = {
-		new DepTypeInMethodRet().execute();
-	}
+    public static def main(Rail[String]) {
+	new DepTypeInMethodRet().execute();
+    }
 }

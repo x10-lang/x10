@@ -92,6 +92,7 @@ public class GrowableRail<T> extends Ref implements Fun_0_1<Integer,T>, Settable
 	}
 	
 	public T apply(Integer i) {
+		assert i >= 0;
 		assert i < length;
 		assert i < size();
 		return elementType.getArray(array, i);

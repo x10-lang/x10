@@ -21,22 +21,22 @@ extern "C" {
 
 namespace x10aux {
 
-    #ifdef X10_USE_CUDA_HOST
-    void cuda_init(void);
-    #endif
+    /* callback */
+    void remote_closure_callback(x10rt_async_closure_t*, const int tag);
 
     class PGASInitializer {
-        static int count;
+    private:
+        static volatile int count;
+        static void bootstrapRTT();
     public:
         PGASInitializer() {
             if (count++ == 0) {
-                #ifdef X10_USE_CUDA_HOST
-                cuda_init();
-                #endif
                 #ifdef X10_USE_BDWGC
                 GC_INIT();
-                #endif                
+                #endif
+                bootstrapRTT();
                 _X_("PGAS initialization starting");
+                x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
                 x10_init();
                 _X_("PGAS initialization complete");
             }
@@ -104,6 +104,8 @@ namespace x10aux {
     inline x10_int num_places() {
         return x10_nplaces();
     }
+
+    x10_int num_threads();
 
     inline void event_loop() {
         x10_wait();

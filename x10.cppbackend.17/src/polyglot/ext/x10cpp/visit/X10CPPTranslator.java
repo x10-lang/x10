@@ -19,6 +19,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,6 +40,7 @@ import polyglot.ext.x10.ast.X10ClassDecl;
 
 import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.X10CPPCompilerOptions;
+import polyglot.ext.x10cpp.debug.LineNumberMap;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
@@ -61,7 +63,9 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.util.StdErrorQueue;
+import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
+import x10c.util.ClassifiedStream;
 import x10c.util.StreamWrapper;
 import x10c.util.WriterStreams;
 import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
@@ -182,7 +186,7 @@ public class X10CPPTranslator extends Translator {
 		}
 
 		public File integratedOutputFile(String packageName, String className, Source source, String ext) {
-			File outputFile = new File(outputDirectory, 
+			File outputFile = new File(outputDirectory,
 			                           integratedOutputName(packageName, className, ext));
 
 			if (source != null && outputFile.getPath().equals(source.path()))
@@ -226,6 +230,8 @@ public class X10CPPTranslator extends Translator {
 	    return (DelegateTargetFactory) tf;
 	}
 
+	private static final String FILE_TO_LINE_NUMBER_MAP = "FileToLineNumberMap";
+
 	public void print(Node parent, Node n, CodeWriter w_) {
 		if (w_ == null)
 			return; // FIXME HACK
@@ -238,12 +244,43 @@ public class X10CPPTranslator extends Translator {
 				 (n instanceof ClassDecl)))
 		{
 			w.forceNewline(0);
-			w.write("//#line " + n.position().line() + " \"" + n.position().file() + "\"");
+			int line = n.position().line();
+			String file = n.position().file();
+			w.write("//#line " + line + " \"" + file + "\"");
 			w.newline();
+			if (polyglot.ext.x10.Configuration.DEBUG) {
+				X10CPPContext_c c = (X10CPPContext_c)context;
+				HashMap<String, LineNumberMap> fileToLineNumberMap =
+					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+				int outputLine = w.currentStream().getLineNumber();
+				lineNumberMap.put(outputLine, file, line);
+			}
+			if (n instanceof MethodDecl) {
+				X10CPPContext_c c = (X10CPPContext_c)context;
+				HashMap<String, LineNumberMap> fileToMethodMap =
+					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+				LineNumberMap methodMap = fileToMethodMap.get(w.getStreamName(w.currentStream().ext));
+				methodMap.addMethodMapping(((MethodDecl) n).methodDef());
+			}
 		}
 
 		// FIXME: [IP] Some nodes have no del() -- warn in that case
 		super.print(parent, n, w_);
+
+		if (n != null && n.position().endLine() > 0 && (n instanceof Block))
+		{
+			if (polyglot.ext.x10.Configuration.DEBUG) {
+				X10CPPContext_c c = (X10CPPContext_c)context;
+				HashMap<String, LineNumberMap> fileToLineNumberMap =
+					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
+				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
+				int endLine = n.position().endLine();
+				String file = n.position().file();
+				int outputLine = w.currentStream().getLineNumber();
+				lineNumberMap.put(outputLine, file, endLine);
+			}
+		}
 	}
 
 	/**
@@ -272,6 +309,9 @@ public class X10CPPTranslator extends Translator {
 				pkg = p.fullName().toString();
 			}
 
+			X10CPPContext_c c = (X10CPPContext_c) context;
+			if (polyglot.ext.x10.Configuration.DEBUG)
+				c.addData(FILE_TO_LINE_NUMBER_MAP, new HashMap<String, LineNumberMap>());
 			WriterStreams wstreams = null;
 			StreamWrapper sw = null;
 			// Use the class name to derive a default output file name.
@@ -292,7 +332,28 @@ public class X10CPPTranslator extends Translator {
 				opfPath = tf.outputName(pkg, decl.name().toString());
 				assert (!opfPath.endsWith("$"));
 				if (!opfPath.endsWith("$")) outputFiles.add(opfPath);
-				translateTopLevelDecl(sw, sfn, decl); 
+				if (polyglot.ext.x10.Configuration.DEBUG) {
+					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
+					String closures = wstreams.getStreamName(StreamWrapper.Closures);
+					fileToLineNumberMap.put(closures, new LineNumberMap(closures));
+					String cc = wstreams.getStreamName(StreamWrapper.CC);
+					fileToLineNumberMap.put(cc, new LineNumberMap(cc));
+					String header = wstreams.getStreamName(StreamWrapper.Header);
+					fileToLineNumberMap.put(header, new LineNumberMap(header));
+				}
+				translateTopLevelDecl(sw, sfn, decl);
+				if (polyglot.ext.x10.Configuration.DEBUG) {
+					HashMap<String, LineNumberMap> fileToLineNumberMap = (HashMap<String, LineNumberMap>)c.getData(FILE_TO_LINE_NUMBER_MAP);
+					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.Closures, false));
+					printLineNumberMap(sw, pkg, className, StreamWrapper.Closures, fileToLineNumberMap);
+					sw.popCurrentStream();
+					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
+					printLineNumberMap(sw, pkg, className, StreamWrapper.CC, fileToLineNumberMap);
+					sw.popCurrentStream();
+					sw.pushCurrentStream(sw.getNewStream(StreamWrapper.CC, false));
+					printLineNumberMap(sw, pkg, className, StreamWrapper.Header, fileToLineNumberMap);
+					sw.popCurrentStream();
+				}
 				if (i.hasNext())
 					wstreams.commitStreams();
 			}
@@ -321,6 +382,24 @@ public class X10CPPTranslator extends Translator {
 		}
 	}
 
+	private void printLineNumberMap(StreamWrapper sw, String pkg, String className, String ext, HashMap<String, LineNumberMap> fileToLineNumberMap) {
+		String fName = sw.getStreamName(ext);
+		LineNumberMap map = fileToLineNumberMap.get(fName);
+		if (map.isEmpty())
+			return;
+		sw.forceNewline();
+		String lnmName = Emitter.mangled_non_method_name(pkg).replace('.','_')+"_"+Emitter.mangled_non_method_name(className);
+//		sw.write("struct LNMAP_"+lnmName+"_"+ext+" { static const char* map; };");
+//		sw.newline();
+//		sw.write("const char* LNMAP_"+lnmName+"_"+ext+"::map = \"");
+		sw.write("extern \"C\" const char* LNMAP_"+lnmName+"_"+ext+" = \"");
+		sw.write(StringUtil.escape(map.exportMap()));
+//		String v = map.exportMap();
+//		LineNumberMap m = LineNumberMap.importMap(v);
+		sw.write("\";");
+		sw.newline();
+	}
+
 	/* (non-Javadoc)
 	 * @see polyglot.visit.Translator#translate(polyglot.ast.Node)
 	 */
@@ -335,8 +414,6 @@ public class X10CPPTranslator extends Translator {
 					ext.compilerName());
 			if (!okay)
 				return false;
-			if (!System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
-				return postCompile(options, job.compiler(), eq);
 			return true;
 		}
 		else if (ast instanceof SourceCollection) {
@@ -400,6 +477,12 @@ public class X10CPPTranslator extends Translator {
             X10GC+"/lib/libgc.a",
         };
 
+        /** These go before the files if optimize is true */
+        public static final String[] preArgsOptimize = new String[] {
+            "-O2",
+            "-finline-functions",
+        };
+
         private final X10CPPCompilerOptions options;
 
         public CXXCommandBuilder(Options options) {
@@ -422,6 +505,11 @@ public class X10CPPTranslator extends Translator {
                 for (int i = 0; i < preArgsGC.length; i++) {
                     cxxCmd.add(preArgsGC[i]);
                 }
+            }
+            if (polyglot.ext.x10.Configuration.OPTIMIZE) {
+              for (String arg : preArgsOptimize) {
+                cxxCmd.add(arg);
+              }
             }
         }
 
@@ -542,7 +630,6 @@ public class X10CPPTranslator extends Translator {
             assert (PLATFORM.startsWith("win32_"));
         }
 
-        /** Disable for now.  TODO: enable */
         protected boolean gcEnabled() { return false; }
 
         protected void addPreArgs(ArrayList<String> cxxCmd) {
@@ -581,8 +668,7 @@ public class X10CPPTranslator extends Translator {
             assert (PLATFORM.startsWith("linux_"));
         }
 
-        /** Disable for now.  TODO: enable */
-        protected boolean gcEnabled() { return false; }
+        protected boolean gcEnabled() { return true; }
 
         protected void addPreArgs(ArrayList<String> cxxCmd) {
             super.addPreArgs(cxxCmd);
@@ -603,6 +689,7 @@ public class X10CPPTranslator extends Translator {
         public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
         //"mpCC_r -q64 -qrtti=all -qarch=pwr5 -O3 -qtune=pwr5 -qhot -qinline"
         //"mpCC_r -q64 -qrtti=all"
+        public static final String XLC_EXTRA_FLAGS = System.getenv("XLC_EXTRA_FLAGS");
         /** These go before the files */
         public static final String[] preArgsAIX = new String[] {
             USE_XLC ? DUMMY : "-Wno-long-long",
@@ -610,6 +697,7 @@ public class X10CPPTranslator extends Translator {
             USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
             USE_XLC ? "-qrtti=all" : DUMMY,
             //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
+            USE_XLC && XLC_EXTRA_FLAGS!=null ? XLC_EXTRA_FLAGS : DUMMY,
         };
         /** These go after the files */
         public static final String[] postArgsAIX = new String[] {

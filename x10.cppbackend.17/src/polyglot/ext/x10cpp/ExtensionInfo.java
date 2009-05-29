@@ -92,7 +92,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 	}
 
 	public static class X10CPPScheduler extends polyglot.ext.x10.ExtensionInfo.X10Scheduler {
-		X10CPPScheduler(ExtensionInfo extInfo) {
+		protected X10CPPScheduler(ExtensionInfo extInfo) {
 			super(extInfo);
 		}
 		@Override
@@ -121,6 +121,8 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
 		protected Goal PostCompiled() {
 		    return new PostCompiled(extInfo) {
 		        protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
+		            if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
+		                return true;
 		            return X10CPPTranslator.postCompile(options, compiler, eq);
 		        }
 		    }.intern(this);

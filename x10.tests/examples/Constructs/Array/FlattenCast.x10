@@ -16,7 +16,7 @@ import harness.x10Test;
 
 public class FlattenCast extends x10Test {
 
-    var a: Array[int];
+    var a: Array[int](2);
 
     public def this(): FlattenCast = {
         a = Array.make[int]([1..10, 1..10]->here, (p(i,j): Point) => i+j);

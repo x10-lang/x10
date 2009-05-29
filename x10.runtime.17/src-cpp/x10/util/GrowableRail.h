@@ -16,25 +16,16 @@ namespace x10 {
 
         template<class T> class GrowableRail : public x10::lang::Ref {
         public:
-
-            class RTT : public x10aux::RuntimeType {
-                public:
-                static RTT * it;
-
-                virtual void init() { initParents(1,x10aux::getRTT<Ref>()); }
-
-                virtual const char *name() const {
-                    static const char *name =
-                        x10aux::alloc_printf("x10.lang.GrowableRail[%s]",
-                                             x10aux::getRTT<T>()->name());
-                    return name;
-                }
-                 
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<GrowableRail<T> >();
+            static const x10aux::RuntimeType* rtt;
+            static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
+            static const x10aux::RuntimeType* _initRTT() {
+                const char *name =
+                    x10aux::alloc_printf("x10.lang.GrowableRail[%s]", x10aux::getRTT<T>()->name());
+                const x10aux::RuntimeType *p1 = x10::lang::Ref::getRTT();
+                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, p1);
+                return x10aux::RuntimeType::installRTT(&rtt, cand);
             }
+            virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
         private:
             x10aux::ref<x10::lang::Rail<T> > _array;
@@ -150,10 +141,7 @@ namespace x10 {
             x10_int size() { return _array->FMGL(length); }
         };
 
-        template<class T> typename GrowableRail<T>::RTT *GrowableRail<T>::RTT::it =
-            new (x10aux::alloc<typename GrowableRail<T>::RTT>()) typename GrowableRail<T>::RTT();
-
-
+        template<class T> const x10aux::RuntimeType* GrowableRail<T>::rtt = NULL;
     }
 }
 

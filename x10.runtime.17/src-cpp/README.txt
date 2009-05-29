@@ -1,18 +1,4 @@
 ================================================================================
-OVERVIEW
-================================================================================
-
-These are the new x10 c++ runtime files, they are taken from 1.5 backend
-x10lang files but with many changes, including
-
-- new runtime type system
-- support new language features (Rail, ValRail, etc)
-- don't support old language features that are now just libraries (distributed
-  arrays)
-
-
-
-================================================================================
 DIRECTORIES
 ================================================================================
 
@@ -23,61 +9,6 @@ x10/package/File.{cc,h}  -  for c++ classes whose interfaces are compatible
 
 x10aux/                  -  for auxiliary utilities needed to implement the
                             above
-
-
-
-================================================================================
-DEPENDENCIES
-================================================================================
-
-You must get pgas from GSA, configure, and build it
-
-cvs -d /gsa/yktgsa/projects/u/upcc/CVS co pgas
-cd pgas/common
-./configure --with-transport=sockets
-make
-
-Now set the X10LIB environment variable to the pgas/common/work directory if
-you didn't put pgas in the same place as x10.runtime.17
-
-If you intend to run x10 code you also need to run make in pgas/common/control
-
-This will give you two executables: launcher/launcher and manager/manager which
-you will need to launch the pgas executables that we are ultimately building.
-
-
-
-================================================================================
-COMPILING AND USING
-================================================================================
-
-There is a file in the same directory as this text file:
-
-x10rt17.h
-
-This file includes all the others.  This makes it easy to include the right
-headers in compiler-generated files -- one just includes this and you get
-everything.  I have tried to make the headers work independently, e.g. you
-should just be able to #include <x10/lang/String.h> but this hasn't been tested
-and there are probably missing headers, etc.  In theory it should work.
-
-There is also a Makefile.  Running "make" should get you an archive:
-
-libx10rt17.a
-
-This file contains all the implementations.  It corresponds to x10rt17.h in the
-sense that if you include that header you should also link to this library.
-
-These two files therefore take the place of x10lang.h and libx10lang.a
-
-You still need to include the $X10LIB/include dir and link to the
-$X10LIB/lib/libupcrts_sockets.a when compiling executables from x10 code.
-
-There is also a file test.cc which you can compile with "make test.o".  This
-tests that x10rt17.h can be included without errors.  This does not necessarily
-follow from a successful compilation of libx10rt17.a, in which not all the
-headers are used.  Note, however, that since this doesn't instantiate the
-templates, there can still be problems.
 
 
 

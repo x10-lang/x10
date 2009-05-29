@@ -125,7 +125,6 @@ public interface X10NodeFactory extends NodeFactory {
     MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
     		TypeNode returnType, Id name, List<TypeParamNode> typeParams,
     		List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, Block body);
-    FieldDecl FieldDecl(Position pos, DepParameterExpr guard, FlagsNode flags, TypeNode type, Id name, Expr init);
 	SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
 
 	Tuple Tuple(Position pos, List<Expr> args);

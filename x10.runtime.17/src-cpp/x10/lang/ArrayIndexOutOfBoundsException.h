@@ -12,16 +12,7 @@ namespace x10 {
 
         class ArrayIndexOutOfBoundsException : public RuntimeException {
         public:
-            class RTT : public x10aux::RuntimeType { 
-                public:
-                static RTT* const it; 
-                virtual void init() { initParents(1,x10aux::getRTT<x10::lang::RuntimeException>());}
-                virtual const char *name() const {return "x10.lang.ArrayIndexOutOfBoundsException";}
-            };
-
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<ArrayIndexOutOfBoundsException>();
-            }
+            RTT_H_DECLS;
 
             static x10aux::ref<ArrayIndexOutOfBoundsException> _make()
             {
@@ -71,7 +62,6 @@ namespace x10 {
 
     }
 }
-
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -82,25 +82,25 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	checkType(t);
 
 	List<AnnotationNode> as = ((X10Del) this.del()).annotations();
-	if (as == null || as.isEmpty())
-	    return this;
+	if (as != null && !as.isEmpty()) {
 
-	// Eh.  Why not?
-//	if (c.inAnnotation()) {
-//	    throw new SemanticException("Annotations not permitted within annotations.", position());
-//	}
+	    // Eh.  Why not?
+//	    if (c.inAnnotation()) {
+//		throw new SemanticException("Annotations not permitted within annotations.", position());
+//	    }
 	
-	List<Type> annotationTypes = new ArrayList<Type>();
-	for (AnnotationNode an : as) {
+	    List<Type> annotationTypes = new ArrayList<Type>();
+	    for (AnnotationNode an : as) {
 	    Type at = an.annotationInterface();
-	    annotationTypes.add(at);
+		annotationTypes.add(at);
+	    }
+	
+	    Type newType = ts.AnnotatedType(position(), t, annotationTypes);
+	    Ref<Type> tref = (Ref<Type>) type;
+	    tref.update(newType);
 	}
-	
-	Type newType = ts.AnnotatedType(position(), t, annotationTypes);
-	Ref<Type> tref = (Ref<Type>) type;
-	tref.update(newType);
-	
-	return this;
+
+	return super.typeCheck(tc);
     }
     
     @Override

@@ -26,22 +26,7 @@ namespace x10 {
         */
         class Lock : public x10::lang::Ref {
         public:
-            class RTT : public x10aux::RuntimeType {
-                public: 
-                    static RTT* const it;
-                    
-                    virtual void init() {
-                        initParents(1,x10aux::getRTT<x10::lang::Ref>());
-                    }
-                    
-                    virtual const char *name() const {
-                        return "x10.runtime.Lock";
-                    }   
-                    
-            };
-            virtual const x10aux::RuntimeType *_type() const {
-                return x10aux::getRTT<Lock>();
-            }
+            RTT_H_DECLS;
 
             static x10aux::ref<Lock> _make() {
                 x10aux::ref<Lock> this_ = new (x10aux::alloc<Lock>()) Lock();
