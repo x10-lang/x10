@@ -2853,7 +2853,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (polyglot.ext.x10.Configuration.DEBUG) {
         	// Declare a debugger variable mapping for closures
         	inc.newline(); inc.forceNewline();
-    		inc.write("const char* "+ClosureVariableMap.VARIABLE_NAME+";");
+    		inc.write("static const char* "+ClosureVariableMap.VARIABLE_NAME+";");
         }
         inc.end(); inc.newline(); inc.forceNewline();
 
