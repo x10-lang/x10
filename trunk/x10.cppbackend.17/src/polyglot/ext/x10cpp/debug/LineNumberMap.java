@@ -10,16 +10,16 @@ import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import polyglot.util.QuotedStringTokenizer;
-import polyglot.util.StringUtil;
 
 /**
  * Map from generated line to source line and filename.
  * Also stores the C++ filename (String).
  * C++ line number (Integer) -> (X10 filename (String), X10 line number (Integer)).
+ * Also stores the method mapping.
  * 
  * @author igor
  */
-public class LineNumberMap {
+public class LineNumberMap extends StringTable {
     private static class Entry {
         public int fileId;
         public int line;
@@ -32,7 +32,6 @@ public class LineNumberMap {
         }
     }
     private final String filename;
-    private final ArrayList<String> strings;
     private final HashMap<Integer, Entry> map;
     private static class MethodDescriptor {
     	public final int returnType;
@@ -115,20 +114,20 @@ public class LineNumberMap {
 			}
 			return new MethodDescriptor(r, c, n, a);
 		}
-    	public String toPrettyString(ArrayList<String> strings) {
-			return toPrettyString(strings, true);
+    	public String toPrettyString(LineNumberMap map) {
+			return toPrettyString(map, true);
 		}
-		public String toPrettyString(ArrayList<String> strings, boolean includeReturnType) {
+		public String toPrettyString(LineNumberMap map, boolean includeReturnType) {
     		StringBuilder res = new StringBuilder();
     		if (includeReturnType)
-    			res.append(strings.get(returnType)).append(" ");
-    		res.append(strings.get(container)).append("::");
-    		res.append(strings.get(name)).append("(");
+    			res.append(map.lookupString(returnType)).append(" ");
+    		res.append(map.lookupString(container)).append("::");
+    		res.append(map.lookupString(name)).append("(");
     		boolean first = true;
     		for (int arg : args) {
     			if (!first) res.append(",");
     			first = false;
-    			res.append(strings.get(arg));
+    			res.append(map.lookupString(arg));
     		}
     		res.append(")");
     		return res.toString();
@@ -140,9 +139,13 @@ public class LineNumberMap {
      * @param filename C++ filename
      */
     public LineNumberMap(String filename) {
+    	this(filename, new ArrayList<String>());
+    }
+
+    private LineNumberMap(String filename, ArrayList<String> strings) {
+    	super(strings);
         this.filename = filename;
         this.map = new HashMap<Integer, Entry>();
-        this.strings = new ArrayList<String>();
         this.methods = new HashMap<MethodDescriptor, MethodDescriptor>();
     }
 
@@ -150,16 +153,6 @@ public class LineNumberMap {
      * @return C++ filename
      */
     public String file() { return filename; }
-
-    private int stringId(String file) {
-        String f = file.intern();
-        int n = strings.size();
-        for (int i = 0; i < n; i++)
-            if (strings.get(i) == f)
-                return i;
-        strings.add(f);
-        return n;
-    }
 
     /**
      * @param lineNumber C++ line number
@@ -178,7 +171,7 @@ public class LineNumberMap {
         Entry entry = map.get(lineNumber);
         if (entry == null)
         	return null;
-		return strings.get(entry.fileId);
+		return lookupString(entry.fileId);
     }
 
     /**
@@ -237,9 +230,9 @@ public class LineNumberMap {
 	 */
 	public String getMappedMethod(String method) {
 		for (MethodDescriptor m : methods.keySet()) {
-			String mm = m.toPrettyString(strings, false);
+			String mm = m.toPrettyString(this, false);
 			if (mm.equals(method))
-				return methods.get(m).toPrettyString(strings, false);
+				return methods.get(m).toPrettyString(this, false);
 		}
 		return null;
 	}
@@ -250,13 +243,13 @@ public class LineNumberMap {
         for (Integer line : map.keySet()) {
             Entry entry = map.get(line);
             sb.append("  ").append(line).append("->");
-            sb.append(strings.get(entry.fileId)).append(":").append(entry.line).append("\n");
+            sb.append(lookupString(entry.fileId)).append(":").append(entry.line).append("\n");
         }
         sb.append("\n");
         for (MethodDescriptor md : methods.keySet()) {
 			MethodDescriptor sm = methods.get(md);
-			sb.append("  ").append(md.toPrettyString(strings, true)).append("->");
-			sb.append(sm.toPrettyString(strings, true)).append("\n");
+			sb.append("  ").append(md.toPrettyString(this, true)).append("->");
+			sb.append(sm.toPrettyString(this, true)).append("\n");
 		}
         return sb.toString();
     }
@@ -270,10 +263,9 @@ public class LineNumberMap {
      */
     public String exportMap() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("N{\"").append(filename).append("\"} F{");
-        for (int i = 0; i < strings.size(); i++)
-            sb.append(i).append(":\"").append(StringUtil.escape(strings.get(i))).append("\","); // FIXME: might need to escape
-        sb.append("} L{");
+        sb.append("N{\"").append(filename).append("\"} F");
+        exportStringMap(sb);
+        sb.append(" L{");
         for (Integer line : map.keySet()) {
             Entry entry = map.get(line);
             sb.append(line).append("->");
@@ -289,7 +281,7 @@ public class LineNumberMap {
     }
 
     /**
-     * Parses a string into a LineNumberMap.
+     * Parses a string into a {@link LineNumberMap}.
      * @param input the input string
      */
     public static LineNumberMap importMap(String input) {
@@ -301,23 +293,10 @@ public class LineNumberMap {
         String file = st.nextToken();
         s = st.nextToken();
         assert (s.equals("}"));
-        LineNumberMap res = new LineNumberMap(file);
         s = st.nextToken("{}");
         assert (s.equals(" F"));
-        s = st.nextToken();
-        assert (s.equals("{"));
-        while (st.hasMoreTokens()) {
-            String t = st.nextToken(":}");
-            if (t.equals("}"))
-                break;
-            int i = Integer.parseInt(t);
-            t = st.nextToken();
-            assert (t.equals(":"));
-            String f = st.nextToken(",");
-            res.strings.add(i, f);
-            t = st.nextToken();
-            assert (t.equals(","));
-        }
+        ArrayList<String> strings = importStringMap(st);
+        LineNumberMap res = new LineNumberMap(file, strings);
         if (!st.hasMoreTokens())
         	return res;
         s = st.nextToken("{}");
@@ -365,13 +344,6 @@ public class LineNumberMap {
         return res;
     }
 
-    private String[] lookupStrings(int[] indices) {
-    	String[] res = new String[indices.length];
-    	for (int i = 0; i < indices.length; i++) {
-    		res[i] = strings.get(indices[i]);
-		}
-    	return res;
-    }
     /**
      * Inverts the current map.  Creates a full (file,line)->(file,line) map.
      * @return the resulting inverted map
@@ -380,7 +352,7 @@ public class LineNumberMap {
     	HashMap<String, LineNumberMap> res = new HashMap<String, LineNumberMap>();
     	for (Integer line : map.keySet()) {
 			Entry e = map.get(line);
-			String f = strings.get(e.fileId);
+			String f = lookupString(e.fileId);
 			int l = e.line;
 			LineNumberMap m = res.get(f);
 			if (m == null)
@@ -389,14 +361,14 @@ public class LineNumberMap {
 		}
     	for (MethodDescriptor md : methods.keySet()) {
 			MethodDescriptor sm = methods.get(md);
-			String f = strings.get(0); // FIXME: hack
+			String f = lookupString(0); // FIXME: hack
 			LineNumberMap m = res.get(f);
 			if (m == null)
 				res.put(f, m = new LineNumberMap(f));
-			MethodDescriptor tmd = m.createMethodDescriptor(strings.get(md.container),
-					strings.get(md.name), strings.get(md.returnType), lookupStrings(md.args));
-			MethodDescriptor tsm = m.createMethodDescriptor(strings.get(sm.container),
-					strings.get(sm.name), strings.get(sm.returnType), lookupStrings(sm.args));
+			MethodDescriptor tmd = m.createMethodDescriptor(lookupString(md.container),
+					lookupString(md.name), lookupString(md.returnType), lookupStrings(md.args));
+			MethodDescriptor tsm = m.createMethodDescriptor(lookupString(sm.container),
+					lookupString(sm.name), lookupString(sm.returnType), lookupStrings(sm.args));
 			m.methods.put(tsm, tmd);
 		}
     	return res;
@@ -425,21 +397,15 @@ public class LineNumberMap {
 			for (int l : n.map.keySet()) {
 //				assert (!m.map.containsKey(l));
 				Entry e = n.map.get(l);
-				m.put(l, n.strings.get(e.fileId), e.line);
+				m.put(l, n.lookupString(e.fileId), e.line);
 			}
 			for (MethodDescriptor d : n.methods.keySet()) {
 				assert (!m.methods.containsKey(d));
 				MethodDescriptor e = n.methods.get(d);
-				String[] a = new String[d.args.length];
-				for (int i = 0; i < a.length; i++) {
-					a[i] = n.strings.get(d.args[i]);
-				}
-				MethodDescriptor dp = m.createMethodDescriptor(n.strings.get(d.container), n.strings.get(d.name), n.strings.get(d.returnType), a);
-				a = new String[e.args.length];
-				for (int i = 0; i < a.length; i++) {
-					a[i] = n.strings.get(e.args[i]);
-				}
-				MethodDescriptor ep = m.createMethodDescriptor(n.strings.get(e.container), n.strings.get(e.name), n.strings.get(e.returnType), a);
+				MethodDescriptor dp = m.createMethodDescriptor(n.lookupString(d.container),
+						n.lookupString(d.name), n.lookupString(d.returnType), n.lookupStrings(d.args));
+				MethodDescriptor ep = m.createMethodDescriptor(n.lookupString(e.container),
+						n.lookupString(e.name), n.lookupString(e.returnType), n.lookupStrings(e.args));
 				m.methods.put(dp, ep);
 			}
 		}
