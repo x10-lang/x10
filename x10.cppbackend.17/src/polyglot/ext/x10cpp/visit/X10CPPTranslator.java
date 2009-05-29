@@ -28,6 +28,7 @@ import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.For;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -36,6 +37,7 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 
+import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.X10ClassDecl;
 
 import polyglot.ext.x10cpp.Configuration;
@@ -254,6 +256,9 @@ public class X10CPPTranslator extends Translator {
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
 				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
 				int outputLine = w.currentStream().getLineNumber();
+				// FIXME: Debugger HACK: adjust for loops
+				if (n instanceof For || n instanceof ForLoop)
+					outputLine++;
 				lineNumberMap.put(outputLine, file, line);
 			}
 			if (n instanceof MethodDecl) {

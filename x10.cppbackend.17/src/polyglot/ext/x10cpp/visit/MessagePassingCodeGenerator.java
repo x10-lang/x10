@@ -180,6 +180,7 @@ import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10.visit.StaticNestedClassRemover;
 import polyglot.ext.x10.visit.X10DelegatingVisitor;
+import polyglot.ext.x10cpp.debug.ClosureVariableMap;
 import polyglot.ext.x10cpp.extension.X10ClassBodyExt_c;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.ext.x10cpp.visit.X10CPPTranslator.DelegateTargetFactory;
@@ -1769,6 +1770,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.write("{");
 		sw.newline(4); sw.begin(0);
 
+		// FIXME: Debugger HACK: make sure there's executable code here
+		sw.write("int "+getId()+" = 5;"); sw.newline();
+
 		if (n.inits() != null) {
 			for (Iterator i = n.inits().iterator(); i.hasNext(); ) {
 				ForInit s = (ForInit) i.next();
@@ -2456,13 +2460,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.newline(4); sw.begin(0);
 
 		    String dom = getId();
+		    emitter.printType(dType, sw);
+		    sw.write(" " + dom + " = ");
+		    n.print(domain, sw, tr);
+		    sw.write(";");
+		    sw.newline();
+
 		    LocalDef[] lis = form.localInstances();
 		    List<Formal> vars = form.vars();
 		    int rank = lis.length;
 		    String[] limit = new String[rank];
-		    emitter.printType(dType, sw);
-		    sw.write(" " + dom + ";");
-		    sw.newline();
 		    for (int i = 0; i < rank; i++) {
 		        LocalInstance f = lis[i].asInstance();
 		        assert (f.type().isInt());
@@ -2476,11 +2483,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        sw.write(";");
 		        sw.newline();
 		    }
-
-		    sw.write(dom + " = ");
-		    n.print(domain, sw, tr);
-		    sw.write(";");
-		    sw.newline();
 		    for (int i = 0; i < rank; i++) {
 		        LocalInstance f = lis[i].asInstance();
 		        assert (f.type().isInt());
@@ -2531,9 +2533,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 		String name = "__i" + form.name();
 		sw.write(emitter.translateType(xts.Iterator(form.type().type())));
-		sw.write("* " + name + ";");
-		sw.newline();
-		sw.write(name + " = &*"); // FIXME
+		sw.write("* " + name + " = &*"); // FIXME
         if (!xts.typeDeepBaseEquals(form.type().type(), itType)) {
             String fType = emitter.translateType(form.type().type(), true);
             sw.write("x10aux::convert_iterator"+chevrons(fType+","+emitter.translateType(itType, true)));
@@ -2849,6 +2849,25 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("return "+emitter.translateType(xts.String())+"::Lit(\""+StringUtil.escape(n.position().nameAndLineString())+"\");");
         inc.end(); inc.newline();
         inc.write("}");
+
+        if (polyglot.ext.x10.Configuration.DEBUG) {
+        	// Emit a debugger variable mapping for closures
+        	ClosureVariableMap map = new ClosureVariableMap();
+        	for (int i = 0; i < c.variables.size(); i++) {
+                VarInstance var = (VarInstance) c.variables.get(i);
+                String name = var.name().toString();
+                if (name.equals(THIS))
+                    name = SAVED_THIS;
+                else name = mangled_non_method_name(name);
+                map.put(name, Emitter.translateType(var.type(), true));
+			}
+        	inc.forceNewline();
+    		inc.write("const char* "+ClosureVariableMap.VARIABLE_NAME+" = \"");
+    		inc.write(StringUtil.escape(map.exportMap()));
+    		String v = map.exportMap();
+    		ClosureVariableMap m = ClosureVariableMap.importMap(v);
+    		inc.write("\";");
+        }
         inc.end(); inc.newline(); inc.forceNewline();
 
         inc.write("};"); inc.newline(); inc.forceNewline();
