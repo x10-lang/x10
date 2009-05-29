@@ -2851,6 +2851,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("}");
 
         if (polyglot.ext.x10.Configuration.DEBUG) {
+        	// Declare a debugger variable mapping for closures
+        	inc.newline(); inc.forceNewline();
+    		inc.write("const char* "+ClosureVariableMap.VARIABLE_NAME+";");
+        }
+        inc.end(); inc.newline(); inc.forceNewline();
+
+        inc.write("};"); inc.newline(); inc.forceNewline();
+
+        if (polyglot.ext.x10.Configuration.DEBUG) {
         	// Emit a debugger variable mapping for closures
         	ClosureVariableMap map = new ClosureVariableMap();
         	for (int i = 0; i < c.variables.size(); i++) {
@@ -2861,16 +2870,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 else name = mangled_non_method_name(name);
                 map.put(name, Emitter.translateType(var.type(), true));
 			}
-        	inc.forceNewline();
-    		inc.write("const char* "+ClosureVariableMap.VARIABLE_NAME+" = \"");
+    		inc.write("const char* "+cname+"::"+ClosureVariableMap.VARIABLE_NAME+" = \"");
     		inc.write(StringUtil.escape(map.exportMap()));
     		String v = map.exportMap();
     		ClosureVariableMap m = ClosureVariableMap.importMap(v);
     		inc.write("\";");
+        	inc.newline(); inc.forceNewline();
         }
-        inc.end(); inc.newline(); inc.forceNewline();
-
-        inc.write("};"); inc.newline(); inc.forceNewline();
 
         if (in_template_closure)
             emitter.printTemplateSignature(freeTypeParams, inc);
