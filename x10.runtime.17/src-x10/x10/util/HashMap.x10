@@ -9,7 +9,6 @@
 package x10.util;
 
 public class HashMap[-K,V] implements Map[K,V] {
-
     static class HashEntry[-Key,Value] implements Map.Entry[Key,Value] {
         public def getKey() = key;
         public def getValue() = value;
@@ -82,7 +81,19 @@ public class HashMap[-K,V] implements Map[K,V] {
         val e = getEntry(k);
         if (e == null) return null;
         return e.value as Box[V];
-    }    
+    }
+    
+    public safe def getOrElse(k: K, orelse: V): V {
+        val e = getEntry(k);
+        if (e == null) return orelse;
+        return e.value;
+    }
+    
+    public safe def getOrThrow(k: K): V throws NoSuchElementException {
+        val e = getEntry(k);
+        if (e == null) throw new NoSuchElementException("Not found");
+        return e.value;
+    }
     
     protected def getEntry(k: K): HashEntry[K,V] {
         if (size == 0)
@@ -168,7 +179,7 @@ public class HashMap[-K,V] implements Map[K,V] {
         assert size == oldSize;
     }
     
-	public def containsKey(k: K): boolean {
+	public safe def containsKey(k: K): boolean {
 	    val e = getEntry(k);
 	    return e != null && ! e.removed;
 	}
