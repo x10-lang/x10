@@ -21,12 +21,12 @@
 
 package jgfutil; 
 
-interface public interface JGFSection1 {
+public interface JGFSection1 {
+	
+	public val INITSIZE: int = 10000;
+public val MAXSIZE: int = 1000000000;
+public val TARGETTIME: double = 1.0; 
 
-   public final public val INITSIZE: int = 10000;
-   public final public val MAXSIZE: int = 1000000000;
-   public final public val TARGETTIME: double = 1.0; 
-
-   public public def JGFrun()(): void;; 
+public def JGFrun(): void;
 
 }

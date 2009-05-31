@@ -21,11 +21,11 @@
 
 package jgfutil; 
 
-interface public interface JGFSection2 {
-  public public def JGFsetsize(int size)(var size: int): void;;
-  public public def JGFinitialise()(): void;;
-  public public def JGFkernel()(): void;;
-  public public def JGFvalidate()(): void;;
-  public public def JGFtidyup()(): void;;  
-  public public def JGFrun(int size)(var size: int): void;; 
+public interface JGFSection2 {
+  public def JGFsetsize(size: Int): void;;
+  public def JGFinitialise(): void;;
+  public def JGFkernel(): void;;
+  public def JGFvalidate(): void;;
+  public def JGFtidyup(): void;;  
+  public def JGFrun(size: Int): void;; 
 }

@@ -7,6 +7,8 @@
  */
 package jgfutil;
 
+import x10.io.Console;
+
 /**
   * X10 port of montecarlo benchmark from Section 2 of Java Grande Forum Benchmark Suite (Version 2.0)
   *
@@ -16,13 +18,13 @@ package jgfutil;
   * 1) Extend x10.lang.Object
   */
   
-  public class JGFTimer {
+public class JGFTimer {
 
-  public var name: String; 
-  public var opname: String; 
-  public var time: double; 
-  public var opcount: double; 
-  public var calls: long; 
+    public var name: String; 
+    public var opname: String; 
+    public var time: double; 
+    public var opcount: double; 
+    public var calls: long; 
   public var size: int = -1;
   
   private var start_time: long;
@@ -48,15 +50,15 @@ package jgfutil;
 
 
   public def start(): void = {
-    if (on) System.out.println("Warning timer " + name + " was already turned on");
+    if (on) Console.OUT.println("Warning timer " + name + " was already turned on");
     on = true; 
     start_time = System.currentTimeMillis();
   }
 
 
   public def stop(): void = {
-    time += (double) (System.currentTimeMillis()-start_time) / 1000.;
-    if (!on) System.out.println("Warning timer " + name + " wasn't turned on");
+    time += ((System.currentTimeMillis()-start_time) / 1000.) as Double;
+    if (!on) Console.OUT.println("Warning timer " + name + " wasn't turned on");
     calls++;
     on = false;  
   }
@@ -77,32 +79,36 @@ package jgfutil;
   }
 
   public def longprint(): void = {
-      System.out.println("Timer            Calls         Time(s)       Performance("+opname+"/s)");   
-     System.out.println(name + "           " + calls +    "           "  +  time + "        " + this.perf());
+      Console.OUT.println("Timer            Calls         Time(s)       Performance("+opname+"/s)");   
+     Console.OUT.println(name + "           " + calls +    "           "  +  time + "        " + this.perf());
   }
 
   public def print(): void = {
     if (opname.equals("")) {
-      System.out.println(name + "   " + time + " (s)");
+      Console.OUT.println(name + "   " + time + " (s)");
     }
     else {
 
       switch(size) {
-      case 0:case 0:
-      System.out.println(name + ":SizeA" + "\t" + time + " (s) \t " + (float)this.perf() + "\t"
-                        + " ("+opname+"/s)");
+      case 0:
+      Console.OUT.println(name + ":SizeA" + "\t" + time + " (s) \t "
+			  + (this.perf() as Float) + "\t" 
+			  + " ("+opname+"/s)");
       break;
-      case 1:case 1:
-      System.out.println(name + ":SizeB" + "\t" + time + " (s) \t " + (float)this.perf() + "\t"
-                        + " ("+opname+"/s)");
+      case 1:
+      Console.OUT.println(name + ":SizeB" + "\t" + time + " (s) \t " 
+			  + (this.perf() as Float) + "\t" 
+			  + " ("+opname+"/s)");
       break;
-      case 2:case 2:
-      System.out.println(name + ":SizeC" + "\t" + time + " (s) \t " + (float)this.perf() + "\t"
-                        + " ("+opname+"/s)");
+      case 2:
+      Console.OUT.println(name + ":SizeC" + "\t" + time + " (s) \t " 
+			  + (this.perf() as Float) + "\t" 
+			  + " ("+opname+"/s)");
       break;
-      default:default:
-      System.out.println(name + "\t" + time + " (s) \t " + (float)this.perf() + "\t"
-                        + " ("+opname+"/s)");
+      default:
+      Console.OUT.println(name + "\t" + time + " (s) \t " 
+			  + (this.perf() as Float) + "\t" 
+			  + " ("+opname+"/s)");
       break;
       }
 
@@ -118,7 +124,7 @@ package jgfutil;
      // pad name to 40 characters
      while ( name.length() < 40 ) name = name + " "; 
      
-     System.out.println(name + "\t" + (float)this.perf() + "\t"
+     Console.OUT.println(name + "\t" + (this.perf() as Float) + "\t"
 			+ " ("+opname+"/s)");  
   }
 
