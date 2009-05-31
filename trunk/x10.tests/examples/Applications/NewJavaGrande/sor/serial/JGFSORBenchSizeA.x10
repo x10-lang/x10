@@ -18,14 +18,14 @@ import harness.x10Test;;
  */
 public class JGFSORBenchSizeA extends x10Test {
 
-	public def run(): boolean = {
+	public def run() {
 		JGFInstrumentor.printHeader(2, 0);
 		var sor: JGFSORBench = new JGFSORBench();
 		sor.JGFrun(0);
 		return true;
 	}
 
-	public static def main(var args: Rail[String]): void = {
+	public static def main(var args: Rail[String]) {
 		new JGFSORBenchSizeA().execute();
 	}
 }

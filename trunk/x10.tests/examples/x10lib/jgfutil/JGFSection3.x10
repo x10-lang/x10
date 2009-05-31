@@ -15,11 +15,11 @@ package jgfutil;
   * Porting issues identified:
   * 1) Are there any differences between Java interfaces and X10 interfaces?
   */
-  interface public interface JGFSection3 {
-  public public def JGFsetsize(int size)(var size: int): void;;
-  public public def JGFinitialise()(): void;;
-  public public def JGFapplication()(): void;;
-  public public def JGFvalidate()(): void;;
-  public public def JGFtidyup()(): void;;  
-  public public def JGFrun(int size)(var size: int): void;; 
+ public interface JGFSection3 {
+ public def JGFsetsize(size: int): void;
+ public def JGFinitialise(): void;;
+ public def JGFapplication(): void;
+  public def JGFvalidate(): void;
+  public def JGFtidyup(): void;  
+  public def JGFrun(size: Int): void; 
 }
