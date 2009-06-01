@@ -43,8 +43,8 @@ namespace x10 {
 
             public:
 
-            ValRail() : x10aux::AnyRail<T>(0) { }
-            ValRail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
+            ValRail() : x10aux::AnyRail<T>(0, NULL) { }
+            ValRail(x10_int length_, T* storage) : x10aux::AnyRail<T>(length_, storage) { }
 
             GPUSAFE T apply(x10_int index) { 
                 // do bounds check 

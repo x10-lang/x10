@@ -27,7 +27,15 @@ namespace x10aux {
         // 32 bit array indexes
         const x10_int FMGL(length);
 
-        T data[1] __attribute__ ((aligned(8)));
+        // The Rail's data.
+        // As a locality optimization, we are going to allocate all of the storage for the
+        // Rail object and its data array contiguously (ie, in a single allocate call),
+        // but to avoid making assumptions about the C++ object model, we will always
+        // access it via this pointer instead of using the data[1] "struct hack."
+        // This may cost us an extra load instruction (but no extra cache misses).
+        // By declaring the pointer const, we should enable the C++ compiler to be reasonably
+        // effective at hoisting this extra load out of loop nests.
+        T* const _data;
 
         private: AnyRail(const AnyRail<T> &arr); // disabled
 
@@ -35,8 +43,8 @@ namespace x10aux {
 
         virtual const RuntimeType *_type() const = 0;
 
-        AnyRail(x10_int length_)
-          : FMGL(length)(length_) { }
+        AnyRail(x10_int length_, T* storage)
+            : FMGL(length)(length_),  _data(storage) { }
 
         void _check_bounds(x10_int index) const {
             #ifndef NO_BOUNDS_CHECKS
@@ -53,10 +61,10 @@ namespace x10aux {
 
         GPUSAFE T& operator[](x10_int index) {
             _check_bounds(index);
-            return data[index];
+            return _data[index];
         }
       
-        T* raw() { return data; }
+        T* raw() { return _data; }
 
     };
 
@@ -94,8 +102,20 @@ namespace x10aux {
     }
 
     template<class T, class R> R* alloc_rail(x10_int length) {
-        size_t sz = sizeof(R) + length*sizeof(T);
-        R *rail = new (x10aux::alloc<R>(sz)) R(length);
+        /*
+         * We allocate a single piece of storage that is big enough for both
+         * R and its (aligned) backing data array. We then do some pointer arithmetic
+         * to get the aligned "interior pointer" to use for data and pass it as
+         * an argument to R's constructor (R's data ptr is declared const to enable compiler optimization).
+         */
+        size_t alignPad = 8;
+        size_t alignDelta = alignPad-1;
+        size_t alignMask = ~alignDelta;
+        size_t sz = sizeof(R) + alignPad + length*sizeof(T);
+        R* uninitialized_rail = x10aux::alloc<R>(sz);
+        size_t raw_rail = (size_t)uninitialized_rail;
+        size_t raw_data = (raw_rail + sizeof(R) + alignDelta) & alignMask;
+        R *rail = new (uninitialized_rail) R(length, (T*)raw_data);
         _M_("In alloc_rail<"<<getRTT<T>()->name()
                             <<","<<getRTT<R>()->name()<<">"
             <<": rail = " << (void*)rail << "; length = " << length);
