@@ -19,7 +19,7 @@ namespace x10 {
         template<class P1, class R> class Fun_0_1;
 
         template<class T> class Rail : public Ref,
-                                       public virtual x10::lang::Settable<x10_int,T>,
+                                       public x10::lang::Settable<x10_int,T>,
                                        public x10aux::AnyRail<T> {
             public:
             static const x10aux::RuntimeType* rtt;
