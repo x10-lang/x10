@@ -19,7 +19,7 @@ namespace x10 {
         template<class P1, class R> class Fun_0_1;
 
         template<class T> class Rail : public Ref,
-                                       public x10::lang::Settable<x10_int,T>,
+                                       public virtual x10::lang::Settable<x10_int,T>,
                                        public x10aux::AnyRail<T> {
             public:
             static const x10aux::RuntimeType* rtt;
@@ -41,7 +41,7 @@ namespace x10 {
 
             public:
 
-            Rail(x10_int length_) : x10aux::AnyRail<T>(length_) { }
+            Rail(x10_int length_, T* storage) : x10aux::AnyRail<T>(length_, storage) { }
 
             GPUSAFE virtual T set(T v, x10_int index) { 
                 return (*this)[index] = v; 
