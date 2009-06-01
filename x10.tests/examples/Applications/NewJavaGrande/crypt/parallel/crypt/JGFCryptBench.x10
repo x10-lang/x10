@@ -19,12 +19,13 @@
 **************************************************************************/
 package crypt;
 
-import jgfutil.*;;
+import jgfutil.*;
+import x10.io.Console;
 
 public class JGFCryptBench extends IDEATest implements JGFSection2 {
 
 	private var size: int;
-	private var datasizes: Array[int] = { 30000, 20000000, 50000000 };
+	private val datasizes  = [ 30000, 20000000, 50000000 ];
 
 	public def JGFsetsize(var size: int): void = {
 		this.size = size;
@@ -42,10 +43,10 @@ public class JGFCryptBench extends IDEATest implements JGFSection2 {
 	public def JGFvalidate(): void = {
 		for (var i: int = 0; i < array_rows; i++) {
 			if (plain1(i) != plain2(i)) {
-				System.out.println("Validation failed");
-				System.out.println("Original Byte " + i + " = " + plain1(i));
-				System.out.println("Encrypted Byte " + i + " = " + crypt1(i));
-				System.out.println("Decrypted Byte " + i + " = " + plain2(i));
+				Console.OUT.println("Validation failed");
+				Console.OUT.println("Original Byte " + i + " = " + plain1(i));
+				Console.OUT.println("Encrypted Byte " + i + " = " + crypt1(i));
+				Console.OUT.println("Decrypted Byte " + i + " = " + plain2(i));
 				throw new Error("Validation failed");
 				//break;
 			}
