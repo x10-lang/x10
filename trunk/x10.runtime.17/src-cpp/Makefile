@@ -111,6 +111,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/bootstrap.o \
 	x10aux/byte_utils.o \
 	x10aux/char_utils.o \
+	x10aux/class_cast.o \
 	x10aux/double_utils.o \
 	x10aux/int_utils.o \
 	x10aux/init_dispatcher.o \
