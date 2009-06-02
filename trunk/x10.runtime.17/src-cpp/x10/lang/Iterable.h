@@ -7,16 +7,15 @@
 
 namespace x10 {
     namespace lang {
+
+        extern const x10aux::RuntimeType* _initRTTHelper_Iterable(const x10aux::RuntimeType **location, const x10aux::RuntimeType *rtt);
+        
         template<class T> class Iterable : public virtual Object {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT() {
-                const char *name =
-                    x10aux::alloc_printf("x10.lang.Iterable[%s]",x10aux::getRTT<T>()->name());
-                const x10aux::RuntimeType *parent = x10::lang::Object::getRTT();
-                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, parent);
-                return x10aux::RuntimeType::installRTT(&rtt, cand);
+                return x10::lang::_initRTTHelper_Iterable(&rtt, x10aux::getRTT<T>());
             }
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
