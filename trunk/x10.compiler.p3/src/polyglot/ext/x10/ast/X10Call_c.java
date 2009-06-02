@@ -236,9 +236,9 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 			Expr f;
 			if (target() != null)
-				f = nf.Field(position(), target(), name());
+				f = nf.Field(target().position(), target(), name());
 			else
-				f = nf.AmbExpr(position(), name());
+				f = nf.AmbExpr(name().position(), name());
 
 			Expr e = null;
 
