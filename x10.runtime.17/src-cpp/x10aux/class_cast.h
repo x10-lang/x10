@@ -16,6 +16,8 @@
 
 namespace x10aux {
 
+    extern void throwClassCastException();
+    
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
 
     template<class T> struct CAST_TRACER {
@@ -54,7 +56,7 @@ namespace x10aux {
     template<class T, class F> struct ClassCastNotBothRef<ref<T>,F> {
         // All possibilities accounted for, if you got here something has gone wrong
         static ref<T> _ (F obj) {
-            throwException<x10::lang::ClassCastException>();
+            throwClassCastException();
             return NULL;
         }
     };
@@ -62,7 +64,7 @@ namespace x10aux {
     template<class T, class F> struct ClassCastNotBothRef<T,ref<F> > {
       // All possibilities accounted for, if you got here something has gone wrong
         static T _ (ref<F> obj) {
-            throwException<x10::lang::ClassCastException>();
+            throwClassCastException();
             return NULL;
         }
     };
@@ -197,7 +199,7 @@ namespace x10aux {
         #ifndef NO_EXCEPTIONS
         _CAST_(from->name()<<" to "<<to->name());
         if (!from->subtypeOf(to)) {
-            throwException<x10::lang::ClassCastException>();
+            throwClassCastException();
         }
         #else
         (void) from; (void) to;
