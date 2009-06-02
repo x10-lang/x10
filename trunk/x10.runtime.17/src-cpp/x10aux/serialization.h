@@ -128,10 +128,7 @@ namespace x10aux {
         int _size;
         const void** _ptrs;
         int _top;
-        void _grow() {
-            _ptrs = (const void**) ::memcpy(new (x10aux::alloc<const void*>((_size<<1)*sizeof(const void*))) const void*[_size<<1], _ptrs, _size*sizeof(const void*));
-            _size <<= 1;
-        }
+        void _grow();
         void _add(const void* ptr) {
             if (_top == _size) _grow();
             _ptrs[_top++] = ptr;
@@ -169,20 +166,7 @@ namespace x10aux {
         char* cursor;
         static char* alloc(size_t size) { return x10aux::alloc<char>(size); }
         static void dealloc(char* buf) { x10aux::dealloc<char>(buf); }
-        char* grow() {
-            assert (limit != NULL);
-            char* saved_buf = buffer;
-            size_t length = cursor - buffer;
-            size_t allocated = limit - buffer;
-            float grow_factor = GROW_PERCENT / 100.0;
-            size_t new_size = (size_t) (allocated * grow_factor);
-            buffer = alloc(new_size);
-            ::memcpy(buffer, saved_buf, length);
-            limit = buffer + new_size;
-            cursor = buffer + length;
-            dealloc(saved_buf);
-            return buffer;
-        }
+        char* grow();
     public:
 
         // we use the same buffers for serializing and deserializing so the
