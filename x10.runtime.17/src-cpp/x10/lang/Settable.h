@@ -7,18 +7,17 @@
 
 namespace x10 {
     namespace lang {
+
+        extern const x10aux::RuntimeType* _initRTTHelper_Settable(const x10aux::RuntimeType **location,
+                                                                  const x10aux::RuntimeType *rtt1,
+                                                                  const x10aux::RuntimeType *rtt2);
+
         template<class I, class V> class Settable : public virtual Object {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT() {
-                const char *name =
-                    x10aux::alloc_printf("x10.lang.Settable[%s,%s]",
-                                         x10aux::getRTT<I>()->name(),
-                                         x10aux::getRTT<V>()->name());
-                const x10aux::RuntimeType *parent = x10::lang::Object::getRTT();
-                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 1, parent);
-                return x10aux::RuntimeType::installRTT(&rtt, cand);
+                return x10::lang::_initRTTHelper_Settable(&rtt, x10aux::getRTT<I>(), x10aux::getRTT<V>());
             }
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 

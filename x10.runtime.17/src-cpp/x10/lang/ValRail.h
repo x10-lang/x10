@@ -16,6 +16,11 @@ namespace x10 {
 
     namespace lang {
 
+        extern const x10aux::RuntimeType* _initRTTHelper_ValRail(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
+                                                                 const x10aux::RuntimeType *p1, const x10aux::RuntimeType *p2);
+        extern const x10aux::RuntimeType* _initRTTHelper_ValRailIterator(const x10aux::RuntimeType **location, const x10aux::RuntimeType *element,
+                                                                         const x10aux::RuntimeType *p1);
+        
         template<class P1, class R> class Fun_0_1;
 
         template<class T> class ValRail : public Value,
@@ -27,13 +32,8 @@ namespace x10 {
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
             static const x10aux::RuntimeType* _initRTT() {
-                const char *name =
-                    x10aux::alloc_printf("x10.lang.ValRail[%s]",x10aux::getRTT<T>()->name());
-                const x10aux::RuntimeType *p1 = x10::lang::Value::getRTT();
-                const x10aux::RuntimeType *p2 = x10aux::getRTT<Fun_0_1<x10_int,T> >();
-                const x10aux::RuntimeType *p3 = x10aux::getRTT<Iterable<T> >();
-                const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 3, p1, p2, p3);
-                return x10aux::RuntimeType::installRTT(&rtt, cand);
+                return x10::lang::_initRTTHelper_ValRail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Fun_0_1<x10_int,T> >(),
+                                                         x10aux::getRTT<Iterable<T> >());
             }
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
@@ -62,12 +62,7 @@ namespace x10 {
                 static const x10aux::RuntimeType* rtt;
                 static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
                 static const x10aux::RuntimeType* _initRTT() {
-                    const char *name =
-                        x10aux::alloc_printf("x10.lang.ValRail.Iterator[%s]", x10aux::getRTT<T>()->name());
-                    const x10aux::RuntimeType *p1 = x10::lang::Ref::getRTT();
-                    const x10aux::RuntimeType *p2 = x10aux::getRTT<x10::lang::Iterator<T> >();
-                    const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(name, 2, p1, p2);
-                    return x10aux::RuntimeType::installRTT(&rtt, cand);
+                    return x10::lang::_initRTTHelper_ValRailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
                 }
                 virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
