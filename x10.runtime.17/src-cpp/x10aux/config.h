@@ -92,6 +92,8 @@
 
 #include <x10/x10.h> //pgas
 
+#include <x10aux/pragmas.h>
+
 #define _DEBUG_MSG(col,type,msg) do { \
     std::stringstream ss; \
     ss << ANSI_BOLD << x10_here() << ": " col << type << ": " ANSI_RESET << msg; \

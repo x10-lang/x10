@@ -17,7 +17,7 @@ namespace x10 {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT() {
+            static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {
                 return x10::lang::_initRTTHelper_VoidFun_0_3(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(), 
                                                              x10aux::getRTT<P3>());
             }
