@@ -20,6 +20,19 @@ volatile x10_long x10aux::deserialized_bytes = 0;
 
 volatile int PGASInitializer::count = 0;
 
+PGASInitializer::PGASInitializer() {
+    if (count++ == 0) {
+#ifdef X10_USE_BDWGC
+        GC_INIT();
+#endif
+        bootstrapRTT();
+        _X_("PGAS initialization starting");
+        x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
+        x10_init();
+        _X_("PGAS initialization complete");
+    }
+}
+
 void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
     assert(place!=x10_here()); // this case should be handled earlier
