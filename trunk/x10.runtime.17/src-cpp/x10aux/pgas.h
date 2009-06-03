@@ -29,19 +29,7 @@ namespace x10aux {
         static volatile int count;
         static void bootstrapRTT();
     public:
-        PGASInitializer() {
-            if (count++ == 0) {
-                #ifdef X10_USE_BDWGC
-                GC_INIT();
-                #endif
-                bootstrapRTT();
-                _X_("PGAS initialization starting");
-                x10rt_register_callback((x10rt_callback_t)remote_closure_callback, ASYNC_CALLBACK);
-                x10_init();
-                _X_("PGAS initialization complete");
-            }
-        }
-
+        PGASInitializer();
     };
 
     #ifndef NO_IOSTREAM
