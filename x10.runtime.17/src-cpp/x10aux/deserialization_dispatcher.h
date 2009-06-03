@@ -25,10 +25,6 @@ namespace x10aux {
         protected:
         static DeserializationDispatcher *it;
 
-        static void ensure_created() {
-            if (it==NULL) it = new (alloc<DeserializationDispatcher>()) DeserializationDispatcher();
-        }
-
         Deserializer *initv;
         int initc;
         size_t initsz;
@@ -44,25 +40,8 @@ namespace x10aux {
 
         ref<x10::lang::Object> create_(serialization_buffer &buf);
 
-        static serialization_id_t addDeserializer(Deserializer init) {
-            ensure_created();
-            return it->addDeserializer_(init);
-        }
-        serialization_id_t addDeserializer_(Deserializer init) {
-            if (initsz<=(size_t)initc) {
-                // grow slowly as this is init phase and we don't want to take
-                // up RAM unnecessarily
-                size_t newsz = initsz+1;
-                initv = realloc(initv, initsz*sizeof(Deserializer), newsz*sizeof(Deserializer));
-                initsz = newsz;
-            }
-            initv[initc] = init;
-            serialization_id_t r = initc++;
-            _S_("DeserializationDispatcher registered the following handler for id: "
-                <<r<<": "<<std::hex<<(size_t)init<<std::dec);
-            return r;
-            
-        }
+        static serialization_id_t addDeserializer(Deserializer init);
+        serialization_id_t addDeserializer_(Deserializer init);
     };
 
     template<> inline const char *typeName<DeserializationDispatcher>()
