@@ -68,6 +68,36 @@ RuntimeType::bootstrap() {
     DoubleType = new (alloc<RuntimeType >()) RuntimeType("x10.lang.Double", 1, ObjectType);
 }
 
+const RuntimeType*
+RuntimeType::allocAndInstallRTT(const RuntimeType **location, const char* name, const RuntimeType *p1) {
+    return installRTT(location, new (alloc<RuntimeType >()) RuntimeType(name, 1, p1));
+}
+
+const RuntimeType*
+RuntimeType::allocAndInstallRTT(const RuntimeType **location, const char* name, const RuntimeType *p1,
+                                const RuntimeType *p2) {
+    return installRTT(location, new (alloc<RuntimeType >()) RuntimeType(name, 2, p1, p2));
+}
+    
+const RuntimeType*
+RuntimeType::allocAndInstallRTT(const RuntimeType **location, const char* name, const RuntimeType *p1,
+                                const RuntimeType *p2, const RuntimeType *p3) {
+    return installRTT(location, new (alloc<RuntimeType >()) RuntimeType(name, 3, p1, p2, p3));
+}
+
+const RuntimeType*
+RuntimeType::allocAndInstallRTT(const RuntimeType **location, const char* name, const RuntimeType *p1,
+                                const RuntimeType *p2, const RuntimeType *p3, const RuntimeType *p4) {
+    return installRTT(location, new (alloc<RuntimeType >()) RuntimeType(name, 4, p1, p2, p3, p4));
+}
+
+const RuntimeType*
+RuntimeType::allocAndInstallRTT(const RuntimeType **location, const char* name, const RuntimeType *p1,
+                                const RuntimeType *p2, const RuntimeType *p3, const RuntimeType *p4,
+                                const RuntimeType *p5) {
+    return installRTT(location, new (alloc<RuntimeType >()) RuntimeType(name, 5, p1, p2, p3, p4, p5));
+}
+
 pthread_mutex_t RuntimeType::installLock;
 pthread_mutexattr_t RuntimeType::installLockAttr;
 

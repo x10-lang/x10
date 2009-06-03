@@ -7,19 +7,11 @@
 
 #include <x10/lang/Throwable.h>
 
-#if defined __GNUC__ && !defined __CUDA_ARCH__
-// stops the compiler warning about functions that don't return but do throw
-#define NORETURN __attribute__ ((noreturn))
-#else
-#define NORETURN
-#endif
-
-
 namespace x10aux {
 
-    template<class T> void throwException() NORETURN;
+    template<class T> void throwException() X10_PRAGMA_NORETURN;
 
-    void throwException(x10aux::ref<x10::lang::Throwable> e) NORETURN;
+    void throwException(x10aux::ref<x10::lang::Throwable> e) X10_PRAGMA_NORETURN;
 
     inline void throwException(x10aux::ref<x10::lang::Throwable> e) {
         throw e->fillInStackTrace();
@@ -30,8 +22,6 @@ namespace x10aux {
     }
 
 }
-
-#undef NORETURN
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -77,6 +77,24 @@ namespace x10aux {
             return other == this;
         }
 
+        /*
+         * Helper functions to use in defining _initRTT methods in templates to reduce code space impact
+         */
+        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
+                                                     const RuntimeType *p1);
+        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
+                                                     const RuntimeType *p1, const RuntimeType *p2);
+        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
+                                                     const RuntimeType *p1, const RuntimeType *p2,
+                                                     const RuntimeType *p3);
+        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
+                                                     const RuntimeType *p1, const RuntimeType *p2,
+                                                     const RuntimeType *p3, const RuntimeType *p4);
+        static const RuntimeType* allocAndInstallRTT(const RuntimeType **location, const char* name,
+                                                     const RuntimeType *p1, const RuntimeType *p2,
+                                                     const RuntimeType *p3, const RuntimeType *p4,
+                                                     const RuntimeType *p5);
+        
         static const RuntimeType* installRTT(const RuntimeType **location, const RuntimeType *rtt);
         static void bootstrap();
     };

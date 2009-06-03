@@ -20,7 +20,7 @@ namespace x10 {
         public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT() {
+            static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {
                 return x10::util::_initRTTHelper_GrowableRail(&rtt, x10aux::getRTT<T>());
             }
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
