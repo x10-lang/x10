@@ -2,6 +2,7 @@ package com.ibm.wala.cast.x10.loader;
 
 import java.util.Collection;
 
+import com.ibm.wala.analysis.typeInference.PrimitiveType;
 import com.ibm.wala.cast.ir.ssa.AstLexicalAccess.Access;
 import com.ibm.wala.cast.java.loader.JavaSourceLoaderImpl;
 import com.ibm.wala.cast.x10.ssa.AsyncInvokeInstruction;
@@ -49,7 +50,7 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
     }
 
     public TypeReference getRootType() {
-	return null;
+	return Language.JAVA.getRootType();
     }
 
     public TypeReference getThrowableType() {
@@ -209,6 +210,18 @@ public class X10Language extends LanguageImpl implements BytecodeLanguage {
 
 	public TypeReference getStringType() {
 		return Language.JAVA.getStringType();
+	}
+
+	public PrimitiveType getPrimitive(TypeReference reference) {
+		return Language.JAVA.getPrimitive(reference);
+	}
+
+	public boolean isBooleanType(TypeReference type) {
+		return Language.JAVA.isBooleanType(type);
+	}
+
+	public boolean isCharType(TypeReference type) {
+		return Language.JAVA.isCharType(type);
 	}
 
 }
