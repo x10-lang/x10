@@ -14,17 +14,9 @@ namespace x10 {
         public:
             RTT_H_DECLS;
             
-            static x10aux::ref<OutOfMemoryError> _make()
-            {
-                return (new (x10aux::alloc<OutOfMemoryError>()) OutOfMemoryError())
-                    ->_constructor();
-            }
+            static x10aux::ref<OutOfMemoryError> _make();
 
-            static x10aux::ref<OutOfMemoryError> _make(x10aux::ref<String> message) {
-                return (new (x10aux::alloc<OutOfMemoryError>()) OutOfMemoryError())
-                    ->_constructor(message);
-            }
-
+            static x10aux::ref<OutOfMemoryError> _make(x10aux::ref<String> message);
 
             static const x10aux::serialization_id_t _serialization_id;
 

@@ -22,17 +22,8 @@ namespace x10 {
                 public:
                     RTT_H_DECLS;
 
-                    static x10aux::ref<AtomicBoolean> _make() {
-                        x10aux::ref<AtomicBoolean> this_ = new (x10aux::alloc<AtomicBoolean>()) AtomicBoolean();
-                        this_->_constructor(0);
-                        return this_;
-                    }
-
-                    static x10aux::ref<AtomicBoolean> _make(x10_boolean val) {
-                        x10aux::ref<AtomicBoolean> this_ = new (x10aux::alloc<AtomicBoolean>()) AtomicBoolean();
-                        this_->_constructor(val);
-                        return this_;
-                    }
+                    static x10aux::ref<AtomicBoolean> _make();
+                    static x10aux::ref<AtomicBoolean> _make(x10_boolean val);
 
                 protected:
                     x10aux::ref<AtomicBoolean> _constructor(x10_boolean val) { _val = (val ? 1 :0); return this; }

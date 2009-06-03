@@ -1342,22 +1342,28 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.pushCurrentStream(h);
             emitter.printHeader(dec, sw, tr, false, MAKE, make_ref(typeName));
             sw.popCurrentStream();
-            h.allowBreak(0, " "); h.write("{"); h.newline(4); h.begin(0);
-            h.write(make_ref(typeName)+" this_ = "+
-                        "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); h.newline();
-            h.write("this_->"+CONSTRUCTOR+"(");
+            h.write(";") ; h.newline();
+            h.forceNewline();
+            emitter.printHeader(dec, sw, tr, true, MAKE, make_ref(typeName));
+
+
+
+            sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
+            sw.write(make_ref(typeName)+" this_ = "+
+                     "new (x10aux::alloc"+chevrons(typeName)+"()) "+typeName+"();"); sw.newline();
+            sw.write("this_->"+CONSTRUCTOR+"(");
             for (Iterator i = dec.formals().iterator(); i.hasNext(); ) {
                 Formal f = (Formal) i.next();
-                h.write(mangled_non_method_name(f.name().id().toString()));
+                sw.write(mangled_non_method_name(f.name().id().toString()));
                 if (i.hasNext()) {
-                    h.write(",");
-                    h.allowBreak(0, " ");
+                    sw.write(",");
+                    sw.allowBreak(0, " ");
                 }
             }
-            h.write(");"); h.newline();
-            h.write("return this_;");
-            h.end(); h.newline();
-            h.write("}"); h.newline(); // no gap between _make and _constructor
+            sw.write(");"); sw.newline();
+            sw.write("return this_;");
+            sw.end(); sw.newline();
+            sw.write("}"); sw.newline(); sw.forceNewline();
         }
 
         sw.pushCurrentStream(h);

@@ -22,17 +22,8 @@ namespace x10 {
                 public:
                     RTT_H_DECLS;
 
-                    static x10aux::ref<AtomicLong> _make() {
-                        x10aux::ref<AtomicLong> this_ = new (x10aux::alloc<AtomicLong>()) AtomicLong();
-                        this_->_constructor(0);
-                        return this_;
-                    }
-
-                    static x10aux::ref<AtomicLong> _make(x10_long val) {
-                        x10aux::ref<AtomicLong> this_ = new (x10aux::alloc<AtomicLong>()) AtomicLong();
-                        this_->_constructor(val);
-                        return this_;
-                    }
+                    static x10aux::ref<AtomicLong> _make();
+                    static x10aux::ref<AtomicLong> _make(x10_long val);
 
                 protected:
                     x10aux::ref<AtomicLong> _constructor(x10_long val) { _val = val; return this; }

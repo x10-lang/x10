@@ -18,6 +18,13 @@ using namespace x10::lang;
 using namespace x10::runtime;
 using namespace x10aux;
 
+x10aux::ref<Deque>
+Deque::_make() {
+    x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();
+    this_->_constructor();
+    return this_;
+}
+
 ref<Deque> Deque::_constructor() {
     queue = x10aux::alloc<Slots>(sizeof(Slots) + (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
     memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(void*)));

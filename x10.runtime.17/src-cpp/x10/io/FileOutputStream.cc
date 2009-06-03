@@ -10,6 +10,11 @@ x10aux::ref<FileOutputStream> FileOutputStream::STANDARD_OUT
 x10aux::ref<FileOutputStream> FileOutputStream::STANDARD_ERR
     = new (x10aux::alloc<FileOutputStream>()) FileOutputStream(stderr);
 
+x10aux::ref<FileOutputStream>
+FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
+    return new (x10aux::alloc<FileOutputStream>()) FileOutputStream (FILEPtrStream::open_file(name, "w"));
+}
+
 RTT_CC_DECLS1(FileOutputStream, "x10.io.FileWriter.FileOutputStream", NativeOutputStream)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

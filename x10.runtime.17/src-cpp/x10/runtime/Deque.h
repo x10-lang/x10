@@ -25,11 +25,7 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            static x10aux::ref<Deque> _make() {
-                x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();
-                this_->_constructor();
-                return this_;
-            }
+            static x10aux::ref<Deque> _make();
 
             x10aux::ref<Deque> _constructor();
 

@@ -25,9 +25,7 @@ namespace x10 {
 
         public:
 
-            static x10aux::ref<NativeFile> _make(x10aux::ref<x10::lang::String> s) {
-                return (new (x10aux::alloc<NativeFile>()) NativeFile())->_constructor(s);
-            }
+            static x10aux::ref<NativeFile> _make(x10aux::ref<x10::lang::String> s);
             x10aux::ref<NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
                 name = s;
                 return this;
