@@ -32,31 +32,24 @@ namespace x10 {
             // steal false for string literals which ought not to be freed.
             // Leave it false for 'static' malloced char* such as the RTT type
             // names that also ought not to be freed.
-            static x10aux::ref<String> _make(const char *content, bool steal = false) {
-                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
-                if (!steal) content = strdup(content);
-                this_->_constructor(content,strlen(content));
-                return this_;
-            }
+            static x10aux::ref<String> _make(const char *content, bool steal = false);
             x10aux::ref<String> _constructor(const char *content, std::size_t content_length) {
                 this->FMGL(content) = content;
                 this->FMGL(content_length) = content_length;
                 return this;
             }
-            static x10aux::ref<String> _make(x10aux::ref<String> s) {
-                x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
-                this_->_constructor(s->FMGL(content), s->FMGL(content_length));
-                return this_;
-            }
+            static x10aux::ref<String> _make(x10aux::ref<String> s);
 
             // This is for string literals, brought out here so we have easier control
             // (Can later make this return a String without allocation)
-            static x10aux::ref<String> Lit(const char *s)
-            { return _make(s); }
+            static x10aux::ref<String> Lit(const char *s) {
+                return _make(s);
+            }
 
             // Useful when we have a malloced char* instead of a literal
-            static x10aux::ref<String> Steal(const char *s)
-            { return _make(s, true); }
+            static x10aux::ref<String> Steal(const char *s) {
+                return _make(s, true);
+            }
 
             /*
             operator x10aux::ref<Value> () {
@@ -91,15 +84,7 @@ namespace x10 {
 
             static void _serialize(x10aux::ref<String> this_,
                                    x10aux::serialization_buffer &buf,
-                                   x10aux::addr_map &m)
-            {
-                if (this_==x10aux::null) {
-                    String v;
-                    v._serialize_body(buf,m);
-                } else {
-                    this_->_serialize_body(buf, m);
-                }
-            }
+                                   x10aux::addr_map &m);
 
             template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
                 x10_int sz = buf.read<x10_int>();
@@ -120,14 +105,7 @@ namespace x10 {
                 buf.write(_serialization_id, m);
             }
 
-            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
-                // only support strings that are shorter than 4billion chars
-                x10_int sz = FMGL(content_length);
-                buf.write(sz,m);
-                for (x10_int i=0 ; i<sz ; ++i) {
-                    buf.write((x10_char)FMGL(content)[i],m);
-                }
-            }
+            virtual void _serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m);
 
             static x10aux::ref<String> format(x10aux::ref<String> format,
                                               x10aux::ref<ValRail<x10aux::ref<Object> > > parms);

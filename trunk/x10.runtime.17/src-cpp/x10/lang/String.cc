@@ -16,6 +16,21 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+x10aux::ref<String>
+String::_make(const char *content, bool steal) {
+    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    if (!steal) content = strdup(content);
+    this_->_constructor(content,strlen(content));
+    return this_;
+}
+
+x10aux::ref<String>
+String::_make(x10aux::ref<String> s) {
+    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+    this_->_constructor(s->FMGL(content), s->FMGL(content_length));
+    return this_;
+}
+
 x10_int String::hashCode() {
     return x10aux::hash(reinterpret_cast<const unsigned char*>(FMGL(content)), length());
 }
@@ -182,6 +197,26 @@ x10_boolean String::_struct_equals(ref<Object> p0) {
 
 const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserialize<Object>);
+
+void
+String::_serialize(x10aux::ref<String> this_, x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    if (this_==x10aux::null) {
+        String v;
+        v._serialize_body(buf,m);
+    } else {
+        this_->_serialize_body(buf, m);
+    }
+}
+
+void
+String::_serialize_body(x10aux::serialization_buffer& buf, x10aux::addr_map &m) {
+    // only support strings that are shorter than 4billion chars
+    x10_int sz = FMGL(content_length);
+    buf.write(sz,m);
+    for (x10_int i=0 ; i<sz ; ++i) {
+        buf.write((x10_char)FMGL(content)[i],m);
+    }
+}
 
 RTT_CC_DECLS1(String, "x10.lang.String", Value)
 

@@ -22,6 +22,38 @@ using namespace x10aux;
 const serialization_id_t Throwable::_serialization_id =
     DeserializationDispatcher::addDeserializer(Throwable::_deserializer<Object>);
 
+void
+Throwable::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+    buf.write(FMGL(cause),m);
+    buf.write(FMGL(message),m);
+}
+
+void
+Throwable::_deserialize_body(x10aux::serialization_buffer &buf) {
+    FMGL(cause) = buf.read<x10aux::ref<Box<x10aux::ref<Throwable> > > >();
+    FMGL(message) = buf.read<x10aux::ref<String> >();
+}
+
+x10aux::ref<Throwable>
+Throwable::_make() {
+    return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor();
+}
+
+x10aux::ref<Throwable>
+Throwable::_make(x10aux::ref<String> message) {
+    return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(message);
+}
+
+x10aux::ref<Throwable>
+Throwable::_make(x10aux::ref<Throwable> cause) {
+    return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(cause);
+}
+    
+x10aux::ref<Throwable>
+Throwable::_make(x10aux::ref<String> message, x10aux::ref<Throwable> cause) {
+    return (new (x10aux::alloc<Throwable>()) Throwable())->_constructor(message, cause);
+}
+
 x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
                                                x10aux::ref<Throwable> cause)
 {

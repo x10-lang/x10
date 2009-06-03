@@ -17,10 +17,7 @@ namespace x10 {
             FileOutputStream(FILE *f)
               : FILEPtrOutputStream(f) { }
 
-            static x10aux::ref<FileOutputStream> _make(x10aux::ref<x10::lang::String> name) {
-                return new (x10aux::alloc<FileOutputStream>())
-                    FileOutputStream (FILEPtrStream::open_file(name, "w"));
-            }
+            static x10aux::ref<FileOutputStream> _make(x10aux::ref<x10::lang::String> name);
             
             virtual void write(const char *str) {
                 x10aux::io::FILEPtrOutputStream::write(str);

@@ -17,10 +17,7 @@ namespace x10 {
             FileInputStream(FILE *f)
               : FILEPtrInputStream(f) { }
 
-            static x10aux::ref<FileInputStream> _make(x10aux::ref<x10::lang::String> name) {
-                return new (x10aux::alloc<FileInputStream>())
-                    FileInputStream (FILEPtrStream::open_file(name, "r"));
-            }
+            static x10aux::ref<FileInputStream> _make(x10aux::ref<x10::lang::String> name);
 
             virtual char * gets(char *buf, int sz) {
                 return x10aux::io::FILEPtrInputStream::gets(buf,sz);

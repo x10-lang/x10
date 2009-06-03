@@ -7,6 +7,11 @@
 using namespace x10::lang;
 using namespace x10aux;
 
+x10aux::ref<Ref>
+Ref::_make() {
+    return (new (x10aux::alloc<Ref>()) Ref())->_constructor();
+}
+
 x10_int x10::lang::Ref::hashCode() {
     return (x10_int) (int64_t)(void*)this;
 }

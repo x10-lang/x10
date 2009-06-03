@@ -27,6 +27,13 @@ using namespace x10::runtime;
 using namespace x10aux;
 
 
+x10aux::ref<Lock>
+Lock::_make() {
+    x10aux::ref<Lock> this_ = new (x10aux::alloc<Lock>()) Lock();
+    this_->initialize();
+    return this_;
+}
+
 void Lock::initialize()
 {
 	// create lock attributes object

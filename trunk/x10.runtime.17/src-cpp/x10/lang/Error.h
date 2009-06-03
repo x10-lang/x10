@@ -15,27 +15,12 @@ namespace x10 {
         public:
             RTT_H_DECLS;
             
-            static x10aux::ref<Error> _make()
-            { return (new (x10aux::alloc<Error>()) Error())->_constructor(); }
-
-            static x10aux::ref<Error> _make(x10aux::ref<String> message) {
-                return (new (x10aux::alloc<Error>()) Error())
-                    ->_constructor(message);
-            }
-
-            static x10aux::ref<Error> _make(x10aux::ref<Throwable> cause) {
-                return (new (x10aux::alloc<Error>()) Error())
-                    ->_constructor(cause);
-            }
-    
+            static x10aux::ref<Error> _make();
+            static x10aux::ref<Error> _make(x10aux::ref<String> message);
+            static x10aux::ref<Error> _make(x10aux::ref<Throwable> cause);
             static x10aux::ref<Error> _make(x10aux::ref<String> message,
-                                                x10aux::ref<Throwable> cause)
-            {
-                return (new (x10aux::alloc<Error>()) Error())
-                    ->_constructor(message, cause);
-            }
+                                            x10aux::ref<Throwable> cause);
 
-                
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {

@@ -18,9 +18,7 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            static x10aux::ref<Ref> _make() {
-                return (new (x10aux::alloc<Ref>()) Ref())->_constructor();
-            }
+            static x10aux::ref<Ref> _make();
 
             x10aux::ref<Ref> _constructor() { return this; }
 
@@ -30,7 +28,6 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m)
             {
-
                 // don't send an id, just serialise the ref (null/local/remote -- we don't care)
                 buf.write(x10aux::ref_serialize(this_.get()),m);
             }

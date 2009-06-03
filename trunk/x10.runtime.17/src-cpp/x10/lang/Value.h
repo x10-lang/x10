@@ -17,22 +17,19 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            static x10aux::ref<Value> _make()
-            { return (new (x10aux::alloc<Value>()) Value())->_constructor(); }
+            static x10aux::ref<Value> _make();
 
             x10aux::ref<Value> _constructor() { return this; }
 
-
             static const x10aux::serialization_id_t _serialization_id;
-
 
             virtual void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(_serialization_id,m);
-            };
+            }
 
             virtual void _serialize_body(x10aux::serialization_buffer &, x10aux::addr_map &) {
                 // there are no fields
-            };
+            }
 
 
             template<class T>
@@ -44,8 +41,6 @@ namespace x10 {
             void _deserialize_body(x10aux::serialization_buffer &) {
                 // there are no fields
             }
-
-
 
             virtual x10_int hashCode() {
                 // All instances of Value are equal, so their hashcodes can be too.

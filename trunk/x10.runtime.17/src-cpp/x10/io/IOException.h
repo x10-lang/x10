@@ -14,22 +14,11 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            static x10aux::ref<IOException> _make()
-            { return (new (x10aux::alloc<IOException>()) IOException()) ->_constructor(); }
-
-            static x10aux::ref<IOException> _make(x10aux::ref<x10::lang::String> message)
-            { return (new (x10aux::alloc<IOException>()) IOException()) ->_constructor(message); }
-
-            static x10aux::ref<IOException> _make(x10aux::ref<Throwable> cause)
-            { return (new (x10aux::alloc<IOException>()) IOException()) ->_constructor(cause); }
-    
+            static x10aux::ref<IOException> _make();
+            static x10aux::ref<IOException> _make(x10aux::ref<x10::lang::String> message);
+            static x10aux::ref<IOException> _make(x10aux::ref<Throwable> cause);
             static x10aux::ref<IOException> _make(x10aux::ref<x10::lang::String> message,
-                                                x10aux::ref<Throwable> cause)
-            {
-                return (new (x10aux::alloc<IOException>()) IOException())
-                    ->_constructor(message, cause);
-            }
-
+                                                  x10aux::ref<Throwable> cause);
             
             static const x10aux::serialization_id_t _serialization_id;
 

@@ -28,11 +28,7 @@ namespace x10 {
         public:
             RTT_H_DECLS;
 
-            static x10aux::ref<Lock> _make() {
-                x10aux::ref<Lock> this_ = new (x10aux::alloc<Lock>()) Lock();
-                this_->initialize();
-                return this_;
-            }
+            static x10aux::ref<Lock> _make();
             ~Lock() { teardown(); }
 
         private:
