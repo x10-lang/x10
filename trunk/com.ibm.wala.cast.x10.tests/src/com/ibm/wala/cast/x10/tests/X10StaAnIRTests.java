@@ -42,7 +42,7 @@ import com.ibm.wala.ipa.cfg.ExplodedInterproceduralCFG;
 import com.ibm.wala.ipa.cha.IClassHierarchy;
 import com.ibm.wala.ssa.SSAAbstractInvokeInstruction;
 import com.ibm.wala.ssa.SSAInstruction;
-import com.ibm.wala.ssa.analysis.ExplodedControlFlowGraph.ExplodedBasicBlock;
+import com.ibm.wala.ssa.analysis.IExplodedBasicBlock;
 import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.util.collections.Filter;
 import com.ibm.wala.util.collections.HashSetFactory;
@@ -285,7 +285,7 @@ public class X10StaAnIRTests extends IRTests {
 									
 			normalSuccessors = cfg.getCFG(bb.getNode())
 			.getNormalSuccessors(
-					(ExplodedBasicBlock) bb.getDelegate());
+					(IExplodedBasicBlock) bb.getDelegate());
 		
 			/* Code to check if any of the instructions use clock in the called method  */
 			/*SSAInstruction [] insts = bb.getNode().getIR().getInstructions();
@@ -512,9 +512,9 @@ public class X10StaAnIRTests extends IRTests {
 			}			
 		}) {
 			@Override
-			public ControlFlowGraph<SSAInstruction, ExplodedBasicBlock> getCFG(CGNode n)
+			public ControlFlowGraph<SSAInstruction, IExplodedBasicBlock> getCFG(CGNode n)
 			throws IllegalArgumentException {
-				ControlFlowGraph<SSAInstruction, ExplodedBasicBlock> x = super.getCFG(n);
+				ControlFlowGraph<SSAInstruction, IExplodedBasicBlock> x = super.getCFG(n);
 
 				/*	if (n.getIR() != null) {
 						System.err.println( n );
