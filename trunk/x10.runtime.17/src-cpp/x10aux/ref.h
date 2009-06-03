@@ -10,9 +10,9 @@ namespace x10 { namespace lang { class Object; } }
 
 namespace x10aux {
 
-    void throwNPE();
+    void throwNPE() X10_PRAGMA_NORETURN;
 
-    void throwBPE();
+    void throwBPE() X10_PRAGMA_NORETURN;
 
     class __ref {
         protected:

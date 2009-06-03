@@ -16,7 +16,7 @@
 
 namespace x10aux {
 
-    extern void throwClassCastException();
+    extern void throwClassCastException() X10_PRAGMA_NORETURN;
     
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
 
