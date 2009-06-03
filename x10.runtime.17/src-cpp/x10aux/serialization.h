@@ -129,27 +129,14 @@ namespace x10aux {
         const void** _ptrs;
         int _top;
         void _grow();
-        void _add(const void* ptr) {
-            if (_top == _size) _grow();
-            _ptrs[_top++] = ptr;
-        }
-        bool _find(const void* ptr) {
-            for (int i = 0; i < _top; i++)
-                if (_ptrs[i] == ptr) return true;
-            return false;
-        }
+        void _add(const void* ptr);
+        bool _find(const void* ptr);
     public:
-        addr_map(int init_size = 4) : _size(init_size), _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) {
-            assert (_ptrs != NULL);
-        }
+        addr_map(int init_size = 4) : _size(init_size), _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*)))const void*[init_size]), _top(0) { }
         template<class T> bool ensure_unique(const ref<T>& r) {
             return ensure_unique((void*) r.get());
         }
-        bool ensure_unique(const void* p) {
-            if (_find(p)) return false;
-            _add(p);
-            return true;
-        }
+        bool ensure_unique(const void* p);
         void reset() { _top = 0; assert (false); }
         ~addr_map() { x10aux::dealloc(_ptrs); }
     };
