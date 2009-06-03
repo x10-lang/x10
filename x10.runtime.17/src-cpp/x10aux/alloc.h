@@ -18,7 +18,7 @@
 
 namespace x10aux {
 
-    void throwOOME();
+    void throwOOME() X10_PRAGMA_NORETURN;
 
     template<class T> T* alloc(size_t size = sizeof(T)) {
         _M_("Allocating " << size << " bytes of type " << TYPENAME(T));
