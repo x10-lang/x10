@@ -11,6 +11,33 @@ addr_map::_grow() {
     _size <<= 1;
 }
 
+void
+addr_map::_add(const void* ptr) {
+    if (_top == _size) {
+        _grow();
+    }
+    _ptrs[_top++] = ptr;
+}
+
+bool
+addr_map::_find(const void* ptr) {
+    for (int i = 0; i < _top; i++) {
+        if (_ptrs[i] == ptr) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool
+addr_map::ensure_unique(const void* p) {
+    if (_find(p)) {
+        return false;
+    }
+    _add(p);
+    return true;
+}
+
 char *
 serialization_buffer::grow() {
     assert (limit != NULL);
@@ -26,4 +53,5 @@ serialization_buffer::grow() {
     dealloc(saved_buf);
     return buffer;
 }
+
 
