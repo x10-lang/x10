@@ -88,19 +88,19 @@ x10_boolean x10aux::char_utils::isISOControl(x10_char x) {
 x10_char x10aux::char_utils::toLowerCase(x10_char x) {
     (void) x;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return false;
+    return x;
 }
 
 x10_char x10aux::char_utils::toUpperCase(x10_char x) {
     (void) x;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return false;
+    return x;
 }
 
 x10_char x10aux::char_utils::toTitleCase(x10_char x) {
     (void) x;
     assert(false); /* FIXME: STUBBED NATIVE */
-    return false;
+    return x;
 }
 
 x10_char x10aux::char_utils::reverseBytes(x10_char x) {
