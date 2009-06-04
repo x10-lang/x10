@@ -178,6 +178,7 @@ typedef int8_t   x10_byte;
 typedef uint16_t x10_char;
 typedef int16_t  x10_short;
 typedef int32_t  x10_int;
+typedef uint32_t x10_unsigned_int;
 typedef int64_t  x10_long;
 typedef float    x10_float;
 typedef double   x10_double;

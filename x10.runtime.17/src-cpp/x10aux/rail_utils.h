@@ -19,7 +19,7 @@ namespace x10 { namespace lang {
 
 namespace x10aux {
 
-    void _check_bounds(x10_int index, x10_int length);
+    void throwArrayIndexOutOfBoundsException(x10_int index, x10_int length) X10_PRAGMA_NORETURN;
 
     template<class T> class AnyRail : public virtual x10::lang::Iterable<T> { 
         public:
@@ -48,7 +48,12 @@ namespace x10aux {
 
         void _check_bounds(x10_int index) const {
             #ifndef NO_BOUNDS_CHECKS
-            x10aux::_check_bounds(index, FMGL(length));
+            // Since we know length is non-negative and Rails are zero-based,
+            // the bounds check can be optimized to a single unsigned comparison.
+            // The C++ compiler won't do this for us, since it doesn't know that length is non-negative.
+            if (((x10_unsigned_int)index) >= ((x10_unsigned_int)FMGL(length))) {
+                x10aux::throwArrayIndexOutOfBoundsException(index, FMGL(length));
+            }
             #endif
         }
 
