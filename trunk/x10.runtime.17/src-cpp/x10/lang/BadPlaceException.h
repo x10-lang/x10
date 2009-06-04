@@ -26,16 +26,15 @@ namespace x10 {
                 buf.write(_serialization_id,m);
             }   
 
-            template<class T>
-            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
-                x10aux::ref<BadPlaceException> this_ =
-                    new (x10aux::alloc<BadPlaceException>()) BadPlaceException();
-                this_->_deserialize_body(buf);
-                return this_;
-            }   
-            
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf);
         };
 
+        template<class T> x10aux::ref<T> BadPlaceException::_deserializer(x10aux::serialization_buffer &buf){
+            x10aux::ref<BadPlaceException> this_ =
+                new (x10aux::alloc<BadPlaceException>()) BadPlaceException();
+            this_->_deserialize_body(buf);
+            return this_;
+        }   
     }
 }
 

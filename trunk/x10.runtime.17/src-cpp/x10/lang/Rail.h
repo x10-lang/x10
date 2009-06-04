@@ -97,34 +97,10 @@ namespace x10 {
                 return new (x10aux::alloc<Iterator>()) Iterator (this);
             }   
 
-            static x10aux::ref<Rail<T> > make(x10_int length) {
-                x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        // Initialise to zero, which should work for
-                        // numeric types and x10aux::ref<T> which I think
-                        // covers everything.
-                        (*rail)[i] = 0;
-                }
-                return rail;
-            }
-
+            static x10aux::ref<Rail<T> > make(x10_int length);
             static x10aux::ref<Rail<T> > make(x10_int length,
-                                              x10aux::ref<Fun_0_1<x10_int,T> > init ) {
-                x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        (*rail)[i] = init->apply(i);
-                }
-                return rail;
-            }
-
-            static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other) {
-                x10_int length = other->FMGL(length);
-                x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        (*rail)[i] = (*other)[i];
-                }
-                return rail;
-            }
+                                              x10aux::ref<Fun_0_1<x10_int,T> > init);
+            static x10aux::ref<Rail<T> > make(x10aux::ref<ValRail<T> > other);
 
             virtual x10aux::ref<String> toString() {
                 return x10aux::AnyRail<T>::toString();
@@ -134,6 +110,35 @@ namespace x10 {
 
         template<class T> const x10aux::RuntimeType* Rail<T>::rtt = NULL;
         template<class T> const x10aux::RuntimeType* Rail<T>::Iterator::rtt = NULL;
+
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                // Initialise to zero, which should work for
+                // numeric types and x10aux::ref<T> which I think
+                // covers everything.
+                (*rail)[i] = 0;
+            }
+            return rail;
+        }
+
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length,
+                                                               x10aux::ref<Fun_0_1<x10_int,T> > init ) {
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                (*rail)[i] = init->apply(i);
+            }
+            return rail;
+        }
+
+        template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10aux::ref<ValRail<T> > other) {
+            x10_int length = other->FMGL(length);
+            x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                (*rail)[i] = (*other)[i];
+            }
+            return rail;
+        }
     }
 }
 

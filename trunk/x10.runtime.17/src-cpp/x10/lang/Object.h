@@ -49,12 +49,7 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
-                // extract the id and execute a callback to instantiate the right concrete class
-                _S_("Deserializing an "ANSI_SER ANSI_BOLD"interface"ANSI_RESET
-                    " (expecting id) from buf: "<<&buf);
-                return x10aux::DeserializationDispatcher::create<T>(buf);
-            }
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf);
 
             x10_boolean equals(x10aux::ref<Object> other);
 
@@ -71,8 +66,13 @@ namespace x10 {
 
         };
 
+        template<class T> x10aux::ref<T> Object::_deserialize(x10aux::serialization_buffer &buf){
+            // extract the id and execute a callback to instantiate the right concrete class
+            _S_("Deserializing an "ANSI_SER ANSI_BOLD"interface"ANSI_RESET
+                " (expecting id) from buf: "<<&buf);
+            return x10aux::DeserializationDispatcher::create<T>(buf);
+        }
     }
-
 }
 
 #endif
