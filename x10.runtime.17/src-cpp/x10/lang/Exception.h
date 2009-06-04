@@ -27,15 +27,14 @@ namespace x10 {
                 buf.write(_serialization_id,m);
             }
 
-            template<class T>
-            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
-                x10aux::ref<Exception> this_ = new (x10aux::alloc<Exception>()) Exception();
-                this_->_deserialize_body(buf);
-                return this_;
-            }
-
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf);
         };
 
+        template<class T> x10aux::ref<T> Exception::_deserializer(x10aux::serialization_buffer &buf){
+            x10aux::ref<Exception> this_ = new (x10aux::alloc<Exception>()) Exception();
+            this_->_deserialize_body(buf);
+            return this_;
+        }
     }
 }
 

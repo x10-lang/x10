@@ -68,17 +68,16 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
 
-            template<class T>
-            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf){
-                x10aux::ref<Throwable> this_ = new (x10aux::alloc<Throwable>()) Throwable();
-                this_->_deserialize_body(buf);
-                return this_;
-            }
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &buf);
 
             void _deserialize_body(x10aux::serialization_buffer &buf);
         };
 
-
+        template<class T> x10aux::ref<T> Throwable::_deserializer(x10aux::serialization_buffer &buf){
+            x10aux::ref<Throwable> this_ = new (x10aux::alloc<Throwable>()) Throwable();
+            this_->_deserialize_body(buf);
+            return this_;
+        }
     }
 }
 

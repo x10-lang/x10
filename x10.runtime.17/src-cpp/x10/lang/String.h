@@ -86,18 +86,7 @@ namespace x10 {
                                    x10aux::serialization_buffer &buf,
                                    x10aux::addr_map &m);
 
-            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf){
-                x10_int sz = buf.read<x10_int>();
-                char *content = x10aux::alloc<char>(sz+1);
-                for (x10_int i=0 ; i<sz ; ++i) {
-                    content[i] = (char)buf.read<x10_char>();
-                }
-                content[sz] = '\0';
-                // there are no fields
-                x10aux::ref<String> this_ = Steal(content);
-                _S_("Deserialized string was: \""<<this_<<"\"");
-                return this_;
-            }
+            template<class T> static x10aux::ref<T> _deserialize(x10aux::serialization_buffer &buf);
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -141,6 +130,19 @@ namespace x10 {
         }
         #endif
 
+        template<class T> x10aux::ref<T> String::_deserialize(x10aux::serialization_buffer &buf){
+            x10_int sz = buf.read<x10_int>();
+            char *content = x10aux::alloc<char>(sz+1);
+            for (x10_int i=0 ; i<sz ; ++i) {
+                content[i] = (char)buf.read<x10_char>();
+            }
+            content[sz] = '\0';
+            // there are no fields
+            x10aux::ref<String> this_ = Steal(content);
+            _S_("Deserialized string was: \""<<this_<<"\"");
+            return this_;
+        }
+        
     } // namespace x10::lang
 
 } // namespace x10

@@ -31,12 +31,7 @@ namespace x10 {
                 // there are no fields
             }
 
-
-            template<class T>
-            static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &) {
-                x10aux::ref<Value> this_ = new (x10aux::alloc<Value>())Value();
-                return this_;
-            }
+            template<class T> static x10aux::ref<T> _deserializer(x10aux::serialization_buffer &);
 
             void _deserialize_body(x10aux::serialization_buffer &) {
                 // there are no fields
@@ -68,6 +63,11 @@ namespace x10 {
 
         };
 
+        template<class T> x10aux::ref<T> Value::_deserializer(x10aux::serialization_buffer &) {
+            x10aux::ref<Value> this_ = new (x10aux::alloc<Value>())Value();
+            return this_;
+        }
+        
     }
 }
 

@@ -101,25 +101,7 @@ namespace x10 {
                 return new (x10aux::alloc<Iterator>()) Iterator(this);
             }
 
-            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
-                if (other.get() == this) return true; // short-circuit trivial equality
-                if (!this->Value::_struct_equals(other)) return false;
-                x10aux::ref<ValRail> other_rail = other;
-                // different sizes so false
-                if (other_rail->FMGL(length) != this->FMGL(length)) return false;
-                if (x10aux::getRTT<T>()->subtypeOf(x10aux::getRTT<Value>())) {
-                    // Value type; structurally compare elements
-                    for (x10_int i = 0; i < this->FMGL(length); ++i)
-                        if (!x10aux::struct_equals((*other_rail)[i], this->raw()[i]))
-                            return false;
-                } else {
-                    // Ref type; simple reference equality
-                    for (x10_int i = 0; i < this->FMGL(length); ++i)
-                        if ((*other_rail)[i] != this->raw()[i])
-                            return false;
-                }
-                return true;
-            }
+            virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
 
             virtual x10_int hashCode() { return 0; }
 
@@ -127,80 +109,23 @@ namespace x10 {
                 return x10aux::AnyRail<T>::toString();
             }
 
-            static x10aux::ref<ValRail<T> > make(x10_int length) {
-                x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        // Initialise to zero, which should work for
-                        // numeric types and x10aux:;ref<T> which I think
-                        // covers everything.
-                        (*rail)[i] = 0;
-                }
-                return rail;
-            }
+            static x10aux::ref<ValRail<T> > make(x10_int length);
 
             static x10aux::ref<ValRail<T> > make(x10_int length,
-                                                 x10aux::ref<Fun_0_1<x10_int,T> > init ) {
-                x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        (*rail)[i] = init->apply(i);
-                }
-                return rail;
-            }
-
-            static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other) {
-                x10_int length = other->FMGL(length);
-                x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        (*rail)[i] = (*other)[i];
-                }
-                return rail;
-            }
-
-            // [DC] I believe this is not used?
-/*
-            static x10aux::ref<ValRail<T> > make(x10aux::ref<ValRail<T> > other) {
-                x10_int length = other->FMGL(length);
-                x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                        (*rail)[i] = (*other)[i];
-                }
-                return rail;
-            }
-*/
+                                                 x10aux::ref<Fun_0_1<x10_int,T> > init );
+            
+            static x10aux::ref<ValRail<T> > make(x10aux::ref<Rail<T> > other);
 
             static const x10aux::serialization_id_t _serialization_id;
 
             static void _serialize(x10aux::ref<ValRail<T> > this_,
                                    x10aux::serialization_buffer &buf,
-                                   x10aux::addr_map &m)
-            {
-                if (this_ == x10aux::null) {
-                    ValRail<T> v;
-                    v._serialize_body(buf, m);
-                } else {
-                    this_->_serialize_body(buf, m);
-                }
-
-            }
+                                   x10aux::addr_map &m);
             void _serialize_id(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
                 buf.write(_serialization_id, m);
             }
-            void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
-                buf.write(this->FMGL(length),m);
-                for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
-                    buf.write(this->raw()[i], m); // avoid bounds check
-                }
-            }
-            template<class S> static x10aux::ref<S> _deserialize(x10aux::serialization_buffer &buf)
-            {
-                x10_int length = buf.read<x10_int>();
-                x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
-                for (x10_int i=0 ; i<length ; ++i) {
-                    this_->raw()[i] = buf.read<T>(); // avoid bounds check
-                }
-                return this_;
-            }
-
+            void _serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m);
+            template<class S> static x10aux::ref<S> _deserialize(x10aux::serialization_buffer &buf);
         };
 
         template<class T> const x10aux::serialization_id_t ValRail<T>::_serialization_id =
@@ -210,6 +135,82 @@ namespace x10 {
         template<class T> const x10aux::RuntimeType* ValRail<T>::rtt = NULL;
 
         template<class T> const x10aux::RuntimeType* ValRail<T>::Iterator::rtt = NULL;
+
+        template <class T> x10_boolean ValRail<T>::_struct_equals(x10aux::ref<Object> other) {
+            if (other.get() == this) return true; // short-circuit trivial equality
+            if (!this->Value::_struct_equals(other)) return false;
+            x10aux::ref<ValRail> other_rail = other;
+            // different sizes so false
+            if (other_rail->FMGL(length) != this->FMGL(length)) return false;
+            if (x10aux::getRTT<T>()->subtypeOf(x10aux::getRTT<Value>())) {
+                // Value type; structurally compare elements
+                for (x10_int i = 0; i < this->FMGL(length); ++i)
+                    if (!x10aux::struct_equals((*other_rail)[i], this->raw()[i]))
+                        return false;
+            } else {
+                // Ref type; simple reference equality
+                for (x10_int i = 0; i < this->FMGL(length); ++i)
+                    if ((*other_rail)[i] != this->raw()[i])
+                        return false;
+            }
+            return true;
+        }
+
+        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length) {
+            x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                // Initialise to zero, which should work for
+                // numeric types and x10aux:;ref<T> which I think
+                // covers everything.
+                (*rail)[i] = 0;
+            }
+            return rail;
+        }
+
+        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10_int length,
+                                                                     x10aux::ref<Fun_0_1<x10_int,T> > init ) {
+            x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                (*rail)[i] = init->apply(i);
+            }
+            return rail;
+        }
+
+        template <class T> x10aux::ref<ValRail<T> > ValRail<T>::make(x10aux::ref<Rail<T> > other) {
+            x10_int length = other->FMGL(length);
+            x10aux::ref<ValRail<T> > rail = x10aux::alloc_rail<T,ValRail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                (*rail)[i] = (*other)[i];
+            }
+            return rail;
+        }
+
+        template <class T> void ValRail<T>::_serialize(x10aux::ref<ValRail<T> > this_,
+                                                       x10aux::serialization_buffer &buf,
+                                                       x10aux::addr_map &m) {
+            if (this_ == x10aux::null) {
+                ValRail<T> v;
+                v._serialize_body(buf, m);
+            } else {
+                this_->_serialize_body(buf, m);
+            }
+        }
+
+        template <class T> void ValRail<T>::_serialize_body(x10aux::serialization_buffer &buf, x10aux::addr_map &m) {
+            buf.write(this->FMGL(length),m);
+            for (x10_int i=0 ; i<this->FMGL(length) ; ++i) {
+                buf.write(this->raw()[i], m); // avoid bounds check
+            }
+        }
+
+        template <class T> template<class S> x10aux::ref<S> ValRail<T>::_deserialize(x10aux::serialization_buffer &buf) {
+            x10_int length = buf.read<x10_int>();
+            x10aux::ref<ValRail> this_ = x10aux::alloc_rail<T,ValRail<T> >(length);
+            for (x10_int i=0 ; i<length ; ++i) {
+                this_->raw()[i] = buf.read<T>(); // avoid bounds check
+            }
+            return this_;
+        }
     }
 }
 
