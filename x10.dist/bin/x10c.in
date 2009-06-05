@@ -74,8 +74,10 @@ else
     ext_cp="${PATH_SEP}${LIB_DIR}${FILE_SEP}${ext}.jar"
 fi
 extargs="-ext ${ext}"
-extargs="$extargs -assert"
+# [DC] assert should be off by default
+# extargs="$extargs -assert"
 # FIXME: HACK (at Vijay's request)
+# FIXME: [DC] this is now a no-op?
 # To be removed once serialization of types is fixed in x10c
 # HACK!!! HACK!!! HACK!!! vvv
 extargs="$extargs -noserial"
