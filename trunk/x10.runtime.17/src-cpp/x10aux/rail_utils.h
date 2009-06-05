@@ -129,7 +129,6 @@ namespace x10aux {
 
     template<class T, class R> R* alloc_rail(x10_int length, T v0) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 0);
         (*rail)[0] = v0;
         return rail;
     }
@@ -137,7 +136,6 @@ namespace x10aux {
     template<class T, class R> R *alloc_rail(x10_int length, T v0,
                                                              T v1) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 1);
         (*rail)[0] = v0;
         (*rail)[1] = v1;
         return rail;
@@ -147,7 +145,6 @@ namespace x10aux {
                                                              T v1,
                                                              T v2) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 2);
         (*rail)[0] = v0;
         (*rail)[1] = v1;
         (*rail)[2] = v2;
@@ -159,7 +156,6 @@ namespace x10aux {
                                                              T v2,
                                                              T v3) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 3);
         (*rail)[0] = v0;
         (*rail)[1] = v1;
         (*rail)[2] = v2;
@@ -173,7 +169,6 @@ namespace x10aux {
                                                              T v3,
                                                              T v4) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 4);
         (*rail)[0] = v0;
         (*rail)[1] = v1;
         (*rail)[2] = v2;
@@ -189,7 +184,6 @@ namespace x10aux {
                                                              T v4,
                                                              T v5) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 5);
         (*rail)[0] = v0;
         (*rail)[1] = v1;
         (*rail)[2] = v2;
@@ -244,7 +238,6 @@ namespace x10aux {
                                                              T v6,
                                                              ...) {
         R* rail = alloc_rail<T,R>(length);
-        assert (length > 6);
         (*rail)[0] = v0;
         (*rail)[1] = v1;
         (*rail)[2] = v2;

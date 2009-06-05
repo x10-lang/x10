@@ -58,15 +58,10 @@ namespace x10 {
             }
 
             T apply(x10_int i) {
-                assert(i>=0);
-                assert(i<_len);
-
                 return (*_array)[i];
             }
 
             void removeLast() {
-                assert(_len > 0);
-                
                 (*_array)[_len-1] = (T)0;
                 _len--;
                 shrink(_len+1);
