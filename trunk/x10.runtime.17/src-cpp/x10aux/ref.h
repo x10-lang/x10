@@ -88,7 +88,7 @@ namespace x10aux {
                                      << " to type " << TYPENAME(T)
                                      << " into " << this << "("<<_val<<")");
             // assert that the above dynamic_cast was successful
-            assert(isNull() == _ref.isNull() && "Invalid c++ cast");
+            // assert(isNull() == _ref.isNull() && "Invalid c++ cast");
         }
 
         // Allow the assignment of a ref<S> to a ref<T>
@@ -100,7 +100,7 @@ namespace x10aux {
                                      << " to type " << TYPENAME(T)
                                      << " into " << this << "("<<_val<<")");
             // assert that the above dynamic_cast was successful
-            assert(isNull() == _ref.isNull() && "Invalid c++ cast");
+            // assert(isNull() == _ref.isNull() && "Invalid c++ cast");
             return *this;
         }
 
