@@ -486,6 +486,7 @@ public class X10CPPTranslator extends Translator {
         public static final String[] preArgsOptimize = new String[] {
             "-O2",
             "-finline-functions",
+            "-DNDEBUG"
         };
 
         private final X10CPPCompilerOptions options;

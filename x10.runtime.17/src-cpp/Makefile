@@ -23,8 +23,8 @@ ifdef ENABLE_GC
 endif
 
 ifdef OPTIMIZE
-	CXXFLAGS += -O2 -finline-functions
-	CFLAGS += -O2 -finline-functions
+	CXXFLAGS += -O2 -finline-functions -DNDEBUG
+	CFLAGS += -O2 -finline-functions -DNDEBUG
 	X10CPPFLAGS += -optimize
 endif
 
