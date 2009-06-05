@@ -44,30 +44,19 @@ namespace x10 {
 
             virtual x10aux::ref<String> toString();
 
-            virtual x10_boolean equals(x10aux::ref<Value> other) {
-                if (other == x10aux::ref<Value>(this)) return true;
-                if (!x10aux::instanceof<Value>(other)) return false;
-                return this->_struct_equals(other);
-            }
+            virtual x10_boolean equals(x10aux::ref<Value> other);
 
             virtual x10_boolean equals(x10aux::ref<Ref> other) {
                 return false;
             }
 
-            virtual x10_boolean _struct_equals(x10aux::ref<Object> other) {
-                if (!_type()->concreteInstanceOf(other))
-                    return false;
-                // now compare fields but there aren't any
-                return true;
-            }
-
+            virtual x10_boolean _struct_equals(x10aux::ref<Object> other);
         };
 
         template<class T> x10aux::ref<T> Value::_deserializer(x10aux::serialization_buffer &) {
             x10aux::ref<Value> this_ = new (x10aux::alloc<Value>())Value();
             return this_;
         }
-        
     }
 }
 
