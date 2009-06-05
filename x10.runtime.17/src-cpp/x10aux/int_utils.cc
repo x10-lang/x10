@@ -10,10 +10,10 @@ using namespace x10aux;
 const ref<String> x10aux::int_utils::toString(x10_int value, x10_int radix) {
     assert(radix>=2);
     assert(radix<=36);
-    char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
-                        'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-                        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
-                        'x', 'y', 'z' };
+    static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+                               'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+                               'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+                               'x', 'y', 'z' };
     // worst case is binary -- needs 32 digits and a '\0'
     char buf[33] = ""; //zeroes entire buffer (S6.7.8.21)
     x10_long value2 = 0;
