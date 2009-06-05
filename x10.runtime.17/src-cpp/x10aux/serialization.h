@@ -178,68 +178,75 @@ namespace x10aux {
 
 
         // default case for primitives and other things that never contain pointers
-        template<class T> struct Write {
-            static void _(serialization_buffer &buf, const T &val, addr_map &) {
-                // FIXME: assumes all places are same endian
-                _S_("Serializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
-                *(T*) buf.cursor = val;
-                buf.cursor += sizeof(T);
-            }
-        };
-
-        // case for references e.g. ref<Object>, 
-        template<class T> struct Write<ref<T> > {
-            static void _(serialization_buffer &buf, ref<T> val, addr_map &m) {
-                _S_("Serializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET
-                    " into buf: "<<&buf);
-                //depends what T is (interface/Ref/Value/FinalValue/Closure)
-                T::_serialize(val,buf,m);
-            }
-        };
-
-        template<typename T> void write(const T &val, addr_map &m) {
-            if (cursor + sizeof(T) >= limit) grow();
-            Write<T>::_(*this,val,m);
-        }
-
+        template<class T> struct Write;
+        template<class T> struct Write<ref<T> >;
+        template<typename T> void write(const T &val, addr_map &m);
 
         // default case for primitives and other things that never contain pointers
-        template<class T> struct Read {
-            GPUSAFE static T &_(serialization_buffer &buf) {
-                // FIXME: assumes all places are same endian
-                T &val = *(T*) buf.cursor;
-                buf.cursor += sizeof(T);
-                _S_("Deserializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
-                return val;
-            }
-        };
-
-        // case for references e.g. ref<Object>, 
-        template<class T> struct Read<ref<T> > {
-            GPUSAFE static ref<T> _(serialization_buffer &buf) {
-                //dispatch because we don't know what it is
-                _S_("Deserializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET" from buf: "<<&buf);
-                return T::template _deserialize<T>(buf);
-            }
-        };
-
-        template<typename T> GPUSAFE T read() {
-            return Read<T>::_(*this);
-        }
-
-/*
-        void clean() {
-            dealloc(buffer);
-            buffer = alloc(INITIAL_SIZE);
-            limit = buffer + INITIAL_SIZE;
-            cursor = buffer;
-        }
-*/
-
+        template<class T> struct Read;
+        template<class T> struct Read<ref<T> >;
+        template<typename T> GPUSAFE T read();
+    };
+    
+    // default case for primitives and other things that never contain pointers
+    template<class T> struct serialization_buffer::Write {
+        static void _(serialization_buffer &buf, const T &val, addr_map &);
     };
 
+    template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf, const T &val, addr_map &) {
+        // FIXME: assumes all places are same endian
+        _S_("Serializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
+        *(T*) buf.cursor = val;
+        buf.cursor += sizeof(T);
+    }
+    
+    // case for references e.g. ref<Object>, 
+    template<class T> struct serialization_buffer::Write<ref<T> > {
+        static void _(serialization_buffer &buf, ref<T> val, addr_map &m);
+    };
+
+    // case for references e.g. ref<Object>, 
+    template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf, ref<T> val, addr_map &m) {
+        _S_("Serializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET
+            " into buf: "<<&buf);
+        //depends what T is (interface/Ref/Value/FinalValue/Closure)
+        T::_serialize(val,buf,m);
+    }
+    
+    template<typename T> void serialization_buffer::write(const T &val, addr_map &m) {
+        if (cursor + sizeof(T) >= limit) grow();
+        Write<T>::_(*this,val,m);
+    }
 
 
+
+    // default case for primitives and other things that never contain pointers
+    template<class T> struct serialization_buffer::Read {
+        GPUSAFE static T &_(serialization_buffer &buf);
+    };
+
+    template<class T> T &serialization_buffer::Read<T>::_(serialization_buffer &buf) {
+        // FIXME: assumes all places are same endian
+        T &val = *(T*) buf.cursor;
+        buf.cursor += sizeof(T);
+        _S_("Deserializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
+        return val;
+    }
+        
+    // case for references e.g. ref<Object>, 
+    template<class T> struct serialization_buffer::Read<ref<T> > {
+        GPUSAFE static ref<T> _(serialization_buffer &buf);
+    };
+
+    template<class T> ref<T> serialization_buffer::Read<ref<T> >::_(serialization_buffer &buf) {
+        //dispatch because we don't know what it is
+        _S_("Deserializing a "ANSI_SER ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET" from buf: "<<&buf);
+        return T::template _deserialize<T>(buf);
+    }
+
+    template<typename T> GPUSAFE T serialization_buffer::read() {
+        return Read<T>::_(*this);
+    }
 }
 
 #endif

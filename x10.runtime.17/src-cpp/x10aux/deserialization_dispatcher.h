@@ -20,7 +20,6 @@ namespace x10aux {
 
     template<> inline const char *typeName<serialization_id_t>() { return "serialization_id_t"; }
 
-    // TODO: factor out common code from here and init_dispatcher to some common superclass
     class DeserializationDispatcher {
         protected:
         static DeserializationDispatcher *it;
@@ -33,10 +32,7 @@ namespace x10aux {
         DeserializationDispatcher () : initv(NULL), initc(0), initsz(0) { }
         ~DeserializationDispatcher () { dealloc(initv); }
         
-        template<class T> static ref<T> create(serialization_buffer &buf) {
-            // runtime pointer offset magic (for interfaces) happens here
-            return static_cast<ref<T> >(it->create_(buf)); 
-        }
+        template<class T> static ref<T> create(serialization_buffer &buf);
 
         ref<x10::lang::Object> create_(serialization_buffer &buf);
 
@@ -44,6 +40,11 @@ namespace x10aux {
         serialization_id_t addDeserializer_(Deserializer init);
     };
 
+    template<class T> ref<T> DeserializationDispatcher::create(serialization_buffer &buf) {
+        // runtime pointer offset magic (for interfaces) happens here
+        return static_cast<ref<T> >(it->create_(buf)); 
+    }
+    
     template<> inline const char *typeName<DeserializationDispatcher>()
     { return "DeserializationDispatcher"; }
 }
