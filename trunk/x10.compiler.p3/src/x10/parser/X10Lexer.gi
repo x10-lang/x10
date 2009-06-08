@@ -762,7 +762,7 @@
 
     IntLiteralAndRange ::= Integer '.' '.'
          /.$BeginAction
-                     makeToken(getToken(1), getToken(1), $_IntegerLiteral);
+                     makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), $_IntegerLiteral);
                      makeToken(getToken(2), getToken(3), $_RANGE);
            $EndAction
          ./
