@@ -699,7 +699,7 @@ public class X10CPPTranslator extends Translator {
         /** These go before the files */
         public static final String[] preArgsAIX = new String[] {
             USE_XLC ? DUMMY : "-Wno-long-long",
-            USE_XLC ? "-qsuppress=1540-0809:1500-029" : "-Wno-unused-parameter",
+            USE_XLC ? "-qsuppress=1540-0809:1500-029:1540-2833" : "-Wno-unused-parameter",
             USE_XLC ? "-q64" : "-maix64", // Assume 64-bit
             USE_XLC ? "-qrtti=all" : DUMMY,
             //USE_XLC ? DUMMY : "-pipe", // TODO: is this needed?
