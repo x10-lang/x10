@@ -964,7 +964,7 @@ public class X10Lexer implements RuleAction
             // Rule 366:  IntLiteralAndRange ::= Integer . .
             //
             case 366: { 
-                 makeToken(getToken(1), getToken(1), X10Parsersym.TK_IntegerLiteral);
+                 makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), X10Parsersym.TK_IntegerLiteral);
                  makeToken(getToken(2), getToken(3), X10Parsersym.TK_RANGE);
                    break;
             }
