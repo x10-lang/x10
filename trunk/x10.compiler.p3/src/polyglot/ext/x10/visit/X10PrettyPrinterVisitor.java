@@ -592,6 +592,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 	    if (mi.name() == Name.make("hasNext") && mi.formalTypes().size() == 0)
 	    	boxPrimitives = false;
 	    
+// Olivier: uncomment hack below to generate java code with unboxed primitives 
+//	    if (mi.name() != Name.make("apply") && mi.name() != Name.make("write") && mi.name() != Name.make("read") && mi.name() != Name.make("set"))
+//            boxPrimitives = false;
 	    generateMethodDecl(n, boxPrimitives);
 	}
 
