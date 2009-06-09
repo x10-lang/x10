@@ -36,11 +36,18 @@ class FinishState {
 	 */
 	private val latch = new ModCountDownLatch(0);
 
+	static def makeRoot():FinishState {
+		val state = new FinishState();
+		state.notifySubActivitySpawn();
+		return state;
+	}
+
 	/**
 	 * This method returns only when all spawned activity registered with this 
 	 * FinishState have terminated either normally or abruptly.
 	 */
 	def waitForFinish():Void {
+		Runtime.pool.join(this);
 		latch.await();
 		if (null != exceptions) {
 			if (exceptions.size() == 1) {

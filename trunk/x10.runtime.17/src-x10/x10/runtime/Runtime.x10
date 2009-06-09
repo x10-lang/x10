@@ -21,27 +21,20 @@ public value Runtime {
 	
 	private def this():Runtime {}
 	
-	/**
-	 * Master thread running the runtime/pool/root activity
-	 */
-	private const master = Thread.currentThread();
-	
-	// x10_probe
+	// one root finish state per process
+	const rootFinish = FinishState.makeRoot();
 	
 	/**
-	 * Listener thread should process incoming messages instead of parking
+	 * Master thread running the runtime
 	 */
-	const listener = (NativeRuntime.local(0) && !NativeRuntime.local(NativeRuntime.MAX_PLACES - 1)) ? master : null;
+	const master = Thread.currentThread();
 	
-
 	// thread pool
 	
 	/**
-	 * Create one fewer thread on Node 0, because its master thread executes the root activity
-	 * and therefore participates in the work pool. On all other nodes, the master thread enters
-         * the NativeRuntime.event_loop and therefore is not available to participate in the work pool.
+	 * One thread pool per node
 	 */
-	const pool = new Pool(NativeRuntime.INIT_THREADS - (NativeRuntime.local(0) ? 1 : 0));
+	const pool = new Pool(NativeRuntime.INIT_THREADS);
 
 	/**
 	 * A hueristic estimate of the amount of unscheduled activities
@@ -56,7 +49,7 @@ public value Runtime {
 	/**
 	 * Return the current activity
 	 */
-	private static def current():Activity = Thread.currentThread().activity() as Activity;
+	private static def current():Activity = pool.worker().activity();
 	
 	/**
 	 * Return the current place
@@ -71,21 +64,31 @@ public value Runtime {
 	 */
 	public static def start(body:()=>Void):Void {
 // temporary: printStackTrace call moved to Main template (native code) 
-//		try {
+		try {
 			if (master.loc() == 0) {
-				val rootFinish = new FinishState();
-				val activity = new Activity(body, rootFinish, "root");
-				master.activity(activity);
-				activity.now();
+				pool.execute(new Activity(body, rootFinish, "root"));
+				pool.join(rootFinish);
+				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
+					val c = ()=>Runtime.quit();
+					for (var i:Int=1; i<Place.MAX_PLACES; i++) {
+						NativeRuntime.runAt(i, c);						
+					}
+				}
 				rootFinish.waitForFinish();
-				pool.quit();
-				//NativeRuntime.println("Root activity completed");
 			} else {
-				NativeRuntime.event_loop();
+				pool.join(rootFinish);
 			}
 //		} catch (t:Throwable) {
 //			t.printStackTrace();
 //		}
+		} finally {
+			pool.release();
+		}
+	}
+
+
+	static def quit():Void {
+		rootFinish.notifySubActivityTermination();
 	}
 
 
