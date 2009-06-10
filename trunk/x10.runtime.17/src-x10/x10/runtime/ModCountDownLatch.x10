@@ -21,7 +21,7 @@ class ModCountDownLatch {
 	/**
 	 * The value of the latch
 	 */
-	private var count: nat;
+	var count: nat;
 	
 	/**
 	 * Return latch with specified initial value

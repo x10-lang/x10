@@ -34,7 +34,7 @@ class FinishState {
 	/**
 	 * Keep track of current number of activities associated with this finish state
 	 */
-	private val latch = new ModCountDownLatch(0);
+	val latch = new ModCountDownLatch(0);
 
 	static def makeRoot():FinishState {
 		val state = new FinishState();
@@ -97,6 +97,4 @@ class FinishState {
 		exceptions.push(t);
 		lock.unlock();
 	}
-
-	def done():Boolean = latch.getCount() == 0;	
 }
