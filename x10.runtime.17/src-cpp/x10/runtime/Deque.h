@@ -30,10 +30,10 @@ namespace x10 {
             x10aux::ref<Deque> _constructor();
 
         private:
-            class Slots {
+            struct Slots {
             public:
                 x10_int capacity;
-                volatile void* data[1];
+                volatile void* data[1] __attribute__ ((aligned (sizeof(void*))));
             };
 
             
