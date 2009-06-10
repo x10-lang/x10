@@ -9,6 +9,7 @@
 package x10.runtime;
 
 import x10.util.Random;
+import x10.compiler.Native;
 
 /**
  * @author tardieu
@@ -122,11 +123,11 @@ public value Pool {
 		var next:Int = random.nextInt(that.size);
 		for (;;) {
 			activity = steal(next);
-			if (null != activity || cond.done()) return activity;
+			if (null != activity || check(cond)) return activity;
 			if (Thread.currentThread() == Runtime.master) {
 				NativeRuntime.event_probe();
 				activity = worker().poll();
-				if (null != activity || cond.done()) return activity;
+				if (null != activity || check(cond)) return activity;
 			} else {
 				if (semaphore.available() < 0) {
 					if (block) {
@@ -140,4 +141,7 @@ public value Pool {
 			if (++next == that.size) next = 0;
 		}
 	}
+
+	@Native("java", "#1.latch.count == 0")
+	def check(cond:FinishState):Boolean = cond.latch.count == 0;
 }
