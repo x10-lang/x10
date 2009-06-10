@@ -40,7 +40,7 @@ void x10aux::run_at(x10_int place, ref<VoidFun_0_0> body) {
 
 x10_int x10aux::num_threads() {
 
-	x10_int num = 1;
+	x10_int num = 2;
 	const char* env = getenv("X10_NTHREADS");
 	if (NULL != env) {
 		num = (x10_int) strtol(env, NULL, 10);
