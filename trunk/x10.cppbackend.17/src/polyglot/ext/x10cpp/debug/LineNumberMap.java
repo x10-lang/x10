@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import polyglot.ext.x10cpp.visit.Emitter;
+import polyglot.types.ConstructorDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
@@ -200,21 +201,31 @@ public class LineNumberMap extends StringTable {
 	 * @param sourceMethod X10 method signature
 	 */
 	public void addMethodMapping(MethodDef sourceMethod) {
-		Type c = sourceMethod.container().get();
-		String n = sourceMethod.name().toString();
-		Type r = sourceMethod.returnType().get();
-		List<Ref<? extends Type>> f = sourceMethod.formalTypes();
+		addMethodMapping(sourceMethod.container().get(), sourceMethod.name().toString(),
+		                 sourceMethod.returnType().get(), sourceMethod.formalTypes());
+	}
+
+	/**
+	 * @param sourceConstructor X10 constructor signature
+	 */
+	public void addMethodMapping(ConstructorDef sourceConstructor) {
+		addMethodMapping(sourceConstructor.container().get(), null, null, sourceConstructor.formalTypes());
+	}
+
+	private void addMethodMapping(Type c, String n, Type r, List<Ref<? extends Type>> f) {
+		assert (c != null);
+		assert (f != null);
 		String sc = c.toString();
-		String sn = n;
-		String sr = r.toString();
+		String sn = n == null ? "this" : n;
+		String sr = r == null ? "" : r.toString();
 		String[] sa = new String[f.size()];
 		for (int i = 0; i < sa.length; i++) {
 			sa[i] = f.get(i).get().toString();
 		}
 		MethodDescriptor src = createMethodDescriptor(sc, sn, sr, sa);
 		String tc = Emitter.translateType(c);
-		String tn = Emitter.mangled_method_name(n);
-		String tr = Emitter.translateType(r, true);
+		String tn = n == null ? "_constructor" : Emitter.mangled_method_name(n);
+		String tr = r == null ? "void" : Emitter.translateType(r, true);
 		String[] ta = new String[sa.length];
 		for (int i = 0; i < ta.length; i++) {
 			ta[i] = Emitter.translateType(f.get(i).get(), true);
