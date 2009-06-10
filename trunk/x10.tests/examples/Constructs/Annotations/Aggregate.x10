@@ -1,3 +1,4 @@
+// LIMITATION: aggregate interface not found
 import harness.x10Test;
 
 public class AggregateTest extends harness.x10Test {

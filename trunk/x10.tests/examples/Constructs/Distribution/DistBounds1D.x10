@@ -100,7 +100,7 @@ public class DistBounds1D extends x10Test {
         /**
          * Return a dist with region r, of type disttype
          */
-        public static def getDist(var distType: int, var r: Region): Dist = {
+        public static def getDist(val distType: int, val r: Region): Dist{region==r} = {
             switch(distType) {
                 case BLOCK: return Dist.makeBlock(r, 0);
                 case CYCLIC: return Dist.makeCyclic(r, 0);

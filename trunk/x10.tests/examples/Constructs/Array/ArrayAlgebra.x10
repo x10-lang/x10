@@ -40,10 +40,10 @@ public class ArrayAlgebra extends x10Test {
                 .overlay(makeArray(D3, 3))
                 .overlay(makeArray(D0, 9)));
 
-        arrEq(ia1 | D0, makeArray(D0, 9));
-        arrEq(ia1 | D1, makeArray(D1, -1));
-        arrEq(ia1 | D2, makeArray(D2, -2));
-        arrEq(ia1 | D3, makeArray(D3, 3));
+        arrEq(ia1 | D0.region, makeArray(D0, 9));
+        arrEq(ia1 | D1.region, makeArray(D1, -1));
+        arrEq(ia1 | D2.region, makeArray(D2, -2));
+        arrEq(ia1 | D3.region, makeArray(D3, 3));
 
         chk(ia1.sum() == 9*N/4);
 
