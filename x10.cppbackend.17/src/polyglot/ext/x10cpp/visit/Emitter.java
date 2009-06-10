@@ -541,15 +541,37 @@ public class Emitter {
 	}
   
     void printRTT(X10ClassType ct, ClassifiedStream h) {
-        X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-		String x10name = ct.fullName().toString();
-		int num_parents = 1 + ct.interfaces().size();
         if (ct.typeArguments().isEmpty()) {
             h.write("RTT_H_DECLS"); h.newline();
         } else {
             h.write("static const x10aux::RuntimeType* rtt;"); h.newline();
             h.write("static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }"); h.newline();
-            h.write("static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {"); h.newline(4); h.begin(0);
+            h.write("static const x10aux::RuntimeType* _initRTT();"); h.newline();
+            h.write("virtual const x10aux::RuntimeType *_type() const { return getRTT(); }"); h.newline(); h.forceNewline();
+        }
+	}
+
+    void printRTTDefn(X10ClassType ct, CodeWriter h) {
+        X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+		String x10name = ct.fullName().toString();
+		int num_parents = 1 + ct.interfaces().size();
+		if (ct.typeArguments().isEmpty()) {
+          h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;"); h.newline();
+          h.write("const x10aux::RuntimeType* "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
+          h.write("const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(\""+ct.fullName()+"\", "+num_parents);
+          h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
+          for (Type iface : ct.interfaces()) {
+              h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
+          }
+          h.write(");"); h.newline();
+          h.write("return x10aux::RuntimeType::installRTT(&rtt, cand);"); h.end(); h.newline();
+          h.write("}"); h.newline();
+        } else {
+            printTemplateSignature(ct.typeArguments(), h);
+            h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;"); h.newline();
+            
+            printTemplateSignature(ct.typeArguments(), h);
+            h.write("const x10aux::RuntimeType* "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
             h.write("const char *name ="); h.newline(4);
             h.write("x10aux::alloc_printf("); h.begin(0);
             h.write("\""+x10name+"[");
@@ -581,27 +603,6 @@ public class Emitter {
               h.write("return x10aux::RuntimeType::installRTT(&rtt, cand);"); h.end(); h.newline();
             }
             h.write("}"); h.newline();
-            h.write("virtual const x10aux::RuntimeType *_type() const { return getRTT(); }"); h.newline(); h.forceNewline();
-        }
-	}
-
-    void printRTTDefn(X10ClassType ct, CodeWriter h) {
-		if (ct.typeArguments().isEmpty()) {
-          X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
-          int num_parents = 1 + ct.interfaces().size();
-          h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;"); h.newline();
-          h.write("const x10aux::RuntimeType* "+translateType(ct)+"::_initRTT() {"); h.newline(4); h.begin(0);
-          h.write("const x10aux::RuntimeType *cand = new (x10aux::alloc<x10aux::RuntimeType >()) x10aux::RuntimeType(\""+ct.fullName()+"\", "+num_parents);
-          h.write(", x10aux::getRTT" + chevrons(ct.superClass()==null ? translateType(xts.Ref()) : translateType(ct.superClass())) + "()");
-          for (Type iface : ct.interfaces()) {
-              h.write(", x10aux::getRTT"+chevrons(translateType(iface))+"()");
-          }
-          h.write(");"); h.newline();
-          h.write("return x10aux::RuntimeType::installRTT(&rtt, cand);"); h.end(); h.newline();
-          h.write("}"); h.newline();
-        } else {
-    		printTemplateSignature(ct.typeArguments(), h);
-			h.write("const x10aux::RuntimeType* "+translateType(ct)+"::rtt = NULL;");
 		}
 		h.newline();
 	}
