@@ -143,7 +143,7 @@ public class X10Return_c extends Return_c {
 		            else {
 		                // Merge the types
 		                exprType = removeLocals((X10Context) tc.context(), exprType, tc.context().currentCode());
-		                Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType);
+		                Type t = ts.leastCommonAncestor(typeRef.getCached(), exprType, c);
 		                typeRef.update(t);
 		            }
 		        }
@@ -258,7 +258,7 @@ public class X10Return_c extends Return_c {
                     fi + ".", position());
             }
         
-            if (ts.isImplicitCastValid(expr.type(), returnType)) {
+            if (ts.isImplicitCastValid(expr.type(), returnType, c)) {
                 return this;
             }
         

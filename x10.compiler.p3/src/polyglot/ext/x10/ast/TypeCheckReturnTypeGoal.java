@@ -18,10 +18,6 @@ public class TypeCheckReturnTypeGoal extends TypeCheckFragmentGoal {
 	@Override
 	public boolean runTask() {
 	    TypeSystem ts = v.typeSystem();
-	    if (r.locked()) {
-	        ((Ref<Type>) r).update(ts.unknownType(n.position()));
-	        return mightFail;
-	    }
 		boolean result = super.runTask();
 		if (result) {
 			if (r.getCached() instanceof UnknownType) {

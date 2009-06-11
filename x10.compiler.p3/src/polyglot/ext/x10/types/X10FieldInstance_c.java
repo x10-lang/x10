@@ -47,7 +47,9 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
 
     /** Constraint on formal parameters. */
     protected XConstraint guard;
-    public XConstraint guard() { return guard; }
+    public XConstraint guard() { 
+        return guard;
+    }
     public X10FieldInstance guard(XConstraint s) { 
 	X10FieldInstance_c n = (X10FieldInstance_c) copy();
 	n.guard = s; 

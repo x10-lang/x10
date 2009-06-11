@@ -144,7 +144,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
 		Type placeType = place.type();
 		Expr newPlace = place;
-		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
+		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
 		if (! placeIsPlace) {
                     throw new SemanticException(
                         "Place expression of at must be of type \"" +

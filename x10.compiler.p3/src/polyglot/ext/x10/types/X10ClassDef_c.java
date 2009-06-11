@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ext.x10.types.TypeProperty.Variance;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef_c;
 import polyglot.types.FieldDef;
@@ -38,14 +37,13 @@ import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
-    protected List<Variance> variances;
+    protected List<ParameterType.Variance> variances;
     XRoot thisVar;
     
     public X10ClassDef_c(TypeSystem ts, Source fromSource) {
         super(ts, fromSource);
-        this.variances = new ArrayList<TypeProperty.Variance>();
+        this.variances = new ArrayList<ParameterType.Variance>();
         this.typeParameters = new ArrayList<ParameterType>();
-        this.typeProperties = new ArrayList<TypeProperty>();
         this.typeMembers = new ArrayList<TypeDef>();
         this.thisVar = null;
     }
@@ -105,10 +103,20 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * @return
      */
     boolean computing = false;
+
+    Ref<TypeConstraint> typeBounds;
     
+    public Ref<TypeConstraint> typeBounds() {
+        return typeBounds;
+    }
+
+    public void setTypeBounds(Ref<TypeConstraint> c) {
+        this.typeBounds = c;
+    }
+
     // Cached realClause of the root type.
     Ref<XConstraint> rootClause;
-    
+
     protected Ref<XConstraint> classInvariant;
 
     public void setClassInvariant(Ref<XConstraint> c) {
@@ -234,7 +242,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 					    XTerm newSelf = xts.xtypeTranslator().trans(c, c.self(), fi.asInstance());
 					    c = c.substitute(newSelf, c.self());
 					    
-					    if (! result.entails(c)) {
+					    if (! result.entails(c, ((X10Context) ts.emptyContext()).constraintProjection(result, c))) {
 						    this.rootClause = Types.ref(result);
 						    this.rootClauseInvalid = 
 							    new SemanticException("The real clause, " + result 
@@ -287,27 +295,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 	return Collections.unmodifiableList(typeParameters);
     }
     
-    public List<Variance> variances() {
+    public List<ParameterType.Variance> variances() {
 	return Collections.unmodifiableList(variances);
     }
     
-    public void addTypeParameter(ParameterType p, TypeProperty.Variance v) {
+    public void addTypeParameter(ParameterType p, ParameterType.Variance v) {
 	typeParameters.add(p);
 	variances.add(v);
-    }
-    
-    List<TypeProperty> typeProperties;
-    
-    // TODO:
-    // Add .class property
-    // Add class <: C to class invariant
-    // Add code to not complain that it's not initialized; ignore when disambiguating C[T]
-    public List<TypeProperty> typeProperties() {
-	return Collections.unmodifiableList(typeProperties);
-    }
-    
-    public void addTypeProperty(TypeProperty p) {
-	typeProperties.add(p);
     }
 
     List<TypeDef> typeMembers;
@@ -323,190 +317,4 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public void addMemberType(TypeDef t) {
     	typeMembers.add(t);
     }
-    
-    /* This is only type property code.  And is broken.
-    boolean valid = false;
-    
-	@Override
-	public void addConstructor(ConstructorDef ci) {
-		valid = false;
-		super.addConstructor(ci);
-	}
-
-	@Override
-	public void addField(FieldDef fi) {
-		valid = false;
-		super.addField(fi);
-	}
-
-	@Override
-	public void addMethod(MethodDef mi) {
-		valid = false;
-		super.addMethod(mi);
-	}
-
-	@Override
-	public List<FieldDef> fields() {
-		if (! valid) {
-			fixGenericAndPrimitiveTypes();
-			valid = true;
-		}
-		List<FieldDef> fs = super.fields();
-		setPropertiesFromMagicString(fs);
-		return fs;
-	}
-	@Override
-	public List<ConstructorDef> constructors() {
-		if (! valid) {
-			fixGenericAndPrimitiveTypes();
-			valid = true;
-		}
-		return super.constructors();
-	}
-
-	@Override
-	public List<MethodDef> methods() {
-		if (! valid) {
-			fixGenericAndPrimitiveTypes();
-			valid = true;
-		}
-		return super.methods();
-	}
-	
-	private void fixGenericAndPrimitiveTypes() {
-		X10TypeSystem ts = (X10TypeSystem) this.ts;
-
-		X10ClassType ct = (X10ClassType) asType();
-		TypeProperty px = X10TypeSystem_c.getFirstTypeProperty(this);
-		
-		if (px == null)
-			return;
-		
-		XVar thisPath;
-		try {
-			thisPath = ts.xtypeTranslator().transThis(ct);
-		}
-		catch (SemanticException e) {
-			throw new InternalCompilerError(e);
-		}
-		
-		Type T = PathType_c.pathBase(px.asType(), thisPath, ct);
-
-		// Replace Parameter1 with T.
-		// Replace C { Parameter1 } with C[T].
-
-//		List<Ref<? extends Type>> newInterfaces = new ArrayList<Ref<? extends Type>>();
-//		
-//		for (Ref<? extends Type> tref : interfaces) {
-//		    Type t = tref.getCached();
-//		    if (!(t instanceof Named) || !((Named) t).name().equals("Parameter1"))
-//			newInterfaces.add(tref);
-//		    else
-//			System.out.println("removing " + t);
-//		}
-//		
-//		if (newInterfaces.size() != interfaces.size())
-//		    interfaces = newInterfaces;
-		
-		for (FieldDef f : fields) {
-			Ref<Type> r = (Ref<Type>) f.type();
-			Type newType = fixType(r.get(), T);
-			if (newType != r.get())
-				r.update(newType);
-		}
-
-		for (MethodDef m : methods) {
-			{
-				Ref<Type> r = (Ref<Type>) m.returnType();
-				Type newType = fixType(r.get(), T);
-				if (newType != r.get())
-					r.update(newType);
-			}
-			for (Ref<? extends Type> fr : m.formalTypes()) {
-				Ref<Type> r = (Ref<Type>) fr;
-				Type newType = fixType(r.get(), T);
-				if (newType != r.get())
-					r.update(newType);
-			}
-			for (Ref<? extends Type> fr : m.throwTypes()) {
-				Ref<Type> r = (Ref<Type>) fr;
-				Type newType = fixType(r.get(), T);
-				if (newType != r.get())
-					r.update(newType);
-			}
-		}
-
-		for (ConstructorDef c : constructors) {
-			X10ConstructorDef xc = (X10ConstructorDef) c;
-			{
-				Ref<Type> r = (Ref<Type>) xc.returnType();
-				Type newType = fixType(r.get(), T);
-				if (newType != r.get())
-					r.update(newType);
-			}
-			for (Ref<? extends Type> fr : xc.formalTypes()) {
-				Ref<Type> r = (Ref<Type>) fr;
-				Type newType = fixType(r.get(), T);
-				if (newType != r.get())
-					r.update(newType);
-			}
-			for (Ref<? extends Type> fr : xc.throwTypes()) {
-				Ref<Type> r = (Ref<Type>) fr;
-				Type newType = fixType(r.get(), T);
-				if (newType != r.get())
-					r.update(newType);
-			}
-		}
-	}
-	
-	private Map<String,Type> primitiveTypes;
-	
-	private Type primitiveType(String name)
-	{
-		primitiveTypes = new HashMap<String, Type>();
-		primitiveTypes.put("x10.lang.Void", ts.Void());
-		primitiveTypes.put("x10.lang.Boolean", ts.Boolean());
-		primitiveTypes.put("x10.lang.Byte", ts.Byte());
-		primitiveTypes.put("x10.lang.Short", ts.Short());
-		primitiveTypes.put("x10.lang.Char", ts.Char());
-		primitiveTypes.put("x10.lang.Int", ts.Int());
-		primitiveTypes.put("x10.lang.Long", ts.Long());
-		primitiveTypes.put("x10.lang.Float", ts.Float());
-		primitiveTypes.put("x10.lang.Double", ts.Double());
-		
-		return primitiveTypes.get(name);
-	}
-	
-	private Type fixType(Type oldType, Type typeArg) {
-		X10TypeSystem ts = (X10TypeSystem) this.ts;
-
-		if (oldType instanceof ConstrainedType) {
-			ConstrainedType ct = (ConstrainedType) oldType;
-			Type t = Types.get(ct.baseType());
-			Type t2 = fixType(t, typeArg);
-			XConstraint c = Types.get(ct.constraint());
-			// param1 should not appear in constraint; in fact, we shouldn't have any constraints
-//			XConstraint c2 = c.substitute(ts.xtypeTranslator().trans(typeArg), (XRoot) ts.xtypeTranslator().trans(param1));
-			return X10TypeMixin.xclause(t2, c);
-		}
-		if (oldType instanceof ArrayType) {
-		    ArrayType at = (ArrayType) oldType;
-		    Type base = fixType(at.base(), typeArg);
-		    return X10TypeMixin.instantiate(ts.Rail(), base);
-		}
-		else if (oldType instanceof ClassType) {
-			ClassType ct = (ClassType) oldType;
-			
-			X10ClassDef def = (X10ClassDef) ct.def();
-			
-			String name = def.fullName();
-			
-			if (name != null && primitiveType(name) != null) {
-				return primitiveType(name);
-			}
-		}
-		
-		return oldType;
-	}
-	     */
 }

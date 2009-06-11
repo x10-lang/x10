@@ -8,6 +8,7 @@
 package polyglot.ext.x10.ast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MemberDef;
+import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
@@ -34,13 +36,16 @@ import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
+import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -52,6 +57,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.constraint.XLocal;
 import x10.constraint.XRoot;
 
 /**
@@ -127,9 +133,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
                 // First try to find the method without implicit conversions.
                 try {
-                    mi = xts.findMethod(t,
-                                        matcher.container(t),
-                                        xc.currentClassDef());
+                    mi = xts.findMethod(t, matcher.container(t));
                     return new Pair<MethodInstance, List<Expr>>(mi, this.arguments);
                 }
                 catch (SemanticException e) {
@@ -170,7 +174,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		// let's find the target, using the context, and
 		// set the target appropriately, and then type check
 		// the result
-		Pair<MethodInstance, List<Expr>> p = findMethod(tc, ts.MethodMatcher(null, name.id(), typeArgs, argTypes), typeArgs, argTypes);
+		Pair<MethodInstance, List<Expr>> p = findMethod(tc, ts.MethodMatcher(null, name.id(), typeArgs, argTypes, c), typeArgs, argTypes);
 		X10MethodInstance mi = (X10MethodInstance) p.fst();
 		List<Expr> args = p.snd();
 
@@ -195,7 +199,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 			if (this_ != null)
 			    scope = X10TypeMixin.setSelfVar(scope, this_);
 
-			if (! ts.typeEquals(scope, c.currentClass())) {
+			if (! ts.typeEquals(scope, c.currentClass(), c)) {
 				r = (Special) nf.This(position().startOf(),
 						nf.CanonicalTypeNode(position().startOf(), scope)).del().typeCheck(tc);
 			}
@@ -236,7 +240,7 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 			Expr f;
 			if (target() != null)
-				f = nf.Field(target().position(), target(), name());
+				f = nf.Field(new Position(target().position(), name().position()), target(), name());
 			else
 				f = nf.AmbExpr(name().position(), name());
 
@@ -330,18 +334,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 
 		// First try to find the method without implicit conversions.
 		try {
-		    mi = xts.findMethod(targetType, 
-		                        xts.MethodMatcher(targetType, name, typeArgs, argTypes),
-		                        currentClassDef);
+		    mi = xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, argTypes, c));
 		    args = n.arguments;
 		}
 		catch (SemanticException e) {
 		    try {
 		        if (name == Name.make("equals") && argTypes.size() == 1 && typeArgs.size() == 0 && xts.isParameterType(targetType) && xts.isParameterType(argTypes.get(0))) {
 		            // Check that both equals(Ref) and equals(Value) are present
-		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Ref())), currentClassDef);
-		            mi = null;
-		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value())), currentClassDef);
+		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Ref()), c));
+                            mi = null;
+		            mi = (X10MethodInstance) xts.findMethod(targetType, xts.MethodMatcher(targetType, name, typeArgs, Collections.singletonList(xts.Value()), c));
 		            mi = (X10MethodInstance) mi.formalTypes(Collections.singletonList(X10TypeMixin.baseType(targetType)));
 		            LocalInstance d = mi.formalNames().get(0);
 		            mi = (X10MethodInstance) mi.formalNames(Collections.singletonList(d.type(X10TypeMixin.baseType(targetType))));
@@ -409,37 +411,16 @@ public class X10Call_c extends Call_c implements X10Call, X10ProcedureCall {
 		return result;
 	}
 
-	static class DumbMethodMatcher extends X10TypeSystem_c.X10MethodMatcher {
-	    public DumbMethodMatcher(Type container, Name name, List<Type> argTypes) {
-	        super(container, name, argTypes);
-	    }
-	    
-	    public DumbMethodMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes) {
-	        super(container, name, typeArgs, argTypes);
-	    }
-	    
-	    @Override
-	    public MethodInstance instantiate(MethodInstance mi) throws SemanticException {
-	        X10MethodInstance xmi = (X10MethodInstance) mi;
-	        if (! xmi.name().equals(name))
-	            return null;
-	        if (xmi.formalTypes().size() != argTypes.size())
-	            return null;
-	        if (typeArgs.size() != 0 && typeArgs.size() != xmi.typeParameters().size())
-	            return null;
-	        return xmi;
-	    }
-	}
-	
 	static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final X10Call_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
 	    final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-	    ClassDef currentClassDef = tc.context().currentClassDef();
+	    final Context context = tc.context();
+	    ClassDef currentClassDef = context.currentClassDef();
 
-	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, n.name().id(), typeArgs, argTypes), currentClassDef);
+	    List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new X10TypeSystem_c.DumbMethodMatcher(targetType, n.name().id(), typeArgs, argTypes, context));
 
 	    Pair<MethodInstance,List<Expr>> p = X10New_c.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
 	        public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-	            return ts.MethodMatcher(ct, n.name().id(), typeArgs, argTypes);
+	            return ts.MethodMatcher(ct, n.name().id(), typeArgs, argTypes, context);
 	        }
 	    });
 	    

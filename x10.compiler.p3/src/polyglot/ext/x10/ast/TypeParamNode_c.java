@@ -16,26 +16,14 @@ import polyglot.ast.Term;
 import polyglot.ast.Term_c;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.ParameterType_c;
-import polyglot.ext.x10.types.TypeDef;
-import polyglot.ext.x10.types.TypeProperty;
-import polyglot.ext.x10.types.TypeProperty_c;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.TypeProperty.Variance;
-import polyglot.types.ClassDef;
-import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Def;
-import polyglot.types.FieldDef;
 import polyglot.types.Named;
-import polyglot.types.ProcedureDef;
-import polyglot.types.Qualifier;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.NodeVisitor;
@@ -45,9 +33,9 @@ import polyglot.visit.TypeBuilder;
 public class TypeParamNode_c extends Term_c implements TypeParamNode {
 	protected Id name;
 	protected ParameterType type;
-	TypeProperty.Variance variance;
+	ParameterType.Variance variance;
 
-	public TypeParamNode_c(Position pos, Id name, TypeProperty.Variance variance) {
+	public TypeParamNode_c(Position pos, Id name, ParameterType.Variance variance) {
 		super(pos);
 		this.name = name;
 		this.variance = variance;
@@ -63,11 +51,11 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 		return n;
 	}
 
-	public TypeProperty.Variance variance() {
+	public ParameterType.Variance variance() {
 	    return variance;
 	}
 
-	public TypeParamNode variance(TypeProperty.Variance variance) {
+	public TypeParamNode variance(ParameterType.Variance variance) {
 	    TypeParamNode_c n = (TypeParamNode_c) copy();
 	    n.variance = variance;
 	    return n;

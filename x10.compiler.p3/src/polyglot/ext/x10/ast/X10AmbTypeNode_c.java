@@ -27,6 +27,7 @@ import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
+import polyglot.types.Context;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -136,7 +137,8 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode {
           }
     
           if (typeDefContainer != null) {
-              MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST), tc.context().currentClassDef());
+              Context context = tc.context();
+            MacroType mt = ts.findTypeDef(typeDefContainer, ts.TypeDefMatcher(typeDefContainer, name.id(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, context), context);
               
               LazyRef<Type> sym = (LazyRef<Type>) type;
               sym.update(mt);

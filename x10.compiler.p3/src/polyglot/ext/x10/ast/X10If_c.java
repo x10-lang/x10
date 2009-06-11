@@ -39,7 +39,7 @@ public class X10If_c extends If_c {
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
-	if (! ts.isSubtype(cond.type(), ts.Boolean())) {
+	if (! ts.isSubtype(cond.type(), ts.Boolean(), tc.context())) {
 	    throw new SemanticException(
 		"Condition of if statement must have boolean type, and not " + cond.type() + ".",
 		cond.position());

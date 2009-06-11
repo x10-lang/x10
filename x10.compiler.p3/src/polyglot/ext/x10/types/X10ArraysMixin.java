@@ -10,7 +10,9 @@ package polyglot.ext.x10.types;
 
 import java.util.Collections;
 
+import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -32,14 +34,26 @@ public class X10ArraysMixin {
 	
 	public static boolean isVarArray(Type t) {
 	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-		Type at = ts.Array();
-		return t.descendsFrom(at);
+	    Type tt = X10TypeMixin.baseType(t);
+	    Type at = X10TypeMixin.baseType(ts.Array());
+	    if (tt instanceof ClassType && at instanceof ClassType) {
+	        ClassDef tdef = ((ClassType) tt).def();
+	        ClassDef adef = ((ClassType) at).def();
+	        return ts.descendsFrom(tdef, adef);
+	    }
+	    return false;
 	}
-	
+
 	public static boolean isValArray(Type t) {
 	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	    Type at = ts.ValArray();
-	    return t.descendsFrom(at);
+	    Type tt = X10TypeMixin.baseType(t);
+	    Type at = X10TypeMixin.baseType(ts.ValArray());
+	    if (tt instanceof ClassType && at instanceof ClassType) {
+	        ClassDef tdef = ((ClassType) tt).def();
+	        ClassDef adef = ((ClassType) at).def();
+	        return ts.descendsFrom(tdef, adef);
+	    }
+	    return false;
 	}
 
 	public static Type arrayBaseType(Type t) {
@@ -79,7 +93,8 @@ public class X10ArraysMixin {
 	    public static X10FieldInstance getProperty(Type t, Name propName) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 			    try {
-				    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName));
+			        Context c = xts.emptyContext();
+				    X10FieldInstance fi = (X10FieldInstance) xts.findField(t, xts.FieldMatcher(t, propName, c));
 				    if (fi != null && fi.isProperty()) {
 					    return fi;
 				    }
@@ -90,7 +105,7 @@ public class X10ArraysMixin {
 	        return null;
 	    }
 	    
-	    protected static boolean amIProperty(Type t, Name propName) {
+	    protected static boolean amIProperty(Type t, Name propName, X10Context context) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
 		    XConstraint r = X10TypeMixin.realX(t);
 
@@ -101,7 +116,7 @@ public class X10ArraysMixin {
 				    XConstraint c = new XConstraint_c();
 				    XVar term = xts.xtypeTranslator().trans(c, c.self(), fi);
 				    c.addBinding(term, xts.xtypeTranslator().trans(true));
-				    return r.entails(c);
+                    return r.entails(c, context.constraintProjection(r, c));
 			    }
 			    catch (XFailure f) {
 				    return false;
@@ -113,12 +128,12 @@ public class X10ArraysMixin {
 		    else {
 		        // try self.p()
 		            try {
-		                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST), null);
+		                X10MethodInstance mi = xts.findMethod(t, xts.MethodMatcher(t, propName, Collections.EMPTY_LIST, xts.emptyContext()));
 		                XTerm body = mi.body();
 		                XConstraint c = new XConstraint_c();
 		                body = body.subst(c.self(), mi.x10Def().thisVar());
 		                c.addTerm(body);
-		                return r.entails(c);
+		                return r.entails(c, context.constraintProjection(r, c));
 		            }
 		            catch (XFailure f) {
 		                return false;
@@ -129,8 +144,8 @@ public class X10ArraysMixin {
 		    }
 	    }
 
-	    public static boolean isRect(Type t) {
-	        return amIProperty(t, Name.make("rect"));
+	    public static boolean isRect(Type t, X10Context context) {
+	        return amIProperty(t, Name.make("rect"), context);
 	    }
 
 	    public static XTerm onePlace(Type t) {
@@ -152,13 +167,13 @@ public class X10ArraysMixin {
 		return null;
 	    }
 	    
-	    public static boolean isZeroBased(Type t) {
-	            if (isRail(t)) return true;
-	            return amIProperty(t, Name.make("zeroBased"));
+	    public static boolean isZeroBased(Type t, X10Context context) {
+	            if (isRail(t, context)) return true;
+	            return amIProperty(t, Name.make("zeroBased"), context);
 	    }
 	    
-	    public static boolean isRail(Type t) {
-	        return amIProperty(t, Name.make("rail"));
+	    public static boolean isRail(Type t, X10Context context) {
+	        return amIProperty(t, Name.make("rail"), context);
 	    }
 
 	    public static XTerm distribution(Type t) {
@@ -169,9 +184,9 @@ public class X10ArraysMixin {
 		return findProperty(t, Name.make("region"));
 	    }
 
-	    public static XTerm rank(Type t) {
+	    public static XTerm rank(Type t, X10Context context) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	        if (isRail(t))
+	        if (isRail(t, context))
 	           return xts.ONE();
 	        return findOrSythesize(t, Name.make("rank"));
 	    }
@@ -205,17 +220,17 @@ public class X10ArraysMixin {
 		    return val;
 	    }
 	    
-	    public static boolean isRankOne(Type t) {
+	    public static boolean isRankOne(Type t, X10Context context) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	            return isRail(t) || xts.ONE().equals(rank(t));
+	            return isRail(t, context) || xts.ONE().equals(rank(t, context));
 	    }
-	    public static boolean isRankTwo(Type t) {
+	    public static boolean isRankTwo(Type t, X10Context context) {
 	            X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-	            return xts.TWO().equals(rank(t));
+	            return xts.TWO().equals(rank(t, context));
 	    }
-	    public static boolean isRankThree(Type t) {
+	    public static boolean isRankThree(Type t, X10Context context) {
 		    X10TypeSystem xts = (X10TypeSystem) t.typeSystem();
-		    return xts.THREE().equals(rank(t));
+		    return xts.THREE().equals(rank(t, context));
 	    }
 
 	    public static XVar self(Type t) {

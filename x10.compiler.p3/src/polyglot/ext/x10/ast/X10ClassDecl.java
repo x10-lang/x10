@@ -20,9 +20,6 @@ public interface X10ClassDecl extends ClassDecl {
 	
 	List<TypeParamNode> typeParameters();
 	X10ClassDecl typeParameters(List<TypeParamNode> typeParameters);
-
-	List<TypePropertyNode> typeProperties();
-	X10ClassDecl typeProperties(List<TypePropertyNode> typeProperties);
 	
 	List<PropertyDecl> properties();
 	X10ClassDecl properties(List<PropertyDecl> ps);

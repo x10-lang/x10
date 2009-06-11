@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.types.ConstructorDef;
+import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
@@ -138,8 +139,8 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return n;
 	    }
 	
-	public boolean hasFormals(List<Type> formalTypes) {
-	        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals());
+	public boolean hasFormals(List<Type> formalTypes, Context context) {
+	        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals(context));
 	}
 	
 	public List<XVar> formals() {
@@ -188,6 +189,19 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		t.guard = guard;
 		return (MacroType) t;
 	}
+	
+	    /** Constraint on type parameters. */
+	    protected TypeConstraint typeGuard;
+	    public TypeConstraint typeGuard() { 
+	        if (typeGuard == null)
+	            return Types.get(def().typeGuard());
+	        return typeGuard; }
+	    public MacroType typeGuard(TypeConstraint s) { 
+	        MacroType_c n = (MacroType_c) copy();
+	        n.typeGuard = s; 
+	        return n;
+	    }
+
 
 	public Type definedType() {
 		if (definedType == null)
@@ -220,7 +234,6 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			final Ref<? extends Type> r = formalTypes.get(i);
 			LocalDef li = formalNames.get(i);
 			XVar v = XTerms.makeLocal(new XNameWrapper<LocalDef>(li, li.name().toString()));
-			v.setSelfConstraint(new XRef_c<XConstraint>() { public XConstraint compute() { return X10TypeMixin.realX(r.get()); } });
 			return v;
 		}
 	}
@@ -340,13 +353,13 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	    return Collections.EMPTY_LIST;
 	}
 
-	public boolean callValid(Type thisType, List<Type> actualTypes) {
-	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
+	public boolean callValid(Type thisType, List<Type> actualTypes, Context context) {
+	        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes, context);
 	}
 	
 
-	public boolean moreSpecific(ProcedureInstance<TypeDef> p) {
-	    return X10MethodInstance_c.moreSpecificImpl(this, p);
+	public boolean moreSpecific(ProcedureInstance<TypeDef> p, Context context) {
+	    return X10MethodInstance_c.moreSpecificImpl(this, p, context);
 	}
 	
 	public Type returnType() {

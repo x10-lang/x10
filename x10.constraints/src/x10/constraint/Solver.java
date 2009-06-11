@@ -8,7 +8,7 @@ public interface Solver {
 
 	boolean isValid(List<XTerm> atoms);
 
-	boolean entails(List<XTerm> atoms, XTerm t);
+	boolean entails(XConstraint env, XTerm t, XConstraint sigma);
 
 	void addDerivedEqualitiesInvolving(XConstraint c, XTerm t) throws XFailure;
 

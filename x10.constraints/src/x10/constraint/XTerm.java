@@ -31,20 +31,6 @@ public interface XTerm extends Serializable, Cloneable {
          * @return true if v occurs in this
          */
 	boolean hasVar(XVar v);
-	
-	/** Get the constraint on the term's value. 
-	 * @throws XFailure if the self constraint is inconsistent. 
-	 * */
-	XConstraint selfConstraint() throws XFailure;
-	
-	/** Set the constraint on the term's value. */
-	XTerm setSelfConstraint(XRef_c<XConstraint> c);
-
-	/** Add in the self-constraint to c, and set the
-	 * self-constraint to null
-	 * @param visited TODO
-	 * @return TODO*/
-	boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure;
 
 	/**
 	 * Does this contain an existentially quantified variable?

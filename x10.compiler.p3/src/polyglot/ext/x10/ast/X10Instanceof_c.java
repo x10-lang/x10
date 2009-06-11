@@ -42,7 +42,7 @@ public class X10Instanceof_c extends Instanceof_c implements X10Instanceof, X10C
 
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
 
-        if (! xts.isCastValid(fromType, toType)) {
+        if (! xts.isCastValid(fromType, toType, tc.context())) {
             throw new SemanticException(
                       "Left operand of \"instanceof\", " + fromType + ", must be castable to "
                       + "the right operand " + toType + ".");

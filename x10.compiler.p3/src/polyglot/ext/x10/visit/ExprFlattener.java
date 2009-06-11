@@ -127,7 +127,7 @@ public class ExprFlattener extends ContextVisitor  {
 			if (n instanceof X10Binary) {
 				X10Binary f = (X10Binary) n;
 				Binary.Operator op = f.operator();
-				if (ts.isImplicitCastValid(f.type(), ts.Boolean()) && (op == Binary.COND_AND || op == Binary.COND_OR)) {
+				if (ts.isImplicitCastValid(f.type(), ts.Boolean(), context) && (op == Binary.COND_AND || op == Binary.COND_OR)) {
 					return f.flatten(this);
 				}
 			}
@@ -169,7 +169,7 @@ public class ExprFlattener extends ContextVisitor  {
 				// and return a reference to newvarname. Thus the expression e
 				// has been converted to a variable reference.
 				final Type type = e.type();
-				if (! ts.typeEquals(type, ts.Void())) {
+				if (! ts.typeEquals(type, ts.Void(), context)) {
 					final Name varName = xc.getNewVarName();
 					final TypeNode tn = nf.CanonicalTypeNode(pos,type);
 					final LocalDef li = ts.localDef(pos, flags, Types.ref(type), varName);

@@ -19,15 +19,12 @@ import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Node;
 import polyglot.ast.Term;
-import polyglot.ext.x10.types.PathType_c;
 import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.ClassDef;
-import polyglot.types.SemanticException;
+import polyglot.types.Context;
 import polyglot.types.Name;
-import polyglot.types.StructType;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
@@ -116,8 +113,9 @@ public class Contains_c extends Expr_c implements Contains {
 		// Check if there is a method with the appropriate name and type with the left operand as receiver.   
 		try {
 		    List<Type> args = Collections.singletonList(itemType);
-		    ClassDef curr = tc.context().currentClassDef();
-		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, Name.make("$in"), args), curr);
+		    Context context = tc.context();
+		    ClassDef curr = context.currentClassDef();
+		    X10MethodInstance mi = (X10MethodInstance) ts.findMethod(collType, ts.MethodMatcher(collType, Name.make("$in"), args, context));
 		    return type(mi.returnType());
 		}
 		catch (SemanticException e) {

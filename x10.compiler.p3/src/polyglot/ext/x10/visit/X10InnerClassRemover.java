@@ -20,7 +20,7 @@ import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.TypeProperty.Variance;
+import polyglot.ext.x10.types.ParameterType.Variance;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.FieldDef;

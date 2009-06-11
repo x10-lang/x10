@@ -89,7 +89,8 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 	    
 	    Type result = ts.closureType(position(), returnType.typeRef(),
 	                                 typeParams, formalTypes, formalNames, 
-	                                 guard != null ? guard.xconstraint() : null,
+	                                 guard != null ? guard.valueConstraint() : null,
+	                                 guard != null ? guard.typeConstraint() : null,
 	                                 throwTypes);
 	    
 //	    Context c = ar.context();

@@ -54,31 +54,31 @@ public class AnnotationChecker extends ContextVisitor {
 		for (Iterator i = annotations.iterator(); i.hasNext(); ) {
 			AnnotationNode a = (AnnotationNode) i.next(); 
 			X10ClassType at = a.annotationInterface();
-			if (n instanceof TypeNode && ! at.isSubtype(TA)) {
+			if (n instanceof TypeNode && ! at.isSubtype(TA, context)) {
 				throw new SemanticException("Annotations on types must implement " + TA, n.position());
 			}
-			if (n instanceof Expr && ! at.isSubtype(EA)) {
+			if (n instanceof Expr && ! at.isSubtype(EA, context)) {
 				throw new SemanticException("Annotations on expressions must implement " + EA, n.position());
 			}
-			if (n instanceof Stmt && ! at.isSubtype(SA)) {
+			if (n instanceof Stmt && ! at.isSubtype(SA, context)) {
 				throw new SemanticException("Annotations on statements must implement " + SA, n.position());
 			}
-			if (n instanceof MethodDecl && ! at.isSubtype(MA)) {
+			if (n instanceof MethodDecl && ! at.isSubtype(MA, context)) {
 				throw new SemanticException("Annotations on method declarations must implement " + MA, n.position());
 			}
-			if (n instanceof FieldDecl && ! at.isSubtype(FA)) {
+			if (n instanceof FieldDecl && ! at.isSubtype(FA, context)) {
 				throw new SemanticException("Annotations on field declarations must implement " + FA, n.position());
 			}
-			if (n instanceof ClassDecl && ! at.isSubtype(CA)) {
+			if (n instanceof ClassDecl && ! at.isSubtype(CA, context)) {
 				throw new SemanticException("Annotations on class declarations must implement " + CA, n.position());
 			}
-			if (n instanceof PackageNode && parent instanceof SourceFile && ! at.isSubtype(PA)) {
+			if (n instanceof PackageNode && parent instanceof SourceFile && ! at.isSubtype(PA, context)) {
 				throw new SemanticException("Annotations on package declarations must implement " + PA, n.position());
 			}
-			if (n instanceof Import && ! at.isSubtype(IA)) {
+			if (n instanceof Import && ! at.isSubtype(IA, context)) {
 				throw new SemanticException("Annotations on imports must implement " + IA, n.position());
 			}
-			if (! at.isSubtype(A)) {
+			if (! at.isSubtype(A, context)) {
 				throw new SemanticException("Annotations must implement " + A, n.position());
 			}
 		}

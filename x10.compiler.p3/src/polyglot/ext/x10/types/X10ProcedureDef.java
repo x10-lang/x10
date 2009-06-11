@@ -21,6 +21,9 @@ public interface X10ProcedureDef extends X10Def, ProcedureDef, X10MemberDef {
 
     Ref<XConstraint> guard();
     void setGuard(Ref<XConstraint> s);
+    
+    Ref<TypeConstraint> typeGuard();
+    void setTypeGuard(Ref<TypeConstraint> s);
 
     List<Ref<? extends Type>> typeParameters();
     void setTypeParameters(List<Ref<? extends Type>> typeParameters);

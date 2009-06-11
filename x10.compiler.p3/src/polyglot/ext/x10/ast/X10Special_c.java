@@ -108,7 +108,7 @@ public class X10Special_c extends Special_c implements X10Special {
             }
         }
         
-        if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass()))) {
+        if (t == null || (c.inStaticContext() && ts.typeEquals(t, c.currentClass(), c))) {
             // trying to access "this" or "super" from a static context.
             throw new SemanticException("Cannot access a non-static " +
                 "field or method, or refer to \"this\" or \"super\" " + 

@@ -25,6 +25,7 @@
 %Globals
     /.
     //#line $next_line "$input_file$"
+    import java.util.Arrays;
     import java.util.ArrayList;
     import java.util.Collections;
     import java.util.Iterator;
@@ -39,7 +40,6 @@
     import polyglot.types.Name;
     import polyglot.ast.AmbExpr;
     import polyglot.ast.AmbTypeNode;
-    import polyglot.ast.ArrayInit;
     import polyglot.ast.Assign;
     import polyglot.ast.Binary;
     import polyglot.ast.Block;
@@ -92,13 +92,14 @@
     import polyglot.ext.x10.ast.ConstantDistMaker;
     import polyglot.ext.x10.ast.TypeDecl;
     import polyglot.ext.x10.ast.TypeParamNode;
-    import polyglot.ext.x10.ast.TypePropertyNode;
     import polyglot.ext.x10.ast.X10NodeFactory;
-    import polyglot.ext.x10.types.TypeProperty;
+    import polyglot.ext.x10.types.ParameterType;
     import polyglot.ext.x10.types.X10TypeSystem;
     import polyglot.ext.x10.types.X10TypeSystem_c;
     import polyglot.ext.x10.ast.PropertyDecl;
     import polyglot.ext.x10.ast.RegionMaker;
+    import polyglot.ext.x10.ast.X10Binary_c;
+    import polyglot.ext.x10.ast.X10Unary_c;
     import polyglot.ext.x10.extension.X10Ext;
     import polyglot.frontend.FileSource;
     import polyglot.frontend.Parser;
@@ -119,6 +120,7 @@
     import polyglot.types.SemanticException;
     import polyglot.types.Type;
     import polyglot.types.TypeSystem;
+    import polyglot.util.CollectionUtil;
     import polyglot.util.ErrorInfo;
     import polyglot.util.ErrorQueue;
     import polyglot.util.InternalCompilerError;
@@ -1082,7 +1084,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               Type,
-              nf.Id(pos(), Name.make("$convert")),
+              nf.Id(pos(), Name.make("\044convert")), // DOLLAR convert, but DOLLAR is special in lpg
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1099,7 +1101,7 @@ public static class MessageHandler implements IMessageHandler {
            MethodDecl md = nf.X10MethodDecl(pos(getRhsFirstTokenIndex($MethodModifiersopt), getRhsLastTokenIndex($MethodBody)),
               extractFlags(MethodModifiersopt),
               ResultTypeopt == null ? nf.UnknownTypeNode(pos()) : ResultTypeopt,
-              nf.Id(pos(), Name.make("$convert")),
+              nf.Id(pos(), Name.make("\044convert")),
               TypeParametersopt,
               Collections.<Formal>singletonList(fp1),
               WhereClauseopt,
@@ -1165,10 +1167,10 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypePropertiesopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
+    NormalInterfaceDeclaration ::= InterfaceModifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
         /.$BeginJava
           checkTypeName(Identifier);
-          List TypeParametersopt = Collections.EMPTY_LIST;
+          List TypeParametersopt = TypeParamsWithVarianceopt;
           List/*<PropertyDecl>*/ props = Propertiesopt;
           DepParameterExpr ci = WhereClauseopt;
           FlagsNode fn = extractFlags(InterfaceModifiersopt, Flags.INTERFACE);
@@ -1176,7 +1178,6 @@ public static class MessageHandler implements IMessageHandler {
                        fn,
                        Identifier,
                        TypeParametersopt,
-                       TypePropertiesopt,
                        props,
                        ci,
                        null,
@@ -1241,7 +1242,6 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
     ConstrainedType ::=  NamedType
-           | PathType
            | AnnotatedType
            | ( Type )
         /.$BeginJava
@@ -1249,19 +1249,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
 
-    PlaceType ::= any
-        /.$BeginJava
-                    setResult(null);
-          $EndJava
-        ./
-                | current 
-        /.$BeginJava
-                    setResult(nf.Binary(pos(),
-                                        nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
-                                        nf.Field(pos(), nf.Self(pos()), nf.Id(pos(), "$current"))));
-          $EndJava
-        ./
-                | PlaceExpression
+    PlaceType ::=  PlaceExpression
         /.$BeginJava
                     setResult(nf.Binary(pos(),
                                         nf.Field(pos(), nf.This(pos()), nf.Id(pos(), "loc")), Binary.EQ,
@@ -1319,15 +1307,15 @@ public static class MessageHandler implements IMessageHandler {
                     | { ExistentialListopt Conjunction } ! PlaceType
          /.$BeginJava
                     if (PlaceType != null)
-                        setResult(nf.DepParameterExpr(pos(), ExistentialListopt, nf.Binary(pos(), Conjunction, Binary.COND_AND, PlaceType)));
+                        setResult(nf.DepParameterExpr(pos(), ExistentialListopt, CollectionUtil.append(Conjunction, Collections.singletonList(PlaceType))));
 	            else
 			setResult(nf.DepParameterExpr(pos(), ExistentialListopt, Conjunction));
           $EndJava
         ./
 
-    TypeProperties ::= '[' TypePropertyList ']'
+    TypeParamsWithVariance ::= '[' TypeParamWithVarianceList ']'
         /.$BeginJava
-                    setResult(TypePropertyList);
+                    setResult(TypeParamWithVarianceList);
           $EndJava
         ./
         
@@ -1344,12 +1332,14 @@ public static class MessageHandler implements IMessageHandler {
 
     Conjunction ::= Expression
         /.$BeginJava
-                    setResult(Expression);
+                    List l = new ArrayList();
+                    l.add(Expression);
+                    setResult(l);
           $EndJava
         ./
                   | Conjunction , Expression
          /.$BeginJava
-                    setResult(nf.Binary(pos(), Conjunction, Binary.COND_AND, Expression));
+                    Conjunction.add(Expression);
           $EndJava
         ./
         
@@ -1399,30 +1389,30 @@ public static class MessageHandler implements IMessageHandler {
     ClassDeclaration ::= ValueClassDeclaration
                        | NormalClassDeclaration
         
-    NormalClassDeclaration ::= ClassModifiersopt class Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+    NormalClassDeclaration ::= ClassModifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
           checkTypeName(Identifier);
-                    List TypeParametersopt = Collections.EMPTY_LIST;
+                    List TypeParametersopt = TypeParamsWithVarianceopt;
           List/*<PropertyDecl>*/ props = Propertiesopt;
           DepParameterExpr ci = WhereClauseopt;
           FlagsNode f = extractFlags(ClassModifiersopt);
           List annotations = extractAnnotations(ClassModifiersopt);
           ClassDecl cd = nf.X10ClassDecl(pos(),
-                  f, Identifier, TypeParametersopt, TypePropertiesopt, props, ci, Superopt, Interfacesopt, ClassBody);
+                  f, Identifier, TypeParametersopt, props, ci, Superopt, Interfacesopt, ClassBody);
           cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(annotations);
           setResult(cd);
           $EndJava
         ./
 
-    ValueClassDeclaration ::= ClassModifiersopt value Identifier TypePropertiesopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+    ValueClassDeclaration ::= ClassModifiersopt value Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
         checkTypeName(Identifier);
-                    List TypeParametersopt = Collections.EMPTY_LIST;
+                    List TypeParametersopt = TypeParamsWithVarianceopt;
         List props = Propertiesopt;
         DepParameterExpr ci = WhereClauseopt;
         ClassDecl cd = (nf.X10ClassDecl(pos(getLeftSpan(), getRightSpan()),
         extractFlags(ClassModifiersopt, X10Flags.VALUE), Identifier,  TypeParametersopt,
-        TypePropertiesopt, props, ci, Superopt, Interfacesopt, ClassBody));
+        props, ci, Superopt, Interfacesopt, ClassBody));
         cd = (ClassDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(ClassModifiersopt));
         setResult(cd);
           $EndJava
@@ -1504,7 +1494,6 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-                   
                        | FieldModifiersopt FieldDeclarators ;
         /.$BeginJava
                         List FieldKeyword = Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL));
@@ -1530,6 +1519,7 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
+        
     --------------------------------------- Section :: Statement
 
     Statement ::= NonExpressionStatement
@@ -1543,7 +1533,6 @@ public static class MessageHandler implements IMessageHandler {
                 | BreakStatement
                 | ContinueStatement
                 | ReturnStatement
-                | SynchronizedStatement
                 | ThrowStatement
                 | TryStatement
                 | LabeledStatement
@@ -1963,17 +1952,17 @@ public static class MessageHandler implements IMessageHandler {
 
     
      --------------------------------------- Section :: Expression
-     TypePropertyList ::= TypeProperty
+     TypeParamWithVarianceList ::= TypeParamWithVariance
         /.$BeginJava
-                    List l = new TypedList(new LinkedList(), TypePropertyNode.class, false);
-                    l.add(TypeProperty);
+                    List l = new TypedList(new LinkedList(), TypeParamNode.class, false);
+                    l.add(TypeParamWithVariance);
                     setResult(l);
           $EndJava
         ./
-                      | TypePropertyList , TypeProperty
+                      | TypeParamWithVarianceList , TypeParamWithVariance
         /.$BeginJava
-                    TypePropertyList.add(TypeProperty);
-                    setResult(TypePropertyList);
+                    TypeParamWithVarianceList.add(TypeParamWithVariance);
+                    setResult(TypeParamWithVarianceList);
           $EndJava
         ./
         
@@ -1991,19 +1980,19 @@ public static class MessageHandler implements IMessageHandler {
           $EndJava
         ./
         
-    TypeProperty ::= Identifier
+    TypeParamWithVariance ::= Identifier
         /.$BeginJava
-                    setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.INVARIANT));
+                    setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.INVARIANT));
           $EndJava
         ./
                    | + Identifier
         /.$BeginJava
-                    setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.COVARIANT));
+                    setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.COVARIANT));
           $EndJava
         ./
                    | - Identifier
         /.$BeginJava
-                    setResult(nf.TypePropertyNode(pos(), Identifier, TypeProperty.Variance.CONTRAVARIANT));
+                    setResult(nf.TypeParamNode(pos(), Identifier, ParameterType.Variance.CONTRAVARIANT));
           $EndJava
         ./
         
@@ -2149,10 +2138,6 @@ public static class MessageHandler implements IMessageHandler {
     WhereClauseopt ::= %Empty
         /.$NullAction./
                      | WhereClause
-
-    ObjectKindopt ::= %Empty
-        /.$NullAction./
-                    | ObjectKind
 
     PlaceExpressionSingleListopt ::= %Empty
         /.$NullAction./
@@ -3330,14 +3315,6 @@ public static class MessageHandler implements IMessageHandler {
 
     -- Chapter 10
     
-    ArrayInitializer ::= '[' VariableInitializersopt ,opt$opt ']'
-        /.$BeginJava
-                    if (VariableInitializersopt == null)
-                         setResult(nf.ArrayInit(pos()));
-                    else setResult(nf.ArrayInit(pos(), VariableInitializersopt));
-          $EndJava
-        ./
-    
     VariableInitializers ::= VariableInitializer
         /.$BeginJava
                     List l = new TypedList(new LinkedList(), Expr.class, false);
@@ -4011,7 +3988,6 @@ public static class MessageHandler implements IMessageHandler {
         ./
 
     PostfixExpression ::= Primary
-                        | ArrayInitailizer
                         | ExpressionName
         /.$BeginJava
                     setResult(ExpressionName.toExpr());
@@ -4318,7 +4294,128 @@ public static class MessageHandler implements IMessageHandler {
     Expression ::= AssignmentExpression
     
     ConstantExpression ::= Expression
-    
+
+
+    PrefixOp ::= +
+        /.$BeginJava
+                    setResult(Unary.POS);
+          $EndJava
+        ./
+      | -
+        /.$BeginJava
+                    setResult(Unary.NEG);
+          $EndJava
+        ./
+      | !
+        /.$BeginJava
+                    setResult(Unary.NOT);
+          $EndJava
+        ./
+      | ~
+        /.$BeginJava
+                    setResult(Unary.BIT_NOT);
+          $EndJava
+        ./
+        
+    BinOp ::= +
+        /.$BeginJava
+                    setResult(Binary.ADD);
+          $EndJava
+        ./
+      | -
+        /.$BeginJava
+                    setResult(Binary.SUB);
+          $EndJava
+        ./
+      | *
+        /.$BeginJava
+                    setResult(Binary.MUL);
+          $EndJava
+        ./
+      | /
+        /.$BeginJava
+                    setResult(Binary.DIV);
+          $EndJava
+        ./
+      | '%'
+        /.$BeginJava
+                    setResult(Binary.MOD);
+          $EndJava
+        ./
+      | &
+        /.$BeginJava
+                    setResult(Binary.BIT_AND);
+          $EndJava
+        ./
+      | '|'
+        /.$BeginJava
+                    setResult(Binary.BIT_OR);
+          $EndJava
+        ./
+      | ^
+        /.$BeginJava
+                    setResult(Binary.BIT_XOR);
+          $EndJava
+        ./
+      | &&
+        /.$BeginJava
+                    setResult(Binary.COND_AND);
+          $EndJava
+        ./
+      | '||'
+        /.$BeginJava
+                    setResult(Binary.COND_OR);
+          $EndJava
+        ./
+      | <<
+        /.$BeginJava
+                    setResult(Binary.SHL);
+          $EndJava
+        ./
+      | >>
+        /.$BeginJava
+                    setResult(Binary.SHR);
+          $EndJava
+        ./
+      | >>>
+        /.$BeginJava
+                    setResult(Binary.USHR);
+          $EndJava
+        ./
+      | >=
+        /.$BeginJava
+                    setResult(Binary.GE);
+          $EndJava
+        ./
+      | <=
+        /.$BeginJava
+                    setResult(Binary.LE);
+          $EndJava
+        ./
+      | >
+        /.$BeginJava
+                    setResult(Binary.GT);
+          $EndJava
+        ./
+      | <
+        /.$BeginJava
+                    setResult(Binary.LT);
+          $EndJava
+        ./
+        
+      -- FIXME: == and != shouldn't be allowed to be overridden.
+              
+      | ==
+        /.$BeginJava
+                    setResult(Binary.EQ);
+          $EndJava
+        ./
+      | !=
+        /.$BeginJava
+                    setResult(Binary.NE);
+          $EndJava
+        ./
+            
     --
     -- Optional rules
     --
@@ -4533,12 +4630,12 @@ public static class MessageHandler implements IMessageHandler {
         ./
                        | TypeArguments
         
-    TypePropertiesopt ::= %Empty
+    TypeParamsWithVarianceopt ::= %Empty
         /.$BeginJava
-                    setResult(new TypedList(new LinkedList(), TypePropertyNode.class, false));
+                    setResult(new TypedList(new LinkedList(), TypeParamNode.class, false));
           $EndJava
         ./
-                       | TypeProperties
+                       | TypeParamsWithVariance
 
     Propertiesopt ::= %Empty
         /.$BeginJava
@@ -4550,132 +4647,10 @@ public static class MessageHandler implements IMessageHandler {
     ,opt ::= %Empty
         /.$NullAction./
                        | ,
-
-    PrefixOp ::= +
-        /.$BeginJava
-                    setResult(Unary.POS);
-          $EndJava
-        ./
-      | -
-        /.$BeginJava
-                    setResult(Unary.NEG);
-          $EndJava
-        ./
-      | !
-        /.$BeginJava
-                    setResult(Unary.NOT);
-          $EndJava
-        ./
-      | ~
-        /.$BeginJava
-                    setResult(Unary.BIT_NOT);
-          $EndJava
-        ./
-        
-    BinOp ::= +
-        /.$BeginJava
-                    setResult(Binary.ADD);
-          $EndJava
-        ./
-      | -
-        /.$BeginJava
-                    setResult(Binary.SUB);
-          $EndJava
-        ./
-      | *
-        /.$BeginJava
-                    setResult(Binary.MUL);
-          $EndJava
-        ./
-      | /
-        /.$BeginJava
-                    setResult(Binary.DIV);
-          $EndJava
-        ./
-      | %
-        /.$BeginJava
-                    setResult(Binary.MOD);
-          $EndJava
-        ./
-      | &
-        /.$BeginJava
-                    setResult(Binary.BIT_AND);
-          $EndJava
-        ./
-      | '|'
-        /.$BeginJava
-                    setResult(Binary.BIT_OR);
-          $EndJava
-        ./
-      | ^
-        /.$BeginJava
-                    setResult(Binary.BIT_XOR);
-          $EndJava
-        ./
-      | &&
-        /.$BeginJava
-                    setResult(Binary.COND_AND);
-          $EndJava
-        ./
-      | '||'
-        /.$BeginJava
-                    setResult(Binary.COND_OR);
-          $EndJava
-        ./
-      | <<
-        /.$BeginJava
-                    setResult(Binary.SHL);
-          $EndJava
-        ./
-      | >>
-        /.$BeginJava
-                    setResult(Binary.SHR);
-          $EndJava
-        ./
-      | >>>
-        /.$BeginJava
-                    setResult(Binary.USHR);
-          $EndJava
-        ./
-      | >=
-        /.$BeginJava
-                    setResult(Binary.GE);
-          $EndJava
-        ./
-      | <=
-        /.$BeginJava
-                    setResult(Binary.LE);
-          $EndJava
-        ./
-      | >
-        /.$BeginJava
-                    setResult(Binary.GT);
-          $EndJava
-        ./
-      | <
-        /.$BeginJava
-                    setResult(Binary.LT);
-          $EndJava
-        ./
-        
-      -- FIXME: == and != shouldn't be allowed to be overridden.
-              
-      | ==
-        /.$BeginJava
-                    setResult(Binary.EQ);
-          $EndJava
-        ./
-      | !=
-        /.$BeginJava
-                    setResult(Binary.NE);
-          $EndJava
-        ./
 %End
 
 %Types
     Object ::= ,opt
-             | ObjectKind
-             | ObjectKindopt
     Expr ::= PlaceType
     SourceFile ::= CompilationUnit
     polyglot.ast.Lit ::= Literal
@@ -4683,6 +4658,8 @@ public static class MessageHandler implements IMessageHandler {
     TypeNode ::= AnnotatedType
     TypeNode ::= NamedType
     TypeNode ::= ClassType
+    TypeNode ::= InterfaceType
+    TypeNode ::= FunctionType
     ParsedName ::= SimpleName
     PackageNode ::= PackageDeclarationopt | PackageDeclaration
     List ::= ImportDeclarationsopt | ImportDeclarations
@@ -4744,7 +4721,6 @@ public static class MessageHandler implements IMessageHandler {
     ClassBody ::= InterfaceBody
     List ::= InterfaceMemberDeclarationsopt | InterfaceMemberDeclarations
     List ::= InterfaceMemberDeclaration
-    ArrayInit ::= ArrayInitializer
     List ::= VariableInitializers
     Block ::= Block
     List ::= BlockStatementsopt | BlockStatements
@@ -4811,7 +4787,6 @@ public static class MessageHandler implements IMessageHandler {
     ParsedName ::= PackageOrTypeName
     Initializer ::= InstanceInitializer
     TypeNode ::= ResultType
-    List ::= FormalParameters
     List ::= ExceptionTypeList
     TypeNode ::= ExceptionType
     ParsedName ::= SimpleTypeName
@@ -4861,16 +4836,16 @@ public static class MessageHandler implements IMessageHandler {
     AnnotationNode ::= Annotation
     Block ::= ClosureBody
     Stmt ::= LastExpression
-    Expr ::= Conjunction
+    List ::= Conjunction
     Expr ::= ClosureExpression
     List ::=  TypeArguments | TypeArgumentsopt
     TypeParamNode ::= TypeParameter
     List ::=  TypeParameterList
     List ::=  TypeParameters | TypeParametersopt
-    TypePropertyNode ::= TypeProperty
+    TypeParamNode ::= TypeParamWithVariance
     TypeNode ::= ResultTypeopt
-    List ::=  TypePropertyList
-    List ::= TypeProperties | TypePropertiesopt
+    List ::=  TypeParamWithVarianceList
+    List ::= TypeParamsWithVariance | TypeParamsWithVarianceopt
     List ::=  TypeArgumentList
     Id ::= Identifier
     List ::= IdentifierList

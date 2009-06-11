@@ -11,9 +11,7 @@ package x10.types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-import x10.core.fun.Fun_0_1;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XFormula_c;
@@ -23,6 +21,7 @@ import x10.constraint.XPromise;
 import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
+import x10.core.fun.Fun_0_1;
 
 // new List[int{self==x}]();
 // ->
@@ -48,7 +47,7 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             return base.isSubtype(o);
         ConstrainedType<?> ct = (ConstrainedType<?>) o;
         try {
-            return base.isSubtype(ct.base) && ct.constraint.entails(constraint);
+            return base.isSubtype(ct.base) && ct.constraint.entails(constraint, null);
         } catch (XFailure e) {
             // The base.isSubtype test has succeeded
             return false;
@@ -161,17 +160,6 @@ public class ConstrainedType<T> extends RuntimeType<T> {
             XTerm rterm = trans(r);
             n.arguments = Arrays.asList(new XTerm[] { lterm, rterm });
             return n;
-        }
-
-        @Override
-        public boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure {
-            boolean fresh = super.saturate(c, visited);
-            if (fresh) {
-                for (XTerm arg : this.arguments()) {
-                    arg.saturate(c, visited);
-                }
-            }
-            return fresh;
         }
 
         @Override

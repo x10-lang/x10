@@ -25,7 +25,6 @@ import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
@@ -88,13 +87,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         StructType ref = fi.container().get();
 
         X10TypeSystem xts = (X10TypeSystem) ref.typeSystem();
-        if (xts.isValueType(ref) && !fi.flags().isFinal()) {
+        X10Context context = (X10Context) tc.context();
+        if (xts.isValueType(ref, context) && !fi.flags().isFinal()) {
             throw new SemanticException("Cannot declare a non-final field in a value class.", position());
         }
 
         checkVariance(tc);
         
-        X10MethodDecl_c.checkVisibility(tc.typeSystem(), tc.context(), this);
+        X10MethodDecl_c.checkVisibility(tc.typeSystem(), context, this);
         
         return result;
     }
@@ -106,17 +106,17 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    cd = c.supertypeDeclarationType();
 	else
 	    cd = (X10ClassDef) c.currentClassDef();
-        final Map<Name,TypeProperty.Variance> vars = new HashMap<Name, TypeProperty.Variance>();
+        final Map<Name,ParameterType.Variance> vars = new HashMap<Name, ParameterType.Variance>();
         for (int i = 0; i < cd.typeParameters().size(); i++) {
     	ParameterType pt = cd.typeParameters().get(i);
-    	TypeProperty.Variance v = cd.variances().get(i);
+    	ParameterType.Variance v = cd.variances().get(i);
     	vars.put(pt.name(), v);
         }
         if (flags().flags().isFinal()) {
-            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), TypeProperty.Variance.COVARIANT, "as the type of a final field", vars, tc);
+            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.COVARIANT, "as the type of a final field", vars, tc);
         }
         else {
-            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), TypeProperty.Variance.INVARIANT, "as the type of a non-final field", vars, tc);
+            X10MethodDecl_c.checkVariancesOfType(type.position(), type.type(), ParameterType.Variance.INVARIANT, "as the type of a non-final field", vars, tc);
         }
     }
 
@@ -245,6 +245,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	            X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	            X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	            X10Context context = (X10Context) tc.context();
 	            
 	            X10FieldDecl_c n = this;
 
@@ -267,10 +268,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                         if (t.isDouble()) {
                             e = (Expr) nf.FloatLit(position(), FloatLit.DOUBLE, 0.0).del().typeCheck(tc).checkConstants(tc);
                         }
-                        if (ts.isSubtype(t, ts.String())) {
+                        if (ts.isSubtype(t, ts.String(), tc.context())) {
                             e = (Expr) nf.StringLit(position(), "").del().typeCheck(tc).checkConstants(tc);
                         }
-                        if (ts.isReferenceType(t)) {
+                        if (ts.isReferenceType(t, context)) {
                             e = (Expr) nf.NullLit(position()).del().typeCheck(tc).checkConstants(tc);
                         }
                         

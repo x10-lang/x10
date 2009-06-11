@@ -14,6 +14,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.MethodDef;
 import polyglot.types.Named;
 import polyglot.types.ProcedureDef;
@@ -90,7 +91,7 @@ public class X10ClassBody_c extends ClassBody_c {
         // Remove overridden methods.
         for (ListIterator<MethodInstance> i = l.listIterator(); i.hasNext(); ) {
             MethodInstance mi = i.next();           
-            MethodInstance mj = ts.findImplementingMethod(cd.asType(), mi, true);
+            MethodInstance mj = ts.findImplementingMethod(cd.asType(), mi, true, tc.context());
             if (mj != null && mj.def() != mi.def())
                 i.remove();
         }
@@ -112,16 +113,16 @@ public class X10ClassBody_c extends ClassBody_c {
                 if (! mi.name().equals(mj.name()))
                     continue;
 
-                for (MethodInstance mik : mi.implemented()) {
+                for (MethodInstance mik : mi.implemented(tc.context())) {
                     X10MethodInstance mk = (X10MethodInstance) mik;
                     if (mk.def() == mi.def()) continue;
 
-                    for (MethodInstance mjl : mj.implemented()) {
+                    for (MethodInstance mjl : mj.implemented(tc.context())) {
                         X10MethodInstance ml = (X10MethodInstance) mjl;
                         if (ml.def() == mj.def()) continue;
                         if (ml.def() == mk.def()) continue;
 
-                        if (hasCompatibleArguments(mk.x10Def(), ml.x10Def()) && isParameterized(mk.x10Def()) && isParameterized(ml.x10Def())) {
+                        if (hasCompatibleArguments(mk.x10Def(), ml.x10Def(), tc.context()) && isParameterized(mk.x10Def()) && isParameterized(ml.x10Def())) {
                             throw new SemanticException("Method " + mj.signature() + " in " + mj.container() + " and method " + mi.signature() + " in " + mi.container()
                                                         + " override methods with compatible signatures.", mi.position());
                         }
@@ -146,7 +147,7 @@ public class X10ClassBody_c extends ClassBody_c {
             for (int j = i+1; j < l.size(); j++) {
                 X10ConstructorDef cj = (X10ConstructorDef) l.get(j);
                 
-                if (hasCompatibleArguments(ci, cj)) {
+                if (hasCompatibleArguments(ci, cj, tc.context())) {
                     throw new SemanticException("Duplicate constructor \"" + cj + "\"; previous declaration at " + ci.position() + ".", cj.position());
                 }
             }
@@ -167,7 +168,7 @@ public class X10ClassBody_c extends ClassBody_c {
             for (int j = i+1; j < l.size(); j++) {
                 X10MethodDef mj = (X10MethodDef) l.get(j);
         
-                if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj)) {
+                if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
                     throw new SemanticException("Duplicate method \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position());
                 }
             }
@@ -191,7 +192,7 @@ public class X10ClassBody_c extends ClassBody_c {
         return false;
     }
 
-    public static boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2) {
+    public static boolean hasCompatibleArguments(X10ProcedureDef p1, X10ProcedureDef p2, Context context) {
         if (p1.typeParameters().size() != p2.typeParameters().size())
             return false;
         
@@ -223,7 +224,7 @@ public class X10ClassBody_c extends ClassBody_c {
                 t2 = ct.x10Def().asType();
             }
             
-            if (! ts.typeEquals(t1, t2))
+            if (! ts.typeEquals(t1, t2, context))
                 return false;
         }
         
@@ -243,7 +244,7 @@ public class X10ClassBody_c extends ClassBody_c {
             for (int j = i + 1; j < l.size(); j++) {
                 TypeDef mj = l.get(j);
 
-                if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj)) {
+                if (mi.name().equals(mj.name()) && hasCompatibleArguments(mi, mj, tc.context())) {
                     throw new SemanticException("Duplicate type definition \"" + mj + "\"; previous declaration at " + mi.position() + ".", mj.position());
                 }
             }

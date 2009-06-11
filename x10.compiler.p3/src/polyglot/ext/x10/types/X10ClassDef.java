@@ -26,16 +26,16 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     /** The class invariant. */
     Ref<XConstraint> classInvariant();
     void setClassInvariant(Ref<XConstraint> classInvariant);
-    
+
+    Ref<TypeConstraint> typeBounds() ;
+    void setTypeBounds(Ref<TypeConstraint> c) ;
+
     /** Properties defined in the class.  Subset of fields(). */
     List<X10FieldDef> properties();
     
-    List<TypeProperty.Variance> variances();
+    List<ParameterType.Variance> variances();
     List<ParameterType> typeParameters();
-    void addTypeParameter(ParameterType p, TypeProperty.Variance v);
-    
-    List<TypeProperty> typeProperties();
-    void addTypeProperty(TypeProperty p);
+    void addTypeParameter(ParameterType p, ParameterType.Variance v);
     
     /** Add a member type to the class. */
     List<TypeDef> memberTypes();

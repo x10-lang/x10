@@ -373,9 +373,9 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, ClassType original) {
+	static MethodInstance getOverridingMethod(X10TypeSystem xts, ClassType localClass, MethodInstance mi, Context context) {
 		try {
-			return xts.findMethod(localClass,xts.MethodMatcher(localClass,mi.name(),mi.formalTypes()),original.def());
+			return xts.findMethod(localClass,xts.MethodMatcher(localClass,mi.name(),mi.formalTypes(), context));
 		} catch (SemanticException e) {
 			return null;
 		}
@@ -411,7 +411,7 @@ public class Emitter {
 
 		// [DC] TODO: There has to be a better way!
 		X10TypeSystem xts = (X10TypeSystem) tr.typeSystem();
-		X10ClassType original = (X10ClassType) n.container().get();
+		Context context = tr.context();
 
 		X10ClassType classType = (X10ClassType) from.container();
 		X10ClassType superClass = (X10ClassType) X10TypeMixin.baseType(classType.superClass());
@@ -419,7 +419,7 @@ public class Emitter {
 		Type returnType = null;
 
 		if (superClass != null) {
-			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,original);
+			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,context);
 			if (superMeth != null) {
 				//System.out.println(from+" overrides "+superMeth);
 				returnType = findRootMethodReturnType(n, pos, superMeth);
@@ -429,13 +429,13 @@ public class Emitter {
 		for (Type itf : interfaces) {
 			X10ClassType itf_ = (X10ClassType) itf;
 			// same thing again for interfaces
-			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,original);
+			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,context);
 			if (superMeth != null) {
 				//System.out.println(from+" implements "+superMeth);
 				Type newReturnType = findRootMethodReturnType(n, pos, superMeth);
 
 				// check -- 
-				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType)) {
+				if (returnType != null && !xts.typeDeepBaseEquals(returnType, newReturnType, context)) {
 					String msg = "Two supertypes declare " + from + " with "
 						+ "different return types: " + returnType + " != " + newReturnType;
 					tr.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, msg, pos);
@@ -865,7 +865,7 @@ public class Emitter {
                     "("+SERIALIZATION_BUFFER+"& buf, x10aux::addr_map& m) {");
 		w.newline(4); w.begin(0);
 		Type parent = type.superClass();
-		if (parent != null && ts.isValueType(parent)) {
+		if (parent != null && ts.isValueType(parent, context)) {
 			w.write(translateType(parent)+"::"+SERIALIZE_BODY_METHOD+"(buf, m);");
 			w.newline();
 		}
@@ -913,7 +913,7 @@ public class Emitter {
 		printTemplateSignature(ct.typeArguments(), w);
 		w.write("void "+klass+"::"+DESERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+"& buf) {");
 		w.newline(4); w.begin(0);
-		if (parent != null && ts.isValueType(parent)) {
+		if (parent != null && ts.isValueType(parent, context)) {
 			w.write(translateType(parent)+"::"+DESERIALIZE_BODY_METHOD+"(buf);");
 			w.newline();
 		}

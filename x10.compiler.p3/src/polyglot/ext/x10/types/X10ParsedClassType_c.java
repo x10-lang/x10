@@ -61,6 +61,7 @@ implements X10ParsedClassType
         return false;
     }
     
+    public
     TypeParamSubst subst() {
         if (subst == null)
             subst = new TypeParamSubst((X10TypeSystem) ts, typeArguments, x10Def().typeParameters());
@@ -122,7 +123,7 @@ implements X10ParsedClassType
 	        XRoot supVar = ((X10ClassType) base).x10Def().thisVar();
 	        XRoot thisVar = x10Def().thisVar();
 	        try {
-	            sup = X10MethodInstance_c.subst(sup, new XVar[] { thisVar }, new XRoot[] { supVar });
+	            sup = Subst.subst(sup, thisVar, supVar);
 	        }
 	        catch (SemanticException e) {
 	        }
@@ -132,15 +133,31 @@ implements X10ParsedClassType
 	    TypeParamSubst subst = subst();
 	    return subst.reinstantiate(sup);
 	}
-
+	
 	@Override
 	public List<Type> interfaces() {
+	    List<Type> interfaces = super.interfaces();
+	    List<Type> newInterfaces = new ArrayList<Type>(interfaces.size());
+	    for (Type sup : interfaces) {
+	        Type base = X10TypeMixin.baseType(sup);
+	        if (base instanceof X10ClassType) {
+	            XRoot supVar = ((X10ClassType) base).x10Def().thisVar();
+	            XRoot thisVar = x10Def().thisVar();
+	            try {
+	                sup = Subst.subst(sup, thisVar, supVar);
+	            }
+	            catch (SemanticException e) {
+	            }
+	        }
+	        newInterfaces.add(sup);
+	    }
+
 	    if (!hasParams())
-	        return super.interfaces();
+	        return newInterfaces;
 	    TypeParamSubst subst = subst();
-	    return subst.reinstantiate(super.interfaces());
+	    return subst.reinstantiate(newInterfaces);
 	}
-	
+
 	public boolean isIdentityInstantiation() {
 	    if (!hasParams())
 		return true;
@@ -222,24 +239,6 @@ implements X10ParsedClassType
 	    return subst.reinstantiate(l);
 	}
 	
-	public List<Type> typeProperties() {
-	    return new TransformingList<TypeProperty, Type>(x10Def().typeProperties(), new TypePropertyAsPathTypeTransform());
-	}
-	
-	public PathType typePropertiesMatching(Matcher<Named> matcher) {
-		for (TypeProperty p : x10Def().typeProperties()) {
-		    PathType t = p.asType();
-		    try {
-		        Named n = matcher.instantiate(t);
-		        if (n instanceof PathType)
-		            return (PathType) n;
-		    }
-		    catch (SemanticException e) {
-		    }
-		}
-		return null;
-	}
-
 	List<Type> typeArguments;
 	
 	public List<Type> typeArguments() {
@@ -259,10 +258,6 @@ implements X10ParsedClassType
 	@Override
 	public Named memberTypeMatching(Matcher<Named> matcher) {
 	    Named n = super.memberTypeMatching(matcher);
-	    if (n != null)
-	        return n;
-
-	    n = typePropertiesMatching(matcher);
 	    if (n != null)
 	        return n;
 	    

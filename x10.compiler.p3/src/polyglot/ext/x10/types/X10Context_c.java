@@ -44,9 +44,11 @@ package polyglot.ext.x10.types;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import polyglot.ext.x10.visit.X10Translator;
 import polyglot.main.Report;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -58,11 +60,10 @@ import polyglot.types.ImportTable;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Name;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
@@ -71,7 +72,16 @@ import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CollectionUtil;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XField;
+import x10.constraint.XFormula;
+import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XName;
+import x10.constraint.XNameWrapper;
 import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 public class X10Context_c extends Context_c implements X10Context {
 
@@ -128,8 +138,156 @@ public class X10Context_c extends Context_c implements X10Context {
 	    return null;
 	}
 	
-	protected XConstraint currentConstraint;
-	public XConstraint currentConstraint() { return currentConstraint; }
+	/* sigma(Gamma) restricted to the variables mentioned in c1,c2 */
+        public XConstraint constraintProjection(XConstraint... cs) throws XFailure {
+            HashMap<XTerm, XConstraint> m = new HashMap<XTerm, XConstraint>();
+            XConstraint r = null;
+            for (XConstraint ci : cs) {
+                XConstraint ri = constraintProjection(ci, m);
+                if (r == null)
+                    r = ri;
+                else
+                    r.addIn(ri);
+            }
+            
+            if (r == null) r = new XConstraint_c();
+            
+            XConstraint c1 = currentConstraint();
+            XConstraint sigma1 = constraintProjection(c1, m);
+            r.addIn(c1);
+            r.addIn(sigma1);
+            
+            XConstraint c2 = currentPlaceConstraint();
+            XConstraint sigma2 = constraintProjection(c2, m);
+            r.addIn(c2);
+            r.addIn(sigma2);
+
+            Type selfType = this.currentDepType();
+            if (selfType != null) {
+                XConstraint selfConstraint = X10TypeMixin.realX(selfType);
+                if (selfConstraint != null) {
+                    r.addIn(selfConstraint.substitute(r.self(), selfConstraint.self()));
+                }
+            }
+            return r;
+        }
+        
+        /* sigma(Gamma) restricted to the variables mentioned in c */
+        private XConstraint constraintProjection(XConstraint c, Map<XTerm,XConstraint> m) throws XFailure {
+            XConstraint r = new XConstraint_c();
+                for (XTerm t : c.constraints()) {
+                    XConstraint tc = constraintProjection(t, m);
+                    if (tc != null)
+                        r.addIn(tc);
+                }
+            return r;
+        }
+        
+        private XConstraint constraintProjection(XTerm t, Map<XTerm,XConstraint> m) throws XFailure {
+	    X10TypeSystem xts = (X10TypeSystem) this.ts;
+	    
+	    XConstraint r = m.get(t);
+	    if (r != null)
+	        return r;
+	    
+	    // pre-fill the cache to avoid inf recursion
+	    m.put(t, new XConstraint_c());
+
+	    if (t instanceof XLocal) {
+	        XLocal v = (XLocal) t;
+	        X10LocalDef ld = getLocal(v);
+	        if (ld != null) {
+	            Type ty = Types.get(ld.type());
+	            XConstraint ci = X10TypeMixin.realX(ty);
+	            ci = ci.substitute(v, ci.self());
+	            r = new XConstraint_c();
+	            r.addIn(ci);
+	            r.addIn(constraintProjection(ci, m));
+	        }
+	    }
+	    else if (t instanceof XLit) {
+	    }
+	    else if (t instanceof XField) {
+	        XField f = (XField) t;
+	        XTerm target = f.receiver();
+
+	        XConstraint rt = constraintProjection(target, m);
+
+	        X10FieldDef fi = getField(f);
+	        XConstraint ci = null;
+
+	        if (fi != null) {
+	            Type ty = Types.get(fi.type());
+	            ci = X10TypeMixin.realX(ty);
+	            ci = ci.substitute(f, ci.self());
+	            ci = ci.substitute(target, xts.xtypeTranslator().transThisWithoutTypeConstraint());
+	            r = new XConstraint_c();
+	            r.addIn(ci);
+	            r.addIn(constraintProjection(ci, m));
+	            if (rt != null) {
+	                r.addIn(rt);
+	            }
+	        }
+	        else {
+	            r = rt;
+	        }
+	    }
+	    else if (t instanceof XFormula) {
+	        XFormula f = (XFormula) t;
+	        for (XTerm a : f.arguments()) {
+	            XConstraint ca = constraintProjection(a, m);
+	            if (ca != null) {
+	                if (r == null) {
+	                    r = new XConstraint_c();
+	                }
+	                r.addIn(ca);
+	            }
+	        }
+	    }
+	    else {
+	        assert false : "unexpected " + t;
+	    }
+
+	    if (r != null)
+	        m.put(t, r);
+	    else
+	        m.put(t, new XConstraint_c());
+	    return r;
+        }
+
+    private X10FieldDef getField(XField f) {
+        XName n = f.field();
+        if (n instanceof XNameWrapper) {
+            XNameWrapper w = (XNameWrapper<?>) n;
+            if (w.val() instanceof X10FieldDef) {
+                return (X10FieldDef) w.val();
+            }
+        }
+        return null;
+    }
+    
+    private X10LocalDef getLocal(XLocal f) {
+        XName n = f.name();
+        if (n instanceof XNameWrapper) {
+            XNameWrapper w = (XNameWrapper<?>) n;
+            if (w.val() instanceof X10LocalDef) {
+                return (X10LocalDef) w.val();
+            }
+        }
+        return null;
+    }
+    
+    
+    
+    protected TypeConstraint currentTypeConstraint;
+    public TypeConstraint currentTypeConstraint() { if (currentTypeConstraint == null) return new TypeConstraint_c(); return currentTypeConstraint; }
+    public void setCurrentTypeConstraint(TypeConstraint c) { currentTypeConstraint = c; }
+
+    protected XConstraint currentPlaceConstraint;
+    public XConstraint currentPlaceConstraint() { if (currentPlaceConstraint == null) return new XConstraint_c(); return currentPlaceConstraint; }
+    public void setCurrentPlaceConstraint(XConstraint c) { currentPlaceConstraint = c; }
+    protected XConstraint currentConstraint;
+	public XConstraint currentConstraint() { if (currentConstraint == null) return new XConstraint_c(); return currentConstraint; }
 	public void setCurrentConstraint(XConstraint c) { currentConstraint = c; }
 
 	public CodeDef definingCodeDef(Name name) {
@@ -250,7 +408,7 @@ public class X10Context_c extends Context_c implements X10Context {
 
 	            // Found a class that has a method of the right name.
 	            // Now need to check if the method is of the correct type.
-	            return ts.findMethod(t, matcher.container(t), this.currentClassDef());
+	            return ts.findMethod(t, matcher.container(t));
 	        }
 
 	        if (outer != null) {
@@ -491,18 +649,13 @@ public class X10Context_c extends Context_c implements X10Context {
 		    return findMemberTypeInThisScope(name, mt.baseType().get());
 		}
 		try {
-		    Type t = ts.findMemberType(container, name, currentClassDef);
+		    Type t = ts.findMemberType(container, name, this);
 		    if (t instanceof Named) return (Named) t;
 		}
 		catch (SemanticException e) {
 		}
 		try {
-		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST), currentClassDef);
-		}
-		catch (SemanticException e) {
-		}
-		try {
-		    return ts.findTypeProperty(container, name, currentClassDef);
+		    return ts.findTypeDef(container, ts.TypeDefMatcher(container, name, Collections.EMPTY_LIST, Collections.EMPTY_LIST, this), this);
 		}
 		catch (SemanticException e) {
 		}
@@ -534,7 +687,7 @@ public class X10Context_c extends Context_c implements X10Context {
 		try {
 			if (depType instanceof X10ClassType) {
 				X10ClassType dep = (X10ClassType) this.depType;
-				FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name), currentClassDef());
+				FieldInstance myVi = ts.findField(dep, ts.FieldMatcher(dep, name, this));
 				if (myVi != null) {
 					return myVi;
 				}

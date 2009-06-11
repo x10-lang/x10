@@ -54,32 +54,28 @@ import x10.constraint.XVar;
  */
 public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
-	List<TypeNode> typeArgs;
 	List<Expr> arguments;
 
 	
 	/**
 	 * @param pos
+	 * @param arguments
 	 * @param target
 	 * @param name
-	 * @param arguments
 	 */
-	public AssignPropertyCall_c(Position pos, List<TypeNode> typeArgs, List<Expr> arguments) {
+	public AssignPropertyCall_c(Position pos, List<Expr> arguments) {
 		super(pos);
-		this.typeArgs = TypedList.copyAndCheck(typeArgs, TypeNode.class, true);
 		this.arguments = TypedList.copyAndCheck(arguments, Expr.class, true);
 		
 	}
 	  public Term firstChild() {
-		  return listChild(typeArgs,  listChild(arguments, null));
+		  return  listChild(arguments, null);
 	    }
 
 	/* (non-Javadoc)
 	 * @see polyglot.ast.Term#acceptCFG(polyglot.visit.CFGBuilder, java.util.List)
 	 */
 	  public List acceptCFG(CFGBuilder v, List succs) {
-		  if (! typeArgs.isEmpty())
-			  v.visitCFGList(typeArgs, listChild(arguments, this), ENTRY);
 		  v.visitCFGList(arguments, this, EXIT);
 		  return succs;
 	    }
@@ -99,25 +95,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		  return arguments;
 	  }
 	
-	/** Return a copy of this node with this.expr equal to the given expr.
-	 * @see polyglot.ext.x10.ast.Await#expr(polyglot.ast.Expr)
-	 */
-	public AssignPropertyCall typeArgs( List<TypeNode> args ) {
-		if (args == typeArgs) return this;
-		AssignPropertyCall_c n = (AssignPropertyCall_c) copy();
-		n.typeArgs = TypedList.copyAndCheck(args, TypeNode.class, true);
-		return n;
-	}
-	
-	public List<TypeNode> typeArgs() {
-	    return typeArgs;
-	}
-	
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("property");
-		if (! typeArgs.isEmpty())
-			sb.append(typeArgs);
 		sb.append("(");
 		boolean first = true;
 		for (Expr e : arguments) {
@@ -148,22 +128,14 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		// property for the class reachable through the constructor.
 		List<FieldInstance> definedProperties = 
 			((X10ParsedClassType) thisConstructor.asInstance().container()).definedProperties();
-		List<Type> definedTypeProperties = 
-		    ((X10ParsedClassType) thisConstructor.asInstance().container()).typeProperties();
 		int pSize = definedProperties.size();
 		int aSize = arguments.size();
 		if (aSize != pSize) {
 		    throw new SemanticException("The property initializer must have the same number of arguments as properties for the class.",
 		                                position());
 		}
-		int tpSize = definedTypeProperties.size();
-		int taSize = typeArgs.size();
-		if (taSize != tpSize) {
-		    throw new SemanticException("The property initializer must have the same number of type arguments as type properties for the class.",
-		                                position());
-		}
 		
-		 checkAssignments(tc, pos, thisConstructor, definedProperties, definedTypeProperties);
+		 checkAssignments(tc, pos, thisConstructor, definedProperties);
 		 
 		 List<Stmt> s = new ArrayList<Stmt>(pSize);
 
@@ -189,17 +161,22 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		 return nf.AssignPropertyBody(pos, s, thisConstructor, definedProperties).del().typeCheck(tc);
 	}
 
-	protected void checkAssignments(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties, List<Type> definedTypeProperties)
+	protected void checkAssignments(ContextVisitor tc, Position pos, X10ConstructorDef thisConstructor, List<FieldInstance> definedProperties)
 		throws SemanticException {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-		    Context ctx = tc.context();
+		    X10Context ctx = (X10Context) tc.context();
 		    if (Types.get(thisConstructor.returnType()) instanceof UnknownType) {
 		        throw new SemanticException();
 		    }
 		    
 		    Type returnType = Types.get(thisConstructor.returnType());
 		    
-		    XConstraint result = X10TypeMixin.xclause(returnType);
+//		    XConstraint result = X10TypeMixin.xclause(returnType);
+		    XConstraint result = X10TypeMixin.realX(returnType);
+		    
+		    if (result.valid())
+		        result = null;
+		    
 		    if (result != null) {
 			XConstraint known = Types.get(thisConstructor.supClause());
 			known = (known==null ? new XConstraint_c() : known.copy());
@@ -215,8 +192,6 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	Type initType = initializer.type();
 		        	final FieldInstance fii = definedProperties.get(i);
 		        	XVar prop = (XVar) ts.xtypeTranslator().trans(known, known.self(), fii);
-		        	prop.setSelfConstraint(new XRef_c<XConstraint>() {
-		        	    public XConstraint compute() { return X10TypeMixin.realX(fii.type()); } });
 
 		        	// Add in the real clause of the initializer with [self.prop/self]
 		        	XConstraint c = X10TypeMixin.realX(initType);
@@ -231,23 +206,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 		        	}
 		            }
 
-		            for (int i = 0; i < typeArgs.size(); i++) {
-		        	TypeNode tn = typeArgs.get(i);
-		        	Type pt = definedTypeProperties.get(i);
-		        	XVar prop = (XVar) ts.xtypeTranslator().trans(pt);
-		        	prop = (XVar) prop.subst(known.self(), (XRoot) prop.rootVar());
-
-		        	// Add in the real clause of the initializer with [self.prop/self]
-		        	XTerm t = ts.xtypeTranslator().trans(known, tn, (X10Context) ctx);
-		        	known.addBinding(prop, t);
-		            }
-		            
-
 		            // bind this==self; sup clause may constrain this.
 		            if (thisVar != null)
 		                known.addSelfBinding(thisVar);
 
-		            if (! known.entails(result)) {
+		            if (! known.entails(result, ctx.constraintProjection(known, result))) {
 		        	    throw new SemanticException("Instances created by this constructor satisfy " + known 
 		        	                                + "; this is not strong enough to entail the return constraint " + result,
 		        	                                position());
@@ -262,9 +225,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 	/** Visit the children of the statement. */
 	
 	    public Node visitChildren(NodeVisitor v) {
-	        List<TypeNode> typeArgs = visitList(this.typeArgs, v);
 	        List<Expr> args = visitList(this.arguments, v);
-		return typeArgs(typeArgs).args(args);
+		return args(args);
 	    }
 	    
 	    Expr expr;

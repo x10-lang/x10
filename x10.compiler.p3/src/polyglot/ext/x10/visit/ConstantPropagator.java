@@ -127,7 +127,7 @@ public class ConstantPropagator extends ContextVisitor {
         return super.leaveCall(parent, old, n, v);
     }
 
-    private Object constantValue(Expr e) {
+    public static Object constantValue(Expr e) {
         if (e.isConstant())
             return e.constantValue();
         
@@ -166,7 +166,7 @@ public class ConstantPropagator extends ContextVisitor {
         return null;
     }
 
-    private boolean isConstant(Expr e) {
+    public static boolean isConstant(Expr e) {
         if (e.isConstant())
             return true;
 

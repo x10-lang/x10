@@ -49,6 +49,7 @@ import x10.constraint.XVar;
  */
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     Ref<XConstraint> guard;
+    Ref<TypeConstraint> typeGuard;
     List<Ref<? extends Type>> typeParameters;
     List<LocalDef> formalNames;
     Ref<XTerm> body;
@@ -61,12 +62,16 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             List<Ref<? extends Type>> typeParams,
             List<Ref<? extends Type>> formalTypes,
             XRoot thisVar,
-            List<LocalDef> formalNames, Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
+            List<LocalDef> formalNames,
+            Ref<XConstraint> guard,
+            Ref<TypeConstraint> typeGuard,
+            List<Ref<? extends Type>> excTypes, Ref<XTerm> body) {
         super(ts, pos, container, flags, returnType, name, formalTypes, excTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, Ref.class, true);
         this.thisVar = thisVar;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
+        this.typeGuard = typeGuard;
         this.body = body;
     }
 
@@ -131,6 +136,15 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 
     public void setGuard(Ref<XConstraint> s) {
         this.guard = s;
+    }
+    
+    /** Constraint on type parameters. */
+    public Ref<TypeConstraint> typeGuard() {
+        return typeGuard;
+    }
+    
+    public void setTypeGuard(Ref<TypeConstraint> s) {
+        this.typeGuard = s;
     }
     
     public List<Ref<? extends Type>> typeParameters() {

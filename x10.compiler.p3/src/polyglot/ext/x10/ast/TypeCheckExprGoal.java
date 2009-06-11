@@ -21,6 +21,7 @@ import polyglot.frontend.SchedulerException;
 import polyglot.types.LazyRef;
 import polyglot.types.Type;
 import polyglot.util.CollectionUtil;
+import polyglot.util.ErrorInfo;
 import polyglot.visit.TypeChecker;
 
 public class TypeCheckExprGoal extends AbstractGoal_c {
@@ -50,6 +51,7 @@ public class TypeCheckExprGoal extends AbstractGoal_c {
 		assert g.hasBeenReached();
 		
 		if (state() == Goal.Status.RUNNING_RECURSIVE) {
+		        v.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR, "Could not infer type; possible recursive or ambiguous initialization.", n.position());
 			r.update(v.typeSystem().unknownType(n.position()));
 			return false;
 		}
@@ -76,5 +78,10 @@ public class TypeCheckExprGoal extends AbstractGoal_c {
 		catch (SchedulerException e) {
 			return false;
 		}
+	}
+
+	@Override
+	public String toString() {
+	    return name() + "[" + n + "] (" + stateString() + ")";
 	}
 }
