@@ -72,7 +72,7 @@ final class Worker(pool:Pool) implements ()=>Void {
 	}
 
 	// inner loop to help j9 jit
-	private def loop(cond:FinishState, block:Boolean):Boolean {
+	def loop(cond:FinishState, block:Boolean):Boolean {
 		for (var i:Int = 0; i < BOUND; i++) {
 			if (pool.check(cond)) return false;
 			activity = poll();
