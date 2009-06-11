@@ -16,6 +16,11 @@ import x10.util.Stack;
  */
 class Monitor {
  	/**
+ 	 * Set to false to interrupt listener thread
+ 	 */
+   	var park:Boolean;
+
+ 	/**
  	 * Instance lock
  	 */
  	private val lock = new Lock();
@@ -43,9 +48,16 @@ class Monitor {
     	val thread = Thread.currentThread();
     	threads.push(thread);
     	while (threads.contains(thread)) {
-	   		unlock();
-   			Thread.park();
-   			lock();
+	   		if (thread == Runtime.listener) {
+	   			park = true;
+		   		unlock();
+	   			while (park) NativeRuntime.event_probe();
+	   			lock();
+			} else {
+		   		unlock();
+	   			Thread.park();
+	   			lock();
+			}
 		}
     }
 
@@ -58,6 +70,7 @@ class Monitor {
     	val size = threads.size();
     	if (size > 0) {
 	    	Runtime.pool.decrease(size);
+	    	park = false;
 	    	for (var i:Int = 0; i<size; i++) Thread.unpark(threads.pop());
 	    }
     }

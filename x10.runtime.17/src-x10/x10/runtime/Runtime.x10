@@ -29,6 +29,11 @@ public value Runtime {
 	 */
 	const master = Thread.currentThread();
 	
+	/**
+	 * Listener thread should process incoming messages instead of parking
+	 */
+	const listener = (master.loc() != 0 || !NativeRuntime.local(NativeRuntime.MAX_PLACES - 1)) ? master : null;
+
 	// thread pool
 	
 	/**
@@ -74,9 +79,9 @@ public value Runtime {
 						NativeRuntime.runAt(i, c);						
 					}
 				}
-				rootFinish.waitForFinish(true);
+				rootFinish.waitForFinish(false);
 			} else {
-				pool.join(rootFinish);
+				rootFinish.waitForFinish(true);
 			}
 //		} catch (t:Throwable) {
 //			t.printStackTrace();

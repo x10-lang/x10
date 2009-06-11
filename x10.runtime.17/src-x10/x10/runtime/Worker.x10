@@ -45,7 +45,7 @@ final class Worker(pool:Pool) implements ()=>Void {
 	def poll():Activity = queue.poll() as Activity;
 
 	// steal activity from the top of the deque
-	def steal():Activity = (activity == null) ? null : (queue.steal() as Activity);
+	def steal():Activity = queue.steal() as Activity;
 
 	// push activity at the bottom of the deque
 	def push(activity:Activity):Void {
