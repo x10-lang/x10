@@ -1,3 +1,5 @@
+NOTE this file is no-longer used, it is here for historical reference only
+
 x10/runtime/NativeRuntime.cc
 x10/lang/Place.cc
 x10/runtime/Runtime.cc

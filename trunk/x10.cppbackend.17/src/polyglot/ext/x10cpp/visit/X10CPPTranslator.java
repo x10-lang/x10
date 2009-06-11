@@ -445,7 +445,7 @@ public class X10CPPTranslator extends Translator {
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
         public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
 
-        public static final String MANIFEST = "libx10lib17.mft";
+        public static final String MANIFEST = "libx10.mft";
         public static final String[] MANIFEST_LOCATIONS = new String[] {
             X10LANG,
             X10LANG+"/lib",
@@ -465,8 +465,7 @@ public class X10CPPTranslator extends Translator {
             "-L"+X10LIB+"/lib",
             "-L"+X10LANG,
             "-L"+X10LANG+"/lib", // dist
-            "-lx10lib17",
-            "-lx10rt17",
+            "-lx10",
             "-lupcrts_"+TRANSPORT,
             "-ldl",
             "-lm",

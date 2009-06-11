@@ -22,14 +22,16 @@ ifdef ENABLE_GC
   INCLUDE_DIRS += -I$(BDWGC_INCLUDE_DIR)
 endif
 
+#avoid specifying -NDEBUG twice
 ifdef OPTIMIZE
-  CXXFLAGS += -DNDEBUG
+  USE_NDEBUG := -DNDEBUG
   X10CPPFLAGS += -optimize
 endif
-
 ifdef NO_CHECKS
-	CXXFLAGS += -DNDEBUG -DNO_CHECKS
+  USE_NDEBUG := -DNDEBUG
+  CXXFLAGS += -DNO_CHECKS
 endif
+CXXFLAGS += $(USE_NDEBUG)
 
 ifdef ENABLE_CUDA
   CXXFLAGS += -DX10_USE_CUDA_HOST
@@ -37,7 +39,7 @@ ifdef ENABLE_CUDA
   ALL_CUDA_OBJECTS += x10aux/cuda/cuda_utils.o
 endif
 
-CXXFLAGS += $(INCLUDE_DIRS)
+CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
 ifeq ($(shell uname -s),AIX)
 
@@ -86,9 +88,6 @@ endif
 
 INSTDIR = $(call abspath,../../x10.dist)
 
-XRCPP_ARCHIVE = libx10rt17.a
-XRX_ARCHIVE = libx10lib17.a
-XRX_MANIFEST = libx10lib17.mft
 
 
 
@@ -96,17 +95,59 @@ XRX_MANIFEST = libx10lib17.mft
 # Targets #
 ###########
 
-all: $(X10LIB)/include/x10/x10.h $(XRCPP_ARCHIVE) 
+XRX_ARCHIVE = libx10.a
+XRX_MANIFEST = libx10.mft
 
-xrx: $(XRX_ARCHIVE)
+# if this doesn't exist, we need to build pgas first
+PGAS_SANITY_CHECK=$(X10LIB)/include/x10/x10.h
 
-.PHONY: all xrx
+# this builds everything
+xrx: $(XRX_ARCHIVE) $(PGAS_SANTIY_CHECK)
+
+.PHONY: xrx
 
 
 
-################################
-# XRCPP Manually-written Files #
-################################
+###################
+# Generated Files #
+###################
+
+# First thing to do: compile x10 files to cc,h,inc
+
+
+# A list of all .x10 files (relative to the src-cpp dir) that we should build
+# into the xrx lib.
+XRXFILES  = $(shell find ../src-x10 -name '*.x10')
+
+#enable asserts, do not look in jar for x10 files
+X10CPPFLAGS += -J-ea -rtdev -disable CheckNativeAnnotations -commandlineonly
+
+# Generate .cc .inc and .h files for all the X10 classes defined in the above
+# .x10 files.  Rebuilding occurs if the x10 backend is updated or if any of the
+# currently present x10 files are newer than the 'all-cpp-generated' file.
+# Note that nothing gets rebuilt if one of the .x10 files is deleted, however
+# this simply means there will be more symbols in the archive than there should
+# be.  This is harmless and equivalent to the old behaviour of this Makefile,
+# i.e. a make clean is needed.
+gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar
+	@echo "Regenerating XRX cc/h/inc files"
+	mkdir -p gen
+	@#prune .svn dirs (they probably don't contain *.x10 files so this is just an optimisation)
+	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | \
+	    xargs "$(INSTDIR)"/bin/x10c++ -c $(X10CPPFLAGS) -sourcepath . -d ../src-cpp/gen
+	touch $@
+
+# $(XRX_MANIFEST) is a list of all .cc files (relative to the ./gen dir) that
+# should be included in the $(XRX_ARCHIVE).
+$(XRX_MANIFEST): gen/all-cpp-generated
+	(cd gen && find * -name \*.cc -print) > $@
+
+
+
+
+##########################
+# Manually-written Files #
+##########################
 
 ALL_XRCPP_OBJECTS = \
 	x10aux/alloc.o \
@@ -155,7 +196,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Fun.o \
 	x10/lang/Iterator.o \
 	x10/lang/Iterable.o \
-	x10/lang/NullPointerException.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Ref.o \
@@ -174,48 +214,20 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/concurrent/atomic/AtomicInteger.o \
 	x10/util/concurrent/atomic/AtomicLong.o 
 
-
-$(XRCPP_ARCHIVE): $(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
-	$(AR) $(ARFLAGS) $@ $^
+ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
 
 
 
-#########################
-# XRX 'Generated' Files #
-#########################
-
-# A list of all .x10 files (relative to the src-cpp dir) that we should build
-# into the xrx lib.
-XRXFILES  = $(shell find ../src-x10 -name '*.x10')
-
-# Generate .cc .inc and .h files for all the X10 classes defined in the above
-# .x10 files.  Rebuilding occurs if the x10 backend is updated or if any of the
-# currently present x10 files are newer than the 'all-cpp-generated' file.
-# Note that nothing gets rebuilt if one of the .x10 files is deleted, however
-# this simply means there will be more symbols in the archive than there should
-# be.  This is harmless and equivalent to the old behaviour of this Makefile,
-# i.e. a make clean is needed.
-gen/all-cpp-generated: $(XRXFILES) $(INSTDIR)/lib/x10cpp.jar test.o
-	@echo "Regenerating XRX cc/h/inc files"
-	mkdir -p gen
-	cd ../src-x10 && find * -name .svn -prune -o -name \*.x10 -print | xargs "$(INSTDIR)"/bin/x10c++ $(X10CPPFLAGS) -d ../src-cpp/gen -J-ea -rtdev -sourcepath . -disable CheckNativeAnnotations -commandlineonly -c
-	touch $@
-
-# $(XRX_MANIFEST) is a list of all .cc files (relative to the ./gen dir) that
-# should be included in the $(XRX_ARCHIVE).  There is a hack to ensure the
-# contents of DEPENDENCIES.txt appear before everything else.
-$(XRX_MANIFEST): gen/all-cpp-generated
-	(cd gen && find * -name \*.cc -print) | grep -f DEPENDENCIES.txt -v > gen/MANIFEST.raw
-	cat DEPENDENCIES.txt gen/MANIFEST.raw > $@
 
 # This target will build the XRX cc files into object files
 gen/all-o-generated: gen/all-cpp-generated $(XRX_MANIFEST)
-	CXXFLAGS="$(CXXFLAGS) -Igen" $(MAKE) $(MAKEFLAGS) $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST))
+	$(MAKE) $(MAKEFLAGS) $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST))
 	touch $@
 
-$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)
-	cd gen && $(AR) $(ARFLAGS) $@ $(shell sed -e 's@.cc$$@.o@' $(XRX_MANIFEST))
-	@-cp gen/$@ .
+$(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST) $(ALL_MANUAL_OBJECTS)
+	$(AR) $(ARFLAGS) $@ \
+	    $(shell sed -e 's@^\(.*\).cc$$@gen/\1.o@' $(XRX_MANIFEST)) \
+            $(ALL_MANUAL_OBJECTS)
 
 # The dummy files are needed to avoid rebuilds so must not be removed as
 # intermediate files usually are.
@@ -223,7 +235,7 @@ $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)
 
 
 
-################### 
+################## 
 # Install Targets #
 ###################
 
@@ -241,7 +253,6 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	find x10 -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	find x10aux -name \*.h | tar cf - $(INC_FLAG) | (cd $(INSTDIR)/include && tar xvf -)
 	cp -p x10rt17.h $(INSTDIR)/include
-	cp -p $(XRCPP_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_MANIFEST) $(INSTDIR)/lib
 
@@ -253,7 +264,15 @@ install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 # Standard Stuff #
 ##################
 
-%.o: %.cc %.h
+# disable default rules
+%:%.o
+%:%.c
+%:%.cc
+
+# want to make sure the x10 code has been compiled to cc,h,inc since the
+# manually written code may #include some of the generated headers
+
+%.o: %.cc %.h gen/all-cpp-generated 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 
@@ -261,16 +280,21 @@ depend:
 	find . -name gen -prune -o \( -name '*.cc' -o -name '*.h' \) -print0 | xargs -r0 makedepend -I $(INCLUDE_DIRS) -fdepend.mk 
 
 
-clean:
-	find . -name gen -prune -o \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t rm -fr
-	rm -rf gen $(XRCPP_ARCHIVE) $(XRX_ARCHIVE) $(XRX_MANIFEST)
+#nuke only object code
+cleanobj:
+	find . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | xargs -0 -t rm -fr
 
+#nuke everything
+cleangen:
+	rm -rf gen $(XRX_ARCHIVE) $(XRX_MANIFEST)
+
+clean: cleanobj cleangen
 
 squeakyclean: clean
 	find . \( -name '*~' -o -name '*.bak' \) -print0 | xargs -r0 -t rm -f
 
 
-.PHONY: depend clean squeakyclean
+.PHONY: depend clean cleanobj cleangen squeakyclean
 
 
 # Optional file -- generated by makedepend (run "make depend").
