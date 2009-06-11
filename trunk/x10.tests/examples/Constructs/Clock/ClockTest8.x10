@@ -62,7 +62,7 @@ public class ClockTest8 extends x10Test {
 	}
 
 	public static def main(var args: Rail[String]): void = {
-		new ClockTest8_MustFailRun().executeAsync();
+		new ClockTest8().executeAsync();
 	}
 
 	static class BoxedClock {
