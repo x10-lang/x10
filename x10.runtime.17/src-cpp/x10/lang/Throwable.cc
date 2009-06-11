@@ -245,6 +245,10 @@ static void *__init_bfd_ = __init_bfd();
 #endif // __GLIBC_
 
 
+#if !defined(__GLIBC__) && defined(_AIX)
+extern "C" int mt__trce(int, int, void*, int);
+#endif
+
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
 #ifdef __GLIBC__
     if (FMGL(trace_size) <= 0) {
@@ -277,8 +281,14 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     ::free(messages); // malloced by backtrace_symbols
     return rail;
 #else
+#if defined(_AIX)
+	mt__trce(1, 0, NULL, 0);
+    const char *msg = "Stacktrace dumped to stdout.";
+    return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
+#else	
     const char *msg = "No stacktrace available for your compiler.  So cry your heart out.";
     return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
+#endif
 #endif
 }
 
