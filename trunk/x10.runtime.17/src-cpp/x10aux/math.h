@@ -2,6 +2,9 @@
 #define X10AUX_MATH_H
 
 // Include the system math.h and then undef all the crud
+#ifdef __sparc__
+#  define __C99FEATURES__
+#endif
 #include <math.h>
 
 // expose some of the below as constants and functions in the x10aux::math namespace
@@ -17,6 +20,12 @@
 #ifdef log2
 #  define SAVE_LOG2
 #endif
+#ifdef isinf
+#  define SAVE_FLOAT_FUNCS
+#endif
+#ifdef isfinite
+#  define SAVE_EXTRA_FLOAT_FUNCS
+#endif
 namespace x10aux {
     namespace math {
         #define SAVE_MATH_FUNC1(type, name) \
@@ -27,12 +36,26 @@ namespace x10aux {
             inline type __m_##name(double v1, double v2) { return name(v1, v2); } \
             inline type __m_##name(float v1, float v2) { return name(v1, v2); } \
             extern void __m_()
+        #define ALIAS_MATH_FUNC1(type, name) \
+            inline type name(double v) { return ::name(v); } \
+            inline type name(float v) { return ::name##f(v); } \
+            extern void __m_()
+        #define ALIAS_MATH_FUNC2(type, name) \
+            inline type name(double v1, double v2) { return ::name(v1, v2); } \
+            inline type name(float v1, float v2) { return ::name##f(v1, v2); } \
+            extern void __m_()
         #define SAVE_MATH_CONST(type, name) \
             static const type __m_##name = name
-        //SAVE_MATH_FUNC1(int, fpclassify);
-        SAVE_MATH_FUNC1(bool, isfinite);
+        #ifdef SAVE_FLOAT_FUNCS
         SAVE_MATH_FUNC1(bool, isinf);
         SAVE_MATH_FUNC1(bool, isnan);
+        #else
+        ALIAS_MATH_FUNC1(bool, isinf);
+        ALIAS_MATH_FUNC1(bool, isnan);
+        #endif
+        #ifdef SAVE_EXTRA_FLOAT_FUNCS
+        //SAVE_MATH_FUNC1(int, fpclassify);
+        SAVE_MATH_FUNC1(bool, isfinite);
         //SAVE_MATH_FUNC1(bool, isnormal);
         SAVE_MATH_FUNC1(int, signbit);
         //SAVE_MATH_FUNC2(bool, isgreater);
@@ -41,6 +64,18 @@ namespace x10aux {
         //SAVE_MATH_FUNC2(bool, islessequal);
         //SAVE_MATH_FUNC2(bool, islessgreater);
         //SAVE_MATH_FUNC2(bool, isunordered);
+        #else
+        //ALIAS_MATH_FUNC1(int, fpclassify);
+        ALIAS_MATH_FUNC1(bool, isfinite);
+        //ALIAS_MATH_FUNC1(bool, isnormal);
+        ALIAS_MATH_FUNC1(int, signbit);
+        //ALIAS_MATH_FUNC2(bool, isgreater);
+        //ALIAS_MATH_FUNC2(bool, isgreaterequal);
+        //ALIAS_MATH_FUNC2(bool, isless);
+        //ALIAS_MATH_FUNC2(bool, islessequal);
+        //ALIAS_MATH_FUNC2(bool, islessgreater);
+        //ALIAS_MATH_FUNC2(bool, isunordered);
+        #endif
         #ifdef SAVE_CONSTANTS
         #ifdef SAVE_LOG2
         inline double __m_log2(double v) { return log2(v); }
@@ -152,10 +187,12 @@ namespace x10aux {
             extern void __m_()
         #define RESTORE_MATH_CONST(type, name) \
             static const type name = __m_##name
-        //RESTORE_MATH_FUNC1(int, fpclassify);
-        RESTORE_MATH_FUNC1(bool, isfinite);
+        #ifdef SAVE_FLOAT_FUNCS
         RESTORE_MATH_FUNC1(bool, isinf);
         RESTORE_MATH_FUNC1(bool, isnan);
+        #ifdef SAVE_EXTRA_FLOAT_FUNCS
+        //RESTORE_MATH_FUNC1(int, fpclassify);
+        RESTORE_MATH_FUNC1(bool, isfinite);
         //RESTORE_MATH_FUNC1(bool, isnormal);
         RESTORE_MATH_FUNC1(int, signbit);
         //RESTORE_MATH_FUNC2(bool, isgreater);
@@ -164,6 +201,8 @@ namespace x10aux {
         //RESTORE_MATH_FUNC2(bool, islessequal);
         //RESTORE_MATH_FUNC2(bool, islessgreater);
         //RESTORE_MATH_FUNC2(bool, isunordered);
+        #endif
+        #endif
         #ifdef SAVE_CONSTANTS
         #ifdef SAVE_LOG2
         inline double log2(double v) { return __m_log2(v); }
