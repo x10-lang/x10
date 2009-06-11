@@ -64,6 +64,11 @@ x10_int x10aux::num_threads() {
     return num;
 }
 
+x10_boolean x10aux::no_steals() {
+
+	return (x10_boolean) (getenv("X10_NO_STEALS") != NULL);
+
+}
 
 #include <pthread.h>
 #include <x10/lang/Iterator.h>

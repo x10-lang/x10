@@ -34,6 +34,10 @@ public value NativeRuntime {
   @Native("c++", "(x10_boolean) false")
   public const PLACE_CHECKS = true;
 
+  @Native("java", "x10.runtime.impl.java.Runtime.NO_STEALS")
+  @Native("c++", "x10aux::no_steals()")
+  public const NO_STEALS = false;
+
   @Native("java", "x10.runtime.impl.java.Runtime.MAX_PLACES")
   @Native("c++", "x10aux::num_places()")
   public const MAX_PLACES = 4;

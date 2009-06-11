@@ -70,6 +70,11 @@ public abstract class Runtime implements Runnable {
 	 */
 	public static final boolean PLACE_CHECKS = !Boolean.getBoolean("x10.NO_PLACE_CHECKS");
 
+    /**
+     * Disable steals?
+     */
+    public static final boolean NO_STEALS = Boolean.getBoolean("x10.NO_STEALS");
+
 	/**
 	 * The number of places in the system
 	 */
