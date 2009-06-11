@@ -95,6 +95,8 @@ namespace x10aux {
 
     x10_int num_threads();
 
+    x10_boolean no_steals();
+
     inline void event_loop() {
         x10_wait();
     }
