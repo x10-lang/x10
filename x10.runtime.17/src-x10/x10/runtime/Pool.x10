@@ -72,6 +72,10 @@ public value Pool {
 				val i = that.size++;
 				lock.unlock();
 				assert (i < MAX);
+				if (i >= MAX) {
+					NativeRuntime.println("TOO MANY THREADS... ABORTING");
+					System.exit(1);
+				}
 				val worker = new Worker(this, i);
 				workers(i) = worker;
 				val thread = new Thread(()=>worker.apply(), "thread-" + i);
