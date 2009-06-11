@@ -30,13 +30,12 @@ import harness.x10Test;
  * clock use exceptions will
  * definitely occur, or will likely occur.
  *
- * Hence this file is renamed as *MustFailRun.x10
- *
  * @author kemal 4/2005
  */
-public class ClockTest8_MustFailRun extends x10Test {
+public class ClockTest8 extends x10Test {
 
 	public def run(): boolean = {
+		try {
 		finish async {
 			var bc: BoxedClock = new BoxedClock(Clock.make());
 			var ca: Rail[Clock] = [Clock.make(), bc.val ];
@@ -51,6 +50,13 @@ public class ClockTest8_MustFailRun extends x10Test {
 			async clocked(c4) {
 				async clocked(c2) { x10.io.Console.OUT.println("hello"); }
 			}
+		}
+		} catch (e: MultipleExceptions) {
+			x10.io.Console.OUT.println("MultipleExceptions");
+			return e.exceptions.length == 1 && e.exceptions(0) instanceof ClockUseException;
+		} catch (e: ClockUseException) {
+			x10.io.Console.OUT.println("ClockUseException");
+			return true;
 		}
 		return true;
 	}
