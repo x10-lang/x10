@@ -485,7 +485,8 @@ public class X10CPPTranslator extends Translator {
         /** These go before the files if optimize is true */
         public static final String[] preArgsOptimize = new String[] {
             "-O2",
-            USE_XLC ? DUMMY : "-finline-functions",
+            USE_XLC ? "-qinline" : "-finline-functions",
+            USE_XLC ? "-qhot" : DUMMY,
             "-DNDEBUG"
         };
 
@@ -707,6 +708,7 @@ public class X10CPPTranslator extends Translator {
         /** These go after the files */
         public static final String[] postArgsAIX = new String[] {
             USE_XLC ? "-bbigtoc" : "-Wl,-bbigtoc",
+            USE_XLC ? "-lptools_ptr" : "-Wl,-lptools_ptr",
             USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-Wl,-binitfini:poe_remote_main",
             USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-L/usr/lpp/ppe.poe/lib",
             USE_XLC || !TRANSPORT.equals("lapi") ? DUMMY : "-lmpi_r",
