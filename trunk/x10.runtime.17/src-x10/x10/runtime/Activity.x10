@@ -13,7 +13,7 @@ import x10.util.Stack;
 /**
  * @author tardieu
  */
-class Activity(finishState:FinishState, name:String) {
+class Activity(finishState:FinishState, name:String, safe:Boolean) {
 	// the finish state governing the execution of this activity
 
 	/**
@@ -36,8 +36,8 @@ class Activity(finishState:FinishState, name:String) {
 	/**
 	 * Create activity.
 	 */
-	def this(body:()=>Void, finishState:FinishState, name:String) {
-		property(finishState, name);
+	def this(body:()=>Void, finishState:FinishState, name:String, safe:Boolean) {
+		property(finishState, name, safe);
 	    this.body = body;
 	}
 
@@ -45,7 +45,7 @@ class Activity(finishState:FinishState, name:String) {
 	 * Create clocked activity.
 	 */
 	def this(body:()=>Void, finishState:FinishState, clocks:ValRail[Clock], phases:ValRail[Int], name:String) {
-		this(body, finishState, name);
+		this(body, finishState, name, false);
 	    clockPhases = new ClockPhases();
 		clockPhases.register(clocks, phases);
 	}

@@ -46,8 +46,8 @@ class FinishState {
 	 * This method returns only when all spawned activity registered with this 
 	 * FinishState have terminated either normally or abruptly.
 	 */
-	def waitForFinish():Void {
-		Runtime.pool.join(this);
+	def waitForFinish(safe:Boolean):Void {
+		if (safe) Runtime.pool.join(this);
 		latch.await();
 		if (null != exceptions) {
 			if (exceptions.size() == 1) {

@@ -66,7 +66,7 @@ public value Runtime {
 // temporary: printStackTrace call moved to Main template (native code) 
 		try {
 			if (master.loc() == 0) {
-				pool.execute(new Activity(body, rootFinish, "root"));
+				pool.execute(new Activity(body, rootFinish, "root", true));
 				pool.join(rootFinish);
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					val c = ()=>Runtime.quit();
@@ -74,7 +74,7 @@ public value Runtime {
 						NativeRuntime.runAt(i, c);						
 					}
 				}
-				rootFinish.waitForFinish();
+				rootFinish.waitForFinish(true);
 			} else {
 				pool.join(rootFinish);
 			}
@@ -113,10 +113,11 @@ public value Runtime {
 	public static def runAsync(place:Place, body:()=>Void, name:String):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn();
+		val ok = safe();
 		if (place.id == Thread.currentThread().loc()) {
-			pool.execute(new Activity(body, state, name));
+			pool.execute(new Activity(body, state, name, ok));
 		} else {
-            val c = ()=>pool.execute(new Activity(body, state, name));
+            val c = ()=>pool.execute(new Activity(body, state, name, ok));
 			NativeRuntime.runAt(place.id, c);
 		}
 	}
@@ -131,7 +132,7 @@ public value Runtime {
 	public static def runAsync(body:()=>Void, name:String):Void {
 		val state = currentState();
 		state.notifySubActivitySpawn();
-		pool.execute(new Activity(body, state, name));
+		pool.execute(new Activity(body, state, name, safe()));
 	}
 	
 	/**
@@ -290,7 +291,7 @@ public value Runtime {
 	 * Should only be called by the thread executing the current activity.
 	 */
 	public static def stopFinish():Void {
-		current().finishStack.pop().waitForFinish();
+		current().finishStack.pop().waitForFinish(safe());
 	}
 
 	/** 
@@ -299,6 +300,11 @@ public value Runtime {
 	 */
 	public static def pushException(t:Throwable):Void  {
 		currentState().pushException(t);
+	}
+	
+	private static def safe():Boolean {
+		val activity = current();
+		return activity.safe && (null == activity.clockPhases);
 	}
 }
 
