@@ -15,8 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.java_cup.internal.action_part;
-
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
