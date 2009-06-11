@@ -225,13 +225,19 @@ $(XRX_ARCHIVE): gen/all-o-generated $(XRX_MANIFEST)
 # Install Targets #
 ###################
 
+ifeq ($(findstring Usage,$(shell tar --version 2>&1)),Usage)  # non-GNU tar
+  INC_FLAG=-I
+else
+  INC_FLAG=-T
+endif
+
 # FIXME: remove the part of the rule that copies the .inc files as soon as we get rid of them..
 install: $(XRCPP_ARCHIVE) $(XRX_ARCHIVE)
 	mkdir -p $(INSTDIR)/include $(INSTDIR)/lib
-	(cd gen && find . -name \*.h | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
-	(cd gen && find . -name \*.inc | tar -T - -cf -) | tar -C $(INSTDIR)/include -xvf -
-	find x10 -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
-	find x10aux -name \*.h | tar -T - -cf - | tar -C $(INSTDIR)/include -xvf -
+	(cd gen && find . -name \*.h | tar cf - $(INC_FLAG) /dev/stdin) | (cd $(INSTDIR)/include && tar xvf -)
+	(cd gen && find . -name \*.inc | tar cf - $(INC_FLAG) /dev/stdin) | (cd $(INSTDIR)/include && tar xvf -)
+	find x10 -name \*.h | tar cf - $(INC_FLAG) /dev/stdin | (cd $(INSTDIR)/include && tar xvf -)
+	find x10aux -name \*.h | tar cf - $(INC_FLAG) /dev/stdin | (cd $(INSTDIR)/include && tar xvf -)
 	cp -p x10rt17.h $(INSTDIR)/include
 	cp -p $(XRCPP_ARCHIVE) $(INSTDIR)/lib
 	cp -p $(XRX_ARCHIVE) $(INSTDIR)/lib
