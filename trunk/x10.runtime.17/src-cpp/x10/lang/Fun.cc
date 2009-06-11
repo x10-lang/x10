@@ -138,6 +138,26 @@ namespace x10 {
         }    
 
         const RuntimeType*
+        _initRTTHelper_Fun_0_9(const RuntimeType **location,
+                               const RuntimeType *rtt0,
+                               const RuntimeType *rtt1,
+                               const RuntimeType *rtt2,
+                               const RuntimeType *rtt3,
+                               const RuntimeType *rtt4,
+                               const RuntimeType *rtt5,
+                               const RuntimeType *rtt6,
+                               const RuntimeType *rtt7,
+                               const RuntimeType *rtt8,
+                               const RuntimeType *rtt9) {
+            const char *name =  alloc_printf("x10.lang.Fun_0_9[%s,%s,%s,%s,%s,%s,%s,%s,%s,%s]",
+                                             rtt0->name(), rtt1->name(), rtt2->name(), rtt3->name(),
+                                             rtt4->name(), rtt5->name(), rtt6->name(), rtt7->name(), rtt8->name(), rtt9->name());
+            const RuntimeType *parent = Object::getRTT();
+            const RuntimeType *cand = new (alloc<RuntimeType >()) RuntimeType(name, 1, parent);
+            return RuntimeType::installRTT(location, cand);
+        }    
+
+        const RuntimeType*
         _initRTTHelper_VoidFun_0_1(const RuntimeType **location, const RuntimeType *rtt1) {
             const char *name =  alloc_printf("x10.lang.VoidFun_0_1[%s]", rtt1->name());
             const RuntimeType *parent = Object::getRTT();
