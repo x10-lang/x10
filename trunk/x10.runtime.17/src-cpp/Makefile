@@ -23,14 +23,12 @@ ifdef ENABLE_GC
 endif
 
 ifdef OPTIMIZE
-	CXXFLAGS += -O2 -finline-functions -DNDEBUG
-	CFLAGS += -O2 -finline-functions -DNDEBUG
-	X10CPPFLAGS += -optimize
+  CXXFLAGS += -DNDEBUG
+  X10CPPFLAGS += -optimize
 endif
 
 ifdef NO_CHECKS
 	CXXFLAGS += -DNDEBUG -DNO_CHECKS
-	CFLAGS += -DNDEBUG -DNO_CHECKS
 endif
 
 ifdef ENABLE_CUDA
@@ -59,6 +57,9 @@ ifeq ($(shell uname -s),AIX)
       AR = /usr/bin/ar
     endif
   else
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O2 -finline-functions
+    endif
     override CXXFLAGS += -maix64
   endif
 
@@ -71,11 +72,14 @@ ifeq ($(shell uname -s),AIX)
 
 else
 
+  ifdef OPTIMIZE
+    override CXXFLAGS += -O2 -finline-functions
+  endif
+
   override CXXFLAGS += -ansi -pedantic -Wall -Wextra -Wno-long-long -Wno-unused-parameter
   ifeq ($(shell uname -s),Linux)
     override CXXFLAGS += -pthread
   endif
-
 endif
 
 INSTDIR = $(call abspath,../../x10.dist)
