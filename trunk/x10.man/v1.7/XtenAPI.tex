@@ -34,40 +34,15 @@ public class Ref(location: Place) {
 \begin{xten}
 package x10.lang;
 
-public value Boolean { }
+public value Boolean { ... }
 \end{xten}
 
-\section{Arithmetic}
+\section{Char}
 
 \begin{xten}
-public interface Arithmetic[T] {
-    add(x: T): T;
-    sub(x: T): T;
-    mul(x: T): T;
-    div(x: T): T;
-    mod(x: T): T;
-    cosub(x: T): T;
-    codiv(x: T): T;
-    neginv(): T;
-    mulinv(): T;
-}
+package x10.lang;
 
-public interface Zero[T] { static def zero(): T; }
-public interface Unit[T] { static def unit(): T; }
-\end{xten}
-
-
-\section{Comparable}
-
-\begin{xten}
-public interface Comparable[T] {
-    eq(x: T): Boolean;
-    lt(x: T): Boolean;
-    gt(x: T): Boolean;
-    le(x: T): Boolean;
-    ge(x: T): Boolean;
-    ne(x: T): Boolean;
-}
+public value Char { ... }
 \end{xten}
 
 \section{Numeric values types}
@@ -75,28 +50,28 @@ public interface Comparable[T] {
 \begin{xten}
 package x10.lang;
 
-public value Number { }
-public value Integer { }
-
-public value Byte    extends Integer { }
-public value Short   extends Integer { }
-public value Char    extends Integer { }
-public value Int     extends Integer implements
-    Arithmetic[Int], Zero[Int], Unit[Int]{ }
-public value Long    extends Integer implements
-    Arithmetic[Long], Zero[Long], Unit[Long] { }
-public value Float   extends Number  implements
-    Arithmetic[Float], Zero[Float], Unit[Float] { }
-public value Double  extends Number  implements
-    Arithmetic[Double], Zero[Double], Unit[Double] { }
+public value Byte   { ... }
+public value Short  { ... }
+public value Int    { ... }
+public value Long   { ... }
+public value UByte  { ... }
+public value UShort { ... }
+public value UInt   { ... }
+public value ULong  { ... }
+public value Float  { ... }
+public value Double { ... }
 
 // Type aliases
 public type boolean = Boolean;
+public type char = Char;
 public type byte = Byte;
 public type short = Short;
-public type char = Char;
 public type int = Int;
 public type long = Long;
+public type ubyte = UByte;
+public type ushort = UShort;
+public type uint = UInt;
+public type ulong = ULong;
 public type float = Float;
 public type double = Double;
 
@@ -104,6 +79,12 @@ public type Int8    = Byte;
 public type Int16   = Short;
 public type Int32   = Int;
 public type Int64   = Long;
+
+public type UInt8   = UByte;
+public type UInt16  = UShort;
+public type UInt32  = UInt;
+public type UInt64  = ULong;
+
 public type Float32 = Float;
 public type Float64 = Double;
 
@@ -115,26 +96,6 @@ public type Int    (x: Int)     = Int    {self == x};
 public type Long   (x: Long)    = Long   {self == x};
 public type Float  (x: Float)   = Float  {self == x};
 public type Double (x: Double)  = Double {self == x};
-
-public type Byte  (lo: Byte,   hi: Byte)  
-          = Byte  {lo <= self, self <= hi};
-public type Short (lo: Short,  hi: Short) 
-          = Short {lo <= self, self <= hi};
-public type Char  (lo: Char,   hi: Char)  
-          = Char  {lo <= self, self <= hi};
-public type Int   (lo: Int,    hi: Int)   
-          = Int   {lo <= self, self <= hi};
-public type Long  (lo: Long,   hi: Long)  
-          = Long  {lo <= self, self <= hi};
-public type Float (lo: Float,  hi: Float) 
-          = Float {lo <= self, self <= hi};
-public type Double(lo: Double, hi: Double)
-          = Double{lo <= self, self <= hi};
-
-public type Nat = Int{self >= 0};
-public type Nat(x: Int) = Nat{self >= 0 && self == x};
-public type Nat(lo: Int, hi: Int) = Nat{self >= 0 && 0 <= self && self <= hi};
-public type nat = Nat;
 \end{xten}
 
 \section{String}

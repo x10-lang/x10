@@ -36,23 +36,11 @@ type constructors, described in the remainder of the chapter:
 may be either a reference class or a value class.
 \item An interface declaration defines an \emph{interface type}
 (\Sref{InterfaceTypes}).
-\item The \emph{boxed type} constructor produces a reference
-type from a value type (\Sref{BoxedTypes}).
-\iftypeparams\else
-\item Classes and interface have \emph{type properties}, which
-are instance members and introduce \emph{path types}
-(\Sref{PathTypes}).
-A class or interface with one or more type properties is a
-\emph{generic class} or \emph{generic interface}
-(\Sref{Generics}).
-\fi
-\iftypeparams
 \item Classes and interface have \emph{type parameters}.
 A class or interface with one or more type parameters is a
 \emph{generic class} or \emph{generic interface}
 (\Sref{Generics}).  A type parameter may be used as 
 a \emph{parameter type}.
-\fi
 \item New type constructors may be defined with \emph{type definitions}
 (\Sref{TypeDefs}).
 \item Methods, constructors, closures, and type definitions may
@@ -126,20 +114,14 @@ InterfaceBaseType \: TypeName \\
         Class instances are created via
         constructor calls.  Class instances have fields and
         methods, type members, and
-\iftypeparams
-        value properties bound at construction time.
-\else
-        value and type properties bound at construction time.
-\fi
+        properties bound at construction time.
         In addition, classes have static
         members: constant fields, type definitions, and member
         classes and member interfaces.
 
-\iftypeparams
         A class with type parameters is {\em generic}.  A class
         type is legal only if all of its parameters are instantiated
         on concrete types.
-\fi
 
 \Xten{} does
 not
@@ -282,77 +264,6 @@ class Point(x: Int, y: Int) {
 
 
 
-\iftypeparams
-\else
-
-\subsection{Type properties}
-\label{TypeProperties}
-
-\index{types!type properties}
-\index{properties!type properties}
-
-        Classes and interfaces may have {\em type properties}, bound
-        to concrete types on object creation.
-        A class or interface type
-        with one or more type properties is called a {\em
-        generic type}.
-
-The following code declares a class \xcd"Cell" with a type
-property named \xcd"X".
-\begin{xten}
-class Cell[X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-    def set(x: X) = { this.x = x: }
-}
-\end{xten}
-The class has a mutable field \xcd"x", initialized by the
-constructor, and has a getter method and a setter method.
-
-This example shows that type properties are in many ways similar to
-type parameters as provided in languages such as Java and Scala.
-Type properties are types in their own right:
-they may be used in any context a type may be used,
-including in \xcd"instanceof" and cast expressions.
-
-\label{PathTypes}
-\index{types!path types}
-
-However, the key semantic distinction between type properties
-and type parameters is that type properties are instance
-members.
-% vj: fixed the text that follows Wed Jun 18 02:01:11 2008
-        Type properties introduce {\em path types}.
-        Let \xcd"o" be the object obtained by evaluating an expression
-	\xcd"e" of type \xcd"T", where 
-        \xcd"T" is a class or interface type declared with
-        a type property \xcd"X". Then \xcd"e.X" is an expression
-	which evaluates to the type \xcd"T" that \xcd"X" was bound to when 
-	\xcd"o" was created. 
-Thus, for an expression \xcd"e" of type \xcd"Cell" (\xcd"e" must be a
-final access path, see below), \xcd"e.X" is a type and \xcd"e.get()"
-returns a value of that type.
-
-Within the body of a class, a property name \xcd"X" resolves
-to \xcd"this.X" (or to \xcd"C.this.X" if \xcd"X" is a property of
-an enclosing class \xcd"C"), just as value property names are
-resolved.
-\fi
-
-\iftypeparams
-\else
-\subsection{Final access paths}
-\label{FinalAccessPath}
-\index{final access path}
-
-        To ensure soundness of the type system, the expression \xcd"e"
-	used in a path type \xcd"e.X" must be a \emph{final access
-	path}, either a final local variable or formal parameter
-	(including the special variables \xcd"this" and \xcd"self"),
-	or a final field or value property of a final access path.
-\fi
-
 \section{Type parameters}
 \label{TypeParameters}
 
@@ -364,27 +275,17 @@ resolved.
 \index{parametrized constructors}
 \index{parametrized closures}
 
-\iftypeparams
         A class, interface, method, or closure may have type parameters
         whose scope is the signature and body of the declaring
         class, interface, method,
         or closure.
-\else
-        A method, constructor, or closure may have type parameters
-        whose scope is the signature and body of the declaring method,
-        constructor or closure.
-\fi
         Similarly, a type definition may have
         type parameters that scope over the body of the type
         definition.
 
         Type parameters may be constrained by a {\em guard} on the declaration
         (\Sref{ClassGuard}, \Sref{TypeDefGuard},
-\iftypeparams\else
-        \Sref{ConstructorGuard},
-\fi
         \Sref{MethodGuard},\Sref{ClosureGuard}).
-\iftypeparams
         The type parameters of classes and interfaces must be
         bound to concrete types (possibly to a type parameter)
         for the type to be legal; thus \xcd"List[int]" and
@@ -392,17 +293,11 @@ resolved.
         not.
         The type parameters of
         methods and closures
-\else
-        The type parameters of
-        methods, constructors, and closures,
-\fi
         must be bound to
         concrete types at invocation.
         Parametrized type definitions specify new type
         constructors; the type parameters of a type definition must be bound
         to yield a type.
-
-\iftypeparams
 
 \subsection{Generic types}
 \label{Generics}
@@ -559,31 +454,19 @@ is a type.
 \index{types!path types}
 \index{final access path}
 
-\iftypeparams
 Instance member type definitions declare \emph{path types}.
-\else
-Type properties and
-instance member type definitions 
-declare \emph{path types}.
-\fi
 If the type definition is parametrized, the definition specifies
 a type constructor; instantiating the parameters yields a type.
 A path type (constructor)
 is of the form \xcd"p.X", and consists of a final access path
 \xcd"p", and a type
 member
-\iftypeparams\else
-or type property
-\fi
 \xcd"X".
 The final access path \xcd"p" must be either \xcd"this", \xcd"self", a final
 local variable, or a final field or value property whose target
 is itself a final access path.  The path must type-check 
 as a normal expression in the scope in which it appears.
 The type member
-\iftypeparams
-or property
-\fi
 \xcd"X" must be an instance member of the type of the
 path \xcd"p".
 
@@ -593,7 +476,6 @@ If an identifier \xcd"X" resolves to a type member or property
 of an enclosing class or interface \xcd"T", then \xcd"X" is equivalent to
 the path type \xcd"T.this.X".
 
-\iftypeparams
 \subsection{Final access paths}
 \label{FinalAccessPath}
 \index{final access path}
@@ -603,7 +485,6 @@ the path type \xcd"T.this.X".
 	path}, either a final local variable or formal parameter
 	(including the special variables \xcd"this" and \xcd"self"),
 	or a final field or value property of a final access path.
-\fi
 
 \section{Constrained types}
 \label{ConstrainedTypes}
@@ -620,9 +501,6 @@ the path type \xcd"T.this.X".
         Given a type \xcd"T", a {\em constrained type}
         \xcd"T{e}" may be
         constructed by constraining its
-        \iftypeparams\else
-        type and value
-        \fi
         properties with a
         boolean expression \xcd"e".
 
@@ -644,7 +522,6 @@ the path type \xcd"T.this.X".
 For brevity, the constraint may be omitted and
 interpreted as \xcd"true".
 \if 0
-\iftypeparams
 A type may also be constrained using argument lists.
 The syntax 
 \xcdmath"C(e$_1$,$\dots$,e$_n$)" is sugar for
@@ -652,26 +529,6 @@ The syntax
 where the \xcdmath"x$_i$" are the
 value properties of \xcd"C".  
 If the list of arguments is empty, it may be omitted.
-\else
-A type may also be constrained using lists of type arguments and
-value arguments.
-The syntax 
-\xcdmath"C[T$_1$,$\dots$,T$_m$](e$_1$,$\dots$,e$_n$)" is sugar for
-\xcdmath"C{X$_1$==T$_1$,$\dots$,X$_m$==T$_m$,x$_1$==e$_1$,$\dots$,x$_n$==e$_n$}"
-where \xcdmath"X$_i$" are the type properties and \xcdmath"x$_i$" are the
-value properties of \xcd"C".  
-If either list of properties is empty, it may be omitted.
-\fi
-
-\iftypeparams\else
-In this shortened syntax, a type \xcd"T" used may also be annotated
-with
-a \emph{use-site variance tag}, either \xcd"+" or \xcd"-":
-if \xcd"X" is a type property, then
-the syntax \xcd"C[+T]" is sugar \xcd"C{X<:T}" and
-\xcd"C[-T]" is sugar \xcd"C{X:>T}"; of course,
-\xcd"C[T]" is sugar \xcd"C{X==T}".
-\fi
 \fi
 
 Constraints on properties induce a natural subtyping relationship:
@@ -702,8 +559,6 @@ be solved at compile time.
 Constraints must be of type \xcd"Boolean".
 The compiler supports the following constraint syntax.
 
-\iftypeparams
-
 \begin{grammar}
 Constraint \: ValueArguments     Guard\opt \\
            \| ValueArguments\opt Guard     \\
@@ -713,22 +568,6 @@ ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
 Guard            \: \xcd"{" DepExpression \xcd"}" \\
 DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
 \end{grammar}
-
-\else
-
-\begin{grammar}
-Constraint \: TypeArguments     ValueArguments\opt Guard\opt \\
-           \| TypeArguments\opt ValueArguments     Guard\opt \\
-           \| TypeArguments\opt ValueArguments\opt Guard     \\
-           \\
-TypeArguments    \:  \xcd"[" Type ( \xcd"," Type )\star \xcd"]" \\
-ValueArguments   \:  \xcd"(" ArgumentList\opt \xcd")" \\
-ArgumentList     \:  Expression ( \xcd"," Expression )\star \\
-Guard            \: \xcd"{" DepExpression \xcd"}" \\
-DepExpression    \: ( Formal \xcd";" )\star ArgumentList \\
-\end{grammar}
-
-\fi
 
 The default \Xten{} constraint system supports equality expressions
 (\xcd"=="), conjunction (\xcd"&&"), and subtyping and supertyping (\xcd"<:" and
@@ -742,92 +581,6 @@ distributions. We envision this as a major step towards removing most,
 if not all, dynamic array bounds and place checks from \Xten{}.
 }
 
-
-\iftypeparams
-\else
-
-\subsection{Generic types}
-\label{Generics}
-\index{types!generic types}
-        A {\em generic class} is a class
-        declared with one or more type properties.  Generic
-        classes can be instantiated by constraining the type
-        properties of the base type.
-
-As with value properties, type properties may be constrained
-by predicates to produce new types.
-Type properties are constrained using type equality and
-subtyping expressions.
-
-Consider the following declaration of a \xcd"Cell" class.
-\begin{xten}
-class Cell[X] {
-    var x: X;
-    def this(x: X) { this.x = x; }
-    def get(): X = x;
-    def set(x: X) = { this.x = x: }
-}
-\end{xten}
-The following are legal types that constrain \xcd"Cell".
-
-\begin{itemize}
-\item \xcd"Cell".  This type has no constraints on \xcd"X".
-Any type that constrains \xcd"X", including the three below,
-is a subtype of \xcd"Cell".  The type \xcd"Cell" is equivalent to
-\xcd"Cell{true}".
-%
-For a \xcd"Cell" \xcd"c", the return type of the \xcd"get" method 
-is \xcd"c.X".  
-Since the property \xcd"X" is unconstrained,  
-the caller can only assign the return value of \xcd"get"
-to a variable of type \xcd"c.X" or of type \xcd"Object".
-In the following code, \xcd"y" cannot be passed to the \xcd"set" method
-because, since \xcd"X" is not bounded,
-it cannot be determined statically if \xcd"Object" is a
-subtype of \xcd"c.X".
-\begin{xten}
-val x: c.X = c.get();
-val y: Object = c.get();
-c.set(x); // legal
-c.set(y); // illegal
-\end{xten}
-
-\item \xcd"Cell{X==Float}" or \xcd"Cell[Float]".
-The type property \xcd"X" is bound to \xcd"Float".
-Assuming \xcd"c" has this type, the following code is legal:
-\begin{xten}
-val x: Float = c.get();
-c.set(1.0);
-\end{xten}
-The type of \xcd"c.get()" is \xcd"c.X", which is equivalent to
-\xcd"Float".
-Similarly, the \xcd"set" method takes a \xcd"Float" as argument.
-
-\item \xcd"Cell{X<:Int}" or \xcd"Cell[+Int]".
-This type constrains \xcd"X" to be a subtype of \xcd"Int".
-All instances of this type must bind \xcd"X" to a subtype of \xcd"Int".
-The following expressions have this type:
-\begin{xten}
-new Cell[Int](1);
-new Cell[Int{self==3}](3);
-\end{xten}
-The cell in the first expression may contain any \xcd"Int".
-The cell in the second expression may contain only \xcd"3".
-%
-If \xcd"c" has the type \xcd"Cell{X<:Int}",
-then \xcd"c.get()" has type \xcd"c.X", which is an unknown but
-fixed subtype of \xcd"Int".  The \xcd"set" method of \xcd"c" can
-only be called with an object of type \xcd"c.X".
-
-\item \xcd"Cell{X:>String}" or \xcd"Cell[-String]".  This type bounds the type property
-\xcd"X"
-from below.  The \xcd"set" method may be called with any
-supertype of \xcd"String"; the return type of the \xcd"get"
-method is known to be a
-supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
-\end{itemize}
-
-\fi
 
 
 
@@ -928,25 +681,14 @@ an invariant on all
 instances of that type.
 All the properties of the type, together with inherited properties,
 may appear in the class invariant.
-\iftypeparams
 The class invariant may also constrain the class's type parameters.
-\fi
-A guard \xcd"c" with
-\iftypeparams\else
-type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
-\fi
-value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
+A class invariant \xcd"c" with
+properties \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
 for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
 consistent and the constraint
-\iftypeparams
 \begin{xtenmath}
 $\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
 \end{xtenmath}
-\else
-\begin{xtenmath}
-$\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
-\end{xtenmath}
-\fi
 \noindent is valid (always true).
 
 With every defined class or interface \xcd"T" we associate a {\em type
@@ -1118,11 +860,7 @@ is consistent.
         types S$_i$.
 
 The
-\iftypeparams
-type and value parameters
-\else
-type and value properties
-\fi
+formal type and value parameters
 are in scope throughout the function signature---they may be
 used
 in the types of other formal parameters and in the return type.
@@ -1247,9 +985,6 @@ Similarly, \xcd"T" is a subtype of parameter \xcd"X" if the
 class invariant implies the relationship.
 
 A type parameter \xcd"X" of a method
-\iftypeparams\else
-or constructor
-\fi
 \xcd"m"
 is a subtype of a type \xcd"T" if
 the 

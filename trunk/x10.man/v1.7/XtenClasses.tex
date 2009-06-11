@@ -11,8 +11,6 @@ fields, methods, and member types.
 Each such declaration introduces a class
 type (\Sref{ReferenceTypes}).
 
-\iftypeparams
-
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
@@ -45,41 +43,6 @@ tag and an identifier.
 A type parameter must be
 bound to a concrete type when an instance of the class is created.
 
-\else
-
-\begin{grammar}
-NormalClassDeclaration \:
-      ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Guard\opt \\
-   && Super\opt Interfaces\opt ClassBody \\
-\\
-TypePropertyList     \:  \xcd"[" TypeProperties \xcd"]" \\
-TypeProperties       \:  TypeProperty ( \xcd"," TypeProperty )\star \\
-TypeProperty         \:  Annotation\star Identifier     \\
-\\
-PropertyList     \:  \xcd"(" Properties \xcd")" \\
-Properties       \:  Property ( \xcd"," Property )\star \\
-Property         \:  Annotation\star \xcd"val"\opt Identifier \xcd":" Type \\
-\\
-Super \: \xcd"extends" ClassType \\
-Interfaces \: \xcd"implements" InterfaceType ( \xcd"," InterfaceType)\star \\
-\\
-ClassBody \: ClassMember\star \\
-ClassMember \: ClassDeclaration \\
-            \| InterfaceDeclaration \\
-            \| FieldDeclaration \\
-            \| MethodDeclaration \\
-            \| ConstructorDeclaration \\
-\end{grammar}
-
-A type property declaration is given simply by an identifier.
-The type property is an instance member of the class; given
-an instance \xcd"e" of the class, \xcd"e.T" is a type.
-A type property must be
-bound to a concrete type when the instance is created.
-
-\fi
-
 
 A value property has a name and a type.   Value properties
 are accessible in the same way as \xcd"public" \xcd"final"
@@ -89,11 +52,6 @@ fields.
 It is a compile-time error for a class
 defining a value property \xcd"x: T" to have an ancestor class that defines
 a value property with the name \xcd"x".  
-\iftypeparams\else
-It is a compile-time error for a class
-defining a type property \xcd"X" to have an ancestor class that defines
-a type property with the name \xcd"X".   
-\fi
 \end{staticrule*}
 
 Each class \xcd"C" defining a property \xcd"x: T" implicitly has a field
@@ -302,7 +260,7 @@ value Complex {
 \end{xten}
 \end{example}
 
-\section{Type invariants}\label{DepType:Guard}
+\section{Type invariants}
 \index{type invariants}
 \index{guards}
 
@@ -362,8 +320,6 @@ In the general case, the production for \grammarrule{NormalClassDeclaration}
 specifies that the list of properties may be followed by a
 \grammarrule{Guard}.
 
-\iftypeparams
-
 \begin{grammar}
 NormalClassDeclaration \:
       ClassModifiers\opt \xcd"class" Identifier  \\
@@ -375,40 +331,15 @@ NormalInterfaceDeclaration \:
    && TypeParameterList\opt PropertyList\opt Guard\opt \\
    && ExtendsInterfaces\opt InterfaceBody \\
 \end{grammar}
-
-\else
-
-\begin{grammar}
-NormalClassDeclaration \:
-      ClassModifiers\opt \xcd"class" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Guard\opt \\
-   && Extends\opt Interfaces\opt ClassBody \\
-\\
-NormalInterfaceDeclaration \:
-      InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Guard\opt \\
-   && ExtendsInterfaces\opt InterfaceBody \\
-\end{grammar}
-
-\fi
 
 All the properties in the list, together with inherited properties,
 may appear in the \grammarrule{Guard}. A guard \xcd"c" with
-\iftypeparams\else
-type property list \xcdmath"X$_1$, $\dots$, X$_k$" and
-\fi
 value property list \xcdmath"x$_1$: T$_1$, $\dots$, x$_n$: T$_n$"
 for a class \xcd"C" is said to be consistent if each of the \xcdmath"T$_i$" are
 consistent and the constraint
-\iftypeparams
 \begin{xtenmath}
 $\exists$x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
 \end{xtenmath}
-\else
-\begin{xtenmath}
-$\exists$X$_1$, $\dots$, X$_k$, x$_1$: T$_1$, $\dots$, x$_n$: T$_n$, self: C. c
-\end{xtenmath}
-\fi
 \noindent is valid (always true).
 
 \section{Class definitions}
