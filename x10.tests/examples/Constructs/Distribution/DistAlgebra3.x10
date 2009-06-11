@@ -14,7 +14,7 @@ import harness.x10Test;
  * @author kemal 4/2005
  */
 
-public class DistAlgebra3_MustFailRun extends x10Test {
+public class DistAlgebra3 extends x10Test {
 
     const N = 24;
 
@@ -33,6 +33,6 @@ public class DistAlgebra3_MustFailRun extends x10Test {
     }
 
     public static def main(var args: Rail[String]): void = {
-        new DistAlgebra3_MustFailRun().execute();
+        new DistAlgebra3().execute();
     }
 }
