@@ -196,7 +196,8 @@ namespace x10aux {
     template<class T> void serialization_buffer::Write<T>::_(serialization_buffer &buf, const T &val, addr_map &) {
         // FIXME: assumes all places are same endian
         _S_("Serializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
-        *(T*) buf.cursor = val;
+        //*(T*) buf.cursor = val; // Cannot do this because of alignment
+        memcpy(buf.cursor, &val, sizeof(T));
         buf.cursor += sizeof(T);
     }
     
@@ -222,12 +223,14 @@ namespace x10aux {
 
     // default case for primitives and other things that never contain pointers
     template<class T> struct serialization_buffer::Read {
-        GPUSAFE static T &_(serialization_buffer &buf);
+        GPUSAFE static T _(serialization_buffer &buf);
     };
 
-    template<class T> T &serialization_buffer::Read<T>::_(serialization_buffer &buf) {
+    template<class T> T serialization_buffer::Read<T>::_(serialization_buffer &buf) {
         // FIXME: assumes all places are same endian
-        T &val = *(T*) buf.cursor;
+        //T &val = *(T*) buf.cursor; // Cannot do this because of alignment
+        T val;
+        memcpy(&val, buf.cursor, sizeof(T));
         buf.cursor += sizeof(T);
         _S_("Deserializing a "ANSI_SER<<TYPENAME(T)<<ANSI_RESET": "<<val<<" into buf: "<<&buf);
         return val;
