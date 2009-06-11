@@ -92,9 +92,11 @@ public class Equality {
         // Ref equality is pointer equality, which we already tested.
         if (a == null || b == null) return false;
         
+        /*
         // Except for boxed values...
         if (a instanceof Box) return a.equals(b);
         if (b instanceof Box) return b.equals(a);
+        */
         
         if (a instanceof Ref || b instanceof Ref) return false;
         
