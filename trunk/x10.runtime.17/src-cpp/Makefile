@@ -49,7 +49,9 @@ ifeq ($(shell uname -s),AIX)
     else
       override CXXFLAGS += -q32
     endif
-    override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O3 -qinline -qarch=pwr5 -qtune=pwr5 -qhot
+    endif
     override CXXFLAGS += -qrtti=all
     override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
