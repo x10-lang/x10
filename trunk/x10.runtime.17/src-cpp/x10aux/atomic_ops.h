@@ -142,8 +142,18 @@ namespace x10aux {
                    : "q" (newValue), "m" (*address), "0" (oldValue)
                    : "cc");
             return oldValue;
-#else
+#elif defined(_ARCH_PPC)
             return ppc_compareAndSet32(oldValue, address, newValue);
+#elif defined(__sparc__)
+            /* FIXME: is the memory barrier needed? */
+            __asm__ __volatile__("cas [%2], %3, %0\n\t"
+                                 "membar #StoreLoad | #StoreStore"
+                                 : "=&r" (newValue)
+                                 : "0" (newValue), "r" (address), "r" (oldValue)
+                                 : "memory");
+            return oldValue;
+#else
+#  error "Unknown architecture"
 #endif 
         }
 
@@ -159,15 +169,25 @@ namespace x10aux {
             }
             unlock();
             return curValue;
-#else            
+#else
 #if defined(__x86_64__)
             __asm ("lock cmpxchgq %2, %3"
-			: "=a" (oldValue), "+m" (*address)
-			: "q" (newValue), "m" (*address), "0" (oldValue)
-			: "cc");
-		return oldValue;
+                   : "=a" (oldValue), "+m" (*address)
+                   : "q" (newValue), "m" (*address), "0" (oldValue)
+                   : "cc");
+            return oldValue;
+#elif defined(_ARCH_PPC)
+            return ppc_compareAndSet64(oldValue, address, newValue);
+#elif defined(__sparc__)
+            /* FIXME: is the memory barrier needed? */
+            __asm__ __volatile__("casx [%2], %3, %0\n\t"
+                                 "membar #StoreLoad | #StoreStore"
+                                 : "=&r" (newValue)
+                                 : "0" (newValue), "r" (address), "r" (oldValue)
+                                 : "memory");
+            return oldValue;
 #else
-		return ppc_compareAndSet64(oldValue, address, newValue);
+#  error "Unknown architecture"
 #endif
 #endif
         }
@@ -182,4 +202,4 @@ namespace x10aux {
     };
 }
 
-#endif /* ATOMIC_OPERATIONS_HPP_ */
+#endif /* X10AUX_ATOMIC_OPS_H */
