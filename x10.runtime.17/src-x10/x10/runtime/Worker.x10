@@ -58,6 +58,7 @@ final class Worker(pool:Pool) implements ()=>Void {
 			while (loop(Runtime.rootFinish, true));
 		} catch (t:Throwable) {
 			NativeRuntime.println("Uncaught exception in worker thread");
+			t.printStackTrace();
 		} finally {
 			pool.release();
 		}
