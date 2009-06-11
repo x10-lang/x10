@@ -10,7 +10,6 @@ import harness.x10Test;
 /**
  * Testing that disjoint union of dists
  * actually checks for disjointness.
- * TODO: rename to DistAlgebra3 and check for exception
  *
  * @author kemal 4/2005
  */
@@ -25,8 +24,12 @@ public class DistAlgebra3_MustFailRun extends x10Test {
         val D3 = D | (N/2)..N-1; 
         val D4 = D2 || D3; // disjoint
         chk(D4.equals(D));
-        val D5 = D || D2; // not disjoint
-        return true;
+        try {
+            val D5 = D || D2; // not disjoint
+        } catch (IllegalOperationException e) {
+            return true;
+        }
+        return false;
     }
 
     public static def main(var args: Rail[String]): void = {
