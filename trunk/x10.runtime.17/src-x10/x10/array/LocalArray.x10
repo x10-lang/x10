@@ -156,8 +156,8 @@ final value class LocalArray[T] extends BaseArray[T] {
 
         super(d);
 
-        this.layout = (future(d.onePlace) a.layout()) .force();
-        this.raw = (future(d.onePlace) a.raw()) .force();
+        this.layout = at (d.onePlace) a.layout();
+        this.raw = at (d.onePlace) a.raw();
     }
 
 }

@@ -48,8 +48,7 @@ final value class PlaceLocal[T] implements ()=>T {
         // construct a sparsely populated rail
         val rail = Rail.makeVar[T](Place.MAX_PLACES);
         for (p:Place in places) {
-            val f = future (p) init();
-            rail(p.id) = f.force();
+            rail(p.id) = at (p) init();
         }
 
         // make an immutable value copy
