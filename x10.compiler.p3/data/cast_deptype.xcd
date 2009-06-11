@@ -1,7 +1,7 @@
 // SYNOPSIS: (#0) #1 #0=type #1=object #2=runtime type #3=depclause
 (new java.lang.Object() {
     final #0 cast(#0 self) {
-    	if (self == null) return null; 
+    	if (x10.types.Equality.equalsequals(self, null)) return null; 
         x10.types.Type rtt = #2;
         if (rtt != null && ! rtt.instanceof$(self)) throw new java.lang.ClassCastException();
         boolean sat = #3;
