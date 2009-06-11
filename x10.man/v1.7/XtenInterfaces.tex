@@ -25,25 +25,12 @@ clocks of the current activity may be specified.
 invariant. This is necessary so that programmers can build dependent
 types on top of interfaces and not just classes.
 
-\iftypeparams
-
 \begin{grammar}
 NormalInterfaceDeclaration \:
       InterfaceModifiers\opt \xcd"interface" Identifier  \\
    && TypeParameterList\opt PropertyList\opt Constraint\opt \\
    && ExtendsInterfaces\opt InterfaceBody \\
 \end{grammar}
-
-\else
-
-\begin{grammar}
-NormalInterfaceDeclaration \:
-      InterfaceModifiers\opt \xcd"interface" Identifier  \\
-   && TypePropertyList\opt PropertyList\opt Constraint\opt \\
-   && ExtendsInterfaces\opt InterfaceBody \\
-\end{grammar}
-
-\fi
 
 \noindent
 The invariant associated with an interface is the conjunction of the

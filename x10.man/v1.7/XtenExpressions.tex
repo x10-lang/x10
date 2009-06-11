@@ -14,16 +14,17 @@ Evaluation is strict and is performed left to right.
 
 \Xten{} supports the following literal expressions: 
 \begin{itemize}
-\item An 32-bit integer literal is a value of type \xcd"x10.lang.Int".
-\item An 64-bit long literal is a value of type \xcd"x10.lang.Long".
+\item A 32-bit integer literal is a value of type \xcd"x10.lang.Int".
+\item A 64-bit long literal is a value of type \xcd"x10.lang.Long".
+\item A 32-bit unsigned integer literal is a value of type \xcd"x10.lang.UInt".
+\item A 64-bit unsigned long literal is a value of type \xcd"x10.lang.ULong".
 \item A 32-bit floating-point literal is a value of type \xcd"x10.lang.Float".
 \item A 64-bit floating-point literal is a value of type \xcd"x10.lang.Double".
 \item A character literal is a value of type \xcd"x10.lang.Char".
 \item A string literal is a value of type \xcd"x10.lang.String".
 \item The boolean literals \xcd"true" and \xcd"false" are of type
 \xcd"x10.lang.Boolean".
-\item The \xcd"null" literal is of the null type,
-a subtype of all reference types.
+\item The \xcd"null" literal is of the null type, a subtype of all reference types.
 \end{itemize}
 
 \section{\Xcd{this}}
@@ -245,15 +246,22 @@ Values are sign extended and converted to instances of the
 promoted type.
 
 \begin{itemize}
-\item  The unary promotion of \xcd"Byte", \xcd"Short",
-\xcd"Int" is \xcd"Int".
+\item  The unary promotion of \xcd"Byte", \xcd"Short", and \xcd"Int" is \xcd"Int".
 \item  The unary promotion of \xcd"Long" is \xcd"Long".
 \item  The unary promotion of \xcd"Float" is \xcd"Float".
 \item  The unary promotion of \xcd"Double" is \xcd"Double".
+\item  The unary promotion of \xcd"UByte", \xcd"UShort", and \xcd"UInt" is \xcd"UInt".
+\item  The unary promotion of \xcd"ULong" is \xcd"ULong".
 \item The binary promotion of two types is the  
 greater of the unary promotion of each type
-according to the following order:
-\xcd"Int", \xcd"Long", \xcd"Float", \xcd"Double".
+according to the following partial order:
+\begin{itemize}
+\item \xcd"Int" $<$ \xcd"Long"
+\item \xcd"UInt" $<$ \xcd"ULong"
+\item \xcd"Long" $<$ \xcd"Float"
+\item \xcd"ULong" $<$ \xcd"Float"
+\item \xcd"Float" $<$ \xcd"Double"
+\end{itemize}
 \end{itemize}
 
 \section{Unary plus and unary minus}

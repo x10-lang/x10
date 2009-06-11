@@ -25,23 +25,12 @@ single-inheritance code hierarchy.  An interface specifies a set
 of methods, constant fields, and inner types.  Interfaces are
 multiply inherited.
 
-\iftypeparams
-
 \paragraph{Dependent types}
-Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
+Classes and interfaces may declare \emph{properties}: immutable object
+members bound at object construction.
 Types may be defined by constraining a
 class or interface's properties.
-\emph{Value properties} enable the definition of \emph{dependent types}.
-
-\else
-
-\paragraph{Generic and dependent types}
-Classes and interfaces may declare \emph{properties}: immutable object members bound at object construction.
-Types may be defined by constraining a
-class or interface's properties.
-\emph{Type properties} enable the definition of \emph{generic types};
-\emph{value properties} enable the definition of \emph{dependent types}.
-\fi
+\emph{Properties} enable the definition of \emph{dependent types}.
 
 For example, the following code declares a class for a two-dimensional 
 \xcd"Point" class with an \xcd"add" method.
@@ -50,7 +39,7 @@ class Point(x: Int, y: Int) {
     def add(p: Point): Point { return new Point(x+p.x,y+p.y); }
 }
 \end{xten}
-The class has integer value properties \xcd"x" and \xcd"y".
+The class has integer properties \xcd"x" and \xcd"y".
 The \xcd"add" method creates and returns a new point by
 element-wise addition.
 
@@ -59,8 +48,6 @@ From this class, we can define the
 the dependent type \xcd"Point{x==0}".  This is the type of all points 
 with \xcd"x" set to \xcd"0"; that is, all points along the $y$-axis.
 
-\iftypeparams
-
 \paragraph{Generic types}
 
 Classes and interfaces may have type parameters, permitting the definition of
@@ -68,11 +55,6 @@ Classes and interfaces may have type parameters, permitting the definition of
 For example,
 the following code declares a simple \xcd"List" class with a
 type parameter \xcd"T".
-\else
-As another example,
-the following code declares a simple \xcd"List" class with a
-type property \xcd"T".
-\fi
 
 \begin{xten}
 class List[T] {

@@ -97,9 +97,9 @@ the declared type of the variable.
 For \xcd"var" fields,
 if the initializer is omitted, the constructor must initialize
 the field, or else the field is initialized with
-\xcd"null" if a reference type \xcd"0" if an \xcd"Int", \xcd"0L"
-if a \xcd"Long",
-\xcd"0.0F" if a \xcd"Float", \xcd"0.0" if a \xcd"Double", or
+\xcd"null" if a reference type,
+\xcd"0" if an integer type,
+\xcd"0.0F" if a floating point type, or
 \xcd"false" if a \xcd"Boolean".  It is a static error if the
 default value is not a member of the type (e.g., it is a static
 error to elide the initializer for \xcd"int{self==1}").
