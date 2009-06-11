@@ -442,7 +442,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        //w.write("return NULL;");
 	        sw.end(); sw.newline();
 	        sw.write("}"); sw.newline();
-	        sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
+	        sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +" __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" + container + "::" + STATIC_INIT + ")"+ ";");
 	        sw.newline(); sw.forceNewline(0);
 	    }
 
@@ -1186,7 +1186,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 // define field that triggers initalisation-time registration of
                 // static init function
                 sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() +
-                        " = x10aux::InitDispatcher::addInitializer(" +
+                        " __attribute__((__unused__)) = x10aux::InitDispatcher::addInitializer(" +
                         className+"::"+STATIC_INIT + ")" + ";");
                 sw.newline(); sw.forceNewline(0);
                 // declare static init function in header
