@@ -192,6 +192,30 @@ public abstract value class BaseArray[T] extends Array[T] {
 
         // scatter
         val ps = dist.places();
+        val results = Rail.makeVar[T](ps.length, (p:nat) => unit);
+        finish foreach (val (p) in 0..(ps.length-1)) {
+        	results(p) = at (ps(p)) {
+        	    var result: T = unit;
+                val a = (this | here) as Array[T](rank);
+                for (pt:Point(rank) in a)
+                    result = op(result, a(pt));
+                return result;
+            };
+        }
+
+        // gather
+        var result: T = unit;
+        for (var i:int = 0; i < results.length; i++) 
+            result = op(result, results(i));
+
+        return result;
+    }            
+
+/*
+    public def reduce(op:(T,T)=>T, unit:T):T {
+
+        // scatter
+        val ps = dist.places();
         val results = Rail.makeVal[Future[T]](ps.length, (p:nat) => {
             future(ps(p)) {
                 var result: T = unit;
@@ -209,6 +233,7 @@ public abstract value class BaseArray[T] extends Array[T] {
 
         return result;
     }            
+*/
 
     // LocalArray only for now!
     incomplete public def scan(op:(T,T)=>T, unit:T): Array[T](dist);
