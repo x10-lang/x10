@@ -37,6 +37,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     protected List<LocalDef> formalNames;
     protected List<Ref<? extends Type>> throwTypes;
     protected Ref<XConstraint> guard;
+    protected Ref<TypeConstraint> typeGuard;
     protected CodeInstance<?> asInstance;
 
     public ClosureDef_c(TypeSystem ts, Position pos, 
@@ -47,7 +48,9 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             List<Ref<? extends Type>> formalTypes,
             XRoot thisVar,
             List<LocalDef> formalNames, 
-            Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
+            Ref<XConstraint> guard,
+            Ref<TypeConstraint> typeGuard,
+            List<Ref<? extends Type>> throwTypes) {
 
         super(ts, pos);
         this.typeContainer = typeContainer;
@@ -58,6 +61,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;
+        this.typeGuard = typeGuard;
         this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
     
@@ -66,7 +70,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public ClosureType asType() {
 	if (asType == null) {
 	    X10TypeSystem ts = (X10TypeSystem) this.ts;
-	    asType = ts.closureType(position(), returnType, typeParameters, formalTypes, formalNames, guard, throwTypes);
+	    asType = ts.closureType(position(), returnType, typeParameters, formalTypes, formalNames, guard, typeGuard, throwTypes);
 	}
 	return asType;
     }
@@ -142,6 +146,14 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     
     public void setGuard(Ref<XConstraint> s) {
 	    this.guard = s;
+    }
+    
+    public Ref<TypeConstraint> typeGuard() {
+        return typeGuard;
+    }
+    
+    public void setTypeGuard(Ref<TypeConstraint> s) {
+        this.typeGuard = s;
     }
     
     /**

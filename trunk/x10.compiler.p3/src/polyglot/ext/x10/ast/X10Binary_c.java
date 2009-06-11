@@ -35,9 +35,13 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.visit.ExprFlattener;
 import polyglot.ext.x10.visit.ExprFlattener.Flattener;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
@@ -72,42 +76,29 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         invert = false;
     }
 
-    /** Get the precedence of the expression. */
-    //	public Precedence precedence() {
-    //		/* [IP] TODO: This should be the real precedence */
-    //		Type l = left.type();
-    //		X10TypeSystem xts = (X10TypeSystem) l.typeSystem();
-    //		if (xts.isPoint(l) || xts.isPlace(l) || xts.isDistribution(l)
-    //				|| xts.isRegion(l) ||
-    //			xts.isPrimitiveTypeArray(l) || xts.isDistributedArray(l))
-    //		{
-    //			return Precedence.LITERAL;
-    //		}
-    //		return super.precedence();
-    //	}
-
-    public boolean isConstant() {
-        if (super.isConstant())
-            return true;
-        // [IP] An optimization: an object of a non-nullable type and "null"
-        // can never be equal.
-        Type lt = left.type();
-        Type rt = right.type();
-        X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
-        if (lt == null || rt == null)
-            return false;
-        if (operator() == Binary.EQ || operator() == Binary.NE) {
-            if (xts.isValueType(lt) && xts.isReferenceOrInterfaceType(rt))
-                return true;
-            if (xts.isReferenceOrInterfaceType(lt) && xts.isValueType(rt))
-                return true;
-            if ( xts.isValueType(lt) && rt.isNull())
-                return true;
-            if ( xts.isValueType(rt) && lt.isNull())
-                return true;
-        }
-        return false;
-    }
+	public boolean isConstant() {
+		if (super.isConstant())
+			return true;
+		// [IP] An optimization: an object of a non-nullable type and "null"
+		// can never be equal.
+		Type lt = left.type();
+		Type rt = right.type();
+		X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
+		if (lt == null || rt == null)
+			return false;
+		if (operator() == Binary.EQ || operator() == Binary.NE) {
+		    X10Context context = (X10Context) xts.emptyContext();
+		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
+			return true;
+		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
+			return true;
+		    if (xts.isValueType(lt, context) && rt.isNull())
+			return true;
+		    if (xts.isValueType(rt, context) && lt.isNull())
+			return true;
+		}
+		return false;
+	}
 
     // TODO: take care of the base cases for regions, distributions, points and places.
     public Object constantValue() {
@@ -116,63 +107,34 @@ public class X10Binary_c extends Binary_c implements X10Binary {
             return result;
         if (!isConstant())
             return null;
-
-        Object lv = left.constantValue();
-        Object rv = right.constantValue();
+        
         Type lt = left.type();
         Type rt = right.type();
         X10TypeSystem xts = (X10TypeSystem) lt.typeSystem();
-
-
-        // [IP] An optimization: an value and null can never be equal
-        if (op == EQ) {
-            if (xts.isValueType(lt) && xts.isReferenceOrInterfaceType(rt))
-                return Boolean.FALSE;
-            if (xts.isReferenceOrInterfaceType(lt) && xts.isValueType(rt))
-                return Boolean.FALSE;
-            if ( xts.isValueType(lt) && rt.isNull())
-                return Boolean.FALSE;
-            if ( xts.isValueType(rt) && lt.isNull())
-                return Boolean.FALSE;
-        }
-        if (op == NE) {
-            if (xts.isValueType(lt) && xts.isReferenceOrInterfaceType(rt))
-                return Boolean.TRUE;
-            if (xts.isReferenceOrInterfaceType(lt) && xts.isValueType(rt))
-                return Boolean.TRUE;
-            if ( xts.isValueType(lt) && rt.isNull())
-                return Boolean.TRUE;
-            if ( xts.isValueType(rt) && lt.isNull())
-                return Boolean.TRUE;
-            return null;
-        }
-        //
-        //		try {
-        //			if (xts.isDistribution(lt)) {
-        //				dist l = (dist) lv;
-        //				if (xts.isDistribution(rt)) {
-        //					if (op == COND_OR) return l.union((dist) rv);
-        //				}
-        //				if (xts.isPlace(rt)) {
-        //					if (op == BIT_OR) return l.restriction((place) rv);
-        //				}
-        //				if (xts.isRegion(rt)) {
-        //					if (op == BIT_OR) return l.restriction((region) rv);
-        //					if (op == SUB) return l.difference((region) rv);
-        //				}
-        //			}
-        //			if (xts.isRegion(lt)) {
-        //				region l = (region) lv;
-        //				if (xts.isRegion(rt)) {
-        //					region r = (region) rv;
-        //					if (op == SUB) return l.difference(r);
-        //					if (op == COND_OR) return l.union(r);
-        //					if (op == COND_AND) return l.intersection(r);
-        //				}
-        //			}
-        //		} catch (ArithmeticException e) {
-        //			// ignore div by 0
-        //		}
+		X10Context context = (X10Context) xts.emptyContext();
+		
+		// [IP] An optimization: an value and null can never be equal
+		if (op == EQ) {
+		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
+			return Boolean.FALSE;
+		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
+			return Boolean.FALSE;
+		    if ( xts.isValueType(lt, context) && rt.isNull())
+			return Boolean.FALSE;
+		    if ( xts.isValueType(rt, context) && lt.isNull())
+			return Boolean.FALSE;
+		}
+		if (op == NE) {
+		    if (xts.isValueType(lt, context) && xts.isReferenceOrInterfaceType(rt, context))
+			return Boolean.TRUE;
+		    if (xts.isReferenceOrInterfaceType(lt, context) && xts.isValueType(rt, context))
+			return Boolean.TRUE;
+		    if (xts.isValueType(lt, context) && rt.isNull())
+			return Boolean.TRUE;
+		    if (xts.isValueType(rt, context) && lt.isNull())
+			return Boolean.TRUE;
+		    return null;
+		}
         return null;
     }
 
@@ -284,20 +246,26 @@ public class X10Binary_c extends Binary_c implements X10Binary {
      */
     public Node typeCheck(ContextVisitor tc) throws SemanticException {
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
-
+        
+        Context context = tc.context();
+        
+        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+        Name methodName = binaryMethodName(op);
+        Name invMethodName = invBinaryMethodName(op);
+        
         Type l = left.type();
         Type r = right.type();
-
+        
         if (op == EQ || op == NE) {
             if (xts.isNumeric(l) && xts.isNumeric(r)) {
                 return type(xts.Boolean());
             }
 
-            if (xts.isCastValid(l, r) || xts.isCastValid(r, l)) {
+            if (xts.isCastValid(l, r, context) || xts.isCastValid(r, l, context)) {
                 return type(xts.Boolean());
             }
 
-            if (xts.isImplicitCastValid(l, r) || xts.isImplicitCastValid(r, l)) {
+            if (xts.isImplicitCastValid(l, r, context) || xts.isImplicitCastValid(r, l, context)) {
                 return type(xts.Boolean());
             }
 
@@ -305,10 +273,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                                         " operator must have operands of comparable type; the types " + l + " and " + r + " do not share any values.",
                                         position());
         }
-
-        X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        Name methodName = binaryMethodName(op);
-        Name invMethodName = invBinaryMethodName(op);
 
         X10Call_c virtual_left = null;
         X10Call_c virtual_right = null;
@@ -375,7 +339,6 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         if (static_right != null) defs.add(static_right);
 
         if (defs.size() > 1) {
-            X10TypeSystem  ts = (X10TypeSystem) tc.typeSystem();
 
             X10Call_c best = null;
 
@@ -390,14 +353,21 @@ public class X10Binary_c extends Binary_c implements X10Binary {
                         continue;
                     Type t0 = Types.get(m0.container());
                     Type ti = Types.get(mi.container());
-                    if (ts.descendsFrom(ti, t0)) {
+                    t0 = X10TypeMixin.baseType(t0);
+                    ti = X10TypeMixin.baseType(ti);
+                    
+                    if (t0 instanceof ClassType && ti instanceof ClassType) {
+                    ClassDef c0 = ((ClassType) t0).def();
+                    ClassDef ci = ((ClassType) ti).def();
+                    if (xts.descendsFrom(ci, c0)) {
                         best = n;
                     }
-                    else if (ts.descendsFrom(t0, ti)) {
+                    else if (xts.descendsFrom(c0, ci)) {
                         // best is still the best
                     }
                     else {
                         throw new SemanticException("Ambiguous operator: multiple methods match operator " + op + ".", position());
+                    }
                     }
                 }
             }
@@ -426,6 +396,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         Type r = right.type();
 
         TypeSystem ts = tc.typeSystem();
+        Context context = tc.context();
 
         if (op == GT || op == LT || op == GE || op == LE) {
             if (l.isNumeric() && r.isNumeric()) {
@@ -440,7 +411,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
         }
 
         if (op == ADD) {
-            if (ts.isSubtype(l, ts.String()) || ts.isSubtype(r, ts.String())) {
+            if (ts.isSubtype(l, ts.String(), context) || ts.isSubtype(r, ts.String(), context)) {
                 if (!ts.canCoerceToString(r, tc.context())) {
                     throw new SemanticException("Cannot coerce an expression " + 
                                                 "of type " + r + " to a String.", 
@@ -496,7 +467,7 @@ public class X10Binary_c extends Binary_c implements X10Binary {
     protected static Expr coerceToString(ContextVisitor tc, Expr e) throws SemanticException {
         TypeSystem ts = tc.typeSystem();
 
-        if (!e.type().isSubtype(ts.String())) {
+        if (!e.type().isSubtype(ts.String(), tc.context())) {
             X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
             e = nf.X10Call(e.position(), nf.CanonicalTypeNode(e.position(), ts.String()),
                            nf.Id(e.position(), Name.make("valueOf")), Collections.EMPTY_LIST,

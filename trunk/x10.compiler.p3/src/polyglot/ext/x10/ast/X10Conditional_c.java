@@ -78,10 +78,10 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        // From the JLS, section:
 	        // If the second and third operands have the same type (which may be
 	        // the null type), then that is the type of the conditional expression.
-	        if (ts.typeEquals(t1, t2))
+	        if (ts.typeEquals(t1, t2, tc.context()))
 	        	return type(t1);
 	        
-	        if (ts.typeBaseEquals(t1, t2)) {
+	        if (ts.typeBaseEquals(t1, t2, tc.context())) {
 	            return type(X10TypeMixin.baseType(t1));
 	        }
 	        
@@ -102,13 +102,13 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	            
 	            if (t1.isIntOrLess() &&
 	                    t2.isInt() &&
-	                    ts.numericConversionValid(t1, e2.constantValue())) {
+	                    ts.numericConversionValid(t1, e2.constantValue(), tc.context())) {
 	                return type(t1);
 	            }
 
 	            if (t2.isIntOrLess() &&
 	                    t1.isInt() &&
-	                    ts.numericConversionValid(t2, e1.constantValue())) {
+	                    ts.numericConversionValid(t2, e1.constantValue(), tc.context())) {
 	                return type(t2);
 	            }
 	            
@@ -132,16 +132,16 @@ public class X10Conditional_c extends Conditional_c implements X10Conditional {
 	        // if neither type is assignment compatible with the other type.
 	        
 	        if (t1.isReference() && t2.isReference()) {
-	            if (ts.isImplicitCastValid(t1, t2)) {
+	            if (ts.isImplicitCastValid(t1, t2, tc.context())) {
 	                return type(t2);
 	            }
-	            if (ts.isImplicitCastValid(t2, t1)) {
+	            if (ts.isImplicitCastValid(t2, t1, tc.context())) {
 	                return type(t1);
 	            }
 	        }
 	        
 	        try {
-	            Type t = ts.leastCommonAncestor(t1, t2);
+	            Type t = ts.leastCommonAncestor(t1, t2, tc.context());
 	            Expr n1 =  X10New_c.attemptCoercion(tc, e1, t);
 	            Expr n2 =  X10New_c.attemptCoercion(tc, e2, t);
 	            return consequent(n1).alternative(n2).type(t);

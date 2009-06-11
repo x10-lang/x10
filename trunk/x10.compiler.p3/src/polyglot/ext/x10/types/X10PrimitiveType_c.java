@@ -57,8 +57,11 @@ public class X10PrimitiveType_c extends PrimitiveType_c implements X10PrimitiveT
 	    return super.toString();
 	}
 	
-	public boolean isValueType() { return ((X10TypeSystem) typeSystem()).isValueType(this); }
-	
+	public boolean isValueType() {
+	    X10TypeSystem ts = (X10TypeSystem) typeSystem();
+	    return ts.isValueType(this, (X10Context) ts.emptyContext());
+	}
+
 	/** All primitive types are safe. */
 	public boolean safe() { return true; }
 }

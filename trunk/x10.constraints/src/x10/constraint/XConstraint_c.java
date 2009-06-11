@@ -54,6 +54,15 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
     boolean consistent = true;
     boolean valid = true;
 
+/*
+static    XName selfName = XTerms.makeFreshName("_self");
+   
+public XConstraint_c() {
+		self = genEQV(selfName, false);
+//        self = genEQV(XTerms.makeName(new Object(), "self"), false);
+    }
+*/
+
     public XConstraint_c() {
         self = genEQV(XTerms.makeFreshName("_self"), false);
 //        self = genEQV(XTerms.makeName(new Object(), "self"), false);
@@ -383,6 +392,16 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
      * @return
      */
     public boolean entails(XConstraint other) throws XFailure {
+        return entails(other, null);
+    }
+    
+    /**
+     * If other is not inconsistent, and this is consistent,
+     * checks that each binding X=t in other also exists in this.
+     * @param other
+     * @return
+     */
+    public boolean entails(XConstraint other, XConstraint sigma) throws XFailure {
         if (!consistent())
             return true;
         if (other == null || other.valid())
@@ -391,7 +410,7 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
 //        	return true;
         List<XTerm> otherConstraints = other.extConstraints();
         XRoot otherSelf = other.self();
-        return entails(otherConstraints, otherSelf);
+        return entails(otherConstraints, otherSelf, sigma);
     }
 
     public List<XTerm> constraints() {
@@ -425,47 +444,58 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         }
         return result;
     }
+    static final boolean D = false;
+    static void debug(String s) {
+        		System.out.println(s);
+    }
 
-    private boolean entails(List<XTerm> conjuncts, XRoot self) throws XFailure {
-    	XConstraint_c me = saturate();
-    	if (me == this) me = copy();
-    	if (! me.consistent()) return true;
-    	List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
+    private boolean entails(List<XTerm> conjuncts, XRoot self, final XConstraint sigma) throws XFailure {
+        
+        XConstraint_c me = copy();
+        if (sigma != null) {
+            me.addIn(sigma);
+        }
+
+        if (! me.consistent()) {
+        	return true;
+        }
+        
+        List<XTerm> subst = new ArrayList<XTerm>(conjuncts.size());
         for (XTerm term : conjuncts) {
             XTerm t = term.subst(me.self(), self);
             subst.add(t);            
         }
-        Set<XTerm> visited = new HashSet<XTerm>();
-        for (XTerm term : subst) {
-            term.saturate(me, visited);
-        }
-        visited = null; // free up for gc
-        if (! me.consistent()) return true;
+//        Set<XTerm> visited = new HashSet<XTerm>();
+//        for (XTerm term : subst) {
+//            term.saturate(me, visited);
+//        }
+//        visited = null; // free up for gc
     	for (XTerm term : subst) {
-    		if (! me.entails(term))
+    		if (! me.entails(term, (XConstraint) null))
     			return false;
     	}
-    	return true;
+    	
+       return true;
     }
 
     /** Traverse the terms in the constraint, adding in their self constraints. */
-    public XConstraint_c saturate() throws XFailure {
-        XConstraint_c c = (XConstraint_c) copy();
-        if (false) c.self = self();
-        Set<XTerm> visited = new HashSet<XTerm>();
-        for (XTerm term : constraints()) {
-            XTerm t;
-            if (!false)
-				t = term.subst(c.self(), self());
-            else
-            	t = term;
-            t.saturate(c, visited);
-        }
-        return c;
-    }
+//    public XConstraint_c saturate() throws XFailure {
+//        XConstraint_c c = (XConstraint_c) copy();
+//        if (false) c.self = self();
+//        Set<XTerm> visited = new HashSet<XTerm>();
+//        for (XTerm term : constraints()) {
+//            XTerm t;
+//            if (!false)
+//				t = term.subst(c.self(), self());
+//            else
+//            	t = term;
+//            t.saturate(c, visited);
+//        }
+//        return c;
+//    }
 
     /** Return true if this constraint entails t. */
-    boolean entails(XTerm t) throws XFailure {
+    private boolean entails(XTerm t, XConstraint sigma) throws XFailure {
         if (t instanceof XEquals) {
             XEquals f = (XEquals) t;
             XTerm left = f.left();
@@ -503,13 +533,13 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         List<XTerm> atoms = constraints();
 
         if (t.solver() != null) {
-        	if (t.solver().entails(atoms, t))
+        	if (t.solver().entails(this, t, sigma))
         		return true;
         }
-
+        
         for (XTerm ta : atoms) {
         	if (ta.solver() != null && ta.solver() != t.solver()) {
-        		if (ta.solver().entails(atoms, t))
+        		if (ta.solver().entails(this, t, sigma))
         			return true;
         	}
         }
@@ -588,14 +618,18 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
 
         return true;
     }
-
+    
     public boolean equiv(XConstraint other) throws XFailure {
-        boolean result = entails(other);
+        return equiv(other, null);
+    }
+
+    public boolean equiv(XConstraint other, XConstraint sigma) throws XFailure {
+        boolean result = entails(other, sigma);
         if (result) {
             if (other == null)
                 result = valid;
             else
-                result = other.entails(this);
+                result = other.entails(this, sigma);
         }
         return result;
     }
@@ -620,8 +654,6 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         }
         
         try {
-//            XConstraint c2 = this.substitute(this.genEQV(XTerms.makeName("xyzzy"), false), this.self());
-            c = saturate();
             c = c.substitute(c.genEQV(XTerms.makeName("self"), false), c.self());
         }
         catch (XFailure z) {
@@ -630,14 +662,20 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
 
         String str ="";
 
-        List<XVar> eqvs = eqvs();
-        if (! eqvs.isEmpty()) {
-        	String temp = eqvs.toString();
-        	str = "exists " + temp.substring(1,temp.length()-1) + ".";
+        final boolean exists_toString = false;
+        if (exists_toString) {
+            List<XVar> eqvs = eqvs();
+            if (!eqvs.isEmpty()) {
+                String temp = eqvs.toString();
+                str = "exists " + temp.substring(1, temp.length() - 1) + ".";
+            }
+            String constr = c.constraints().toString();
+            str += constr.substring(1, constr.length() - 1);
         }
-        
-        String constr = c.constraints().toString();
-        str += constr.substring(1, constr.length()-1);
+        else {
+            String constr = c.extConstraints().toString();
+            str += constr.substring(1, constr.length() - 1);
+        }
         
         return "{" + str + "}";
     }
@@ -942,12 +980,13 @@ public class XConstraint_c implements XConstraint, XConstraintImp, Cloneable {
         else {
             throw new XFailure("Unexpected term |" + term + "|");
         }
-        
+        /*
         XConstraint s = term.selfConstraint();
         if (s != null) {
             s = s.substitute(term, s.self());
             addIn(s);
         }
+*/
     }
 
     public void setInconsistent() {

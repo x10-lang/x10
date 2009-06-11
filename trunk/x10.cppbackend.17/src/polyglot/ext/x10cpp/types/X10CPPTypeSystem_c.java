@@ -10,7 +10,7 @@ import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.types.Context;
 
 public class X10CPPTypeSystem_c extends X10TypeSystem_c {
-	public Context createContext() {
+	public Context emptyContext() {
 		return new X10CPPContext_c(this);
 	}
 }

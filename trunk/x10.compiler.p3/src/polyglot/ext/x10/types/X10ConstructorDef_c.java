@@ -40,6 +40,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     Ref<? extends ClassType> returnType;
     protected Ref<XConstraint> supClause;
     protected Ref<XConstraint> guard;
+    protected Ref<TypeConstraint> typeGuard;
     List<LocalDef> formalNames;
 
     public X10ConstructorDef_c(TypeSystem ts, Position pos,
@@ -49,13 +50,14 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             List<Ref<? extends Type>> typeParameters,
             List<Ref<? extends Type>> formalTypes, 
             XRoot thisVar, List<LocalDef> formalNames,
-            Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes) {
+            Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
         this.thisVar = thisVar;
 	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 	this.guard = guard;
+	this.typeGuard = typeGuard;
     }
 
     // BEGIN ANNOTATION MIXIN
@@ -125,7 +127,16 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     public void setGuard(Ref<XConstraint> s) {
         this.guard = s;
     }
-	
+
+    /** Constraint on type parameters. */
+    public Ref<TypeConstraint> typeGuard() {
+        return typeGuard;
+    }
+    
+    public void setTypeGuard(Ref<TypeConstraint> s) {
+        this.typeGuard = s;
+    }
+    
     List<Ref<? extends Type>> typeParameters;
     public List<Ref<? extends Type>> typeParameters() {
 	        return Collections.unmodifiableList(typeParameters);

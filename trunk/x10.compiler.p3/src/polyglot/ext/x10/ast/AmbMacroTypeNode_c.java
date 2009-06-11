@@ -217,7 +217,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
             
             if (prefix == null) {
                 // Search the context.
-                Named n = c.find(ts.TypeDefMatcher(null, name.id(), typeArgs, argTypes));
+                Named n = c.find(ts.TypeDefMatcher(null, name.id(), typeArgs, argTypes, c));
                 if (n instanceof MacroType) {
                     mt = (MacroType) n;
                 }
@@ -226,7 +226,7 @@ public class AmbMacroTypeNode_c extends TypeNode_c implements AmbMacroTypeNode {
                 if (prefix instanceof TypeNode) {
                     TypeNode tn = (TypeNode) prefix;
                     Type container = tn.type();
-                    mt = ts.findTypeDef(container, ts.TypeDefMatcher(container, name.id(), typeArgs, argTypes), tc.context().currentClassDef());
+                    mt = ts.findTypeDef(container, ts.TypeDefMatcher(container, name.id(), typeArgs, argTypes, c), c);
                 }
             }
             

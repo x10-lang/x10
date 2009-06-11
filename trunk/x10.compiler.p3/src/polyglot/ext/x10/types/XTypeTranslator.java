@@ -70,27 +70,6 @@ public class XTypeTranslator {
 	}
 
 	public void addTypeToEnv(XTerm self, final Type t) throws SemanticException {
-	    self.setSelfConstraint(new XRef_c<XConstraint>() {
-		public XConstraint compute() {
-		    XConstraint c = X10TypeMixin.realX(t);
-		    if (false) {
-		        Type base = X10TypeMixin.baseType(t);
-			if (c != null) {
-			    c = c.copy();
-			}
-			else {
-			    c = new XConstraint_c();
-			}
-			try {
-			    c.addBinding(XTerms.makeField(c.self(), XTerms.makeName("type")), trans(base));
-			}
-			catch (XFailure e) {
-			    c.setInconsistent();
-			}
-		    }
-		    return c;
-		}
-	    });
 	}
 
 	private XTerm trans(XConstraint c, Unary t, X10Context xc) throws SemanticException {
@@ -102,9 +81,10 @@ public class XTypeTranslator {
 	}
 	
 	public XVar trans(XConstraint c, XVar target, FieldInstance fi) throws SemanticException {
-		XVar v = XTerms.makeField(target, XTerms.makeName(fi.def(), fi.name().toString()));
-		addTypeToEnv(v, fi.type());
-		return v;
+	    String string = Types.get(fi.def().container()) + "#" + fi.name().toString();
+	    XVar v = XTerms.makeField(target, XTerms.makeName(fi.def(), string));
+	    addTypeToEnv(v, fi.type());
+	    return v;
 	}
 
 	public XTerm trans(XConstraint c, XTerm target, FieldInstance fi) throws SemanticException {
@@ -114,7 +94,7 @@ public class XTypeTranslator {
 	public XTerm trans(XConstraint c, XTerm target, MethodInstance fi, Type t) throws SemanticException {
 	    assert X10Flags.toX10Flags(fi.flags()).isProperty() && fi.formalTypes().size() == 0;
 	    XTerm v;
-	    XName field = XTerms.makeName(fi.def(), fi.name().toString() + "()");
+	    XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString() + "()");
 	    if (target instanceof XVar) {
 	        v = XTerms.makeField((XVar) target, field);
 	    }
@@ -127,7 +107,7 @@ public class XTypeTranslator {
 	
 	public XTerm trans(XConstraint c, XTerm target, FieldInstance fi, Type t) throws SemanticException {
 		XTerm v;
-		XName field = XTerms.makeName(fi.def(), fi.name().toString());
+		XName field = XTerms.makeName(fi.def(), Types.get(fi.def().container()) + "#" + fi.name().toString());
 		if (fi.flags().isStatic()) {
 		    Type container = Types.get(fi.def().container());
 		    container = X10TypeMixin.baseType(container);
@@ -212,12 +192,6 @@ public class XTypeTranslator {
 		return XTerms.makeLocal(XTerms.makeName(t));
 	}
 	
-	@Deprecated
-	public XVar transPathType(PathType t) {
-	    XName field = XTerms.makeName(t.property(), t.property().name().toString());
-	    return XTerms.makeField(t.formals().get(0), field);
-	}
-	
 	public XTerm trans(Type t) {
 		if (t instanceof ParameterType)
 			return transTypeParam((ParameterType) t);
@@ -225,8 +199,6 @@ public class XTypeTranslator {
 //		    return transClassType((X10ClassType) t);
 //		if (t instanceof ConstrainedType)
 //		    return transConstrainedType((ConstrainedType) t);
-		if (t instanceof PathType)
-			return transPathType((PathType) t);
 		if (t instanceof MacroType) {
 		    MacroType pt = (MacroType) t;
 		    return trans(pt.definedType());
@@ -246,12 +218,6 @@ public class XTypeTranslator {
 			return true;
 		}
 	    }
-	    if (t instanceof PathType) {
-		PathType pt = (PathType) t;
-		Type b = pt.baseType();
-		XVar v = pt.base();
-		return hasVar(b, x) || v.hasVar(x);
-	    }
 	    if (t instanceof MacroType) {
 		MacroType pt = (MacroType) t;
 		return hasVar(pt.definedType(), x);
@@ -259,61 +225,8 @@ public class XTypeTranslator {
 	    return false;
 	}
 	
-	public static Type subst(Type t, XTerm y, XRoot x) {
-	    if (true)
-	        return SubtypeSolver.XSubtype_c.subst(t, y, x);
-	    if (t instanceof ParameterType) {
-	        Type xt = SubtypeSolver.getType(x);
-	        if (xt instanceof ParameterType) {
-	            if (TypeParamSubst.isSameParameter((ParameterType) t, (ParameterType) xt)) {
-	                Type yt = SubtypeSolver.getType(y);
-	                if (yt != null)
-	                    return yt;
-	                return t.typeSystem().unknownType(t.position());
-	            }
-	        }
-	    }
-	    if (t instanceof X10ClassType) {
-	        X10ClassType ct = (X10ClassType) t;
-	        List<Type> args = new ArrayList<Type>();
-	        boolean changed = false;
-	        for (Type ti : ct.typeArguments()) {
-	            Type tj = subst(ti, y, x);
-	            if (ti != tj)
-	                changed = true;
-	            args.add(tj);
-	        }
-	        if (changed)
-	            return ct.typeArguments(args); 
-	        else
-	            return ct;
-	    }
-		if (t instanceof ConstrainedType) {
-		    ConstrainedType ct = (ConstrainedType) t;
-		    Type b = X10TypeMixin.baseType(t);
-		    XConstraint c = X10TypeMixin.xclause(t);
-		    try {
-			return X10TypeMixin.xclause(subst(b, y, x), c.substitute(y, x));
-		    }
-		    catch (XFailure e) {
-		    }
-		}
-		if (t instanceof PathType) {
-		    PathType pt = (PathType) t;
-		    Type b = pt.baseType();
-		    XVar v = pt.base();
-		    Type b2 = subst(b, y, x);
-		    XTerm z = v.subst(y, x);
-		    if (z instanceof XVar) {
-			return pt.base((XVar) z, b2);
-		    }
-		    return pt.base(new XEQV_c(XTerms.makeName(v.toString()), true), b2);
-		}
-		if (t instanceof MacroType) {
-		    MacroType pt = (MacroType) t;
-		    return subst(pt.definedType(), y, x);
-		}
-		return t;
+	public static Type subst(Type t, XTerm y, XRoot x) throws SemanticException {
+	    return Subst.subst(t, y, x);
 	}
 
 	private XTerm transClassType(X10ClassType t) {
@@ -368,7 +281,12 @@ public class XTypeTranslator {
 	    public XTerm subst(XTerm y, XRoot x, boolean propagate) {
 		XTypeLit_c n = (XTypeLit_c) super.subst(y, x, propagate);
 		if (n == this) n = (XTypeLit_c) clone();
-		n.val = XTypeTranslator.subst(type(), y, x);
+		try {
+		    n.val = Subst.subst(type(), y, x);
+		}
+		catch (SemanticException e) {
+		    return n;
+		}
 		return n;
 	    }
 	}
@@ -399,18 +317,59 @@ public class XTypeTranslator {
 		return XTerms.makeLit(t.constantValue());
 	}
 
+	private void transType(TypeConstraint c, Binary t, X10Context xc) throws SemanticException {
+	    Expr left = t.left();
+	    Expr right = t.right();
+	    XTerm v;
+	    
+	    if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
+	        transType(c, left, xc);
+	        transType(c, right, xc);
+	    }
+	    else {
+	        throw new SemanticException("Cannot translate " + t + " into a type constraint.", t.position());
+	    }
+	}
+
+	private void transType(TypeConstraint c, Expr t, X10Context xc) throws SemanticException {
+	    if (t instanceof Binary) {
+	        transType(c, (Binary) t, xc);
+	    }
+	    else if (t instanceof ParExpr) {
+	        transType(c, ((ParExpr) t).expr(), xc);
+	    }
+	    else if (t instanceof SubtypeTest) {
+	        transType(c, (SubtypeTest) t, xc);
+	    }
+	    else {
+	        throw new SemanticException("Cannot translate " + t + " into a type constraint.", t.position());
+	    }
+	}
+	
+
+        private void transType(TypeConstraint c, SubtypeTest t, X10Context xc) throws SemanticException {
+                TypeNode left = t.subtype();
+                TypeNode right = t.supertype();
+                c.addTerm(new SubtypeConstraint_c(left.type(), right.type(), t.equals()));
+        }
+
+	
 	private XTerm trans(XConstraint c, Binary t, X10Context xc) throws SemanticException {
-		Expr left = t.left();
-		Expr right = t.right();
-		XTerm v;
-		if (t.operator() == Binary.EQ) {
-			v = XTerms.makeEquals(trans(c, left, xc), trans(c, right, xc));
-		}
-		else if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean()))) {
-			v = XTerms.makeAnd(trans(c, left, xc), trans(c, right, xc));
-		}
-		else {
-			v = XTerms.makeAtom(XTerms.makeName(t.operator()), trans(c, left, xc), trans(c, right, xc));
+	    Expr left = t.left();
+	    Expr right = t.right();
+	    XTerm v;
+	    XTerm lt = trans(c, left, xc);
+	    XTerm rt = trans(c, right, xc);
+	    if (lt == null || rt == null)
+	        throw new SemanticException("Cannot translate " + t + " to constraint term.");
+	    if (t.operator() == Binary.EQ) {
+	        v = XTerms.makeEquals(lt, rt);
+	    }
+	    else if (t.operator() == Binary.COND_AND || (t.operator() == Binary.BIT_AND && ts.isImplicitCastValid(t.type(), ts.Boolean(), xc))) {
+	        v = XTerms.makeAnd(lt, rt);
+	    }
+	    else {
+			v = XTerms.makeAtom(XTerms.makeName(t.operator()), lt, rt);
 		}
 		addTypeToEnv(v, t.type());
 		return v;
@@ -432,15 +391,6 @@ public class XTypeTranslator {
 		return XTerms.makeAtom(XTerms.makeName("subset"), trans(c, left, xc), trans(c, right, xc));
 	    else
 		return XTerms.makeAtom(XTerms.makeName("in"), trans(c, left, xc), trans(c, right, xc));
-	}
-
-	private XTerm trans(XConstraint c, SubtypeTest t) throws SemanticException {
-		TypeNode left = t.subtype();
-		TypeNode right = t.supertype();
-		if (t.equals())
-		    return XTerms.makeEquals(trans(left.type()), trans(right.type()));
-		else
-		    return transSubtype(left.type(), right.type());
 	}
 	
 	private XTerm trans(XConstraint c, Call t, X10Context xc) throws SemanticException {
@@ -465,7 +415,7 @@ public class XTypeTranslator {
 		}
 		else {
 		    if (t.arguments().size() == 0) {
-			XName field = XTerms.makeName(xmi.def(), xmi.name() + "()");
+			XName field = XTerms.makeName(xmi.def(), Types.get(xmi.def().container()) + "#" + xmi.name() + "()");
 			XTerm v;
 			if (r instanceof XVar) {
 				v = XTerms.makeField((XVar) r, field);
@@ -489,11 +439,8 @@ public class XTypeTranslator {
 		}
 	    }
 	
-	    throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
-	}
-
-	public XTerm transSubtype(Type ltype, Type rtype) {
-	    return new SubtypeSolver.XSubtype_c(trans(ltype), trans(rtype), ts.subtypeSolver());
+	    return null;
+//	    throw new SemanticException("Cannot translate call |" + t + "| into a constraint; it must be a property method call.");
 	}
 
 	private XTerm trans(XConstraint c, Variable term, X10Context xc) throws SemanticException {
@@ -505,7 +452,8 @@ public class XTypeTranslator {
 		if (term instanceof Local)
 			return trans(c, (Local) term);
 
-		throw new SemanticException("Cannot translate variable |" + term + "| into a constraint; it must be a field, local, this, or self.");
+		return null;
+//		throw new SemanticException("Cannot translate variable |" + term + "| into a constraint; it must be a field, local, this, or self.");
 	}
 	
 	public XTerm trans(XConstraint c, Receiver term, X10Context xc) throws SemanticException {
@@ -541,18 +489,17 @@ public class XTypeTranslator {
 		}
 		if (term instanceof Binary)
 			return trans(c, (Binary) term, xc);
-		if (term instanceof SubtypeTest)
-		    return trans(c, (SubtypeTest) term);
 		if (term instanceof Contains)
 		    return trans(c, (Contains) term, xc);
 		if (term instanceof TypeNode)
-			return trans(c, (TypeNode) term);
+		    return trans(c, (TypeNode) term);
 		if (term instanceof ParExpr)
 			return trans(c, ((ParExpr) term).expr(), xc);
 
-		throw new SemanticException("Cannot translate type or expression |" + term + "| (" + term.getClass().getName() + ")" + " to a term.");
+		return null;
+//		throw new SemanticException("Cannot translate type or expression |" + term + "| (" + term.getClass().getName() + ")" + " to a term.");
 	}
-
+	
 	/**
 	 * Translate an expression into a XConstraint, throwing SemanticExceptions 
 	 * if this is not possible.
@@ -565,27 +512,43 @@ public class XTypeTranslator {
 	 * @throws SemanticException
 	 */
 	public XConstraint constraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
-		XConstraint c = new XConstraint_c();
-		if (term == null)
-			return c;
-		
-		if (! term.type().isBoolean())
-			throw new SemanticException("Cannot build constraint from expression |" + term + "| of type " + term.type() + "; not a boolean.");
-		
-		// TODO: handle the formals.
-		
-		XTerm t = trans(c, term, xc);
-		t.setSelfConstraint(null);
-		
-		try {
-			c.addTerm(t);
-		}
-		catch (XFailure e) {
-			throw new SemanticException(e.getMessage());
-		}
-		return c;
+            XConstraint c = new XConstraint_c();
+            if (term == null)
+                return c;
+            
+            if (! term.type().isBoolean())
+                throw new SemanticException("Cannot build constraint from expression |" + term + "| of type " + term.type() + "; not a boolean.");
+            
+            // TODO: handle the formals.
+            XTerm t = trans(c, term, xc);
+            
+            if (t == null)
+                throw new SemanticException("Cannot build constraint from expression |" + term + "|.");
+            
+            try {
+                c.addTerm(t);
+            }
+            catch (XFailure e) {
+                throw new SemanticException(e.getMessage());
+            }
+            return c;
 	}
+	
+	public TypeConstraint typeConstraint(List<Formal> formals, Expr term, X10Context xc) throws SemanticException {
+	    TypeConstraint c = new TypeConstraint_c();
+        if (term == null)
+        	return c;
+        
+        if (! term.type().isBoolean())
+        	throw new SemanticException("Cannot build constraint from expression |" + term + "| of type " + term.type() + "; not a boolean.");
+        
+        // TODO: handle the formals.
+        
+        transType(c, term, xc);
 
+        return c;
+	}
+	
 	public static XTerm translate(XConstraint c, Receiver r, X10TypeSystem xts, X10Context xc) throws SemanticException {
 		return xts.xtypeTranslator().trans(c, r, xc);
 	}

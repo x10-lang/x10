@@ -7,19 +7,19 @@
  */
 package polyglot.ext.x10.types;
 
-import java.util.Collection;
 import java.util.List;
 
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.LocalDef;
-import polyglot.types.LocalInstance;
 import polyglot.types.Name;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.VarDef;
+import x10.constraint.XConstraint;
+import x10.constraint.XFailure;
 import x10.constraint.XRoot;
 
 public interface X10Context extends Context {
@@ -34,6 +34,18 @@ public interface X10Context extends Context {
 	/** Return the locals declared in this scope (and only this scope). */
 	List<LocalDef> locals();
 	
+	/** Current constraint on variables in scope. */
+	XConstraint currentConstraint();
+	void setCurrentConstraint(XConstraint c);
+
+	/** Current constraint on here. */
+	XConstraint currentPlaceConstraint();
+	void setCurrentPlaceConstraint(XConstraint c);
+
+	/** Current constraint on type variables in scope */
+	TypeConstraint currentTypeConstraint();
+	void setCurrentTypeConstraint(TypeConstraint c);
+
 	/**
 	 * Looks up a property in the current scope.
 	 * @param name
@@ -92,5 +104,6 @@ public interface X10Context extends Context {
     CodeDef definingCodeDef(Name name);
 
     public XRoot thisVar();
-   
+
+    XConstraint constraintProjection(XConstraint... cs) throws XFailure;
 }

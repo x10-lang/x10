@@ -36,6 +36,5 @@ public interface ClosureInstance extends FunctionInstance<ClosureDef>, X10Proced
     ClassType typeContainer();
     ClosureType type();
     
-    boolean callValidNoClauses(Type thisType, List<Type> argTypes);
     public ClosureInstance returnTypeRef(Ref<? extends Type> returnType);
 }

@@ -77,7 +77,6 @@ public class X10Unary_c extends Unary_c {
 		
 	        Name methodName = unaryMethodName(op);
 	        
-	        
 	        // Check if there is a method with the appropriate name and type with the left operand as receiver.   
 	        if (methodName != null) {
 	            X10Call_c n = (X10Call_c) nf.X10Call(position(), expr, nf.Id(position(), methodName), Collections.EMPTY_LIST, Collections.EMPTY_LIST);

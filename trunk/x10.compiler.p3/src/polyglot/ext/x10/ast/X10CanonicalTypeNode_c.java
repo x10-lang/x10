@@ -17,7 +17,6 @@ import polyglot.ast.Node;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
@@ -61,6 +60,10 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 
 	Type t = Types.get(type);
+	
+	t = ts.expandMacros(t);
+	((Ref<Type>) type).update(t);
+	
 	if (t instanceof ParameterType) {
 	    ParameterType pt = (ParameterType) t;
 	    Def def = Types.get(pt.def());
@@ -79,11 +82,13 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	        throw new SemanticException("Cannot refer to type parameter " + pt.fullName() + " of " + def + " from a static context.", position());
 	    }
 	}
-	checkType(t);
+	
+	checkType(tc.context(), t);
+	
+	
 
 	List<AnnotationNode> as = ((X10Del) this.del()).annotations();
 	if (as != null && !as.isEmpty()) {
-
 	    // Eh.  Why not?
 //	    if (c.inAnnotation()) {
 //		throw new SemanticException("Annotations not permitted within annotations.", position());
@@ -115,14 +120,14 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
         
         X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
         
-        if (! ts.consistent(t)) {
+        if (! ts.consistent(t, (X10Context) tc.context())) {
             throw new SemanticException("Type " + t + " is inconsistent.", position());
         }
         
         return this;
     }
     
-    public void checkType(Type t) throws SemanticException {
+    public void checkType(Context context, Type t) throws SemanticException {
 	if (t == null) throw new SemanticException("Invalid type.", position());
         
 	if (t instanceof ConstrainedType) {
@@ -133,7 +138,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 //	        throw new SemanticException("Invalid type; cannot constrain a type parameter.", position());
 //	    }
 	    
-	    checkType(base);
+	    checkType(context, base);
 	}
 	
 	if (t instanceof X10ClassType) {
@@ -156,18 +161,18 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
 	    for (int j = 0; j < ct.typeArguments().size(); j++) {
 		Type actualType = ct.typeArguments().get(j);
 		ParameterType correspondingParam = def.typeParameters().get(j);
-		TypeProperty.Variance correspondingVariance = def.variances().get(j);
+		ParameterType.Variance correspondingVariance = def.variances().get(j);
 		if (actualType instanceof ParameterType) {
 		    ParameterType pt = (ParameterType) actualType;
 		    if (pt.def() instanceof X10ClassDef) {
 			X10ClassDef actualDef = (X10ClassDef) pt.def();
 			for (int i = 0; i < actualDef.typeParameters().size(); i++) {
-			    TypeProperty.Variance actualVariance;
+			    ParameterType.Variance actualVariance;
 			    if (i < actualDef.variances().size())
 				actualVariance = actualDef.variances().get(i);
 			    else
-				actualVariance = TypeProperty.Variance.INVARIANT;
-			    if (pt.typeEquals(actualDef.typeParameters().get(i))) {
+				actualVariance = ParameterType.Variance.INVARIANT;
+			    if (pt.typeEquals(actualDef.typeParameters().get(i), context)) {
 				switch (correspondingVariance) {
 				case INVARIANT:
 				    switch (actualVariance) {

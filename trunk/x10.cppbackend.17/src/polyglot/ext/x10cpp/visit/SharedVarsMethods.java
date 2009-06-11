@@ -152,18 +152,18 @@ public class SharedVarsMethods {
 //				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(FF), context.currentClass()));
 //				knownSafeMethods.add(ts.findMethod(j_l_Math, "min", Arrays.asList(DD), context.currentClass()));
 				Type x_l_place = ts.Place();
-				knownSafeFields.add(ts.findField(x_l_place, ts.FieldMatcher(x_l_place, Name.make("MAX_PLACES")), context.currentClassDef()));
+				knownSafeFields.add(ts.findField(x_l_place, ts.FieldMatcher(x_l_place, Name.make("MAX_PLACES"), context)));
 				Type x_l_region = ts.Region();
-				knownSafeMethods.add(ts.findMethod(x_l_region, ts.MethodMatcher(x_l_region, Name.make("toDistribution"), Collections.EMPTY_LIST), context.currentClassDef()));
-				knownSafeFields.add(ts.findField(x_l_region, ts.FieldMatcher(x_l_region, Name.make("factory")), context.currentClassDef()));
+				knownSafeMethods.add(ts.findMethod(x_l_region, ts.MethodMatcher(x_l_region, Name.make("toDistribution"), Collections.EMPTY_LIST, context)));
+				knownSafeFields.add(ts.findField(x_l_region, ts.FieldMatcher(x_l_region, Name.make("factory"), context)));
 				Type x_l_dist = ts.Dist();
 				Type[] X_L_P = { x_l_place };
-				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist, Name.make("restriction"), Arrays.asList(X_L_P)), context.currentClassDef()));
-				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("factory")), context.currentClassDef()));
-				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("UNIQUE")), context.currentClassDef()));
+				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist, Name.make("restriction"), Arrays.asList(X_L_P), context)));
+				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("factory"), context)));
+				knownSafeFields.add(ts.findField(x_l_dist, ts.FieldMatcher(x_l_dist, Name.make("UNIQUE"), context)));
 				ReferenceType x_l_dist_factory = (ReferenceType) ts.forName(QName.make("x10.lang.dist.factory"));
 				Type[] X_L_R = { x_l_region };
-				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist_factory, Name.make("block"), Arrays.asList(X_L_R)), context.currentClassDef()));
+				knownSafeMethods.add(ts.findMethod(x_l_dist, ts.MethodMatcher(x_l_dist_factory, Name.make("block"), Arrays.asList(X_L_R), context)));
 			} catch (SemanticException e) { assert (false); }
 		}
 	}	
@@ -178,9 +178,9 @@ public class SharedVarsMethods {
 			try {
 				Type x_l_Runtime = (Type) ts.forName(QName.make("x10.lang.Runtime"));
 				Type[] A_I_A_I_I = { ts.Array(), ts.Int(), ts.Array(), ts.Int(), ts.Int() };
-				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I)), context.currentClassDef()));
+				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I), context)));
 				Type[] A_A = { ts.Array(), ts.Array() };
-				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_A)), context.currentClassDef()));
+				knownInlinableMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_A), context)));
 				// TODO
 //				ReferenceType x_l_region = ts.region();
 //				Type[] A_R_A_R = { array, x_l_region, array, x_l_region };

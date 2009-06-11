@@ -13,20 +13,21 @@
 package polyglot.ext.x10.ast;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
+import polyglot.ast.Binary;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Node_c;
 import polyglot.ast.TypeCheckFragmentGoal;
-import polyglot.ext.x10.types.ClosureDef;
+import polyglot.ext.x10.types.TypeConstraint;
+import polyglot.ext.x10.types.TypeConstraint_c;
 import polyglot.ext.x10.types.X10Context;
-import polyglot.ext.x10.types.X10ProcedureDef;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.frontend.SetResolverGoal;
-import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.LazyRef;
 import polyglot.types.Ref;
@@ -44,8 +45,6 @@ import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
-import x10.constraint.XRoot;
-import x10.constraint.XTerm;
 
 /** An immutable representation of a dependent type constraint.
  * The corresponding syntax is [T](e){x: T; c}
@@ -60,23 +59,25 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     /** The boolean condition of a parameteric type.
      * Maybe null.
      */
-    protected Expr condition;
+    protected List<Expr> condition;
     
-    private Ref<XConstraint> xconstraint;
+    private Ref<XConstraint> valueConstraint;
+    private Ref<TypeConstraint> typeConstraint;
     
     /**
      * @param pos
      */
-    public DepParameterExpr_c(Position pos, List<Formal> formals, Expr cond) {
+    public DepParameterExpr_c(Position pos, List<Formal> formals, List<Expr> e) {
 	    super(pos);
 	    if (formals == null)
 		    this.formals = Collections.EMPTY_LIST;
 	    else
 		    this.formals = TypedList.copyAndCheck(formals, Formal.class, true);
-	    this.condition = cond;
+	    assert e != null;
+	    this.condition = TypedList.copyAndCheck(e, Expr.class, true);
     }
-    public DepParameterExpr_c(Position pos, Expr cond) {
-	    this(pos, null, cond);
+    public DepParameterExpr_c(Position pos, List<Expr> e) {
+	    this(pos, null, e);
     }
     @Override
     public Context enterChildScope(Node child, Context c) {
@@ -101,14 +102,24 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
         return super.enterChildScope(child, c);
     }
 
-    public Ref<XConstraint> xconstraint() {
-		return xconstraint;
+    public Ref<XConstraint> valueConstraint() {
+		return valueConstraint;
     }
     
-    public DepParameterExpr xconstraint(Ref<XConstraint> c) {
+    public DepParameterExpr valueConstraint(Ref<XConstraint> c) {
             DepParameterExpr_c n = (DepParameterExpr_c) copy();
-            n.xconstraint = c;
+            n.valueConstraint = c;
             return n;
+    }
+    
+    public Ref<TypeConstraint> typeConstraint() {
+        return typeConstraint;
+    }
+    
+    public DepParameterExpr typeConstraint(Ref<TypeConstraint> c) {
+        DepParameterExpr_c n = (DepParameterExpr_c) copy();
+        n.typeConstraint = c;
+        return n;
     }
     
     public List<Formal> formals() {
@@ -120,16 +131,16 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 	    return n;
     }
     
-    public Expr condition() {
+    public List<Expr> condition() {
 	    return this.condition;
     }
-    public DepParameterExpr condition( Expr condition) {
+    public DepParameterExpr condition( List<Expr> condition) {
         DepParameterExpr_c n = (DepParameterExpr_c) copy();
         n.condition = condition;
         return n;
     }
        
-    protected DepParameterExpr reconstruct( List<Formal> formals, Expr condition ) {
+    protected DepParameterExpr reconstruct( List<Formal> formals, List<Expr> condition ) {
         if (formals == this.formals && condition == this.condition)
 			return this;
         DepParameterExpr_c n = (DepParameterExpr_c) copy();
@@ -141,23 +152,31 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     @Override
     public Node visitChildren(NodeVisitor v) {
         List<Formal> formals = visitList(this.formals, v);
-        Expr condition = (Expr) visitChild(this.condition, v);
+        List<Expr> condition = (List<Expr>) visitList(this.condition, v);
         return reconstruct(formals, condition);
     }
     
     public Node buildTypes(TypeBuilder tb) throws SemanticException {
     	DepParameterExpr_c n = (DepParameterExpr_c) copy();
-    	n.xconstraint = Types.<XConstraint>lazyRef(new XConstraint_c(), new SetResolverGoal(tb.job()));
+    	n.valueConstraint = Types.<XConstraint>lazyRef(new XConstraint_c(), new SetResolverGoal(tb.job()));
+    	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint_c(), new SetResolverGoal(tb.job()));
     	return n;
       }
 
       public void setResolver(Node parent, final TypeCheckPreparer v) {
     	  TypeChecker tc = new TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
     	  tc = (TypeChecker) tc.context(v.context().freeze());
-    	  
-    	  LazyRef<XConstraint> xr = (LazyRef<XConstraint>) xconstraint;
-    	  assert xr != null : "setResolver pass run before buildTypes for " + this;
-    	  xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+
+    	  {
+    	      LazyRef<XConstraint> xr = (LazyRef<XConstraint>) valueConstraint;
+    	      assert xr != null : "setResolver pass run before buildTypes for " + this;
+    	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+    	  }
+    	  {
+    	      LazyRef<TypeConstraint> xr = (LazyRef<TypeConstraint>) typeConstraint;
+    	      assert xr != null : "setResolver pass run before buildTypes for " + this;
+    	      xr.setResolver(new TypeCheckFragmentGoal(parent, this, tc, xr, false));
+    	  }
       }
     
     @Override
@@ -165,9 +184,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     	DepParameterExpr_c n = (DepParameterExpr_c) super.disambiguate(ar);
     	
     	if (((X10Context) ar.context()).inAnnotation() && condition == null) {
-    		Expr lit = ar.nodeFactory().BooleanLit(position(), true);
-    		lit = (Expr) this.visitChild(lit, ar);
-    		return n.condition(lit);
+    		return n.condition(Collections.EMPTY_LIST);
     	}
 
     	return n;
@@ -186,17 +203,50 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 //        			position());
         }
         
-        Type t = condition.type();
-        
-        if (! t.isBoolean())
-        	throw new SemanticError("The type of the dependent clause, "+ condition 
-        			+ ", must be boolean and not " + t + ".", position());
+        Expr values = null;
+        Expr types = null;
 
-//        if (cd instanceof ClosureDef) {
-//            thisVar = null;
-//        }
-        XConstraint xc = ts.xtypeTranslator().constraint(formals, condition, (X10Context) tc.context());
-        ((LazyRef<XConstraint>) xconstraint).update(xc);
+        LinkedList<Expr> cond = new LinkedList<Expr>();
+        cond.addAll(condition);
+
+        while (! cond.isEmpty()) {
+            Expr e = cond.removeFirst();
+            Type t = e.type();
+
+            if (! t.isBoolean())
+                throw new SemanticError("The type of the constraint "+ e 
+                                        + " must be boolean, not " + t + ".", position());
+
+            if (e instanceof Binary) {
+                Binary b = (Binary) e;
+                if (b.operator() == Binary.COND_AND || b.operator() == Binary.BIT_AND) {
+                    cond.addFirst(b.left());
+                    cond.addFirst(b.right());
+                    continue;
+                }
+            }
+
+            NodeFactory nf = tc.nodeFactory();
+            
+            if (e instanceof SubtypeTest) {
+                if (types == null)
+                    types = e;
+                else
+                    types = nf.Binary(new Position(types.position(), e.position()), types, Binary.COND_AND, e).type(ts.Boolean());
+            }
+            else {
+                if (values == null)
+                    values = e;
+                else
+                    values = nf.Binary(new Position(values.position(), e.position()), values, Binary.COND_AND, e).type(ts.Boolean());
+            }
+        }
+        
+            XConstraint xvc = ts.xtypeTranslator().constraint(formals, values, (X10Context) tc.context());
+            ((LazyRef<XConstraint>) valueConstraint).update(xvc);
+
+            TypeConstraint xtc = ts.xtypeTranslator().typeConstraint(formals, types, (X10Context) tc.context());
+            ((LazyRef<TypeConstraint>) typeConstraint).update(xtc);
         
         return this;
     }
@@ -234,9 +284,10 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
 	    if (! sep.equals(""))
 		    sep = "; ";
 	    
-	    if (condition != null) {
-		    w.write(sep);
-		    printBlock( condition, w, tr);
+	    for (Expr e: condition) {
+	        w.write(sep);
+	        printBlock( e, w, tr);
+	        sep = ", ";
 	    }
 	    w.write("}");
     }

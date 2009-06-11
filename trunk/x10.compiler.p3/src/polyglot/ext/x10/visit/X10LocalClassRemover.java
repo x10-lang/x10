@@ -23,7 +23,7 @@ import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorInstance;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.TypeProperty.Variance;
+import polyglot.ext.x10.types.ParameterType.Variance;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -179,7 +179,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
 
                 for (int i = 0; i < outer.typeParameters().size(); i++) {
                     ParameterType p = outer.typeParameters().get(i);
-                    Variance v = outer.variances().get(i);
+                    ParameterType.Variance v = outer.variances().get(i);
 
                     X10NodeFactory xnf = (X10NodeFactory) nf;
                     TypeParamNode pn = xnf.TypeParamNode(n.position(), xnf.Id(n.position(), Name.makeFresh(p.name())), v);

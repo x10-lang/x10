@@ -18,6 +18,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ast.TypeNode_c;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
+import polyglot.ext.x10.types.TypeConstraint;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -124,22 +125,10 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode {
         
         DepParameterExpr dep = (DepParameterExpr) n.visitChild(n.dep, childtc);
         
-        XConstraint c = Types.get(dep.xconstraint());
+        XConstraint c = Types.get(dep.valueConstraint());
         t = X10TypeMixin.xclause(t, c);
 
         sym.update(t);
-
-        Expr cond = dep != null ? dep.condition() : null;
-        
-        if (dep != null && cond != dep.condition()) {
-            dep = dep.condition(cond);
-        }
-        else if (dep == null && cond != null) {
-            dep = nf.DepParameterExpr(position(), cond);
-            XConstraint cc = (XConstraint) ts.xtypeTranslator().constraint(Collections.EMPTY_LIST, cond, (X10Context) tc.context());
-            dep = dep.xconstraint(Types.ref(cc));
-            dep = (DepParameterExpr) dep.disambiguate(tc).typeCheck(tc).checkConstants(tc);
-        }
 
         CanonicalTypeNode result = nf.X10CanonicalTypeNode(position(), sym, dep);
         return postprocess(result, n, childtc);   

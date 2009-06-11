@@ -65,7 +65,7 @@ public class X10Ext_c extends Ext_c implements X10Ext {
 		for (Iterator<AnnotationNode> i = annotations().iterator(); i.hasNext(); ) {
 			AnnotationNode an = i.next();
 			X10ClassType ct = an.annotationInterface();
-			if (ct.isSubtype(t)) {
+			if (ct.isSubtype(t, t.typeSystem().emptyContext())) {
 				l.add(ct);
 			}
 		}

@@ -44,4 +44,11 @@ public interface X10ProcedureInstance<T extends ProcedureDef> extends X10TypeObj
      */
     XConstraint guard();
     X10ProcedureInstance<T> guard(XConstraint guard);
+    
+    /**
+     * Return the constraint on the type parameters, if any.
+     * @return
+     */
+    TypeConstraint typeGuard();
+    X10ProcedureInstance<T> typeGuard(TypeConstraint guard);
 }

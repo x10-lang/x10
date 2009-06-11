@@ -14,34 +14,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import polyglot.ast.AmbExpr;
-import polyglot.ast.AmbTypeNode;
-import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
-import polyglot.ast.Expr;
-import polyglot.ast.FieldDecl;
 import polyglot.ast.FlagsNode;
-import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
-import polyglot.ast.QualifierNode;
-import polyglot.ast.Stmt;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.ExtensionInfo.X10Scheduler;
 import polyglot.ext.x10.extension.X10Del;
 import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.PathType;
-import polyglot.ext.x10.types.PathType_c;
-import polyglot.ext.x10.types.TypeProperty;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassDef_c;
 import polyglot.ext.x10.types.X10ClassType;
@@ -50,19 +38,15 @@ import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.X10Use;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
-import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
-import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -72,10 +56,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.Transformation;
-import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
@@ -86,7 +67,6 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XRef_c;
 /**
  * The same as a Java class, except that it needs to handle properties.
  * Properties are converted into public final instance fields immediately.
@@ -96,8 +76,6 @@ import x10.constraint.XRef_c;
  */
 public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
    
-    public static final boolean CLASS_TYPE_PARAMETERS = true;
-    
     List<PropertyDecl> properties;
 
     public List<PropertyDecl> properties() { return properties; }
@@ -115,43 +93,23 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 	n.typeParameters = new ArrayList<TypeParamNode>(ps);
 	return n;
     }
-    
-    List<TypePropertyNode> typeProperties;
-
-    public List<TypePropertyNode> typeProperties() { return typeProperties; }
-    public X10ClassDecl typeProperties(List<TypePropertyNode> ps) {
-	    X10ClassDecl_c n = (X10ClassDecl_c) copy();
-    	n.typeProperties = new ArrayList<TypePropertyNode>(ps);
-    	return n;
-    }
 	
     protected DepParameterExpr classInvariant;
     
     protected X10ClassDecl_c(Position pos, FlagsNode flags, Id name,
 	            List<TypeParamNode> typeParameters,
-		    List<TypePropertyNode> typeProperties,
 		    List<PropertyDecl> properties,
-            DepParameterExpr tci,
-            TypeNode superClass, List<TypeNode> interfaces, ClassBody body) {
+		    DepParameterExpr tci,
+            TypeNode superClass,
+            List<TypeNode> interfaces, ClassBody body) {
         super(pos, flags, name, superClass, interfaces, body);
 
         this.typeParameters = TypedList.copyAndCheck(typeParameters, TypeParamNode.class, true);
-        this.typeProperties = TypedList.copyAndCheck(typeProperties, TypePropertyNode.class, true);
         this.properties = TypedList.copyAndCheck(properties, PropertyDecl.class, true);
         this.classInvariant = tci;
         
 //        this.superClass = superClass;
 //        this.interfaces = TypedList.copyAndCheck(interfaces, TypeNode.class, true);
-        
-        if (CLASS_TYPE_PARAMETERS) {
-            this.typeProperties = Collections.EMPTY_LIST;
-            this.typeParameters = new TransformingList<TypePropertyNode,TypeParamNode>(typeProperties, new Transformation<TypePropertyNode,TypeParamNode>() {
-        	public TypeParamNode transform(TypePropertyNode n) {
-        	    X10NodeFactory nf = (X10NodeFactory) Globals.NF();
-        	    return nf.TypeParamNode(n.position(), n.name(), n.variance());
-        	}
-            });
-        }
     }
     
     // TODO: do not strip out dependent clauses of parameter types
@@ -177,11 +135,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 		}
 		if (n instanceof AmbMacroTypeNode) {
 		    AmbMacroTypeNode adtn = (AmbMacroTypeNode) n;
-		    if (CLASS_TYPE_PARAMETERS) {
-		        if (adtn.typeArgs().size() > 0) {
-		            // Just remove the value args and constraint; keep the type args.
-		            return adtn.args(Collections.EMPTY_LIST);
-		        }
+		    if (adtn.typeArgs().size() > 0) {
+		        // Just remove the value args and constraint; keep the type args.
+		        return adtn.args(Collections.EMPTY_LIST);
 		    }
 		    // Remove the type args, value args, and constraint.
 		    X10AmbTypeNode atn = ((X10NodeFactory) Globals.NF()).X10AmbTypeNode(n.position(), adtn.prefix(), adtn.name());
@@ -353,18 +309,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 //        	   }
 //               }
                
-               // For X10, also add the properties.
-//               for (TypeProperty t : type.typeProperties()) {
-//		    PathType pt = t.asType();
-//		    X10TypeSystem ts = (X10TypeSystem) xc.typeSystem();
-//		    try {
-//			Type pt2 = PathType_c.pathBase(pt, ts.xtypeTranslator().transThisWithoutTypeConstraint(), type.asType());
-//			xc.addNamed((Named) pt2);
-//		    }
-//		    catch (SemanticException e) {
-//		    }
-//               }
-
 //               for (FieldDef f : type.properties()) {
 //                   xc.addVariable(f.asInstance());
 //               }
@@ -397,8 +341,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     
     public Node visitSignature(NodeVisitor v) {
         X10ClassDecl_c n = (X10ClassDecl_c) super.visitSignature(v);
-        List<TypePropertyNode> tps = (List<TypePropertyNode>) visitList(this.typeProperties, v);
-        n = (X10ClassDecl_c) n.typeProperties(tps);
+//        List<TypeParamNode> tps = (List<TypeParamNode>) visitList(this.typeParameters, v);
+//        n = (X10ClassDecl_c) n.typeParameters(tps);
         List<PropertyDecl> ps = (List<PropertyDecl>) visitList(this.properties, v);
         n = (X10ClassDecl_c) n.properties(ps);
         DepParameterExpr ci = (DepParameterExpr) visitChild(this.classInvariant, v);
@@ -448,16 +392,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         X10ClassDecl_c n = (X10ClassDecl_c) super.postBuildTypes(tb);
         
         final X10ClassDef def = (X10ClassDef) n.type;
-
-        def.thisVar().setSelfConstraint(new XRef_c<XConstraint>() {
-            @Override
-            public XConstraint compute() {
-                Type t = def.asType();
-                if (t == null)
-                    return null;
-                return X10TypeMixin.realX(t);
-            }
-        });
         
         TypeBuilder childTb = tb.pushClass(def);
         
@@ -471,9 +405,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             }
             ((X10ClassDef) n.type).setDefAnnotations(ats);
         }
-        
-        List<TypePropertyNode> tps = (List<TypePropertyNode>) n.visitList(n.typeProperties, childTb);
-        n = (X10ClassDecl_c) n.typeProperties(tps);
         
         List<PropertyDecl> ps = (List<PropertyDecl>) visitList(n.properties, childTb);
         n = (X10ClassDecl_c) n.properties(ps);
@@ -491,7 +422,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         	XConstraint x = new XConstraint_c();
         	try {
         	    if (ci != null) {
-        		XConstraint xi = ci.xconstraint().get();
+        		XConstraint xi = ci.valueConstraint().get();
         		x.addIn(xi);
         	    }
         	    if (nn.superClass != null) {
@@ -546,8 +477,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         X10ClassDecl_c n = this;
         List<TypeParamNode> typeParameters = (List<TypeParamNode>) n.visitList(n.typeParameters, childtc);
         n = (X10ClassDecl_c) n.typeParameters(typeParameters);
-        List<TypePropertyNode> typeProperties = (List<TypePropertyNode>) n.visitList(n.typeProperties, childtc);
-        n = (X10ClassDecl_c) n.typeProperties(typeProperties);
         List<PropertyDecl> properties = (List<PropertyDecl>) n.visitList(n.properties, childtc);
         n = (X10ClassDecl_c) n.properties(properties);
         return n;
@@ -614,7 +543,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         for (X10ClassType ct : supers) {
             X10ClassType t = map.get(ct.x10Def());
             if (t != null) {
-                if (!t.typeEquals(ct)) {
+                if (!t.typeEquals(ct, tc.context())) {
                     String kind = ct.flags().isInterface() ? "interface" : "class";
                     throw new SemanticException("Cannot extend different instantiations of the same " + kind + "; " + type + " extends both " + t + " and "
                                                 + ct + ".", position());
@@ -688,6 +617,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
     	X10ClassDecl_c result = (X10ClassDecl_c) super.conformanceCheck(tc);
+    	X10Context context = (X10Context) tc.context();
     	
     	// Check that we're in the right file.
     	if (flags.flags().isPublic() && type.isTopLevel()) {
@@ -706,12 +636,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	if (! flags.flags().isInterface()) {
     	    if (X10Flags.toX10Flags(flags.flags()).isValue()) {
-    		if (superClass != null && ! ts.isValueType(superClass)) {
+    		if (superClass != null && ! ts.isValueType(superClass, context)) {
     		    throw new SemanticException("Value class " + type + " cannot extend reference class " + superClass + ".", position());
     		}
     	    }
     	    else {
-    		if (superClass != null && ts.isValueType(superClass)) {
+    		if (superClass != null && ts.isValueType(superClass, context)) {
     		    throw new SemanticException("Reference class " + type + " cannot extend value class " + superClass + ".", position());
     		}
     	    }
@@ -727,7 +657,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    for (PropertyDecl pd : properties()) {
     	        SemanticException ex = null;
     	        try {
-    	            FieldInstance fi = ts.findField(superClass, ts.FieldMatcher(type.asType(), pd.name().id()));
+    	            FieldInstance fi = ts.findField(superClass, ts.FieldMatcher(type.asType(), pd.name().id(), tc.context()));
     	            if (fi instanceof X10FieldInstance) {
     	                X10FieldInstance xfi = (X10FieldInstance) fi;
     	                if (xfi.isProperty())

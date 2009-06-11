@@ -21,6 +21,7 @@ import polyglot.ast.Binary.Operator;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.FieldInstance;
 import polyglot.types.LazyRef_c;
 import polyglot.types.Name;
@@ -47,36 +48,12 @@ import x10.constraint.XVar;
 public class X10TypeMixin {
     
     public static Type instantiate(Type t, Type... typeArg) {
-	if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
-	    if (t instanceof X10ParsedClassType) {
-		X10ParsedClassType ct = (X10ParsedClassType) t;
-		return ct.typeArguments(Arrays.asList(typeArg));
-	    }
-	    else {
-		throw new InternalCompilerError("Cannot instantiate non-class " + t);
-	    }
+	if (t instanceof X10ParsedClassType) {
+	    X10ParsedClassType ct = (X10ParsedClassType) t;
+	    return ct.typeArguments(Arrays.asList(typeArg));
 	}
 	else {
-	    X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-	    XConstraint c = new XConstraint_c();
-	    
-	    for (int i = 0; i < typeArg.length; i++) {
-		Type prop;
-		if (t instanceof X10ClassType) {
-		    X10ClassType ct = (X10ClassType) t;
-		    prop = ct.typeProperties().get(i);
-		}
-		else {
-		    throw new InternalCompilerError("Cannot instantiate type " + t);
-		}
-		try {
-		    c.addBinding(ts.xtypeTranslator().trans(prop), ts.xtypeTranslator().trans(typeArg[i]));
-		}
-		catch (XFailure e) {
-		    throw new InternalCompilerError("Cannot instantiate type " + t, e);
-		}
-	    }
-	    return xclause(t, c);
+	    throw new InternalCompilerError("Cannot instantiate non-class " + t);
 	}
     }
     
@@ -85,6 +62,35 @@ public class X10TypeMixin {
 	return instantiate(t, Types.get(typeArg));
     }
     
+    public static TypeConstraint parameterBounds(Type t) {
+        if (t instanceof ParameterType) {
+        }
+        else if (t instanceof ConstrainedType) {
+            ConstrainedType ct = (ConstrainedType) t;
+            TypeConstraint bounds = parameterBounds(Types.get(ct.baseType()));
+            if (bounds == null)
+                assert bounds != null;
+            return bounds;
+        }
+        else if (t instanceof X10ClassType) {
+            X10ClassType ct = (X10ClassType) t;
+            TypeConstraint c = Types.get(ct.x10Def().typeBounds());
+            if (c != null)
+                return TypeParamSubst.reinstantiateTypeConstraint(ct, c);
+        }
+        else if (t instanceof MacroType) {
+            MacroType mt = (MacroType) t;
+            TypeConstraint c = parameterBounds(mt.definedType());
+            TypeConstraint w = mt.typeGuard();
+            if (w != null) {
+                c = (TypeConstraint) c.copy();
+                c.addIn(w);
+            }
+            return c;
+        }
+        
+        return new TypeConstraint_c();
+    }
     public static XConstraint realX(Type t) {
 	if (t instanceof ParameterType) {
 	    return new XConstraint_c();
@@ -133,26 +139,6 @@ public class X10TypeMixin {
 			}
 		    }
 		    return c;
-		}
-		else if (t instanceof PathType) {
-		    PathType pt = (PathType) t;
-		    XVar base = pt.base();
-		    try {
-		        XConstraint c = base.selfConstraint();
-		        TypeProperty p = pt.property();
-		        XConstraint w = pt.guard();
-		        c = c == null ? new XConstraint_c() : c;
-		        if (w != null) {
-		            c = c.copy();
-		            c.addIn(w);
-		        }
-		        return c;
-		    }
-		    catch (XFailure e) {
-		        XConstraint c = new XConstraint_c();
-		        c.setInconsistent();
-		        return c;
-		    }
 		}
 
 		return new XConstraint_c();
@@ -369,10 +355,6 @@ public class X10TypeMixin {
     	return isConstrained(t);
     }
 
-    public static boolean equalsIgnoreClause(X10Type t1, X10Type t2) {
-        return t1.typeEquals(t2);
-    }
-    
     public static X10PrimitiveType promote(Unary.Operator op, X10PrimitiveType t) throws SemanticException {
         TypeSystem ts = t.typeSystem();
         X10PrimitiveType pt = (X10PrimitiveType) ts.promote(t);
@@ -399,31 +381,6 @@ public class X10TypeMixin {
         return ts.xtypeTranslator().binaryOp(op, c1, c2);
     }
 
-	public static Type lookupTypeProperty(XConstraint c, TypeProperty p) {
-		if (c == null)
-			return null;
-		try {
-			XPromise x = c.lookup(p.asVar());
-			if (x != null && x.term() instanceof XLit) return (Type) ((XLit) x.term()).val();
-		}
-		catch (XFailure e) {
-		}
-		for (XTerm t : c.constraints()) {
-			if (t instanceof XEquals) {
-				XEquals eq = (XEquals) t;
-				XTerm v1 = eq.left();
-				XTerm v2 = eq.right();
-				if (v1.equals(p.asVar()) && v2 instanceof XLit) {
-					return (Type) ((XLit) v2).val();
-				}
-				if (v2.equals(p.asVar()) && v1 instanceof XLit) {
-					return (Type) ((XLit) v1).val();
-				}
-			}
-		}
-		return null;
-	}
-	
 	public static Type getParameterType(Type theType, int i) {
 	    Type b = baseType(theType);
 	    if (b instanceof X10ClassType) {
@@ -435,58 +392,11 @@ public class X10TypeMixin {
 	    return null;
 	}
 	
-	public static Type getPropertyType(Type theType, Name prop) {
-		XConstraint c = realX(theType);
-		if (c == null)
-			return null;
-		return getPropertyType(theType, c, prop);
-	}
-
-	private static Type getPropertyType(Type theType, XConstraint c, Name prop) {
-	        theType = X10TypeMixin.baseType(theType);
-	        if (theType instanceof ClassType) {
-	            ClassType ct = (ClassType) theType;
-	            X10ClassDef def = (X10ClassDef) ct.def();
-	            for (TypeProperty p : def.typeProperties()) {
-	        	if (p.name().equals(prop)) {
-	        	    Type S = X10TypeMixin.lookupTypeProperty(c, p);
-	        	    return S;
-	        	}
-	            }
-	            Type sup = ct.superClass();
-	            if (sup != null)
-	        	return getPropertyType(sup, c, prop);
-	        }
-	        else if (theType instanceof PathType) {
-	            PathType pt = (PathType) theType;
-	            Type baseType = pt.baseType();
-	            Type t = getPropertyType(baseType, pt.property().name());
-	            if (t != null)
-	        	return getPropertyType(t, c, prop);
-	        }
-		return null;
-	}
-	
 	public static List<FieldInstance> properties(Type t) {
 	    t = baseType(t);
 	    if (t instanceof X10ClassType) {
 	        X10ClassType ct = (X10ClassType) t;
 	        return ct.properties();
-	    }
-	    return Collections.EMPTY_LIST;
-	}
-	public static List<TypeProperty> typeProperties(Type t) {
-	    t = baseType(t);
-	    if (t instanceof X10ClassType) {
-	        X10ClassType ct = (X10ClassType) t;
-	        X10ClassDef def = ct.x10Def();
-	        Type sup = Types.get(def.superType());
-	        List<TypeProperty> ps = new ArrayList<TypeProperty>();
-	        if (sup != null) {
-	            ps.addAll(typeProperties(sup));
-	        }
-	        ps.addAll(ct.x10Def().typeProperties());
-	        return ps;
 	    }
 	    return Collections.EMPTY_LIST;
 	}

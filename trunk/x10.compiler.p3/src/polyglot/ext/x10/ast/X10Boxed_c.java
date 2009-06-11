@@ -26,6 +26,7 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
@@ -35,6 +36,7 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
@@ -70,12 +72,14 @@ public class X10Boxed_c extends X10Cast_c {
 
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-        ClassDef currClass = tc.context().currentClassDef();
-        Package currPackage = tc.context().package_();
+        X10Context context = (X10Context) tc.context();
+        
+        ClassDef currClass = context.currentClassDef();
+        Package currPackage = context.package_();
 
         assert ts.isInterfaceType(toType);
-
-        if (ts.typeEquals(toType, ts.Object())) {
+        
+        if (ts.typeEquals(toType, ts.Object(), context)) {
             Position pos = this.position();
             Type t = ts.boxOf(Types.ref(expr.type()));
             return X10Cast_c.check(nf.New(pos, nf.CanonicalTypeNode(pos, Types.ref(t)), Collections.singletonList(expr)), tc);
@@ -107,7 +111,7 @@ public class X10Boxed_c extends X10Cast_c {
         
         local = true;
         
-        assert ts.isValueType(fromType) || ts.isParameterType(fromType);
+        assert ts.isValueType(fromType, context) || ts.isParameterType(fromType);
 
         Name className = Name.makeFresh("Boxed$");
         Name xname = Name.make("v");
@@ -135,7 +139,7 @@ public class X10Boxed_c extends X10Cast_c {
         // Remove abstract or overridden methods.
         for (ListIterator<MethodInstance> i = methods.listIterator(); i.hasNext(); ) {
             MethodInstance mi = i.next();           
-            MethodInstance mj = ts.findImplementingMethod(toCT, mi);
+            MethodInstance mj = ts.findImplementingMethod(toCT, mi, context);
             if (mj != null && mj.def() != mi.def())
                 i.remove();
         }
@@ -195,19 +199,19 @@ public class X10Boxed_c extends X10Cast_c {
 
         ClassBody classBody = nf.ClassBody(position(), members);
 
-        X10ClassDecl Xdecl = nf.X10ClassDecl(position(), nf.FlagsNode(position(), Flags.NONE), nf.Id(position(), className), Collections.EMPTY_LIST, Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, nf.CanonicalTypeNode(position(), superType), Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(position(), toType)), classBody);
+        X10ClassDecl Xdecl = nf.X10ClassDecl(position(), nf.FlagsNode(position(), Flags.NONE), nf.Id(position(), className), Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, nf.CanonicalTypeNode(position(), superType), Collections.<TypeNode>singletonList(nf.CanonicalTypeNode(position(), toType)), classBody);
         
         TypeBuilder tb = new TypeBuilder(tc.job(), ts, nf);
         tb = tb.pushPackage(currPackage);
         tb = tb.pushClass(currClass);
-        tb = tb.pushCode(tc.context().currentCode());
+        tb = tb.pushCode(context.currentCode());
         
         TypeCheckPreparer sr = new TypeCheckPreparer(tc.job(), ts, nf, new HashMap<Node, Node>());
-        sr = (TypeCheckPreparer) sr.context(tc.context());
+        sr = (TypeCheckPreparer) sr.context(context);
         
         TypeChecker tc2;
         tc2 = new TypeChecker(tc.job(), ts, nf, new HashMap<Node, Node>());
-        tc2 = (TypeChecker) tc2.context(tc.context());
+        tc2 = (TypeChecker) tc2.context(context);
 
         if (! local) {
             PackageNode pn = nf.PackageNode(position(), Types.ref(currPackage));
@@ -252,6 +256,7 @@ public class X10Boxed_c extends X10Cast_c {
 
     public void getInheritedVirtualMethods(X10ClassType ct, List<MethodInstance> methods) {
         for (MethodInstance mi : ct.methods()) {
+            mi.formalTypes();
             if (! mi.flags().isStatic()) 
                 methods.add(mi);
         }
@@ -272,10 +277,11 @@ public class X10Boxed_c extends X10Cast_c {
         Type fromType = expr.type();
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
         X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
-
+        X10Context context = (X10Context) tc.context();
+        
         // v to I, where I is not a value interface (i.e., a function type)
-        if (ts.isValueType(fromType) && ts.isInterfaceType(toType) && ! ts.isValueType(toType)) {
-            if (ts.isSubtypeWithValueInterfaces(fromType, toType, Collections.EMPTY_LIST)) {
+        if (ts.isValueType(fromType, context) && ts.isInterfaceType(toType) && ! ts.isValueType(toType, context)) {
+            if (ts.isSubtypeWithValueInterfaces(fromType, toType, tc.context())) {
                 return this.type(toType);
             }
         }

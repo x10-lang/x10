@@ -56,13 +56,9 @@ public interface X10ClassType extends ClassType, X10Type, X10Use<X10ClassDef> {
     List<Type> typeArguments();
     X10ClassType typeArguments(List<Type> typeArgs);
     
-    List<Type> typeProperties();
-    PathType typePropertiesMatching(Matcher<Named> name);
-    
     List<Type> typeMembers();
 
     MacroType typeMemberMatching(Matcher<Named> matcher);
-    
     
     boolean isJavaType();
 

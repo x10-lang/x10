@@ -18,6 +18,7 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 
 	// The default is OBJECT. May be overridden by subclasses.
 	public XTermKind kind() { return XTermKind.OBJECT;}
+	
 	public Solver solver() {
 		return null;
 	}
@@ -30,34 +31,6 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 	
 	public XTerm subst(XTerm y, final XRoot x, boolean propagate) {
 	    XTerm_c t = this;
-	    
-	    if (propagate && selfConstraint != null) {
-	        /*
-	        // t : c
-	        // ->
-	        // t[y/x] : c[y/x]
-	        if (x.equals(XSelf.Self)) {
-	            // t[y/self] : c[y/self] -- self is rebound by c, do don't subst
-	            return t;
-	        }
-	        
-	        if (y.equals(XSelf.Self)) {
-	            // t[self/x] : c[self/x] -- will capture another self in c, do subst in a fresh var instead
-	            // NOTE: we should give each term its own self variable rather than using just XSelf.Self.
-	            if (false) {
-	                t = clone();
-	                t.setSelfConstraint(null);
-	                return t;
-	            }
-	            XRoot newSelf = new XEQV_c(XTerms.makeName("__self" + (nextId++) + "__"), true);
-	            y = newSelf;
-	        }
-*/
-	        t = clone();
-	        
-	        // Wrap the self constraint in a substitution.
-	        t.setSelfConstraint(new XSubst_c(selfConstraint, y, x));
-	    }
 	    return t;
 	}
 
@@ -70,44 +43,6 @@ public abstract class XTerm_c implements XTerm, Cloneable {
 		catch (CloneNotSupportedException e) {
 			return this;
 		}
-	}
-
-	protected XRef_c<XConstraint> selfConstraint;
-	
-	public XConstraint selfConstraint() throws XFailure {
-	    XConstraint c = selfConstraint != null ? selfConstraint.get() : null;
-	    if (c != null && ! c.consistent())
-	        throw new XFailure("self constraint of " + this + " is inconsistent.");
-	    return c;
-	}
-	
-	public XTerm setSelfConstraint(XRef_c<XConstraint> c) {
-		this.selfConstraint = c;
-		return this;
-	}
-
-	public boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure {
-		if (visited.contains(this))
-			return false;
-		visited.add(this);
-		XConstraint self = this.selfConstraint();
-		if (self != null) {
-		    //		    self = self.saturate();
-		    self = self.copy();
-		    if (this instanceof XVar) {
-		        self = self.substitute(this, self.self());
-		    }
-		    else {
-		        XEQV v = self.genEQV(true);
-		        self = self.substitute(v, self.self());
-		        self.addBinding(v, this);
-		    }
-		    for (XTerm term : self.constraints()) {
-		        term.saturate(c, visited);
-		    }
-		    c.addIn(self);
-		}
-		return true;
 	}
 
 	public boolean rootVarIsSelf() {

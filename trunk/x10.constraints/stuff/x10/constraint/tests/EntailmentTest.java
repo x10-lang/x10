@@ -269,10 +269,7 @@ public class EntailmentTest extends TestCase {
             final XVar v1 = XTerms.makeLocal(XTerms.makeName("v1"));
 
             final XConstraint s = new XConstraint_c();
-            s.addBinding(v1, s.self());
-            v0.setSelfConstraint(new XRef_c<XConstraint>() {
-            		public XConstraint compute() { 
-            			return s; }});
+            s.addBinding(v1, v0);
 
             XConstraint c = new XConstraint_c();
             c.addTerm(v0);
@@ -281,9 +278,10 @@ public class EntailmentTest extends TestCase {
             d.addBinding(v0, v1);
             System.out.println();
             System.out.println("EntailmentTest.test14: v0 : _{self=v1} |- v0=v1");
-            System.out.println("c:" + c + " saturated: " + c.saturate());
+            System.out.println("c:" + c);
+            System.out.println("s:" + s);
             System.out.println("d: " + d + " ext:" + d.extConstraints());
-            assertTrue(c.entails(d));
+            assertTrue(c.entails(d, s));
         }
         /**
          * |- exists x. x.a=x.b

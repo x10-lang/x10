@@ -20,27 +20,29 @@ import polyglot.ast.Field_c;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ParameterType;
+import polyglot.ext.x10.types.Subst;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10FieldInstance;
 import polyglot.ext.x10.types.X10Flags;
 import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10MethodInstance;
-import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.ext.x10.types.XTypeTranslator;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
+import polyglot.types.Name;
 import polyglot.types.NoMemberException;
 import polyglot.types.SemanticException;
+import polyglot.types.StructType;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.UnknownType;
+import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -87,7 +89,7 @@ public class X10Field_c extends Field_c {
 		        throw new SemanticException("Cannot access a static field of a type parameter.", position());
 		    }
 		}
-
+		
 		if (c.inSuperTypeDeclaration()) {
 		    Type tBase = X10TypeMixin.baseType(tType);
 		    if (tBase instanceof X10ClassType) {
@@ -97,7 +99,7 @@ public class X10Field_c extends Field_c {
 			    for (FieldDef fd : tCt.x10Def().properties()) {
 				if (fd.name().equals(name.id())) {
 				    X10FieldInstance fi = (X10FieldInstance) fd.asInstance();
-				    fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id()).instantiate(fi);
+				    fi = (X10FieldInstance) ts.FieldMatcher(tType, name.id(), c).instantiate(fi);
 				    if (fi != null) {
 					// Found!
 					X10Field_c result = this;
@@ -114,9 +116,9 @@ public class X10Field_c extends Field_c {
 		    }
 		}
 		
-		try {
 
-			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id()), c.currentClassDef());
+		try {
+			X10FieldInstance fi = (X10FieldInstance) ts.findField(tType, ts.FieldMatcher(tType, name.id(), c));
 			if (fi == null) {
 				throw new InternalCompilerError("Cannot access field " + name +
 						" on node of type " + target.getClass().getName() + ".",
@@ -146,11 +148,13 @@ public class X10Field_c extends Field_c {
 			
 			// Check the guard
 			XConstraint guard = ((X10FieldInstance) result.fieldInstance()).guard();
-			if (guard != null && ! new XConstraint_c().entails(guard)) {
+			if (guard != null && ! new XConstraint_c().entails(guard, c.constraintProjection(guard))) {
 			    throw new SemanticException("Cannot access field.  Field guard not satisfied.", position());
 			}
 			
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
+			
+			checkFieldPlaceType(result, tc);
 			
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -160,7 +164,7 @@ public class X10Field_c extends Field_c {
         	
         	// Now try 0-ary property methods.
         	try {
-        	    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.EMPTY_LIST), c.currentClassDef());
+        	    X10MethodInstance mi = ts.findMethod(target.type(), ts.MethodMatcher(target.type(), name.id(), Collections.EMPTY_LIST, c));
         	    if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
         		Call call = nf.Call(pos, target, this.name);
         		call = call.methodInstance(mi);
@@ -194,12 +198,60 @@ public class X10Field_c extends Field_c {
 	            }
 	            if (receiver == null)
 	                receiver = x.genEQV();
-	            t = X10MethodInstance_c.subst(t, new XVar[] { receiver }, new XRoot[] { fi.thisVar() });
+	            t = Subst.subst(t, (new XVar[] { receiver }), (new XRoot[] { fi.thisVar() }), new Type[] { }, new ParameterType[] { });
 	        }
 	    }
 	    return t;
 	}
 
+	protected void checkFieldPlaceType(X10Field_c result, ContextVisitor tc) 
+	throws SemanticException {
+	    if (true)
+	        return;
+	    
+	    if (result.fieldInstance().flags().isFinal())
+	        return;
+	    if (result.fieldInstance().flags().isStatic())
+	        return;
+	    
+	    if (result.target() instanceof Special)
+	        return;
+
+	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+	    X10Context xc = (X10Context) tc.context();
+	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
+	    
+	    if (! ts.isSubtype(result.target().type(), ts.Ref(), xc))
+	        return;
+
+	    try {
+	        // Given e.f, check if e.loc==here is true.
+	        XConstraint_c pc = new XConstraint_c();
+	        XTerm target = ts.xtypeTranslator().trans(pc, result.target(), xc);
+	        if (target != null) {
+	            XTerm eloc = ts.xtypeTranslator().trans(pc, target, ((StructType) ts.Ref()).fieldNamed(Name.make("location")));
+	            Type t = result.target().type();
+
+	            XTerm here = ts.xtypeTranslator().transHere();
+	            pc.addBinding(eloc, here);
+
+	            XConstraint targetConstraint = X10TypeMixin.realX(result.target().type());
+	            if (targetConstraint.entails(pc, xc.constraintProjection(targetConstraint, pc))) {
+	                // Gamma, true |- here==e.loc
+	                return;
+	            }
+	        }
+	    }
+	    catch (XFailure e) {
+	        // fall through
+	    }
+	    catch (SemanticException e) {
+	        // fall through
+	    }
+
+	    tc.job().compiler().errorQueue().enqueue(ErrorInfo.WARNING, "Place type error: field target " + result.target() + " may not be local.", result.position());
+	}
+	
 	protected void checkFieldAccessesInDepClausesAreFinal(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
 //		 Check that field accesses in dep clauses refer to final fields.

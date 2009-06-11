@@ -18,6 +18,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
@@ -46,7 +47,7 @@ import x10.constraint.XTerm;
 public interface X10TypeSystem extends TypeSystem {
 	public Name DUMMY_PACKAGE_CLASS_NAME = Name.make("_");
 	
-    boolean isSubtype(Type t1, Type t2, List<XTerm> env);
+    boolean isSubtype(Type t1, Type t2, Context context);
     
     /**
      * Add an annotation to a type object, optionally replacing existing
@@ -60,10 +61,10 @@ public interface X10TypeSystem extends TypeSystem {
 
     Type futureOf(Position p, Ref<? extends Type> t);
 
-    MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes);
-    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> argTypes, Context context);
+    MethodMatcher MethodMatcher(Type container, Name name, List<Type> typeArgs,  List<Type> argTypes, Context context);
 
-    ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes);
+    ConstructorMatcher ConstructorMatcher(Type container, List<Type> typeArgs, List<Type> argTypes, Context context);
 
     /**
      * Find a method. We need to pass the class from which the method is being
@@ -74,7 +75,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @exception SemanticException
      *                    if the method cannot be found or is inaccessible.
      */
-    X10MethodInstance findMethod(Type container, MethodMatcher matcher, ClassDef currClass) throws SemanticException;
+    X10MethodInstance findMethod(Type container, MethodMatcher matcher) throws SemanticException;
 
     /**
      * Find a constructor. We need to pass the class from which the constructor
@@ -84,7 +85,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @exception SemanticException
      *                    if the constructor cannot be found or is inaccessible.
      */
-    X10ConstructorInstance findConstructor(Type container, TypeSystem_c.ConstructorMatcher matcher, ClassDef currClass) throws SemanticException;
+    X10ConstructorInstance findConstructor(Type container, TypeSystem_c.ConstructorMatcher matcher) throws SemanticException;
 
     /**
      * Create a <code>ClosureType</code> with the given signature.
@@ -133,6 +134,7 @@ public interface X10TypeSystem extends TypeSystem {
      * @param argTypes
      *                The closure's formal parameter types.
      * @param thisVar TODO
+     * @param typeGuard TODO
      * @param pos
      *                Position of the closure.
      * @param container
@@ -142,11 +144,11 @@ public interface X10TypeSystem extends TypeSystem {
      */
     ClosureDef closureDef(Position p, Ref<? extends ClassType> typeContainer, Ref<? extends CodeInstance<?>> methodContainer, Ref<? extends Type> returnType,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<XConstraint> guard, List<Ref<? extends Type>> throwTypes);
+	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes);
 
     X10MethodDef methodDef(Position pos, Ref<? extends StructType> container, Flags flags, Ref<? extends Type> returnType, Name name,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
+	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes, Ref<XTerm> body);
 
     /**
      * Return the ClassType object for the x10.lang.Array interface.
@@ -195,9 +197,9 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isPlace(Type me);
 
-    boolean isValueType(Type me);
+    boolean isValueType(Type me, X10Context context);
 
-    boolean isReferenceType(Type me);
+    boolean isReferenceType(Type me, X10Context context);
     
     boolean isUByte(Type t);
     boolean isUShort(Type t);
@@ -240,47 +242,41 @@ public interface X10TypeSystem extends TypeSystem {
 
     XTypeTranslator xtypeTranslator();
 
-    boolean equivClause(Type m, Type o);
-
-    boolean equivClause(XConstraint m, XConstraint o);
-
-    boolean entailsClause(Type me, Type other);
-
-    boolean entailsClause(XConstraint me, XConstraint other);
+    boolean entailsClause(Type me, Type other, X10Context context);
+    boolean entailsClause(XConstraint me, XConstraint other, X10Context context, Type selfType);
 
     /**
      * True if the two types are equal, ignoring their dep clauses.
-     * 
      * @param other
+     * @param context TODO
+     * 
      * @return
      */
 
-    boolean typeBaseEquals(Type me, Type other);
+    boolean typeBaseEquals(Type me, Type other, Context context);
     /**
      * True if the two types are equal, ignoring their dep clauses and the dep clauses of their type arguments recursively.
      * 
      * @param other
      * @return
      */
-    boolean typeDeepBaseEquals(Type me, Type other);
+    boolean typeDeepBaseEquals(Type me, Type other, Context context);
 
-    boolean equalTypeParameters(List<Type> a, List<Type> b);
+    boolean equalTypeParameters(List<Type> a, List<Type> b, Context context);
 
     X10ConstructorDef constructorDef(Position pos, Ref<? extends ClassType> container, Flags flags, Ref<? extends ClassType> returnType,
 	    List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> argTypes, XRoot thisVar, List<LocalDef> formalNames,
-	    Ref<XConstraint> guard, List<Ref<? extends Type>> excTypes);
+	    Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> excTypes);
 
     Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op);
 
     Type performUnaryOperation(Type t, Type l, Unary.Operator op);
 
-    X10TypeSystem_c.TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes);
+    X10TypeSystem_c.TypeDefMatcher TypeDefMatcher(Type container, Name name, List<Type> typeArgs, List<Type> argTypes, Context context);
 
-    MacroType findTypeDef(Type t, X10TypeSystem_c.TypeDefMatcher matcher, ClassDef currentClassDef) throws SemanticException;
+    MacroType findTypeDef(Type t, X10TypeSystem_c.TypeDefMatcher matcher, Context context) throws SemanticException;
 
     List<MacroType> findTypeDefs(Type container, Name name, ClassDef currClass) throws SemanticException;
-
-    PathType findTypeProperty(Type t, Name name, ClassDef currClass) throws SemanticException;
 
     Type UByte();
 
@@ -297,46 +293,43 @@ public interface X10TypeSystem extends TypeSystem {
 
     boolean isBox(Type type);
 
-    boolean isFunction(Type type);
+    boolean isFunction(Type type, X10Context context);
 
     X10ClassDef closureAnonymousClassDef(ClosureDef def);
 
-    List<ClosureType> getFunctionSupertypes(Type type);
+    List<ClosureType> getFunctionSupertypes(Type type, X10Context context);
 
     boolean isInterfaceType(Type toType);
 
     ClosureType closureType(Position position, Ref<? extends Type> typeRef, List<Ref<? extends Type>> typeParams, List<Ref<? extends Type>> formalTypes,
-            List<LocalDef> formalNames, Ref<XConstraint> ref, List<Ref<? extends Type>> throwTypes);
+            List<LocalDef> formalNames, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, List<Ref<? extends Type>> throwTypes);
 
     
-    List<Type> upperBounds(Type t, boolean includeObject);
-    List<Type> lowerBounds(Type t);
-
     Type expandMacros(Type arg);
 
     /** Return true if fromType and toType are primitive types and there is a conversion from one to the other. */
-    boolean isPrimitiveConversionValid(Type fromType, Type toType);
+    boolean isPrimitiveConversionValid(Type fromType, Type toType, Context context);
 
 //    /** Run fromType thorugh a coercion function to toType, if possible, returning the return type of the coercion function, or return null. */
 //    Type coerceType(Type fromType, Type toType);
 
-    boolean clausesConsistent(XConstraint c1, XConstraint c2);
+    boolean clausesConsistent(XConstraint c1, XConstraint c2, Context context);
 
     /** Return true if the constraint is consistent. */
     boolean consistent(XConstraint c);
+    boolean consistent(TypeConstraint c, X10Context context);
 
-    /** Return true if constraints in the type are all consistent. */
-    boolean consistent(Type t);
+    /** Return true if constraints in the type are all consistent. 
+     * @param context TODO*/
+    boolean consistent(Type t, X10Context context);
 
-	SubtypeSolver subtypeSolver();
+    boolean isReferenceOrInterfaceType(Type t, X10Context context);
 
-    boolean isReferenceOrInterfaceType(Type t);
-
-    boolean isSubtypeWithValueInterfaces(Type t1, Type t2, List<XTerm> atoms);
+    boolean isSubtypeWithValueInterfaces(Type t1, Type t2, Context context);
 
     boolean isParameterType(Type toType);
 
-    boolean isImplicitNumericCastValid(Type fromType, Type toType);
+    boolean isImplicitNumericCastValid(Type fromType, Type toType, Context context);
 
     Type Region();
 
@@ -345,6 +338,5 @@ public interface X10TypeSystem extends TypeSystem {
     X10FieldDef fieldDef(Position pos,
             Ref<? extends StructType> container, Flags flags,
             Ref<? extends Type> type, Name name, XRoot thisVar);
-    
 
 }

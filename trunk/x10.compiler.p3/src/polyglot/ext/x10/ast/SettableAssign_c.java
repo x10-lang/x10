@@ -35,7 +35,9 @@ import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import polyglot.types.SemanticException;
@@ -97,13 +99,23 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    Call c = nf.Call(position(), array, nf.Id(position(), apply), index);
 	    if (mi != null) {
 	        X10TypeSystem xts = (X10TypeSystem) mi.typeSystem();
+	        if (true) {
+	        ContextVisitor tc = new ContextVisitor(Globals.currentJob(), xts, nf);
+	        tc = tc.context(xts.emptyContext());
+	        try {
+	            return (Expr) c.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        }
+	        catch (SemanticException e) {
+	            assert false;
+	        }
+	        }
 	        List<Type> argTypes = new ArrayList<Type>(mi.formalTypes());
 	        argTypes.remove(0);
 	        MethodInstance ami = null;
 	        try {
+	            Context context = xts.emptyContext(); // ### not right -- should do context(this)
 	            ami = xts.findMethod(mi.container(),
-	                    xts.MethodMatcher(mi.container(), apply, argTypes),
-	                    mi.container().toClass().def());
+	                                 xts.MethodMatcher(mi.container(), apply, argTypes, context));
 	        } catch (SemanticException e) {
 	            assert (false);
 	        }
@@ -194,7 +206,22 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 	    X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	    X10NodeFactory nf = (X10NodeFactory) tc.nodeFactory();
 	    X10TypeSystem xts = ts;
-
+	    
+	    if (op != Assign.ASSIGN) {
+	        Name methodName = Name.make("apply");
+	        
+	        List<Expr> args = new ArrayList<Expr>();
+	        args.addAll(index);
+	        X10Call_c n = (X10Call_c) nf.X10Call(position(), array, nf.Id(position(), methodName), Collections.EMPTY_LIST, args);
+	        
+	        try {
+	            n = (X10Call_c) n.del().disambiguate(tc).typeCheck(tc).checkConstants(tc);
+	        }
+	        catch (SemanticException e) {
+	            throw new SemanticException("Cannot assign to element of " + array.type() + "; " + e.getMessage(), position()); 
+	        }
+	    }
+	    
 	    Name methodName = Name.make("set");
 	    
 	    List<Expr> args = new ArrayList<Expr>();

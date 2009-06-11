@@ -40,7 +40,7 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
 import polyglot.ext.x10.types.ParameterType;
-import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.TypeConstraint;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10ConstructorDef;
@@ -151,8 +151,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             mi.inferReturnType(true);
         }
 
-        if (n.guard() != null)
-            mi.setGuard(n.guard().xconstraint());
+        if (n.guard() != null) {
+            mi.setGuard(n.guard().valueConstraint());
+            mi.setTypeGuard(n.guard().typeConstraint());
+        }
 
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
@@ -243,6 +245,18 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             for (Formal f : formals) {
                 f.addDecls(c);
             }
+        }
+        
+        // Add the method guard into the environment.
+        if (guard != null) {
+            Ref<XConstraint> vc = guard.valueConstraint();
+            Ref<TypeConstraint> tc = guard.typeConstraint();
+        
+            if (vc != null || tc != null) {
+                c = c.pushBlock();
+//                ((X10Context) c).setCurrentConstraint(vc);
+//                ((X10Context) c).setCurrentTypeConstraint(tc);
+            }            
         }
 
         return super.enterChildScope(child, c);
@@ -422,6 +436,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
         MethodDef mi = this.methodDef();
         X10TypeSystem xts = (X10TypeSystem) tc.typeSystem();
+
+        for (TypeNode type : throwTypes()) {
+            XConstraint rc = X10TypeMixin.xclause(type.type());
+            if (rc != null && ! rc.valid())
+                throw new SemanticException("Cannot throw a dependent type.", type.position());
+        }
 
         if (X10Flags.toX10Flags(mi.flags()).isProperty()) {
             X10MethodInstance xmi = (X10MethodInstance) mi.asInstance();
@@ -646,13 +666,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             throw ex[0];
     }
 
-    protected static void checkVariancesOfType(Position pos, Type t, TypeProperty.Variance requiredVariance, String desc, Map<Name,TypeProperty.Variance> vars, ContextVisitor tc) throws SemanticException {
+    protected static void checkVariancesOfType(Position pos, Type t, ParameterType.Variance requiredVariance, String desc, Map<Name,ParameterType.Variance> vars, ContextVisitor tc) throws SemanticException {
         if (t instanceof ParameterType) {
             ParameterType pt = (ParameterType) t;
             X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
             if (pt.def() != cd)
                 return;
-            TypeProperty.Variance actualVariance = vars.get(pt.name());
+            ParameterType.Variance actualVariance = vars.get(pt.name());
             if (actualVariance == null)
                 return;
             switch (actualVariance) {
@@ -690,8 +710,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             for (int i = 0; i < ct.typeArguments().size(); i++) {
                 Type at = ct.typeArguments().get(i);
                 ParameterType pt = def.typeParameters().get(i);
-                TypeProperty.Variance v = def.variances().get(i);
-                TypeProperty.Variance newVariance;
+                ParameterType.Variance v = def.variances().get(i);
+                ParameterType.Variance newVariance;
 
                 switch (v) {
                 case INVARIANT:
@@ -706,10 +726,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                         checkVariancesOfType(pos, at, requiredVariance, desc, vars, tc);
                         break;
                     case COVARIANT:
-                        checkVariancesOfType(pos, at, TypeProperty.Variance.CONTRAVARIANT, desc, vars, tc);
+                        checkVariancesOfType(pos, at, ParameterType.Variance.CONTRAVARIANT, desc, vars, tc);
                         break;
                     case CONTRAVARIANT:
-                        checkVariancesOfType(pos, at, TypeProperty.Variance.COVARIANT, desc, vars, tc);
+                        checkVariancesOfType(pos, at, ParameterType.Variance.COVARIANT, desc, vars, tc);
                         break;
                     }
                     break;
@@ -728,16 +748,16 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             return;
 
         X10ClassDef cd = (X10ClassDef) tc.context().currentClassDef();
-        final Map<Name,TypeProperty.Variance> vars = new HashMap<Name, TypeProperty.Variance>();
+        final Map<Name,ParameterType.Variance> vars = new HashMap<Name, ParameterType.Variance>();
         for (int i = 0; i < cd.typeParameters().size(); i++) {
             ParameterType pt = cd.typeParameters().get(i);
-            TypeProperty.Variance v = cd.variances().get(i);
+            ParameterType.Variance v = cd.variances().get(i);
             vars.put(pt.name(), v);
         }
 
-        checkVariancesOfType(returnType.position(), returnType.type(), TypeProperty.Variance.COVARIANT, "as a method return type", vars, tc);
+        checkVariancesOfType(returnType.position(), returnType.type(), ParameterType.Variance.COVARIANT, "as a method return type", vars, tc);
         for (Formal f : formals) {
-            checkVariancesOfType(f.type().position(), f.declType(), TypeProperty.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
+            checkVariancesOfType(f.type().position(), f.declType(), ParameterType.Variance.CONTRAVARIANT, "as a method parameter type", vars, tc);
         }
     }
 

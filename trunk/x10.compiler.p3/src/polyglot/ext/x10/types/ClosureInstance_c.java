@@ -17,6 +17,7 @@ import java.util.List;
 import polyglot.ext.x10.types.X10MethodInstance_c.NoClauseVariant;
 import polyglot.types.ClassType;
 import polyglot.types.CodeInstance;
+import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.FunctionInstance_c;
 import polyglot.types.LocalDef;
@@ -62,16 +63,16 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return Types.get(def().typeContainer());
     }
 
-    public boolean closureCallValid(List<Type> actualTypes) {
-        return callValid(type(), actualTypes);
+    public boolean closureCallValid(List<Type> actualTypes, Context context) {
+        return callValid(type(), actualTypes, context);
     }
     
-    public boolean callValid(Type thisType, List<Type> actualTypes) {
-        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes);
+    public boolean callValid(Type thisType, List<Type> actualTypes, Context context) {
+        return X10MethodInstance_c.callValidImpl(this, thisType, actualTypes, context);
     }
 
-    public boolean moreSpecific(ProcedureInstance<ClosureDef> p) {
-        return X10MethodInstance_c.moreSpecificImpl(this, p);
+    public boolean moreSpecific(ProcedureInstance<ClosureDef> p, Context context) {
+        return X10MethodInstance_c.moreSpecificImpl(this, p, context);
     }
 
     public String signature() {
@@ -149,15 +150,12 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return (ClosureInstance) super.throwTypes(throwTypes);
     }
 
-    public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
-        ClosureInstance me = this.formalTypes(new TransformingList<Type,Type>(this.formalTypes(), new NoClauseVariant()));
-        return me.callValid(thisType, new TransformingList<Type,Type>(argTypes, new NoClauseVariant()));
-    }
-
     XConstraint guard;
     
     public XConstraint guard() {
-        return guard;
+            if (guard == null)
+                    return Types.get(def().guard());
+            return guard;
     }
     
     public ClosureInstance guard(XConstraint guard) {
@@ -166,6 +164,20 @@ public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements
         return n;
     }
 
+    /** Constraint on type parameters. */
+    protected TypeConstraint typeGuard;
+    public TypeConstraint typeGuard() { 
+        if (typeGuard == null)
+            return Types.get(def().typeGuard());
+        return typeGuard;
+    }
+    public ClosureInstance typeGuard(TypeConstraint s) { 
+        ClosureInstance_c n = (ClosureInstance_c) copy();
+        n.typeGuard = s; 
+        return n;
+    }
+    
+    
     public List<Type> typeParameters;
 
     public List<Type> typeParameters() {

@@ -158,8 +158,9 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	 
 	 public Node setResolverOverride(final Node parent, TypeCheckPreparer v) {
 	     final X10TypeSystem ts = (X10TypeSystem) v.typeSystem();
-	     final ClassDef currClassDef = v.context().currentClassDef();
-	     
+	     final X10Context context = (X10Context) v.context();
+	     final ClassDef currClassDef = context.currentClassDef();
+
 	     Formal f = (Formal) this;
 	     X10LocalDef li = (X10LocalDef) f.localDef();
 	     if (f.type() instanceof UnknownTypeNode && parent instanceof Formal) {
@@ -171,12 +172,12 @@ public class X10Formal_c extends Formal_c implements X10Formal {
 	                 Type containerType = ff.type().type();
 	                 Type indexType = null;
 	                 
-	                 if (ts.isFunction(containerType)) {
+	                 if (ts.isFunction(containerType, context)) {
 	                     List<Type> actualTypes = Collections.singletonList(ts.Int());
 
 	                     try {
 	                         // Find the most-specific closure type.
-	                         X10MethodInstance mi = ts.findMethod(containerType, ts.MethodMatcher(containerType, Name.make("apply"), Collections.EMPTY_LIST, actualTypes), currClassDef);
+	                         X10MethodInstance mi = ts.findMethod(containerType, ts.MethodMatcher(containerType, Name.make("apply"), Collections.EMPTY_LIST, actualTypes, context));
 	                         indexType = mi.returnType();
 	                     }
 	                     catch (SemanticException e) {

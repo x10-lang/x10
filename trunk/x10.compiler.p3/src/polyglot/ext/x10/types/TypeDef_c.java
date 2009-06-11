@@ -39,11 +39,12 @@ public class TypeDef_c extends Def_c implements TypeDef {
 	protected List<LocalDef> formalNames;
 	protected List<Ref<? extends Type>> formalTypes;
 	protected Ref<XConstraint> guard;
+	protected Ref<TypeConstraint> typeGuard;
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends StructType> container, List<Ref<? extends Type>> typeParams,
-	        XRoot thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<? extends Type> type) {
+	        XRoot thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<XConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
 		super(ts, pos);
 		this.container = container;
@@ -54,6 +55,7 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
 		this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
 		this.guard = guard;
+		this.typeGuard = typeGuard;
 		this.type = type;
 	}
 	
@@ -123,20 +125,22 @@ public class TypeDef_c extends Def_c implements TypeDef {
 		this.typeParameters = TypedList.copyAndCheck(typeParameters, Ref.class, true);
 	}
 
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.TypeDef#guard()
-	 */
 	public Ref<XConstraint> guard() {
 		return guard;
 	}
 
-	/* (non-Javadoc)
-	 * @see polyglot.ext.x10.types.TypeDef#setGuard(polyglot.types.Ref)
-	 */
 	public void setGuard(Ref<XConstraint> guard) {
 		this.guard = guard;
 	}
 
+	public Ref<TypeConstraint> typeGuard() {
+	    return typeGuard;
+	}
+	
+	public void setTypeGuard(Ref<TypeConstraint> typeGuard) {
+	    this.typeGuard = typeGuard;
+	}
+	
 	/* (non-Javadoc)
 	 * @see polyglot.ext.x10.types.TypeDef#setContainer(polyglot.types.Ref)
 	 */

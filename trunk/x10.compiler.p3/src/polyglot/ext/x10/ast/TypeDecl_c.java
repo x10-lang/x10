@@ -22,23 +22,19 @@ import polyglot.ext.x10.extension.X10Del_c;
 import polyglot.ext.x10.types.AnnotatedType;
 import polyglot.ext.x10.types.ConstrainedType;
 import polyglot.ext.x10.types.MacroType;
-import polyglot.ext.x10.types.PathType;
 import polyglot.ext.x10.types.TypeDef;
 import polyglot.ext.x10.types.TypeDef_c;
 import polyglot.ext.x10.types.X10ClassDef;
-import polyglot.ext.x10.types.X10MemberDef;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
-import polyglot.types.Def;
 import polyglot.types.Flags;
 import polyglot.types.LazyRef;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
-import polyglot.types.Name;
 import polyglot.types.Named;
 import polyglot.types.Package;
 import polyglot.types.QName;
@@ -55,11 +51,7 @@ import polyglot.visit.TypeBuilder;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
-import x10.constraint.XRef_c;
 import x10.constraint.XRoot;
-import x10.constraint.XTerms;
 
 public class TypeDecl_c extends Term_c implements TypeDecl {
 	private TypeNode type;
@@ -239,7 +231,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    typeDef = new TypeDef_c(ts, position(), Flags.NONE, name.id(), null,
 		                            Collections.EMPTY_LIST,
 		                            thisVar,
-		                            Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null);
+		                            Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null, null);
 		}
 		else {		
 		    if (ct == null)
@@ -248,7 +240,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    typeDef = new TypeDef_c(ts, position(), topLevel ? flags.flags().Static() : flags.flags(), name.id(), Types.ref(ct.asType()),
 		                                                     Collections.EMPTY_LIST,
 		                                                     thisVar,
-		                                                     Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null);
+		                                                     Collections.EMPTY_LIST, Collections.EMPTY_LIST, null, null, null);
 		    ct.addMemberType(typeDef);
 		}
 		
@@ -290,10 +282,12 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        }
 	        typeDef.setFormalTypes(formalTypes);
 	        typeDef.setFormalNames(formalNames);
-	        
-	        if (n.guard != null)
-	        	typeDef.setGuard(n.guard.xconstraint());
 
+	        if (n.guard != null) {
+	            typeDef.setGuard(n.guard.valueConstraint());
+	            typeDef.setTypeGuard(n.guard.typeConstraint());
+	        }
+	
 	        if (n.type != null) {
 	        	TypeNode tn = (TypeNode) n.visitChild(n.type, tb2);
 	        	n = (TypeDecl_c) n.type(tn);
@@ -341,10 +335,6 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		checkCycles(ct.superClass());
 		for (Type t : ct.interfaces())
 		    checkCycles(t);
-	    }
-	    if (type instanceof PathType) {
-		PathType ct = (PathType) type;
-		checkCycles(ct.baseType());
 	    }
 	    if (type instanceof AnnotatedType) {
 		AnnotatedType ct = (AnnotatedType) type;

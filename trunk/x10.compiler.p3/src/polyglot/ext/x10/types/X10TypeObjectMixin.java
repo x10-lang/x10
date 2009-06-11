@@ -50,7 +50,7 @@ public class X10TypeObjectMixin {
         List<Type> l = new ArrayList<Type>();
         for (Iterator<Type> i = annotations.iterator(); i.hasNext(); ) {
             Type ct = i.next();
-            if (ct.isSubtype(t)) {
+            if (ct.isSubtype(t, t.typeSystem().emptyContext())) {
                 l.add(ct);
             }
         }

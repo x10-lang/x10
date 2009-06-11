@@ -140,7 +140,7 @@ public class X10Caster extends ContextVisitor {
                 }
 
             }
-            if (ts.isSubtype(fromType, toType) && !ts.typeBaseEquals(fromType, toType) && !ts.typeEquals(toType, ts.Object())) {
+            if (ts.isSubtype(fromType, toType, context) && !ts.typeBaseEquals(fromType, toType, context) && !ts.typeEquals(toType, ts.Object(), context)) {
                 Expr e2 = nf.X10Cast(e1.position(), nf.CanonicalTypeNode(e1.position(), toType), e1, X10Cast.ConversionType.UNKNOWN_IMPLICIT_CONVERSION);
                 e2 = (Expr) e2.del().disambiguate(this).typeCheck(this).checkConstants(this);
                 return e2;

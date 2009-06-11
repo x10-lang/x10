@@ -18,6 +18,7 @@ import polyglot.ext.x10.ExtensionInfo;
 import polyglot.ext.x10.ast.SettableAssign;
 import polyglot.ext.x10.types.X10ArraysMixin;
 import polyglot.ext.x10.types.X10ClassType;
+import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.types.ArrayType;
@@ -47,51 +48,52 @@ public class QueryEngine {
 
 	/**
 	 * @param a Array variable being used in one-dimensional access
+	 * @param context TODO
 	 * @return true iff a is a dense one-dimensional array with zero origin
 	 */
-	public boolean isRectangularRankOneLowZero(SettableAssign a) {
+	public boolean isRectangularRankOneLowZero(SettableAssign a, X10Context context) {
 		Type t = a.array().type();
 	        X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
 	        if (X10ArraysMixin.isX10Array(t))
-	            return X10ArraysMixin.isRail(t) || (X10ArraysMixin.isZeroBased(t) && X10ArraysMixin.isRankOne(t) && X10ArraysMixin.isRect(t));
+	            return X10ArraysMixin.isRail(t, context) || (X10ArraysMixin.isZeroBased(t, context) && X10ArraysMixin.isRankOne(t, context) && X10ArraysMixin.isRect(t, context));
 	        else
 	            return false;
 	}
 
-	public boolean needsHereCheck(Type t) {
+	public boolean needsHereCheck(Type t, X10Context context) {
 		/* Removed by RAJ to disable compile time BAD_PLACE_CHECK option*/
 		/* Reinstated by Igor because the place checks are still generated.
 		   To be removed when the generation is completely disabled. */
 		if (!Configuration.BAD_PLACE_RUNTIME_CHECK)
 			return false;
             X10TypeSystem ts = (X10TypeSystem) t.typeSystem();
-            if (ts.isValueType(t))  return false;
+            if (ts.isValueType(t, context))  return false;
 		return true;
 	}
 
-	public boolean needsHereCheck(Call c) {
-		return needsHereCheck(c.target().type());
+	public boolean needsHereCheck(Call c, X10Context context) {
+		return needsHereCheck(c.target().type(), context);
 	}
 
-	public boolean needsHereCheck(Field f) {
-		return needsHereCheck(f.target().type());
+	public boolean needsHereCheck(Field f, X10Context context) {
+		return needsHereCheck(f.target().type(), context);
 	}
 
-	public boolean needsHereCheck(SettableAssign a) {
+	public boolean needsHereCheck(SettableAssign a, X10Context context) {
 		Type lt = a.leftType();
 		X10TypeSystem ts = (X10TypeSystem) lt.typeSystem();
 	        if (X10ArraysMixin.isX10Array(lt)) {
-			return needsHereCheck(X10ArraysMixin.arrayBaseType(lt));
+			return needsHereCheck(X10ArraysMixin.arrayBaseType(lt), context);
 		}
 		return false;
 	}
 
-	public boolean needsHereCheck(Unary a) {
+	public boolean needsHereCheck(Unary a, X10Context context) {
 	    System.out.println("TODO: needsHereCheck for " + a);
 		Type lt = a.expr().type();
 		if (lt instanceof ArrayType) {
 			ArrayType at = (ArrayType) lt;
-			return needsHereCheck(at.base());
+			return needsHereCheck(at.base(), context);
 		}
 		return false;
 	}

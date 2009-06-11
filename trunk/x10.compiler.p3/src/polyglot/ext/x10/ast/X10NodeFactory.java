@@ -34,9 +34,9 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10Cast.ConversionType;
-import polyglot.ext.x10.types.TypeProperty;
+import polyglot.ext.x10.types.ParameterType;
 import polyglot.ext.x10.types.X10ConstructorDef;
-import polyglot.ext.x10.types.TypeProperty.Variance;
+import polyglot.ext.x10.types.ParameterType.Variance;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.FieldInstance;
 import polyglot.types.Ref;
@@ -76,8 +76,7 @@ public interface X10NodeFactory extends NodeFactory {
 
     UnknownTypeNode UnknownTypeNode(Position pos);
     TypeParamNode TypeParamNode(Position pos, Id name);
-    TypeParamNode TypeParamNode(Position pos, Id name, Variance variance);
-    TypePropertyNode TypePropertyNode(Position pos, Id name, TypeProperty.Variance variance);
+    TypeParamNode TypeParamNode(Position pos, Id name, ParameterType.Variance variance);
     TypeNode FunctionTypeNode(Position pos, List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard, TypeNode returnType, List<TypeNode> throwTypes);   
     Expr SubtypeTest(Position pos, TypeNode sub, TypeNode sup, boolean equals);
     Expr Contains(Position pos, Expr item, Expr collection);
@@ -107,10 +106,9 @@ public interface X10NodeFactory extends NodeFactory {
 
     X10ClassDecl X10ClassDecl(Position pos, FlagsNode flags, Id name,
 	    List<TypeParamNode> typeParameters,
-		    List<TypePropertyNode> typeProperties,
-              List<PropertyDecl> properties, DepParameterExpr ci,
-              TypeNode superClass, List<TypeNode> interfaces,
-              ClassBody body);
+		    List<PropertyDecl> properties,
+              DepParameterExpr ci, TypeNode superClass,
+              List<TypeNode> interfaces, ClassBody body);
 	Await Await(Position pos, Expr expr);
 
 	X10Loop ForLoop(Position pos, Formal formal, Expr domain, Stmt body);
@@ -120,8 +118,8 @@ public interface X10NodeFactory extends NodeFactory {
 				   Stmt body);
 	Finish Finish(Position pos, Stmt body);
 
-	DepParameterExpr DepParameterExpr(Position pos, Expr cond);
-	DepParameterExpr DepParameterExpr(Position pos, List<Formal> formals, Expr cond);
+	DepParameterExpr DepParameterExpr(Position pos, List<Expr> cond);
+	DepParameterExpr DepParameterExpr(Position pos, List<Formal> formals, List<Expr> cond);
     MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
     		TypeNode returnType, Id name, List<TypeParamNode> typeParams,
     		List<Formal> formals, DepParameterExpr guard, List<TypeNode> throwTypes, Block body);

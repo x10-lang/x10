@@ -132,7 +132,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 
         for (Expr e : elements) {
             if (e == child) {
-                if (ts.numericConversionValid(base, e.constantValue())) {
+                if (ts.numericConversionValid(base, e.constantValue(), av.context())) {
                     return child.type();
                 }
                 else {
@@ -164,7 +164,7 @@ public class Tuple_c extends Expr_c implements Tuple {
 		    type = e.type();
 		}
 		else {
-		    type = ts.leastCommonAncestor(type, e.type());
+		    type = ts.leastCommonAncestor(type, e.type(), tc.context());
 		}
 	    }
 

@@ -76,7 +76,7 @@ public class X10LocalAssign_c extends LocalAssign_c {
 
         if (op == ADD_ASSIGN) {
             // t += s
-            if (ts.typeEquals(t, ts.String()) && ts.canCoerceToString(s, tc.context())) {
+            if (ts.typeEquals(t, ts.String(), tc.context()) && ts.canCoerceToString(s, tc.context())) {
                 Expr newRight = X10Binary_c.coerceToString(tc, right);
                 return n.right(newRight).type(ts.String());
             }                

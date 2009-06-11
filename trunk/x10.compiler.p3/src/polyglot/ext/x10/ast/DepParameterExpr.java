@@ -18,6 +18,7 @@ import polyglot.ast.Ambiguous;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.TypeConstraint;
 import polyglot.types.Ref;
 import x10.constraint.XConstraint;
 
@@ -30,9 +31,12 @@ public interface DepParameterExpr extends Ambiguous {
 	List<Formal> formals();
 	DepParameterExpr formals(List<Formal> formals);
 
-	Expr condition();
-	DepParameterExpr condition(Expr cond);
+	List<Expr> condition();
+	DepParameterExpr condition(List<Expr> cond);
 
-	Ref<XConstraint> xconstraint();
-	DepParameterExpr xconstraint(Ref<XConstraint> c);
+	Ref<XConstraint> valueConstraint();
+	DepParameterExpr valueConstraint(Ref<XConstraint> c);
+	
+	Ref<TypeConstraint> typeConstraint();
+	DepParameterExpr typeConstraint(Ref<TypeConstraint> c);
 }

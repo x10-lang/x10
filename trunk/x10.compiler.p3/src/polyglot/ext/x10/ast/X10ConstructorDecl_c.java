@@ -151,19 +151,20 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         ci.setReturnType((Ref<? extends X10ClassType>) n.returnType().typeRef());
         
-        if (n.guard() != null)
-            ci.setGuard(n.guard().xconstraint());
-
-        if (X10ClassDecl_c.CLASS_TYPE_PARAMETERS) {
-            if (n.typeParameters().size() > 0)
-                throw new SemanticException("Constructors cannot have type parameters.", n.position());
+        if (n.guard() != null) {
+            ci.setGuard(n.guard().valueConstraint());
+            ci.setTypeGuard(n.guard().typeConstraint());
         }
         
-        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
-        for (TypeParamNode tpn : n.typeParameters()) {
-        	typeParameters.add(Types.ref(tpn.type()));
-        }
-        ci.setTypeParameters(typeParameters);
+        if (n.typeParameters().size() > 0)
+            throw new SemanticException("Constructors cannot have type parameters.", n.position());
+        
+//        List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
+//        for (TypeParamNode tpn : n.typeParameters()) {
+//        	typeParameters.add(Types.ref(tpn.type()));
+//        }
+//        ci.setTypeParameters(typeParameters);
+        ci.setTypeParameters(Collections.EMPTY_LIST);
         
         List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
         for (Formal f : n.formals()) {
@@ -353,7 +354,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         
         Type retTypeBase = X10TypeMixin.baseType(r.type());
         Type clazz = X10TypeMixin.baseType(Types.get(nnci.container()));
-        if (! xts.typeEquals(retTypeBase, clazz)) {
+        if (! xts.typeEquals(retTypeBase, clazz, tc.context())) {
         	throw new SemanticException("The return type of the constructor (" + retTypeBase 
         			+ " must be derived from"
         			+ " the type of the class (" + clazz + ") on which the constructor is defined.",
@@ -394,12 +395,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
     public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
         X10ConstructorDecl_c n = (X10ConstructorDecl_c) super.conformanceCheck(tc);
-
         X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
+        
         Type retTypeBase = X10TypeMixin.baseType(n.returnType().type());
+        XConstraint c =         X10TypeMixin.xclause(n.returnType().type());
+        
         X10ConstructorDef nnci = (X10ConstructorDef) n.constructorDef();
         Type clazz = nnci.asInstance().container();
-        if (! ts.typeEquals(retTypeBase, clazz)) {
+        if (! ts.typeEquals(retTypeBase, clazz, tc.context())) {
             throw new SemanticException("The return type of the constructor (" + retTypeBase 
                                         + " must be derived from"
                                         + " the type of the class (" + clazz + ") on which the constructor is defined.",

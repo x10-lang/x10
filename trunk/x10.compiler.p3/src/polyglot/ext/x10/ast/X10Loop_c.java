@@ -25,6 +25,7 @@ import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
 import polyglot.ast.Term;
+import polyglot.ext.x10.types.Subst;
 import polyglot.ext.x10.types.X10ClassType;
 import polyglot.ext.x10.types.X10LocalDef;
 import polyglot.ext.x10.types.X10MethodInstance;
@@ -52,6 +53,8 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraint_c;
 import x10.constraint.XFailure;
+import x10.constraint.XRoot;
+import x10.constraint.XTerm;
 
 /**
  * Captures the commonality of for, foreach and ateach loops in X10.
@@ -178,7 +181,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 		Type formalType = formal.declType();
 		Type Iterable = ts.Iterable(formalType);
 		
-		if (ts.isSubtypeWithValueInterfaces(domainType, Iterable, Collections.EMPTY_LIST)) {
+		if (ts.isSubtypeWithValueInterfaces(domainType, Iterable, tc.context())) {
 		    return this;
 		}
 
@@ -188,7 +191,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 //		if (! mi.flags().isStatic() && ts.isSubtype(rt, Iterator))
 //		    return this;
 
-		if (ts.isSubtype(formalType, ts.Point())) {
+		if (ts.isSubtype(formalType, ts.Point(), tc.context())) {
 		    try {
 		        Expr newDomain = X10New_c.attemptCoercion(tc, domain, ts.Region());
 		        if (newDomain != domain)
@@ -343,6 +346,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
                     final ClassDef curr = v.context().currentClassDef();
                     
                     // Now, get the index type from the domain.
+                    // FIXME: Dist{self==d} index type is Point{rank==this.rank}
+                    // should be Point{rank==d.rank}
                     r.setResolver(new Runnable() { 
                         Type getIndexType(Type domainType) {
                             Type base = X10TypeMixin.baseType(domainType);
@@ -359,7 +364,9 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
                                     }
                                     for (Type ti : ts.interfaces(domainType)) {
                                         Type t = getIndexType(ti);
-                                        if (t != null) return t;
+                                        if (t != null) {
+                                            return t;
+                                        }
                                     }
                                 }
                             }
@@ -377,7 +384,19 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop, Loop {
 
                         public void run() {
                             Type domainType = domainTypeRef.get();
-                            Type indexType = getIndexType(domainType);                 
+                            Type indexType = getIndexType(domainType);    
+                            
+                            // subst self for this (from the domain type) in the index type.
+                            Type base = X10TypeMixin.baseType(domainType);
+                            XConstraint c = X10TypeMixin.xclause(domainType);
+                            XTerm selfVar = c != null ? c.bindingForVar(c.self()) : null;
+                            XRoot thisVar = base instanceof X10ClassType ? ((X10ClassType) base).x10Def().thisVar() : null;
+                            if (thisVar != null && selfVar != null)
+                                try {
+                                    indexType = Subst.subst(indexType, selfVar, thisVar);
+                                }
+                                catch (SemanticException e) {
+                                }
 
                             if (indexType != null) {
                                 r.update(indexType);

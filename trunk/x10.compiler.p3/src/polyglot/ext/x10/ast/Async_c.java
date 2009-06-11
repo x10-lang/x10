@@ -11,25 +11,20 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import polyglot.ast.Block;
-import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
-import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
 import polyglot.ast.Stmt_c;
+import polyglot.ast.Term;
 import polyglot.ext.x10.types.X10Context;
 import polyglot.ext.x10.types.X10MethodDef;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.main.Report;
-import polyglot.types.CodeDef;
 import polyglot.types.Context;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
 import polyglot.util.Position;
@@ -39,6 +34,11 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.FlowGraph;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.XTerms;
 
 /**
  * Created on Oct 5, 2004
@@ -133,31 +133,56 @@ public class Async_c extends Stmt_c implements Async {
 	/**
 	 * The evaluation of place and list of clocks is not in the scope of the async.
 	 */
-	public Context enterScope(Context c) {
+	public Context enterChildScope(Node child, Context c) {
 	    if (Report.should_report(TOPICS, 5))
 	        Report.report(5, "enter async scope");
-	    X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
-	    X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
-	    if (c.currentCode() instanceof X10MethodDef) {
-	        X10MethodDef outer = (X10MethodDef) c.currentCode();
-	        List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
-	        if (!capturedTypes.isEmpty()) {
-	            asyncInstance = ((X10MethodDef) asyncInstance.copy());
-	            asyncInstance.setTypeParameters(capturedTypes);
+	    X10Context xc = (X10Context) c;
+	    if (child == this.body) {
+	        X10TypeSystem ts = (X10TypeSystem) c.typeSystem();
+	        X10MethodDef asyncInstance = (X10MethodDef) ts.asyncCodeInstance(c.inStaticContext());
+	        if (xc.currentCode() instanceof X10MethodDef) {
+	            X10MethodDef outer = (X10MethodDef) c.currentCode();
+	            List<Ref<? extends Type>> capturedTypes = outer.typeParameters();
+	            if (!capturedTypes.isEmpty()) {
+	                asyncInstance = ((X10MethodDef) asyncInstance.copy());
+	                asyncInstance.setTypeParameters(capturedTypes);
+	            }
 	        }
-	    }
-	    c = c.pushCode(asyncInstance);
-	    return c;
-	}
+	        xc = (X10Context) xc.pushCode(asyncInstance);
 
-	/**
-	 * The evaluation of place and list of clocks is not in the scope of the async.
-	 */
-	public Context enterChildScope(Node child, Context c) {
-		if (child != this.body) {
-			c = c.pop();
-		}
-		return c;
+                /*
+	        
+	        // Change the place constraint to here==p
+	        if (xc == c)
+	            xc = (X10Context) xc.pushBlock();
+
+	        XConstraint_c pc = new XConstraint_c();
+	        XTerm here = ts.xtypeTranslator().transHere();
+	        XTerm there = null;
+	        try {
+	            if (place != null)
+	                there = ts.xtypeTranslator().trans(pc, place, xc);
+	            else
+	                there = ts.xtypeTranslator().transHere();
+	        }
+	        catch (SemanticException e) {
+	            // The place cannot be represented as a constraint term.
+	        }
+
+	        if (there == null)
+	            there = pc.genEQV(XTerms.makeFreshName("place"), false);
+	        
+	        try {
+	            pc.addBinding(here, there);
+	        }
+	        catch (XFailure e) {
+	        }
+	        
+	        xc.setCurrentPlaceConstraint(pc);
+
+                */
+	    }
+	    return xc;
 	}
 
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
@@ -166,7 +191,7 @@ public class Async_c extends Stmt_c implements Async {
 
 		Type placeType = place.type();
 		Expr newPlace = place;
-		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
+		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
 		if (! placeIsPlace) {
                         throw new SemanticException(
                             "Place expression of async must be of type \"" +
@@ -180,7 +205,7 @@ public class Async_c extends Stmt_c implements Async {
         for (Iterator i = clocks().iterator(); i.hasNext(); ) {
             Expr tn = (Expr) i.next();
             Type t = tn.type();
-            if (! t.isSubtype(ts.Clock())) {
+            if (! t.isSubtype(ts.Clock(), tc.context())) {
                 throw new SemanticException("Type \"" + t + "\" must be x10.lang.clock.",
                     tn.position());
             }

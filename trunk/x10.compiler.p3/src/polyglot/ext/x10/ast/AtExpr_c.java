@@ -90,7 +90,7 @@ public class AtExpr_c extends Closure_c
 
     	Type placeType = place.type();
     	Expr newPlace = place;
-    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place());
+    	boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), tc.context());
     	if ( ! placeIsPlace ) {
             if (! placeIsPlace) {
                 throw new SemanticException(

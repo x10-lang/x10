@@ -30,7 +30,12 @@ import polyglot.types.Type;
 import polyglot.types.UnknownType;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
+import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraint_c;
+import x10.constraint.XFailure;
+import x10.constraint.XRoot;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
@@ -106,48 +111,6 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 		StringBuilder sb = new StringBuilder();
 		Type base = baseType.getCached();
 		XConstraint c = constraint.getCached();
-		if (base instanceof X10ClassType) {
-		    X10ClassType ct = (X10ClassType) base;
-		    if (ct.typeProperties().size() > 0) {
-			StringBuilder sb2 = new StringBuilder();
-			String sep = "";
-			for (TypeProperty p : ct.x10Def().typeProperties()) {
-			    XVar v = p.asVar();
-			    XTerm b = c.bindingForVar(v);
-			    if (b != null) {
-				sb2.append(sep);
-				sb2.append(b);
-				sep = ", ";
-				c = c.removeVarBindings(v);
-			    }
-			}
-			if (sb2.length() > 0) {
-			    sb.append("[");
-			    sb.append(sb2);
-			    sb.append("]");
-			}
-		    }
-		    if (ct.definedProperties().size() > 0) {
-			StringBuilder sb2 = new StringBuilder();
-			String sep = "";
-			for (FieldInstance p : ct.definedProperties()) {
-			    XVar v = XTerms.makeField(c.self(), XTerms.makeName(p, p.name().toString()));
-			    XTerm b = c.bindingForVar(v);
-			    if (b != null) {
-				sb2.append(sep);
-				sb2.append(b);
-				sep = ", ";
-				c = c.removeVarBindings(v);
-			    }
-			}
-			if (sb2.length() > 0) {
-			    sb.append("(");
-			    sb.append(sb2);
-			    sb.append(")");
-			}
-
-		    }
-		}
 		if (c != null && ! c.valid()) {
 			sb.append(c);
 		}
@@ -165,9 +128,28 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 
 	@Override
 	public List<Type> interfaces() {
-		Type base = baseType.get();
+		final Type base = baseType.get();
 		if (base instanceof ObjectType) {
-			return ((ObjectType) base).interfaces();
+		    List<Type> l = ((ObjectType) base).interfaces();
+		        XConstraint c = constraint.get();
+		        final XTerm t = c.bindingForVar(c.self());
+		        if (t != null) {
+		            return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
+		                public Type transform(Type o) {
+		                    X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+		                    XConstraint c2 = X10TypeMixin.xclause(o);
+		                    c2 = c2 != null ? c2.copy() : new XConstraint_c();
+		                    try {
+		                        c2.addSelfBinding(t);
+		                        return X10TypeMixin.xclause(o, c2);
+		                    }
+		                    catch (XFailure e) {
+		                    }
+		                    return o;
+		                }
+		            });
+		        }
+		        return l;
 		}
 		return Collections.emptyList();
 	}
@@ -185,7 +167,23 @@ public class ConstrainedType_c extends ReferenceType_c implements ConstrainedTyp
 	public Type superClass() {
 		Type base = baseType.get();
 		if (base instanceof ObjectType) {
-			return ((ObjectType) base).superClass();
+		    Type o = ((ObjectType) base).superClass();
+		    if (o != null) {
+		    XConstraint c = constraint.get();
+		    final XTerm t = c.bindingForVar(c.self());
+		    if (t != null) {
+		        XConstraint c2 = X10TypeMixin.xclause(o);
+		        c2 = c2 != null ? c2.copy() : new XConstraint_c();
+		        try {
+		            X10TypeSystem xts = (X10TypeSystem) o.typeSystem();
+		            c2.addSelfBinding(t);
+		            return X10TypeMixin.xclause(o, c2);
+		        }
+		        catch (XFailure e) {
+		        }
+		    }
+		    }
+		    return o;
 		}
 		return null;
 	}

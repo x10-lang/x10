@@ -43,16 +43,6 @@ public class XField_c extends XVar_c implements XField {
 		return field.toString();
 	}
 	
-	@Override
-	public boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure {
-		boolean fresh = super.saturate(c, visited);
-		if (fresh) {
-			XVar r = receiver();
-			r.saturate(c, visited);
-		}
-		return fresh;
-	}
-	
 	public boolean hasVar(XVar v) {
 		return equals(v) || receiver.hasVar(v);
 	}

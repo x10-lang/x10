@@ -18,6 +18,7 @@ import java.util.List;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ConstructorInstance_c;
+import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
@@ -51,8 +52,8 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
     }
     
     @Override
-    public boolean moreSpecific(ProcedureInstance<ConstructorDef> p) {
-        return X10MethodInstance_c.moreSpecificImpl(this, p);
+    public boolean moreSpecific(ProcedureInstance<ConstructorDef> p, Context context) {
+        return X10MethodInstance_c.moreSpecificImpl(this, p, context);
     }
 
     public X10ConstructorDef x10Def() {
@@ -117,18 +118,19 @@ public class X10ConstructorInstance_c extends ConstructorInstance_c implements X
         return n;
     }
 
-    public boolean callValidNoClauses(Type thisType, List<Type> argTypes) {
-        X10ConstructorInstance_c me = (X10ConstructorInstance_c) this.formalTypes(new TransformingList<Type,Type>(this.formalTypes(), new X10MethodInstance_c.NoClauseVariant()));
-        return me.superCallValid(thisType, new TransformingList<Type,Type>(argTypes, new X10MethodInstance_c.NoClauseVariant()));
+    /** Constraint on type parameters. */
+    protected TypeConstraint typeGuard;
+    public TypeConstraint typeGuard() { return typeGuard; }
+    public X10ConstructorInstance typeGuard(TypeConstraint s) { 
+        X10ConstructorInstance_c n = (X10ConstructorInstance_c) copy();
+        n.typeGuard = s; 
+        return n;
     }
     
-    protected boolean superCallValid(Type thisType, List<Type> argTypes) {
-        return super.callValid(thisType, argTypes);
-    }
     
     @Override
-    public boolean callValid(Type thisType, List<Type> argTypes) {
-        return X10MethodInstance_c.callValidImpl(this, thisType, argTypes);
+    public boolean callValid(Type thisType, List<Type> argTypes, Context context) {
+        return X10MethodInstance_c.callValidImpl(this, thisType, argTypes, context);
     }
     
     public List<Type> typeParameters;

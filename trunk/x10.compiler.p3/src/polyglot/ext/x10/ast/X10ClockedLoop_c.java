@@ -78,7 +78,7 @@ public abstract class X10ClockedLoop_c extends X10Loop_c implements Clocked {
 	public Node typeCheck(ContextVisitor tc) throws SemanticException {
 		X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
 	        for (Expr clock : (List<Expr>) clocks) {
-	            if (! ts.isImplicitCastValid(clock.type(), ts.Clock())) {
+	            if (! ts.isImplicitCastValid(clock.type(), ts.Clock(), tc.context())) {
 	        	throw new SemanticException("Clocked loop may only be clocked on a clock.", clock.position());
 	            }
 	        }

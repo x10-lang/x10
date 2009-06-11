@@ -23,14 +23,16 @@ import polyglot.ast.Precedence;
 import polyglot.ast.ProcedureCall;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
-import polyglot.ext.x10.ast.X10Call_c.DumbMethodMatcher;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.ClosureInstance;
 import polyglot.ext.x10.types.ClosureType;
 import polyglot.ext.x10.types.X10MethodInstance;
 import polyglot.ext.x10.types.X10MethodInstance_c;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.ext.x10.types.X10TypeSystem_c;
+import polyglot.ext.x10.types.X10TypeSystem_c.DumbMethodMatcher;
 import polyglot.types.ClassDef;
+import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
 import polyglot.types.Matcher;
 import polyglot.types.MethodDef;
@@ -227,13 +229,14 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
     
     static Pair<MethodInstance,List<Expr>> tryImplicitConversions(final ClosureCall_c n, ContextVisitor tc, Type targetType, List<Type> typeArgs, List<Type> argTypes) throws SemanticException {
         final X10TypeSystem ts = (X10TypeSystem) tc.typeSystem();
-        ClassDef currentClassDef = tc.context().currentClassDef();
+        final Context context = tc.context();
+        ClassDef currentClassDef = context.currentClassDef();
 
-        List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new DumbMethodMatcher(targetType, Name.make("apply"), typeArgs, argTypes), currentClassDef);
+        List<MethodInstance> methods = ts.findAcceptableMethods(targetType, new X10TypeSystem_c.DumbMethodMatcher(targetType, Name.make("apply"), typeArgs, argTypes, context));
 
         Pair<MethodInstance,List<Expr>> p = X10New_c.<MethodDef,MethodInstance>tryImplicitConversions(n, tc, targetType, methods, new X10New_c.MatcherMaker<MethodInstance>() {
             public Matcher<MethodInstance> matcher(Type ct, List<Type> typeArgs, List<Type> argTypes) {
-                return ts.MethodMatcher(ct, Name.make("apply"), typeArgs, argTypes);
+                return ts.MethodMatcher(ct, Name.make("apply"), typeArgs, argTypes, context);
             }
         });
         
@@ -270,7 +273,8 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 	// First try to find the method without implicit conversions.
 	try {
-	    mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes), tc.context().currentClassDef());
+	    Context context = tc.context();
+	    mi = ts.findMethod(targetType, ts.MethodMatcher(targetType, Name.make("apply"), typeArgs, actualTypes, context));
 	    args = this.arguments;
 	}
 	catch (SemanticException e) {

@@ -29,6 +29,7 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.ClosureDef;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10MemberDef;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.frontend.Globals;
 import polyglot.main.Report;
@@ -59,6 +60,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.constraint.XConstraint;
 import x10.constraint.XRoot;
 import x10.constraint.XTerms;
 
@@ -239,7 +241,7 @@ public class Closure_c extends Expr_c implements Closure {
                                       Collections.<Ref<? extends Type>>emptyList(),
                                          Collections.<Ref<? extends Type>>emptyList(),
                                          thisVar,
-                                         Collections.<LocalDef>emptyList(), null, Collections.<Ref<? extends Type>>emptyList());
+                                         Collections.<LocalDef>emptyList(), null, null, Collections.<Ref<? extends Type>>emptyList());
 
         if (returnType() instanceof UnknownTypeNode) {
             mi.inferReturnType(true);
@@ -251,8 +253,10 @@ public class Closure_c extends Expr_c implements Closure {
 
         Closure_c n = (Closure_c) this.del().visitChildren(tb2);
 
-        if (n.guard() != null)
-        	mi.setGuard(n.guard().xconstraint());
+        if (n.guard() != null) {
+        	mi.setGuard(n.guard().valueConstraint());
+        	mi.setTypeGuard(n.guard().typeConstraint());
+        }
         
         List<Ref<? extends Type>> typeParameters = new ArrayList<Ref<? extends Type>>(n.typeParameters().size());
         for (TypeParamNode tpn : n.typeParameters()) {
@@ -374,6 +378,17 @@ public class Closure_c extends Expr_c implements Closure {
         ClosureDef def = n.closureDef;
         ClassDef cd = x10ts.closureAnonymousClassDef(def);
         return n.type(cd.asType());
+    }
+    
+    @Override
+    public Node conformanceCheck(ContextVisitor tc) throws SemanticException {
+        for (TypeNode type : throwTypes()) {
+            XConstraint rc = X10TypeMixin.xclause(type.type());
+            if (rc != null && ! rc.valid())
+                throw new SemanticException("Cannot throw a dependent type.", type.position());
+        }
+
+        return super.conformanceCheck(tc);
     }
 
     public Term firstChild() {

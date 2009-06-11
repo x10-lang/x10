@@ -8,6 +8,7 @@
 
 package polyglot.ext.x10.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -169,7 +170,7 @@ public class TypeParamSubst {
 	if (t == null)
 	    return null;
 	Object o = cache.get(t);
-	if (o != null)
+	if (o != null && false)
 	    return (T) o;
 	T x = reinstantiateUncached(t);
 	cache.put(t, x);
@@ -188,6 +189,7 @@ public class TypeParamSubst {
         if (t instanceof ClosureInstance) return (T) reinstantiateClosure((ClosureInstance) t);
         if (t instanceof XConstraint) return (T) reinstantiateConstraint((XConstraint) t);
         if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm) t);
+        if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
         return t;
     }
 
@@ -250,6 +252,17 @@ public class TypeParamSubst {
         }
 	return result;
     }
+    
+    public static TypeConstraint reinstantiateTypeConstraint(X10ClassType ct, TypeConstraint c) {
+        if (c == null)
+            return c;
+        TypeConstraint result = c;
+        if (ct instanceof X10ParsedClassType_c) {
+            X10ParsedClassType_c t = (X10ParsedClassType_c) ct;
+            result = t.subst().reinstantiateTypeConstraint(c);
+        }
+        return result;
+    }
 
     public XConstraint reinstantiateConstraint(XConstraint c) {
 	if (isIdentityInstantiation()) {
@@ -290,6 +303,34 @@ public class TypeParamSubst {
 	}
 
 	return result;
+    }
+    public TypeConstraint reinstantiateTypeConstraint(TypeConstraint c) {
+        if (isIdentityInstantiation()) {
+            return c;
+        }
+        
+        int n = typeParameters.size();
+        assert typeArguments.size() == n;
+
+        
+        for (int i = 0; i < n; i++) {
+            ParameterType pt = typeParameters.get(i);
+            Type at = typeArguments.get(i);
+            
+            List<SubtypeConstraint> terms = new ArrayList<SubtypeConstraint>(c.terms().size());
+            for (SubtypeConstraint s : c.terms()) {
+                Type t1 = s.subtype();
+                Type t2 = s.supertype();
+                Type t1_ = reinstantiate(t1);
+                Type t2_ = reinstantiate(t2);
+                terms.add(new SubtypeConstraint_c(t1_, t2_, s.isEqualityConstraint()));
+            }
+            TypeConstraint_c c_ = new TypeConstraint_c();
+            c_.addTerms(terms);
+            c = c_;
+        }
+        
+        return c;
     }
 
     public XTerm reinstantiateTerm(XTerm t) {

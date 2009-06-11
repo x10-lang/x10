@@ -54,17 +54,6 @@ public class XFormula_c extends XTerm_c implements XFormula {
         return n;
     }
 
-    @Override
-    public boolean saturate(XConstraint c, Set<XTerm> visited) throws XFailure {
-        boolean fresh = super.saturate(c, visited);
-        if (fresh) {
-            for (XTerm arg : this.arguments()) {
-                arg.saturate(c, visited);
-            }
-        }
-        return fresh;
-    }
-
     public XName operator() {
         return op;
     }

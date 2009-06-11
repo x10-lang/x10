@@ -21,19 +21,17 @@ import java.util.List;
  * 
  */
 public interface XConstraint extends java.io.Serializable {
-	/**
-	 * Variable to use for self in the constraint.
-	 */
-	XRoot self();
-
+        /**
+         * Variable to use for self in the constraint.
+         */
+        XRoot self();
+    
 	/**
 	 * Is the consistent consistent? That is, does it have a solution?
 	 * 
 	 * @return true iff the constraint is consistent.
 	 */
 	boolean consistent();
-
-	HashMap<XTerm, XPromise> roots();
 
 	/**
 	 * Is the constraint valid? That is, is every valuation a solution?
@@ -43,18 +41,19 @@ public interface XConstraint extends java.io.Serializable {
 	boolean valid();
 
 	/**
-	 * Are the two constraints equivalent? That is, do they have the same
-	 * set of solutions.
+	 * Does this entail constraint c in environment sigma.
 	 * 
 	 * @param t
 	 * @return
 	 * @throws XFailure
 	 */
 	boolean entails(XConstraint c) throws XFailure;
-	
+	boolean entails(XConstraint c, XConstraint sigma) throws XFailure;
+
 	boolean entails(XTerm a, XTerm b) throws XFailure;
 	
 	boolean disEntails(XTerm a, XTerm b) throws XFailure;
+
 
 	/**
 	 * Do the two constraints entail each other?
@@ -64,6 +63,7 @@ public interface XConstraint extends java.io.Serializable {
 	 * @throws XFailure
 	 */
 	boolean equiv(XConstraint c) throws XFailure;
+	boolean equiv(XConstraint c, XConstraint sigma) throws XFailure;
 
 	/**
 	 * Does the constraint entail var=val?
@@ -99,7 +99,6 @@ public interface XConstraint extends java.io.Serializable {
 	 * @throws XFailure
 	 */
 	void addBinding(XTerm var, XTerm val) throws XFailure;
-	
 
 	/**
 	 * Add t1 != t2 to the constraint.
@@ -120,7 +119,7 @@ public interface XConstraint extends java.io.Serializable {
 	 * @return new constraint with t1=t2 added.
 	 */
 	// XConstraint addConstraints(List<XTerm> terms) throws XFailure;
-
+	
 	/** Deep copy the constraint. */
 	XConstraint copy();
 
@@ -157,19 +156,16 @@ public interface XConstraint extends java.io.Serializable {
 	/** Return x where this constraint has v==x. */
 	XVar bindingForVar(XVar v);
 
-	/** Remove bindings v==x. */
-	XConstraint removeVarBindings(XVar v);
-
 	/**
 	 * Return the promise obtained by interning this term in the constraint.
 	 * This may result in new promises being added to the graph maintained
 	 * by the constraint. 
 	 * <p>term: Literal -- return the literal. 
-	 * <p> term:LocalVariable, Special, Here: Check if term is already in the roots
+	 * <p> term:LocalVariable, Special, Here Check if term is already in the roots
 	 * maintained by the constraint. If so, return the root, if not add a
 	 * promise to the roots and return it. 
-	 * <p> term: XField. If the term is x.f1...fk, start with the rootVar x and 
-	 * follow the path f1...fk. If the graph contains no nodes after fi, 
+	 * <p> term: XField. Start with the rootVar x and follow the path f1...fk, 
+	 * if term=x.f1...fk. If the graph contains no nodes after fi, 
 	 * for some i < k, add promises into the graph from fi+1...fk. 
 	 * Return the last promise.
 	 * 
@@ -179,7 +175,22 @@ public interface XConstraint extends java.io.Serializable {
 	 */
 	XPromise intern(XTerm term) throws XFailure;
 
-
+	/**
+	 * Look this term up in the constraint graph. If the term is of the form
+	 * x.f1...fk and the longest prefix that exists in the graph is
+	 * x.f1..fi, return the promise corresponding to x.f1...fi. If the
+	 * promise is a Promise_c, the caller must invoke lookupReturnValue() to
+	 * determine if the match was partial (value returned is not equal to
+	 * the length of term.vars()). If not even a partial match is found, or
+	 * the partial match terminates in a literal (which, by definition,
+	 * cannot have fields), then return null.
+	 * 
+	 * @seeAlso lookup(C_term term)
+	 * @param term
+	 * @return
+	 * @throws XFailure
+	 */
+	XPromise lookupPartialOk(XTerm term) throws XFailure;
 
 	/**
 	 * Look this term up in the constraint graph. Return null if the term
@@ -267,14 +278,15 @@ public interface XConstraint extends java.io.Serializable {
 
 	XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last) throws XFailure;
 
-	XConstraint saturate() throws XFailure;
-
+//        @Deprecated
+//	XConstraint saturate() throws XFailure;
+	
 	/**
 	 * Return the list of existentially quantified variables in this constraint.
 	 * @return
 	 */
 	List<XVar> eqvs();
-
+	
 	/**
 	 * Return the list of atoms (atomic formulas) in this constraint.
 	 * @return

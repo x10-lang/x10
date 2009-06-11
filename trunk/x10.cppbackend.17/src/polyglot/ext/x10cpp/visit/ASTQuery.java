@@ -1,10 +1,9 @@
 package polyglot.ext.x10cpp.visit;
 
-import static polyglot.ext.x10cpp.visit.SharedVarsMethods.*;
+import static polyglot.ext.x10cpp.visit.SharedVarsMethods.NATIVE_STRING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import polyglot.ast.Block_c;
@@ -15,30 +14,22 @@ import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
 import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
-import polyglot.ast.Local_c;
 import polyglot.ast.MethodDecl;
-import polyglot.ast.MethodDecl_c;
 import polyglot.ast.Node;
-import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
-import polyglot.ast.StringLit;
-import polyglot.ast.Throw_c;
 import polyglot.ext.x10.ast.Async_c;
-import polyglot.ext.x10.ast.AtEach_c;
-import polyglot.ext.x10.ast.Finish_c;
-import polyglot.ext.x10.ast.Here_c;
 import polyglot.ext.x10.ast.X10CanonicalTypeNode_c;
 import polyglot.ext.x10.extension.X10Ext;
 import polyglot.ext.x10.types.X10ClassDef;
 import polyglot.ext.x10.types.X10ClassType;
-import polyglot.ext.x10.types.X10Type;
 import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.ext.x10.types.X10TypeSystem;
 import polyglot.ext.x10.types.X10TypeSystem_c;
 import polyglot.ext.x10cpp.Configuration;
 import polyglot.ext.x10cpp.types.X10CPPContext_c;
 import polyglot.types.ClassType;
+import polyglot.types.Context;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.QName;
@@ -83,6 +74,7 @@ public class ASTQuery {
     boolean isMainMethod(MethodDecl dec) {
         final X10TypeSystem ts = (X10TypeSystem) dec.returnType().type().typeSystem();
         X10ClassType container = (X10ClassType) dec.methodDef().asInstance().container();
+        Context context = tr.context();
         assert (container.isClass());
         boolean result =
             (Configuration.MAIN_CLASS == null ||
@@ -92,7 +84,9 @@ public class ASTQuery {
             dec.flags().flags().isStatic() &&
             dec.returnType().type().isVoid() &&
             (dec.formals().size() == 1) &&
-            ((Formal)dec.formals().get(0)).type().type().typeEquals(ts.Rail(ts.String()));
+            ts.typeEquals(((Formal)dec.formals().get(0)).type().type(),
+                          ts.Rail(ts.String()),
+                          context);
         if (result) {
             boolean dash_c = tr.job().extensionInfo().getOptions().post_compiler == null;
             if (seenMain && !warnedAboutMain && !dash_c && Configuration.MAIN_CLASS == null) {
@@ -227,14 +221,14 @@ public class ASTQuery {
 
 	boolean isAsyncArrayCopy(Async_c n) {
 		X10TypeSystem ts = (X10TypeSystem) tr.typeSystem();
+		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 		if (knownArrayCopyMethods.size() == 0) {
-			X10CPPContext_c context = (X10CPPContext_c) tr.context();
 			try {
 				Type x_l_Runtime = (Type) ts.Runtime();
 				Type array = ts.Array();
 				Type Int = ts.Int();
 				Type[] A_I_A_I_I = { array, Int, array, Int, Int };
-				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I)), context.currentClassDef()));
+				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, ts.MethodMatcher(x_l_Runtime, Name.make("arrayCopy"), Arrays.asList(A_I_A_I_I), context)));
 				// TODO
 //				Type[] A_A = { array, array };
 //				knownArrayCopyMethods.add(ts.findMethod(x_l_Runtime, "arrayCopy", Arrays.asList(A_A), context.currentClass()));
@@ -260,7 +254,7 @@ public class ASTQuery {
 		if (!(call.target() instanceof X10CanonicalTypeNode_c))
 			return false;
 		X10CanonicalTypeNode_c target = (X10CanonicalTypeNode_c) call.target();
-		if (!ts.typeEquals(target.type(), ts.Runtime()))
+		if (!ts.typeEquals(target.type(), ts.Runtime(), context))
 			return false;
 		if (!knownArrayCopyMethods.contains(call.methodInstance()))
 			return false;
