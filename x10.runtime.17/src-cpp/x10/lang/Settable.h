@@ -16,13 +16,15 @@ namespace x10 {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {
-                return x10::lang::_initRTTHelper_Settable(&rtt, x10aux::getRTT<I>(), x10aux::getRTT<V>());
-            }
+            static const x10aux::RuntimeType* _initRTT();
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             virtual V set(V v, I i) = 0;
         };
+
+        template<class I, class V> const x10aux::RuntimeType *Settable<I, V>::_initRTT() {
+            return x10::lang::_initRTTHelper_Settable(&rtt, x10aux::getRTT<I>(), x10aux::getRTT<V>());
+        }
 
         template<class I, class V> const x10aux::RuntimeType *Settable<I, V>::rtt = NULL;
     }

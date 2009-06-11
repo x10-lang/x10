@@ -23,18 +23,22 @@ namespace x10 {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {
-                return x10::lang::_initRTTHelper_VoidFun_0_9(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(), 
-                                                             x10aux::getRTT<P3>(), x10aux::getRTT<P4>(), 
-                                                             x10aux::getRTT<P5>(), x10aux::getRTT<P6>(),
-                                                             x10aux::getRTT<P7>(), x10aux::getRTT<P8>(),
-                                                             x10aux::getRTT<P9>());
-            }
+            static const x10aux::RuntimeType* _initRTT(); 
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             virtual ~VoidFun_0_9() { }
             virtual void apply(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8, P9 p9) = 0;
         };
+
+        template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9>
+            const x10aux::RuntimeType* VoidFun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9>::_initRTT() {
+            return x10::lang::_initRTTHelper_VoidFun_0_9(&rtt, x10aux::getRTT<P1>(), x10aux::getRTT<P2>(), 
+                                                         x10aux::getRTT<P3>(), x10aux::getRTT<P4>(), 
+                                                         x10aux::getRTT<P5>(), x10aux::getRTT<P6>(),
+                                                         x10aux::getRTT<P7>(), x10aux::getRTT<P8>(),
+                                                         x10aux::getRTT<P9>());
+        }
+
         template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8, class P9>
             const x10aux::RuntimeType* VoidFun_0_9<P1,P2,P3,P4,P5,P6,P7,P8,P9>::rtt = NULL;
     }

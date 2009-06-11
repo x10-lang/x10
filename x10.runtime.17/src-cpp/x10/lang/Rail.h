@@ -29,10 +29,7 @@ namespace x10 {
             public:
             static const x10aux::RuntimeType* rtt;
             static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-            static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {
-                return x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Settable<x10_int,T> >(),
-                                                      x10aux::getRTT<Iterable<T> >());
-            }
+            static const x10aux::RuntimeType* _initRTT(); 
             virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
             private:
@@ -57,9 +54,7 @@ namespace x10 {
                 public:
                 static const x10aux::RuntimeType* rtt;
                 static const x10aux::RuntimeType* getRTT() { return NULL == rtt ? _initRTT() : rtt; }
-                static const x10aux::RuntimeType* _initRTT() X10_PRAGMA_NOINLINE {
-                    return x10::lang::_initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
-                }
+                static const x10aux::RuntimeType* _initRTT();
                 virtual const x10aux::RuntimeType *_type() const { return getRTT(); }
 
                 Iterator (x10aux::ref<Rail> rail_)
@@ -110,6 +105,15 @@ namespace x10 {
 
         template<class T> const x10aux::RuntimeType* Rail<T>::rtt = NULL;
         template<class T> const x10aux::RuntimeType* Rail<T>::Iterator::rtt = NULL;
+
+        template<class T> const x10aux::RuntimeType* Rail<T>::_initRTT() {
+            return x10::lang::_initRTTHelper_Rail(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<Settable<x10_int,T> >(),
+                                                  x10aux::getRTT<Iterable<T> >());
+        }
+
+        template<class T> const x10aux::RuntimeType* Rail<T>::Iterator::_initRTT() {
+            return x10::lang::_initRTTHelper_RailIterator(&rtt, x10aux::getRTT<T>(), x10aux::getRTT<x10::lang::Iterator<T> >());
+        }        
 
         template <class T> x10aux::ref<Rail<T> > Rail<T>::make(x10_int length) {
             x10aux::ref<Rail<T> > rail = x10aux::alloc_rail<T,Rail<T> >(length);
