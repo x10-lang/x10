@@ -124,7 +124,7 @@ public value Pool {
 		for (;;) {
 			activity = steal(next);
 			if (null != activity || check(cond)) return activity;
-			if (Thread.currentThread() == Runtime.master) {
+			if (Thread.currentThread() == Runtime.listener) {
 				NativeRuntime.event_probe();
 				activity = worker().poll();
 				if (null != activity || check(cond)) return activity;
