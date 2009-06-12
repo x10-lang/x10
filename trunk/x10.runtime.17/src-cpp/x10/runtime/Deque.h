@@ -33,7 +33,7 @@ namespace x10 {
             struct Slots {
             public:
                 x10_int capacity;
-                volatile void* data[1] __attribute__ ((aligned (sizeof(void*))));
+                volatile void** data;
             };
 
             
