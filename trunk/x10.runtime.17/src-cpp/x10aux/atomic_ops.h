@@ -111,30 +111,63 @@ namespace x10aux {
 #endif 
 
     public:
+        /**
+         * Ensure that all loads before the barrier have loaded their
+         * data before any load after the data accesses its data.
+         */
         static inline void load_load_barrier() {
 #if defined(_ARCH_PPC)
             ppc_sync(); /* TODO: sync is overkill for this barrier */
 #endif
         }
 
+        /**
+         * Ensure that all loads before the barrier have loaded
+         * their data before any data stored by a store after
+         * the barrier has been flushed.
+         */
         static inline void load_store_barrier() {
 #if defined(_ARCH_PPC)
             ppc_isync();
 #endif
         }
 
+        /**
+         * Ensure that all data from stores before the barrier
+         * has been flushed before any data for loads after the
+         * barrier is accessed.
+         */
         static inline void store_load_barrier() {
 #if defined(_ARCH_PPC)
             ppc_sync();
 #endif
         }
 
+        /**
+         * Ensure that all data from stores before the barrier
+         * has been flushed before any data for stores after
+         * the barrier is flushed.
+         */
         static inline void store_store_barrier() {
 #if defined(_ARCH_PPC)
             ppc_lwsync();
 #endif
         }
 
+        /**
+         * Atomic compare and swap of a 32 bit value.
+         * The semantics of this operation are:
+         * <pre>
+         * 
+         * x10_int tmp;
+         * Atomic {
+         *    tmp = *address;
+         *    if (tmp == oldValue) *address = newValue;
+         * }
+         * return tmp;
+         *
+         * </pre>
+         */
         static inline x10_int compareAndSet_32(volatile x10_int* address, x10_int oldValue, x10_int newValue) {
 #if defined(__i386__) || defined(__x86_64__)
             __asm ("lock cmpxchgl %2, %3"
@@ -157,6 +190,20 @@ namespace x10aux {
 #endif 
         }
 
+        /**
+         * Atomic compare and swap of a 64 bit value.
+         * The semantics of this operation are:
+         * <pre>
+         * 
+         * x10_int tmp;
+         * Atomic {
+         *    tmp = *address;
+         *    if (tmp == oldValue) *address = newValue;
+         * }
+         * return tmp;
+         *
+         * </pre>
+         */
         static inline x10_long compareAndSet_64(volatile x10_long* address, x10_long oldValue, x10_long newValue) {
 #if !defined(_LP64)
             /* TODO: in theory on i586 hardware we could do this with inline asm and cmpxchg8b instead of a mutex,
@@ -192,6 +239,20 @@ namespace x10aux {
 #endif
         }
 
+        /**
+         * Atomic compare and swap of a pointer value.
+         * The semantics of this operation are:
+         * <pre>
+         * 
+         * x10_int tmp;
+         * Atomic {
+         *    tmp = *address;
+         *    if (tmp == oldValue) *address = newValue;
+         * }
+         * return tmp;
+         *
+         * </pre>
+         */
         static inline void* compareAndSet_ptr(volatile void** address, void* oldValue, void* newValue) {
 #if defined(_LP64)
             return (void*)(compareAndSet_64((volatile x10_long*)address, (x10_long)oldValue, (x10_long)newValue));
