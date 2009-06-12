@@ -123,12 +123,13 @@ public class TypeParamSubst {
 	    if (ct.isMember()) {
 		ct = (X10ParsedClassType) ct.container(reinstantiate(ct.container()));
 	    }
-	    Pair p = new Pair(ct.def(), ct.typeArguments());
-	    Map<Object, Type> tcache = ((X10TypeSystem_c) ts).tcache;
-	    Type o = tcache.get(p);
-	    if (o != null)
-	        return o;
-	    tcache.put(p, ct);
+//	    This just sucks up memory and slows things down.
+//	    Pair p = new Pair(ct.def(), ct.typeArguments());
+//	    Map<Object, Type> tcache = ((X10TypeSystem_c) ts).tcache;
+//	    Type o = tcache.get(p);
+//	    if (o != null)
+//	        return o;
+//	    tcache.put(p, ct);
 	    return ct;
 	}
 	return t;
