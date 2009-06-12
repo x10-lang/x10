@@ -154,7 +154,9 @@ public class X10Field_c extends Field_c {
 			
 			checkFieldAccessesInDepClausesAreFinal(result, tc);
 			
-			checkFieldPlaceType(result, tc);
+
+			if (ENABLE_PLACE_TYPES)
+			    checkFieldPlaceType(result, tc);
 			
 			//Report.report(1, "X10Field_c: typeCheck " + result+ " has type " + result.type());
 			return result;
@@ -203,11 +205,11 @@ public class X10Field_c extends Field_c {
 	    }
 	    return t;
 	}
+	
+	private static final boolean ENABLE_PLACE_TYPES = false;
 
 	protected void checkFieldPlaceType(X10Field_c result, ContextVisitor tc) 
 	throws SemanticException {
-	    if (true)
-	        return;
 	    
 	    if (result.fieldInstance().flags().isFinal())
 	        return;
