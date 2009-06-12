@@ -18,6 +18,38 @@ x10_double x10aux::math_utils::sin(x10_double x) {
     return ::sin(x);
 }
 
+x10_double x10aux::math_utils::tan(x10_double x) {
+    return ::tan(x);
+}
+
+x10_double x10aux::math_utils::acos(x10_double x) {
+    return ::acos(x);
+}
+
+x10_double x10aux::math_utils::asin(x10_double x) {
+    return ::asin(x);
+}
+
+x10_double x10aux::math_utils::atan(x10_double x) {
+    return ::atan(x);
+}
+
+x10_double x10aux::math_utils::atan2(x10_double x, x10_double y) {
+    return ::atan2(x,y);
+}
+
+x10_double x10aux::math_utils::cosh(x10_double x) {
+    return ::cosh(x);
+}
+
+x10_double x10aux::math_utils::sinh(x10_double x) {
+    return ::sinh(x);
+}
+
+x10_double x10aux::math_utils::tanh(x10_double x) {
+    return ::tanh(x);
+}
+
 x10_double x10aux::math_utils::log(x10_double x) {
     return ::log(x);
 }

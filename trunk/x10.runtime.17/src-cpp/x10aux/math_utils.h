@@ -10,6 +10,14 @@ namespace x10aux {
         static x10_double exp(x10_double x);
         static x10_double cos(x10_double x);
         static x10_double sin(x10_double x);
+        static x10_double tan(x10_double x);
+        static x10_double acos(x10_double x);
+        static x10_double asin(x10_double x);
+        static x10_double atan(x10_double x);
+        static x10_double atan2(x10_double x, x10_double y);
+        static x10_double cosh(x10_double x);
+        static x10_double sinh(x10_double x);
+        static x10_double tanh(x10_double x);
         static x10_double log(x10_double x);
         static x10_double log10(x10_double x);
         static x10_double log1p(x10_double x);

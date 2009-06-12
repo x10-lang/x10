@@ -47,6 +47,38 @@ public final value Math {
    @Native("c++", "x10aux::math_utils::sin(#1)")
    public static native def sin(a:Double):Double;
 
+   @Native("java", "java.lang.Math.tan(#1)")
+   @Native("c++", "x10aux::math_utils::tan(#1)")
+   public static native def tan(a:Double):Double;
+
+   @Native("java", "java.lang.Math.acos(#1)")
+   @Native("c++", "x10aux::math_utils::acos(#1)")
+   public static native def acos(a:Double):Double;
+
+   @Native("java", "java.lang.Math.asin(#1)")
+   @Native("c++", "x10aux::math_utils::asin(#1)")
+   public static native def asin(a:Double):Double;
+
+   @Native("java", "java.lang.Math.atan(#1)")
+   @Native("c++", "x10aux::math_utils::atan(#1)")
+   public static native def atan(a:Double):Double;
+
+   @Native("java", "java.lang.Math.atan2(#1,#2)")
+   @Native("c++", "x10aux::math_utils::atan2(#1,#2)")
+   public static native def atan2(a:Double, b:Double):Double;
+
+   @Native("java", "java.lang.Math.cosh(#1)")
+   @Native("c++", "x10aux::math_utils::cosh(#1)")
+   public static native def cosh(a:Double):Double;
+
+   @Native("java", "java.lang.Math.sinh(#1)")
+   @Native("c++", "x10aux::math_utils::sinh(#1)")
+   public static native def sinh(a:Double):Double;
+
+   @Native("java", "java.lang.Math.tanh(#1)")
+   @Native("c++", "x10aux::math_utils::tanh(#1)")
+   public static native def tanh(a:Double):Double;
+
    @Native("java", "java.lang.Math.sqrt(#1)")
    @Native("c++", "x10aux::math_utils::sqrt(#1)")
    public static native def sqrt(a:Double):Double;
