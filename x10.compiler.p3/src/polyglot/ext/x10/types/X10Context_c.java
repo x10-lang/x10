@@ -141,7 +141,10 @@ public class X10Context_c extends Context_c implements X10Context {
 	/* sigma(Gamma) restricted to the variables mentioned in c1,c2 */
         public XConstraint constraintProjection(XConstraint... cs) throws XFailure {
             HashMap<XTerm, XConstraint> m = new HashMap<XTerm, XConstraint>();
+            
+            // add in the real clause of the type of any var mentioned in the constraint list cs
             XConstraint r = null;
+            
             for (XConstraint ci : cs) {
                 XConstraint ri = constraintProjection(ci, m);
                 if (r == null)
@@ -152,6 +155,7 @@ public class X10Context_c extends Context_c implements X10Context {
             
             if (r == null) r = new XConstraint_c();
             
+            // fold in the current constraint and the current place constraint
             XConstraint c1 = currentConstraint();
             XConstraint sigma1 = constraintProjection(c1, m);
             r.addIn(c1);
@@ -162,6 +166,7 @@ public class X10Context_c extends Context_c implements X10Context {
             r.addIn(c2);
             r.addIn(sigma2);
 
+            // fold in the real clause of the base type
             Type selfType = this.currentDepType();
             if (selfType != null) {
                 XConstraint selfConstraint = X10TypeMixin.realX(selfType);
@@ -169,6 +174,7 @@ public class X10Context_c extends Context_c implements X10Context {
                     r.addIn(selfConstraint.substitute(r.self(), selfConstraint.self()));
                 }
             }
+            
             return r;
         }
         
@@ -190,7 +196,7 @@ public class X10Context_c extends Context_c implements X10Context {
 	    if (r != null)
 	        return r;
 	    
-	    // pre-fill the cache to avoid inf recursion
+	    // pre-fill the cache to avoid infinite recursion
 	    m.put(t, new XConstraint_c());
 
 	    if (t instanceof XLocal) {
