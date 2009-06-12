@@ -585,8 +585,8 @@ function main {
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExitHarness 2
 	fi
-	if [[ ! (-f $X10LANG/libx10rt17.a || -f $X10LANG/lib/libx10rt17.a) ]]; then
-		printf "\n[$prog: err]: unable to locate x10rt libraries!\n"
+	if [[ ! (-f $X10LANG/libx10.a ) ]]; then
+		printf "\n[$prog: err]: unable to locate X10 native c++ runtime library!\n"
 		cleanUpExitHarness 2
 	fi
 
