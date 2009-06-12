@@ -61,12 +61,12 @@ public class Thread {
     @Native("c++", "x10::runtime::Thread::unpark(#1)")
     public static native def unpark(thread:Thread):void;
 
-    @Native("java", "((x10.runtime.Worker) #0.activity())")
-    @Native("c++", "x10aux::ref<x10::runtime::Worker>(reinterpret_cast<x10::runtime::Worker*>(x10::runtime::Thread::currentThread()->activity()._val))")
+    @Native("java", "((x10.runtime.Worker)(#0.worker()))")
+    @Native("c++",  "x10::runtime::Thread::currentThread()->worker()")
     public native def worker():Worker;
 
-    @Native("java", "#0.activity(#1)")
-    @Native("c++", "(#0)->activity(#1)")
+    @Native("java", "#0.worker(#1)")
+    @Native("c++", "(#0)->worker(#1)")
     public native def worker(worker:Worker):void;
 
     @Native("java", "#0.getName()")

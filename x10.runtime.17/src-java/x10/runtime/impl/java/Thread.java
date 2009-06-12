@@ -19,7 +19,7 @@ public class Thread extends java.lang.Thread {
 	}
 
 	private int location;    // the current place
-	private Object activity; // the current activity
+	private Object worker;   // the current worker
 
 	/**
 	 * Create main x10 thread (called by native runtime only )
@@ -38,17 +38,17 @@ public class Thread extends java.lang.Thread {
 	}
 
 	/**
-	 * Attach activity to thread
+	 * Attach worker to thread
 	 */ 
-	public void activity(Object activity) {
-		this.activity = activity;
+	public void worker(Object worker) {
+		this.worker = worker;
 	}
 
 	/**
-	 * Return current activity
+	 * Return current worker
 	 */ 
-	public Object activity() {
-		return activity;
+	public Object worker() {
+		return worker;
 	}
 
 	/**

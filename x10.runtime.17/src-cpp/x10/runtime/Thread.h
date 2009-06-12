@@ -26,6 +26,8 @@ namespace x10 {
 namespace x10 {
     namespace runtime {
 
+        class Worker;
+        
         // execution thread condition & associated lock pair
         typedef struct {
             pthread_cond_t cond;
@@ -159,11 +161,11 @@ namespace x10 {
              */
             static void unpark(x10aux::ref<Thread> thread);
 
-            // Returns the current activity.
-            x10aux::ref<x10::lang::Object> activity(void);
+            // Returns the current worker.
+            x10aux::ref<x10::runtime::Worker> worker(void);
 
-            // Set the current activity.
-            void activity(x10aux::ref<x10::lang::Object> activity);
+            // Set the current worker.
+            void worker(x10aux::ref<x10::runtime::Worker> worker);
 
             // Returns this thread's name.
             const x10aux::ref<x10::lang::String> getName(void);
@@ -198,8 +200,8 @@ namespace x10 {
             static void thread_mapper_cleanup(void *arg);
 
         private:
-            // the current activity
-            x10aux::ref<x10::lang::Object> __current_activity;
+            // the current worker
+            x10aux::ref<x10::runtime::Worker> __current_worker;
             // the current thread
             static x10aux::ref<Thread> __current_thread;
             // internal thread id counter (monotonically increasing only)
