@@ -300,8 +300,8 @@ prog=x10c++th
 # platform independent abstraction for certain commands
 EGREP=egrep
 egrep --version 2>/dev/null 1>/dev/null
-if [[ $? == 0 ]]; then
-	EGREP="egrep -E"
+if [[ $? != 0 ]]; then
+	EGREP="grep -E"
 fi
 
 # generate unique timestamp (tctimestamp)
@@ -514,7 +514,7 @@ function main {
 		printf "\n[$prog: err]: unable to locate x10rt header files!\n"
 		cleanUpExit 2
 	fi
-	if [[ ! (-f $X10LANG/libx10rt17.a || -f $X10LANG/lib/libx10rt17.a) ]]; then
+	if [[ ! (-f $X10LANG/libx10.a) ]]; then
 		printf "\n[$prog: err]: unable to locate x10rt libraries!\n"
 		cleanUpExit 2
 	fi
