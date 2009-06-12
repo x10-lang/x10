@@ -26,9 +26,10 @@ Deque::_make() {
 }
 
 ref<Deque> Deque::_constructor() {
-    queue = x10aux::alloc<Slots>(sizeof(Slots) + (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
-    memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
+    queue = x10aux::alloc<Slots>();
     queue->capacity = INITIAL_QUEUE_CAPACITY;
+    queue->data = x10aux::alloc<volatile void*>(INITIAL_QUEUE_CAPACITY * sizeof(void*));
+    memset(queue->data, 0, (INITIAL_QUEUE_CAPACITY * sizeof(void*)));
     sp = 0;
     base = 0;
     return this;
@@ -41,9 +42,10 @@ void Deque::growQueue() {
     if (newSize > MAXIMUM_QUEUE_CAPACITY) {
         assert(false); /* throw new RuntimeException("Queue capacity exceeded"); */
     }
-    Slots *newQ = x10aux::alloc<Slots>(sizeof(Slots) + (newSize * sizeof(void*)));
-    memset(newQ->data, 0, (newSize * sizeof(void*)));
+    Slots *newQ = x10aux::alloc<Slots>();
     newQ->capacity = newSize;
+    newQ->data = x10aux::alloc<volatile void*>(newSize * sizeof(void*));
+    memset(newQ->data, 0, (newSize * sizeof(void*)));
     queue = newQ;
     
     int b = base;
