@@ -743,6 +743,42 @@ public class X10CPPTranslator extends Translator {
         }
     }
 
+    private static class SunOS_CXXCommandBuilder extends CXXCommandBuilder {
+        /** These go before the files */
+        public static final String[] preArgsSunOS = new String[] {
+            "-Wno-long-long",
+            "-Wno-unused-parameter",
+        };
+        /** These go after the files */
+        public static final String[] postArgsSunOS = new String[] {
+            "-lresolv",
+            "-lnsl",
+            "-lsocket",
+            "-lrt",
+        };
+
+        public SunOS_CXXCommandBuilder(Options options) {
+            super(options);
+            assert (PLATFORM.startsWith("sunos_"));
+        }
+
+        protected boolean gcEnabled() { return false; }
+
+        protected void addPreArgs(ArrayList<String> cxxCmd) {
+            super.addPreArgs(cxxCmd);
+            for (int i = 0; i < preArgsSunOS.length; i++) {
+                cxxCmd.add(preArgsSunOS[i]);
+            }
+        }
+
+        protected void addPostArgs(ArrayList<String> cxxCmd) {
+            super.addPostArgs(cxxCmd);
+            for (int i = 0; i < postArgsSunOS.length; i++) {
+                cxxCmd.add(postArgsSunOS[i]);
+            }
+        }
+    }
+
     public static final String PLATFORM = System.getenv("X10_PLATFORM")==null?"unknown":System.getenv("X10_PLATFORM");
     public static final String DEFAULT_TRANSPORT = PLATFORM.startsWith("aix_")?"lapi":"sockets";
 
@@ -753,6 +789,8 @@ public class X10CPPTranslator extends Translator {
             return new Linux_CXXCommandBuilder(options);
         if (PLATFORM.startsWith("aix_"))
             return new AIX_CXXCommandBuilder(options);
+        if (PLATFORM.startsWith("sunos_"))
+            return new SunOS_CXXCommandBuilder(options);
         eq.enqueue(ErrorInfo.WARNING,
                 "Unknown platform '"+PLATFORM+"'; using the default post-compiler (g++)");
         return new CXXCommandBuilder(options);
