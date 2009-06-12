@@ -13,7 +13,16 @@ Ref::_make() {
 }
 
 x10_int x10::lang::Ref::hashCode() {
+#ifndef USE_DEFAULT_HASHCODE
+    void* v = (void*)this;
+    x10_int* p = (x10_int*)&v;
+    x10_int hc = 0;
+    for (unsigned int i = 0; i < sizeof(void*)/sizeof(x10_int); i++)
+        hc ^= p[i];
+    return hc;
+#else
     return (x10_int) (int64_t)(void*)this;
+#endif
 }
 
 x10aux::ref<x10::lang::String> x10::lang::Ref::toString() {
