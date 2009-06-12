@@ -20,6 +20,7 @@
 #include <x10/runtime/Debug.h>
 #include <x10/runtime/InterruptedException.h>
 #include <x10/runtime/IllegalThreadStateException.h>
+#include <x10/runtime/Worker.h>
 
 #include <unistd.h>
 #include <errno.h>
@@ -94,7 +95,7 @@ Thread::thread_init(ref<VoidFun_0_0> task, const ref<String> name)
     __thread_already_started = false;
     __thread_running = false;
 
-	__current_activity = null;
+	__current_worker = null;
     __thread_name = String::_make(name);
     __taskBody = task;
 
@@ -423,18 +424,18 @@ Thread::unpark(ref<Thread> thread)
     pthread_mutex_unlock(&(perm->mutex));
 }
 
-// Returns the current activity.
-ref<Object>
-Thread::activity(void)
+// Returns the current worker.
+ref<Worker>
+Thread::worker(void)
 {
-    return __current_activity;
+    return __current_worker;
 }
 
-// Set the current activity.
+// Set the current worker.
 void
-Thread::activity(ref<Object> activity)
+Thread::worker(ref<Worker> worker)
 {
-    __current_activity = activity;
+    __current_worker = worker;
 }
 
 // Returns the identifier of this thread.
