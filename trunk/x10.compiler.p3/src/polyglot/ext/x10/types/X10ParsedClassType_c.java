@@ -56,7 +56,24 @@ implements X10ParsedClassType
             return false;
         if (o instanceof X10ParsedClassType_c) {
             X10ParsedClassType_c t = (X10ParsedClassType_c) o;
-            return (def == null ? t.def == null : def.equals(t.def)) && (typeArguments == null ? t.typeArguments == null : typeArguments.equals(t.typeArguments));
+            
+            if (def != t.def) {
+                if (def == null || t.def == null)
+                    return false;
+                else if (! def.equals(t.def))
+                    return false;
+            }
+            
+            if (typeArguments != t.typeArguments) {
+                if (typeArguments == null)
+                    return t.typeArguments == null || t.typeArguments.isEmpty();
+                else if (t.typeArguments == null)
+                    return typeArguments.isEmpty();
+                else if (! typeArguments.equals(t.typeArguments))
+                    return false;
+            }
+
+            return true;
         }
         return false;
     }
