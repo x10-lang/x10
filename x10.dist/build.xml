@@ -306,7 +306,8 @@ case "$UNAME" in
 esac
 # NOTE: the above assumes that Cygwin==win32 (probably valid)
 
-prog="$0"
+prog="$(readlink $0 2&gt;&amp;1)"
+[ $? -eq 127 -o "$prog" = "" ] &amp;&amp; prog="$0"
 TOP="$(cd "$(dirname $prog)/.." &amp;&amp; pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -am "$TOP")"; fi
 

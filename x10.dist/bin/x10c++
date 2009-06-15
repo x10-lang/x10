@@ -10,7 +10,9 @@ UNAME=`uname -s`
 FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
 PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
 
-TOP="$(cd "$(dirname $0)/.." && pwd)"
+prog=$(readlink $0 2>&1)
+[ $? -eq 127 -o "$prog" = "" ] && prog="$0"
+TOP="$(cd "$(dirname "$prog")/.." && pwd)"
 if [[ "$UNAME" = CYGWIN* ]]; then TOP="$(cygpath -aw "$TOP")"; fi
 if [[ -z "$X10_FROM_SRC" ]]; then
     # Default to pre-built distribution; do not set X10LANG
