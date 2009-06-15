@@ -212,7 +212,8 @@ ALL_XRCPP_OBJECTS = \
 	x10/util/GrowableRail.o \
 	x10/util/concurrent/atomic/AtomicBoolean.o \
 	x10/util/concurrent/atomic/AtomicInteger.o \
-	x10/util/concurrent/atomic/AtomicLong.o 
+	x10/util/concurrent/atomic/AtomicLong.o \
+	x10/util/concurrent/atomic/AtomicReference.o 
 
 ALL_MANUAL_OBJECTS=$(ALL_XRCPP_OBJECTS) $(ALL_CUDA_OBJECTS)
 

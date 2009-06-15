@@ -88,6 +88,7 @@
 #include <x10/util/concurrent/atomic/AtomicBoolean.h>
 #include <x10/util/concurrent/atomic/AtomicInteger.h>
 #include <x10/util/concurrent/atomic/AtomicLong.h>
+#include <x10/util/concurrent/atomic/AtomicReference.h>
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab
