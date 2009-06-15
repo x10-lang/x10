@@ -277,15 +277,38 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(X10ClassDecl_c n) {
 		processClass(n);
 	}
-	
+
+	/**
+	 * Returns an all-void instantiation of a given class type ct.
+	 */
+	public static X10ClassType getStaticMemberContainer(X10ClassType ct) {
+	    if (ct.typeArguments().size() == 0)
+	        return ct;
+	    X10TypeSystem_c xts = (X10TypeSystem_c) ct.typeSystem();
+	    List<Type> args = new TypedList(new ArrayList<Type>(), Type.class, false);
+	    for (int i = 0; i < ct.typeArguments().size(); i++) {
+	        Type arg = ct.typeArguments().get(i);
+	        if (arg instanceof ParameterType)
+	            args.add(xts.Void());
+	        else
+	            args.add(arg);
+	    }
+	    return ct.typeArguments(args);
+	}
+
 	private boolean extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream w) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		if (context.pendingStaticDecls().size() == 0)
+		if (cd.typeParameters().size() == 0)
 			return false;
 		boolean hasInits = false;
 		w.write("template <> class ");
 		w.write(mangled_non_method_name(cd.name().toString()));
 		w.write(voidTemplateInstantiation(cd.typeParameters().size()));
+		if (cd.superType() != null) {
+		    w.write(" : public ");
+		    X10ClassType stype = (X10ClassType) cd.superType().get();
+		    w.write(Emitter.translateType(getStaticMemberContainer(stype), false));
+		}
 		w.allowBreak(0, " ");
 		w.write("{");
 		w.newline(4); w.begin(0);
@@ -1229,10 +1252,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     protected void processMain(X10ClassType container) {
         X10TypeSystem_c xts = (X10TypeSystem_c) container.typeSystem();
-        if (container.isClass() && !container.typeArguments().isEmpty()) {
-            List<Type> args = Arrays.asList(new Type[] { xts.Void() });
-            container = container.typeArguments(args);
-        }
+        if (container.isClass())
+            container = getStaticMemberContainer(container);
         xcdProcessor.new Template("MainMP", emitter.translateType(container)).expand();
     }
 
@@ -1924,13 +1945,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        n = (X10Call_c) n.target(target);
 		    }
 		    if (t.isClass()) {
-		    	X10ClassType ct = (X10ClassType)t.toClass();
-				if (!ct.typeArguments().isEmpty()) {
-		    		List<Type> args = new TypedList(new ArrayList<Type>(), Type.class, false);
-		    		for (int i = 0; i < ct.typeArguments().size(); i++)
-		    			args.add(xts.Void());
-		    		target = tn.typeRef(Types.ref(ct.typeArguments(args)));
-		    	}
+		        X10ClassType ct = (X10ClassType)t.toClass();
+		        X10ClassDef cd = (X10ClassDef)ct.def();
+		        target = tn.typeRef(Types.ref(getStaticMemberContainer((X10ClassType)cd.asType())));
 		    }
 		}
 
@@ -2082,23 +2099,19 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		X10FieldInstance fi = (X10FieldInstance) n.fieldInstance();
 
 		X10FieldDef fd = fi.x10Def();
-        if (target instanceof TypeNode) {
-            assert (fi.flags().isStatic());
-            TypeNode tn = (TypeNode) target;
-            if (t instanceof ParameterType) {
-                // Rewrite to the class declaring the field.
-                target = tn.typeRef(fd.container());
-                n = (Field_c) n.target(target);
-            }
-            if (t.isClass()) {
-                X10ClassType ct = (X10ClassType)t.toClass();
-                if (!ct.typeArguments().isEmpty()) {
-                    List<Type> args = new TypedList(new ArrayList<Type>(), Type.class, false);
-                    for (int i = 0; i < ct.typeArguments().size(); i++)
-                        args.add(xts.Void());
-                    target = tn.typeRef(Types.ref(ct.typeArguments(args)));
-                }
-            }
+		if (target instanceof TypeNode) {
+		    assert (fi.flags().isStatic());
+		    TypeNode tn = (TypeNode) target;
+		    if (t instanceof ParameterType) {
+		        // Rewrite to the class declaring the field.
+		        target = tn.typeRef(fd.container());
+		        n = (Field_c) n.target(target);
+		    }
+		    if (t.isClass()) {
+		        X10ClassType ct = (X10ClassType)t.toClass();
+		        X10ClassDef cd = (X10ClassDef)ct.def();
+		        target = tn.typeRef(Types.ref(getStaticMemberContainer((X10ClassType)cd.asType())));
+		    }
 		}
 
 		String pat = getCppImplForDef(fd);
