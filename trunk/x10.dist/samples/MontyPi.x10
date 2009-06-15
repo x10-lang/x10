@@ -3,7 +3,10 @@ import x10.io.Console;
 
 public class MontyPi {
     public static  def main(s: Rail[String]) {
-	assert s.length >= 1 : "Usage: MontyPi <number of points>";
+	if (s.length != 1) {
+	    Console.OUT.println("Usage: MontyPi <number of points>");
+	    System.exit(-1);
+        }
 	val N = int.parseInt(s(0));
 	val initializer = (i:Point) => {
 	    val r = new Random();
