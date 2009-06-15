@@ -29,7 +29,7 @@ public class KMeans(myDim:Int) {
      * 
      */
 
-    static class V(dim:Int) implements (Int(dim))=>Float {
+    static class V(dim:Int) implements (Int)=>Float {
     	var vec: Vector(dim);
     	var count:Int;
     	def this(dim:Int, init:(Int)=>Float): SumVector(dim) {
@@ -37,7 +37,7 @@ public class KMeans(myDim:Int) {
     	   vec = Rail.makeVar[Float](this.dim, init);
     	   count = 0;
     	}
-    	public def apply(i:Int(dim)) = vec(i);
+    	public def apply(i:Int) = vec(i);
     	def makeZero() {
             for ((i) in 0..dim-1) 
           	vec(i) =0.0F;	
@@ -82,16 +82,16 @@ public class KMeans(myDim:Int) {
     def this(myDim:Int):KMeans{self.myDim==myDim} {
     	property(myDim);
     }
-     static type KMeansData(myK:Int)= Rail[SumVector](myK);
+     static type KMeansData(myK:Int, myDim:Int)= Rail[SumVector(myDim)](myK);
     /**
      * Compute myK means for the given set of points of dimension myDim.
      */
 
-    def computeMeans(myK:Int, points: ValRail[ValVector(myDim)]): KMeansData(myK) {
-    	 var redCluster : KMeansData(myK) = 
-         	Rail.makeVar[SumVector](myK, (i:Int)=> new V(DIM, (j:Int)=>points(i)(j)));
-         var blackCluster : KMeansData(myK) = 
-         	Rail.makeVar[SumVector](myK, (i:Int)=> new V(DIM, (j:Int)=>0.0F));
+    def computeMeans(myK:Int, points: ValRail[ValVector(myDim)]): KMeansData(myK, myDim) {
+    	 var redCluster : KMeansData(myK, myDim) =
+         	Rail.makeVar[SumVector(myDim)](myK, (i:Int)=> new V(myDim, (j:Int)=>points(i)(j)));
+         var blackCluster: KMeansData(myK, myDim) =
+         	Rail.makeVar[SumVector(myDim)](myK, (i:Int)=> new V(myDim, (j:Int)=>0.0F));
          for ((i) in 1..ITERATIONS) {
          	val tmp = redCluster;
          	redCluster = blackCluster;
