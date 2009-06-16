@@ -183,8 +183,6 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/NativeFile.o \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
-	x10/lang/OutOfMemoryError.o \
-	x10/lang/Error.o \
 	x10/lang/Box.o \
 	x10/lang/Fun.o \
 	x10/lang/Iterator.o \
