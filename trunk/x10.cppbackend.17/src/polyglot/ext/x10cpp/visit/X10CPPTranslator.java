@@ -443,7 +443,7 @@ public class X10CPPTranslator extends Translator {
         public static final String X10LIB = System.getenv("X10LIB")==null?"../../../pgas/common/work":System.getenv("X10LIB").replace(File.separatorChar, '/');
         public static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
-        public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
+        public static final boolean USE_XLC = PLATFORM.startsWith("aix_") && System.getenv("USE_GCC")==null;
         public static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
         public static final String MANIFEST = "libx10.mft";
