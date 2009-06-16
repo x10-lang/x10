@@ -39,7 +39,11 @@ ifdef ENABLE_CUDA
   ALL_CUDA_OBJECTS += x10aux/cuda/cuda_utils.o
 endif
 
-CXXFLAGS += $(INCLUDE_DIRS) -Igen -DUSE_BFD
+ifdef USE_BFD
+  CXXFLAGS += -DUSE_BFD
+endif
+
+CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
 ifeq ($(shell uname -s),AIX)
 

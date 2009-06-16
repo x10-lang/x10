@@ -17,6 +17,7 @@
     <property name="optimize" value="false" />
     <property name="DISABLE_GC" value="false" />
     <property name="NO_CHECKS" value="false" />
+    <property name="USE_BFD" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -76,6 +77,9 @@
     <condition property="cppmake.no_checks" value="NO_CHECKS=1" else="CHECKS=1">
         <istrue value="${NO_CHECKS}" />
     </condition>
+    <condition property="cppmake.use_bfd" value="USE_BFD=1" else="AVOID_BFD=1">
+        <istrue value="${USE_BFD}" />
+    </condition>
     <condition property="x10c.optimize" value="-O" else="">
         <istrue value="${optimize}" />
     </condition>
@@ -115,6 +119,7 @@
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.use_bfd}" />
         </exec>
     </target>
     <target name="dist" depends="dist-java,dist-cpp" description="generate part of the distribution">
@@ -202,6 +207,7 @@
             <arg value="${cppmake.gcarg}" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.use_bfd}" />
         </exec>
     </target>
 
