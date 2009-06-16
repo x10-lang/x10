@@ -47,7 +47,12 @@ CXXFLAGS += $(INCLUDE_DIRS) -Igen
 
 ifeq ($(shell uname -s),AIX)
 
-  ifdef USE_XLC
+  ifdef USE_GCC
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O2 -finline-functions
+    endif
+    override CXXFLAGS += -maix64
+  else	
     CXX = mpCC_r
     override CXXFLAGS -= -g
     ifndef USE_32BIT
@@ -64,11 +69,6 @@ ifeq ($(shell uname -s),AIX)
     ifeq ($(AR),ar) # use AIX default ar
       AR = /usr/bin/ar
     endif
-  else
-    ifdef OPTIMIZE
-      override CXXFLAGS += -O2 -finline-functions
-    endif
-    override CXXFLAGS += -maix64
   endif
 
   # FIXME
