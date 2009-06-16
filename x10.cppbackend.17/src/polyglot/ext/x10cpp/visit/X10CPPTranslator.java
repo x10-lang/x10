@@ -666,6 +666,7 @@ public class X10CPPTranslator extends Translator {
         /** These go after the files */
         public static final String[] postArgsLinux = new String[] {
             "-Wl,-export-dynamic",
+            "-lbfd",
             "-lrt",
         };
 
