@@ -50,7 +50,6 @@
 #include <x10/io/NativeOutputStream.h>
 
 #include <x10/lang/Box.h>
-#include <x10/lang/Error.h>
 #include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Fun_0_2.h>
@@ -58,7 +57,6 @@
 #include <x10/lang/Iterator.h>
 #include <x10/lang/Iterable.h>
 #include <x10/lang/Object.h>
-#include <x10/lang/OutOfMemoryError.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Ref.h>
 #include <x10/lang/Settable.h>
