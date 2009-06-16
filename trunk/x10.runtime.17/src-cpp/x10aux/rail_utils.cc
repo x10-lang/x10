@@ -5,6 +5,8 @@
 
 #include <x10/lang/String.h>
 
+#include <x10/lang/ArrayIndexOutOfBoundsException.h>
+
 using namespace x10::lang;
 using namespace x10aux;
 

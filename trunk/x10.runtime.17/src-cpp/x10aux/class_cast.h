@@ -11,9 +11,6 @@
 #include <x10/lang/Object.h>
 #include <x10/lang/Box.h>
 
-#include <x10/lang/ClassCastException.h>
-#include <x10/lang/BadPlaceException.h>
-
 namespace x10aux {
 
     extern void throwClassCastException() X10_PRAGMA_NORETURN;

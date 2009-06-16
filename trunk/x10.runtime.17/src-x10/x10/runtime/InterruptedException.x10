@@ -24,6 +24,5 @@ import x10.compiler.NativeRep;
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
 @NativeRep("java", "java.lang.InterruptedException", null, null)
-@NativeRep("c++", "x10aux::ref<x10::runtime::InterruptedException>", "x10::runtime::InterruptedException", null)
 value InterruptedException extends Exception {}
  

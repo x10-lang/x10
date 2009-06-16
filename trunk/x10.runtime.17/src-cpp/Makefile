@@ -178,35 +178,26 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
-	x10/io/EOFException.o \
 	x10/io/FileInputStream.o \
 	x10/io/FileOutputStream.o \
-	x10/io/FileNotFoundException.o \
-	x10/io/IOException.o \
 	x10/io/NativeFile.o \
 	x10/io/NativeInputStream.o \
 	x10/io/NativeOutputStream.o \
 	x10/lang/OutOfMemoryError.o \
 	x10/lang/Error.o \
-	x10/lang/ArrayIndexOutOfBoundsException.o \
-	x10/lang/BadPlaceException.o \
 	x10/lang/Box.o \
-	x10/lang/ClassCastException.o \
-	x10/lang/Exception.o \
 	x10/lang/Fun.o \
 	x10/lang/Iterator.o \
 	x10/lang/Iterable.o \
 	x10/lang/Object.o \
 	x10/lang/Rail.o \
 	x10/lang/Ref.o \
-	x10/lang/RuntimeException.o \
 	x10/lang/Settable.o \
 	x10/lang/String.o \
 	x10/lang/Throwable.o \
 	x10/lang/Value.o \
 	x10/lang/ValRail.o \
 	x10/runtime/Deque.o \
-	x10/runtime/InterruptedException.o \
 	x10/runtime/Lock.o \
 	x10/runtime/Thread.o \
 	x10/util/GrowableRail.o \

@@ -12,6 +12,8 @@
 #include <x10/lang/Rail.h>
 #include <x10/lang/Iterator.h>
 
+#include <x10/lang/Throwable.h>
+
 #include <x10/runtime/Thread.h>
 
 #ifdef __CYGWIN__
