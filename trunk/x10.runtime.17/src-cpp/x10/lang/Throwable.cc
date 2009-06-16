@@ -329,7 +329,7 @@ static void *__init_bfd_ = __init_bfd();
 
 #if !defined(__GLIBC__) && defined(_AIX)
 static const char* demangle_symbol(const char* name) {
-#if !defined(__GNUC__)
+#if defined(__GNUC__)
     char* res = abi::__cxa_demangle(name, NULL, NULL, NULL);
     if (res == NULL)
         return name;
