@@ -13,6 +13,18 @@
 #       include <bfd.h> // for filename / line number info
 #   endif
 #   include <cxxabi.h> // for demangling of symbol
+#else
+#   if defined(_AIX)
+#      include <unistd.h>
+#      include <stdlib.h>
+#      include <stdio.h>
+#      include <string.h>
+#      ifndef __GNUC__
+#         include <demangle.h> // for demangling of symbol
+#      else
+#        include <cxxabi.h> // for demangling of symbol
+#      endif
+#   endif
 #endif
 
 
@@ -77,8 +89,78 @@ ref<String> Throwable::toString() {
 }
 
 
+#if !defined(__GLIBC__) && defined(_AIX)
+#define BACKTRACE_SYM "backtrace__FPPvUl"
+extern "C" int mt__trce(int, int, void*, int);
+int backtrace(void** trace, size_t max_size) {
+    int pid = ::getpid();
+    int p[2];
+    pipe(p);
+    mt__trce(p[1], 0, NULL, 0);
+    close(p[1]);
+    FILE* pf = fdopen(p[0], "r");
+    char m_buf[1001];
+    size_t len = sizeof(m_buf) - 1;
+    bool in_thread = false;
+    bool in_trace = false;
+    bool first_frame = false;
+    char* s;
+    size_t sz = 0;
+    while ((s = fgets(m_buf, len, pf)) != NULL) {
+        if (!in_thread) {
+            if (!strncmp(s, "+++ID ", 6)) { // thread start
+                char* p = strstr(s, " Process ");
+                char* t = strstr(s, " Thread ");
+                if (p == NULL || t == NULL)
+                    continue;
+                *strchr(t, '\n') = '\0';
+                *t = '\0';
+                int i = strtol(p+9, NULL, 10);
+                if (i != pid) {
+                    *t = ' ';
+                    continue;
+                }
+                in_thread = true;
+            }
+            continue;
+        }
+        if (!strncmp(s, "---ID ", 6)) { // thread end
+            in_thread = false;
+            continue;
+        }
+        if (!in_trace) {
+            if (!strcmp(s, "+++STACK\n")) { // stack trace start
+               in_trace = true;
+               first_frame = true;
+            }
+            continue;
+        }
+        if (!strcmp(s, "---STACK\n")) { // stack trace end
+            in_trace = false;
+            break; // assume we have the right thread -- we're done
+        }
+        if (first_frame) {
+            // The first symbol has to be this function.  Skip it.
+            // FIXME: theoretically, it's possible that another thread is here too
+            if (strncmp(s, BACKTRACE_SYM, strlen(BACKTRACE_SYM))) {
+                in_trace = false;
+            }
+            first_frame = false;
+            continue;
+        }
+        if (sz >= max_size)
+            break;
+        trace[sz++] = strdup(s);
+    }
+    fclose(pf);
+    close(p[0]);
+    return (int)sz;
+}
+#endif
+
+
 ref<Throwable> Throwable::fillInStackTrace() {
-#ifdef __GLIBC__
+#if defined(__GLIBC__) || defined(_AIX)
     if (FMGL(trace_size)>=0) return this;
     FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
 #endif
@@ -246,11 +328,24 @@ static void *__init_bfd_ = __init_bfd();
 
 
 #if !defined(__GLIBC__) && defined(_AIX)
-extern "C" int mt__trce(int, int, void*, int);
+static const char* demangle_symbol(const char* name) {
+#if !defined(__GNUC__)
+    char* res = abi::__cxa_demangle(name, NULL, NULL, NULL);
+    if (res == NULL)
+        return name;
+    return res;
+#else
+    char* rest;
+    Name* n = Demangle(name, rest);
+    if (n == NULL)
+        return name;
+    return n->Text();
+#endif
+}
 #endif
 
 ref<ValRail<ref<String> > > Throwable::getStackTrace() {
-#ifdef __GLIBC__
+#if defined(__GLIBC__)
     if (FMGL(trace_size) <= 0) {
         const char *msg = "No stacktrace recorded.";
         return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
@@ -280,15 +375,42 @@ ref<ValRail<ref<String> > > Throwable::getStackTrace() {
     }
     ::free(messages); // malloced by backtrace_symbols
     return rail;
+#elif defined(_AIX)
+    if (FMGL(trace_size) <= 0) {
+        const char *msg = "No stacktrace recorded.";
+        return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
+    }
+    ref<ValRail<ref<String> > > rail =
+        alloc_rail<ref<String>,ValRail<ref<String> > >(FMGL(trace_size));
+    char *msg;
+    for (int i=0 ; i<FMGL(trace_size) ; ++i) {
+        char* s = (char*)FMGL(trace)[i];
+        char* c = strstr(s, " : ");
+        if (c == NULL) {
+            (*rail)[i] = String::Lit("???????");
+            continue;
+        }
+        c[0] = '\0';
+        c += 3;
+        *strchr(c, '\n') = '\0';
+        s = demangle_symbol(s);
+        char* f = strstr(c, " # ");
+        if (f != NULL) {
+            unsigned long l = strtoul(c, NULL, 10);
+            f = strchr(f, '<') + 1;
+            *strchr(f, '>') = '\0';
+            msg = alloc_printf("%s (%s:%d)", s, f, l);
+        } else {
+            msg = alloc_printf("%s (offset %s)", s, c);
+            f = c;
+        }
+        (*rail)[i] = String::Lit(msg);
+        ::free(msg);
+    }
+    return rail;
 #else
-#if defined(_AIX)
-	mt__trce(1, 0, NULL, 0);
-    const char *msg = "Stacktrace dumped to stdout.";
-    return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
-#else	
     const char *msg = "No stacktrace available for your compiler.  So cry your heart out.";
     return alloc_rail<ref<String>,ValRail<ref<String> > >(1, String::Lit(msg));
-#endif
 #endif
 }
 
