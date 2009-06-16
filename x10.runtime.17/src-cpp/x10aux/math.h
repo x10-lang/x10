@@ -2,7 +2,7 @@
 #define X10AUX_MATH_H
 
 // Include the system math.h and then undef all the crud
-#ifdef __sparc__
+#if defined(__SVR4) && defined(__sun)
 #  define __C99FEATURES__
 #endif
 #include <math.h>
