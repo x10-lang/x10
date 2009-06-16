@@ -444,6 +444,7 @@ public class X10CPPTranslator extends Translator {
         public static final String X10GC = System.getenv("X10GC")==null?"../../../x10.dist":System.getenv("X10GC").replace(File.separatorChar, '/');
         public static final String TRANSPORT = System.getenv("X10RT_TRANSPORT")==null?DEFAULT_TRANSPORT:System.getenv("X10RT_TRANSPORT");
         public static final boolean USE_XLC = System.getenv("USE_XLC")!=null;
+        public static final boolean USE_BFD = System.getenv("USE_BFD")!=null;
 
         public static final String MANIFEST = "libx10.mft";
         public static final String[] MANIFEST_LOCATIONS = new String[] {
@@ -666,7 +667,7 @@ public class X10CPPTranslator extends Translator {
         /** These go after the files */
         public static final String[] postArgsLinux = new String[] {
             "-Wl,-export-dynamic",
-            "-lbfd",
+            USE_BFD ? "-lbfd" : DUMMY,
             "-lrt",
         };
 
