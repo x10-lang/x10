@@ -42,21 +42,14 @@
 #include <x10aux/cuda/bridge_buffer.h>
 #include <x10aux/cuda/ring_buffer.h>
 
-#include <x10/io/EOFException.h>
 //#include <x10/io/File.h>
 #include <x10/io/FileInputStream.h>
 #include <x10/io/FileOutputStream.h>
-#include <x10/io/FileNotFoundException.h>
-#include <x10/io/IOException.h>
 #include <x10/io/NativeFile.h>
 #include <x10/io/NativeInputStream.h>
 #include <x10/io/NativeOutputStream.h>
 
-#include <x10/lang/ArrayIndexOutOfBoundsException.h>
-#include <x10/lang/BadPlaceException.h>
 #include <x10/lang/Box.h>
-#include <x10/lang/ClassCastException.h>
-#include <x10/lang/Exception.h>
 #include <x10/lang/Error.h>
 #include <x10/lang/Fun_0_0.h>
 #include <x10/lang/Fun_0_1.h>
@@ -68,7 +61,6 @@
 #include <x10/lang/OutOfMemoryError.h>
 #include <x10/lang/Rail.h>
 #include <x10/lang/Ref.h>
-#include <x10/lang/RuntimeException.h>
 #include <x10/lang/Settable.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Throwable.h>
@@ -82,7 +74,6 @@
 #include <x10/runtime/Deque.h>
 #include <x10/runtime/Lock.h>
 #include <x10/runtime/Thread.h>
-#include <x10/runtime/InterruptedException.h>
 
 #include <x10/util/GrowableRail.h>
 #include <x10/util/concurrent/atomic/AtomicBoolean.h>

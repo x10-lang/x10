@@ -9,13 +9,13 @@
 
 #include <x10aux/config.h>
 
+
 namespace x10 { namespace lang {
     class String;
 } }
 #include <x10/lang/Iterator.h>
 
 #include <x10/lang/Iterable.h>
-#include <x10/lang/ArrayIndexOutOfBoundsException.h>
 
 namespace x10aux {
 
