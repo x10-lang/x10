@@ -1,0 +1,75 @@
+\documentclass{article}
+\usepackage{fullpage}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+
+%Set the height of the header
+\setlength{\headheight}{12pt}
+
+%Header information LE stands for Left Even page, Ro for Right Odd
+%page, LO stands for Left Odd page and RE stands for Right Even page
+\fancyhead{}
+\fancyhead[LO,RE]{\includegraphics[scale=0.7]{figs/phase3logo}}
+\fancyhead[LE,RO]{\includegraphics[scale=0.2]{figs/IBMLogo1}}
+
+%footer is put in center
+\fancyfoot{}
+\fancyfoot[C]{Use, reproduction, or disclosure is subject to the restrictions as stated in Agreement \#HR0011-07-9-0002 between the Government and IBM.  May not be disclosed except in accordance with 5 CFR 552, 18 USC 1905, 18 USC 1831-2, 18 USC 1838, 41 USC 423, FAR Part 9.505-4 and other applicable federal law and regulation. {\sc Data Marking:} Other Data}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+%for include graphics package
+\ifx\pdftexversion\undefined
+\usepackage[dvips]{graphicx}
+\else
+\usepackage[pdftex]{graphicx}
+\fi
+
+%get nice PDF bookmarks
+\usepackage[
+  bookmarks,
+  bookmarksopen=true,
+  bookmarksnumbered=true,
+  pdfpagemode=UseOutlines,
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  pagecolor=blue,
+  urlcolor=blue]{hyperref}
+
+% Use this for commenting out multiple lines in latex
+\newcommand{\REM}[1]{}
+\setlength{\topmargin}{-0.8in}
+\setlength{\leftmargin}{0.0in}
+\setlength{\evensidemargin}{0.0in}
+\setlength{\oddsidemargin}{0.0in}
+\def\Xten{{\sf X10}}
+\def\Xtenlib{{\sf X10lib}}
+
+\begin{document}
+\title{\Xtenlib{} Design Document \\ v1.0}
+\author{Ganesh Bikshandi, IBM Systems \& Technology Group\\
+Sreedhar Kodali, IBM Systems \& Technology Group\\
+Sriram Krishnamoorthy, The Ohio State University\\
+Vijay Saraswat, IBM T. J. Watson Research Center\\
+Sayantan Sur, IBM T. J. Watson Research Center}
+
+\maketitle
+
+%Make fancy headers effective from page 1, otherwise use plain style
+\thispagestyle{fancy}
+
+% Setup the PDF document info fields
+%\hypersetup{pdftitle=\theTitle,pdfauthor=\theAuthor,pdfkeywords={}, pdfsubject={},pdfcreator={},pdfproducer={}}
+
+\input{text/abstract}
+\input{text/introduction}
+\input{text/design}
+\input{text/conclusion}
+
+\bibliographystyle{plain}
+\bibliography{bib/x10}
+
+\end{document}
+

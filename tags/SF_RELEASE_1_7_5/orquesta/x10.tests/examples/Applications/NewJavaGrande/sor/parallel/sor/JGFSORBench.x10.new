@@ -1,0 +1,88 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+package sor;
+
+import jgfutil.*;
+import java.util.Random;;
+
+/**
+ * X10 port of sor benchmark from Section 2 of Java Grande Forum Benchmark Suite.
+ *
+ *  PARALLEL VERSION
+ *
+ * @author Vivek Sarkar (vsarkar@us.ibm.com)
+ *
+ * Porting issues identified:
+ * 1) Replace Java multidimensional arrays by X10 multidimensional arrays, since Java multidimensional arrays
+ *    do not currently work in X10.  See following sample output when trying to compile a code w/ a multi-dim array:
+ *       sor\JGFSORBench.x10:79: The type of the variable initializer "double[]" does
+ *       not match that of the declaration "double[][]".
+ *              double [][] A = new double[M][N];
+ *                              ^-------------^
+ *    FIXME: This is no longer a problem.
+ * 2) Add suffix D for all double constants
+ * 3) Increased error threshold from 1e-12 to 1e-3
+ *    TODO: check the source of error --- is it due to the red-black loop parallelization?
+ */
+public class JGFSORBench extends SOR implements JGFSection2 {
+
+	private var size: int;
+	private var datasizes: Array[int] = { 10, 1500, 2000 };
+	private const JACOBI_NUM_ITER: int = 100;
+	private const RANDOM_SEED: long = 10101010;
+
+	var R: Random = new Random(RANDOM_SEED);
+
+	public def JGFsetsize(var size: int): void = {
+		this.size = size;
+	}
+
+	public def JGFinitialise(): void = {
+	}
+
+	public def JGFkernel(): void = {
+		var G: Array[double] = RandomMatrix(datasizes(size), datasizes(size), R);
+
+		SORrun(1.25, G, JACOBI_NUM_ITER);
+	}
+
+	public def JGFvalidate(): void = {
+		//double refval[] = { 0.0012191583622038237D, 1.123010681492097D, 1.9967774998523777D };
+		double var refval: Array[double] = { 4.5185971433257635E-5D, 1.123010681492097D, 1.9967774998523777D };
+		var dev: double = Math.abs(gtotal.val - refval(size));
+		if (dev > 1.0e-12) {
+			System.out.println("Validation failed");
+			System.out.println("gtotal = " + gtotal.val + "  " + dev + "  " + size);
+			throw new Error("Validation failed");
+		}
+	}
+
+	public def JGFtidyup(): void = {
+		System.gc();
+	}
+
+	public def JGFrun(var size: int): void = {
+		JGFInstrumentor.addTimer("Section2:SOR:Kernel", "Iterations", size);
+
+		JGFsetsize(size);
+		JGFinitialise();
+		JGFkernel();
+		JGFvalidate();
+		JGFtidyup();
+
+		JGFInstrumentor.addOpsToTimer("Section2:SOR:Kernel", (double) (JACOBI_NUM_ITER));
+
+		JGFInstrumentor.printTimer("Section2:SOR:Kernel");
+	}
+
+	private static def RandomMatrix(val M: int, val N: int, val R: java.util.Random): Array[double] = {
+		var t: Array[double] = new Array[double](Dist.makeConstant([0..M-1, 0..N-1], here));
+		for (val (i,j): point in t) t(i, j) = R.nextDouble() * 1e-6;
+		return t;
+	}
+}

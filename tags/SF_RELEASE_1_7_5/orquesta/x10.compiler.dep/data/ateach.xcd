@@ -1,0 +1,18 @@
+// SYNOPSIS: ateach (#0 #1 #2 : #3) clocked(#5) {#4} #6=locals #0=modifiers #1=type #2=var
+
+{
+	x10.lang.dist #2__distCopy = #3; // make copy to avoid recomputation
+	for (java.util.Iterator #2__ = #2__distCopy.iterator();
+		 #2__.hasNext(); )
+	{
+		#0 #1 #2 = (#1) #2__.next();
+		#6
+		((x10.runtime.Place) #2__distCopy.get(#2)).runAsync
+			(new x10.runtime.Activity(#5) {
+				public void runX10Task() {
+					#4
+				}
+			});
+	}
+}
+

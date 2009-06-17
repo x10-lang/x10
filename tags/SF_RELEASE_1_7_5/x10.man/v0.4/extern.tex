@@ -1,0 +1,141 @@
+\section{Linking with native code}\label{extern}\index{extern}
+\XtenCurrVer{} supports a simple facility to permit the efficient
+intra-thread communication of an array of primitive type to code
+written in the language {\tt C}.  The array must be a ``local''
+array. The primary intent of this design is to permit the reuse of
+native code that efficiently implements some numeric array/matrix
+calculation.
+
+Future language releases are expected to support similar bindings to
+{\sc Fortran}, and to support parallel native processing of
+distributed \Xten{} arrays. 
+
+The interface consists of two parts. First, an array intended to be
+communicated to native code must be created as an {\tt unsafe} array:
+\begin{x10}
+450 ArrayCreationExpression ::= 
+      new ArrayBaseType Unsafeopt [ ] 
+        ArrayInitializer
+451   | new ArrayBaseType Unsafeopt [ Expression ]
+452   | new ArrayBaseType Unsafeopt 
+          [ Expression ] Expression
+453   | new ArrayBaseType Unsafeopt [ Expression ] 
+          ( FormalParameter ) MethodBody
+454   | new ArrayBaseType value 
+           Unsafeopt [ Expression ]
+455   | new ArrayBaseType value 
+           Unsafeopt [ Expression ] Expression
+456   | new ArrayBaseType value 
+        Unsafeopt [ Expression ] 
+          ( FormalParameter ) MethodBody
+530   Unsafeopt ::=
+531     | unsafe
+\end{x10}
+Unsafe arrays can be of any dimension. However, \XtenCurrVer{}
+requires that unsafe arrays be of a primitive type, and local (i.e.{}
+with an underlying distribution that maps all elements in its region
+to {\tt here}).
+
+Unsafe arrays are allocated in a special array of memory that permits
+their efficient transmission to natively linked code.
+%% Comment about when this memory is freed.
+
+Second, the \Xten{} programmer may specify that certain methods are to
+be implemented natively by using the keyword {\tt extern}:
+\begin{x10}
+446   MethodModifier ::= extern
+\end{x10}
+Such a method must have the statement ``{\tt ;}'' as its body.
+\XtenCurrVer{} requires that the method be {\tt static}; this
+restriction is likely to be lifted in the future.  Primitive types in
+the method argument are translated to their corresponding JNI type
+(e.g.{} {\tt float} is translated to {\tt jfloat}, {\tt double} to
+{\tt jdouble} etc).  The only non-primitive type permitted in an {\tt
+extern} method is an (unsafe) array. This is passed at type {\tt
+jlong} as an eight byte address into the unsafe region which contains
+the data for the array. ({\tt jlong} is not the same as {\tt long} on
+32-bit machines.)
+
+
+Since only the starting address of an array is passed, if the array is
+multidimensional, the user must explicitly communicate (or have a
+guarantee of) the rank of the passed array, and must either typecast
+or explicitly code the address calculation.  Note that all \Xten{}
+arrays are created in row-major order, and so any native routine must
+also access them in the same order.
+
+For each class {\tt C} that contains an {\tt extern} method, the
+\Xten{} compiler generates a text file {\tt C\_x10stub.c}.  This file
+contains generated {\tt C} stub functions which are called from the
+{\tt extern} routines.  The name of the stub function is derived from
+the name of the {\tt extern} method. If the method is {\tt
+C.process()}, the stub function will be {\tt
+Java\_C\_C\_process()}. The name is suffixed with the signature of the
+method if the method is overloaded.
+
+The programmer must write {\tt C} code to implement the native method,
+using the methods in the {\tt C} stub file to call the actual native
+method.  The programmer must compile these files and link them into a
+dynamically linked library (DLL).  Note that the {\tt jni.h} header file
+must be in the include path.  The programmer must ensure this library
+is loaded by the program before the method is called e.g.{} add a {\tt
+System.loadlibrary} call (in a static initializer of the
+\Xten{} class).
+
+\paragraph{Example.}
+The following class illustrates the use of {\tt unsafe} and native
+linking. 
+\begin{x10}
+public class IntArrayExternUnsafe \{
+  public static extern 
+      void process(int [.] yy, int size);
+  static {System.loadLibrary("IntArrayExternUnsafe");}
+  public static void main(String args[]) \{
+     boolean b= (new IntArrayExternUnsafe()).run();
+     System.out.println("++++++ Test "
+                         +(b?"succeeded.":"failed."));
+     System.exit(b?0:1);
+  \}
+  public boolean run()\{
+    int high = 10;
+    boolean verified=false;
+    distribution d= (0:high) -> here;
+    int [.] y = new int unsafe[d]; 
+    for( int j=0;j < 10;++j)
+        y[j] = j;
+    process(y,high);
+    for(int j=0;j < 10;++j)\{
+      int expected = j+100;
+      if(y[j] != expected)\{
+        System.out.println("y["+j+"]="
+                           +y[j]+" != "+expected);
+        return false;
+       \}
+    \}
+    return true;
+  \}
+\}
+\end{x10}
+
+The programmer may then write the {\tt C} code thus:
+\begin{x10}
+void IntArrayExternUnsafe\_process(jlong yy, 
+                                signed int size)\{
+  int i;
+  int* array = (int *)(long)yy;
+  for(i = 0;i < size;++i)\{
+    array[i] += 100;
+  \}
+\}
+/* automatically generated in \_x10stub.c*/
+void 
+ Java\_IntArrayExternUnsafe\_IntArrayExternUnsafe\_process
+ (JNIEnv *env,  jobject obj,jlong yy,jint size)\{
+   IntArrayExternUnsafe\_process(yy,size);
+\}
+\end{x10}
+
+This code may be linked with the stub file (or textually placed in
+it). The programmer must then compile and link the {\tt C} code and
+ensure that the DLL is on the appropriate classpath. 
+

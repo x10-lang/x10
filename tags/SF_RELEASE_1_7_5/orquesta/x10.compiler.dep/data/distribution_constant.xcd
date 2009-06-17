@@ -1,0 +1,3 @@
+// SYNOPSIS: distribution.constant(#0,#1) #0=region #1=place
+// SYNOPSIS: [IP] I don't think this is used
+(Runtime.factory.getDistributionFactory().constant(#0,#1))

@@ -1,0 +1,55 @@
+S_VER_MAJ  = 4
+S_VER_MIN  = 4
+S_VER_REL  = H
+
+# TARGET_ARCH = SOLARIS_MPICH
+  TARGET_ARCH = SOLARIS_NATIVE
+  PROCTYPE = SPARCV9 
+# TARGET_ARCH = TCS
+# TARGET_ARCH = AXP
+#  TARGET_ARCH = AIX_NATIVE
+# TARGET_ARCH = AIX_MPICH
+# TARGET_ARCH = SGI_NATIVE
+# TARGET_ARCH = SGI_MPICH
+# TARGET_ARCH = FREEBSD_MPICH
+# TARGET_ARCH = BEOWULF_LINUX_LAM
+# TARGET_ARCH = LINUX_MPICH_P4
+# TARGET_ARCH = LINUX_MPICH_MYRI
+# TARGET_ARCH = LINUX_LAM
+
+# Decide how to pass messages between nodes
+#_MP_METHOD    = _MP_MPI
+#_MP_METHOD    = _MP_UMD
+_MP_METHOD    =SMPONLY 
+
+# Set the following if you wish to use the scalable
+# pseudorandom number generator (SPRNG 2.0)
+# Available from  http://sprng.cs.fsu.edu/RNG
+# Please set the proper paths for SPRNG in the Makefile.var
+#_RAND	       = SPRNG
+_RAND	       = NONE
+
+SRC_DIR        = src
+INC_DIR        = include
+LIB_DIR        = lib
+RUN_DIR        = run
+OBJ_DIR        = obj
+
+MKDIR          = mkdir
+CP             = cp
+MV             = mv
+RM             = rm
+RMDIR          = rmdir
+MAKEDEPEND     = makedepend
+RANLIB         = ranlib
+TAR            = tar
+ZIP            = gzip
+
+ifeq (,$(findstring LINUX,$(TARGET_ARCH)))
+MAKE       = gmake --no-print-directory
+else
+MAKE       = make --no-print-directory
+endif
+
+export 
+

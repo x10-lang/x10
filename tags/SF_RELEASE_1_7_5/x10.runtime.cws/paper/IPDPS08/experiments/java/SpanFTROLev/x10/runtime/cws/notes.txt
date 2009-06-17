@@ -1,0 +1,477 @@
+October 6, 2007
+
+We distinguish between proper and improperly nested frames (= tasks = Cilk's procedure invocation). 
+A properly nested frame f is one
+whose body pushes a frame onto the dequeue only when it transfers control to the frame. This
+guarantees that when f's compute method returns the frame at the bottom of the dequeue is f.
+Therefore a simple w.popStackFrame() is adequate to get rid of the (now useless) frame. 
+
+An improperly nested frame g will have a compute method that may push frames without transfering
+control to them. Hence at the moment when control returns from g's method, it may not be the case
+that the last frame on the dequeue is g. Therefore a call to popStackFrame() at the end of
+g's compute method would be incorrect. Instead, the compute method returns, leaving the frame on the
+stack. Now the worker, as usual, invokes the compute method on the frame at the bottom of the dequeue
+(g). We ensure that g's compute method contains code at the beginning which checks whether the 
+frame has aready been executed (e.g. by looking at the vaue of the PC). If so, the frame is popped.
+
+This piece of code is in any case necessary because g may get stolen while the victim is executing it. 
+For, g's compute method may push another frame onto its dequeue, thereby making g eligible for theft,
+according to the rules of the work stealing implementation. We permit g to be stolen; however, since
+its PC records the fact that another worker is executing its body (PC==1), the victim simply
+pushes it onto its stack and then pops it. 
+
+October 4, 2007
+
+There is a negative interaction between the mechanism for stealing and the
+mechanism for executing frames left behind on the stack (for globallyQuiescent computations).
+
+For a frame or closure to be stolen it must be the case that the victim has at least two 
+frames on its cache's stack. The upper frame is the one that will be stolen, 
+the lower frame is the one that the victim is currently working on. 
+
+Therefore, when the victim enters the mode in which it is executing the frames on the cache's
+dequeue one by one, it cannot simply pop the element of the stack. It must execute the current
+frame without popping it. When it succeeds in executing this frame, then it must pop the frame.
+
+Wed May 16 06:27:36 2007
+
+Work stealing notes.
+version 2
+Vijay Saraswat
+
+TODO
+ -- Does not completely capture abort execution paths.
+
+These notes are based on reading the Cilk manual, the source code for
+Cilk (5.4.3) and the Cilk papers.
+
+Basic design principle
+
+* Work-first -- ensure that there are as few overheads as possible on
+  the fast path. The fast path corresponds to the path used by a
+  depth-first sequential execution of the source program. Move
+  overhead to code paths that are executed only when there is a steal.
+
+Definitions:
+
+* Thread: A thread is a maximal sequence of instructions in the body
+  of a method terminated by the end of the method or a spawn or a sync.
+
+* Worker: the underlying computation engine that actually executes
+  code, e.g. an operating system thread. A computation will have
+  multiple workers.
+
+* Thief: worker who steals a piece of work from another worker.
+
+* Victim: A worker that gives up work to a thief.
+
+Assumptions:
+
+* Every method is compiled into a slow and a fast version. If there is
+  no steal during execution, only fast methods will execute. The body
+  of each slow method only invokes fast methods. A slow method is
+  invoked only by a thief, who does it implicitly when resuming a
+  stolen frame.
+
+Each worker maintains a *deque* of closures implemented as a doubly
+linked list.
+
+Each closure contains a *frame stack* (containing *frames*),
+represented as an array with three pointers:
+
+  -- H (head): the index of the first (non-stolen) frame on the stack.
+  -- T (tail): 1+the last valid index at which a frame is stored in the stack.
+  -- E (exception): 
+
+Invariants: 
+   H <= T
+   H <= E
+
+Victim reads E, and reads/writes H and T. Thief writes E and reads T.
+
+The frame stack contains *frames*. A frame contains values of local
+variables within a method activation, a PC that specifies the next
+instruction in the body of the method after the current thread, and a
+function pointer to the slow method.
+
+A closure also contains a reference to the worker that owns it.  Each
+closure contains a lock.  It also a contains a field, result, of the
+type of the closure.
+
+INITIATION OF COMPUTATION
+
+p workers are created. Some worker is given a job to execute
+(cilk_main). This invokes the required function in fast mode. 
+
+
+FAST MODE EXECUTION
+
+o spawn: If this is the first spawn in the body of the method, create
+  a frame and push it on frame stack for the thread. i.e. 
+
+  stack[T] = new Frame();
+
+  Update the current frame thus: 
+
+   -- PC gets the value of the first instruction in the body of the
+      method after the code sequence corresponding to the body of the spawn. 
+
+   -- Copy (trail) the values of all live local variables (that have
+      been modified since the last time they were trailed) into the
+      current frame.
+
+   -- On weak architectures (e.g. PPC), introduce a StoreStore barrier.
+
+   -- Increment the pointer (T++). The StoreStore barrier will ensure
+      that the writes to the variables in the current frame are
+      visible before T is incremented. (In Java, T should be declared
+      volatile.)
+
+  Thus if this frame were stolen, the thief will have enough
+  information to allow execution to continue after this spawn (in slow
+  mode).
+
+  Now descend into the spawn through a method call. 
+
+o Return from spawn:
+
+  We assume that the spawn is of the form:
+
+    x = spawn ...
+
+  i.e. the return value is written into a local variable. (More
+  complicated expressions involving spawn are converted into
+  invocations of "inlet functions".)
+
+  Check whether the parent frame has been stolen. 
+    --T; 
+    StoreLoadBarrier; // implied in Java if T (and E?) is volatile
+    if (E >= T) 
+       // Now stolen 
+    else 
+       // Not stolen.
+
+  This is done by one-half of Dekker (the variable T is written, and
+  the variable E is read). Note that E may be non-zero but less than
+  T. This reflects the fact that a higher ancestor has been stolen. (No
+  special processing needs to be done in this case.)
+
+  If the parent is stolen, fast-mode computuation must cease
+  immediately. Call the exception handler, which: 
+
+    -- Locks the deque. 
+       This ensures that the thief has finished promoting and left a
+       closure behind at the top of the deque. 
+
+       Why? As discussed below the thief grabs the deque before it
+       attempts to steal, hence it is guaranteed to steal the closure
+       on the victim's deque and leave behind a promoted closure for
+       the victim to deal with, before the victim gets this lock.
+
+    -- Extracts the closure t at the bottom of the deque.
+    -- Locks t.
+    -- Polls inlets on t. (See below.)
+    -- Resets exception pointer: E=H
+    -- Asserts that closure is RUNNING or RETURNING. 
+    -- Marks t as RETURNING.
+       Note that there is still some work to be done, but it will be
+       done by the scheduler after the call stack has been unwound
+       (see a few steps below).
+
+    -- Copy return value into t.return_value. 
+    -- Unlock t.
+    -- Unlock the deque.
+    -- Return a default value from this method. This will result in
+       the call stack unwinding immediately, since the
+       return-from-spawn processing will be done recursively and on
+       each return the condition E >= T will be true (note that as the
+       frame stack is popped T will decrease).
+
+    Note that this path involves grabbing locks. However, this does
+    not compromise the work-first principle since this cost can be
+    charged to the (successful) steal, i.e. this cost would not have
+    been incurred unless there was a succesful steal.
+
+o Sync (join):
+
+   In fast mode, if the worker gets to a sync point it can simply
+   continue since it knows that it has finished executing all the
+   children. i.e. a sync is a no-op.
+
+o Steal:
+  -- Select victim (randomly choose a victim worker).
+  -- Grab the victim's deque lock to lock out any other thief.
+  -- Check if the victim has a closure at the top of the deque.
+  -- If not, bail, no stealing to do.
+  -- If so, grab the closure lock and continue.
+  -- Check that victim has work to steal. The closure at the top of
+     the victim's stack must be in RUNNING state.
+  -- Execute thief portion of Dekker:
+      E++;              // lockstate: closure, deque
+      memory barrier;  // lockstate: closure, deque
+      if (H+1 < T)     // lockstate: closure, deque
+         // thief wins, there is at least one child frame on the stack.
+         // i.e. there are at least two frames on the stack.
+         // the topmost frame will be stolen.
+         // the one below that will be left behind.
+         Promote child // lockstate: closure, deque
+         Detach parent // lockstate: closure, deque
+         unlock deque  // lockstate: closure
+         Finish promoting child //lockstate: closure
+         unlock closure // lockstate: empty
+      else {
+         // thief loses, retract exception
+        E--;            // lockstate: closure, deque
+        unlock closure  // lockstate:  deque
+        unlock deque    // lockstate: empty
+      }
+   -- If a closure was stolen, go to AFTER A STEAL below.
+   -- Otherwise, yield if time slice was set. 
+   -- Repeat while not done.
+
+Promote child: (done while holding closure and deque locks)
+   -- Create a new closure, c.
+   --  c.parent = parent; 
+       c.joinCounter=0; 
+       c.cache = parent.cache;
+       c.status = RUNNING
+       c.frame = frames in the parent, less the topmost frame (which
+       is now stolen)
+   --  Add closure to the bottom of the victim's deque. 
+
+Finish promote child: (done while holding closure lock)
+   -- parent.joinCounter++;
+   -- add child to list of incomplete inlets of parent.
+   -- parent.status = READY
+   -- parent.cache is invalidated.
+
+AFTER A STEAL
+
+Once a closure is stolen, the thief must determine what to do with
+it. (do_what_it_says).
+
+  -- Lock the closure.
+  -- Case on the status.
+  -- If closure is READY
+     -- if it is being aborted, abort it and unlock the closure.
+     -- else execute it:
+        -- setup for execution
+        -- poll inlets
+        -- unlock closure. (Required by protocol.)
+        -- lock the dequeue
+        -- add the closure to the bottom of the deque.
+        -- unlock the deque
+        -- Now start executing the compute method of this closure (see below).
+  -- If closure is RETURNING
+     -- Unlock closure.
+     -- Now deposit the return value of the closure in the appropriate place:
+        -- Go to the closure's parent.
+        -- Now the child is in no deque and unlocked. The child is still
+           in the children list of the parent. The parent's lock can now be 
+           grabbed.
+       -- Lock the parent closure p.
+       -- Assert that the parent's status is not RETURNING. // lock: p
+       -- Remove the child from the incomplete inlets list of the parent.
+       -- Lock the child c. // lock: p,c
+       -- Complete and enque the inlet: // lock: p,c
+          -- copy the child's return value into the inlet arg
+          -- add the inlet to list of completed inlets.
+       -- If parent status is RUNNING // lock: p,c
+            -- signal immediate exception to parent, i.e. set E to infinity.
+          else poll inlets yourself.
+       -- Cilk fence ?!?!?
+       -- decrement parent counter
+       -- Cilk fence
+       -- Provably good steal:  
+          If parent has no children, and parent is SUSPENDED, poll the
+          parent's inlets, set its cache to null (because the closure
+          is being stolen and the cache is worker-specific?), set its
+          status to READY, and return the parent for execution (else
+          return null).
+       -- Unlock parent
+       -- Unlock child
+       -- Destroy child
+
+poll inlets:
+
+  Walk the completed inlets and apply them. (The incomplete inlets are
+  ignored.)
+
+  The default inlet simply copies the returned value (argument of
+  inlet) into the i'th slot in the frame (where the inlet specifies
+  the index i).
+
+SLOW MODE EXECUTION
+
+Slow mode corresponds to the execution of the body of a method
+
+   public void compute() { ...}
+
+on a closure. Slow versions of procedures are created only on steals,
+hence they are always on top of the stack frame.
+
+The slow version of a procedure is invoked from the scheduler, and
+hence through a standard interface. In Cilk, the arguments are passed
+in a frame (the only argument to the procedure). In Java, the slow
+version of the procedure is a method (compute) on the object, and the
+arguments are available as fields on the object.
+
+The return value of the procedure must be stored in the result field
+of the closure. 
+
+The slow version of the procedure differs from the fast version in
+that since it may have outstanding children, it may suspend at a
+sync. How this is done is discussed below.
+
+The compute method works as follows. It uses the value of PC (a field
+on the closure) to determine which label to jump to and start
+execution. Note that this label may be in the middle of a loop. So
+Duff's device is necessary to make this work. This is going to be
+difficult to do in Java, so the Java programmer will need to write
+appropriately convoluted code to get the desired
+effect. Alternatively, the X10 compiler can directly produce class
+files with the appropriate gotos embedded in the body of the method.
+
+Similarly the other local variables are restored from their copy in
+the frame. Now everything is set up for computation to resume at the
+first instruction after the spawn during the execution of which this
+frame was stolen from the victim.
+
+Spawn:
+
+ A spawn is executed in the body of a slow mode procedure in exactly
+the way in which is it executed in the body of a fast mode procedure,
+except that no new frame needs to be created since a frame is already
+on the stack of the worker.
+
+Return from spawn:
+
+ On a return from a spawn exactly the same processing must be
+performed as in the fast mode. For, the parent frame may have been
+stolen while the worker was busy in the child frame. (Thieves can have
+their pockets picked as well!)
+
+Return from slow mode: (Cilk_set_result)
+
+ -- Lock the deque.
+ -- Lock the closure at the bottom of the deque.
+ -- Assert that the closure is RUNNING.
+ -- Mark the closure as RETURNING.
+ -- Copy the result into the return field.
+ -- Unlock the closure.
+ -- Unlock the queue.
+
+Sync:
+
+ The processing at a synchronization point is different. The worker
+ needs to check if any children are still outsanding. It does this by
+ checking the value of joinCounter. If this is greater than zero, this
+ closure is marked as suspending, and removed from the queue. (Further
+ processing on this closure will be performed by the last returning
+ child.) The method returns to the scheduler, which will now look for
+ work to steal since its deque is empty. (Recall that a slow mode
+ procedure is always on top of the stack.)
+
+ -- Lock the deque
+ -- Lock the closure at the bottom of the deque.
+ -- Assert closure is RUNNING.
+ -- Assert closure is at the top of the deque.
+ -- Poll inlets.
+ -- Assert that the closure is still at the bottom of the deque.
+ -- If hasChildren() (there is a need to suspend):
+      Mark the closure as SUSPENDED. Remove it from the deque.
+ -- Unlock closure.
+ -- Unlock deque
+ -- Return whether or not there is a need to suspend.
+
+SCHEDULER
+
+Here is the top level loop (Cilk_scheduler) for a worker:
+
+   -- While not done repeat:
+   -- Try to get work from the local deque.
+      -- Lock the deque. 
+      -- Extract the bottom closure into t
+      -- Unlock the deque.
+   -- If that did not work, steal using a random choice of victim.
+      -- If this succeeds, it will return a closure.
+   -- Do what it says on the closure (do_what_it_says) see above.
+
+Why is it possible that the worker will find a closure on the local
+deque? Because this closure may be a child closure promoted because
+its parent was stolen or it may be a stolen closure (so the top-level
+call was a slow call). 
+
+In the first case, the theft will cause the C-stack for the fast call
+to unwind. This will ultimately cause control to return into the body
+of this function (do_what_it_says returns). Now as it goes around its
+loop, the scheduler will find the promoted child closure on the local
+deque. This closure will be in RETURNING state, and the invocation of
+do_what_it_says on this closure will cause the value to be moved to
+the inlet and the inlet to be marked as completed.
+
+The second case is similar. The slow call will return. The result
+value will be in the closure on the bottom of the deque. The worker
+will pick it up and push it to the parent.
+
+PERFORMANCE ANALYSIS
+
+The fast path introduces the following overhead over sequential
+execution:
+
+  -- Procedure's frame needs to be allocated, initialized, pushed onto
+     the deque. Claim: half a dozen assembly instructions?
+  -- Procedure's state needs to be saved before each spawn (writes of
+     local dirty variables + PC, plus a StoreLoad barrier).
+  -- Procedure must check if its frame has been stolen after each
+     return from a spawn. Requires two reads, compare, branch and a 
+     StoreLoad barrier. 
+  -- On return, frame must be freed. A few assembly instructions?
+  -- An extra variable is needed to hold the frame pointer. Increased
+     register pressure.
+
+Cilk folks claim that the Cilk Fib on one processor (hence no steals)
+runs only 3 times slower than sequential Fib. This is very
+impressive. Note that Fib is the worst possible case for Cilk since
+its thread length is very small.
+
+On the other hand when there is a steal:
+
+  -- The victim's C call stack must be popped all the way to the top
+     (through returns).
+
+  -- Victim locks deque, closure (may be contention/delays in getting
+     both), copies result bytes into closure, goes around the
+     scheduling loop once, locks the deque again to pick up the
+     closure, executes it to move the value from the closure to the
+     inlet. To do that it has to lock the parent closure and the
+     child, and may end up executing a provably good steal of the
+     parent.
+
+  -- Thief has to find a victim (this may take a few failed thief
+     attempts), grab the deque lock, execute Dekker (write, read,
+     branch) and succeed, move parent closure, promote child, install
+     it in an inlet of the parent.
+
+     Thief has to continue the call in slow mode. Any sync
+     will be a slow sync (this locks the deque and the closure, polls
+     inlets, checks if there are children).
+
+     Finally, return from slow mode has the same overhead as return in
+     fast mode after a steal.
+  
+==============
+Notes:
+
+-- The original call is a fast mode call.
+-- setup_for_execution copies the worker's cache into the closure.
+
+TODO
+
+-- Can a deque ever contain more than one closure? A victim may
+   certainly have many frames stolen from it before it detects
+   that. e.g. it may have n+1 frames on its stack, and the top n may
+   get stolen. The victim will discover its loss only when it returns
+   from a frame and discovers its parent frame has been stolen. At
+   this point there will be no frame in the current closure.
+========================

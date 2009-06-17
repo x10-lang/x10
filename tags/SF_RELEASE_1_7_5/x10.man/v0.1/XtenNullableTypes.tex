@@ -1,0 +1,22 @@
+\paragraph{Nullable data type constructor.}
+The {\em nullary type constructor} (\S~\ref{NullableTypeConstructor})
+takes as argument a base data type and returns a new data type which
+has the same values as the original one and a value denoted by the
+literal {\cf null}, in case it did not already have this value.
+
+\begin{x10}
+{\em NullaryDataType ::}
+   nullable \em{}BaseDataType}
+\end{x10}
+
+This type constructor may be applied to value or reference, scalar or
+array types.
+
+The type {\tt nullable C} has the same visibility as the type {\tt
+C}. It is always top-level (i.e., not nested and not inner). It has
+the same members as {\tt C}. It implements the same interfaces as {\tt
+C} along with the interface {\tt x10.lang.Nullable}.
+
+The type {\tt nullable C} can be implicitly cast to the type {\tt T}
+only if {\tt T} is equal to a type {\tt nullable D} and {\tt C} can be
+implicitly cast to {\tt D}.

@@ -1,0 +1,24 @@
+#!/bin/sh
+base=`echo $1 | sed 's#^\(.*\)\..*$#\1#'`
+tmp1=tmp.$$.1
+tmp2=tmp.$$.2
+if [ -f $base.aux ]
+then
+    cp $base.aux $tmp1
+else
+    touch $tmp1
+fi
+# Recursively expand the .aux file...
+while fgrep -s '\@input' $tmp1
+do
+    sed 's/^\\@input{\(.*\)}$/#include "\1"/' < $tmp1 | /lib/cpp > $tmp2
+    mv $tmp2 $tmp1
+done
+cat $tmp1
+# Add table of contents if relevant
+if [ -r $base.toc ]; then cat $base.toc; fi
+# Add index if relevant
+if [ -r $base.idx ]; then cat $base.idx; fi
+# Add glossary if relevant
+if [ -r $base.glo ]; then cat $base.glo; fi
+rm -f $tmp1

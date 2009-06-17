@@ -1,0 +1,607 @@
+
+\newif\ifwild
+\wildfalse
+
+This section presents an informal description of 
+dependent and generic types in \Xten{}.  
+As implemented, \Xten simplifies these 
+semantics, limiting expressiveness in favor of usability.
+After
+using the design presented here to implement part of the \Xten runtime library,
+we found that the semantics are
+often difficult for the uninitiated to
+\ifwild
+use---indeed, they
+provide comparable expressive power to Java wildcards, whose usability
+issues are well known~\cite{wildcards-are-evil}.
+\else
+use.
+\fi
+These usability problems are explored in Section~\ref{sec:usability}.
+The semantics that follow do not have the restrictions
+imposed by the \Xten compiler; instead, they represent the core
+of the \Xten type system.
+
+\Xten{} is a class-based object-oriented language.
+The language has a sequential core similar to Java or Scala, but
+also
+constructs for concurrency and distribution, as well as constrained
+types, described here.  Like Java, the language provides single class
+inheritance and multiple interface inheritance.
+%\footnote{We plan
+%to support traits in a future version of the language.}
+
+A constrained type in \Xten{} is written \xcd"C{c}", where \xcd"C" is the
+name of a class and \xcd"c" is a constraint on the properties
+of \xcd"C" and the immutable state in scope at the type.  The
+constraint \xcd"c" may refer to the value being constrained through
+the special variable \xcd"self", which has type \xcd"C" in the
+constraint.  Constraints are drawn from a constraint language that,
+syntactically, is a subset of the boolean expressions of \Xten{}.  For
+brevity, the constraint may be omitted and interpreted as \xcd"true".
+
+To illustrate the features of dependent types in \Xten{}, we
+develop a \xcd"List"
+class.  We will present several versions of \xcd"List" as we
+introduce new features.
+A \xcd"List" class with a type property \xcd"T" and an \xcd"int"
+property \xcd"len" is declared as in Figure~\ref{fig:list0}.
+Classes in \Xten{} may be declared with any number of type properties and
+value properties.
+
+\begin{figure}
+{
+\begin{xtennoindent}
+      class List[T](len: int) {
+        var head: T;
+        val tail: List[T];
+        def get(i: int): T {
+          if (i == 0) return head;
+          else return tail.get(i-1);
+        }
+        def this[S](hd: S, tl: List[S]):
+            List[S]{len==tl.len+1} {
+          property[S](tl.len+1);
+          head = hd; tail = tl;
+        }
+      }
+\end{xtennoindent}
+}
+\caption{List example, simplified}
+\label{fig:list0}
+\end{figure}
+
+For a class
+\xcd"C"
+with type properties
+\xcdmath"X$_1$",
+\dots,
+\xcdmath"X$_k$",
+we permit the positional syntax \xcdmath"C[T$_1$,$\dots$,T$_k$]"
+to mean \xcdmath"C{X$_1$==T$_1$," \xcdmath"$\dots$," \xcdmath"X$_k$==T$_k$}".
+
+Like in Scala, fields are declared using the keywords \xcd"var"
+or \xcd"val".  The \xcd"List" class has a mutable \xcd"head"
+field with type \xcd"T" (which resolves to \xcd"this.T"), and an
+immutable (final) \xcd"tail" field with type \xcd"List[T]", that
+is, with type \xcd"List{self.T==this.T}".  Note that \xcd"this" occurring
+in the constraint refers to the instance of the enclosing
+\xcd"List" class,
+and \xcd"self" refers to the value being
+constrained---\xcd"this.tail" in this case.
+
+Methods are declared with the \xcd"def" keyword.
+The method \xcd"get" takes a final integer \xcd"i" argument
+and returns the element at that position.
+
+Objects in \Xten{} are initialized with constructors, which
+must ensure that all properties of the new object
+are initialized and that the class invariants of the object's
+class and its superclasses and superinterfaces hold.
+\Xten{} uses method syntax with the name
+\xcd"this" for constructors.
+In \Xten{}, constructors have a ``return type'', which constrains
+the properties of the new object.  The constructor in
+Figure~\ref{fig:list0} takes a type argument \xcd"S"
+and two value arguments \xcd"hd" and \xcd"tl".  The constructor
+return type specifies that the constructor initializes the
+object to have type \xcd"List[S]{len==tl.len+1}", that is,
+\xcd"List{self.T==S," \xcd"self.len==tl.len+1}".
+The formal parameter types and return types of both methods and
+constructors may refer to final parameters of the same
+declaration.
+
+The body of the constructor
+begins with a \xcd"property" statement that initializes the
+properties of the new instance.  All properties are initialized
+simultaneously and it is required that the property assignment
+entail the constructor return type.
+The remainder of the constructor assigns the fields of the
+instance with the constructor arguments.
+
+We next illustrate more advanced features of \Xten by
+presenting a new version of \xcd"List", shown
+in Figure~\ref{fig:list}.
+
+\begin{figure}
+{\footnotesize
+\begin{xtenmathnoindent}
+class List[T](len: int){len >= 0} {
+  var head: T;
+  val tail: List[T]{self.len==this.len-1};
+
+  def get(i: int{0 <= self, self < len}){len > 0}: T {
+    if (i == 0)
+      return head;
+    val tl = tail as List{len>0};
+    val i1 = i-1 as int{0 <= self,self < tail.len};
+    return tl.get(i1);
+  }
+
+  def map[S](f: T => S): List[S]{self.len==this.len} {
+    return new List[S](f(head), tail.map[S](f));
+  }
+
+  def this[S](hd: S, tl: List[S]):
+      List[S]{len==tl.len+1} {
+    property[S](tl.len+1);
+    head = hd; tail = tl;
+  }
+
+  def print(){T $\extends$ Printable} {
+    head.print();
+    println(", ");
+    tail.print();
+  }
+}
+\end{xtenmathnoindent}}
+\caption{List example, with more functionality and more
+constraints.}
+\label{fig:list}
+\end{figure}
+
+\subsection{Class invariants}
+
+Properties of a class may be constrained with 
+a \emph{class invariant}.
+\xcd"List"'s class invariant in
+Figure~\ref{fig:list} specifies that the length of
+the list is non-negative.
+The class invariant must be established by all constructors of
+the class and can subsequently be assumed for all instances of the class.
+
+For generic types, the invariant is used to provide subtyping
+bounds on the type properties.
+For example, in the following code,
+\xcd"SortedList" 
+specifies that the element type \xcd"T"
+is a subtype of \xcd"Comparable":
+\begin{xtenmath}
+class SortedList[T] {T$\extends$Comparable[T]} {
+  def sort() { ... x.compare(y) ... }
+}
+\end{xtenmath}
+
+
+\subsection{Methods}
+
+Method declarations in \Xten
+may have additional
+constraints, or \emph{guards}, on the method parameters
+that must be satisfied for access.
+The guard holds throughout the method body.
+
+\eat{
+The field declarations in Figure~\ref{fig:list}
+each have a guard.  The guard on
+\xcd"head" requires that \xcd"len" \xcd">" \xcd"0";
+that is \xcd"this.head" may not be dereferenced
+unless \xcd"this" has type \xcd"List{len>0}".  Similarly,
+\xcd"tail" cannot be accessed unless the list has a non-empty tail.  The
+compiler is free to generate optimized representations of
+instances of \xcd"List" with a given length: it may remove
+the \xcd"head" and \xcd"tail" fields for empty lists, for
+instance.  Similarly, the compiler may specialize instances of
+\xcd"List" with a given concrete type for \xcd"T".
+\eat{
+This
+specialization is described in Section~\ref{sec:impl}.
+}
+}
+
+The method \xcd"get" in Figure~\ref{fig:list}
+has a constraint on the type of \xcd"i" that requires
+that it be within the list bounds.
+The method also has a guard that
+requires that the actual
+receiver's
+\xcd"len" property must be positive---calls to \xcd"get" on empty
+lists are not permitted.
+A method with a guard is called a \emph{conditional method}.
+The constraint on \xcd"get" ensures that the guard on 
+\xcd"tail" is satisfied in the method body.
+In the method body, the \xcd"head" of the list is returned for
+position \xcd"0"; otherwise, the call recurses on \xcd"tail".
+For this example to type-check, the constraint system
+must establish
+\eat{
+the guard on \xcd"tail" and
+}
+the guard on the recursive call to \xcd"get".
+This is done explicitly by performing run-time casts using the
+\xcd"as" operator.\footnote{Support for flow-sensitive constraints
+would obviate the need for
+run-time casts in this context.}
+\eat{
+The constraint solver must prove
+{\footnotesize
+$$
+\begin{array}[t]{l}
+\tt len > 0, tail.len=len-1, 0 \leq i, i < len, i \not= 0 \\
+\tt \quad\vdash tail.len > 0, 0 \leq i-1,i-1 < tail.len 
+\end{array}
+$$}
+}
+
+Method guards can also be constraints on type properties.
+For instance, the \xcd"print" method can be invoked only if
+\xcd"T" is instantiated on a type that implements
+\xcd"Printable".  Since the guard holds in the body of the
+method, the \xcd"print" method can be invoked on \xcd"head"---it
+is guaranteed to implement \xcd"Printable".
+This feature is similar to optional methods in CLU~\cite{clu}.
+Using structural constraints on \xcd"T" would give more
+expressive power; optional methods are discussed further in
+Section~\ref{sec:discussion}.
+
+Method overriding is similar to Java: a method of a subclass
+with the same name and parameter types overrides a method of the
+superclass.  An overridden method may have a return type that is
+a subtype of the superclass method's return type.
+A method guard may be weakened by an overriding
+method; that is, the guard in the superclass must entail the  
+guard in the subclass.
+
+Methods may also have type parameters.  
+For instance, the \xcd"map" method in Figure~\ref{fig:list} 
+has a type parameter \xcd"S" and a value parameter that is a
+function from \xcd"T" to \xcd"S".
+A parametrized method is invoked by giving type arguments before the
+expression arguments (see recursive call to
+\xcd"map").\footnote{Actual type arguments can be inferred from the types
+of the value arguments. Type inference is out of the scope of this paper.}
+
+\eat{
+\xcd"List" also defines three constructors: the first
+constructor takes no value arguments and initializes
+the length to \xcd"0".  Note that \xcd"head" and \xcd"tail" are
+not assigned since they are inaccessible.
+The second constructor takes an argument for the head of the
+list; the third takes both a head and tail.
+}
+
+\subsection{Type constraints and variance}
+\label{sec:variance}
+
+Type properties and subtyping constraints may be used in \Xten{} to 
+provide \emph{use-site variance}
+constraints.
+Use-site variance based on structural virtual types was proposed by
+Thorup and Torgerson~\cite{unifying-genericity} and extended for
+parametrized type systems by Igarashi and
+Viroli~\cite{variant-parametric-types}.  The latter type system lead
+to the development of wildcards in
+Java~\cite{Java3,adding-wildcards,wildcards-safe}.  \Xten's
+support for use-site variance
+has similar expressive power.
+Section~\ref{sec:wildcards} describes a characterization of
+wildcards using generic constrained types.
+
+Consider the following subtypes  of \xcd"List" from
+Figure~\ref{fig:list}.
+\begin{itemize}
+\item \xcd"List".  This type has no constraints on the type
+property \xcd"T".
+Any type that constrains \xcd"T"
+is a subtype of \xcd"List".  The type \xcd"List" is equivalent to
+\xcd"List{true}".
+%
+For a \xcd"List" \xcd"xs", the return type of the \xcd"get" method
+is \xcd"xs.T".
+Since the property \xcd"T" is unconstrained,
+the caller can only assign the return value of \xcd"get"
+to a variable of type \xcd"xs.T" or of type \xcd"Object".
+
+\item \xcd"List{T==float}".
+The type property \xcd"T" is bound to \xcd"float".
+For a final expression \xcd"xs" of this type,
+\xcd"xs.T" and \xcd"float" are equivalent types and can be used
+interchangeably.
+The syntax \xcd"List[float]" is used as
+shorthand for \xcd"List{T==float}".
+
+\item \xcdmath"List{T$\extends$Collection}".
+This type constrains \xcd"T" to be a subtype of \xcd"Collection".
+All instances of this type must bind \xcd"T" to a subtype of
+\xcd"Collection"; for example \xcd"List[Set]" (i.e.,
+\xcd"List{T==Set}") is a subtype of
+\xcdmath"List{T$\extends$Collection}" because \xcd"T==Set" entails
+\xcdmath"T"
+\xcdmath"$\extends$"
+\xcdmath"Collection".
+%
+If \xcd"xs" has the type \xcdmath"List{T$\extends$Collection}",
+then the return type of \xcd"get" has type \xcd"xs.T", which is an unknown but
+fixed subtype of \xcd"Collection"; the return value can be
+assigned into a variable of type \xcd"Collection".
+
+\item \xcdmath"List{T$\super$String}".  This type bounds the type property
+\xcd"T"
+from below.  For a \xcd"List" \xcd"xs" of this type, any
+supertype of \xcd"String" may flow into a variable of type \xcd"xs.T".
+The return type of the \xcd"get"
+method is known to be a
+supertype of \xcd"String" (and implicitly a subtype of \xcd"Object").
+\end{itemize}
+
+In the positional syntax for types (e.g., \xcd"List[T]"),
+an actual type argument \xcd"T" may optionally
+be annotated
+with
+a \emph{use-site variance tag}, either ``\xcd"+"'' or ``\xcd"-"'':
+if \xcd"X" is a type property of \xcd"C", then
+the syntax \xcd"C[+T]" is shorthand for \xcdmath"C{X$\extends$T}" and
+\xcd"C[-T]" is shorthand for \xcdmath"C{X$\super$T}"; of course,
+\xcd"C[T]" is shorthand for \xcd"C{X==T}".
+
+
+
+\eat{
+\subsection{Type properties}
+
+Type properties may be declared invariant, covariant, or
+contravariant.
+If a property \xcd"X" of a class \xcd"C" is covariant,
+then if \xcd"S" is a subtype of
+\xcd"T", the type \xcd"C{X==S}" is a subtype of \xcd"C{X==T}".
+Similarly, if \xcd"X" is contravariant, 
+\xcd"C{X==T}" is a subtype of \xcd"C{X==S}".
+It is illegal for a covariant property to occur in a negative
+position in its class declaration and for a contravariant
+property to occur in a positive position.  A position is
+negative if it is a formal parameter type, or occurs in a method
+where clause.  A position is positive if it is a return type or
+occurs in a method constraint.
+}
+
+\eat{
+\subsection{Methods}
+
+Methods in \Xten{} are declared with the \xcd"def" keyword.
+The \xcd"List" class in Figure~\ref{fig:list} declares methods
+\xcd"get" and \xcd"map".
+
+Like Java, \Xten{} supports both instance and static methods.
+Since a type property is an instance member, a static method may
+not refer to a type property of the class.
+
+Interfaces are also permitted to have static methods.  Classes
+implementing the interface must provide an implementation of the
+static methods of the interface.
+This feature is
+useful when a type property \xcd"T" is constrained to implement
+an interface \xcd"I"; static methods of \xcd"I" can be invoked
+through \xcd"T".
+}
+
+\eat{
+\subsection{Interfaces}
+
+optional interfaces
+value properties in interfaces
+static methods in interfaces
+
+\subsubsection{Optional methods and interfaces}
+
+Method constraints also provide support for optional methods.
+
+{
+\begin{xtenmath}
+class List[T] {
+  ...
+  def print(){T $\extends$ Printable} {
+    for (x: T in this)
+      x.print();
+}
+}
+\end{xtenmath}}
+
+\xcd"List.print" may only be called on lists instantiated on
+subtypes of the \xcd"Printable" interface.
+
+Optional methods generalize to optional interfaces.
+
+{\footnotesize
+\begin{xtenmath}
+interface Printable { def print(); }
+
+class List[T] implements Printable if {T $\extends$ Printable} {
+  ...
+  def print(){T $\extends$ Printable} {
+    for (x: T in this)
+      x.print();
+  }
+}
+\end{xtenmath}}
+
+In this case \xcd"List" implements the \xcd"Printable" interface
+only if \xcd"List.T" implements \xcd"Printable".
+Thus \xcd"List{T==String}"
+and \xcd"List{T==List[String]}"
+are subtypes of \xcd"Printable", but
+\xcd"List{T" \xcd"==FourLetterWord}" is not.
+
+
+Without optional interfaces, \xcd"List" cannot be a subtype
+of \xcd"Printable".  The constraint \xcdmath"{T $\extends$ Printable}" on
+the \xcd"print" method is more restrictive than the 
+constraint (i.e., \xcd"true") on 
+\xcd"Printable.print".
+}
+
+\subsection{Type properties vs. type parameters}
+\label{sec:usability}
+\label{sec:parameters-vs-fields}
+
+As previously mentioned, after implementing the \Xten design above,
+we encountered some usability problems.
+\ifwild
+The first
+\else
+The basic
+\fi
+problem is that programmers are more familiar with
+\emph{type parameters} than with \emph{type properties}:
+providing similar functionality with often subtle distinctions
+can be difficult for novices users of the language.
+\ifwild
+Second, permitting type constraints at the use site
+of a type rather than at the definition site, as is done for
+instance in Java~\cite{adding-wildcards}, can lead to 
+subtle design bugs in programs.
+\fi
+
+The key difference between type parameters and type properties
+is that type properties are
+instance members bound during object construction.  Type
+properties are thus accessible through expressions---\xcd"e.T" is
+a legal type (if \xcd"e" is final)---and are inherited by subclasses.
+These features gives type properties more expressive power than
+parameters, but are unfamiliar to many programmers.
+
+One complication is that,
+since type properties are inherited, the language design needs
+to account for ambiguities introduced when the same name is
+used for different type properties declared in or inherited into a class.
+These can be disambiguated
+by ``casting'' the target up to the desired supertype,
+e.g., \xcd"(e as C).X" specifies
+the property \xcd"X" inherited from \xcd"C".
+
+As an example, in the following \Xten code, \xcd"HashMap" 
+inherits the properties \xcd"K" and \xcd"V" from \xcd"Map".
+\begin{xten}
+interface Map[K,V] {
+  def get(K): V;
+  def put(K, V): V;
+}
+
+class HashMap extends Map {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+If a user is used to type parameters, \xcd"HashMap" would be
+declared as follows:
+\begin{xten}
+class HashMap[K,V] extends Map[K,V] {
+  def get(k: K): V = ...;
+  def put(k: K, v: V): V = ...;
+}
+\end{xten}
+This introduces a new pair of type properties named \xcd"K" and
+\xcd"V" that shadow the inherited properties,
+and adds to the class invariant of \xcd"HashMap" the constraint
+\xcd"{(this as Map).K==K," \xcd"(this as Map).V==V}".
+A naive implementation of type properties would store run-time
+type information for all four properties in each instance
+of \xcd"HashMap".
+
+\ifwild
+The second problem encountered was the difficulty with using use-site
+variance annotations.
+When writing a generic type in, say, a method signature, it is often not 
+clear whether to constrain the generic's type property with an
+equality constraint or with a subtyping constraint.
+For example, in the following code, \xcd"C.list()" returns a \xcd"List[X]".
+\begin{xtenmath}
+class List[T] {
+  def add(x: T) = ...;
+}
+class C[X] {
+  def list(): List[X] = ...;
+}
+\end{xtenmath}
+\noindent
+But, it could just return
+\xcdmath"List{T$\extends$X}" instead.
+Which to use depends on whether the developer of \xcd"C"
+expects the list to be mutated or not: if \xcd"xs"
+is of type
+\xcdmath"List{T$\extends$A}", then \xcd"xs.add" cannot be
+invoked with a value of static type \xcd"A"---the compiler
+cannot demonstrate that \xcd"A" is a subtype of \xcd"xs.T".
+If the developer chooses wrongly, correcting the problem can
+cascade throughout the program.
+\fi
+
+To correct these problems, a
+revised \Xten design
+imposes
+restrictions on type properties so that they 
+behave similarly to type
+\ifwild
+parameters with definition-site variance.
+\else
+parameters.\footnote{We have implemented a further
+simplification of this new design, moving variance annotations
+to the definition site.}
+\fi
+
+\ifwild
+First, we
+\else
+We
+\fi
+make the syntax \xcd"e.X"
+illegal and permit type properties to be accessible only from
+within the body of their class definition via the
+implicit \xcd"this" qualifier.  We require that type
+constraints be written using the shortened \xcd"C[T]"
+\ifwild
+syntax rather than as \xcd"C{X==T}".
+\else
+(or \xcd"C[+T]", etc.) syntax rather than as \xcd"C{X==T}" (\xcd"C{X<=T}").
+\fi
+The compiler also addresses the
+ambiguous type property problem by ensuring inherited type properties are
+not visible from subclasses.
+
+\ifwild
+Second, we allow the programmer to specify
+\emph{definition-site}
+variance annotations.
+If a type property \xcd"X" of \xcd"C" is declared ``\xcd"+X"'', it is
+covariant.
+This simply means that \xcd"C[T]"
+is shorthand for \xcd"C{X<=T}" rather than for \xcd"C{X==T}".
+In addition, the compiler checks that in the body of \xcd"C",
+\xcd"X" is only used in positive positions (method return types
+and types of final (\xcd"val") fields).
+As far as the programmer is concerned, then, if \xcd"A"
+is a subtype of \xcd"B", then
+\xcd"C[A]" is a subtype of \xcd"C[B]".
+This follows because \xcd"X<=A" entails \xcd"X<=B" if \xcd"A<=B".
+Dually, a property \xcd"X" can be declared contravariant 
+using ``\xcd"-X"'', meaning \xcd"C[T]" is shorthand for
+\xcd"C{X>=T}".  \xcd"X" may not appear only in negative
+positions (method argument types).
+\fi
+
+With these
+modifications, explicit type constraints continue to be allowed
+in method and constructor guards and in class invariants.
+\ifwild\else
+In this design, unconstrained types (e.g., \xcd"C") are still legal types.
+\fi
+

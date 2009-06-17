@@ -1,0 +1,861 @@
+Here we prove a soundness theorem for \CFJ{}.  
+
+\begin{lemma}[Substitution Lemma]
+\label{substitution}
+If
+$\Gamma \vdash \tbar{d}:\tbar{U}$,
+$\Gamma, \bar{\tt x}:\tbar{U} \vdash \tbar{U}\subtype\tbar{V}$,
+and
+$\Gamma, \tbar{x}:\tbar{V} \vdash {\tt e:T}$,
+then for some type {\tt S},
+$\Gamma \vdash {\tt e[\tbar{d}/\tbar{x}]:S}, {\tt S \subtype \tbar{x}:\tbar{V};T}.$
+\end{lemma}
+
+\begin{proof}
+Straightforward.
+\end{proof}
+
+\eat{
+\begin{proof}
+Assume the premises.  The proof is by structural induction on
+{\tt e}.
+
+\begin{itemize}
+\item \xcd{x}.
+Then $\Gamma, \xcd{x}_i \ty \xcd{V}_i \vdash {\tt T}$.
+There are two subcases.
+
+\begin{itemize}
+\item
+If \xcd{x} is \xcd{x$_i$}, then 
+${\tt e[\tbar{d}/\tbar{x}]}$ = \xcd{d$_i$}.
+$\Gamma \vdash {\tt d}_i \ty {\tt U}_i$.
+
+$\Gamma \vdash {\tt U}_i \subtype {\tt x}_i \ty {\tt V}_i; {\tt T}$
+follows from \rn{S-Exists-R}.
+
+and
+$\Gamma \vdash {\tt U}_i \subtype {\tt T}[{\tt d}_i/{\tt x}_i]$
+
+Since,
+$\Gamma \vdash {\tt d}_i \ty {\tt U}_i$
+by \rn{T-sub} we have
+$\Gamma \vdash {\tt d}_i \ty {\tt V}_i$.
+
+\item
+Otherwise, 
+${\tt e[\tbar{d}/\tbar{x}] = e}$
+and the case
+follows from \rn{S-Exists-R}.
+\end{itemize}
+
+\item $\xcd{e}.\xcd{f}$
+\item $\xcd{e}.\xcd{m}(\tbar{e})$
+\item $\xcd{new}~\xcd{C}(\tbar{e})$
+\item $\xcd{e}~\xcd{as}~\xcd{T}$
+\end{itemize}
+\end{proof}
+}
+
+% Unchanged from FJ
+\begin{lemma}[Weakening]
+\label{weakening}
+If $\Gamma \vdash {\tt e} \ty {\tt T}$, then
+$\Gamma, {\tt x} \ty {\tt S} \vdash {\tt e} \ty {\tt T}$.
+\end{lemma}
+
+\begin{proof}
+Straightforward.
+\end{proof}
+
+% Unchanged from FJ
+\begin{lemma}[Method body type]
+\label{body-type}
+If
+$$\Gamma, {\tt z}:{\tt T} \vdash {\tt z}\ \has\ {\tt m}(\bar{\tt z} \ty \bar{\tt U})\{{\tt c}\}: {\tt S} = {\tt e},$$
+and 
+$\Gamma, {\tt z}:{\tt T},\bar{\tt z}: \bar{\tt T} \vdash \bar{\tt T} \subtype \bar{\tt U}$,
+then for some type ${\tt S}'$ it is the case that 
+$\Gamma, {\tt z}:{\tt T},\bar{\tt z}: \bar{\tt T} \vdash {\tt e}: {\tt S}',{\tt S}'\ty {\tt S}$.
+\end{lemma}
+
+%%vj. Updated above formulation to use bars. Proof below needs to be fixed.
+\begin{proof}
+\eat{
+From
+$\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt m}(\bar{\tt z} \ty \bar{\tt U})\{{\tt c}\}: {\tt S} = {\tt e}$,
+it is easy to show that for some {\tt C} such that $\Gamma \vdash {\tt T} \subtype {\tt C}$,
+${\tt def}\ {\tt m}(\tbar{z}:\tbar{U}[\this/{\tt z}])\{{\tt c[\this/{\tt z}]}\}:{\tt S}[\this/{\tt z}] = {\tt e} \in P$.
+
+By \rn{Method OK},
+$\this:{\tt C}\vdash {\tt c}:{\tt o}$
+and
+$\this:{\tt C},\tbar{z}:\tbar{U}[\this/{\tt z}],{\tt c}[\this/{\tt z}] \vdash {\tt S}[\this/{\tt z}] \ \type, \tbar{U}[\this/{\tt z}] \ \type, {\tt e}:{\tt V}, {\tt V} \subtype {\tt S}[\this/{\tt z}]$.
+}
+
+Straightforward.
+\end{proof}
+
+\begin{lemma}
+\label{existential-subtyping}
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+then $$({\tt z}:{\tt S};~{\tt c}_0)[{\tt x}/\self] \vdashO ({\tt z}:{\tt T};~{\tt c}_0)[{\tt x}/\self]$$
+where {\tt x} is fresh.
+\end{lemma}
+
+\begin{proof}
+Straightforward.
+\end{proof}
+
+\eat{
+\begin{lemma}
+\label{erased-subtyping}
+If   $\Gamma \vdash \xcd{C\{c\}} \subtype \xcd{D\{d\}}$,
+then $\Gamma \vdash \xcd{C} \subtype \xcd{D}$.
+\end{lemma}
+
+\begin{proof}
+From \rn{S-Id} and \rn{S-Const-L}, we have
+$\Gamma \vdash \xcd{D\{d\}} \subtype \xcd{D}$.
+From \rn{S-Const-R}
+$\Gamma \vdash \xcd{C\{c\}} \subtype \xcd{D}$.
+\end{proof}
+}
+
+\begin{lemma}
+\label{subst-in-assumption}
+If   $\Gamma, {\tt x}: {\tt U}, {\tt c} \vdashO {\tt c}_0$
+and  $\Gamma \vdash {\tt t}: {\tt U}$,
+then $$\Gamma, {\tt c}[{\tt t}/{\tt x}] \vdashO {\tt c}_0[{\tt t}/{\tt x}].$$
+\end{lemma}
+
+\begin{proof}
+Straightforward.
+\end{proof}
+
+\begin{lemma}
+\label{constraint-lemma} % 4. 
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$,
+then $\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+\end{lemma}
+
+\begin{proof}
+By induction on the derivation of 
+     $\Gamma \vdash {\tt S} \subtype {\tt T}$.
+We proceed by cases for the last judgment in the derivation.
+\begin{itemize}
+\item \textsc{S-Id}.
+Trivial.
+\item \textsc{S-Trans}.
+Straightforward from the induction hypothesis.
+\item \textsc{S-Extends}.
+We have
+${\tt S} = {\tt C}$ and ${\tt T} = {\tt D}$.
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: {\tt C}) =
+    \sigma(\Gamma,{\tt f}: {\tt D}) = \sigma(\Gamma).$$
+The conclusion follows easily.
+
+\item \textsc{S-Const-L}.
+We have
+${\tt S} = {\tt T\{c\}}$.
+Assume
+$\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: {\tt T\{c\}}) = 
+      \sigma(\Gamma, {\tt f}: {\tt T}), {\tt c}[{\tt f}/\self].$$
+Since
+$\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$, it follows immediately that
+$\sigma(\Gamma,{\tt f}: {\tt T}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
+
+\item \textsc{S-Const-R}.
+We have
+${\tt T} = {\tt U\{c\}}$ and $\Gamma \vdash {\tt S} \subtype {\tt U}$
+and $\Gamma, \self: {\tt S} \vdash {\tt c}$.
+
+Assume
+$\sigma(\Gamma,{\tt f}: {\tt U\{c\}}) \vdashO {\tt c}_0$.
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: {\tt U\{c\}}) = 
+      \sigma(\Gamma, {\tt f}: {\tt U}), {\tt c}[{\tt f}/\self].$$
+Thus,
+    $\sigma(\Gamma, {\tt f}: {\tt U}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$.
+
+Since
+$\Gamma, \self: {\tt S} \vdash {\tt c}$,
+we have
+$\Gamma, {\tt f}: {\tt S} \vdash {\tt c}[{\tt f}/\self]$,
+and hence
+$\sigma(\Gamma, {\tt f}: {\tt S}) \vdashO {\tt c}[{\tt f}/\self]$.
+
+Since 
+$\Gamma \vdash {\tt S} \subtype {\tt U}$,
+applying the induction hypothesis to ${\tt c}[{\tt f}/\self]$, we have
+$\sigma(\Gamma, {\tt f}: {\tt U}) \vdashO {\tt c}[{\tt f}/\self]$.
+%
+Therefore, in the judgment
+$\sigma(\Gamma, {\tt f}: {\tt U}), {\tt c}[{\tt f}/\self] \vdashO {\tt c}_0$,
+${\tt c}[{\tt f}/\self]$ is redundant and we can conclude
+    $\sigma(\Gamma, {\tt f}: {\tt U}) \vdashO {\tt c}_0$.
+
+Finally,
+applying the induction hypothesis to ${\tt c}_0$, we have
+$\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+
+\item \textsc{S-Exists-L}.
+We have
+${\tt S} = {\tt x}: {\tt U};~{\tt V}$
+    and
+    $\Gamma \vdash {\tt U}~\type$
+    and
+    $\Gamma \vdashO {\tt V} \subtype {\tt T}$
+    where {\tt x} is fresh.
+
+Assume $\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
+%
+By the induction hypothesis,
+$\sigma(\Gamma,{\tt f}: {\tt V}) \vdashO {\tt c}_0$.
+%
+Adding ${\tt x}: {\tt U}$ to the assumptions,
+we can conclude
+$\sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}) \vdashO {\tt c}_0$.
+
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: ({\tt x}: {\tt U};~{\tt V})) =
+      \sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}).$$
+%
+Thus,
+$\sigma(\Gamma,{\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+
+\item \textsc{S-Exists-R}.
+We have
+${\tt T} = {\tt x}: {\tt U}; {\tt V}$
+    and
+    $\Gamma \vdash {\tt t}: {\tt U}$
+    and
+    $\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}]$.
+
+Assume
+$\sigma(\Gamma,{\tt f}: {\tt T}) \vdashO {\tt c}_0$.
+%
+From the definition of $\sigma(\cdot)$ we have
+    $$\sigma(\Gamma,{\tt f}: ({\tt x}: {\tt U};~{\tt V})) =
+      \sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}).$$
+%
+Thus,
+$\sigma(\Gamma, {\tt x}: {\tt U}, {\tt f}: {\tt V}) \vdashO {\tt c}_0$.
+Since
+$\Gamma \vdash {\tt x}: {\tt U}$, we can show via Lemma~\ref{subst-in-assumption} that
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}]}) \vdashO {\tt c}_0[{\tt t}/{\tt x}]$.
+
+% XXX is this right?
+Since $\Gamma \vdash {\tt c}_0 : {\tt o}$, {\tt x} is not free in ${\tt c}_0$.
+Thus ${\tt c}_0[{\tt t}/{\tt x}] = {\tt c}_0$
+and
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}]}) \vdashO {\tt c}_0$.
+%
+Since,
+$\Gamma \vdashO {\tt S} \subtype {\tt V}[{\tt t}/{\tt x}$
+and
+$\sigma(\Gamma, {\tt f}: {\tt V[{\tt t}/{\tt x}}) \vdashO {\tt c}_0$,
+by the induction hypothesis, we have
+$\sigma(\Gamma, {\tt f}: {\tt S}) \vdashO {\tt c}_0$.
+\end{itemize}
+\end{proof}
+
+\begin{lemma}
+\label{subtype-lemma} % 3. 
+if   $\Gamma, {\tt f}: {\tt T} \vdash {\tt U} \subtype {\tt U}'$,
+and  $\Gamma \vdash {\tt S} \subtype {\tt T}$, then $\Gamma, {\tt f}: {\tt S} \vdash {\tt U} \subtype {\tt U}'$.
+\end{lemma}
+
+\begin{proof}
+Follows From Lemma~\ref{constraint-lemma}.
+\end{proof}
+
+\begin{lemma}
+\label{subtyping-in-existential-lemma} % 5. 
+if   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+then $\Gamma \vdash {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\} \subtype {\tt E}\{{\tt z}: {\tt T}; {\tt c}_0\}$.
+\end{lemma}
+
+\begin{proof}
+To prove the desired conclusion 
+$$\Gamma \vdash {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\} \subtype {\tt E}\{{\tt z}: {\tt T}; {\tt c}_0\},$$
+we need to show that
+$$\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\}) \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self].$$
+%
+We have 
+$$
+\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\})
+                                                        = \sigma(\Gamma, ({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self])
+$$
+From Lemma~\ref{existential-subtyping} and
+$\Gamma \vdash {\tt S} \subtype {\tt T}$, 
+we have
+$$({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self] \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self].$$
+From $$
+\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\})
+                                                        = \sigma(\Gamma, ({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self])$$
+and
+$$({\tt z}: {\tt S}; {\tt c}_0)[{\tt x}/\self] \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self],$$
+we conclude 
+$$\sigma(\Gamma, {\tt x}: {\tt E}\{{\tt z}: {\tt S}; {\tt c}_0\}) \vdashO ({\tt z}: {\tt T}; {\tt c}_0)[{\tt x}/\self].$$
+\end{proof}
+
+% \begin{lemma}
+% \label{lemmasix} % 6. 
+% If $\Gamma \vdash \tbar{U}\ \tbar{d}$,
+% $\theta = [\tbar{f} / \this.\tbar{f}]$,
+% $\fields(C,\theta) = \tbar{Z} \tbar{f}$,
+% $\Gamma, \tbar{U}\ \tbar{f} \vdash \tbar{U} \subtype \tbar{Z}$,
+% $\sigma(\Gamma, \tbar{U}\ \tbar{f}) \vdashO inv(C,\theta)$,
+% $\vdash C \subtype T[new C(\tbar{d}) / \self]$,
+% then $\Gamma \vdash C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = 
+%      \tbar{f}) \subtype T$.
+% \end{lemma}
+% 
+% \begin{proof}
+% (Notes)
+% It is reasonable to assume that the constraint system {\cal C} satisfies the
+% property that if $\tbar{d} = \tbar{e}$ (where $\tbar{d}$ and $\tbar{e}$ 
+% are sequence of values) 
+% then
+% for any sequence of constraints $\tbar{c}$, $\tbar{c}[\tbar{d}/\self]$ and 
+% $\tbar{c} [\tbar{e}/\self]$
+% are equi-satisfiable, i.e., one holds iff the other holds. 
+% (Here by $\tbar{c} [\tbar{d}/\self]$ we mean $c_1[d1/\self], \ldots, c_n[dn/\self]$.)
+% 
+% Now when proving subject reduction for this case we take the type $S$ to be 
+% $C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = \tbar{f}, \self=o)$.
+% Note the addition of the $\self=o$ clause. 
+% Note also that from
+% 
+% $\Gamma \vdash C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = \tbar{f}) o$
+% 
+% we can derive
+% 
+% $\Gamma \vdash C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = \tbar{f}, \self=o) o$
+% 
+% This of course makes complete sense ... all we need to show is that {\em this
+% particular object} $o$ is of the type that it has been cast to.
+% 
+% But we have just checked this condition, i.e. 
+% $type(o) \subtype D and \vdashO d[o/\self]$. 
+% So we are done.
+% 
+% Note about the proof:
+% the trick of adding $\self=o$ is critical. There is no hope of showing
+% that $C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = \tbar{f}) \subtype D(:d)$. 
+% All we have checked is the one case that {\em this one object\/} $o$ 
+% satisfies the condition $d$, not that *all* objects 
+% that satisfy $C(: \tbar{U}\ \tbar{f}; \self.\tbar{f} = \tbar{f})$ 
+% also satisfy $D(:d)$. 
+% So we take advantage of our ability to choose the type $S$ for $o$ 
+% to get this done.
+%\end{proof}
+
+% \begin{lemma}
+% \label{lemmaseven} % 7. 
+% If   $\Gamma, \tbar{T} \tbar{f} \vdash \tbar{T} \subtype \tbar{Z}$
+% and  $\theta = [\tbar{f} / \this.\tbar{f}]$,
+% and  $\fields(C,\theta) = \tbar{Z} \tbar{f}$,
+% and  $\fields(T_0,z_0) = \tbar{U}\ \tbar{f}$,
+% and  $T_0 equiv C(\tbar{T} \tbar{f}; \self.\tbar{f} = \tbar{f})$,
+% then $\Gamma \vdash T_i \subtype (T_0 z_0; z_0.f_i = \self; U_i)$
+% \end{lemma}
+% 
+% \begin{proof}
+% From these we can conclude
+%    $\Gamma \vdash T_0 new C(bar e)$
+% where $T_0$ is $C(: \tbar{T} \tbar{p}; \self.\tbar{f} = \tbar{p})$.
+% 
+% Now the case we are concerned about is $new C(\tbar{e}).f_i --> e_i$.
+% 
+% We want to show that the static type of $e_i$, namely $T_i$, 
+% is a subtype of the static
+% type of $new C(\tbar{e}).f_i$, which is
+% $(T_0 z_0; z_0.f_i=\self, V_i[z_0.\tbar{f}/\this.\tbar{f}])$
+% 
+% Let $x$ be an arbitrary element of $T_i$. 
+% We wish to show that $x$ is an element of
+% the type $(T_0 z_0; z_0.f_i=\self, V_i[z_0.\tbar{f}/\this.\tbar{f}])$.
+% To do this we have
+% to show that it is possible to construct from $x$ an object $z_0$ of type 
+% $T_0$ such
+% that $x$ is the $f_i$'th field of $z_0$. But this is given to us by (4).
+% Let $\tbar{t}$ be
+% a set of values of type $bar T$, with $x$ chosen at index $i$.
+% Then per (4), $T_i$ is a
+% subtype of $V_i[\tbar{t}/\this.\tbar{f}]$. Since $x$ is a value of the type $T_i$, 
+% it is a value of the type $V_i[\tbar{t}/\this.\tbar{f}]$. 
+% Therefore we have constructed the object $z_0$ 
+% which is required to show that $x$ is an element of 
+% $(T_0 z_0; z_0.f_i=\self, V_i[z_0.\tbar{f}/\this.\tbar{f}])$.
+% 
+% I have implicitly used here the following genericity property of constraint
+% systems (see Vijay Saraswat's LICS 91 paper):
+% If $\Gamma \vdash A$ then $\Gamma[\tbar{t}/\tbar{y}] \vdash A [\tbar{t}/\tbar{y}]$.
+% That is the set of axioms of the constraint system may contain free
+% variables but are assumed to be closed under instantiation.
+% \end{proof}
+
+\begin{lemma}
+\label{fields-lemma} % 1. 
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\Gamma, {\tt z}: {\tt S} \vdash \fields({\tt z}) = \tbar{F}_1$,
+and  $\Gamma, {\tt z}: {\tt T} \vdash \fields({\tt z}) = \tbar{F}_2$,
+then $\tbar{F}_2$ is a prefix of $\tbar{F}_1$.
+\end{lemma}
+
+\begin{proof}
+Follows from Lemma~\ref{constraint-lemma} and rules for $\fields$  in ${\cal O}$.
+\end{proof}
+
+\begin{lemma}
+\label{has-lemma} % 2. 
+If   $\Gamma \vdash {\tt S} \subtype {\tt T}$,
+and  $\Gamma, {\tt z}: {\tt T} \vdash {\tt z}\ \has\ {\tt I}$,
+then $\Gamma, {\tt z}: {\tt S} \vdash {\tt z}\ \has\ {\tt I}$.
+\end{lemma}
+
+\begin{proof}
+Follows from Lemma~\ref{constraint-lemma}.
+\end{proof}
+
+\begin{lemma}\label{existslemma}
+If 
+$\Gamma \vdash ({\tt x}: {\tt S}; \xcd{T\{c\}})\ \type$, then
+$\Gamma \vdash ({\tt x}: {\tt S}; \xcd{T\{c\}}) \subtype \xcd{T\{x: S; c\}})$.
+\end{lemma}
+
+\begin{proof}
+% From S-Const-L
+% G, x:S |- T{c} <: T
+% Then from S-Exists-L
+% G |- x:S; T{c} <: T
+% By definition of \sigma and c |- c,
+% G,self:(x:S; T{c}) |-O {x: S; c},
+% From
+% G |- x:S; T{c} <: T
+% and
+% G,self:(x:S; T{c}) |-O {x: S; c},
+% by S-Const-R we have
+% G |- x: S; T{c} <: T{x: S; c}
+Straightforward.
+\end{proof}
+
+
+\begin{theorem}[Subject Reduction] 
+\label{preservation}
+If $\Gamma \vdash {\tt e}: {\tt V}$ and ${\tt e} \derives {\tt e}'$, then for some type ${\tt V}'$,
+$\Gamma \vdash {\tt e}': {\tt V}'$ and $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
+\end{theorem}
+
+\begin{proof}
+We proceed by induction on the
+structure of the derivation of $\Gamma \vdash {\tt e}: {\tt T}$.  We now have five
+cases depending on the last rule used in the derivation
+of $\Gamma \vdash {\tt e}: {\tt T}$.
+\begin{itemize}
+\item
+\TVar: The expression cannot take a step, so the conclusion is immediate.
+\item
+\TCast: We have two subcases.
+   \begin{itemize}
+   \item
+   \RCast:  For the expression {\tt o~as~V}, where 
+            ${\tt o} = {\tt \new\ {\tt C(\tbar{d})}}$,
+            we have from \TNew\ that 
+            $$\Gamma \vdash {\tt o: {\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}}.$$
+            Additionally, we have from \RCast\ that 
+            $$\vdash {\tt C}\{\new\ {\tt C}(\tbar{d}) = \self\} \subtype {\tt V}.$$
+            We now choose 
+            $${\tt V}' = {{\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}}.$$
+
+            From \rn{S-Exists-L},
+            $$
+            \begin{array}{r}
+            \Gamma \vdash \tbar{z}: \tbar{T}; {{\tt C}\{\new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}} \\
+            \subtype {\tt C}\{\new\ {\tt C}(\tbar{d}) = \self\}.
+            \end{array}
+            $$
+
+            From Lemma~\ref{existslemma},
+            $$
+            \begin{array}{r}
+            \Gamma \vdash
+            \tbar{z}: \tbar{T}; {{\tt C}\{\new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}} \\
+            \subtype
+                {{\tt C}\{\tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self; \inv({\tt C},\self)\}}
+            \end{array}
+            $$
+
+        Thus,
+            from \rn{S-Trans}, $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
+   \item
+   \RCCast: For the expression {\tt o~as~V}, we have from \TCast\ that
+            $\Gamma \vdash {\tt o}: {\tt U}$.
+            Additionally, we have from \RCCast\ that
+            ${\tt o} \derives {{\tt o}}'$.
+            From the induction hypothesis, we have ${\tt U}'$ such that
+            $\Gamma \vdash {\tt o}': {\tt U}'$ and
+            $\Gamma \vdash {\tt U}' \subtype {\tt U}$.
+            We now choose ${\tt V}'={\tt V}$.
+            From $\Gamma \vdash {\tt o}': {\tt U}'$ and \TCast\ we derive
+            $\Gamma \vdash {\tt o}'{\tt ~as~V} : {\tt V}$.
+            From ${\tt V}'={\tt V}$ and \rn{S-Id}
+            we have $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
+   \end{itemize}
+\item
+\TNew: We have a single case.
+   \begin{itemize}
+   \item
+   \RCNewArg: For the expression ${\new\ {\tt C}(\tbar{e})}$,
+            we have from \TNew\ that
+            $$
+            \begin{array}{l}
+            \Gamma \vdash \tbar{e}: \tbar{T}, \\
+            \vdash \class({\tt C}), \\
+            \Gamma \vdash {\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tbar{S}, \\
+            \Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}, \inv({\tt C}, {\tt z}).
+            \end{array}$$
+
+            We choose
+            ${\tt V} = {\tt C}\{ \tbar{z}: \tbar{T}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}$.
+
+            Additionally, we have from \RCNewArg\ that
+            ${\tt e}_i \derives {{\tt e}}_i'$.
+            From the induction hypothesis, we have ${\tt U}_i$ such that
+            $\Gamma \vdash {\tt e}_i': {{\tt U}}_i$ and 
+            $\Gamma \vdash U_i \subtype T_i$.
+
+            For all $j$ except $i$, define ${\tt U}_j = {\tt T}_j$ and ${\tt e}_j' = {\tt e}_j$.
+            We have 
+            $\Gamma \vdash \tbar{e}': \tbar{U}$ and
+            $\Gamma \vdash \tbar{U} \subtype \tbar{T}$.
+
+            From Lemma~\ref{weakening}, we have
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{T}.$$
+
+            % From Lemma~\ref{subtype-lemma},
+            % $\Gamma, \tbar{f}: \tbar{T} \vdash \tbar{T} \subtype \tbar{Z}$,
+            % and $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, we have $\Gamma, \tbar{f}: \tbar{S} \vdash \tbar{T} \subtype \tbar{Z}.$
+
+            % From Lemma~\ref{weakening}, we have
+            % $\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{S}$.
+
+            From \TNew,
+            we have
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}.$$
+            From Lemma~\ref{subtype-lemma},
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{T} \subtype \tbar{S}.$$
+
+            From \rn{S-Trans},
+            we have
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tbar{U} \subtype \tbar{S}.$$
+
+            From \TNew,
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \inv({\tt C}, {\tt z}).$$
+            From Lemma~\ref{subtype-lemma},
+            $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{U}, {\tt z}.\tbar{f} = \tbar{z} \vdash \inv({\tt C}, {\tt z}).$$
+
+            Thus, by \TNew,
+            $$\Gamma \vdash {\new\ {\tt C}(\tbar{e}')} : {\tt C}\{ \tbar{z}: \tbar{U}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}$$
+            and we choose
+            $${\tt V}' = {\tt C}\{ \tbar{z}: \tbar{U}; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C}, \self)\}.$$
+
+            From Lemma~\ref{existential-subtyping}, we have
+            $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
+   \end{itemize}
+\item
+\TField: We have two subcases.
+   \begin{itemize}
+   \item
+   \RField:  For the expression ${\tt (\new\ C(\tbar{e})).f_i}$, 
+             we have from \TField\ that
+             $$
+             \begin{array}{l}
+             \Gamma \vdash {\tt e}: {\tt S}, \\
+             \Gamma, {\tt z}: {\tt S} \vdash {\tt z}\ \has\ {\tt f}_i: {\tt U}_i. \\
+             \end{array}$$
+             Let ${\tt V} = ({\tt z}: {\tt S}; {\tt U}_i\{\self{\tt ==}{\tt z}.{\tt f}_i\})$.
+             ${\tt z}$ is fresh.
+
+             % Additionally, we have from \RField\ that
+             % ${\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tbar{T}$.
+
+             We have 
+             $${\tt S} = {\tt C}\{\tbar{z}: \tbar{T}{\tt ; \new\ {\tt C}(\tbar{z}) = \self, \inv({\tt C},\self)}\}.$$
+
+             From \TNew, we have
+             $\Gamma \vdash \tbar{e}: \tbar{T}$
+             %,
+             %$\vdash \class(C)$,
+             %$\Gamma \vdash {\tt z}: {\tt C} \vdash \fields({\tt z}) = \tbar{f}: \tcd{U}_i$,
+             and
+             $$\Gamma \vdash {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i.$$
+
+             From $\Gamma \vdash \tbar{e}: \tbar{T}$, we have
+             $\Gamma \vdash {\tt e}_i: {\tt T}_i$.
+             We now choose ${\tt V}' = {\tt T}_i$.
+
+             By \TNew,
+             $$\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i.$$
+
+             By \rn{S-Const-R},
+             $$\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i\{\self = {\tt z}_i\}.$$
+
+             Since ${\tt z}.{\tt f}_i = {\tt z}_i$, by application of \rn{S-Id}, \rn{S-Const-L}, and \rn{S-Const-R}, we have
+             $$\Gamma, {\tt z}: {\tt C}, \tbar{z}: \tbar{T}, {\tt z}.\tbar{f} = \tbar{z} \vdash \tcd{T}_i \subtype \tcd{U}_i\{\self = {\tt z}.{\tt f}_i\}.$$
+
+             % XXX leap of logic: need to simplify the environment; it should be fine since the zs are fresh and not used
+             We can then show via \rn{S-Exists-R} that
+             $$\Gamma \vdash {\tt T}_i \subtype ({\tt z}: {\tt S}; {\tt U}_i\{\self = {\tt z}.{\tt f}_i\}),$$
+             or more simply
+             $\Gamma \vdash {\tt V}' \subtype {\tt V}$.
+
+   \item
+   \RCField:
+             Follows from the induction hypothesis and application of Lemma~\ref{subtyping-in-existential-lemma}.
+        \eat{   
+             For the expression ${\tt e.f}_i$, we have from \TField\ that
+             $\Gamma \vdash {\tt e}: {\tt S}$ and
+             $\Gamma, {\tt z}: {\tt S} \vdash {\tt z}\ \has\ {\tt f}: {\tt T}$
+             where ${\tt z}$ is fresh.
+             Let ${\tt V} = ({\tt z}: {\tt S}; {\tt T}\{\self = {\tt z}.{\tt f}\})$.
+             Additionally, we have from \RCField\ that  
+             ${\tt e} \derives {{\tt e}}'$.
+             From the induction hypothesis, we have ${\tt S}'$ such that 
+             $\Gamma \vdash {\tt e}': {\tt S}'$ and $\Gamma \vdash {\tt S}' \subtype {\tt S}$.
+
+             We now choose 
+             ${\tt V'} = ({\tt z}: {\tt S}'; {\tt z}.{\tt f}_i=\self;{\tt U}_i)$.
+             From $\Gamma \vdash {\tt e}': {\tt S}'$, and
+             Lemma~\ref{fields-lemma},
+             $\Gamma \vdash {\tt e}' : {\tt V}'$.
+
+             From $\Gamma \vdash {\tt S} \subtype {\tt S}'$ and 
+             Lemma~\ref{subtyping-in-existential-lemma}, we have $\Gamma \vdash {\tt V} \subtype {\tt V}'$.
+             }
+   \end{itemize}
+\item
+\TInvk: We have three subcases.
+   \begin{itemize}
+   \item
+   \RInvk:  
+            For simplicity, define ${\tt d}_0 = \new\ {\tt C}(\tbar{e})$.
+            For the expression 
+            ${\tt d}_0.{\tt m}(\tbar{d})$
+            we have from $\TInvk$ that
+            $$
+            \begin{array}{l}
+            \Gamma \vdash {\tt d}_0: {\tt T}_0 \\
+            \Gamma \vdash {\tt d}_{1:n}: {\tt T}_{1:n} \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e} \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n} \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt c} \\
+            \end{array}
+            $$
+            \noindent
+            where ${\tt z}_{0:n}$ is fresh.  By \TNew, we have
+            $\Gamma \vdash \tbar{e}: \tbar{A}$
+            and
+            $${\tt T}_0 = {\tt C}\{\tbar{z}: \tbar{A}; \self = \new\ {\tt C}(\tbar{z}), \inv({\tt C},\self)\}.$$
+
+            Since
+            $$\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt z}_0\ \has\ {\tt m}({\tt z}_{1:n} \ty {\tt U}_{1:n})\{c\}: {\tt S} = {\tt e},$$
+            and 
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt T}_{1:n} \subtype {\tt U}_{1:n}$,
+            by Lemma~\ref{body-type}, we have for some ${\tt S}'$
+            $\Gamma {\tt z}_{0:n}: {\tt T}_{0:n} \vdash {\tt e}: {\tt S}',{\tt S}' \subtype S$.
+
+            Choose ${\tt V} = ({\tt z}_{0:n}: {\tt T}_{0:n};\ {\tt S}')$.
+
+            From \RInvk, we have
+            ${\tt d}_0.{\tt m}(\tbar{d}) \derives {\tt e}[{\tt d}_0,\tbar{d}/\this,\tbar{z}]$.
+
+            By Lemma~\ref{substitution},
+            $\Gamma \vdash {\tt e}[{\tt d}_0,\tbar{d}/\this,\tbar{z}] : {\tt V}'$,
+            and
+            $\Gamma \vdash {\tt V}' \subtype {\tt z}_{0:n} : {\tt T}_{0:n}{\tt ;\ S}$.
+
+   \item
+   \RCInvkRecv:
+             Follows from the induction hypothesis and application of Lemma~\ref{subtyping-in-existential-lemma}.
+        \eat{   
+   For the expression ${\tt e_0.m(\tbar{e})}$,
+            we have from \TInvk\ that
+            $$
+            \begin{array}{l}
+            \Gamma \vdash {\tt e}_{0:n} : {\tt T}_{0:n}, \\
+            \mtype({\tt T}_0,{\tt m},{\tt z}_0) = 
+               \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}, \\
+            \Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash 
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}, \mbox{and} \\
+            \sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n})
+                  \vdashO {\tt c} \\
+            \end{array}$$
+            where ${\tt z}_{0:n}$ is fresh.
+
+            Additionally, from \RCInvkRecv\ we have that
+            ${\tt e}_0 \derives {{\tt e}}_0'$.
+            From the induction hypothesis, we have ${\tt S}_0$ such that
+            $\Gamma \vdash {\tt e}_0': {{\tt S}}_0$ and 
+            $\Gamma \vdash S_0 \subtype T_0$.
+            For all $j>0$, define $S_j = T_j$ and $e_j' = e_j$.
+            We have 
+            $\Gamma \vdash \tbar{e}': \tbar{S}$ and
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$.
+
+            From Lemma~\ref{has-lemma}
+            and $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, we have
+            $$\mtype(S_0,m,z) = \mtype(T_0,m,z).$$
+
+            From Lemma~\ref{subtype-lemma},
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
+            and $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, we have
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
+
+            From Lemma~\ref{constraint-lemma}, 
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, and
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdashO
+                              {\tt c}$
+            we have
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO
+                              {\tt c}.$
+
+            We now choose 
+               $S=({\tt z}_{0:n}: {\tt S}_{0:n}; U)$.
+            From 
+            $\Gamma \vdash {\tt e}_{0:n}': {\tt S}_{0:n}$,
+            $\mtype({\tt S}_0,{\tt m},{\tt z}_0) =
+               \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO {\tt c}$,
+            and \TInvk\ we derive
+            $\Gamma \vdash {\tt S}\ {\tt e_0.m(e_{1:n}')}$.
+            We have 
+               $T=({\tt z}_{0:n}: {\tt T}_{0:n}; {\tt U})$.
+
+            From Lemma~\ref{subtyping-in-existential-lemma} and
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, we have
+            $\Gamma \vdash S \subtype T$.
+            }
+   \item
+   \RCInvkArg:
+             Follows from the induction hypothesis and application of Lemma~\ref{subtyping-in-existential-lemma}.
+             \eat{
+        For the expression ${\tt e_0.m(\tbar{e})}$,
+            we have from \TInvk\ that
+            $\Gamma \vdash {\tt e}_{0:n} : {\tt T}_{0:n}$,
+            $\mtype({\tt T}_0,{\tt m},{\tt z}_0) = 
+               \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash 
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, and
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt Z}_{0:n}) \vdashO {\tt c}$, 
+            where ${\tt z}_{0:n}$ is fresh.
+
+            Additionally, from \RCInvkArg\ we have that, for $i>0$,
+            ${\tt e}_i \derives {{\tt e}}_i'$.
+            From the induction hypothesis, we have ${\tt S}_i$ such that
+            $\Gamma \vdash {\tt e}_i': {{\tt S}}_i$ and 
+            $\Gamma \vdash S_i \subtype T_i$.
+            For all $j$ except $i$, define $S_j = T_j$ and $e_j' = e_j$.
+            We have 
+            $\Gamma \vdash \tbar{e}': \tbar{S}$ and
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$.
+
+            From Lemma~\ref{subtype-lemma},
+            $\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n} \vdash
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
+            and $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, we have
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash
+                  {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$,
+
+            From Lemma~\ref{weakening} and 
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, 
+            we have 
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash 
+                  \tbar{S} \subtype \tbar{T}$.
+
+            From \rn{S-Trans},
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash 
+                  \tbar{S} \subtype \tbar{T}$,
+            and
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash 
+                    {\tt T}_{1:n} \subtype {\tt Z}_{1:n}$, 
+            we have
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash 
+                  \tbar{S} \subtype {\tt Z}_{1:n}$.
+
+            From Lemma~\ref{constraint-lemma}, 
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, and
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt T}_{0:n}) \vdashO
+                              {\tt c}$
+            we have
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO
+                              {\tt c}.$
+
+            We now choose 
+               $S=({\tt z}_{0:n}: {\tt S}_{0:n}; U)$.
+            From 
+            $\Gamma \vdash {\tt e}_{0:n}': {\tt S}_{0:n}$,
+            $\mtype({\tt S}_0,{\tt m},{\tt z}_0) =
+               \tt {\tt z}_{1:n}: {\tt Z}_{1:n}:c \rightarrow {\tt U}$,
+            $\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n} \vdash
+                  {\tt S}_{1:n} \subtype {\tt Z}_{1:n}$, and
+            $\sigma(\Gamma, {\tt z}_{0:n}: {\tt S}_{0:n}) \vdashO
+                  {\tt c}$,
+            and \TInvk\ we derive
+            $\Gamma \vdash {\tt e_0.m(e_{1:n}')}: {\tt S}$.
+            We have 
+               $T=({\tt z}_{0:n}: {\tt T}_{0:n}; U)$.
+
+            From Lemma~\ref{subtyping-in-existential-lemma} and
+            $\Gamma \vdash \tbar{S} \subtype \tbar{T}$, we have
+            $\Gamma \vdash S \subtype T$.
+   }
+   \end{itemize}
+\end{itemize}
+\end{proof}
+
+\noindent
+Let the normal form of expressions be given by {\em values}
+{\tt v} {::=} $\new\ {\tt C(\tbar{v})}$.
+
+\begin{theorem}[Progress] 
+\label{progress}
+If $\vdash {\tt e: T}$, then one of the following conditions holds:
+\begin{enumerate}
+\item {\tt e} is a value {\tt v}, 
+\item {\tt e} contains a subexpression ${\tt \new\ C(\tbar{v})~as~T}$ such that
+$\not\vdash {\tt C} \subtype {\tt T}[{\tt \new\ C(\tbar{v})}/\self]$,
+\item there exists ${\tt e}'$ s.t. ${\tt e} \derives {\tt e}'$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+The proof has a structure that is similar to the proof of Subject Reduction;
+we omit the details.
+\end{proof}
+
+\begin{theorem}[Type Soundness] 
+\label{type-soundness}
+If $\vdash {\tt e: T}$ and ${\tt e} \starderives {\tt e}'$, with ${\tt
+e}'$ in normal form, then ${\tt e}'$ is either (1)~a value {\tt v}
+with $\vdash {\tt v: S}$ and $\vdash {\tt S \subtype T}$,
+for some type {\tt S}, or, (2)~ an expression containing
+a subexpression ${\tt \new\ {\tt C(\tbar{v})~as~T}}$ where 
+$\not\vdash \tt C\subtype T[\new\ C(\tbar{v})/\self]$.
+
+\end{theorem}
+
+\begin{proof}
+Combine Theorem~\ref{preservation} and Theorem~\ref{progress}.
+\end{proof}
+

@@ -1,0 +1,187 @@
+.TH "finish.cc" 3 "20 May 2008" "Version 1.0" "X10LIB" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+finish.cc \- 
+.SH SYNOPSIS
+.br
+.PP
+\fC#include <assert.h>\fP
+.br
+\fC#include 'rts_messaging.h'\fP
+.br
+\fC#include 'x10.h'\fP
+.br
+\fC#include 'x10_types.h'\fP
+.br
+
+.SS "Data Structures"
+
+.in +1c
+.ti -1c
+.RI "struct \fBfinish_message_t\fP"
+.br
+.ti -1c
+.RI "struct \fBtuple\fP"
+.br
+.ti -1c
+.RI "struct \fBfinish_compl_message_t\fP"
+.br
+.in -1c
+.SS "Defines"
+
+.in +1c
+.ti -1c
+.RI "#define \fBX10_MAX_FINISH_ID\fP   100"
+.br
+.ti -1c
+.RI "#define \fBX10_MAX_PLACES\fP   1024"
+.br
+.in -1c
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "\fBtuple\fP * \fBconstruct_tuples\fP (int *size, int finish_id)"
+.br
+.ti -1c
+.RI "void \fB__x10_finish_init\fP ()"
+.br
+.ti -1c
+.RI "void \fB__x10_finish_compl_handler\fP (void *arg)"
+.br
+.ti -1c
+.RI "__xlupc_local_addr_t \fB__x10_finish_handler\fP (const __upcrt_AMHeader_t *header, __upcrt_AMComplHandler_t **comp_h, void **arg)"
+.br
+.ti -1c
+.RI "int \fB__x10_is_place_quiescent\fP (const \fBx10_finish_record_t\fP *frecord)"
+.br
+.ti -1c
+.RI "void \fB__x10_propagate_credits\fP (const \fBx10_finish_record_t\fP *frecord)"
+.br
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_finish_child\fP (const \fBx10_finish_record_t\fP *frecord, void *ex_buf, int ex_buf_size)"
+.br
+.RI "\fInotify the 'root' that I have finished (called by children activity only) \fP"
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_finish_begin\fP (\fBx10_finish_record_t\fP *frecord, void *multi_ex_buf, int *ex_offsets, int max_ex_buf_size, int max_num_exceptions)"
+.br
+.RI "\fIfinish start the finish_scope (called by root activity only) \fP"
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_finish_begin_global\fP (\fBx10_finish_record_t\fP *frecord, void *multi_ex_buf, int *ex_offsets, int max_ex_buf_size, int max_num_exceptions)"
+.br
+.ti -1c
+.RI "\fBx10_err_t\fP \fBx10_finish_end\fP (const \fBx10_finish_record_t\fP *frecord, int *num_exceptions)"
+.br
+.RI "\fIend the finish_scope (called by root activity only). Waits for global termination of all the activities (BLOCKING) \fP"
+.ti -1c
+.RI "void \fB__x10_finish_bookeeping_outgoing\fP (const \fBx10_finish_record_t\fP *frecord, \fBx10_place_t\fP place)"
+.br
+.ti -1c
+.RI "void \fB__x10_finish_bookeeping_incoming\fP (\fBx10_finish_record_t\fP *frecord)"
+.br
+.in -1c
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "\fBx10_place_t\fP \fB__x10_here\fP"
+.br
+.ti -1c
+.RI "unsigned int \fB__x10_numplaces\fP"
+.br
+.ti -1c
+.RI "int \fB__x10_finish_counter\fP = 1"
+.br
+.ti -1c
+.RI "int \fB__x10_async_counts\fP [X10_MAX_FINISH_ID][X10_MAX_PLACES]"
+.br
+.ti -1c
+.RI "int \fB__x10_async_spawned\fP [X10_MAX_FINISH_ID]"
+.br
+.in -1c
+.SH "Define Documentation"
+.PP 
+.SS "#define X10_MAX_FINISH_ID   100"
+.PP
+.SS "#define X10_MAX_PLACES   1024"
+.PP
+.SH "Function Documentation"
+.PP 
+.SS "void __x10_finish_bookeeping_incoming (\fBx10_finish_record_t\fP * frecord)"
+.PP
+.SS "void __x10_finish_bookeeping_outgoing (const \fBx10_finish_record_t\fP * frecord, \fBx10_place_t\fP place)"
+.PP
+.SS "void __x10_finish_compl_handler (void * arg)\fC [static]\fP"
+.PP
+.SS "__xlupc_local_addr_t __x10_finish_handler (const __upcrt_AMHeader_t * header, __upcrt_AMComplHandler_t ** comp_h, void ** arg)\fC [static]\fP"
+.PP
+.SS "void __x10_finish_init ()"
+.PP
+.SS "int __x10_is_place_quiescent (const \fBx10_finish_record_t\fP * frecord)"
+.PP
+.SS "void __x10_propagate_credits (const \fBx10_finish_record_t\fP * frecord)"
+.PP
+.SS "\fBtuple\fP * construct_tuples (int * size, int finish_id)\fC [static]\fP"
+.PP
+.SS "\fBx10_err_t\fP x10_finish_begin (\fBx10_finish_record_t\fP * frecord, void * mult_ex_buf, int * ex_offsets, int max_ex_buf_size, int max_num_exceptions)"
+.PP
+finish start the finish_scope (called by root activity only) 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfrecord\fP the finish record 
+.br
+\fImulti_ex_buf\fP buffer for the resulting multi_exceptions (if any) 
+.br
+\fIex_offsets\fP offsets array for individual exceptions 
+.br
+\fImax_ex_buf_size\fP maximum size of the multi_ex_buf 
+.br
+\fImax_num_exceptions\fP maximum number of individual exceptions 
+.RE
+.PP
+
+.SS "\fBx10_err_t\fP x10_finish_begin_global (\fBx10_finish_record_t\fP * frecord, void * multi_ex_buf, int * ex_offsets, int max_ex_buf_size, int max_num_exceptions)"
+.PP
+.SS "\fBx10_err_t\fP x10_finish_child (const \fBx10_finish_record_t\fP * frecord, void * ex_buf, int ex_buf_size)"
+.PP
+notify the 'root' that I have finished (called by children activity only) 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfrecord\fP finish record 
+.br
+\fIex_buf\fP exception buffer 
+.br
+\fIex_buf_size\fP size of the exception buffer 
+.RE
+.PP
+
+.SS "\fBx10_err_t\fP x10_finish_end (const \fBx10_finish_record_t\fP * finish_record, int * num_exceptions)"
+.PP
+end the finish_scope (called by root activity only). Waits for global termination of all the activities (BLOCKING) 
+.PP
+\fBParameters:\fP
+.RS 4
+\fIfinish_record\fP pointer to finish_record 
+.br
+\fInum_exceptions\fP total number of exceptions 
+.RE
+.PP
+
+.SH "Variable Documentation"
+.PP 
+.SS "int \fB__x10_async_counts\fP[X10_MAX_FINISH_ID][X10_MAX_PLACES]"
+.PP
+.SS "int \fB__x10_async_spawned\fP[X10_MAX_FINISH_ID]"
+.PP
+.SS "int \fB__x10_finish_counter\fP = 1\fC [static]\fP"
+.PP
+.SS "\fBx10_place_t\fP \fB__x10_here\fP"
+.PP
+.SS "unsigned int \fB__x10_numplaces\fP"
+.PP
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for X10LIB from the source code.
