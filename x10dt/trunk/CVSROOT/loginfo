@@ -29,4 +29,4 @@
 # RMF 11/25/2008 - Adding specific rule for Vijay as a commit watcher, rather than
 # creating a "eclipse-imp-commits" mailing list, since we'll probably move the X10DT
 # to the X10 repository soon.
-DEFAULT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail %{sVv} vj0@users.sourceforge.net
+DEFAULT /cvsroot/sitedocs/CVSROOT/cvstools/syncmail %{sVv} vijay@saraswat.org
