@@ -3,12 +3,14 @@ package com.ibm.watson.safari.x10.preferences;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jface.preference.BooleanFieldEditor;
-import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
-import org.eclipse.jface.preference.FileFieldEditor;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -18,6 +20,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.uide.preferences.ComboFieldEditor;
+import org.osgi.framework.Bundle;
 import com.ibm.watson.safari.x10.X10Plugin;
 
 /**
@@ -31,6 +35,8 @@ import com.ibm.watson.safari.x10.X10Plugin;
  * preference store.
  */
 public class X10PreferencePage extends FieldEditorPreferencePage implements IWorkbenchPreferencePage {
+    private static final String[] EMPTY= new String[0];
+
     public X10PreferencePage() {
 	super(GRID);
 	setPreferenceStore(X10Plugin.getInstance().getPreferenceStore());
@@ -43,12 +49,25 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
      * save and restore itself.
      */
     public void createFieldEditors() {
-	addField(new DirectoryFieldEditor(PreferenceConstants.P_X10COMMON_PATH, "&Common directory:", getFieldEditorParent()));
-	addField(new FileFieldEditor(PreferenceConstants.P_X10CONFIG_FILE, "Confi&guration file:", getFieldEditorParent()));
+//	addField(new DirectoryFieldEditor(PreferenceConstants.P_X10COMMON_PATH, "&Common directory:", getFieldEditorParent()));
+//	addField(new FileFieldEditor(PreferenceConstants.P_X10CONFIG_FILE, "Confi&guration file:", getFieldEditorParent()));
 //	addField(new BooleanFieldEditor(PreferenceConstants.P_AUTO_ADD_RUNTIME, "Add X10 runtime library in x10.runtime to build path", getFieldEditorParent()));
 
-        addField(new DirectoryFieldEditor(PreferenceConstants.P_COMPILER_DATA_DIR, "Compiler &template directory:", getFieldEditorParent()));
+	String[] configs= findConfigs();
+	String[][] configFieldItems= new String[configs.length][];
 
+	for(int i= 0; i < configs.length; i++) {
+	    configFieldItems[i]= new String[2];
+
+	    configFieldItems[i][0]= configs[i];
+	    configFieldItems[i][1]= configs[i];
+	}
+	addField(new ComboFieldEditor(PreferenceConstants.P_X10CONFIG, "Compiler Confi&guration:", configFieldItems, getFieldEditorParent()));
+
+//      addField(new DirectoryFieldEditor(PreferenceConstants.P_COMPILER_DATA_DIR, "Compiler &template directory:", getFieldEditorParent()));
+
+        // RMF 6/7/2006 - The following run-time settings are currently inactive, and probably
+	// don't even belong on this preferences page.
         createSpacer();
         addField(new IntegerFieldEditor(PreferenceConstants.P_SAMPLING_FREQ, "&Sampling frequency:", getFieldEditorParent()));
         addField(new RadioGroupFieldEditor(PreferenceConstants.P_STATS_DISABLE, "Statistics disable:", 2,
@@ -61,17 +80,23 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
 	    public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(PreferenceConstants.P_EMIT_MESSAGES))
 		    X10Preferences.builderEmitMessages= ((Boolean) event.getNewValue()).booleanValue();
-		else if (event.getProperty().equals(PreferenceConstants.P_X10COMMON_PATH))
-		    X10Preferences.x10CommonPath= (String) event.getNewValue();
-		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG_FILE))
-		    X10Preferences.x10ConfigFile= (String) event.getNewValue();
-		else if (event.getProperty().equals(PreferenceConstants.P_AUTO_ADD_RUNTIME))
-		    X10Preferences.autoAddRuntime= ((Boolean) event.getNewValue()).booleanValue();
+//		else if (event.getProperty().equals(PreferenceConstants.P_X10COMMON_PATH))
+//		    X10Preferences.x10CommonPath= (String) event.getNewValue();
+//		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG_FILE))
+//		    X10Preferences.x10ConfigFile= (String) event.getNewValue();
+		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG)) {
+		    X10Preferences.x10Config= (String) event.getNewValue();
+		    X10Preferences.x10ConfigFile= X10Plugin.x10CommonPath + "etc/" + X10Preferences.x10Config + ".cfg";
+		    System.setProperty("x10.configuration", X10Preferences.x10ConfigFile);
+		}
+//		else if (event.getProperty().equals(PreferenceConstants.P_AUTO_ADD_RUNTIME))
+//		    X10Preferences.autoAddRuntime= ((Boolean) event.getNewValue()).booleanValue();
 
-                else if (event.getProperty().equals(PreferenceConstants.P_COMPILER_DATA_DIR)) {
-                    X10Preferences.x10CompilerDataDir= (String) event.getNewValue();
-                    rewritePrefsFile();
-                } else if (event.getProperty().equals(PreferenceConstants.P_SAMPLING_FREQ)) {
+//                else if (event.getProperty().equals(PreferenceConstants.P_COMPILER_DATA_DIR)) {
+//                    X10Preferences.x10CompilerDataDir= (String) event.getNewValue();
+//                    rewritePrefsFile();
+//                }
+                else if (event.getProperty().equals(PreferenceConstants.P_SAMPLING_FREQ)) {
                     X10Preferences.samplingFreq= ((Integer) event.getNewValue()).intValue();
                     rewritePrefsFile();
                 } else if (event.getProperty().equals(PreferenceConstants.P_STATS_DISABLE)) {
@@ -87,7 +112,9 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
                     PrintWriter w= new PrintWriter(new FileWriter(prefsFile));
 
                     w.println("# This file was created by the X10 preferences page in Eclipse.");
-                    w.println("COMPILER_FRAGMENT_DATA_DIRECTORY=" + X10Preferences.x10CompilerDataDir);
+                    w.println("COMPILER_FRAGMENT_DATA_DIRECTORY=data/"); //  + X10Preferences.x10CompilerDataDir);
+                    // RMF 6/7/2006 - The following run-time settings probably don't even belong in the same
+                    // config file as the compiler settings.
                     w.println("SAMPLING_FREQUENCY_MS=" + X10Preferences.samplingFreq);
                     w.println("STATISTICS_DISABLE=" + X10Preferences.statsDisable);
                     w.flush();
@@ -98,6 +125,30 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
                 }
             }
 	});
+    }
+
+    private String[] findConfigs() {
+	try {
+	    Bundle x10CommonBundle= Platform.getBundle("x10.common");
+	    URL configDirURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("etc/")));
+	    String configDirPath= configDirURL.getPath();
+	    File configDir= new File(configDirPath);
+
+	    File[] configFiles= configDir.listFiles(new FilenameFilter() {
+		public boolean accept(File dir, String name) {
+		    return name.endsWith(".cfg");
+		}
+	    });
+
+	    String[] result= new String[configFiles.length];
+	    for(int i= 0; i < configFiles.length; i++) {
+		final String fileName= configFiles[i].getName();
+		result[i]= fileName.substring(0, fileName.indexOf('.'));
+	    }
+	    return result;
+	} catch (IOException io) {
+	    return EMPTY;
+	}
     }
 
     private void createSpacer() {

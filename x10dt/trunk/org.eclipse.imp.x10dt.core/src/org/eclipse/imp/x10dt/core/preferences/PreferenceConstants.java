@@ -7,12 +7,21 @@ public class PreferenceConstants {
     /**
      * The path to the x10.common directory
      */
-    public static final String P_X10COMMON_PATH= "commonPath";
+//    public static final String P_X10COMMON_PATH= "commonPath";
 
     /**
      * The path to the X10 configuration file (e.g. standard.cfg)
      */
     public static final String P_X10CONFIG_FILE= "configFile";
+
+    /**
+     * The name of an X10 configuration (e.g. "standard" or "multivm").<br>
+     * There should be an X10 configuration file in the "etc" folder of the x10.common
+     * plugin whose name is the value of this preference, with a ".cfg" suffix. E.g.,
+     * if this preference is "standard", then the file "x10.common/etc/standard.cfg"
+     * must exist.
+     */
+    public static final String P_X10CONFIG= "config";
 
     /**
      * true if the builder and various other entities should emit diagnostic
@@ -33,7 +42,7 @@ public class PreferenceConstants {
      * A mirror of the COMPILER_FRAGMENT_DATA_DIRECTORY setting in the X10
      * configuration file (e.g. standard.cfg).
      */
-    public static final String P_COMPILER_DATA_DIR= "compilerDataDir";
+//    public static final String P_COMPILER_DATA_DIR= "compilerDataDir";
 
     /**
      * The runtime sampling frequency.
