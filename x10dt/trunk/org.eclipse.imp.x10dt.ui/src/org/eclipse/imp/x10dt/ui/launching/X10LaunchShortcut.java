@@ -3,11 +3,8 @@ package x10.uide.launching;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -17,7 +14,6 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.debug.ui.launchConfigurations.AppletParametersTab;
@@ -30,9 +26,9 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-
 import x10.uide.X10UIPlugin;
 
 public class X10LaunchShortcut implements ILaunchShortcut {
@@ -48,17 +44,17 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 
     public void launch(IEditorPart editor, String mode) {
 	IEditorInput input= editor.getEditorInput();
-	IJavaElement javaElement= (IJavaElement) input.getAdapter(IJavaElement.class);
-	if (javaElement != null) {
-	    searchAndLaunch(new Object[] { javaElement }, mode);
+	if (input instanceof IFileEditorInput) {
+	    IFileEditorInput fileInput= (IFileEditorInput) input;
+	    searchAndLaunch(new Object[] { fileInput.getFile() }, mode);
 	}
     }
 
     /**
-         * Prompts the user to select a type
-         * 
-         * @return the selected type or <code>null</code> if none.
-         */
+     * Prompts the user to select a type
+     * 
+     * @return the selected type or <code>null</code> if none.
+     */
     protected IType chooseType(IType[] types, String mode) {
 	ElementListSelectionDialog dialog= new ElementListSelectionDialog(getShell(), new JavaElementLabelProvider());
 	dialog.setElements(types);
