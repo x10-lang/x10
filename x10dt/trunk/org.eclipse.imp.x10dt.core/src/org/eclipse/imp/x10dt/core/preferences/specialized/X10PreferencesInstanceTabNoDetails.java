@@ -17,15 +17,16 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.preferences.PreferencesUtilities;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
 import org.eclipse.imp.preferences.fields.FieldEditor;
 import org.eclipse.imp.preferences.fields.FontFieldEditor;
 import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.StringFieldEditor;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
-import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
-import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsStringFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -35,7 +36,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
@@ -53,7 +53,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 	BooleanFieldEditor loopOptimizationsCompilerOption;
 	BooleanFieldEditor arrayOptimizationsCompilerOption;
 	BooleanFieldEditor assertCompilerOption;
-	CompilerOptionsStringFieldEditor additionalCompilerOptions;
+	StringFieldEditor additionalCompilerOptions;
 	IntegerFieldEditor NumPlaces;
 
 	/**
@@ -118,14 +118,15 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 		// additional compiler options (string field)
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "");
-		additionalCompilerOptions = fPrefUtils_x10.makeNewCompilerOptionsStringField(
+		additionalCompilerOptions = fPrefUtils_x10.makeNewStringField(
 				page, this, fPrefService,
-				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:",
+				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:", null,
 				parent,
 				true, true,
 				false, null,
 				true, null,
-				true, null);
+				true);
+		additionalCompilerOptions.setValidator(new CompilerOptionsValidator());
 		fields.add(additionalCompilerOptions);
 
 		// RUNTIME OPTIONS
@@ -235,8 +236,6 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		 
 		// Put buttons on the bottom
         fButtons = fPrefUtils_x10.createDefaultAndApplyButtons(composite, this);
-        Button defaultsButton = (Button) fButtons[0];
-        Button applyButton = (Button) fButtons[1];
 		
 		return composite;
 	}
@@ -269,8 +268,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 	public void performDefaults() {
 		super.performDefaults();
 		// change properties to cause propagate defaults -- why doesn't this get done in performDefaults?  It seems it does load but no store?
-		IPreferenceStore prefStore = RuntimePlugin
-		.getInstance().getPreferenceStore();
+		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
 		prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, new Integer(TabSize.getIntValue()));
 		
 		// font has no default
@@ -284,4 +282,3 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, additionalCompilerOptions.getStringValue());
 	}
 }
-

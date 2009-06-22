@@ -16,6 +16,7 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.preferences.PreferencesUtilities;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -98,18 +99,6 @@ public abstract class InstancePreferencesTab extends PreferencesTab {
 	}
 
 	
-
-	
-//		public void performApply()
-//		{
-//			for (int i = 0; i < fields.length; i++) {
-//				fields[i].store();
-//				fields[i].clearModifyMarkOnLabel();
-//			}
-//		}	
-	
-		
-	
 	public void performDefaults() {
 		// Clear all preferences for this page at this level;
 		// "default" values will be set by inheritance from a higher level
@@ -120,15 +109,4 @@ public abstract class InstancePreferencesTab extends PreferencesTab {
 			fFields[i].loadWithInheritance();
 		}
 	}
-
-	
-//	public boolean performOk() {
-//		// Example:  Store each field
-//		for (int i = 0; i < fields.length; i++) {
-//			fields[i].store();
-//		}
-//		return true;
-//	}
-
-
 }
