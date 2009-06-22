@@ -22,8 +22,7 @@ package org.eclipse.imp.x10dt.core.builder;
 
 import java.util.Iterator;
 
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.internal.corext.callhierarchy.MethodCall;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
@@ -85,6 +84,16 @@ class ComputeDependenciesVisitor extends NodeVisitor {
     private boolean isBinary(ClassType classType) {
         // HACK for some reason ParsedClassType's show up even for class files(???)...
         return !(classType instanceof ParsedClassType) || classType.position().file().endsWith(".class");
+    }
+    @Override
+    public NodeVisitor begin() {
+        String wsPath= ResourcesPlugin.getWorkspace().getRoot().getLocation().toPortableString();
+        String path= fJob.source().path();
+        if (path.startsWith(wsPath)) {
+            path= path.substring(wsPath.length());
+        }
+        fDependencyInfo.clearDependenciesOf(path);
+        return super.begin();
     }
     public NodeVisitor enter(Node n) {
         if (n instanceof SourceFile) {
