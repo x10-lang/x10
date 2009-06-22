@@ -7,14 +7,8 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.refactoring.actions;
 
 import org.eclipse.core.resources.IProject;
@@ -28,6 +22,7 @@ import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.refactoring.RefactoringStarter;
+import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.imp.x10dt.ui.refactoring.RefactoringMessages;
@@ -65,7 +60,7 @@ public class RenameRefactoringAction extends TextEditorAction {
 
     private Node fDeclaringParent;
 
-    public RenameRefactoringAction(UniversalEditor editor) {
+    public RenameRefactoringAction(ITextEditor editor) {
         super(RefactoringMessages.ResBundle, "Rename.", editor);
 
         IEditorInput input= editor.getEditorInput();
@@ -79,17 +74,21 @@ public class RenameRefactoringAction extends TextEditorAction {
         }
     }
 
-    private Node findRoot(UniversalEditor editor) {
-        IParseController parseController= editor.getParseController();
+    private Node findRoot(ITextEditor editor) {
+        IParseController parseController= ((IASTFindReplaceTarget) editor).getParseController();
 
         return (Node) parseController.getCurrentAst();
     }
 
-    private Node findNode(UniversalEditor editor) {
-        Point sel= editor.getSelection();
-        IParseController parseController= editor.getParseController();
+    private Node findNode(ITextEditor editor) {
+        IASTFindReplaceTarget frt= (IASTFindReplaceTarget) editor;
+        Point sel= frt.getSelection();
+        IParseController parseController= frt.getParseController();
         ISourcePositionLocator locator= parseController.getSourcePositionLocator();
 
+        if (parseController.getCurrentAst() == null) {
+            MessageDialog.openError(getTextEditor().getSite().getShell(), "Unable to analyze source", "Unable to analyze source due to syntax errors.");
+        }
         return (Node) locator.findNode(fRoot, sel.x);
     }
 
