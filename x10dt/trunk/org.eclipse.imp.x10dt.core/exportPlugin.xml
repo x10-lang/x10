@@ -4,7 +4,7 @@
 
 	<target name="init" depends="properties">
 		<property name="plugin.name" value="com.ibm.watson.safari.x10"/>
-		<property name="plugin.version" value="1.0.1"/>
+		<property name="plugin.version" value="1.0.0"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.name}src.zip"/>
@@ -52,10 +52,14 @@
 				<pathelement path="../org.eclipse.uide.runtime/bin"/>
 			</classpath>
 			<src path="src/"/>
-			</javac>
+		</javac>
 		<!-- Copy necessary resources -->
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true" overwrite="false">
 			<fileset dir="src/" excludes="**/*.java, **/package.htm*,null"			/>
+		</copy>
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/icons"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/icons" failonerror="true" overwrite="false">
+			<fileset dir="icons/"/>
 		</copy>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<mkdir dir="${build.result.folder}"/>
