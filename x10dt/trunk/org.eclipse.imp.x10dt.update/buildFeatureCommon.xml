@@ -46,6 +46,17 @@
 		<ant antfile="../${plugin.id}/exportPlugin.xml" inheritAll="false" dir="../${plugin.id}" target="build.update.jar"/>
 	</target>
 
+	<target name="copy.child">
+		<loadfile property="plugin.version" srcfile="../${plugin.id}/META-INF/MANIFEST.MF">
+			<filterchain>
+				<containsregex pattern="Bundle-Version:"/>
+				<replaceregex pattern="Bundle-Version: (.*)" replace="\1"/>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
+		<echo message="Copying ${plugin.id} version ${plugin.version}"/>
+		<copy todir="plugins" file="../${plugin.id}/${plugin.id}_${plugin.version}.jar"/>
+	</target>
 	<!-- ========================================================================================= -->
 
 	<target name="zip.distribution" depends="init" description="Create a zip containing all the plug-ins and features for the feature: ${feature.name}.">
