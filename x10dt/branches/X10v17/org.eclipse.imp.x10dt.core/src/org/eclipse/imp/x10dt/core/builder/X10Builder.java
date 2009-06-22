@@ -93,6 +93,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Source;
@@ -418,7 +419,15 @@ public class X10Builder extends IncrementalProjectBuilder {
                 final X10Lexer x10_lexer= new X10Lexer(source.path());
                 x10_lexer.setMessageHandler(new IMessageHandler() {
                     public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
-                        Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
+                       //PORT1.7 -- need to get info (e.g. is this zipfile?) 
+                    	// need file and entry name from sourceLoader$ZipSource
+                    	// to be able to issue accurate error messages
+                    	// store enough info in the Position so that createMarkers can put marker in right spot (or ???)
+                    	//(but.. runtime jar file will usually be outside the workspace)
+                    	// UBT
+                    	// check whether this message corresponds to something outside workspace; if so, discard or put "someplace obvious"
+                    	//            ( visible)  -- project root folder???  so that marker will show up and info isn't lost
+                    	Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
                                 msgLocation[IMessageHandler.START_COLUMN_INDEX], msgLocation[IMessageHandler.END_LINE_INDEX],
                                 msgLocation[IMessageHandler.END_COLUMN_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX],
                                 msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
@@ -448,6 +457,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 errors.add(error);
             }
         });
+        Globals.initialize(compiler);//PORT1.7 Must initialize before actually calling compiler
 //      Report.addTopic(Report.verbose, 1);
         try {
             compiler.compile(streams);
@@ -490,9 +500,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private void buildOptions() {
         Options opts= fExtInfo.getOptions();
-
-        // PORT1.7 RMF 9/23/2008 - Global Options object no longer exists
-//      Options.global= opts;
+      
+//      Options.global= opts; // PORT1.7 RMF 9/23/2008 - Global Options object no longer exists
         try {
             List<IPath> projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);
@@ -548,11 +557,16 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
+        IPath wsLoc= fProject.getWorkspace().getRoot().getLocation();
 
         for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext();) {
             IPath path= iter.next();
 
-            buff.append(fProject.getWorkspace().getRoot().getLocation().append(path).toOSString());
+            if (wsLoc.isPrefixOf(path)) {
+            	buff.append(wsLoc.append(path).toOSString());
+            } else {
+            	buff.append(path.toOSString());
+            }
             if (iter.hasNext())
                 buff.append(File.pathSeparatorChar);
         }
@@ -574,6 +588,11 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
                 srcPath.add(e.getPath());
             else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+            	//PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
+            	// so add source path entries of referenced projects to this project's sourcepath.
+            	// Assume that goal dependencies are such that Polyglot will not be compelled to
+            	// compile referenced X10 source down to Java source (causing duplication; see below).
+            	//
                 // RMF 6/4/2008 - Don't add referenced projects to the source path:
                 // 1) doing so should be unnecessary, since the classpath will include
                 //    the project, and the class files should satisfy all references,
@@ -581,14 +600,24 @@ public class X10Builder extends IncrementalProjectBuilder {
                 //    the other project to Java source files located in the *referencing*
                 //    project, causing duplication, which is not what we want.
                 //
-                // IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
-                // IJavaProject refJavaProject= JavaCore.create(refProject);
-                // IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
-                // for(int j= 0; j < refJavaCPEntries.length; j++) {
-                //     if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                //         srcPath.add(refJavaCPEntries[j].getPath());
-                //     }
-                // }
+            	IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
+            	IJavaProject refJavaProject= JavaCore.create(refProject);
+            	IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+            	for(int j= 0; j < refJavaCPEntries.length; j++) {
+            		if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            			srcPath.add(refJavaCPEntries[j].getPath());
+            		}
+            	}
+            } else if (e.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+            	// PORT1.7 Add the X10 runtime jar to the source path, since the compiler
+            	// needs to see the X10 source for the user-visible runtime classes (like
+            	// x10.lang.Region) to get the extra type information (for deptypes) that
+            	// can't be stored in Java class files, and for now, these source files
+            	// actually live in the X10 runtime jar.
+            	IPath path= e.getPath();
+            	if (path.toPortableString().contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {
+            		srcPath.add(path);
+            	}
             }
         }
         if (srcPath.size() == 0)
@@ -992,7 +1021,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 } else {
                     try {
                         JarFile x10Jar= new JarFile(entryFile);
-                        ZipEntry x10ObjEntry= x10Jar.getEntry("x10/lang/Object.class");
+                        ZipEntry x10ObjEntry= x10Jar.getEntry("x10/types/Type.class"); // PORT1.7 x10/lang/Object -> x10/types/Type
                         
                         if (x10ObjEntry != null) {
                             return i;
