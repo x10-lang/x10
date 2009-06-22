@@ -241,19 +241,9 @@ list.add(new SourceProposal("Candidate: " + candidate, "", offset));
                 }
             }
         }
-        else if (node instanceof LocalAssign)
+        else if (node instanceof Assign)
         {
-            list.add(new SourceProposal("LocalAssign: " + node.getClass().toString(), " source proposal ", 0));
-            list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            if (prefix != null && prefix.length() > 0)
-            {
-                // TODO: Any package, type, local variable and accessible class members
-            }
-            else list.add(new SourceProposal("no info available", " source proposal ", 0));
-        }
-        else if (node instanceof FieldAssign)
-        {
-            list.add(new SourceProposal("FieldAssign: " + node.getClass().toString(), " source proposal ", 0));
+            list.add(new SourceProposal("Assign: " + node.getClass().toString(), " source proposal ", 0));
             list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
             if (prefix != null && prefix.length() > 0)
             {
