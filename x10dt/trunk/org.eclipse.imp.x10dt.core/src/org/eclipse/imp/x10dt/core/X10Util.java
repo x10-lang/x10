@@ -91,7 +91,7 @@ public class X10Util {
 		IToken token=null;
 		if(parseController instanceof SimpleLPGParseController) {
 			SimpleLPGParseController pc = (SimpleLPGParseController) parseController;
-			IPrsStream prs = pc.getParser().getParseStream();
+			IPrsStream prs = pc.getParser().getIPrsStream();
 			token = getToken(offset, prs);
 		}
 		return token;
@@ -124,19 +124,19 @@ public class X10Util {
 				jarFileName = jarFileName
 						.substring(0, jarFileName.length() - 2);
 			} else {
-				X10Plugin.getInstance().writeInfoMsg(
+				X10DTCorePlugin.getInstance().writeInfoMsg(
 						"X10RETab did not find jar file for " + bundleID
 								+ " ending with '!/'");
 			}
 			if (jarFileName.startsWith("file:")) {
 				jarFileName = jarFileName.substring(5);
 			} else {
-				X10Plugin.getInstance().writeInfoMsg(
+				X10DTCorePlugin.getInstance().writeInfoMsg(
 						"X10RETab did not find jar file for " + bundleID
 								+ " beginning with 'file:'");
 			}
 		} catch (IOException e) {
-			X10Plugin.getInstance().logException(
+			X10DTCorePlugin.getInstance().logException(
 					"Error getting jar file for " + bundleID, e);
 		}
 		return jarFileName;

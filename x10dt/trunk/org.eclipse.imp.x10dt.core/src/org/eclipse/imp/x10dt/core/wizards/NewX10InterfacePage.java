@@ -30,7 +30,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -215,7 +215,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
 	    try {
 		packCont= (IContainer) pack.getCorrespondingResource();
 	    } catch (JavaModelException e) {
-		X10Plugin.getInstance().writeErrorMsg(e.getMessage());
+		X10DTCorePlugin.getInstance().writeErrorMsg(e.getMessage());
 		return null;
 	    }
 	    return packCont.getFile(new Path(getTypeName() + ".x10"));

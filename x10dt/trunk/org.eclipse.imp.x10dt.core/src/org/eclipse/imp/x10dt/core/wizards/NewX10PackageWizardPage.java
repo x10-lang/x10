@@ -21,7 +21,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -244,7 +244,7 @@ public class NewX10PackageWizardPage extends NewContainerWizardPage {
 //                    }
 //                }
             } catch (CoreException e) {
-                X10Plugin.getInstance().logException(e.getMessage(), e);
+                X10DTCorePlugin.getInstance().logException(e.getMessage(), e);
             }
         }
         return status;

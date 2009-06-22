@@ -12,7 +12,7 @@
 
 package org.eclipse.imp.x10dt.core.wizards;
 
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.jdt.internal.ui.wizards.NewElementWizard;
 
 import org.eclipse.core.runtime.CoreException;
@@ -31,7 +31,7 @@ public class NewX10PackageWizard extends NewElementWizard {
     public NewX10PackageWizard() {
         super();
         setDefaultPageImageDescriptor(JavaPluginImages.DESC_WIZBAN_NEWPACK);
-        setDialogSettings(X10Plugin.getInstance().getDialogSettings());
+        setDialogSettings(X10DTCorePlugin.getInstance().getDialogSettings());
         setWindowTitle(NewWizardMessages.NewPackageCreationWizard_title);
     }
 

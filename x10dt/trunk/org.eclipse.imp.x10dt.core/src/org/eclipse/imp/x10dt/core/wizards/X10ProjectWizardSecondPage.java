@@ -36,7 +36,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
@@ -83,9 +83,9 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     @Override
 	protected List<IClasspathEntry> createLanguageRuntimeEntries() {
 		List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-		entries.add(bundleToCpath(X10Plugin.X10_RUNTIME_BUNDLE_ID));
-		entries.add(bundleToCpath(X10Plugin.X10_CONSTRAINTS_BUNDLE_ID));
-		entries.add(bundleToCpath(X10Plugin.X10_COMMON_BUNDLE_ID));
+		entries.add(bundleToCpath(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID));
+		entries.add(bundleToCpath(X10DTCorePlugin.X10_CONSTRAINTS_BUNDLE_ID));
+		entries.add(bundleToCpath(X10DTCorePlugin.X10_COMMON_BUNDLE_ID));
 		return entries;
 	}
     /**

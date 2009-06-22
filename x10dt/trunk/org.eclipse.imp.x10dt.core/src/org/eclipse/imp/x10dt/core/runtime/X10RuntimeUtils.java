@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -78,7 +78,7 @@ public class X10RuntimeUtils {
 	                    	boolean exists = entryFile.exists();
 	                        JarFile x10Jar= new JarFile(entryFile);//PORT1.7 -- todo ask bob: do what?
 	                        String jarName = x10Jar.getName();
-	                        if (jarName.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {
+	                        if (jarName.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
 	                        	// Look for a type we expect to find in the x10 runtime
 	                        	ZipEntry x10ObjEntry = x10Jar.getEntry(X10_TYPES_TYPE_CLASS); // PORT1.7  x10/lang/Object  ->  x10/types/Type
 								if (x10ObjEntry != null) {
@@ -100,7 +100,7 @@ public class X10RuntimeUtils {
 	  */
 	    public static String getCurrentRuntimeVersion() {    	
 	    	//String jarLoc=X10Util.getJarLocationForBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
-	        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
+	        Bundle x10RuntimeBundle= Platform.getBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID);
 	        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
 	        return bundleVersion;
 	    }  
@@ -113,7 +113,7 @@ public class X10RuntimeUtils {
 	        try {
 	            // Can't figure out a way to get the location of the x10.runtime jar directly.
 	            // First, try the easy way: ask the platform. This often doesn't work
-	            Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID); // PORT1.7 use constant
+	            Bundle x10RuntimeBundle= Platform.getBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID); // PORT1.7 use constant
 	            String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
 
 	            // The JDT will allow you to create a folder/library classpath entry, but
@@ -143,7 +143,7 @@ public class X10RuntimeUtils {
 
 	            return x10RuntimePath;
 	        } catch (IOException e) {
-	            X10Plugin.getInstance().logException("Unable to resolve X10 runtime location", e);
+	            X10DTCorePlugin.getInstance().logException("Unable to resolve X10 runtime location", e);
 	            return null;
 	        }
 	    }
@@ -166,7 +166,7 @@ public class X10RuntimeUtils {
 	            if (pluginDir.exists() && pluginDir.isDirectory()) {
 	                File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
 	                    public boolean accept(File dir, String name) {
-	                        return name.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID) && name.endsWith(".jar"); //PORT1.7 use constant
+	                        return name.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID) && name.endsWith(".jar"); //PORT1.7 use constant
 	                    }
 	                });
 	                if (runtimeJars.length == 0) {
@@ -269,7 +269,7 @@ public class X10RuntimeUtils {
 	                /** The following uses bundle ID for x10.runtime.*   -- if this were checked out into the
 	                 * workspace under a different project name, this would fail.  May have to do something about this later.
 					*/
-	                if (entryPath.lastSegment().indexOf(X10Plugin.X10_RUNTIME_BUNDLE_ID) >= 0) {//PORT1.7 use constant
+	                if (entryPath.lastSegment().indexOf(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID) >= 0) {//PORT1.7 use constant
 	                    runtimeIndexes.add(i);
 	                }
 	            }
@@ -286,7 +286,7 @@ public class X10RuntimeUtils {
 	    public static void postMsgDialog(final String title, final String msg) {
 	        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
 	            public void run() {
-	                Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+	                Shell shell= X10DTCorePlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
 
 	                MessageDialog.openInformation(shell, title, msg);
 	            }

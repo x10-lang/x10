@@ -55,7 +55,7 @@ import org.osgi.framework.BundleContext;
  * <br>getLog().logStatus(new Status(...));
  * 
  */
-public class X10Plugin extends PluginBase {
+public class X10DTCorePlugin extends PluginBase {
 	public static final String kPluginID= "org.eclipse.imp.x10dt.core";
 	public static final String X10DT_CONSOLE_NAME = "X10DT info";
     public static final String kLanguageName = "X10";
@@ -69,19 +69,19 @@ public class X10Plugin extends PluginBase {
     /**
      * The unique instance of this plugin class
      */
-    protected static X10Plugin sPlugin;
+    protected static X10DTCorePlugin sPlugin;
     protected static MessageConsole console=null;
     
     public static String x10CompilerPath;
 
-    public static X10Plugin	 getInstance() {
+    public static X10DTCorePlugin	 getInstance() {
     	// mmk: Creation if not auto-started adapted from generated preferences Activator
     	if (sPlugin == null)
-			new X10Plugin();
+			new X10DTCorePlugin();
 		return sPlugin;
     }
 
-    public X10Plugin() {
+    public X10DTCorePlugin() {
     	super();
     	sPlugin= this;
     }

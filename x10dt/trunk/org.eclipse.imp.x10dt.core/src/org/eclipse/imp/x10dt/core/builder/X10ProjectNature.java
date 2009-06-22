@@ -20,12 +20,12 @@ package org.eclipse.imp.x10dt.core.builder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 
 public class X10ProjectNature extends ProjectNatureBase {
-    public static final String k_natureID= X10Plugin.kPluginID + ".x10nature";
+    public static final String k_natureID= X10DTCorePlugin.kPluginID + ".x10nature";
 
     public String getNatureID() {
         return k_natureID;
@@ -47,6 +47,6 @@ public class X10ProjectNature extends ProjectNatureBase {
     }
 
     public IPluginLog getLog() {
-        return X10Plugin.getInstance();
+        return X10DTCorePlugin.getInstance();
     }
 }

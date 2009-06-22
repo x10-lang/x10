@@ -22,7 +22,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.builder.DependencyInfo;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 import polyglot.types.Type;
 
@@ -49,7 +49,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
         }else{
         	if (printOnce) {
 				String msg = "PolyglotDependencyInfo.typeToPath finds file: " + filePath + " does not start with wsPath=" + wsPath + " so not removing it. Suppress msg for subsequent files.";
-				X10Plugin.getInstance().writeInfoMsg(msg);
+				X10DTCorePlugin.getInstance().writeInfoMsg(msg);
 				printOnce=false;
 			}
         	result=filePath;
