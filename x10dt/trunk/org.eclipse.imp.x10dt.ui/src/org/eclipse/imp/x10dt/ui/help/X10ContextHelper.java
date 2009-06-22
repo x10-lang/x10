@@ -80,7 +80,7 @@ public class X10ContextHelper implements IHelpService {
         sKeywordHelp.put("static", "<b>static</b> \n\nIdentifies the given member as a class member (cf. instance member).\n");
         sKeywordHelp.put("private", "<b>private</b> \n\nSpecifies that the given member is only visible to members of the same class.\n");
         sKeywordHelp.put("async", "<b>async</b> \n\nruns the child statement block in parallel with the statement(s) following the async.\n");
-        sKeywordHelp.put("final", "<b>final</b> variables whose value may not be changed after initialization. \n");
+        sKeywordHelp.put("final", "<b>final</b> \n\nvariables whose value may not be changed after initialization. \n");
         sKeywordHelp.put("future", "<b>future</b> \n\narranges for the child expression to be lazily evaluated; see 'force'.\n");
         sKeywordHelp.put("finish", "<b>finish</b> \n\nruns the child statement block, but wait for all asyncs to terminate.\n");
         sKeywordHelp.put("foreach", "<b>foreach</b> \n\nruns the child statement block asynchonously for each point in a region.\n");
