@@ -75,7 +75,7 @@ public abstract class X10RefactoringBase extends Refactoring {
             IFileEditorInput fileInput= (IFileEditorInput) input;
 
             fSourceFile= fileInput.getFile();
-            fSelNodes= findNodes();
+            fSelNodes= determineSelectedNodes();
         } else {
             // TODO How to handle case where we can't get an IFile?
             // Various sub-classes ultimately create a TextFileChange, which needs an IFile...
@@ -95,7 +95,7 @@ public abstract class X10RefactoringBase extends Refactoring {
      * entirety of the innermost enclosing AST node, that node is returned;
      * otherwise, the set of nodes contained within the selection is returned.
      */
-    public List<Node> findNodes() {
+    public List<Node> determineSelectedNodes() {
         Point sel= trimSelection();
         int selOffset= sel.x;
         int selEnd= sel.x + sel.y - 1;
