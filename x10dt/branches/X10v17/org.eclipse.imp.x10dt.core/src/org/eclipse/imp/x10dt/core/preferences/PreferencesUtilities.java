@@ -183,8 +183,8 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 				// Assume that editability on the project level is set
 				// appropriately by a project-selection listener
 				//field.getTextControl(composite).setEditable(false);
-				field.getComboBoxControl(composite).setBackground(colorWhite);
-				Control[] children = field.getComboBoxControl(composite).getChildren();
+				field.getComboBoxControl().setBackground(colorWhite);
+				Control[] children = field.getComboBoxControl().getChildren();
 		    	if (children != null) {
 		    		for (int i = 0; i < children.length; i++) {
 		    			Button button = (Button) children[i];
@@ -246,7 +246,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 		field.setFieldValueFromOutside(value);
 		// setString(value) takes care of setting isInherited
 		// and presentsDefaultValue, but not ...
-		field.getComboBoxControl(composite).setBackground(colorWhite);
+		field.getComboBoxControl().setBackground(colorWhite);
 
 		return level;
 	}
@@ -848,7 +848,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 		PreferencePage page, int foo, PreferencesTab tab,
 		IPreferencesService service, String level,	
 		String name, String labelText, int numColumns,
-        String[][] labelAndValues, Composite parent, boolean useGroup,
+        String[] values, String[] labels, Composite parent, boolean useGroup,
 		boolean isEnabled, boolean isRemovable)	
 	{	
 		//System.err.println("SPU.makeNewRadioGroupField() starting for key = " + key);
@@ -867,7 +867,7 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 	    
 	    RadioGroupFieldEditor field = new RadioGroupFieldEditor(
 	    		page, tab, service, level, name, labelText, numColumns,
-	    		labelAndValues, parent, useGroup);
+	    		values, labels, parent, useGroup);
 	    
 	    //Composite radioBoxControl = field.getRadioBoxControl(parent);
 	    //Composite radioBoxControlParent = field.getRadioBoxControl(parent).getParent();
