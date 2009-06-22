@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?NLS TYPE="org.eclipse.help.toc"?>
 
-<toc label="X10 Help" topic="html/main.html">
+<toc label="X10 Help" topic="html/langref/main.html">
 <topic label="X10 Summary"  href="html/x10summary.html"/> 
 <topic label="X10 Language Reference" href="html/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
