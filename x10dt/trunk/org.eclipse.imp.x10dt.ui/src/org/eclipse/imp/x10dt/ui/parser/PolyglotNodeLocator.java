@@ -3,7 +3,7 @@
  */
 package x10.uide.parser;
 
-import lpg.lpgjavaruntime.LexStream;
+import lpg.lpgjavaruntime.*;
 
 import org.eclipse.uide.parser.IASTNodeLocator;
 import x10.parser.X10Parser.JPGPosition;		// SMS 14 Jun 2006
