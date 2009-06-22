@@ -203,4 +203,73 @@
              language="X10">
          </docProvider>
    </extension>
+   <extension
+         id="menu:org.eclipse.ui.main.menu"
+         name="Sounds"
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               id="org.eclipse.imp.x10dt.ui.menu.source"
+               label="Source"
+               tooltip="Entertain the young with barnyard atmosphere">
+            <command
+                  commandId="org.eclipse.imp.x10dt.ui.formatCmd"
+                  tooltip="Format X10 source code">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="menu:org.eclipse.imp.x10dt.ui.view.source">
+         <command
+               commandId="org.eclipse.imp.x10dt.ui.formatCmd"
+               id="Format"
+               label="Source-code editing"
+               tooltip="Format selected text">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.imp.x10dt.ui.view.source">
+         <command
+               commandId="org.eclipse.imp.x10dt.ui.formatCmd"
+               icon="icons/runtime_obj.gif"
+               label="Format"
+               style="push"
+               tooltip="Format X10 source code">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         id="org.eclipse.imp.x10dt.gobble"
+         name="Gobble"
+         point="org.eclipse.ui.commands">
+      <category
+            description="Entertain the very young"
+            id="org.eclipse.imp.x10dt.ui.animalSounds"
+            name="Moozencluks">
+      </category>
+      <command
+            category="Moozencluks"
+            categoryId="org.eclipse.imp.x10dt.ui.animalSounds"
+            defaultHandler="org.eclipse.imp.x10dt.ui.commands.Gobble"
+            description="Make a turkey sound"
+            id="org.eclipse.imp.x10dt.ui.Gobble"
+            name="Gobble">
+      </command>
+      <command
+            defaultHandler="org.eclipse.imp.x10dt.ui.commands.handlers.FormatCmdHandler"
+            description="Format X10 source"
+            id="org.eclipse.imp.x10dt.ui.formatCmd"
+            name="Format">
+      </command>
+   </extension>
+   <extension
+         name="Barnyard Sounds"
+         point="org.eclipse.ui.views">
+      <view
+            class="org.eclipse.imp.x10dt.ui.views.SoundView"
+            id="org.eclipse.imp.x10dt.ui.view.sounds"
+            name="Soundview">
+      </view>
+   </extension>
 </plugin>

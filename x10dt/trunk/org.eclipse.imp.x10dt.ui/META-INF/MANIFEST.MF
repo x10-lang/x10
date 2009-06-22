@@ -29,7 +29,8 @@ Require-Bundle: org.eclipse.core.runtime,
  lpg.runtime,
  org.eclipse.imp.runtime,
  org.eclipse.imp.analysis,
- org.eclipse.imp.x10dt.core
+ org.eclipse.imp.x10dt.core,
+ org.eclipse.imp.x10dt.formatter
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10UIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui.parser
