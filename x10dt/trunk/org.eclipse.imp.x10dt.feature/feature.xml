@@ -2,10 +2,10 @@
 <feature
       id="org.eclipse.safari.x10dt"
       label="X10 Development Toolkit"
-      version="1.0.40"
+      version="1.0.41"
       provider-name="rfuhrer@watson.ibm.com">
 
-   <description url="http://delhi.watson.ibm.com/">
+   <description url="http://x10web.watson.ibm.com/">
       This feature provides IDE support for the X10 programming language.
    </description>
 
@@ -32,35 +32,35 @@ except any specific purpose.
          id="com.ibm.watson.safari.x10"
          download-size="0"
          install-size="0"
-         version="1.0.40"
+         version="1.0.41"
          unpack="false"/>
 
    <plugin
          id="x10.compiler"
          download-size="0"
          install-size="0"
-         version="1.0.40"
+         version="1.0.41"
          unpack="false"/>
 
    <plugin
          id="x10.runtime"
          download-size="0"
          install-size="0"
-         version="1.0.40"
+         version="1.0.41"
          unpack="false"/>
 
    <plugin
          id="x10.uide"
          download-size="0"
          install-size="0"
-         version="1.0.40"
+         version="1.0.41"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.safari.x10dt"
          download-size="0"
          install-size="0"
-         version="1.0.40"
+         version="1.0.41"
          unpack="false"/>
 
 </feature>
