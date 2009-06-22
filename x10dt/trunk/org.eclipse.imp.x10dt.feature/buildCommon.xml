@@ -18,7 +18,7 @@
     <echo message="eclipse.home = ${eclipse.home}"/>
 
     <!-- Following assumes we're invoking the build from within some plugin project's top-level directory -->
-    <xmlproperty file="../org.eclipse.safari.x10dt.feature/feature.xml" prefix="x10dt"/>
+    <xmlproperty file="../org.eclipse.imp.x10dt.feature/feature.xml" prefix="x10dt"/>
 
     <echo message="Building for X10DT feature version ${x10dt.feature(version)}"/>
 
@@ -35,7 +35,7 @@
 
     <property name="bootclasspath" refid="path_bootclasspath"/>
 
-    <condition property="eclipse.home" value="/usr/lib/eclipse-3.1">
+    <condition property="eclipse.home" value="/usr/lib/eclipse-3.2">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
@@ -44,7 +44,7 @@
 	</and>
     </condition>
 
-    <condition property="eclipse.home" value="f:/eclipse-3.1.2">
+    <condition property="eclipse.home" value="f:/eclipse-3.2.2">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
