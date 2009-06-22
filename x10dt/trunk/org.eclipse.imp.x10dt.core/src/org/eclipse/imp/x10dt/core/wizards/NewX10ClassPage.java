@@ -395,7 +395,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	        buff.append("           Console.OUT.println(\"The first arg is: \"+args(0));\n");
 	        buff.append("         }\n");
 	        buff.append("         Console.OUT.println(\"Hello X10 world \");\n");
-	        buff.append("         val h = new Hello();  // final, immutable value \n");
+	        buff.append("         val h = new Hello();  // final variable \n");
 	        buff.append("         var result : Boolean = h.myMethod(); // mutable variable \n");
 	        buff.append("         Console.OUT.println(\"The answer is: \"+result);\n");
 	        buff.append("    }\n");
