@@ -218,14 +218,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         }
       });
     }
-    IPDebugTarget debugTarget = (IPDebugTarget) fLaunch.getDebugTarget();
-    if (debugTarget != null) {
-      IPSession session = debugTarget.getSession();
-      if (session != null)
-        PTPDebugUIPlugin.getUIDebugManager().registerTasks(session, session.getTasks());
-      else
-        System.err.println("No session found");
-    }
+    fPDISession.getTaskManager().setRegisterTasks(true, fPDISession.getTasks());
     notifyOkEvent(this.fPDISession.getTasks());
   }
 
