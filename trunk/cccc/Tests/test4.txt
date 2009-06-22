@@ -1,9 +1,0 @@
-# Dependency chain with atomics.
-
-0.0 A a 0 1
-1.0 A a 1 2
-2.0 A a 2 3
-3.0 A a 3 4
-4.0 A a 4 5
-
-4.0 -> 0.0
