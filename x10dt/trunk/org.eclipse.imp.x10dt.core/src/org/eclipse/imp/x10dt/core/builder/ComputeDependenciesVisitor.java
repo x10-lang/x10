@@ -13,6 +13,7 @@ import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
+import polyglot.ext.x10.types.NullableType;
 import polyglot.frontend.Job;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -44,6 +45,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
             type= arrayType.base();
         }
         if (type.isClass()) {
+            if (type instanceof NullableType)
+        	type = ((NullableType) type).base();
             ClassType classType= (ClassType) type;
             if (!isBinary(classType) && !fFromType.equals(type)) {
         	System.out.println("  Reference to type: " + classType.fullName());
