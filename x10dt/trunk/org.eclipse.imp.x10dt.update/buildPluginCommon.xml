@@ -75,8 +75,11 @@
 				<containsregex pattern="Require-Bundle: "/>
 				<replaceregex pattern="Require-Bundle: (.*)" replace="\1"/>
 				<!-- Filter out Eclipse plugins that are handled by eclipse.build.path -->
+                                <replaceregex pattern="com\.ibm\.icu[^,]*,?"         replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.compare[^,]*,?" replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.core[^,]*,?"    replace="" flags="g"/>
+                                <replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
+                                <replaceregex pattern="org\.eclipse\.help[^,]*,?"    replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.jdt[^,]*,?"     replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.jface[^,]*,?"   replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.ltk[^,]*,?"     replace="" flags="g"/>
@@ -87,7 +90,7 @@
 				<replaceregex pattern="org\.eclipse\.ui[^,]*,?"      replace="" flags="g"/>
 				<replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
 				<!-- Make dependencies on "local" (non-Eclipse) plugins use a relative path -->
-				<replaceregex pattern="lpg.runtime,?" replace="lpg.runtime.java,"/>
+				<replaceregex pattern=",lpg.runtime,?" replace=",lpg.runtime.java,"/>
 				<replaceregex pattern="([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
 			</filterchain>
 		</loadfile>
