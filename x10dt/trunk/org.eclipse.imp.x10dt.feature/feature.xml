@@ -102,4 +102,18 @@
          version="1.7.0"
          unpack="false"/>
 
+   <plugin
+         id="x10.effects"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.imp.x10dt.refactoring"
+         download-size="0"
+         install-size="0"
+         version="1.7.3"
+         unpack="false"/>
+
 </feature>
