@@ -1592,7 +1592,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         if (desc == null) // a field of a struct, or an unknown rail
           return "^a8v0";
         if (desc[2] == null) // 0-length rail
-          return "{}";
+          return "{EMPTY_RAIL|;;;}";
         StringBuilder sb = new StringBuilder();
         sb.append("[r").append(desc[2]).append("is4]"); //$NON-NLS-1$//$NON-NLS-2$
         String t = desc[1];
