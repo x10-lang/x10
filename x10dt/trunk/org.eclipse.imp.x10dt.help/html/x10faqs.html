@@ -23,6 +23,8 @@
 <a href="#faq16">can't add breakpoint</a><br>
 <a href="#faq17">missing problem errors and markers</a><br>
 <a href="#faq18">public type Foo must be defined in its own file</a><br>
+<a href="#faq19">possible deadlock using when</a><br>
+<a href="#faq20">remote atomic blocks not implemented correctly</a><br>
 
 
 <!-- ********************************************* -->
@@ -295,6 +297,24 @@ The X10 compiler may (depending on platform) continue to use "foo.java" as the r
 <p>
 delete the file "foo.java" in the target package.   The next compile will generate "Foo.java" which java will be much happier with.
 </p>  
+
+<h2><a name="faq19">possible deadlock using when<a></h2>
+<p>
+If you have an activity checking for the value of a field in a when, 
+make sure that the field is assigned in an atomic statement. 
+Otherwise you may observe a deadlock (the activity waiting for the field 
+to be set may not discover the field has been set).
+</p> 
+
+<h2><a name="faq20">remote atomic blocks not implemented correctly<a></h2>
+<p>
+The current implementation permits the field of an object located at place P 
+to be read by an activity at a place Q (Q different from P). 
+That is, the implementation permits remote access. 
+However, remote atomic blocks are not implemented correctly. 
+(Implementation note: If the activity at place Q performs a remote atomic operation at place P, 
+it grabs the lock at place Q rather than place P. ) 
+</p> 
  
 
 </body>
