@@ -23,6 +23,7 @@ import org.eclipse.uide.defaults.DefaultOutliner;
 import org.eclipse.uide.editor.IOutliner;
 import org.eclipse.uide.parser.IParseController;
 
+import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Formal;
@@ -405,9 +406,14 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 text += ")";
                 TreeItem tree_item = new TreeItem((TreeItem) tree_item_of.get(parent), SWT.NONE);
                 tree_item_of.put(cons, tree_item);
+                Block body= cons.body();
                 IToken left_token = ((JPGPosition) cons.position()).getLeftIToken();
-                int right_token_index = ((JPGPosition) cons.body().position()).getLeftIToken().getTokenIndex() - 1;
-                tree_item.setData(pos(left_token, left_token.getPrsStream().getIToken(right_token_index)));
+                IToken right_token;
+                if (body != null)
+                    right_token = left_token.getPrsStream().getIToken(((JPGPosition) body.position()).getLeftIToken().getTokenIndex() - 1);
+                else
+                    right_token = ((JPGPosition) cons.position()).getRightIToken();
+                tree_item.setData(pos(left_token, right_token));
                 if (cons.flags().isPrivate())
                      tree_item.setImage(_DESC_MISC_PRIVATE);
                 else if (cons.flags().isProtected())
