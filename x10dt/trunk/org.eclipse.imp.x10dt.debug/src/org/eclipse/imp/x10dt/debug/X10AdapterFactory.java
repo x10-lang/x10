@@ -9,6 +9,8 @@ import org.eclipse.imp.x10dt.debug.model.impl.X10Activity;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10StackFrame;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
+import org.eclipse.imp.x10dt.debug.ui.presentation.ActivityChildrenContentProvider;
+import org.eclipse.imp.x10dt.debug.ui.presentation.ActivityChildrenContentProvider;
 import org.eclipse.imp.x10dt.debug.ui.presentation.ActivityFieldFilteringContentProvider;
 import org.eclipse.imp.x10dt.debug.ui.presentation.ActivityLabelProvider;
 import org.eclipse.imp.x10dt.debug.ui.presentation.AsyncLabelProvider;
@@ -18,30 +20,34 @@ import org.eclipse.jdt.internal.debug.core.model.JDIVariable;
 
 public class X10AdapterFactory extends DebugElementAdapterFactory implements IAdapterFactory {
 
-	private static IElementContentProvider fgTargetAdapter = new QuiescentThreadFilteringContentProvider();
-	private static IElementContentProvider fgThreadAdapter = new AsyncStackFrameFilteringContentProvider();
-	private static IElementContentProvider fgObjectAdapter = new ActivityFieldFilteringContentProvider();
-	private static IElementLabelProvider fgStackFrameLabelAdapter = new AsyncLabelProvider();
-	private static IElementLabelProvider fgActivityLabelAdapter = new ActivityLabelProvider();
+	private static IElementContentProvider fgTargetThreadProvider = new QuiescentThreadFilteringContentProvider();
+	private static IElementContentProvider fgFilteringStackFrameProvider = new AsyncStackFrameFilteringContentProvider();
+	private static IElementContentProvider fgVariableFieldProvider = new ActivityFieldFilteringContentProvider();
+	private static IElementContentProvider fgActivityChildrenProvider = new ActivityChildrenContentProvider();
+	private static IElementLabelProvider fgStackFrameLabelProvider = new AsyncLabelProvider();
+	private static IElementLabelProvider fgActivityLabelProvider = new ActivityLabelProvider();
 
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (IElementContentProvider.class.equals(adapterType)) {
 			if (adaptableObject instanceof X10DebugTargetAlt) {
-				return fgTargetAdapter;
+				return fgTargetThreadProvider;
 			}
 			if (adaptableObject instanceof X10Thread) {
-				return fgThreadAdapter;
+				return fgFilteringStackFrameProvider;
 			}
 			if (adaptableObject instanceof JDIVariable) {
-				return fgObjectAdapter ;
+				return fgVariableFieldProvider;
+			}
+			if (adaptableObject instanceof X10Activity) {
+				return fgActivityChildrenProvider ;
 			}
 		}
 		if (IElementLabelProvider.class.equals(adapterType)) {
 			if (adaptableObject instanceof X10StackFrame) {
-				return fgStackFrameLabelAdapter ;
+				return fgStackFrameLabelProvider ;
 			}
 			if (adaptableObject instanceof X10Activity) {
-				return fgActivityLabelAdapter;
+				return fgActivityLabelProvider;
 			}
 		}
 		return super.getAdapter(adaptableObject, adapterType);

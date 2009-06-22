@@ -71,6 +71,11 @@
    			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10Thread">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
 		</factory>
+ 		<factory 
+   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10Activity">
+			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
+		</factory>
 		<factory
    			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
 			adaptableType="org.eclipse.jdt.internal.debug.core.model.JDIVariable">

@@ -66,6 +66,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
     
     private static int seq=0;
     public int uid;
+	private String fFileNameAndLineNo;
 	
 	/**
 	 * Constructs a new thread group in the given target based on the underlying
@@ -242,8 +243,15 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				return null;
 			}
 			if (result instanceof ObjectReference) {
-				System.out.println("Shivali:getFreshActivityObject got Activity");
-				fActivity = (ObjectReference)result;
+				if (fFileNameAndLineNo==null) {
+					fActivity = (ObjectReference)result;
+					List<Method> myNameMethods = (List<Method>)((ObjectReference)fActivity).referenceType().methodsByName("myName");
+					Method myNameMethod = myNameMethods.get(0);
+					Value fnlv = ((X10DebugTargetAlt)getDebugTarget()).invokeX10RTMethod(fActivity, myNameMethod, args);
+					if (fnlv instanceof StringReference) {
+						fFileNameAndLineNo = ((StringReference)fnlv).value();
+					}
+				}
 			}
 			return fActivity;
 		  }
@@ -262,8 +270,14 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 		if (fActivity!=null){
 			System.out.println("X10Thread:getName() ");
 			String place = this.getUnderlyingThread().name();
+			if (place!=null) {
+				place = place.substring(4, 6);
+				if (fFileNameAndLineNo!=null) {
+					return "ACTIVITY-" + uid + "@PLACE" +place +":" +fFileNameAndLineNo ;
+				}
+			}
 			if (place.contains("Main Activity"))
-				return ""+uid+"/"+"ACTIVITY" + "@PLACE 0" + ": Main Activity";
+				return "ACTIVITY-" + uid + "@PLACE 0" + ": Main Activity";
 			/*
 			else if (place.contains("Finished")){
 				place=place.replace("pool", "PLACE");�
@@ -272,8 +286,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				//return "ACTIVITY: "+this.getUnderlyingThread().toString();
 			}*/
 			else {
-			String aname = ((X10DebugTargetAlt)(this.getDebugTarget())).getActivityString(fActivity);
-			//String aname= ((X10DebugTargetAlt)((IThread)this.getDebugTarget())).getActivityString(fActivity);
+			String aname = ((X10DebugTargetAlt)getDebugTarget()).getActivityString(fActivity);
 			System.out.println("X10Thread:getName , aname = "+aname);
 			//if (aname.contains("false")) {
 				//return "terminated";
@@ -282,7 +295,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				aname=" ";
 			}
 			place = place.substring(4, 6);
-		    return ""+uid+"/"+"ACTIVITY" + "@PLACE" +place +":" +aname ;
+		    return "ACTIVITY-" + uid + "@PLACE" +place +":" +aname ;
 			}
 		}  
 		else {
