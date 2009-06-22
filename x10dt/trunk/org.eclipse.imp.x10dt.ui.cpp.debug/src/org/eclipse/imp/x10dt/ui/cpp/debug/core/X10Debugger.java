@@ -95,9 +95,7 @@ public final class X10Debugger implements IPDebugger {
   public void initialize(final ILaunchConfiguration config, final AttributeManager attrMgr, 
                          final IProgressMonitor monitor) throws CoreException {
     this.fPort = getPort(config);
-    if (this.fPDIDebugger == null) {
-      this.fPDIDebugger = new X10PDIDebugger(new X10DebuggerTranslator(), this.fPort);
-    }
+    this.fPDIDebugger = new X10PDIDebugger(this.fPort, 2); //TODO We're going to be forced to move the listening part :-/
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
     } catch (PDIException except) {
@@ -128,12 +126,10 @@ public final class X10Debugger implements IPDebugger {
     }
   }
   
-  private String getQHostOptionValue(final ILaunchConfiguration config, AttributeManager attrMgr) throws CoreException {
+  private String getQHostOptionValue(final ILaunchConfiguration config, AttributeManager attrMgr) {
     final StringBuilder sb = new StringBuilder();
-    String hostAddr = attrMgr.getAttribute(X10DebugAttributes.getDebuggerHostAddressAttributeDefinition()).getValue();
-//    assert (hostAddr.equals(config.getAttribute(IPTPLaunchConfigurationConstants.ATTR_DEBUGGER_HOST, (String) null)));
-	sb.append("-qhost=").append(hostAddr) //$NON-NLS-1$
-      .append(':').append(this.fPort);
+    final String hostAddr = attrMgr.getAttribute(X10DebugAttributes.getDebuggerHostAddressAttributeDefinition()).getValue();
+    sb.append("-qhost=").append(hostAddr).append(':').append(this.fPort); //$NON-NLS-1$
     return sb.toString();
   }
   
@@ -183,9 +179,5 @@ public final class X10Debugger implements IPDebugger {
   
   
   private static final String PORT_RANGE_SEP = "-"; //$NON-NLS-1$
-
-  // USE_XLC=1 bin/x10c++ -commandlineonly -v -report postcompile=5 -o out/FSSimpleDist -d out samples/FSSimpleDist.x10
-  
-  //  poe /gsa/tlbgsa/projects/d/debugger/dev/aix/latest/bin/irmtdbgc -qhost=9.2.34.130:8001 ./FSSimpleDist -m 0 -procs 2 -hostfile .hostlist.x10run.345 -msg_api lapi -labelio yes
 
 }

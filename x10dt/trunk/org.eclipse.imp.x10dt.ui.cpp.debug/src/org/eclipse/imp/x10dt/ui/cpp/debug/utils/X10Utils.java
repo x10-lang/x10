@@ -5,13 +5,21 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package org.eclipse.imp.x10dt.ui.cpp.debug.core;
+package org.eclipse.imp.x10dt.ui.cpp.debug.utils;
 
 /**
- * Responsible for translating X10 data to their C++ counterparts according to the context, and vice-versa.
+ * X10 utility methods.
  * 
  * @author egeay
  */
-public interface IDebuggerTranslator {
+public final class X10Utils {
+  
+  public static String FMGL(final String name) {
+    return "x10__" + name;
+  }
+  
+  // --- Private code
+  
+  private X10Utils() {}
 
 }

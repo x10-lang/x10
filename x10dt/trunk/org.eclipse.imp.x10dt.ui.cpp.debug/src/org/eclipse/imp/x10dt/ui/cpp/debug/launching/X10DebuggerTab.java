@@ -273,9 +273,10 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
         return rmConn.getAddress();
       }
     } else {
-      String localAddress = rmc.getLocalAddress();
-      if (localAddress != null)
+      final String localAddress = rmc.getLocalAddress();
+      if ((localAddress != null) && ! LOCALHOST.equals(localAddress)) {
         return localAddress;
+      }
       try {
         final InetAddress ip = InetAddress.getLocalHost();
         return ip.getHostAddress();
@@ -369,5 +370,7 @@ public final class X10DebuggerTab extends LaunchConfigurationTab implements ILau
   private static final String DEBUGGER_ID = "org.eclipse.imp.x10dt.ui.cpp.debugger"; //$NON-NLS-1$
   
   private static final String REMOTE_DEBUGGER_DEFAULT_PATH = "irmtdgbc"; //$NON-NLS-1$
+  
+  private static final String LOCALHOST = "localhost"; //$NON-NLS-1$
 
 }

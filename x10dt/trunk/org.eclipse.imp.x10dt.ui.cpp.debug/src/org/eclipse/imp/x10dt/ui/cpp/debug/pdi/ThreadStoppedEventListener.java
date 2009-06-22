@@ -19,9 +19,8 @@ import com.ibm.debug.internal.pdt.model.ThreadStoppedEvent;
 @SuppressWarnings("restriction")
 final class ThreadStoppedEventListener implements IThreadEventListener, IStateGuardian {
   
-  ThreadStoppedEventListener(final DebuggeeThread[] curThreads) {
-    this.fCurThread = curThreads;
-    this.fStopped = new boolean[curThreads.length];
+  ThreadStoppedEventListener(final DebuggeeThread curThread) {
+    this.fCurThread = curThread;
   }
   
   // --- IThreadEventListener's interface methods implementation
@@ -36,36 +35,27 @@ final class ThreadStoppedEventListener implements IThreadEventListener, IStateGu
   }
 
   public void threadEnded(final ThreadEndedEvent event) {
-    System.err.println("Watched thread terminated instead of stopping");
-    this.fStopped[findThread(event.getThread())] = true;
+    if (event.getThread().equals(this.fCurThread)) {
+      this.fStopped = true;
+    }
   }
 
   public void threadStopped(final ThreadStoppedEvent event) {
-    this.fStopped[findThread(event.getThread())] = true;
-  }
-
-  private int findThread(DebuggeeThread thread) {
-    for (int i = 0; i < this.fCurThread.length; i++)
-      if (thread.equals(this.fCurThread[i]))
-        return i;
-    assert (false) : ("Unknown thread encountered");
-    return -1;
+    if (event.getThread().equals(this.fCurThread)) {
+      this.fStopped = true;
+    }
   }
   
   // --- IStateGuardian's interface methods implementation
   
   public boolean hasReached() {
-    for (int i = 0; i < this.fStopped.length; i++) {
-	  if (!this.fStopped[i])
-	    return false;
+    return this.fStopped;
 	}
-    return true;
-  }
   
   // --- Fields
   
-  private final DebuggeeThread[] fCurThread;
+  private final DebuggeeThread fCurThread;
   
-  private boolean[] fStopped;
+  private boolean fStopped;
 
 }

@@ -28,6 +28,7 @@ Require-Bundle: org.eclipse.ui,
  com.ibm.debug.daemon,
  x10.cppbackend.17,
  x10.compiler.p3,
- polyglot3
+ polyglot3,
+ org.eclipse.ptp.debug.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
