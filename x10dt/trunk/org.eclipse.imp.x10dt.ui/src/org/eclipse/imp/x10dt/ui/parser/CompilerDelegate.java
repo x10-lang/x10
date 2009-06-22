@@ -35,8 +35,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.framework.Bundle;
 
+import polyglot.ast.SourceFile;
 import polyglot.frontend.Globals;
-import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.Report;
@@ -47,7 +47,7 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class CompilerDelegate {
-    private ExtensionInfo fExtInfo;
+    private org.eclipse.imp.x10dt.ui.parser.ExtensionInfo fExtInfo;
     private polyglot.frontend.Compiler fCompiler;
 
     private final IJavaProject fX10Project;
@@ -63,13 +63,15 @@ public class CompilerDelegate {
         Report.setQueue(eq);
     }
 
-    public X10Lexer getLexer() { return fExtInfo.getLexer(); }
-    public X10Parser getParser() { return fExtInfo.getParser(); }
-    public Job getJob(Source source) { return fExtInfo.getJob(source); }
     public polyglot.frontend.Compiler getCompiler() { return fCompiler; }
     public ExtensionInfo getExtInfo() { return fExtInfo; }
 
+    public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
+    public X10Parser getParserFor(Source src) { return fExtInfo.getParserFor(src); }
+    public SourceFile getASTFor(Source src) { return (SourceFile) fExtInfo.getASTFor(src); }
+
     public boolean compile(Collection<Source> sources) {
+        fExtInfo.setInterestingSources(sources);
     	return fCompiler.compile(sources);
     }
 
@@ -88,8 +90,40 @@ public class CompilerDelegate {
         for(int i= 0; i < classPath.length; i++) {
             IClasspathEntry e= classPath[i];
 
-            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
+            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
                 srcPath.add(e.getPath());
+            } else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                //PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
+                // so add source path entries of referenced projects to this project's sourcepath.
+                // Assume that goal dependencies are such that Polyglot will not be compelled to
+                // compile referenced X10 source down to Java source (causing duplication; see below).
+                //
+                // RMF 6/4/2008 - Don't add referenced projects to the source path:
+                // 1) doing so should be unnecessary, since the classpath will include
+                //    the project, and the class files should satisfy all references,
+                // 2) doing so will cause Polyglot to compile the source files found in
+                //    the other project to Java source files located in the *referencing*
+                //    project, causing duplication, which is not what we want.
+                //
+                IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
+                IJavaProject refJavaProject= JavaCore.create(refProject);
+                IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
+                for(int j= 0; j < refJavaCPEntries.length; j++) {
+                    if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+                        srcPath.add(refJavaCPEntries[j].getPath());
+                    }
+                }
+            } else if (e.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+                // PORT1.7 Add the X10 runtime jar to the source path, since the compiler
+                // needs to see the X10 source for the user-visible runtime classes (like
+                // x10.lang.Region) to get the extra type information (for deptypes) that
+                // can't be stored in Java class files, and for now, these source files
+                // actually live in the X10 runtime jar.
+                IPath path= e.getPath();
+                if (path.toPortableString().contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
+                    srcPath.add(path);
+                }
+            }
         }
         if (srcPath.size() == 0)
             srcPath.add(fX10Project.getProject().getLocation());
@@ -121,28 +155,30 @@ public class CompilerDelegate {
     }
 
     private void buildOptions(ExtensionInfo extInfo) {
-		Options opts = extInfo.getOptions();
+        Options opts = extInfo.getOptions();
 
-		// Options.global= opts;//PORT1.7 Global options object no longer exists. 
-		//   instead, need to call Globals.initialize(compiler) prior to calling compiler
-		//    Note this is done in constructor
+        // Options.global= opts;//PORT1.7 Global options object no longer exists. 
+        //   instead, need to call Globals.initialize(compiler) prior to calling compiler
+        //    Note this is done in constructor
 
-		try {
-			List<IPath> projectSrcLoc = getProjectSrcPath();
-			String projectSrcPath = pathListToPathString(projectSrcLoc);
-			opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath",
-					projectSrcPath }, new HashSet<String>());
-		} catch (UsageError e) {
-			if (!e.getMessage().equals("must specify at least one source file"))
-				System.err.println(e.getMessage());
-		} catch (JavaModelException e) {
-			X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
-		}
-		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " +
-		// opts.source_path);
-		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " +
-		// opts.classpath);
-	}
+        try {
+            List<IPath> projectSrcLoc = getProjectSrcPath();
+            String projectSrcPath = pathListToPathString(projectSrcLoc);
+            opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", // "-commandlineonly",
+                    "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
+            }, new HashSet<String>());
+        } catch (UsageError e) {
+            if (!e.getMessage().equals("must specify at least one source file")) {
+                X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());
+            }
+        } catch (JavaModelException e) {
+            X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+        }
+        // X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " +
+        // opts.source_path);
+        // X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " +
+        // opts.classpath);
+    }
 
     private String buildClassPathSpec() {
         StringBuffer buff= new StringBuffer();
