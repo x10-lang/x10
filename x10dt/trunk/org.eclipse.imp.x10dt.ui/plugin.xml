@@ -166,7 +166,8 @@
             class="org.eclipse.imp.x10dt.ui.perspective.X10PerspectiveFactory"
             icon="icons/x10perspective.gif"
             id="org.eclipse.imp.x10dt.ui.perspective"
-            name="X10"/>
+            name="X10">
+      </perspective>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
@@ -187,6 +188,21 @@
          <perspectiveShortcut
                id="org.eclipse.imp.x10dt.ui.perspective">
          </perspectiveShortcut>
+      </perspectiveExtension>
+      <perspectiveExtension
+            targetID="org.eclipse.imp.x10dt.ui.perspective">
+         <showInPart
+               id="org.eclipse.imp.runtime.projectExplorerView">
+         </showInPart>
+         <showInPart
+               id="org.eclipse.jdt.ui.PackageExplorer">
+         </showInPart>
+         <showInPart
+               id="org.eclipse.ui.navigator.ProjectExplorer">
+         </showInPart>
+         <showInPart
+               id="org.eclipse.ui.views.ResourceNavigator">
+         </showInPart>
       </perspectiveExtension>
    </extension>
    <extension
