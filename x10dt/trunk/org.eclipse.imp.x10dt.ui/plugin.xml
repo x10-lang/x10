@@ -402,7 +402,7 @@
          point="org.eclipse.imp.runtime.toggleBreakpointHandler">
          <toggleBreakpointHandler
              language="x10"
-             class="org.eclipse.imp.x10dt.debug.X10ToggleBreakpointHandler"/>
+             class="org.eclipse.imp.x10dt.ui.debug.X10ToggleBreakpointHandler"/>
             </extension>
 
 </plugin>
