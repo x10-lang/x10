@@ -38,6 +38,7 @@ import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Job;
 
 public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
@@ -56,7 +57,7 @@ public class ParseController extends SimpleLPGParseController {
     }
 
     public ISourcePositionLocator getNodeLocator() {
-	return new PolyglotNodeLocator(fProject, getLexer().getLexStream());
+	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
     }
 
     public ILanguageSyntaxProperties getSyntaxProperties() {
@@ -67,25 +68,30 @@ public class ParseController extends SimpleLPGParseController {
     public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
         super.initialize(filePath, project, handler);
         fMonitor= new PMMonitor(null);
-        fCompiler= new CompilerDelegate(fMonitor, handler, fProject.getRawProject()); // Create the compiler
     }
 
     public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor) {
         FileSource fileSource= null;
         try {
             fMonitor.setMonitor(monitor);
-            fileSource= new StringSource(contents, new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : fFilePath
-                    .toOSString()), fFilePath.toOSString());
+            String path= fFilePath.toOSString();
+            File file= new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : path);
+            fileSource= new StringSource(contents, file, path);
             List<FileSource> streams= new ArrayList<FileSource>();
             streams.add(fileSource); // PC: just to test...
+            fCompiler= new CompilerDelegate(fMonitor, handler, fProject.getRawProject()); // Create the compiler
             fCompiler.getFrontEnd().compile(streams);
         } catch (IOException e) {
             throw new Error(e);
         } finally {
             // RMF 8/2/2006 - retrieve the AST if there is one; some later phase of compilation
             // may fail, even though the AST is well-formed enough to provide an outline.
-            if (fileSource != null)
-                fCurrentAst= (Node) fCompiler.getJob(fileSource).ast();
+            if (fileSource != null) {
+                Job job= fCompiler.getJob(fileSource);
+                if (job != null) {
+                    fCurrentAst= (Node) job.ast();
+                }
+            }
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
             // Must do this after attempting parsing (even though that might fail), since it depends
             // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
