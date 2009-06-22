@@ -7,13 +7,19 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IBreakpointManager;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IVariable;
+import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10PDIDebugger.ProxyNotifier;
 import org.eclipse.ptp.core.util.BitList;
 import org.eclipse.ptp.debug.sdm.core.proxy.ProxyDebugClient;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugBreakpointHitEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugBreakpointSetEvent;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugErrorEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugExitEvent;
 
 import com.ibm.debug.internal.epdc.ProcessStopInfo;
@@ -38,6 +44,7 @@ import com.ibm.debug.internal.pdt.model.ThreadAddedEvent;
 import com.ibm.debug.internal.pdt.model.ThreadChangedEvent;
 import com.ibm.debug.internal.pdt.model.ThreadEndedEvent;
 import com.ibm.debug.internal.pdt.model.ThreadStoppedEvent;
+import com.ibm.debug.pdt.breakpoints.PICLBaseBreakpoint;
 
 @SuppressWarnings("restriction")
 final class PDTProcessEventListener implements IProcessEventListener, IThreadEventListener, IBreakpointEventListener {
@@ -68,9 +75,11 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
   public void processEnded(final ProcessEndedEvent event) {
     System.out.println("Process ended");
     try {
+      removeAllBreakpoints();
       this.fProxyNotifier.notify(new ProxyDebugExitEvent(-1 /* transId */, this.fBits, event.getProcess().getExitValue()));
     } catch (DebugException except) {
-      except.printStackTrace();
+      this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, this.fBits, 1 /* errorCode */, 
+                                                          "Could not get exit value"));
     } finally {
       this.fDebuggeeProcess.removeEventListener(this);
     }
@@ -164,6 +173,19 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
       strVars[++i] = variable.getName();
     }
     return strVars;
+  }
+  
+  private void removeAllBreakpoints() {
+    final IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
+    try {
+      for (final IBreakpoint breakpoint : breakpointManager.getBreakpoints()) {
+        if (breakpoint instanceof PICLBaseBreakpoint) {
+          breakpointManager.removeBreakpoint(breakpoint, true /* delete */);
+        }
+      }
+    } catch (CoreException except) {
+      DebugCore.log(except.getStatus());
+    }
   }
   
   // --- Fields
