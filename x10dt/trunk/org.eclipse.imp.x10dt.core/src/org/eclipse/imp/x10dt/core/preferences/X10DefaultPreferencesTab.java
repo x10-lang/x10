@@ -26,9 +26,9 @@ import org.eclipse.imp.preferences.fields.ComboFieldEditor;
 import org.eclipse.imp.preferences.fields.FieldEditor;
 import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInitializer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.Link;
 
 	
 public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
@@ -46,7 +46,7 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 	 * 			preferences in this tab
 	 */
 	public AbstractPreferenceInitializer getPreferenceInitializer() {
-		PreferenceInitializer preferenceInitializer = new PreferenceInitializer();
+		X10PreferencesInitializer preferenceInitializer = new X10PreferencesInitializer();
 		return preferenceInitializer;
 	}	
 	
@@ -69,12 +69,12 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 		
 		// TODO:  Construct the specific fields, including a "details" link
 		// for each field; also create "toggle" listeners between fields whose
-		// editability is linked.  Add spaces, boxes, etc. as apprpriate.
+		// editability is linked.  Add spaces, boxes, etc. as appropriate.
 		//
 		// SafariPreferencesUtilities has factory-like methods for creating
 		// fields and links of specific types.
 		//
-		// Among the various parameters that can be set for a Safari preferences
+		// Among the various parameters that can be set for an IMP preferences
 		// field, fields on the default level should generally not be removable.
 		/*
 		 * FYI:  The parameters to makeNew*Field following the "composite" parameter"
@@ -91,7 +91,7 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 				PreferenceConstants.P_X10CONFIG_NAME, "Compiler configuration:",
 				new String[][] { { "Standard", "standard" } }, composite,
 				true, true, PreferencesUtilities.comboDefaultName, false);
-		Link compilerConfigurationDetails = fPrefUtils.createDetailsLink(
+		fPrefUtils.createDetailsLink(
 				composite, compilerConfiguration, compilerConfiguration.getComboBoxControl(composite).getParent(), "Details ...");
 		
 		PreferencesUtilities.fillGridPlace(composite, 2);	
@@ -101,7 +101,7 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 				PreferenceConstants.P_SAMPLING_FREQ, "Sampling frequency:",
 				composite, true, true, true, "50", false, "", false);
 		samplingFrequency.setValidRange(0, 99);
-		Link samplingFrequencyDetails = fPrefUtils.createDetailsLink(
+		fPrefUtils.createDetailsLink(
 				composite, samplingFrequency, samplingFrequency.getTextControl().getParent(), "Details ...");
 		
 		PreferencesUtilities.fillGridPlace(composite, 2);			
@@ -116,7 +116,7 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 				PreferenceConstants.P_STATS_DISABLE, "Statistics disable", 2,
 				new String[][] { { "&None", "none" }, { "&All", "all" } }, composite, true,
 				true, false);
-		Link statsDisableDetails = fPrefUtils.createDetailsLink(
+		fPrefUtils.createDetailsLink(
 				composite, statsDisable, statsDisable.getRadioBoxControl(composite), "Details ...");
 		// Reset layout to what it was before adding field	
 		composite.setLayout(layout);
@@ -128,12 +128,11 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 				fPrefPage, this, fPrefService, IPreferencesService.DEFAULT_LEVEL,
 				PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 				composite, true, true, true, false, false, false, false);
-		Link emitMessagesDetails = fPrefUtils.createDetailsLink(
+		fPrefUtils.createDetailsLink(
 				composite, emitMessages, emitMessages.getChangeControl().getParent(), "Details ...");
 		
 		// Example of more spacing
 		PreferencesUtilities.fillGridPlace(composite, 2);	
-		
 		
 		// TODO:  Put the created fields into an array and return it
 		FieldEditor fields[] = new FieldEditor[4];		// change length as appropriate
@@ -145,6 +144,4 @@ public class X10DefaultPreferencesTab extends DefaultPreferencesTab {
 		
 		return fields;
 	}
-	
-	
 }
