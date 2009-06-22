@@ -682,6 +682,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private void collectChangeDependents() {
 	Collection changeDependents= new ArrayList();
+	IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
 
 	System.out.println("Changed files:");
 	dumpSourceList(fSourcesToCompile);
@@ -692,7 +693,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    if (fileDependents != null) {
 		for(Iterator iterator= fileDependents.iterator(); iterator.hasNext(); ) {
 		    String depPath= (String) iterator.next();
-		    IFile depFile= fProject.getFile(depPath);
+		    IFile depFile= wsRoot.getFile(new Path(depPath));
 
 		    changeDependents.add(depFile);
 		}
