@@ -28,19 +28,12 @@ public class ParserDelegate implements IParser {
     X10Parser myParser;
 
     public PrsStream getParseStream() {
-    	// SMS 25 Jun 200y:
-    	//This doesn't work; can still get NPE due to
-    	// interference of concurrent threads	
-//      assert(myParser != null);
-//		return myParser.getParseStream();
-    	// Replacement text:
-   		try {
-   			assert(myParser != null);
-			return myParser.getParseStream();
-		} catch (NullPointerException e) {
-			System.err.println("ParserDelegate.getParseStream(..):  NullPointerException; discarding, returning null");
-			throw e;
-		}
+        try {
+            return myParser.getParseStream();
+        } catch (NullPointerException e) {
+            System.err.println("ParserDelegate.getParseStream(..): caught NullPointerException");
+            throw e;
+        }
     }
 
     public int numTokenKinds() {
