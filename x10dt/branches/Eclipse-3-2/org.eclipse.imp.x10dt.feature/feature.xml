@@ -42,14 +42,14 @@
          id="org.eclipse.imp.x10dt.core"
          download-size="0"
          install-size="0"
-         version="3.2.59"
+         version="1.0.59"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui"
          download-size="0"
          install-size="0"
-         version="3.2.59"
+         version="1.0.59"
          unpack="false"/>
 
    <plugin
