@@ -38,6 +38,12 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+/**
+ * TODO need to reconcile changes made to X10LaunchConfigurationDelegate in x10dt.ui for X10 1.7
+ * 
+ * @author beth
+ *
+ */
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
 	/** Suffix that is appended to user class to get main x10 executable class - e.g. to make Hello$Main */
 	static final String USER_MAIN_SUFFIX="$Main";
