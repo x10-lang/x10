@@ -25,11 +25,13 @@ import lpg.runtime.Adjunct;
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
+import lpg.runtime.PrsStream;
 
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IFoldingUpdater;
+import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
@@ -81,19 +83,16 @@ public class X10FoldingUpdater implements IFoldingUpdater
     private IPrsStream prsStream;
     private ILexStream lexStream;
 
-    //
-    // A simplistic test of whether two lists differ significantly. This may
-    // work well enough much of the time as the comparisons between lists should
-    // be made very frequently, actually more frequently than the rate at which
-    // the
-    // typical human user will edit the program text so as to affect the AST so
-    // as
-    // to affect the lists. Thus most changes of lists will entail some change
-    // in
-    // the number of elements at some point that will be observed here. Will not
-    // work for certain very rapid edits of source text (e.g., rapid replacement
-    // of elements).
-    //
+    /**
+    * A simplistic test of whether two lists differ significantly. This may
+    * work well enough much of the time as the comparisons between lists should
+    * be made very frequently, actually more frequently than the rate at which
+    * the typical human user will edit the program text so as to affect the AST so
+    * as to affect the lists. Thus most changes of lists will entail some change
+    * in the number of elements at some point that will be observed here. Will not
+    * work for certain very rapid edits of source text (e.g., rapid replacement
+    * of elements).
+    */
     private boolean differ(ArrayList list1, ArrayList list2)
     {
         return (list1.size() != list2.size());
@@ -116,10 +115,10 @@ public class X10FoldingUpdater implements IFoldingUpdater
         }
     }
     
-    //
-    // Use this version of makeAnnotation when you have a range of 
-    // tokens to fold.
-    //
+    /**
+    * Use this version of makeAnnotation when you have a range of 
+    * tokens to fold.
+    */
     private void makeAnnotation(IToken first_token, IToken last_token)
     {
         if (last_token.getEndLine() > first_token.getLine())
@@ -134,10 +133,10 @@ public class X10FoldingUpdater implements IFoldingUpdater
         }
     }    
     
-    //
-    // Use this version of makeAnnotation(..) when you have the start
-    // and end offset of the region to fold.
-    //
+    /**
+    * Use this version of makeAnnotation(..) when you have the start
+    * and end offset of the region to fold.
+    */
     private void makeAnnotation(int start_offset, int end_offset)
     {
         int length = end_offset - start_offset + 1;
@@ -146,9 +145,9 @@ public class X10FoldingUpdater implements IFoldingUpdater
         annotations.add(annotation);
     }
 
-    //
-    // Make annotations for the ast.
-    //
+    /**
+    * Make annotations for the ast.
+    */
     private void makeAnnotations(IParseController parseController)
     {
         //
@@ -167,7 +166,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
         // Use a visitor to the AST to create new annotations
         // corresponding to foldable nodes
         //
-        ast.visit(new FoldingVisitor());
+        ast.visit(new FoldingVisitor(prsStream));
 
         //            
         // If the program contains more than one import declaration
@@ -178,8 +177,24 @@ public class X10FoldingUpdater implements IFoldingUpdater
         {
             Node first_import = (Node) imports.get(0),
                  last_import = (Node) imports.get(imports.size() - 1);
-            makeAnnotation(((JPGPosition) first_import.position()).getLeftIToken(),
-                           ((JPGPosition) last_import.position()).getRightIToken());
+            
+            //PORT1.7 get tokens from parseController, JPGPosition doesn't cache tokens         
+            //ParseController pc= (ParseController) parseController;
+            //IPrsStream prsStream=pc.getLexer().getLexStream().getPrsStream();
+            //int firstPos=first_import.position().offset();
+            //int lastPos=last_import.position().offset();  
+            //IToken left= prsStream.getTokenAtCharacter(firstPos);
+            //IToken right=prsStream.getTokenAtCharacter(lastPos);       
+            IToken left=getTokenFromNode(parseController, first_import);
+            IToken right=getTokenFromNode(parseController, last_import);
+            
+            // BRT couldn't we just more easily use makeAnnotation(firstPos,lastPos)??
+            if(left!=null && right !=null){
+                 makeAnnotation(left,right);
+            }
+            else{
+            	System.out.println("X10FoldingUpdater, skipping annotations for node with null left and right tokens.");
+            }
         }
 
         //            
@@ -213,18 +228,59 @@ public class X10FoldingUpdater implements IFoldingUpdater
         return;
     }
 
-    //
-    // Use this version of makeAnnotation(..) when you want to fold
-    // a text element that corresponds directly to an AST node
-    //
-    private void makeAnnotation(Node n)
+    /**
+	 * Use this version of makeAnnotation(..) when you want to fold a text
+	 * element that corresponds directly to an AST node
+	 */
+    private void makeAnnotation(IPrsStream ps, Node node)
     {
-	if (n.position() instanceof JPGPosition)
-	    makeAnnotation(((JPGPosition) n.position()).getLeftIToken(),
-		           ((JPGPosition) n.position()).getRightIToken());
+	if (node.position() instanceof JPGPosition) {
+		//PORT1.7 compute tokens, can't use JPGPosition now. should we just always use position() directly as done in else?
+		IToken left=getLeftTokenFromNode(ps, node);
+		IToken right=getRightTokenFromNode(ps, node);
+	    makeAnnotation(left,right);
+	}
 	else
-	    makeAnnotation(n.position().offset(), n.position().endOffset());
-    }    
+	    makeAnnotation(node.position().offset(), node.position().endOffset());
+    }   
+    
+    /**
+     * PORT1.7 Get the token from the node, via the parseController.
+     * Can't get them from JPGPosition any more, it no longer caches tokens.
+     * 
+     * @param parseController
+     * @param node
+     * @return
+     */
+    //PORT1.7 token   redundant methods, delete us!
+    IToken getTokenFromNode(IParseController parseController, Node node) {
+        ParseController pc= (ParseController) parseController;
+        IPrsStream prsStream=pc.getLexer().getLexStream().getPrsStream();
+        IToken token=getTokenFromNode(prsStream, node);
+        return token;
+    }
+    /**
+     * PORT 1.7 Get token from node, given PrsStream already
+     * @param ps
+     * @param node
+     * @return
+     */
+    IToken getTokenFromNode(IPrsStream ps, Node node) {
+    	int pos=node.position().offset(); 
+    	IToken token= prsStream.getTokenAtCharacter(pos);
+        return token;
+    	
+    }
+    IToken getLeftTokenFromNode(IPrsStream ps, Node node) {
+    	int pos=node.position().offset();
+    	IToken token=prsStream.getTokenAtCharacter(pos);
+    	return token;
+    }
+    IToken getRightTokenFromNode(IPrsStream ps, Node node) {
+    	int pos=node.position().endOffset();
+    	IToken token=prsStream.getTokenAtCharacter(pos);
+    	return token;
+    }
 
     /**
      * Update the folding structure for a source text, where the text and its
@@ -321,9 +377,11 @@ public class X10FoldingUpdater implements IFoldingUpdater
      */
     private class FoldingVisitor extends NodeVisitor    //AbstractVisitor
     {
-        public FoldingVisitor()
+    	private IPrsStream prsStream; // PORT1.7 will need prsStream to get tokens from nodes
+        public FoldingVisitor(IPrsStream ps)
         {
             super();
+            prsStream=ps;
         }
                         
         // START_HERE
@@ -343,16 +401,21 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 n instanceof Async ||
                 n instanceof Atomic)
             {
-                makeAnnotation(n);
+                makeAnnotation(prsStream,n);
             }
             else if (n instanceof If)
             {
                 Stmt true_part = ((If) n).consequent();
                 Stmt else_part = ((If) n).alternative();
-                IToken last_true_part_token = ((JPGPosition) true_part.position()).getRightIToken();
+                //PORT1.7 -- token -- must calculate tokens, not get from JPGPosition
+                IToken last_true_part_token;// = ((JPGPosition) true_part.position()).getRightIToken(); 
+                last_true_part_token = getRightTokenFromNode(prsStream, n);
+                //PORT1.7 -- TODO token work to be done here too
                 makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_true_part_token);
+                makeAnnotation(getLeftTokenFromNode(prsStream, n), last_true_part_token);
                 if (else_part != null && (! (else_part instanceof If)))
                 {
+                	//PORT1.7 tokens will be null - fixme
                     makeAnnotation(prsStream.getIToken(prsStream.getNext(last_true_part_token.getTokenIndex())),
                                    ((JPGPosition) else_part.position()).getRightIToken());
                 }
@@ -363,6 +426,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 List catch_blocks = ((Try) n).catchBlocks();
                 Block finally_block = ((Try) n).finallyBlock();
 
+                //PORT1.7 -- tokens will be null - fixme
                 IToken last_token = ((JPGPosition) try_block.position()).getRightIToken();
                 makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_token);
                 for (int i = 0; i < catch_blocks.size(); i++)
@@ -384,7 +448,8 @@ public class X10FoldingUpdater implements IFoldingUpdater
             {
                 Stmt stmt = ((When) n).stmt();
                 List stmts = ((When) n).stmts();
-
+                
+                //PORT1.7 -- tokens will be null - fixme
                 IToken last_token = ((JPGPosition) stmt.position()).getRightIToken();
                 makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_token);
                 for (int i = 0; i < stmts.size(); i++)
