@@ -49,7 +49,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
 	    if (li != null)
 		return li.declaration();
 	}
-	return null;
+	return node; // If it's not something we know how to resolve, just return the node itself
     }
 
     public static Node findVarDefinition(Local local, Node ast) {
