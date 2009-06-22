@@ -1,4 +1,9 @@
 /*
+ * (C) Copyright IBM Corporation 2007
+ * 
+ * This file is part of the Eclipse IMP.
+ */
+/*
  * Created on Oct 6, 2005
  */
 package org.eclipse.imp.x10dt.core.builder;
