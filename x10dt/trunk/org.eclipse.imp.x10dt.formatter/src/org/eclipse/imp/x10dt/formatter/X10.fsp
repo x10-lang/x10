@@ -3,6 +3,63 @@
     <language>X10</language>
     <rules>
         <rule>
+            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=2 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "(" ")" ]</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 [ H hs=0 [ "&lt;id.1&gt;" "."  "super" "."  "&lt;id.2&gt;"   "(" ]  
+I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"   ]
+</box>
+        </rule>
+        <rule>
+            <box>H hs=0 [ "&lt;id.1&gt;" "."  "super" "."  "&lt;id.2&gt;"   "("  ")"   ]</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 [ H hs=0 ["&lt;Primary&gt;" "."  "&lt;id&gt;" "(" ]  
+I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
+
+</box>
+        </rule>
+        <rule>
+            <box>H hs=0 [ "&lt;id&gt;" "(" ")" ";" ]
+
+</box>
+        </rule>
+        <rule>
+            <box>H hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ] I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")" ";" ]
+</box>
+        </rule>
+        <rule>
+            <box> H hs=0 ["super" "."  "&lt;id&gt;" "(" ")"]
+
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 [ H hs=0 ["super" "."  "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
+</box>
+        </rule>
+        <rule>
+            <box>HV hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]</box>
+        </rule>
+        <rule>
             <box>HV hs=0 [ H hs=0 [ "&lt;Expression.1&gt;" "." ] I [ "&lt;Expression.2&gt;" ]]</box>
         </rule>
         <rule>
@@ -41,13 +98,6 @@
         </rule>
         <rule>
             <box>G ["&lt;ArgumentList&gt;" "," "&lt;Expression&gt;" ]</box>
-        </rule>
-        <rule>
-            <box>H hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ] I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")" ";" ]
-</box>
-        </rule>
-        <rule>
-            <box>HV hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]</box>
         </rule>
         <rule>
             <box>V [ H [ "private""class""&lt;id&gt;" ] "{"
@@ -91,13 +141,90 @@ I [ V [  "&lt;BlockStatements&gt;" ] ] "}" ]
    I [ H hs=0 ["&lt;Expression&gt;"";"]]]</box>
         </rule>
         <rule>
-            <box>  V  [ H [ "finish""ateach" H hs=0 
+            <box>G [  "&lt;WhenStatement&gt;" V [ H [ "or" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")"  ] "{" ] I [  "&lt;BlockStatements&gt;" ]  "}"  ] ]
+</box>
+        </rule>
+        <rule>
+            <box>G [  "&lt;WhenStatement&gt;" HV [ H [ "or" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] I [  "&lt;Statement&gt;" ] ] ]</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "when" H hs=0 [  "(" HV [ "&lt;Expression&gt;" ]  ")"]  "{" ] I [ "&lt;BlockStatements&gt;" ] "}" ]</box>
+        </rule>
+        <rule>
+            <box>HV [ H [ "when" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ]] "&lt;Statement&gt;" ]</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "atomic" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ]  "}"  ]
+</box>
+        </rule>
+        <rule>
+            <box>HV [ H [ "atomic" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] "&lt;Statement&gt;" ]</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "atomic" "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]</box>
+        </rule>
+        <rule>
+            <box>HV ["atomic" I [ "&lt;Statement&gt;" ] ]</box>
+        </rule>
+        <rule>
+            <box>V [  HV [ "async"   I [ H hs=0 ["(" HV [ "&lt;Expression.1&gt;" ] ")" ] ] 
+                             I [ H [ "clocked" H hs=0 [ "(" "&lt;Expression.2&gt;" ")"  ] ] "{"  ]   ]   I [ "&lt;BlockStatements&gt;" ] "}" ]
+
+
+
+</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "async"  "clocked" H hs=0 [ "(" "&lt;Expression&gt;" ")"  ] "{"]   I [ "&lt;BlockStatements&gt;" ] "}" ]
+
+
+</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "async" "{"]   I [ "&lt;BlockStatements&gt;" ] "}" ]
+
+</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "async" H hs=0 ["(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]
+
+
+</box>
+        </rule>
+        <rule>
+            <box>HV [ "async" H hs=0 ["(" HV [ "&lt;Expression&gt;" ] ")" ] I [ "&lt;Statement&gt;" ] ]
+
+</box>
+        </rule>
+        <rule>
+            <box>HV [ "async" I [ "&lt;Statement&gt;" ] ]
+</box>
+        </rule>
+        <rule>
+            <box>V [ H [  "now"  H hs=0 [ "(" HV [  "&lt;Expression&gt;" ] ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ] "}"]
+
+</box>
+        </rule>
+        <rule>
+            <box>HV [ H [ "now" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]
+</box>
+        </rule>
+        <rule>
+            <box>V [ H [ "finish" "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]
+</box>
+        </rule>
+        <rule>
+            <box>H [ "finish" I [ "&lt;Statement&gt;" ] ]
+</box>
+        </rule>
+        <rule>
+            <box>  V  [ H [ "ateach" H hs=0 
 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;"":""&lt;Expression.2&gt;"] ")"] "{" ]
 I [ "&lt;BlockStatements&gt;" ]
 "}"] </box>
         </rule>
         <rule>
-            <box>HV [ H [ "finish""ateach" H hs=0 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;" ":"  "&lt;Expression.2&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]</box>
+            <box>HV [ H ["ateach" H hs=0 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;" ":"  "&lt;Expression.2&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]</box>
         </rule>
         <rule>
             <box>V [ H [ "if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]
@@ -106,44 +233,78 @@ I [ V [ "&lt;BlockStatements&gt;" ] ] "}" ]
         </rule>
     </rules>
     <example>public class BlockDistedArray1D {
-  public final static int SIZE = 5;
+  int a = a.b.a.b.b();
 
-  int N_PLACES = sr . ser . place.MAX_PLACESasfasddhglsdfjg;
-
-  int F =
-    super
-       .
-       x
-       (
-    );
-
-  public final static dist ALLPLACES = dist . factory . unique ( );
+  int a = a . a . a.a;
 
   int main( ) {
-    int a ;
-    int b ;
-    if (a
-        + (
-            1 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
-            + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
-          )
-        + (
-            1 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
-            + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3 + 2 + 3
-          )) {
-      int a = 1 ;
+    int a = a . b(a) ;
+    int a = a.b.a.b.b() ;
+    when (y) {
+      printf("y");
     }
-    finish ateach (point i : !(x &amp;&amp; y)) {
-      printf("aasfasfasfaasdfaaasfsaafaasdfasaasfasfasfaasdfass", "bb", "cc",
-             "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg", "hh",
-             "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg",
-             "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff",
-             "gg", "hh", "ii");
+    or (x) {
+      int a ;
+      when (y) {
+        printf("y");
+      }
+      or (x) {
+        int a ;
+      }
+      or (z) {
+        int b ;
+      }
     }
-    if (java . lang . system . error . like . c . better . than . java.printf(x
-        ,y,z) + 1 + 2 + 3 + 1 + 2 + 3 + 1 + 2 + 3 + 1 + 2 + 3 + aap + 2 + 3 + 1
-        + 2 + 3 + 1 + 2 + 3 + 1 + 2 + 3) {
-      printf("a");
+    or (z) {
+      int b ;
+    }
+    when (x) printf("x");
+    atomic (a + b) printf("x");
+    atomic (a + b + c) {
+      printf("y");
+    }
+    atomic {
+      printf("hla");
+    }
+    atomic printf("vbl");
+    async (a.b)
+      clocked (1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 5 , 5 , 5 , 5 , 5) {
+      printf("ues");
+    }
+    finish {
+      ateach (point i : !(x &amp;&amp; y)) {
+        printf("aasfasfasfaasdfaaasfsaafaasdfasaasfasfasfaasdfass", "bb", "cc",
+               "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg",
+               "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee",
+               "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii",
+               "dd", "ee", "ff", "gg", "hh", "ii");
+        int a ;
+      }
+      ateach (point i : !(x &amp;&amp; y))
+        printf("aasfasfasfaasdfaaasfsaafaasdfasaasfasfasfaasdfass", "bb", "cc",
+               "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg",
+               "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee",
+               "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii",
+               "dd", "ee", "ff", "gg", "hh", "ii");
+      int a ;
+    }
+    now (0) printf("xsdfgssdgsdgdfgsdgsdlfhgsldkfhgsldfjghsdlfghsdlfjgh");
+    now (0) {
+      printf("x");
+    }
+    async printf("whatever");
+    async (1) clocked (1) {
+      printf("ues");
+    }
+    async clocked (1) {
+      printf("ues");
+    }
+    async (MyPlace) {
+      printf("asfgsghsfgiesgsdlghsdlghsdlghsdlghsldfhgokfgskdfgasjkdfgkasdgfs");
+    }
+    async (MyPlace) {
+      rintf("ues");
+      printf("asfgsghsfgiohasfghsdfghsdfghsdfgsdfgsdfgsdkfgskdfgasjkdfgkasdgfs");
     }
   }
 }
