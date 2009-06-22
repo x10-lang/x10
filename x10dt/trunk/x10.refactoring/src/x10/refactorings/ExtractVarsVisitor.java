@@ -6,7 +6,6 @@ import java.util.HashMap;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
-import polyglot.ast.Binary;
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -85,8 +84,11 @@ public class ExtractVarsVisitor extends NodeVisitor {
         private final int getType(Variable vn, int basetype, int fieldtype, int arraytype, int x10arraytype,
                 int x10array1type) {
             return basetype | ((vn instanceof Field) ? fieldtype : 0) | ((vn instanceof ArrayAccess) ? arraytype : 0)
-                    | ((vn instanceof X10ArrayAccess) ? x10arraytype : 0)
-                    | ((vn instanceof X10ArrayAccess1) ? x10array1type : 0);
+                    | (isX10ArrayAccess(vn) ? x10arraytype : 0);
+        }
+
+        private boolean isX10ArrayAccess(Variable vn) {
+            return false; // (vn instanceof X10ArrayAccess) || (vn instanceof X10ArrayAccess1);
         }
 
         /**
@@ -248,17 +250,20 @@ public class ExtractVarsVisitor extends NodeVisitor {
                             : parType;
                     if ((parType & VarUseType.DREF) != 0)
                         vutype.setDrefNumber(vn, 1);
-                    if (vn.equals(apar.array()))
+                    if (vn.equals(apar.array())) {
                         if (((parType & VarUseType.DREF) != 0) && ((parType & VarUseType.LVAL) != 0))
                             evTypeMap.put(vn, vutype.getStandardType(vn, parType ^ VarUseType.ARRAY ^ VarUseType.LVAL
                                     | VarUseType.RVAL));
                         else
                             evTypeMap.put(vn, vutype.getStandardType(vn, parType ^ VarUseType.ARRAY));
-                    else if (apar instanceof X10ArrayAccessAssign) {
+                    } else { // if (apar instanceof X10ArrayAccessAssign) {
                         evTypeMap.put(vn, vutype.getStandardType(vn, VarUseType.POINT));
+                        throw new IllegalArgumentException("Need to port array access code to X10 1.7");
                     }
-                } else if (par instanceof X10ArrayAccess1) {
-                    X10ArrayAccess1 apar = (X10ArrayAccess1) par;
+                } else if (true /*par instanceof X10ArrayAccess1*/) {
+                    // TODO port array access code to X10 1.7
+                    ArrayAccess apar = (ArrayAccess) par; // bogus, but compiles
+//                    X10ArrayAccess1 apar = (X10ArrayAccess1) par;
                     Integer parType = evTypeMap.get(apar);
                     parType = ((parType & VarUseType.PARAM) != 0) ? parType ^ VarUseType.PARAM | VarUseType.RVAL
                             : parType;
