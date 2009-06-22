@@ -122,5 +122,13 @@
             language="X10"
             name="X10 Hyperlink Detector"/>
    </extension>
+   <extension
+         point="org.eclipse.uide.runtime.hoverHelper">
+      <hoverhelper
+            class="x10.uide.editor.HoverHelper"
+            id="x10.uide.hoverhelper"
+            language="X10"
+            name="X10 Hover Helper"/>
+   </extension>
 
 </plugin>
