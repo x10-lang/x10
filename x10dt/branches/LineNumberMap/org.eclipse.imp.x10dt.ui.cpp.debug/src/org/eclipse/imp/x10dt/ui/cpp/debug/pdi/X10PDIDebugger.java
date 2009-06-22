@@ -248,10 +248,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
 
   public void setLineBreakpoint(final BitList tasks, final IPDILineBreakpoint breakpoint) throws PDIException {
     this.fProcessListener.setCurTasks(tasks);
-//    final ViewFile viewFile = searchViewFile("PETest.c");
-//    if (viewFile == null) {
-//      throw new PDIException(tasks, NLS.bind("Could not find PDT View file for breakpoint {0}", breakPoint.getLocator()));
-//    }
     initBreakPointIdIfRequired(breakpoint);
     final Location location = this.fTranslator.getCppLocation(tasks, breakpoint.getLocator().getFile(), breakpoint.getLocator().getLineNumber());
     if (location == null) {
@@ -561,8 +557,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   public void processAdded(final ProcessAddedEvent event) {
     this.fProcessListener = new PDTProcessEventListener(event.getProcess(), this.fProxyNotifier);
     event.getProcess().addEventListener(this.fProcessListener);
-    this.fTaskToProcess[this.fProcessCounter++] = event.getProcess();
     this.fTranslator.init(event.getProcess());
+    this.fTaskToProcess[this.fProcessCounter++] = event.getProcess();
   }
   
   // --- Public services
@@ -835,7 +831,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   
   private final int fPort;
   
-  private IDebuggerTranslator fTranslator;
+  private final IDebuggerTranslator fTranslator;
   
   private final ReentrantLock fWaitLock = new ReentrantLock();
   
