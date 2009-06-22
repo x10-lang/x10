@@ -59,6 +59,11 @@ METAVARIABLE_BlockStatement
 METAVARIABLE_BlockStatements
 METAVARIABLE_ClassName
 METAVARIABLE_TypeName
+METAVARIABLE_ActualTypeArgument
+METAVARIABLE_ActualTypeArgumentList
+METAVARIABLE_Primary
+METAVARIABLE_AmbiguousName
+METAVARIABLE_WhenStatement
 
 %End
 
@@ -231,6 +236,36 @@ METAVARIABLE_TypeName
      /.
       $BeginJava
          makeToken($_METAVARIABLE_TypeName);
+      $EndJava
+     ./
+     Token ::= '<' 'T' 'y' 'p' 'e' 'A' 'r' 'g' 'u' 'm' 'e' 'n' 't'   DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_ActualTypeArgument);
+      $EndJava
+     ./
+     Token ::= '<' 'T' 'y' 'p' 'e' 'A' 'r' 'g' 'u' 'm' 'e' 'n' 't' 'L' 'i' 's' 't'  DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_ActualTypeArgumentList);
+      $EndJava
+     ./
+     Token ::= '<' 'P' 'r' 'i' 'm' 'a' 'r' 'y'  DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_Primary);
+      $EndJava
+     ./
+     Token ::= '<' 'A' 'm' 'b' 'i' 'g' 'u' 'o' 'u' 's' 'N' 'a' 'm' 'e'  DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_AmbiguousName);
+      $EndJava
+     ./
+      Token ::= '<' 'W' 'h' 'e' 'n' 'S' 't' 'a' 't' 'e' 'm' 'e' 'n' 't' DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_WhenStatement);
       $EndJava
      ./
 %End

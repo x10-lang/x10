@@ -41,6 +41,7 @@
 
 %Rules 
   Pattern ::=  %Empty
+            | AmbiguousName
             | Statement
             | Expression
             | TypeDeclaration
@@ -49,6 +50,7 @@
             | PackageDeclaration
             | ArgumentList
             | BlockStatements
+            | ActualTypeArgumentList
             | CompilationUnit
  
 PackageName ::= METAVARIABLE_PackageName
@@ -76,9 +78,13 @@ Import ::= METAVARIABLE_Import
 ClassDecl ::= METAVARIABLE_ClassDecl
 BlockStatements ::= METAVARIABLE_BlockStatements
 BlockStatement ::= METAVARIABLE_BlockStatement
-Primary ::= METAVARIABLE_Expression
+Primary ::= METAVARIABLE_Primary
 ClassName ::= METAVARIABLE_ClassName
 TypeName ::= METAVARIABLE_TypeName
+ActualTypeArgumentList ::= METAVARIABLE_ActualTypeArgumentList
+ActualTypeArgument ::= METAVARIABLE_TypeArgument
+AmbiguousName ::= METAVARIABLE_AmbiguousName
+WhenStatement ::= METAVARIABLE_WhenStatement
              
 %End
 
