@@ -1,9 +1,17 @@
 package org.eclipse.imp.x10dt.debug.ui.presentation;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.core.DebugEvent;
+import org.eclipse.debug.core.DebugException;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
@@ -13,6 +21,9 @@ import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsJDIThread;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
 import org.eclipse.jdt.debug.core.IJavaStackFrame;
 import org.eclipse.jdt.debug.core.IJavaThread;
@@ -24,6 +35,7 @@ import org.eclipse.jdt.debug.eval.IEvaluationListener;
 import org.eclipse.jdt.debug.eval.IEvaluationResult;
 import org.eclipse.jdt.internal.debug.core.logicalstructures.JavaStructureErrorValue;
 import org.eclipse.jdt.internal.debug.core.logicalstructures.LogicalStructuresMessages;
+import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
@@ -34,7 +46,6 @@ import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 
 import org.eclipse.jdt.debug.core.IJavaVariable;
-import org.eclipse.jdt.internal.debug.ui.JDIModelPresentation;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Method;
@@ -95,23 +106,26 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 		if (element instanceof X10DebugTargetAlt) {
 			return "X10 Application";//getTargetText((X10DebugTarget)element);
 		} else if (element instanceof IThread) {
-			((X10DebugTargetAlt)((IThread)element).getDebugTarget()).initializeX10RTObject();
+			IThread threadElement = (IThread)element;
+			X10DebugTargetAlt target = (X10DebugTargetAlt) threadElement.getDebugTarget();
+			target.initializeX10RTObject();
 			
-			ThreadReference th=((X10DebugTargetAlt)((IThread)element).getDebugTarget()).getThreadForRTMethods();
+			ThreadReference th=target.getThreadForRTMethods();
 			ThreadReference t = ((JDIThread)element).getUnderlyingThread();
+			JDIThread thread = target.findThread(t);
 //			System.out.println("underlyingThread: "+t.getClass());
 			if (t.referenceType().name().equals("x10.runtime.PoolRunner")) {
+				//The following will evaluate activity asynchronously:
+				JDIStackFrame topFrame = (JDIStackFrame)((JDIThread)element).getTopStackFrame();
+				if (topFrame!=null) { // not sure why no-frame threads  get here.  should be filtered out.
+					IAstEvaluationEngine engine = target.getEvaluationEngine(getJavaProject(topFrame));
+					IJavaValue val = evaluate("x10.lang.Runtime.runtime.getCurrentActivity()", engine, topFrame);
+					if (val!=null) {
+						val = evaluate("x10.lang.Runtime.runtime.getCurrentActivity().myName()", engine, topFrame);
+						System.out.println("AstEvaluationEngine: activity.getName ="+val.getValueString());
+					}
+				}
 
-				//				List<Method> getActivityMethods = t.referenceType().methodsByName("getActivity", "()Lx10/runtime/Activity;");
-//				Method getActivityMethod = getActivityMethods.get(0);
-//				JDIStackFrame topFrame = (JDIStackFrame)((JDIThread)thread).getTopStackFrame();
-//				Value activityObject = t.invokeMethod(/*target.getThreadForInvokeMethod()*/t, getActivityMethod, new ArrayList(), 0);
-//
-//				IAstEvaluationEngine engine = target.getEvaluationEngine(getJavaProject(topFrame));
-//				ICompiledExpression expression= engine.getCompiledExpression("getActivity()", topFrame);
-//				engine.evaluateExpression(expression, topFrame, this, 0, false);
-
-//				return "ACTIVITY: "+t.toString();// need to call getActivity().toString() on PoolRunner (on VM Side)
 				ObjectReference a = ((X10Thread)element).getFreshActivityObject(t);
 				if (a!=null) {
 				    System.out.println("X10ModelPresentation: a!=null");	
@@ -199,7 +213,7 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 		return null;
 	}
 
-/*
+
 	// Copied from JavaLineBreakpoint
 	private IJavaProject getJavaProject(JDIStackFrame stackFrame) {
 	    IJavaProject project= (IJavaProject) fProjectsByFrame.get(stackFrame);
@@ -213,6 +227,8 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 	}
 	
 	private IJavaProject computeJavaProject(JDIStackFrame stackFrame) {
+		if (stackFrame==null)
+			return null;
 		ILaunch launch = stackFrame.getLaunch();
 		if (launch == null) {
 			return null;
@@ -254,52 +270,49 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 		}
 		return null;
 	}
-	*/
+	
 
-	public void evaluationComplete(IEvaluationResult result) {
-		fResult = result;	
+	synchronized public void evaluationComplete(IEvaluationResult result) {
+		fResult = result;
+		this.notifyAll();
 	}
 	
-//	// Copied with small mods from JavaLogicalStructure$EvaluationBlock
-//	/**
-//	 * Evaluates the specified snippet and returns the <code>IJavaValue</code> from the evaluation
-//	 * @param snippet the snippet to evaluate
-//	 * @return the <code>IJavaValue</code> from the evaluation
-//	 * @throws DebugException
-//	 */
-//	public IJavaValue evaluate(String snippet, IAstEvaluationEngine fEvaluationEngine, IJavaStackFrame frame) throws DebugException {
-//		ICompiledExpression compiledExpression= fEvaluationEngine.getCompiledExpression(snippet, frame);
-//		if (compiledExpression.hasErrors()) {
-//			String[] errorMessages = compiledExpression.getErrorMessages();
-////            log(errorMessages);
-////			return new JavaStructureErrorValue(errorMessages, fEvaluationValue);
-//			return null;
-//		}
-//		fResult= null;
-//		fEvaluationEngine.evaluateExpression(compiledExpression, fEvaluationValue, fThread, this, DebugEvent.EVALUATION_IMPLICIT, false);
-//		synchronized(this) {
-//			if (fResult == null) {
-//				try {
-//					this.wait();
-//				} catch (InterruptedException e) {
-//				}
-//			}
-//		}
-//		if (fResult == null) {
-//			return new JavaStructureErrorValue(LogicalStructuresMessages.JavaLogicalStructure_1, fEvaluationValue); 
-//		}
-//		if (fResult.hasErrors()) {
-//			DebugException exception = fResult.getException();
-//			String message;
-//			if (exception != null) {
-//				message= MessageFormat.format(LogicalStructuresMessages.JavaLogicalStructure_2, new String[] { exception.getMessage() }); 
-//			} else {
-//				message= LogicalStructuresMessages.JavaLogicalStructure_3; 
-//			}
-//			return new JavaStructureErrorValue(message, fEvaluationValue);
-//		}
-//		return fResult.getValue();
-//	}
+	// Copied with small mods from JavaLogicalStructure$EvaluationBlock
+	/**
+	 * Evaluates the specified snippet and returns the <code>IJavaValue</code> from the evaluation
+	 * @param snippet the snippet to evaluate
+	 * @return the <code>IJavaValue</code> from the evaluation
+	 * @throws DebugException
+	 */
+	public IJavaValue evaluate(String snippet, IAstEvaluationEngine evaluationEngine, IJavaStackFrame frame) throws DebugException {
+		ICompiledExpression compiledExpression= evaluationEngine.getCompiledExpression(snippet, frame);
+		if (compiledExpression.hasErrors()) {
+			String[] errorMessages = compiledExpression.getErrorMessages();
+//            log(errorMessages);
+//			return new JavaStructureErrorValue(errorMessages, fEvaluationValue);
+			return null;
+		}
+		fResult= null;
+		evaluationEngine.evaluateExpression(compiledExpression, frame, this, DebugEvent.EVALUATION_IMPLICIT, false);
+		synchronized(this) {
+			if (fResult == null) {
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+				}
+			}
+		}
+		if (fResult.hasErrors()) {
+			DebugException exception = fResult.getException();
+			String message;
+			if (exception != null) {
+				message= MessageFormat.format(LogicalStructuresMessages.JavaLogicalStructure_2, new String[] { exception.getMessage() }); 
+			} else {
+				message= LogicalStructuresMessages.JavaLogicalStructure_3; 
+			}
+		}
+		return fResult.getValue();
+	}
 
 }
 

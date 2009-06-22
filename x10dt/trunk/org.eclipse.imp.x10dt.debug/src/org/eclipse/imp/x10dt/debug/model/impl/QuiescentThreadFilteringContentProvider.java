@@ -28,9 +28,9 @@ public class QuiescentThreadFilteringContentProvider extends
 		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
 			List<IThread> activeThreads = new ArrayList();
 			for (IThread t: (IThread[])threads) {
-				if (!(t instanceof X10Thread) || ((X10Thread)t).getStackFrames().length>0) {
-					activeThreads.add(t);
-				}
+				if (!(t instanceof X10Thread && ((X10Thread)t).getStackFrames().length>0)) continue;
+				if (t.getName().contains("InvokeMethods")) continue; // really, getName should return simple name and should be .equals("InvokeMethods")  This will do for now
+				activeThreads.add(t);
 			}
 			return activeThreads.toArray(new IThread[0]);
 		}
