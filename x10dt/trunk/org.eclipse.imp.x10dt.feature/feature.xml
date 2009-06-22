@@ -14,18 +14,10 @@
       %license
    </license>
 
-   <includes
-         id="org.eclipse.imp.runtime"
-         version="0.1.98"/>
-
-   <includes
-         id="lpg.runtime"
-         version="0.0.0"/>
-
    <requires>
       <import feature="lpg.runtime" version="2.0.17" match="greaterOrEqual"/>
-      <import feature="polyglot3" version="3.0.1" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.runtime" version="0.1.98" match="greaterOrEqual"/>
+      <import feature="polyglot3" version="3.0.2" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.runtime" version="0.1.99" match="greaterOrEqual"/>
    </requires>
 
    <plugin
