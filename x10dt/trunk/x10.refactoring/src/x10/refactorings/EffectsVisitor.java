@@ -29,6 +29,7 @@ import polyglot.ast.NamedVariable;
 import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.StringLit;
 import polyglot.ast.Unary;
@@ -237,6 +238,13 @@ public class EffectsVisitor extends NodeVisitor {
                     Local l= la.local();
 
                     fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(l)));
+                } else if (old instanceof Special) {
+                    Special special = (Special) old;
+                    if (special.kind() == Special.SUPER) {
+                        fTermMap.put(old, XTerms.makeLocal(XTerms.makeName("super")));
+                    } else {
+                        fTermMap.put(old, XTerms.makeLocal(XTerms.makeName("this")));
+                    }
                 } else if (old instanceof Id) {
                     // do nothing
                     EffectsVisitor.fDiagStream.println("TermVisitor doing nothing for expr of type " + old.getClass().getCanonicalName());
