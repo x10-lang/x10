@@ -81,7 +81,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection/*<IFile>*/ fSourcesToCompile= new ArrayList();
 
-    private final ExtensionInfo fExtInfo= new polyglot.ext.x10.ExtensionInfo();
+    private ExtensionInfo fExtInfo;
 
     private static Plugin sPlugin= null;
 
@@ -130,6 +130,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void compileAllSources(Collection/*<IFile>*/ sourceFiles) {
+	fExtInfo= new polyglot.ext.x10.ExtensionInfo();
+
 	List/*<SourceStream>*/ streams= collectStreamSources(sourceFiles);
 	final Collection/*<ErrorInfo>*/ errors= new ArrayList();
 
@@ -141,29 +143,42 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    }
 	});
 
-	Report.addTopic(Report.verbose, 5);
-	compiler.compile(streams);
+//	Report.addTopic(Report.verbose, 1);
+	try {
+	    compiler.compile(streams);
+	} catch (Exception e) {
+	    X10Plugin.writeErrorMsg("Internal X10 compiler error: " + e.getMessage(), BUILDER_ID);
+	}
 	createMarkers(errors);
     }
 
     private void buildOptions() {
 	Options opts= fExtInfo.getOptions();
 
+	Options.global= opts;
 	try {
 	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec() }, new HashSet());
 	} catch (UsageError e) {
+	    System.err.println(e.getMessage());
 	    // Assertions.UNREACHABLE("Error parsing classpath spec???");
 	}
     }
 
-    private void createMarkers(final Collection errors) {
+    private void createMarkers(final Collection/*<ErrorInfo>*/ errors) {
 	final IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
+
 	for(Iterator iter= errors.iterator(); iter.hasNext(); ) {
 	    ErrorInfo errorInfo= (ErrorInfo) iter.next();
 	    Position errorPos= errorInfo.getPosition();
+
+	    if (errorPos == null) continue;
+
 	    IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
 
-	    addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
+	    if (errorPos == Position.COMPILER_GENERATED)
+		X10Plugin.writeErrorMsg(errorInfo.getMessage(), BUILDER_ID);
+	    else
+		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
 	}
     }
 
