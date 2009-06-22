@@ -288,4 +288,10 @@
             name="Soundview">
       </view>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.contextHelper">
+         <contextHelper
+             language="X10"
+             class="org.eclipse.imp.x10dt.ui.help.X10ContextHelper"/>
+   </extension>
 </plugin>
