@@ -23,26 +23,37 @@ Chapter 1 </a><br />Names and packages</h1>
 </a> 
 
 <div class="p"><!----></div>
- X10 supports  Java's mechanisms for names and packages [6,&#167;
-6,&#167; 7], including <tt>public</tt>, <tt>protected</tt>, <tt>private</tt>
-and package-specific access control. 
+ X10 supports  java's mechanisms for names and packages [,&#167;
+6,&#167; 7], including "public", "protected", "private"
+and package-specific access control.
 
 <div class="p"><!----></div>
- X10 supports the following naming conventions. Names of <tt>
-value</tt> classes should start with a lower-case leter, and those of <tt>
-reference</tt> classes with an upper-case letter.  X10 also 
-supports the convention that fields, local variable names
-and method parameter names that start with an uppercase letter are
-automatically considered to be annotated with <tt>final</tt>.
-<a name="LexicalConventionForFinals">
-</a>
+TypeName   &nbsp;Identifier <br />
+        \ -  TypeName "." Identifier <br />
+        \ -  PackageName "." Identifier <br />
+PackageName   &nbsp;Identifier <br />
+        \ -  PackageName "." Identifier <br />
+
 
 <div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Naming conventions</h2>
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.80.<br />On 07 Jun 2008, 13:50.</small>
+<div class="p"><!----></div>
+While not enforced by the compiler, classes and interfaces
+in the  X10 library support the following naming conventions.
+Names of types-including classes,
+
+type
+parameters, and types specified by type definitions-are in
+CamelCase and begin with an uppercase letter.  For backward
+compatibility with languages such as C and  java, type
+definitions are provided to allow primitive value types
+such as &#239;nt" and "boolean" to be written in lowercase.
+Names of methods, fields, value properties, and packages are in camelCase and begin with a lowercase letter.
+Names of "const" fields are in all uppercase with words
+separated by an ""_'''.
+
+<div class="p"><!----></div>
 </body>
 </html>

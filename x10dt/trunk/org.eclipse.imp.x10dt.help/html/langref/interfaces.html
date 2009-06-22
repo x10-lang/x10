@@ -23,8 +23,8 @@ Chapter 1 </a><br />Interfaces</h1>
 </a>
 
 <div class="p"><!----></div>
- X10 v1.01 interfaces are essentially the same  Java
-interfaces [6,&#167; 9]. An interface primarily specifies
+ X10 v1.7 interfaces are essentially the same  java
+interfaces [,&#167; 9]. An interface primarily specifies
 signatures for public methods. It may extend multiple interfaces. 
 
 <div class="p"><!----></div>
@@ -39,11 +39,60 @@ behavioral properties of the method as they relate to the usage of
 clocks of the current activity may be specified.
 
 <div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Interfaces with properties</h2><a name="DepType:Interface">
+</a>
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.80.<br />On 07 Jun 2008, 13:49.</small>
+<div class="p"><!----></div>
+ X10 permits interfaces to have properties and specify an interface
+invariant. This is necessary so that programmers can build dependent
+types on top of interfaces and not just classes.
+
+<div class="p"><!----></div>
+NormalInterfaceDeclaration &nbsp;
+      InterfaceModifiers &#239;nterface" Identifier  <br />
+   </td><td width="150">
+</td><td width="150">
+ TypeParameterList PropertyList Constraint <br />
+   </td><td width="150">
+</td><td width="150">
+ ExtendsInterfaces InterfaceBody <br />
+
+
+<div class="p"><!----></div>
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+<div class="p"><!----></div>
+   The compiler declares an error if this constraint
+   is not consistent ().  
+
+
+<div class="p"><!----></div>
+Each interface implicitly defines a nullary getter method
+"def p(): T" for each property "p: T". 
+
+<div class="p"><!----></div>
+   The compiler issues a warning if the programmer
+   explicitly defines a method with this signature for an interface.
+
+
+<div class="p"><!----></div>
+A class "C" (with properties) is said to implement an interface &#207;" if
+
+<ul>
+<li> its properties contains all the properties of &#207;",
+<div class="p"><!----></div>
+</li>
+
+<li> its class invariant
+<i>inv</i>("C") implies
+<i>inv</i>(&#207;").
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
 </body>
 </html>

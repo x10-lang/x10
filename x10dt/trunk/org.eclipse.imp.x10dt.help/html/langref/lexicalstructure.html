@@ -21,7 +21,7 @@
 Chapter 1 </a><br />Lexical structure</h1>
 
 <div class="p"><!----></div>
-In general,  X10 follows  Java rules [6,Chapter 3] for
+In general,  X10 follows  java rules [,Chapter 3] for
 lexical structure.
 
 <div class="p"><!----></div>
@@ -31,51 +31,55 @@ identifiers, keywords, literals, separators and operators.
 <div class="p"><!----></div>
 
 <b>Whitespace&nbsp;&nbsp;</b>
-Whitespace  follows  Java rules
-[6,Chapter 3.6]. ASCII space, horizontal tab (HT), form feed (FF) and line terminators constitute white space.
+ASCII space, horizontal tab (HT), form feed (FF) and line
+terminators constitute white space.
 
 <div class="p"><!----></div>
 
 <b>Comments&nbsp;&nbsp;</b>
-Comments  follows  Java rules
-[6,Chapter 3.7]. 
-All text included within the ASCII characters "/*" and "*/" is
-considered a comment and ignored. All text from the ASCII character
-"//" to the end of line is considered a comment and ignored.
+All text included within the ASCII characters ""/*''' and
+""*/''' is
+considered a comment and ignored; nested comments are not
+allowed.  All text from the ASCII characters
+""//''' to the end of line is considered a comment and is ignored.
 
 <div class="p"><!----></div>
 
 <b>Identifiers&nbsp;&nbsp;</b>
-Identifiers  are defined as in  Java.
+
+<div class="p"><!----></div>
+Identifiers  are defined as in  java.
+Identifiers consist of a single letter followed by zero or more
+letters or digits.
+Letters are defined as the characters for which the  java
+method "Character.isJavaIdentifierStart" returns true.
+Digits are defined as the ASCII characters "0" through "9".
 
 <div class="p"><!----></div>
 
 <b>Keywords&nbsp;&nbsp;</b>
- X10 reserves the following keywords  from  Java:
+ X10 reserves the following keywords:
 <pre>
-abstract   break  case       catch
-class      const  continue   default    
-do         else   extends    final
-finally    for    goto       if            
-implements import instanceof interface
-native     new    package    private      
-protected  public return     static
-super      switch this       throw
-throws     try    void       while
+abstract        any             as              async
+at              ateach          atomic          await
+break           case            catch           class
+clocked         const           continue        current
+def             default         do              else
+extends         extern          final           finally
+finish          for             foreach         future
+goto            has             here            if
+implements      import          in              instanceof
+interface       local           native          new
+next            nonblocking     or              package
+private         protected       property        public
+return          safe            self            shared
+static          super           switch          this
+throw           throws          try             type
+val             value           var             when
+while
 </pre>
-
-<div class="p"><!----></div>
-(Note that the primitive types are no longer considered keywords.)
-
-<div class="p"><!----></div>
- X10  introduces the following keywords:
-<pre>
-activitylocal async     ateach     atomic   
-await         clocked   current    foreach
-finish        future    here       next 
-nullable      or        placelocal reference
-value        when
-</pre>
+Note that the primitive types are not considered keywords.
+The keyword  is reserved, but not used.
 
 <div class="p"><!----></div>
 
@@ -83,37 +87,37 @@ value        when
 </a>
 
 <div class="p"><!----></div>
- X10 v1.01 defines literal syntax in the same way as  Java does.
+Literals are either integers, floating point numbers, booleans,
+characters, strings, and "null".
+ X10 v1.7 defines literal syntax in the same way as  java does.
 
 <div class="p"><!----></div>
 
 <b>Separators&nbsp;&nbsp;</b>
- X10 has the following separators:
+ X10 has the following separators and delimiters:
 <pre>
-(	)	{	}	[  ]	; ,	.
+( )     [ ]  ;  ,  .
 </pre>
 
 <div class="p"><!----></div>
 
 <b>Operators&nbsp;&nbsp;</b>
  X10 has the following operators:
-
-
 <pre>
-&nbsp;&nbsp;=&#62;&nbsp;&nbsp;&lt;&nbsp;&nbsp;&nbsp;&nbsp;!&nbsp;&nbsp;&nbsp;~&nbsp;&nbsp;&nbsp;?&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;==&nbsp;&nbsp;&lt;=&nbsp;&nbsp;
-&nbsp;&nbsp;&#62;=&nbsp;&nbsp;!=&nbsp;&nbsp;&nbsp;&amp;&amp;&nbsp;&nbsp;||&nbsp;&nbsp;++&nbsp;&nbsp;--&nbsp;&nbsp;+&nbsp;&nbsp;&nbsp;-&nbsp;
-&nbsp;&nbsp;*&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;&nbsp;&amp;&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;^&nbsp;&nbsp;&nbsp;%&nbsp;&nbsp;&nbsp;&lt;&lt;&nbsp;&nbsp;&#62;&#62;&nbsp;
-&nbsp;&nbsp;&#62;&#62;&#62;&nbsp;+=&nbsp;&nbsp;&nbsp;-=&nbsp;&nbsp;*=&nbsp;&nbsp;/=&nbsp;&nbsp;&amp;=&nbsp;&nbsp;|=&nbsp;&nbsp;^=&nbsp;&nbsp;
-&nbsp;&nbsp;%=&nbsp;&nbsp;&lt;&lt;=&nbsp;&nbsp;&#62;&#62;=&nbsp;&#62;&#62;&#62;&nbsp;=&nbsp;&nbsp;-&#62;
-
+==  !=  &lt;   &#62;   &lt;=  &#62;=
+</td><td width="150">
+</td><td width="150">
+   -  -   </td><td width="150">
+    -    ^
+&lt;&lt;  &#62;&#62;  &#62;&#62;&#62;
++   -   *   /   ++  -  !   &nbsp;
+</td><td width="150">
+=   - =  ^=
+&lt;&lt;= &#62;&#62;= &#62;&#62;&#62;
++=  -=  *=  /=  =   ?   :   =&#62;  -&#62;
+&lt;:  :&#62;  @   ..
 </pre>
 
 <div class="p"><!----></div>
-
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.80.<br />On 07 Jun 2008, 13:49.</small>
 </body>
 </html>

@@ -13,24 +13,28 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Method Annotations</title>
+	<title>String concatenation</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Method annotations</h2>
+ <h2><a name="tth_sEc17">
+17</a>&nbsp;&nbsp;String concatenation</h2>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc3.1">
-3.1</a>&nbsp;&nbsp;<tt>atomic</tt> annotation</h3>
-A method may be declared <tt>atomic</tt>.
-<pre>
-445   MethodModifier ::= atomic  
-</pre>
+The "+"  operator is used for string concatenation 
+ as well as addition.
+If either operand is of static type "x10.lang.String",
+ the other operand is converted to a "String", if needed,
+  and  the two strings  are concatenated.
 
 <div class="p"><!----></div>
-Such a method is treated as if the statement in its body is wrapped 
-implicitly in an <tt>atomic</tt> statement.
+ String conversion of a non-"null" value is  performed by invoking the
+ "toString()" method of the value.
+  If the value is "null", the value is converted to 
+  '"null''.
+
+<div class="p"><!----></div>
+The type of the result is "String".
 
 <div class="p"><!----></div>
 </body>

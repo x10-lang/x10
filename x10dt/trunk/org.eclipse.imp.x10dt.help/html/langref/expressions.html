@@ -13,29 +13,25 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Initial Activity</title>
+	<title>Expressions</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc4">
-4</a>&nbsp;&nbsp;Initial activity</h2><a name="initial-computation">
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Expressions</h1><a name="XtenExpressions">
 </a>
 
 <div class="p"><!----></div>
-An  X10 computation is initiated from the command line on the
-presentation of a classname <tt>C</tt>. The class must have a <tt>public
-static void main(String[] a)</tt> method, otherwise an exception is thrown
-and the computation terminates.  The single statement
-<pre>
-finish async (place.FIRST_PLACE) { 
-   C.main(s);
-}
-</pre>
+ X10 supports a rich expression language similar to
+ Java's.
+Evaluating an expression produces a value, which may be either
+an instance of a value class or an instance of a reference
+class. Expressions may also be "void"; that is, they produce no
+value.
+Expression evaluation may have side effects: assignment to a
+variable, allocation, method calls, or exceptional control-flow.
+Evaluation is strict and is performed left to right.
 
 <div class="p"><!----></div>
- is executed where <tt>s</tt> is an array of strings created
-from command line arguments. This single activity is the root activity
-for the entire computation. (See &#167;&nbsp;6 for a discussion of
-placs.)
 </body>
 </html>

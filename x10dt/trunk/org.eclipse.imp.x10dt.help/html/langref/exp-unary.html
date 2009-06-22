@@ -13,24 +13,24 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Method Annotations</title>
+	<title>Unary plus and unary minus</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Method annotations</h2>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;Unary plus and unary minus</h2>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc3.1">
-3.1</a>&nbsp;&nbsp;<tt>atomic</tt> annotation</h3>
-A method may be declared <tt>atomic</tt>.
-<pre>
-445   MethodModifier ::= atomic  
-</pre>
+The unary "+" operator applies unary numeric promotion to
+its operand.   The operand must be of numeric type.
 
 <div class="p"><!----></div>
-Such a method is treated as if the statement in its body is wrapped 
-implicitly in an <tt>atomic</tt> statement.
+The unary "-" operator
+applies unary numeric promotion to its operand
+and then
+subtracts the promoted operand from "0".
+The operand must be of numeric type.
+The type of the result is promoted type.
 
 <div class="p"><!----></div>
 </body>
