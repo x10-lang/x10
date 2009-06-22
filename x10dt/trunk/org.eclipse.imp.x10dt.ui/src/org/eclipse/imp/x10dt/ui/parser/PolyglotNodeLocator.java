@@ -23,25 +23,85 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     
     private final LexStream fLS;
 
+    private boolean DEBUG= false;
+
     private NodeVisitor fVisitor= new NodeVisitor() {
 	public NodeVisitor enter(Node n) {
-	    //System.out.println("Entering node type = " + n.getClass().getName());
+	    if (DEBUG)
+		System.out.println("Entering node type = " + n.getClass().getName());
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
 	    Position pos= n.position();
 
 	    if (pos == null || pos.line() < 0) {
-	    	System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
+		if (DEBUG)
+		    System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
 	    	return this;
 	    }
 
-//	    System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
+	    if (DEBUG)
+		System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
 	    int nodeStartOffset= pos.offset();
 	    int nodeEndOffset= pos.endOffset();
 	    //System.out.println("Examining " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + ']');
 
 	    if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {	
-//    		System.out.println(" --> " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
+		if (DEBUG)
+		    System.out.println(" --> " + n + " (" + n.getClass().getName() + ") node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
     		fNode[0]= n;
+	    }
+	    return this;
+	}
+	
+	// Note:  Returning null is interpreted as a signal to *not* override
+	// the given node
+	public Node override(Node n) {
+	    // Prune traversal to avoid examining nodes outside the given text range.
+            // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
+	    Position pos= n.position();
+
+	    if (pos == null || pos.line() < 0) {
+	    	//System.out.println("PolyglotNodeLocator.NodeVisitor.override(Node):  node positions < 0 for node type = " + n.getClass().getName());
+	    	return null;
+	    }
+
+	    int nodeStartOffset= pos.offset();
+	    int nodeEndOffset= pos.endOffset();
+
+//	    if (nodeStartOffset == fOffset) System.out.println("NodeStartOffset = fOffset");
+//	    if (nodeEndOffset == fEndOffset) System.out.println("NodeEndOffset = fEndOffset");
+
+	    //if (nodeStartOffset > fEndOffset || nodeEndOffset < fOffset)
+	    if (nodeStartOffset > fOffset)
+	    	return n;
+	    return null;
+	}
+    };
+
+    // Almost identical to the above visitor, but overrides enter(Node,Node) rather
+    // than enter(Node), so it can save the parent instead of the node itself.
+    private NodeVisitor fParentVisitor= new NodeVisitor() {
+	public NodeVisitor enter(Node parent, Node n) {
+	    if (DEBUG)
+		System.out.println("Entering node type = " + n.getClass().getName());
+            // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
+	    Position pos= n.position();
+
+	    if (pos == null || pos.line() < 0) {
+		if (DEBUG)
+		    System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node,Node):  node positions < 0 for node type = " + n.getClass().getName());
+	    	return this;
+	    }
+
+	    if (DEBUG)
+		System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
+	    int nodeStartOffset= pos.offset();
+	    int nodeEndOffset= pos.endOffset();
+	    //System.out.println("Examining " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + ']');
+
+	    if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {	
+		if (DEBUG)
+		    System.out.println(" --> " + n + " (" + n.getClass().getName() + ") node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
+    		fNode[0]= parent;
 	    }
 	    return this;
 	}
@@ -80,7 +140,8 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     }
 
     public Object findNode(Object ast, int startOffset, int endOffset) {
-//	System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
+	if (DEBUG)
+	    System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
 	if (ast == null) return null;
 	fOffset= startOffset;
 	fEndOffset= endOffset;
@@ -89,7 +150,29 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	if (fNode[0] == null) {
 		//System.out.println("Selected node is null");
 	} else {
-		//System.out.println("Selected node (type): " + fNode[0].getClass().getName());
+	    if (DEBUG)
+		System.out.println("Selected node (type): " + fNode[0] + " (" + fNode[0].getClass().getName() + ")");
+	}
+	return fNode[0];
+    }
+
+    public Object findParentNode(Object ast, int offset) {
+	return findParentNode(ast, offset, offset);
+    }
+
+    public Object findParentNode(Object ast, int startOffset, int endOffset) {
+	if (DEBUG)
+	    System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
+	if (ast == null) return null;
+	fOffset= startOffset;
+	fEndOffset= endOffset;
+	((Node) ast).visit(fParentVisitor);	// assigns to fNode[0], if a suitable node is found
+	// SMS 14 Jun 2006:  Elaborated on println:
+	if (fNode[0] == null) {
+		//System.out.println("Selected node is null");
+	} else {
+	    if (DEBUG)
+		System.out.println("Selected node (type): " + fNode[0] + " (" + fNode[0].getClass().getName() + ")");
 	}
 	return fNode[0];
     }
