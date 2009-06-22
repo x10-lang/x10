@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Collections;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
@@ -35,6 +36,7 @@ import org.eclipse.jdi.TimeoutException;
 import org.eclipse.jdt.debug.core.IJavaBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
+import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.IJavaType;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jdt.internal.debug.core.EventDispatcher;
@@ -49,9 +51,15 @@ import org.eclipse.jdt.internal.debug.core.model.JDIType;
 import org.eclipse.ui.activities.IActivity;
 
 import com.sun.jdi.ArrayReference;
+import com.sun.jdi.StringReference;
+import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.Field;
+import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.InvalidTypeException;
+import com.sun.jdi.InvocationException;
+import com.sun.jdi.Method;
 import com.sun.jdi.ObjectCollectedException;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
@@ -268,6 +276,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	 */
 	protected synchronized void initialize() {
 		_application = SampleX10ModelFactory.getApplication();
+		//initializeThreadForInvokeMethod();
 		setThreadList(new ArrayList(5)); // really this belongs in constructor, but it would have to go *before* super(), which contains call to this (initialize) method.
 		setEventDispatcher(new EventDispatcher(this));
 		super.initialize();
@@ -439,43 +448,35 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		return fEventDispatcher;
 	}
 	
+	/*
+=======
+	
 	public ThreadReference getThreadForInvokeMethod() {
 		if (fThreadForInvokingRTMethods==null) {
 			initializeThreadForInvokeMethod();
 		}
 		return fThreadForInvokingRTMethods;
 	}
+>>>>>>> 1.3
 	private void initializeThreadForInvokeMethod() {
-	    Thread th = new Thread(new Runnable(){
-	    	public void run() {
-	    		ArrayList list = new ArrayList();
-	    		try{
-	    		synchronized(list){
-	    			while (list.size()<=0)
-	    				wait();
-	    		}
-	    		}catch (InterruptedException e){
-	            }
-	    	}
-	    });	
-	    th.setDaemon(true);
-	    th.setName("InvokeMethods");
-	    th.start();
-	    while (!th.isAlive());
 	    List threads= null;
 		VirtualMachine vm = getVM();
 		if (vm != null) {
+			System.out.println("Shivali: vm not null");
 			try {
 				threads= vm.allThreads();
 			} catch (RuntimeException e) {
 				internalError(e);
 			}
 			if (threads != null) {
+				System.out.println("Shivali: threads not null");
 				Iterator initialThreads= threads.iterator();
 				ThreadReference reference;
 				while (initialThreads.hasNext()) {
 					reference=(ThreadReference)(initialThreads.next());
+					System.out.println("thread name "+reference.name());
 				    if (reference.name()=="InvokeMethods"){
+				      System.out.println("Shivali: Found the thread");
 					  fThreadForInvokingRTMethods=reference;
 					  JDIThread thrd= new JDIThread(this,reference);
 				    }	
@@ -483,15 +484,69 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			}	
 		}	
 	}
+	*/
 	
+	public ThreadReference getThreadForRTMethods() {
+		return fThreadForInvokingRTMethods;
+	}
 	
 	public void createActivities(){
+		String name = "queued";
+		List<Method> m= (List<Method>)fX10RT.referenceType().methodsByName("getWorkerPool");
+		System.out.println("Shivali: Method found "+m.size());
+		Method meth=null;
+		for (Method m1: m) {
+			meth = m1; 
+		}
+		List args=Collections.EMPTY_LIST;
+		Value result=null;
+		result = invokeX10RTMethod(fX10RT, meth, args);
+		if (result instanceof ArrayReference) {
+			List<Value> a = ((ArrayReference)result).getValues();
+			for (Value activity: a){
+				if (activity instanceof ObjectReference){
+					//Field nm = (((ObjectReference)activity).referenceType()).fieldByName("name");
+					name = getActivityString((ObjectReference)activity);
+					X10Activity actvty = new X10Activity(this,name);
+					synchronized(fActivities){
+					    fActivities.add(actvty);
+					}
+				}
+			}
+		}
 		//X10Activity actvty = new X10Activity(this, name,parent,place);
 		//fActivities.add(actvty);
 	}
 	
+	public void addActivity(IX10Activity a){
+		synchronized(fActivities){
+			fActivities.add(a);
+		}
+	}
+	
 	public Object[] getActivities(){
-		return fActivities.toArray();
+		synchronized(fActivities){
+		   return fActivities.toArray();
+		}	 
+	}
+	
+	public String getActivityString(ObjectReference a) {
+		System.out.println("Inside getActivity String");
+		List<Method> m = (List<Method>)a.referenceType().methodsByName("debuggerString");
+		System.out.println("Shivali:getActivityString() Method found "+m.size());
+		Method meth=null;
+		for (Method m1: m) {
+			meth = m1; 
+		}
+		List args=Collections.EMPTY_LIST;
+		Value result=null;
+		result = invokeX10RTMethod(a,meth, args);
+		String name=null;
+		if (result instanceof StringReference) {
+			name = ((StringReference)result).value();
+			System.out.println("getActivityString name = "+ name);
+		}
+		return name;
 	}
 	
 	public void initializeX10RTObject() {
@@ -527,8 +582,46 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		if (v instanceof ObjectReference){
 			fX10RT = (ObjectReference)v;
 		}
+		System.out.println("InitializeX10RTObject() :Thread status before invokemethod"+ fThreadForInvokingRTMethods.status());
+		//invokePlaceMethod();
 	}		
-
+    
+	public ObjectReference getX10RTObject() {
+		return fX10RT;
+	}
+	
+	public Value invokeX10RTMethod(ObjectReference obj, Method meth, List args) {
+		//List<Method> m= (List<Method>)fX10RT.referenceType().methodsByName("getWorkerPool");
+		//List<Method> m= (List<Method>)fX10RT.referenceType().methodsByName("getPlaces");
+		//System.out.println("Shivali: Method found "+m.size());
+		//Method meth=null;
+		//for (Method m1: m) {
+			//meth = m1; 
+		//}
+		Value result=null;
+		int flags = ClassType.INVOKE_SINGLE_THREADED;
+		//List args=Collections.EMPTY_LIST;
+		try {
+			System.out.println("Shivali : Invoking Method with Thread status "+ fThreadForInvokingRTMethods.status());
+		    result=obj.invokeMethod(fThreadForInvokingRTMethods, meth, args, flags);
+		    System.out.println("Invocation complete");
+		}
+			catch (InvalidTypeException e) {
+				//invokeFailed(e, timeout);
+			} catch (ClassNotLoadedException e) {
+				//invokeFailed(e, timeout);
+			} catch (IncompatibleThreadStateException e) {
+				//invokeFailed(JDIDebugModelMessages.JDIThread_Thread_must_be_suspended_by_step_or_breakpoint_to_perform_method_invocation_1, IJavaThread.ERR_INCOMPATIBLE_THREAD_STATE, e, timeout); 
+			} catch (InvocationException e) {
+				//invokeFailed(e, timeout);
+			} catch (RuntimeException e) {
+				//invokeFailed(e, timeout);
+			}
+			//if (result instanceof ArrayReference) {
+				//System.out.println("Shivali : no of places " + ((ArrayReference)result).length());
+			//}
+		return result;	
+	}
 
 	public int getNumberOfPlaces() {
 		ArrayReference pl;
@@ -595,7 +688,8 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	}
 
 	protected X10Thread createThread(ThreadReference thread) {
-		IX10Activity x10Thread= newActivityForThread(thread);
+		//IX10Activity x10Thread= newActivityForThread(thread);
+		X10Thread x10Thread= newThread(thread); 
 		X10Place x10place=null;
 		if (x10Thread == null) {
 			return null;
@@ -624,21 +718,29 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			x10place.addActiveActivity(x10Thread);		
 		}
 		
-		((X10Thread)x10Thread).fireCreationEvent();
-		return (X10Thread)x10Thread;
+		x10Thread.fireCreationEvent();
+		return x10Thread;
 	}
 	
 	protected IX10Activity newActivityForThread(ThreadReference reference) {
 		return (IX10Activity)newThread(reference);
 	}
 	
-	protected JDIThread newThread(ThreadReference reference) {
+	protected X10Thread newThread(ThreadReference reference) {
 		try {
 			System.out.println("Thread name is "+reference.name());
-			IX10Activity[] activities = _application.getActivities();
-			IX10Activity a = activities[0];
-			return new SampleX10ActivityAsJDIThread(a, this, reference);
-//			return new X10Thread(this, reference);
+			if (reference.name().compareTo("InvokeMethods")==0){
+				System.out.println("Shivali: Found the thread");
+				fThreadForInvokingRTMethods=reference;
+				if (fThreadForInvokingRTMethods.isSuspended())
+					System.out.println("Shivali: InvokeMethods is suspended");
+				System.out.println("Thread status "+ fThreadForInvokingRTMethods.status());
+			}
+				
+			//IX10Activity[] activities = _application.getActivities();
+			//IX10Activity a = activities[0];
+			//return new SampleX10ActivityAsJDIThread(a, this, reference);
+			return new X10Thread(this, reference);
 		} catch (ObjectCollectedException exception) {
 			// ObjectCollectionException can be thrown if the thread has already
 			// completed (exited) in the VM.
@@ -646,19 +748,26 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		return null;
 	}
 	
+	//commented out Matt's changes as this is a presentation issue and 
+	//getThreads() should return the entire list of vm threads as contained in fThreads.
+	//Filtering threads here may have a larger impact which we may not be able to predict.
 	public IThread[] getThreads() {
 		synchronized (fThreads) {
+			return (IThread[])fThreads.toArray(new IThread[0]);
+			/*
 			List<IThread> activeThreads = new ArrayList();
-			try {
+			//try {
 				for (IThread t: (List<IThread>)fThreads) {
 					if (!(t instanceof SampleX10ActivityAsJDIThread) || ((SampleX10ActivityAsJDIThread)t).getStackFrames().length>0) {
 						activeThreads.add(t);
 					}
 				}
 				return activeThreads.toArray(new IThread[0]);
-			} catch (DebugException e) {
-				return (IThread[])fThreads.toArray(new IThread[0]);
-			}
+			//} catch (DebugException e) {
+				//return (IThread[])fThreads.toArray(new IThread[0]);
+			//}
+			 * 
+			 */
 		}
 	}
 	
