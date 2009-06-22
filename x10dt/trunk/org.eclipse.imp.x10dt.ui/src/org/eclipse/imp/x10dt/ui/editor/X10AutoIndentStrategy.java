@@ -64,6 +64,8 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
 
+import sun.security.action.GetLongAction;
+
 import java.util.Hashtable;
 
 public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy implements IAutoEditStrategy {
@@ -284,8 +286,10 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    if (IJavaPartitions.JAVA_DOC.equals(region.getType()))
 		start= d.getLineInformationOfOffset(region.getOffset()).getOffset();
 	    // process prefix for block comment lines
-	    if (c.offset > start && (d.getChar(contentStart-2) == '/' && d.getChar(contentStart-1) == '*' ||
-			    d.getChar(contentStart-3) == '/' && d.getChar(contentStart-2) == '*' && d.getChar(contentStart-1) == '*')) {
+	    if (c.offset > start && contentStart-2>=0 && (d.getChar(contentStart-2) == '/' && d.getChar(contentStart-1) == '*' ||
+			    contentStart-3>=0 && d.getChar(contentStart-3) == '/' && d.getChar(contentStart-2) == '*' && d.getChar(contentStart-1) == '*')
+	    	// also check that we're not in the middle of a block comment (i.e., scan forward finds "*/" prior to "/*", or maybe just next line starts with ^\w*\*
+			    && inUnendedBlockComment(d, contentStart)) {
 			buf.append(" * ");
 			int where= buf.length();
 			buf.append(TextUtilities.getDefaultLineDelimiter(d));
@@ -298,7 +302,22 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 			// characters before where we want it. If we set it to c.offset,
 			// it ends up 'where' characters after we want it. Huh?
 			c.caretOffset= c.offset;
-		 } else if (c.offset > start && insideBlockComment(d, c.offset)) {
+		 } else if (afterStartOfBlockComment(d, c.offset)) {
+			 // java indenter doesn't quite get correct indent if no non-white between comment-start-line and current position: it indents only until the initial "/" but should do one more position
+			 int commentStartLine = firstLineOfBlockComment(d, c.offset);
+			 if (commentStartLine >= 0 && commentStartLine < d.getNumberOfLines()) {
+				 int nextLineStart = d.getLineOffset(commentStartLine+1);
+				 boolean foundNonWhite=false;
+				 for (int pos = nextLineStart; pos<c.offset; pos++) {
+					 char ch = d.getChar(pos);
+					 if (ch!=' ' && ch!='\t' && ch!='\n') {
+						 foundNonWhite=true;
+						 break;
+					 }
+				 }
+				 if (!foundNonWhite) buf.append(" ");
+			 }
+			
 			buf.append("* ");
 		 } else if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
 		    // insert closing brace on new line after an unclosed opening brace
@@ -346,9 +365,51 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    X10UIPlugin.log(e);
 	}
     }
+    
+    private char firstCharOfLine(IDocument d, int line) {
+    	try {
+    		int thisLineOffset = d.getLineOffset(line);
+    		int nextLineOffset = d.getLineOffset(line+1);
+    		for (int i=thisLineOffset; i<nextLineOffset; i++) {
+    			char c = d.getChar(i);
+    			if (c!=' ' && c!= '\t' && c!='\n') return c;
+    		}
+    	} catch (BadLocationException e) {}
+    	return '\0';
+    }
+    
+   
+    private int firstLineOfBlockComment(IDocument d, int offset) {
+    	int pos=offset;
+    	try {
+    		while (pos > 0) {
+    			if (d.getChar(pos-1)=='/' && d.getChar(pos)=='*') return d.getLineOfOffset(pos);
+    			pos--;
+    		}
+    	} catch (BadLocationException e) {}
+    	return -1;
+    }
 
-    private boolean insideBlockComment(IDocument d, int offset) throws BadLocationException {
-	int i= offset;
+    private boolean inUnendedBlockComment(IDocument d, int pos) {
+    	try {
+    		for (int i=pos; i<d.getLength()-1; i++) {
+    			if (d.getChar(i)=='/' && d.getChar(i+1)=='*') return true;
+    			if (d.getChar(i)=='*' && d.getChar(i+1)=='/') return false;
+    		}
+//    		int line = d.getLineOfOffset(pos);
+//    		int nextLineOffset=d.getLineOffset(line+1);
+//    		int twoLinesForwardOffset = d.getLineOffset(line+2);
+//    		for (int i=nextLineOffset; i<twoLinesForwardOffset; i++) {
+//    			char c = d.getChar(i);
+//    			if (c=='*') return true;
+//    			else if (c!=' ' && c!= '\t' && c!='\n') return false;
+//    		}
+    	} catch (BadLocationException e) {}
+		return true;
+	}
+
+	private boolean afterStartOfBlockComment(IDocument d, int offset) throws BadLocationException {
+	int i= offset-1;
 	while (i > 0) {
 	    if (d.getChar(i-1) == '*' && d.getChar(i) == '/') {
 		return false;
