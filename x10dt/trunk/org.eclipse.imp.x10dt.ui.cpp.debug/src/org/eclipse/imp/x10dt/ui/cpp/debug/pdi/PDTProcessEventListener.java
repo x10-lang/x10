@@ -94,11 +94,14 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
 
   public void processEnded(final ProcessEndedEvent event) {
     System.out.println("Process ended");
+    String bits = this.fBits;
+    if (bits == null)
+    	bits = "1:01";
     try {
       removeAllBreakpoints(event.getProcess());
-      this.fProxyNotifier.notify(new ProxyDebugExitEvent(-1 /* transId */, this.fBits, event.getProcess().getExitValue()));
+      this.fProxyNotifier.notify(new ProxyDebugExitEvent(-1 /* transId */, bits, event.getProcess().getExitValue()));
     } catch (DebugException except) {
-      this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, this.fBits, 1 /* errorCode */, 
+      this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, bits, 1 /* errorCode */, 
                                                           "Could not get exit value"));
     } finally {
       this.fDebuggeeProcess.removeEventListener(this);
@@ -110,9 +113,19 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
   }
 
   public void programError(final ProcessPgmError event) {
+    String[] lines = event.getLines();
+    System.err.println("Got program stderr:");
+    for (String line : lines) {
+      System.err.println("====> "+line);
+    }
   }
 
   public void programOutput(final ProcessPgmOutput event) {
+    String[] lines = event.getLines();
+    System.out.println("Got program stdout:");
+    for (String line : lines) {
+      System.out.println("====> "+line);
+    }
   }
 
   public void threadAdded(final ThreadAddedEvent event) {
