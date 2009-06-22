@@ -109,7 +109,13 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	monitor.subTask("Verifying launch attributes");
 
 	String mainTypeName= verifyMainTypeName(configuration);
-	IVMRunner runner= new X10VMDebugger(getVMInstall(configuration));
+	IVMRunner runner;
+	if (mode.equals("debug")) {
+		runner= new X10VMDebugger(getVMInstall(configuration));
+	} else {
+		runner= getVMRunner(configuration, mode);
+	}
+
 //	IVMRunner runner= new X10VMRunnerDelegate(this, configuration, ((StandardVMDebugger)getVMRunner(configuration, mode)));
 
 	File workingDir= verifyWorkingDirectory(configuration);

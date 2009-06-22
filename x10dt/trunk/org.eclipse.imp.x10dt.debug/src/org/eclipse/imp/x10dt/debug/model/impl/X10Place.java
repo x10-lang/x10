@@ -9,7 +9,7 @@ import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Place;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 
-public class X10Place extends DebugElement implements IX10Place {
+public class X10Place extends X10DebugElement implements IX10Place {
 	private String fName;
 	HashSet<IX10Activity> _activeActivities = new HashSet();
 	HashSet<IX10Activity> _queuedActivities;
@@ -21,10 +21,6 @@ public class X10Place extends DebugElement implements IX10Place {
 	
 	public String geName() {
 		return fName;
-	}
-	
-	public String getModelIdentifier() {
-		return Activator.PLUGIN_ID+".model";
 	}
 	
 	public void addActiveActivity(IX10Activity activity) {

@@ -8,13 +8,15 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
 import org.eclipse.imp.x10dt.debug.model.IX10Variable;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugElement;
 import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
 
-public class X10DelegatingStackFrame implements IX10StackFrame {
+public class X10DelegatingStackFrame extends X10DebugElement implements IX10StackFrame {
 	
 	JDIStackFrame _jdiStackFrame;
 	
-	public X10DelegatingStackFrame (JDIStackFrame jdiStackFrame) {
+	public X10DelegatingStackFrame (IDebugTarget target, JDIStackFrame jdiStackFrame) {
+		super(target);
 		_jdiStackFrame = jdiStackFrame;
 	}
 
@@ -23,7 +25,7 @@ public class X10DelegatingStackFrame implements IX10StackFrame {
 		IX10Variable[] x10Variables = new IX10Variable[baseVariables.length];
 		int i=0;
 		for (IVariable v: baseVariables) {
-			x10Variables[i] = new X10DelegatingVariable(v);
+			x10Variables[i] = new X10DelegatingVariable(getDebugTarget(), v);
 		}
 		return x10Variables;
 	}
@@ -62,16 +64,8 @@ public class X10DelegatingStackFrame implements IX10StackFrame {
 		return _jdiStackFrame.hasVariables();
 	}
 
-	public IDebugTarget getDebugTarget() {
-		return _jdiStackFrame.getDebugTarget();
-	}
-
 	public ILaunch getLaunch() {
 		return _jdiStackFrame.getLaunch();
-	}
-
-	public String getModelIdentifier() {
-		return _jdiStackFrame.getModelIdentifier();
 	}
 
 	public Object getAdapter(Class adapter) {

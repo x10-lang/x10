@@ -9,6 +9,7 @@ import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.imp.x10dt.debug.Activator;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
+import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jdt.internal.debug.core.JDIDebugPlugin;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 
@@ -31,6 +32,7 @@ public class X10DebugModel {
 		IWorkspaceRunnable r = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor m) {
 				target[0]= new X10DebugTargetAlt(launch, vm, name, allowTerminate, allowDisconnect, process, resume);
+//				target[0]= new JDIDebugTarget(launch, vm, name, allowTerminate, allowDisconnect, process, resume);
 			}
 		};
 		try {

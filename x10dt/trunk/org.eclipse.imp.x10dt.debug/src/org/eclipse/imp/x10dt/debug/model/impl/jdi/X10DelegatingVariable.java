@@ -7,12 +7,14 @@ import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.x10dt.debug.model.IX10Type;
 import org.eclipse.imp.x10dt.debug.model.IX10Variable;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugElement;
 
-public class X10DelegatingVariable implements IX10Variable {
+public class X10DelegatingVariable extends X10DebugElement implements IX10Variable {
 
 	private IVariable _variable;
 
-	public X10DelegatingVariable (IVariable variable) {
+	public X10DelegatingVariable (IDebugTarget target, IVariable variable) {
+		super(target);
 		_variable = variable;
 	}
 	public String getName() throws DebugException {
@@ -37,10 +39,6 @@ public class X10DelegatingVariable implements IX10Variable {
 
 	public ILaunch getLaunch() {
 		return _variable.getLaunch();
-	}
-
-	public String getModelIdentifier() {
-		return _variable.getModelIdentifier();
 	}
 
 	public Object getAdapter(Class adapter) {

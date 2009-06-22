@@ -7,9 +7,14 @@ import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTarget;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
+import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
+
+import com.sun.jdi.ThreadReference;
+
+import x10.runtime.PoolRunner;
 
 public class X10ModelPresentation implements IDebugModelPresentation {
 
@@ -28,6 +33,12 @@ public class X10ModelPresentation implements IDebugModelPresentation {
 		if (element instanceof X10DebugTargetAlt) {
 			return "X10 Application";//getTargetText((X10DebugTarget)element);
 		} else if (element instanceof IThread) {
+			((X10DebugTargetAlt)((IThread)element).getDebugTarget()).initializeX10RTObject();
+			ThreadReference t = ((JDIThread)element).getUnderlyingThread();
+//			System.out.println("underlyingThread: "+t.getClass());
+			if (t.referenceType().name().equals("x10.runtime.PoolRunner")) {
+				return "ACTIVITY: "+t.toString();// need to call getActivity().toString() on PoolRunner (on VM Side)
+			}
 	        return "Activity: "+ ((IThread)element).getName();//getThreadText(element);
 	    } else if (element instanceof IStackFrame) {
 	        return ((IStackFrame)element).getName(); //getStackFrameText((IStackFrame)element);

@@ -1,13 +1,12 @@
 package org.eclipse.imp.x10dt.debug.model.impl;
 
+import org.eclipse.debug.core.model.DebugElement;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.imp.x10dt.debug.Activator;
-import org.eclipse.jdt.debug.core.JDIDebugModel;
-import org.eclipse.jdt.internal.debug.core.model.JDIDebugElement;
-import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 
-public class X10DebugElement extends JDIDebugElement {
+public abstract class X10DebugElement extends DebugElement {
 
-	public X10DebugElement(JDIDebugTarget target) {
+	public X10DebugElement(IDebugTarget target) {
 		super(target);
 	}
 	
@@ -15,7 +14,7 @@ public class X10DebugElement extends JDIDebugElement {
 	 * @see org.eclipse.debug.core.model.IDebugElement#getModelIdentifier()
 	 */
 	public String getModelIdentifier() {
-		return Activator.PLUGIN_ID+".model";
+		return Activator.PLUGIN_ID;
 	}
 
 	

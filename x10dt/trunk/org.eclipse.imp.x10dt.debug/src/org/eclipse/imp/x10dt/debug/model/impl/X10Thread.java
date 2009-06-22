@@ -6,6 +6,7 @@ import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.imp.x10dt.debug.Activator;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
@@ -40,7 +41,7 @@ public class X10Thread extends JDIThread implements IThread {
 
 	}
 	public String getModelIdentifier() {
-		return X10DebugModel.getPluginIdentifier()+".model";
+		return Activator.getUniqueIdentifier();
 	}
 	
 	// Copied from superclass to get around visibility gotchas
@@ -59,5 +60,4 @@ public class X10Thread extends JDIThread implements IThread {
 	protected synchronized void resumedByVM() throws DebugException{
 		super.resumedByVM();
 	}
-
 }

@@ -191,6 +191,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 				if (jdiThread == null) {
 					return false;
 				}
+
 			} else {
 				jdiThread.disposeStackFrames();
 				jdiThread.fireChangeEvent(DebugEvent.CONTENT);
@@ -236,10 +237,12 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	private ArrayList fPlaces=new ArrayList(5);
 	private int noOfPlaces;
 	private IX10Application _application;
+	
 	public X10DebugTargetAlt(ILaunch launch, VirtualMachine jvm, String name,
 			boolean supportTerminate, boolean supportDisconnect,
 			IProcess process, boolean resume) {
 		super(launch, jvm, name, supportTerminate, supportDisconnect, process, resume);
+		fJDebugTarget = launch.getDebugTarget();
 		if (this.getVM() == null)
 			System.out.println("X10Target.vm is null");
 	}
@@ -266,6 +269,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	protected synchronized void initialize() {
 		_application = SampleX10ModelFactory.getApplication();
 		setThreadList(new ArrayList(5)); // really this belongs in constructor, but it would have to go *before* super(), which contains call to this (initialize) method.
+		setEventDispatcher(new EventDispatcher(this));
 		super.initialize();
 //		initializeThreadForInvokeMethod();
 //		setEventDispatcher(new EventDispatcher(this));
@@ -412,7 +416,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	protected void initializeBreakpoints() {
 		IBreakpointManager manager= DebugPlugin.getDefault().getBreakpointManager();
 		manager.addBreakpointListener(this);
-		IBreakpoint[] bps = manager.getBreakpoints("org.eclipse.imp.x10.debug.model");
+		IBreakpoint[] bps = manager.getBreakpoints(/*getModelIdentifier()*/JDIDebugModel.getPluginIdentifier());
 		for (int i = 0; i < bps.length; i++) {
 			if (bps[i] instanceof IJavaBreakpoint) {
 				breakpointAdded(bps[i]);
@@ -483,29 +487,33 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		return fActivities.toArray();
 	}
 	
-	private void setX10RTObject() {
-		//S//VirtualMachine vm = ((JDIDebugTarget) fJDebugTarget).getVM();
-		//S//List classes = vm.classesByName("DefaultRuntime_c");
-		VirtualMachine vm = this.getVM();
-		List classes = vm.classesByName("x10.lang.Runtime");
-		Type className;
-		//System.out.println("got Class, size = "+ classes.size());
-		for (int i=0; i<classes.size(); i++ ){
-			className = (Type)classes.get(i);
-			//System.out.println("class "+i+" = "+ className.name());
+	public void initializeX10RTObject() {
+		if (fX10RT!=null) return;
+		VirtualMachine vm = getVM();
+		List<ReferenceType> classes = (List<ReferenceType>)vm.classesByName("x10.runtime.DefaultRuntime_c");
+		
+		System.out.printf("got %d Classes for DefaultRuntime_c:", classes.size());
+		for (Type c: classes){
+			System.out.println("    "+ c.name());
 		}
 		
-		IJavaType[] type = new IJavaType[classes.size()];
-		for (int i = 0; i < type.length; i++) {
-			type[i] = JDIType.createType(this, (Type)classes.get(i));
+		// find 1st Java class (might there be other classes?)
+		ReferenceType typeForRT = null;
+		for (ReferenceType t: classes){
+			if (t instanceof IJavaReferenceType) {
+				typeForRT =(ReferenceType)((JDIReferenceType)t).getUnderlyingType();
+				break;
+			} else typeForRT = t;
 		}
-		ReferenceType typeForRT=null;
+		// mmk: is there a reason to create these types?
+//		IJavaType[] type = new IJavaType[classes.size()];
+//		for (int i = 0; i < type.length; i++) {
+//			type[i] = JDIType.createType(this, (Type)classes.get(i));
+//		}
 		
-		if (type[0] instanceof IJavaReferenceType) 
-			typeForRT =(ReferenceType)((JDIReferenceType)type[0]).getUnderlyingType();
 		Field RT;
 		RT = ((ClassType)typeForRT).fieldByName("runtime");
-		//System.out.println("Shivali:field name is "+ RT.name());
+		System.out.println("Shivali: field name is "+ RT.name());
 		
 		Value v = typeForRT.getValue(RT);
 		System.out.println("Shivali: value is " + v.toString());
@@ -539,7 +547,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	}
 
 	public String getModelIdentifier() {
-		return Activator.PLUGIN_ID+".model";
+		return Activator.PLUGIN_ID;
 	}
 //	/**
 //	 * Factory method for creating new threads. Creates and returns a new thread
@@ -622,7 +630,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			System.out.println("Thread name is "+reference.name());
 			IX10Activity[] activities = _application.getActivities();
 			IX10Activity a = activities[0];
-			return new SampleX10ActivityAsJDIThread(a, this, reference/*((JDIThread)jdiThreads[0]).getUnderlyingThread()*/);
+			return new SampleX10ActivityAsJDIThread(a, this, reference);
 //			return new X10Thread(this, reference);
 		} catch (ObjectCollectedException exception) {
 			// ObjectCollectionException can be thrown if the thread has already
@@ -738,6 +746,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		}
 	}
 	public JDIThread findThread(ThreadReference tr) {
+
 		Iterator iter= getThreadIterator();
 		while (iter.hasNext()) {
 			JDIThread thread = (JDIThread) iter.next();

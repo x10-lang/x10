@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 import com.sun.jdi.ObjectCollectedException;
 import com.sun.jdi.ThreadReference;
 
-public class SampleX10ActivityAsJDIThread extends X10Thread implements IX10Activity{
+public class SampleX10ActivityAsJDIThread extends X10Thread implements IX10Activity {
 	public SampleX10ActivityAsJDIThread(JDIDebugTarget target, ThreadReference thread)
 			throws ObjectCollectedException {
 		super(target, thread);
@@ -79,7 +79,7 @@ public class SampleX10ActivityAsJDIThread extends X10Thread implements IX10Activ
 		IX10StackFrame x10StackFrames[] = new IX10StackFrame[list.size()];
 		int i=0;
 		for (Object jsfo: list) {
-			x10StackFrames[i++] = new X10DelegatingStackFrame((JDIStackFrame)jsfo);
+			x10StackFrames[i++] = new X10DelegatingStackFrame(getDebugTarget(), (JDIStackFrame)jsfo);
 			
 		}
 		return x10StackFrames;

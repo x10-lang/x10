@@ -9,8 +9,9 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Clock;
 import org.eclipse.imp.x10dt.debug.model.IX10Place;
+import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
 
-public class SampleX10ActivityAsThreadProxy implements IThread {
+public class SampleX10ActivityAsThreadProxy implements IThread, IX10Activity {
 
 	private IX10Activity _activity;
 	private IDebugTarget _debugTarget;
@@ -55,7 +56,7 @@ public class SampleX10ActivityAsThreadProxy implements IThread {
 		return 0;
 	}
 
-	public IStackFrame[] getStackFrames() throws DebugException {
+	public IX10StackFrame[] getStackFrames() throws DebugException {
 		return _activity.getStackFrames();
 	}
 
@@ -157,6 +158,30 @@ public class SampleX10ActivityAsThreadProxy implements IThread {
 
 	public void terminate() throws DebugException {
 		// TODO Auto-generated method stub
+	}
+	public IX10Clock blockedOn() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public IX10Clock[] getClocks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public IX10Activity[] getFinishChildren() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public IX10Activity getFinishParent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public IX10Place getPlace() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	public X10ActivityState getRunState() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

@@ -44,7 +44,7 @@
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
             class="org.eclipse.imp.x10dt.debug.ui.presentation.X10ModelPresentation"
-            id="org.eclipse.imp.x10dt.debug.model"/>
+            id="org.eclipse.imp.x10dt.debug"/>
    </extension>
      <extension
            point="org.eclipse.ui.contexts">
@@ -58,6 +58,6 @@
 	        point="org.eclipse.debug.ui.debugModelContextBindings">
 	     <modelContextBinding
 	           contextId="org.eclipse.imp.x10dt.debug"
-	           debugModelId="org.eclipse.imp.x10dt.debug.model"/>
+	           debugModelId="org.eclipse.imp.x10dt.debug"/>
 	  </extension>
 </plugin>
