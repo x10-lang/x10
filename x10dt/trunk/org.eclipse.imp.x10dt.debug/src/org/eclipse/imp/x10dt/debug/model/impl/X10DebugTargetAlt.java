@@ -27,7 +27,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.x10dt.debug.Activator;
-import org.eclipse.imp.x10dt.debug.model.EvaluationEngineHelper;
+//import org.eclipse.imp.x10dt.debug.model.EvaluationEngineHelper;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Application;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Application;
@@ -132,14 +132,29 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 					fThreads.remove(thread);
 				}
 				thread.terminated();
+				// bug fix start: InvokeMethods was leading to non-termination
+				try {
+					   System.out.println("Resuming fThreadForInvokingRTMethods : SuspenCount="+fThreadForInvokingRTMethods.suspendCount());
+					   fThreadForInvokingRTMethods.resume();
+					   //System.out.println("Resuming fThreadForInvokingRTMethods : SuspenCount="+fThreadForInvokingRTMethods.suspendCount());
+					   //fThreadForInvokingRTMethods.resume();
+					} catch (ObjectCollectedException e) {
+						//return false;
+					} catch (VMDisconnectedException exception) {
+						//return false;
+					} 
+				//bug fix end	
 			}
-			// bug fix start: InvokeMethods was leading to non-termination
-			IThread[] threads = getThreads();
+			
+			/*IThread[] threads = getThreads();
 			boolean found = false;
 			for (int i = 0; i < threads.length; i++) {
 				JDIThread th = (JDIThread)threads[i];
 				// Works for 1.5, may not work properly for future runtimes
 				try{
+					if (th.getUnderlyingThread().name().contains("Destroy")){
+						System.out.println("DEATHHANDLer for Destroy");
+					}
 				  if (th.getUnderlyingThread().name().contains("pool")) {
 					found=true;
 					break;
@@ -153,15 +168,17 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			}
 			if (!found) {
 				try {
-				   System.out.println("Resuming fThreadForInvokingRTMethods");
+				   System.out.println("Resuming fThreadForInvokingRTMethods : SuspenCount="+fThreadForInvokingRTMethods.suspendCount());
 				   fThreadForInvokingRTMethods.resume();
+				   //System.out.println("Resuming fThreadForInvokingRTMethods : SuspenCount="+fThreadForInvokingRTMethods.suspendCount());
+				   //fThreadForInvokingRTMethods.resume();
 				} catch (ObjectCollectedException e) {
 					//return false;
 				} catch (VMDisconnectedException exception) {
 					//return false;
 				} 
 				
-			}
+			}*/
 			// bug fix end.
 			return true;
 		}
@@ -928,7 +945,9 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		} catch (ObjectCollectedException exception) {
 			// ObjectCollectionException can be thrown if the thread has already
 			// completed (exited) in the VM.
-		}
+		} catch (VMDisconnectedException exception) {
+			//return false;
+		} 
 		return null;
 	}
 	
