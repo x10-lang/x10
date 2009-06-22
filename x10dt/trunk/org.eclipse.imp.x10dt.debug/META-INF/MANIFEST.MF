@@ -7,5 +7,7 @@ Bundle-Activator: org.eclipse.imp.x10dt.debug.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.jdt.debug,
- org.eclipse.debug.core
+ org.eclipse.debug.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.core.variables
 Eclipse-LazyStart: true
