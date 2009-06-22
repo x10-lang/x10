@@ -48,6 +48,9 @@ import polyglot.ext.x10cpp.visit.Emitter;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
+import polyglot.frontend.Goal;
+import polyglot.frontend.Job;
+import polyglot.frontend.Scheduler;
 import polyglot.main.Options;
 import polyglot.main.Report;
 import polyglot.types.FieldInstance;
@@ -86,15 +89,32 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
 //    System.err.println("Done reading mapping information");
     fCompiler = Globals.Compiler();
     if (fCompiler == null) {
-      ExtensionInfo extInfo = new polyglot.ext.x10cpp.ExtensionInfo();
+      ExtensionInfo extInfo = new polyglot.ext.x10cpp.ExtensionInfo() {
+        public Scheduler createScheduler() {
+          return new X10CPPScheduler(this) {
+            public List<Goal> goals(Job job) {
+              ArrayList<Goal> goals = new ArrayList<Goal>();
+              goals.add(Parsed(job));
+              goals.add(TypesInitialized(job));
+              goals.add(ImportTableInitialized(job));
+              goals.add(CastRewritten(job));
+              goals.add(PreTypeCheck(job));
+              goals.add(TypeChecked(job));
+              goals.add(End(job));
+              return goals;
+//              return super.goals(job);
+            }
+          };
+        }
+      };
       buildOptions(JavaCore.create(project), extInfo.getOptions());
       fCompiler = new Compiler(extInfo, new ErrorQueue(){
         public boolean hasErrors() { return false; }
         public void flush() { }
         public int errorCount() { return 0; }
-        public void enqueue(ErrorInfo e) { }
-        public void enqueue(int type, String message, Position position) { }
-        public void enqueue(int type, String message) { }
+        public void enqueue(ErrorInfo e) { System.out.println(e.getErrorString()); }
+        public void enqueue(int type, String message, Position position) { System.out.println(message); }
+        public void enqueue(int type, String message) { System.out.println(message); }
       });
       Globals.initialize(fCompiler);
     }
@@ -122,6 +142,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       options.classpath = cpBuilder.toString();
       options.output_classpath = options.classpath;
       options.serialize_type_info = false;
+      options.post_compiler = null;
       options.source_path = ListUtils.transform(srcPaths, new IPathToFileFunc());
       options.compile_command_line_only = true;
     } catch (JavaModelException e) {
@@ -390,7 +411,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       type = type.trim();
     if (type.endsWith("&"))
       type = type.substring(0, type.length()-1);
-    type = stripPrefixes(type, new String[] { "class ref<", "x10aux__ref<", "class x10aux::ref<" });
+    type = stripPrefixes(type, new String[] { "class ref<", "x10aux__ref<", "class x10aux::ref<", "x10aux::ref<" });
     if (type == null)
     	return null;
     if (type.endsWith(" "))
