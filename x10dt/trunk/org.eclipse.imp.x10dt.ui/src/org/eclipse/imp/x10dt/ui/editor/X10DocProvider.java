@@ -313,18 +313,35 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	private String getX10DocFor(Declaration decl) {
 		Position pos = decl.position();
 		String path = pos.file();
-
+		return getX10DocFor(pos);
+	}
+	/**
+	 * Get the javadoc-like comment string for an X10 entity represented by a Node
+	 * (Note that this includes ClassDecl, formerly handled separately)
+	 */
+	private String getX10DocFor(Node node) {
+		Position pos = node.position();
+		String doc = getX10DocFor(pos);
+		return doc;
+		
+	}
+	/**
+	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position
+	 */
+	private String getX10DocFor(Position pos) {
+		String path = pos.file();
 		try {
 			Reader reader = new FileReader(new File(path));
 			String fileSrc = readReader(reader);
-
 			int idx = pos.offset();
+
 			idx = skipBackwardWhite(fileSrc, idx);
 			if (lookingPastEndOf(fileSrc, idx, "*/")) {
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
 				doc = getCommentText(doc);
 				if (traceOn)
-					System.out.println("X10DocProvider.getX10DocFor(): " + doc);
+					System.out.println("X10ContextHelper.getX10DocFor: "
+							+ doc);
 				return doc;
 			}
 		} catch (IOException e) {
@@ -518,56 +535,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		while (idx > 0 && Character.isWhitespace(fileSrc.charAt(idx - 1)))
 			idx--;
 		return idx;
-	}
-
-	/**
-	 * Get the javadoc-like comment string for a X10 class declaration
-	 */
-	private String getX10DocFor(ClassDecl decl) {
-		Position pos = decl.position();
-		String path = pos.file();
-
-		try {
-			Reader reader = new FileReader(new File(path));
-			String fileSrc = readReader(reader);
-			int idx = pos.offset();
-
-			idx = skipBackwardWhite(fileSrc, idx);
-			if (lookingPastEndOf(fileSrc, idx, "*/")) {
-				String doc = collectBackwardTo(fileSrc, idx, "/**");
-				doc=getCommentText(doc);
-				if (traceOn)
-					System.out.println("X10ContextHelper.getX10DocFor(classDecl): "+ doc);
-				return doc;
-			}
-		} catch (IOException e) {
-		}
-		return null;
-	}
-	/**
-	 * Get the javadoc-like comment string for an X10 entity that is represented by a Node
-	 */
-	private String getX10DocFor(Node node) {
-		Position pos = node.position();
-		String path = pos.file();
-
-		try {
-			Reader reader = new FileReader(new File(path));
-			String fileSrc = readReader(reader);
-			int idx = pos.offset();
-
-			idx = skipBackwardWhite(fileSrc, idx);
-			if (lookingPastEndOf(fileSrc, idx, "*/")) {
-				String doc = collectBackwardTo(fileSrc, idx, "/**");
-				doc = getCommentText(doc);
-				if (traceOn)
-					System.out.println("X10ContextHelper.getX10DocFor(Node): "
-							+ doc);
-				return doc;
-			}
-		} catch (IOException e) {
-		}
-		return null;
 	}
 
 	private String stripArraySuffixes(String qualifiedName) {
