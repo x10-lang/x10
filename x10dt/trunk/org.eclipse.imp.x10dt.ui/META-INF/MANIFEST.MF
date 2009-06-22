@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: UIDEx10
-Bundle-SymbolicName: UIDEx10; singleton:=true
+Bundle-Name: X10 IDE
+Bundle-SymbolicName: x10.uide; singleton:=true
 Bundle-Version: 1.0.0
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  polyglot2,
  x10.compiler,
- x10.common,
  org.eclipse.uide.runtime,
  lpg,
  org.eclipse.jdt.ui
+Bundle-Vendor: pcharles@us.ibm.com
