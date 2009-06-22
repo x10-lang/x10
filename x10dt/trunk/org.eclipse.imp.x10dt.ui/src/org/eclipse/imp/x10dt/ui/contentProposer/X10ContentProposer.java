@@ -19,6 +19,7 @@ package org.eclipse.imp.x10dt.ui.contentProposer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
@@ -40,11 +41,18 @@ import org.eclipse.jface.text.templates.TemplateProposal;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
+import polyglot.ast.Id;
+import polyglot.ast.LocalDecl;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
@@ -52,132 +60,95 @@ import polyglot.types.MethodInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parsersym;
 
-public class X10ContentProposer implements IContentProposer, X10Parsersym
-{
-    private void filterFields(ArrayList fields, List in_fields, String prefix)
-    {
-        for (int i = 0; i < in_fields.size(); i++)
-        {
-            FieldInstance f = (FieldInstance) in_fields.get(i);
+public class X10ContentProposer implements IContentProposer, X10Parsersym {
+    private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix) {
+	for(FieldInstance f: in_fields) {
             String name = f.name();
-            if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
+            if (name.startsWith(prefix))
                 fields.add(f);
         }
     }
-    
-    private void filterMethods(ArrayList methods, List in_methods, String prefix)
-    {
-        for (int i = 0; i < in_methods.size(); i++)
-        {
-            MethodInstance m = (MethodInstance) in_methods.get(i);
+
+    private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix) {
+	for(MethodInstance m: in_methods) {
             String name = m.name();
-            if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
+            if (name.startsWith(prefix))
                 methods.add(m);
         }
     }
 
-    private void filterClasses(ArrayList classes, List in_classes, String prefix)
-    {
-        for (int i = 0; i < in_classes.size(); i++)
-        {
-            ClassType c = ((ReferenceType) in_classes.get(i)).toClass();
+    private void filterClasses(List<ClassType> classes, List<ReferenceType> in_classes, String prefix) {
+	for(ReferenceType r: in_classes) {
+            ClassType c = r.toClass();
             String name = c.name();
-            if (name.length() >= prefix.length() && prefix.equals(name.substring(0, prefix.length())))
-            {
-                //if (name.length() == prefix.length())
-                //    ; // TODO: highlight class name in YELLOW in editor
-                //else 
+            if (name.startsWith(prefix)) {
                 classes.add(c);
             }
         }
     }
     
-    private void getFieldCandidates(ReferenceType container_type, ArrayList fields, String prefix)
-    {
+    private void getFieldCandidates(ReferenceType container_type, List<FieldInstance> fields, String prefix) {
         if (container_type == null)
             return;
-        
-        if (prefix.length() == 0)
-             fields.addAll(container_type.fields());
-        else filterFields(fields, container_type.fields(), prefix);
 
-        for (int i = 0; i < container_type.interfaces().size(); i++)
-        {
+        filterFields(fields, container_type.fields(), prefix);
+
+        for (int i = 0; i < container_type.interfaces().size(); i++) {
             ReferenceType interf = (ReferenceType) container_type.interfaces().get(i);
-            if (prefix.length() == 0)
-                 fields.addAll(interf.fields());
-            else filterFields(fields, interf.fields(), prefix);
+            filterFields(fields, interf.fields(), prefix);
         }
         
         getFieldCandidates((ReferenceType) container_type.superType(), fields, prefix);
     }
 
-    private void getMethodCandidates(ReferenceType container_type, ArrayList methods, String prefix)
-    {
+    private void getMethodCandidates(ReferenceType container_type, List<MethodInstance> methods, String prefix) {
         if (container_type == null)
             return;
         
-        if (prefix.length() == 0)
-             methods.addAll(container_type.methods());
-        else filterMethods(methods, container_type.methods(), prefix);
+        filterMethods(methods, container_type.methods(), prefix);
 
         getMethodCandidates((ReferenceType) container_type.superType(), methods, prefix);
     }
 
-    private void getClassCandidates(Type type, ArrayList classes, String prefix)
-    {
+    private void getClassCandidates(Type type, List<ClassType> classes, String prefix) {
         if (type == null)
             return;
         ClassType container_type = type.toClass();
         if (container_type == null)
             return;
-        
-        if (prefix.length() == 0)
-             classes.addAll(container_type.memberClasses());
-        else filterClasses(classes, container_type.memberClasses(), prefix);
 
-        for (int i = 0; i < container_type.interfaces().size(); i++)
-        {
+        filterClasses(classes, container_type.memberClasses(), prefix);
+
+        for (int i = 0; i < container_type.interfaces().size(); i++) {
             ClassType interf = ((ReferenceType) container_type.interfaces().get(i)).toClass();
-            if (prefix.length() == 0)
-                 classes.addAll(interf.memberClasses());
-            else filterClasses(classes, interf.memberClasses(), prefix);
+            filterClasses(classes, interf.memberClasses(), prefix);
         }
         
         getClassCandidates(container_type.superType(), classes, prefix);
     }
 
-    private void getCandidates(ReferenceType container_type, ArrayList list, String prefix, int offset)
-    {        
-        ArrayList fields = new ArrayList(),
-                  methods = new ArrayList(),
-                  classes = new ArrayList();
+    private void getCandidates(ReferenceType container_type, List<ICompletionProposal> list, String prefix, int offset) {        
+        List<FieldInstance> fields = new ArrayList<FieldInstance>();
+        List<MethodInstance> methods = new ArrayList<MethodInstance>();
+        List<ClassType> classes = new ArrayList<ClassType>();
 
         getFieldCandidates(container_type, fields, prefix);
         getMethodCandidates(container_type, methods, prefix);
         getClassCandidates((Type) container_type, classes, prefix);
 
-        for (int i = 0; i < fields.size(); i++)
-        {
-            assert(fields.get(i) instanceof FieldInstance);
-            FieldInstance field = (FieldInstance) fields.get(i);
+        for(FieldInstance field: fields) {
             list.add(new SourceProposal(field.name(), prefix, offset));
         }
 
-        for (int i = 0; i < methods.size(); i++)
-        {
-            assert(methods.get(i) instanceof MethodInstance);
-            MethodInstance method = (MethodInstance) methods.get(i);
+        for(MethodInstance method: methods) {
             list. add(new SourceProposal(method.signature(), prefix, offset));
         }
-        
-        for (int i = 0; i < classes.size(); i++)
-        {
-            assert(classes.get(i) instanceof ClassType);
-            //ClassType type = ((ReferenceType) classes.get(i)).toClass();
-            ClassType type = (ClassType) classes.get(i);
+
+        for(ClassType type: classes) {
             if (!type.isAnonymous())
         	list. add(new SourceProposal(type.name(), prefix, offset));
         }
@@ -199,11 +170,17 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
     private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (point ${p}: ${region}) {\n\n}\n", false);
     private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { ${expr} }.force()", false);
 
+    private final Template[] fTemplates= new Template[] {
+	    fRegion1DTemplate, fRegion2DTemplate, fRegion3DTemplate,
+	    fArrayNewTemplate, fAsyncTemplate, fAtEachTemplate, fAtomicTemplate,
+	    fForRegionTemplate, fForEachTemplate, fFutureTemplate
+    };
+
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
     {
-	ArrayList list = new ArrayList();
+	ArrayList<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
         //
-        // When the offset is in between two tokens (forexample, on a white space or comment)
+        // When the offset is in between two tokens (for example, on a white space or comment)
         // the getTokenIndexAtCharacter in parse stream returns the negative index
         // of the token preceding the offset. Here, we adjust this index to point instead
         // to the token following the offset.
@@ -218,144 +195,181 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
         IPrsStream prs_stream = ((SimpleLPGParseController) controller).getParser().getParseStream(); 
         int index = prs_stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index);
-        IToken token = prs_stream.getIToken(token_index),
-               candidate = prs_stream.getIToken(prs_stream.getPrevious(token_index));
+        IToken tokenToComplete = prs_stream.getIToken(token_index),
+               contextToken = prs_stream.getIToken(token_index - 1);
         SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
-        //
-        // If we are at an offset position immediately following an "identifier"
-        // candidate, then consider the candidate to be the token for which we need
-        // assistance and chose its predecessor as the candidate for the lookup.
-        //
-        if ((candidate.getKind() == TK_IDENTIFIER ||
-             lpgPC.isKeyword(candidate.getKind()))
-            && offset == candidate.getEndOffset() + 1)
-        {
-            token = candidate;
-            candidate = prs_stream.getIToken(prs_stream.getPrevious(candidate.getTokenIndex()));
+
+        if (offset == tokenToComplete.getStartOffset()) { // If we're at the beginning of the tokenToComplete, back up one token
+            tokenToComplete= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
+            contextToken= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
         }
 
-        String prefix = "";
-        if (token.getKind() == TK_IDENTIFIER ||
-            token.getKind() == TK_ErrorId ||
-            lpgPC.isKeyword(token.getKind()))
+        //
+        // If we are at an offset position immediately following an "identifier"
+        // candidate, then consider the contextToken to be the token to complete
+        // and choose its predecessor as the context for the lookup.
+        //
+
+        if ((contextToken.getKind() == TK_IDENTIFIER ||
+             lpgPC.isKeyword(contextToken.getKind()))
+            && offset == contextToken.getEndOffset() + 1
+            && prs_stream.getIToken(contextToken.getTokenIndex()-1).getKind() == TK_DOT)
         {
-            if (offset >= token.getStartOffset() && offset <= token.getEndOffset() + 1)
-            {
-                prefix = token.toString().substring(0, offset - token.getStartOffset());
-            }
+            contextToken = prs_stream.getIToken(prs_stream.getPrevious(contextToken.getTokenIndex()));
+        } else if (tokenToComplete.getKind() == TK_IDENTIFIER && contextToken.getKind() == TK_DOT) {
+            contextToken= prs_stream.getIToken(contextToken.getTokenIndex() - 1);
+        } else if (tokenToComplete.getKind() == TK_DOT) {
+            contextToken= prs_stream.getIToken(tokenToComplete.getTokenIndex() - 1);
         }
-/*
-list.add(new SourceProposal("Offset: " + offset, "", offset));
-list.add(new SourceProposal("Token start offset: " + token.getStartOffset(), "", offset));
-list.add(new SourceProposal("Token end offset: " + token.getEndOffset(), "", offset));
-list.add(new SourceProposal("Prefix: \"" + (prefix == null ? "" : prefix) + "\"", "", offset));
-list.add(new SourceProposal("Candidate start offset: " + candidate.getStartOffset(), "", offset));
-list.add(new SourceProposal("Candidate end offset: " + candidate.getEndOffset(), "", offset));
-list.add(new SourceProposal("Token: " + token, "", offset));
-list.add(new SourceProposal("Candidate: " + candidate, "", offset));
-*/
+
+        String prefix = computePrefixOfToken(tokenToComplete, offset, lpgPC);
+
+        /*
+        list.add(new SourceProposal("Offset: " + offset, "", offset));
+        list.add(new SourceProposal("Token start offset: " + token.getStartOffset(), "", offset));
+        list.add(new SourceProposal("Token end offset: " + token.getEndOffset(), "", offset));
+        list.add(new SourceProposal("Prefix: \"" + (prefix == null ? "" : prefix) + "\"", "", offset));
+        list.add(new SourceProposal("Candidate start offset: " + candidate.getStartOffset(), "", offset));
+        list.add(new SourceProposal("Candidate end offset: " + candidate.getEndOffset(), "", offset));
+        list.add(new SourceProposal("Token: " + token, "", offset));
+        list.add(new SourceProposal("Candidate: " + candidate, "", offset));
+        */
         PolyglotNodeLocator locator = new PolyglotNodeLocator(controller.getProject(), ((SimpleLPGParseController) controller).getLexer().getLexStream());
-        Node node = (Node) locator.findNode(controller.getCurrentAst(), candidate.getStartOffset(), candidate.getEndOffset()); // offset);
+        Node currentAst= (Node) controller.getCurrentAst();
+	Node node = (Node) locator.findNode(currentAst, contextToken.getStartOffset(), contextToken.getEndOffset()); // offset);
         //
         // We execute this code when we encounter a qualified name x.foo,
         // where the left-hand side x of the qualified name may be either
         // an object reference (declared field or local declaration) or a
         // type. Note that x itself may be a qualified name.
         // 
-        if (node instanceof Field)
-        {
+        if (node instanceof Field) {
 //            list.add(new SourceProposal("Field: " + node.getClass().toString(), " source proposal ", 0));
             Field field = (Field) node;
-            if (candidate.getKind() == TK_DOT && field.target().type().isReference() /* instanceof ReferenceType */)
+            if (contextToken.getKind() == TK_DOT && field.target().type().isReference() /* instanceof ReferenceType */)
                  getCandidates((ReferenceType) field.target().type(), list, prefix, offset);
             else list.add(new SourceProposal("no info available", " source proposal ", 0));
-        }
-        //
-        // We execute this code when we encounter a qualified name x.foo,
-        // where the left-hand side x is a package name.
-        //
-        else if (node instanceof CanonicalTypeNode)
-        {
-            if (candidate.getKind() == TK_DOT)
-            {
-                candidate = prs_stream.getIToken(prs_stream.getPrevious(candidate.getTokenIndex()));
-                node = (Node) locator.findNode(controller.getCurrentAst(), candidate.getStartOffset() + 1, candidate.getEndOffset() - 1);
-                Qualifier qualifier = ((CanonicalTypeNode) node).qualifier();
-                if (qualifier.isType())
-                {
-                    list.add(new SourceProposal("CanonicalTypeNode: " + candidate.toString() + " " + qualifier.toType().toString() + " => " + node.getClass().toString(), " source proposal ", 0));
-                }
+        } else if (node instanceof CanonicalTypeNode) {
+            Qualifier qualifier = ((CanonicalTypeNode) node).qualifier();
+            if (qualifier.isType()) {
+        	Type qualType= (Type) qualifier;
+        	if (qualType.isReference()) {
+        	    getCandidates((ReferenceType) qualType, list, prefix, offset);
+        	}
             }
-        }
-        else if (node instanceof Assign)
-        {
+        } else if (node instanceof Assign) {
             list.add(new SourceProposal("Assign: " + node.getClass().toString(), " source proposal ", 0));
             list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            if (prefix != null && prefix.length() > 0)
-            {
+            if (prefix != null && prefix.length() > 0) {
                 // TODO: Any package, type, local variable and accessible class members
-            }
-            else list.add(new SourceProposal("no info available", " source proposal ", 0));
-        }
-        else if (node instanceof FieldDecl)
-        {
+            } else
+        	list.add(new SourceProposal("no info available", " source proposal ", 0));
+        } else if (node instanceof FieldDecl) {
             list.add(new SourceProposal("FieldDecl: " + node.getClass().toString(), " source proposal ", 0));
             list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            if (prefix != null && prefix.length() > 0)
-            {
+            if (prefix != null && prefix.length() > 0) {
                 // TODO: Any package, type, local variable and accessible class members
                 list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-            }
-            else if (candidate.getKind() == TK_EQUAL)
-            {
+            } else if (contextToken.getKind() == TK_EQUAL) {
                 // TODO: Any package, type, local variable and accessible class members
-            }
-            else list.add(new SourceProposal("no info available", " source proposal ", 0));
-        }
-        else if (node instanceof Call)
-        {
+            } else
+        	list.add(new SourceProposal("no info available", " source proposal ", 0));
+        } else if (node instanceof Call) {
             Call call= (Call) node;
-            if (candidate.getKind() == TK_DOT && call.target().type().isReference())
+            if (contextToken.getKind() == TK_DOT && call.target().type() != null && call.target().type().isReference())
         	getCandidates((ReferenceType) call.target().type(), list, prefix, offset);
-        }
-        else 
-        {
+        } else {
             // TODO: Any package, type, local variable and accessible class members
-            if (node instanceof Binary)
-            {
+            if (node instanceof Binary) {
                  list.add(new SourceProposal("BINARY: " + node.getClass().toString(), " source proposal ", 0));
-            }
-            else if (node instanceof Unary)
-            {
+            } else if (node instanceof Unary) {
                  list.add(new SourceProposal("UNARY: " + node.getClass().toString(), " source proposal ", 0));
+            } else if (node instanceof Id) {
+        	if (tokenToComplete.getKind() == TK_DOT || prs_stream.getIToken(tokenToComplete.getTokenIndex()-1).getKind() == TK_DOT) {
+        	    // node is the left-hand side of the dot operator
+        	    Node parent= (Node) locator.findParentNode(currentAst, tokenToComplete.getStartOffset());
+        	    if (parent instanceof Call) {
+        		Call call= (Call) parent;
+        		if (call.target().type() != null && call.target().type().isReference())
+        		    getCandidates((ReferenceType) call.target().type(), list, prefix, offset);
+        	    }
+        	} else {
+        	    // Possibilities: prefix of a package, local variable, parameter, field, or type name
+        	    addNamesInScope(currentAst, (Id) node, prefix, list, offset);
+        	}
+            } else {
+                addTemplateProposals(offset, viewer, list, prefix);
             }
-            else
-            {
-                IDocument docu= viewer.getDocument();
-                Region r= new Region(offset, prefix.length());
-                TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
-
-                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fRegion2DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fRegion3DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fArrayNewTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fAsyncTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fAtEachTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fAtomicTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fForRegionTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fForEachTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fFutureTemplate, tc, r, prefix);
-            }
-//          else list.add(new SourceProposal("Other: " + node.getClass().toString(), " source proposal ", 0));
-//
-//          if (prefix != null && prefix.length() > 0)
-//          {
-//              // complete this prefix...
-//              list.add(new SourceProposal("complete prefix " + prefix, " source proposal ", 0));
-//          }
         }
         return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
+    }
+
+    private void addTemplateProposals(int offset, ITextViewer viewer, ArrayList<ICompletionProposal> list, String prefix) {
+	IDocument docu= viewer.getDocument();
+	Region r= new Region(offset, prefix.length());
+	TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
+
+	for(int i= 0; i < fTemplates.length; i++) {
+	    addTemplateProposalIfMatch(list, fTemplates[i], tc, r, prefix);
+	}
+    }
+
+    private String computePrefixOfToken(IToken tokenToComplete, int offset, SimpleLPGParseController lpgPC) {
+	String prefix= "";
+        if (tokenToComplete.getKind() == TK_IDENTIFIER ||
+                tokenToComplete.getKind() == TK_ErrorId ||
+                lpgPC.isKeyword(tokenToComplete.getKind())) {
+            if (offset >= tokenToComplete.getStartOffset() && offset <= tokenToComplete.getEndOffset() + 1) {
+        	prefix = tokenToComplete.toString().substring(0, offset - tokenToComplete.getStartOffset());
+            }
+        }
+	return prefix;
+    }
+
+    private void addNamesInScope(Node currentAst, Id id, String prefix, List<ICompletionProposal> proposals, int offset) {
+	// Polyglot can't supply the pkg/class names, so we'll have to appeal to the search index
+	if ("this".startsWith(prefix)) // Should check that we're not in a static method or initializer
+	    proposals.add(new SourceProposal("this", prefix, offset));
+	final Stack<Node> path= new Stack<Node>();
+	path.push(id);
+	currentAst.visit(new NodeVisitor() {
+	    @Override
+	    public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
+		if (old == path.peek() && parent != null) {
+		    path.push(parent);
+		}
+	        return super.leave(parent, old, n, v);
+	    }
+	});
+	int idOffset= id.position().offset();
+	for(Node node : path) {
+	    if (node instanceof MethodDecl) {
+		MethodDecl md= (MethodDecl) node;
+		List<Formal> formals= md.formals();
+		for(Formal formal: formals) {
+		    if (formal.name().startsWith(prefix)) {
+			proposals.add(new SourceProposal(formal.name(), formal.name(), prefix, offset));
+		    }
+		}
+		break; // Hack: don't bother including variables from surrounding types
+	    }
+	    if (node instanceof Block) {
+		Block b= (Block) node;
+		List<Stmt> stmts= b.statements();
+		for(Stmt s : stmts) {
+		    if (s.position().offset() > idOffset) {
+			// Don't include declarations that follow the current cursor pos
+			break;
+		    }
+		    if (s instanceof LocalDecl) {
+			LocalDecl decl= (LocalDecl) s;
+			if (decl.name().startsWith(prefix)) {
+			    proposals.add(new SourceProposal(decl.name(), decl.name(), prefix, offset));
+			}
+		    }
+		}
+	    }
+	}
     }
 
     private void addTemplateProposalIfMatch(ArrayList list, Template template, TemplateContext tc, Region r, String prefix) {
