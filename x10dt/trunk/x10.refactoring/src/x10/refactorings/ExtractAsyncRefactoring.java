@@ -64,6 +64,7 @@ import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Stmt;
 import polyglot.ast.VarDecl;
 import polyglot.ast.Variable;
+import polyglot.ast.While;
 import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.Next;
 import polyglot.ext.x10.ast.X10ArrayAccess;
@@ -619,7 +620,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 							.getPointsToSet(key);
 					result.put(var, OrdinalSet.toCollection(ptSet));
 				} else {
-					Collection<InstanceKey> emptyCol = Collections.emptySet();
+					Collection<InstanceKey> emptyCol = new HashSet<InstanceKey>(0);
 					result.put(var, emptyCol);
 				}
 			} else
@@ -1598,7 +1599,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			fEngine.addX10SourceModule(new SourceFileModule(new File(
 					srcFilePath), srcFileName));
 		}
-		String exclusionsFile = "C:/eclipse/download/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+
+		String exclusionsFile = System.getProperty("x10.wala.exclusions");
+//		String exclusionsFile = "C:/eclipse/download/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		// String exclusionsFile=
 		// "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		// String exclusionsFile=
@@ -1779,6 +1782,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
 			stmtBody = (Block)((X10Loop)fLoop).body();
 			loopType = "x10for";
+		} else if (fLoop instanceof While) {
+			indexVariable= null;
+			stmtBody= (Block) ((While) fLoop).body();
+			loopType= "while";
 		}
 		List<Stmt> firstLoop = PolyglotUtils.splitBlockBeforeNode(stmtBody, fPivot);
 		List<Stmt> secondLoop = PolyglotUtils.splitBlockAfterNode(stmtBody, fPivot);
