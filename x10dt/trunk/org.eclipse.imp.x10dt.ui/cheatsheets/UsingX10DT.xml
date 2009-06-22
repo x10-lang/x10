@@ -9,7 +9,7 @@ and debug X10 programs.
 </description>
 </intro>
 
-<item title="Configure the X10DT">
+<item title="Select an X10 Compiler Configuration">
 <action pluginId="x10.uide"
         class="x10.uide.cheatsheet.actions.OpenX10PreferencesAction"/>
 <description>
@@ -31,13 +31,35 @@ X10 functionality should work reasonably with whatever values you enter.<br/>
 </description>
 </item>
 
+<item title="Switch to the Java Perspective">
+<description>
+If you're not currently in the Java Perspective, you should switch to that
+perspective now. If you don't, certain bits of functionality will not appear
+at all, or they might not appear in the "standard" location.<br/>
+
+To switch perspectives, invoke "Window" -&gt; "Open Perspective" and select
+"Java". Alternatively, you can click on the "Open Perspective" button in the
+perspective button bar and selecting "Java".
+(The perspective button bar usually appears in the upper right, the upper left, or
+the left-hand side of the Eclipse window, and contains 1 or more iconic buttons,
+each representing a perspective, e.g. "Java", "Resource", "Debug", "CVS".)
+</description>
+</item>
+
 <item title="Create an X10 project">
 <action pluginId="x10.uide"
         class="x10.uide.cheatsheet.actions.NewX10ProjectAction"/>
 <description>
 Invoke "File" -&gt; "New" -&gt; "Project" -&gt; "X10 Project".<br/>
 
-Fill out the "Name" field with a unique non-existing project name.<br/>
+[N.B.: If "X10 Project" doesn't appear in the "File" -&gt; "New" menu, you can
+access it via the "Other..." menu item at the bottom of that menu. To make it
+always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...".
+In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
+Categories" list in the left-hand pane. Check that box, and click "Ok".]<br/>
+
+In the "X10 Project" dialog, fill out the "Name" field with a unique non-existing
+project name.<br/>
 
 Most likely, you'll want to accept the default location for the project (i.e. in your
 workspace).<br/>
@@ -56,6 +78,12 @@ Hit "Finish" when done editing the various fields.<br/>
         class="x10.uide.cheatsheet.actions.NewX10TypeAction"/>
 <description>
 Invoke "File" -&gt; "New" -&gt; "X10" -&gt; "X10 Class".<br/>
+
+[N.B.: As with the above, if "X10 Class" doesn't appear in the "File" -&gt; "New"
+menu, you can access it via the "Other..." menu item at the bottom of that menu.
+To make it always appear in the "New" menu, invoke "Window" -&gt; "Customize Perspective...".
+In this dialog, go to the "Shortcuts" page, and locate "X10" in the "Shortcut
+Categories" list in the left-hand pane. Check that box, and click "Ok".]<br/>
 
 In the "Source folder" field, you enter both the project in which you would like
 the new class to reside, and the source folder within that project that is to
@@ -136,6 +164,21 @@ There are several methods available to launch an X10 application:<br/>
 If you instead wish to debug the X10 application (which is necessary if you wish to set
 breakpoints, explore the stack, and so on), the procedure is essentially the same as
 described above, substituting "Debug" for "Run", or "Debug As" for "Run As", and so on.
+
+As of this release, X10 debugging support provides the same set of views that you would
+get for Java programs, which display information about the generated Java program. We
+have provided support for setting breakpoints in the X10 source, and for mapping line
+numbers from the X10 source code to the generated Java source code. As a result, when
+an exception is thrown by X10 code or a breakpoint in X10 code is reached, the debugger
+should present the correct X10 source line. [Of course, if an exception is thrown from
+within a Java method that does not correspond to an X10 method, the debugger will display
+the Java source for the method throwing the exception.]
+
+At the same time, you may see a somewhat different picture of your application than you
+might expect. In particular, details of the X10 implementation will be visible: the
+Java thread pool rather than the X10 activities, extra method calls corresponding to
+X10 array accesses, and so on. In the future, we hope to provide a more X10-specific
+debugging perspective.
 </description>
 </item>
 
