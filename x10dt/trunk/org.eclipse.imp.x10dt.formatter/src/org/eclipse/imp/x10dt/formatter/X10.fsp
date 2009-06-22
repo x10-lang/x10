@@ -1,311 +1,349 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <formatter>
-    <language>X10</language>
-    <rules>
-        <rule>
-            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+<language>X10</language>
+<rules>
+<rule>
+<box>G ["&lt;FormalParameters&gt;" "," "&lt;FormalParameter&gt;" ]</box>
+</rule>
+<rule>
+<box>G ["&lt;FormalParameters&gt;" "," "&lt;LastFormalParameter&gt;" ]</box>
+</rule>
+<rule>
+<box>V [ H [ "int" H hs=0 [ "&lt;id&gt;" "(" 
+ H [ G op=H hs=0 gs=2 [ "&lt;FormalParameterList&gt;" ]  ] ")"  ] "{" ] 
+ I [ "&lt;BlockStatements&gt;" ] 
+ "}"]
+</box>
+</rule>
+<rule>
+<box>V [ H [ H hs=0 [ H [ "new" "&lt;id&gt;"] HV hs=0 [ H hs=0 [ "(" "&lt;ArgumentList.1&gt;" ")" ] 
+H hs=0 [ "(" "&lt;ArgumentList.2&gt;" ")" ] ] ] "{" ]   I [ "&lt;Decls&gt;" ] "}" ]</box>
+</rule>
+<rule>
+<box>V [ H [ "new" H hs=0 [  "&lt;id&gt;" "(" "&lt;ArgumentList&gt;" ")"  ] "{" ] I [ "&lt;Decls&gt;" ] "}" ]</box>
+</rule>
+<rule>
+<box>V [ H [ "new" H hs=0 [ "&lt;id&gt;" "(" ")" ] "{" ] I  [ "&lt;Decls&gt;" ] "}" ]</box>
+</rule>
+<rule>
+<box>H hs=0 [ H [ "new" "&lt;id&gt;" ] HV hs=0 [ H hs=0  [ "(" "&lt;ArgumentList.1&gt;" ")" ] H hs=0 [  "(" "&lt;ArgumentList.2&gt;" ")" ] ] ]</box>
+</rule>
+<rule>
+<box>H ["new" "&lt;id&gt;" H hs=0 [ "(" HV [ "&lt;ArgumentList&gt;" ] ")" ] ]</box>
+</rule>
+<rule>
+<box>H ["new" H hs=0 [ "&lt;id&gt;" "(" ")" ] ]</box>
+</rule>
+<rule>
+<box>V [ H [ "synchronized" H hs=0 [ "(" "&lt;Expression&gt;" ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ]  "}" ]</box>
+</rule>
+<rule>
+<box>HOV [ H [ "future" "{" ] I [ HV [ "&lt;Expression&gt;" ] ] "}" ]</box>
+</rule>
+<rule>
+<box>HOV [H [ "future" H hs=0 [  "(" HV [ "&lt;Expression.1&gt;" ] ")" ] "{" ] I [ HV [ "&lt;Expression.2&gt;" ] ]  "}" ]</box>
+</rule>
+<rule>
+<box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
 
 </box>
-        </rule>
-        <rule>
-            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+</rule>
+<rule>
+<box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
 
 </box>
-        </rule>
-        <rule>
-            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+</rule>
+<rule>
+<box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "(" ")" ]
 </box>
-        </rule>
-        <rule>
-            <box>HV hs=2 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "(" ")" ]</box>
-        </rule>
-        <rule>
-            <box>HV hs=0 [ H hs=0 [ "&lt;id.1&gt;" "."  "super" "."  "&lt;id.2&gt;"   "(" ]  
+</rule>
+<rule>
+<box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "(" ")" ]</box>
+</rule>
+<rule>
+<box>HV hs=0 [ H hs=0 [ "&lt;id.1&gt;" "."  "super" "."  "&lt;id.2&gt;"   "(" ]  
 I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"   ]
 </box>
-        </rule>
-        <rule>
-            <box>H hs=0 [ "&lt;id.1&gt;" "."  "super" "."  "&lt;id.2&gt;"   "("  ")"   ]</box>
-        </rule>
-        <rule>
-            <box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
+</rule>
+<rule>
+<box>H hs=0 [ "&lt;id.1&gt;" "."  "super" "."  "&lt;id.2&gt;"   "("  ")"   ]</box>
+</rule>
+<rule>
+<box>HV hs=0 ["&lt;id.0&gt;" "." "&lt;id.1&gt;" "." "&lt;id.2&gt;" "." "&lt;id.3&gt;" "." "&lt;id.3&gt;" "(" ")" ]
 
 </box>
-        </rule>
-        <rule>
-            <box>HV hs=0 [ H hs=0 ["&lt;Primary&gt;" "."  "&lt;id&gt;" "(" ]  
+</rule>
+<rule>
+<box>HV hs=0 [ H hs=0 ["&lt;Primary&gt;" "."  "&lt;id&gt;" "(" ]  
 I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
 
 </box>
-        </rule>
-        <rule>
-            <box>H hs=0 [ "&lt;id&gt;" "(" ")" ";" ]
+</rule>
+<rule>
+<box>H hs=0 [ "&lt;id&gt;" "(" ")" ";" ]
 
 </box>
-        </rule>
-        <rule>
-            <box>H hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ] I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")" ";" ]
+</rule>
+<rule>
+<box>H hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ] I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")" ";" ]
 </box>
-        </rule>
-        <rule>
-            <box> H hs=0 ["super" "."  "&lt;id&gt;" "(" ")"]
+</rule>
+<rule>
+<box> H hs=0 ["super" "."  "&lt;id&gt;" "(" ")"]
 
 </box>
-        </rule>
-        <rule>
-            <box>HV hs=0 [ H hs=0 ["super" "."  "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
+</rule>
+<rule>
+<box>HV hs=0 [ H hs=0 ["super" "."  "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
 </box>
-        </rule>
-        <rule>
-            <box>HV hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]</box>
-        </rule>
-        <rule>
-            <box>HV hs=0 [ H hs=0 [ "&lt;Expression.1&gt;" "." ] I [ "&lt;Expression.2&gt;" ]]</box>
-        </rule>
-        <rule>
-            <box>HOV hs=0 [ "(" I [ HV [ "&lt;Expression&gt;" ] ] ")" ]
+</rule>
+<rule>
+<box>HV hs=0 [ H hs=0 [ "&lt;id&gt;" "(" ]  I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]</box>
+</rule>
+<rule>
+<box>HV hs=0 [ H hs=0 [ "&lt;Expression.1&gt;" "." ] I [ "&lt;Expression.2&gt;" ]]</box>
+</rule>
+<rule>
+<box>HOV hs=0 [ "(" I [ HV [ "&lt;Expression&gt;" ] ] ")" ]
 </box>
-        </rule>
-        <rule>
-            <box>H hs=0 [ "!" "&lt;Expression&gt;" ]
+</rule>
+<rule>
+<box>H hs=0 [ "!" "&lt;Expression&gt;" ]
 
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Expression.1&gt;"  H [ "&amp;&amp;" "&lt;Expression.2&gt;" ]  ]
+</rule>
+<rule>
+<box>G [ "&lt;Expression.1&gt;"  H [ "&amp;&amp;" "&lt;Expression.2&gt;" ]  ]
 
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Expression.1&gt;"  H [ "||" "&lt;Expression.2&gt;" ]  ]
+</rule>
+<rule>
+<box>G [ "&lt;Expression.1&gt;"  H [ "||" "&lt;Expression.2&gt;" ]  ]
 
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Expression.1&gt;"  H [ "/" "&lt;Expression.2&gt;" ]  ]
+</rule>
+<rule>
+<box>G [ "&lt;Expression.1&gt;"  H [ "/" "&lt;Expression.2&gt;" ]  ]
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Expression.1&gt;"  H [ "*" "&lt;Expression.2&gt;" ]  ]
+</rule>
+<rule>
+<box>G [ "&lt;Expression.1&gt;"  H [ "*" "&lt;Expression.2&gt;" ]  ]
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Expression.1&gt;"  H [ "-" "&lt;Expression.2&gt;" ]  ]
+</rule>
+<rule>
+<box>G [ "&lt;Expression.1&gt;"  H [ "-" "&lt;Expression.2&gt;" ]  ]
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Expression.1&gt;"  H [ "+" "&lt;Expression.2&gt;" ]  ]</box>
-        </rule>
-        <rule>
-            <box>G ["&lt;ArgumentList&gt;" "," "&lt;Expression&gt;" ]</box>
-        </rule>
-        <rule>
-            <box>V [ H [ "private""class""&lt;id&gt;" ] "{"
+</rule>
+<rule>
+<box>G [ "&lt;Expression.1&gt;"  H [ "+" "&lt;Expression.2&gt;" ]  ]</box>
+</rule>
+<rule>
+<box>G ["&lt;ArgumentList&gt;" "," "&lt;Expression&gt;" ]</box>
+</rule>
+<rule>
+<box>V [ H [ "private""class""&lt;id&gt;" ] "{"
  I [ V vs=2 [ "&lt;Decls&gt;" ] ]"}"]</box>
-        </rule>
-        <rule>
-            <box>V [ H ["public"  "class"  "&lt;id&gt;" "{" ]
+</rule>
+<rule>
+<box>V [ H ["public"  "class"  "&lt;id&gt;" "{" ]
 I [ V vs=2 [ "&lt;Decls&gt;" ] ] "}"  ]
 </box>
-        </rule>
-        <rule>
-            <box>HV [ H [  "&lt;FieldModifiers&gt;" "&lt;Type&gt;" "&lt;id&gt;" "=" ]
+</rule>
+<rule>
+<box>HV [ H [  "&lt;FieldModifiers&gt;" "&lt;Type&gt;" "&lt;id&gt;" "=" ]
   I [ H hs=0 [ "&lt;Expression&gt;" ";" ]] ]
 </box>
-        </rule>
-        <rule>
-            <box>V ["&lt;TypeDecls&gt;"  "&lt;TypeDecl&gt;" ]
+</rule>
+<rule>
+<box>V ["&lt;TypeDecls&gt;"  "&lt;TypeDecl&gt;" ]
 </box>
-        </rule>
-        <rule>
-            <box>V [ "&lt;BlockStatements&gt;" "&lt;BlockStatement&gt;" ]
+</rule>
+<rule>
+<box>V [ "&lt;BlockStatements&gt;" "&lt;BlockStatement&gt;" ]
 </box>
-        </rule>
-        <rule>
-            <box>H [ "return" H hs=0 ["&lt;Expression&gt;" ";" ] ]
+</rule>
+<rule>
+<box>H [ "return" H hs=0 ["&lt;Expression&gt;" ";" ] ]
 </box>
-        </rule>
-        <rule>
-            <box>V [ H ["int" H hs=0 [ "&lt;id&gt;" "(" ]  ")" "{"  ]
+</rule>
+<rule>
+<box>V [ H ["int" H hs=0 [ "&lt;id&gt;" "(" ]  ")" "{"  ]
 I [ V [  "&lt;BlockStatements&gt;" ] ] "}" ]
 </box>
-        </rule>
-        <rule>
-            <box>G [ "&lt;Decls&gt;" "&lt;Decl&gt;" ]</box>
-        </rule>
-        <rule>
-            <box>V [ H ["if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{"] "}"]</box>
-        </rule>
-        <rule>
-            <box>HV [H [ "&lt;Type&gt;""&lt;id&gt;""=" ]
+</rule>
+<rule>
+<box>G [ "&lt;Decls&gt;" "&lt;Decl&gt;" ]</box>
+</rule>
+<rule>
+<box>V [ H ["if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{"] "}"]</box>
+</rule>
+<rule>
+<box>HV [H [ "&lt;Type&gt;""&lt;id&gt;""=" ]
    I [ H hs=0 ["&lt;Expression&gt;"";"]]]</box>
-        </rule>
-        <rule>
-            <box>G [  "&lt;WhenStatement&gt;" V [ H [ "or" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")"  ] "{" ] I [  "&lt;BlockStatements&gt;" ]  "}"  ] ]
+</rule>
+<rule>
+<box>V [ HV [ H [ "foreach" H hs=0 [ "(" H [ "&lt;Type&gt;" "&lt;id&gt;" ":" HV [ "&lt;Expression.1&gt;" ]  ] ")" ]]
+ I [H ["clocked" H hs=0 ["(" HV[  "&lt;ClockList&gt;" ]  ")"  ]  "{" ]   ] ]
+ I [ "&lt;Statement&gt;" ] "}" ]
+
 </box>
-        </rule>
-        <rule>
-            <box>G [  "&lt;WhenStatement&gt;" HV [ H [ "or" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] I [  "&lt;Statement&gt;" ] ] ]</box>
-        </rule>
-        <rule>
-            <box>V [ H [ "when" H hs=0 [  "(" HV [ "&lt;Expression&gt;" ]  ")"]  "{" ] I [ "&lt;BlockStatements&gt;" ] "}" ]</box>
-        </rule>
-        <rule>
-            <box>HV [ H [ "when" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ]] "&lt;Statement&gt;" ]</box>
-        </rule>
-        <rule>
-            <box>V [ H [ "atomic" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ]  "}"  ]
+</rule>
+<rule>
+<box>HV ["foreach" H hs=0 [ "(" H [ "&lt;Type&gt;" "&lt;id&gt;" ":" HV [ "&lt;Expression&gt;" ]  ] ")" ]
+ I [H ["clocked" H hs=0 ["(" HV[  "&lt;ClockList&gt;" ]  ")" ]  ] ]
+ I [ "&lt;Statement&gt;" ] ]
 </box>
-        </rule>
-        <rule>
-            <box>HV [ H [ "atomic" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] "&lt;Statement&gt;" ]</box>
-        </rule>
-        <rule>
-            <box>V [ H [ "atomic" "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]</box>
-        </rule>
-        <rule>
-            <box>HV ["atomic" I [ "&lt;Statement&gt;" ] ]</box>
-        </rule>
-        <rule>
-            <box>V [  HV [ "async"   I [ H hs=0 ["(" HV [ "&lt;Expression.1&gt;" ] ")" ] ] 
-                             I [ H [ "clocked" H hs=0 [ "(" "&lt;Expression.2&gt;" ")"  ] ] "{"  ]   ]   I [ "&lt;BlockStatements&gt;" ] "}" ]
+</rule>
+<rule>
+<box>V [ H [ "foreach" H hs=0 [ "(" H [ "&lt;Type&gt;" "&lt;id&gt;" ":" HV [ "&lt;Expression&gt;" ]  ] ")" ] "{" ]  I [ "&lt;Statement&gt;" ]  "}" ]
+</box>
+</rule>
+<rule>
+<box>HV ["foreach" H hs=0 [ "(" H [ "&lt;Type&gt;" "&lt;id&gt;" ":" HV [ "&lt;Expression&gt;" ]  ] ")" ] I [ "&lt;Statement&gt;" ] ]</box>
+</rule>
+<rule>
+<box>V [ H [ "foreach" "(" "Type" HV [ "&lt;Expression.1&gt;" ] ":" HV [ "&lt;Expression.2&gt;" ] ")"  "{" ] I [ "&lt;BlockStatements&gt;" ] "}" ]
+</box>
+</rule>
+<rule>
+<box>HV [ H [ "foreach" "(" "Type" HV [ "&lt;Expression.1&gt;" ] ":" HV [ "&lt;Expression.2&gt;" ] ")" ] I [ "&lt;Statement&gt;" ] ]</box>
+</rule>
+<rule>
+<box>V [ H [ "for" H hs=0 [ "(" H [ "&lt;Type&gt;" "&lt;id&gt;" ":" HV [ "&lt;Expression&gt;" ]  ] ")" ] "{" ]  I [ "&lt;Statement&gt;" ]  "}" ]
+</box>
+</rule>
+<rule>
+<box>HV ["for" H hs=0 [ "(" H [ "&lt;Type&gt;" "&lt;id&gt;" ":" HV [ "&lt;Expression&gt;" ]  ] ")" ] I [ "&lt;Statement&gt;" ] ]</box>
+</rule>
+<rule>
+<box>V [ H [ "for" "(" "Type" HV [ "&lt;Expression.1&gt;" ] ":" HV [ "&lt;Expression.2&gt;" ] ")"  "{" ] I [ "&lt;BlockStatements&gt;" ] "}" ]
+</box>
+</rule>
+<rule>
+<box>HV [ H [ "for" "(" "Type" HV [ "&lt;Expression.1&gt;" ] ":" HV [ "&lt;Expression.2&gt;" ] ")" ] I [ "&lt;Statement&gt;" ] ]</box>
+</rule>
+<rule>
+<box>HV [ H hs=0 ["&lt;ClockList&gt;" ","]  "&lt;Expression&gt;" ]</box>
+</rule>
+<rule>
+<box>HV ["await" I [ H hs=0 [ HV [ "&lt;Expression&gt;" ] ";" ] ] ]</box>
+</rule>
+<rule>
+<box>H hs=0 ["next" ";" ]</box>
+</rule>
+<rule>
+<box>G [  "&lt;WhenStatement&gt;" V [ H [ "or" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")"  ] "{" ] I [  "&lt;BlockStatements&gt;" ]  "}"  ] ]
+</box>
+</rule>
+<rule>
+<box>G [  "&lt;WhenStatement&gt;" HV [ H [ "or" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] I [  "&lt;Statement&gt;" ] ] ]</box>
+</rule>
+<rule>
+<box>V [ H [ "when" H hs=0 [  "(" HV [ "&lt;Expression&gt;" ]  ")"]  "{" ] I [ "&lt;BlockStatements&gt;" ] "}" ]</box>
+</rule>
+<rule>
+<box>HV [ H [ "when" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ]] "&lt;Statement&gt;" ]</box>
+</rule>
+<rule>
+<box>V [ H [ "atomic" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ]  "}"  ]
+</box>
+</rule>
+<rule>
+<box>HV [ H [ "atomic" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] "&lt;Statement&gt;" ]</box>
+</rule>
+<rule>
+<box>V [ H [ "atomic" "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]</box>
+</rule>
+<rule>
+<box>HV ["atomic" I [ "&lt;Statement&gt;" ] ]</box>
+</rule>
+<rule>
+<box>V [  HV [ "async"   I [ H hs=0 ["(" HV [ "&lt;Expression.1&gt;" ] ")" ] ] 
+                             I [ H [ "clocked" H hs=0 [ "(" "&lt;ClockList.2&gt;" ")"  ] ] "{"  ]   ]   I [ "&lt;BlockStatements&gt;" ] "}" ]
 
 
 
 </box>
-        </rule>
-        <rule>
-            <box>V [ H [ "async"  "clocked" H hs=0 [ "(" "&lt;Expression&gt;" ")"  ] "{"]   I [ "&lt;BlockStatements&gt;" ] "}" ]
+</rule>
+<rule>
+<box>V [ H [ "async"  "clocked" H hs=0 [ "(" "&lt;ClockList&gt;" ")"  ] "{"]   I [ "&lt;BlockStatements&gt;" ] "}" ]
 
 
 </box>
-        </rule>
-        <rule>
-            <box>V [ H [ "async" "{"]   I [ "&lt;BlockStatements&gt;" ] "}" ]
+</rule>
+<rule>
+<box>V [ H [ "async" "{"]   I [ "&lt;BlockStatements&gt;" ] "}" ]
 
 </box>
-        </rule>
-        <rule>
-            <box>V [ H [ "async" H hs=0 ["(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]
+</rule>
+<rule>
+<box>V [ H [ "async" H hs=0 ["(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]
 
 
 </box>
-        </rule>
-        <rule>
-            <box>HV [ "async" H hs=0 ["(" HV [ "&lt;Expression&gt;" ] ")" ] I [ "&lt;Statement&gt;" ] ]
+</rule>
+<rule>
+<box>HV [ "async" H hs=0 ["(" HV [ "&lt;Expression&gt;" ] ")" ] I [ "&lt;Statement&gt;" ] ]
 
 </box>
-        </rule>
-        <rule>
-            <box>HV [ "async" I [ "&lt;Statement&gt;" ] ]
+</rule>
+<rule>
+<box>HV [ "async" I [ "&lt;Statement&gt;" ] ]
 </box>
-        </rule>
-        <rule>
-            <box>V [ H [  "now"  H hs=0 [ "(" HV [  "&lt;Expression&gt;" ] ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ] "}"]
+</rule>
+<rule>
+<box>V [ H [  "now"  H hs=0 [ "(" HV [  "&lt;Expression&gt;" ] ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ] "}"]
 
 </box>
-        </rule>
-        <rule>
-            <box>HV [ H [ "now" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]
+</rule>
+<rule>
+<box>HV [ H [ "now" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]
 </box>
-        </rule>
-        <rule>
-            <box>V [ H [ "finish" "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]
+</rule>
+<rule>
+<box>V [ H [ "finish" "{" ]  I [ "&lt;BlockStatements&gt;" ] "}" ]
 </box>
-        </rule>
-        <rule>
-            <box>H [ "finish" I [ "&lt;Statement&gt;" ] ]
+</rule>
+<rule>
+<box>H [ "finish" I [ "&lt;Statement&gt;" ] ]
 </box>
-        </rule>
-        <rule>
-            <box>  V  [ H [ "ateach" H hs=0 
+</rule>
+<rule>
+<box>  V  [ H [ "ateach" H hs=0 
+[ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;"":""&lt;Expression.2&gt;"] ")"]
+ I [ H [ "clocked" H hs=0 [ "(" "&lt;ClockList.2&gt;" ")"  ] ] "{"  ] ]
+I [ "&lt;BlockStatements&gt;" ]
+"}"] 
+</box>
+</rule>
+<rule>
+<box>  V  [ H [ "ateach" H hs=0 
 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;"":""&lt;Expression.2&gt;"] ")"] "{" ]
 I [ "&lt;BlockStatements&gt;" ]
 "}"] </box>
-        </rule>
-        <rule>
-            <box>HV [ H ["ateach" H hs=0 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;" ":"  "&lt;Expression.2&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]</box>
-        </rule>
-        <rule>
-            <box>V [ H [ "if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]
+</rule>
+<rule>
+<box> HOV [ H ["ateach" H hs=0 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;" ":" 
+ "&lt;Expression.2&gt;" ] ")" ] ]   I [ H [ "clocked" H hs=0 [ "("
+ "&lt;ClockList.2&gt;" ")"  ] ]   I [ "&lt;Statement&gt;" ] ] ]
+</box>
+</rule>
+<rule>
+<box>HV [ H ["ateach" H hs=0 [ "(" H [ "&lt;Type&gt;""&lt;Expression.1&gt;" ":"  "&lt;Expression.2&gt;" ] ")" ] ] I [ "&lt;Statement&gt;" ] ]</box>
+</rule>
+<rule>
+<box>V [ H [ "if" H hs=0 [ "(" HV [ "&lt;Expression&gt;" ] ")" ] "{" ]
 I [ V [ "&lt;BlockStatements&gt;" ] ] "}" ]
 </box>
-        </rule>
-    </rules>
-    <example>public class BlockDistedArray1D {
-  int a = a.b.a.b.b();
+</rule>
+</rules>
+<example>public class A {
+  int a = a.v.c.d();
 
-  int a = a . a . a.a;
-
-  int main( ) {
-    int a = a . b(a) ;
-    int a = a.b.a.b.b() ;
-    when (y) {
-      printf("y");
-    }
-    or (x) {
-      int a ;
-      when (y) {
-        printf("y");
-      }
-      or (x) {
-        int a ;
-      }
-      or (z) {
-        int b ;
-      }
-    }
-    or (z) {
-      int b ;
-    }
-    when (x) printf("x");
-    atomic (a + b) printf("x");
-    atomic (a + b + c) {
-      printf("y");
-    }
-    atomic {
-      printf("hla");
-    }
-    atomic printf("vbl");
-    async (a.b)
-      clocked (1 , 2 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 3 , 5 , 5 , 5 , 5 , 5) {
-      printf("ues");
-    }
-    finish {
-      ateach (point i : !(x &amp;&amp; y)) {
-        printf("aasfasfasfaasdfaaasfsaafaasdfasaasfasfasfaasdfass", "bb", "cc",
-               "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg",
-               "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee",
-               "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii",
-               "dd", "ee", "ff", "gg", "hh", "ii");
-        int a ;
-      }
-      ateach (point i : !(x &amp;&amp; y))
-        printf("aasfasfasfaasdfaaasfsaafaasdfasaasfasfasfaasdfass", "bb", "cc",
-               "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg",
-               "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii", "dd", "ee",
-               "ff", "gg", "hh", "ii", "dd", "ee", "ff", "gg", "hh", "ii",
-               "dd", "ee", "ff", "gg", "hh", "ii");
-      int a ;
-    }
-    now (0) printf("xsdfgssdgsdgdfgsdgsdlfhgsldkfhgsldfjghsdlfghsdlfjgh");
-    now (0) {
-      printf("x");
-    }
-    async printf("whatever");
-    async (1) clocked (1) {
-      printf("ues");
-    }
-    async clocked (1) {
-      printf("ues");
-    }
-    async (MyPlace) {
-      printf("asfgsghsfgiesgsdlghsdlghsdlghsdlghsldfhgokfgskdfgasjkdfgkasdgfs");
-    }
-    async (MyPlace) {
-      rintf("ues");
-      printf("asfgsghsfgiohasfghsdfghsdfghsdfgsdfgsdfgsdkfgskdfgasjkdfgkasdgfs");
-    }
+  int main(int a, int b, int c) {
+    int a = 0 ;
+    System . err . println("Hello world");
+    return a;
   }
 }
 </example>
