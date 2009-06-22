@@ -292,8 +292,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
 				doc = getCommentText(doc);
 				if (traceOn)
-					System.out.println("X10ContextHelper.getX10DocFor(): "
-							+ doc);
+					System.out.println("X10DocProvider.getX10DocFor(): " + doc);
 				return doc;
 			}
 		} catch (IOException e) {
@@ -371,7 +370,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		// strip html, leave some as bold tags
 		String resStr = result.toString();
 		String boldStr = decodeContextBoldTags(resStr);
-		System.out.println("x10ContextHelper boldStr: " + boldStr);
+		if(traceOn)System.out.println("x10ContextHelper boldStr: " + boldStr);
 		return boldStr;
 	}
 
@@ -504,9 +503,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			if (lookingPastEndOf(fileSrc, idx, "*/")) {
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
 				if (traceOn)
-					System.out
-							.println("X10ContextHelper.getX10DocFor(classDecl): "
-									+ doc);
+					System.out.println("X10ContextHelper.getX10DocFor(classDecl): "+ doc);
 				return doc;
 			}
 		} catch (IOException e) {
@@ -573,8 +570,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 */
 	private String getJavaDocFor(IMember member) {
 		try {
-			Reader reader = JavadocContentAccess.getHTMLContentReader(member,
-					true, true);
+			Reader reader = JavadocContentAccess.getHTMLContentReader(member, true, true);
 
 			if (reader == null)
 				return "";
@@ -592,10 +588,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 	private IType findJavaType(String qualName, IParseController parseController) {
 		try {
-			IJavaProject javaProject = JavaCore.create(parseController
-					.getProject().getRawProject());
+			IJavaProject javaProject = JavaCore.create(parseController.getProject().getRawProject());
 			IType javaType = javaProject.findType(qualName);
-
 			return javaType;
 		} catch (JavaModelException e) {
 			return null;
