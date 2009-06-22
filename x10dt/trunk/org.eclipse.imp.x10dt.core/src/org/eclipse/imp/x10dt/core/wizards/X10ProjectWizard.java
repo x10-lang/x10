@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -55,6 +56,8 @@ import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 public class X10ProjectWizard extends Wizard implements INewWizard {
     private X10ProjectWizardFirstPage fFirstPage;
@@ -123,6 +126,7 @@ public class X10ProjectWizard extends Wizard implements INewWizard {
 	fFirstPage= new X10ProjectWizardFirstPage();
 	addPage(fFirstPage);
 	fSecondPage= new X10ProjectWizardSecondPage(fFirstPage);
+	addPage(fSecondPage);
     }
 
     /* (non-Javadoc)
@@ -133,4 +137,8 @@ public class X10ProjectWizard extends Wizard implements INewWizard {
     }
 
     public void init(IWorkbench workbench, IStructuredSelection selection) {}
+
+    public void selectAndReveal(IFile newFile) {
+        BasicNewResourceWizard.selectAndReveal(newFile, PlatformUI.getWorkbench().getActiveWorkbenchWindow());
+    }
 }
