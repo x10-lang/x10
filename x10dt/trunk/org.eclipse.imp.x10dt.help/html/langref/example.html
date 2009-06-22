@@ -21,7 +21,7 @@ This example illustrates 2-d Jacobi iteration.
 
 <div class="p"><!----></div>
 <pre>
-public class Jacobi 
+public class Jacobi {
    const N: int = 6;
    const epsilon: double = 0.002;
    const epsilon2: double = 0.000000001;
@@ -38,10 +38,10 @@ public class Jacobi
         (p(i,j): point) =&#62; DBoundary.contains(p) ? (N-1)/2 : N*(i-1)+(j-1));
 
 <div class="p"><!----></div>
-   public def run(): boolean 
+   public def run(): boolean {
       var iters: int = 0;
       var err: double;
-      while (true) 
+      while (true) {
         val Temp: Array[double] = 
            new array[double](DInner, ((i,j): point) =&#62;
              (read(i+1,j)+read(i-1,j) +read(i,j+1)+read(i,j-1))/4.0);
@@ -49,25 +49,23 @@ public class Jacobi
            break; 
         B.update(Temp);
         iters++; 
-      
+      }
       Console.OUT.println(&#203;rror="+err);
       Console.OUT.println(&#207;terations="+iters);
       return Math.abs(err-EXPECTED_ERR)&lt;epsilon2 
-          </td><td width="150">
-</td><td width="150">
- iters==EXPECTED_ITERS;
-   
-   public def read(i: int, j: int): double 
+          && iters==EXPECTED_ITERS;
+   }
+   public def read(i: int, j: int): double {
       return (future(D(i,j)) =&#62; B(i,j)).force();
-   
-   public static def main(args: Array[String]) 
+   }
+   public static def main(args: Array[String]) { 
       val b = new Jacobi().run();
       Console.OUT.println("++++++ "
                           + (b? "Test succeeded."
                              :"Test failed."));
       System.exit(b?0:1);
-   
-
+   }
+}
 </pre>
 
 </body>
