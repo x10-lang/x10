@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) -initial API and implementation
 
  *******************************************************************************/
 
@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
+import java.util.List;
 
 import lpg.runtime.IToken;
 
@@ -43,12 +44,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavadocContentAccess;
 
+
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -67,6 +70,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.Named;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
@@ -80,6 +84,7 @@ import x10.parser.X10Parser.JPGPosition;
  * 
  * This aims to provide some sort of information for a variety of objects. Need
  * to document whether it provides info with HTML or not.
+ * Currently, queries by ContextHelper and HoverHelper process any html provided differently.
  */
 public class X10DocProvider implements IDocumentationProvider, ILanguageService {
 	private static final boolean traceOn = false;
@@ -100,7 +105,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	/**
 	 * Provides javadoc-like info (if available) and more for a variety of entities
 	 */
-	@SuppressWarnings("restriction")
 	public String getHelpForEntity(Object target, IParseController parseController) {
 		Node root = (Node) parseController.getCurrentAst();
 
@@ -146,7 +150,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 					return getJavaDocFor(javaField);
 				} else {
-					return getX10DocFor(fi);
+					//String sig = fi.toString();  // field int Class.varName
+					String type = fi.type().toString(); // int   or pkg.TypeName; want TypeName only
+					type=unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
+					//sig= fi.declaration().toString();
+					String varName=fi.name();
+					String sig = type+" "+ownerName+"."+varName;
+					return getX10DocFor(sig,fi);
 				}
 			}
 			return "Field '" + fi.name() + "' of type " + fi.type().toString();
@@ -156,6 +166,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 			return "Variable '" + var.name() + "' of type " + type.toString();
 		} else if (target instanceof Call) {
+			if(traceOn)System.out.println("==>Call");
 			Call call = (Call) target;
 			MethodInstance mi = call.methodInstance();
 			ReferenceType ownerType = mi.container();
@@ -163,6 +174,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			if (ownerType.isClass()) {
 				ClassType ownerClass = (ClassType) ownerType;
 				String ownerName = ownerClass.fullName();
+				//String fullName =ownerName+"."+mi.name();
 
 				if (isJavaType(ownerName)) {
 					IType javaType = findJavaType(ownerName, parseController);
@@ -171,7 +183,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 					return getJavaDocFor(method);
 				} else {
-					return getX10DocFor(mi);
+					String sig = getSignature(mi);
+					return getX10DocFor(sig, mi);
 				}
 			}
 			return "Method " + mi.signature() + " of type " + mi.container().toString();
@@ -179,19 +192,22 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			// local var, parm, (java or x10) or field
 			// won't fall thru to Declaration
 			VarInstance var = (VarInstance) target;
+
 			// do we need something here? Or is it being taken care of elsewhere?		
 		}
 		else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
+			if(traceOn)System.out.println("==>MethodInstance or ConstructorInstance");
 			//we get different info from different interfaces, so make them both for use here:
-			MemberInstance mi = (MemberInstance) target;
+			MemberInstance memi = (MemberInstance) target;
 			ProcedureInstance pi = (ProcedureInstance)target;
+			 
 			
-			if (isJavaMember(mi)) {   
-				ReferenceType rt = mi.container();
-
+			if (isJavaMember(memi)) {   
+				ReferenceType rt = memi.container();
+				// if java then we can omit the 'java.lang' prefix ... TBD
 				if (rt instanceof ClassType) {
 					ClassType ct = (ClassType) rt;
-					String fullname=ct.fullName(); // was "Object" when encoutered polyglot error
+					String fullname=ct.fullName(); // was "Object" when encountered polyglot error
 					IType it = findJavaType(fullname, parseController);
 					String[] paramTypes = convertParamTypes(pi);
 					String mname = null;
@@ -204,33 +220,91 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 					String doc = getJavaDocFor(method);
 					return doc;
 				}
-			} else {
+			} else { // x10
+				 /*
 				Declaration mti = (Declaration) target;
-				return getX10DocFor(mti);
+				String sig ="?";
+				ReferenceType rt = memi.container();
+				if(rt instanceof ClassType) {
+					//name=((ClassType)rt).name(); //w/o pkg name
+					name=((ClassType)rt).fullName();
+				} else {
+					MethodInstance mi = (MethodInstance) target;
+					name = mi.name();  
+					List types = mi.formalTypes();  // args???
+					int numArgs=types.size();
+					sig=getSignature(mi);
+				}
+				*/
+				if(target instanceof MethodInstance) {
+					MethodInstance mi = (MethodInstance) target;
+					String sig=getSignature(mi);
+					String doc = getX10DocFor(sig,mi);
+					return doc;
+				}else { // constructorInstance
+					ConstructorInstance ci = (ConstructorInstance)target;
+					String name="(name)";
+					String t=ci.toString();
+					ReferenceType rt = ci.container();
+					if(rt instanceof Named) {
+						Named named = (Named) rt;
+						name=named.name();
+						name=named.fullName();
+						
+					}
+					String args=formatArgs(ci.formalTypes());
+					String sig=name+args;
+					String doc = getX10DocFor(sig, ci);
+					return doc;
+				}
+				
+				//CpnstructorInstance??
+				//int stopHere=0;
+				//String sig=getSignature(mi);
+				//return getX10DocFor(sig,mti);
 			}
 			
 		} 
 		else if (target instanceof ClassType) {  
-			ClassType decl = (ClassType) target;
-			String qualifiedName =decl.fullName();
+			ClassType ct = (ClassType) target;
+			String qualifiedName =ct.fullName();
 
 			if (isJavaType(qualifiedName)) { 
 				IType javaType = findJavaType(qualifiedName, parseController);
 				String doc = getJavaDocFor(javaType); 
 				return doc;
 			} else {
-				return getX10DocFor(decl);
+				return getX10DocFor(qualifiedName, ct);
 			}
 			
 		} else if (target instanceof ClassDecl) {
 			ClassDecl cd = (ClassDecl)target;
-			String doc = getX10DocFor(cd);
+			String fullName = cd.type().toString(); // FIXME is there a better way than toString()? want full package name
+			//ReferenceType rt = cd.type().container();
+			//NO fullName=cd.type().name();
+			//String id = cd.id().toString();
+			
+			//String name = "?package?"+cd.name();
+			String doc = getX10DocFor(fullName,cd);
 			return doc;
 		}
 		else if (target instanceof MethodDecl) {
 			MethodDecl md = (MethodDecl) target;
-
-			return getX10DocFor(md.methodInstance());
+			String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
+			MethodInstance mi = md.methodInstance();
+			String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
+			String name="";
+			
+			String sig = mi.signature();// doesn't include arg names, just types
+				 
+			ReferenceType rt = mi.container();
+			if(rt instanceof ClassType) {
+				ClassType ct = (ClassType) rt;
+				name =ct.fullName();// includes package info		
+			}
+			name = getSignature(mi,md);	
+			String doc = getX10DocFor(name, md.methodInstance());
+			return doc;
 		} else if (target instanceof FieldDecl) {
 			FieldDecl fd = (FieldDecl) target;
 			FieldInstance fi = fd.fieldInstance();
@@ -245,7 +319,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 			if (parent instanceof ConstructorDecl) {
 				ConstructorDecl cd = (ConstructorDecl) parent;
-				return getX10DocFor(cd.constructorInstance());
+				//String id = cd.id().toString();//shortname
+				//String name = typeNode.name();//shortname
+				String fullName = typeNode.toString();// FIXME better way of getting fully qualified name, incl. pkg info??
+				
+				// get Constructor args, if any
+				String sig=fullName+formatArgs(cd.formals()); 
+				return getX10DocFor(sig, cd.constructorInstance());
 			} else if (parent instanceof New) {
 				New n = (New) parent;
 				return getX10DocFor(n.constructorInstance());
@@ -253,7 +333,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				Type type = typeNode.type();			
 				String qualifiedName = typeNode.qualifier().toString();
 				qualifiedName = stripArraySuffixes(qualifiedName);
-				return getJavaOrX10DocFor(qualifiedName, type, parseController);//BRT consolidate
+				return getJavaOrX10DocFor(qualifiedName, type, parseController); 
 			}
 		}
 		else if (target instanceof ClassType) {
@@ -287,6 +367,60 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	}
 
 	/**
+	 * return a simple type name, not a fully qualified type
+	 * e.g. "my.pkg.Foo"  returns "Foo"
+	 * <p>Surely i have missed something to have to implement this
+	 * @param type
+	 * @return
+	 */
+	private String unqualify(String type) {
+		if(!type.contains(".")) {
+			return type;
+		}
+		int pos=type.lastIndexOf('.');
+		String result = type.substring(pos+1);
+		return result;
+	}
+
+	private String getSignature(MethodDecl md) {
+		MethodInstance mi=md.methodInstance();
+		String sig = getSignature(mi,md);
+		return sig;
+	}
+
+
+	private String getSignature(MethodInstance mi) {
+		String sig = getSignature(mi,null);
+		return sig;
+	}
+	private String getSignature(MethodInstance mi, MethodDecl md) {	
+		ReferenceType type = mi.container();
+		String containerName="(unspecified)";
+		if(type instanceof Named) {
+			Named ct = (Named) type;
+			containerName =ct.fullName();	
+		}
+
+		// find return value type
+		Type rType = mi.returnType();
+		// do we always add a dot? what if containerName is empty? default
+		// package? Should *always* have at least a container/class name.
+		// Methinks.
+		String sig=rType+" "+containerName+"."+mi.name();
+		
+		// get the args. use MethodDecl if we have it (more complete info)
+		List argList=null;
+		if(md==null) {
+			argList=mi.formalTypes();
+		}else {
+			argList=md.formals(); // this includes arg names, mi.formalTypes() does not
+		}					// 
+		String argString=formatArgs(argList);
+		sig = sig+argString;
+		return sig;
+	}
+
+	/**
 	 * For a fully qualified name, return either the javadoc or x10Doc for
 	 * the entity, if available.
 	 * 
@@ -302,33 +436,49 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			IType javaType = findJavaType(qualifiedName, parseController);
 			doc= (javaType != null) ? getJavaDocFor(javaType) : "";
 		} else {
-			doc= type.isClass() ? getX10DocFor((ClassType) type) : "";
+			doc= type.isClass() ? getX10DocFor(qualifiedName, (ClassType) type) : "";
 		}
 		return doc;
 	}
 
 	/**
 	 * Get the javadoc-like comment string for an X10 declaration
+	 * <p>Does not return signature(qualifiedName) info if the javadoc is empty.
+	 * <p>That is, if the javadoc is empty, don't return anything
 	 */
+	@SuppressWarnings("restriction")
+	private String getX10DocFor(String qualifiedName, Declaration decl) {
+		String doc = getX10DocFor(decl);
+		if(doc!=null) doc = addNameToDoc(qualifiedName, doc);
+		// if we return Null, HoverHelper will display something unless it's the decl. Uncomment this if you don't want it to.
+		//  that is, if you're hovering right over the declaration for the thing, you probably don't need a hover with only type info.
+		//if(doc==null) doc="";
+		return doc;
+	}
 	private String getX10DocFor(Declaration decl) {
-		Position pos = decl.position();
-		String path = pos.file();
-		return getX10DocFor(pos);
+		String doc = getRawX10DocFor(decl.position());
+		return doc;
 	}
 	/**
 	 * Get the javadoc-like comment string for an X10 entity represented by a Node
 	 * (Note that this includes ClassDecl, formerly handled separately)
 	 */
+	@SuppressWarnings("restriction")
 	private String getX10DocFor(Node node) {
-		Position pos = node.position();
-		String doc = getX10DocFor(pos);
+		String doc = getRawX10DocFor(node.position());
 		return doc;
 		
 	}
+	private String getX10DocFor(String name, Node node) {
+		String doc = getX10DocFor(node);
+		doc = addNameToDoc(name, doc);
+		return doc;
+	}
 	/**
-	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position
+	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position.
+	 * Does not add name, this is *just* the javadoc comments, without the stars or comment chars
 	 */
-	private String getX10DocFor(Position pos) {
+	private String getRawX10DocFor(Position pos) {
 		String path = pos.file();
 		try {
 			Reader reader = new FileReader(new File(path));
@@ -338,15 +488,36 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			idx = skipBackwardWhite(fileSrc, idx);
 			if (lookingPastEndOf(fileSrc, idx, "*/")) {
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
-				doc = getCommentText(doc);
+				doc = getCommentText(doc);// strip stars, etc
 				if (traceOn)
-					System.out.println("X10ContextHelper.getX10DocFor: "
+					System.out.println("X10DocProvider.getX10DocFor: "
 							+ doc);
+				// somebody takes out \n later if they are added here:   ???
+				//doc = "\n"+doc+"\n"; // be like javadoc and surround with blank lines 
+				final String P="<p>";
+				doc=P+doc+P;
 				return doc;
 			}
 		} catch (IOException e) {
 		}
 		return null;
+	}
+	private static final String BOLD="<b>";
+	private static final String UNBOLD="</b>";
+	private static final String NEWLINE="\n";
+	private static final String PARA="<p>";
+	
+	/**
+	 * Add name (probably a full signature) to the javadoc string, nicely formatted
+	 * <p>Note: if we just use newlines, somebody takes them out later.
+	 * This will be uglier in Context help till we better-format it, but prettier in hover help
+	 * @param name the signature or properly qualified name of the thing
+	 * @param doc the javadoc string
+	 * @return
+	 */
+	private String addNameToDoc(String name, String doc) {
+		doc=BOLD+name+UNBOLD+PARA+doc+PARA;
+		return doc;
 	}
 
 	/**
@@ -633,6 +804,61 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			}
 		}
 		return "";
+	}
+	/**
+	 * Given a list of string args, format them with commas between
+	 * e.g. "int a, int b, String c"  etc.
+	 * @param args
+	 * @return the formatted string list of args
+	 */
+	@SuppressWarnings("unchecked")
+	private String formatArgs(List a) {
+		StringBuilder result=new StringBuilder();
+		
+		result.append("(");
+		for (Iterator iterator = a.iterator(); iterator.hasNext();) {
+			Object obj = iterator.next();
+			if (obj instanceof Formal) {
+				Formal f = (Formal) obj;
+				//String name = f.name();
+				//String type = f.type().name();
+				//String typeAndName=type+" "+name;
+				// Just use toString(), it's already being done for us
+				String typeAndName = f.toString();
+				typeAndName=removeJavaLang(typeAndName);
+				result.append(typeAndName);
+				result.append(", ");
+			}
+			else {
+				String simpleName=removeJavaLang(obj.toString());			
+				result.append(simpleName+", "); // placeholder for the unexpected, probably type only instead of type+name
+				
+			}
+
+		}
+		String res=result.toString();
+		// remove trailing comma (if any args were there at all) and add a closing paren
+		if(res.endsWith(", ")) {
+			res=res.substring(0,res.length()-2);
+		}
+		res=res+")";
+		return res;
+		
+	}
+
+	/**
+	 * Remove the "java.lang." prefix on a type, if it exists
+	 * @param name
+	 * @return the truncated name
+	 */
+	private String removeJavaLang(String name) {
+		final String JAVALANG="java.lang.";
+		final int len=JAVALANG.length();
+		String result=name;
+		if(name.startsWith(JAVALANG)) {
+			result=result.substring(len);
+		}
+		return result;
 	}
 
 }
