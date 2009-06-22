@@ -11,12 +11,8 @@
 *******************************************************************************/
 
 /*
- * (C) Copyright IBM Corporation 2007
+ * (C) Copyright IBM Corporation 2007,2009
  * 
- * This file is part of the Eclipse IMP.
- */
-/*
- * Created on Jul 20, 2006
  */
 package org.eclipse.imp.x10dt.ui.editor;
 
@@ -56,6 +52,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
+import polyglot.ast.TypeNode;
 //import polyglot.ext.x10.ast.ArrayConstructor; //PORT1.7 ArrayConstructor no longer exists
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
@@ -72,10 +69,18 @@ import polyglot.types.Flags;
 import polyglot.types.MethodInstance;
 import x10.parser.X10Parser.JPGPosition;
 
+/**
+ * Text and icon labels for X10 Outline View (and possibly others).<br>
+ * To add an image, e.g. "foo", add a String field ending in "_IMAGE_NAME", a similarly named Image field ending in
+ * "_IMAGE", and an icon in the icons directory of this (x10dt.ui) project that matches the FOO_IMAGE_NAME+".gif"
+ * <br>
+ * Static initializer block finds all thusly named fields and creates the images and does the registry
+ * bookkeeping.
+ * @author Beth Tibbitts
+ *
+ */
 public class X10LabelProvider implements ILabelProvider, ILanguageService {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
-
-//  private ProblemsLabelDecorator fLabelDecorator;
 
     private static ImageRegistry sImageRegistry= X10DTUIPlugin.getInstance().getImageRegistry();
 
@@ -86,6 +91,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public static final String COMPILATION_UNIT_NORMAL_IMAGE_NAME= "compilationUnitNormal";
     public static final String COMPILATION_UNIT_WARNING_IMAGE_NAME= "compilationUnitWarning";
     public static final String COMPILATION_UNIT_ERROR_IMAGE_NAME= "compilationUnitError";
+    /** Alias image used for type definitions */
     public static final String ALIAS_IMAGE_NAME="alias";
 
     private static Image COMPILATION_UNIT_NORMAL_IMAGE;
@@ -105,11 +111,13 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     
     public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
 
+    /** Images for the default, private, protected, and public versions of fields */
     public static Image _DESC_FIELD_DEFAULT = JavaPluginImages.DESC_FIELD_DEFAULT.createImage();
     public static Image _DESC_FIELD_PRIVATE = JavaPluginImages.DESC_FIELD_PRIVATE.createImage();
     public static Image _DESC_FIELD_PROTECTED = JavaPluginImages.DESC_FIELD_PROTECTED.createImage();
     public static Image _DESC_FIELD_PUBLIC = JavaPluginImages.DESC_FIELD_PUBLIC.createImage();
 
+    /** Images for the default, private, protected, and public versions of miscellaneous objects */
     public static Image _DESC_MISC_DEFAULT = JavaPluginImages.DESC_MISC_DEFAULT.createImage();
     public static Image _DESC_MISC_PRIVATE = JavaPluginImages.DESC_MISC_PRIVATE.createImage();
     public static Image _DESC_MISC_PROTECTED = JavaPluginImages.DESC_MISC_PROTECTED.createImage();
@@ -118,13 +126,14 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public static Image _DESC_OBJS_CFILECLASS = JavaPluginImages.DESC_OBJS_CFILECLASS.createImage();
     public static Image _DESC_OBJS_CFILEINT = JavaPluginImages.DESC_OBJS_CFILEINT.createImage();
 
+    /** Images for the default, private, protected, and public versions of objects */
     public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
     public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
     public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
     public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
 
 
-
+    /** Images for the default, private, protected, and public versions of Interfaces */
     public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
     public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
     public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
@@ -200,31 +209,39 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 
         if (node instanceof PackageNode) {
             return _DESC_OBJS_PACKDECL;
+        
         } else if (node instanceof ClassDecl) {
             ClassDecl cd= (ClassDecl) node;
-            
-            Flags f;
             return cd.flags().flags().isInterface() ? _DESC_OBJS_CFILEINT : _DESC_OBJS_CFILECLASS;//PORT1.7 flags()->flags().flags()
+        
         } else if (node instanceof FieldDecl) {
             FieldDecl fd= (FieldDecl) node;
-
             return getImageFromQualifiers(fd.flags().flags(), FIELD_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
+        
         } else if (node instanceof ProcedureDecl) {
             ProcedureDecl pd= (ProcedureDecl) node;
-
             return getImageFromQualifiers(pd.flags().flags(), MISC_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
+        
         } else if (node instanceof Async || node instanceof AtEach || node instanceof ForEach ||
                 node instanceof Future || node instanceof Finish || node instanceof Atomic ||
                 node instanceof Next) {
             return _DESC_MISC_DEFAULT;
+        
         } else if (node instanceof New) {//PORT1.7 ArrayConstructor->New (Nate: "with a Closure as an argument")
             return _DESC_MISC_DEFAULT;
+        
         } else if (node instanceof TypeDecl_c){
         	return ALIAS_IMAGE;
         }
         return DEFAULT_AST_IMAGE;
     }
 
+    /**
+     * Get image based on the public/protected/private qualifier
+     * @param flags
+     * @param images
+     * @return
+     */
     private Image getImageFromQualifiers(Flags flags, Image[] images) {
         if (flags.isPrivate())
             return images[1];
@@ -286,17 +303,16 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             return filter(fd.name() + " : " + fd.type());
         } else if (node instanceof ProcedureDecl) {
     	    ProcedureDecl pd= (ProcedureDecl) node;
-    	    
-    	    List/*<Formal>*/ formals= pd.formals();
+    	    List<Formal> formals= pd.formals();
     	    StringBuffer buff= new StringBuffer();
     	    buff.append(pd.name().id().toString());//PORT1.7 note that ProcedureDecl.name() re-added 10/1/08 by Nate
     	    buff.append("(");
-    	    for(Iterator iter= formals.iterator(); iter.hasNext(); ) {
-    		Formal formal= (Formal) iter.next();
-    		buff.append(formal.type().toString());
-    		if (iter.hasNext())
-    		    buff.append(", ");
-    	    }
+    	    for (Iterator<Formal> iter = formals.iterator(); iter.hasNext();) {
+				Formal formal =  iter.next();
+				buff.append(formal.type().toString());
+				if (iter.hasNext())
+					buff.append(", ");
+			}
     	    buff.append(")");
     	    return filter(buff.toString());
         } else if (node instanceof Async) {
@@ -331,7 +347,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             }
             String temp = node.getClass().getName()+": "+node.toString();//PORT1.7 what is this thing? find out later
             return temp;
-        } else if (node instanceof TypeDecl_c){
+        } else if (node instanceof TypeDecl_c){  // type definition a.k.a. alias
         	TypeDecl_c td=(TypeDecl_c)node;
         	String tdName= td.name().toString();
         	return tdName;
