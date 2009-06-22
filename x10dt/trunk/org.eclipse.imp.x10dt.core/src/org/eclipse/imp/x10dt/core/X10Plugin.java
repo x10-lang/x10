@@ -17,13 +17,28 @@
  */
 package org.eclipse.imp.x10dt.core;
 
+import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsole;
+import org.eclipse.ui.console.IConsoleConstants;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.IConsoleView;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -40,7 +55,8 @@ import org.osgi.framework.BundleContext;
  * 
  */
 public class X10Plugin extends PluginBase {
-    public static final String kPluginID= "org.eclipse.imp.x10dt.core";
+	public static final String kPluginID= "org.eclipse.imp.x10dt.core";
+	public static final String X10DT_CONSOLE_NAME = "X10DT info";
     public static final String kLanguageName = "X10";
     
     /** Plugin id of version of X10 runtime used for this X10DT */
@@ -53,14 +69,7 @@ public class X10Plugin extends PluginBase {
      * The unique instance of this plugin class
      */
     protected static X10Plugin sPlugin;
-    
-
-
-    // SMS 27 Oct 2006
-    // Calls to set values in X10Preferences should be obviated
-    // if the SAFARI preferences service is used
-    // Calls to reference values in X10Preferences should be
-    // replaced with calls to the SAFARI preferences service
+    protected static MessageConsole console=null;
     
     public static String x10CompilerPath;
 
@@ -91,28 +100,18 @@ public class X10Plugin extends PluginBase {
     public void start(BundleContext context) throws Exception {
         super.start(context);
 
-        // Initialize the X10Preferences fields with the preference store data.
-        // SMS 30 Oct 2006:  Not if preferences service is used
-        //IPreferenceStore prefStore= getPreferenceStore();
-
         Bundle x10CompilerBundle= Platform.getBundle(X10_COMPILER_BUNDLE_ID);
         URL x10CompilerURL= FileLocator.toFileURL(FileLocator.find(x10CompilerBundle, new Path(""), null));
 
         // SMS 30 Oct 2006:  Note:  x10CompilerPath is *not* set as a preference
         x10CompilerPath= x10CompilerURL.getPath();
 
-	// SMS 27 Oct 2006:  defs to remove
-//	X10Preferences.builderEmitMessages= prefStore.getBoolean(PreferenceConstants.P_EMIT_MESSAGES);
-////	X10Preferences.autoAddRuntime= prefStore.getBoolean(PreferenceConstants.P_AUTO_ADD_RUNTIME);
-//	X10Preferences.x10ConfigName= prefStore.getString(PreferenceConstants.P_X10CONFIG_NAME);
-//	X10Preferences.x10ConfigFile= prefStore.getString(PreferenceConstants.P_X10CONFIG_FILE);
-
-	// SMS 30 Oct 2006:  ref to replace
-	// Filling in the field here for now, but eventually want to replace references to this
-	// field with calls to the preference service
-	//fEmitInfoMessages= X10Preferences.builderEmitMessages;
-	// BRT fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
-	// BRT consider putting this in an X10DT pref page.  Probably want several flavors.
+        // SMS 30 Oct 2006:  ref to replace
+        // Filling in the field here for now, but eventually want to replace references to this
+        // field with calls to the preference service
+        //fEmitInfoMessages= X10Preferences.builderEmitMessages;
+        // BRT fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
+        // BRT consider putting this in an X10DT pref page.  Probably want several flavors.
     }
 
     /**
@@ -135,38 +134,95 @@ public class X10Plugin extends PluginBase {
     public static ImageDescriptor getImageDescriptor(String path) {
         return AbstractUIPlugin.imageDescriptorFromPlugin(kPluginID, path);
     }
-
-//  mmk 5/20/2008: replaced prefs code with generated prefs code (below)
-//    // SMS 30 Oct 2006
-//    // X10 actually has more preferences than the ones that are refreshed
-//    // here, but these may be the only ones for which fresh values were
-//    // a concern.  	If fEmitInfoMessages is obviated by direct references
-//    // to the preferences service, then it can be deleted here.  The need
-//    // to refresh the configuration file as is done here may remain since
-//    // the value is not based solely on what is in the store (the "default"
-//    // value computed here depends on x10CompilerPath, which is not a	
-//    // preference value).			
-//    public void refreshPrefs() {
-//        super.refreshPrefs();
-//        // SMS 27 Oct 2006:  ref to replace
-//        //fEmitInfoMessages= X10Preferences.builderEmitMessages;
-//        fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
-//        // Set the "x10.configuration" System property from the corresponding preference
-//        // value, since polyglot.ext.x10.Configuration relies on its being set, and a
-//        // static initializer there throws an exception if it can't find the config file.
-//        // SMS 27 Oct 2006:  refs to replace
-//        //final String configFile= (X10Preferences.x10ConfigFile!= null ? X10Preferences.x10ConfigFile : x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
-//        final String configFile= (
-//        		getPreferencesService().getStringPreference(PreferenceConstants.P_X10CONFIG_FILE) != null ?
-//        				getPreferencesService().getStringPreference(PreferenceConstants.P_X10CONFIG_FILE) :
-//        				x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
-//
-//        System.setProperty("x10.configuration", configFile);
-//    }
-//    
+   
     @Override
     public void refreshPrefs() {
     	System.out.println("refreshPrefs");
     	this.getPreferencesService().getBooleanPreference("msgs?");
     }
+    
+    public MessageConsole getConsole() {
+    	if(console==null) {
+    		console = findConsole(X10DT_CONSOLE_NAME);
+    	}
+    	return console;
+    }
+    /**
+     * Write a string to the X10DT console.  Note that the user has to open the console for this to be visible.
+     * @param msg
+     */
+    public void writeToConsole(String msg) {
+    	getConsole();
+		MessageConsoleStream out = console.newMessageStream();
+		out.println(getTimeAndDate());
+		out.println(msg);
+		try {
+			out.flush();
+			out.close();
+		} catch (IOException e1) {
+			logException("Exception writing to X10DT console", e1);
+		}
+		showConsole();
+    }
+
+    /**
+     * Get the current time and date, useful for delineating console output.
+     * @return
+     */
+	public String getTimeAndDate() {
+		Calendar cal = Calendar.getInstance();
+		String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
+		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
+		String time = sdf.format(cal.getTime());
+		return time;
+	}
+	/**
+	 * Make sure the console is visible
+	 */
+    public void showConsole() {
+		getConsole();
+		try {
+			IWorkbench wb = PlatformUI.getWorkbench();
+			IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+			IWorkbenchPage page = win.getActivePage();// possible NPE here, e.g. if called from a dialog (not workbench)?
+
+			String id = IConsoleConstants.ID_CONSOLE_VIEW;
+			IConsoleView view = null;
+
+			view = (IConsoleView) page.showView(id);
+			view.display(console);
+		} catch (PartInitException e) {
+			logException("PartInitException showing the X10DT console.", e);
+			e.printStackTrace();
+		} catch (Exception ex) {
+			logException("Exception showing the X10DT console", ex);
+		}
+	}
+
+
+    /**
+     * Get the X10DT console
+     * @param name
+     * @return
+     */
+	public MessageConsole findConsole(String name) {
+		ConsolePlugin plugin = ConsolePlugin.getDefault();
+		IConsoleManager conMan = plugin.getConsoleManager();
+		IConsole[] existing = conMan.getConsoles();
+		// list consoles
+		if (false)
+			for (int i = 0; i < existing.length; i++) {
+				IConsole con = existing[i];			
+				System.out.println("found console: " + (i + 1) + " "
+						+ con.getName());
+			}
+		for (int i = 0; i < existing.length; i++) {
+			if (name.equals(existing[i].getName()))
+				return (MessageConsole) existing[i];
+		}
+		// no console found, so create a new one
+		MessageConsole myConsole = new MessageConsole(name, null);
+		conMan.addConsoles(new IConsole[] { myConsole });
+		return myConsole;
+	}
 }
