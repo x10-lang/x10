@@ -5,17 +5,18 @@ import java.util.List;
 
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.defaults.DefaultOutliner;
 import org.eclipse.uide.editor.IOutliner;
-import org.eclipse.uide.editor.UniversalEditor;
-import org.eclipse.uide.parser.Ast;
 import org.eclipse.uide.parser.IParseController;
-import org.eclipse.uide.parser.ParseError;
 
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
@@ -27,11 +28,47 @@ import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
 
 import com.ibm.lpg.IToken;
+import com.ibm.lpg.PrsStream;
 
 public class Outliner extends DefaultOutliner implements IOutliner
 {
+    private IParseController controller;
+
+    public void setTree(Tree tree)
+    {
+        super.setTree(tree);
+        tree.addSelectionListener(new SelectionListener() {
+            public void widgetSelected(SelectionEvent e)
+            {
+                TreeItem ti = (TreeItem) e.item;
+                Object data = ti.getData();
+
+                if (data instanceof Node) {
+                    Node node = (Node) ti.getData();
+
+                    PrsStream s = controller.getParser().getParseStream();
+                    int offset = controller.getLexer().getLexStream().getLineOffset(node.position().line() - 1)
+                                 + node.position().column();
+
+                    IEditorPart activeEditor = PlatformUI.getWorkbench()
+                            .getActiveWorkbenchWindow().getActivePage()
+                            .getActiveEditor();
+                    AbstractTextEditor textEditor = (AbstractTextEditor) activeEditor;
+
+                    textEditor.selectAndReveal(offset, 0);
+                    // textEditor.setFocus();
+                }
+            }
+
+            public void widgetDefaultSelected(SelectionEvent e)
+            {
+            }
+        });
+    }
+
     public void createOutlinePresentation(IParseController controller, int offset)
     {
+        this.controller = controller;
         try
         {
             if (controller != null && tree != null)
@@ -42,6 +79,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 if (ast.package_() != null)
                 {
                     TreeItem parent = new TreeItem(tree, SWT.NONE);
+                    parent.setData(ast.package_());
             	    parent.setImage(JavaPluginImages.DESC_OBJS_PACKDECL.createImage());
                     parent.setText(ast.package_().toString());
                 }
@@ -62,7 +100,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
     	}
     }
 
-    public void createOutlinePresentation(List decls)
+    void createOutlinePresentation(List decls)
     {
         for (Iterator i = decls.iterator(); i.hasNext();)
         {
@@ -71,9 +109,10 @@ public class Outliner extends DefaultOutliner implements IOutliner
         } 
     }
 
-    public void createOutlinePresentation(ClassDecl type)
+    void createOutlinePresentation(ClassDecl type)
     {
         TreeItem parent = new TreeItem(tree, SWT.NONE);
+        parent.setData(type);
         if (type.flags().isInterface())
              parent.setImage(JavaPluginImages.DESC_OBJS_CFILEINT.createImage());
         else parent.setImage(JavaPluginImages.DESC_OBJS_CFILECLASS.createImage());
@@ -95,30 +134,31 @@ public class Outliner extends DefaultOutliner implements IOutliner
         } 
     }
 
-    public void createOutlinePresentation(TreeItem parent, ClassDecl type)
+    void createOutlinePresentation(TreeItem parent, ClassDecl type)
     {
-        parent = new TreeItem(parent, SWT.NONE);
+        TreeItem item = new TreeItem(parent, SWT.NONE);
+        item.setData(type);
         if (type.flags().isInterface())
         {
             if (type.flags().isPrivate())
-                parent.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage());
+                item.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage());
            else if (type.flags().isProtected())
-                parent.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage());
+                item.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage());
            else if (type.flags().isPublic())
-                parent.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage());
-           else parent.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage());
+                item.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage());
+           else item.setImage(JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage());
         }
         else
         {
             if (type.flags().isPrivate())
-                parent.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage());
+                item.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage());
            else if (type.flags().isProtected())
-                parent.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage());
+                item.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage());
            else if (type.flags().isPublic())
-                parent.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage());
-           else parent.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage());
+                item.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage());
+           else item.setImage(JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage());
         }
-        parent.setText(type.name());
+        item.setText(type.name());
         
         ClassBody body = type.body();
     	List members = body.members();
@@ -126,17 +166,17 @@ public class Outliner extends DefaultOutliner implements IOutliner
         {
             Node member = (Node) i.next();
             if (member instanceof ClassDecl)
-                createOutlinePresentation(new TreeItem(parent, SWT.NONE), (ClassDecl) member);
+                createOutlinePresentation(item, (ClassDecl) member);
             else if (member instanceof ConstructorDecl)
-            	createOutlinePresentation(parent, (ConstructorDecl) member);
+            	createOutlinePresentation(item, (ConstructorDecl) member);
             else if (member instanceof MethodDecl)
-            	createOutlinePresentation(parent, (MethodDecl) member);
+            	createOutlinePresentation(item, (MethodDecl) member);
             else if (member instanceof FieldDecl)
-                createOutlinePresentation(parent, (FieldDecl) member);
+                createOutlinePresentation(item, (FieldDecl) member);
         } 
     }
 
-    public void createOutlinePresentation(TreeItem parent, ConstructorDecl cons)
+    void createOutlinePresentation(TreeItem parent, ConstructorDecl cons)
     {
     	String text = cons.name() + "(";
     	List formals = cons.formals();
@@ -148,6 +188,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         }
         text += ")";
         TreeItem tree_item = new TreeItem(parent, SWT.NONE);
+        tree_item.setData(cons);
         if (cons.flags().isPrivate())
              tree_item.setImage(JavaPluginImages.DESC_MISC_PRIVATE.createImage());
         else if (cons.flags().isProtected())
@@ -158,7 +199,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         tree_item.setText(text);
 	}
 
-    public void createOutlinePresentation(TreeItem parent, MethodDecl method)
+    void createOutlinePresentation(TreeItem parent, MethodDecl method)
     {
     	String text = method.returnType().toString() + " " + method.name() + "(";
     	List formals = method.formals();
@@ -171,6 +212,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         text += ")";
         
         TreeItem tree_item = new TreeItem(parent, SWT.NONE);
+        tree_item.setData(method);
         if (method.flags().isPrivate())
             tree_item.setImage(JavaPluginImages.DESC_MISC_PRIVATE.createImage());
         else if (method.flags().isProtected())
@@ -181,10 +223,11 @@ public class Outliner extends DefaultOutliner implements IOutliner
         tree_item.setText(text);
     }
 
-    public void createOutlinePresentation(TreeItem parent, FieldDecl field)
+    void createOutlinePresentation(TreeItem parent, FieldDecl field)
     {
        	String text = field.name() + " : " + field.type().toString();
         TreeItem tree_item = new TreeItem(parent, SWT.NONE);
+        tree_item.setData(field);
         if (field.flags().isPrivate())
              tree_item.setImage(JavaPluginImages.DESC_FIELD_PRIVATE.createImage());
         else if (field.flags().isProtected())
