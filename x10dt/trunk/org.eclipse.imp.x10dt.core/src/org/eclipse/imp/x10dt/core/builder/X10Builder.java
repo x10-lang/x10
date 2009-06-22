@@ -158,6 +158,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 	X10Plugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
+    // TODO This goal should probably prereq Disambiguated instead of CodeGenerated,
+    // and should be made a prereq of TypeChecked, so that dependency information
+    // gets collected even if code can't be generated for some reason.
     private class ComputeDependenciesGoal extends VisitorGoal {
 	public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
 	    super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
