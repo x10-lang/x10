@@ -307,18 +307,16 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	}
 	buff.append(" {\n");
         if (createMain) {
-            buff.append("    public static def main(var args: Rail[String]): void = {\n");
+            buff.append("    public static def main(Rail[String]){\n");
             buff.append("         Console.OUT.println(\"Hello X10 world\");\n");
-            buff.append("         var h :Hello = new Hello();\n");
-            buff.append("         var myBool:boolean = h.myMethod();\n");
-            buff.append("         Console.OUT.println(\"The answer is: \"+myBool);\n");
+            buff.append("         val h = new Hello();  // final, immutable value \n");
+            buff.append("         var result : Boolean = h.myMethod(); // mutable variable \n");
+            buff.append("         Console.OUT.println(\"The answer is: \"+result);\n");
             buff.append("    }\n");
         }
         if (createConstructors) {
         	buff.append("    /** x10doc comment for myMethod */;\n");
-            buff.append("    public def myMethod(): boolean = {\n");
-            buff.append("       return true;\n");
-            buff.append("    }\n");
+            buff.append("    public def myMethod()=true;\n");
         }
         buff.append("}");
 
