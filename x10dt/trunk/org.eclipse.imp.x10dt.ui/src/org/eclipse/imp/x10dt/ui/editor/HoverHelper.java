@@ -18,7 +18,7 @@ public class HoverHelper implements IHoverHelper {
 	try {
 	    List/*<Annotation>*/ annotations= AnnotationHover.getJavaAnnotationsForLine(srcViewer, srcViewer.getDocument().getLineOfOffset(offset));
 
-	    if (annotations.size() > 0)
+	    if (annotations != null && annotations.size() > 0)
 		return AnnotationHover.formatAnnotationList(annotations);
 	} catch (BadLocationException e) {
 	    return "???";
