@@ -35,7 +35,7 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../lpg.runtime.java/lpg.runtime_2.0.2.jar"/>
+				<pathelement path="../lpg.runtime.java/lpg.runtime_2.0.3.jar"/>
 				<pathelement path="../polyglot/lib/polyglot-epl.jar"/>
 				<pathelement path="../x10.runtime/x10.runtime_${x10dt.version}.jar"/>
 				<pathelement path="../x10.compiler/x10.compiler_${x10dt.version}.jar"/>
