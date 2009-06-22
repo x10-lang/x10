@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Built-in Types</title>
+	<title>Built-in types</title>
 </head>
 
 <body>
@@ -39,11 +39,11 @@ reference type, including boxed value types.
 <div class="p"><!----></div>
 <pre>
 package x10.lang;
-public interface Object 
-  def toString(): String ...
-  def equals(o: Object): Boolean ...
-  def hashCode(): Int ...
-
+public interface Object {
+  def toString(): String { ... }
+  def equals(o: Object): Boolean { ... }
+  def hashCode(): Int { ... }
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -196,8 +196,8 @@ by the following class definitions:
 <div class="p"><!----></div>
 <pre>
 package x10.lang;
-public value class ValRail[T](length: Int) extends (Int)=&#62;T  
-public class Rail[T](length: Int) extends (Int)=&#62;T, Settable[Int,T]  
+public value class ValRail[T](length: Int) extends (Int)=&#62;T { } 
+public class Rail[T](length: Int) extends (Int)=&#62;T, Settable[Int,T] { }  
 </pre>
 
 <div class="p"><!----></div>

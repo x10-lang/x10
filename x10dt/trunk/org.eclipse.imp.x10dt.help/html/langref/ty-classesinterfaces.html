@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Overview of X10</title>
+<title>Classes and interfaces</title>
 </head>
 
 <body>
@@ -92,13 +92,13 @@ variables of value class type may not be "null".
 package x10.lang;
 
 <div class="p"><!----></div>
-public interface Object 
+public interface Object {
     public def toString(): String;
     public def equals(Object): Boolean;
     public def hashCode(): Int;
     /** Return the full name of the class, e.g., "x10.lang.String" */
     public def className(): String;
-
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -109,12 +109,12 @@ public interface Object
 package x10.lang;
 
 <div class="p"><!----></div>
-public class Ref(location: Place) 
-    public Ref()  property(here); 
-
+public class Ref(location: Place) {
+    public Ref() { property(here); } 
+}
 
 <div class="p"><!----></div>
-public class Value  
+public class Value { } 
 </pre>
 
 <div class="p"><!----></div>
@@ -159,10 +159,10 @@ it implements all the methods and properties defined in the interface.
 
 <div class="p"><!----></div>
 <pre>
-class Point(x: Int, y: Int) 
-  def this(x: Int, y: Int)  property(x, y); 
+class Point(x: Int, y: Int) {
+  def this(x: Int, y: Int) { property(x, y); } 
   def move(dx: Int, dy: Int) = new Point(x+dx, y+dy);
-
+}
 </pre>
 
 <div class="p"><!----></div>

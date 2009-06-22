@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Overview of X10</title>
+<title>Object-oriented features</title>
 </head>
 
 <body>
@@ -50,9 +50,9 @@ class or interface's properties.
 For example, the following code declares a class for a two-dimensional 
 "Point" class with an &#228;dd" method.
 <pre>
-class Point(x: Int, y: Int) 
-    def add(p: Point): Point  return new Point(x+p.x,y+p.y); 
-
+class Point(x: Int, y: Int) {
+    def add(p: Point): Point { return new Point(x+p.x,y+p.y); } 
+}
 </pre>
 The class has integer value properties "x" and &#255;".
 The &#228;dd" method creates and returns a new point by
@@ -77,17 +77,17 @@ type parameter "T".
 
 <div class="p"><!----></div>
 <pre>
-class List[T] 
+class List[T] {
     var head: T;
     var tail: List[T];
-    def this(h: T, t: List[T])  head = h; tail = t; 
-    def add(x: T) 
+    def this(h: T, t: List[T]) { head = h; tail = t; } 
+    def add(x: T) {
         if (this.tail == null)
             this.tail = new List(x, null);
         else
             this.tail.add(x);
-    
-
+	}   
+}
 </pre>
 The constructor ("def this") initializes the fields of the new object.
 The &#228;dd" method appends an element to the list.

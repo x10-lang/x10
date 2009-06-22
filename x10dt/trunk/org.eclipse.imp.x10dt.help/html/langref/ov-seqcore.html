@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Overview of X10</title>
+<title>The sequential core</title>
 </head>
 
 <body>
@@ -46,10 +46,10 @@ elements of an array by invoking the "lift" method on the
 array.  The syntax "(x: Int) =&#62; x+1" specifies a closure
 that takes an integer argument "x" and returns "x+1".
 <pre>
-def incr(A: Array[Int]): Array[Int] = 
+def incr(A: Array[Int]): Array[Int] = {
     val f = (x: Int) =&#62; x+1; // e.g., f(1) == 2
     return A.lift(f);
-
+}
 </pre>
 
 <div class="p"><!----></div>

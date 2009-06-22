@@ -147,7 +147,7 @@ All  X10 reference classes extend the class
 <div class="p"><!----></div>
 <pre>
 package x10.lang;
-public class Ref(location: place)  ...   
+public class Ref(location: place) { ... }   
 </pre>
 
 <div class="p"><!----></div>
@@ -409,7 +409,7 @@ A class that represents a line has two distinct points:
 <div class="p"><!----></div>
 <pre>
 class Line(start: Point, 
-           end: Pointself != this.start) ...      
+           end: Point{self != this.start}) { ... }      
 </pre>
 
 
@@ -419,11 +419,11 @@ One can use dependent type to define other closed geometric figures as well.
 <div class="p"><!----></div>
 Here is an example:
 <pre>
-class Point(x: Int, y: Int) ...
+class Point(x: Int, y: Int) { ... }
 </pre>
 
 <div class="p"><!----></div>
-To see that the declaration &#235;nd: Pointself != start" is
+To see that the declaration &#235;nd: Point{self != start}" is
 parametrically consistent, note that the following formula is valid:
 <br>
 <br>
@@ -442,7 +442,7 @@ A triangle has three lines sharing three vertices.
 class Triangle 
  (a: Line, 
   b: Line{a.end == b.start}, 
-  c: Line{b.end == c.start} &&  c.end == a.start) 
+  c: Line{b.end == c.start &&  c.end == a.start}) 
  { ... } 
 </pre>
 

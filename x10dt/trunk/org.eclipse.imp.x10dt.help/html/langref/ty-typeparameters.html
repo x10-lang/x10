@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Overview of X10</title>
+<title>Type parameters</title>
 </head>
 
 <body>
@@ -66,12 +66,12 @@
 <div class="p"><!----></div>
 Consider the following declaration of a "Cell" class.
 <pre>
-class Cell[X] 
+class Cell[X] {
     var x: X;
-    def this(x: X)  this.x = x; 
+    def this(x: X) { this.x = x; }
     def get(): X = x;
-    def set(x: X) =  this.x = x: 
-
+    def set(x: X) = { this.x = x: }
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -121,18 +121,18 @@ if "S" is a <em>supertype</em> of "T", then
 <div class="p"><!----></div>
 Consider the following class declarations:
 <pre>
-class Get[+X] 
+class Get[+X] {
     var x: X;
-    def this(x: X)  this.x = x; 
+    def this(x: X) { this.x = x; }
     def get(): X = x;
-
+}
 
 <div class="p"><!----></div>
-class Set[-X] 
+class Set[-X] {
     var x: X;
-    def this(x: X)  this.x = x; 
-    def set(x: X) =  this.x = x: 
-
+    def this(x: X) { this.x = x; }
+    def set(x: X) = { this.x = x: }
+}
 </pre>
 In this example, "Get[Integer]" is a subtype of
 "Get[Number]" since &#207;nteger" is a subtype of
