@@ -40,10 +40,13 @@
             id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType">
       </launchConfigurationType>
    </extension>
+      <!--
+            class="org.eclipse.imp.x10dt.debug.ui.presentation.X10ModelPresentation"
+            -->
       <extension
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
-            class="org.eclipse.imp.x10dt.debug.ui.presentation.X10ModelPresentation"
+     		class="org.eclipse.jdt.internal.debug.ui.JDIModelPresentation"
             id="org.eclipse.imp.x10dt.debug.model"/>
    </extension>
      <extension

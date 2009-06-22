@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.debug.model;
+package org.eclipse.imp.x10dt.debug.model.impl;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;

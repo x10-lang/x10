@@ -1,5 +1,6 @@
 package org.eclipse.imp.x10dt.debug.model;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.model.IVariable;
 
@@ -10,7 +11,4 @@ import org.eclipse.debug.core.model.IVariable;
  * @since 10/10/08
  */
 public interface IX10Variable extends IVariable {
-	public String getName();
-	public IValue getValue();
-	IX10Type getType();
 }

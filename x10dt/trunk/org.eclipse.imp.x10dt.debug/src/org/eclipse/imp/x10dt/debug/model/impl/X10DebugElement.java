@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.debug.model;
+package org.eclipse.imp.x10dt.debug.model.impl;
 
 import org.eclipse.imp.x10dt.debug.Activator;
 import org.eclipse.jdt.debug.core.JDIDebugModel;

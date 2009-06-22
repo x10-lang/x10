@@ -30,7 +30,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
-import org.eclipse.imp.x10dt.debug.model.X10DebugTarget;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTarget;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.imp.x10dt.ui.launching.X10ExecutionArguments;
 import org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigAttributes;

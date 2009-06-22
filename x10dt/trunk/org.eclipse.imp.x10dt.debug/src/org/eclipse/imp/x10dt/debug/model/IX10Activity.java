@@ -1,5 +1,6 @@
 package org.eclipse.imp.x10dt.debug.model;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Clock;
 
@@ -15,12 +16,12 @@ public interface IX10Activity {
 		Blocked, // waiting for a clock or other resource
 		Suspended; // not sure about this one: suspended by debugger, e.g. breakpoint
 	}
-	String getName();
+	String getName() throws DebugException;
 	IX10Activity[] getFinishChildren();
 	IX10Activity getFinishParent(); // => null if this is root
 	IX10Clock[] getClocks();
 	X10ActivityState getRunState();
 	IX10Clock blockedOn();
 	IX10Place getPlace();
-	IX10StackFrame[] getStackFrames();
+	IX10StackFrame[] getStackFrames() throws DebugException;
 }

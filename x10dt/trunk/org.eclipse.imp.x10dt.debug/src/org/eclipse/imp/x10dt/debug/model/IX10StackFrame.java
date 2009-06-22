@@ -1,5 +1,6 @@
 package org.eclipse.imp.x10dt.debug.model;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.imp.x10dt.debug.model.IX10Variable;
 /**
@@ -9,5 +10,5 @@ import org.eclipse.imp.x10dt.debug.model.IX10Variable;
  * @since 10/10/08
  */
 public interface IX10StackFrame extends IStackFrame {
-	IX10Variable[] getVariables();
+	IX10Variable[] getVariables() throws DebugException;
 }

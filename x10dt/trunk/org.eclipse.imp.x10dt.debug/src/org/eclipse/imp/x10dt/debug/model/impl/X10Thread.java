@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.debug.model;
+package org.eclipse.imp.x10dt.debug.model.impl;
 
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.ILaunch;
@@ -42,4 +42,22 @@ public class X10Thread extends JDIThread implements IThread {
 	public String getModelIdentifier() {
 		return X10DebugModel.getPluginIdentifier()+".model";
 	}
+	
+	// Copied from superclass to get around visibility gotchas
+	public void terminated() {
+		super.terminated();
+	}
+	public void disposeStackFrames() {
+		super.disposeStackFrames();
+	}
+	protected void removeCurrentBreakpoint(IBreakpoint bp) {
+		super.removeCurrentBreakpoint(bp);
+	}
+	protected synchronized void suspendedByVM(){
+		super.suspendedByVM();
+	}
+	protected synchronized void resumedByVM() throws DebugException{
+		super.resumedByVM();
+	}
+
 }

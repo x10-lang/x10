@@ -157,7 +157,6 @@ public class SampleX10ActivityAsThreadProxy implements IThread {
 
 	public void terminate() throws DebugException {
 		// TODO Auto-generated method stub
-
 	}
 
 }

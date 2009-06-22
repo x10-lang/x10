@@ -3,7 +3,7 @@ package org.eclipse.imp.x10dt.debug.ui.launching;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.imp.x10dt.debug.model.X10DebugModel;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugModel;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jdt.internal.launching.StandardVMDebugger;
 import org.eclipse.jdt.launching.IVMInstall;
