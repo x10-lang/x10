@@ -56,13 +56,16 @@ they are not used.
 Like other types, function types may be constrained.
 
 <div class="p"><!----></div>
-FunctionType &nbsp;TypeParameters "(" Formals ")" Constraint
-"=&#62;" Type Throws <br />
-TypeParameters &nbsp;"[" TypeParameter ( "," TypeParameter
-) "]" <br />
-TypeParameter &nbsp;Identifier <br />
-Formals &nbsp;Formal ( "," Formal ) <br />
-
+<em>  
+<table>
+<tr><td align="right">FunctionType &nbsp;::=&nbsp; TypeParameters<sup>?</sup>&nbsp;( Formals<sup>?</sup>&nbsp;) Constraint<sup>?</sup>&nbsp;
+=&#62; Type Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">TypeParameters  &nbsp;::=&nbsp; [ TypeParameter ( , TypeParameter
+)<sup>*</sup>&nbsp;] </td></tr>
+<tr><td align="right">TypeParameter  &nbsp;::=&nbsp; Identifier </td></tr>
+<tr><td align="right">Formals  &nbsp;::=&nbsp; Formal ( , Formal )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc6.1">
@@ -77,7 +80,9 @@ The function type
 may be considered equivalent to an interface type
 with a method:
 
+<pre>
 def apply[X<sub>1</sub>, ..., X<sub>k</sub>](x<sub>1</sub>: Y<sub>1</sub>, ..., x<sub>n</sub>: Y<sub>n</sub>): Z;
+</pre>
 
 Classes and interfaces may implement or extend a function type
 by defining the &#228;pply" method.  Since each function type is 

@@ -21,12 +21,15 @@
 4</a>&nbsp;&nbsp;Expression statement</h2>
 
 <div class="p"><!----></div>
-Statement &nbsp;ExpressionStatement <br />
-ExpressionStatement &nbsp;StatementExpression ";" <br />
-StatementExpression &nbsp;Assignment <br />
-          \ -  Allocation <br />
-          \ -  Call <br />
-
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; ExpressionStatement </td></tr>
+<tr><td align="right">ExpressionStatement &nbsp;::=&nbsp; StatementExpression ; </td></tr>
+<tr><td align="right">StatementExpression &nbsp;::=&nbsp; Assignment </td></tr>
+<tr><td align="right"> | Allocation </td></tr>
+<tr><td align="right"> | Call </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 The expression statement evaluates an expression, ignoring the
