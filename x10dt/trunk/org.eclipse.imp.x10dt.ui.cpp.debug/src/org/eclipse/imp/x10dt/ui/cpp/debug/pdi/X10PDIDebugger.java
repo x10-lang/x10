@@ -10,13 +10,11 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_STOP_IN_MAIN;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.UnexpectedException;
 import java.util.List;
 import java.util.Observer;
 import java.util.concurrent.TimeUnit;
@@ -35,9 +33,9 @@ import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
+import org.eclipse.imp.x10dt.ui.cpp.debug.core.IDebuggerTranslator;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.util.BitList;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
@@ -55,9 +53,7 @@ import org.eclipse.ptp.debug.core.pdi.model.aif.IAIF;
 import com.ibm.debug.daemon.CoreDaemon;
 import com.ibm.debug.daemon.DaemonConnectionInfo;
 import com.ibm.debug.daemon.DaemonSocketConnection;
-import com.ibm.debug.internal.pdt.PICLDebugPlugin;
 import com.ibm.debug.internal.pdt.PICLDebugTarget;
-import com.ibm.debug.internal.pdt.PICLUtils;
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
 import com.ibm.debug.internal.pdt.model.EngineRequestException;
 import com.ibm.debug.internal.pdt.model.Function;
@@ -78,8 +74,9 @@ import com.ibm.debug.pdt.launch.PICLLoadInfo;
 @SuppressWarnings("all")
 public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListener {
   
-  public X10PDIDebugger(final int port) {
+  public X10PDIDebugger(final IDebuggerTranslator translator, final int port) {
     this.fPort = port;
+    this.fTranslator = translator;
   }
   
   // --- IPDIDebugger's interface methods implementation
@@ -589,6 +586,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
   private Thread fAcceptingThread;
   
   private final int fPort;
+  
+  private final IDebuggerTranslator fTranslator;
   
   private final ReentrantLock fWaitLock = new ReentrantLock();
   

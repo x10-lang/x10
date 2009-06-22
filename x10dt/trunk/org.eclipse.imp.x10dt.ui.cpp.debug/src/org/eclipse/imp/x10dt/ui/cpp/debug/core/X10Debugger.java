@@ -93,7 +93,7 @@ public final class X10Debugger implements IPDebugger {
                          final IProgressMonitor monitor) throws CoreException {
     this.fPort = getPort(config);
     if (this.fPDIDebugger == null) {
-      this.fPDIDebugger = new X10PDIDebugger(this.fPort);
+      this.fPDIDebugger = new X10PDIDebugger(new X10DebuggerTranslator(), this.fPort);
     }
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
