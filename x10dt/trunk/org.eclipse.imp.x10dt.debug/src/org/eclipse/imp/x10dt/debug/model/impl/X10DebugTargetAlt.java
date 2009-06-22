@@ -73,6 +73,7 @@ import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.event.Event;
 import com.sun.jdi.event.ThreadDeathEvent;
 import com.sun.jdi.event.ThreadStartEvent;
+import com.sun.jdi.event.ModificationWatchpointEvent;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 
@@ -201,6 +202,15 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 				if (jdiThread == null) {
 					return false;
 				}
+				//Following code is for watching dynamic activity name changes
+				ReferenceType th=thread.referenceType();
+				if (th.name().equals("x10.runtime.PoolRunner")){
+					Field f = ((ClassType)th).fieldByName("name");
+					System.out.println("X10ThreadStartHandler field is "+f.toString());
+					if (f!=null)
+						new X10ModWatchpointHandler(f);
+				}
+				//code ends here
 
 			} else {
 				jdiThread.disposeStackFrames();
@@ -234,7 +244,86 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			fRequest = request;
 		}
 }
-	
+class X10ModWatchpointHandler implements IJDIEventListener {
+		
+		protected EventRequest fRequest;
+		
+		protected X10ModWatchpointHandler(Field arg1) {
+			createRequest(arg1);
+		} 
+		
+		/**
+		 * Creates and registers a request to handle all thread start
+		 * events
+		 */
+		protected void createRequest(Field arg1) {
+			EventRequestManager manager = getEventRequestManager();
+			if (manager != null) {			
+				try {
+					EventRequest req= manager.createModificationWatchpointRequest(arg1);
+					req.setSuspendPolicy(EventRequest.SUSPEND_NONE);
+					req.enable();
+					addJDIEventListener(this, req);
+					setRequest(req);
+				} catch (RuntimeException e) {
+					logError(e);
+				}
+			}
+		}
+		
+		public boolean handleEvent(Event event, JDIDebugTarget target) {
+			
+			ThreadReference thread= ((ModificationWatchpointEvent)event).thread();
+			try {
+				if (thread.isCollected()) {
+					return false;
+				}
+			} catch (VMDisconnectedException exception) {
+				return false;
+			} catch (ObjectCollectedException e) {
+				return false;
+			} catch (TimeoutException e) {
+				// continue - attempt to create the thread
+			}
+			X10Thread jdiThread= (X10Thread)findThread(thread);
+			if (jdiThread == null) {
+				//jdiThread = createThread(thread);
+				//if (jdiThread == null) {
+					return false;
+				//}
+
+			} else {
+				System.out.println("I am in ModWatchpointHandler!!");
+				jdiThread.disposeStackFrames();
+				jdiThread.fireChangeEvent(DebugEvent.STATE);
+			}
+			return !jdiThread.isSuspended();
+		}
+		
+		public void wonSuspendVote(Event event, JDIDebugTarget target) {
+			// do nothing
+		}
+		
+		/**
+		 * De-registers this event listener.
+		 */
+		protected void deleteRequest() {
+			if (getRequest() != null) {
+				removeJDIEventListener(this, getRequest());
+				setRequest(null);
+			}
+		}
+		
+		protected EventRequest getRequest() {
+			return fRequest;
+		}
+
+		protected void setRequest(EventRequest request) {
+			fRequest = request;
+		}
+}
+		
+
 	private IDebugTarget fJDebugTarget;
 	//S//private ClassObjectReference fX10RT;
 	//private X10DebugTargetAlt fX10DebugTarget;
