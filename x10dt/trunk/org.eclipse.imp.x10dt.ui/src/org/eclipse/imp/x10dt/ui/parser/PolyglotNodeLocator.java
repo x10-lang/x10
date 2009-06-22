@@ -16,6 +16,8 @@ import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
 // TODO This should really derive from the Java ASTNodeLocator impl in org.eclipse.safari.java.core...
+// Or better yet, this implementation shouldn't be necessary at all, since Polyglot nodes all behave
+// the same wrt position access and the visitor interface.
 public class PolyglotNodeLocator implements IASTNodeLocator {
     private final Node[] fNode= new Node[1];
 
@@ -179,9 +181,6 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	return fNode[0];
     }
 
-    // SMS 14 Jun 2006
-    // Added to address change in IASTNodeLocator
-    
     public int getStartOffset(Object node) {
 	Position pos;
 
@@ -193,14 +192,6 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    return -1;
 
 	return pos.offset();
-//	if (pos instanceof JPGPosition) {
-//	    JPGPosition jpgPos = (JPGPosition) pos;
-//	    return jpgPos.getLeftIToken().getStartOffset();
-//    	} else {
-//    	    // should probably do something more constructive, but defer that for now
-//    	    System.err.println("PolyglotNodeLocator.getStartOffset:  Node position not a JPGPosition; returning -1");
-//    	    return -1;
-//    	}
     }
 
     public int getEndOffset(Object node) {
@@ -214,14 +205,6 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    return -1;
 
 	return pos.endOffset();
-//    	if (pos instanceof JPGPosition) {
-//    	    JPGPosition jpgPos = (JPGPosition) pos;
-//    	    return jpgPos.getRightIToken().getEndOffset();
-//    	} else {
-//    	    // should probably do something more constructive, but defer that for now
-//    	    System.err.println("PolyglotNodeLocator.getEndOffset:  Node position not a JPGPosition; returning -1");
-//    	    return -1;
-//    	}
     }
 
     public int getLength(Object node) {
