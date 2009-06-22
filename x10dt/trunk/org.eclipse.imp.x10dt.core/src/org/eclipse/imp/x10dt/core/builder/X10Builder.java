@@ -218,6 +218,18 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
+    protected void addMarkerTo(IProject project, String msg, int severity, int priority) {
+        try {
+            IMarker marker= project.createMarker(PROBLEMMARKER_ID);
+
+            marker.setAttribute(IMarker.MESSAGE, msg);
+            marker.setAttribute(IMarker.SEVERITY, severity);
+            marker.setAttribute(IMarker.PRIORITY, priority);
+        } catch (CoreException e) {
+            X10Plugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
+        }
+    }
+
     /**
      * Run the X10 compiler on the given Collection of source IFile's.
      * @param sources
@@ -412,7 +424,8 @@ public class X10Builder extends IncrementalProjectBuilder {
         } catch (Exception e) {
             String msg= e.getMessage();
             X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : e.getClass().getName()));
-            postMsgDialog("Internal Compiler Error", "An internal X10 compiler error occurred; see the Error Log for more details.");
+            addMarkerTo(fProject, "An internal X10 compiler error occurred; see the Error Log for more details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+//            postMsgDialog("Internal Compiler Error", "An internal X10 compiler error occurred; see the Error Log for more details.");
         }
 //      fDependencyInfo.dump();
         createMarkers(errors);
