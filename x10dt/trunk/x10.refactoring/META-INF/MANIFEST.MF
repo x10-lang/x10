@@ -3,27 +3,33 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Refactorings
 Bundle-SymbolicName: x10.refactorings;singleton:=true
 Bundle-Version: 1.0.0
-Bundle-Localization: plugin
-Require-Bundle: org.eclipse.jface,
- org.eclipse.ui.editors,
- org.eclipse.ui,
- org.eclipse.ui.workbench.texteditor,
+Require-Bundle: org.eclipse.compare,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
- org.eclipse.text,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
- org.eclipse.compare,
- org.eclipse.search,
+ org.eclipse.jface,
  org.eclipse.ltk.core.refactoring,
  org.eclipse.ltk.ui.refactoring,
+ org.eclipse.search,
+ org.eclipse.text,
+ org.eclipse.ui,
+ org.eclipse.ui.console;bundle-version="3.3.1",
+ org.eclipse.ui.editors,
  org.eclipse.ui.ide,
+ org.eclipse.ui.workbench.texteditor,
  com.ibm.wala.cast,
  com.ibm.wala.cast,
  com.ibm.wala.cast.java,
- polyglot,
- x10.compiler,
+ com.ibm.wala.cast.java.polyglot,
+ com.ibm.wala.cast.x10,
  com.ibm.wala.core,
- com.ibm.wala.eclipse,
+ polyglot3,
+ x10.compiler.p3,
  org.eclipse.imp.runtime,
- com.ibm.wala.cast.x10
+ org.eclipse.imp.x10dt.core;bundle-version="1.7.3",
+ org.eclipse.imp.x10dt.ui;bundle-version="1.7.3",
+ x10.effects;bundle-version="1.0.0",
+ x10.constraints;bundle-version="1.7.3"
+Bundle-ClassPath: bin/
+Bundle-Activator: x10.refactorings.X10RefactoringPlugin
