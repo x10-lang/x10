@@ -17,8 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -537,20 +539,16 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     protected IPath getLanguageRuntimePath() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
-        String platformLoc= Platform.getInstallLocation().getURL().getPath();
-        String x10RuntimeLoc= x10RuntimeBundle.getLocation();
-        IPath x10RuntimePath;
+        try {
+            Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+            String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
+            IPath x10RuntimePath= new Path(x10RuntimeLoc);
 
-        if (x10RuntimeLoc.startsWith("update@")) {
-            x10RuntimePath= new Path(platformLoc.concat(x10RuntimeLoc.substring(7)));
-        } else {
-//          x10RuntimePath= new Path(x10RuntimeLoc);
-            String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-            x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
+            return x10RuntimePath;
+        } catch (IOException e) {
+            X10Plugin.getInstance().logException("Unable to resolve X10 runtime location", e);
+            return null;
         }
-
-        return x10RuntimePath;
     }
 
     protected String getCurrentRuntimeVersion() {
@@ -566,10 +564,29 @@ public class X10Builder extends IncrementalProjectBuilder {
 
             if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
                 IPath entryPath= entry.getPath();
+                File entryFile= entryPath.toFile();
 
-                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
-                    return i;
+                if (entryFile.isDirectory()) {
+                    File x10ObjFile= new File(entryFile.getPath() + File.separator + "x10" + File.separator + "lang" + File.separator + "Object.class");
+
+                    if (x10ObjFile.exists()) {
+                        return i;
+                    }
+                } else {
+                    try {
+                        JarFile x10Jar= new JarFile(entryFile);
+                        ZipEntry x10ObjEntry= x10Jar.getEntry("x10/lang/Object.class");
+                        
+                        if (x10ObjEntry != null) {
+                            return i;
+                        }
+                    } catch (IOException e) {
+                        ; // I guess this wasn't a jar file, so we don't know what to do with it...
+                    }
                 }
+//                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
+//                    return i;
+//                }
             }
         }
         return -1;
@@ -615,9 +632,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 
             if (runtimeIdx >= 0) {
                 IPath entryPath= entries[runtimeIdx].getPath();
-                File jarFile= new File(entryPath.makeAbsolute().toOSString());
+                File entryFile= new File(entryPath.makeAbsolute().toOSString());
 
-                if (!jarFile.exists()) {
+                if (!entryFile.exists()) {
                     postQuestionDialog(ClasspathError + fProject.getName(),
                             "X10 runtime entry in classpath does not exist: " + entryPath.toOSString() + "; update project classpath with default runtime?",
                             new UpdateProjectClasspathHelper(),
@@ -626,9 +643,11 @@ public class X10Builder extends IncrementalProjectBuilder {
                 }
                 String currentVersion= getCurrentRuntimeVersion();
 
-                if (!jarFile.getAbsolutePath().endsWith(currentVersion + ".jar")) {
+                // TODO Only insist that a jar file whose name embeds the version has the right version.
+                // Jar files whose names don't embed a version number won't be checked.
+                if (entryFile.getPath().endsWith(".jar") && entryFile.getAbsolutePath().indexOf(currentVersion) < 0) {
                     postQuestionDialog(ClasspathError + fProject.getName(),
-                            "X10 runtime entry in classpath is out of date: " + entryPath.toOSString() + "; update project classpath with latest runtime?",
+                            "X10 runtime entry in classpath is an old version: " + entryPath.toOSString() + "; update project classpath with latest runtime?",
                             new UpdateProjectClasspathHelper(),
                             new MaybeSuppressFutureClasspathWarnings());
                 }
