@@ -263,28 +263,28 @@ public class X10Parser implements RuleAction , IParser, ParseErrorCodes
      */
     public PrsStream getParseStream() { return prsStream; }
 
-    public polyglot.ast.Node parser()
+    public Object parser()
     {
         return parser(null, 0);
     }
     
-    public polyglot.ast.Node parser(Monitor monitor)
+    public Object parser(Monitor monitor)
     {
         return parser(monitor, 0);
     }
     
-    public polyglot.ast.Node parser(int error_repair_count)
+    public Object parser(int error_repair_count)
     {
         return parser(null, error_repair_count);
     }
 
-    public polyglot.ast.Node parser(Monitor monitor, int error_repair_count)
+    public Object parser(Monitor monitor, int error_repair_count)
     {
         btParser.setMonitor(monitor);
         
         try
         {
-            return (polyglot.ast.Node) btParser.fuzzyParse(error_repair_count);
+            return (Object) btParser.fuzzyParse(error_repair_count);
         }
         catch (BadParseException e)
         {
@@ -456,7 +456,7 @@ public void handleMessage(int errorCode, int[] msgLocation,
             }   
     
 
-    public polyglot.ast.Node parse() {
+    public Object parse() {
         try
         {
             SourceFile sf = (SourceFile) parser();
