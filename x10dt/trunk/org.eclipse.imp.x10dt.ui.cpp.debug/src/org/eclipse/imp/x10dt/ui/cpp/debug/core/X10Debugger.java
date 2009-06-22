@@ -24,9 +24,14 @@ import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator;
 import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10PDIDebugger;
 import org.eclipse.imp.x10dt.ui.cpp.launch.launching.X10DebugAttributes;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.AttributeManager;
+import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPJob;
+import org.eclipse.ptp.core.elements.IPUniverse;
+import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.debug.core.pdi.IPDISession;
@@ -63,7 +68,7 @@ public final class X10Debugger implements IPDebugger {
     if (this.fPDIRequestFactory == null) {
       this.fPDIRequestFactory = new SDMRequestFactory();
     }
-
+    
     final IPDISession pdiSession = createSession(timeout, launch, corefile);
     this.fPDIDebugger.setPDISession(pdiSession);
     this.fPDIDebugger.setLaunch(launch);
@@ -72,7 +77,6 @@ public final class X10Debugger implements IPDebugger {
   }
 
   public void cleanup(final ILaunchConfiguration config, final AttributeManager attrMgr, final IPLaunch launch) {
-    System.out.println("Call cleanup");
   }
 
   public void getLaunchAttributes(final ILaunchConfiguration config, final AttributeManager attrMgr) throws CoreException {
@@ -96,8 +100,12 @@ public final class X10Debugger implements IPDebugger {
   public void initialize(final ILaunchConfiguration config, final AttributeManager attrMgr, 
                          final IProgressMonitor monitor) throws CoreException {
     this.fPort = getPort(config);
-    int numProcs = Integer.parseInt(config.getAttribute("MP_PROCS", "1"));
-    this.fPDIDebugger = new X10PDIDebugger(this.fPort, numProcs, new X10DebuggerTranslator()); //TODO We're going to be forced to move the listening part :-/
+    int numProcs = Integer.parseInt(config.getAttribute("MP_PROCS", "1")); //$NON-NLS-1$ //$NON-NLS-2$
+    final IResourceManagerControl rmControl = (IResourceManagerControl) getResourceManager(config);
+    if (rmControl == null) {
+      throw new CoreException(new Status(IStatus.ERROR, DebugCore.PLUGIN_ID, "Unable to get access to resource manager"));
+    }
+    this.fPDIDebugger = new X10PDIDebugger(this.fPort, numProcs, new X10DebuggerTranslator(), rmControl);
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
     } catch (PDIException except) {
@@ -149,6 +157,19 @@ public final class X10Debugger implements IPDebugger {
     final int portRange = max - min + 1;
     final int fraction = (int) (portRange * new Random(System.currentTimeMillis()).nextDouble());
     return fraction + min;
+  }
+  
+  private IResourceManager getResourceManager(final ILaunchConfiguration configuration) throws CoreException {
+    final IPUniverse universe = PTPCorePlugin.getDefault().getUniverse();
+    final IResourceManager[] rms = universe.getResourceManagers();
+    final String rmUniqueName = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
+                                                           (String) null);
+    for (final IResourceManager rm : rms) {
+      if (rm.getState() == ResourceManagerAttributes.State.STARTED && rm.getUniqueName().equals(rmUniqueName)) {
+        return rm;
+      }
+    }
+    return null;
   }
   
   private void initExecutableAttributes(final AttributeManager attrMgr, final String remoteDebuggerPath) {
