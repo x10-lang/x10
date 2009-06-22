@@ -1,14 +1,14 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2008 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
+ *******************************************************************************/
 
 /*
  * (C) Copyright IBM Corporation 2007
@@ -76,7 +76,7 @@ public class RenameRefactoring extends Refactoring {
     private String fNewName;
 
     public RenameRefactoring(ITextEditor editor, Node declNode, Node declParent, Node root) {
-	super();
+        super();
 
         fDeclNode= declNode;
         fDeclParent= declParent;
@@ -105,27 +105,26 @@ public class RenameRefactoring extends Refactoring {
 
         IEditorInput input= editor.getEditorInput();
 
-	if (input instanceof IFileEditorInput) {
-	    IFileEditorInput fileInput= (IFileEditorInput) input;
+        if (input instanceof IFileEditorInput) {
+            IFileEditorInput fileInput= (IFileEditorInput) input;
 
-	    fSourceFile= fileInput.getFile();
-	} else {
-	    fSourceFile= null;
-	}
+            fSourceFile= fileInput.getFile();
+        } else {
+            fSourceFile= null;
+        }
     }
 
     public String getName() {
-	return "Rename";
+        return "Rename";
     }
 
     public RefactoringStatus checkInitialConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-	return new RefactoringStatus();
+        return new RefactoringStatus();
     }
 
     /**
-     * Checks for name collision between the proposed name and any existing local variables
-     * visible in the same scope, and if so, returns a fatal RefactoringStatus. Otherwise,
-     * returns an ok status.
+     * Checks for name collision between the proposed name and any existing local variables visible in the same scope, and if so, returns a fatal
+     * RefactoringStatus. Otherwise, returns an ok status.
      */
     private RefactoringStatus checkForLocal() {
         NodePathComputer pathComp= new NodePathComputer(fRoot, fDeclNode);
@@ -135,10 +134,10 @@ public class RenameRefactoring extends Refactoring {
         revPath.addAll(path);
         Collections.reverse(revPath);
 
-        for(Iterator iter= revPath.iterator(); iter.hasNext(); ) {
+        for(Iterator iter= revPath.iterator(); iter.hasNext();) {
             Node n= (Node) iter.next();
             if (definesLocal(n, fNewName))
-                    return RefactoringStatus.createFatalErrorStatus("Name collision: local variable '" + fNewName + "' already exists in an enclosing scope.");
+                return RefactoringStatus.createFatalErrorStatus("Name collision: local variable '" + fNewName + "' already exists in an enclosing scope.");
             if (n instanceof MethodDecl)
                 break;
         }
@@ -172,9 +171,8 @@ public class RenameRefactoring extends Refactoring {
     }
 
     /**
-     * Checks for name collision between the proposed name and any existing fields defined
-     * in the same type, and if so, returns a fatal RefactoringStatus. Otherwise,
-     * returns an ok status.
+     * Checks for name collision between the proposed name and any existing fields defined in the same type, and if so, returns a fatal RefactoringStatus.
+     * Otherwise, returns an ok status.
      */
     private RefactoringStatus checkForField() {
         ClassBody body= null;
@@ -197,9 +195,8 @@ public class RenameRefactoring extends Refactoring {
     }
 
     /**
-     * Checks for name collision between the proposed name and any existing methods of the
-     * same signature defined in the same type, and if so, returns a fatal RefactoringStatus.
-     * Otherwise, returns an ok status.
+     * Checks for name collision between the proposed name and any existing methods of the same signature defined in the same type, and if so, returns a fatal
+     * RefactoringStatus. Otherwise, returns an ok status.
      */
     private RefactoringStatus checkForMethod() {
         ClassBody body= null;
@@ -223,9 +220,8 @@ public class RenameRefactoring extends Refactoring {
     }
 
     /**
-     * Checks for name collision between the proposed name and any existing formal parameters
-     * defined by the same method, and if so, returns a fatal RefactoringStatus.
-     * Otherwise, returns an ok status.
+     * Checks for name collision between the proposed name and any existing formal parameters defined by the same method, and if so, returns a fatal
+     * RefactoringStatus. Otherwise, returns an ok status.
      */
     private RefactoringStatus checkForFormal() {
         ProcedureDecl method= (ProcedureDecl) fDeclParent;
@@ -238,7 +234,7 @@ public class RenameRefactoring extends Refactoring {
     }
 
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-//        findAllReferences();
+        // findAllReferences();
         if (fDeclNode instanceof LocalDecl)
             return checkForLocal();
         else if (fDeclNode instanceof FieldDecl)
@@ -247,89 +243,93 @@ public class RenameRefactoring extends Refactoring {
             return checkForMethod();
         else if (fDeclNode instanceof Formal)
             return checkForFormal();
-	return new RefactoringStatus();
+        return new RefactoringStatus();
     }
 
     /**
-     * Class to collect references to a given <code>Declaration</code>.
-     * Ultimately, this really belongs in the search indexing mechanism.
+     * Class to collect references to a given <code>Declaration</code>. Ultimately, this really belongs in the search indexing mechanism.
      */
     private static class ReferenceVisitor extends NodeVisitor implements IFileVisitor {
-	private final Declaration fDecl;
+        private final Declaration fDecl;
 
-	private final Set<SourceRangeGroup> fMatchGroups;
+        private final Set<SourceRangeGroup> fMatchGroups;
 
-	private SourceRangeGroup fMatchGroup;
+        private SourceRangeGroup fMatchGroup;
 
-	public ReferenceVisitor(Declaration decl, Set<SourceRangeGroup> matchGroups) {
-	    fDecl= decl;
-	    fMatchGroups= matchGroups;
-	}
+        public ReferenceVisitor(Declaration decl, Set<SourceRangeGroup> matchGroups) {
+            fDecl= decl;
+            fMatchGroups= matchGroups;
+        }
 
-	public void enterFile(IFile file) {
-	    fMatchGroup= new SourceRangeGroup(file);
-	    fMatchGroups.add(fMatchGroup);
-	}
+        public void enterFile(IFile file) {
+            fMatchGroup= new SourceRangeGroup(file);
+            fMatchGroups.add(fMatchGroup);
+        }
 
-        /* (non-Javadoc)
+        /*
+         * (non-Javadoc)
+         * 
          * @see safari.X10.refactoring.RenameRefactoring.FileVisitor#leaveFile(org.eclipse.core.resources.IFile)
          */
         public void leaveFile(IFile file) {
-            // do nothing
+        // do nothing
         }
 
-        /* (non-Javadoc)
-	 * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
-	 */
-	@Override
-	public NodeVisitor enter(Node n) {
-	    if (n instanceof Local) {
-		Local l= (Local) n;
-		if (l.localInstance().equals(fDecl)) {
-		    Position pos= n.position();
-		    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
-		}
-	    } else  if (n instanceof Field) {
-		Field f= (Field) n;
-		if (f.fieldInstance().equals(fDecl)) {
-		    Position pos= n.position();
-		    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
-		}
-	    } else  if (n instanceof Call) {
-		Call c= (Call) n;
-		if (c.methodInstance().equals(fDecl)) {
-		    Position pos= n.position();
-		    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
-		}
-	    }
-	    return this;
-	}
+        /*
+         * (non-Javadoc)
+         * 
+         * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
+         */
+        @Override
+        public NodeVisitor enter(Node n) {
+            if (n instanceof Local) {
+                Local l= (Local) n;
+                if (l.localInstance().equals(fDecl)) {
+                    Position pos= n.position();
+                    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
+                }
+            } else if (n instanceof Field) {
+                Field f= (Field) n;
+                if (f.fieldInstance().equals(fDecl)) {
+                    Position pos= n.position();
+                    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
+                }
+            } else if (n instanceof Call) {
+                Call c= (Call) n;
+                if (c.methodInstance().equals(fDecl)) {
+                    Position pos= n.position();
+                    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
+                }
+            }
+            return this;
+        }
     };
 
     private void findAllReferences() {
-	System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
-	final Set<SourceRangeGroup> allMatches= new HashSet<SourceRangeGroup>();
-	try {
+        System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
+        final Set<SourceRangeGroup> allMatches= new HashSet<SourceRangeGroup>();
+        try {
             ReferenceVisitor refVisitor= new ReferenceVisitor(fDecl, allMatches);
             ISourceProject srcProject= ModelFactory.create(fSourceFile.getProject());
-	    fSourceFile.getProject().accept(new PolyglotSourceFinder(new TextFileDocumentProvider(), srcProject, refVisitor, refVisitor, LanguageRegistry.findLanguage("X10")));
-	} catch (CoreException e) {
-	    e.printStackTrace();
-	} catch (ModelException e) {
-	    e.printStackTrace();
-	}
-	for(SourceRangeGroup group : allMatches) {
-	    System.out.println("Matches in " + group.fFile.getName() + ": ");
-	    for(SourceRange range : group.fRanges) {
-		System.out.print(range);
-	    }
-	    System.out.println();
-	}
+            fSourceFile.getProject().accept(
+                    new PolyglotSourceFinder(new TextFileDocumentProvider(), srcProject, refVisitor, refVisitor, LanguageRegistry.findLanguage("X10")));
+        } catch (CoreException e) {
+            e.printStackTrace();
+        } catch (ModelException e) {
+            e.printStackTrace();
+        }
+        for(SourceRangeGroup group : allMatches) {
+            System.out.println("Matches in " + group.fFile.getName() + ": ");
+            for(SourceRange range : group.fRanges) {
+                System.out.print(range);
+            }
+            System.out.println();
+        }
     }
 
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
-	TextFileChange tfc= new TextFileChange("Rename", fSourceFile);
-	MultiTextEdit root= new MultiTextEdit();
+        TextFileChange tfc= new TextFileChange("Rename", fSourceFile);
+        MultiTextEdit root= new MultiTextEdit();
 
         tfc.setEdit(root);
         createDeclChange(tfc, root);
@@ -341,7 +341,9 @@ public class RenameRefactoring extends Refactoring {
     private void createRefChanges(final TextFileChange tfc, final MultiTextEdit root) {
         final TextEditGroup group= new TextEditGroup("Rename references");
         NodeVisitor v= new NodeVisitor() {
-            /* (non-Javadoc)
+            /*
+             * (non-Javadoc)
+             * 
              * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
              */
             @Override
@@ -354,7 +356,7 @@ public class RenameRefactoring extends Refactoring {
                         root.addChild(edit);
                         group.addTextEdit(edit);
                     }
-                } else  if (n instanceof Field) {
+                } else if (n instanceof Field) {
                     Field f= (Field) n;
                     if (f.fieldInstance().equals(fDecl)) {
                         Position pos= n.position();
@@ -362,7 +364,7 @@ public class RenameRefactoring extends Refactoring {
                         root.addChild(edit);
                         group.addTextEdit(edit);
                     }
-                } else  if (n instanceof Call) {
+                } else if (n instanceof Call) {
                     Call c= (Call) n;
                     if (c.methodInstance().equals(fDecl)) {
                         Position pos= n.position();
@@ -383,17 +385,20 @@ public class RenameRefactoring extends Refactoring {
         Position pos= fDeclNode.position();
         String newText;
 
-        // RMF 1/29/2007 - Apparently the position of local and field decls contains just the name...
-//        if (fDeclNode instanceof LocalDecl) {
-//            LocalDecl ld= (LocalDecl) fDeclNode;
-//            LocalDecl newDecl= ld.name(fNewName);
-//            newText= newDecl.toString();
-//        } else if (fDeclNode instanceof FieldDecl) {
-//            FieldDecl fd= (FieldDecl) fDeclNode;
-//            FieldDecl newDecl= fd.name(fNewName);
-//            newText= newDecl.toString();
-//        } else
-        if (fDeclNode instanceof Formal) {
+        if (fDeclNode instanceof LocalDecl) {
+            // RMF 7/29/2008 - Apparently the position of a local decl contains only the name and the initializer...
+            LocalDecl ld= (LocalDecl) fDeclNode;
+//          LocalDecl newDecl= ld.name(fNewName);
+//          newText= newDecl.toString();
+
+            newText= fNewName;
+            pos= ld.id().position();
+        } else if (fDeclNode instanceof FieldDecl) {
+            FieldDecl fd= (FieldDecl) fDeclNode;
+            FieldDecl newDecl= fd.name(fNewName);
+
+            newText= newDecl.toString();
+        } else if (fDeclNode instanceof Formal) {
             Formal f= (Formal) fDeclNode;
             Formal newFormal= f.name(fNewName);
             newText= newFormal.toString();
@@ -402,40 +407,35 @@ public class RenameRefactoring extends Refactoring {
             // RMF 1/30/2007 - If we knew the position of the name itself, we'd rewrite
             // only that, but we don't (pending enhancement to polyglot AST's).
             if (false)
-        	;
-//        	pos= m.name().position();
+                ;
+            // pos= m.name().position();
             else {
-        	// The following is *BAD* - we have no way of knowing what extra info
-        	// might be needed on a method signature, so we should *REALLY* stick
-        	// to rewriting the method name.
-        	// Just write out the whole signature. Oddly, modifiers aren't included
-        	// in the method's textual extent as given by fDeclNode.position().
-        	StringBuffer buff= new StringBuffer();
-        	buff.append(m.returnType().name())
-        	    .append(' ')
-        	    .append(fNewName)
-        	    .append('(');
-        	List<Formal> formals= m.formals();
-        	for(Iterator<Formal> iter= formals.iterator(); iter.hasNext(); ) {
-        	    Formal formal= iter.next();
-        	    buff.append(formal.flags())
-        	        .append(formal.type().name())
-        	        .append(' ')
-        	        .append(formal.name());
-        	    if (iter.hasNext())
-        		buff.append(", ");
-        	}
-        	buff.append(')');
-        	newText= buff.toString();
+                // The following is *BAD* - we have no way of knowing what extra info
+                // might be needed on a method signature, so we should *REALLY* stick
+                // to rewriting the method name.
+                // Just write out the whole signature. Oddly, modifiers aren't included
+                // in the method's textual extent as given by fDeclNode.position().
+                StringBuffer buff= new StringBuffer();
+                buff.append(m.returnType().name()).append(' ').append(fNewName).append('(');
+                List<Formal> formals= m.formals();
+
+                for(Iterator<Formal> iter= formals.iterator(); iter.hasNext();) {
+                    Formal formal= iter.next();
+
+                    buff.append(formal.flags()).append(formal.type().name()).append(' ').append(formal.name());
+                    if (iter.hasNext())
+                        buff.append(", ");
+                }
+                buff.append(')');
+                newText= buff.toString();
             }
         } else
             newText= fNewName;
 
         int startOffset= pos.offset();
-	int endOffset= pos.endOffset();
+        int endOffset= pos.endOffset();
 
         TextEditGroup group= new TextEditGroup("Rename declaration");
-
         ReplaceEdit edit= new ReplaceEdit(startOffset, endOffset - startOffset + 1, newText);
 
         root.addChild(edit);
@@ -499,6 +499,7 @@ class NodePathComputer {
         fPath.addAll(fVisitor.getPath());
         Collections.reverse(fPath);
     }
+
     public List<Node> getPath() {
         return fPath;
     }
