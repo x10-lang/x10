@@ -57,6 +57,8 @@ METAVARIABLE_TypeDeclaration
 METAVARIABLE_TypeDeclarations
 METAVARIABLE_BlockStatement
 METAVARIABLE_BlockStatements
+METAVARIABLE_ClassName
+METAVARIABLE_TypeName
 
 %End
 
@@ -217,6 +219,18 @@ METAVARIABLE_BlockStatements
      /.
       $BeginJava
          makeToken($_METAVARIABLE_BlockStatements);
+      $EndJava
+     ./
+           Token ::= '<'  'C' 'l' 'a' 's' 's' 'N' 'a' 'm' 'e' DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_ClassName);
+      $EndJava
+     ./
+            Token ::= '<' 'T' 'y' 'p' 'e' 'N' 'a' 'm' 'e'   DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_TypeName);
       $EndJava
      ./
 %End

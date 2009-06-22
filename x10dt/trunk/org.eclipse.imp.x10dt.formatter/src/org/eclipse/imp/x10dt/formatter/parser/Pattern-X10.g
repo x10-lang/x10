@@ -47,6 +47,7 @@
             | ClassBodyDeclaration
             | ClassBodyDeclarations
             | PackageDeclaration
+            | ArgumentList
             | BlockStatements
             | CompilationUnit
  
@@ -75,8 +76,9 @@ Import ::= METAVARIABLE_Import
 ClassDecl ::= METAVARIABLE_ClassDecl
 BlockStatements ::= METAVARIABLE_BlockStatements
 BlockStatement ::= METAVARIABLE_BlockStatement
-   
-           
-           
+Primary ::= METAVARIABLE_Expression
+ClassName ::= METAVARIABLE_ClassName
+TypeName ::= METAVARIABLE_TypeName
+             
 %End
 
