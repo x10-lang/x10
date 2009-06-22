@@ -61,7 +61,7 @@ class ComputeDependenciesVisitor extends NodeVisitor {
     public NodeVisitor enter(Node n) {
         if (n instanceof SourceFile) {
             fFromFile= (SourceFile) n;
-    		System.out.println("Scanning file " + fFromFile.position() + " for dependencies.");
+            System.out.println("Scanning file " + fFromFile.position() + " for dependencies.");
         } else if (n instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) n;
             Type type= typeNode.type();
