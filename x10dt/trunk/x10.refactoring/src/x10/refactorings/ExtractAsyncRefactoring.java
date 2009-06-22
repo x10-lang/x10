@@ -180,6 +180,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			// TODO Auto-generated method stub
 			return null;
 		}
+		
+		public String toString() {
+			return fVarDecl.toString();
+		}
 	}
 	
 	private static class ThrowableStatus extends Exception {
@@ -473,7 +477,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 					FieldInstance fi = ((Field) var).fieldInstance();
 
 					if (fi.equals(vi)) {
-						if ((par == null) || !((((Field)var).target() instanceof NamedVariable)||(((Field)var).target() instanceof ArrayAccess)))
+						if ((par == null) || !((((Field)var).target() instanceof NamedVariable)||(((Field)var).target() instanceof ArrayAccess)||(((Field)var).target() instanceof X10ArrayAccess1)))
 							return true;
 						else {
 							NamedVariable rcv = extractArrayName((Variable)((Field)var).target());
@@ -629,11 +633,19 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private void calculateInfoFlow(Stmt loop,
 //			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
 			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo, Set<VarWithFirstUse> loopRefedVars) {
-		fPhi = new HashMap<Assign, Set<InstanceKey>>();
+		
+		HashMap<Assign, Set<InstanceKey>> tmpPhi = new HashMap<Assign, Set<InstanceKey>>() {
+			public int size() {
+				int size = 0;
+				for (Set<InstanceKey> ck : this.values())
+					size += ck.size();
+		        return size+super.size();
+		    }
+		};
 		Map<VarWithFirstUse, Collection<InstanceKey>> psi = new HashMap<VarWithFirstUse, Collection<InstanceKey>>();
 		fRho = new HashMap<Expr, Boolean>();
 		
-		psi.putAll(aliasInfo);
+		psi.putAll(aliasInfo); // TODO: Make deep copy of aliasInfo
 		for(VarWithFirstUse v : aliasInfo.keySet()){
 			psi.get(v).add(new GammaInstance(v));
 		}
@@ -644,12 +656,15 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		
 		// initialize the phi map
 		for (Assign a : assigns) {
-			fPhi.put(a, new HashSet<InstanceKey>());
+			tmpPhi.put(a, new HashSet<InstanceKey>());
 		}
 		
 		int phiSize=-1;
-		while(phiSize < fPhi.size()) {
-			phiSize = fPhi.size();
+		boolean phiSent = true;
+		while(phiSent) {//phiSize < tmpPhi.size()) {
+			//phiSize = tmpPhi.size();
+			phiSent = false;
+			
 			// for every assignment statement in the loop
 			for (Assign a : assigns) {
 			//    extract the variables from the statement with an LValueFinder
@@ -658,14 +673,26 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			//    add the psi results from these LValueFinders to the phi map for the statement
 				for (Variable v : statVarFinder.getLValues()){
-					fPhi.get(a).addAll(psi.get(v)); // TODO: Fix ME!!
+					VarWithFirstUse translateV = getVarWithFirstUse(aliasInfo.keySet(), v);
+					phiSent |= tmpPhi.get(a).addAll(psi.get(translateV));
 				}
 			//    determine if lhs gamma variable flows in from statement and that this is the
 			//        first time lhs is used in the loop --> updated rho if this is true
+				
+				Variable lhs = (Variable)a.left();
+				psi.get(getVarWithFirstUse(aliasInfo.keySet(),lhs)).addAll(tmpPhi.get(a));
 			}
 		}
 		
 		// remove all InstanceKeys from fPhi except for GammaInstance
+		fPhi = new HashMap<Assign, Set<InstanceKey>>();
+		for(Map.Entry<Assign, Set<InstanceKey>> e : tmpPhi.entrySet()){
+			HashSet<InstanceKey> filteredSet = new HashSet<InstanceKey>();
+			for (InstanceKey k : e.getValue())
+				if (k instanceof GammaInstance)
+					filteredSet.add(k);
+			fPhi.put(e.getKey(), filteredSet);
+		}
 		return;
 	}
 
