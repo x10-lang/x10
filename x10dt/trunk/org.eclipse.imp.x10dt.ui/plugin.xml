@@ -56,6 +56,7 @@
             modes="run,debug">
          <perspective id="org.eclipse.jdt.ui.JavaPerspective"/>
          <perspective id="org.eclipse.debug.ui.DebugPerspective"/>
+         <perspective id="org.eclipse.imp.x10dt.ui.perspective"/>
          <contextualLaunch>
             <enablement>
                <with variable="selection">
