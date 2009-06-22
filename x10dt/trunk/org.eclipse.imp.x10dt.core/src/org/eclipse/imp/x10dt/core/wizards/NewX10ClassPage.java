@@ -269,7 +269,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
 	final IFile file= container.getFile(new Path(typeName + ".x10"));
 	try {
-	    InputStream stream= createContentStream(file, typeName, pkgFrag, superClass, superIntfs);
+	    InputStream stream= createContentStream(file, typeName, pkgFrag, superClass, superIntfs, isCreateMain(), isCreateConstructors());
 
 	    if (file.exists()) {
 		file.setContents(stream, true, true, monitor);
@@ -283,11 +283,11 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     }
 
     /**
-     * We will initialize file contents with a sample text.
+     * Initialize the given file's contents with sample source code.
      * @param sourceFile 
      */
-    private InputStream createContentStream(IFile sourceFile, String typeName, IPackageFragment pkgFrag, String superClass,
-	    List/*<String>*/superIntfs) {
+    protected static InputStream createContentStream(IFile sourceFile, String typeName, IPackageFragment pkgFrag, String superClass,
+	    List<String> superIntfs, boolean createMain, boolean createConstructors) {
 	StringBuffer buff= new StringBuffer();
 
 	if (!pkgFrag.isDefaultPackage())
@@ -305,11 +305,11 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	    }
 	}
 	buff.append(" {\n");
-        if (isCreateMain()) {
+        if (createMain) {
             buff.append("    public static void main(String[] args) {\n");
             buff.append("    }\n");
         }
-        if (isCreateConstructors()) {
+        if (createConstructors) {
             buff.append("    public " + typeName + "() {\n");
             buff.append("    }\n");
         }
