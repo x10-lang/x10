@@ -29,7 +29,7 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    
 	    // SMS 15 Jun 2006:
 	    if (pos.line() < 0) {
-	    	System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
+	    	//System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
 	    	return this;
 	    }
 	    
@@ -38,9 +38,9 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    int nodeEndOffset= fLS.getLineOffset(pos.endLine()-1) + pos.endColumn();
 	    //System.out.println("Examining " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + ']');
 
-	    if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {
-		//System.out.println(" --> " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
-		fNode[0]= n;
+    	if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {	
+    		//System.out.println(" --> " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
+    		fNode[0]= n;
 	    }
 	    return this;
 	}
@@ -64,12 +64,32 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    if (nodeStartOffset == fOffset) System.out.println("NodeStartOffset = fOffset");
 	    if (nodeEndOffset == fEndOffset) System.out.println("NodeEndOffset = fEndOffset");
 	    
-	    // SMS 14 Jun 2006
-	    // Overriding seems to reject too many nodes (due to problem with end offset?)
-	    // so I've commented out (at least temporarily) the condition that leads to
-	    // node rejection (or not)
-	    if (nodeStartOffset > fEndOffset || nodeEndOffset < fOffset)
-		return n;
+	    // SMS 31 Jul 2006
+	    // There's a problem with trying to filter nodes using a condition like
+	    // the one originally here, now commented-out below.  That is, it seems that
+	    // the children of a node are not necessarily contained within the offest
+	    // range of the node.  In particular, it seems that a class body has some
+	    // children that are method declarations, a method declaration has a lexical
+	    // extent that (more or less) corresponds to the specification, not to the
+	    // specification including the body.  But the method-body node is a child of
+	    // the method-declaration node in the AST, even though the offset range of
+	    // the body follows the offset range of the declaration.  If the method-
+	    // declaration node is returned here (as it would be with the original
+	    // condition), then the nodes representing constructs within the method body
+	    // will not be examined.  This can leave the class-body node as the closest
+	    // enclosing node to a location within a method body.
+	    //
+	    // As an alternative condition that will not entail the traversal of all
+	    // AST nodes, I've substituted a condition to check just whether the current
+	    // node starts after the given location.  I assume that in that case the
+	    // children of the node cannot contain the given location.  (That is, I
+	    // assume that the children of a node will not have offsets that will
+	    // precede the offset of the node.)  If that doesn't work in general, then
+	    // perhaps no filtering should be done here.
+	    //
+	    //if (nodeStartOffset > fEndOffset || nodeEndOffset < fOffset)
+	    if (nodeStartOffset > fOffset)
+	    	return n;
 	    return null;
 	}
     };
