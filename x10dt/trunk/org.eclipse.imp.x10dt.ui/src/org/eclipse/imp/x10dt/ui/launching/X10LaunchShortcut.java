@@ -77,18 +77,19 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	IType[] types= null;
 
 	if (search != null) {
+	    IFile file= (IFile) search[0];
 	    try {
 		// TODO Need to scan the X10 sources for types that have a main method...
 		// types= AppletLaunchConfigurationUtils.findApplets(new ProgressMonitorDialog(getShell()), search);
-		IFile file= (IFile) search[0];
+		IFile javaFile= file;
 		if (file.getFileExtension().equals("x10"))
-		    file= file.getProject().getFile(file.getProjectRelativePath().removeFileExtension().addFileExtension("java"));
-		types= new IType[] { ((ICompilationUnit) JavaCore.create(file)).findPrimaryType() };
+		    javaFile= file.getProject().getFile(file.getProjectRelativePath().removeFileExtension().addFileExtension("java"));
+		types= new IType[] { ((ICompilationUnit) JavaCore.create(javaFile)).findPrimaryType() };
 	    } catch (Exception e) {
 		/* Handle exceptions */
 	    }
 	    IType type= null;
-	    if (types.length == 0) {
+	    if (types == null || types.length == 0) {
 		MessageDialog.openInformation(getShell(), "X10 Application Launch", "No X10 applications found.");
 	    } else if (types.length > 1) {
 		type= chooseType(types, mode);
@@ -97,7 +98,8 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    }
 	    if (type != null) {
 		launch(type, mode);
-	    }
+	    } else
+		MessageDialog.openInformation(getShell(), "X10 Application Launch", "Generated Java application not found for X10 application " + file.getName() + "; perhaps there is a pending compilation error?");
 	}
     }
 
