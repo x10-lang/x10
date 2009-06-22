@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
 import org.eclipse.jdt.ui.wizards.NewTypeWizardPage;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelection;
@@ -32,7 +31,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * The "New X10 Class" wizard page allows setting the package for the new class
@@ -58,22 +56,9 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
 	IJavaElement jelem= getInitialJavaElement(selection);
 	initContainerPage(jelem);
 	initTypePage(jelem);
-//	setSuperClass("", true);
 	doStatusUpdate();
 
-	// TODO RMF 2/7/2005 - re-enable the following to remember dialog settings across invocations
-	//	boolean createMain= false;
-	//	boolean createConstructors= false;
-	//	boolean createUnimplemented= true;
-	//	IDialogSettings section= getDialogSettings().getSection(PAGE_NAME);
-	//
-	//	if (section != null) {
-	//	    createMain= section.getBoolean(SETTINGS_CREATEMAIN);
-	//	    createConstructors= section.getBoolean(SETTINGS_CREATECONSTR);
-	//	    createUnimplemented= section.getBoolean(SETTINGS_CREATEUNIMPLEMENTED);
-	//	}
-
-	//	setMethodStubSelection(createMain, createConstructors, createUnimplemented, true);
+//      IDialogSettings section= getDialogSettings().getSection(PAGE_NAME);
     }
 
     // ------ validation --------
@@ -120,7 +105,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
 	setControl(composite);
 
 	Dialog.applyDialogFont(composite);
-	PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IJavaHelpContextIds.NEW_CLASS_WIZARD_PAGE);
+//	PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IJavaHelpContextIds.NEW_CLASS_WIZARD_PAGE);
 	setFocus(); // For some reason, the type name doesn't get focus by the time the dialog is fully up... force it
     }
 
