@@ -30,14 +30,6 @@
 			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
 		</copy>
 		<echo message="done copying resources"/>
-		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/icons"/>
-		<copy todir="${temp.folder}/${plugin.jar.name}.bin/icons" failonerror="true" overwrite="false">
-			<fileset dir="icons/"/>
-		</copy>
-		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/cheatsheets"/>
-		<copy todir="${temp.folder}/${plugin.jar.name}.bin/cheatsheets" failonerror="true" overwrite="false">
-			<fileset dir="cheatsheets/"/>
-		</copy>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<mkdir dir="${build.result.folder}"/>
 		<jar destfile="${build.result.folder}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.jar.name}.bin"
