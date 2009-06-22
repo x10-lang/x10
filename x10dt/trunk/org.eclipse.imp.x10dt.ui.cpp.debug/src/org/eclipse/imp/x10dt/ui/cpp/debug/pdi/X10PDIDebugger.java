@@ -1742,8 +1742,9 @@ public final class X10PDIDebugger implements IPDIDebugger {
     String cppFile = location.getViewFile().getBaseFileName();
     int cppLine = location.getLineNumber();
     String cppFunction = getFunction(location);
-    String file = this.fTranslator.getX10File(process, location);
-    int lineNumber = this.fTranslator.getX10Line(process, location);
+    boolean isLib = (cppFile.startsWith("lib") && cppFile.endsWith("-.text-1"));
+    String file = isLib ? null : getX10File(process, location);
+    int lineNumber = isLib ? -1 : getX10Line(process, location);
     String function = this.fTranslator.getX10Function(process, cppFunction, location);
     if (file == null && lineNumber == -1 && function == null)
         return null;
@@ -1754,6 +1755,52 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
     return ProxyDebugEventFactory.toFrame(String.valueOf(level), file, function, String.valueOf(lineNumber),
                                           (String) null /* address */);
+  }
+
+  private static final int MAX_LINE_LOOKBEHIND = 10;
+
+  /**
+   * Walk up to the preceding line within the same function that has the mapping.
+   * @return the file, or null if no mapping within the function
+   */
+  private String getX10File(final DebuggeeProcess process, Location location) {
+    String x10File = this.fTranslator.getX10File(process, location);
+    if (x10File != null)
+      return x10File;
+    int count = 0;
+    String function = getFunction(location);
+    if (function == null)
+    	return x10File;
+    while (x10File == null && count++ < MAX_LINE_LOOKBEHIND && location.getLineNumber() > 0) {
+      location = new Location(location.getViewFile(), location.getLineNumber()-1);
+      String newFunction = getFunction(location);
+      if (newFunction != function)
+    	  break;
+      x10File = this.fTranslator.getX10File(process, location);
+    }
+	return x10File;
+  }
+
+  /**
+   * Walk up to the preceding line within the same function that has the mapping.
+   * @return the file, or null if no mapping within the function
+   */
+  private int getX10Line(final DebuggeeProcess process, Location location) {
+    int x10Line = this.fTranslator.getX10Line(process, location);
+    if (x10Line != -1)
+      return x10Line;
+    int count = 0;
+    String function = getFunction(location);
+    if (function == null)
+      return x10Line;
+    while (x10Line == -1 && count++ < MAX_LINE_LOOKBEHIND && location.getLineNumber() > 0) {
+      location = new Location(location.getViewFile(), location.getLineNumber()-1);
+      String newFunction = getFunction(location);
+      if (newFunction != function)
+    	  break;
+      x10Line = this.fTranslator.getX10Line(process, location);
+    }
+	return x10Line;
   }
 
   private String getFunction(final Location location) {
