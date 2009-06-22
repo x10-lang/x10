@@ -41,8 +41,6 @@ public class DebugMessages extends NLS {
 
   public static String PDID_SocketClosingError;
 
-  public static String PDID_PDTDisconnectError;
-
   public static String PDID_SocketListeningError;
 
   public static String XDbg_DebuggerInitError;
