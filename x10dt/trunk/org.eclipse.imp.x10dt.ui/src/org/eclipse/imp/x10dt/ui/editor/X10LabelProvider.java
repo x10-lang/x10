@@ -8,6 +8,7 @@
  */
 package org.eclipse.imp.x10dt.ui.editor;
 
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -15,9 +16,13 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.imp.x10dt.ui.views.Outliner;
@@ -56,50 +61,71 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 
 //  private ProblemsLabelDecorator fLabelDecorator;
 
-    public static final String DEFAULT_AST= "default_ast.gif";
-
-    // TODO Shouldn't need these decorated images - use 1 CU image combined w/ 0+ decoration images
-    public static final String COMPILATION_UNIT_NORMAL= "compilationUnitNormal.gif";
-    public static final String COMPILATION_UNIT_WARNING= "compilationUnitWarning.gif";
-    public static final String COMPILATION_UNIT_ERROR= "compilationUnitError.gif";
-
     private static ImageRegistry sImageRegistry= X10UIPlugin.getInstance().getImageRegistry();
 
-    private static ImageDescriptor DEFAULT_AST_IMAGE_DESC;
+    public static final String DEFAULT_AST_IMAGE_NAME= "default_ast";
+    private static Image DEFAULT_AST_IMAGE;
 
-    private static ImageDescriptor COMPILATION_UNIT_NORMAL_IMAGE_DESC;
-    private static ImageDescriptor COMPILATION_UNIT_WARNING_IMAGE_DESC;
-    private static ImageDescriptor COMPILATION_UNIT_ERROR_IMAGE_DESC;
+    // TODO Shouldn't need all these images - use 1 generic image combined w/ 0+ decorations
+    public static final String COMPILATION_UNIT_NORMAL_IMAGE_NAME= "compilationUnitNormal";
+    public static final String COMPILATION_UNIT_WARNING_IMAGE_NAME= "compilationUnitWarning";
+    public static final String COMPILATION_UNIT_ERROR_IMAGE_NAME= "compilationUnitError";
 
-    private static Image DEFAULT_AST_IMAGE= sImageRegistry.get(DEFAULT_AST);
+    private static Image COMPILATION_UNIT_NORMAL_IMAGE;
+    private static Image COMPILATION_UNIT_WARNING_IMAGE;
+    private static Image COMPILATION_UNIT_ERROR_IMAGE;
 
-    private static Image COMPILATION_UNIT_NORMAL_IMAGE= sImageRegistry.get(COMPILATION_UNIT_NORMAL);
-    private static Image COMPILATION_UNIT_WARNING_IMAGE= sImageRegistry.get(COMPILATION_UNIT_WARNING);
-    private static Image COMPILATION_UNIT_ERROR_IMAGE= sImageRegistry.get(COMPILATION_UNIT_ERROR);
+    public static final String PROJECT_NORMAL_IMAGE_NAME= "projectNormal";
+    public static final String PROJECT_WARNING_IMAGE_NAME= "projectWarning";
+    public static final String PROJECT_ERROR_IMAGE_NAME= "projectError";
+
+    private static Image PROJECT_NORMAL_IMAGE;
+    private static Image PROJECT_WARNING_IMAGE;
+    private static Image PROJECT_ERROR_IMAGE;
 
     static {
-	final ImageRegistry ir= X10UIPlugin.getInstance().getImageRegistry();
+        // Retrieve all images and put them in the appropriately-named fields
+        Class myClass= X10LabelProvider.class;
+        Field[] fields= myClass.getDeclaredFields();
 
-	DEFAULT_AST_IMAGE_DESC= X10UIPlugin.create(DEFAULT_AST);
-	ir.put(DEFAULT_AST, DEFAULT_AST_IMAGE_DESC);
-	DEFAULT_AST_IMAGE= ir.get(DEFAULT_AST);
+        for(int i= 0; i < fields.length; i++) {
+            Field imageNameField= fields[i];
+            String imageNameFieldName= imageNameField.getName();
 
-	COMPILATION_UNIT_NORMAL_IMAGE_DESC= X10UIPlugin.create(COMPILATION_UNIT_NORMAL);
-	ir.put(COMPILATION_UNIT_NORMAL, COMPILATION_UNIT_NORMAL_IMAGE_DESC);
-	COMPILATION_UNIT_NORMAL_IMAGE= ir.get(COMPILATION_UNIT_NORMAL);
+            if (!imageNameFieldName.endsWith("_IMAGE_NAME"))
+                continue;
 
-	COMPILATION_UNIT_WARNING_IMAGE_DESC= X10UIPlugin.create(COMPILATION_UNIT_WARNING);
-	ir.put(COMPILATION_UNIT_WARNING, COMPILATION_UNIT_WARNING_IMAGE_DESC);
-	COMPILATION_UNIT_WARNING_IMAGE= ir.get(COMPILATION_UNIT_WARNING);
+            try {
+                String imageName= (String) imageNameField.get(null);
+                ImageDescriptor desc= X10UIPlugin.create(imageName + ".gif");
 
-	COMPILATION_UNIT_ERROR_IMAGE_DESC= X10UIPlugin.create(COMPILATION_UNIT_ERROR);
-	ir.put(COMPILATION_UNIT_ERROR, COMPILATION_UNIT_ERROR_IMAGE_DESC);
-	COMPILATION_UNIT_ERROR_IMAGE= ir.get(COMPILATION_UNIT_ERROR);
+                sImageRegistry.put(imageName, desc);
+
+                try {
+                    String imageFieldName= imageNameFieldName.substring(0, imageNameFieldName.lastIndexOf("_NAME"));
+                    Field imageField= myClass.getDeclaredField(imageFieldName);
+
+                    imageField.set(null, sImageRegistry.get(imageName));
+                } catch(NoSuchFieldException e) {
+                    X10UIPlugin.log(e);
+                }
+            } catch (IllegalArgumentException e) {
+                X10UIPlugin.log(e);
+            } catch (IllegalAccessException e) {
+                X10UIPlugin.log(e);
+            }
+        }
     }
 
+    private static Image[] CU_IMAGES= { COMPILATION_UNIT_ERROR_IMAGE, COMPILATION_UNIT_WARNING_IMAGE, COMPILATION_UNIT_NORMAL_IMAGE, COMPILATION_UNIT_NORMAL_IMAGE };
+    private static Image[] PROJECT_IMAGES= { PROJECT_ERROR_IMAGE, PROJECT_WARNING_IMAGE, PROJECT_NORMAL_IMAGE, PROJECT_NORMAL_IMAGE };
+
+    private Language fX10Language= LanguageRegistry.findLanguage("x10");
+
     public Image getImage(Object o) {
-        if (o instanceof IResource) {
-            return getErrorTicksFromMarkers((IResource) o);
+        if (o instanceof IResource || o instanceof ISourceEntity) {
+            IResource res= (o instanceof ISourceEntity) ? ((ISourceEntity) o).getResource() : (IResource) o;
+            return getErrorTicksFromMarkers(res);
         }
 
         Node node= (o instanceof ModelTreeNode) ?
@@ -141,15 +167,36 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
             return images[0];
     }
 
-    public static Image getErrorTicksFromMarkers(IResource res) {
-	int severity= MarkerUtils.getMaxProblemMarkerSeverity(res, IResource.DEPTH_ONE);
+    public Image getErrorTicksFromMarkers(IResource res) {
+        if (res instanceof IFile) {
+            IFile file= (IFile) res;
+            String[] extens= fX10Language.getFilenameExtensions();
+            boolean found= false;
 
-	switch (severity) {
-	case IMarker.SEVERITY_ERROR: return COMPILATION_UNIT_ERROR_IMAGE;
-	case IMarker.SEVERITY_WARNING: return COMPILATION_UNIT_WARNING_IMAGE;
-	case IMarker.SEVERITY_INFO: return COMPILATION_UNIT_NORMAL_IMAGE; // COMPILATION_UNIT_INFO_IMAGE;
-	default: return COMPILATION_UNIT_NORMAL_IMAGE;
-	}
+            for(int i= 0; i < extens.length; i++) {
+                if (extens[i].equals(file.getFileExtension())) {
+                    found= true;
+                }
+            }
+            if (found) {
+                return selectDecoratedImage(res, CU_IMAGES);
+            }
+        }
+        if (res instanceof IProject) {
+            return selectDecoratedImage(res, PROJECT_IMAGES);
+        }
+        return null;
+    }
+
+    private Image selectDecoratedImage(IResource res, Image[] images) {
+        int severity= MarkerUtils.getMaxProblemMarkerSeverity(res, IResource.DEPTH_ONE);
+
+        switch (severity) {
+        case IMarker.SEVERITY_ERROR: return images[0];
+        case IMarker.SEVERITY_WARNING: return images[1];
+        case IMarker.SEVERITY_INFO: return images[2];
+        default: return images[3];
+        }
     }
 
     public String getText(Object element) {
