@@ -410,7 +410,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
                 //PORT1.7 -- token -- must calculate tokens, not get from JPGPosition
                 IToken last_true_part_token;// = ((JPGPosition) true_part.position()).getRightIToken(); 
                 last_true_part_token = getRightTokenFromNode(prsStream, n);
-                //PORT1.7 -- TODO token work to be done here too
+                //PORT1.7 --   token work to be done here too
                 makeAnnotation(((JPGPosition) n.position()).getLeftIToken(), last_true_part_token);
                 makeAnnotation(getLeftTokenFromNode(prsStream, n), last_true_part_token);
                 if (else_part != null && (! (else_part instanceof If)))
