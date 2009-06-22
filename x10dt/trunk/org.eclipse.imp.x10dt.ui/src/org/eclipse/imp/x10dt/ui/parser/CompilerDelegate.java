@@ -10,10 +10,13 @@ import lpg.lpgjavaruntime.Monitor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.osgi.framework.Bundle;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
@@ -97,6 +100,7 @@ public class CompilerDelegate {
 	X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
 	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
     }
+
 /*
     private String buildClassPathSpec() throws JavaModelException {
 	StringBuffer buff= new StringBuffer();
@@ -139,16 +143,33 @@ public class CompilerDelegate {
     
     private String buildClassPathSpec() {
         StringBuffer buff= new StringBuffer();
+        // RMF 8/2/2006 - Determine whether an X10 runtime is on the project classpath,
+        // and if not, silently add the default X10 runtime, so that various IDE services
+        // can still run (e.g. syntax highlighting, outlining, etc.).
+        boolean hasRuntime= false;
+        boolean runtimeValid= false;
 
         try {
             IClasspathEntry[] classPath= x10Project.getResolvedClasspath(true);
 
             for(int i= 0; i < classPath.length; i++) {
                 IClasspathEntry entry= classPath[i];
+                final String entryPath= entry.getPath().toOSString();
 
                 if (i > 0)
                     buff.append(";");
-                buff.append(entry.getPath().toOSString());
+                buff.append(entryPath);
+
+                if (entryPath.contains("x10.runtime")) {
+                    hasRuntime= true;
+                    if (new File(entryPath).exists())
+                        runtimeValid= true;
+                }
+            }
+            if (!hasRuntime || !runtimeValid) {
+                if (buff.length() > 0)
+                    buff.append(";");
+                buff.append(getRuntimePath());
             }
             // if (X10Preferences.autoAddRuntime) {
             //    String commonPath= X10Plugin.x10CommonPath;
@@ -162,5 +183,13 @@ public class CompilerDelegate {
             X10Plugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
         }
         return buff.toString();
+    }
+
+    private String getRuntimePath() {
+        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
+        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/x10.runtime_" + bundleVersion + ".jar";
+
+        return x10RuntimePath;
     }
 }
