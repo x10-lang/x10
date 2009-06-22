@@ -28,13 +28,14 @@ import org.eclipse.jdt.core.JavaModelException;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Options;
+import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 
-import com.ibm.domo.ast.java.PolyglotFrontEnd;
-import com.ibm.domo.ast.java.StreamSource;
+import com.ibm.domo.ast.java.translator.polyglot.PolyglotFrontEnd;
+import com.ibm.domo.ast.java.translator.polyglot.StreamSource;
 
 public class X10Builder extends IncrementalProjectBuilder {
     public static final String BUILDER_ID= X10Plugin.kPluginID + ".X10Builder";
@@ -127,13 +128,50 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void compileAllSources(Collection/*<IFile>*/ sourceFiles) {
+	List/*<SourceStream>*/ streams= collectStreamSources(sourceFiles);
+	final Collection/*<ErrorInfo>*/ errors= new ArrayList();
+
+	buildOptions();
+
+	Compiler compiler= new PolyglotFrontEnd(fExtInfo, new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
+	    protected void displayError(ErrorInfo error) {
+		errors.add(error);
+	    }
+	});
+
+	Report.addTopic(Report.verbose, 5);
+	compiler.compile(streams);
+	createMarkers(errors);
+    }
+
+    private void buildOptions() {
+	Options opts= fExtInfo.getOptions();
+
+	try {
+	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec() }, new HashSet());
+	} catch (UsageError e) {
+	    // Assertions.UNREACHABLE("Error parsing classpath spec???");
+	}
+    }
+
+    private void createMarkers(final Collection errors) {
+	for(Iterator iter= errors.iterator(); iter.hasNext(); ) {
+	    ErrorInfo errorInfo= (ErrorInfo) iter.next();
+	    Position errorPos= errorInfo.getPosition();
+	    IFile errorFile= fProject.getFile(errorPos.file());
+
+	    addMarkerTo(errorFile, errorInfo.getErrorString(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
+	}
+    }
+
+    private List/*<SourceStream>*/ collectStreamSources(Collection/*<IFile>*/ sourceFiles) {
 	List/*<SourceStream>*/ streams= new ArrayList();
-	// N.B.: 'modules' is a flat set of source file ModuleEntry's.
 	for(Iterator/*<IFile>*/ it= sourceFiles.iterator(); it.hasNext(); ) {
 	    IFile sourceFile= (IFile) it.next();
 
 	    try {
-		StreamSource srcStream= new StreamSource(sourceFile.getContents(), sourceFile.getName());
+		final String filePath= sourceFile.getLocation().toOSString();
+		StreamSource srcStream= new StreamSource(sourceFile.getContents(), filePath);
 
 		streams.add(srcStream);
 	    } catch (IOException e) {
@@ -142,29 +180,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		X10Plugin.writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage(), BUILDER_ID);
 	    }
 	}
-	Options opts= fExtInfo.getOptions();
-	try {
-	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec() }, new HashSet());
-	} catch (UsageError e) {
-	    // Assertions.UNREACHABLE("Error parsing classpath spec???");
-	}
-	final Collection/*<ErrorInfo>*/ errors= new ArrayList();
-
-	Compiler compiler= new PolyglotFrontEnd(fExtInfo, new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
-	    protected void displayError(ErrorInfo error) {
-		errors.add(error);
-	    }
-	});
-
-	compiler.compile(streams);
-
-	for(Iterator iter= errors.iterator(); iter.hasNext();) {
-	    ErrorInfo errorInfo= (ErrorInfo) iter.next();
-	    Position errorPos= errorInfo.getPosition();
-	    IFile errorFile= fProject.getFile(errorPos.file());
-
-	    addMarkerTo(errorFile, errorInfo.getErrorString(), errorInfo.getErrorKind(), errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line());
-	}
+	return streams;
     }
 
     private String buildClassPathSpec() {
