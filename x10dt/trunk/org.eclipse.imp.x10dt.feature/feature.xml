@@ -28,14 +28,14 @@
          id="x10.compiler.p3"
          download-size="910"
          install-size="910"
-         version="1.7.3.0"
+         version="1.7.3.1"
          unpack="false"/>
 
    <plugin
          id="x10.runtime.17"
          download-size="319"
          install-size="319"
-         version="1.7.3.0"
+         version="1.7.3.1"
          unpack="false"/>
 
    <plugin
@@ -77,14 +77,14 @@
          id="x10.constraints"
          download-size="0"
          install-size="0"
-         version="1.7.3.0"
+         version="1.7.3.1"
          unpack="false"/>
 
    <plugin
          id="x10.common.17"
          download-size="0"
          install-size="0"
-         version="1.7.3.0"
+         version="1.7.3.1"
          unpack="false"/>
 
    <plugin
