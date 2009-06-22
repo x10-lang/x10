@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
@@ -17,6 +20,10 @@ import org.eclipse.jdi.hcr.ReferenceType;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
 import org.eclipse.jdt.debug.core.IJavaType;
+import org.eclipse.jdt.debug.core.JDIDebugModel;
+import org.eclipse.jdt.internal.debug.core.EventDispatcher;
+import org.eclipse.jdt.internal.debug.core.model.JDIDebugElement;
+import org.eclipse.jdt.internal.debug.core.model.JDIDebugModelMessages;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIReferenceType;
 import org.eclipse.jdt.internal.debug.core.model.JDIType;
@@ -31,7 +38,7 @@ import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 
 
-public class X10DebugTarget implements IDebugTarget{
+public class X10DebugTarget extends X10DebugElement implements IDebugTarget, ILaunchListener, IDebugEventSetListener {
 
 	private IDebugTarget fJDebugTarget;
 	private ClassObjectReference fX10RT;
@@ -44,21 +51,34 @@ public class X10DebugTarget implements IDebugTarget{
 		initialize();        
 	}
 */
-	public X10DebugTarget(){
-	    	setJDIDebugTarget();
+	public X10DebugTarget(ILaunch launch, final IDebugTarget javaDebugTarget){
+		super((JDIDebugTarget)javaDebugTarget);
+	    fLaunch = launch;
+	    fJDebugTarget = javaDebugTarget;
+		DebugPlugin.getDefault().getLaunchManager().addLaunchListener(this);
+		getLaunch().addDebugTarget(this);
+        DebugPlugin plugin = DebugPlugin.getDefault();
+		plugin.addDebugEventListener(this);
+		fireCreationEvent();
+		// begin handling/dispatching events after the creation event is handled by all listeners
+		plugin.asyncExec(new Runnable() {
+			public void run() {
+				EventDispatcher dispatcher = ((JDIDebugTarget)javaDebugTarget).getEventDispatcher();
+		        if (dispatcher != null) {
+		            Thread t= new Thread(dispatcher, JDIDebugModel.getPluginIdentifier() + JDIDebugModelMessages.JDIDebugTarget_JDI_Event_Dispatcher); 
+		            t.setDaemon(true);
+		            t.start();
+		        }
+			}
+		});
+		    
 	}
 	
-	public X10DebugTarget(ILaunch launch){
-    	fJDebugTarget = launch.getDebugTarget();
-    }
+//	public X10DebugTarget(ILaunch launch, VirtualMachine jvm, String name, boolean supportTerminate, boolean supportDisconnect, IProcess process, boolean resume) {
+//		super(launch, jvm, name, supportTerminate,supportDisconnect, process, resume);
+//		fJDebugTarget = launch.getDebugTarget();
+//    }
 	
-	
-	//******SHIVALI: I don't fully understand this.
-	//******According to tutorial, DebugContext is available from debug views via DebugContextProvider.  Not available directly from here.
-	//******But why do you need it?  X10DebugTarget should inherit from JDIDebugTarget (that's what you proposed, right?)
-	//******So the java debug target identified by this method is just "this", isn't it?
-	//******If for some reason this doesn't work, I'd say the place to do it would be in the constructor, where launch is provided as parameter
-	//******Or equivalently, pass launch as param from constructor to this method via initialize.
 	private void setJDIDebugTarget() {
 		IAdaptable context = DebugUITools.getDebugContext();
 		if  (context == null) {
@@ -202,5 +222,25 @@ public class X10DebugTarget implements IDebugTarget{
 
 	public boolean supportsStorageRetrieval() {
 		return fJDebugTarget.supportsStorageRetrieval();
+	}
+
+	public void launchAdded(ILaunch launch) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void launchChanged(ILaunch launch) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void launchRemoved(ILaunch launch) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void handleDebugEvents(DebugEvent[] events) {
+		// TODO Auto-generated method stub
+		
 	}
 }

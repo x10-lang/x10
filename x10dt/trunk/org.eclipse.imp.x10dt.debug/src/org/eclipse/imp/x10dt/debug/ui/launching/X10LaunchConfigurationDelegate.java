@@ -27,12 +27,14 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.debug.model.X10DebugTarget;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.imp.x10dt.ui.launching.X10ExecutionArguments;
 import org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigAttributes;
+import org.eclipse.jdt.internal.launching.StandardVMDebugger;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall2;
@@ -107,7 +109,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	monitor.subTask("Verifying launch attributes");
 
 	String mainTypeName= verifyMainTypeName(configuration);
-	IVMRunner runner= getVMRunner(configuration, mode);
+	IVMRunner runner= new X10VMDebugger(getVMInstall(configuration));
+//	IVMRunner runner= new X10VMRunnerDelegate(this, configuration, ((StandardVMDebugger)getVMRunner(configuration, mode)));
 
 	File workingDir= verifyWorkingDirectory(configuration);
 	String workingDirName= null;
@@ -201,7 +204,6 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 	// Launch the configuration - 1 unit of work
 	runner.run(runConfig, launch, monitor);
-	launch.addDebugTarget(new X10DebugTarget(launch));
 	
 	// check for cancellation
 	if (monitor.isCanceled()) {

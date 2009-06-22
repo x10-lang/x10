@@ -1,5 +1,6 @@
 package org.eclipse.imp.x10dt.debug;
 
+import org.eclipse.jdt.internal.debug.core.JDIDebugPlugin;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
@@ -58,4 +59,13 @@ public class Activator extends AbstractUIPlugin {
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
+	/**
+	 * Returns the identifier for the JDI debug model plug-in
+	 *
+	 * @return plug-in identifier
+	 */
+	public static String getUniqueIdentifier() {
+		return PLUGIN_ID;
+	}
+	
 }

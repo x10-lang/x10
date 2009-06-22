@@ -44,7 +44,20 @@
          point="org.eclipse.debug.ui.debugModelPresentations">
       <debugModelPresentation
             class="org.eclipse.imp.x10dt.debug.ui.presentation.X10ModelPresentation"
-            id="pda.debugModel"/>
+            id="org.eclipse.imp.x10dt.debug.model"/>
    </extension>
-   
+     <extension
+           point="org.eclipse.ui.contexts">
+        <context
+              parentId="org.eclipse.debug.ui.debugging"
+              description="Debugging X10 Programs"
+              name="Debugging X10 Programs"
+              id="org.eclipse.imp.x10dt.debug"/>
+     </extension>
+	  <extension
+	        point="org.eclipse.debug.ui.debugModelContextBindings">
+	     <modelContextBinding
+	           contextId="org.eclipse.imp.x10dt.debug"
+	           debugModelId="org.eclipse.imp.x10dt.debug.model"/>
+	  </extension>
 </plugin>
