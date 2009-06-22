@@ -181,9 +181,20 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       }
       cppFunction = cppFunction.replaceAll("\\b(int|short|double|float)\\b", "x10_$1");
       x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
-      if (x10Function == null) { // now try adding spaces before closing type arg braces
-        cppFunction = cppFunction.replaceAll("(?<!\\s)>", " >");
+      if (x10Function == null) { // now try adding spaces before closing type arg braces for Rail and ValRail
+        int b = 0;
+        while ((b = cppFunction.indexOf("Rail<", b)) != -1) {
+          b += "Rail<".length() - 1;
+          int m = PDTUtils.findMatch(cppFunction, b);
+          assert (m != -1);
+          if (cppFunction.charAt(m - 1) != ' ')
+            cppFunction = cppFunction.substring(0, m) + " " + cppFunction.substring(m);
+        }
         x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
+        if (x10Function == null) { // now try adding spaces before all closing type arg braces
+        	cppFunction = cppFunction.replaceAll("(?<!\\s)>", " >");
+        	x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
+        }
       }
     }
     if (x10Function != null)
@@ -619,6 +630,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
   }
 
   public static final String VARIABLE_NOT_FOUND = "Variable was not found.";
+  public static final String NOT_IN_SCOPE = "Not within current scope";
   private void readClosureInfo(final DebuggeeProcess p, final StackFrame frame, final Location location, final String closure) {
     System.err.println("Reading closure mapping info for " + closure);
     String val = null;
