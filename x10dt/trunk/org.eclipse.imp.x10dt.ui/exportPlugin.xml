@@ -38,8 +38,8 @@
 				<pathelement location="../org.eclipse.imp.runtime/bin"/>
 				<pathelement location="../polyglot/classes"/>
 				<pathelement location="../org.eclipse.imp.analysis/bin"/>
-				<pathelement location="../x10.runtime/bin"/>
-				<pathelement location="../x10.compiler/bin"/>
+				<pathelement location="../x10.runtime/classes"/>
+				<pathelement location="../x10.compiler/classes"/>
 				<pathelement location="../org.eclipse.imp.x10dt.core/bin"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
