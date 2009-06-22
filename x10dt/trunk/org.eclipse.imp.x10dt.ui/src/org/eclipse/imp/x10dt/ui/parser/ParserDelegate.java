@@ -39,7 +39,7 @@ public class ParserDelegate implements IParser {
 	return myParser.parser(monitor);
     }
 
-    String[] orderedTerminalSymbols() {
+    public String[] orderedTerminalSymbols() {
 	return myParser.orderedTerminalSymbols();
     }
 
