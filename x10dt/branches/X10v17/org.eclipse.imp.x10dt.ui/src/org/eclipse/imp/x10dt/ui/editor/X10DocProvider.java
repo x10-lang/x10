@@ -493,7 +493,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position.
 	 * Does not add name, this is *just* the javadoc comments, without the stars or comment chars
 	 * <p>
-	 * Unused? replaced by getNewRawX10DocFor    BRT 8/20/08
+	 * Unused? replaced by getNewRawX10DocFor    BRT 8/20/08 unused?
 	 */
 	private String getRawX10DocFor(Position pos) {
 		String path = pos.file();
