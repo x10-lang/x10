@@ -26,6 +26,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
+import x10.parser.X10Parser.JPGPosition;
 
 import com.ibm.lpg.IToken;
 import com.ibm.lpg.PrsStream;
@@ -34,6 +35,11 @@ public class Outliner extends DefaultOutliner implements IOutliner
 {
     private IParseController controller;
 
+    private String filter(String name)
+    {
+        return name.replaceFirst("\\{amb\\}", "");
+    }
+    
     public void setTree(Tree tree)
     {
         super.setTree(tree);
@@ -44,18 +50,15 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 Object data = ti.getData();
 
                 if (data instanceof Node) {
-                    Node node = (Node) ti.getData();
-
-                    PrsStream s = controller.getParser().getParseStream();
-                    int offset = controller.getLexer().getLexStream().getLineOffset(node.position().line() - 1)
-                                 + node.position().column();
+                    JPGPosition position = (JPGPosition) ((Node) ti.getData()).position();
+                    IToken left_token = position.getLeftIToken();
 
                     IEditorPart activeEditor = PlatformUI.getWorkbench()
                             .getActiveWorkbenchWindow().getActivePage()
                             .getActiveEditor();
                     AbstractTextEditor textEditor = (AbstractTextEditor) activeEditor;
 
-                    textEditor.selectAndReveal(offset, 0);
+                    textEditor.selectAndReveal(left_token.getStartOffset(), left_token.getEndOffset() - left_token.getStartOffset() + 1);
                     // textEditor.setFocus();
                 }
             }
@@ -184,7 +187,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         for (Iterator i = formals.iterator(); i.hasNext();)
         {
             Formal formal = (Formal) i.next();
-            text += formal.type().toString();
+            text += filter(formal.type().toString());
             if (i.hasNext()) text += ", ";
         }
         text += ")";
@@ -202,12 +205,12 @@ public class Outliner extends DefaultOutliner implements IOutliner
 
     void createOutlinePresentation(TreeItem parent, MethodDecl method)
     {
-    	String text = method.returnType().toString() + " " + method.name() + "(";
+    	String text = filter(method.returnType().toString()) + " " + method.name() + "(";
     	List formals = method.formals();
         for (Iterator i = formals.iterator(); i.hasNext();)
         {
             Formal formal = (Formal) i.next();
-            text += formal.type().toString();
+            text += filter(formal.type().toString());
             if (i.hasNext()) text += ", ";
         }
         text += ")";
@@ -226,7 +229,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
 
     void createOutlinePresentation(TreeItem parent, FieldDecl field)
     {
-       	String text = field.name() + " : " + field.type().toString();
+       	String text = field.name() + " : " + filter(field.type().toString());
         TreeItem tree_item = new TreeItem(parent, SWT.NONE);
         tree_item.setData(field);
         if (field.flags().isPrivate())
