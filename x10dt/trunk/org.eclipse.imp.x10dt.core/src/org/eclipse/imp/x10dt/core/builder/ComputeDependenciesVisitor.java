@@ -34,6 +34,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
     private Type fFromType;
     private final PolyglotDependencyInfo fDependencyInfo;
 
+    private static boolean DEBUG= false;
+
     public ComputeDependenciesVisitor(Job job, TypeSystem ts, PolyglotDependencyInfo di) {
         fJob= job;
         fTypeSystem= ts;
@@ -49,7 +51,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         	type = ((NullableType) type).base();
             ClassType classType= (ClassType) type;
             if (!isBinary(classType) && !fFromType.equals(type)) {
-        	System.out.println("  Reference to type: " + classType.fullName());
+        	if (DEBUG)
+        	    System.out.println("  Reference to type: " + classType.fullName());
         	fDependencyInfo.addDependency(fFromType, type);
             }
         }
@@ -61,7 +64,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
     public NodeVisitor enter(Node n) {
         if (n instanceof SourceFile) {
             fFromFile= (SourceFile) n;
-            System.out.println("Scanning file " + fFromFile.position() + " for dependencies.");
+            if (DEBUG)
+        	System.out.println("Scanning file " + fFromFile.position() + " for dependencies.");
         } else if (n instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) n;
             Type type= typeNode.type();
