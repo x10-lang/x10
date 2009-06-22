@@ -18,15 +18,21 @@
 package org.eclipse.imp.x10dt.ui.launching;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -43,6 +49,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.framework.Bundle;
 
 public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab {
     protected Text fX10RuntimeText;
@@ -216,16 +223,14 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-	String commonPath= X10Plugin.x10CompilerPath;
-	// BRT seemed to assume path ending in slash, which it doesn't.  Fix that here.
-	if(commonPath.endsWith(File.separator)) {
-		commonPath=commonPath.substring(0,commonPath.length()-1);
-	}
-	String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";
+		String runtimeJar = X10Util.getJarLocationForBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
+		//String compilerJar=X10Util.getJarLocationForBundle(X10Plugin.X10_COMPILER_BUNDLE_ID);
 
-	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
-	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, (String)null);
-    }
+		configuration.setAttribute(
+				X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimeJar);
+		configuration.setAttribute(
+				X10LaunchConfigAttributes.X10RuntimeArgumentsID, (String) null);
+	}
 
     public void initializeFrom(ILaunchConfiguration configuration) {
 	updateRuntimeFromConfig(configuration);
