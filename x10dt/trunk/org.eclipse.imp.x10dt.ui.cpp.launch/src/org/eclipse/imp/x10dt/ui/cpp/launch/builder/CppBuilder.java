@@ -207,7 +207,7 @@ public final class CppBuilder extends IncrementalProjectBuilder {
    
     // Some useful Polyglot reports.
     Report.addTopic("verbose", 1); //$NON-NLS-1$
-    Report.addTopic("postcompile", 5); //$NON-NLS-1$
+    Report.addTopic("postcompile", 1); //$NON-NLS-1$
     
     // We can now set all the Polyglot options for our extension.
     options.assertions = true;
