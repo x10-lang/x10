@@ -28,7 +28,7 @@ page X10 {
         boolean PermitAssert { label "Permit asserts"; defvalue true; }
 
         boolean EchoCompileArgumentsToConsole { 
-            tooltip "The arguments to x10 compile command will be be echoed in the console view.";
+            tooltip "The arguments to x10 compile command will be echoed in the console view.";
             defvalue false; } 
         int NumPlaces {
             tooltip "The number of logical places upon which the application is executed";

@@ -113,7 +113,7 @@ public class X10InstanceTab extends InstancePreferencesTab {
 		BooleanFieldEditor EchoCompileArgumentsToConsole = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
 			"instance", "EchoCompileArgumentsToConsole", "Echo compile arguments to console",
-			"The arguments to x10 compile command will be be echoed in the console view.",
+			"The arguments to x10 compile command will be echoed in the console view.",
 			parent,
 			true, true,
 			false, false,
