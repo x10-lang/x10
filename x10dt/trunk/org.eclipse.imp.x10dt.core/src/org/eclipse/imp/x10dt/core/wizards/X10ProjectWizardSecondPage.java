@@ -121,6 +121,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
 
         super.performFinish(monitor);
 
+        // generate sample "Hello World" X10 application
         if (firstPage.isGenHello()) {
             ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
                 public void run(IProgressMonitor monitor) throws CoreException {
@@ -130,7 +131,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
                     IPackageFragmentRoot pkgFragRoot= javaProject.getPackageFragmentRoot(srcFolder);
                     IPackageFragment pkgFrag= pkgFragRoot.getPackageFragment("");
 
-                    InputStream sourceInputStream= NewX10ClassPage.createContentStream(newFile, "Hello", pkgFrag, "", new ArrayList<String>(), true, true);
+                    InputStream sourceInputStream= NewX10ClassPage.createSampleContentStream(newFile, "Hello", pkgFrag, "", new ArrayList<String>(), true, true);
                     newFile.create(sourceInputStream, true, monitor);
 
                     ((X10ProjectWizard) X10ProjectWizardSecondPage.this.getWizard()).selectAndReveal(newFile);
