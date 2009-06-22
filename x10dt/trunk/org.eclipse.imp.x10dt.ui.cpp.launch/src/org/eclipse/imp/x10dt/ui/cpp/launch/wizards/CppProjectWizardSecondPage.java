@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
@@ -44,10 +44,10 @@ import org.eclipse.swt.widgets.Text;
 final class CppProjectWizardSecondPage extends WizardPage {
   
   CppProjectWizardSecondPage() {
-    super(Messages.CPWSP_WizardTitle, Messages.CPWSP_WizardName, null /* titleImage */);
+    super(LaunchMessages.CPWSP_WizardTitle, LaunchMessages.CPWSP_WizardName, null /* titleImage */);
     
     setPageComplete(false);
-    setDescription(Messages.CPWSP_WizardDescription);
+    setDescription(LaunchMessages.CPWSP_WizardDescription);
   }
   
   // --- Interface methods implementation
@@ -64,7 +64,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     resManagerGroup.setFont(composite.getFont());
     resManagerGroup.setLayout(new GridLayout(1, false));
     resManagerGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    resManagerGroup.setText(Messages.CPWSP_ResManagerGroupName);
+    resManagerGroup.setText(LaunchMessages.CPWSP_ResManagerGroupName);
     
     createResourceManager(resManagerGroup);
     
@@ -72,7 +72,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     workspaceGroup.setFont(composite.getFont());
     workspaceGroup.setLayout(new GridLayout(1, false));
     workspaceGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    workspaceGroup.setText(Messages.CPWSP_TargetWorkspaceGroupName);
+    workspaceGroup.setText(LaunchMessages.CPWSP_TargetWorkspaceGroupName);
     
     createTargetWorkspace(workspaceGroup);
     
@@ -84,10 +84,9 @@ final class CppProjectWizardSecondPage extends WizardPage {
   // --- Internal services
   
   void attachConnectionParameters(final IProject project) throws CoreException {
-    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
-    final IResourceManager[] resourceManagers = modelManager.getUniverse().getResourceManagers();
-    final IResourceManager resManager = resourceManagers[CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex()];
-    project.setPersistentProperty(Constants.RES_MANAGER_ID, resManager.getID());    
+    final String resName = this.fResManagerCombo.getItem(this.fResManagerCombo.getSelectionIndex());
+    final String resID = (String) this.fResManagerCombo.getData(resName);
+    project.setPersistentProperty(Constants.RES_MANAGER_ID, resID);
     project.setPersistentProperty(Constants.WORKSPACE_DIR, this.fWorkspaceLocText.getText().trim());
   }
   
@@ -102,7 +101,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
     final IPUniverse universe = modelManager.getUniverse();
     
-    new Label(composite, SWT.NONE).setText(Messages.CPWSP_ResManagerLabel);
+    new Label(composite, SWT.NONE).setText(LaunchMessages.CPWSP_ResManagerLabel);
     
     this.fResManagerCombo = new Combo(composite, SWT.READ_ONLY);
     this.fResManagerCombo.setFont(composite.getFont());
@@ -110,6 +109,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     for (final IResourceManager resourceManager : universe.getResourceManagers()) {
       if (resourceManager.getState() == ResourceManagerAttributes.State.STARTED) {
         this.fResManagerCombo.add(resourceManager.getName());
+        this.fResManagerCombo.setData(resourceManager.getName(), resourceManager.getID());
       }
     }
     this.fResManagerCombo.addSelectionListener(new ResourceManagerSelectionListener());
@@ -141,7 +141,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     locationComp.setFont(parent.getFont());
     locationComp.setLayout(new GridLayout(2, false));
     locationComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    this.fWorkspaceLocText = createLabelAndText(locationComp, Messages.CPWSP_LocationLabel, null);
+    this.fWorkspaceLocText = createLabelAndText(locationComp, LaunchMessages.CPWSP_LocationLabel, null);
     this.fWorkspaceLocText.setEnabled(false);
     this.fWorkspaceLocText.addModifyListener(new WorkspaceLocModifyListener());
     
@@ -149,7 +149,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
     browseComp.setLayout(new GridLayout(1, false));
     browseComp.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
     this.fRemoteBrowseBt = new Button(browseComp, SWT.PUSH);
-    this.fRemoteBrowseBt.setText(Messages.CPWSP_RemoteBrowseBt);
+    this.fRemoteBrowseBt.setText(LaunchMessages.CPWSP_RemoteBrowseBt);
     this.fRemoteBrowseBt.addSelectionListener(new RemoteButtonSelectionListener());
     this.fRemoteBrowseBt.setEnabled(false);
   }
@@ -166,9 +166,9 @@ final class CppProjectWizardSecondPage extends WizardPage {
     }
     final int selectionIndex = this.fResManagerCombo.getSelectionIndex();
     if (selectionIndex == -1) {
-      setMessage(Messages.CPWSP_SelectResMsg);
+      setMessage(LaunchMessages.CPWSP_SelectResMsg);
     } else {
-      setMessage(Messages.CPWSP_SelectWorkspaceMsg);
+      setMessage(LaunchMessages.CPWSP_SelectWorkspaceMsg);
     }
     setPageComplete(this.fWorkspaceLocText.getText().trim().length() > 0);
   }
@@ -185,8 +185,8 @@ final class CppProjectWizardSecondPage extends WizardPage {
     public void widgetSelected(final SelectionEvent event) {
       final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
       final IResourceManager[] resourceManagers = modelManager.getUniverse().getResourceManagers();
-      final IResourceManager resManager = resourceManagers[CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex()];
-      final IResourceManagerControl rm = (IResourceManagerControl) resManager;
+      final IResourceManager resMgr = resourceManagers[CppProjectWizardSecondPage.this.fResManagerCombo.getSelectionIndex()];
+      final IResourceManagerControl rm = (IResourceManagerControl) resMgr;
       
       final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
       final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
@@ -198,7 +198,7 @@ final class CppProjectWizardSecondPage extends WizardPage {
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final IPath path = fileMgr.browseDirectory(getShell(), Messages.CPWSP_RemoteBrowseDescription, "/"); //$NON-NLS-1$
+            final IPath path = fileMgr.browseDirectory(getShell(), LaunchMessages.CPWSP_RemoteBrowseDescription, "/"); //$NON-NLS-1$
             if (path != null) {
               CppProjectWizardSecondPage.this.fWorkspaceLocText.setText(path.toString());
             }
