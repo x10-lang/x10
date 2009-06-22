@@ -31,10 +31,10 @@ of operators and methods.
 <div class="p"><!----></div>
 <pre>
 Type  ::=   PrimitiveType
-          -  ClassOrInterfaceType
-          -  ArrayType
-          -  nullable &lt; Type &#62; DepParamtersopt
-          -  future &lt; Type &#62; DepParametersopt
+          |  ClassOrInterfaceType
+          |  ArrayType
+          |  nullable &lt; Type &#62; DepParamtersopt
+          |  future &lt; Type &#62; DepParametersopt
 PrimitiveType ::= NumericType DepParametersopt
           -  boolean DepParametersopt
 ClassOrInterfaceType   ::= 
@@ -43,8 +43,8 @@ ClassType              ::=
   TypeName DepParametersopt PlaceTypeSpecifieropt
 InterfaceType          ::= 
   TypeName DepParametersopt PlaceTypeSpecifieropt
-PlaceTypeSpecifier     ::=  ! PlaceTypeopt
-PlaceType              ::= current  -  Expression
+PlaceTypeSpecifier     ::=  @ PlaceTypeopt
+PlaceType              ::= current  |  Expression
 
 <div class="p"><!----></div>
 DepParameters    ::= ( DepParameterExpr ) 
@@ -52,10 +52,10 @@ DepParameterExpr ::= ArgumentList WhereClauseopt
 WhereClause      ::= : Constraint
 Constraint       ::= Expression
 ArgumentList     ::= Expression 
-    -  ArgumentList , Expression
-DepParametersopt ::= null  -  DepParameters
-WhereClauseopt   ::= null  -  WhereClause
-PlaceTypeopt     ::= null  -  PlaceType
+    |  ArgumentList , Expression
+DepParametersopt ::= null  |  DepParameters
+WhereClauseopt   ::= null  |  WhereClause
+PlaceTypeopt     ::= null  |  PlaceType
 </pre>
 
 <div class="p"><!----></div>
@@ -139,8 +139,8 @@ parameter</em> of<tt>c</tt>.<a name="DepType:Parameter">
 <div class="p"><!----></div>
 An instance <tt>o</tt> of <tt>C</tt> is said to be of type <tt>C (:c)</tt> (or: <em>belong to</em>
 <tt>C(:c)</tt>) if the predicate <tt>c</tt> evaluates to <tt>true</tt> in the current lexical
-environment, augmented with the binding <tt>[self  - -&#62; o]</tt>. We shall
-use the function  <tt>C(:c)</tt>  to denote the set of objects that belong
+environment, augmented with the binding <tt>[self  | -&#62; o]</tt>. We shall
+use the function  [[<tt>C(:c)</tt>]]  to denote the set of objects that belong
 to <tt>C(:c)</tt>. 
 </body>
 </html>

@@ -23,7 +23,7 @@
 
 <div class="p"><!----></div>
 X10 inherits all the standard expressions of Java
-[,&#167;&nbsp;15] - as modified to permit generics [] -
+[6,&#167;&nbsp;15] - as modified to permit generics [5] -
 with the expected semantics, unless otherwise mentioned below:
 
 <div class="p"><!----></div>
@@ -68,7 +68,7 @@ The classcast operation may be used to cast an expression to a given type:
 The result of this operation is a value of the given type if the cast
 is permissible at runtime. Both the data type and place type of the
 value are checked. Data type conversion is checked according to the
-rules of the Java language (e.g.[,&#167; 5.5]). If the
+rules of the Java language (e.g.[6,&#167; 5.5]). If the
 value cannot be cast to the appropriate data type, a <tt>ClassCast</tt>
 exception is thrown. Otherwise, if the value cannot be cast to the
 appropriate place type a <tt>BadPlaceException</tt> is thrown. 
@@ -98,7 +98,7 @@ ClassCastException</tt> being thrown. Otherwise the result is <tt>false</tt>.
 </a>
 
 <div class="p"><!----></div>
-Reference equality (, <tt>!=</tt>) is replaced in X10 by the
+Reference equality (==, <tt>!=</tt>) is replaced in X10 by the
 notion of <em>stable equality</em> so that it can apply uniformly to value and
 reference types.
 
@@ -115,7 +115,7 @@ the same object (even if the object has no mutable fields).
 <div class="p"><!----></div>
 If the values have a value type then they must be structurally equal,
 that is, they must be instances of the same value class or value array
-data type and all their fields or components must be . 
+data type and all their fields or components must be ==. 
 
 <div class="p"><!----></div>
 If one of the values is <tt>null</tt> then the predicate succeeds iff the
@@ -123,11 +123,11 @@ other value is also <tt>null</tt>.
 
 <div class="p"><!----></div>
 The predicate <tt>!=</tt> returns <tt>true</tt> (<tt>false</tt>) on two
-arguments if and only if the predicate  returns <tt>false</tt>
+arguments if and only if the predicate == returns <tt>false</tt>
 (<tt>true</tt>) on the same arguments.
 
 <div class="p"><!----></div>
-The predicates  and <tt>!=</tt> may not be overridden by the
+The predicates == and <tt>!=</tt> may not be overridden by the
 programmer.
 </body>
 </html>

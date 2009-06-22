@@ -24,7 +24,7 @@
 <div class="p"><!----></div>
  X10 singles out a certain set of classes for additional
 support. A class is said to be <em>stateless</em> if all of its fields
-are declared to be <tt>final</tt> (&#167;&nbsp;), otherwise it
+are declared to be <tt>final</tt> (&#167;&nbsp;3.5.1), otherwise it
 is <em>stateful</em>. ( X10 has syntax for specifying an array class
 with final fields, unlike  Java.) A <em>stateless (stateful)
 object</em> is an instance of a stateless (stateful) class.
@@ -47,18 +47,18 @@ compiler allows the programmer to omit the keyword <tt>class</tt> after
 448  ValueClassDeclaration ::= 
        ClassModifiersopt value identifier Superopt 
           Interfacesopt ClassBody
-449   -  ClassModifiersopt value class identifier 
+449   |  ClassModifiersopt value class identifier 
           Superopt Interfacesopt ClassBody
 </pre>
 
 <div class="p"><!----></div>
-The <tt>nullable</tt> type-constructor (&#167;&nbsp;) can
+The <tt>nullable</tt> type-constructor (&#167;&nbsp;3.2) can
 be used to declare variables whose value may be <tt>null</tt> or a value
 type.
 
 <div class="p"><!----></div>
 Stable equality for value types is defined through a deep walk,
-bottoming out in fields of reference types (&#167;&nbsp;).
+bottoming out in fields of reference types (&#167;&nbsp;12.4.3).
 
 
 <div class="p"><!----></div>

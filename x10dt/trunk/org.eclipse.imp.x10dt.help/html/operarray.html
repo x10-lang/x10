@@ -53,7 +53,7 @@ represents the sub-array of <tt>a</tt> with the distribution <tt>D1</tt>.
 
 <div class="p"><!----></div>
 Recall that a rich set of operators are available on distributions
-(&#167;&nbsp;<a href="#XtenDistributions">2</a>) to obtain sub-distributions
+(&#167;&nbsp;11.2</a>) to obtain sub-distributions
 (e.g. restricting to a sub-region, to a specific place etc).
 
 <div class="p"><!----></div>
@@ -67,9 +67,9 @@ arrays are value or reference arrays.
 <b>Assembling arrays over disjoint regions&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-If <tt>D1</tt> and <tt>D2</tt> are disjoint then the expression <tt>a1  -  - 
+If <tt>D1</tt> and <tt>D2</tt> are disjoint then the expression <tt>a1 ||
 a2</tt> denotes the unique array of base type <tt>T</tt> defined over the
-distribution <tt>D1  -  -  D2</tt> such that its value at point <tt>p</tt> is
+distribution <tt>D1 || D2</tt> such that its value at point <tt>p</tt> is
 <tt>a1[p]</tt> if <tt>p</tt> lies in <tt>D1</tt> and <tt>a2[p]</tt>
 otherwise. This array is a reference (value) array if <tt>a1</tt> is.
 
@@ -132,7 +132,7 @@ this reduction process.
 <div class="p"><!----></div>
 Let <tt>m</tt> be a reduction operator defined on type <tt>T</tt>. Let <tt>
 a</tt> be a value or reference array over base type <tt>T</tt> and
-distribution <tt>D</tt>. Then the operation <tt>a -  - m()</tt> returns an array
+distribution <tt>D</tt>. Then the operation <tt>a||m()</tt> returns an array
 of base type <tt>T</tt> and distribution <tt>D</tt> whose <tt>i</tt>th element
 (in canonical order) is obtained by performing the reduction <tt>m</tt>
 on the first <tt>i</tt> elements of <tt>a</tt> (in canonical order).
