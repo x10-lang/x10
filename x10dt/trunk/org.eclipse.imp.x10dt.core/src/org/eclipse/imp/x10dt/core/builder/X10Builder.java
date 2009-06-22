@@ -8,6 +8,7 @@ package org.eclipse.imp.x10dt.core.builder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -45,6 +47,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.PreferenceDialog;
+import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -535,8 +538,17 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     protected IPath getLanguageRuntimePath() {
         Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
-        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        IPath x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
+        String platformLoc= Platform.getInstallLocation().getURL().getPath();
+        String x10RuntimeLoc= x10RuntimeBundle.getLocation();
+        IPath x10RuntimePath;
+
+        if (x10RuntimeLoc.startsWith("update@")) {
+            x10RuntimePath= new Path(platformLoc.concat(x10RuntimeLoc.substring(7)));
+        } else {
+//          x10RuntimePath= new Path(x10RuntimeLoc);
+            String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
+            x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
+        }
 
         return x10RuntimePath;
     }
@@ -568,7 +580,12 @@ public class X10Builder extends IncrementalProjectBuilder {
             IClasspathEntry[] entries= fX10Project.getRawClasspath();
             int runtimeIdx= findX10RuntimeClasspathEntry(entries);
             IPath languageRuntimePath= getLanguageRuntimePath();
-            IClasspathEntry newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
+            IClasspathEntry newEntry;
+            if (languageRuntimePath.isAbsolute()) {
+        	newEntry= JavaCore.newLibraryEntry(languageRuntimePath, null, null);
+            } else {
+        	newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
+            }
             IClasspathEntry[] newEntries;
 
             if (runtimeIdx < 0) { // no entry, broken or otherwise
