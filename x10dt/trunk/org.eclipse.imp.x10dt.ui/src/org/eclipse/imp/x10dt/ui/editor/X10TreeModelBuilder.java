@@ -28,6 +28,7 @@ import polyglot.visit.NodeVisitor;
 public class X10TreeModelBuilder extends TreeModelBuilderBase {
     @Override
     protected void visitTree(Object root) {
+    	if (root == null) return;
         Node node= (Node) root;
         if (root == null)
             return;
