@@ -142,7 +142,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
         {
             assert(methods.get(i) instanceof MethodInstance);
             MethodInstance method = (MethodInstance) methods.get(i);
-            list. add(new SourceProposal(method.name() + "() junk", "", offset));
+            list. add(new SourceProposal(method.name() + "()", "", offset));
         }
         
         for (int i = 0; i < classes.size(); i++)
