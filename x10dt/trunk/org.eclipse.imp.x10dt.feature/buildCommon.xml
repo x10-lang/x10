@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="updcommon" basedir=".">
+<project name="x10DTCommon" basedir=".">
     <property name="basews" value="${ws}"/>
     <property name="baseos" value="${os}"/>
     <property name="basearch" value="${arch}"/>
@@ -16,6 +16,13 @@
     <echo message="java.home = ${java.home}"/>
     <echo message="ant.home = ${ant.home}"/>
     <echo message="eclipse.home = ${eclipse.home}"/>
+
+    <!-- Following assumes we're invoking the build from within some plugin project's top-level directory -->
+    <xmlproperty file="../org.eclipse.safari.x10dt.feature/feature.xml" prefix="x10dt"/>
+
+    <echo message="Building for X10DT feature version ${x10dt.feature(version)}"/>
+
+    <property name="x10dt.version" value="${x10dt.feature(version)}"/>
 
     <path id="path_bootclasspath">
         <fileset dir="${java.home}/lib">
