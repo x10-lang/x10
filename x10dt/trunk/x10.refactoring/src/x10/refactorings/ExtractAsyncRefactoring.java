@@ -347,9 +347,16 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			boolean test1 = o!=null;
 			if (o instanceof VarWithFirstUse) {
 				VarWithFirstUse ov = (VarWithFirstUse) o;
-				return test1 && (ov.getVarInstance() == null)?(fVarInstance == null && ov.getFirstUse().equals(fFirstUseExpr)):ov.getVarInstance().equals(fVarInstance);
+				boolean test2 = ov.getFirstUse().toString().equals(fFirstUseExpr.toString());
+				return test1 && test2 && ((ov.getVarInstance() == null)?(fVarInstance == null && ov.getFirstUse().equals(fFirstUseExpr)):ov.getVarInstance().equals(fVarInstance));
 			}
 			return false;
+		}
+		
+		public int hashCode() {
+			if (fVarInstance == null)
+				return fFirstUseExpr.hashCode();
+			return fVarInstance.hashCode();
 		}
 		
 		public String debug() {
@@ -849,22 +856,26 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * @return
 	 */
 	
-	private List<Stmt> slice(Variable i, Stmt block2) {
+	private Set<Stmt> slice(Variable i, Stmt block2) {
 		
 		// Initialize variable set
 		Set<VarWithFirstUse> relevantVars = findLoopRefedLVals(block2);
 		relevantVars.add(getVarWithFirstUse(fRho.keySet(),i));
 		
 		// Initialize slice set
-		List<Stmt> sliceSet = new ArrayList<Stmt>();
+		Set<Stmt> sliceSet = new HashSet<Stmt>(relevantVars.size());
 		for(Stmt s : fDelta){
-			if (s instanceof Assign){
-				Assign a = (Assign)s;
+			// unwrap Eval statement
+			if (s instanceof Eval){
+				Eval s_eval = (Eval)s;
+				if (s_eval.expr() instanceof Assign){
+				Assign a = (Assign)s_eval.expr();
 				if (a.left() instanceof Variable){
 					VarWithFirstUse leftVar = getVarWithFirstUse(fRho.keySet(), (Variable)a.left());
 					if (relevantVars.contains(leftVar))
 						sliceSet.add(s);
 				}
+			}
 			}
 		}
 		
@@ -874,11 +885,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			startSize = sliceSet.size();
 			base: 
 				for (Stmt s : fDelta){
-					if (s instanceof Assign){
-						Set<InstanceKey> sInfoFlow = fPhi.get((Assign)s);
+					// unwrap Eval statement
+					if (s instanceof Eval){
+						Eval s_eval = (Eval)s;
+						if (s_eval.expr() instanceof Assign){
+ 
+						Set<InstanceKey> sInfoFlow = fPhi.get((Assign)s_eval.expr());
 						for (Stmt s2 : sliceSet){
-							if (s2 instanceof Assign) {
-								for (InstanceKey k : fPhi.get((Assign)s2))
+							// unwrap Eval statement
+							if (s2 instanceof Eval) {
+								Eval s2_eval = (Eval)s2;
+								if (s2_eval.expr() instanceof Assign) {
+									for (InstanceKey k : fPhi.get((Assign)s2_eval.expr()))
 									if (sInfoFlow.contains(k)) {
 										// When a statement with loop-carried dependency
 										// directly affects a statement that is already in our
@@ -886,7 +904,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 										sliceSet.add(s);
 										continue base;
 									}
+								}
 							}		
+						}
 						}
 					}
 				}
@@ -1553,8 +1573,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		
 		// TODO: properly transform fPivot or loop to handle asynchronous/future addition
 		
-		List<Stmt> firstLoopSlice = slice(indexVariable, new Block_c(fLoop.position(), firstLoop));
-		List<Stmt> secondLoopslice = slice(indexVariable, new Block_c(fLoop.position(), secondLoop));
+		Set<Stmt> firstLoopSlice = slice(indexVariable, new Block_c(fLoop.position(), firstLoop));
+		Set<Stmt> secondLoopslice = slice(indexVariable, new Block_c(fLoop.position(), secondLoop));
 		
 		return tfc;
 	}

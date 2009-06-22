@@ -316,6 +316,6 @@ public class ExtractAsyncStaticTools {
 	
 	public static String IFilePathtoCAstPath(String path){
 		String retval = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + path;
-		return retval;//.replace('/', '\\');
+		return retval.replace('/', '\\');
 	}
 }
