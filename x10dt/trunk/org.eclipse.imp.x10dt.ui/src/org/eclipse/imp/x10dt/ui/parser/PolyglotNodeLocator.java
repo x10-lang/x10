@@ -9,6 +9,7 @@ import org.eclipse.uide.parser.IASTNodeLocator;
 import x10.parser.X10Parser.JPGPosition;		// SMS 14 Jun 2006
 
 import polyglot.ast.Node;
+import polyglot.types.Declaration;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
@@ -115,51 +116,52 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	}
 	return fNode[0];
     }
-    
-    
+
     // SMS 14 Jun 2006
     // Added to address change in IASTNodeLocator
     
     public int getStartOffset(Object node) {
-    	if (!(node instanceof Node)) return -1;
-    	Position nodePos = ((Node)node).position();
-    	
-    	String fileName = nodePos.file();
-    	
-    	
-    	JPGPosition jpgPos = null;
-    	if (nodePos instanceof JPGPosition) {
-    		jpgPos = (JPGPosition) nodePos;
-    		return jpgPos.getLeftIToken().getStartOffset();
+	Position pos;
+
+	if (node instanceof Declaration)
+	    pos= ((Declaration) node).position();
+	else if (node instanceof Node)
+	    pos= ((Node)node).position();
+	else
+	    return -1;
+
+	if (pos instanceof JPGPosition) {
+	    JPGPosition jpgPos = (JPGPosition) pos;
+	    return jpgPos.getLeftIToken().getStartOffset();
     	} else {
-    		// should probably do something more constructive,
-    		// but defer that for now
-    		System.err.println("PolyglotNodeLocator.getStartOffset:  Node position not a JPGPosition; returning -1");
-    		return -1;
+    	    // should probably do something more constructive, but defer that for now
+    	    System.err.println("PolyglotNodeLocator.getStartOffset:  Node position not a JPGPosition; returning -1");
+    	    return -1;
     	}
     }
-    
-    
+
     public int getEndOffset(Object node) {
-    	if (!(node instanceof Node)) return -1;
-    	Position nodePos = ((Node)node).position();
-    	
-    	JPGPosition jpgPos = null;
-    	if (nodePos instanceof JPGPosition) {
-    		jpgPos = (JPGPosition) nodePos;
-        	return jpgPos.getRightIToken().getEndOffset();
+	Position pos;
+
+	if (node instanceof Declaration)
+	    pos= ((Declaration) node).position();
+	else if (node instanceof Node)
+	    pos= ((Node)node).position();
+	else
+	    return -1;
+
+    	if (pos instanceof JPGPosition) {
+    	    JPGPosition jpgPos = (JPGPosition) pos;
+    	    return jpgPos.getRightIToken().getEndOffset();
     	} else {
-    		// should probably do something more constructive,
-    		// but defer that for now
-    		System.err.println("PolyglotNodeLocator.getEndOffset:  Node position not a JPGPosition; returning -1");
-    		return -1;
+    	    // should probably do something more constructive, but defer that for now
+    	    System.err.println("PolyglotNodeLocator.getEndOffset:  Node position not a JPGPosition; returning -1");
+    	    return -1;
     	}
     }
-    
-    
+
     public int getLength(Object  node) {
     	Node n = (Node) node;
     	return getEndOffset(n) - getStartOffset(n);
     }
-    
 }
