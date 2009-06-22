@@ -1,5 +1,6 @@
 package x10.refactorings;
 
+import java.io.PrintStream;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -11,7 +12,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
-import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.ui.parser.CompilerDelegate;
 import org.eclipse.imp.x10dt.ui.parser.ExtensionInfo;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
@@ -25,22 +25,19 @@ import org.eclipse.text.edits.InsertEdit;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
-import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.editors.text.TextEditor;
 
 import polyglot.ast.Block;
-import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.Async;
+import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.X10MethodDecl;
-import polyglot.frontend.Job;
 import polyglot.types.TypeSystem;
-import x10.constraint.XNameWrapper;
 import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
 import x10.refactorings.EffectsVisitor.XVarDefWrapper;
@@ -74,9 +71,13 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
      */
     private Change fFinalChange;
 
-    private MessageConsoleStream fConsoleStream;
-
     private X10MethodDecl fMethod;
+
+    private PrintStream fConsoleStream;
+
+    private NodePathComputer fPathComputer;
+
+    private List<Node> fNodePath;
 
     public LoopFlatParallelizationRefactoring(TextEditor editor) {
         fEditor = (IASTFindReplaceTarget) editor;
@@ -94,7 +95,7 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             fSourceFile = null;
             fNode = null;
         }
-        fConsoleStream = X10DTCorePlugin.getInstance().getConsole().newMessageStream();
+        fConsoleStream = X10RefactoringPlugin.getInstance().getConsoleStream();
     }
 
     /**
@@ -145,8 +146,9 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             return RefactoringStatus.createFatalErrorStatus("Selected node is not a loop");
         }
         fLoop= (ForLoop) fNode;
-        NodePathComputer pathComputer= new NodePathComputer(fSourceAST, fLoop);
-        MethodDecl md= findEnclosingNode(fLoop, pathComputer.getPath(), MethodDecl.class);
+        fPathComputer= new NodePathComputer(fSourceAST, fLoop);
+        fNodePath = fPathComputer.getPath();
+        MethodDecl md= fPathComputer.findEnclosingNode(fLoop, MethodDecl.class);
 
         fMethod= (X10MethodDecl) md;
 
@@ -155,28 +157,6 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
         }
 
         return RefactoringStatus.create(new Status(IStatus.OK, X10RefactoringPlugin.kPluginID, ""));
-    }
-
-    /**
-     * Finds the innermost Node of the given type that encloses the given Node
-     * @param loop
-     * @param path
-     */
-    private <M> M findEnclosingNode(Node node, List<Node> path, Class<M> clazz) {
-        int i= path.size()-1;
-        for(; i >= 0; i--) {
-            Node pathNode = path.get(i);
-            if (pathNode == node) {
-                break;
-            }
-        }
-        for(; i >= 0; i--) {
-            Node pathNode = path.get(i);
-            if (clazz.isInstance(pathNode)) {
-                return (M) pathNode;
-            }
-        }
-        return null;
     }
 
     private boolean loopHasAsync(ForLoop loop) {
@@ -192,6 +172,21 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             if (blockStmts.size() == 1 && blockStmts.get(0) instanceof Async) {
                 return true;
             }
+        }
+        return false;
+    }
+
+    private boolean loopIsWrappedWithFinish() {
+        Node loopParent= fPathComputer.getParent(fLoop);
+
+        if (loopParent instanceof Finish) {
+            return true;
+        }
+
+        Node loopGrandparent= fPathComputer.getParent(loopParent);
+
+        if (loopGrandparent instanceof Finish && loopParent instanceof Block && ((Block) loopParent).statements().size() == 1) {
+            return true;
         }
         return false;
     }
@@ -217,7 +212,7 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             if (bodyEff == null) {
                 return RefactoringStatus.createFatalErrorStatus("Unable to compute the effects of the loop body.");
             }
-            System.out.println("Loop body effect = " + bodyEff);
+            fConsoleStream.println("Loop body effect = " + bodyEff);
             if (!bodyEff.commutesWithForall(XTerms.makeLocal(new XVarDefWrapper(fLoop.formal().localDef())))) {
                 return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute.");
             }
@@ -230,16 +225,29 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
     @Override
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         CompositeChange outerChange = new CompositeChange("Loop Flat Parallelization");
-        int asyncOffset = fLoop.body().position().offset();
-        int blockEnd = fNode.position().endOffset();
+        TextFileChange tfc = new TextFileChange("Add 'async' to loop body", fSourceFile);
 
-        TextFileChange tfc = new TextFileChange("Loop Flat Parallelization", fSourceFile);
         tfc.setEdit(new MultiTextEdit());
-        tfc.addEdit(new InsertEdit(asyncOffset, "async "));
 
+        createAddAsyncChange(tfc);
+
+        if (!loopIsWrappedWithFinish()) {
+            createAddFinishChange(tfc);
+        }
         outerChange.add(tfc);
+
         fFinalChange= outerChange;
         return fFinalChange;
+    }
+
+    private void createAddAsyncChange(TextFileChange tfc) {
+        int asyncOffset = fLoop.body().position().offset();
+        tfc.addEdit(new InsertEdit(asyncOffset, "async "));
+    }
+
+    private void createAddFinishChange(TextFileChange tfc) {
+        int forStart = fLoop.position().offset();
+        tfc.addEdit(new InsertEdit(forStart, "finish "));
     }
 
     @Override
