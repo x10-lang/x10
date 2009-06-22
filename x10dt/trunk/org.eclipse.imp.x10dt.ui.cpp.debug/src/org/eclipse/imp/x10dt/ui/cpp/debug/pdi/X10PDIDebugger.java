@@ -1468,12 +1468,12 @@ public final class X10PDIDebugger implements IPDIDebugger {
   
   private String[] getVariablesAsStringArray(final IStackFrame stackFrame) throws DebugException {
     final IVariable[] variables = stackFrame.getVariables();
-    final String[] strVars = new String[variables.length];
-    int i = -1;
+    final ArrayList<String> strVars = new ArrayList<String>();
     for (final IVariable var : variables) {
-      strVars[++i] = var.getName();
+      if (!var.getName().equals("no local variables are available for the selected stackframe"))
+        strVars.add(var.getName());
     }
-    return strVars;
+    return strVars.toArray(new String[strVars.size()]);
   }
   
   private String getVariableType(final EPDTVarExprType type, final BitList task, String[] desc) throws PDIException {
