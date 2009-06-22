@@ -1,11 +1,16 @@
 package x10.refactorings;
 
+import static x10.refactorings.ExtractAsyncStaticTools.extractArrayName;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.ast.Block;
+import polyglot.ast.Expr;
+import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
+import polyglot.ast.Variable;
 import polyglot.visit.NodeVisitor;
 
 public abstract class PolyglotUtils {
@@ -74,5 +79,31 @@ public abstract class PolyglotUtils {
     	int nodeLocation = getNodeLocation(stmtList,n);
     	return (nodeLocation != stmtList.size())?stmtList.subList(nodeLocation+1, stmtList.size()):new ArrayList<Stmt>();
     	
+    }
+    
+    public static String extractArray(Expr e){
+    	NodeVisitor arrayExtractor = new NodeVisitor() {
+		    		NamedVariable arrayName;
+		
+					@Override
+					public NodeVisitor enter(Node parent, Node n) {
+						// TODO Auto-generated method stub
+						if (n instanceof Variable) {
+							NamedVariable extractedName = extractArrayName((Variable)n);
+							if (extractedName != null)
+								arrayName = extractedName;
+						}
+						return this;
+					} 
+				
+					public String toString() {
+						if (arrayName != null)
+							return arrayName.toString();
+						else
+							return null;
+					}
+		    	};
+		e.visitChildren(arrayExtractor);
+    	return arrayExtractor.toString();
     }
 }
