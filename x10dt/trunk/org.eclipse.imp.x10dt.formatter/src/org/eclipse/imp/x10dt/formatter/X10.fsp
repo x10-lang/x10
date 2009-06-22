@@ -2,6 +2,7 @@
 <formatter>
 <language>X10</language>
 <rules>
+<separator>Method Declarations</separator>
 <rule>
 <box>G ["&lt;FormalParameters&gt;" "," "&lt;FormalParameter&gt;" ]</box>
 </rule>
@@ -15,12 +16,13 @@
  "}"]
 </box>
 </rule>
+<separator>New statements</separator>
 <rule>
 <box>V [ H [ H hs=0 [ H [ "new" "&lt;id&gt;"] HV hs=0 [ H hs=0 [ "(" "&lt;ArgumentList.1&gt;" ")" ] 
 H hs=0 [ "(" "&lt;ArgumentList.2&gt;" ")" ] ] ] "{" ]   I [ "&lt;Decls&gt;" ] "}" ]</box>
 </rule>
 <rule>
-<box>V [ H [ "new" H hs=0 [  "&lt;id&gt;" "(" "&lt;ArgumentList&gt;" ")"  ] "{" ] I [ "&lt;Decls&gt;" ] "}" ]</box>
+<box> V [ H [ "new" H hs=0 [  "&lt;id&gt;" "(" "&lt;ArgumentList&gt;" ")"  ] "{" ] I [ "&lt;Decls&gt;" ] "}" ]</box>
 </rule>
 <rule>
 <box>V [ H [ "new" H hs=0 [ "&lt;id&gt;" "(" ")" ] "{" ] I  [ "&lt;Decls&gt;" ] "}" ]</box>
@@ -34,9 +36,7 @@ H hs=0 [ "(" "&lt;ArgumentList.2&gt;" ")" ] ] ] "{" ]   I [ "&lt;Decls&gt;" ] "}
 <rule>
 <box>H ["new" H hs=0 [ "&lt;id&gt;" "(" ")" ] ]</box>
 </rule>
-<rule>
-<box>V [ H [ "synchronized" H hs=0 [ "(" "&lt;Expression&gt;" ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ]  "}" ]</box>
-</rule>
+<separator>Expressions</separator>
 <rule>
 <box>HOV [ H [ "future" "{" ] I [ HV [ "&lt;Expression&gt;" ] ] "}" ]</box>
 </rule>
@@ -76,11 +76,6 @@ I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"   ]
 <rule>
 <box>HV hs=0 [ H hs=0 ["&lt;Primary&gt;" "."  "&lt;id&gt;" "(" ]  
 I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
-
-</box>
-</rule>
-<rule>
-<box>H hs=0 [ "&lt;id&gt;" "(" ")" ";" ]
 
 </box>
 </rule>
@@ -140,6 +135,7 @@ I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
 <rule>
 <box>G ["&lt;ArgumentList&gt;" "," "&lt;Expression&gt;" ]</box>
 </rule>
+<separator>Class declarations</separator>
 <rule>
 <box>V [ H [ "private""class""&lt;id&gt;" ] "{"
  I [ V vs=2 [ "&lt;Decls&gt;" ] ]"}"]</box>
@@ -148,6 +144,10 @@ I [ HV [ G op=H hs=0 gs=2 [ "&lt;ArgumentList&gt;" ] ] ] ")"]
 <box>V [ H ["public"  "class"  "&lt;id&gt;" "{" ]
 I [ V vs=2 [ "&lt;Decls&gt;" ] ] "}"  ]
 </box>
+</rule>
+<separator>Statements and declarations</separator>
+<rule>
+<box>V [ H [ "synchronized" H hs=0 [ "(" "&lt;Expression&gt;" ")" ] "{" ] I [ "&lt;BlockStatements&gt;" ]  "}" ]</box>
 </rule>
 <rule>
 <box>HV [ H [  "&lt;FieldModifiers&gt;" "&lt;Type&gt;" "&lt;id&gt;" "=" ]
