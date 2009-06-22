@@ -23,8 +23,11 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.watson.safari.x10,
  org.eclipse.ui.cheatsheets,
  org.eclipse.core.variables,
- polyglot,
  org.eclipse.search,
- org.eclipse.ui.console
+ org.eclipse.ui.console,
+ org.eclipse.ltk.core.refactoring,
+ org.eclipse.ltk.ui.refactoring,
+ org.eclipse.ui.editors,
+ polyglot
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: x10.uide.X10UIPlugin
