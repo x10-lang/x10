@@ -40,6 +40,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
             if (Platform.getOS().equals("win32")) {
                 x10CommonPath= x10CommonPath.substring(1);
                 stdCfgPath= stdCfgPath.substring(1);
+                x10CompilerDataPath= x10CompilerDataPath.substring(1);
             }
             store.setDefault(PreferenceConstants.P_X10COMMON_PATH, x10CommonPath);
             store.setDefault(PreferenceConstants.P_X10CONFIG_FILE, stdCfgPath);
@@ -49,6 +50,5 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	}
         store.setDefault(PreferenceConstants.P_SAMPLING_FREQ, 50);
         store.setDefault(PreferenceConstants.P_STATS_DISABLE, "none");
-//	store.setDefault(PreferenceConstants.P_CHOICE, "choice2");
     }
 }
