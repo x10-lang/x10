@@ -534,6 +534,13 @@ public class X10Builder extends IncrementalProjectBuilder {
         return x10RuntimePath;
     }
 
+    protected String getCurrentRuntimeVersion() {
+        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
+
+        return bundleVersion;
+    }
+
     private int findX10RuntimeClasspathEntry(IClasspathEntry[] entries) throws JavaModelException {
         for(int i= 0; i < entries.length; i++) {
             IClasspathEntry entry= entries[i];
@@ -592,6 +599,14 @@ public class X10Builder extends IncrementalProjectBuilder {
                             new UpdateProjectClasspathHelper(),
                             new MaybeSuppressFutureClasspathWarnings());
                     return; // found a runtime entry but it is/was broken
+                }
+                String currentVersion= getCurrentRuntimeVersion();
+
+                if (!jarFile.getAbsolutePath().endsWith(currentVersion + ".jar")) {
+                    postQuestionDialog(ClasspathError + fProject.getName(),
+                            "X10 runtime entry in classpath is out of date: " + entryPath.toOSString() + "; update project classpath with latest runtime?",
+                            new UpdateProjectClasspathHelper(),
+                            new MaybeSuppressFutureClasspathWarnings());
                 }
                 return; // found the runtime
             }
