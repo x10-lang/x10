@@ -8,12 +8,11 @@ import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.widgets.Composite;
 
-import polyglot.ext.x10.Configuration;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
 //import x10.runtime.util.OptionsError;
-import x10.runtime.util.ConfigurationError;
-import x10.runtime.util.OptionError;
+import x10.config.ConfigurationError;
+import x10.config.OptionError;
 
 public class CompilerOptionsStringFieldEditor extends StringFieldEditor {
 

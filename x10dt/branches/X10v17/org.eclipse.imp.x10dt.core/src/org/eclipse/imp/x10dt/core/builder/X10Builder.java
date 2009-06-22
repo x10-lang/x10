@@ -88,20 +88,17 @@ import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.X10NodeFactory;
-import polyglot.ext.x10.dom.DomParser;
 import polyglot.ext.x10.types.X10TypeSystem;
-import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
-import polyglot.frontend.Pass;
 import polyglot.frontend.Source;
-import polyglot.frontend.goals.AbstractGoal;
-import polyglot.frontend.goals.Goal;
-import polyglot.frontend.goals.VisitorGoal;
+import polyglot.frontend.AbstractGoal_c;
+import polyglot.frontend.Goal;
+import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
@@ -266,7 +263,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private class ComputeDependenciesGoal extends VisitorGoal {
         public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
             super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
-            addPrerequisiteGoal(job.extensionInfo().scheduler().CodeGenerated(job), job.extensionInfo().scheduler());
+            addPrereq(job.extensionInfo().scheduler().CodeGenerated(job));
         }
     }
 
@@ -289,7 +286,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (n instanceof PackageNode) {
                 PackageNode pkg= (PackageNode) n;
                 Source src= fJob.source();
-                String declaredPkg= pkg.package_().fullName();
+                String declaredPkg= pkg.package_().get().fullName().name().toString();
                 String actualPkg= determineActualPackage(src);
 
                 checkPackage(declaredPkg, actualPkg, pkg.position());
@@ -337,16 +334,16 @@ public class X10Builder extends IncrementalProjectBuilder {
     private class CheckPackageDeclGoal extends VisitorGoal {
         public CheckPackageDeclGoal(Job job) throws CyclicDependencyException {
             super(job, new CheckPackageDeclVisitor(job));
-            addPrerequisiteGoal(job.extensionInfo().scheduler().internGoal(new ComputeDependenciesGoal(job)), job.extensionInfo().scheduler());
+            addPrereq(job.extensionInfo().scheduler().intern(new ComputeDependenciesGoal(job)));
         }
     }
 
     private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG ", "// FIXME "  };
 
-    private class CollectBookmarksGoal extends AbstractGoal {
+    private class CollectBookmarksGoal extends AbstractGoal_c {
         public CollectBookmarksGoal(Job job) throws CyclicDependencyException {
             super(job);
-            addPrerequisiteGoal(job.extensionInfo().scheduler().internGoal(new CheckPackageDeclGoal(job)), job.extensionInfo().scheduler());
+            addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job)));
         }
         @Override
         public Pass createPass(ExtensionInfo extInfo) {
@@ -388,7 +385,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
         public Goal getCompileGoal(Job job) {
             try {
-                return scheduler().internGoal(new CollectBookmarksGoal(job) /* CheckPackageDeclGoal(job)*/);
+                return scheduler().intern(new CollectBookmarksGoal(job) /* CheckPackageDeclGoal(job)*/);
             } catch (CyclicDependencyException e) {
                 job.compiler().errorQueue().enqueue(
                         new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
@@ -399,9 +396,9 @@ public class X10Builder extends IncrementalProjectBuilder {
     	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
     	 */
     	public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
-    	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-    	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
-    	    }
+//    	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
+//    	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
+//    	    }
 
     	    try {
                 //
@@ -445,7 +442,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private void compileAllSources(Collection<IFile> sourceFiles) {
         fExtInfo= new BuilderExtensionInfo();
 
-        List<StreamSource> streams= collectStreamSources(sourceFiles);
+        List<Source> streams= collectStreamSources(sourceFiles);
         final Collection<ErrorInfo> errors= new ArrayList<ErrorInfo>();
 
         buildOptions();
@@ -498,7 +495,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     private void buildOptions() {
         Options opts= fExtInfo.getOptions();
 
-        Options.global= opts;
+        // PORT1.7 RMF 9/23/2008 - Global Options object no longer exists
+//      Options.global= opts;
         try {
             List<IPath> projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);
@@ -672,8 +670,8 @@ public class X10Builder extends IncrementalProjectBuilder {
         return entryFile;
     }
 
-    private List<StreamSource> collectStreamSources(Collection<IFile> sourceFiles) {
-        List<StreamSource> streams= new ArrayList<StreamSource>();
+    private List<Source> collectStreamSources(Collection<IFile> sourceFiles) {
+        List<Source> streams= new ArrayList<Source>();
 
         for(Iterator<IFile> it= sourceFiles.iterator(); it.hasNext(); ) {
             IFile sourceFile= it.next();
@@ -831,6 +829,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void readCompilerConfig() {
+    	// PORT1.7 RMF 9/28/2008 - Not sure we even need to do this any more - check w/ compiler team
         // Read configuration at every compiler invocation, in case it changes (e.g. via
         // the X10 Preferences page). Theoretically, if the user really does change the
         // compiler configuration, we should trigger a full rebuild, but we don't yet.
@@ -839,7 +838,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
             // and by a preference store listener in X10PreferencePage.
             Configuration.readConfiguration(Configuration.class, System.getProperty("x10.configuration"));
-        } catch (x10.runtime.util.ConfigurationError e) {
+        } catch (x10.config.ConfigurationError e) {
             if (e.getCause() instanceof FileNotFoundException) {
                 FileNotFoundException fnf= (FileNotFoundException) e.getCause();
                 if (fnf.getMessage().startsWith("???\\standard.cfg")) {
