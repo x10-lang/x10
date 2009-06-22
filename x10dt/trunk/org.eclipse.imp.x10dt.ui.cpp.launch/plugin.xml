@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension-point id="debuggerTab" name="debuggerTab" schema="schema/debuggerTab.exsd"/>
    <extension
          id="X10CppBuilder"
          name="X10 Compiler (Cpp Back-end)"
