@@ -12,6 +12,10 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 import lpg.runtime.Monitor;
+
+import org.eclipse.imp.x10dt.refactoring.analysis.ReachingDefsVisitor;
+import org.eclipse.imp.x10dt.refactoring.effects.EffectsVisitor;
+
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.MethodDecl;
@@ -37,8 +41,6 @@ import x10.effects.constraints.ArrayLocs;
 import x10.effects.constraints.Effect;
 import x10.effects.constraints.LocalLocs;
 import x10.effects.constraints.Locs;
-import x10.refactorings.EffectsVisitor;
-import x10.refactorings.ReachingDefsVisitor;
 
 public class EffectsTests extends TestCase {
     private static final class NoCancelMonitor implements Monitor {

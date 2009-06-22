@@ -13,4 +13,5 @@ Require-Bundle: x10.constraints;bundle-version="1.7.3",
  org.eclipse.core.runtime;bundle-version="3.4.0",
  polyglot3;bundle-version="3.0.0",
  x10.compiler.p3;bundle-version="1.7.3",
- lpg.runtime;bundle-version="2.0.16"
+ lpg.runtime;bundle-version="2.0.16",
+ org.eclipse.imp.x10dt.refactoring;bundle-version="1.7.3"
