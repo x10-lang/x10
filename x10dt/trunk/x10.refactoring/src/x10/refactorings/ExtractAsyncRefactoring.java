@@ -22,6 +22,9 @@ import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.refactoring.utils.EclipseProjectUtils;
+import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
+import org.eclipse.imp.x10dt.refactoring.utils.PolyglotUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ltk.core.refactoring.Change;
@@ -35,13 +38,11 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
-import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.CompoundStmt;
@@ -53,7 +54,6 @@ import polyglot.ast.For;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
-import polyglot.ast.Local_c;
 import polyglot.ast.Loop;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
@@ -76,10 +76,7 @@ import polyglot.types.Type;
 import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.refactorings.ExtractVarsVisitor.VarUseType;
-import x10.refactorings.utils.EclipseProjectUtils;
-import x10.refactorings.utils.NodePathComputer;
 import x10.refactorings.utils.NodeTypeFindingVisitor;
-import x10.refactorings.utils.PolyglotUtils;
 import x10.refactorings.utils.WALAUtils;
 
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
@@ -1710,7 +1707,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
         // TODO: properly transform fPivot or loop to handle asynchronous/future addition
 		
         String futureArray = "fut_expr";
-        String arrayName = x10.refactorings.utils.PolyglotUtils.extractArray(fPivot);
+        String arrayName = org.eclipse.imp.x10dt.refactoring.utils.PolyglotUtils.extractArray(fPivot);
         if (arrayName == null)
             return finalChange = new NullChange("Extract Async could not find array. Refactoring aborted!");
         String futureArrayType = "future<"+fPivot.type()+">";
