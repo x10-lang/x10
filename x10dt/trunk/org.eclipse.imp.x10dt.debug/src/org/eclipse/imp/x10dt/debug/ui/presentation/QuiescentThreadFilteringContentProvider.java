@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.model.IDebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlockRetrieval;
 import org.eclipse.debug.core.model.IThread;
@@ -18,26 +23,37 @@ import org.eclipse.debug.internal.ui.viewers.model.provisional.IHasChildrenUpdat
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IPresentationContext;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IViewerUpdate;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.imp.x10dt.debug.model.IX10Activity;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
+
+import sun.rmi.runtime.GetThreadPoolAction;
 
 public class QuiescentThreadFilteringContentProvider extends
 		DebugTargetContentProvider implements IElementContentProvider {
 
 	protected Object[] getAllChildren(Object parent, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
-		IThread[] threads = (IThread[])super.getAllChildren(parent, context, monitor);
+		IDebugTarget target = ((IDebugElement)parent).getDebugTarget();
+		X10DebugTargetAlt x10Target = (X10DebugTargetAlt)target;
+		x10Target.createActivities();
+		Object[] activityArray = (Object[]) x10Target.getActivities();
+		
 		String id = context.getId();
 		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
+			IThread[] threads = (IThread[])super.getAllChildren(parent, context, monitor);
 			List<IThread> activeThreads = new ArrayList();
 			for (IThread t: (IThread[])threads) {
-				//if (!(t instanceof X10Thread && ((X10Thread)t).getStackFrames().length>0)) continue;
-				//if (t.getName().contains("InvokeMethods")) continue; // really, getName should return simple name and should be .equals("InvokeMethods")  This will do for now
 				if (t instanceof X10Thread && ((X10Thread)t).getRunState()!=IX10Activity.X10ActivityState.Idle){
-				    System.out.println("QuiescentThreadFiltering");
 					activeThreads.add(t);
 				}	
 			}
-			return activeThreads.toArray(new IThread[0]);
+//			return activeThreads.toArray(new IThread[0]);
+			Object[] result = new Object[activityArray.length+activeThreads.size()];
+			int i=0;
+			for (; i<activityArray.length; i++) result[i]=activityArray[i];
+			for (Object o: activeThreads) result[i++] = o;
+			return result;
 		}
         return EMPTY;
 	}
@@ -51,14 +67,69 @@ public class QuiescentThreadFilteringContentProvider extends
 		return false;
 	}
 
+	// hasChildren then getChildCount, then getAllChildren causes a lot of recomputation.  There's gotta be a better way...
 	protected int getChildCount(Object element, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
-		String id = context.getId();
-		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW))
-		{
-			return getAllChildren(element,  context,  monitor).length;
-		}
-		return 0;
+		return getAllChildren(element,context, monitor).length;
 	}
-
+	/* (non-Javadoc)
+	 * @see org.eclipse.debug.internal.ui.viewers.model.provisional.elements.ElementContentProvider#supportsContextId(java.lang.String)
+	 */
+	protected boolean supportsContextId(String id) {
+		return IDebugUIConstants.ID_DEBUG_VIEW.equals(id);
+	}
+	public void update(final IHasChildrenUpdate[] updates) {
+		Job job = new Job("has children update") { //$NON-NLS-1$
+			protected IStatus run(IProgressMonitor monitor) {
+				for (int i = 0; i < updates.length; i++) {
+					IHasChildrenUpdate update = updates[i];
+					if (!update.isCanceled()) {
+						updateHasChildren(update);
+					}
+					update.done();					
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.setSystem(true);
+		job.setRule(getRule(updates));
+		job.schedule();	
+	}
+	protected void updateHasChildren(IHasChildrenUpdate update) {
+		super.updateHasChildren(update);
+	}
+	public void update(final IChildrenUpdate[] updates) {
+		Job job = new Job("children update") { //$NON-NLS-1$
+			protected IStatus run(IProgressMonitor monitor) {
+				for (int i = 0; i < updates.length; i++) {
+					IChildrenUpdate update = updates[i];
+					if (!update.isCanceled()) {
+						retrieveChildren(update);
+					}
+					update.done();					
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.setSystem(true);
+		job.setRule(getRule(updates));
+		job.schedule();
+	}
+	public void update(final IChildrenCountUpdate[] updates) {
+		Job job = new Job("child count update") { //$NON-NLS-1$
+			protected IStatus run(IProgressMonitor monitor) {
+				for (int i = 0; i < updates.length; i++) {
+					IChildrenCountUpdate update = updates[i];
+					if (!update.isCanceled()) {
+						retrieveChildCount(update);
+					}
+					update.done();
+				}
+				return Status.OK_STATUS;
+			}
+		};
+		job.setSystem(true);
+		job.setRule(getRule(updates));
+		job.schedule();
+	}
 
 }

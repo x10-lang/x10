@@ -73,4 +73,7 @@ public class X10Activity extends X10DebugElement implements IX10Activity{
 		// TODO create stack frames in sample model
 		return new IX10StackFrame[0];
 	}
+	public String toString() {
+		return getName();
+	}
 }

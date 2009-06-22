@@ -28,51 +28,52 @@ public class AsyncStackFrameFilteringContentProvider
 		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
 			List<IStackFrame> userFrames = new ArrayList();
 			for (Object f: stackFrames) {
-				
-				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
-					String reftype=((JDIStackFrame)f).getReferenceType().getName();
-		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent")) {
-		    			
-		    			continue;
-		    		}
-		    	}
+				// Need to consider whether this may eliminate any legitimate stack frames, but seems ok
+//				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
+//					String reftype=((JDIStackFrame)f).getReferenceType().getName();
+//		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent")) {
+//		    			
+//		    			continue;
+//		    		}
+//		    	}
 				userFrames.add((IStackFrame)f);
-				//if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
-					//return userFrames.toArray(new IStackFrame[0]);
-				//}
+				// This worked for async invocation based on simple cases.  Would it work for future? Finish?
+				if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
+					return userFrames.toArray(new IStackFrame[0]);
+				}
 			}	
 			return userFrames.toArray(new IStackFrame[0]);
 		}
         return EMPTY;
 	}
 	
-	protected Object[] getChildren(Object parent, int index, int length, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
-		Object[] stackFrames = super.getChildren(parent, index, length, context, monitor);
-			//getElements(((IThread)parent).getStackFrames(), index, length);
-		if (stackFrames != null){
-		System.out.println("AsyncStackFrameFiltering : after getChildren "+stackFrames.length);
-		String id = context.getId();
-		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
-			List<IStackFrame> userFrames = new ArrayList();
-			for (Object f: stackFrames) {
-				
-				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
-					String reftype=((JDIStackFrame)f).getReferenceType().getName();
-		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent")) {
-		    			
-		    			continue;
-		    		}
-		    	}
-				System.out.println("AsyncStackFrameFiltering :adding");
-				userFrames.add((IStackFrame)f);
-				//if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
-					//return userFrames.toArray(new IStackFrame[0]);
-				//}
-			}	
-			return userFrames.toArray(new IStackFrame[0]);
-		}}
-        return EMPTY;
-	}
+//	protected Object[] getChildren(Object parent, int index, int length, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
+//		Object[] stackFrames = super.getChildren(parent, index, length, context, monitor);
+//			//getElements(((IThread)parent).getStackFrames(), index, length);
+//		if (stackFrames != null){
+//		System.out.println("AsyncStackFrameFiltering : after getChildren "+stackFrames.length);
+//		String id = context.getId();
+//		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
+//			List<IStackFrame> userFrames = new ArrayList();
+//			for (Object f: stackFrames) {
+//				
+//				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
+//					String reftype=((JDIStackFrame)f).getReferenceType().getName();
+//		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent")) {
+//		    			
+//		    			continue;
+//		    		}
+//		    	}
+//				System.out.println("AsyncStackFrameFiltering :adding");
+//				userFrames.add((IStackFrame)f);
+//				//if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
+//					//return userFrames.toArray(new IStackFrame[0]);
+//				//}
+//			}	
+//			return userFrames.toArray(new IStackFrame[0]);
+//		}}
+//        return EMPTY;
+//	}
 	
 	protected boolean hasChildren(Object element, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
 		String id = context.getId();

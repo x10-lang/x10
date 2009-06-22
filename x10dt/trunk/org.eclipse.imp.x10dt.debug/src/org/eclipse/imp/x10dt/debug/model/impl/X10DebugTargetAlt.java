@@ -27,20 +27,24 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.x10dt.debug.Activator;
+import org.eclipse.imp.x10dt.debug.model.EvaluationEngineHelper;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Application;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Application;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsJDIThread;
-import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsThreadProxy;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10Application;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ModelFactory;
+import org.eclipse.imp.x10dt.debug.ui.presentation.X10ModelPresentation;
 import org.eclipse.jdi.TimeoutException;
 import org.eclipse.jdt.debug.core.IJavaBreakpoint;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
 import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.IJavaType;
+import org.eclipse.jdt.debug.core.IJavaValue;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
+import org.eclipse.jdt.debug.eval.IAstEvaluationEngine;
+import org.eclipse.jdt.debug.eval.IEvaluationListener;
 import org.eclipse.jdt.internal.debug.core.EventDispatcher;
 import org.eclipse.jdt.internal.debug.core.IJDIEventListener;
 import org.eclipse.jdt.internal.debug.core.breakpoints.JavaBreakpoint;
@@ -48,6 +52,7 @@ import org.eclipse.jdt.internal.debug.core.model.JDIDebugElement;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugModelMessages;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIReferenceType;
+import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 import org.eclipse.jdt.internal.debug.core.model.JDIType;
 import org.eclipse.ui.activities.IActivity;
@@ -323,7 +328,7 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 				//}
 
 			} else {
-				System.out.println("I am in ModWatchpointHandler!!");
+//				System.out.println("I am in ModWatchpointHandler!!");
 				jdiThread.disposeStackFrames();
 				target.fireChangeEvent(DebugEvent.CONTENT);
 				//jdiThread.fireChangeEvent(DebugEvent.STATE);
@@ -358,7 +363,7 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	private IDebugTarget fJDebugTarget;
 	//S//private ClassObjectReference fX10RT;
 	//private X10DebugTargetAlt fX10DebugTarget;
-	private HashSet<IX10Activity> fActivities;
+	private Set<IX10Activity> fActivities;
 	private ObjectReference fX10RT;
 	private ThreadReference fThreadForInvokingRTMethods;
 	//S//private ILaunch fLaunch = null;
@@ -611,10 +616,13 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	public ThreadReference getThreadForRTMethods() {
 		return fThreadForInvokingRTMethods;
 	}
-	
-	public void createActivities(){
+		
+	public synchronized void createActivities(){
+//		IJavaValue val = EvaluationEngineHelper.evaluateSomewhere(this, "x10.lang.Runtime.runtime");
+		
+		fActivities = new HashSet<IX10Activity>();
 		String name = "queued";
-		List<Method> m= (List<Method>)fX10RT.referenceType().methodsByName("getWorkerPool");
+		List<Method> m= (List<Method>)getX10RTObject().referenceType().methodsByName("getWorkerPool");
 		System.out.println("Shivali: Method found "+m.size());
 		Method meth=null;
 		for (Method m1: m) {
@@ -623,18 +631,22 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		List args=Collections.EMPTY_LIST;
 		Value result=null;
 		result = invokeX10RTMethod(fX10RT, meth, args);
+		if (result!=null) {
+		synchronized(result) {
 		if (result instanceof ArrayReference) {
+			if (((ArrayReference)result).length() >0) {
 			List<Value> a = ((ArrayReference)result).getValues();
 			for (Value activity: a){
 				if (activity instanceof ObjectReference){
 					//Field nm = (((ObjectReference)activity).referenceType()).fieldByName("name");
 					name = getActivityString((ObjectReference)activity);
 					X10Activity actvty = new X10Activity(this,name);
-					synchronized(fActivities){
-					    fActivities.add(actvty);
-					}
+					addActivity(actvty);
 				}
 			}
+			}
+		}
+		}
 		}
 		//X10Activity actvty = new X10Activity(this, name,parent,place);
 		//fActivities.add(actvty);
@@ -647,8 +659,9 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	}
 	
 	public Object[] getActivities(){
+		if (fActivities==null) createActivities();
 		synchronized(fActivities){
-		   return fActivities.toArray();
+		   return fActivities.toArray(new Object[0]);
 		}	 
 	}
 	
@@ -673,21 +686,15 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	
 	public void initializeX10RTObject() {
 		if (fX10RT!=null) return;
-		VirtualMachine vm = getVM();
-		List<ReferenceType> classes = (List<ReferenceType>)vm.classesByName("x10.runtime.DefaultRuntime_c");
-		
-		System.out.printf("got %d Classes for DefaultRuntime_c:", classes.size());
-		for (Type c: classes){
-			System.out.println("    "+ c.name());
-		}
-		
-		// find 1st Java class (might there be other classes?)
-		ReferenceType typeForRT = null;
-		for (ReferenceType t: classes){
-			if (t instanceof IJavaReferenceType) {
-				typeForRT =(ReferenceType)((JDIReferenceType)t).getUnderlyingType();
-				break;
-			} else typeForRT = t;
+		ReferenceType typeForRT=null;
+		while (typeForRT==null) {
+			typeForRT = getX10RuntimeType();
+			if (typeForRT==null) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+				}
+			}
 		}
 		// mmk: is there a reason to create these types?
 //		IJavaType[] type = new IJavaType[classes.size()];
@@ -704,11 +711,46 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		if (v instanceof ObjectReference){
 			fX10RT = (ObjectReference)v;
 		}
-		System.out.println("InitializeX10RTObject() :Thread status before invokemethod"+ fThreadForInvokingRTMethods.status());
+//		System.out.println("InitializeX10RTObject() :Thread status before invokemethod"+ fThreadForInvokingRTMethods.status());
 		//invokePlaceMethod();
+	}
+
+	private ReferenceType getX10RuntimeType() {
+		VirtualMachine vm = getVM();
+		List<ReferenceType> classes = (List<ReferenceType>)vm.classesByName("x10.runtime.DefaultRuntime_c");
+		
+		System.out.printf("got %d Classes for DefaultRuntime_c:", classes.size());
+		for (Type c: classes){
+			System.out.println("    "+ c.name());
+		}
+		
+		// find 1st Java class (might there be other classes?)
+		ReferenceType typeForRT = null;
+		for (ReferenceType t: classes){
+			if (t instanceof IJavaReferenceType) {
+				while (typeForRT==null) {
+					typeForRT =(ReferenceType)((JDIReferenceType)t).getUnderlyingType();
+					if (typeForRT==null) {
+						try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+						}
+					}
+				}
+				break;
+			} else typeForRT = t;
+		}
+		return typeForRT;
 	}		
     
 	public ObjectReference getX10RTObject() {
+		while (fX10RT==null) {
+			initializeX10RTObject();
+			try {
+			if (fX10RT==null) Thread.sleep(1000);
+			} catch (InterruptedException e) {
+			}
+		}
 		return fX10RT;
 	}
 	
@@ -810,6 +852,17 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		if (fThreads == null)
 			System.out.println("fThreads is null");
 	}
+	
+	public JDIThread getSuspendedThread() {
+		Iterator it = getThreadIterator();
+		while(it.hasNext()){
+			IThread thread = (IThread)it.next();
+			if(thread.isSuspended())
+				return (JDIThread)thread;
+		}
+		return null;
+	}
+	
 
 	protected X10Thread createThread(ThreadReference thread) {
 		//IX10Activity x10Thread= newActivityForThread(thread);
