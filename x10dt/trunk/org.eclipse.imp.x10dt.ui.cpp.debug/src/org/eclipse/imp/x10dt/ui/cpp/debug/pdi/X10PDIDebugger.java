@@ -367,22 +367,12 @@ public final class X10PDIDebugger implements IPDIDebugger {
       
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
-        final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
         if (count <= 0) {
           throw new PDIException(pair.fst(), "Step Into with count <= 0 is not supported.");
         }
         for (int i = 0; i < count; i++) {
-          thread.addEventListener(stoppedEventListener);
-          thread.stepInto();
-          final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
-          runnableThread.start();
-          try {
-            runnableThread.join();
-          } catch (InterruptedException except) {
+          if (!stepInto(thread, pair.snd()))
             throw new PDIException(tasks, "Step Into interrupted");
-          } finally {
-            thread.removeEventListener(stoppedEventListener);
-          }
         }
         IStackFrame[] stackFrames = thread.getStackFrames();
         ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.snd());
@@ -399,6 +389,33 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
   }
 
+  /**
+   * Keep executing thread.stepInto() until we're in an X10 function.
+   */
+  private boolean stepInto(final DebuggeeThread thread, final DebuggeeProcess process) throws DebugException {
+    String function = null;
+    do {
+      final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
+      thread.addEventListener(stoppedEventListener);
+      final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
+      try {
+        thread.stepInto();
+        runnableThread.start();
+        runnableThread.join();
+      } catch (InterruptedException except) {
+        return false;
+      } finally {
+        thread.removeEventListener(stoppedEventListener);
+        runnableThread.interrupt();
+      }
+      Location location = thread.getLocation(thread.getViewInformation());
+      String cppFunction = getFunction(location);
+      System.out.println("Step into: stepping through "+cppFunction);
+      function = fTranslator.getX10Function(process, cppFunction, location);
+    } while (function == null);
+    return true;
+  }
+
   public void stepIntoInstruction(final BitList tasks, final int count) throws PDIException {
     // TODO: use to step into a C++ statement?
     raiseDialogBoxNotImplemented("Step into instruction not implemented");
@@ -410,22 +427,13 @@ public final class X10PDIDebugger implements IPDIDebugger {
       
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
-        final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
         if (count <= 0) {
           throw new PDIException(pair.fst(), "Step Over with count <= 0 is not supported.");
         }
+        Location start = thread.getLocation(thread.getViewInformation());
         for (int i = 0; i < count; i++) {
-          thread.addEventListener(stoppedEventListener);
-          thread.stepOver();
-          final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
-          runnableThread.start();
-          try {
-            runnableThread.join();
-          } catch (InterruptedException except) {
+          if (!stepOver(thread, pair.snd(), start))
             throw new PDIException(tasks, "Step Over interrupted");
-          } finally {
-            thread.removeEventListener(stoppedEventListener);
-          }
         }
         IStackFrame[] stackFrames = thread.getStackFrames();
         ProxyDebugStackFrame[] proxyStackFrames = getProxyStackFrames(stackFrames, pair.snd());
@@ -441,6 +449,40 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
   }
 
+  /**
+   * Keep executing thread.stepOver() until we're in an X10 function and on a different X10 line.
+   */
+  private boolean stepOver(final DebuggeeThread thread, final DebuggeeProcess process, final Location start) throws DebugException {
+    String startFile = getX10File(process, start);
+    int startLine = getX10Line(process, start);
+    assert (startFile != null && startLine != -1);
+    String function = null;
+    String file = startFile;
+    int line = startLine;
+    do {
+      final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
+      thread.addEventListener(stoppedEventListener);
+      final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
+      try {
+        thread.stepOver();
+        runnableThread.start();
+        runnableThread.join();
+      } catch (InterruptedException except) {
+        return false;
+      } finally {
+        thread.removeEventListener(stoppedEventListener);
+        runnableThread.interrupt();
+      }
+      Location location = thread.getLocation(thread.getViewInformation());
+      String cppFunction = getFunction(location);
+      System.out.println("Step over: stepping through "+cppFunction);
+      function = fTranslator.getX10Function(process, cppFunction, location);
+      file = getX10File(process, location);
+      line = getX10Line(process, location);
+    } while (function == null || (file.equals(startFile) && line == startLine));
+    return true;
+  }
+
   public void stepOverInstruction(final BitList tasks, final int count) throws PDIException {
     // TODO: use to step over a C++ statement?
     raiseDialogBoxNotImplemented("Step over instruction not implemented");
@@ -452,20 +494,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
       
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
-        final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
         // By default for one step return (count == 0) !!
         for (int i = 0; i < count + 1; i++) {
-          thread.addEventListener(stoppedEventListener);
-          thread.stepReturn();
-          final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
-          runnableThread.start();
-          try {
-            runnableThread.join();
-          } catch (InterruptedException except) {
+          if (!stepReturn(thread, pair.snd()))
             throw new PDIException(tasks, "Step Return interrupted");
-          } finally {
-            thread.removeEventListener(stoppedEventListener);
-          }
         }
         // TODO: consolidate same stack frames into one event
         IStackFrame[] stackFrames = thread.getStackFrames();
@@ -480,6 +512,33 @@ public final class X10PDIDebugger implements IPDIDebugger {
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Step Return operation: " + except.getMessage());
     }
+  }
+
+  /**
+   * Keep executing thread.stepReturn() until we're in an X10 function.
+   */
+  private boolean stepReturn(final DebuggeeThread thread, final DebuggeeProcess process) throws DebugException {
+    String function = null;
+    do {
+      final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
+      thread.addEventListener(stoppedEventListener);
+      final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
+      try {
+        thread.stepReturn();
+        runnableThread.start();
+        runnableThread.join();
+      } catch (InterruptedException except) {
+        return false;
+      } finally {
+        thread.removeEventListener(stoppedEventListener);
+        runnableThread.interrupt();
+      }
+      Location location = thread.getLocation(thread.getViewInformation());
+      String cppFunction = getFunction(location);
+      System.out.println("Step return: stepping through "+cppFunction);
+      function = fTranslator.getX10Function(process, cppFunction, location);
+    } while (function == null);
+    return true;
   }
 
   public void stepReturn(final BitList tasks, final IAIF aif) throws PDIException {
