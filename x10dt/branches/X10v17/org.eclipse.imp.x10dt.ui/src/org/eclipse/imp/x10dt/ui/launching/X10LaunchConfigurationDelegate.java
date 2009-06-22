@@ -39,7 +39,7 @@ import org.eclipse.swt.widgets.Shell;
 
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
 	/** Suffix that is appended to user class to get main x10 executable class - e.g. to make Hello$Main */
-	static final String userMainSuffix="$Main";
+	static final String USER_MAIN_SUFFIX="$Main";
 
     @Override
 	public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
@@ -194,8 +194,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		// "Search..." action in launch config dialog returns. ("Hello$Main")
 		final String x10RuntimeType;
 
-		if (!mainTypeName.endsWith(userMainSuffix)) {
-			x10RuntimeType = mainTypeName + userMainSuffix;
+		if (!mainTypeName.endsWith(USER_MAIN_SUFFIX)) {
+			x10RuntimeType = mainTypeName + USER_MAIN_SUFFIX;
 		} else {
 			x10RuntimeType = mainTypeName;
 		}
