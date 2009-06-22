@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchImages;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.ErrorUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.ui.IPackagesViewPart;
@@ -55,7 +55,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
     addPage(this.fSecondPage);
     addPage(this.fThirdPage);
 
-    setWindowTitle(Messages.PW_WindowTitle);
+    setWindowTitle(LaunchMessages.PW_WindowTitle);
     setDialogSettings(LaunchCore.getInstance().getDialogSettings());
     setDefaultPageImageDescriptor(LaunchImages.createUnmanaged(NEW_X10_PRJ_WIZBAN));
   }
@@ -116,8 +116,8 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
       this.fWorkbench.getProgressService().runInUI(PlatformUI.getWorkbench().getProgressService(), this,
                                                    ResourcesPlugin.getWorkspace().getRoot());
     } catch (InvocationTargetException except) {
-      ErrorUtils.dialogWithLog(getShell(), Messages.PW_ProjectCreationErrorTitle, Messages.PW_ProjectCreationErrorMessage,
-                               except);
+      ErrorUtils.dialogWithLog(getShell(), LaunchMessages.PW_ProjectCreationErrorTitle, 
+                               LaunchMessages.PW_ProjectCreationErrorMessage, except);
       return false;
     } catch (InterruptedException except) {
       // Operation got interrupted. We just keep the state as is without performing a deletion
@@ -137,8 +137,8 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
     try {
       this.fThirdPage.performCancel();
     } catch (CoreException except) {
-      ErrorUtils.dialogWithLog(getShell(), Messages.PW_PrjCancelationErrorTitle, Messages.PW_PrjCancelationErrorMsg, 
-                               except.getStatus());
+      ErrorUtils.dialogWithLog(getShell(), LaunchMessages.PW_PrjCancelationErrorTitle, 
+                               LaunchMessages.PW_PrjCancelationErrorMsg, except.getStatus());
     }
     return true;
   }

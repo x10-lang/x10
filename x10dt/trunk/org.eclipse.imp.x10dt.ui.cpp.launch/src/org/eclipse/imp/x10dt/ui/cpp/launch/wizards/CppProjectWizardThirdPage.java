@@ -39,7 +39,7 @@ import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.WizardUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -54,8 +54,8 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
   CppProjectWizardThirdPage(final CppProjectWizardFirstPage firstPage) {
     this.fFirstPage = firstPage;
 
-    setTitle(Messages.PWSP_PageTitle);
-    setDescription(Messages.PWSP_PageDescription);
+    setTitle(LaunchMessages.PWSP_PageTitle);
+    setDescription(LaunchMessages.PWSP_PageDescription);
   }
 
   // --- Overridden methods
@@ -101,7 +101,7 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
   @SuppressWarnings("unchecked")
   void performFinish(final IProgressMonitor monitor) throws CoreException {
     try {
-      monitor.beginTask(Messages.PWSP_FinishTaskName, 4);
+      monitor.beginTask(LaunchMessages.PWSP_FinishTaskName, 4);
       if (this.fCurrProject == null) {
         updateProject(new SubProgressMonitor(monitor, 2));
       }
@@ -203,7 +203,7 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
   }
 
   private void initializeBuildPath(final ISourceProject sourceProject, final IProgressMonitor monitor) throws CoreException {
-    monitor.beginTask(Messages.PWSP_BuildPathInitTaskName, 2);
+    monitor.beginTask(LaunchMessages.PWSP_BuildPathInitTaskName, 2);
 
     try {
       final IProject project = sourceProject.getRawProject();
@@ -222,7 +222,7 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
 
       final IClasspathEntry[] defaultCPEntries = this.fFirstPage.getDefaultClasspathEntries();
       if (defaultCPEntries.length == 0) {
-        final IStatus status = new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, Messages.PWSP_CPEntriesError);
+        final IStatus status = new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.PWSP_CPEntriesError);
         updateStatus(status);
         throw new CoreException(status);
       }
@@ -251,7 +251,7 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
 
   private final void updateProject(final IProgressMonitor monitor) throws CoreException {
     try {
-      monitor.beginTask(Messages.PWSP_UpdateProjectTaskName, 7);
+      monitor.beginTask(LaunchMessages.PWSP_UpdateProjectTaskName, 7);
       if (monitor.isCanceled()) {
         throw new OperationCanceledException();
       }
@@ -274,7 +274,7 @@ final class CppProjectWizardThirdPage extends JavaCapabilityConfigurationPage {
       initializeBuildPath(ModelFactory.open(this.fCurrProject), new SubProgressMonitor(monitor, 2));
       configureX10Project(new SubProgressMonitor(monitor, 3));
     } catch (ModelException except) {
-      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, Messages.PWSP_SourceProjectError, except));
+      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.PWSP_SourceProjectError, except));
     } finally {
       monitor.done();
     }
