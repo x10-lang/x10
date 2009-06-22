@@ -6,7 +6,7 @@ package org.eclipse.imp.x10dt.core.wizards;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.osgi.framework.Bundle;

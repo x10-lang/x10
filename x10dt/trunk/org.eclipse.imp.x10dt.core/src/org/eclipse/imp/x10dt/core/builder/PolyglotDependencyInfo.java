@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.imp.core.DependencyInfo;
+import org.eclipse.imp.builder.DependencyInfo;
 
 import polyglot.types.Type;
 

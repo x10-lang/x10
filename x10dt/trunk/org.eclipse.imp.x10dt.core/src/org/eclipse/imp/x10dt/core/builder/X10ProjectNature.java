@@ -1,7 +1,7 @@
 package org.eclipse.imp.x10dt.core.builder;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.imp.core.ProjectNatureBase;
+import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 
