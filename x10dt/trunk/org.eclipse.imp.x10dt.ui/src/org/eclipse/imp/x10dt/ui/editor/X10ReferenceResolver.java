@@ -24,12 +24,14 @@ import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
@@ -40,7 +42,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
     /**
      * Get the target for a given referencing source node in the AST represented by a given ParseController.
      */
-    public Object getLinkTarget(Object node, IParseController parseController) {
+	public Object getLinkTarget(Object node, IParseController parseController) {
         if (node instanceof Ambiguous) {
             return null;
         }
@@ -48,6 +50,12 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             Id id= (Id) node;
             node= findParent(id, parseController);
         }
+        if(node instanceof TypeNode) {
+			Object grandparent = findParent((Node)node, parseController);
+			if(grandparent instanceof ConstructorDecl) {   
+				node=grandparent;
+			}
+		}
         if (node instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) node;
             PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
@@ -77,10 +85,10 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
         return null; // If it's not something we know how to resolve, just return the node itself
     }
 
-    private Object findParent(Id id, IParseController parseController) {
+    private Object findParent(Node node, IParseController parseController) {
         PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
 
-        return locator.findParentNode(parseController.getCurrentAst(), id.position().offset(), id.position().endOffset());
+        return locator.findParentNode(parseController.getCurrentAst(), node.position().offset(), node.position().endOffset());
     }
 
     public static Node findVarDefinition(Local local, Node ast) {
