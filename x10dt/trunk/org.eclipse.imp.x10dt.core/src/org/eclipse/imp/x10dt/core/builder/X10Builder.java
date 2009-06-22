@@ -213,7 +213,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	try {
 	    List/*<IPath>*/ projectSrcLoc= getProjectSrcPath();
 	    String projectSrcPath= pathListToPathString(projectSrcLoc);
-	    String outputDir= ((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
+	    String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
 
 	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
 	} catch (UsageError e) {
