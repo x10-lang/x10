@@ -213,15 +213,16 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    if (errorPos == null) continue;
 
 	    IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
+	    int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
 
 	    if (errorPos == Position.COMPILER_GENERATED)
 		X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
 	    else if (errorPos instanceof JPGPosition)
-		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
+		addMarkerTo(errorFile, errorInfo.getMessage(), severity,
 			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(),
 			((JPGPosition) errorPos).getLeftIToken().getStartOffset(), ((JPGPosition) errorPos).getRightIToken().getEndOffset());
 	    else
-		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
+		addMarkerTo(errorFile, errorInfo.getMessage(), severity,
 			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), -1, -1);
 	}
     }
