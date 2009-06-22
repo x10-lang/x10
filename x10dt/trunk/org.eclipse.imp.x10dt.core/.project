@@ -29,11 +29,17 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.imp.prefspecs.builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.imp.prefspecs.imp.nature</nature>
 		<nature>org.eclipse.imp.smapifier.smapinature</nature>
+		<nature>org.eclipse.imp.prefspecs.nature</nature>
 	</natures>
 </projectDescription>
