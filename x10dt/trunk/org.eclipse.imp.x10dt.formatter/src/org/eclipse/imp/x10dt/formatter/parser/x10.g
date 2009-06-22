@@ -4,13 +4,13 @@
 %options variables=nt
 %options conflicts
 %options softkeywords
-%options package=x10.parser
+%options package=org.eclipse.imp.x10dt.formatter.parser
 %options template=btParserTemplate.gi
-%options import_terminals="X10Lexer.gi"
+%options import_terminals="x10Lexer.gi"
 
-%include
-    "MissingId.gi"
-%End
+--%include
+--   "MissingId.gi"
+--%End
 
 %Notice
 %End
@@ -200,7 +200,7 @@
     
     Property ::=  Type identifier
              --     MethodDeclaration ::= MethodHeader MethodBody
-     --       MethodDeclaration ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt MethodBody
+            MethodDeclaration ::= ThisClauseopt MethodModifiersopt ResultType MethodDeclarator Throwsopt MethodBody
         
     ExplicitConstructorInvocation ::= this ( ArgumentListopt ) ;
                                             | super ( ArgumentListopt ) ;
@@ -299,7 +299,7 @@
                          | ConstRelationalExpression < ConstAdditiveExpression
                          | ConstRelationalExpression > ConstAdditiveExpression
                          | ConstRelationalExpression <= ConstAdditiveExpression
-                         | ConstRelationalExpression > = ConstAdditiveExpression
+                         | ConstRelationalExpression >= ConstAdditiveExpression
             ConstEqualityExpression ::= 
                    ConstRelationalExpression
                          | ConstEqualityExpression == ConstRelationalExpression

@@ -4,6 +4,7 @@ import lpg.runtime.IMessageHandler;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IASTNodeLocator;
 import org.eclipse.imp.parser.ILexer;
@@ -13,13 +14,9 @@ import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.x10dt.formatter.parser.ast.ASTNode;
 
 public class ParseController extends SimpleLPGParseController implements
-		IParseController {
+		IParseController, ILanguageService {
 	private PatternX10Parser parser;
 	private PatternX10Lexer lexer;
-
-	private char keywords[][];
-
-	private boolean isKeyword[];
 
 	/**
 	 * @param filePath
@@ -78,10 +75,10 @@ public class ParseController extends SimpleLPGParseController implements
 		PMMonitor my_monitor = new PMMonitor(monitor);
 		char[] contentsArray = contents.toCharArray();
 
-		//createLexerAndParser(fFilePath); // todo remove this after Phil has fixed LPG
-		lexer = new PatternX10Lexer();
-		parser.reset(lexer.getLexStream());
-		
+		createLexerAndParser(fFilePath); // todo remove this after Phil has fixed LPG
+//		lexer = new X10Lexer();
+//		parser.reset(lexer.getLexStream());
+//		
 		lexer.initialize(contentsArray, fFilePath.toPortableString());
 		parser.getParseStream().resetTokenStream();
 		parser.getParseStream().setMessageHandler(handler);
