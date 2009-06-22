@@ -33,6 +33,6 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.compiler.p3,
  org.eclipse.imp.analysis.p3
 Bundle-Vendor: tibbitts@us.ibm.com
-Bundle-Activator: org.eclipse.imp.x10dt.ui.X10UIPlugin
+Bundle-Activator: org.eclipse.imp.x10dt.ui.X10DTUIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui.launching,
  org.eclipse.imp.x10dt.ui.parser

@@ -24,10 +24,10 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.X10Util;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall2;
@@ -57,7 +57,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 			if (!vm2.getJavaVersion().startsWith("1.5") && !vm2.getJavaVersion().startsWith("1.6")) {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
-						Shell shell = X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+						Shell shell = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
 						String projectName = "";
 						try {
 							projectName = configuration.getAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", "");
@@ -146,7 +146,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		if (x10RuntimeLoc.length() == 0) {
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					Shell shell = X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+					Shell shell = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
 					MessageDialog.openError(shell, "Please specify the X10 Runtime location",
 							"The location of the X10 Runtime is unset in the launch configuration '" + configuration.getName() + "'.");
 				}
@@ -171,8 +171,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		String locnDir = getDir(x10RuntimeLoc);
 		// PORT1.7 -- common and constraints jars also need to be added to classpath
 
-		String commonJar=X10Util.getJarLocationForBundle(X10Plugin.X10_COMMON_BUNDLE_ID);
-		String constraintsJar=X10Util.getJarLocationForBundle(X10Plugin.X10_CONSTRAINTS_BUNDLE_ID);
+		String commonJar=X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_COMMON_BUNDLE_ID);
+		String constraintsJar=X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_CONSTRAINTS_BUNDLE_ID);
 
 		classpathList.add(commonJar);
 		classpathList.add(constraintsJar);
@@ -183,7 +183,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 			String path = classpathList.get(i);
 			File file = new File(path);
 			if (!file.exists()) {
-				X10Plugin.getInstance().writeErrorMsg("X10LaunchConfigurationDelegate, cannot find expected part of runtime path: " + path);
+				X10DTCorePlugin.getInstance().writeErrorMsg("X10LaunchConfigurationDelegate, cannot find expected part of runtime path: " + path);
 			}
 
 		}

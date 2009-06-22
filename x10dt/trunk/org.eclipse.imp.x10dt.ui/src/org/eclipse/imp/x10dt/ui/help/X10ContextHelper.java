@@ -14,7 +14,7 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IDocumentationProvider;
 import org.eclipse.imp.services.IHelpService;
 import org.eclipse.imp.x10dt.core.X10Util;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.imp.x10dt.ui.editor.X10DocProvider;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.jface.text.IRegion;
@@ -85,7 +85,7 @@ public class X10ContextHelper implements IHelpService {
                 return sKeywordHelp.get(tokenStr);
             }
         }
-        ISourcePositionLocator nodeLocator= parseController.getNodeLocator();
+        ISourcePositionLocator nodeLocator= parseController.getSourcePositionLocator();
         Object node= nodeLocator.findNode(parseController.getCurrentAst(), target.getOffset());
         if (node != null) {
             return getHelp(node, parseController);
@@ -94,6 +94,6 @@ public class X10ContextHelper implements IHelpService {
     }
 
     public String getContextId(String baseContextId) {
-        return X10UIPlugin.PLUGIN_ID + ".x10EditorContext";
+        return X10DTUIPlugin.PLUGIN_ID + ".x10EditorContext";
     }
 }

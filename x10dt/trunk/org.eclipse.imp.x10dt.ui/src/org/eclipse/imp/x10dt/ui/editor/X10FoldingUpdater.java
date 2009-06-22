@@ -153,8 +153,8 @@ public class X10FoldingUpdater implements IFoldingUpdater
         //
         // Cache the prsStream and the lexStream.
         //
-        prsStream = ((SimpleLPGParseController) parseController).getParser().getParseStream();
-        lexStream = prsStream.getLexStream();
+        prsStream = ((SimpleLPGParseController) parseController).getParser().getIPrsStream();
+        lexStream = prsStream.getILexStream();
 
         //
         // The AST representing the foldable source text

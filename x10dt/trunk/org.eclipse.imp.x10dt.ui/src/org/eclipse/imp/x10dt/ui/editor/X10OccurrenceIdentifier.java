@@ -2,23 +2,28 @@ package org.eclipse.imp.x10dt.ui.editor;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
-import polyglot.ast.*;
-import polyglot.types.CodeInstance;
-import polyglot.types.FieldInstance;
-import polyglot.types.LocalInstance;
-import polyglot.types.ProcedureInstance;
-import polyglot.types.VarInstance;
-import polyglot.visit.NodeVisitor;
 
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.IOccurrenceMarker;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
+
+import polyglot.ast.Call;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.Id;
+import polyglot.ast.NamedVariable;
+import polyglot.ast.New;
+import polyglot.ast.Node;
+import polyglot.ast.ProcedureDecl;
+import polyglot.ast.TypeNode;
+import polyglot.ast.VarDecl;
+import polyglot.types.CodeInstance;
+import polyglot.types.FieldInstance;
+import polyglot.types.ProcedureInstance;
+import polyglot.types.VarInstance;
+import polyglot.visit.NodeVisitor;
 
 public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMarker {
     //public class OccurrenceMarker implements ILanguageService, IOccurrenceMarker {
@@ -42,7 +47,7 @@ public class X10OccurrenceIdentifier implements ILanguageService, IOccurrenceMar
         }
 
         Node astNode= (Node) node;
-        PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+        PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 
         fOccurrences= new ArrayList();
 

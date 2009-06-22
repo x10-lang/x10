@@ -29,9 +29,9 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10Util;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -223,7 +223,7 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		String runtimeJar = X10Util.getJarLocationForBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
+		String runtimeJar = X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID);
 		//String compilerJar=X10Util.getJarLocationForBundle(X10Plugin.X10_COMPILER_BUNDLE_ID);
 
 		configuration.setAttribute(
@@ -242,7 +242,7 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	    runtimeName= config.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
 	    fX10RuntimeArgumentsText.setText(config.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, "")); //$NON-NLS-1$
 	} catch (CoreException ce) {
-	    X10UIPlugin.log(ce);
+	    X10DTUIPlugin.log(ce);
 	}
 	fX10RuntimeText.setText(runtimeName);
     }
@@ -270,6 +270,6 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     public Image getImage() {
-	return X10UIPlugin.getInstance().getImage(X10UIPlugin.RUNTIME_IMG_NAME);
+	return X10DTUIPlugin.getInstance().getImage(X10DTUIPlugin.RUNTIME_IMG_NAME);
     }
 }

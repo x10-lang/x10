@@ -32,8 +32,8 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.imp.x10dt.core.X10Plugin;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -129,7 +129,7 @@ public class X10LaunchShortcut implements ILaunchShortcut {
     }
 
     private IWorkbenchWindow getActiveWorkbenchWindow() {
-	return X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow();
+	return X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow();
     }
 
     /**
@@ -154,7 +154,7 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 		}
 	    }
 	} catch (CoreException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
 
 	// If there are no existing configs associated with the IType, create one.
@@ -197,14 +197,14 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    /**
 	     * TODO should use same code to compute location of x10 runtime (and don't use class folders, which the JDT doesn't support)
 	     */
-	    String commonPath= X10Plugin.x10CompilerPath;
-	    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + X10Plugin.X10_RUNTIME_BUNDLE_ID + File.separator + "classes";//PORT1.7 use constant
+	    String commonPath= X10DTCorePlugin.x10CompilerPath;
+	    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID + File.separator + "classes";//PORT1.7 use constant
 
 	    wc.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
 
 	    config= wc.doSave();
 	} catch (CoreException ce) {
-	    X10UIPlugin.log(ce);
+	    X10DTUIPlugin.log(ce);
 	}
 	return config;
     }

@@ -38,7 +38,8 @@ public class LexerDelegate implements ILexer
             this.myLexer = myLexer;
         }
 	public int [] getKeywordKinds() { return myLexer.getKeywordKinds(); }
-	public LexStream getLexStream() { return (LexStream) myLexer.getILexStream(); }
-	public void initialize(char [] content, String filename) { myLexer.initialize(content, filename); }
+	public LexStream getILexStream() { return (LexStream) myLexer.getILexStream(); }
+	public void initialize(char [] content, String filename) { myLexer.reset(content, filename); }
+	public void reset(char [] content, String filename) { myLexer.reset(content, filename); }
 	public void lexer(Monitor monitor, IPrsStream prsStream) { myLexer.lexer(monitor, prsStream); }
 }

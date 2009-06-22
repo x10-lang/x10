@@ -31,11 +31,8 @@ import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParser;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
-import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
-import org.eclipse.imp.x10dt.core.X10Plugin;
-import org.eclipse.imp.x10dt.core.builder.StreamSource;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
@@ -45,11 +42,9 @@ import polyglot.frontend.Source;
 public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
     private PMMonitor fMonitor;
-    private IParser fParser;
-    private ILexer fLexer;
 
     public ParseController() {
-    	super(X10Plugin.kLanguageName);
+    	super(X10DTCorePlugin.kLanguageName);
     }
 
     public IParser getParser() {
@@ -80,7 +75,7 @@ public class ParseController extends SimpleLPGParseController {
         fMonitor= new PMMonitor(null);
     }
 
-    public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor) {
+    public Object parse(String contents, IProgressMonitor monitor) {
         FileSource fileSource= null;
         try {
             fMonitor.setMonitor(monitor);

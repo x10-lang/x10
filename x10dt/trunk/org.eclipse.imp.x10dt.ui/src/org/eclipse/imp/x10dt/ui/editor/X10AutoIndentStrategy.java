@@ -19,7 +19,7 @@ package org.eclipse.imp.x10dt.ui.editor;
 
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.services.IAutoEditStrategy;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -227,7 +227,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 		}
 	    }
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
     }
 
@@ -260,7 +260,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 		}
 	    }
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
     }
 
@@ -376,7 +376,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    // insert end of block or JavaDoc comment
 	    c.text= buf.toString();
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
     }
     
@@ -742,7 +742,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    command.length= newLength;
 	    command.text= newText;
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
     }
 
@@ -1077,7 +1077,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    cmd.offset= off;
 	    cmd.length= len;
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
     }
 
@@ -1153,7 +1153,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 		return;
 	    }
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
     }
 
@@ -1221,7 +1221,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    char[] buffer= contents.toString().toCharArray();
 	    return new CompilationUnitInfo(buffer, sourceRange.getOffset() - methodOffset);
 	} catch (BadLocationException e) {
-	    X10UIPlugin.log(e);
+	    X10DTUIPlugin.log(e);
 	}
 	return null;
     }

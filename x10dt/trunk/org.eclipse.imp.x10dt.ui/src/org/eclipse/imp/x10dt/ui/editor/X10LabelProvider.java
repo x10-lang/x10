@@ -37,7 +37,7 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 //import org.eclipse.imp.x10dt.ui.views.Outliner;  //PORT1.7 remove Outliner
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -76,7 +76,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 
 //  private ProblemsLabelDecorator fLabelDecorator;
 
-    private static ImageRegistry sImageRegistry= X10UIPlugin.getInstance().getImageRegistry();
+    private static ImageRegistry sImageRegistry= X10DTUIPlugin.getInstance().getImageRegistry();
 
     public static final String DEFAULT_AST_IMAGE_NAME= "default_ast";
     private static Image DEFAULT_AST_IMAGE;
@@ -164,7 +164,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 
             try {
                 String imageName= (String) imageNameField.get(null);
-                ImageDescriptor desc= X10UIPlugin.create(imageName + ".gif");
+                ImageDescriptor desc= X10DTUIPlugin.create(imageName + ".gif");
 
                 sImageRegistry.put(imageName, desc);
 
@@ -174,12 +174,12 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 
                     imageField.set(null, sImageRegistry.get(imageName));
                 } catch(NoSuchFieldException e) {
-                    X10UIPlugin.log(e);
+                    X10DTUIPlugin.log(e);
                 }
             } catch (IllegalArgumentException e) {
-                X10UIPlugin.log(e);
+                X10DTUIPlugin.log(e);
             } catch (IllegalAccessException e) {
-                X10UIPlugin.log(e);
+                X10DTUIPlugin.log(e);
             }
         }
     }

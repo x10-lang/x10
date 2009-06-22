@@ -27,8 +27,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.MessageHandlerAdapter;
-import org.eclipse.imp.x10dt.core.X10Plugin;
-import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -134,7 +134,7 @@ public class CompilerDelegate {
 			if (!e.getMessage().equals("must specify at least one source file"))
 				System.err.println(e.getMessage());
 		} catch (JavaModelException e) {
-			X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+			X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
 		}
 		// X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " +
 		// opts.source_path);
@@ -161,7 +161,7 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(entryPath);
 
-                if (entryPath.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
+                if (entryPath.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
                     hasRuntime= true;
                     if (new File(entryPath).exists())
                         runtimeValid= true;
@@ -181,15 +181,15 @@ public class CompilerDelegate {
             //    buff.append(runtimePath);
             // }
         } catch (JavaModelException e) {
-            X10Plugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
+            X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
         }
         return buff.toString();
     }
 
     private String getRuntimePath() {
-        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 use constant for runtime bundle
+        Bundle x10RuntimeBundle= Platform.getBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 use constant for runtime bundle
         String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/"+X10Plugin.X10_RUNTIME_BUNDLE_ID+"_" + bundleVersion + ".jar";//PORT1.7 use constant
+        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/"+X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID+"_" + bundleVersion + ".jar";//PORT1.7 use constant
 
         return x10RuntimePath;
     }

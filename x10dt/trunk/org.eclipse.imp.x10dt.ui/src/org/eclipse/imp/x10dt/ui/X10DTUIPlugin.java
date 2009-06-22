@@ -27,19 +27,19 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-public class X10UIPlugin extends AbstractUIPlugin {
+public class X10DTUIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "org.eclipse.imp.x10dt.ui";
 
-    private static X10UIPlugin sInstance;
+    private static X10DTUIPlugin sInstance;
 
     private static ILog sLog;
 
-    public X10UIPlugin() {
+    public X10DTUIPlugin() {
 	super();
 	sInstance= this;
     }
 
-    public static X10UIPlugin getInstance() {
+    public static X10DTUIPlugin getInstance() {
 	return sInstance;
     }
 
