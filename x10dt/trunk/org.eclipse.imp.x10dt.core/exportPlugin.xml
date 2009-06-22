@@ -31,11 +31,12 @@
 		<delete dir="${temp.folder}"/>
 		<mkdir dir="${temp.folder}"/>
 		<antcall target="build.jars"/>
-		<antcall target="gather.bin.parts">
-			<param name="destination.temp.folder" value="${temp.folder}/"/>
-		</antcall>
-		<zip destfile="${plugin.destination}/${plugin.jar.name}" basedir="${temp.folder}/${plugin.name}_${plugin.version}" filesonly="false" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
+	</target>
+
+	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: ${plugin.name}.">
+		<available property="plugin.jar" file="${build.result.folder}/${plugin.jar.name}"/>
+		<antcall target="plugin.jar"/>
 	</target>
 
 	<target name="plugin.jar" depends="init" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
@@ -55,7 +56,7 @@
 		</javac>
 		<!-- Copy necessary resources -->
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true" overwrite="false">
-			<fileset dir="src/" excludes="**/*.java, **/package.htm*,null"			/>
+			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
 		</copy>
 		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/icons"/>
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/icons" failonerror="true" overwrite="false">
@@ -68,41 +69,25 @@
 		<delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
 	</target>
 
-	<target name="pluginsrc.zip" depends="init" unless="${plugin.src.zip}">
-		<mkdir dir="${build.result.folder}"/>
-		<zip destfile="${build.result.folder}/${plugin.src.zip}" filesonly="false" whenempty="skip" update="false">
-			<fileset dir="src/" includes="**/*.java"			/>
-		</zip>
-	</target>
-
-	<target name="build.jars" depends="init" description="Build all the jars for the plug-in: ${plugin.name}.">
-		<available property="plugin.jar" file="${build.result.folder}/${plugin.jar.name}"/>
-		<antcall target="plugin.jar"/>
-	</target>
+	<!-- ================================================================================= -->
 
 	<target name="build.sources" depends="init">
 		<available property="pluginsrc.zip" file="${build.result.folder}/${plugin.src.zip}"/>
 		<antcall target="pluginsrc.zip"/>
 	</target>
 
-	<target name="gather.bin.parts" depends="init" if="destination.temp.folder">
-		<mkdir dir="${destination.temp.folder}/${plugin.name}_${plugin.version}"/>
-		<copy todir="${destination.temp.folder}/${plugin.name}_${plugin.version}" failonerror="true" overwrite="false">
-			<fileset dir="${build.result.folder}" includes="${plugin.jar.name}"/>
-		</copy>
-		<copy todir="${destination.temp.folder}/${plugin.name}_${plugin.version}" failonerror="true" overwrite="false">
-			<fileset dir="${basedir}" includes="plugin.xml,icons/,schema/,${plugin.jar.name}"/>
-		</copy>
-	</target>
-
-	<target name="build.zips" depends="init">
+	<target name="pluginsrc.zip" depends="init" unless="${plugin.src.zip}">
+		<mkdir dir="${build.result.folder}"/>
+		<zip destfile="${build.result.folder}/${plugin.src.zip}" filesonly="false" whenempty="skip" update="false">
+			<fileset dir="src/" includes="**/*.java"/>
+		</zip>
 	</target>
 
 	<target name="gather.sources" depends="init" if="destination.temp.folder">
 		<mkdir dir="${destination.temp.folder}/${plugin.name}_${plugin.version}"/>
 		<copy file="${build.result.folder}/${plugin.src.zip}" todir="${destination.temp.folder}/${plugin.name}_${plugin.version}" failonerror="false" overwrite="false"/>
 		<copy todir="${destination.temp.folder}/${plugin.name}_${plugin.version}" failonerror="false" overwrite="false">
-			<fileset dir="${basedir}" includes="icons/,doc/,build.properties,plugin.xml,schema/,src/"			/>
+			<fileset dir="${basedir}" includes="icons/,doc/,build.properties,plugin.xml,schema/,src/"/>
 		</copy>
 	</target>
 
