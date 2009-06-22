@@ -27,6 +27,10 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.uide.core.ErrorHandler;
+import org.eclipse.uide.model.ISourceProject;
+import org.eclipse.uide.model.ModelFactory;
+import org.eclipse.uide.model.ModelFactory.ModelException;
 import org.eclipse.uide.parser.IParseController;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -265,12 +269,16 @@ public class RenameRefactoring extends Refactoring {
 	    IParseController parseCtrlr= new ParseController();
 	    IPath declFilePath= file.getLocation().removeFirstSegments(fProject.getLocation().segmentCount());
 	    IFileEditorInput fileInput= new FileEditorInput(file);
-
-	    parseCtrlr.initialize(declFilePath, fProject, null);
 	    try {
+		ISourceProject srcProject= ModelFactory.create(fProject);
+
+		parseCtrlr.initialize(declFilePath, srcProject, null);
 		fProvider.connect(fileInput);
 	    } catch (CoreException e) {
-		e.printStackTrace();
+		ErrorHandler.reportError(e.getMessage(), e);
+		return;
+	    } catch (ModelException e) {
+		ErrorHandler.reportError(e.getMessage(), e);
 		return;
 	    }
 

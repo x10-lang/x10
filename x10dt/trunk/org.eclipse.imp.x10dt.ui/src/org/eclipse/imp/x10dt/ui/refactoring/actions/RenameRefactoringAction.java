@@ -14,7 +14,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
+import org.eclipse.uide.core.ErrorHandler;
 import org.eclipse.uide.editor.UniversalEditor;
+import org.eclipse.uide.model.ISourceProject;
+import org.eclipse.uide.model.ModelFactory;
+import org.eclipse.uide.model.ModelFactory.ModelException;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import org.eclipse.uide.parser.IParseController;
 import org.eclipse.uide.refactoring.RefactoringStarter;
@@ -147,14 +151,19 @@ public class RenameRefactoringAction extends TextEditorAction {
 	    IParseController parseCtrlr= new ParseController();
 	    // TODO Handle cross-project references
 	    IPath declFilePath= new Path(position.file()).removeFirstSegments(project.getLocation().segmentCount());
+	    try {
+		ISourceProject srcProject= ModelFactory.open(project);
 
-            parseCtrlr.initialize(declFilePath, fileInput.getFile().getProject(), null);
-            IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
-            Node declRoot= (Node) parseCtrlr.parse(document.get(), false, null);
+		parseCtrlr.initialize(declFilePath, srcProject, null);
+		IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
+		Node declRoot= (Node) parseCtrlr.parse(document.get(), false, null);
 
-            System.out.println(declRoot);
-            findDeclaration(declRoot, decl);
-            System.out.println(fDeclaringNode);
+		System.out.println(declRoot);
+		findDeclaration(declRoot, decl);
+		System.out.println(fDeclaringNode);
+	    } catch (ModelException e) {
+		ErrorHandler.reportError(e.getMessage(), e);
+	    }
         }
     }
 
