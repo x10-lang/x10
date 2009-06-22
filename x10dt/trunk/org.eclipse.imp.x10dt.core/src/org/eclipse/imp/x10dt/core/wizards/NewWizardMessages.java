@@ -11,9 +11,11 @@ public class NewWizardMessages extends NLS {
     }
 
     public static String NewPackageCreationWizard_title;
+
     public static String NewPackageWizardPage_description;
     public static String NewPackageWizardPage_package_label;
     public static String NewPackageWizardPage_info;
+
     public static String NewPackageWizardPage_error_InvalidPackageName;
     public static String NewPackageWizardPage_warning_DiscouragedPackageName;
     public static String NewPackageWizardPage_error_EnterName;
@@ -21,6 +23,11 @@ public class NewWizardMessages extends NLS {
     public static String NewPackageWizardPage_error_IsOutputFolder;
     public static String NewPackageWizardPage_error_PackageExists;
     public static String NewPackageWizardPage_error_PackageNotShown;
+
+    public static String NewClassWizardPage_methods_label;
+    public static String NewClassWizardPage_methods_main;
+    public static String NewClassWizardPage_methods_constructors;
+    public static String NewClassWizardPage_methods_inherited;
 
     static {
         NLS.initializeMessages(BUNDLE_NAME, NewWizardMessages.class);
