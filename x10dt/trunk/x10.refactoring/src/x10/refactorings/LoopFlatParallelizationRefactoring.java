@@ -41,11 +41,9 @@ import polyglot.ext.x10.ast.ForLoop;
 import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.types.TypeSystem;
-import polyglot.types.VarDef;
 import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
-import x10.refactorings.EffectsVisitor.XVarDefWrapper;
 import x10.refactorings.utils.NodePathComputer;
 
 public class LoopFlatParallelizationRefactoring extends Refactoring {
@@ -84,6 +82,8 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
 
     private List<Node> fNodePath;
 
+    private boolean fVerbose;
+
     public LoopFlatParallelizationRefactoring(TextEditor editor) {
         fEditor = (IASTFindReplaceTarget) editor;
 
@@ -101,6 +101,10 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             fNode = null;
         }
         fConsoleStream = X10RefactoringPlugin.getInstance().getConsoleStream();
+    }
+
+    public void setVerbose(boolean verbose) {
+        fVerbose = verbose;
     }
 
     /**
@@ -212,8 +216,11 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             fMethod.visit(rdVisitor);
 
             EffectsVisitor effVisitor= new EffectsVisitor(rdVisitor.getReachingDefs(), fMethod);
+            effVisitor.setVerbose(X10RefactoringPlugin.getInstance().getConsoleStream());
             loopBody.visit(effVisitor);
-            effVisitor.dump();
+            if (fVerbose) {
+                effVisitor.dump();
+            }
             Effect bodyEff= effVisitor.getEffectFor(loopBody);
 
             if (bodyEff == null) {
