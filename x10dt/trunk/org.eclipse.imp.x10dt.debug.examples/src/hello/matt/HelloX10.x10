@@ -1,19 +1,9 @@
 package hello.matt;
 public class HelloX10 {
 	String _greeting;
+	int[.] intArray = new int[[1:4]] (point p[i]) { return i; };
     public static void main(final String[] args) {
-    	new HelloX10().speakMany();
-    	// distribution d;
-    	finish async {
-    		for (int i=0; i<4; i++) {
-    			final int index=i;
-    			async /*(d[i/2])*/ {
-    				HelloX10 x;
-    				(x=(index<args.length ? new HelloX10(args[index]) : new HelloX10())).speak(index);
-    			}
-    		}
-    	}
-    	System.out.println("Done");
+    	new HelloX10().greetMany(args);
     }
     
     public HelloX10() {
@@ -22,19 +12,29 @@ public class HelloX10 {
     public HelloX10(String greeting) {
     	_greeting=greeting;
     }
-    public void speakMany() {
+    
+    public void greetMany(final String args[]) {
     	finish async {
     		for (int i=0; i<4; i++) {
     			final int index=i;
-    			async /*(d[i/2])*/ {
-    				HelloX10 x;
-    				new HelloX10().speak(100+index);
+    			async {  
+    				HelloX10 x = index<args.length ? new HelloX10(args[index]) : new HelloX10();
+    				x.greet(index);
     			}
     		}
     	}
     	System.out.println("Done");
     }
-    public void speak(int i) {
+     
+    public void greet(int i) {
+    	place foo = here;
+    	place bar = this.location;
+    	place baz = location;
+    	place bum = foo.location;
+     	place p0 = bum.FIRST_PLACE;
+    	place pn = bum.LAST_PLACE;
+    	int k = bum.MAX_PLACES;
+    	if (foo!=bar) System.out.printf("here != this.location: foo: %s; bar: %s\n", foo, bar);
     	System.out.printf ("%s from Activity [%d]@%s\n", _greeting, i, here);
     }
 }
