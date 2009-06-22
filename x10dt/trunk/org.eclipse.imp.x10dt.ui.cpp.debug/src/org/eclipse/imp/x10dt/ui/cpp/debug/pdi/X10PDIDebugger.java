@@ -319,6 +319,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
   public void resume(final BitList tasks, final boolean passSignal) throws PDIException {
     try {
       for (final Pair<BitList,IPDTTarget> pair : getAllPDTTargets(tasks)) {
+        notifyOkEvent(pair.fst());
         pair.snd().getTarget().resume();
       }
     } catch (DebugException except) {
