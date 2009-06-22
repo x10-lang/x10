@@ -255,17 +255,20 @@ public class X10CPPTranslator extends Translator {
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
 				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
-				int outputLine = w.currentStream().getLineNumber();
-				// FIXME: Debugger HACK: adjust for loops
-				if (n instanceof For || n instanceof ForLoop)
-					outputLine++;
-				lineNumberMap.put(outputLine, file, line);
-				if (n instanceof MethodDecl) {
-					lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
-				}
-				if (n instanceof ConstructorDecl) {
-					lineNumberMap.addMethodMapping(((ConstructorDecl) n).constructorDef());
-				}
+				// [DC] avoid NPE when writing to .cu files
+				if (lineNumberMap!=null) {
+    				int outputLine = w.currentStream().getLineNumber();
+    				// FIXME: Debugger HACK: adjust for loops
+    				if (n instanceof For || n instanceof ForLoop)
+    					outputLine++;
+    				lineNumberMap.put(outputLine, file, line);
+    				if (n instanceof MethodDecl) {
+    					lineNumberMap.addMethodMapping(((MethodDecl) n).methodDef());
+    				}
+    				if (n instanceof ConstructorDecl) {
+    					lineNumberMap.addMethodMapping(((ConstructorDecl) n).constructorDef());
+    				}
+                }
 			}
 		}
 
@@ -279,10 +282,13 @@ public class X10CPPTranslator extends Translator {
 				HashMap<String, LineNumberMap> fileToLineNumberMap =
 					(HashMap<String, LineNumberMap>) c.findData(FILE_TO_LINE_NUMBER_MAP);
 				LineNumberMap lineNumberMap = fileToLineNumberMap.get(w.getStreamName(w.currentStream().ext));
-				int endLine = n.position().endLine();
-				String file = n.position().file();
-				int outputLine = w.currentStream().getLineNumber();
-				lineNumberMap.put(outputLine, file, endLine);
+                // [DC] avoid NPE when writing to .cu files
+                if (lineNumberMap!=null) {
+    				int endLine = n.position().endLine();
+    				String file = n.position().file();
+    				int outputLine = w.currentStream().getLineNumber();
+    				lineNumberMap.put(outputLine, file, endLine);
+                }
 			}
 		}
 	}
