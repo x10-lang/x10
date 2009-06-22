@@ -42,8 +42,7 @@ public class ParseController extends SimpleLPGParseController {
 	FileSource fileSource= null;
 	try {
 	    PMMonitor my_monitor= new PMMonitor(monitor);
-	    fCompiler= new CompilerDelegate(my_monitor, fProject.getRawProject()); // Create the compiler
-	    fCompiler.getParser().setMessageHandler(getHandler());
+	    fCompiler= new CompilerDelegate(my_monitor, getHandler(), fProject.getRawProject()); // Create the compiler
 	    fileSource= new StringSource(contents, new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString()
 		    : fFilePath.toOSString()), fFilePath.toOSString());
 	    List/*<SourceStream>*/streams= new ArrayList();
