@@ -34,6 +34,7 @@ public class HyperlinkDetector implements ISourceHyperlinkDetector, ILanguageSer
     public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, IParseController parseController) {
 	fParseController= (ParseController) parseController;
 	Node ast= (Node) fParseController.getCurrentAst();
+	if (ast == null) return new IHyperlink[0];
 	// fParseController.getNodeLocator() should do what the following does...
 	IASTNodeLocator locator= new PolyglotNodeLocator(fParseController.getLexer().getLexStream());
 	final Node node= (Node) locator.findNode(ast, region.getOffset());
