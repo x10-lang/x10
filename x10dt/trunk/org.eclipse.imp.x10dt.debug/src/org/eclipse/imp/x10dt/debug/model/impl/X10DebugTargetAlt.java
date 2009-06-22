@@ -134,20 +134,28 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			for (int i = 0; i < threads.length; i++) {
 				JDIThread th = (JDIThread)threads[i];
 				// Works for 1.5, may not work properly for future runtimes
-				if (th.getUnderlyingThread().name().contains("pool")) {
+				try{
+				  if (th.getUnderlyingThread().name().contains("pool")) {
 					found=true;
 					break;
 					//System.out.println("ThreadDeath :Name is "+ th.getUnderlyingThread().name());
 				}
+				} catch (ObjectCollectedException e) {
+					//return false;
+				} catch (VMDisconnectedException exception) {
+					//return false;
+				} 
 			}
 			if (!found) {
-				fThreadForInvokingRTMethods.resume();
-				/*try{
-					System.out.println("DISCONNECTING");
-				    disconnect();
-				} catch (DebugException e){
-					
-				}*/
+				try {
+				   System.out.println("Resuming fThreadForInvokingRTMethods");
+				   fThreadForInvokingRTMethods.resume();
+				} catch (ObjectCollectedException e) {
+					//return false;
+				} catch (VMDisconnectedException exception) {
+					//return false;
+				} 
+				
 			}
 			// bug fix end.
 			return true;
@@ -317,7 +325,8 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 			} else {
 				System.out.println("I am in ModWatchpointHandler!!");
 				jdiThread.disposeStackFrames();
-				jdiThread.fireChangeEvent(DebugEvent.STATE);
+				target.fireChangeEvent(DebugEvent.CONTENT);
+				//jdiThread.fireChangeEvent(DebugEvent.STATE);
 			}
 			return !jdiThread.isSuspended();
 		}
@@ -685,7 +694,7 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 //		for (int i = 0; i < type.length; i++) {
 //			type[i] = JDIType.createType(this, (Type)classes.get(i));
 //		}
-		
+		System.out.println("STRATUM "+typeForRT.defaultStratum());
 		Field RT;
 		RT = ((ClassType)typeForRT).fieldByName("runtime");
 		System.out.println("Shivali: field name is "+ RT.name());
@@ -812,9 +821,10 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		if (isDisconnected()) {
 			return null;
 		}
-		synchronized (fThreads) {
-			fThreads.add(x10Thread);
+		synchronized (fThreads) {   
+			  fThreads.add(x10Thread);
 		}
+		
 		if (thread.name().contains("pool-0")) {
 			Iterator itr = fPlaces.iterator();
 			boolean found=false;
@@ -832,8 +842,8 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 			}	
 			x10place.addActiveActivity(x10Thread);		
 		}
-		
 		x10Thread.fireCreationEvent();
+		 
 		return x10Thread;
 	}
 	
