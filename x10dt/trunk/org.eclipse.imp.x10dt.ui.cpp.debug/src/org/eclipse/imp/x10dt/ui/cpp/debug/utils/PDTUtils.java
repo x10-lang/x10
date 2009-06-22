@@ -94,4 +94,87 @@ public final class PDTUtils {
       (byte)'c', (byte)'d', (byte)'e', (byte)'f'
   };
 
+  /**
+   * Finds a matching bracket/brace/parenthesis, starting at a given position.
+   * If the character at that position is an opening bracket, looks forward, otherwise looks backward.
+   * @param str the string
+   * @param pos starting position
+   * @return the position of a matching bracket, or -1 if none (or if bracket not recognized).
+   */
+  public static int findMatch(final String str, int pos) {
+    boolean forward;
+    char c = str.charAt(pos);
+    char orig = c;
+    char match;
+    switch (orig) {
+    case '[': match = ']'; forward = true; break;
+    case '(': match = ')'; forward = true; break;
+    case '{': match = '}'; forward = true; break;
+    case '<': match = '>'; forward = true; break;
+    case ']': match = '['; forward = false; break;
+    case ')': match = '('; forward = false; break;
+    case '}': match = '{'; forward = false; break;
+    case '>': match = '<'; forward = false; break;
+    default: return -1;
+    }
+    int count = 1;
+    int incr = forward ? 1 : -1;
+    int limit = forward ? str.length() - 1 : 0;
+    for (pos += incr; pos != limit; pos += incr) {
+      c = str.charAt(pos);
+      if (c == orig)
+        count++;
+      if (c == match) {
+        count--;
+        if (count == 0)
+          return pos;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Finds a character, skipping matching bracket/brace/parenthesis, starting at a given
+   * position and going forward.
+   * @param str the string
+   * @param ch the character
+   * @param pos starting position
+   * @return the position of the character, or -1 if none (or if the character is a brace).
+   */
+  public static int indexOfSkipBraces(final String str, final char ch, int pos) {
+    return findSkippingBraces(str, ch, pos, 1, str.length()-1);
+  }
+  
+  /**
+   * Finds a character, skipping matching bracket/brace/parenthesis, starting at a given
+   * position and going backward.
+   * @param str the string
+   * @param ch the character
+   * @param pos starting position
+   * @return the position of the character, or -1 if none (or if the character is a brace).
+   */
+  public static int lastIndexOfSkipBraces(final String str, final char ch, int pos) {
+    return findSkippingBraces(str, ch, pos, -1, 0);
+  }
+  
+  private static int findSkippingBraces(final String str, final char ch, int pos, final int incr, final int limit) {
+    if (isOpeningBrace(ch) || isClosingBrace(ch))
+      return -1;
+    while (pos != limit) {
+      char c = str.charAt(pos);
+      if (c == ch)
+        return pos;
+      if ((isClosingBrace(c) && incr < 0) || (isOpeningBrace(ch) && incr > 0))
+        pos = findMatch(str, pos);
+      else
+        pos += incr;
+    }
+    return -1;
+  }
+  private static boolean isOpeningBrace(char ch) {
+    return "[({<".indexOf(ch) != -1;
+  }
+  private static boolean isClosingBrace(char ch) {
+    return ">})]".indexOf(ch) != -1;
+  }
 }

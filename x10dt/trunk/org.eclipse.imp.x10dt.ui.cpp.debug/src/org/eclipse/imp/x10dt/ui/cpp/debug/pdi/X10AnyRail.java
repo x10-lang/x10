@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 
-import org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
 
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
 import com.ibm.debug.internal.pdt.model.DebuggeeThread;
@@ -43,18 +43,18 @@ public abstract class X10AnyRail extends X10Object {
   public X10AnyRail(final DebuggeeProcess process, final DebuggeeThread thread, final Location location, 
                     final String address, final int elementSize) throws MemoryException {
     super(process, thread, location, address);
-    addField(X10Utils.FMGL("length"), headerSize(), 'i');
+    addField(FMGL("length"), headerSize(), 'i');
     this.elementSize = elementSize;
   }
 
   protected abstract int headerSize();
 
   private int getContentOffset() {
-    return getFieldOffset(X10Utils.FMGL("length")) + INT_SIZE + INT_SIZE;
+    return getFieldOffset(FMGL("length")) + INT_SIZE + INT_SIZE;
   }
 
   public final int getLength() throws MemoryException {
-    return getInt(getFieldOffset(X10Utils.FMGL("length")));
+    return getInt(getFieldOffset(FMGL("length")));
   }
 
   private int retrieveContents() throws MemoryException {

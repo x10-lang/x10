@@ -10,6 +10,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -809,13 +810,24 @@ public final class X10PDIDebugger implements IPDIDebugger {
   private ProxyDebugAIF createDebugProxyAIF(final DebuggeeProcess process, final DebuggeeThread thread,
                                             final Location location, final String expr, final BitList task,
                                             boolean listChildren) throws EngineRequestException, DebugException,
-                                                                         MemoryException, PDIException {
+                                                                         MemoryException, PDIException
+  {
+    System.out.println(expr);
     String base = expr;
     if (listChildren) // Expanding an existing expression
       base = extractBaseExpr(expr);
-    if (base.startsWith("(this).")) // FIXME: pretty useless, because PDT won't evaluate "this->x" anyway
-      base = "this->" + base.substring("(this).".length());
+    int lastDot = -1;
+    while ((lastDot = base.lastIndexOf('.')) != -1) {
+      String ptr = base.substring(0, lastDot);
+      String fld = base.substring(lastDot+1);
+      if (ptr.startsWith("(") && ptr.endsWith(")")) {
+        ptr = ptr.substring(1, ptr.length()-1);
+      }
+      base = ptr + "->" + fld;
+    }
     ExprNodeBase rootNode = evaluateExpression(base, process, thread, location);
+    if (rootNode == null)
+      return new ProxyDebugAIF("?0?", "00", expr);
     final EPDTVarExprType exprType = getExprType(rootNode);
     final String type = rootNode.getReferenceTypeName();
     final String[] desc = getTranslator(task).getStructDescriptor(type);
@@ -933,7 +945,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
         boolean isNull = result.equals(PDTUtils.toHexString(0, 16));
         result = isNull ? "00" : "01" + result;
         // desc[2] = Integer.toString(length-1));
-        desc[2] = "0.." + Integer.toString(length - 1); // we want an inclusive upper bound
+        if (length == 0)
+          desc[2] = null;
+        else
+          desc[2] = "0.." + Integer.toString(length - 1); // we want an inclusive upper bound
       }
     }
     if (exprType == EPDTVarExprType.STRING) {
@@ -1095,8 +1110,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
     ExpressionBase expression = process.monitorExpression(location.getEStdView(), thread.getId(), expr,
                                                           IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram, null, null,
                                                           null, null);
-    if (expression == null)
-    	System.out.println("\tGot null from evaluating '"+expr+"'");
+    if (expression == null) {
+      System.out.println("\tGot null from evaluating '"+expr+"'");
+      return null;
+    }
     return expression.getRootNode();
   }
   
@@ -1138,44 +1155,6 @@ public final class X10PDIDebugger implements IPDIDebugger {
       // TODO
     }
     return expr;
-  }
-  
-  /**
-   * Finds a matching bracket/brace/parenthesis, starting at a given position.
-   * If the character at that position is an opening bracket, looks forward, otherwise looks backward.
-   * @param str the string
-   * @param pos starting position
-   * @return the position of a matching bracket, or -1 if none (or if bracket not recognized).
-   */
-  private int findMatch(final String str, int pos) {
-    boolean forward;
-    char c = str.charAt(pos);
-    char orig = c;
-    char match;
-    switch (orig) {
-    case '[': match = ']'; forward = true; break;
-    case '(': match = ')'; forward = true; break;
-    case '{': match = '}'; forward = true; break;
-    case '<': match = '>'; forward = true; break;
-    case ']': match = '['; forward = false; break;
-    case ')': match = '('; forward = false; break;
-    case '}': match = '{'; forward = false; break;
-    case '>': match = '<'; forward = false; break;
-    default: return -1;
-    }
-    int count = 1;
-    int incr = forward ? 1 : -1;
-    int limit = forward ? str.length() - 1 : 0;
-    for (pos += incr; pos != limit; pos += incr) {
-      if (c == orig)
-        count++;
-      if (c == match) {
-        count--;
-        if (count == 0)
-          return pos;
-      }
-    }
-    return -1;
   }
   
   private void fireResumeEvent(final BitList tasks, final int type) {
@@ -1458,6 +1437,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
       case ARRAY: {
         if (desc == null) // a field of a struct, or an unknown rail
           return "^a8v0";
+        if (desc[2] == null) // 0-length rail
+          return "v0";
         StringBuilder sb = new StringBuilder();
         sb.append("[r").append(desc[2]).append("is4]"); //$NON-NLS-1$//$NON-NLS-2$
         String t = desc[1];

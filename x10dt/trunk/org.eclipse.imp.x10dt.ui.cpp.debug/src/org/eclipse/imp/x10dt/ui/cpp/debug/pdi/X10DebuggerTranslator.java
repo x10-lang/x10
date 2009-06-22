@@ -15,6 +15,10 @@
 package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.indexOfSkipBraces;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.lastIndexOfSkipBraces;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +35,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.IDebuggerTranslator;
 import org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils;
-import org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils;
 import org.eclipse.imp.x10dt.ui.cpp.launch.builder.CpEntryAsStringFunc;
 import org.eclipse.imp.x10dt.ui.cpp.launch.builder.IPathToFileFunc;
 import org.eclipse.imp.x10dt.ui.cpp.launch.builder.RuntimeFilter;
@@ -133,13 +136,19 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
     X10ParsedClassType t = (X10ParsedClassType) loadType(x10Type);
     if (t == null)
       return null;
-    List<FieldInstance> fields = t.fields();
+    // Filter out static fields
+    List<FieldInstance> fields = new ArrayList<FieldInstance>();
+    for (FieldInstance f : t.fields()) {
+      if (!f.flags().isStatic())
+        fields.add(f);
+    }
+    // TODO: allow showing static fields as well
     String[] desc = new String[2 + 2 * fields.size()];
     desc[0] = x10Type;
     desc[1] = Integer.toString(t.interfaces().size());
     int i = 2;
     for (FieldInstance f : fields) {
-      desc[i++] = X10Utils.FMGL(f.name().toString());
+      desc[i++] = FMGL(f.name().toString());
       desc[i++] = Emitter.translateType(f.type(), true);
     }
     return desc;
@@ -471,10 +480,36 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
     }
   }
 
-  private Type loadType(final String x10Type) {
+  private Type loadType(String x10Type) {
     Globals.initialize(fCompiler);
     try {
-      return fTypeSystem.typeForName(QName.make(x10Type));
+      String[] args = null;
+      if (x10Type.contains("[")) {
+        // parse out the type arguments
+        if (x10Type.endsWith("]")) { // the last type is parametric - keep the type arguments
+          int typeArgsEnd = x10Type.length()-1;
+          int typeArgsStart = findMatch(x10Type, typeArgsEnd);
+          String allArgs = x10Type.substring(typeArgsStart+1, typeArgsEnd);
+          x10Type = x10Type.substring(0, typeArgsStart);
+          ArrayList<String> a = new ArrayList<String>();
+          for (int c = indexOfSkipBraces(allArgs, ',', 0); c != -1; c = indexOfSkipBraces(allArgs, ',', c)) {
+            a.add(allArgs.substring(0, c));
+            allArgs = allArgs.substring(c+1).trim();
+          }
+          a.add(allArgs);
+          args = a.toArray(new String[a.size()]);
+        }
+        // TODO: parse out all other braces from x10Type
+      }
+      Type loadedType = fTypeSystem.typeForName(QName.make(x10Type));
+      if (args != null) {
+        ArrayList<Type> params = new ArrayList<Type>();
+        for (int i = 0; i < args.length; i++) {
+		  params.add(loadType(args[i]));
+        }
+        loadedType = ((X10ParsedClassType)loadedType).typeArguments(params);
+      }
+      return loadedType;
     } catch (SemanticException except) {
       DebugCore.log(IStatus.ERROR, "Unable to load type " + x10Type, except);
     }
