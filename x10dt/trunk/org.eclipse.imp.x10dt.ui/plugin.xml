@@ -180,4 +180,11 @@
             id="x10.uide.perspective"
             name="X10"/>
    </extension>
+   <extension
+         point="org.eclipse.uide.runtime.refactoringContributions">
+      <refactoringContributor
+            class="safari.X10.refactoring.RefactoringContributor"
+            language="X10">
+      </refactoringContributor>
+   </extension>
 </plugin>
