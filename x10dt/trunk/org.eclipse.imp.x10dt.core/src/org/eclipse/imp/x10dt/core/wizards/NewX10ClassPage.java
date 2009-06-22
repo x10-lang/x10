@@ -292,6 +292,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
 	if (!pkgFrag.isDefaultPackage())
 	    buff.append("package " + pkgFrag.getElementName() + ";\n\n");
+	buff.append("import x10.io.Console;\n");
 	buff.append("public class " + typeName);
 	if (superClass != null && superClass.length() > 0 && !superClass.equals("x10.lang.Object"))
 	    buff.append(" extends " + superClass);
@@ -307,10 +308,10 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	buff.append(" {\n");
         if (createMain) {
             buff.append("    public static def main(var args: Rail[String]): void = {\n");
-            buff.append("         System.out.println(\"Hello X10 world\");\n");
+            buff.append("         Console.OUT.println(\"Hello X10 world\");\n");
             buff.append("         var h :Hello = new Hello();\n");
             buff.append("         var myBool:boolean = h.myMethod();\n");
-            buff.append("         System.out.println(\"The answer is: \"+myBool);\n");
+            buff.append("         Console.OUT.println(\"The answer is: \"+myBool);\n");
             buff.append("    }\n");
         }
         if (createConstructors) {
