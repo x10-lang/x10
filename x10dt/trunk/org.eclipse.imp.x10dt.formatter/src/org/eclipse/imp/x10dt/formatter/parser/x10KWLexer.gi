@@ -4,7 +4,7 @@
 %Options list
 %Options fp=X10KWLexer
 %options package=org.eclipse.imp.x10dt.formatter.parser
-%options template=KeywordTemplate.gi
+%options template=KeywordTemplateF.gi
 
 %Notice
 /.
