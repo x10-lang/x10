@@ -1,7 +1,7 @@
 /*
  * Created on Feb 8, 2006
  */
-package x10.uide;
+package x10.uide.editor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
