@@ -39,7 +39,7 @@
             id="com.ibm.watson.safari.x10.wizards.NewX10ClassWizard"
             name="X10 Class"/>
       <wizard
-            canFinishEarly="true"
+            canFinishEarly="false"
             category="com.ibm.watson.safari.x10"
             class="com.ibm.watson.safari.x10.wizards.X10ProjectWizard"
             hasPages="true"
