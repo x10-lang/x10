@@ -1024,11 +1024,13 @@ public final class X10PDIDebugger implements IPDIDebugger {
             break;
           }
         }
-        if (num == 0)
+        if (num == 0) {
           result = "v0";
-        else
+          desc[2] = null;
+        } else {
           result = sb.toString();
-        desc[2] = Integer.toString(offset) + ".." + Integer.toString(offset + num - 1); // we want an inclusive upper bound
+          desc[2] = Integer.toString(offset) + ".." + Integer.toString(offset + num - 1); // we want an inclusive upper bound
+        }
       } else {
         if (result.startsWith("0x"))
           result = result.substring(2);
