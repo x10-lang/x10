@@ -189,7 +189,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	if (!pkgFrag.isDefaultPackage())
 	    buff.append("package " + pkgFrag.getElementName() + ";\n\n");
 	buff.append("public class " + typeName);
-	if (superClass != null && superClass.length() > 0)
+	if (superClass != null && superClass.length() > 0 && !superClass.equals("x10.lang.Object"))
 	    buff.append(" extends " + superClass);
 	if (superIntfs.size() > 0) {
 	    buff.append(" implements ");
