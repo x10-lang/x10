@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt"
       label="%featureName"
-      version="3.2.67"
+      version="3.2.68"
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
@@ -21,42 +21,42 @@
    <requires>
       <import feature="polyglot" version="2.3.0" match="greaterOrEqual"/>
       <import feature="lpg.runtime" version="2.0.8"/>
-      <import feature="org.eclipse.imp.runtime" version="3.2.67"/>
+      <import feature="org.eclipse.imp.runtime" version="3.2.68"/>
    </requires>
 
    <plugin
          id="x10.compiler"
          download-size="910"
          install-size="910"
-         version="1.0.67"
+         version="1.0.68"
          unpack="false"/>
 
    <plugin
          id="x10.runtime"
          download-size="319"
          install-size="319"
-         version="1.0.67"
+         version="1.0.68"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.core"
          download-size="68"
          install-size="68"
-         version="1.0.67"
+         version="1.0.68"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.ui"
          download-size="115"
          install-size="115"
-         version="1.0.67"
+         version="1.0.68"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt"
          download-size="2"
          install-size="2"
-         version="3.2.67"
+         version="3.2.68"
          unpack="false"/>
 
 </feature>
