@@ -23,8 +23,11 @@
  X10 supports a special indexical constant<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> "here":
 
 <div class="p"><!----></div>
-ExpressionName &nbsp;"here" <br />
-
+<em>  
+<table>
+<tr><td align="right">ExpressionName &nbsp;::=&nbsp; <tt>here</tt> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 The constant evaluates to the place at which the current activity is
@@ -37,18 +40,18 @@ should be independent of the activity accessing it.
 <b>Example.&nbsp;&nbsp;</b>
 The code:
 <pre>
-public class F 
-  public def m(a: F) 
+public class F {
+  public def m(a: F) { 
     val OldHere: place = here;
-    async (a) 
-      Console.OUT.println(&#214;ldHere == here:" 
+    async (a) {
+      Console.OUT.println("OldHere == here:" 
                           + (OldHere == here));
-    
-  
-  public static void main(s: array[String]) 
+    }
+  }
+  public static void main(s: array[String]) { 
     new F().m( (future(Place.FIRST_PLACE.next()) new F())() );
-  
-  
+  }
+}  
 </pre>
  will print out "true" iff the computation was configured
 to start with the number of places set to "1". 

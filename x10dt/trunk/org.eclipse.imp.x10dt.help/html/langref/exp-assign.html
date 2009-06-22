@@ -22,25 +22,28 @@
 </a>
 
 <div class="p"><!----></div>
-Expression &nbsp;Assignment <br />
-Assignment &nbsp;SimpleAssignment <br />
-           \ -  OpAssignment <br />
-SimpleAssignment &nbsp;LeftHandSide "=" Expression <br />
-OpAssignment &nbsp;LeftHandSide "+=" Expression <br />
-             &nbsp;LeftHandSide "-=" Expression <br />
-             &nbsp;LeftHandSide "*=" Expression <br />
-             &nbsp;LeftHandSide "/=" Expression <br />
-             &nbsp;LeftHandSide "             &nbsp;LeftHandSide "</td><td width="150">
-=" Expression <br />
-             &nbsp;LeftHandSide =" Expression <br />
-             &nbsp;LeftHandSide "^=" Expression <br />
-             &nbsp;LeftHandSide &#171;&lt;=" Expression <br />
-             &nbsp;LeftHandSide &#187;&#62;=" Expression <br />
-             &nbsp;LeftHandSide &#187;&#62;&#62;=" Expression <br />
-LeftHandSide &nbsp;Identifier <br />
-             \ -  Primary "." Identifier <br />
-             \ -  Primary "(" Expression ")" <br />
-
+<em>  
+<table>
+<tr><td align="right">Expression &nbsp;::=&nbsp; Assignment </td></tr>
+<tr><td align="right">Assignment &nbsp;::=&nbsp; SimpleAssignment </td></tr>
+<tr><td align="right"> |  OpAssignment </td></tr>
+<tr><td align="right">SimpleAssignment &nbsp;::=&nbsp; LeftHandSide = Expression </td></tr>
+<tr><td align="right">OpAssignment &nbsp;::=&nbsp; LeftHandSide += Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide -= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide *= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide /= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide %= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide &= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide |= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide ^= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide &lt;&lt;= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide &gt;&gt;= Expression </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LeftHandSide &#62;&#62;&#62;= Expression </td></tr>
+<tr><td align="right">LeftHandSide &nbsp;::=&nbsp; Identifier </td></tr>
+<tr><td align="right"> |  Primary . Identifier </td></tr>
+<tr><td align="right"> |  Primary ( Expression ) </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 
@@ -58,9 +61,9 @@ In the last case, &#228;" must be an instance of a class implementing the interf
 This interface is defined thus:
 <pre>
 package x10.lang;
-public interface Settable[S,T] 
+public interface Settable[S,T] {
     def set[S,T](i: S, v: T): T;
-
+}
 </pre>
 The assignment &#228;(i) = e" is equivalent to the call
 &#228;.set(i, e)".

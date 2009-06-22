@@ -21,11 +21,16 @@
 14</a>&nbsp;&nbsp;Try-catch statement</h2>
 
 <div class="p"><!----></div>
-Statement &nbsp;TryStatement <br />
-TryStatement &nbsp;"try" BlockStatement Catch Finally <br />
-             \ -  "try" BlockStatement Catch Finally <br />
-Catch &nbsp;"catch" "(" Formal ")" BlockStatement <br />
-Finally &nbsp;"finally" BlockStatement <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; TryStatement </td></tr>
+<tr><td align="right">TryStatement &nbsp;::=&nbsp; <tt>try</tt> BlockStatement Catch<sup>+</sup>&nbsp;Finally<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"> |  <tt>try</tt> BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
+<tr><td align="right">Catch &nbsp;::=&nbsp; <tt>catch</tt> ( Formal ) BlockStatement </td></tr>
+<tr><td align="right">Finally &nbsp;::=&nbsp; <tt>finally</tt> BlockStatement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
 
 
 <div class="p"><!----></div>

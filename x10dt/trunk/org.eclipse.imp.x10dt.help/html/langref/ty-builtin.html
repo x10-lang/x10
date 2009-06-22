@@ -100,22 +100,22 @@ commonly implemented in hardware by modern computers.
 package x10.lang;
 
 <div class="p"><!----></div>
-public value Boolean  
+public value Boolean  {  }
 
 <div class="p"><!----></div>
-public abstract value Number  
-public abstract value Integer extends Number  
+public abstract value Number {  } 
+public abstract value Integer extends Number {  } 
 
 <div class="p"><!----></div>
-public value Byte extends Integer   
-public value Short extends Integer  
-public value Int extends Integer    
-public value Char extends Integer   
-public value Long extends Integer   
+public value Byte extends Integer   {  }  
+public value Short extends Integer  {  }
+public value Int extends Integer    {  }
+public value Char extends Integer   {  }
+public value Long extends Integer   {  }
 
 <div class="p"><!----></div>
-public value Float extends Number   
-public value Double extends Number  
+public value Float extends Number   {  }
+public value Double extends Number  {  }
 </pre>
 
 <div class="p"><!----></div>
@@ -166,7 +166,7 @@ permitting assignment to an array element using the syntax
 <div class="p"><!----></div>
  X10 also supports dependent types for arrays,
 e.g.,
-&#196;rray[Double]rank==3" is the type of all arrays of 
+&#196;rray[Double]{rank==3}" is the type of all arrays of 
 "Double" of rank "3".
 The &#196;rray" class has distribution, region, and rank
 properties. 
@@ -176,9 +176,9 @@ region, or rank to be specified with on the array type.
 <div class="p"><!----></div>
 <pre>
 package x10.lang;
-type Array[T](n: Int) = Array[T]rank==n;
-type Array[T](d: Dist) = Array[T]dist==d;
-type Array[T](r: Region) = Array[T]region==r;
+type Array[T](n: Int) = Array[T]{rank==n};
+type Array[T](d: Dist) = Array[T]{dist==d};
+type Array[T](r: Region) = Array[T]{region==r};
 </pre>
 
 <div class="p"><!----></div>
@@ -217,11 +217,11 @@ The type represents a value which when forced will return a value of type
 <div class="p"><!----></div>
 <pre>
 package x10.lang;
-public interface Future[T] implements () =&#62; T 
+public interface Future[T] implements () =&#62; T {
   public def apply(): T;
   public def force(): T;
   public def forced(): Boolean;
-
+}
 </pre>
 
 <div class="p"><!----></div>

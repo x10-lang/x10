@@ -79,7 +79,7 @@ parameters of type "T".
 <div class="p"><!----></div>
 Consider the following method:
 <pre>
-def choose[T](a: T, b: T): T  ... 
+def choose[T](a: T, b: T): T { ... }
 </pre>
 Given "Set[T] &lt;: Collection[T]"
 and "List[T] &lt;: Collection[T]",
@@ -101,7 +101,7 @@ Finally, in this snippet, the algorithm should infer the type
 "CollectionT &lt;: Number" for "z".
 <pre>
 intSet: Set[Int];
-numList: ListT &lt;: Number;
+numList: List{T &lt;: Number};
 val z = choose(intSet, numList);
 </pre>
 
@@ -137,7 +137,7 @@ def unmodifiableSet[T](set: Set[T]): Set[T];
 Using desugared syntax, the method is
 equivalent to: 
 <pre>
-def unmodifiableSet[T](set: Setself.T==T): Setself.T==T;
+def unmodifiableSet[T](set: Set{self.T==T}): Set{self.T==T};
 </pre>
 Any "Set" can be passed in: for an argument &#235;", the method
 is instantiated on &#235;.T".

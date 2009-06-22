@@ -34,36 +34,35 @@ Each such declaration introduces a class
 type ().
 
 <div class="p"><!----></div>
-NormalClassDeclaration &nbsp;
-      ClassModifiers "class" Identifier  <br />
-   </td><td width="150">
-</td><td width="150">
- TypeParameterList PropertyList Guard <br />
-   </td><td width="150">
-</td><td width="150">
- Super Interfaces ClassBody <br />
-<br />
-TypeParameterList     &nbsp;"[" TypeParameters "]" <br />
-TypeParameters        &nbsp;TypeParameter ( "," Typearameter ) <br />
-TypeParameter         &nbsp;Variance Annotation Identifier     <br />
-Variance &nbsp;"+" <br />
-         </td><td width="150">
-</td><td width="150">
- "-" <br />
-<br />
-PropertyList     &nbsp;"(" Properties ")" <br />
-Properties       &nbsp;Property ( "," Property ) <br />
-Property         &nbsp;Annotation "val" Identifier ":" Type <br />
-<br />
-Super &nbsp;&#235;xtends" ClassType <br />
-Interfaces &nbsp;&#239;mplements" InterfaceType ( "," InterfaceType) <br />
-<br />
-ClassBody &nbsp;ClassMember <br />
-ClassMember &nbsp;ClassDeclaration <br />
-            \ -  InterfaceDeclaration <br />
-            \ -  FieldDeclaration <br />
-            \ -  MethodDeclaration <br />
-            \ -  ConstructorDeclaration <br />
+<em>  
+<table>
+<tr><td align="right">NormalClassDeclaration &nbsp;::=&nbsp; 
+      ClassModifiers<sup>?</sup>&nbsp;<tt>class</tt> Identifier  </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>TypeParameterList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>Super<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
+<tr><td align="right"></td></tr>
+<tr><td align="right">TypeParameterList &nbsp;::=&nbsp; [ TypeParameters ] </td></tr>
+<tr><td align="right">TypeParameters    &nbsp;::=&nbsp; TypeParameter ( , Typearameter )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">TypeParameter     &nbsp;::=&nbsp; Variance<sup>?</sup>&nbsp;Annotation<sup>*</sup>&nbsp;Identifier     </td></tr>
+<tr><td align="right">Variance  &nbsp;::=&nbsp; "+" </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>"-" </td></tr>
+<tr><td align="right"></td></tr>
+<tr><td align="right">PropertyList      &nbsp;::=&nbsp; ( Properties ) </td></tr>
+<tr><td align="right">Properties        &nbsp;::=&nbsp; Property ( , Property )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">Property          &nbsp;::=&nbsp; Annotation<sup>*</sup>&nbsp;<tt>val</tt><sup>?</sup>&nbsp;Identifier ":" Type </td></tr>
+<tr><td align="right"></td></tr>
+<tr><td align="right">Super  &nbsp;::=&nbsp; <tt>&#235;xtends</tt> ClassType </td></tr>
+<tr><td align="right">Interfaces  &nbsp;::=&nbsp; <tt>&#239;mplements</tt> InterfaceType ( , InterfaceType)<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr>
+<tr><td align="right">ClassBody  &nbsp;::=&nbsp; ClassMember<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ClassMember  &nbsp;::=&nbsp; ClassDeclaration </td></tr>
+<tr><td align="right"> |  InterfaceDeclaration </td></tr>
+<tr><td align="right"> |  FieldDeclaration </td></tr>
+<tr><td align="right"> |  MethodDeclaration </td></tr>
+<tr><td align="right"> |  ConstructorDeclaration </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
 
 
 <div class="p"><!----></div>
@@ -97,7 +96,7 @@ public val x : T;
 
 <div class="p"><!----></div>
 <pre>
-public final def x(): T  return x; 
+public final def x(): T { return x; }
 </pre>
 
 <div class="p"><!----></div>

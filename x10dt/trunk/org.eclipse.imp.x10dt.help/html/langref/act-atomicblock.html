@@ -37,9 +37,13 @@ The simplest form of an atomic block is the <em>unconditional
 atomic block</em>:
 
 <div class="p"><!----></div>
-Statement &nbsp;AtomicStatement <br />
-AtomicStatement &nbsp;&#228;tomic"  Statement <br />
-MethodModifier &nbsp;&#228;tomic" <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; AtomicStatement </td></tr>
+<tr><td align="right">AtomicStatement &nbsp;::=&nbsp; <tt>atomic</tt>  Statement </td></tr>
+<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>atomic</tt> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -100,16 +104,10 @@ that point in the code ().
 Note an important property of an (unconditonal) atomic block:
 
 <div class="p"><!----></div>
-
-<br clear="all" /><table border="0" width="100%"><tr><td>
-<table border="0" cellspacing="0" cellpadding="0">
- <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
- \xcd&#228;<span class="roman">tomic</span> <span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">atomic</span> <span class="roman">s</span><span class="roman">2</span>" </td></tr></table></td><td nowrap="nowrap" align="left">
-<table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
-=</td></tr></table></td><td nowrap="nowrap" align="left">
-<table><tr><td nowrap="nowrap" align="right" colspan="1">\xcd&#228;<span class="roman">tomic</span> <span class="roman">s</span><span class="roman">1</span><span class="roman">;</span> <span class="roman">s</span><span class="roman">2</span>"</td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
+<pre>
+atomic s1; atomic s2 = atomic s1; s2 (14.1)
 </td></tr></table>
-
+</pre>
 
 
 <div class="p"><!----></div>
@@ -126,13 +124,13 @@ The following class method implements a (generic) compare and swap (CAS) operati
 <div class="p"><!----></div>
 <pre>
 // target defined in lexically enclosing environment.
-public atomic def CAS(old: Object, new: Object): Boolean 
-   if (target.equals(old)) 
+public atomic def CAS(old: Object, new: Object): Boolean {
+   if (target.equals(old)) {
      target = new;
      return true;
-   
+   }
    return false;
-
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -143,10 +141,13 @@ public atomic def CAS(old: Object, new: Object): Boolean
 Conditional atomic blocks are of the form:
 
 <div class="p"><!----></div>
-Statement &nbsp;WhenStatement <br />
-WhenStatement &nbsp;"when" "(" Expression ")" Statement <br />
-            \ -  WhenStatement &#246;r" "(" Expression ")" Statement <br />
-
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; WhenStatement </td></tr>
+<tr><td align="right">WhenStatement &nbsp;::=&nbsp; <tt>when</tt> ( Expression ) Statement </td></tr>
+<tr><td align="right"> |  WhenStatement <tt>or</tt> ( Expression ) Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 In such a statement the one or more expressions are called <em>
@@ -184,7 +185,7 @@ replacement for  java's wait/notify functionality.
 <div class="p"><!----></div>
 We note two common abbreviations. The statement "when (true) S" is
 behaviorally identical to &#228;tomic S": it never suspends. Second,
-"when (c) ;" may be abbreviated to &#228;wait(c);"-it
+"when (c) {;}" may be abbreviated to &#228;wait(c);"-it
 simply indicates that the thread must await the occurrence of a
 certain condition before proceeding.  Finally note that a "when"
 statement with multiple branches is behaviorally identical to a
@@ -233,24 +234,24 @@ receiver.
 
 <div class="p"><!----></div>
 <pre>
-class OneBuffer 
+class OneBuffer {
   datum: Object = null;
   filled: Boolean = false;
-  public def send(v: Object) 
-    when (!filled) 
+  public def send(v: Object) { 
+    when (!filled) {
       this.datum = v;
       this.filled = true;
-    
-  
-  public def receive(): Object 
-    when (filled) 
+    }
+  }
+  public def receive(): Object { 
+    when (filled) {
       v: Object = datum;
       datum = null;
       filled = false;
       return v;
-    
-  
-
+    }
+  }
+}
 </pre>
 
 

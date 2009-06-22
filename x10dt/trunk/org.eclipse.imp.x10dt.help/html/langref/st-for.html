@@ -21,18 +21,22 @@
 12</a>&nbsp;&nbsp;For statement</h2>
 
 <div class="p"><!----></div>
-Statement &nbsp;ForStatement <br />
-          \ -  EnhancedForStatement <br />
-ForStatement &nbsp;"for" "("
-        ForInit ";" Expression ";" ForUpdate
-        ")" Statement <br />
-ForInit &nbsp;
-        StatementExpression ( "," StatementExpression )
-        <br />
-      \ -  LocalVariableDeclaration <br />
-EnhancedForStatement &nbsp;"for" "("
-        Formal &#239;n" Expression 
-        ")" Statement <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; ForStatement </td></tr>
+<tr><td align="right"> |  EnhancedForStatement </td></tr>
+<tr><td align="right">ForStatement &nbsp;::=&nbsp; <tt>for</tt> (
+        ForInit<sup>?</sup>&nbsp;; Expression<sup>?</sup>&nbsp;; ForUpdate<sup>?</sup>&nbsp;
+) Statement </td></tr>
+<tr><td align="right">ForInit &nbsp;::=&nbsp;
+        StatementExpression ( , StatementExpression )<sup>*</sup>&nbsp;
+</td></tr>
+<tr><td align="right"> | LocalVariableDeclaration </td></tr>
+<tr><td align="right">EnhancedForStatement &nbsp;::=&nbsp; <tt>for</tt> (
+        Formal <tt>in</tt> Expression 
+        ) Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>

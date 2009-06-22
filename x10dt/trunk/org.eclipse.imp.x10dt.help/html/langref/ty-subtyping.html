@@ -61,27 +61,27 @@ and "T1" is a subtype of "T2".
 <b>Constrained types.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-Two dependent types "Cc" and "Cd" are said to be <em>equivalent</em> if 
+Two dependent types "C{c}" and "C{d}" are said to be <em>equivalent</em> if 
 "c" is true whenever "d" is, and vice versa. Thus, 
-\relax[[]] = \relax[[]].
+<relax>[[C{c}]]<\relax> = <relax>[[C{d}]]</relax>.
 
 <div class="p"><!----></div>
 Note that two dependent type that are syntactically different may be
-equivalent. For instance, &#207;ntself &#62;= 0" and
-&#207;ntself == 0  -  -  self &#62; 0" are equivalent though they are syntactically
+equivalent. For instance, &#207;nt{self &#62;= 0}" and
+&#207;nt{self == 0  ||  self &#62; 0}" are equivalent though they are syntactically
 distinct. The  Java type system is essentially a nominal system-two
 types are the same if and only if they have the same name. The  X10
 type system extends the nominal type system of  Java to permit
 constraint-based equivalence.
 
 <div class="p"><!----></div>
-A dependent type "Cc" is a subtype of a type "Cd" if
+A dependent type "C{c}" is a subtype of a type "C{d}" if
 "c" implies "d".  In such a case we have
-\relax[[]] is a
-subset of \relax[[]]. All dependent types
+<relax>[[C{c}]]</relax> is a
+subset of <relax>[[C{d}]]</relax>. All dependent types
 defined on a class "C"
 refine the unconstrained class type "C"; "C" is
-equivalent to "Ctrue".
+equivalent to "C{true}".
 
 <div class="p"><!----></div>
 
@@ -89,7 +89,7 @@ equivalent to "Ctrue".
 
 <div class="p"><!----></div>
 A path type "p.X" is a subtype of a type "T" if
-"p" has type "Cc" (where "C" has a type member
+"p" has type "C{c}" (where "C" has a type member
 "X") and "c" implies that &#223;elf.X" is a subtype of "T".
 
 <div class="p"><!----></div>

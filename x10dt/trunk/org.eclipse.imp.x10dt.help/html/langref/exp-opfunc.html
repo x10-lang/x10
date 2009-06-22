@@ -31,9 +31,13 @@ each type on which the operator is defined. The function can be
 selected using the "." syntax:
 
 <div class="p"><!----></div>
-OperatorFunction
-        &nbsp;TypeName "." Operator "(" Formals ")" <br />
-        \ -  TypeName "." Operator <br />
+<em>  
+<table>
+<tr><td align="right">OperatorFunction
+        &nbsp;::=&nbsp; TypeName . Operator ( Formals<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right"> |  TypeName . Operator </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -44,6 +48,7 @@ default.
 For example, the following equivalences hold:
 
 <div class="p"><!----></div>
+<pre>
 String.+              <font face="symbol">º</font
 >  (x: String, y: String): String =&#62; x + y
 Long.-                <font face="symbol">º</font
@@ -52,17 +57,15 @@ Float.-(Float,Float)  <font face="symbol">º</font
 >  (x: Float, y: Float): Int =&#62; x - y
 Int.-(Int)            <font face="symbol">º</font
 >  (x: Int): Int =&#62; -x
-Boolean.</td><td width="150">
-             <font face="symbol">º</font
->  (x: Boolean, y: Boolean): Boolean =&#62; x </td><td width="150">
- y
+Boolean.&             <font face="symbol">º</font
+>  (x: Boolean, y: Boolean): Boolean =&#62; x & y
 Boolean.!             <font face="symbol">º</font
 >  (x: Boolean): Boolean =&#62; !x
 Int.&lt;(Int,Int)        <font face="symbol">º</font
 >  (x: Int, y: Int): Boolean =&#62; x &lt; y
-Dist. - (Place)         <font face="symbol">º</font
->  (d: Dist, p: Place): Dist =&#62; d  -  p
-
+Dist.|(Place)         <font face="symbol">º</font
+>  (d: Dist, p: Place): Dist =&#62; d  |  p
+</pre>
 
 <div class="p"><!----></div>
 Unary and binary promotion () is not performed
@@ -78,13 +81,16 @@ defined by:
 
 <div class="p"><!----></div>
 <pre>
-(x: T): T =&#62;  e OP x 
+(x: T): T =&#62; { e OP x } 
 </pre>
 
 <div class="p"><!----></div>
-Primary &nbsp;Expr "." Operator "(" Formals ")" <br />
-        \ -  Expr "." Operator <br />
-
+<em>  
+<table>
+<tr><td align="right">Primary &nbsp;::=&nbsp;Expr . Operator ( Formals<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right"> |  Expr . Operator </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 For every expression &#235;" of a type "T" at which a unary
@@ -93,7 +99,7 @@ represents the function defined by:
 
 <div class="p"><!----></div>
 <pre>
-(): T =&#62;  OP e 
+(): T =&#62; { OP e }
 </pre>
 
 <div class="p"><!----></div>

@@ -28,12 +28,15 @@ Chapter 1 </a><br />Names and packages</h1>
 and package-specific access control.
 
 <div class="p"><!----></div>
-TypeName   &nbsp;Identifier <br />
-        \ -  TypeName "." Identifier <br />
-        \ -  PackageName "." Identifier <br />
-PackageName   &nbsp;Identifier <br />
-        \ -  PackageName "." Identifier <br />
-
+<em>  
+<table>
+<tr><td align="left">TypeName   &nbsp;::=&nbsp; Identifier </td></tr>
+<tr><td align="right"> |  TypeName . Identifier </td></tr>
+<tr><td align="right"> |  PackageName . Identifier </td></tr>
+<tr><td align="left">PackageName &nbsp;::=&nbsp; Identifier </td></tr>
+<tr><td align="right"> | PackageName . Identifier </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc1">

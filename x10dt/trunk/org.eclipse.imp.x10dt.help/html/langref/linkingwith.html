@@ -56,7 +56,12 @@ Second, the  X10 programmer may specify that certain methods are to
 be implemented natively by using the modifier &#235;xtern":
 
 <div class="p"><!----></div>
-   MethodModifier &nbsp;&#235;xtern"
+<em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>extern</tt>
+</td></tr></table>
+</em>
+
 
 
 <div class="p"><!----></div>
@@ -103,52 +108,52 @@ adding a
 The following class illustrates the use of &#252;nsafe" and native
 linking. 
 <pre>
-public class IntArrayExternUnsafe 
+public class IntArrayExternUnsafe {
   public static extern 
       def process(yy: unsafe Rail[Int], size: Int);
-  static  System.loadLibrary(&#207;ntArrayExternUnsafe"); 
-  public static def main(args: Rail[String]) 
+  static { System.loadLibrary("IntArrayExternUnsafe"); } 
+  public static def main(args: Rail[String]) {
      val b = (new IntArrayExternUnsafe()).run();
      Console.OUT.println("++++++ Test "
-                         +(b?&#223;ucceeded.":"failed."));
+                         +(b?"succeeded.":"failed."));
      System.exit(b?0:1);
-  
-  public def run() : Boolean 
+  } 
+  public def run() : Boolean { 
     val high = 10;
     val d = (0..high) -&#62; here;
     val y: Array[Int] = Array.makeUnsafe[Int](d);
-    for (val (j) in y.region) 
+    for (val (j) in y.region) { 
         y(j) = j;
     process(y,high);
-    for (val (j) in y.region) 
+    for (val (j) in y.region) {
       val expected = j+100;
-      if(y(j) != expected) 
-        Console.OUT.println(&#255;("+j+")="
+      if(y(j) != expected) {
+        Console.OUT.println("y("+j+")="
                            +y(j)+" != "+expected);
         return false;
-       
-    
+      } 
+    }
     return true;
-  
-
+  }
+}
 </pre>
 
 <div class="p"><!----></div>
 The programmer may then write the <tt>C</tt> code thus:
 <pre>
-void IntArrayExternUnsafe_process(jlong yy, signed int size) 
+void IntArrayExternUnsafe_process(jlong yy, signed int size) { 
   int i;
   int* array = (int*) (long) yy;
-  for (i = 0; i &lt; size; i++) 
+  for (i = 0; i &lt; size; i++) {
     array[i] += 100;
-  
-
+  }
+}
 /* automatically generated in C_x10stub.c */
 void 
 Java_IntArrayExternUnsafe_IntArrayExternUnsafe_process
-(JNIEnv *env, jobject obj, jlong yy, jint size) 
+(JNIEnv *env, jobject obj, jlong yy, jint size) {
    IntArrayExternUnsafe_process(yy, size);
-
+}
 </pre>
 
 <div class="p"><!----></div>

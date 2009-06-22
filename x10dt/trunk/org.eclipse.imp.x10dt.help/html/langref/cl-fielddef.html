@@ -39,45 +39,49 @@ be <em>guarded</em> with a constraint.  The field is accessible
 only if the <em>guard</em> constraint is satisified.
 
 <div class="p"><!----></div>
-FieldDeclaration  &nbsp;
-   FieldModifiers "val" VariableDeclarators ";" <br />
-   \ - 
-   FieldModifiers "var" VariableDeclarators ";" <br />
-VariableDeclarators &nbsp;
-        VariableDeclarator ( "," VariableDeclarator ) <br />
-VariableDeclarator &nbsp;
-   Identifier ( Constraint ) ( ":" Type ) ( "=" Expression ) <br />
+<em>  
+<table>
+<tr><td align="right">FieldDeclaration  &nbsp;::=&nbsp; 
+   FieldModifiers<sup>?</sup> &nbsp; <tt>val</tt> VariableDeclarators ; </td></tr>
+<tr><td align="right"> | 
+   FieldModifiers<sup>?</sup> &nbsp;<tt>var</tt> VariableDeclarators ; </td></tr>
+<tr><td align="right">VariableDeclarators &nbsp;::=&nbsp;
+        VariableDeclarator ( , VariableDeclarator )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">VariableDeclarator  &nbsp;::=&nbsp; 
+   Identifier ( Constraint )<sup>?</sup>&nbsp;( : Type )<sup>?</sup>&nbsp;( = Expression )<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
 It is illegal for code to access a guarded field through a reference
 whose static type does not satisfy the associated guard, even
 implicitly (i.e., through an implicit "this"). Rather the source
-program should contain an explict cast, e.g., "me: Cc = this as Cc".
+program should contain an explict cast, e.g., "me: C{c} = this as C{c}".
 
 <div class="p"><!----></div>
 Let "f" be a field defined in class
 "C" with guard "c".  The compiler declares an error if
 field "f" is accessed through a reference &#246;" whose static
-type is not a subtype of "Cc".
+type is not a subtype of "C{c}".
 
 
 <div class="p"><!----></div>
 We may now rewrite the List example:
 <pre>
-public class List(n: Intn&#62;=0) 
-  protected val headn&#62;0: Object;
-  protected val tailn&#62;0: List(n-1);
-  public def this(o: Object, t: List): List(t.n+1) 
+public class List(n: Int{n&#62;=0}) { 
+  protected val head{n&#62;0}: Object;
+  protected val tail{n&#62;0}: List(n-1);
+  public def this(o: Object, t: List): List(t.n+1) { 
      property(t.n+1);
      head=o;
      tail=t;
-  
-  public def this(): List(0) 
+  }
+  public def this(): List(0) { 
      property(0);
-  
+  }
   ...
-
+}
 </pre>
 
 <div class="p"><!----></div>

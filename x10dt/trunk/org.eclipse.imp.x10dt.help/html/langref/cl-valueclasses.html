@@ -42,14 +42,14 @@ compiler allows the programmer to omit the keyword "class" after
 " value" in a value class declaration.
 
 <div class="p"><!----></div>
-ValueClassDeclaration &nbsp;
-      ClassModifiers "value" "class" Identifier  <br />
-   </td><td width="150">
-</td><td width="150">
- TypePropertyList PropertyList Guard <br />
-   </td><td width="150">
-</td><td width="150">
- Super Interfaces ValueClassBody <br />
+<em>  
+<table>
+<tr><td align="right">ValueClassDeclaration &nbsp;::=&nbsp; 
+      ClassModifiers<sup>?</sup>&nbsp;<tt>value class </tt><sup>?</sup>&nbsp;Identifier  </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>TypePropertyList<sup>?</sup>&nbsp;PropertyList<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>Super<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ValueClassBody </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -105,50 +105,50 @@ A functional "LinkedList" program may be written as follows:
 
 <div class="p"><!----></div>
 <pre>
-value LinkedList  
+value LinkedList { 
   val first: Object;
   val rest: LinkedList;
-  public def this(first: Object) 
+  public def this(first: Object) { 
      this(first, null);
-  
-  public def this(first: Object, rest: LinkedList) 
+  }
+  public def this(first: Object, rest: LinkedList) { 
     this.first = first;
     this.rest = rest;
-  
-  public def first(): Object 
+  }
+  public def first(): Object { 
     return first;
-  
-  public def rest(): LinkedList 
+  }
+  public def rest(): LinkedList { 
     return rest;
-   
-  public def append(l: LinkedList): LinkedList 
+  } 
+  public def append(l: LinkedList): LinkedList { 
     return (this.rest == null) 
         ? new LinkedList(this.first, l) 
         : this.rest.append(l);
-  
-
+  }
+}
 </pre>
 
 <div class="p"><!----></div>
 Similarly, a "Complex" class may be implemented as follows:
 <pre>
-value Complex  
+value Complex { 
   re: Double;
   im: Double;
-  public def this(re: Double, im: Double) 
+  public def this(re: Double, im: Double) {
      this.re=re;
      this.im=im;
-  
-  public def add(other: Complex): Complex 
+  }
+  public def add(other: Complex): Complex {
     return new Complex(this.re+other.re,
                        this.im+other.im);
-  
-  public def mult(other: Complex): Complex 
+  }
+  public def mult(other: Complex): Complex {
     return new Complex(this.re^2-other.re^2,
                        2*this.im*other.im);
-  
+  }
   ...
-
+}
 </pre>
 
 

@@ -21,10 +21,14 @@
 8</a>&nbsp;&nbsp;If statement</h2>
 
 <div class="p"><!----></div>
-Statement &nbsp;IfThenStatement <br />
-          \ -  IfThenElseStatement <br />
-IfThenStatement &nbsp;&#239;f" "(" Expression ")" Statement <br />
-IfThenElseStatement &nbsp;&#239;f" "(" Expression ")" Statement &#235;lse" Statement <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; IfThenStatement </td></tr>
+<tr><td align="right"> |  IfThenElseStatement </td></tr>
+<tr><td align="right">IfThenStatement &nbsp;::=&nbsp; <tt>if</tt> ( Expression ) Statement </td></tr>
+<tr><td align="right">IfThenElseStatement &nbsp;::=&nbsp; <tt>if</tt> ( Expression ) Statement <tt>else</tt> Statement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>

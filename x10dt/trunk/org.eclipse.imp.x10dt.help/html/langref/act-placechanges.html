@@ -26,11 +26,14 @@ An activity may change place using the &#228;t" statement or
 &#228;t" expression:
 
 <div class="p"><!----></div>
-Statement &nbsp;AtStatement <br />
-AtStatement &nbsp;&#228;t" PlaceExpressionSingleList Statement <br />
-Expression &nbsp;AtExpression <br />
-AtExpression &nbsp;&#228;t" PlaceExpressionSingleList ClosureBody <br />
-
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; AtStatement </td></tr>
+<tr><td align="right">AtStatement &nbsp;::=&nbsp; <tt>at</tt> PlaceExpressionSingleList Statement </td></tr>
+<tr><td align="right">Expression &nbsp;::=&nbsp; AtExpression </td></tr>
+<tr><td align="right">AtExpression &nbsp;::=&nbsp; <tt>at</tt> PlaceExpressionSingleList ClosureBody </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 The statement &#228;t (p) S" executes the statement "S"

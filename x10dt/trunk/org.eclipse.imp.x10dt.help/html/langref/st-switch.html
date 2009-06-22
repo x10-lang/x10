@@ -21,10 +21,14 @@
 9</a>&nbsp;&nbsp;Switch statement</h2>
 
 <div class="p"><!----></div>
-Statement &nbsp;SwitchStatement <br />
-SwitchStatement &nbsp;&#223;witch" "(" Expression ")" "" Case "" <br />
-Case &nbsp;"case" Expression ":" Statement <br />
-     \ -  "default" ":" Statement <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; SwitchStatement </td></tr>
+<tr><td align="right">SwitchStatement &nbsp;::=&nbsp; <tt>switch</tt> ( Expression ) { Case<sup>+</sup>&nbsp;} </td></tr>
+<tr><td align="right">Case &nbsp;::=&nbsp; <tt>case</tt> Expression : Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"> | <tt>default</tt> : Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>

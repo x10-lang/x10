@@ -23,11 +23,14 @@
 </a>
 
 <div class="p"><!----></div>
-NewExpression &nbsp;"new" ClassName TypeArguments "(" ArgumentList ")"
-        ClassBody <br />
-  \ -  "new" InterfaceName TypeArguments "(" ArgumentList ")"
+<em>  
+<table>
+<tr><td align="right">NewExpression &nbsp;::=&nbsp; <tt>new</tt> ClassName TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;)
+        ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"> |  <tt>new</tt> InterfaceName TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;)
         ClassBody
-
+</td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 An allocation expression creates a new instance of a class and

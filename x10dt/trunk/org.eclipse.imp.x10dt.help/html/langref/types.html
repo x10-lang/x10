@@ -111,42 +111,34 @@ may be processed by compiler plugins.
 </ul>
 
 <div class="p"><!----></div>
-Type &nbsp;FunctionType <br />
-    \ -  ConstrainedType  <br />
-
-<div class="p"><!----></div>
-FunctionType &nbsp;TypeParameters "(" Formals ")"
-Constraint Throws "=&#62;" Type <br />
-TypeParameters &nbsp;"[" TypeParameter ( "," TypeParameter ) "]" <br />
-TypeParameter &nbsp;Identifier <br />
-Throws &nbsp;"throws" ( TypeName "," TypeName ) <br />
-
-<div class="p"><!----></div>
-ConstrainedType &nbsp;Annotation BaseType Constraint
-PlaceConstraint <br />
-
-<div class="p"><!----></div>
-BaseType &nbsp;ClassBaseType <br />
-     \ -  InterfaceBaseType <br />
-     \ -  PathType <br />
-     \ -  "(" Type ")" <br />
-
-<div class="p"><!----></div>
-ClassType &nbsp;Annotation ClassBaseType Constraint
-PlaceConstraint <br />
-InterfaceType &nbsp;Annotation InterfaceBaseType Constraint
-PlaceConstraint <br />
-
-<div class="p"><!----></div>
-PathType &nbsp;Expression "." Identifier <br />
-
-<div class="p"><!----></div>
-Annotation &nbsp;"@" InterfaceBaseType Constraint <br />
-
-<div class="p"><!----></div>
-ClassOrInterfaceType &nbsp;ClassType <br />\ -  InterfaceType <br />
-ClassBaseType &nbsp;TypeName <br />
-InterfaceBaseType &nbsp;TypeName <br />
+  :  |        
+<em>  
+<table>
+<tr><td align="right">Type &nbsp;::=&nbsp; FunctionType </td></tr>
+<tr><td align="right"> |  ConstrainedType  </td></tr>
+<tr><td align="right">FunctionType &nbsp;::=&nbsp; TypeParameters<sup>?</sup>&nbsp;( Formals<sup>?</sup>&nbsp;)
+Constraint<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;=&#62; Type </td></tr>
+<tr><td align="right">TypeParameters &nbsp;::=&nbsp; [ TypeParameter ( , TypeParameter )<sup>*</sup>&nbsp;] </td></tr>
+<tr><td align="right">TypeParameter &nbsp;::=&nbsp; Identifier </td></tr>
+<tr><td align="right">Throws &nbsp;::=&nbsp; throws ( TypeName , TypeName )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ConstrainedType &nbsp;::=&nbsp; Annotation<sup>*</sup>&nbsp;BaseType Constraint<sup>?</sup>&nbsp;
+PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">BaseType &nbsp;::=&nbsp; ClassBaseType </td></tr>
+<tr><td align="right"> |  InterfaceBaseType </td></tr>
+<tr><td align="right"> |  PathType </td></tr>
+<tr><td align="right"> |  ( Type ) </td></tr>
+<tr><td align="right">ClassType &nbsp;::=&nbsp; Annotation<sup>*</sup>&nbsp;ClassBaseType Constraint<sup>?</sup>&nbsp;
+PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">InterfaceType &nbsp;::=&nbsp; Annotation<sup>*</sup>&nbsp;InterfaceBaseType Constraint<sup>?</sup>&nbsp;
+PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">PathType &nbsp;::=&nbsp; Expression . Identifier </td></tr>
+<tr><td align="right">Annotation &nbsp;::=&nbsp; @ InterfaceBaseType Constraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">ClassOrInterfaceType &nbsp;::=&nbsp; ClassType </td></tr>
+<tr><td align="right"> |  InterfaceType </td></tr>
+<tr><td align="right">ClassBaseType &nbsp;::=&nbsp; TypeName </td></tr>
+<tr><td align="right">InterfaceBaseType &nbsp;::=&nbsp; TypeName </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>

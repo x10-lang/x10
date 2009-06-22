@@ -30,13 +30,15 @@ to allow users to define new type constructors.
 Type definitions have the following syntax:
 
 <div class="p"><!----></div>
-TypeDefinition &nbsp;
-                "type"&nbsp;Identifier
-                           ( "[" TypeParameters "]" ) <br />
-                        </td><td width="150">
-</td><td width="150">
- ( "(" Formals ")" )
-                            Constraint "=" Type <br />
+<em>  
+<table>
+<tr><td align="right">TypeDefinition &nbsp;::=&nbsp;
+                <tt>type</tt>&nbsp;Identifier
+                           ( [ TypeParameters ] )<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( ( Formals ) )<sup>?</sup>&nbsp;
+Constraint<sup>?</sup>&nbsp;= Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -46,9 +48,9 @@ The following examples are legal type definitions:
 <pre>
 type StringSet = Set[String];
 type MapToList[K,V] = Map[K,List[V]];
-type Nat = Intself&#62;=0;
-type Int(x: Int) = Intself==x;
-type Int(lo: Int, hi: Int) = Intlo &lt;= self, self &lt;= hi;
+type Nat = Int{self&#62;=0};
+type Int(x: Int) = Int{self==x};
+type Int(lo: Int, hi: Int) = Int{lo &lt;= self, self &lt;= hi};
 </pre>
 
 <div class="p"><!----></div>
@@ -79,9 +81,9 @@ parameters and is an alias for a class type, then a "new"
 expression may be used to create an instance of the class using
 the type definition's name.
 Given the following type definition:
-
-type A = C[T<sub>1</sub>, ..., T<sub>k</sub>]c;
-
+<pre>
+type A = C[T<sub>1</sub>, ..., T<sub>k</sub>]{c};
+</pre>
 where 
 "C[T<sub>1</sub>, ..., T<sub>k</sub>]" is a
 class type, a constructor of "C" may be invoked with

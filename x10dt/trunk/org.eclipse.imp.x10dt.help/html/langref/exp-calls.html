@@ -27,11 +27,15 @@
 </a>
 
 <div class="p"><!----></div>
-MethodCall &nbsp;TypeName "." Identifier TypeArguments "(" ArgumentList ")" <br />
-           \ -  &#223;uper" "." Identifier TypeArguments "(" ArgumentList ")" <br />
-           \ -  ClassName "." &#223;uper" "." Identifier TypeArguments "(" ArgumentList ")" <br />
-Call &nbsp;Primary TypeArguments "(" ArgumentList ")" <br />
-TypeArguments &nbsp;"[" Type ( "," Type ) "]" <br />
+<em>  
+<table>
+<tr><td align="right">MethodCall &nbsp;::=&nbsp; TypeName . Identifier TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right"> |  <tt>super</tt> . Identifier TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right"> |  ClassName . <tt>super</tt> . Identifier TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right">Call &nbsp;::=&nbsp; Primary TypeArguments<sup>?</sup>&nbsp;( ArgumentList<sup>?</sup>&nbsp;) </td></tr>
+<tr><td align="right">TypeArguments &nbsp;::=&nbsp; [ Type ( , Type )<sup>*</sup>&nbsp;] </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>

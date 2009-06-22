@@ -26,10 +26,14 @@
 known as futures:
 
 <div class="p"><!----></div>
-Primary &nbsp;FutureExpression <br />
-FutureExpression &nbsp;
-  "future" PlaceExpressionSingleList ClosureBody
- 
+<em>  
+<table>
+<tr><td align="right">Primary &nbsp;::=&nbsp; FutureExpression </td></tr>
+<tr><td align="right">FutureExpression &nbsp;::=&nbsp; 
+  <tt>future</tt> PlaceExpressionSingleList<sup>?</sup>&nbsp;ClosureBody
+</td></tr></table>
+</em> 
+
 
 <div class="p"><!----></div>
 Intuitively such an expression evaluates its body asynchronously at
@@ -49,9 +53,9 @@ If the type of &#235;" is "T" then the type of
 type "Future[T]" is defined as if by:
 <pre>
 package x10.lang;
-public interface Future[T] implements () =&#62; T 
+public interface Future[T] implements () =&#62; T {
   def forced(): Boolean;
-
+}
 </pre>
 
 <div class="p"><!----></div>

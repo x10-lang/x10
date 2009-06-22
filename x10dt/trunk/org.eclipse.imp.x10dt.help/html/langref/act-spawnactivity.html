@@ -33,10 +33,14 @@ operations.)
 An activity is created by executing the statement:
 
 <div class="p"><!----></div>
-Statement &nbsp;AsyncStatement <br />
-AsyncStatement &nbsp;&#228;sync" PlaceExpressionSingleList Statement <br />
-PlaceExpressionSingleList &nbsp;"(" PlaceExpression ")" <br />
-PlaceExpression &nbsp;Expression <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; AsyncStatement </td></tr>
+<tr><td align="right">AsyncStatement &nbsp;::=&nbsp; <tt>async</tt> PlaceExpressionSingleList<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">PlaceExpressionSingleList &nbsp;::=&nbsp; ( PlaceExpression ) </td></tr>
+<tr><td align="right">PlaceExpression &nbsp;::=&nbsp; Expression </td></tr>
+<tr><td align="right"></td></tr></table>
+</em> 
  
 
 <div class="p"><!----></div>

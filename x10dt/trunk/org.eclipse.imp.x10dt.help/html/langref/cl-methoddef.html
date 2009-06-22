@@ -26,17 +26,17 @@ field definitions. Additionally, the parameter list for a method may
 contain a .
 
 <div class="p"><!----></div>
-MethodDeclaration &nbsp;MethodHeader ";" <br />
-                  \ -  MethodHeader "=" ClosureBody <br />
-MethodHeader &nbsp;
-  MethodModifiers "def" Identifier TypeParameters <br />
-</td><td width="150">
-</td><td width="150">
- "(" 
-  FormalParameterList ")" Guard <br />
-  </td><td width="150">
-</td><td width="150">
- ReturnType Throws <br />
+<em>  
+<table>
+<tr><td align="right">MethodDeclaration &nbsp;::=&nbsp; MethodHeader ; </td></tr>
+<tr><td align="right"> |  MethodHeader = ClosureBody </td></tr>
+<tr><td align="right">MethodHeader &nbsp;::=&nbsp;
+  MethodModifiers<sup>?</sup>&nbsp;<tt>def</tt> Identifier TypeParameters<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( 
+  FormalParameterList<sup>?</sup>&nbsp;) Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -51,7 +51,7 @@ specifies a constraint "c" on the
 properties of the class "C" on which the method is being defined. The
 method exists only for those instances of "C" which satisfy "c".  It is
 illegal for code to invoke the method on objects whose static type is
-not a subtype of "Cc".
+not a subtype of "C{c}".
 
 <div class="p"><!----></div>
     The compiler checks that every method invocation
@@ -67,15 +67,15 @@ not a subtype of "Cc".
 <div class="p"><!----></div>
     The compiler checks that in every method invocation
     &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
-    the static type of &#246;", "S", is a subtype of "Cc", where the method
+    the static type of &#246;", "S", is a subtype of "C{c}", where the method
     is defined in class "C" and the guard for "m" is equivalent to
     "c".
 
 <div class="p"><!----></div>
     Finally, if the declared return type of the method is
-    "Dd", the
+    "D{d}", the
     return type computed for the call is
-    "Da: S; x<sub>1</sub>: S<sub>1</sub>; ...; x<sub>n</sub>: S<sub>n</sub>; d[a/this]",
+    "D{a: S; x<sub>1</sub>: S<sub>1</sub>; ...; x<sub>n</sub>: S<sub>n</sub>; d[a/this]}",
     where &#228;" is a new
     variable that does not occur in
     "d, S, S<sub>1</sub>, ..., S<sub>n</sub>", and
@@ -86,44 +86,42 @@ not a subtype of "Cc".
 <div class="p"><!----></div>
 Consider the program:
 <pre>
-public class List(n: Intn&#62;=0) 
-  protected val headn&#62;0: Object;
-  protected val tailn&#62;0: List(n-1);
-  public def this(o: Object, t: List): List(t.n+1) = 
+public class List(n: Int{n&#62;=0}) { 
+  protected val head{n&#62;0}: Object;
+  protected val tail{n&#62;0}: List(n-1);
+  public def this(o: Object, t: List): List(t.n+1) = { 
      property(t.n+1);
      head=o;
      tail=t;
-  
-  public def this(): List(0) = 
+  }
+  public def this(): List(0) = { 
      property(0);
-  
-  public def append(l: List): Listself.n==this.n+l.n = 
+  }
+  public def append(l: List): List{self.n==this.n+l.n} = {
       return (n==0)? l
          : new List(head, tail.append(l)); 
-  
-  public def nth(k: Int1 &lt;= k </td><td width="150">
-</td><td width="150">
- k &lt;= n)n &#62; 0: Object = 
+  }
+  public def nth(k: Int{1 &lt;= k && k &lt;= n}){n &#62; 0}: Object = { 
       return k==1 ? head : tail.nth(k-1);
-  
-
+  }
+}
 </pre>
 
 <div class="p"><!----></div>
 The following code fragment
 <pre>
-u: Listself.n==3 = ...
-t: Listself.n==x = ...;
-s: Listself.n==x+3 = t.append(u);
+u: List{self.n==3} = ...
+t: List{self.n==x} = ...;
+s: List{self.n==x+3} = t.append(u);
 </pre>
  will typecheck. The type of the expression "t.append(u)" is 
 <pre>
-Lista: Listself.n==x; 
-     l: Listself.n==3; self.n==a.n+l.n  
+List{a: List{self.n==x}; 
+     l: List{self.n==3}; self.n==a.n+l.n}  
 </pre>
  which is equivalent to:
 <pre>
-Listself.n==x+3
+List{self.n==x+3}
 </pre>
 
 
@@ -153,16 +151,8 @@ the "def" keyword.  That is, the following are equivalent:
 
 <div class="p"><!----></div>
 <pre>
-property def rail(): boolean = rect </td><td width="150">
-</td><td width="150">
- onePlace == here </td><td width="150">
-</td><td width="150">
- zeroBased;
-property rail: boolean = rect </td><td width="150">
-</td><td width="150">
- onePlace == here </td><td width="150">
-</td><td width="150">
- zeroBased;
+property def rail(): boolean = rect && onePlace == here && zeroBased;
+property rail: boolean = rect && onePlace == here && zeroBased;
 </pre>
 
 <div class="p"><!----></div>
@@ -195,14 +185,14 @@ to be two methods with the same name and same signature in a class
 <div class="p"><!----></div>
   A class "C" may not have two declarations for a method named "m"-either
   defined at "C" or inherited:
+<pre>
+def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>{t<sub>1</sub>}, ..., v<sub>n</sub>: T<sub>n</sub>{t<sub>n</sub>}){tc}: T {...}
+def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: S<sub>1</sub>{s<sub>1</sub>}, ..., v<sub>n</sub>: S<sub>n</sub>{s<sub>n</sub>{){sc}: S {...}
+</pre>
 
-def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>t<sub>1</sub>, ..., v<sub>n</sub>: T<sub>n</sub>t<sub>n</sub>)tc: T ...
-def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: S<sub>1</sub>s<sub>1</sub>, ..., v<sub>n</sub>: S<sub>n</sub>s<sub>n</sub>)sc: S ...
-
-
-if it is the case that the types "Ctc", "T<sub>1</sub>t<sub>1</sub>",
-..., "T<sub>n</sub>t<sub>n</sub>" are
-equivalent to the types "Csc, S<sub>1</sub>t<sub>1</sub>, ..., T<sub>n</sub>t<sub>n</sub>"
+if it is the case that the types "C{tc}", "T<sub>1</sub>{t<sub>1</sub>}",
+..., "T<sub>n</sub>{t<sub>n</sub>}" are
+equivalent to the types "C{sc}, S<sub>1</sub>{t<sub>1</sub>}, ..., T<sub>n</sub>{t<sub>n</sub>}"
 respectively.
 
 
@@ -242,31 +232,25 @@ respectively.  As in
 method defined on "T" with argument type
 "T<sub>1</sub>", ... "T<sub>n</sub>"; otherwise, a
 compile-time error is declared. However, unlike  Java, the  X10 type "T"
-may be a dependent type "Cc". Therefore, given a class definition for
+may be a dependent type "C{c}". Therefore, given a class definition for
 "C" we must determine which methods of "C" are available at a type
-"Cc". But the answer to this question is clear: exactly those methods
-defined on "C" are available at the type "Cc"
+"C{c}". But the answer to this question is clear: exactly those methods
+defined on "C" are available at the type "C{c}"
 whose guard "d" is implied by "c".
 
 <div class="p"><!----></div>
   Consider the definitions:
 <pre>
-class Point(i: Int, j: Int) ...
-class Line(s: Point, e: Pointself != i) 
+class Point(i: Int, j: Int) {...}
+class Line(s: Point, e: Point{self != i}) {
   // m1: Both points lie in the right half of the plane
-  def draw()s.i&#62;= 0 </td><td width="150">
-</td><td width="150">
- e.i &#62;= 0 = ...
+  def draw(){s.i&#62;= 0 && e.i &#62;= 0} = {...}
   // m2: Both points lie on the y-axis
-  def draw()s.i== 0 </td><td width="150">
-</td><td width="150">
- e.i == 0 = ...
+  def draw(){s.i== 0 && e.i == 0} = {...}
   // m3: Both points lie in the top half of the plane
-  def draw()s.j&#62;= 0 </td><td width="150">
-</td><td width="150">
- e.j &#62;= 0 = ...
+  def draw(){s.j&#62;= 0 && e.j &#62;= 0} = {...}
   // m4: The general method
-  def draw() = ...
+  def draw() = {...}
  
 </pre> 
   Three different implementations are given for the
@@ -278,7 +262,7 @@ class Line(s: Point, e: Pointself != i)
 <div class="p"><!----></div>
   Consider the invocation
 <pre>
-m: Lines.i &lt; 0 = ...
+m: Line{s.i &lt; 0} = ...
 m.draw();
 </pre>
 
@@ -291,13 +275,7 @@ m.draw();
 
 <div class="p"><!----></div>
 <pre>
-m: Lines.i&#62;=0 </td><td width="150">
-</td><td width="150">
- s.j&#62;=0 </td><td width="150">
-</td><td width="150">
- e.i&#62;=0 </td><td width="150">
-</td><td width="150">
- e.j&#62;=0 = ...
+m: Line{s.i&#62;=0 && s.j&#62;=0 && e.i&#62;=0 && e.j&#62;=0} = ...
 m.draw();
 </pre>
 
@@ -308,11 +286,7 @@ m.draw();
 <div class="p"><!----></div>
   Consider the invocation
 <pre>
-m: Lines.i&#62;=0 </td><td width="150">
-</td><td width="150">
- s.j&#62;=0 </td><td width="150">
-</td><td width="150">
- e.i&#62;=0 = ...
+m: Line{s.i&#62;=0 && s.j&#62;=0 && e.i&#62;=0} = ...
 m.draw();
 </pre>
   This does not generate any compile-time error since only m1 is
@@ -365,14 +339,17 @@ m.draw();
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc7.3.1">
-7.3.1</a>&nbsp;&nbsp; annotation</h4>
+7.3.1</a>&nbsp;&nbsp;<tt>atomic</tt> annotation</h4>
 
 <div class="p"><!----></div>
 A method may be declared &#228;tomic".
 
 <div class="p"><!----></div>
-  MethodModifier &nbsp;&#228;tomic"  
-
+<em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>atomic</tt>  
+</td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 Such a method is treated as if the statement in its body is wrapped 
@@ -380,14 +357,18 @@ implicitly in an &#228;tomic" statement.
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc7.3.2">
-7.3.2</a>&nbsp;&nbsp; annotation</h4><a name="LocalAnnotation">
+7.3.2</a>&nbsp;&nbsp;<tt>local</tt> annotation</h4><a name="LocalAnnotation">
 </a>
 
 <div class="p"><!----></div>
 A method may be declared "local".
 
 <div class="p"><!----></div>
-  MethodModifier &nbsp;"local"  
+<em>  
+<table>
+<tr><td align="right">MethodModifier &nbsp;::=&nbsp; <tt>local</tt>  
+</td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>

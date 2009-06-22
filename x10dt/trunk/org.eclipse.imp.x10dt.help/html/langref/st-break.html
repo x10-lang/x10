@@ -21,8 +21,12 @@
 6</a>&nbsp;&nbsp;Break statement</h2>
 
 <div class="p"><!----></div>
-Statement &nbsp;BreakStatement <br />
-BreakStatement &nbsp;"break" Identifier <br />
+<em>  
+<table>
+<tr><td align="right">Statement &nbsp;::=&nbsp; BreakStatement </td></tr>
+<tr><td align="right">BreakStatement &nbsp;::=&nbsp; <tt>break</tt> Identifier<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -46,10 +50,10 @@ array and breaks out of the loop when found:
 var found: Boolean = false;
 for (i: Int = 0; i &lt; a.length; i++)
     for (j: Int = 0; j &lt; a(i).length; j++)
-        if (a(i)(j) == v) 
+        if (a(i)(j) == v) {
             found = true;
             break;
-        
+        }
 </pre>
 
 <div class="p"><!----></div>

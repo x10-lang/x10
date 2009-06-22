@@ -13,7 +13,7 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Foreach statements</title>
+	<title>At expressions</title>
 </head>
 
 <body>
@@ -21,9 +21,12 @@
 9</a>&nbsp;&nbsp;At expressions</h2>
 
 <div class="p"><!----></div>
-Expression &nbsp;&#228;t" "(" Expression ")" Expression
-<br />
-
+<em>  
+<table>
+<tr><td align="right">Expression &nbsp;::=&nbsp; <tt>at</tt> ( Expression ) Expression
+</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 An at expression evaluates an expression synchronously at a given place.

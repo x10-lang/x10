@@ -30,22 +30,24 @@
 and <em>method selectors</em>.
 
 <div class="p"><!----></div>
-ClosureExpression &nbsp;
-        TypeParameters
-        "("
-        Formals
-        ")"
-<br /></td><td width="150">
-</td><td width="150">
-
-        Guard
-        ReturnType
-        Throws
-        "=&#62;" ClosureBody <br />
-ClosureBody &nbsp;
-        Expression <br />
-        \ -  "" Statement "" <br />
-        \ -  "" Statement Expression "" <br />
+<em>  
+<table>
+<tr><td align="right">ClosureExpression &nbsp;::=&nbsp;
+        TypeParameters<sup>?</sup>&nbsp;
+(
+        Formals<sup>?</sup>&nbsp;
+)
+</td></tr>
+<tr><td align="right"></td><td align="center"></td><td>Guard<sup>?</sup>&nbsp;
+ReturnType<sup>?</sup>&nbsp;
+Throws<sup>?</sup>&nbsp;
+=&#62; ClosureBody </td></tr>
+<tr><td align="right">ClosureBody &nbsp;::=&nbsp;
+        Expression </td></tr>
+<tr><td align="right"> |  { Statement<sup>*</sup>&nbsp;} </td></tr>
+<tr><td align="right"> |  { Statement<sup>*</sup>&nbsp;Expression } </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -82,11 +84,11 @@ The following method takes a function parameter and uses it to
 test each element of the list, returning the first matching
 element.
 <pre>
-def find[T](f: (T) =&#62; Boolean, xs: List[T]): T = 
+def find[T](f: (T) =&#62; Boolean, xs: List[T]): T = {
   for (x: T in xs)
     if (f(x)) return x;
   null
-
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -118,15 +120,15 @@ and use it to invoke the closure recursively.
 The following method uses a closure to compute the nth
 Fibonacci number.
 <pre>
-def fib(n: Int): Int = 
-    val f = (n: Int) : Point =&#62; 
+def fib(n: Int): Int = {
+    val f = (n: Int) : Point =&#62; {
         if (n &lt; 1) return [1,0];
         val (r,r1): Point = this(n-1);
         [r+r1,r]
-    ;
+    };
     val (r,r1): Point = f(n);
     r
-
+}
 </pre>
 
 
@@ -151,11 +153,11 @@ desirable to support the following common idiom of expression:
 
 <div class="p"><!----></div>
 <pre>
-def allPositive(c: Collection): Boolean 
+def allPositive(c: Collection): Boolean {
   shared var result: Boolean = true;
-  c.applyToAll((x: Int) =&#62;  if (x &lt; 0) atomic result=false;);
+  c.applyToAll((x: Int) =&#62; { if (x &lt; 0) atomic {result=false;}});
   return result;
-
+}
 </pre>
 
 <div class="p"><!----></div>

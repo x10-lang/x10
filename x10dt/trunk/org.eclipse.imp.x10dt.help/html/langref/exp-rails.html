@@ -23,8 +23,13 @@
 </a>
 
 <div class="p"><!----></div>
-RailConstructor &nbsp;"[" Expressions "]" <br />
-Expressions &nbsp;Expression ( "," Expression ) <br />
+<em>  
+<table>
+<tr><td align="right">RailConstructor &nbsp;::=&nbsp; [ Expressions ] </td></tr>
+<tr><td align="right">Expressions &nbsp;::=&nbsp; Expression ( , Expression )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
 
 
 <div class="p"><!----></div>
@@ -43,9 +48,9 @@ rail constructors can be passed into the &#196;rray" and
 
 <div class="p"><!----></div>
 Rail constructors of type "ValRail[Int]" and length "n" 
-may be implicitly converted to type "Pointrank==n".
+may be implicitly converted to type "Point{rank==n}".
 Rail constructors of type "ValRail[Region]" and length "n" 
-may be implicitly converted to type "Regionrank==n".
+may be implicitly converted to type "Region{rank==n}".
 
 <div class="p"><!----></div>
 </body>

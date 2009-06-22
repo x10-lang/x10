@@ -30,13 +30,17 @@ Variables declarations are used to declare formal parameters,
 fields, properties, and local variables.
 
 <div class="p"><!----></div>
-VarDeclaratorWithType &nbsp;VarDeclaratorId ResultType <br />
-VarDeclarator &nbsp;VarDeclaratorId ResultType <br />
-VarDeclaratorId &nbsp;Annotation Identifier <br />
-              \ -  Annotation Identifier "(" VarDeclaratorList ")" <br />
-              \ -  Annotation "(" VarDeclaratorList ")" <br />
-VarDeclaratorList &nbsp;VarDeclarator ( "," VarDeclarator ) <br />
-ResultType &nbsp;":" Type <br />
+<em>  
+<table>
+<tr><td align="right">VarDeclaratorWithType &nbsp;::=&nbsp; VarDeclaratorId ResultType </td></tr>
+<tr><td align="right">VarDeclarator &nbsp;::=&nbsp; VarDeclaratorId ResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">VarDeclaratorId &nbsp;::=&nbsp; Annotation<sup>*</sup>&nbsp;Identifier </td></tr>
+<tr><td align="right"> | Annotation<sup>*</sup>&nbsp;Identifier ( VarDeclaratorList ) </td></tr>
+<tr><td align="right"> |  Annotation<sup>*</sup>&nbsp;( VarDeclaratorList ) </td></tr>
+<tr><td align="right">VarDeclaratorList &nbsp;::=&nbsp;VarDeclarator ( , VarDeclarator )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">ResultType &nbsp;::=&nbsp; : Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -78,14 +82,17 @@ variable name can be omitted if it is not to be used in the
 scope of the declaration.
 
 <div class="p"><!----></div>
-Formal
-        &nbsp;FormalModifier "var" VarDeclaratorWithType <br />
-        \ -  FormalModifier "val" VarDeclaratorWithType <br />
-        \ -  FormalModifier VarDeclaratorWithType <br />
-        \ -  Type <br />
-FormalModifier &nbsp;Annotation <br />
-              \ -  &#223;hared" <br />
-
+<em>  
+<table>
+<tr><td align="right">Formal
+        &nbsp;::=&nbsp; FormalModifier<sup>*</sup>&nbsp;<tt>var</tt> VarDeclaratorWithType </td></tr>
+<tr><td align="right">|  FormalModifier<sup>*</sup>&nbsp;<tt>val</tt> VarDeclaratorWithType </td></tr>
+<tr><td align="right">|  FormalModifier<sup>*</sup>&nbsp;VarDeclaratorWithType </td></tr>
+<tr><td align="right">|  Type </td></tr>
+<tr><td align="right">FormalModifier &nbsp;::=&nbsp; Annotation </td></tr>
+<tr><td align="right">|  <tt>shared</tt> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 
@@ -98,27 +105,28 @@ the type may be omitted and
 inferred from the initializer type ().
 
 <div class="p"><!----></div>
-LocalDeclaration
-        &nbsp;LocalModifier "var" LocalDeclaratorsWithType <br /></td><td width="150">
-</td><td width="150">
- ( "," LocalDeclaratorsWithType ) <br />
-        \ -  LocalModifier "val" LocalDeclarators <br /></td><td width="150">
-</td><td width="150">
- ( "," LocalDeclarators ) <br />
-        \ -  LocalModifier LocalDeclaratorsWithType <br /></td><td width="150">
-</td><td width="150">
- ( "," LocalDeclaratorsWithType ) <br />
-LocalDeclarators
-        &nbsp;LocalDeclaratorsWithType <br />
-        &nbsp;LocalDeclaratorWithInit <br />
-LocalDeclaratorWithInit
-        &nbsp;VarDeclarator Init <br />
-LocalDeclaratorsWithType
-        &nbsp;VarDeclaratorId
-                ( "," VarDeclaratorId ) ResultType <br />
-LocalModifier &nbsp;Annotation <br />
-              \ -  &#223;hared" <br />
-Init &nbsp;"=" Expression <br />
+<em>  
+<table>
+<tr><td align="right">LocalDeclaration
+        &nbsp;::=&nbsp;LocalModifier<sup>*</sup>&nbsp;<tt>var</tt> LocalDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">|  LocalModifier<sup>*</sup>&nbsp;<tt>val</tt> LocalDeclarators </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , LocalDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">|  LocalModifier<sup>*</sup>&nbsp;LocalDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , LocalDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">LocalDeclarators
+        &nbsp;::=&nbsp;LocalDeclaratorsWithType </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; LocalDeclaratorWithInit </td></tr>
+<tr><td align="right">LocalDeclaratorWithInit
+        &nbsp;::=&nbsp; VarDeclarator Init </td></tr>
+<tr><td align="right">LocalDeclaratorsWithType
+        &nbsp;::=&nbsp; VarDeclaratorId
+                ( , VarDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">LocalModifier &nbsp;::=&nbsp;Annotation </td></tr>
+<tr><td align="right">|  <tt>shared</tt> </td></tr>
+<tr><td align="right">Init &nbsp;::=&nbsp; = Expression </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
@@ -138,7 +146,7 @@ if a "Long",
 "0.0F" if a "Float", "0.0" if a "Double", or
 "false" if a "Boolean".  It is a static error if the
 default value is not a member of the type (e.g., it is a static
-error to elide the initializer for &#239;ntself==1").
+error to elide the initializer for &#239;nt{self==1}").
 
 <div class="p"><!----></div>
 If the variable is final,
@@ -152,32 +160,31 @@ the guard of a field cannot be satisfied for a given containing
 object.
 
 <div class="p"><!----></div>
-FieldDeclaration
-        &nbsp;FieldModifier "var" FieldDeclaratorsWithType <br /></td><td width="150">
-</td><td width="150">
- ( "," FieldDeclaratorsWithType ) <br />
-        \ -  FieldModifier "const" FieldDeclarators <br /></td><td width="150">
-</td><td width="150">
- ( "," FieldDeclarators ) <br />
-        \ -  FieldModifier "val" FieldDeclarators <br /></td><td width="150">
-</td><td width="150">
- ( "," FieldDeclarators ) <br />
-        \ -  FieldModifier FieldDeclaratorsWithType <br /></td><td width="150">
-</td><td width="150">
- ( "," FieldDeclaratorsWithType ) <br />
-FieldDeclarators
-        &nbsp;FieldDeclaratorsWithType <br />
-        &nbsp;FieldDeclaratorWithInit <br />
-FieldDeclaratorId
-        &nbsp;Identifier Guard <br />
-FieldDeclaratorWithInit
-        &nbsp;FieldDeclaratorId Init <br />
-        \ -  FieldDeclaratorId ResultType Init <br />
-FieldDeclaratorsWithType
-        &nbsp;FieldDeclaratorId ( "," FieldDeclaratorId ) ResultType <br />
-FieldModifier &nbsp;Annotation <br />
-                \ -  &#223;tatic" <br />
-
+<em>  
+<table>
+<tr><td align="right">FieldDeclaration
+        &nbsp;::=&nbsp; FieldModifier<sup>*</sup>&nbsp;<tt>var</tt> FieldDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">|  FieldModifier<sup>*</sup>&nbsp;<tt>const</tt> FieldDeclarators </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">|  FieldModifier<sup>*</sup>&nbsp;<tt>val</tt> FieldDeclarators </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">|  FieldModifier<sup>*</sup>&nbsp;FieldDeclaratorsWithType </td></tr>
+<tr><td align="right"></td><td align="center"></td><td>( , FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">FieldDeclarators
+        &nbsp;::=&nbsp; FieldDeclaratorsWithType </td></tr>
+<tr><td align="right">&nbsp;::=&nbsp; FieldDeclaratorWithInit </td></tr>
+<tr><td align="right">FieldDeclaratorId
+        &nbsp;::=&nbsp; Identifier Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">FieldDeclaratorWithInit
+        &nbsp;::=&nbsp; FieldDeclaratorId Init </td></tr>
+<tr><td align="right">|  FieldDeclaratorId ResultType Init </td></tr>
+<tr><td align="right">FieldDeclaratorsWithType
+        &nbsp;::=&nbsp; FieldDeclaratorId ( , FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
+<tr><td align="right">FieldModifier &nbsp;::=&nbsp; Annotation </td></tr>
+<tr><td align="right">|  <tt>static</tt> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 
@@ -186,10 +193,14 @@ Property declarations are always declared with a type and are
 always final (either declared "val" or by default).
 
 <div class="p"><!----></div>
-Property
-        &nbsp;PropertyModifier "val" Identifier ResultType <br />
-        \ -  PropertyModifier Identifier ResultType <br />
-PropertyModifier &nbsp;Annotation <br />
+<em>  
+<table>
+<tr><td align="right">Property
+        &nbsp;::=&nbsp; PropertyModifier<sup>*</sup>&nbsp;<tt>val</tt> Identifier ResultType </td></tr>
+<tr><td align="right"> | PropertyModifier<sup>*</sup>&nbsp;Identifier ResultType </td></tr>
+<tr><td align="right">PropertyModifier &nbsp;::=&nbsp; Annotation </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 </body>
 </html>
