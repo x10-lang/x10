@@ -19,28 +19,25 @@ package org.eclipse.imp.x10dt.core;
 
 import java.net.URL;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.DefaultScope;
-import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.preferences.PreferenceCache;
-import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
-import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.preferences.PreferenceConstants;
-import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.resource.JFaceResources;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 /**
  * The main plugin class to be used in the desktop.
+ * 
+ * <p>Logging methods, for reference, and what they look like in Error log
+ * <br>writeErrorMessage(String) -  "red X" icon
+ * <br>writeInfoMessage(String) -  "blue i" icon
+ * <br>logException(String, Exception) - Red X over text icon (stack trace avail)
+ * <p>Even more flexibility via:
+ * <br>getLog().logStatus(new Status(...));
+ * 
  */
 public class X10Plugin extends PluginBase {
     public static final String kPluginID= "org.eclipse.imp.x10dt.core";
@@ -48,6 +45,7 @@ public class X10Plugin extends PluginBase {
     
     /** Plugin id of version of X10 runtime used for this X10DT */
     public static final String X10_RUNTIME_BUNDLE_ID="x10.runtime.17";      //PORT1.7 provide constant here for runtime
+    /** Plugin id of version of X10 compiler used for this X10DT */
     public static final String X10_COMPILER_BUNDLE_ID ="x10.compiler.p3";   //PORT1.7 provide constant here for compiler
  // public static final String X10_COMMON_BUNDLE_ID = "x10.common.17";      //PORT1.7 provide constant here for common
 
@@ -60,14 +58,14 @@ public class X10Plugin extends PluginBase {
 
     // SMS 27 Oct 2006
     // Calls to set values in X10Preferences should be obviated
-    // if the SAFARI preferencees service is used
+    // if the SAFARI preferences service is used
     // Calls to reference values in X10Preferences should be
     // replaced with calls to the SAFARI preferences service
     
     public static String x10CompilerPath;
 
     public static X10Plugin	 getInstance() {
-    	// mmk: Creation if not auto-starated adapted from generated preferences Activator
+    	// mmk: Creation if not auto-started adapted from generated preferences Activator
     	if (sPlugin == null)
 			new X10Plugin();
 		return sPlugin;
