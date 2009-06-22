@@ -1,6 +1,7 @@
 package x10.refactorings;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -223,15 +224,23 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             fConsoleStream.println("Loop induction variable = " + loopVar.name());
             if (explodedVars.size() > 0) fConsoleStream.println("  exploded vars: " + explodedVars);
 
-            // HACK If the loop formal has "exploded var syntax" (e.g. "for(p(i): Point in r) { ... }"),
-            // then we should do a commutesWithForall() over the set of all the induction variables,
-            // but Effect doesn't provide enough API for that yet.
-            // So the following assumes that if there are exploded vars, there is actually only 1 (as
-            // in the above example), and that's the one over which we want to quantify.
-            VarDef loopLocalDef= (explodedVars.size() > 0) ? explodedVars.get(0).localDef() : loopVar.localDef();
-            XLocal loopLocal= XTerms.makeLocal(new XVarDefWrapper(loopLocalDef));
+            // If the loop formal has "exploded var syntax" (e.g. "for(p(i): Point in r) { ... }"),
+            // then we need to do commutesWithForall() over the set of all the induction variables.
+            boolean commutes;
 
-            if (!bodyEff.commutesWithForall(loopLocal)) {
+            if (explodedVars.size() > 0) {
+                List<XLocal> loopLocals= new ArrayList<XLocal>(explodedVars.size() + 1);
+                loopLocals.add(XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef())));
+                for(Formal explodedVar: explodedVars) {
+                    loopLocals.add(XTerms.makeLocal(new XVarDefWrapper(explodedVar.localDef())));
+                }
+                commutes= bodyEff.commutesWithForall(loopLocals);
+            } else {
+                XLocal loopLocal= XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef()));
+
+                commutes= bodyEff.commutesWithForall(loopLocal);
+            }
+            if (!commutes) {
                 return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute.");
             }
             return RefactoringStatus.create(new Status(IStatus.OK, X10RefactoringPlugin.kPluginID, ""));
