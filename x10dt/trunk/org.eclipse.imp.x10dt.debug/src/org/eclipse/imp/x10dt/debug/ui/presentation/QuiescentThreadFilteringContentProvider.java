@@ -19,6 +19,7 @@ import org.eclipse.debug.internal.ui.viewers.model.provisional.IPresentationCont
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IViewerUpdate;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
+import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 
 public class QuiescentThreadFilteringContentProvider extends
 		DebugTargetContentProvider implements IElementContentProvider {
@@ -29,9 +30,12 @@ public class QuiescentThreadFilteringContentProvider extends
 		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
 			List<IThread> activeThreads = new ArrayList();
 			for (IThread t: (IThread[])threads) {
-				if (!(t instanceof X10Thread && ((X10Thread)t).getStackFrames().length>0)) continue;
-				if (t.getName().contains("InvokeMethods")) continue; // really, getName should return simple name and should be .equals("InvokeMethods")  This will do for now
-				activeThreads.add(t);
+				//if (!(t instanceof X10Thread && ((X10Thread)t).getStackFrames().length>0)) continue;
+				//if (t.getName().contains("InvokeMethods")) continue; // really, getName should return simple name and should be .equals("InvokeMethods")  This will do for now
+				if (t instanceof X10Thread && ((X10Thread)t).getRunState()!=IX10Activity.X10ActivityState.Idle){
+				    System.out.println("QuiescentThreadFiltering");
+					activeThreads.add(t);
+				}	
 			}
 			return activeThreads.toArray(new IThread[0]);
 		}
