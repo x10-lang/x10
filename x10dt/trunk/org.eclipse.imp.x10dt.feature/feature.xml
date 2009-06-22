@@ -15,14 +15,13 @@
    </license>
 
    <url>
-      <update url="http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"
-              label="%updateSiteName"/>
+      <update label="%updateSiteName" url="http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"/>
    </url>
 
    <requires>
       <import feature="org.eclipse.safari.runtime" version="1.0.55" match="perfect"/>
-      <import feature="polyglot" version="2.2.0"/>
-      <import feature="lpg.runtime" version="2.0.3"/>
+      <import feature="polyglot" version="2.2.2"/>
+      <import feature="lpg.runtime" version="2.0.5"/>
    </requires>
 
    <plugin
