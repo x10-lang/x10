@@ -374,6 +374,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             
             List<IToken> adjuncts=null;
             try {
+            	//PORT1.7 -- uses getLeftToken()... can we get to parse stream in another way??
             	adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
             }
             catch(Exception e) {
