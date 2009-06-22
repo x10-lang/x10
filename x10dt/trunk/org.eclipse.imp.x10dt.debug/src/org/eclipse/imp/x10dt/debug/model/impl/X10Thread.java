@@ -237,7 +237,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				return "ACTIVITY" + "@PLACE 0" + ": Main Activity";
 			/*
 			else if (place.contains("Finished")){
-				place=place.replace("pool", "PLACE");
+				place=place.replace("pool", "PLACE");ÿ
 				place=place.substring(0, 16);
 			    return place + "(Idle)";
 				//return "ACTIVITY: "+this.getUnderlyingThread().toString();
@@ -246,7 +246,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 			String aname = ((X10DebugTargetAlt)(this.getDebugTarget())).getActivityString(fActivity);
 			//String aname= ((X10DebugTargetAlt)((IThread)this.getDebugTarget())).getActivityString(fActivity);
 			System.out.println("X10Thread:getName , aname = "+aname);
-			if (aname.contains("false")) {
+			if (aname==null || aname.contains("false")) {
 				return "terminated";
 			}
 			place = place.substring(4, 6);
