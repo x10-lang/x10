@@ -37,12 +37,6 @@ public static class Main extends x10.runtime.impl.java.Runtime {
 				
 		} catch (java.lang.Throwable t) {
 			t.printStackTrace();
-			if (t instanceof x10.lang.MultipleExceptions) {
-				x10.core.ValRail<Throwable> exceptions = ((x10.lang.MultipleExceptions) t).exceptions;
-				for(int i = 0; i < exceptions.length; i++) {
-					exceptions.get(i).printStackTrace();
-				}
-			}
 		}
 	}
 }

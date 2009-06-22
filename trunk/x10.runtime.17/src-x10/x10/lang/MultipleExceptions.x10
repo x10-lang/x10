@@ -46,10 +46,7 @@ public value MultipleExceptions(exceptions: ValRail[Throwable]) extends RuntimeE
     public def printStackTrace(): void {
         //super.printStackTrace();
         for (t: Throwable in exceptions) {
-        x10.io.Console.OUT.println("throwable " + t);
-        
-        
-        t.printStackTrace();
+	        t.printStackTrace();
         }
     }
 
