@@ -1,3 +1,0 @@
-// SYNOPSIS: #0=modifiers #1=type #2=var #3=idxs_list
-
-#0 #1 #2 = x10.lang.Point.make(#3);
