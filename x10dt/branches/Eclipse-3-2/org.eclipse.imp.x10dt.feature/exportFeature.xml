@@ -20,11 +20,11 @@
 			<fileset dir="plugins" includes="*.jar"/>
 		</delete>
 		<mkdir dir="plugins"/>
-		<copy todir="plugins" file="../com.ibm.watson.safari.x10/com.ibm.watson.safari.x10_${feature.version}.jar"/>
-		<copy todir="plugins" file="../x10.compiler/x10.compiler_${feature.version}.jar"/>
-		<copy todir="plugins" file="../x10.runtime/x10.runtime_${feature.version}.jar"/>
-		<copy todir="plugins" file="../x10.uide/x10.uide_${feature.version}.jar"/>
-		<copy todir="plugins" file="../org.eclipse.safari.x10dt/org.eclipse.safari.x10dt_${feature.version}.jar"/>
+		<copy todir="plugins" file="../com.ibm.watson.safari.x10/com.ibm.watson.safari.x10_${plugins.version.31}.jar"/>
+		<copy todir="plugins" file="../x10.compiler/x10.compiler_${plugins.version.31}.jar"/>
+		<copy todir="plugins" file="../x10.runtime/x10.runtime_${plugins.version.31}.jar"/>
+		<copy todir="plugins" file="../x10.uide/x10.uide_${plugins.version.31}.jar"/>
+		<copy todir="plugins" file="../org.eclipse.safari.x10dt/org.eclipse.safari.x10dt_${x10dt.version}.jar"/>
 	</target>
 
 	<!-- ========================================================================================= -->
