@@ -777,6 +777,20 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private void calculateLoopCarriedStatements(Stmt loop,
 			Set<VarDecl> inductionVars) {
 		fDelta = new ArrayList<Stmt>();
+		
+		/* Collect the statements from the loop (now, we deal with assigns) */
+		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
+		loop.visit(acv);
+		Collection<? extends Assign> stmts = acv.getResult();
+		
+		/* For each of the statements in the set, see if they match the
+		 * criteria of a loop carried statement.
+		 */
+		for(Assign s: stmts){
+			if (false)
+				fDelta.add(s);
+		}
+		return;
 	}
 
 	/**
