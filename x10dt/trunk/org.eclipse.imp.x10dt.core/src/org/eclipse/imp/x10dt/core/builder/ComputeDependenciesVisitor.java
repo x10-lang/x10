@@ -39,6 +39,7 @@ import polyglot.ast.Receiver;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
 import polyglot.ext.x10.types.NullableType;
+import polyglot.ext.x10.types.X10TypeMixin;
 import polyglot.frontend.Job;
 import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
@@ -77,7 +78,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         if (type.isClass()) {
             if (type instanceof NullableType)
                 type = ((NullableType) type).base();
-            ClassType classType= (ClassType) type;
+            // PORT1.7 From Nate 3/5/09: One should  do '(ClassType) X10TypeMixin.baseType(t)' rather than '(ClassType) t' for the cast to succeed. 
+            ClassType classType= (ClassType) X10TypeMixin.baseType(type);
             if (!isBinary(classType) && !fFromType.typeEquals(type)) { //PORT1.7 Type.equals() -> Type.typeEquals()
                 if (DEBUG)
                     System.out.println("  Reference to type: " + classType.fullName());
@@ -94,18 +96,17 @@ class ComputeDependenciesVisitor extends NodeVisitor {
         String wsPath= ResourcesPlugin.getWorkspace().getRoot().getLocation().toPortableString();
 
         String path= fJob.source().path();
-        // BRT don't bother looking for dependencies if we're in jar/zip
         //PORT1.7 don't bother looking for dependencies if we're in jar/zip
         if(path.endsWith(".jar")|| path.endsWith(".zip")) {
-        	if(printOnce) {
-        		// print this out only once, so we don't forget about it.
-        		printOnce=false;   		
-        		String msg = "ComputeDependenciesVisitor - looking in zip/jar file.";
-        		//X10Plugin.getInstance().writeErrorMsg(msg);
-        		String id=X10Plugin.getInstance().getID();
-        		//X10Plugin.getInstance().getLog().log(new Status(IStatus.WARNING,id,msg+" logStatus"));
-        		X10Plugin.getInstance().logException(msg, new Exception("zip/jar file in dependencies"));
-        	}
+//        	if(printOnce) {
+//        		// print this out only once, so we don't forget about it.
+//        		printOnce=false;   		
+//        		String msg = "ComputeDependenciesVisitor - looking in zip/jar file.";
+//        		//X10Plugin.getInstance().writeErrorMsg(msg);
+//        		String id=X10Plugin.getInstance().getID();
+//        		//X10Plugin.getInstance().getLog().log(new Status(IStatus.WARNING,id,msg+" logStatus"));
+//        		X10Plugin.getInstance().logException(msg, new Exception("zip/jar file in dependencies"));
+//        	}
         	return null;
         }
         if (path.startsWith(wsPath)) {
