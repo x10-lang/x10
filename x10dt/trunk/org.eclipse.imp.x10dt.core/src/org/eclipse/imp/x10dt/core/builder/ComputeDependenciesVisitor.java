@@ -25,7 +25,7 @@ import java.util.Iterator;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;

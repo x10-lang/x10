@@ -19,7 +19,6 @@ package org.eclipse.imp.x10dt.core.builder;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,9 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lpg.runtime.IMessageHandler;
-import lpg.runtime.IToken;
-import lpg.runtime.ParseErrorCodes;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -57,8 +53,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
-import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
 
@@ -75,41 +70,28 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 
-import polyglot.ast.Node;
-import polyglot.ast.PackageNode;
 import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
-import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
-import polyglot.frontend.Job;
-import polyglot.frontend.Parser;
-import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
-import polyglot.frontend.Goal;
-import polyglot.frontend.SourceGoal_c;
-import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
-import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.visit.NodeVisitor;
 
-import x10.parser.X10Lexer;
-import x10.parser.X10Parser;
 
 public class X10Builder extends IncrementalProjectBuilder {
 	/**
      * Builder ID for the X10 compiler. Must match the ID of the builder extension defined in plugin.xml.
      */
-    public static final String BUILDER_ID= X10Plugin.kPluginID + ".X10Builder";
+    public static final String BUILDER_ID= X10DTCorePlugin.kPluginID + ".X10Builder";
     /**
      * Problem marker ID for X10 compiler errors/warnings/infos. Must match the ID of the marker extension defined in plugin.xml.
      */
-    public static final String PROBLEMMARKER_ID= X10Plugin.kPluginID + ".problemMarker";
+    public static final String PROBLEMMARKER_ID= X10DTCorePlugin.kPluginID + ".problemMarker";
 
     private static final String ClasspathError= "Classpath error in project: ";
 
@@ -211,7 +193,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 marker.setAttribute(IMarker.CHAR_END, 0);
             }
         } catch (CoreException e) {
-            X10Plugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
+            X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
         }
         
     }
@@ -232,7 +214,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             marker.setAttribute(IMarker.SEVERITY, severity);
             marker.setAttribute(IMarker.PRIORITY, priority);
         } catch (CoreException e) {
-            X10Plugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
+            X10DTCorePlugin.getInstance().writeErrorMsg("Couldn't add marker to project " + project.getName());
         }
     }
 
@@ -241,238 +223,14 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @param sources
      */
     private void invokeX10C(Collection<IFile> sources) {
-        X10Plugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
         clearMarkersOn(sources);
         compileAllSources(sources);
-        X10Plugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
-    }
-
-    // TODO This goal should probably prereq Disambiguated instead of CodeGenerated,
-    // and should be made a prereq of TypeChecked, so that dependency information
-    // gets collected even if code can't be generated for some reason.
-    private class ComputeDependenciesGoal extends VisitorGoal {
-        public ComputeDependenciesGoal(Job job) {
-            super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
-            addPrereq(job.extensionInfo().scheduler().TypeChecked(job));
-        }
-    }
-
-    private class CheckPackageDeclVisitor extends NodeVisitor {
-        private final Job fJob;
-        private boolean fSeenPkg= false;
-
-        public CheckPackageDeclVisitor(Job job) {
-            fJob= job;
-        }
-        @Override
-        public NodeVisitor begin() {
-            String path= fJob.source().path();
-            // BRT don't bother looking for dependencies if we're in jar/zip
-            //PORT1.7
-            if(path.endsWith(".jar")|| path.endsWith(".zip")) {
-            	System.out.println("looking for resource in zip/jar???");
-            	return null;
-            }
-            return super.begin();
-        }
-        private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
-            if (!actualPkg.equals(declaredPkg)) {
-                fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pos));
-            }
-        }
-
-        @Override
-        public NodeVisitor enter(Node n) {
-            if (n instanceof PackageNode) {
-                PackageNode pkg= (PackageNode) n;
-                Source src= fJob.source();
-                String declaredPkg= pkg.package_().get().fullName().name().toString();
-                String actualPkg= determineActualPackage(src);
-
-                checkPackage(declaredPkg, actualPkg, pkg.position());
-                fSeenPkg= true;
-            }
-            return super.enter(n);
-        }
-
-        private String determineActualPackage(Source src) {
-            String srcPath= src.path();
-            String projPath= X10Builder.this.fProject.getLocation().toOSString();
-            String pkgPath;
-
-            if (srcPath.startsWith(projPath)) {
-                pkgPath= srcPath.substring(projPath.length()+1);
-            } else {
-                pkgPath= srcPath;
-            }
-            if (pkgPath.startsWith("src" + File.separator)) {
-                pkgPath= pkgPath.substring(4);
-            }
-            if (pkgPath.length() == src.name().length()) {
-                return ""; // It's in the default pkg
-            } else {
-                return pkgPath.substring(0, pkgPath.length() - src.name().length() - 1).replace(File.separatorChar, '.');
-            }
-        }
-
-        @Override
-        public Node override(Node n) {
-            if (fSeenPkg) {
-                return n;
-            }
-            return null;
-        }
-        @Override
-        public void finish() {
-            if (!fSeenPkg) { // No package decl -> implicitly in the default package
-                Source src= fJob.source();
-                checkPackage("", determineActualPackage(src), new Position(src.path(), src.name(), 1, 1));
-            }
-        }
-    };
-
-    private class CheckPackageDeclGoal extends VisitorGoal {
-        public CheckPackageDeclGoal(Job job) {
-            super(job, new CheckPackageDeclVisitor(job));
-            addPrereq(job.extensionInfo().scheduler().intern(new ComputeDependenciesGoal(job)));
-        }
-    }
-
-    private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG ", "// FIXME "  };
-
-    private class CollectBookmarksGoal extends SourceGoal_c {
-        public CollectBookmarksGoal(Job job) {
-            super(job);
-            addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job)));
-        }
-		@Override
-		public boolean runTask() {
-            Job job= this.job();
-            Node ast= job.ast();
-            String path= job.source().path();
-            // PORT1.7 if in a zip or jar then we don't need to...
-            if(path.contains("*.zip")||path.contains("*.jar")) {
-            	return true;
-            }
-            X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
-            
-            List<IToken> adjuncts=null;
-            try {
-            	//PORT1.7 -- uses getLeftToken()... can we get to parse stream in another way??
-            	//adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
-            	throw new UnsupportedOperationException("X10Builder collecting bookmarks, need adjuncts");
-            }
-            catch(Exception e) {
-            	//PORT1.7 -- Hack to postpone JPGPosition.getLeftIToken() problem (always null now, need general method to recompute)
-            	X10Plugin.getInstance().logException("Error while collecting bookmarks during build: JPGPosition / adjuncts", e);
-            	adjuncts=new ArrayList<IToken>();
-            }
-            IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
-
-            try {
-                file.deleteMarkers(IMarker.TASK, true, 1);
-            } catch (CoreException e) {
-                X10Plugin.getInstance().logException("Error while creating task", e);
-            }
-
-            for(IToken adjunct: adjuncts) {
-                String adjunctStr= adjunct.toString();
-                for(int i=0; i < sTaskPrefixes.length; i++) {
-                    if (adjunctStr.startsWith(sTaskPrefixes[i])) {
-                        String msg= adjunctStr.substring(3);
-                        int lineNum= adjunct.getLine();
-                        int startOffset= adjunct.getStartOffset();
-                        int endOffset= adjunct.getEndOffset();
-
-                        addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
-                    }
-                }
-            }
-            return true;
-		}
-    }
-
-    private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
-    	@Override
-    	protected Scheduler createScheduler() {
-    		return new X10Scheduler(this) {
-    			@Override
-    			public List<Goal> goals(Job job) {
-    				List<Goal> goals= super.goals(job);
-    				Goal endGoal = goals.get(goals.size()-1);
-    				if(!(endGoal.name().equals("End"))) {
-    					throw new IllegalStateException("Not an End Goal?");
-    				}
-					endGoal.addPrereq(new CollectBookmarksGoal(job));
-					return goals;
-    			}
-    		};
-    	}
-    	/**
-    	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
-    	 */
-    	public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
-//    	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-//    	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
-//    	    }
-
-    	    try {
-                //
-                // X10Lexer may be invoked using one of two constructors.
-                // One constructor takes as argument a string representing
-                // a (fully-qualified) filename; the other constructor takes
-                // as arguments a (file) Reader and a string representing the
-                // name of the file in question. Invoking the first
-                // constructor is more efficient because a buffered File is created
-                // from that string and read with one (read) operation. However,
-                // we depend on Polyglot to provide us with a fully qualified
-                // name for the file. In Version 1.3.0, source.name() yielded a
-                // fully-qualified name. In 1.3.2, source.path() yields a fully-
-                // qualified name. If this assumption still holds then the
-                // first constructor will work.
-                // The advantage of using the Reader constructor is that it
-                // will always work, though not as efficiently.
-                //
-    	    	final X10Lexer x10_lexer = new X10Lexer(reader, source.name());
-                //
-//                final X10Lexer x10_lexer= (source instanceof SourceLoader.ZipSource) ? new X10Lexer() : new X10Lexer(source.path());//PORT1.7 zip file requires different Lexer
-//                if (source instanceof SourceLoader.ZipSource) {
-//                	//PORT 1.7 special case for loading from jar file
-//                	SourceLoader.ZipSource zipSource = (SourceLoader.ZipSource) source;
-//                	String name= zipSource.name();
-//                	String contents= BuilderUtils.getFileContents(zipSource.open());
-//
-//                	x10_lexer.initialize(contents.toCharArray(), name);
-//                }
-                x10_lexer.getILexStream().setMessageHandler(new IMessageHandler() {
-                    public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
-                       //PORT1.7 -- need to get info (e.g. is this zipfile?) 
-                    	// need file and entry name from sourceLoader$ZipSource
-                    	// to be able to issue accurate error messages
-                    	// store enough info in the Position so that createMarkers can put marker in right spot (or ???)
-                    	//(but.. runtime jar file will usually be outside the workspace)
-                    	// UBT
-                    	// check whether this message corresponds to something outside workspace; if so, discard or put "someplace obvious"
-                    	//            ( visible)  -- project root folder???  so that marker will show up and info isn't lost
-                    	Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
-                                msgLocation[IMessageHandler.START_COLUMN_INDEX], msgLocation[IMessageHandler.END_LINE_INDEX],
-                                msgLocation[IMessageHandler.END_COLUMN_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX],
-                                msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
-                        eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + ParseErrorCodes.errorMsgText[errorCode], p);
-                    }
-                });
-                X10Parser x10_parser= new X10Parser(x10_lexer.getILexStream(), ts, nf, source, eq); // Create the parser
-                x10_lexer.lexer(x10_parser.getIPrsStream());
-                return x10_parser; // Parse the token stream to produce an AST
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            throw new IllegalStateException("Could not parse " + source.path());
-        }
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
     private void compileAllSources(Collection<IFile> sourceFiles) {
-        fExtInfo= new BuilderExtensionInfo();
+        fExtInfo= new BuilderExtensionInfo(this);
 
         List<Source> streams= collectStreamSources(sourceFiles);
         final Collection<ErrorInfo> errors= new ArrayList<ErrorInfo>();
@@ -516,7 +274,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             }
         } catch (Exception e) {
             String msg= e.getMessage();
-            X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : e.getClass().getName()));
+            X10DTCorePlugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : e.getClass().getName()));
             addProblemMarkerTo(fProject, "An internal X10 compiler error occurred; see the Error Log for more details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 //            postMsgDialog("Internal Compiler Error", "An internal X10 compiler error occurred; see the Error Log for more details.");
         }
@@ -550,7 +308,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
-            IPreferencesService prefService = X10Plugin.getInstance().getPreferencesService();
+            IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
             
             optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10Constants.P_BADPLACERUNTIMECHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS)));
@@ -578,16 +336,16 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (!e.getMessage().equals("must specify at least one source file"))
                 System.err.println(e.getMessage());
         } catch (JavaModelException e) {
-            X10Plugin.getInstance().writeErrorMsg("Unable to determine project source folder location for " + fProject.getName());
+            X10DTCorePlugin.getInstance().writeErrorMsg("Unable to determine project source folder location for " + fProject.getName());
         }
-        X10Plugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
-        X10Plugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
-        X10Plugin.getInstance().maybeWriteInfoMsg("Compiler templates = " + Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY);
-        X10Plugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Compiler templates = " + Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY);
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Output directory = " + opts.output_directory);
     }
 
 	protected void echoBuildOptions(List<String> optsList) {
-		X10Plugin plugin = X10Plugin.getInstance();
+		X10DTCorePlugin plugin = X10DTCorePlugin.getInstance();
 		MessageConsole console = plugin.getConsole();
 		MessageConsoleStream consoleOut = console.newMessageStream();
 		consoleOut.println(plugin.getTimeAndDate());
@@ -601,7 +359,6 @@ public class X10Builder extends IncrementalProjectBuilder {
 		} catch (IOException e1) {
 			//e1.printStackTrace();
 			plugin.logException("Exception writing build options to console", e1);
-			
 		}
 		plugin.showConsole();
 	}
@@ -666,7 +423,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             	// can't be stored in Java class files, and for now, these source files
             	// actually live in the X10 runtime jar.
             	IPath path= e.getPath();
-            	if (path.toPortableString().contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {
+            	if (path.toPortableString().contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
             		srcPath.add(path);
             	}
             }
@@ -700,7 +457,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             	int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
 
             	if (errorPos == Position.COMPILER_GENERATED)
-            		X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
+            		X10DTCorePlugin.getInstance().writeErrorMsg(errorInfo.getMessage());
             	else
             		addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
                         .offset(), errorPos.endOffset());
@@ -765,9 +522,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 
                 streams.add(srcStream);
             } catch (IOException e) {
-                X10Plugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
+                X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
             } catch (CoreException e) {
-                X10Plugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
+                X10DTCorePlugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
             }
         }
         return streams;
@@ -812,7 +569,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 //              buff.append(runtimePath);
 //          }
         } catch (JavaModelException e) {
-            X10Plugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
+            X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
         }
         return buff.toString();
     }
@@ -836,19 +593,19 @@ public class X10Builder extends IncrementalProjectBuilder {
         fProject= getProject();
         fX10Project= JavaCore.create(fProject);
 
-        X10Plugin.getInstance().maybeWriteInfoMsg("build kind = " + buildKind[kind]);
+        X10DTCorePlugin.getInstance().maybeWriteInfoMsg("build kind = " + buildKind[kind]);
 
         if (fDependencyInfo == null)
             fDependencyInfo= new PolyglotDependencyInfo(fProject);
 
         fMonitor= monitor;
         if (sPlugin == null)
-            sPlugin= X10Plugin.getInstance();
+            sPlugin= X10DTCorePlugin.getInstance();
 
         // Refresh prefs every time so that changes take effect on the next build.
         sPlugin.refreshPrefs();
 
-        if (X10Plugin.x10CompilerPath.equals("???")) {
+        if (X10DTCorePlugin.x10CompilerPath.equals("???")) {
             postMsgDialog("X10 Error", "X10 common directory location not yet set.");
             return null;
         }
@@ -893,13 +650,13 @@ public class X10Builder extends IncrementalProjectBuilder {
                         file.delete(true, monitor);
                     } catch (CoreException e) {
                         if (status == null) {
-                            status= new Status(IStatus.ERROR, X10Plugin.kPluginID, e.getLocalizedMessage());
+                            status= new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
                         } else if (status instanceof MultiStatus) {
                             MultiStatus ms= (MultiStatus) status;
-                            ms.add(new Status(IStatus.ERROR, X10Plugin.kPluginID, e.getLocalizedMessage()));
+                            ms.add(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage()));
                         } else {
-                            IStatus newStat= new Status(IStatus.ERROR, X10Plugin.kPluginID, e.getLocalizedMessage());
-                            status= new MultiStatus(X10Plugin.kPluginID, IStatus.ERROR, new IStatus[] { status, newStat }, "Multiple errors occurred", null);
+                            IStatus newStat= new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, e.getLocalizedMessage());
+                            status= new MultiStatus(X10DTCorePlugin.kPluginID, IStatus.ERROR, new IStatus[] { status, newStat }, "Multiple errors occurred", null);
                         }
                     }
                     monitor.worked(1);
@@ -1070,7 +827,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private void postMsgDialog(final String title, final String msg) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
             public void run() {
-                Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+                Shell shell= X10DTCorePlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
 
                 MessageDialog.openInformation(shell, title, msg);
             }
@@ -1086,7 +843,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private void postQuestionDialog(final String title, final String query, final Runnable runIfYes, final Runnable runIfNo) {
         PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
             public void run() {
-                Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+                Shell shell= X10DTCorePlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
                 boolean response= MessageDialog.openQuestion(shell, title, query);
 
                 if (response)
@@ -1150,7 +907,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 }
             }
         } catch (JavaModelException e) {
-            X10Plugin.getInstance().logException("Unable to resolve X10 project classpath", e);
+            X10DTCorePlugin.getInstance().logException("Unable to resolve X10 project classpath", e);
         }
         return dependentProjects;
     }
@@ -1202,13 +959,13 @@ public class X10Builder extends IncrementalProjectBuilder {
         System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
         if (delta != null) {
-            X10Plugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
             delta.accept(fDeltaVisitor);
-            X10Plugin.getInstance().maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...");
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...");
         } else {
-            X10Plugin.getInstance().maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==");
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==");
             fProject.accept(fResourceVisitor);
-            X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
+            X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
         }
         System.out.println("fSourcesToCompile="+fSourcesToCompile);// OK here
         collectChangeDependents();
@@ -1249,7 +1006,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
             fProject.accept(fErrorVisitor);
         } catch (CoreException e) {
-            X10Plugin.getInstance().logException("Error while looking for source files with errors", e);
+            X10DTCorePlugin.getInstance().logException("Error while looking for source files with errors", e);
         }
     }
 
@@ -1267,7 +1024,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
                 final IPath entryPath= cpEntry.getPath();
                 if (!entryPath.segment(0).equals(fX10Project.getElementName())) {
-                    X10Plugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + entryPath);
+                    X10DTCorePlugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + entryPath);
                     continue;
                 }
                 fSrcFolderPaths.add(entryPath.removeFirstSegments(1));
