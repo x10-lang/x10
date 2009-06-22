@@ -96,7 +96,7 @@ public class CompilerDelegate {
 	try {
             List/*<IPath>*/ projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);
-	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath }, new HashSet());
+	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath }, new HashSet());
 	} catch (UsageError e) {
 	    if (!e.getMessage().equals("must specify at least one source file"))
 		System.err.println(e.getMessage());
