@@ -36,6 +36,7 @@ public class X10Plugin extends UIDEPluginBase {
 	X10Preferences.autoAddRuntime= prefStore.getBoolean(PreferenceConstants.P_AUTO_ADD_RUNTIME);
 	X10Preferences.x10CommonPath= prefStore.getString(PreferenceConstants.P_X10COMMON_PATH);
 	X10Preferences.x10ConfigFile= prefStore.getString(PreferenceConstants.P_X10CONFIG_FILE);
+	fEmitInfoMessages= X10Preferences.builderEmitMessages;
     }
 
     /**
@@ -58,6 +59,7 @@ public class X10Plugin extends UIDEPluginBase {
 
     public void refreshPrefs() {
         super.refreshPrefs();
+        fEmitInfoMessages= X10Preferences.builderEmitMessages;
         // Set the "x10.configuration" System property from the corresponding preference
         // value, since polyglot.ext.x10.Configuration relies on its being set, and a
         // static initializer there throws an exception if it can't find the config file.
