@@ -12,6 +12,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
+import polyglot.frontend.Source;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorLimitError;
 import polyglot.util.ErrorQueue;
@@ -42,7 +43,7 @@ public final class PolyglotFrontEnd extends Compiler {
 
 		// First, create a goal to compile every source file.
 		for(Iterator i= sources.iterator(); i.hasNext(); ) {
-		    StreamSource source= (StreamSource) i.next();
+		    Source source= (Source) i.next();
 
 		    // mark this source as being explicitly specified by the user.
 		    source.setUserSpecified(true);
