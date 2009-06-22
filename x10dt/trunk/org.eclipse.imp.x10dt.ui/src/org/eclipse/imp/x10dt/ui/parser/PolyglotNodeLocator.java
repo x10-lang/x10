@@ -37,7 +37,7 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 
     private final LexStream fLS;
 
-    private boolean DEBUG= true;
+    private boolean DEBUG= false;
 
     private NodeVisitor fVisitor= new NodeVisitor() {
 	public NodeVisitor enter(Node n) {
