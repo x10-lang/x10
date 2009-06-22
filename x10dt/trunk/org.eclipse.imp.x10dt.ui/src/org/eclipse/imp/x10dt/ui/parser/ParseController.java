@@ -11,6 +11,7 @@ import lpg.runtime.IToken;
 import lpg.runtime.Monitor;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.uide.parser.AstLocator;
 import org.eclipse.uide.parser.IASTNodeLocator;
@@ -22,29 +23,34 @@ import org.eclipse.uide.parser.ParseError;
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 
-public class ParseController implements IParseController
-{
-    private IProject project;
-    private String filePath;
-    private CompilerDelegate compiler;
-    private Node currentAst;
+public class ParseController implements IParseController {
+    private IProject fProject;
+    private IPath fFilePath;
+    private CompilerDelegate fCompiler;
+    private Node fCurrentAst;
 
-    private char keywords[][];
-    private boolean isKeyword[];
+    private char fKeywords[][];
+    private boolean fIsKeyword[];
 
-    public void initialize(String filePath, IProject project, IMessageHandler handler) {
-        this.project= project;
-        this.filePath= filePath;
+    public void initialize(IPath filePath, IProject project, IMessageHandler handler) {
+        this.fProject= project;
+        this.fFilePath= filePath;
+    }
+    public IProject getProject() {
+	return fProject;
+    }
+    public IPath getPath() {
+	return fFilePath;
     }
     public IParser getParser() {
-        return new ParserDelegate(compiler.getParser());
+        return new ParserDelegate(fCompiler.getParser());
     }
     public ILexer getLexer() {
-        return new LexerDelegate(compiler.getLexer());
+        return new LexerDelegate(fCompiler.getLexer());
     }
-    public Object getCurrentAst() { return currentAst; }
-    public char [][] getKeywords() { return keywords; }
-    public boolean isKeyword(int kind) { return isKeyword[kind]; }
+    public Object getCurrentAst() { return fCurrentAst; }
+    public char [][] getKeywords() { return fKeywords; }
+    public boolean isKeyword(int kind) { return fIsKeyword[kind]; }
     public int getTokenIndexAtCharacter(int offset)
     {
         int index = getParser().getParseStream().getTokenIndexAtCharacter(offset);
@@ -55,7 +61,7 @@ public class ParseController implements IParseController
     }
     public IASTNodeLocator getNodeLocator() { return new PolyglotNodeLocator(getLexer().getLexStream()); }
 
-    public boolean hasErrors() { return currentAst == null; }
+    public boolean hasErrors() { return fCurrentAst == null; }
     public List getErrors() { return Collections.singletonList(new ParseError("parse error", null)); }
     
     public ParseController() {
@@ -86,13 +92,13 @@ public class ParseController implements IParseController
         try
         {
             MyMonitor my_monitor = new MyMonitor(monitor);
-            compiler = new CompilerDelegate(my_monitor, project);  // Create the compiler
+            fCompiler = new CompilerDelegate(my_monitor, fProject);  // Create the compiler
             fileSource= new SafariFileSource(contents,
-                                             new File(project != null ? project.getLocation().append(filePath).toString() : filePath),
-                                             filePath);
+                                             new File(fProject != null ? fProject.getLocation().append(fFilePath).toString() : fFilePath.toOSString()),
+                                             fFilePath.toOSString());
             List/*<SourceStream>*/ streams= new ArrayList();
             streams.add(fileSource); //PC: just to test...
-            compiler.getFrontEnd().compile(streams);
+            fCompiler.getFrontEnd().compile(streams);
         }
         catch (IOException e)
         {
@@ -101,29 +107,29 @@ public class ParseController implements IParseController
             // RMF 8/2/2006 - retrieve the AST if there is one; some later phase of compilation
             // may fail, even though the AST is well-formed enough to provide an outline.
             if (fileSource != null)
-                currentAst = (Node) compiler.getJob(fileSource).ast();
+                fCurrentAst = (Node) fCompiler.getJob(fileSource).ast();
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
             // Must do this after attempting parsing (even though that might fail), since it depends
             // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
             // ExtensionInfo.parser(). Ugghh.
             cacheKeywordsOnce();
         }
-        return currentAst;
+        return fCurrentAst;
     }
 
     private void cacheKeywordsOnce() {
-        if (keywords == null) {
+        if (fKeywords == null) {
             String tokenKindNames[] = getParser().getParseStream().orderedTerminalSymbols();
-            this.isKeyword = new boolean[tokenKindNames.length];
-            this.keywords = new char[tokenKindNames.length][];
+            this.fIsKeyword = new boolean[tokenKindNames.length];
+            this.fKeywords = new char[tokenKindNames.length][];
 
             int [] keywordKinds = getLexer().getKeywordKinds();
             for (int i = 1; i < keywordKinds.length; i++)
             {
                 int index = getParser().getParseStream().mapKind(keywordKinds[i]);
 
-                isKeyword[index] = true;
-                keywords[index] = getParser().getParseStream().orderedTerminalSymbols()[index].toCharArray();
+                fIsKeyword[index] = true;
+                fKeywords[index] = getParser().getParseStream().orderedTerminalSymbols()[index].toCharArray();
             }
         }
     }
