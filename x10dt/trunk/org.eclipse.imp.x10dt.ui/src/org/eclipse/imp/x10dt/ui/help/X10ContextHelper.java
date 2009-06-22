@@ -39,11 +39,13 @@ import org.eclipse.ui.IWorkbenchPart;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NamedVariable;
+import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.TypeNode;
@@ -68,7 +70,7 @@ public class X10ContextHelper implements IHelpService {
     }
 
     public IContext getContext(IWorkbenchPart part) {
-        return HelpSystem.getContext("x10EditorContextId");
+        return HelpSystem.getContext("x10EditorContext");
     }
     
     public String getHelp(Object target, IParseController parseController) {
@@ -140,16 +142,29 @@ public class X10ContextHelper implements IHelpService {
             return id.id();
         } else if (target instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) target;
-            Type type= typeNode.type();
-            String qualifiedName= typeNode.qualifier().toString();
-            qualifiedName= stripArraySuffixes(qualifiedName);
+            PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+            Node parent= (Node) locator.getParentNodeOf(target, root);
 
-            if (isJavaType(qualifiedName)) {
-                IType javaType= findJavaType(qualifiedName, parseController);
+            if (parent instanceof ConstructorDecl) {
+                ConstructorDecl cd= (ConstructorDecl) parent;
 
-                return (javaType != null) ? getJavaDocFor(javaType) : "";
+                return getX10DocFor(cd.constructorInstance());
+            } else if (parent instanceof New) {
+                New n= (New) parent;
+
+                return getX10DocFor(n.constructorInstance());
             } else {
-                return type.isClass() ? getX10DocFor((ClassType) type) : "";
+                Type type= typeNode.type();
+                String qualifiedName= typeNode.qualifier().toString();
+                qualifiedName= stripArraySuffixes(qualifiedName);
+
+                if (isJavaType(qualifiedName)) {
+                    IType javaType= findJavaType(qualifiedName, parseController);
+
+                    return (javaType != null) ? getJavaDocFor(javaType) : "";
+                } else {
+                    return type.isClass() ? getX10DocFor((ClassType) type) : "";
+                }
             }
         }
         // JavadocContentAccess seems to provide no way to get at that package docs...
