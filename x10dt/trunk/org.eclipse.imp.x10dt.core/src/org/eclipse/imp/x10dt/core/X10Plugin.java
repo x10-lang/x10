@@ -25,10 +25,13 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferenceCache;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -190,5 +193,11 @@ public class X10Plugin extends PluginBase {
 		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
 		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
 		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
+		
+		// Need the following to get initial tab width to work properly on eclipse startup with and w/o new workspace
+		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
+		Integer tabWidth = preferencesService.getIntPreference(org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH);
+		prefStore.setValue(org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, tabWidth);
+		PreferenceCache.tabWidth = tabWidth.intValue();
 	}
 }
