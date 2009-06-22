@@ -36,18 +36,18 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
 	} else if (node instanceof Call) {
 	    Call call= (Call) node;
 	    MethodInstance mi= call.methodInstance();
-	    Declaration decl= mi.declaration();
-	    return decl;
+	    if (mi != null)
+		return mi.declaration();
 	} else if (node instanceof Field) {
 	    Field field= (Field) node;
 	    FieldInstance fi= field.fieldInstance();
-	    Declaration decl= fi.declaration();
-	    return decl;
+	    if (fi != null)
+		return fi.declaration();
 	} else if (node instanceof Local) {
 	    Local local= (Local) node;
 	    LocalInstance li= local.localInstance();
-	    Declaration decl= li.declaration();
-	    return decl;
+	    if (li != null)
+		return li.declaration();
 	}
 	return null;
     }
