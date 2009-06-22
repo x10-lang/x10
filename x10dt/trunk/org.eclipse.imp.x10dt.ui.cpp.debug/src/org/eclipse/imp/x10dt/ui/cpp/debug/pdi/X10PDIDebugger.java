@@ -218,6 +218,14 @@ public final class X10PDIDebugger implements IPDIDebugger {
         }
       });
     }
+    IPDebugTarget debugTarget = (IPDebugTarget) fLaunch.getDebugTarget();
+    if (debugTarget != null) {
+      IPSession session = debugTarget.getSession();
+      if (session != null)
+        PTPDebugUIPlugin.getUIDebugManager().registerTasks(session, session.getTasks());
+      else
+        System.err.println("No session found");
+    }
     notifyOkEvent(this.fPDISession.getTasks());
   }
 
@@ -1714,8 +1722,6 @@ public final class X10PDIDebugger implements IPDIDebugger {
         } finally {
           this.fWaitLock.unlock();
         }
-        IPSession session = ((IPDebugTarget) fLaunch.getDebugTarget()).getSession();
-        PTPDebugUIPlugin.getUIDebugManager().registerTasks(session, session.getTasks());
       }
     } catch (IOException except) {
       DebugCore.log(IStatus.ERROR, "Unable to access socket input stream", except);
