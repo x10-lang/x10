@@ -17,7 +17,7 @@ public class X10Constants {
 
 	public static final String P_SOURCEFONT = "SourceFont";
 
-        public static final String P_DEFAULT_RUNTIME = "DefaultRuntime";
+	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
 
 	public static final String P_BADPLACERUNTIMECHECK = "BadPlaceRuntimeCheck";
 
