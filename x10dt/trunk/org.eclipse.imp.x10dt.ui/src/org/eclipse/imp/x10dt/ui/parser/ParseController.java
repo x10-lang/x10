@@ -20,7 +20,10 @@ package org.eclipse.imp.x10dt.ui.parser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import lpg.runtime.IToken;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -33,9 +36,11 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.jface.text.IRegion;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 
@@ -48,18 +53,22 @@ public class ParseController extends SimpleLPGParseController {
     }
 
     public IParser getParser() {
-    	if(fParser==null && fCompiler.getParser() != null) {
-    		fParser= new ParserDelegate(fCompiler.getParser());
+    	if (fParser == null && fCompiler.getParser() != null) {
+    	    fParser= new ParserDelegate(fCompiler.getParser());
     	}
     	return fParser;
     }
 
     public ILexer getLexer() {
-		if (fLexer == null) {
-			fLexer = new LexerDelegate(fCompiler.getLexer());
-		}
-		return fLexer;
-	}
+        if (fLexer == null) {
+            fLexer = new LexerDelegate(fCompiler.getLexer());
+        }
+        return fLexer;
+    }
+
+    public CompilerDelegate getCompiler() {
+        return fCompiler;
+    }
 
     /**
      * was getNodeLocator
@@ -95,6 +104,10 @@ public class ParseController extends SimpleLPGParseController {
             
             streams.add(fileSource); // PC: just to test...
             fCompiler= new CompilerDelegate(fMonitor, handler, proj); // Create the compiler
+            // RMF 5/11/2009 - Make sure to create new parser/lexer delegates, so that no one
+            // gets stale information (e.g. prev token stream) if they go through the delegates.
+            fParser= new ParserDelegate(fCompiler.getParser());
+            fLexer= new LexerDelegate(fCompiler.getLexer());
             fCompiler.compile(streams);
         } catch (IOException e) {
             throw new Error(e);
@@ -116,5 +129,31 @@ public class ParseController extends SimpleLPGParseController {
             }
         }
         return fCurrentAst;
+    }
+
+    /**
+     * Polyglot has a thread-local variable that must be initialized in each thread
+     * that uses the front end. The Eclipse platform creates many threads that may
+     * access the compiler front end (on behalf of various services like hover help
+     * or the documentation provider), and we don't have control over where/when this
+     * happens. As a result, this method is used to initialize the thread-local variable
+     * from within those accessor methods that give the client access to the front-end.
+     */
+    private void initializeGlobalsIfNeeded() {
+        if (Globals.Compiler() == null) {
+            Globals.initialize(fCompiler.getCompiler());
+        }
+    }
+
+    @Override
+    public Object getCurrentAst() {
+        initializeGlobalsIfNeeded();
+        return super.getCurrentAst();
+    }
+
+    @Override
+    public Iterator<IToken> getTokenIterator(IRegion region) {
+        initializeGlobalsIfNeeded();
+        return super.getTokenIterator(region);
     }
 }
