@@ -24,23 +24,23 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 
     private NodeVisitor fVisitor= new NodeVisitor() {
 	public NodeVisitor enter(Node n) {
-		//System.out.println("Entering node type = " + n.getClass().getName());
+	    //System.out.println("Entering node type = " + n.getClass().getName());
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
 	    Position pos= n.position();
 	    
 	    // SMS 15 Jun 2006:
-	    if (pos.line() < 0) {
-	    	//System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
+	    if (pos == null || pos.line() < 0) {
+	    	System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
 	    	return this;
 	    }
 	    
-	    //System.out.println("Selection extent: [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
-	    int nodeStartOffset= fLS.getLineOffset(pos.line()-1) + pos.column();
-	    int nodeEndOffset= fLS.getLineOffset(pos.endLine()-1) + pos.endColumn();
+//	    System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
+	    int nodeStartOffset= pos.offset();
+	    int nodeEndOffset= pos.endOffset();
 	    //System.out.println("Examining " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + ']');
 
-    	if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {	
-    		//System.out.println(" --> " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
+	    if (nodeStartOffset <= fOffset && nodeEndOffset >= fEndOffset) {	
+//    		System.out.println(" --> " + n.getClass().getName() + " node @ [" + nodeStartOffset + "->" + nodeEndOffset + "] selected.");
     		fNode[0]= n;
 	    }
 	    return this;
@@ -59,11 +59,11 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    	return null;
 	    }
 	    
-	    int nodeStartOffset= fLS.getLineOffset(pos.line()-1) + pos.column();
-	    int nodeEndOffset= fLS.getLineOffset(pos.endLine()-1) + pos.endColumn();
+	    int nodeStartOffset= pos.offset();
+	    int nodeEndOffset= pos.endOffset();
 	    
-	    if (nodeStartOffset == fOffset) System.out.println("NodeStartOffset = fOffset");
-	    if (nodeEndOffset == fEndOffset) System.out.println("NodeEndOffset = fEndOffset");
+//	    if (nodeStartOffset == fOffset) System.out.println("NodeStartOffset = fOffset");
+//	    if (nodeEndOffset == fEndOffset) System.out.println("NodeEndOffset = fEndOffset");
 	    
 	    // SMS 31 Jul 2006
 	    // There's a problem with trying to filter nodes using a condition like
@@ -130,14 +130,15 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	else
 	    return -1;
 
-	if (pos instanceof JPGPosition) {
-	    JPGPosition jpgPos = (JPGPosition) pos;
-	    return jpgPos.getLeftIToken().getStartOffset();
-    	} else {
-    	    // should probably do something more constructive, but defer that for now
-    	    System.err.println("PolyglotNodeLocator.getStartOffset:  Node position not a JPGPosition; returning -1");
-    	    return -1;
-    	}
+	return pos.offset();
+//	if (pos instanceof JPGPosition) {
+//	    JPGPosition jpgPos = (JPGPosition) pos;
+//	    return jpgPos.getLeftIToken().getStartOffset();
+//    	} else {
+//    	    // should probably do something more constructive, but defer that for now
+//    	    System.err.println("PolyglotNodeLocator.getStartOffset:  Node position not a JPGPosition; returning -1");
+//    	    return -1;
+//    	}
     }
 
     public int getEndOffset(Object node) {
@@ -150,14 +151,15 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	else
 	    return -1;
 
-    	if (pos instanceof JPGPosition) {
-    	    JPGPosition jpgPos = (JPGPosition) pos;
-    	    return jpgPos.getRightIToken().getEndOffset();
-    	} else {
-    	    // should probably do something more constructive, but defer that for now
-    	    System.err.println("PolyglotNodeLocator.getEndOffset:  Node position not a JPGPosition; returning -1");
-    	    return -1;
-    	}
+	return pos.endOffset();
+//    	if (pos instanceof JPGPosition) {
+//    	    JPGPosition jpgPos = (JPGPosition) pos;
+//    	    return jpgPos.getRightIToken().getEndOffset();
+//    	} else {
+//    	    // should probably do something more constructive, but defer that for now
+//    	    System.err.println("PolyglotNodeLocator.getEndOffset:  Node position not a JPGPosition; returning -1");
+//    	    return -1;
+//    	}
     }
 
     public int getLength(Object  node) {
