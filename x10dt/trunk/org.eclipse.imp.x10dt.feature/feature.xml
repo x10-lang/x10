@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt"
       label="%featureName"
-      version="1.7.3.2"
+      version="1.7.3.3"
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
