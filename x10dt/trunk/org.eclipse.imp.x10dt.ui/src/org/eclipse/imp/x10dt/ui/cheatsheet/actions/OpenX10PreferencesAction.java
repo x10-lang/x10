@@ -1,4 +1,4 @@
-package com.ibm.watson.safari.x10.cheatsheets.actions;
+package x10.uide.cheatsheet.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.PreferenceDialog;
