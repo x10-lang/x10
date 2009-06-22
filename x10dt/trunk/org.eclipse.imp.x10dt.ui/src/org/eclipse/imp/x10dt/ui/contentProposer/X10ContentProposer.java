@@ -177,7 +177,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
     private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (point ${p}: ${region}) {\n\n}\n", false);
     private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { }.force()", false);
 
-    public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
+    public ICompletionProposal[] getContentProposals(IParseController controller, int offset /*, ITextViewer viewer*/)
     {
 	ArrayList list = new ArrayList();
         //
@@ -308,20 +308,20 @@ list.add(new SourceProposal("Candidate: " + candidate, "", offset));
             }
             else
             {
-                IDocument docu= viewer.getDocument();
-                Region r= new Region(offset, prefix.length());
-                TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
-
-                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fRegion2DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fRegion3DTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fArrayNewTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fAsyncTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fForRegionTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fForEachTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fAtEachTemplate, tc, r, prefix);
-                addTemplateProposalIfMatch(list, fFutureTemplate, tc, r, prefix);
+//                IDocument docu= viewer.getDocument();
+//                Region r= new Region(offset, prefix.length());
+//                TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
+//
+//                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fRegion2DTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fRegion3DTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fArrayNewTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fAsyncTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fForRegionTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fForEachTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fAtEachTemplate, tc, r, prefix);
+//                addTemplateProposalIfMatch(list, fFutureTemplate, tc, r, prefix);
             }
 //          else list.add(new SourceProposal("Other: " + node.getClass().toString(), " source proposal ", 0));
 //
