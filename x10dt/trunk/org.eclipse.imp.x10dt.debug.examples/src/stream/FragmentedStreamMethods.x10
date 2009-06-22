@@ -5,7 +5,7 @@ package stream;
 @author vj
 * 
 * This version has some methodx calls for a more interesting stack trace  BRT 11/25/08
-*/
+*/ 
 public class FragmentedStreamMethods { 
 	const int MEG=1024*1024;
 	const double alpha=3.0D;
@@ -25,13 +25,12 @@ public class FragmentedStreamMethods {
 			ateach(point [p]:dist.UNIQUE) clocked (clk) {
 				double[] a = new double[LocalSize], b = new double[LocalSize], c=new double[LocalSize];
 				// Step 1. init vector
-				vectorInit(a, b, c, RLocal, p, LocalSize);
+				vectorInit(b, c, LocalSize);
 				// Step 2. addition in loop
-				loopAdd(a, b, c, RLocal, p, times);
+				loopAdd(a, b, c,  times);
 				// Step 3. verify
-				for (point [i]: RLocal) // verify (a,b,c)
-				    if (a[i] != b[i]+alpha* c[i]) 
-				    	async(place.FIRST_PLACE) clocked (clk) verified[0]=false;
+				verify(a, b, c, clk, verified);
+				
 
 			}
 		}
@@ -43,22 +42,32 @@ public class FragmentedStreamMethods {
 		return (double) ((double)(System.nanoTime() / 1000) * 1.e-6);
 	}
 	/** Initialize Vector */
-	public static void vectorInit(double[] a, double[] b, double[] c, region RLocal, int p, int LocalSize){
-		for (point [i] : RLocal) {   //vectorInit
+	public static void vectorInit(double[] b, double[] c, int LocalSize){
+		assert(b.length==c.length);
+		final int p=here.id;
+		for (int i=0; i<b.length;i++) {   //vectorInit
 			b[i] =1.5*(p*LocalSize+i);
 			c[i] = 2.5*(p*LocalSize+i);
 		}
 	}
-	public static void loopAdd(double[] a, double[] b, double[] c, region RLocal, int p, double[] times){
+	public static void loopAdd(double[] a, double[] b, double[] c,  double[] times){
+		final int p = here.id;
 		for (int j=0;j<NUM_TIMES; j++) { // loop add
 			if (p==0) times[j]= -mySecond(); 
-			vectorAdd(a,b,c,RLocal,p,times); 
+			vectorAdd(a,b,c); 
 			next; //barrier
 			if (p==0) times[j] += mySecond();
 		}
 	}
-	public static void vectorAdd(double[] a, double[] b, double[] c, region RLocal, int p, double[] times){
-		for (point [i]:RLocal ) a[i]=b[i]+alpha*c[i];  //vector add (a,b,c)
+	public static void vectorAdd(double[] a, double[] b, double[] c){
+		for (int i=0; i<a.length; i++) 
+			a[i]=b[i]+alpha*c[i];  //vector add (a,b,c)
+	}
+	public static void verify(double[] a, double[] b, double[] c, clock clk, final boolean[] verified){
+		for (int i=0; i<a.length; i++) {
+		    if (a[i] != b[i]+alpha* c[i]) 
+		    	async(place.FIRST_PLACE) clocked (clk) verified[0]=false;
+		}
 	}
 
 	public static void printStats(long N, double time, boolean verified) {
