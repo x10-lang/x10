@@ -123,7 +123,8 @@ public class CompilerDelegate {
     private void buildOptions(ExtensionInfo extInfo) {
 	Options opts= extInfo.getOptions();
 
-	Options.global= opts;
+	//Options.global= opts;//PORT1.7 probably no longer needed???
+
 	try {
             List<IPath> projectSrcLoc= getProjectSrcPath();
             String projectSrcPath= pathListToPathString(projectSrcLoc);
@@ -157,7 +158,7 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(entryPath);
 
-                if (entryPath.contains("x10.runtime")) {
+                if (entryPath.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
                     hasRuntime= true;
                     if (new File(entryPath).exists())
                         runtimeValid= true;
@@ -183,9 +184,9 @@ public class CompilerDelegate {
     }
 
     private String getRuntimePath() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 use constant for runtime bundle
         String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/x10.runtime_" + bundleVersion + ".jar";
+        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/"+X10Plugin.X10_RUNTIME_BUNDLE_ID+"_" + bundleVersion + ".jar";//PORT1.7 use constant
 
         return x10RuntimePath;
     }

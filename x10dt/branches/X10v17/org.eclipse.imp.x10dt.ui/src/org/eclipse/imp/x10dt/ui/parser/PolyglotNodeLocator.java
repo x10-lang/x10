@@ -37,7 +37,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import polyglot.ast.Node;
-import polyglot.types.Declaration;
+import polyglot.types.Def;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
@@ -263,8 +263,8 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
     public int getStartOffset(Object entity) {
 	Position pos;
 
-	if (entity instanceof Declaration)
-	    pos= ((Declaration) entity).position();
+	if (entity instanceof Def)   //PORT1.7 Declaration->Def
+	    pos= ((Def) entity).position();   //PORT1.7 Declaration->Def
 	else if (entity instanceof Node)
 	    pos= ((Node)entity).position();
 	else if (entity instanceof Position)
@@ -280,8 +280,8 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
     public int getEndOffset(Object entity) {
 	Position pos;
 
-	if (entity instanceof Declaration)
-	    pos= ((Declaration) entity).position();
+	if (entity instanceof Def) //PORT1.7 Declaration->Def
+	    pos= ((Def) entity).position(); //PORT1.7 Declaration->Def
 	else if (entity instanceof Node)
 	    pos= ((Node)entity).position();
 	else if (entity instanceof Position)
@@ -299,8 +299,8 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
     }
 
     public IPath getPath(Object node) {
-	if (node instanceof Declaration) {
-	    final String path= ((Declaration) node).position().file();
+	if (node instanceof Def) {//PORT1.7 Declaration->Def
+	    final String path= ((Def) node).position().file();//PORT1.7 Declaration->Def
 	    if (path.endsWith(".class")) {
 		// TODO Fix totally bogus hardwired rt.jar path inserted for testing.
 		// Probably need the IProject or ISourceProject to scan the classpath and

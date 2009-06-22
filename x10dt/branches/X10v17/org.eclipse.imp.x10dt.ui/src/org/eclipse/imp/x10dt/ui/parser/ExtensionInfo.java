@@ -26,10 +26,10 @@ import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
 
 import polyglot.frontend.FileSource;
+import polyglot.frontend.Goal;//PORT1.7 was polyglot.frontend.goals.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
 import polyglot.frontend.Source;
-import polyglot.frontend.goals.Goal;
 import polyglot.util.ErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
@@ -109,7 +109,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
      * Return the <code>Goal</code> to compile the source file associated with
      * <code>job</code> to completion.
      */
-    public Goal getCompileGoal(Job job) {
+    public Goal getCompileGoal(Job job) {  
         return scheduler.TypeChecked(job); // CodeGenerated(job);
     }
 }

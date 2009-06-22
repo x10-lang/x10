@@ -53,7 +53,7 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 public class X10LaunchShortcut implements ILaunchShortcut {
     public static final String X10LaunchConfigTypeID= "org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType";
-
+//PORT1.7 -- foo //replace all x10.runtime  also x10.compiler, .common, etc  remember: disable/remove all 1.5 stuff before launching
     private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
     public void launch(ISelection selection, String mode) {
@@ -194,8 +194,12 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_HEIGHT, AppletParametersTab.DEFAULT_APPLET_HEIGHT);
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_NAME, EMPTY_STRING);
 
+	    
+	    /**
+	     * TODO should use same code to compute location of x10 runtime (and don't use class folders, which the JDT doesn't support)
+	     */
 	    String commonPath= X10Plugin.x10CompilerPath;
-	    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";
+	    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + X10Plugin.X10_RUNTIME_BUNDLE_ID + File.separator + "classes";//PORT1.7 use constant
 
 	    wc.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
 

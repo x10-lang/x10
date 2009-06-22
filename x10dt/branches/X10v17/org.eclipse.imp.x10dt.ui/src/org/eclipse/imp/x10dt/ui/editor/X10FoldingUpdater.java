@@ -54,7 +54,7 @@ import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.Atomic;
 import polyglot.ext.x10.ast.ForEach;
 import polyglot.ext.x10.ast.Now;
-import polyglot.ext.x10.ast.ValueClassDecl;
+//import polyglot.ext.x10.ast.ValueClassDecl;  //PORT1.7  ValueClassDecl is gone
 import polyglot.ext.x10.ast.When;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parser.JPGPosition;
@@ -330,7 +330,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
         public NodeVisitor enter(Node n)
         {
             if (n instanceof ClassDecl ||
-                n instanceof ValueClassDecl ||
+                //n instanceof ValueClassDecl ||  //PORT1.7 ValueClassDecl no longer exists. do we need a replacement?
                 n instanceof Initializer ||
                 n instanceof ConstructorDecl ||
                 n instanceof MethodDecl ||

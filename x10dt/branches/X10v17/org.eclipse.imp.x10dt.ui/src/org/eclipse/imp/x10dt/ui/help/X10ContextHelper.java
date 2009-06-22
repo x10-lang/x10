@@ -59,7 +59,7 @@ import polyglot.ast.PackageNode;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
 import polyglot.types.ClassType;
-import polyglot.types.Declaration;
+//import polyglot.types.Declaration; //PORT1.7 Declaration no longer exists (why was it here???)
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodInstance;
 import polyglot.types.Qualifier;

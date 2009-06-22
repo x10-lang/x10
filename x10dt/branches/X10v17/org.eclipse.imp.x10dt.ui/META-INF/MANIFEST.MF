@@ -9,7 +9,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.jface.text,
- x10.compiler,
  org.eclipse.jdt.ui,
  org.eclipse.debug.core,
  org.eclipse.jdt.launching,
@@ -31,7 +30,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.analysis,
  org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.formatter,
- org.eclipse.help
+ org.eclipse.help,
+ x10.compiler.p3
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10UIPlugin
 Export-Package: org.eclipse.imp.x10dt.ui.parser

@@ -35,6 +35,7 @@ import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.visit.NodeVisitor;
 
@@ -69,18 +70,19 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
         } else if (node instanceof Call) {
             Call call= (Call) node;
             MethodInstance mi= call.methodInstance();
-            if (mi != null)
-                return mi.declaration();
+            if (mi != null) {
+            	return mi.def();  //PORT1.7mi.declaration() -> mi.def();
+            }
         } else if (node instanceof Field) {
             Field field= (Field) node;
             FieldInstance fi= field.fieldInstance();
             if (fi != null)
-                return fi.declaration();
+                return fi.def();   //PORT1.7 fi.declaration-> fi.def();
         } else if (node instanceof Local) {
             Local local= (Local) node;
             LocalInstance li= local.localInstance();
             if (li != null)
-                return li.declaration();
+                return li.def();  //PORT1.7 li.declaration() -> li.def();
         }
         return null; // If it's not something we know how to resolve, just return the node itself
     }
@@ -98,7 +100,8 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             public NodeVisitor enter(Node n) {
                 if (n instanceof LocalDecl) {
                     LocalDecl thisLD= (LocalDecl) n;
-                    if (thisLD.localInstance() == li)
+                    LocalInstance tli = thisLD.localDef().asInstance();//PORT1.7 thisLD.localInstance()->thisLD.localDef().asInstance()
+                    if (tli == li)//PORT1.7 was thisLD.localInstance()
                         ld[0]= thisLD;
                 }
                 return super.enter(n);
