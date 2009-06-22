@@ -229,8 +229,11 @@ final class PDTTarget implements IPDTTarget, IProcessEventListener, IThreadEvent
       }
     }
     if (pdtBreakpoint == null) {
-      this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, this.fBits, IPDIErrorInfo.DBG_FATAL, 
-                                                          "Stopped by breakpoints... But we don't any in PDT list!"));
+      final DebuggeeThread thread = processStopInfo.getStoppingThread(getProcess());
+      System.out.println("Breakpoint not found - resuming");
+      thread.resume();
+//      this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, this.fBits, IPDIErrorInfo.DBG_FATAL, 
+//                                                          "Stopped by breakpoints... But we don't any in PDT list!"));
     } else {
       final IPDIBreakpoint pdiBreakpoint = (IPDIBreakpoint) pdtBreakpoint.getRequestProperty();
       final DebuggeeThread thread = processStopInfo.getStoppingThread(getProcess());

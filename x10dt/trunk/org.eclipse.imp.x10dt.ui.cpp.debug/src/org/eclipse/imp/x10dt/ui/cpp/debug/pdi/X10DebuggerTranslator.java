@@ -87,7 +87,7 @@ import com.ibm.debug.internal.pdt.model.StackFrame;
 import com.ibm.debug.internal.pdt.model.ViewFile;
 
 @SuppressWarnings("restriction")
-final class X10DebuggerTranslator implements IDebuggerTranslator {
+public final class X10DebuggerTranslator implements IDebuggerTranslator {
 
   // --- Interface methods implementation
 
@@ -201,7 +201,7 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
 
   // --- Internal services
 
-  void init(final DebuggeeProcess process, final IProject project) {
+  public void init(final IProject project) {
     this.fCompiler = Globals.Compiler();
     if (this.fCompiler == null) {
       ExtensionInfo extInfo = new polyglot.ext.x10cpp.ExtensionInfo() {
