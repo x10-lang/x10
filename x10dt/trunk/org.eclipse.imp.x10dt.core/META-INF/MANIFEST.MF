@@ -4,7 +4,7 @@ Bundle-Name: X10 Language Support
 Bundle-SymbolicName: org.eclipse.imp.x10dt.core;singleton:=true
 Bundle-Version: 1.7.3
 Bundle-Activator: org.eclipse.imp.x10dt.core.X10Plugin
-Bundle-Vendor: rfuhrer@watson.ibm.com
+Bundle-Vendor: tibbitts@us.ibm.com
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.resources,
