@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ptp.debug.core.parallelDebuggers">
+      <debugger
+            class="org.eclipse.imp.x10dt.ui.cpp.debug.core.X10Debugger"
+            cpu="*"
+            id="org.eclipse.imp.x10dt.ui.cpp.debugger"
+            modes="debug"
+            name="%debugger.name"
+            platform="*">
+      </debugger>
+   </extension>
+   <extension
+         point="org.eclipse.imp.x10dt.ui.cpp.launch.debuggerTab">
+      <debuggerTab
+            class="org.eclipse.imp.x10dt.ui.cpp.debug.launching.X10DebuggerTab">
+      </debuggerTab>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.toggleBreakpointHandler">
+      <toggleBreakpointHandler
+            class="org.eclipse.imp.x10dt.ui.cpp.debug.breakpoints.X10ToggleBreakpointsHandler"
+            language="X10">
+      </toggleBreakpointHandler>
+   </extension>
+
+</plugin>
