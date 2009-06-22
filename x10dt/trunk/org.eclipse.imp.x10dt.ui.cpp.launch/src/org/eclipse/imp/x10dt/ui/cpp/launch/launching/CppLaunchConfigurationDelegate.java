@@ -32,6 +32,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
@@ -41,9 +42,12 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.IPQueue;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
+import org.eclipse.ptp.debug.core.IPDebugger;
+import org.eclipse.ptp.debug.core.launch.IPLaunch;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
@@ -121,6 +125,15 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
 
     return attrMgr;
+  }
+
+  protected void doCompleteJobLaunch(ILaunchConfiguration configuration,
+                                     String mode, IPLaunch launch, AttributeManager mgr,
+                                     IPDebugger debugger, IPJob job)
+  {
+    if (mode.equals(ILaunchManager.DEBUG_MODE))
+      job.setDebug();
+    super.doCompleteJobLaunch(configuration, mode, launch, mgr, debugger, job);
   }
 
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, 
