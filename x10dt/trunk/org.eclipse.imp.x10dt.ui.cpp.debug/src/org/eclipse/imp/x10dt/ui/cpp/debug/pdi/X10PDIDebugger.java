@@ -1008,6 +1008,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         // byte[] bytes = rail.getRawContents(offset, num);
         // // TODO: extract individual elements and concat the representations
         // result = toHexString(bytes);
+        StringBuilder dsc = new StringBuilder();
         StringBuilder sb = new StringBuilder(); // TODO
         for (int i = 0; i < num; i++) {
           switch (elementType) {
@@ -1045,7 +1046,11 @@ public final class X10PDIDebugger implements IPDIDebugger {
             sb.append(PDTUtils.toHexString(rail.getPointerAt(offset + i), 16));
             break;
           }
+          final String[] eDesc = getTranslator(task).getStructDescriptor(desc[1]);
+          if (dsc.length() > 0) dsc.append("\0");
+          dsc.append(eDesc != null ? eDesc[0] : elementType.toString());
         }
+        desc[0] = dsc.toString();
         if (num == 0) {
           result = "v0";
           desc[2] = null;
@@ -1139,6 +1144,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
             }
           }
         };
+        StringBuilder dsc = new StringBuilder();
         StringBuilder sb = new StringBuilder();
         for (int j = 2; j < desc.length; j++) {
           String n = FMGL(desc[j++]);
@@ -1179,7 +1185,11 @@ public final class X10PDIDebugger implements IPDIDebugger {
             sb.append(PDTUtils.toHexString(object.getPointerField(n), 16));
             break;
           }
+          final String[] eDesc = getTranslator(task).getStructDescriptor(t);
+          if (dsc.length() > 0) dsc.append("\0");
+          dsc.append(eDesc != null ? eDesc[0] : et.toString());
         }
+        desc[0] = dsc.toString();
         result = sb.toString();
         desc[1] = "NOPTR";
       } else {
@@ -1527,11 +1537,11 @@ public final class X10PDIDebugger implements IPDIDebugger {
         return PDTUtils.toHexString(Integer.parseInt(evaluatedExpression), 8);
       case LONG:
       case DOUBLE:
-        return PDTUtils.toHexString(Integer.parseInt(evaluatedExpression), 16);
+        return PDTUtils.toHexString(Long.parseLong(evaluatedExpression), 16);
       case ADDRESS:
         return evaluatedExpression;
       case BOOL:
-        return Boolean.parseBoolean(evaluatedExpression) ? "01000000" : "00000000";
+        return Boolean.parseBoolean(evaluatedExpression) ? "01" : "00";
       default:
         return evaluatedExpression;
     }

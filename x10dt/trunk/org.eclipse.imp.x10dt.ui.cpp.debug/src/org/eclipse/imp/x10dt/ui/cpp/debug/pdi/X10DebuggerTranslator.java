@@ -482,12 +482,22 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
         args = sb.toString();
       }
       return cppType.replace("__", ".").replace("::", ".") + args;
-    } else if (type.equals("int")) {
+    } else if (type.equals("int") || type.equals("x10_int")) {
       return "x10.lang.Int";
-    } else if (type.equals("float")) {
+    } else if (type.equals("float") || type.equals("x10_float")) {
       return "x10.lang.Float";
-    } else if (type.equals("double")) {
+    } else if (type.equals("double") || type.equals("x10_double")) {
       return "x10.lang.Double";
+    } else if (type.equals("bool") || type.equals("x10_boolean")) {
+    	return "x10.lang.Boolean";
+    } else if (type.equals("x10_long")) {
+      return "x10.lang.Long";
+    } else if (type.equals("x10_short")) {
+    	return "x10.lang.Short";
+    } else if (type.equals("x10_byte")) {
+    	return "x10.lang.Byte";
+    } else if (type.equals("x10_char")) {
+    	return "x10.lang.Char";
     } else {
       return "UNKNOWN";
     }
