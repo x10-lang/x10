@@ -2,8 +2,76 @@
 <formatter>
     <language>X10</language>
     <rules>
-       
+        <rule>
+            <box>V [ H [ "private""class""&lt;id&gt;" ] "{"
+ I [ V vs=2 [ "&lt;Decls&gt;" ] ]"}"]</box>
+        </rule>
+        <rule>
+            <box>V [ H ["public"  "class"  "&lt;id&gt;" "{" ]
+I [ V vs=2 [ "&lt;Decls&gt;" ] ] "}"  ]
+</box>
+        </rule>
+        <rule>
+            <box>HV [ H [   "&lt;Type&gt;" "&lt;id&gt;" "=" ]
+  I [ H hs=0 [ "&lt;Expression&gt;" ";" ]] ]
+</box>
+        </rule>
+        <rule>
+            <box>HV [ H [  "&lt;FieldModifiers&gt;" "&lt;Type&gt;" "&lt;id&gt;" "=" ]
+  I [ H hs=0 [ "&lt;Expression&gt;" ";" ]] ]
+</box>
+        </rule>
+        <rule>
+            <box>V ["&lt;TypeDecls&gt;"  "&lt;TypeDecl&gt;" ]
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;BlockStatements&gt;" "&lt;BlockStatement&gt;" ]
+</box>
+        </rule>
+        <rule>
+            <box>H [ "return" H hs=0 ["&lt;Expression&gt;" ";" ] ]
+</box>
+        </rule>
+        <rule>
+            <box>V [ H ["int" H hs=0 [ "&lt;id&gt;" "(" ]  ")" "{"  ]
+I [ V [  "&lt;BlockStatements&gt;" ] ] "}" ]
+</box>
+        </rule>
+        <rule>
+            <box>G [ "&lt;Decls&gt;" "&lt;Decl&gt;" ]</box>
+        </rule>
     </rules>
-    <example>
-    </example>
+    <example>public class A {
+  int a = 1;
+}
+
+private class A
+{
+  int b ;
+}
+
+private class A
+{
+  public int a = 1 + 13;
+
+  public boolean b = 2 + 23;
+
+  int c = 2 * 3 + 1;
+
+ 
+  int
+  f ( )
+  {
+     return 4 * 9;
+     return 5 * 6;
+  }
+
+  public class Z {
+    int f = 2 + 3;
+
+    int x = 2;
+  }
+}
+</example>
 </formatter>
