@@ -20,6 +20,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.x10dt.ui.cpp.debug.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
+import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator;
 import org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10PDIDebugger;
 import org.eclipse.imp.x10dt.ui.cpp.launch.launching.X10DebugAttributes;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
@@ -96,7 +97,7 @@ public final class X10Debugger implements IPDebugger {
                          final IProgressMonitor monitor) throws CoreException {
     this.fPort = getPort(config);
     int numProcs = Integer.parseInt(config.getAttribute("MP_PROCS", "1"));
-    this.fPDIDebugger = new X10PDIDebugger(this.fPort, numProcs); //TODO We're going to be forced to move the listening part :-/
+    this.fPDIDebugger = new X10PDIDebugger(this.fPort, numProcs, new X10DebuggerTranslator()); //TODO We're going to be forced to move the listening part :-/
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
     } catch (PDIException except) {
