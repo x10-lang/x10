@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
 
 public class X10UIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "org.eclipse.imp.x10dt.ui";
@@ -35,43 +36,56 @@ public class X10UIPlugin extends AbstractUIPlugin {
     private static ILog sLog;
 
     public X10UIPlugin() {
-	super();
-	sInstance= this;
+        super();
+        sInstance= this;
     }
 
     public static X10UIPlugin getInstance() {
-	return sInstance;
+        return sInstance;
     }
 
     public void maybeWriteInfoMsg(String msg) {
-//        if (!fEmitInfoMessages)
-//            return;
+        //        if (!fEmitInfoMessages)
+        //            return;
 
         Status status= new Status(Status.INFO, PLUGIN_ID, 0, msg, null);
-    
+
         if (sLog == null)
             sLog= getLog();
-    
+
         sLog.log(status);
     }
 
     public void writeErrorMsg(String msg) {
         Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, null);
-    
+
         if (sLog == null)
             sLog= getLog();
-    
+
         sLog.log(status);
     }
 
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+    }
+
     private void initImageRegistry() {
-	fgIconBaseURL= getBundle().getEntry("/icons/"); //$NON-NLS-1$
-	RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
-	getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
+        fgIconBaseURL= getBundle().getEntry("/icons/"); //$NON-NLS-1$
+        RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
+        getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
     }
 
     public static void log(Exception e) {
-	getInstance().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, e.getMessage(), e));
+        getInstance().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, e.getMessage(), e));
+    }
+
+    public static void log(String msg, Exception e) {
+        getInstance().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, e));
+    }
+
+    public static void log(String msg) {
+        getInstance().getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, 0, msg, null));
     }
 
     public static final String RUNTIME_IMG_NAME= "runtime_obj.gif";
@@ -80,19 +94,19 @@ public class X10UIPlugin extends AbstractUIPlugin {
     private static URL fgIconBaseURL= null;
 
     private static URL makeIconFileURL(String name) throws MalformedURLException {
-	if (fgIconBaseURL == null)
-	    sInstance.initImageRegistry();
-//	    throw new MalformedURLException();
+        if (fgIconBaseURL == null)
+            sInstance.initImageRegistry();
+        //	    throw new MalformedURLException();
 
-	return new URL(fgIconBaseURL, name);
+        return new URL(fgIconBaseURL, name);
     }
 
     public static ImageDescriptor create(String name) {
-	try {
-	    return ImageDescriptor.createFromURL(makeIconFileURL(name));
-	} catch (MalformedURLException e) {
-	    return ImageDescriptor.getMissingImageDescriptor();
-	}
+        try {
+            return ImageDescriptor.createFromURL(makeIconFileURL(name));
+        } catch (MalformedURLException e) {
+            return ImageDescriptor.getMissingImageDescriptor();
+        }
     }
 
     /**
@@ -102,8 +116,8 @@ public class X10UIPlugin extends AbstractUIPlugin {
      * @return the image managed under the given key
      */
     public Image getImage(String key) {
-	if (fgIconBaseURL == null)
-	    initImageRegistry();
-	return getInstance().getImageRegistry().get(key);
+        if (fgIconBaseURL == null)
+            initImageRegistry();
+        return getInstance().getImageRegistry().get(key);
     }
 }
