@@ -3,7 +3,6 @@ import x10.io.File;
 import x10.io.Marshal;
 import x10.io.IOException;
 import x10.util.Random;
-import x10.array.FastArray;
 
 public class KMeansSPMD {
 
@@ -76,7 +75,7 @@ public class KMeansSPMD {
             finish {
                 for (d in points_dist.places()) async (d) clocked(clk) {
 
-                    val local_points = points.restriction(here) as FastArray[Float]{rank==2};
+                    val local_points = points.restriction(here) as Array[Float](2);
 
                     val clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
                     val new_clusters = Rail.makeVar[Float](CLUSTERS*DIM, (i:Int) => 0.0f);
