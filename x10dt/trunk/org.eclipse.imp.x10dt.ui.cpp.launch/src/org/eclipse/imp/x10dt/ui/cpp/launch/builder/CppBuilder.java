@@ -206,7 +206,7 @@ public final class CppBuilder extends IncrementalProjectBuilder {
     final File outputDir = new File(this.fBinaryContainer.getLocationURI());
    
     // Some useful Polyglot reports.
-    Report.addTopic("verbose", 1); //$NON-NLS-1$
+    //Report.addTopic("verbose", 1); //$NON-NLS-1$
     Report.addTopic("postcompile", 1); //$NON-NLS-1$
     
     // We can now set all the Polyglot options for our extension.
