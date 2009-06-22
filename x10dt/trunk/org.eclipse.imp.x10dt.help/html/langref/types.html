@@ -23,45 +23,136 @@ Chapter 1 </a><br />Types</h1>
 </a>
 
 <div class="p"><!----></div>
- X10 is a <em>strongly typed</em> object language: every variable
+ X10 is a <em>strongly typed</em> object-oriented language: every variable
 and expression has a type that is known at compile-time. Further,
  X10 has a <em>unified</em> type system: all data items created at
-runtime are <em>objects</em> (&#167;&nbsp;. Types limit the
-values that variables can hold, and specify the places at which these
+run time are <em>objects</em> (). Types limit the
+values that variables can hold and specify the places at which these
 values lie.
 
 <div class="p"><!----></div>
  X10 supports two kinds of objects, <em>reference objects</em> and
 <em>value objects</em>.  Reference objects are instances of <em>
-reference classes</em> (&#167;&nbsp;10.1. They may contain
+reference classes</em> (). They may contain
 mutable fields and must stay resident in the place in which they were
 created. Value objects are instances of <em>value classes</em>
-(&#167;&nbsp;10.2). They are immutable and may be freely copied
+(). They are immutable and may be freely copied
 from place to place. Either reference or value objects may be 
 <em>scalar</em> (instances of a non-array class) or <em>aggregate</em> (instances
 of arrays).
+Only variables of reference types may be assigned "null".
 
 <div class="p"><!----></div>
-An  X10 type is either a <em>reference type</em> or a <em>value
-type</em>.  Each type consists of a <em>data type</em>, which is a set of
-values, and a <em>place type</em> which specifies the place at which the
-value resides.  Types are constructed through the application of <em>
-type constructors</em> (&#167;&nbsp;3.1).
+Types are used in variable declarations, explicit coercions and
+conversions, object creation, array
+creation, class literals and &#239;nstanceof" expressions.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 
 <div class="p"><!----></div>
-Types are used in variable declarations, casts, object creation, array
-creation, class literals and <tt>instanceof</tt> expressions.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+Types in  X10 are specified through declarations and through
+type constructors, described in the remainder of the chapter:
 
 <div class="p"><!----></div>
-A variable is a storage location (&#167;&nbsp;3.5). All
-variables are initialized with a value and cannot be observed without
-a value. 
+
+<ul>
+<li> A class declaration defines a <em>class type</em>
+(), which
+may be either a reference class or a value class.
+<div class="p"><!----></div>
+</li>
+
+<li> An interface declaration defines an <em>interface type</em>
+().
+<div class="p"><!----></div>
+</li>
+
+<li> The <em>boxed type</em> constructor produces a reference
+type from a value type ().
+
 
 <div class="p"><!----></div>
-Variables whose value may not be changed after initialization are
-called <em>final variables</em> (or sometimes <em>constants</em>).  The
-programmer indicates that a variable is final by using the annotation
-<tt>final</tt> in the variable declaration.  
+</li>
 
+<li> Classes and interface have <em>type parameters</em>.
+A class or interface with one or more type parameters is a
+<em>generic class</em> or <em>generic interface</em>
+().  A type parameter may be used as 
+a <em>parameter type</em>.
+
+<div class="p"><!----></div>
+</li>
+
+<li> New type constructors may be defined with <em>type definitions</em>
+().
+<div class="p"><!----></div>
+</li>
+
+<li> Methods, constructors, closures, and type definitions may
+have <em>type parameters</em>, which are instantiated with
+concrete types at invocation ().
+<div class="p"><!----></div>
+</li>
+
+<li> <em>Function type</em> constructors are used to define
+function types; closures and method selectors have function
+type ().
+<div class="p"><!----></div>
+</li>
+
+<li> A <em>constrained type</em> constrains the properties of
+a base type ().
+<div class="p"><!----></div>
+</li>
+
+<li> Types may be marked with user-defined annotations.
+<em>Annotated types</em> ()
+may be processed by compiler plugins.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Type &nbsp;FunctionType <br />
+    \ -  ConstrainedType  <br />
+
+<div class="p"><!----></div>
+FunctionType &nbsp;TypeParameters "(" Formals ")"
+Constraint Throws "=&#62;" Type <br />
+TypeParameters &nbsp;"[" TypeParameter ( "," TypeParameter ) "]" <br />
+TypeParameter &nbsp;Identifier <br />
+Throws &nbsp;"throws" ( TypeName "," TypeName ) <br />
+
+<div class="p"><!----></div>
+ConstrainedType &nbsp;Annotation BaseType Constraint
+PlaceConstraint <br />
+
+<div class="p"><!----></div>
+BaseType &nbsp;ClassBaseType <br />
+     \ -  InterfaceBaseType <br />
+     \ -  PathType <br />
+     \ -  "(" Type ")" <br />
+
+<div class="p"><!----></div>
+ClassType &nbsp;Annotation ClassBaseType Constraint
+PlaceConstraint <br />
+InterfaceType &nbsp;Annotation InterfaceBaseType Constraint
+PlaceConstraint <br />
+
+<div class="p"><!----></div>
+PathType &nbsp;Expression "." Identifier <br />
+
+<div class="p"><!----></div>
+Annotation &nbsp;"@" InterfaceBaseType Constraint <br />
+
+<div class="p"><!----></div>
+ClassOrInterfaceType &nbsp;ClassType <br />\ -  InterfaceType <br />
+ClassBaseType &nbsp;TypeName <br />
+InterfaceBaseType &nbsp;TypeName <br />
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
 </body>
 </html>
