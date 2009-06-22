@@ -98,6 +98,7 @@ import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
+import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Goal;
@@ -266,9 +267,9 @@ public class X10Builder extends IncrementalProjectBuilder {
     // and should be made a prereq of TypeChecked, so that dependency information
     // gets collected even if code can't be generated for some reason.
     private class ComputeDependenciesGoal extends VisitorGoal {
-        public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
+        public ComputeDependenciesGoal(Job job) {
             super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
-            addPrereq(job.extensionInfo().scheduler().CodeGenerated(job));
+            addPrereq(job.extensionInfo().scheduler().TypeChecked(job));
         }
     }
 
@@ -337,7 +338,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     };
 
     private class CheckPackageDeclGoal extends VisitorGoal {
-        public CheckPackageDeclGoal(Job job) throws CyclicDependencyException {
+        public CheckPackageDeclGoal(Job job) {
             super(job, new CheckPackageDeclVisitor(job));
             addPrereq(job.extensionInfo().scheduler().intern(new ComputeDependenciesGoal(job)));
         }
@@ -346,7 +347,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG ", "// FIXME "  };
 
     private class CollectBookmarksGoal extends SourceGoal_c {
-        public CollectBookmarksGoal(Job job) throws CyclicDependencyException {
+        public CollectBookmarksGoal(Job job) {
             super(job);
             addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job)));
         }
@@ -383,15 +384,17 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
-        public Goal getCompileGoal(Job job) {
-            try {
-                return scheduler().intern(new CollectBookmarksGoal(job) /* CheckPackageDeclGoal(job)*/);
-            } catch (CyclicDependencyException e) {
-                job.compiler().errorQueue().enqueue(
-                        new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
-                return null;
-            }
-        }
+    	@Override
+    	protected Scheduler createScheduler() {
+    		return new X10Scheduler(this) {
+    			@Override
+    			public List<Goal> goals(Job job) {
+    				List<Goal> goals= super.goals(job);
+    				goals.get(goals.size()-1).addPrereq(new CollectBookmarksGoal(job));
+    				return goals;
+    			}
+    		};
+    	}
     	/**
     	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
     	 */
