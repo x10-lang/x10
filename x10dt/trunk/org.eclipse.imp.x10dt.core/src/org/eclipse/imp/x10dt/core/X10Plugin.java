@@ -24,9 +24,11 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.DefaultScope;
+import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
+import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
@@ -170,6 +172,7 @@ public class X10Plugin extends PluginBase {
 			// To trigger the invocation of the preferences initializer:
 			try {
 				new DefaultScope().getNode(kPluginID);
+				setDefaultPreferences();
 			} catch (Exception e) {
 				// If this ever happens, it will probably be because the preferences
 				// and their initializer haven't been defined yet.  In that situation
@@ -178,5 +181,13 @@ public class X10Plugin extends PluginBase {
 			}
 		}
 		return preferencesService;
+	}
+	
+	private static void setDefaultPreferences() {
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
+		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
+
 	}
 }
