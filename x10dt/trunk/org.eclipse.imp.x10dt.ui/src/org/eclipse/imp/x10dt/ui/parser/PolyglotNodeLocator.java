@@ -28,13 +28,12 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    //System.out.println("Entering node type = " + n.getClass().getName());
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
 	    Position pos= n.position();
-	    
-	    // SMS 15 Jun 2006:
+
 	    if (pos == null || pos.line() < 0) {
 	    	System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
 	    	return this;
 	    }
-	    
+
 //	    System.out.println("Node extent: " + pos.offset() + " => " + pos.endOffset() + " [" + pos.line() + ":" + pos.column() + " => [" + pos.endLine() + ":" + pos.endColumn() + "]");
 	    int nodeStartOffset= pos.offset();
 	    int nodeEndOffset= pos.endOffset();
@@ -53,42 +52,18 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    // Prune traversal to avoid examining nodes outside the given text range.
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
 	    Position pos= n.position();
-	    
-	    // SMS 15 Jun 2006
-	    if (pos.line() < 0) {
+
+	    if (pos == null || pos.line() < 0) {
 	    	//System.out.println("PolyglotNodeLocator.NodeVisitor.override(Node):  node positions < 0 for node type = " + n.getClass().getName());
 	    	return null;
 	    }
-	    
+
 	    int nodeStartOffset= pos.offset();
 	    int nodeEndOffset= pos.endOffset();
-	    
+
 //	    if (nodeStartOffset == fOffset) System.out.println("NodeStartOffset = fOffset");
 //	    if (nodeEndOffset == fEndOffset) System.out.println("NodeEndOffset = fEndOffset");
-	    
-	    // SMS 31 Jul 2006
-	    // There's a problem with trying to filter nodes using a condition like
-	    // the one originally here, now commented-out below.  That is, it seems that
-	    // the children of a node are not necessarily contained within the offest
-	    // range of the node.  In particular, it seems that a class body has some
-	    // children that are method declarations, a method declaration has a lexical
-	    // extent that (more or less) corresponds to the specification, not to the
-	    // specification including the body.  But the method-body node is a child of
-	    // the method-declaration node in the AST, even though the offset range of
-	    // the body follows the offset range of the declaration.  If the method-
-	    // declaration node is returned here (as it would be with the original
-	    // condition), then the nodes representing constructs within the method body
-	    // will not be examined.  This can leave the class-body node as the closest
-	    // enclosing node to a location within a method body.
-	    //
-	    // As an alternative condition that will not entail the traversal of all
-	    // AST nodes, I've substituted a condition to check just whether the current
-	    // node starts after the given location.  I assume that in that case the
-	    // children of the node cannot contain the given location.  (That is, I
-	    // assume that the children of a node will not have offsets that will
-	    // precede the offset of the node.)  If that doesn't work in general, then
-	    // perhaps no filtering should be done here.
-	    //
+
 	    //if (nodeStartOffset > fEndOffset || nodeEndOffset < fOffset)
 	    if (nodeStartOffset > fOffset)
 	    	return n;
