@@ -275,7 +275,11 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (pkgPath.startsWith("src/")) {
                 pkgPath= pkgPath.substring(4);
             }
-            return pkgPath.substring(0, pkgPath.length() - src.name().length() - 1).replace(File.separatorChar, '.');
+            if (pkgPath.length() == src.name().length()) {
+                return ""; // It's in the default pkg
+            } else {
+                return pkgPath.substring(0, pkgPath.length() - src.name().length() - 1).replace(File.separatorChar, '.');
+            }
         }
 
         @Override
@@ -682,27 +686,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             postMsgDialog("X10 Error", "X10 common directory location not yet set.");
             return null;
         }
-        // Read configuration at every compiler invocation, in case it changes (e.g. via
-        // the X10 Preferences page). Theoretically, if the user really does change the
-        // compiler configuration, we should trigger a full rebuild, but we don't yet.
-        try {
-            // The X10 configuration file's location is given by the value of the System
-            // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
-            // and by a preference store listener in X10PreferencePage.
-            Configuration.readConfiguration(Configuration.class, System.getProperty("x10.configuration"));
-        } catch (x10.runtime.util.ConfigurationError e) {
-            if (e.getCause() instanceof FileNotFoundException) {
-        	FileNotFoundException fnf= (FileNotFoundException) e.getCause();
-        	if (fnf.getMessage().startsWith("???\\standard.cfg")) {
-        	    postMsgDialog("X10 Error", "X10 configuration file location not yet set.");
-        	}
-            } else if (e.getCause() instanceof IOException) {
-		IOException io= (IOException) e.getCause();
-        	if (io.getMessage().endsWith("non-existent"))
-        	    postMsgDialog("X10 Error", "X10 compiler configuration invalid; please re-set in the X10 Preferences page.");
-            } else
-        	postMsgDialog("X10 Error", e.getMessage());
-        }
+        readCompilerConfig();
         checkClasspathForRuntime();
         if (kind == CLEAN_BUILD || kind == FULL_BUILD)
             fDependencyInfo.clearAllDependencies();
@@ -716,6 +700,30 @@ public class X10Builder extends IncrementalProjectBuilder {
 //      fDependencyInfo.dump();
         fMonitor.done();
         return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
+    }
+
+    private void readCompilerConfig() {
+        // Read configuration at every compiler invocation, in case it changes (e.g. via
+        // the X10 Preferences page). Theoretically, if the user really does change the
+        // compiler configuration, we should trigger a full rebuild, but we don't yet.
+        try {
+            // The X10 configuration file's location is given by the value of the System
+            // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
+            // and by a preference store listener in X10PreferencePage.
+            Configuration.readConfiguration(Configuration.class, System.getProperty("x10.configuration"));
+        } catch (x10.runtime.util.ConfigurationError e) {
+            if (e.getCause() instanceof FileNotFoundException) {
+                FileNotFoundException fnf= (FileNotFoundException) e.getCause();
+                if (fnf.getMessage().startsWith("???\\standard.cfg")) {
+                    postMsgDialog("X10 Error", "X10 configuration file location not yet set.");
+                }
+            } else if (e.getCause() instanceof IOException) {
+                IOException io= (IOException) e.getCause();
+                if (io.getMessage().endsWith("non-existent"))
+                    postMsgDialog("X10 Error", "X10 compiler configuration invalid; please re-set in the X10 Preferences page.");
+            } else
+                postMsgDialog("X10 Error", e.getMessage());
+        }
     }
 
     private final class OpenProjectPropertiesHelper implements Runnable {
