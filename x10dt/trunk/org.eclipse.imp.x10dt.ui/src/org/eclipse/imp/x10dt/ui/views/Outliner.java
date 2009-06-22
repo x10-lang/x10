@@ -88,7 +88,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 	    parent.setImage(JavaPluginImages.DESC_OBJS_PACKDECL.createImage());
                         parent.setText(ast.package_().toString());
                     }
-                    createOutlinePresentation(ast.decls());
+                    outlineTypes(ast.decls());
                 }
     		}
 //    	    selectTreeItemAtTextOffset(offset);
@@ -104,16 +104,16 @@ public class Outliner extends DefaultOutliner implements IOutliner
     	}
     }
 
-    void createOutlinePresentation(List decls)
+    void outlineTypes(List decls)
     {
         for (Iterator i = decls.iterator(); i.hasNext();)
         {
             ClassDecl type = (ClassDecl) i.next();
-            createOutlinePresentation(type);
+            outlineOuterType(type);
         } 
     }
 
-    void createOutlinePresentation(ClassDecl type)
+    void outlineOuterType(ClassDecl type)
     {
         TreeItem parent = new TreeItem(tree, SWT.NONE);
         parent.setData(type);
@@ -128,17 +128,17 @@ public class Outliner extends DefaultOutliner implements IOutliner
         {
             Node member = (Node) i.next();
             if (member instanceof ClassDecl)
-                createOutlinePresentation(parent, (ClassDecl) member);
+                outlineInnerType(parent, (ClassDecl) member);
             else if (member instanceof ConstructorDecl)
-            	createOutlinePresentation(parent, (ConstructorDecl) member);
+            	outlineConstructor(parent, (ConstructorDecl) member);
             else if (member instanceof MethodDecl)
-            	createOutlinePresentation(parent, (MethodDecl) member);
+            	outlineMethod(parent, (MethodDecl) member);
             else if (member instanceof FieldDecl)
-                createOutlinePresentation(parent, (FieldDecl) member);
+                outlineField(parent, (FieldDecl) member);
         } 
     }
 
-    void createOutlinePresentation(TreeItem parent, ClassDecl type)
+    void outlineInnerType(TreeItem parent, ClassDecl type)
     {
         TreeItem item = new TreeItem(parent, SWT.NONE);
         item.setData(type);
@@ -170,17 +170,17 @@ public class Outliner extends DefaultOutliner implements IOutliner
         {
             Node member = (Node) i.next();
             if (member instanceof ClassDecl)
-                createOutlinePresentation(item, (ClassDecl) member);
+                outlineInnerType(item, (ClassDecl) member);
             else if (member instanceof ConstructorDecl)
-            	createOutlinePresentation(item, (ConstructorDecl) member);
+            	outlineConstructor(item, (ConstructorDecl) member);
             else if (member instanceof MethodDecl)
-            	createOutlinePresentation(item, (MethodDecl) member);
+            	outlineMethod(item, (MethodDecl) member);
             else if (member instanceof FieldDecl)
-                createOutlinePresentation(item, (FieldDecl) member);
+                outlineField(item, (FieldDecl) member);
         } 
     }
 
-    void createOutlinePresentation(TreeItem parent, ConstructorDecl cons)
+    void outlineConstructor(TreeItem parent, ConstructorDecl cons)
     {
     	String text = cons.name() + "(";
     	List formals = cons.formals();
@@ -203,7 +203,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         tree_item.setText(text);
 	}
 
-    void createOutlinePresentation(TreeItem parent, MethodDecl method)
+    void outlineMethod(TreeItem parent, MethodDecl method)
     {
     	String text = filter(method.returnType().toString()) + " " + method.name() + "(";
     	List formals = method.formals();
@@ -227,7 +227,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         tree_item.setText(text);
     }
 
-    void createOutlinePresentation(TreeItem parent, FieldDecl field)
+    void outlineField(TreeItem parent, FieldDecl field)
     {
        	String text = field.name() + " : " + filter(field.type().toString());
         TreeItem tree_item = new TreeItem(parent, SWT.NONE);
