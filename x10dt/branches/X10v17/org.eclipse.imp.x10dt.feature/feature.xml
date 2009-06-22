@@ -19,9 +19,9 @@
       <import feature="org.eclipse.imp.runtime" match="greaterOrEqual" version="0.1.87"/>
    </requires>
 
-   <plugin download-size="910" id="x10.compiler" install-size="910" unpack="false" version="0.1.81"/>
+   <plugin download-size="910" id="x10.compiler.p3" install-size="910" unpack="false" version="0.1.81"/>
 
-   <plugin download-size="319" id="x10.runtime" install-size="319" unpack="false" version="0.1.80"/>
+   <plugin download-size="319" id="x10.runtime.17" install-size="319" unpack="false" version="0.1.80"/> 
 
    <plugin download-size="68" id="org.eclipse.imp.x10dt.core" install-size="68" unpack="false" version="0.1.92"/>
 
