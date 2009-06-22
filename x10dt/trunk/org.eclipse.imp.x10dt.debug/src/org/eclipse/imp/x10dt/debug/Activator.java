@@ -1,5 +1,6 @@
 package org.eclipse.imp.x10dt.debug;
 
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.jdt.internal.debug.core.JDIDebugPlugin;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;

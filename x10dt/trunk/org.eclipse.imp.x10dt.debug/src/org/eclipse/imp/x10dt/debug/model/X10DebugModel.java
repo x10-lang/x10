@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.debug.model.impl;
+package org.eclipse.imp.x10dt.debug.model;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -8,6 +8,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.imp.x10dt.debug.Activator;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.JDIDebugModel;
 import org.eclipse.jdt.internal.debug.core.JDIDebugPlugin;
@@ -15,7 +16,7 @@ import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 
 import com.sun.jdi.VirtualMachine;
 public class X10DebugModel {
-	public static X10DebugTarget fX10DebugTarget; 
+//	public static X10DebugTarget fX10DebugTarget; 
 
 	
 	/**

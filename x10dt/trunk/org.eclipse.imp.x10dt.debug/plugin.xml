@@ -62,34 +62,35 @@
 	  </extension>
 	  <extension point="org.eclipse.core.runtime.adapters">
  		<factory 
-   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			class="org.eclipse.imp.x10dt.debug.adapter.X10AdapterFactory" 
    			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
-		</factory>
+      		<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IModelProxyFactory"/>
+       </factory>
  		<factory 
-   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			class="org.eclipse.imp.x10dt.debug.adapter.X10AdapterFactory" 
    			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10Thread">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
 		</factory>
  		<factory 
-   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			class="org.eclipse.imp.x10dt.debug.adapter.X10AdapterFactory" 
    			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10Activity">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
 		</factory>
 		<factory
-   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			class="org.eclipse.imp.x10dt.debug.adapter.X10AdapterFactory" 
 			adaptableType="org.eclipse.jdt.internal.debug.core.model.JDIVariable">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
 		</factory>
 		<factory
-   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			class="org.eclipse.imp.x10dt.debug.adapter.X10AdapterFactory" 
 			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10StackFrame">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementLabelProvider"/>
 		</factory>
 		<factory
-   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			class="org.eclipse.imp.x10dt.debug.adapter.X10AdapterFactory" 
 			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10Activity">
 			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementLabelProvider"/>
 		</factory>
- 	</extension>
+ - 	</extension>
 </plugin>

@@ -31,9 +31,6 @@ import org.eclipse.imp.x10dt.debug.Activator;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Application;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Application;
-import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsJDIThread;
-import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10Application;
-import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ModelFactory;
 import org.eclipse.imp.x10dt.debug.ui.presentation.X10ModelPresentation;
 import org.eclipse.jdi.TimeoutException;
 import org.eclipse.jdt.debug.core.IJavaBreakpoint;
@@ -83,7 +80,7 @@ import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.EventRequestManager;
 
 
-public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, ILaunchListener, IDebugEventSetListener {
+public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, IJavaDebugTarget, ILaunchListener, IDebugEventSetListener {
 
 	/**
 	 * An event handler for thread death events. When a thread
@@ -425,7 +422,7 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 	 * initialized.
 	 */
 	protected synchronized void initialize() {
-		_application = SampleX10ModelFactory.getApplication();
+//		_application = SampleX10ModelFactory.getApplication();
 		//initializeThreadForInvokeMethod();
 		setThreadList(new ArrayList(5)); // really this belongs in constructor, but it would have to go *before* super(), which contains call to this (initialize) method.
 		setEventDispatcher(new EventDispatcher(this));

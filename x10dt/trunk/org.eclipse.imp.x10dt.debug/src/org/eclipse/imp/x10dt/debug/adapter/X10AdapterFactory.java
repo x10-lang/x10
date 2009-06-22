@@ -1,9 +1,10 @@
-package org.eclipse.imp.x10dt.debug;
+package org.eclipse.imp.x10dt.debug.adapter;
 
 import org.eclipse.core.runtime.IAdapterFactory;
 import org.eclipse.debug.internal.ui.model.elements.DebugElementLabelProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementLabelProvider;
+import org.eclipse.debug.internal.ui.viewers.model.provisional.IModelProxyFactory;
 import org.eclipse.debug.internal.ui.views.launch.DebugElementAdapterFactory;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Activity;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
@@ -26,6 +27,7 @@ public class X10AdapterFactory extends DebugElementAdapterFactory implements IAd
 	private static IElementContentProvider fgActivityChildrenProvider = new ActivityChildrenContentProvider();
 	private static IElementLabelProvider fgStackFrameLabelProvider = new AsyncLabelProvider();
 	private static IElementLabelProvider fgActivityLabelProvider = new ActivityLabelProvider();
+	private static IModelProxyFactory fgModelProxyFactory = new X10ModelProxyFactory();
 
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (IElementContentProvider.class.equals(adapterType)) {
@@ -48,6 +50,11 @@ public class X10AdapterFactory extends DebugElementAdapterFactory implements IAd
 			}
 			if (adaptableObject instanceof X10Activity) {
 				return fgActivityLabelProvider;
+			}
+		}
+		if (IModelProxyFactory.class.equals(adapterType)) {
+			if (adaptableObject instanceof X10DebugTargetAlt) {
+				return fgModelProxyFactory ;
 			}
 		}
 		return super.getAdapter(adaptableObject, adapterType);

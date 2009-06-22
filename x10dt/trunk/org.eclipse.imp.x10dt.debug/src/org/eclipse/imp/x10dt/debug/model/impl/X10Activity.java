@@ -2,14 +2,11 @@ package org.eclipse.imp.x10dt.debug.model.impl;
 
 
 import java.util.HashSet;
-import org.eclipse.imp.x10dt.debug.model.IX10Activity;
-import org.eclipse.imp.x10dt.debug.model.IX10Place;
-import org.eclipse.imp.x10dt.debug.model.IX10Clock;
-import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
-import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
-import org.eclipse.imp.x10dt.debug.model.impl.X10DebugModel;
 
-import org.eclipse.debug.core.model.DebugElement;
+import org.eclipse.imp.x10dt.debug.model.IX10Activity;
+import org.eclipse.imp.x10dt.debug.model.IX10Clock;
+import org.eclipse.imp.x10dt.debug.model.IX10Place;
+import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
 
 
 public class X10Activity extends X10DebugElement implements IX10Activity{

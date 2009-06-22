@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.IDebugElement;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.internal.ui.model.elements.DebugTargetContentProvider;
+import org.eclipse.debug.internal.ui.model.elements.ElementContentProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IChildrenCountUpdate;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IChildrenUpdate;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
@@ -14,7 +15,7 @@ import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 
-public class ActivityChildrenContentProvider extends DebugTargetContentProvider implements IElementContentProvider {
+public class ActivityChildrenContentProvider extends ElementContentProvider implements IElementContentProvider {
 	protected Object[] getAllChildren(Object parent, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
 		IX10Activity activity = ((IX10Activity)parent);
 		String id = context.getId();

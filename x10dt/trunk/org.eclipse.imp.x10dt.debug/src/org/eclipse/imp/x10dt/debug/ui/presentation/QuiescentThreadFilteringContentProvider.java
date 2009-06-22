@@ -1,7 +1,9 @@
 package org.eclipse.imp.x10dt.debug.ui.presentation;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,6 +35,7 @@ import sun.rmi.runtime.GetThreadPoolAction;
 public class QuiescentThreadFilteringContentProvider extends
 		DebugTargetContentProvider implements IElementContentProvider {
 
+	private static Set previouslyActiveThreads = new HashSet();
 	protected Object[] getAllChildren(Object parent, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
 		IDebugTarget target = ((IDebugElement)parent).getDebugTarget();
 		X10DebugTargetAlt x10Target = (X10DebugTargetAlt)target;
@@ -45,6 +48,11 @@ public class QuiescentThreadFilteringContentProvider extends
 			List<IThread> activeThreads = new ArrayList();
 			for (IThread t: (IThread[])threads) {
 				if (t instanceof X10Thread && ((X10Thread)t).getRunState()!=IX10Activity.X10ActivityState.Idle){
+					synchronized(previouslyActiveThreads) {
+						previouslyActiveThreads.add(t);
+					}
+				}
+				if (previouslyActiveThreads.contains(t)) {
 					activeThreads.add(t);
 				}	
 			}

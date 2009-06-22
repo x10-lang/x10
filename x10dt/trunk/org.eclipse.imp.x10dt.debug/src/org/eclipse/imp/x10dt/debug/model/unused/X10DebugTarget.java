@@ -1,4 +1,4 @@
-package org.eclipse.imp.x10dt.debug.model.impl;
+package org.eclipse.imp.x10dt.debug.model.unused;
 
 import java.util.List;
 
@@ -16,6 +16,7 @@ import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugElement;
 import org.eclipse.jdi.hcr.ReferenceType;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
