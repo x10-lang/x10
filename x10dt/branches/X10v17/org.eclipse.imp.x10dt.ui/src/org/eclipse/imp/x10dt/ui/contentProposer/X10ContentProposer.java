@@ -197,6 +197,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         // the index of the token preceding the offset when the offset is not
         // the offset of a valid token.
         //
+        // PORT1.7 --  token use here, calculation OK for now (does not use getLeftToken() etc)
         IPrsStream prs_stream= ((SimpleLPGParseController) controller).getParser().getParseStream();
         int index= prs_stream.getTokenIndexAtCharacter(offset), token_index= (index < 0 ? -index : index);
         IToken tokenToComplete= prs_stream.getIToken(token_index), contextToken= prs_stream.getIToken(token_index - 1);
