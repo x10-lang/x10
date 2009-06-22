@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 
@@ -217,7 +218,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 						mname = ((MethodInstance) pi).name();  
 					}
 					IMethod method = it.getMethod(mname, paramTypes);
-					String doc = getJavaDocFor(method);
+					fullname=fullname+"."+mname;  // add args?
+					String doc = getJavaDocFor(fullname, method);
 					return doc;
 				}
 			} else { // x10
@@ -250,18 +252,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 						Named named = (Named) rt;
 						name=named.name();
 						name=named.fullName();
-						
 					}
 					String args=formatArgs(ci.formalTypes());
 					String sig=name+args;
 					String doc = getX10DocFor(sig, ci);
 					return doc;
 				}
-				
-				//CpnstructorInstance??
-				//int stopHere=0;
-				//String sig=getSignature(mi);
-				//return getX10DocFor(sig,mti);
+
 			}
 			
 		} 
@@ -456,7 +453,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return doc;
 	}
 	private String getX10DocFor(Declaration decl) {
-		String doc = getRawX10DocFor(decl.position());
+		String doc = getNewRawX10DocFor(decl.position());
 		return doc;
 	}
 	/**
@@ -465,9 +462,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 */
 	@SuppressWarnings("restriction")
 	private String getX10DocFor(Node node) {
-		String doc = getRawX10DocFor(node.position());
+		String doc = getNewRawX10DocFor(node.position());
 		return doc;
-		
 	}
 	private String getX10DocFor(String name, Node node) {
 		String doc = getX10DocFor(node);
@@ -477,6 +473,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	/**
 	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position.
 	 * Does not add name, this is *just* the javadoc comments, without the stars or comment chars
+	 * <p>
+	 * Unused? replaced by getNewRawX10DocFor    BRT 8/20/08
 	 */
 	private String getRawX10DocFor(Position pos) {
 		String path = pos.file();
@@ -499,6 +497,33 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				return doc;
 			}
 		} catch (IOException e) {
+		}
+		return null;
+	}
+	/**
+	 * Get the actual text within the x10doc(javadoc) text. Substitutes HTML for tags, etc
+	 * 
+	 */
+	private String getNewRawX10DocFor(Position pos) {
+		String path = pos.file();
+		try {
+			Reader reader = new FileReader(new File(path));
+			String fileSrc = readReader(reader);
+			int idx = pos.offset();
+
+			idx = skipBackwardWhite(fileSrc, idx);
+			if (lookingPastEndOf(fileSrc, idx, "*/")) {
+				String doc = collectBackwardTo(fileSrc, idx, "/**");
+				doc = getCommentText(doc);// strip comment chars,stars, etc
+				if (traceOn)System.out.println("X10DocProvider.getX10DocCharsFor: "+ doc);
+				StringReader rdr = new StringReader(doc);
+				X10Doc2HTMLTextReader xrdr=new X10Doc2HTMLTextReader(rdr);
+				String result = readReader(xrdr);
+				//String result = xrdr.getString();
+				return result;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -546,12 +571,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 *            the text of the comment
 	 * @param stripLeadingTrailingParts
 	 *            whether or not to strip the leading/trailing comment chars
-	 * @returns text with the intervening (if any) leading star characters
+	 * @return text with the intervening (if any) leading star characters
 	 * 
 	 */
 	private String getCommentText(String text, boolean stripLeadingTrailingParts) {
 		StringBuilder result = new StringBuilder();
 		String showResult = "|";
+		boolean inBlockInfo=false; // true once we are into parsing the @block tags
 
 		// If it starts with the 3 chars /** and ends with the two chars */,
 		// then start by ditching these
@@ -578,20 +604,15 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			} else {
 				ch = text.charAt(fCurrPos++);
 			}
-			if (ch == '@') {
-				// TBD handle
-			}
 			// determine if prev char was line delimiter; if so will affect how
 			// we start next line
 			fWasNewLine = ch == '\n' || ch == '\r';
 			result.append(ch);
 			showResult = "|" + result.toString() + "|";
 		}
-		// strip html, leave some as bold tags
 		String resStr = result.toString();
-		String boldStr = decodeContextBoldTags(resStr);
-		if(traceOn)System.out.println("x10ContextHelper boldStr: " + boldStr);
-		return boldStr;
+
+		return resStr;
 	}
 
 	/**
@@ -608,6 +629,14 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		// decodedString = decodedString.replaceAll("\r\n|\n|\r", "<br/>");
 		// //$NON-NLS-1$ //$NON-NLS-2$
 		return decodedString;
+	}
+	/**
+	 * handle the at-param, at-returns etc tags by translating into html defn lists
+	 * @param styledText
+	 * @return
+	 */
+	private String decodeAts(String styledText) {
+		return "";
 	}
 
 	/**
@@ -684,6 +713,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			case 160:
 				buf.append(" "); //$NON-NLS-1$
 				break;
+
 			default:
 				buf.append(c);
 				break;
@@ -691,6 +721,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		return buf.toString();
 	}
+
 
 	private String collectBackwardTo(String fileSrc, int idx, String string) {
 		return fileSrc.substring(fileSrc.lastIndexOf(string, idx), idx);
@@ -706,6 +737,38 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		while (idx > 0 && Character.isWhitespace(fileSrc.charAt(idx - 1)))
 			idx--;
 		return idx;
+	}
+	/**
+	 * Get the next 'token' in given string, starting at given index, up to next whitespace or end of string.
+	 * <p>e.g. looking for \@param foo the description of something  -- looking for 'foo'
+	 * @param str
+	 * @param idx position in the string to start looking
+	 * @return the token found.  The length of this token will specify how far parsing ate into the original string
+	 */
+	private String getNextToken(String str, int idx) {
+		String result="";
+		int begin=idx;
+		int len=str.length();
+		char tmp='!';
+		try {
+
+		String temp = str.substring(idx,idx+10);
+		tmp=str.charAt(idx);
+		// skip leading whitespace
+		while(idx<len && Character.isWhitespace(str.charAt(idx))) {
+			tmp=str.charAt(idx);
+			idx++;
+		}	
+		while(idx<len && !Character.isWhitespace(str.charAt(idx))) {
+			tmp=str.charAt(idx);
+			idx++;
+		}
+		 result= str.substring(begin,idx);
+		}
+		catch(Exception ex) {
+			System.out.println(ex.getMessage());
+		}
+		return result;
 	}
 
 	private String stripArraySuffixes(String qualifiedName) {
@@ -763,13 +826,35 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			if (traceOn)
 				System.out.println("X10ContextHelper.getJavaDocFor(): " + doc);
 			// BRT note: e.g. for System.out.println, includes double <code><code>
-			// which loses the contents .
+			// which loses the contents in context help view.
 			// JDT hover does correctly display this, however
+			
+			/*
+			// how to get full name of member?
+			String name=member.toString();
+			String ename=member.getElementName();
+			String cname = member.getClass().getName();
+			IType type=member.getDeclaringType();
+
+			doc=addNameToDoc(name, doc);
+			*/
 			return doc;
 		} catch (JavaModelException e) {
 			String msg=e.getMessage();
 			return "";
 		}
+	}
+	/**
+	 * Get javadoc info for a member, and since we can't determine a reasonably formatted name,
+	 * we get the name passed in from those who have more information than us.
+	 * @param name
+	 * @param member
+	 * @return
+	 */
+	private String getJavaDocFor(String name, IMember member) {
+		String doc = getJavaDocFor(member);
+		doc = addNameToDoc(name, doc);
+		return doc;
 	}
 
 	private IType findJavaType(String qualName, IParseController parseController) {
@@ -832,9 +917,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			else {
 				String simpleName=removeJavaLang(obj.toString());			
 				result.append(simpleName+", "); // placeholder for the unexpected, probably type only instead of type+name
-				
 			}
-
 		}
 		String res=result.toString();
 		// remove trailing comma (if any args were there at all) and add a closing paren
