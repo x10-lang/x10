@@ -7,14 +7,8 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
 *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.launching;
 
 import java.io.File;
@@ -44,12 +38,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
-	/**
-	 * This is the class name that the runtime actually launches.
-	 * <br>in 1.5 this was always "x10.lang.Runtime' 
-	 * <br>in 1.7 this is "Hello$Main"   where "Hello" is main user class
-	 */
-    private /*final static*/ String x10RuntimeType= "x10.lang.Runtime"; // PORT1.7 no longer true for 1.7?
+	/** Suffix that is appended to user class to get main x10 executable class - e.g. to make Hello$Main */
+	static final String userMainSuffix="$Main";
 
     @Override
 	public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
@@ -88,176 +78,187 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	 *                if unable to retrieve the attribute
 	 */
     public String getRuntimeArguments(ILaunchConfiguration configuration) throws CoreException {
-	String arguments= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
-	IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
-	if (prefStore.contains(X10PreferenceConstants.P_NUM_PLACES)) {
-		String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES="+prefStore.getInt(X10PreferenceConstants.P_NUM_PLACES);
-		arguments += numPlacesArg;
-	}
+		String arguments = configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
+		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
+		if (prefStore.contains(X10PreferenceConstants.P_NUM_PLACES)) {
+			String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES=" + prefStore.getInt(X10PreferenceConstants.P_NUM_PLACES);
+			arguments += numPlacesArg;
+		}
 		
 
 	return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(arguments);
     }
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-	// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
+		// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
-	if (monitor == null) {
-	    monitor= new NullProgressMonitor();
-	}
-
-	monitor.beginTask(MessageFormat.format("{0}...", new Object[] { configuration.getName() }), 3); //$NON-NLS-1$
-	// check for cancellation
-	if (monitor.isCanceled()) {
-	    return;
-	}
-
-	monitor.subTask("Verifying launch attributes");
-
-	String mainTypeName= verifyMainTypeName(configuration);
-	IVMRunner runner= getVMRunner(configuration, mode);
-
-	File workingDir= verifyWorkingDirectory(configuration);
-	String workingDirName= null;
-	if (workingDir != null) {
-	    workingDirName= workingDir.getAbsolutePath();
-	}
-
-	// Environment variables
-	String[] envp= getEnvironment(configuration);
-
-	// Program & VM args
-	String pgmArgs= getProgramArguments(configuration);
-	String vmArgs= getVMArguments(configuration);
-	String rtArgs= getRuntimeArguments(configuration);
-	X10ExecutionArguments execArgs= new X10ExecutionArguments(vmArgs, rtArgs, pgmArgs);
-
-	// VM-specific attributes
-	Map vmAttributesMap= getVMSpecificAttributesMap(configuration);
-
-	// Classpath
-	String[] classpath= getClasspath(configuration);
-
-	// Place the user-specified X10 runtime location in front of whatever we
-	// obtain from the project's classpath.
-	String x10RuntimeLoc= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
-
-	// BRT  assure we have a runtime 
-	// validators for launch config page shd ensure that this field is not empty.  can't dismiss dialog if it's empty
-	if (x10RuntimeLoc.length() == 0) {
-	    Display.getDefault().asyncExec(new Runnable() {
-		public void run() {
-		    Shell shell= X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
-		    MessageDialog.openError(shell, "Please specify the X10 Runtime location", "The location of the X10 Runtime is unset in the launch configuration '" + configuration.getName() + "'.");
+		if (monitor == null) {
+			monitor = new NullProgressMonitor();
 		}
-	    });
-	    return;
-	}
-	
-	//======== start new classpath calculation
-	List<String> classpathList= new ArrayList<String>();
-	for (int i = 0; i < classpath.length; i++) {
-		classpathList.add( classpath[i]);	
-	}
-	
-	//PORT1.7 fix common loc
-	String locPrefix=x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator ;
-	String commonLoc= locPrefix+ X10Plugin.X10_COMMON_BUNDLE_ID;
 
-	//String constraintsLoc=locPrefix + X10Plugin.X10_CONSTRAINTS_BUNDLE_ID;//PORT1.7 use this too?
-	String locnDir=getDir(x10RuntimeLoc);
-	//PORT1.7  -- x10common.jar and x10constraints.jar assumed to be found  in same dir as runtime jar; names hardcoded here too for now (temporary)
-	String jar1=locnDir+"x10common.jar";
-	String jar2=locnDir+"x10constraints.jar";
-	classpathList.add(jar1);
-	classpathList.add(jar2);
-	// PORT1.7 -- we might also want a third jar, the pre-built X10 classes; for now I am using hand-build runtime jar that combines runtime+prebuilt
-	
-	
-	// test that each exists (be paranoid)
-	for (int i = 0; i < classpathList.size(); i++) {
-		String path = classpathList.get(i);
-		File file=new File(path);
-		if(file.exists()) {
-			//System.out.println(path+" exists");
+		monitor.beginTask(MessageFormat.format("{0}...", new Object[] { configuration.getName() }), 3); //$NON-NLS-1$
+		// check for cancellation
+		if (monitor.isCanceled()) {
+			return;
 		}
-		else {
-			System.out.println("***OOPS: Expected x10 runtime path part of  "+path+" DOES NOT exist");
+
+		monitor.subTask("Verifying launch attributes");
+
+		String mainTypeName = verifyMainTypeName(configuration);
+		IVMRunner runner = getVMRunner(configuration, mode);
+
+		File workingDir = verifyWorkingDirectory(configuration);
+		String workingDirName = null;
+		if (workingDir != null) {
+			workingDirName = workingDir.getAbsolutePath();
 		}
-		
+
+		// Environment variables
+		String[] envp = getEnvironment(configuration);
+
+		// Program & VM args
+		String pgmArgs = getProgramArguments(configuration);
+		String vmArgs = getVMArguments(configuration);
+		String rtArgs = getRuntimeArguments(configuration);
+		X10ExecutionArguments execArgs = new X10ExecutionArguments(vmArgs, rtArgs, pgmArgs);
+
+		// VM-specific attributes
+		Map vmAttributesMap = getVMSpecificAttributesMap(configuration);
+
+		// Classpath
+		String[] classpath = getClasspath(configuration);
+
+		// Place the user-specified X10 runtime location in front of whatever we
+		// obtain from the project's classpath.
+		String x10RuntimeLoc = configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
+
+		// BRT assure we have a runtime
+		// validators for launch config page shd ensure that this field is not
+		// empty. can't dismiss dialog if it's empty
+		if (x10RuntimeLoc.length() == 0) {
+			Display.getDefault().asyncExec(new Runnable() {
+				public void run() {
+					Shell shell = X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+					MessageDialog.openError(shell, "Please specify the X10 Runtime location",
+							"The location of the X10 Runtime is unset in the launch configuration '" + configuration.getName() + "'.");
+				}
+			});
+			return;
+		}
+
+		// ======== start new classpath calculation
+		List<String> classpathList = new ArrayList<String>();
+		for (int i = 0; i < classpath.length; i++) {
+			classpathList.add(classpath[i]);
+		}
+
+		// PORT1.7 -- these are not used but when we correctly calculate where
+		// all the jars should be, we probably will
+		// String locPrefix=x10RuntimeLoc.substring(0,
+		// x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator ;
+		// String commonLoc= locPrefix+ X10Plugin.X10_COMMON_BUNDLE_ID;
+		// String constraintsLoc=locPrefix +
+		// X10Plugin.X10_CONSTRAINTS_BUNDLE_ID;
+
+		String locnDir = getDir(x10RuntimeLoc);
+		// PORT1.7 -- x10common.jar and x10constraints.jar assumed to be found
+		// in same dir as runtime jar; names hardcoded here too for now
+		// (temporary)
+		String jar1 = locnDir + "x10common.jar";
+		String jar2 = locnDir + "x10constraints.jar";
+		classpathList.add(jar1);
+		classpathList.add(jar2);
+		// PORT1.7 -- we might also want a third jar, the pre-built X10 classes;
+		// for now I am using hand-built runtime jar that combines
+		// runtime+prebuilt
+
+		// test that each exists (be paranoid)
+		for (int i = 0; i < classpathList.size(); i++) {
+			String path = classpathList.get(i);
+			File file = new File(path);
+			if (!file.exists()) {
+				X10Plugin.getInstance().writeErrorMsg("X10LaunchConfigurationDelegate, cannot find expected part of runtime path: " + path);
+			}
+
+		}
+		String[] classPathExpanded = classpathList.toArray(new String[] {});
+		// ======== end new classpath calculation
+
+		// x10RuntimeType is the class name that the runtime actually launches.
+		// in 1.5 this was always "x10.lang.Runtime'
+		// in 1.7 this is "Hello$Main" where "Hello" is main user class
+		//
+		// We accept the launch config value of "Main class" with or without  trailing "$Main"
+		// that is, append it only if necessary
+		// We accept it with trailing "$Main" because this is what the
+		// "Search..." action in launch config dialog returns. ("Hello$Main")
+		final String x10RuntimeType;
+
+		if (!mainTypeName.endsWith(userMainSuffix)) {
+			x10RuntimeType = mainTypeName + userMainSuffix;
+		} else {
+			x10RuntimeType = mainTypeName;
+		}
+		// Create VM config
+		VMRunnerConfiguration runConfig = new VMRunnerConfiguration(x10RuntimeType, classPathExpanded);
+		String[] explicitRuntimeArgsArray = execArgs.getRuntimeArgumentsArray();
+		String[] explicitProgArgsArray = execArgs.getProgramArgumentsArray();
+		String[] realArgsArray = new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length + 1];
+
+		System.arraycopy(explicitRuntimeArgsArray, 0, realArgsArray, 0, explicitRuntimeArgsArray.length);
+		realArgsArray[explicitRuntimeArgsArray.length] = mainTypeName;
+		System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length + 1, explicitProgArgsArray.length);
+
+		// DLLs were for testcases??? in 1.5 needed some native code. but not
+		// any more.
+		String[] x10ExtraVMArgs = {
+		// "-Djava.library.path=" + commonLoc + "\\lib",
+		"-ea" // BRT ea= enable assertions, do this only if set in prefs
+		};
+		// 1.7: would have to get to c++ backend code
+		// eventually want some UI in launch config for this
+
+		String[] explicitVMArgsArray = execArgs.getVMArgumentsArray();
+		String[] realVMArgsArray = new String[explicitVMArgsArray.length + x10ExtraVMArgs.length];
+
+		System.arraycopy(x10ExtraVMArgs, 0, realVMArgsArray, 0, x10ExtraVMArgs.length);
+		System.arraycopy(explicitVMArgsArray, 0, realVMArgsArray, x10ExtraVMArgs.length, explicitVMArgsArray.length);
+
+		runConfig.setProgramArguments(realArgsArray);
+		runConfig.setEnvironment(envp);
+		runConfig.setVMArguments(explicitVMArgsArray);
+		runConfig.setWorkingDirectory(workingDirName);
+		runConfig.setVMSpecificAttributesMap(vmAttributesMap);
+
+		// Bootpath
+		runConfig.setBootClassPath(getBootpath(configuration));
+
+		// check for cancellation
+		if (monitor.isCanceled()) {
+			return;
+		}
+
+		// stop in main
+		prepareStopInMain(configuration);
+
+		// done the verification phase
+		monitor.worked(1);
+
+		monitor.subTask("Creating source locator");
+		// set the default source locator if required
+		setDefaultSourceLocator(launch, configuration);
+		monitor.worked(1);
+
+		// Launch the configuration - 1 unit of work
+		runner.run(runConfig, launch, monitor);
+
+		// check for cancellation
+		if (monitor.isCanceled()) {
+			return;
+		}
+
+		monitor.done();
 	}
-	String[] classPathExpanded=classpathList.toArray(new String[] {});
-	//======== end new classpath calculation
-
-	// The main class to launch is userclass$Main = accept the launch config value of "Main class" with or without trailing "$Main"
-	// that is, append it only if necessary
-	// We accept it with trailing "$Main" because this is what the "Search..." action on launch config returns.  ("Hello$Main")
-	x10RuntimeType=mainTypeName;
-	final String main="$Main";
-	if(!mainTypeName.endsWith(main)) {
-		x10RuntimeType= x10RuntimeType+main; 
-	}
-	// Create VM config
-	VMRunnerConfiguration runConfig= new VMRunnerConfiguration(x10RuntimeType, classPathExpanded);
-	String[] explicitRuntimeArgsArray= execArgs.getRuntimeArgumentsArray();
-	String[] explicitProgArgsArray= execArgs.getProgramArgumentsArray();
-	String[] realArgsArray= new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length + 1];
-
-	System.arraycopy(explicitRuntimeArgsArray, 0, realArgsArray, 0, explicitRuntimeArgsArray.length);
-	realArgsArray[explicitRuntimeArgsArray.length]= mainTypeName;
-	System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length+1, explicitProgArgsArray.length);
-
-
-	
-	// DLLs were for testcases??? in 1.5  needed some native code.   but not any more.
-	String[] x10ExtraVMArgs= {
-		//"-Djava.library.path=" + commonLoc + "\\lib",
-		"-ea"  // BRT ea= enable assertions, do this only if set in prefs
-	};
-	// 1.7: would have to get to c++ backend code
-	// eventually want some UI in launch config for this
-
-	String[] explicitVMArgsArray= execArgs.getVMArgumentsArray();
-	String[] realVMArgsArray= new String[explicitVMArgsArray.length + x10ExtraVMArgs.length];
-
-	System.arraycopy(x10ExtraVMArgs, 0, realVMArgsArray, 0, x10ExtraVMArgs.length);
-	System.arraycopy(explicitVMArgsArray, 0, realVMArgsArray, x10ExtraVMArgs.length, explicitVMArgsArray.length);
-
-	runConfig.setProgramArguments(realArgsArray);
-	runConfig.setEnvironment(envp);
-	runConfig.setVMArguments(explicitVMArgsArray);
-	runConfig.setWorkingDirectory(workingDirName);
-	runConfig.setVMSpecificAttributesMap(vmAttributesMap);
-
-	// Bootpath
-	runConfig.setBootClassPath(getBootpath(configuration));
-
-	// check for cancellation
-	if (monitor.isCanceled()) {
-	    return;
-	}
-
-	// stop in main
-	prepareStopInMain(configuration);
-
-	// done the verification phase
-	monitor.worked(1);
-
-	monitor.subTask("Creating source locator");
-	// set the default source locator if required
-	setDefaultSourceLocator(launch, configuration);
-	monitor.worked(1);
-
-	// Launch the configuration - 1 unit of work
-	runner.run(runConfig, launch, monitor);
-
-	// check for cancellation
-	if (monitor.isCanceled()) {
-	    return;
-	}
-
-	monitor.done();
-    }
 
 
 	private String getDir(String pathLocation) {
