@@ -258,7 +258,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    String projectSrcPath= pathListToPathString(projectSrcLoc);
 	    String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
 
-	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
+	    // TODO RMF 11/9/2006 - Remove the "-noserial" option; it's really for the demo
+	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
 	} catch (UsageError e) {
 	    if (!e.getMessage().equals("must specify at least one source file"))
 		System.err.println(e.getMessage());
