@@ -3,6 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Refactorings
 Bundle-SymbolicName: x10.refactorings;singleton:=true
 Bundle-Version: 1.0.0
+Bundle-Activator: x10.refactorings.X10RefactoringPlugin
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.compare,
  org.eclipse.core.resources,
  org.eclipse.core.runtime,
@@ -32,4 +35,3 @@ Require-Bundle: org.eclipse.compare,
  x10.effects;bundle-version="1.0.0",
  x10.constraints;bundle-version="1.7.3"
 Bundle-ClassPath: bin/
-Bundle-Activator: x10.refactorings.X10RefactoringPlugin
