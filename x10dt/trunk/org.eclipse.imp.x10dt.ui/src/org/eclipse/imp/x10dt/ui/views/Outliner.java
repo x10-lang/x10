@@ -77,10 +77,10 @@ public class Outliner extends DefaultOutliner implements IOutliner
             if (controller != null && tree != null)
             {
     		    tree.setRedraw(false);
-    		    tree.removeAll();
     		    SourceFile ast = (SourceFile) controller.getCurrentAst();
                 if (ast != null)
                 {
+                    tree.removeAll();
                     if (ast.package_() != null)
                     {
                         TreeItem parent = new TreeItem(tree, SWT.NONE);
