@@ -83,11 +83,11 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
             public Node leave(Node old, Node n, NodeVisitor v) {
                 if (n instanceof TopLevelDecl ||
                     n instanceof ClassDecl ||
-                    n instanceof ProcedureDecl ||
+                    (n instanceof ProcedureDecl && ((ProcedureDecl) old).position() != Position.COMPILER_GENERATED) ||
                     n instanceof Async || n instanceof AtEach || n instanceof ForEach ||
                     n instanceof Future || n instanceof Finish || n instanceof Atomic ||
                     n instanceof Next || n instanceof X10Loop ||
-                    n instanceof ArrayConstructor)
+                    (n instanceof ArrayConstructor && ((ArrayConstructor) old).initializer() != null))
                     popSubItem();
                 return super.leave(old, n, v);
             }
