@@ -1,15 +1,3 @@
-/*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
-*******************************************************************************/
-
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import java.util.List;
@@ -73,6 +61,19 @@ public class X10PreferencesDefaultTab extends DefaultPreferencesTab {
 			Link TabSizeDetailsLink = fPrefUtils.createDetailsLink(parent, TabSize, TabSize.getTextControl().getParent(), "Details ...");
 
 		fields.add(TabSize);
+
+
+		IntegerFieldEditor NumPlaces = fPrefUtils.makeNewIntegerField(
+			page, tab, fPrefService,
+			"default", "NumPlaces", "NumPlaces",
+			parent,
+			false, false,
+			true, String.valueOf(8),
+			false, "0",
+			false);
+			Link NumPlacesDetailsLink = fPrefUtils.createDetailsLink(parent, NumPlaces, NumPlaces.getTextControl().getParent(), "Details ...");
+
+		fields.add(NumPlaces);
 
 		FieldEditor[] fieldsArray = new FieldEditor[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {

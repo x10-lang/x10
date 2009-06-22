@@ -44,6 +44,7 @@ page X10Preferences {
     // Declare in preference fields and assign their attributes
     fields {
     	int TabSize { range 0..20; hasspecial 8; defvalue 4; }
+    	int NumPlaces { range 0..50; hasspecial 8; defvalue 4; }
     	// boolean UseDefaultPreferencesTemplate { hasspecial true; defvalue true; }
     	// file  PreferencesTemplateToUse { defvalue "/Eclipses/Workspaces/IMP-3.3a/org.eclipse.imp.preferences/templates/standard.pfsp"; }
     	// boolean UseDefaultIncludePath { defvalue true; }
