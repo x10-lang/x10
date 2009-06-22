@@ -9,13 +9,6 @@
             language="X10">
       </formatter>
    </extension>
-    <extension
-         point="org.eclipse.imp.runtime.parser">
-      <formatter
-            class="org.eclipse.imp.x10dt.formatter.parser.ParseController"
-            language="X10">
-      </formatter>
-   </extension>
    <extension
          point="org.eclipse.imp.formatting.formattingSpecification">
       <formattingSpecification
