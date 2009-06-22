@@ -326,6 +326,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	}
 	fDependencyInfo.dump();
 	createMarkers(errors);
+	fExtInfo=null;
     }
 
     private void buildOptions() {
