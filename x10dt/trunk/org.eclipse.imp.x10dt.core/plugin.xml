@@ -63,20 +63,20 @@
          </menu>
          <action
                class="com.ibm.watson.safari.x10.actions.BuilderEnable"
-               icon="icons/sample.gif"
+               icon="icons/builderEnable.gif"
                id="com.ibm.watson.safari.x10.actions.BuilderEnable"
                label="&amp;Enable Builder"
-               menubarPath="sampleMenu/sampleGroup"
-               toolbarPath="sampleGroup"
-               tooltip="Hello, Eclipse world"/>
+               menubarPath="x10Menu/x10Group"
+               toolbarPath="x10Group"
+               tooltip="Enable the X10 Compiler for this project"/>
       </actionSet>
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
-            id="com.ibm.watson.safari.x10.contextMenu"
+            id="com.ibm.watson.safari.x10.projectContextMenu"
             nameFilter="*"
-            objectClass="org.eclipse.core.resources.IProject">
+            objectClass="org.eclipse.jdt.core.IJavaProject">
          <menu
                id="com.ibm.watson.safari.x10.menu1"
                label="X10"
@@ -86,9 +86,11 @@
          <action
                class="com.ibm.watson.safari.x10.actions.ProjectBuilderEnable"
                enablesFor="1"
+               icon="icons/builderEnable.gif"
                id="com.ibm.watson.safari.x10.newAction"
                label="Enable Builder"
-               menubarPath="com.ibm.watson.safari.x10.menu1/group1"/>
+               menubarPath="com.ibm.watson.safari.x10.menu1/group1"
+               tooltip="Enable the X10 Compiler for this project"/>
       </objectContribution>
    </extension>
 
