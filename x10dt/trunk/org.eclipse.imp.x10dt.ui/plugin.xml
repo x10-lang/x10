@@ -114,5 +114,13 @@
             language="X10"
             name="X10 Annotation Hover"/>
    </extension>
+   <extension
+         point="org.eclipse.uide.runtime.hyperLink">
+      <hyperlinkDetector
+            class="x10.uide.editor.HyperlinkDetector"
+            id="x10.uide.hyperlinkDetector"
+            language="X10"
+            name="X10 Hyperlink Detector"/>
+   </extension>
 
 </plugin>
