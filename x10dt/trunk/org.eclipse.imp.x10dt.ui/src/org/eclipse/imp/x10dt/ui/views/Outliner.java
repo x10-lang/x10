@@ -299,7 +299,10 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 TreeItem tree_item = new TreeItem((TreeItem) tree_item_of.get(parent), SWT.NONE);
                 tree_item_of.put(method, tree_item);
                 IToken left_token = ((JPGPosition) method.position()).getLeftIToken();
-                int right_token_index = ((JPGPosition) method.body().position()).getLeftIToken().getTokenIndex() - 1;
+                int right_token_index =
+                    (method.body() == null
+                         ? ((JPGPosition) method.position()).getRightIToken().getTokenIndex()
+                         : ((JPGPosition) method.body().position()).getLeftIToken().getTokenIndex() - 1);
                 tree_item.setData(pos(left_token, left_token.getPrsStream().getIToken(right_token_index)));
                 if (method.flags().isPrivate())
                      tree_item.setImage(JavaPluginImages.DESC_MISC_PRIVATE.createImage());
