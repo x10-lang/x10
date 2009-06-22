@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Basic Editing tasks in X10DT</title>
+</head>
+
+<body>
+
+ <h1>Basic Editing tasks in X10DT</h1>
+<ul>
+<li><a href="#basic">Basic parts of X10DT</a></li>
+<li><a href="#newproj">New Project</a></li>
+<li><a href="#edit">Editing the X10 source code</a></li>
+<li><a href="#building">Building</a></li>
+<li><a href="#running">Running</a></li>
+</ul>
+<h2 id="basic">Basic parts of X10DT</h2>
+
+
+In the X10 Perspective, you will see the X10 projects in the Package Explorer, the editor, the Outline view,
+a Console to show output, etc., and other views.
+When you launch (run your X10 application), you will see the Launch Dialog where you specify how you want
+to run the program.  This information is saved in a <i>Launch Configuration</i>.
+
+<img src="images/x10dtAnnotated.png">
+
+<h2 id="newproj">Creating an X10 project</h2>
+<p>Be sure you are in the X10 Perspective.
+
+Window > Open Perspective > Other ...   and select X10.
+
+
+
+<p>To create a sample X10 project, Select File > New...  X10 Project.
+<p>
+<br><img src="images/newproj.png">
+<br>Give your project a name, e.g. "Hello," accept the defaults, which includes generating a sample X10 "Hello World" application.
+<p>The X10DT creates your new project, including the source file and edits the main source file.
+It also builds (compiles) it before showing you the new file, so it may take a few seconds to show you the 
+new source file.
+<br><img src="images/newProjDone.png">
+<h2 id="edit">Editing the X10 source code</h2>
+<p>Syntax highlighting highlights X10 code depending on the different language features.
+<br><img src="images/editor.png">
+<p>
+The Outline view shows the parts of the file. Expand the "Hello" class name in the Outline view
+to show the sub-parts.  Select anything in this view to have the editor navigate to its location
+and highlight what you have selected.
+<br><img src="images/outlineView.png">
+
+<p>Hover over an X10 method or class name to show a yellow popup of information about that item.
+If there is javadoc ("X10doc") comment information, that will be shown.
+
+<p>Content Assist (describe only if it works suitably in this version)
+
+<p>There are many features of the Eclipse editor that we won't describe here.
+But here is just one: for example, to turn on line numbering, right-click on the grey <i>marker bar</i> 
+at the left editor the editor and select "Show Line Numbers."
+<br><img src="images/lineNum1.png">
+<p>You'll see the line numbers at the left edge of the editor.
+<br><img src="images/lineNum2.png">
+
+<h2 id = "building">Building</h2>
+<p>Each time you save the file, the X10 compiler builds it.  To turn off this behavior, you
+can select Project > Build Automatically to uncheck this item.
+Then, to force a rebuild, select Project > Clean ... To rebuild the current project.
+<p>But building on each save is typical behavior - try it, you may find you like it.
+<p>If you want to see a console of what happens when it builds, see
+<a href="prefs.html">X10Preferences</a> and the option for echoing compile cmd to the Eclipse Console view.
+
+
+
+<h2 id="running">Running</h2>
+To run your X10 program, the simplest way is to hit the green "Run" button (while the project or source file is selected).
+It's the green circle in the toolbar with the white triangle inside it.
+If you hover over this button, you'll see the words "Run Hello.x10" assuming that's the name of your program.
+<p>FIXME: get screen shot that includes the cursor
+<br><img src="images/run.png">
+<p>Hit the Run button to execute your program with all default settings for launching.
+<br>The Console view shows the output (if any).
+<br><img border="1" src="images/runDone.png">
+<p>If you want to specify more options for running your program, you'll need to edit the Eclipse
+<i>launch configuration</i>.
+<p>Next to the run button, there is a downward-pointing arrow.  Select that and select 
+"Run Configurations..."   Alternatively, you can select the Run menu, and under that, select
+"Run Configurations..."
+<p>(Note: we describe the behavior of Eclipse 3.4.  Eclipse 3.3 and other versions of Eclipse may
+label the menu items slightly differently.)
+
+<br><img border="1" src="images/runConfig.png">
+<p>
+If your project was selected, this dialog is shown with your 
+existing launch configuration shown, assuming you executed the example above to run your program at least once.
+If you haven't, then select "X10 Application" in the list on the left, and select the "New" button to create one.
+(If you select "X10 Application" you'll see a list of what the buttons are on the right.)
+On the main tab, if your Project isn't already selected ("Hello" in our case), use the Browse button
+to select it, or enter it in the text field.  Do the same for the Main class.  If you use the Search button,
+you will be presented with several items - choose the "Main - Hello" class.
+
+
+
+
+The "Main" tab is shown first.  
+<br><img border="1" src="images/runConfigMain.png">
+<p>Select the "Arguments" tab to specify arguments to your program (if any).
+
+
+<br><img border="1" src="images/runConfigArgs.png">
+Program arguments will be passed to the Main method, and VM arguments are used in the launching virtual machine.
+For example, to launch with assertions turned on, add "-ea" to the VM arguments. 
+
+<p>To start your X10 application, Select the "Run" button in the lower right corner of the launch
+configuration dialog.
+
+The program runs, and the output appears in the console view.
+<br><img border="1" src="images/runConsoleOutput.png">
+
+
+
+<p>&nbsp;
+<p>&nbsp;
+<p>&nbsp;
+<p><a href="Overview.html">Back to Overview/Contents</a>
+</body>
+</html>
