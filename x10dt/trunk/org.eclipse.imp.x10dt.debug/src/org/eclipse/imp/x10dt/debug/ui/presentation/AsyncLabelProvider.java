@@ -16,7 +16,7 @@ public class AsyncLabelProvider extends DebugElementLabelProvider implements IEl
 			X10StackFrame stackFrame = (X10StackFrame) elementPath.getLastSegment();
 			String name = stackFrame.getName();
 			if (name.equals("runX10Task")) {
-				return "async";
+				return "async "+stackFrame.getSourceName()+ " line "+stackFrame.getLineNumber();
 			}
 		}
 		return super.getLabel(elementPath, presentationContext, columnId);
