@@ -326,12 +326,18 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   public void resume(final BitList tasks, final boolean passSignal) throws PDIException {
     if (this.fProcessListener != null)
       this.fProcessListener.setCurTasks(tasks);
+    this.fProxyNotifier.notify(new ProxyDebugOKEvent(-1, ProxyDebugClient.encodeBitSet(tasks)));
     try {
+      // TODO
+//      final DebuggeeProcess[] processes = getDebuggeeProcesses(tasks);
+//      for (int p = 0; p < processes.length; p++) {
+//		processes[p].run(false);
+//      }
       this.fPDTTarget.resume();
     } catch (DebugException except) {
       throw new PDIException(tasks, except.getMessage());
-    } finally {
-      this.fProxyNotifier.notify(new ProxyDebugOKEvent(-1, ProxyDebugClient.encodeBitSet(tasks)));
+//    } catch (EngineRequestException except) {
+//      throw new PDIException(tasks, "PDT engine exception during resume: " + except.getMessage());
     }
   }
 
@@ -645,151 +651,481 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       final DebuggeeThread thread = process.getStoppingThread();
       final StackFrame stackFrame = getCurrentStackFrame(thread);
       final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
-      final ProxyDebugAIF aif = createDebugProxyAIF(process, thread, location, expr);
+      final ProxyDebugAIF aif = createDebugProxyAIF(process, thread, location, expr, false);
       this.fProxyNotifier.notify(new ProxyDebugDataEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks), aif));
     } catch (EngineRequestException except) {
       throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via PDT request: " + except.getMessage(), expr));
+    } catch (MemoryException except) {
+      throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via memory request: " + except.getMessage(), expr));
     } catch (DebugException except) {
       throw new PDIException(tasks, "Unable to access stack frames in PDT: " + except.getMessage());
-    }
+	}
   }
 
   public void retrievePartialAIF(final BitList tasks, final String expr, final String key, final boolean listChildren, 
                                  final boolean isExpression) throws PDIException
   {
+    System.out.println(expr);
     try {
       DebuggeeProcess[] processes = getDebuggeeProcesses(tasks);
       DebuggeeProcess process = processes[0];
       final DebuggeeThread thread = process.getStoppingThread();
       final StackFrame stackFrame = getCurrentStackFrame(thread);
       final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
-      if (listChildren) { // Expanding an existing expression
-        System.out.println(expr);
-        int atIdx = expr.lastIndexOf('@');
-        if (expr.startsWith("*") && atIdx != -1) { // TODO: factor out
-          int num = Integer.parseInt(expr.substring(atIdx+1));
-          String inner = expr.substring(1, atIdx);
-          assert (inner.startsWith("(") && inner.endsWith(")"));
-          inner = inner.substring(1, inner.length()-1);
-          int plusIdx = inner.lastIndexOf('+');
-          int offset = Integer.parseInt(inner.substring(plusIdx+1));
-          String base = inner.substring(0, plusIdx);
-          if (base.startsWith("(") && base.endsWith(")"))
-            base = base.substring(1, base.length()-1);
-          ExprNodeBase rootNode = evaluateExpression(base, process, thread, location);
-          final String type = rootNode.getReferenceTypeName();
-          final String[] desc = fTranslator.getStructDescriptor(type);
-          final EPDTVarExprType exprType = getExprType(rootNode);
-          if (rootNode instanceof ExprNode) {
-            if (type.startsWith("class ref<") || type.startsWith("class x10aux::ref<")) { // got a reference, unwrap
-              System.out.println("Got a ref: "+type);
-              PDTDebugElement[] children = rootNode.getChildren();
-              assert (children.length == 2); // _val and __ref{}
-              rootNode = (ExprNodeBase) children[0];
-              if (rootNode instanceof ExprNode) {
-                final String type2 = rootNode.getReferenceTypeName();
-                assert (type2.endsWith("*"));
-//                children = rootNode.getChildren();
-//                assert (children.length == 1); // the referenced object
-//                ExprNodeBase referencedObject = (ExprNodeBase) children[0];
-              }
-            }
-          }
-          String result = rootNode.getValueString();
-          if (exprType == EPDTVarExprType.ARRAY) {
-//            GlobalVariable[] globals = process.getDebugEngine().getGlobalVariables();
-//            for (GlobalVariable v : globals) {
-//              if (v.getName().equals("x10aux::nullString"))
-//                evaluateExpression(v.getExpression().replace("\nx10aux", "\n&x10aux"), process, thread, location);
-//            }
-            final String[] cdesc = fTranslator.getStructDescriptor(desc[1]);
-//            getVariableType(desc[1], cdesc);
-            final int csize = 16; // TODO: extract element size
-            try {
-              Address railAddress = process.convertToAddress(result, location, thread);
-              final int vptrsz = railAddress.getAddressSize();
-              assert (vptrsz == PTR_SIZE);
-              // Rail layout:
-              // ptr -> .------------.  0
-              //        | vtable     |
-              //        |  (8 bytes) |
-              //        |------------|  8
-              //        || Object    |
-              //        || vtable    |
-              //        || (8 bytes) |
-              //        ||-----------| 16
-              //        ||???        |
-              //        || (8 bytes) |
-              //        |------------| 24
-              //        || Ref       |
-              //        || vtable    |
-              //        || (8 bytes) |
-              //        ||-----------| 32
-              //        || ???       |
-              //        || (8 bytes) |
-              //        |------------| 40
-              //        || Settable  |
-              //        || vtable    |
-              //        || (8 bytes) |
-              //        ||-----------| 48
-              //        || ???       |
-              //        || (8 bytes) |
-              //        |------------| 56
-              //        | length (4) |
-              //        |------------| 60
-              //        | pad (4)    |
-              //        |------------| 64
-              //        | contents   |  :
-              //        |     ...    |  '
-      		  Memory memory = process.getMemory(railAddress.getAddress(), PTR_SIZE*8 + offset + csize*num);
-      		  MemoryByte[] mbytes = memory.getMemory();
-      		  int length = extractInt(mbytes, PTR_SIZE*7);
-      		  assert (num == length);
-      		  assert (offset == 0);
-      		  byte[] bytes = new byte[csize*num]; // TODO: factor this out to extractBytes(mbytes, off, len)
-      		  for (int i = 0; i < csize*num; i++) {
-      		    bytes[i] = mbytes[PTR_SIZE*8+offset+i].getValue();
-      		  }
-      		  // TODO: extract individual elements and concat the representations
-      		  result = toHexString(bytes);
-            } catch (MemoryException e) {
-              e.printStackTrace();
-            }
-//            ExprNodeBase lengthNode = evaluateExpression(expr+"._val->x10__length", process, thread, location);
-//            String lengthType = lengthNode.getReferenceTypeName();
-//            assert (lengthType.equals("int"));
-//            desc[2] = Integer.toString(Integer.parseInt(lengthNode.getValueString())-1));
-            desc[2] = Integer.toString(num - 1); // we want an inclusive upper bound
-          }
-          final String value = getValue(exprType, result);
-          final ProxyDebugAIF aif = new ProxyDebugAIF(getVariableType(exprType, desc), value, expr);
-          this.fProxyNotifier.notify(new ProxyDebugPartialAIFEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-        		  aif, expr));
-        } else {
-          raiseDialogBoxNotImplemented("Retrieve Partial AIF with request to list children not yet implemented");
-          final ProxyDebugAIF aif = new ProxyDebugAIF("?0?", "", expr);
-          this.fProxyNotifier.notify(new ProxyDebugPartialAIFEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                                   aif, expr));
-        }
-      } else {
-        final ProxyDebugAIF aif = createDebugProxyAIF(process, thread, location, expr);
-        this.fProxyNotifier.notify(new ProxyDebugPartialAIFEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                                 aif, expr));
-      }
+      final ProxyDebugAIF aif = createDebugProxyAIF(process, thread, location, expr, listChildren);
+      this.fProxyNotifier.notify(new ProxyDebugPartialAIFEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks), aif, expr));
     } catch (EngineRequestException except) {
-        throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via PDT request: " + except.getMessage(), expr));
-      } catch (DebugException except) {
-        throw new PDIException(tasks, "Unable to access stack frames in PDT: " + except.getMessage());
+      throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via PDT request: " + except.getMessage(), expr));
+    } catch (MemoryException except) {
+      throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via memory request: " + except.getMessage(), expr));
+    } catch (DebugException except) {
+      throw new PDIException(tasks, "Unable to access stack frames in PDT: " + except.getMessage());
+    }
+  }
+
+  public static class MemoryObject {
+    public static final int BYTE_SIZE = 1;
+    public static final int CHAR_SIZE = 2;
+    public static final int SHORT_SIZE = 2;
+    public static final int INT_SIZE = 4;
+    public static final int LONG_SIZE = 8;
+    public static final int BOOLEAN_SIZE = INT_SIZE;
+    public static final int FLOAT_SIZE = INT_SIZE;
+    public static final int DOUBLE_SIZE = LONG_SIZE;
+    public static final int PTR_SIZE = LONG_SIZE;
+    private static final int OBJECT_HEADER_SIZE = PTR_SIZE*4; // FIXME: initial size
+
+    private Memory memory = null;
+    private final DebuggeeProcess process;
+    protected final DebuggeeProcess getProcess() { return process; }
+    private final DebuggeeThread thread;
+    protected final DebuggeeThread getThread() { return thread; }
+    private final Location location;
+    protected final Location getLocation() { return location; }
+    private final Address address;
+    public MemoryObject(DebuggeeProcess process, DebuggeeThread thread, Location location, long ptr) throws MemoryException {
+    	this(process, thread, location, "0x"+toHexString(ptr, 16));
+    }
+    public MemoryObject(DebuggeeProcess process, DebuggeeThread thread, Location location, String expr) throws MemoryException {
+    	this(process, thread, location, process.convertToAddress(expr, location, thread));
+    }
+    public MemoryObject(DebuggeeProcess process, DebuggeeThread thread, Location location, Address address) throws MemoryException {
+    	this(process, thread, location, address, OBJECT_HEADER_SIZE);
+    }
+    public MemoryObject(DebuggeeProcess process, DebuggeeThread thread, Location location, long ptr, int size) throws MemoryException {
+      this(process, thread, location, "0x"+toHexString(ptr, 16), size);
+    }
+    public MemoryObject(DebuggeeProcess process, DebuggeeThread thread, Location location, String expr, int size) throws MemoryException {
+      this(process, thread, location, process.convertToAddress(expr, location, thread), size);
+    }
+    public MemoryObject(DebuggeeProcess process, DebuggeeThread thread, Location location, Address address, int size) throws MemoryException {
+      final int vptrsz = address.getAddressSize();
+      assert (vptrsz == MemoryObject.PTR_SIZE);
+      memory = process.getMemory(address.getAddress(), size);
+      this.process = process;
+      this.thread = thread;
+      this.location = location;
+      this.address = address;
+    }
+    protected final MemoryByte[] getEnoughMemory(int total) throws MemoryException {
+      if (total > memory.getNumBytes()) {
+        memory = process.getMemory(address.getAddress(), total);
       }
+      MemoryByte[] mbytes = memory.getMemory();
+      return mbytes;
+    }
+    public final byte[] getBytes() throws MemoryException {
+      return getBytes(0, memory.getNumBytes());
+    }
+    public final byte[] getBytes(int offset, int length) throws MemoryException {
+      MemoryByte[] mbytes = getEnoughMemory(offset+length);
+      return extractBytes(mbytes, offset, length);
+    }
+    public final int getInt(int offset) throws MemoryException {
+      MemoryByte[] mbytes = getEnoughMemory(offset+INT_SIZE);
+      return extractInt(mbytes, offset);
+    }
+    public final long getLong(int offset) throws MemoryException {
+      MemoryByte[] mbytes = getEnoughMemory(offset+LONG_SIZE);
+      return extractLong(mbytes, offset);
+    }
+    public final long getPointer(int offset) throws MemoryException {
+      if (MemoryObject.PTR_SIZE == MemoryObject.LONG_SIZE)
+        return getLong(offset);
+      else
+        return getInt(offset);
+    }
+    public static void dumpBytes(MemoryByte[] cbytes) {
+	  for (int i = 0; i < cbytes.length; i++) {
+        String s = X10PDIDebugger.toHexString(cbytes[i].getValue()&0xFF, 2);
+        System.out.print(s+" ");
+      }
+	  System.out.println();
+    }
+    public static byte[] extractBytes(final MemoryByte[] mbytes) {
+      return extractBytes(mbytes, 0, mbytes.length);
+    }
+    public static byte[] extractBytes(final MemoryByte[] mbytes, final int offset, final int length) {
+      byte[] bytes = new byte[length];
+      for (int i = 0; i < length; i++) {
+        bytes[i] = mbytes[offset+i].getValue();
+      }
+      return bytes;
+	}
+    public static long extractLong(final MemoryByte[] mbytes, final int offset) { // FIXME: endianness
+      return ((mbytes[offset+0].getValue()&0xFFl)<<56) | ((mbytes[offset+1].getValue()&0xFFl)<<48) |
+             ((mbytes[offset+2].getValue()&0xFFl)<<40) | ((mbytes[offset+3].getValue()&0xFFl)<<32) |
+             ((mbytes[offset+4].getValue()&0xFFl)<<24) | ((mbytes[offset+5].getValue()&0xFFl)<<16) |
+             ((mbytes[offset+6].getValue()&0xFFl)<< 8) | ((mbytes[offset+7].getValue()&0xFFl)<< 0);
+    }
+    static int extractInt(final MemoryByte[] mbytes, final int offset) { // FIXME: endianness
+      return ((mbytes[offset+0].getValue()&0xFF)<<24) | ((mbytes[offset+1].getValue()&0xFF)<<16) |
+             ((mbytes[offset+2].getValue()&0xFF)<< 8) | ((mbytes[offset+3].getValue()&0xFF)<< 0);
+    }
+    public static long extractPointer(final MemoryByte[] mbytes, final int offset) {
+      if (MemoryObject.PTR_SIZE == MemoryObject.LONG_SIZE)
+        return X10PDIDebugger.MemoryObject.extractLong(mbytes, offset);
+      else
+        return X10PDIDebugger.MemoryObject.extractInt(mbytes, offset);
+    }
+  }
+
+  public static class X10Object extends MemoryObject {
+    public static final char INT     = 'i';
+    public static final char LONG    = 'l';
+    public static final char STRING  = 's';
+    public static final char RAIL    = 'r';
+    public static final char POINTER = 'p';
+    private static final class FieldDesc {
+      public FieldDesc(String name, int offset, char type) {
+        this.name = name;
+        this.offset = offset;
+        this.type = type;
+      }
+      public final String name;
+      public final int offset;
+      public final char type;
+    }
+    private final ArrayList<FieldDesc> fields = new ArrayList<FieldDesc>();
+    // TODO: compute the offset automatically
+    protected final void addField(String name, int offset, char type) {
+      fields.add(new FieldDesc(name, offset, type));
+    }
+    private FieldDesc findField(String name) {
+      for (FieldDesc f : fields) {
+		if (f.name.equals(name))
+		  return f;
+      }
+      return null;
+    }
+    protected final int getFieldOffset(String name) {
+      return findField(name).offset;
+    }
+    public X10Object(DebuggeeProcess process, DebuggeeThread thread, Location location, long ptr) throws MemoryException {
+      super(process, thread, location, ptr);
+    }
+    public X10Object(DebuggeeProcess process, DebuggeeThread thread, Location location, String expr) throws MemoryException {
+      super(process, thread, location, expr);
+    }
+    public X10Object(DebuggeeProcess process, DebuggeeThread thread, Location location, Address address) throws MemoryException {
+      super(process, thread, location, address);
+    }
+  }
+
+  public static String FMGL(String name) {
+    return "x10__"+name;
+  }
+
+  /**
+   * An in-memory representation of the X10 String object.
+   * Layout:
+   * <pre>
+   * ptr -> .------------.  0
+   *        | vtable     |
+   *        |  (8 bytes) |
+   *        |------------|  8
+   *        || Object    |
+   *        || vtable    |
+   *        || (8 bytes) |
+   *        ||-----------| 16
+   *        || ???       |
+   *        || (8 bytes) |
+   *        |------------| 24
+   *        | content    |
+   *        |  (8 bytes) |
+   *        |------------| 32
+   *        | length     |
+   *        |  (8 bytes) |
+   *        '------------'
+   * </pre>
+   */
+  public static class X10String extends X10Object {
+    public X10String(DebuggeeProcess process, DebuggeeThread thread, Location location, String address) throws MemoryException {
+      super(process, thread, location, address);
+      addField("contents", PTR_SIZE*3, 'p');
+      addField("length", PTR_SIZE*4, 'l');
+    }
+    public final long getLength() throws MemoryException {
+      return getLong(getFieldOffset("length"));
+    }
+    public final MemoryObject getContents() throws MemoryException {
+      long ptr = getPointer(getFieldOffset("contents"));
+      int length = (int) getLength();
+      return new MemoryObject(getProcess(), getThread(), getLocation(), ptr, length);
+    }
+  }
+
+  /**
+   * An in-memory representation of some X10 Rail class.  Gets the element type as argument.
+   * Subclasses must override the headerSize() method.
+   * Layout:
+   * <pre>
+   * ptr -> .------------.  0
+   *        || header    |
+   *        || (N bytes) |
+   *        |------------|  N
+   *        | length (4) |
+   *        |------------|  N+4
+   *        | pad (4)    |
+   *        |------------|  N+8
+   *        | contents   |  :
+   *        |     ...    |  '
+   * </pre>
+   */
+  public static abstract class X10AnyRail extends X10Object {
+    private int elementSize;
+    public final int getElementSize() { return elementSize; }
+    public X10AnyRail(DebuggeeProcess process, DebuggeeThread thread, Location location, String address, int elementSize) throws MemoryException {
+      super(process, thread, location, address);
+      addField(FMGL("length"), headerSize(), 'i');
+      this.elementSize = elementSize;
+    }
+    protected abstract int headerSize();
+    private int getContentOffset() {
+      return getFieldOffset(FMGL("length"))+INT_SIZE+INT_SIZE;
+    }
+    public final int getLength() throws MemoryException {
+      return getInt(getFieldOffset(FMGL("length")));
+    }
+    private int retrieveContents() throws MemoryException {
+      int length = getLength();
+      getEnoughMemory(getContentOffset()+length*elementSize);
+      return length;
+    }
+    private void checkBounds(int index) throws MemoryException {
+      int length = retrieveContents();
+      assert (index >= 0 && index < length);
+    }
+    public final int getIntAt(int index) throws MemoryException {
+      checkBounds(index);
+      assert (elementSize == INT_SIZE);
+      return getInt(getContentOffset()+index*elementSize);
+    }
+    public final long getLongAt(int index) throws MemoryException {
+      checkBounds(index);
+      assert (elementSize == LONG_SIZE);
+      return getLong(getContentOffset()+index*elementSize);
+    }
+    public final long getPointerAt(int index) throws MemoryException {
+      checkBounds(index);
+      assert (elementSize == PTR_SIZE);
+      return getPointer(getContentOffset()+index*elementSize);
+    }
+    public final MemoryObject getObjectAt(int index) throws MemoryException { // TODO: create an object of the right type(!)
+      long ptr = getPointerAt(index);
+      return new MemoryObject(getProcess(), getThread(), getLocation(), ptr);
+    }
+    public final X10String getStringAt(int index) throws MemoryException {
+      long ptr = getPointerAt(index);
+      return new X10String(getProcess(), getThread(), getLocation(), "0x"+toHexString(ptr, 16));
+    }
+    public final byte[] getRawContents() throws MemoryException {
+      return getRawContents(0, getLength());
+    }
+    public final byte[] getRawContents(int offset, int length) throws MemoryException {
+      return getBytes(getContentOffset()+offset*elementSize, length*elementSize);
+    }
+  }
+
+  /**
+   * An in-memory representation of the X10 ValRail class.  Gets the element type as argument.
+   * Layout:
+   * <pre>
+   * ptr -> .------------.  0
+   *        | vtable     |
+   *        |  (8 bytes) |
+   *        |------------|  8
+   *        || Object    |
+   *        || vtable    |
+   *        || (8 bytes) |
+   *        ||-----------| 16
+   *        ||???        |
+   *        || (8 bytes) |
+   *        |------------| 24
+   *        || Fun_0_1   |
+   *        || vtable    |
+   *        || (8 bytes) |
+   *        ||-----------| 32
+   *        || ???       |
+   *        || (8 bytes) |
+   *        |------------| 40
+   *        || AnyRail   |
+   *        || vtable    |
+   *        || (8 bytes) |
+   *        ||-----------| 48
+   *        || ???       |
+   *        || (8 bytes) |
+   *        |------------| 56   \
+   *        | length (4) |       |
+   *        |------------| 60    |
+   *        | pad (4)    |        > AnyRail layout
+   *        |------------| 64    |
+   *        | contents   |  :    |
+   *        |     ...    |  '   /
+   * </pre>
+   */
+  public static class X10ValRail extends X10AnyRail {
+    public X10ValRail(DebuggeeProcess process, DebuggeeThread thread, Location location, String address, int elementSize) throws MemoryException {
+      super(process, thread, location, address, elementSize);
+    }
+    protected int headerSize() {
+      return PTR_SIZE*7;
+    }
+  }
+
+  /**
+   * An in-memory representation of the X10 Rail class.  Gets the element type as argument.
+   * Layout:
+   * <pre>
+   * ptr -> .------------.  0
+   *        | vtable     |
+   *        |  (8 bytes) |
+   *        |------------|  8
+   *        || Object    |
+   *        || vtable    |
+   *        || (8 bytes) |
+   *        ||-----------| 16
+   *        ||???        |
+   *        || (8 bytes) |
+   *        |------------| 24
+   *        ||| Settable |
+   *        ||| vtable   |
+   *        ||| (8 bytes)|
+   *        |||----------| 32
+   *        ||| ???      |
+   *        ||| (32 bts) |
+   *        |------------| 64
+   *        || AnyRail   |
+   *        || vtable    |
+   *        || (8 bytes) |
+   *        ||-----------| 72
+   *        || ???       |
+   *        || (8 bytes) |
+   *        |------------| 80
+   *        | length (4) |
+   *        |------------| 84
+   *        | pad (4)    |
+   *        |------------| 88
+   *        | contents   |  :
+   *        |     ...    |  '
+   * </pre>
+   */
+  public static class X10Rail extends X10AnyRail {
+    public X10Rail(DebuggeeProcess process, DebuggeeThread thread, Location location, String address, int elementSize) throws MemoryException {
+      super(process, thread, location, address, elementSize);
+    }
+    protected int headerSize() {
+      return PTR_SIZE*10;
+    }
+  }
+
+  /**
+   * Finds a matching bracket/brace/parenthesis, starting at a given position.
+   * If the character at that position is an opening bracket, looks forward, otherwise looks backward.
+   * @param str the string
+   * @param pos starting position
+   * @return the position of a matching bracket, or -1 if none (or if bracket not recognized).
+   */
+  private int findMatch(String str, int pos) {
+    boolean forward;
+    char c = str.charAt(pos);
+	char orig = c;
+    char match;
+    switch (orig) {
+    case '[': match = ']'; forward = true; break;
+    case '(': match = ')'; forward = true; break;
+    case '{': match = '}'; forward = true; break;
+    case '<': match = '>'; forward = true; break;
+    case ']': match = '['; forward = false; break;
+    case ')': match = '('; forward = false; break;
+    case '}': match = '{'; forward = false; break;
+    case '>': match = '<'; forward = false; break;
+    default: return -1;
+    }
+    int count = 1;
+    int incr = forward ? 1 : -1;
+    int limit = forward ? str.length()-1 : 0;
+    for (pos += incr; pos != limit; pos += incr) {
+      if (c == orig) count++;
+      if (c == match) {
+        count--;
+        if (count == 0)
+          return pos;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Expanding a derived expression - extract base expression.
+   * This could be one of the following:
+   * <li> *(base+off)@num
+   * <li> base[idx]
+   * <li> base.fld
+   * @param expr the derived expression
+   * @return the base expression to evaluate
+   */
+  private String extractBaseExpr(String expr) {
+    int atIdx = expr.lastIndexOf('@');
+    int dotIdx = expr.lastIndexOf('.');
+    if (expr.startsWith("*") && atIdx != -1) { // *(base+off)@num
+      String inner = expr.substring(1, atIdx);
+      assert (inner.startsWith("(") && inner.endsWith(")"));
+      inner = inner.substring(1, inner.length()-1);
+      int plusIdx = inner.lastIndexOf('+');
+      if (plusIdx == -1)
+        return inner;
+      String base = inner.substring(0, plusIdx);
+      if (base.startsWith("(") && base.endsWith(")"))
+        base = base.substring(1, base.length()-1);
+      return base;
+    }
+    if (expr.endsWith("]") && atIdx == -1) { // base[idx]
+      // find matching "["
+      int openIdx = findMatch(expr, expr.length()-1);
+      if (openIdx == -1) // no matching bracket
+        return expr;
+      String base = expr.substring(0, openIdx);
+      if (base.startsWith("(") && base.endsWith(")"))
+          base = base.substring(1, base.length()-1);
+      return base;
+    }
+    if (expr.lastIndexOf(".") != -1 && atIdx == -1) { // base.fld
+      // TODO
+    }
+    return expr;
   }
 
   private ProxyDebugAIF createDebugProxyAIF(DebuggeeProcess process, final DebuggeeThread thread,
-      final Location location, final String expr) throws EngineRequestException, DebugException
+      final Location location, final String expr, boolean listChildren) throws EngineRequestException, DebugException, MemoryException
   {
-    ExprNodeBase rootNode = evaluateExpression(expr, process, thread, location);
+    String base = expr;
+    if (listChildren) // Expanding an existing expression
+      base = extractBaseExpr(expr);
+    ExprNodeBase rootNode = evaluateExpression(base, process, thread, location);
+    final EPDTVarExprType exprType = getExprType(rootNode);
     final String type = rootNode.getReferenceTypeName();
     final String[] desc = fTranslator.getStructDescriptor(type);
-    final EPDTVarExprType exprType = getExprType(rootNode);
     if (rootNode instanceof ExprNode) {
       if (type.startsWith("class ref<") || type.startsWith("class x10aux::ref<")) { // got a reference, unwrap
         System.out.println("Got a ref: "+type);
@@ -812,98 +1148,85 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
 //        if (v.getName().equals("x10aux::nullString"))
 //          evaluateExpression(v.getExpression().replace("\nx10aux", "\n&x10aux"), process, thread, location);
 //      }
-      int length = 0;
-      try {
-        Address railAddress = process.convertToAddress(result, location, thread);
-        final int vptrsz = railAddress.getAddressSize();
-        assert (vptrsz == PTR_SIZE);
-        // Rail layout:
-        // ptr -> .------------.  0
-        //        | vtable     |
-        //        |  (8 bytes) |
-        //        |------------|  8
-        //        || Object    |
-        //        || vtable    |
-        //        || (8 bytes) |
-        //        ||-----------| 16
-        //        ||???        |
-        //        || (8 bytes) |
-        //        |------------| 24
-        //        || Ref       |
-        //        || vtable    |
-        //        || (8 bytes) |
-        //        ||-----------| 32
-        //        || ???       |
-        //        || (8 bytes) |
-        //        |------------| 40
-        //        || Settable  |
-        //        || vtable    |
-        //        || (8 bytes) |
-        //        ||-----------| 48
-        //        || ???       |
-        //        || (8 bytes) |
-        //        |------------| 56
-        //        | length (4) |
-        //        |------------| 60
-        //        | pad (4)    |
-        //        |------------| 64
-        //        | contents   |  :
-        //        |     ...    |  '
-		Memory memory = process.getMemory(railAddress.getAddress(), PTR_SIZE*8);
-		MemoryByte[] mbytes = memory.getMemory();
-		length = extractInt(mbytes, PTR_SIZE*7);
-      } catch (MemoryException e) {
-        e.printStackTrace();
-      }
 //      ExprNodeBase lengthNode = evaluateExpression(expr+"._val->x10__length", process, thread, location);
 //      String lengthType = lengthNode.getReferenceTypeName();
 //      assert (lengthType.equals("int"));
-//      desc[2] = Integer.toString(Integer.parseInt(lengthNode.getValueString())-1));
-      desc[2] = Integer.toString(length - 1); // we want an inclusive upper bound
+//      int length = Integer.parseInt(lengthNode.getValueString());
+      X10AnyRail rail = null;
+      if (desc[0].startsWith("x10.lang.Rail"))
+        rail = new X10Rail(process, thread, location, result, getExprSize(desc[1]));
+      else if (desc[0].startsWith("x10.lang.ValRail"))
+        rail = new X10ValRail(process, thread, location, result, getExprSize(desc[1]));
+      int length = rail.getLength();
+      if (listChildren) {
+        EPDTVarExprType elementType = getExprType(desc[1]);
+        // This could be one of the following:
+        // - *(base+off)@num
+        // - base[idx]
+        int offset = 0;
+        int num = 1;
+        int atIdx = expr.lastIndexOf('@');
+        if (expr.startsWith("*") && atIdx != -1) {
+          num = Integer.parseInt(expr.substring(atIdx+1));
+          String inner = expr.substring(1, atIdx);
+          assert (inner.startsWith("(") && inner.endsWith(")"));
+          inner = inner.substring(1, inner.length()-1);
+          int plusIdx = inner.lastIndexOf('+');
+          offset = Integer.parseInt(inner.substring(plusIdx+1));
+        } else if (expr.endsWith("]") && atIdx == -1) {
+          // find matching "["
+          int openIdx = findMatch(expr, expr.length()-1);
+          if (openIdx != -1) {
+            String idx = expr.substring(openIdx+1, expr.length()-1);
+            offset = Integer.parseInt(idx);
+            num = 1;
+          }
+        }
+//        assert (offset == 0);
+//        assert (num == length);
+//        byte[] bytes = rail.getRawContents(offset, num);
+//        // TODO: extract individual elements and concat the representations
+//        result = toHexString(bytes);
+        StringBuilder sb = new StringBuilder(); // TODO
+        for (int i = 0; i < num; i++) {
+          switch (elementType) {
+          case INT:
+          case FLOAT: sb.append(toHexString(rail.getIntAt(offset+i), 8)); break;
+          case LONG:
+          case DOUBLE: sb.append(toHexString(rail.getLongAt(offset+i), 16)); break;
+          case STRING: {
+                         X10String str = rail.getStringAt(offset+i);
+                         int len = (int) str.getLength();
+                         byte[] bytes = str.getContents().getBytes();
+                         sb.append(toHexString(len, 4)+toHexString(bytes));
+                         break;
+                       }
+          default: sb.append(toHexString(rail.getPointerAt(offset+i), 16)); break;
+          }
+        }
+        result = sb.toString();
+        desc[2] = Integer.toString(offset)+".."+Integer.toString(offset+num-1); // we want an inclusive upper bound
+      } else {
+//       desc[2] = Integer.toString(length-1));
+        desc[2] = "0.."+Integer.toString(length - 1); // we want an inclusive upper bound
+      }
     }
     if (exprType == EPDTVarExprType.STRING) {
+      assert (!listChildren);
 //      GlobalVariable[] globals = process.getDebugEngine().getGlobalVariables();
 //      for (GlobalVariable v : globals) {
 //        if (v.getName().equals("x10aux::nullString"))
 //          evaluateExpression(v.getExpression().replace("\nx10aux", "\n&x10aux"), process, thread, location);
 //      }
-      int length = 0;
-      byte[] bytes = null;
+      X10String string = new X10String(process, thread, location, result);
+      int length = (int) string.getLength();
+      MemoryObject contents = string.getContents();
+      byte[] bytes = contents.getBytes();
+      assert (bytes.length == length);
       String content = null;
       try {
-        Address stringAddress = process.convertToAddress(result, location, thread);
-        final int vptrsz = stringAddress.getAddressSize();
-        assert (vptrsz == PTR_SIZE);
-        // String layout:
-        // ptr -> .------------.  0
-        //        | vtable     |
-        //        |  (8 bytes) |
-        //        |------------|  8
-        //        || Object    |
-        //        || vtable    |
-        //        || (8 bytes) |
-        //        ||-----------| 16
-        //        || ???       |
-        //        || (8 bytes) |
-        //        |------------| 24
-        //        | content    |
-        //        |  (8 bytes) |
-        //        |------------| 32
-        //        | length     |
-        //        |  (8 bytes) |
-        //        '------------'
-		Memory memory = process.getMemory(stringAddress.getAddress(), PTR_SIZE*5);
-		MemoryByte[] mbytes = memory.getMemory();
-        long ptr = extractPointer(mbytes, PTR_SIZE*3);
-        length = (int) extractLong(mbytes, PTR_SIZE*4);
-        Address contentAddress = process.convertToAddress("0x"+toHexString(ptr, 16), location, thread);
-		memory = process.getMemory(contentAddress.getAddress(), length);
-        MemoryByte[] cbytes = memory.getMemory();
-        bytes = extractBytes(cbytes);
         content = "\"" + new String(bytes, "ISO-8859-1") + "\"";
       } catch (UnsupportedEncodingException e) {
-    	  e.printStackTrace();
-      } catch (MemoryException e) {
         e.printStackTrace();
       }
 //      ExprNodeBase contentNode = evaluateExpression(expr+"._val->x10__content", process, thread, location);
@@ -929,47 +1252,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       Address contentAddress = process.convertToAddress("0x"+toHexString(ptr, 16), thread.getLocation(thread.getViewInformation()), thread);
       Memory memory = process.getMemory(contentAddress.getAddress(), length);
       MemoryByte[] cbytes = memory.getMemory();
-      dumpBytes(cbytes);
+      MemoryObject.dumpBytes(cbytes);
     } catch (MemoryException e) { }
-  }
-
-  private static void dumpBytes(MemoryByte[] cbytes) {
-	for (int i = 0; i < cbytes.length; i++) {
-      String s = toHexString(cbytes[i].getValue()&0xFF, 2);
-      System.out.print(s+" ");
-    }
-    System.out.println();
-  }
-
-  public static final int INT_SIZE = 4;
-  public static final int LONG_SIZE = 8;
-  public static final int PTR_SIZE = LONG_SIZE;
-  
-  private byte[] extractBytes(MemoryByte[] mbytes) {
-	  byte[] bytes = new byte[mbytes.length];
-	  for (int i = 0; i < mbytes.length; i++) {
-		  bytes[i] = mbytes[i].getValue();
-	  }
-	  return bytes;
-  }
-
-  private int extractInt(final MemoryByte[] mbytes, final int offset) { // FIXME: endianness
-    return ((mbytes[offset+0].getValue()&0xFF)<<24) | ((mbytes[offset+1].getValue()&0xFF)<<16) |
-           ((mbytes[offset+2].getValue()&0xFF)<< 8) | ((mbytes[offset+3].getValue()&0xFF)<< 0);
-  }
-
-  private long extractLong(final MemoryByte[] mbytes, final int offset) { // FIXME: endianness
-    return ((mbytes[offset+0].getValue()&0xFFl)<<56) | ((mbytes[offset+1].getValue()&0xFFl)<<48) |
-           ((mbytes[offset+2].getValue()&0xFFl)<<40) | ((mbytes[offset+3].getValue()&0xFFl)<<32) |
-           ((mbytes[offset+4].getValue()&0xFFl)<<24) | ((mbytes[offset+5].getValue()&0xFFl)<<16) |
-           ((mbytes[offset+6].getValue()&0xFFl)<< 8) | ((mbytes[offset+7].getValue()&0xFFl)<< 0);
-  }
-  
-  private long extractPointer(final MemoryByte[] mbytes, final int offset) {
-    if (PTR_SIZE == LONG_SIZE)
-      return extractLong(mbytes, offset);
-    else
-      return extractInt(mbytes, offset);
   }
 
   private ExprNodeBase evaluateExpression(final String expr, DebuggeeProcess process, final DebuggeeThread thread, final Location location)
@@ -990,11 +1274,12 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       final DebuggeeThread thread = process.getStoppingThread();
       final StackFrame stackFrame = getCurrentStackFrame(thread);
       final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
-      final ProxyDebugAIF aif = createDebugProxyAIF(process, thread, location, variable);
-      this.fProxyNotifier.notify(new ProxyDebugTypeEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                         aif.getFDS()));
+      final ProxyDebugAIF aif = createDebugProxyAIF(process, thread, location, variable, false);
+      this.fProxyNotifier.notify(new ProxyDebugTypeEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks), aif.getFDS()));
     } catch (EngineRequestException except) {
       throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via PDT request: " + except.getMessage(), variable));
+    } catch (MemoryException except) {
+      throw new PDIException(tasks, NLS.bind("Unable to evaluate ''{0}'' via memory request: " + except.getMessage(), variable));
     } catch (DebugException except) {
       throw new PDIException(tasks, "Unable to access stack frames in PDT: " + except.getMessage());
     }
@@ -1302,10 +1587,59 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       return EPDTVarExprType.STRUCT;
     } else if (type.startsWith("x10aux__ref<")) {
       return EPDTVarExprType.STRUCT;
+    } else if (type.startsWith("class x10aux::ref<")) {
+      return EPDTVarExprType.STRUCT;
     } else {
       return EPDTVarExprType.UNKNOWN;
     }
   }
+
+  private int getExprSize(String type) {
+    if (type.endsWith(" "))
+      type = type.trim();
+    if (type.endsWith("&"))
+      type = type.substring(0, type.length()-1);
+  	if ("char".equals(type)) {
+      return MemoryObject.BYTE_SIZE;
+    } else if ("short".equals(type)) {
+      return MemoryObject.SHORT_SIZE;
+    } else if ("int".equals(type)) {
+      return MemoryObject.INT_SIZE;
+    } else if ("long".equals(type)) {
+      return MemoryObject.LONG_SIZE;
+    } else if ("float".equals(type)) {
+      return MemoryObject.FLOAT_SIZE;
+    } else if ("double".equals(type)) {
+      return MemoryObject.DOUBLE_SIZE;
+    } else if ("x10_boolean".equals(type)) {
+      return MemoryObject.BOOLEAN_SIZE;
+    } else if ("x10_byte".equals(type)) {
+      return MemoryObject.BYTE_SIZE;
+    } else if ("x10_short".equals(type)) {
+      return MemoryObject.SHORT_SIZE;
+    } else if ("x10_char".equals(type)) {
+      return MemoryObject.CHAR_SIZE;
+    } else if ("x10_int".equals(type)) {
+      return MemoryObject.INT_SIZE;
+    } else if ("x10_long".equals(type)) {
+      return MemoryObject.LONG_SIZE;
+    } else if ("x10_float".equals(type)) {
+      return MemoryObject.FLOAT_SIZE;
+    } else if ("x10_double".equals(type)) {
+      return MemoryObject.DOUBLE_SIZE;
+    } else if (type.endsWith("*")) {
+      return MemoryObject.PTR_SIZE;
+    } else if (type.startsWith("class ref<")) {
+      return MemoryObject.PTR_SIZE;
+    } else if (type.startsWith("x10aux__ref<")) {
+      return MemoryObject.PTR_SIZE;
+    } else if (type.startsWith("class x10aux::ref<")) {
+      return MemoryObject.PTR_SIZE;
+    } else {
+      return -1;
+    }
+  }
+
   private Location getPDTLocation(final DebuggeeThread thread, final BitList tasks, 
                                   final IPDILocation pdiLocation) throws PDIException {
     if (pdiLocation instanceof IPDILineLocation) {
@@ -1385,7 +1719,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       }
       case ARRAY: {
         StringBuilder sb = new StringBuilder();
-        sb.append("[r0..").append(desc[2]).append("i4]"); //$NON-NLS-1$//$NON-NLS-2$
+        sb.append("[r").append(desc[2]).append("is4]"); //$NON-NLS-1$//$NON-NLS-2$
         String t = desc[1];
         sb.append(getVariableType(getExprType(t), fTranslator.getStructDescriptor(t)));
         return sb.toString();
