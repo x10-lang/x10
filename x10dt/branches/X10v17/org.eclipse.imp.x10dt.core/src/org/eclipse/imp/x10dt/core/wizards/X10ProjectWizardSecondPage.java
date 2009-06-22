@@ -60,9 +60,9 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     }
 
     protected IPath getLanguageRuntimePath() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 was x10.runtime hardcoded
         String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        IPath x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
+        IPath x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");// --- ?
 
         return x10RuntimePath;
     }

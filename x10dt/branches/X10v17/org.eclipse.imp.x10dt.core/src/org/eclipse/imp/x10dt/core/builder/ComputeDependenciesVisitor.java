@@ -74,7 +74,7 @@ class ComputeDependenciesVisitor extends NodeVisitor {
             if (type instanceof NullableType)
                 type = ((NullableType) type).base();
             ClassType classType= (ClassType) type;
-            if (!isBinary(classType) && !fFromType.equals(type)) {
+            if (!isBinary(classType) && !fFromType.typeEquals(type)) { //PORT1.7 Type.equals() -> Type.typeEquals()
                 if (DEBUG)
                     System.out.println("  Reference to type: " + classType.fullName());
                 fDependencyInfo.addDependency(fFromType, type);
@@ -123,8 +123,7 @@ class ComputeDependenciesVisitor extends NodeVisitor {
             recordTypeDependency(ci.container());
         } else if (n instanceof ClassDecl) {
             ClassDecl classDecl= (ClassDecl) n;
-
-            fFromType= classDecl.type();
+            fFromType = classDecl.classDef().asType();   //PORT1.7  classDecl.type()->classDecl.classDef().asType()  
             if (classDecl.superClass() != null) // interfaces have no superclass
         	recordTypeDependency(classDecl.superClass().type());
             for(Iterator intfs= classDecl.interfaces().iterator(); intfs.hasNext(); ) {

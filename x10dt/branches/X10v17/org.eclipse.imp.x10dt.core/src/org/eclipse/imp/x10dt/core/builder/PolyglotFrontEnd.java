@@ -25,8 +25,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
@@ -74,12 +76,14 @@ public final class PolyglotFrontEnd extends Compiler {
 		    jobs.add(job);
 
 		    // Now, add a goal for completing the job.
-		    scheduler.addGoal(sourceExtension().getCompileGoal(job));
+		    scheduler.addDependenciesForJob(job, false); //PORT1.7 --- Nate says this should do what polyglot.frontend.Compiler.compile() does:
+//		    scheduler.addGoal(sourceExtension().getCompileGoal(job));  
 		}
 
 		scheduler.setCommandLineJobs(jobs);
 
 		// Then, compile the files to completion.
+
 		okay= scheduler.runToCompletion();
 	    } catch (InternalCompilerError e) {
 		// Report it like other errors, but rethrow to get the stack trace.

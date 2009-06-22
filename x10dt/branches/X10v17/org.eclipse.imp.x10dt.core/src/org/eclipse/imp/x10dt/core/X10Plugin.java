@@ -46,6 +46,11 @@ import org.osgi.framework.BundleContext;
 public class X10Plugin extends PluginBase {
     public static final String kPluginID= "org.eclipse.imp.x10dt.core";
     public static final String kLanguageName = "X10";
+    
+    /** Plugin id of version of X10 runtime used for this X10DT */
+    public static final String X10_RUNTIME_BUNDLE_ID="x10.runtime.17";      //PORT1.7 provide constant here for runtime
+    public static final String X10_COMPILER_BUNDLE_ID ="x10.compiler.p3";   //PORT1.7 provide constant here for compiler
+ // public static final String X10_COMMON_BUNDLE_ID = "x10.common.17";      //PORT1.7 provide constant here for common
 
     /**
      * The unique instance of this plugin class
@@ -88,7 +93,7 @@ public class X10Plugin extends PluginBase {
 	// SMS 30 Oct 2006:  Not if preferences service is used
 	//IPreferenceStore prefStore= getPreferenceStore();
 
-	Bundle x10CompilerBundle= Platform.getBundle("x10.compiler");
+	Bundle x10CompilerBundle= Platform.getBundle(X10_COMPILER_BUNDLE_ID);
 	URL x10CompilerURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("")));
 
 	// SMS 30 Oct 2006:  Note:  x10CompilerPath is *not* set as a preference

@@ -98,6 +98,7 @@ import polyglot.frontend.Parser;
 import polyglot.frontend.Source;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Goal;
+import polyglot.frontend.SourceGoal_c;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
@@ -112,7 +113,7 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class X10Builder extends IncrementalProjectBuilder {
-    /**
+	/**
      * Builder ID for the X10 compiler. Must match the ID of the builder extension defined in plugin.xml.
      */
     public static final String BUILDER_ID= X10Plugin.kPluginID + ".X10Builder";
@@ -340,46 +341,41 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG ", "// FIXME "  };
 
-    private class CollectBookmarksGoal extends AbstractGoal_c {
+    private class CollectBookmarksGoal extends SourceGoal_c {
         public CollectBookmarksGoal(Job job) throws CyclicDependencyException {
             super(job);
             addPrereq(job.extensionInfo().scheduler().intern(new CheckPackageDeclGoal(job)));
         }
-        @Override
-        public Pass createPass(ExtensionInfo extInfo) {
-            return new AbstractPass(CollectBookmarksGoal.this) {
-                @Override
-                public boolean run() {
-                    Job job= goal().job();
-                    Node ast= job.ast();
-                    String path= job.source().path();
-                    X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
-                    List<IToken> adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
-                    IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
+		@Override
+		public boolean runTask() {
+            Job job= this.job();
+            Node ast= job.ast();
+            String path= job.source().path();
+            X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
+            List<IToken> adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
+            IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
 
-                    try {
-                        file.deleteMarkers(IMarker.TASK, true, 1);
-                    } catch (CoreException e) {
-                        X10Plugin.getInstance().logException("Error while creating task", e);
+            try {
+                file.deleteMarkers(IMarker.TASK, true, 1);
+            } catch (CoreException e) {
+                X10Plugin.getInstance().logException("Error while creating task", e);
+            }
+
+            for(IToken adjunct: adjuncts) {
+                String adjunctStr= adjunct.toString();
+                for(int i=0; i < sTaskPrefixes.length; i++) {
+                    if (adjunctStr.startsWith(sTaskPrefixes[i])) {
+                        String msg= adjunctStr.substring(3);
+                        int lineNum= adjunct.getLine();
+                        int startOffset= adjunct.getStartOffset();
+                        int endOffset= adjunct.getEndOffset();
+
+                        addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
                     }
-
-                    for(IToken adjunct: adjuncts) {
-                        String adjunctStr= adjunct.toString();
-                        for(int i=0; i < sTaskPrefixes.length; i++) {
-                            if (adjunctStr.startsWith(sTaskPrefixes[i])) {
-                                String msg= adjunctStr.substring(3);
-                                int lineNum= adjunct.getLine();
-                                int startOffset= adjunct.getStartOffset();
-                                int endOffset= adjunct.getEndOffset();
-
-                                addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
-                            }
-                        }
-                    }
-                    return true;
                 }
-            };
-        }
+            }
+            return true;
+		}
     }
 
     private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
@@ -889,7 +885,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         try {
             // Can't figure out a way to get the location of the x10.runtime jar directly.
             // First, try the easy way: ask the platform. This often doesn't work
-            Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+            Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID); // PORT1.7 use constant
             String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
 
             // The JDT will allow you to create a folder/library classpath entry, but
@@ -939,7 +935,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (pluginDir.exists() && pluginDir.isDirectory()) {
                 File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
                     public boolean accept(File dir, String name) {
-                        return name.contains("x10.runtime") && name.endsWith(".jar");
+                        return name.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID) && name.endsWith(".jar"); //PORT1.7 use constant
                     }
                 });
                 if (runtimeJars.length == 0) {
@@ -973,7 +969,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     protected String getCurrentRuntimeVersion() {
-        Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
+        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
         String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
 
         return bundleVersion;
@@ -1025,8 +1021,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 
             if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
                 IPath entryPath= entry.getPath();
-
-                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
+                /** The following uses bundle ID for x10.runtime.*   -- if this were checked out into the
+                 * workspace under a different project name, this would fail.  May have to do something about this later.
+				*/
+                if (entryPath.lastSegment().indexOf(X10Plugin.X10_RUNTIME_BUNDLE_ID) >= 0) {//PORT1.7 use constant
                     runtimeIndexes.add(i);
                 }
             }

@@ -11,7 +11,6 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.views,
- x10.compiler,
  org.eclipse.jdt.core,
  org.eclipse.jface.text,
  org.eclipse.jdt.ui,
@@ -25,7 +24,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.runtime,
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
- org.eclipse.debug.ui
+ org.eclipse.debug.ui,
+ x10.compiler.p3
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,
