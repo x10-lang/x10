@@ -1,0 +1,28 @@
+#!/usr/local/bin/perl
+
+$lines++, shift if $ARGV[0] eq '-l';
+
+#print "{\\footnotesize\n";
+print "\\begin{tightcode}\n";
+while (<>) {
+    next if /^%/;
+    if (! /^$/) {
+        s/{/\\{/g;
+        s/}/\\}/g;
+        #s/{/\\verb^{^/g;
+        #s/}/\\verb^}^/g;
+        s/\.\.\./\\ldots{}/g;
+        # s/\$/\\\$/g;
+        s/_/\\_/g;
+        s/(\/\/.*)/\\emph{$1}/;
+    }
+
+    if ($lines) {
+      printf "\\quad\\num{%d}%s", $., $_;
+    }
+    else {
+      printf "%s", $_;
+    }
+}
+print "\\end{tightcode}\n";
+#print "\\end{code}}\n";

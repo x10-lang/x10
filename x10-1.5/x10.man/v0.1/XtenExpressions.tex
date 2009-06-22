@@ -1,0 +1,81 @@
+\section{Expressions}\label{XtenExpressions}\index{expressions}
+
+{}\Xten{} inherits all the standard expressions of \Java{}
+\cite[\S~15]{jls2} -- as modified to permit generics \cite{gjspec} --
+with the expected semantics, unless otherwise mentioned below:
+
+\begin{x10}
+\em Assignment MethodInvocation 
+\em Cast Class
+\em ClassInstanceCreationExpression FieldAccessExpression   
+\em ArrayCreationExpression ArrayAccessExpression
+\em PostfixExpression PrefixExpression 
+\em InfixExpression UnaryOperators
+\em MultiplicativeOperators AdditiveOperators 
+\em ShiftOperators RelationalOperators  
+\em EqualityOperators BitwiseOperators
+\em ConditionalOperators AssignmentOperators
+\end{x10}
+
+Expressions are evaluated in the same order as they would in \java{}
+(primarily
+left-to-right).\label{FieldAccess}\label{ClassCreation}\label{MethodInvocation}
+
+We focus on the expressions in \Xten{} which have a different
+semantics.
+
+\paragraph{The classcast operator}\label{ClassCast}\index{classcast}
+
+The classcast operation may be used to cast an expression to a given type:
+
+\begin{x10}
+ {\em\tt{}CastExpression::}
+   `('{\em\tt{}ValueType}`)' {\em\tt{}Expression}
+   `('{\em\tt{}ReferenceDataType}@{\em\tt{}PlaceType}`)' {\em\tt{}Expression}
+\end{x10}
+
+The result of this operation is a value of the given type if the cast
+is permissible at runtime. For value types whether or not a cast is
+permissible at runtime is determined as for the \java{} language
+{}\cite[\S 5.5]{jls2}. For reference types a cast is permissible if
+the place type of the expression is the given {\tt PlaceType}, and the
+value of the expression can be cast to the given reference data type
+per \java{} rules.
+
+Any attempt to cast an expression of a reference type to a value type
+(or vice versa) results in a compile-time error. Some casts -- such as
+those that seek to cast a value of a subtype to a supertype -- are
+known to succeed at compile-time. Such casts should not cause extra
+computational overhead at runtime.
+
+\paragraph{{\tt instanceof} operator}\label{instanceOf}\index{instanceof@{\tt instanceof}}
+
+This operator takes two arguments; the first should be a {\tt
+RelationalExpression} and the second a {\tt Type}. At run time, the
+result of this operator is {\tt true} if the {\tt
+RelationalExpression} can be cast to {\tt Type} without a {\tt
+ClassCastException} being thrown. Otherwise the result is {\tt false}.
+
+\paragraph{Stable equality.}\label{StableEquality}\index{==}\index{!=}
+Reference equality ({\tt ==}, {\tt !=}) is replaced in \Xten{} by the
+notion of stable equality so that it can apply uniformly to value and
+reference types.
+
+Two values may be compared with the infix predicate {\tt ==}. The call
+returns the value {\tt true} if and only if no action taken by any
+user program can distinguish between the two values.  In more detail
+the rules are as follows.
+
+If the values have a reference type, then both must be references to
+the same object. 
+
+If the values have a value type then they must be structurally equal,
+that is, they must be instances of the same value class or value array
+data type and all their fields or components must be {\tt ==}. 
+
+If one of the values is {\tt null} then the predicate succeeds iff the
+other value is also {\tt null}.
+
+The predicate {\tt !=} returns {\tt true} ({\tt false}) on two
+arguments if and only if the predicate {\tt ==} returns {\tt false}
+({\tt true}) on the same arguments.

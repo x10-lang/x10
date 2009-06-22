@@ -1,0 +1,12 @@
+Java Grande Forum benchmarks (with minor changes to the versions
+presented in OOPLA 2005 paper).
+
+The common source code in jgfutil has been moved to
+examples/x10lib/jgfutil, so individual compilations must be done
+with an appropriate -sourcepath parameter to x10c:
+
+cd examples/Applications/NewJavaGrande/sor/distributed
+
+x10c -sourcepath ../../../../x10lib JGFSORBenchSizeA.x10
+
+x10 JGFSORBenchSizeA

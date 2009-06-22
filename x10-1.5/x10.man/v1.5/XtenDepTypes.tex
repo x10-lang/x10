@@ -1,0 +1,1285 @@
+%% Fri Dec 08 06:15:28 2006
+Mon Jul 03 16:00:11 2006
+
+\chapter{Dependent types}\label{XtenDepTypes}\index{dependent types}
+\def\withmath#1{\relax\ifmmode#1\else{$#1$}\fi}
+\def\LL#1{\withmath{\lbrack\!\lbrack #1\rbrack\!\rbrack}}
+
+Dependent types are a fundamental extension to the type system for
+Java-like languages. A dependent type records constraints on
+{\em properties} (final fields) of the type.  Since types are a fundamental
+building block of Java-like languages, the introduction of dependent
+types affects many facets of the language simultaneously --- the
+definition of types, classes, interfaces, methods, constructors,
+fields, inheritance, overriding, overloading, and type related
+operators (cast, and instanceof).
+
+Indeed dependent types bring substantial expressiveness to Java-like
+languages. Just as generic classes permit a single definition for a
+class $C$ to be treated as a template for an unbounded number of classes
+obtained from $C$ by ``instantiating'' $C$ with type arguments, so also a
+dependent type permits a single definition to produce a potentially
+unbounded family of types. That is, just as generic types permit a
+programmer to express and use {\em functions} from types to types, so also
+dependent types permit a programmer to express and use functions from values
+to types.  Indeed, the family of types generated from $C$ form a
+lattice of subtypes of $C$, one for each constraint on the properties
+of $C$ expressible in the underlying constraint system, but all sharing
+the same "structure".
+
+In \Xten{} dependent types are checked statically. However, as in
+Java-like languages an instanceof relation is available to dynamically
+check that an object belongs to a particular (dependent) type. Also a
+cast operation is available to force the runtime system to treat an
+object o as belonging to a particular dependent type (the operation
+throws a ClassCast exception if it is not possible to do so).
+
+Dependent types are also the basis for an implicit syntax for
+\Xten{}. This is discussed in the last section.
+
+\section{Properties}\label{DepType:Properties}\index{properties}
+The dependent type system is built on the notion of {\em properties}, 
+for types (classes and interfaces).
+
+\begin{x10}
+NormalClassDeclaration ::= 
+   ClassModifiersopt class identifier 
+   PropertyListopt Superopt Interfacesopt ClassBody
+
+NormalInterfaceDeclaration ::= 
+   InterfaceModifiersopt interface identifier 
+   PropertyListopt ExtendsInterfacesopt InterfaceBody
+
+PropertyList     ::= ( Properties WhereClauseopt )
+Properties       ::= Property
+                 | Properties , Property
+Property         ::= Type identifier    
+PropertyListopt  ::= \$Empty | PropertyList
+\end{x10}
+
+
+A property has a name and a type. The declaration of a type (class or
+interface) introduces a sequence of defined properties for the
+type. 
+
+\begin{quotation}
+   {\sc Static Semantics Rule:} It is a compile-time error for a class
+  defining a property {\cf P p} to have an ancestor class that defines a property
+  with the name {\cf p}.  
+\end{quotation}
+
+
+Each class {\cf C} defining a property {\cf P p} implicitly has a field
+
+\begin{x10}
+public final P p;  
+\end{x10}
+
+\noindent and a getter method 
+
+\begin{x10}
+public final P p() { return p;}  
+\end{x10}
+
+\noindent Each interface {\cf I} defining a property {\cf P p} implicitly has a getter method
+
+\begin{x10}
+public final P p() { return p;}
+\end{x10}
+
+\begin{quotation}
+  {\sc Static Semantics Rule:} It is a compile-time error for a class or
+  interface defining a property {\cf P p} to have an existing method with
+  the signature {\cf P p()}.   
+\end{quotation}
+
+
+Properties are used to build dependent types from classes, as
+described below (\S~\ref{DepType:DepType}).
+
+The {\tt WhereClause} in a {\tt PropertyList} specifies an explicit
+condition on the properties of the type, and is discussed further
+below (\S~\ref{DepType:Class}, \ref{DepType:Interface}).
+
+\begin{quotation}
+    {\sc Static Semantics Rule:}  Every constructor for a class defining
+   properties {\cf P1 p1, \ldots, Pn pn} must ensure that each of the fields
+   corresponding to the properties is definitely initialized (cf
+   requirement on initialization of final fields in Java) before the
+   constructor returns.  
+\end{quotation}
+
+
+\begin{example}
+ A class representing immutable 2d points, with two properties {\tt i} and 
+{\tt j}.
+  \begin{x10}
+   value class Point(int i, int j) { ... }
+   value class point(int rank) { ... }
+  \end{x10}
+  
+\end{example}
+
+\section{Dependent types}\label{DepType:DepType}\index{dependent type}
+
+A dependent type (deptype) is of the form {\cf C(: c)} where {\cf C} is a class
+or interface, and {\cf c} is a {\em constraint}. ({\cf C} is said to be 
+{\em the base type} of the deptype, and {\cf c} the {\em constraint} of the deptype.)  A
+constraint is a boolean expression that can only use a predefined set
+of operators and methods. 
+
+\begin{x10}
+Type  ::=   PrimitiveType
+         | ClassOrInterfaceType
+         | ArrayType
+         | nullable < Type > DepParamtersopt
+         | future < Type > DepParametersopt
+PrimitiveType ::= NumericType DepParametersopt
+         | boolean DepParametersopt
+ClassOrInterfaceType   ::= 
+  TypeName DepParametersopt PlaceTypeSpecifieropt
+ClassType              ::= 
+  TypeName DepParametersopt PlaceTypeSpecifieropt
+InterfaceType          ::= 
+  TypeName DepParametersopt PlaceTypeSpecifieropt
+PlaceTypeSpecifier     ::=  ! PlaceTypeopt
+PlaceType              ::= current | Expression
+
+DepParameters    ::= ( DepParameterExpr ) 
+DepParameterExpr ::= ArgumentList WhereClauseopt
+WhereClause      ::= : Constraint
+Constraint       ::= Expression
+ArgumentList     ::= Expression 
+   | ArgumentList , Expression
+DepParametersopt ::= null | DepParameters
+WhereClauseopt   ::= null | WhereClause
+PlaceTypeopt     ::= null | PlaceType
+\end{x10}
+
+\begin{quotation}
+{\sc Static Semantics: Variable Occurrence}
+  In a deptype T=C(:c), the only variables that may occur in c are (a)
+  self, (b) properties visible at T, (c) final local variables, final
+  method parameters or final constructor parameters visible at T, (d)
+  final fields visible at T's lexical place in the source program.  
+\end{quotation}
+
+\begin{quotation}
+{\sc Static Semantics: This restrictions}
+
+  The special variable {\cf this} may be used in a depclause for a type {\cf T}
+  only if (a)~it occurs in a property declaration for a class, (b)~it
+  occurs in an instance method, (c)~it occurs in an instance field, (d)~it
+  occurs in an instance initializer.
+\end{quotation}
+
+In particular it may not be used in types that occur in a static
+context, or in the arguments, body or return type of a constructor or
+in the extends or implements clauses of class and interface
+definitions.  In these contexts the object that {\cf this} would
+correspond to has either not been formed or is not well defined.
+
+\begin{quotation}
+{\sc Static Semantics: Variable visibility}
+  If a type {\cf T} occurs in a field, method or constructor
+  declaration, then all variables used in {\cf T} must have at least the
+  same visibility as the declaration.  The relation ``at least the same
+  visibility as'' is given by the transitive closure of:
+
+  \begin{x10}
+public > protected, protected > private
+public > package, package > private
+  \end{x10}
+
+All inherited properties of a type {\cf T} are visible in the property
+list of {\cf T}, and the body of {\cf T}.
+
+\end{quotation}
+
+In general local variables/parameters/properties/fields are visible at
+{\cf T} if they are defined before {\cf T} in the program. This rule applies to
+types in property lists as well as parameter lists (for methods and
+constructors).  An exception is made for the return type of a method:
+all the arguments to the method are considered to be visible, even
+though they occur lexically after the return type (given the \Java{}
+syntactic convention that the return type for a method precedes the
+argument list for the method).
+
+We permit variable declarations {\cf T v} where {\cf T} is obtained
+from a dependent type {\cf C(:c)} by replacing one or more occurrences
+of {\cf self} in {\cf c} by {\cf v}. (If such a declaration {\cf T v}
+is type-correct, it must be the case that the variable {\cf v} is not
+visible at the type {\cf T}. Hence we can always recover the
+underlying deptype {\cf C(:c)} by replacing all occurrences of {\cf v}
+in the constraint of {\cf T} by {\cf self}.)
+
+For instance, {\cf  int(: v > 0) v} is shorthand for {\cf int(: self > 0) v}.
+\begin{quotation}
+{\sc Static Semantics: Constraint type}
+  The type of c must be boolean.  
+\end{quotation}
+
+A variable occuring in the constraint {\cf c} of a deptype, other than
+{\cf self} or a property of {\cf self}, is said to be a {\em
+parameter} of{\cf c}.\label{DepType:Parameter} \index{parameter}
+
+An instance {\cf o} of {\cf C} is said to be of type {\cf C (:c)} (or: {\em belong to}
+{\cf C(:c)}) if the predicate {\cf c} evaluates to {\cf true} in the current lexical
+environment, augmented with the binding {\cf [self |-> o]}. We shall
+use the function \LL{{\cf C(:c)}} to denote the set of objects that belong
+to {\cf C(:c)}. 
+
+\section{Type definition}\label{DepType:Class}
+A class definition 
+\begin{x10}
+ClassModifiersopt class identifier 
+    PropertyListopt Superopt Interfacesopt ClassBody  
+\end{x10}
+
+\noindent and an interface definition
+\begin{x10}
+InterfaceModifiersopt interface identifier 
+   PropertyListopt ExtendsInterfacesopt InterfaceBody  
+\end{x10}
+
+\noindent may reference several deptypes. The types of properties, the
+specification of the super clause and the specification of interfaces
+may each involve deptypes.
+
+\begin{x10}
+Super ::= extends ClassType
+Superopt ::= null | Super
+ClassType ::= 
+  TypeName DepParametersopt PlaceTypeSpecifieropt
+
+Interfaces ::= implements InterfaceTypeList
+InterfaceTypeList ::= InterfaceType
+       | InterfaceTypeList , InterfaceType
+Interfacesopt ::= null | Interfaces
+InterfaceType ::= 
+ TypeName DepParametersopt PlaceTypeSpecifieropt
+\end{x10}
+
+\section{Where clauses}\label{DepType:WhereClauses}\index{where clauses}
+
+There is a general recipe for constructing a list of parameters or
+properties {\cf T1(:c1) x1, ... , Tk(:ck) xk} that must satisfy a given
+(satisfiable) constraint {\cf c}. 
+
+\begin{x10}
+class Foo (T1 (: (T2 x2; ...; Tk xk;  c) x1, 
+       T2 (: (T3 x3; ...; Tk xk;  c) x2, 
+        ...
+       Tk (:  c) xk) { 
+ ...
+}
+\end{x10}
+
+The first type {\cf T1 (:T2 x2;...;Tk xk; c) x1} is consistent iff
+{\cf (exists T1 x1, T2 x2,..., Tk xk) c} is consistent. The second is
+consistent iff
+\begin{x10}
+forall T1(: exists (T2 x2,..., Tk xk) c) x1
+exists T2 x2. (exists T3 x2,..., Tk xk) c
+\end{x10}
+\noindent But this is always true. Similarly for the conditions for the other
+properties.
+
+Thus logically every satisfiable constraint {\cf c} on a list of parameters
+{\cf x1,..., xk} can be expressed using the dependent types of xi, provided
+that the constraint language is rich enough to permit existential
+quantifiers.
+
+Nevertheless we will find it convenient to permit the programmer to
+explicitly specify a depclause after the list of properties, thus:
+\begin{x10}
+class Point(int i, int j) \{ ... \}
+class Line(Point start, Point end :  end != start) 
+  \{ ... \}
+class Triangle (Line a, Line b, Line c 
+       : a.end == b.start \&\& b.end == c.start \&\&
+         c.end == a.start) \{ ... \}
+class SolvableQuad(int a, int b, int c 
+                   : a*x*x+b*x+c==0)  \{ ... \}
+class Circle (int r, int x, int y 
+              : r > 0 \&\& r*r==x*x+y*y)\{ ... \}
+class NonEmptyList extends List(: n > 0) \{...\}
+\end{x10}
+
+Consider the definition of the class {\cf Line}. This may be thought of as
+saying: the class {\cf Line} has two fields, {\cf Point start} and {\cf Point
+end}. Further, every instance of Line must satisfy the constraint that
+{\cf end !=start}. Similarly for the other class definitions. 
+
+In the general case, the production for {\cf NormalClassDeclaration}
+specifies that the list of properties may be followed by a {\cf
+WhereClause}:
+
+\begin{x10}
+NormalClassDeclaration ::= 
+    ClassModifiersopt class identifier 
+    PropertyListopt Superopt Interfacesopt ClassBody
+
+NormalInterfaceDeclaration ::= 
+   InterfaceModifiersopt interface identifier 
+   PropertyListopt ExtendsInterfacesopt InterfaceBody
+
+PropertyList     ::= ( Properties WhereClauseopt )
+\end{x10}
+
+All the properties in the list, together with inherited properties,
+may appear in the {\cf WhereClause}. A property list {\cf T1 x1, ...., Tn xn : c}
+for a class {\cf Foo} is said to be consistent if each of the {\cf Ti} are
+consistent and the constraint
+\begin{x10}
+      exists  T1 x1, ..., Tn xn, Foo self . c
+\end{x10}
+\noindent is valid (always true).
+
+\section{Type invariants}\label{DepType:TypeInvariant}\index{Type Invariant}
+
+With every defined class or interface {\cf T} we associate a {\em type
+invariant} {\tt i(T)} as follows. The type invariant associated with
+{\cf x10.lang.Object} is the proposition
+
+\begin{x10}
+nullable<place> self.loc  
+\end{x10}
+
+The type invariant associated with any interface {\cf I} that extends
+interfaces {\cf I1,..., Ik} and defines properties {\cf P1 x1, ..., Pn xn} and
+specifies a where clause {\cf c} is given by:
+
+\begin{x10}
+  ti(I1) \&\& ... \&\& tk(Ik) \&\& P1 self.x1 
+  \&\& ... \&\& Pn self.xn \&\& c  
+\end{x10}
+
+Similarly the type invariant associated with any class {\cf C} that
+implements interfaces {\cf I1,..., Ik}, extends class {\cf D} and defines
+properties {\cf P1 x1,..., Pn xn} and specifies a where clause {\cf c} is given
+by:
+\begin{x10}
+  i(D) \&\& P1 self.x1 \&\& ... \&\& Pn self.xn \&\& c  
+\end{x10}
+
+The {\sc Int Implements} Static Semantic rule below requires that the
+type invariant associated with a class entail the type invariants of
+each interface that it implements.
+
+The static semantics rules below guarantee that for any variable {\cf v} of
+type {\cf T(:c)} (where {\cf T} is an interface name or a class name) the only
+objects {\cf o} that may be stored in {\cf v} are such that {\cf o} satisfies
+{\cf i(T)[o/this] \&\& c[o/self]}.
+
+\section{Consistency of deptypes}\label{DepType:Consistency}\index{deptype,consistency}
+
+A dependent type {\cf C(:c)} may contain zero or more parameters. We require
+that a type never be empty -- so that it is possible for a variable of
+the type to contain a value. This is accomplished by requiring that
+the constraint c must be satisfiable {\em regardless} of the value assumed
+by parameters to the contraint (if any). Formally, consider a type
+{\cf T=C(: c)}, with the variables {\cf F1 f1, ..., Fk fk} free in {\cf c}.  Let 
+{\cf S={F1 f1, .., Fk fk, Fk+1 fk+1, ... Fn fn}} be the smallest set of
+declarations containing {\cf F1 f1, ..., Fk fk} and closed under the rule: {\cf F
+f} in {\cf S} if a reference to variable {\cf f} (which is declared as {\cf F f}) occurs
+in a type in {\cf S}.
+
+(NOTE: The syntax rules for the language ensure that {\cf S} is always
+finite. The type for a variable {\cf v} cannot reference a variable whose
+type depends on {\cf v}.)
+
+We say that {\cf T=C(:c)} is {\em parametrically consistent} (in brief:
+{\em consistent}) if
+
+\begin{itemize}
+  \item Each type {\cf F1, ..., Fn} is (recursively) parametrically consistent, and
+\item It can be established that {\cf forall F1 f1, .., Fn fn. exists C self. c \&\& i(C)}.
+\end{itemize}
+\noindent where {\tt i(C)} is the invariant associated with the type {\cf C}
+(\S~\ref{DepType:TypeInvariant}).  Note by definition of {\cf S} the formula on the
+above has no free variables.
+
+\begin{quotation}
+   {\sc Static Semantics Rule:}
+    For a declaration {\cf T v} to be type-correct, {\cf T} must be parametrically
+    consistent. The compiler issues an error if it cannot determine
+    the type is parametrically consistent.
+\end{quotation}
+
+\begin{example}
+
+A class that represents a line has two distinct points:
+\begin{x10}
+class Array(int  rank, 
+    region(:rank==this.rank) region) \{...\}  
+\end{x10}
+\end{example}
+
+One can use deptypes to define other closed geometric figures as well.
+
+\begin{example}
+Here is an example:
+\begin{x10}
+ class Point(int x, int y) \{...\}
+ class Line( Point start, 
+        Point(: self != this.start) end) 
+\{...\}      
+\end{x10}
+\end{example}
+
+
+To see that the declaration {\cf Point(: self != start) end} is
+parametrically consistent, note that the following formula is valid:
+\begin{x10}
+forall Line this. 
+  exists Point self. self != this.start  
+\end{x10}
+\noindent since the set of all {\cf Points} has more than one element.
+
+\begin{example}
+A triangle has three lines sharing three vertices.
+\begin{x10}
+class Triangle 
+ (Line a, 
+  Line(: a.end == b.start) b, 
+  Line(: b.end == c.start \&\& c.end == a.start) c) 
+ \{ ...\}
+\end{x10}
+\end{example}
+
+
+Given {\cf Line a}, the type {\cf Line(: a.end == b.start) b} is consistent, and
+given the two, the type {\cf Line(: b.end == c.start \&\& c.end == a.start) c}
+is consistent.
+
+%%Similarly:
+%%
+%%   // A class with properties a, b,c,x satisfying the 
+%%   // given constraints.
+%%   class SolvableQuad(int a, int b, 
+%%                      int(: b*b - 4*a*c >= 0) c, 
+%%                      int(: a*x*x + b*x + c==0) x) { 
+%%     ...
+%%   }
+%%
+%%  // A class with properties r, x, and y satisfying
+%%  // the conditions for (x,y) to lie on a circle with center (0,0)
+%%  // and radius r.
+%%   class Circle (int(: r> 0) r, 
+%%                 int(: r*r - x*x >= 0) x,
+%%                 int(: y*y == r*r -x*x) y) { 
+%%   ...
+%%   }
+
+\section{Equivalence of deptypes}\label{DepType:Equivalence}\label{deptype,equivalence}
+
+Two dependent types {\cf C(:c)} and {\cf C(:d)} are said to be {\em equivalent} if 
+{\cf c} is true whenever {\cf d} is, and vice versa. Thus, 
+$\LL{C(:c)} = \LL{C(:d)}$.
+
+Note that two deptypes that are syntactically different may be
+equivalent. For instance, {\cf int(:self >= 0)} and {\cf int(:self ==
+0 || self > 0)} are equivalent though they are syntactically
+distinct. The \Java{} type system is essentially a nominal system -- two
+types are the same if and only if they have the same name. The \Xten{}
+type system extends the nominal type system of \Java{} to permit
+constraint-based equivalence.
+
+A dependent type {\cf C(:c)} is said to refine a type {\cf C(:d)} if
+{\cf c} implies {\cf d}.  In such a case we have $\LL{C(:c)}$ is a
+subset of $\LL{C(:d)}$. All dependent types defined on {\cf C} refine
+{\cf C} since {\cf C} is equivalent to {\cf C(:true)}.
+
+\section{Type checking rules}
+\subsection{Class definitions}
+
+Consider a class definition
+\begin{x10}
+ClassModifiersopt 
+ class C (P1 x1,..., Pn xn)  extends D(:d) 
+   implements I1(:c1),..., Ik(:ck)
+ ClassBody  
+\end{x10}
+
+Each of the following static semantics rules must be satisfied:
+
+\begin{quotation}
+{\sc Static Semantics: Int-implements}
+    The type invariant {\cf i(C)} of {\cf C} must entail {\cf ci[this/self]} for each 
+  {\cf i} in {\cf 1:k}.  
+
+{\sc Static Semantics: Super-extends}
+    The return type {\cf c} of each constructor in {\cf ClassBody} must entail {\cf d}.
+\end{quotation}
+
+\subsection{Constructor definitions}
+
+A constructor for a class {\cf C} is guaranteed to return an object of the
+class on successful termination. This object must satisfy i(C), the
+class invariant associated with {\cf C} (\S~\ref{DepType:TypeInvariant}). However,
+often the objects returned by a constructor may satisfy {\em stronger}
+properties than the class invariant. \Xten{}'s dependent type system
+permits these extra properties to be asserted with the constructor in
+the form of a deptype (the ``return type'' of the constructor):
+
+\begin{x10}
+ConstructorDeclarator ::=  
+  SimpleTypeName DepParametersopt 
+ ( FormalParameterListopt WhereClauseopt )
+\end{x10}
+
+As with method declarations, the parameter list for the constructor
+may specify a where clause that is to be satisfied by the parameters
+to the list.
+
+\begin{example}
+Here is another example.
+\begin{x10}
+public class List(int(:n >=0) n) \{
+ protected nullable<Object>   value;
+ protected nullable<List(n-1)>  tail;
+ public List(t.n+1)(Object o, final List t) \{
+     n=t.n+1;
+     tail=t;
+     value=o;
+ \}
+ public List(0) () \{
+     n=0;
+     value=null;
+     tail=null;
+ \}
+ ...
+\}
+\end{x10}
+The second constructor returns a {\cf List} that is guaranteed to have {\cf n==0};
+the first constructor is guaranteed to return a List with {\cf n>0}
+(in fact, {\cf n==t.n+1}, where the argument to the constructor is {\cf t}). 
+This is recorded by the programmer in the deptype associated with the
+constructor.
+\end{example}
+
+\begin{quotation}
+{\sc Static Semantics:  Super-invoke}
+   Let {\cf C} be a class with properties {\cf P1 p1, ..., Pn pn}, invariant {\cf c}
+   extending the deptype {\cf D(:d)} (where {\cf D} is the name of a class).
+
+   For every constructor in {\cf C} the compiler checks that the call to
+   super invokes a constructor for D whose return type is strong enough
+   to entail d. Specifically, if the call to super is of the form 
+     {\cf      super(e1, ..., ek)}
+   and the static type of each expression ei is Si, and the invocation
+   is statically resolved to a constructor
+{\cf       D(:d1) (T1 x1,..., Tk xk : c)}
+   then it must be the case that 
+   \begin{x10}
+S1 x1, ..., Si xi |- Ti xi  (for i in 1:k)
+S1 x1, ..., Sk xk |- c  
+d1[a/self] \&\& S1 x1 ... \&\& Sk xk |- d[a/self]      
+   \end{x10}
+\noindent   where {\cf a} is a constant that does not appear in 
+{\cf S1 x1 \&\& ... \&\& Sk xk}.
+  
+\end{quotation}
+
+\begin{quotation}
+{\cf Static Semantics: Constructor return}
+   The compiler checks that every constructor for {\cf C} ensures that
+   the properties {\cf p1,..., pn} are initialized with values which satisfy
+   {\cf t(C)}, and its own return type {\cf c'} as follows.  In each constructor, the
+   compiler checks that the static types {\cf Ti} of the expressions {\cf ei}
+   assigned to pi are such that the following is true
+   \begin{x10}
+    T1 p1, ...., Tn pn |- t(C) \&\& c'     
+   \end{x10}
+\end{quotation}
+(Note that for the assignment of ei to pi to be type-correct it must be the
+    case that Ti pi |- Pi pi.) 
+
+
+\begin{quotation}
+{\sc Static Semantics: constructor invocation}
+The compiler must check that every invocation {\cf C(e1,..., en)} to a
+constructor is type correct: each argument {\cf ei} must have a static type
+that is a subtype of the declared type {\cf Ti} for the {\cf i}th argument of the
+constructor, and the conjunction of static types of the argument must
+entail the {\cf WhereClause} in the parameter-list of the constructor.
+\end{quotation}
+
+\section{Field definitions}
+
+Not every instance of a class needs to have every field defined on the
+class. In Java-like languages this is ensured by conditionally setting
+fields to a default value, such as {\cf null}, in those instances where the
+fields are not needed.  
+
+Consider the class {\cf List} used earlier.  Here all instances of {\cf List}
+returned by the second constructor do not need the fields {\cf value} and
+{\cf tail}; their value is set to null.
+
+\Xten{} permits a much cleaner solution that does not require default
+values such as null to be stored in such fields. \Xten{} permits fields to
+be {\em guarded}, that is defined only if a certain constraint on the
+properties of the class, called the {\cf guard} of that field, is true.
+
+\begin{x10}
+FieldDeclaration  ::= 
+   FieldModifiersopt ThisClauseopt 
+   Type VariableDeclarators ;
+ThisClause       ::= this DepParameters
+ThisClauseopt    ::= null | ThisClause
+\end{x10}
+
+It is illegal for code to access a guarded field through a reference
+whose static type does not satisfy the associated guard, even
+implicitly (i.e.{} through an implicit {\cf this}). Rather the source
+program should contain an explict cast, e.g.{} {\cf C(:c) me = (C(:c)) this}.
+
+\begin{quotation}
+{\sc Static Semantics Rule:} Let {\cf f} be a field defined in class
+{\cf C} with guard {\cf this(:c)}.  The compiler declares an error if
+field {\cf f} is accessed through a reference {\cf o} whose static
+type is not a subtype of {\cf C(:c)}.
+\end{quotation}
+
+\begin{example}
+
+We may now rewrite the List example:
+\begin{x10}
+public class List(int(:n >=0) n) \{
+  protected this(:n>0) Object  value;
+  protected this(:n>0) List(n-1)  tail;
+  public List(t.n+1)(Object o, final List t)\{
+     n=t.n+1;
+     List(:n>0) me = (List(:n>0)) this;
+     me.tail=t;
+     me.value=o;
+  \}
+  public List(0) () \{
+     n=0;
+  \}
+  ...
+\}
+\end{x10}
+
+The fields {\cf value} and {\cf tail} do not exist for instances of the class
+{\cf List(0)}.
+\end{example}
+
+It is a compile-time error for a class to have two fields of the same
+name, even if their {\cf ThisClauses} are different. A class {\cf C} with a field
+named {\cf f} is said to {\em hide} a field in a superclass named {\cf f}.
+
+\begin{quotation}
+ {\sc Static Semantics Rule:}
+     A class may not declare two fields with the same name.
+\end{quotation}
+
+\subsection{Field hiding}
+
+The definition of field hiding does not take {\cf ThisClauses} in
+account. Suppose a class {\cf C} has a field
+
+\begin{x10}
+ this(:c) Foo f;  
+\end{x10}
+\noindent and a subclass {\cf D} of {\cf C} has a field
+\begin{x10}
+ this(:d) Fum f;  
+\end{x10}
+
+We will say that {\cf D.f} hides {\cf C.f}, {\em regardless} of the
+constraints {\cf c} and {\cf d}. This is in keeping with \Java, and
+permits a naive implementation which always allocates space for a
+conditional field.
+
+{\sc DESIGN RATIONALE} It might seem attractive to require that {\cf
+D.f} hides {\cf C.f} only if {\cf d} entails {\cf c}. This would seem
+to necessitate a rather complex implementation structure for classes,
+requiring some kind of a heterogenous translation for deptypes of {\cf C}
+and {\cf D}. This bears further investigation.
+
+\section{Method definitions}
+
+\Xten{} permits guarded method definitions, similar to guarded
+field definitions. Additionally, the parameter list for a method may
+contain a WhereClause.
+
+\begin{x10}
+MethodHeader ::= 
+  MethodModifiersopt ResultType 
+  MethodDeclarator Throwsopt
+MethodDeclarator ::= 
+  ThisClauseopt identifier 
+  ( FormalParameterListopt WhereClauseopt )
+ | MethodDeclarator [ ]
+
+ResultType ::= Type | void
+\end{x10}
+
+The guard (specified by {\cf ThisClause}) speciifes a constraint {\cf c} on the
+properties of the class {\cf C} on which the method is being defined. The
+method exists only for those instances of {\cf C} which satisfy {\cf c}.  It is
+illegal for code to invoke the method on objects whose static type is
+not a subtype of {\cf C(:c)}.
+
+We relax the rules of lexical visibility and finality for variable
+references in deptypes for method parameters.  Method
+parameters not necessarily declared to be final are permitted to occur
+in the types of parameters that occur after them in textual
+order. Method parameters may also occur in the ReturnType for the
+method, as long as they are declared final. (Even though the ReturnType
+occurs lexically before the parameter list, it is considered to lie in
+the scope of the declarations in the parameter list.)
+
+\begin{quotation}
+ {\sc  Static semantics Rule: }
+    The compiler checks that every method invocation {\cf o.m(e1,..., en)}
+    for a method is type correct. Each each argument ei must have a
+    static type Si that is a subtype of the declared type Ti for the ith
+    argument of the method, and the conjunction of static types
+    of the arguments must entail the WhereClause in the parameter-list
+    of the method.
+
+    The compiler checks that in every method invocation {\cf o.m(e1,...,
+    en)} the static type of o, S, is a subtype of C(:c), where the method
+    is defined in class C and the ThisClause for m is equivalent to
+    {\cf this(:c)}.
+
+    Finally, if the declared return type of the method is D(:d), the
+    return type computed for the call is {\cf D(: final S a; S1 x1; ...; Sn
+    xn; d[a/this])}, where a is a new variable that does not occur in
+    {\cf d, S, S1, ... , Sn}, and {\cf x1,...,xn} are the formal parameters of the
+    method.
+\end{quotation}
+
+\begin{example}
+Consider the program:
+  \begin{x10}
+public class List(int(:n >=0) n) \{
+  protected this(:n > 0) Object  value;
+  protected this(:n > 0) List(n-1)  tail;
+  public List(t.n+1)(Object o, List t) \{
+      n=t.n+1;
+      tail = t;
+      value = o;
+  \}
+  public List(:self.n==0) () \{
+      n=0;
+  \}
+  public List(:self.n==this.n+l.n) append(List l) \{
+      return (n==0)? l 
+         : new List( value, tail.append(l)); 
+  \}
+  public this(:n>0) 
+    Object nth(final int(:k >= 1 \&\& k <= n) k) \{
+      return k==1 ? value : tail.nth(k-1);
+  \}
+\}
+  \end{x10}
+
+The following code fragment
+\begin{x10}
+List(:self.n==3) u = ...
+List(:self.n==x) t = ...;
+List(:self.n==x+3) s = t.append(u);
+\end{x10}
+\noindent will typecheck. The type of the expression {\cf t.append(u)} is 
+\begin{x10}
+List(: final List(:self.n==x) a; 
+       List(:self.n==3) l; self.n== a.n+l.n)  
+\end{x10}
+\noindent and this simplifies to
+\begin{x10}
+List(: final List(:self.n==x) a; 
+       List(:self.n==3) l; self.n== x+3)  
+\end{x10}
+\noindent which, after dropping unused local variables, reduces to:
+\begin{x10}
+List(: self.n== x+3)  
+\end{x10}
+\end{example}
+
+\subsection{Method overloading, overriding, hiding, shadowing and obscuring}
+
+The definitions of method overloading, overriding, hiding, shadowing
+and obscuring in \Xten{} are the same as in \Java, modulo the following
+considerations motivated by dependent types.
+
+The definition of a method declaration {\cf m1} ``having the same signature
+as'' a method declaration {\cf m2} involves identity of types. Two \Xten{} types
+are defined to be identical iff they are equivalent (\S~\ref{DepType:Equivalence}).
+Two methods are said to have {\em the same signature} if (a)
+they have the same number of formal parameters, (b) for each parameter
+their types are equivalent, and (c) the constraints associated with
+their ThisTypes are equivalent. It is a compile-time error for there
+to be two methods with the same name and same signature in a class
+(either defined in that class or in a superclass).
+
+\begin{quotation}
+   {\sc Static Semantics Rule:}
+  A class {\cf C} may not have two declarations for a method named {\cf m} -- either
+  defined at {\cf C} or inherited --
+\begin{x10}
+T this(:tc) m(T1(:t1) v1,..., Tn(:tn) vn) \{...\}
+S this(:sc) m(S1(:s1) v1,..., Sn(:sn) vn) \{...\}
+\end{x10}
+\noindent   if it is the case that the types {\cf this(:tc), T1(:t1), ...., Tn(:tn)} are
+  equivalent to the types {\cf this(:sc), S1(:t1), ...., Tn(:tn)}
+  respectively.
+\end{quotation}
+
+A class {\cf C} inherits from its direct superclass and superinterfaces all
+their methods visible according to the access restriction modifiers
+public/private/protected/(package) of the superclass/superinterfaces
+that are not hidden or overridden. A method {\cf M1} in a class {\cf C} overrides
+a method {\cf M2} in a superclass {\cf D} if {\cf M1} and {\cf M2} have the same signature.
+Methods are overriden on a signature-by-signature basis.
+
+A method invocation {\cf o.m(e1,..., en)} is said to have the {\em static
+signature} {\cf <T, T1,...,Tn>} where {\cf T} is the static type of {\cf o}, and
+{\cf T1,..., Tn} are the static types of {\cf e1,..., en} respectively.  As in
+\Java, it must be the case that the compiler can determine a single
+method defined on {\cf T} with argument type {\cf T1,..., Tn}, otherwise a
+compile-time error is declared. However, unlike \Java, the \Xten{} type {\cf T}
+may be a dependent type {\cf C(:c)}. Therefore, given a class definition for
+{\cf C} we must determine which methods of {\cf C} are available at a type
+{\cf C(:c)}. But the answer to this question is clear: exactly those methods
+defined on {\cf C} are available at the type {\cf C(:c)} whose guard {\cf d} is implied
+by {\cf c}.
+
+
+\begin{example}
+  Consider the definitions:
+  \begin{x10}
+class Point(int i, int j) \{...\}
+class Line(Point s, Point(:self != i) e) \{
+//m1: Both points lie in the right half of the plane
+  this(:s.i>= 0 \&\& e.i >= 0) void draw() \{...\}
+// m2 -- Both points lie on the y-axis
+  this(:s.i== 0 \&\& e.i == 0) void draw() \{...\}
+// m3 -- Both points lie in the top half of the plane
+  this(:s.j>= 0 \&\& e.j >= 0) void draw() \{...\}
+  // m4  -- The general method
+  void draw() \{...\}
+\} 
+  \end{x10} 
+\noindent  Three different implementations are given for the draw method, one
+  for the case in which the line lies in the right half of the plane,
+  one for the case that the line lies on the y-axis and the third for
+  the case that the line lies in the top half of the plane.
+
+
+\noindent  Consider the invocation
+Line(:s.i < 0) m = ...
+m.draw();
+
+\noindent  This generates a compile time error because there is no applicable
+  method definition.
+
+\noindent  Consider the invocation
+
+\begin{x10}
+Line(:s.i>=0 \&\& s.j>=0 \&\& e.i>=0 \&\& e.j>=0) 
+  m = ...
+m.draw();
+\end{x10}
+
+\noindent  This generates a compile time error because both m1 and m3 are applicable.
+
+\noindent  Consider the invocation
+\begin{x10}
+Line(:s.i>=0 \&\& s.j>=0 \&\& e.i>=0) m = ...
+m.draw();
+\end{x10}
+  This does not generate any compile-time error since only m1 is
+  applicable. 
+\end{example}
+
+
+In the last example, notice that at runtime {\cf m1} will be invoked
+(assuming {\cf m} contains an instance of the {\cf Line} class, and not some
+subclass of {\cf Line} that overrides this method). This will be the case
+even if {\cf m} satisfies at runtime the stronger conditions for {\cf m2} (i.e.,
+{\cf s.i==0 \&\& e.i==0}). That is, dynamic method lookup will not take into
+account the  ``strongest'' constraint that the receiver may satisfy, i.e.{}
+its ``strongest deptype''. 
+
+{\em {\sc DESIGN RATIONALE.}
+  The design decision that dynamic method lookup should ignore
+  dependent type information was made to keep the design and the
+  implementation simple and to ensure that serious errors such as
+  method invocation errors are captured at compile-time.
+ 
+  Consider the above example and the invocation
+  \begin{x10}
+   Line m = ...
+   m.draw();    
+  \end{x10}
+
+
+   Statically the compiler will not report an error because m4 is the
+   only method that is applicable. However, if dynamic method lookup
+   were to use deptypes then we would face the problem that if m is a
+   line that lives in the upper right quadrant then *both* m2 and m3
+   are applicable and one does not override the other. Hence we must
+   report an error dynamically.
+
+   As discussed above, the programmer can write code with {\cf instanceof}
+   and classcasts that perform any application-appropriate
+   discrimination.  
+}
+
+\section{Interfaces with properties}\label{DepType:Interface}
+
+\Xten{} permits interfaces to have properties and specify an interface
+invariant. This is necessary so that programmers can build dependent
+types on top of interfaces and not just classes.
+
+\begin{x10}
+NormalInterfaceDeclaration ::= 
+     InterfaceModifiersopt interface identifier 
+        PropertyListopt ExtendsInterfacesopt InterfaceBody
+PropertyList     ::= ( Properties WhereClauseopt )
+Properties       ::= Property
+                    | Properties , Property
+Property         ::= Type identifier    
+PropertyListopt  ::= null | PropertyList
+\end{x10}
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+\begin{quotation}
+   {\sc Static Semantics Rule:} The compiler declares an error if this constraint
+   is not consistent (\S~\ref{DepType:Consistency}).  
+\end{quotation}
+
+Each interface implicitly defines a nullary getter method {\cf T p()} for
+each property {\cf T p}. 
+
+\begin{quotation}
+   {\sc Static Semantics Rule:} The compiler issues a warning if the programmer
+   explicitly defines a method with this signature for an interface.
+  
+\end{quotation}
+
+A class {\cf C} (with properties) is said to implement an interface {\cf I} if
+\begin{itemize}
+  \item its properties contains all the properties of I,
+\item its class invariant, i(C), implies i(I)
+\end{itemize}
+
+
+\subsection{instanceof} 
+
+\Xten{} permits Types to be used in an in instanceof expression to
+determine whether an object is an instance of the given type:
+
+\begin{x10}
+RelationalExpression ::= 
+  RelationalExpression instanceof Type  
+\end{x10}
+
+In the above expression, {\cf Type} is any type including deptypes and
+``primitive'' types. The expression {\cf e instanceof T} evaluates to true
+if and only if the evaluation of {\cf e} results in a value {\cf v} which belongs
+to the type {\cf T}. This determination may involve checking that the
+constraint associated with the type is true for the value {\cf v}.
+
+\subsection{Class casts}
+
+\Xten{} permits types to be used in a cast expression:
+
+\begin{x10}
+CastExpression ::= 
+  ( Type ) UnaryExpressionNotPlusMinus  
+\end{x10}
+
+In the above expression, Type is any type including deptypes and
+``primitive'' types. The expression {\cf ((T) e)} evaluates {\cf e} to
+a value {\cf v}, and results in {\cf v} if {\cf v} is an instance of
+the type {\cf T}. Otherwise a {\cf ClassCastException} is thrown. The
+static type of the expression {\cf (T) e} is {\cf T}.
+
+   \begin{quotation}
+ {\sc  Static Semantics Rule:}
+    The compiler checks that the static type of e is either a subtype
+    of T (this situation is sometimes called a "stupid cast"), or a
+    supertype of T. If neither is the case, it throws a compile-time
+    error since the cast must necessarily fail at runtime.     
+   \end{quotation}
+
+\subsection{Local variables}
+
+Dependent types may be used to specify the types of local variables,
+including loop variables and parameters for catch clauses.
+
+\section{Array types}
+
+\begin{x10}
+    ArrayType ::= Type [  ] 
+     | Type value  [  ]
+     | Type [ DepParameterExpr ]
+     | Type  value [ DepParameterExpr ]  
+\end{x10}
+
+\Xten{} has the following built in types:
+
+\begin{x10}
+class point(int(:rank>=0) rank) { ...}
+class region
+  (int(:rank>=0) rank,
+   // region is a product of rank-1 convex regions.
+   boolean rect,  
+   // on each dim, the low bound is 0. 
+   boolean lowZero
+  ) { ...}
+class dist
+  (int (:rank>=0) rank, 
+   boolean rect,
+   boolean lowZero,
+   region(: self.rank==rank\&\&self.rect==rect
+           \&\&self.lowZero==lowZero) region, 
+   place onePlace 
+   )  { ...}
+class Array<T>
+  (int (:rank>=0) rank,  
+   boolean rect,
+   boolean lowZero,
+   place onePlace,
+   region region,
+   dist(:self.rank==rank \&\&self.rect=rect
+         \&\&self.lowZero==lowZero
+        \&\&self.region==region
+        \&\&self.onePlace==onePlace) dist
+    ) \{...\}
+class ValueArray<T>
+ (int (:rank>=0) rank,  
+   boolean rect,
+   boolean lowZero,
+   place onePlace,
+   region region,
+   dist(:self.rank==rank \&\&self.rect=rect
+        \&\&self.lowZero==lowZero
+       \&\&self.region==region
+       \&\&self.onePlace==onePlace) dist
+) \{...\}
+\end{x10}
+
+
+The array types on the left are shorthand for the deptypes on the right:
+\begin{x10}
+Type []  => Array<Type>
+Type value [] => ValueArray<Type>
+Type  [ DepParameterExpr ] 
+   => Array<Type>( DepParameterExpr )
+Type Value [ DepParameterExpr ] 
+   => ValueArray<Type>( DepParameterExpr )
+\end{x10}
+
+For {\cf R} is a reference type, the type {\cf R(:c)!current[]} is interpreted as the
+type of all arrays which are such that the value at a point {\cf p} in its
+region has the type {\cf R(:c)!self.dist[p]}. (Recall that in \Xten{} a
+distribution is itself a value array that maps a point to a place.)
+
+\begin{example}
+  The type {\cf double[:rail]} is the Java type {\cf double[]}.
+  The type {\cf double[:rail][:rail]} is the Java type {\cf double[][]}.
+
+  The type {\cf double[:rank==N]} is the type of all N-dimensional arrays of
+  doubles.
+
+  The type {\cf double[:rank==N\&\&onePlace==here]} is the type of all $N$-dimensional
+  arrays of doubles that are local (mapped to one place).  
+\end{example}
+
+\section{Constraint system}
+
+The initial release of \Xten{} has a very simple constraint system,
+permitting only conjunctions of equalities between variables and
+constants, and existential quantification over typed variables.
+
+Subsquent implementations are intended to support boolean algebra,
+arithmetic, relational algebra etc to permit types over regions and
+distributions. We envision this as a major step towards removing most
+(if not all) dynamic array bounds and places check from \Xten{}.
+  
+%%\subsection{Normalization of constraints}
+%%
+%%The constraint system satisfies the following structural rule
+%%
+%%  Gamma |- c
+%%---------------------------------
+%%Gamma, S(: c') x |- S(:c' \&\& c) x
+%%
+%%An additional rule, SELF, relates self to the variable being defined:
+%%
+%%   T(: c) x |- c[x/self]
+%%
+%%The rule TI ensures that the type invariant is implicitly available:
+%%
+%%   T(: c) x |- T (: i(T)[x/this] \&\& c) x
+%%
+%%Examples
+%%
+%%Consider the definitions
+%%  class region(int rank) { ...}
+%%  class intArray(region r, int(:self==r.rank) rank) { ...}
+%%
+%%Now we have the following invariants:
+%%
+%%   i(region) =def=  int this.rank
+%%   i(intArray) =def= region this.r \&\& int(:self==this.r.rank) this.rank
+%%
+%%Note that i(intArray) is equivalent to
+%%   
+%%   region this.r \&\& int(:self==this.r.rank) this.rank \&\& this.rank == this.r.rank
+%%
+%%Now we have the following derivations
+%%
+%%  intArray(:self.rank==2) a |- region(:self.rank==2) a.r
+%%
+%%through the following derivation. 
+%%
+%%  intArray(:self.rank==2) a |- intArray(:self.rank==2 \&\& i(intArray)) a  (TI)
+%%
+%%Now |intArray(:self.rank==2 \&\& i(intArray)) a|  is equivalent to
+%%
+%%  intArray(:self.rank==2 \&\& region a.r \&\& int(:self==a.r.rank) a.rank 
+%%            \&\& a.rank == a.r.rank) a 
+%%
+%%and entails each one of 
+%%
+%%    a.rank==2
+%%    a.rank == a.r.rank
+%%
+%%which together entail a.r.rank==2.
+
+\subsection{Syntactic abbreviations}\label{DepType:SyntaxAbbrev}
+
+\section{Place types}\label{DepType:PlaceType}\index{placetype}
+
+\begin{x10}
+PlaceTypeSpecifier ::= ! PlaceType
+PlaceType ::=  any | current | Expression  
+\end{x10}
+
+All \Xten{} reference classes extend the class x10.lang.Ref:
+
+\begin{x10}
+package x10.lang;
+ublic class Ref(place loc) { ... }  
+\end{x10}
+
+Because of the importance of places in the \Xten{} design, special
+syntactic support is provided for deptypes involving places.
+
+We now consider the expansions of deptypes with place information.
+
+Unless a deptype {\cf T} (whose base is a reference type) has an {\cf !} suffix,
+the constraint for {\cf T} is implicitly assumed to contain the clause
+{\cf self.loc==here}.
+\begin{x10}
+C( : c) => C(: self.loc==here \&\& c )  
+\end{x10}
+\noindent The expansions for a deptype with an ``{\cf !}'' suffix are:
+\begin{x10}
+C( : c)!  => C(: c )  // no self.loc clause.
+C( : c)!p => C(: self.loc==p \&\& c ) 
+\end{x10}
+
+
+\begin{quotation}
+  {\cf Static Semantics Rule:} It is a compile time error for the {\tt !}-annotation to
+  be used for deptypes whose base type does not extend {\tt x10.lang.Ref}.  
+\end{quotation}
+
+\section{Implicit Syntax}\label{ImplicitSyntax}\index{implicit syntax}
+
+Recall that the explicit syntax for \Xten{} requires the programmer to use
+asyncs/future to ensure the Locality Principle: An activity accesses
+only those mutable locations that reside in the same place as the
+activity. 
+
+Explicit syntax has the advantage that the performance model for \Xten{}
+is explicit from the syntax. It has the disadvantage that the
+programmer has to manually reason about the placement of various
+objects. If the programmer reasons incorrectly then computation may
+abort at runtime with an exception.
+
+The place-based type system enables the compiler to support the
+Locality principle. The programmer uses the type system to establish
+that the types of various objects are local. These assertions are
+checked by the compiler (as a side-effect of checking dependent
+types). Additionally, the programmer may now use normal variable
+syntax to access (read/write) variables, and invoke methods on
+objects. Suppose the type of the variable v is C(:c). If c establishes
+loc==here then the compiler generates code for performing the relevant
+operation on the local variable (read, write, method invocation)
+synchronously. 
+
+Otherwise the compiler generates code in explicit syntax as
+follows. If the operation is a read, the compiler generates code to
+perform a future/force on the variable
+
+\begin{x10}
+  future(v){v}.force();  
+\end{x10}
+
+If the operation is a write |v=e|, the compiler generates code to perform
+the write synchronously:
+
+\begin{x10}
+  final T temp = e;
+  finish async (v){ v = w;}
+\end{x10}
+
+If the operation is a read on an array variable a[p] the compiler
+generates the code:
+
+\begin{x10}
+  future(a.dist[p]){ a[p]}.force();  
+\end{x10}
+
+
+If the operation is a write |a[p]=e|, the compiler generates code to perform
+the write synchronously:
+
+\begin{x10}
+  final point tp = p;
+  final T t = e;
+  finish async (a.dist[tp]){ a[tp] = t;}
+\end{x10}
+
+If the operation is a method invocation |e.m(e1,..., en)| for a void
+method, the compiler generates code to perform the method invocation
+synchronously:
+
+\begin{x10}
+  final T! t = e;
+  final P1! t1 = e1;
+  ...
+  final Pn! tn = en;
+  finish async (t){ 
+    t.m(t1,..., tn);
+  }  
+\end{x10}
+
+
+If the operation is a method invocation |e.m(e1,...,en)| for a method
+that returns a value of type E, then the compiler generates the
+following code:
+
+\begin{x10}
+  new Runnable() {
+  public E run() {
+    final T! t = e;
+    final P1! t1 = e1;
+    ...
+    final Pn! tn = en;
+  
+    return future(t){t.m(t1,...tn)}.force();
+  }}.run()
+\end{x10}
+

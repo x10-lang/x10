@@ -1,0 +1,57 @@
+
+\begin{abstract}
+Graph problems are finding increasing applications in high performance
+computing disciplines. Obtaining efficient implementations for large,
+irregular graph instances remains a challenge.  There exists a large
+body of theoretically fast parallel graph algorithms.  However,
+experimental studies show that they often fail to achieve good
+parallel speedups in practice since fine-grained parallelism is not
+well supported on current systems.  
+
+This paper shows how {\em work-stealing} ideas for implementing
+fine-grained parallelism may be extended to apply to graph problems,
+and implemented efficiently on existing multicore
+systems. Work-stealing is a provably optimal technique for scheduling
+certain kinds of series-parallel dependency graphs (implemented in
+systems such as Cilk) in which a collection of worker threads generate
+parallel work separately and steal from each other when their
+generated work is exhausted.  In order to express graph algorithms, we
+extend Cilk's work-stealing scheduler in three ways. (1) We extend the
+scheduler to correctly implement {\em improperly nested} computations
+(computations in which a procedure may return without checking that
+all asynchronous tasks spawned during its execution have terminated).
+(2) We introduce the notion of {\em global termination detection} --
+to determine the computation has terminated we track the distributed
+property ``For every worker, the work queue is empty''.  This is an
+improvement when the number of workers (typically dozens) is much
+smaller than the number of tasks (typically millions).  (3) We
+generalize (2) to {\em repeated global quiescence detection} by
+integrating a notion of barrier-based computation into
+work-stealing. This is necessary to express phased computations such
+as breadth-first search in which one phase (consisting of the
+execution of data-dependent number of tasks) must terminate before the
+next phase is started.
+
+We have implemented these ideas in the \Xten{} Work-stealing system
+(\XWS), a runtime library for the \Xten{} programming language.  We
+show that several graph algorithms can naturally and elegantly be
+expressed in \Xten{} and translated into calls to \XWS. We measure
+performance on an Opteron-based system and a Niagara system.  In those
+cases in which corresponding programs can be written in Cilk, we show
+that performance of the \XWS{} program is better than the Cilk
+program. In all cases we show that performance is comparable to that
+obtained by hand-written C code, and that performance scales well with
+the number of processors.
+
+%We take spanning tree as an example, as it represents a wide range of
+%graph problems that have fast theoretic parallel algorithms but no
+%known efficient parallel implementations that achieve speedup without
+%serious restricting assumptions about the inputs, and present three
+%algorithms expressed in X10. Our X10 implementation achieves better
+%performance than the Cilk implementation. For the graph traversal
+%approach, the X10 implementation beats the native C implementation,
+%demonstrating the productivity and performance advantage of the X10
+%programming model.
+%
+\end{abstract}
+

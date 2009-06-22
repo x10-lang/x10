@@ -1,0 +1,163 @@
+\begin{theindex}
+
+  \item ==, 25
+  \item ? place type, 8
+  \item [] syntax, 24
+
+  \indexspace
+
+  \item array
+    \subitem access, 23
+    \subitem pointwise operations, 24
+    \subitem reductions, 24
+    \subitem restriction, 24
+    \subitem scans, 24
+    \subitem union
+      \subsubitem asymmetric, 24
+      \subsubitem disjoint, 24
+  \item array types, 7
+  \item arrays, 21
+    \subitem constant promotion, 23
+    \subitem \tt distribution, 21
+  \item assignment, 24
+  \item {\tt ateach}, 17
+  \item atomic sections, 14
+
+  \indexspace
+
+  \item class, 19
+    \subitem reference class, 19
+    \subitem value class, 19
+  \item classcast, 25
+  \item clock
+    \subitem clocked statements, 18
+    \subitem continue, 18
+    \subitem creation, 18
+    \subitem drop, 18
+    \subitem dropped, 19
+    \subitem next, 18
+    \subitem now, 19
+  \item clocks, 17
+  \item comments, 5
+  \item conversions, 11
+
+  \indexspace
+
+  \item distribution, 22
+    \subitem arbitrary, 22
+    \subitem block, 22
+    \subitem block cyclic, 22
+    \subitem constant, 22
+    \subitem cyclic, 22
+    \subitem difference, 23
+    \subitem intersection, 22
+    \subitem restriction
+      \subsubitem domain, 22
+      \subsubitem range, 22
+    \subitem union
+      \subsubitem asymmetric, 22
+      \subsubitem disjoint, 23
+    \subitem unique, 22
+    \subitem user-defined, 22
+
+  \indexspace
+
+  \item expressions, 25
+  \item extern, 25
+
+  \indexspace
+
+  \item final variable, 9
+  \item finish, 13
+  \item {\tt for}, 17
+  \item {\tt foreach}, 17
+
+  \indexspace
+
+  \item here, 11
+
+  \indexspace
+
+  \item identifier, 5
+  \item initial activity, 13
+  \item {\tt instanceof}, 25
+  \item interfaces, 19
+
+  \indexspace
+
+  \item keyword, 5
+
+  \indexspace
+
+  \item local
+    \subitem {\tt local}, 20
+  \item locality condition, 14
+
+  \indexspace
+
+  \item names, 11
+  \item {\tt null}, 6
+  \item {\tt nullable}, 6
+  \item nullary constructor, 10
+
+  \indexspace
+
+  \item Object, 10
+
+  \indexspace
+
+  \item packages, 11
+  \item place types, 8
+  \item place.location, 10
+  \item places, 11
+    \subitem scoped, 8
+    \subitem shared, 8
+  \item promotions, 11
+
+  \indexspace
+
+  \item region, 21
+    \subitem ==, 22
+    \subitem banded, 21
+    \subitem convex, 21
+    \subitem intersection, 22
+    \subitem lowerTriangular, 21
+    \subitem set difference, 22
+    \subitem sub-region, 22
+    \subitem union, 22
+    \subitem upperTriangular, 21
+  \item remote method invocation, 16
+  \item root activity, 12
+
+  \indexspace
+
+  \item statements, 24
+  \item sub-distribution, 22
+
+  \indexspace
+
+  \item type constructors, 6
+  \item types, 5
+
+  \indexspace
+
+  \item Upper case convention, 11
+  \item Upper-case Convention, 6
+
+  \indexspace
+
+  \item variable
+    \subitem final, 9
+  \item variable declarator
+    \subitem exploded, 24
+  \item variables, 9
+
+  \indexspace
+
+  \item whitespace, 5
+
+  \indexspace
+
+  \item X10 productions, 28
+
+\end{theindex}

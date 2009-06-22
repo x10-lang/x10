@@ -1,0 +1,4940 @@
+# Hostname: v20n23.pbm.ihost.com
+# Start Time: Mon Aug 20 08:40:31 EDT 2007
+
+#
+# Run: 1
+#
+
+## Size: 100000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039532 s
+
+### nproc: 2
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026959 s
+
+### nproc: 3
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.020673 s
+
+### nproc: 4
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.018918 s
+
+### nproc: 5
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.019149 s
+
+### nproc: 6
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022116 s
+
+### nproc: 7
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.024111 s
+
+### nproc: 8
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025474 s
+
+### nproc: 9
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025294 s
+
+### nproc: 10
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.024079 s
+
+### nproc: 11
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023256 s
+
+### nproc: 12
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026068 s
+
+### nproc: 13
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025786 s
+
+### nproc: 14
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026446 s
+
+### nproc: 15
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026080 s
+
+### nproc: 16
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.341123 s
+
+## Size: 200000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.046776 s
+
+### nproc: 4
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040750 s
+
+### nproc: 5
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.041494 s
+
+### nproc: 6
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.045656 s
+
+### nproc: 7
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.045311 s
+
+### nproc: 8
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.046772 s
+
+### nproc: 9
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049325 s
+
+### nproc: 10
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049930 s
+
+### nproc: 11
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.047846 s
+
+### nproc: 12
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049981 s
+
+### nproc: 13
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051091 s
+
+### nproc: 14
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.050590 s
+
+### nproc: 15
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051859 s
+
+### nproc: 16
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 6.756281 s
+
+## Size: 300000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.064649 s
+
+### nproc: 5
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.061081 s
+
+### nproc: 6
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.061922 s
+
+### nproc: 7
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.069725 s
+
+### nproc: 8
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072859 s
+
+### nproc: 9
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073404 s
+
+### nproc: 10
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073597 s
+
+### nproc: 11
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.070766 s
+
+### nproc: 12
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076249 s
+
+### nproc: 13
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076180 s
+
+### nproc: 14
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.077776 s
+
+### nproc: 15
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076974 s
+
+### nproc: 16
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 10.287062 s
+
+## Size: 400000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.094722 s
+
+### nproc: 5
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.082076 s
+
+### nproc: 6
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.088195 s
+
+### nproc: 7
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.094125 s
+
+### nproc: 8
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096396 s
+
+### nproc: 9
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.095777 s
+
+### nproc: 10
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.095663 s
+
+### nproc: 11
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.097751 s
+
+### nproc: 12
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.098452 s
+
+### nproc: 13
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.103075 s
+
+### nproc: 14
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.102651 s
+
+### nproc: 15
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.104172 s
+
+### nproc: 16
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 14.375726 s
+#
+# Run: 2
+#
+
+## Size: 100000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039709 s
+
+### nproc: 2
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026928 s
+
+### nproc: 3
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021252 s
+
+### nproc: 4
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.019119 s
+
+### nproc: 5
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021835 s
+
+### nproc: 6
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021301 s
+
+### nproc: 7
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022237 s
+
+### nproc: 8
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023501 s
+
+### nproc: 9
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023524 s
+
+### nproc: 10
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022729 s
+
+### nproc: 11
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.024675 s
+
+### nproc: 12
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026055 s
+
+### nproc: 13
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025560 s
+
+### nproc: 14
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025763 s
+
+### nproc: 15
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026577 s
+
+### nproc: 16
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 2.932747 s
+
+## Size: 200000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.047824 s
+
+### nproc: 4
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040236 s
+
+### nproc: 5
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040394 s
+
+### nproc: 6
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040666 s
+
+### nproc: 7
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.045574 s
+
+### nproc: 8
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049496 s
+
+### nproc: 9
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049226 s
+
+### nproc: 10
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.046482 s
+
+### nproc: 11
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.050320 s
+
+### nproc: 12
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.047131 s
+
+### nproc: 13
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.050664 s
+
+### nproc: 14
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051450 s
+
+### nproc: 15
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.052143 s
+
+### nproc: 16
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 7.830130 s
+
+## Size: 300000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.081676 s
+
+### nproc: 4
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.064858 s
+
+### nproc: 5
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.061978 s
+
+### nproc: 6
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.065474 s
+
+### nproc: 7
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.070656 s
+
+### nproc: 8
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072785 s
+
+### nproc: 9
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072557 s
+
+### nproc: 10
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072762 s
+
+### nproc: 11
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072845 s
+
+### nproc: 12
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075190 s
+
+### nproc: 13
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075849 s
+
+### nproc: 14
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076554 s
+
+### nproc: 15
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076303 s
+
+### nproc: 16
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 12.507256 s
+
+## Size: 400000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.094607 s
+
+### nproc: 5
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.082841 s
+
+### nproc: 6
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.082453 s
+
+### nproc: 7
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.093511 s
+
+### nproc: 8
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096416 s
+
+### nproc: 9
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096048 s
+
+### nproc: 10
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.098148 s
+
+### nproc: 11
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.097454 s
+
+### nproc: 12
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.100730 s
+
+### nproc: 13
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.101063 s
+
+### nproc: 14
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.100959 s
+
+### nproc: 15
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.101268 s
+
+### nproc: 16
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 16.043907 s
+#
+# Run: 3
+#
+
+## Size: 100000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039640 s
+
+### nproc: 2
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.027803 s
+
+### nproc: 3
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021181 s
+
+### nproc: 4
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.018232 s
+
+### nproc: 5
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.018934 s
+
+### nproc: 6
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.019602 s
+
+### nproc: 7
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021565 s
+
+### nproc: 8
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021773 s
+
+### nproc: 9
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021245 s
+
+### nproc: 10
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023692 s
+
+### nproc: 11
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.024413 s
+
+### nproc: 12
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025278 s
+
+### nproc: 13
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026775 s
+
+### nproc: 14
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.027991 s
+
+### nproc: 15
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.027116 s
+
+### nproc: 16
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 3.780815 s
+
+## Size: 200000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.048229 s
+
+### nproc: 4
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040523 s
+
+### nproc: 5
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.041666 s
+
+### nproc: 6
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.044974 s
+
+### nproc: 7
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.048043 s
+
+### nproc: 8
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.048548 s
+
+### nproc: 9
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049835 s
+
+### nproc: 10
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049600 s
+
+### nproc: 11
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051123 s
+
+### nproc: 12
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051370 s
+
+### nproc: 13
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.050589 s
+
+### nproc: 14
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.052195 s
+
+### nproc: 15
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051929 s
+
+### nproc: 16
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 8.666139 s
+
+## Size: 300000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.064671 s
+
+### nproc: 5
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.059732 s
+
+### nproc: 6
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.068065 s
+
+### nproc: 7
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.066739 s
+
+### nproc: 8
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073483 s
+
+### nproc: 9
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073382 s
+
+### nproc: 10
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072650 s
+
+### nproc: 11
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.066994 s
+
+### nproc: 12
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075630 s
+
+### nproc: 13
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075865 s
+
+### nproc: 14
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076128 s
+
+### nproc: 15
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.077086 s
+
+### nproc: 16
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 9.197559 s
+
+## Size: 400000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+
+### nproc: 5
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.083290 s
+
+### nproc: 6
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.088045 s
+
+### nproc: 7
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.093184 s
+
+### nproc: 8
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.097410 s
+
+### nproc: 9
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096325 s
+
+### nproc: 10
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096729 s
+
+### nproc: 11
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099346 s
+
+### nproc: 12
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099335 s
+
+### nproc: 13
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099800 s
+
+### nproc: 14
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.103217 s
+
+### nproc: 15
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.101305 s
+
+### nproc: 16
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 13.606853 s
+#
+# Run: 4
+#
+
+## Size: 100000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039688 s
+
+### nproc: 2
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.028305 s
+
+### nproc: 3
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021072 s
+
+### nproc: 4
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.019390 s
+
+### nproc: 5
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.019031 s
+
+### nproc: 6
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.019440 s
+
+### nproc: 7
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.020967 s
+
+### nproc: 8
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022242 s
+
+### nproc: 9
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022304 s
+
+### nproc: 10
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021502 s
+
+### nproc: 11
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025875 s
+
+### nproc: 12
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.024305 s
+
+### nproc: 13
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026839 s
+
+### nproc: 14
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.027449 s
+
+### nproc: 15
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026432 s
+
+### nproc: 16
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.651725 s
+
+## Size: 200000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.046487 s
+
+### nproc: 4
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.040906 s
+
+### nproc: 5
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.041620 s
+
+### nproc: 6
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.041946 s
+
+### nproc: 7
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.047789 s
+
+### nproc: 8
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049208 s
+
+### nproc: 9
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049521 s
+
+### nproc: 10
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.050820 s
+
+### nproc: 11
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.046945 s
+
+### nproc: 12
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051579 s
+
+### nproc: 13
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051188 s
+
+### nproc: 14
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.052058 s
+
+### nproc: 15
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.052142 s
+
+### nproc: 16
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 8.395489 s
+
+## Size: 300000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.065176 s
+
+### nproc: 5
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.061416 s
+
+### nproc: 6
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.066678 s
+
+### nproc: 7
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.070482 s
+
+### nproc: 8
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073326 s
+
+### nproc: 9
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073664 s
+
+### nproc: 10
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073494 s
+
+### nproc: 11
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.070590 s
+
+### nproc: 12
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075607 s
+
+### nproc: 13
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076160 s
+
+### nproc: 14
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076252 s
+
+### nproc: 15
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076554 s
+
+### nproc: 16
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 9.790539 s
+
+## Size: 400000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.095255 s
+
+### nproc: 5
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.083941 s
+
+### nproc: 6
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.088497 s
+
+### nproc: 7
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.092626 s
+
+### nproc: 8
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096474 s
+
+### nproc: 9
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096978 s
+
+### nproc: 10
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.097680 s
+
+### nproc: 11
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.097573 s
+
+### nproc: 12
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096972 s
+
+### nproc: 13
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099854 s
+
+### nproc: 14
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.101233 s
+
+### nproc: 15
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.102136 s
+
+### nproc: 16
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 15.242914 s
+#
+# Run: 5
+#
+
+## Size: 100000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039676 s
+
+### nproc: 2
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.027042 s
+
+### nproc: 3
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.020719 s
+
+### nproc: 4
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.018559 s
+
+### nproc: 5
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.018679 s
+
+### nproc: 6
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.021374 s
+
+### nproc: 7
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022797 s
+
+### nproc: 8
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023167 s
+
+### nproc: 9
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023159 s
+
+### nproc: 10
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.022241 s
+
+### nproc: 11
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.023804 s
+
+### nproc: 12
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.025917 s
+
+### nproc: 13
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026182 s
+
+### nproc: 14
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026179 s
+
+### nproc: 15
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.026421 s
+
+### nproc: 16
+n_vertics=100000, n_edges=400000
+ number of edges got is 400000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 100000
+checking done,tail is 30
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 1.405711 s
+
+## Size: 200000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.047585 s
+
+### nproc: 4
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.039480 s
+
+### nproc: 5
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.041158 s
+
+### nproc: 6
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.042085 s
+
+### nproc: 7
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.045298 s
+
+### nproc: 8
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049941 s
+
+### nproc: 9
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049700 s
+
+### nproc: 10
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.047765 s
+
+### nproc: 11
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.049841 s
+
+### nproc: 12
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051221 s
+
+### nproc: 13
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.051014 s
+
+### nproc: 14
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.052120 s
+
+### nproc: 15
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.052352 s
+
+### nproc: 16
+n_vertics=200000, n_edges=800000
+ number of edges got is 800000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 200000
+checking done,tail is 70
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 7.511340 s
+
+## Size: 300000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.064350 s
+
+### nproc: 5
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.059727 s
+
+### nproc: 6
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.067322 s
+
+### nproc: 7
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.067226 s
+
+### nproc: 8
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073033 s
+
+### nproc: 9
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.072370 s
+
+### nproc: 10
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.073677 s
+
+### nproc: 11
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075079 s
+
+### nproc: 12
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.075048 s
+
+### nproc: 13
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076510 s
+
+### nproc: 14
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.077917 s
+
+### nproc: 15
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.076662 s
+
+### nproc: 16
+n_vertics=300000, n_edges=1200000
+ number of edges got is 1200000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 300000
+checking done,tail is 108
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 11.175012 s
+
+## Size: 400000
+## Stack Depth: 600000
+## Stack Size: 8000000
+
+### nproc: 1
+
+### nproc: 2
+
+### nproc: 3
+
+### nproc: 4
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.093965 s
+
+### nproc: 5
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.083998 s
+
+### nproc: 6
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.084632 s
+
+### nproc: 7
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.093225 s
+
+### nproc: 8
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.096752 s
+
+### nproc: 9
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.095019 s
+
+### nproc: 10
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.095356 s
+
+### nproc: 11
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099024 s
+
+### nproc: 12
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.099607 s
+
+### nproc: 13
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.101622 s
+
+### nproc: 14
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.100486 s
+
+### nproc: 15
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 0.105836 s
+
+### nproc: 16
+n_vertics=400000, n_edges=1600000
+ number of edges got is 1600000
+finished allocating structures
+finished generating the matrix
+checking if is connected
+n is 400000
+checking done,tail is 131
+done generating graph structure
+r_graph done
+verify success
+verify success
+verify success
+verify success
+verify success
+Running time (best of 5)  = 13.591228 s
+
+# End Time: Mon Aug 20 09:10:38 EDT 2007

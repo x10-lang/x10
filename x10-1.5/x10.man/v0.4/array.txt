@@ -1,0 +1,50 @@
+'''Arrays'''
+
+An array is a mapping from an XtenDistribution to a range data type. 
+
+Multiple arrays may be declared with the same underlying distribution. 
+
+Array initializer 
+
+An array initializer creating a new array with distribution D may optionally take a parametrized block of the form (ind1,..., indk){S}. Here, k may be zero; in this case the statement is written as just {S}. For instance: 
+
+
+
+    _ data = new int[1000] (i){ return i*i; };
+    _ data = new int[1000] { return 1; };
+
+In general the expression 
+
+
+
+    _ data =  new T[D] (ind1, ..., indk) { S }
+
+for a k-dimensional distribution D is taken as shorthand for 
+
+
+
+   ateach(ind1, ..., indk : D) {
+       A[ind1, ..., indk] = new Object { T val(D ind1,...,indk) {
+                                      S
+                                    }
+                                  }.val(ind1, ..., indk);
+
+
+
+   }
+
+
+
+Notice that in the method declaration D is used as a type. 
+
+Similarly: 
+
+
+
+    _ data = new int[1000](i){ return i*i; };
+    float[D] data = new float[D] (i){ return 10.0*i; }; // initialize the array with 10 times the index value
+    float[D] data2 = new float[D] (i){ return i*i; };
+    float[D] result = new float[D] (i){ return data[i] + data2[i]; };
+
+
+

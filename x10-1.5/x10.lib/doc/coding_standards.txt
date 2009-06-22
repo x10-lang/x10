@@ -1,0 +1,226 @@
+Coding standards in the x10lib project - in part adopted from 
+
+http://cvs.sourceforge.net/viewcvs.py/sesc/sesc/docs/README.codingStyle?view=markup
+
+Chapter 6, Chapter 10-13 added by ganesh and they are specific to x10lib.
+
+----------------------------------------------------------------------
+Chapter 1: Indentation
+
+Tabs are 2 characters (2 spaces, not a tab \t), and thus indentations
+are also 2 characters.
+
+
+2----------------------------------------------------------------------
+Chapter 2: Placing Braces and Spaces
+
+The other issue that always comes up in C styling is the placement of
+braces. Unlike the indent size, there are few technical reasons to
+choose one placement strategy over the other, but the preferred way,
+as shown to us by the prophets Kernighan and Ritchie, is to put the
+opening brace last on the line, and put the closing brace first,
+thusly:
+
+if (x is true) {
+  func(a, b, c);
+  we do y
+}
+
+
+Note that the closing brace is empty on a line of its own, _except_ in
+the cases where it is followed by a continuation of the same
+statement, ie a "while" in a do-statement or an "else" in an
+if-statement, like this:
+
+do {
+  body of do-loop
+} while (condition);
+
+and
+
+if (x == y) {
+  ..
+} else if (x > y) {
+  ...
+} else {
+  ....
+}
+
+Leave one space between operators and operands.
+
+
+----------------------------------------------------------------------
+Chapter 3: Naming
+
+Descriptive names for global variables are a must.  To call a global
+function "foo" is a shooting offense.
+
+If a word has a subpart with "max" or "min", type max or min always at
+the beginning of the word. Like in maxNumInst or maxMentalWonking.
+
+GLOBAL variables (to be used only if you _really_ need them) need to
+have descriptive names, as do global functions.  If you have a
+function that counts the number of active users, you should call that
+"countActiveUsers()" or similar, you should _not_ call it "cntusr()".
+
+LOCAL variable names should be short, and to the point. If you have
+some random integer loop counter, it should probably be called "i".
+Calling it "loop_counter" is non-productive, if there is no chance of
+it being mis-understood. Similarly, "tmp" can be just about any type
+of variable that is used to hold a temporary value.
+
+
+CONSTANTS and TEMPLATE PARAMETERS shall be uppercase, where different
+words shall be  separated by underscore '_'.
+
+Composed names for class member variables and functions begin with lowercase. For
+fields and method names,  the  following   words/abbreviations 
+begin  with  uppercase (e.g.  getMemoryObj). For names of local
+variables and function parameters,  names should be all lowercase and
+separated by an underscore (e.g., get_memory_object).  Classes and 
+constants always  begin with uppercase.
+Static functions that are part of x10lib namespace should start
+with a capital letter (e.g. x10lib::AsyncSpawnInline). 
+
+The name of structs that are used to encapsulate one template function
+(to overcome the C++ partial template function instantiation problem)
+should be named like functions. The encapsulated function itself
+should always  be named 'func'.
+
+Private members of a class should always have a leading underscore.
+Members that are not part of the public interface of x10lib should also 
+start with an underscore '_' -- they define implementation that is only 
+accessed within the library or for debugging purpose.
+
+
+----------------------------------------------------------------------
+Chapter 4: Functions
+
+Functions should be short and sweet, and do just one thing. They
+should fit on one or two screenfuls of text (for a 124x50 terminal),
+and do one thing and do that well. (PLEASE NO MORE THAN 100 lines per
+function)
+
+If  you have  a complex  function,  and you  suspect that  a
+less-than-gifted first-year  high-school student might  not even
+understand what the function is all about, you should adhere to the
+maximum limits all the more closely.  Use helper functions with
+descriptive names (you can ask the compiler to in-line them if you
+think it's performance-critical, and it will probably do a better job
+of it that you would have done).
+
+Another measure of the function is the number of local variables.
+They shouldn't exceed 5-10, or you're doing something wrong. Re-think
+the function, and split it into smaller pieces. A human brain can
+generally easily keep track of about 7 different things, anything more
+and it gets confused. You know you're brilliant, but maybe you'd like
+to understand what you did 2 weeks from now.
+
+
+----------------------------------------------------------------------
+Chapter 5: Commenting
+
+Use C++ comment style in the code: // bla bla bla
+
+Use C-style comments to describe of a whole method, struct, or class.
+For documenting class and method declaration, follow  the Java doc
+conventions.
+
+Comments are good, but there is also a danger of over-commenting.
+NEVER try to explain HOW your code works in a comment: it's much
+better to write the code so that the _working_ is obvious, and it's a
+waste of time to explain badly written code.
+
+Many times much better than adding a comment is to add an assertion
+(See Chapter 6).
+
+----------------------------------------------------------------------
+Chapter 6: Assertions
+
+Use them, include <X10/assert.h>. X10/assert.h is a wrapper around assert.h
+It defines a new assert macro that only prints assertion failure message,
+but does not abort the program. Use -DWARN compiler flag to enable it. If -DWARN is 
+not specified, default assert defined in cassert is used with default
+behaviour (i.e. DNDEBUG => no assert, otherwise assert).
+
+
+----------------------------------------------------------------------
+Chapter 7: Includes
+
+Place system includes first using <...>. For x10lib include files,
+use <x10/..>. Split the include files into sections, where section corresponds
+to a library. Leave a blank line between sections. Include the files in alphabetical order. 
+
+For example,
+
+#include <stdlib.h>
+#include <strings.h>
+
+#include <lapi.h>
+
+#include <x10/err.h>
+#include <x10/types.h>
+
+----------------------------------------------------------------------
+Chapter 8: File format
+
+Use the following template when creating a new module of header file
+named Foo.h:
+
+#ifndef __FOO_H__
+#define __FOO_H__
+
+<include files>
+
+<declarations>
+
+#endif /* __FOO_H__ */
+
+----------------------------------------------------------------------
+Chapter 9: Implementation encapsulation and member visibility
+
+Make members 'as private as possible'. Avoid 'friend' declarations.
+Forbid default implementations of the constructor/destructor,
+assignment operator if necessary.
+
+----------------------------------------------------------------------
+
+Chapter 10: Debug Macros and __attribute__
+
+Use debug macros (will be defined in the library) whenever possible.
+Also use __attribute__ where it is useful. 
+
+----------------------------------------------------------------------
+
+Chapter 11 : File names and Conventions 
+
+All the file names should be in
+lower case. The header files should have .h suffix, while the source
+files (non-template) should have .cpp suffix. 
+
+The class, template and function
+declarations should be put in header files, while their definition
+and implementation go to source files. Implement small class methods
+(1-3 lines) in the class declaration itself (ie. in .h files). 
+
+Name all the test cases with "Test_" prefix. The file name should be
+very descriptive about the test it performs. Each test case should
+test only ONE functionality. Use "assert" to pass or fail a test case.
+
+----------------------------------------------------------------------
+
+Chapter 12 : Namespaces
+
+x10lib is the main namespace that encloses all the global variables, functions
+and classes. 
+
+----------------------------------------------------------------------
+
+Chapter 13 : C Wrapppers
+
+Wrappers functions for calling from C source codes should begin with "x10_" 
+prefix. The wrapper functions will follow C naming conventions (ie.
+x10_test_this_function as opposed to X10TestThisFunction). 
+
+----------------------------------------------------------------------
+

@@ -1,0 +1,61 @@
+\chapter{Interfaces}
+\label{XtenInterfaces}\index{interfaces}
+
+{}\XtenCurrVer{} interfaces are essentially the same \java{}
+interfaces \cite[\S 9]{jls2}. An interface primarily specifies
+signatures for public methods. It may extend multiple interfaces. 
+%The
+%need for magic constants in interfaces is lessened with the
+%introduction of {\tt enum} (\Sref{XtenEnums}).
+
+
+Future version of \Xten{} will introduce additional structure in
+interface definitions that will allow the programmer to state
+additional properties of classes that implement that interface. For
+instance a method may be declared {\tt pure} to indicate that its
+evaluation cannot have any side-effects. A method may be declared {\tt
+local} to indicate that its execution is confined purely to the
+current place (no communication with other places). Similarly,
+behavioral properties of the method as they relate to the usage of
+clocks of the current activity may be specified.
+
+\section{Interfaces with properties}\label{DepType:Interface}
+
+\Xten{} permits interfaces to have properties and specify an interface
+invariant. This is necessary so that programmers can build dependent
+types on top of interfaces and not just classes.
+
+\begin{grammar}
+NormalInterfaceDeclaration \:
+      InterfaceModifiers\opt \xcd"interface" Identifier  \\
+   && TypeParameterList\opt PropertyList\opt Constraint\opt \\
+   && ExtendsInterfaces\opt InterfaceBody \\
+\end{grammar}
+
+\noindent
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+
+\begin{staticrule*}
+   The compiler declares an error if this constraint
+   is not consistent (\Sref{DepType:Consistency}).  
+\end{staticrule*}
+
+Each interface implicitly defines a nullary getter method
+\xcd"def p(): T" for each property \xcd"p: T". 
+
+\begin{staticrule*}
+   The compiler issues a warning if the programmer
+   explicitly defines a method with this signature for an interface.
+\end{staticrule*}
+
+A class \xcd"C" (with properties) is said to implement an interface \xcd"I" if
+\begin{itemize}
+  \item its properties contains all the properties of \xcd"I",
+\item its class invariant
+$\mathit{inv}($\xcd"C"$)$ implies
+$\mathit{inv}($\xcd"I"$)$.
+\end{itemize}
+

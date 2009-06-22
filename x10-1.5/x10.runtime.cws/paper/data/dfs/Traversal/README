@@ -1,0 +1,10 @@
+you need to modify two Makefiles appropriately to compile on moixe and altair.
+
+First you need to go to simple-4.4G/src/Makefile.var, choose line 86 or 87 according to the platform.
+
+You will also need to set the correct PROCTYPE on line 8 in spanT/Makefile.smp.mk 
+
+You need to make simple first , and then spanT.
+
+go to simple-4.4G; gmake
+go to spanT; gmake
