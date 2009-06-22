@@ -34,4 +34,8 @@ public class SampleX10Clock implements IX10Clock {
 		return new IX10Activity[0];
 	}
 	
+	public String getName() {
+		return _name;
+	}
+	
 }

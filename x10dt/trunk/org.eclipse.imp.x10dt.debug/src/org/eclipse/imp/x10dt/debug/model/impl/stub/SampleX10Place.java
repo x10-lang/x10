@@ -48,4 +48,7 @@ public class SampleX10Place implements IX10Place {
 		return activities.toArray(new IX10Activity[activities.size()]);
 	}
 
+	public String getName() {
+		return _name;
+	}
 }

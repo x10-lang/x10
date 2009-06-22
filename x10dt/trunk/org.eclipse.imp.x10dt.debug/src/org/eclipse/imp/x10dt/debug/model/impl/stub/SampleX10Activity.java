@@ -1,7 +1,10 @@
 package org.eclipse.imp.x10dt.debug.model.impl.stub;
 
 import java.util.HashSet;
+import java.util.Stack;
+import java.util.Vector;
 
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Clock;
 import org.eclipse.imp.x10dt.debug.model.IX10Place;
@@ -16,6 +19,7 @@ public class SampleX10Activity implements IX10Activity {
 	private HashSet<IX10Activity> _children;
 	private X10ActivityState _state;
 	private String _name;
+	private Stack<IX10StackFrame> _stackFrames;
 
 	public SampleX10Activity(String name, IX10Activity parent, IX10Place place, X10ActivityState state) {
 		_name = name;
@@ -24,6 +28,7 @@ public class SampleX10Activity implements IX10Activity {
 		_children = new HashSet<IX10Activity>();
 		_place = place;
 		_state = state;
+		_stackFrames = new Stack<IX10StackFrame>();
 		if (parent != null) {
 			((SampleX10Activity) parent).addChild(this);
 		}
@@ -65,10 +70,24 @@ public class SampleX10Activity implements IX10Activity {
 
 	public IX10StackFrame[] getStackFrames() {
 		// TODO create stack frames in sample model
-		return new IX10StackFrame[0];
+		return _stackFrames.toArray(new IX10StackFrame[_stackFrames.size()]);
+	}
+	
+	public void pushStackFrame(IX10StackFrame stackFrame) {
+		_stackFrames.push(stackFrame);
+	}
+	
+	public IX10StackFrame popStackFrame() {
+		return _stackFrames.pop();
 	}
 	
 	public void addChild(IX10Activity activity) {
 		_children.add(activity);
+	}
+	
+	public void setThread (IThread thread) {
+		for (IX10StackFrame sf: _stackFrames) {
+			((SampleX10StackFrame) sf).setThread(thread);
+		}
 	}
 }

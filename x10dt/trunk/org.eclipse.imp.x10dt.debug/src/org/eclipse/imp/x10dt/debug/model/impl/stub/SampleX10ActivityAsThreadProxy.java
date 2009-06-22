@@ -7,6 +7,8 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
+import org.eclipse.imp.x10dt.debug.model.IX10Clock;
+import org.eclipse.imp.x10dt.debug.model.IX10Place;
 
 public class SampleX10ActivityAsThreadProxy implements IThread {
 
@@ -16,6 +18,7 @@ public class SampleX10ActivityAsThreadProxy implements IThread {
 	public SampleX10ActivityAsThreadProxy(IX10Activity activity, IDebugTarget debugTarget) {
 		_activity = activity;
 		_debugTarget = debugTarget;
+		((SampleX10Activity)activity).setThread(this);
 	}
 	public IBreakpoint[] getBreakpoints() {
 		// TODO Auto-generated method stub
@@ -23,7 +26,28 @@ public class SampleX10ActivityAsThreadProxy implements IThread {
 	}
 
 	public String getName() throws DebugException {
-		return _activity.getName();
+		String name = _activity.getName();
+		String sep = "";
+		IX10Clock[] clocks = _activity.getClocks();
+		IX10Place place = _activity.getPlace();
+		if (place!=null || (clocks!=null && clocks.length!=0)) {
+			name += "[";
+			if (place!=null) {
+				name += "Place: "+_activity.getPlace().getName();
+				sep = "; ";
+			}
+			String key=sep+"Clocks: ";
+			sep = "";
+			for (IX10Clock c: clocks) {
+				name+=key;
+				key = "";
+				name+=sep;
+				sep = ",";
+				name += c.getName();
+			}
+			name += "]";
+		}
+		return name;
 	}
 
 	public int getPriority() throws DebugException {
@@ -41,8 +65,7 @@ public class SampleX10ActivityAsThreadProxy implements IThread {
 	}
 
 	public boolean hasStackFrames() throws DebugException {
-		// TODO Auto-generated method stub
-		return false;
+		return _activity.getStackFrames().length != 0;
 	}
 
 	public IDebugTarget getDebugTarget() {
