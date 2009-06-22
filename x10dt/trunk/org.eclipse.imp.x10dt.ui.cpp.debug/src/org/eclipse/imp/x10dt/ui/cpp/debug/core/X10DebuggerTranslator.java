@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug.core;
 
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
+
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
@@ -89,12 +91,17 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
 
   public String getX10File(Location cppLocation) {
     try {
-      String cppFile = cppLocation.getViewFile().getFile().getLocation().toString();
+      String cppFile = cppLocation.getViewFile().getName();
+      String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
+      if (cppFile.startsWith(baseDir+"/"))
+    	  cppFile = cppFile.substring(baseDir.length()+1);
       int cppLineNumber = cppLocation.getLineNumber();
       LineNumberMap cppLineToX10LineMap = fCppToX10Map.get(cppFile);
       if (cppLineToX10LineMap == null)
         return null;
       String x10File = cppLineToX10LineMap.getSourceFile(cppLineNumber);
+      if (x10File.startsWith("file:/"))
+          x10File = x10File.substring("file:/".length());
       return x10File;
     } catch (CoreException e) {
       return null;
@@ -103,7 +110,10 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
 
   public int getX10Line(Location cppLocation) {
     try {
-      String cppFile = cppLocation.getViewFile().getFile().getLocation().toString();
+      String cppFile = cppLocation.getViewFile().getName();
+      String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
+      if (cppFile.startsWith(baseDir+"/"))
+        cppFile = cppFile.substring(baseDir.length()+1);
       int cppLineNumber = cppLocation.getLineNumber();
       LineNumberMap cppLineToX10LineMap = fCppToX10Map.get(cppFile);
       if (cppLineToX10LineMap == null)
