@@ -57,11 +57,11 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
 	layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 
 	// new actions - Java project creation wizard
-	layout.addNewWizardShortcut("com.ibm.watson.safari.x10.newProject"); //$NON-NLS-1$
+	layout.addNewWizardShortcut("org.eclipse.imp.x10dt.newProject"); //$NON-NLS-1$
 	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewPackageCreationWizard"); //$NON-NLS-1$
 
 //	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewClassCreationWizard"); //$NON-NLS-1$
-	layout.addNewWizardShortcut("com.ibm.watson.safari.x10.wizards.NewX10ClassWizard"); //$NON-NLS-1$
+	layout.addNewWizardShortcut("org.eclipse.imp.x10dt.wizards.NewX10ClassWizard"); //$NON-NLS-1$
 	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewInterfaceCreationWizard"); //$NON-NLS-1$
 //	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewEnumCreationWizard"); //$NON-NLS-1$
 //	layout.addNewWizardShortcut("org.eclipse.jdt.ui.wizards.NewAnnotationCreationWizard"); //$NON-NLS-1$

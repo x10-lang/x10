@@ -27,7 +27,7 @@ public class OpenX10PreferencesAction extends Action implements ICheatSheetActio
 	PreferenceManager prefMgr= PlatformUI.getWorkbench().getPreferenceManager();
 	PreferenceDialog prefsDialog= new PreferenceDialog(shell, prefMgr);
 
-	prefsDialog.setSelectedNode("com.ibm.watson.safari.x10.preferences.X10PreferencePage");
+	prefsDialog.setSelectedNode("org.eclipse.imp.x10dt.core.preferences.X10PreferencePage");
 	prefsDialog.open();
     }
 }
