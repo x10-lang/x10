@@ -44,18 +44,26 @@ import polyglot.frontend.Job;
 public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
     private PMMonitor fMonitor;
+    private IParser fParser;
+    private ILexer fLexer;
 
     public ParseController() {
 	super(X10Plugin.kLanguageName);
     }
 
     public IParser getParser() {
-	return new ParserDelegate(fCompiler.getParser());
+    	if(fParser==null && fCompiler.getParser() != null) {
+    		fParser= new ParserDelegate(fCompiler.getParser());
+    	}
+    	return fParser;
     }
 
     public ILexer getLexer() {
-	return new LexerDelegate(fCompiler.getLexer());
-    }
+		if (fLexer == null) {
+			fLexer = new LexerDelegate(fCompiler.getLexer());
+		}
+		return fLexer;
+	}
 
     public ISourcePositionLocator getNodeLocator() {
 	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
@@ -79,7 +87,7 @@ public class ParseController extends SimpleLPGParseController {
             String path= fFilePath.toOSString();
             File file= new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : path);
 
-            fileSource= new StringSource(contents, file, path);
+            fileSource= new FileSource(new StringResource(contents, file, path));
             
             List<FileSource> streams= new ArrayList<FileSource>();
             // Bug 526: NPE when opening a file outside the workspace due to null fProject.
@@ -103,7 +111,9 @@ public class ParseController extends SimpleLPGParseController {
             // Must do this after attempting parsing (even though that might fail), since it depends
             // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
             // ExtensionInfo.parser(). Ugghh.
-            cacheKeywordsOnce();
+            if (getParser() != null) {//PORT1.7
+            	cacheKeywordsOnce();
+            }
         }
         return fCurrentAst;
     }

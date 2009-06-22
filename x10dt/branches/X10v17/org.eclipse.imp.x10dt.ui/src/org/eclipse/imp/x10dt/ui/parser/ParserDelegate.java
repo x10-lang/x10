@@ -26,6 +26,10 @@ import x10.parser.X10Parser;
 
 public class ParserDelegate implements IParser {
     X10Parser myParser;
+    
+    ParserDelegate(X10Parser myParser) {
+        this.myParser = myParser;
+    }
 
     public PrsStream getParseStream() {
         try {
@@ -52,7 +56,5 @@ public class ParserDelegate implements IParser {
 	return myParser.orderedTerminalSymbols();
     }
 
-    ParserDelegate(X10Parser myParser) {
-        this.myParser = myParser;
-    }
+
 }
