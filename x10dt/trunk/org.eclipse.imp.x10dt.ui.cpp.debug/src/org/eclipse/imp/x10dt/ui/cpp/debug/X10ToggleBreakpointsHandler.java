@@ -11,23 +11,23 @@ import org.eclipse.ptp.debug.core.model.IPLineBreakpoint;
 
 public class X10ToggleBreakpointsHandler implements IToggleBreakpointsHandler {
 
-	public void clearLineBreakpoint(IFile file, int lineNumber, IMarker marker) {
+	public void clearLineBreakpoint(IFile file, int lineNumber) {
 		IPLineBreakpoint bkpt = findBreakpoint(file, lineNumber);
 		removeBreakpoint(bkpt);
 	}
 
-	public void disableLineBreakpoint(IFile file, int lineNumber, IMarker marker) {
+	public void disableLineBreakpoint(IFile file, int lineNumber) {
 		// TODO Auto-generated method stub
 		int a = 0;
 	}
 
-	public void enableLineBreakpoint(IFile file, int lineNumber, IMarker marker) {
+	public void enableLineBreakpoint(IFile file, int lineNumber) {
 		// TODO Auto-generated method stub
 		int a = 0;
 	}
 
-	public void setLineBreakpoint(IFile file, int lineNumber, IMarker marker) {
-		IPLineBreakpoint bkpt = new X10LineBreakpointImpl(file, lineNumber, marker);
+	public void setLineBreakpoint(IFile file, int lineNumber) {
+		IPLineBreakpoint bkpt = new X10LineBreakpointImpl(file, lineNumber, null);
 		addBreakpoint(bkpt);
 	}
 
