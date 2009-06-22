@@ -19,4 +19,5 @@ org\.eclipse\.imp\.x10dt	/bin/true
 org\.eclipse\.imp\.analysis	/bin/true
 org\.eclipse\.imp\.java\.core	/bin/true
 x10\.refactoring		/bin/true
+x10\.demo\.ms7			/bin/true
 DEFAULT				/bin/false
