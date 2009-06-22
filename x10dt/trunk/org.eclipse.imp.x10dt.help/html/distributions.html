@@ -87,9 +87,9 @@ The distribution <tt>R-&#62;P</tt> maps every point in <tt>R</tt> to <tt>P</tt>.
 <b>Block distributions.&nbsp;&nbsp;</b>
 The distribution <tt>block(R, Q)</tt> distributes the elements of <tt>R</tt>
 (in order) over the set of places <tt>Q</tt> in blocks  as
-follows. Let p equal <tt> - R -  div N</tt> and q equal <tt> - R -  mod N</tt>,
+follows. Let p equal <tt> |R|  div N</tt> and q equal <tt> |R|  mod N</tt>,
 where <tt>N</tt> is the size of <tt>Q</tt>, and 
-<tt> - R - </tt> is the size of <tt>R</tt>.  The first q places get
+<tt> |R| </tt> is the size of <tt>R</tt>.  The first q places get
 successive blocks of size (p+1) and the remaining places get blocks of
 size p.
 
@@ -133,7 +133,7 @@ R</tt> to <tt>Q</tt>. As above, <tt>arbitrary(R)</tt> is the same distribution a
 
 <div class="p"><!----></div>
 If <tt>D</tt> is a distribution and <tt>R</tt> is a sub-region of <tt>
-D.domain</tt>, then <tt>D  -  R</tt> represents the restriction of <tt>D</tt> to
+D.domain</tt>, then <tt>D | R</tt> represents the restriction of <tt>D</tt> to
 <tt>R</tt>.  The compiler throws an error if it cannot determine that
 <tt>R</tt> is a sub-region of <tt>D.domain</tt>.
 
@@ -143,13 +143,13 @@ D.domain</tt>, then <tt>D  -  R</tt> represents the restriction of <tt>D</tt> to
 
 <div class="p"><!----></div>
 If <tt>D</tt> is a distribution and <tt>P</tt> a place expression, the term
-<tt>D  -  P</tt> denotes the sub-distribution of <tt>D</tt> defined over all the
+<tt>D | P</tt> denotes the sub-distribution of <tt>D</tt> defined over all the
 points in the domain of <tt>D</tt> mapped to <tt>P</tt>.
 
 <div class="p"><!----></div>
-Note that <tt>D  -  here</tt> does not necessarily contain adjacent points
+Note that <tt>D | here</tt> does not necessarily contain adjacent points
 in <tt>D.region</tt>. For instance, if <tt>D</tt> is a cyclic distribution,
-<tt>D  -  here</tt> will typically contain points that are <tt>P</tt> apart,
+<tt>D | here</tt> will typically contain points that are <tt>P</tt> apart,
 where <tt>P</tt> is the number of places. An implementation may find a
 way to still represent them in contiguous memory, e.g. using a
 complex arithmetic function to map from the region index to an index
@@ -196,7 +196,7 @@ if <tt>p</tt> lies in <tt>D.domain</tt> otherwise it is <tt>D1[p]</tt>. (<tt>D1<
 <div class="p"><!----></div>
 
 <b>Disjoint union of distributions.&nbsp;&nbsp;</b>
-<tt>D1  -  -  D2</tt>, the disjoint union of <tt>D1</tt> and <tt>D2</tt>, is
+<tt>D1 || D2</tt>, the disjoint union of <tt>D1</tt> and <tt>D2</tt>, is
 defined only if the domains of <tt>D1</tt> and <tt>D2</tt> are disjoint. Its
 value is <tt>D1.overlay(D2)</tt> (or equivalently <tt>D2.overlay(D1)</tt>.
 (It is the least super-distribution of <tt>D1</tt> and <tt>D2</tt>.)
@@ -213,7 +213,7 @@ disjoint from that of <tt>D2</tt>.
 <pre>
     double[D] dotProduct(T[D] a, T[D] b) {
     return (new T[1:D.places] (point j) {
-        return (new T[D  -  here] (point i) {
+        return (new T[D | here] (point i) {
             return a[i]*b[i];
         }).sum();
    }).sum();

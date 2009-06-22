@@ -41,15 +41,15 @@ may each involve deptypes.
 <div class="p"><!----></div>
 <pre>
 Super ::= extends ClassType
-Superopt ::= null  -  Super
+Superopt ::= null  |  Super
 ClassType ::= 
   TypeName DepParametersopt PlaceTypeSpecifieropt
 
 <div class="p"><!----></div>
 Interfaces ::= implements InterfaceTypeList
 InterfaceTypeList ::= InterfaceType
-        -  InterfaceTypeList , InterfaceType
-Interfacesopt ::= null  -  Interfaces
+        |  InterfaceTypeList , InterfaceType
+Interfacesopt ::= null  |  Interfaces
 InterfaceType ::= 
  TypeName DepParametersopt PlaceTypeSpecifieropt
 </pre>

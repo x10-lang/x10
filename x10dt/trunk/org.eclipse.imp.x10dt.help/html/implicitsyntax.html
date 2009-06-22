@@ -93,10 +93,10 @@ synchronously:
 
 <div class="p"><!----></div>
 <pre>
-  final T! t = e;
-  final P1! t1 = e1;
+  final T@ t = e;
+  final P1@ t1 = e1;
   ...
-  final Pn! tn = en;
+  final Pn@ tn = en;
   finish async (t) 
     t.m(t1,..., tn);
     
@@ -111,10 +111,10 @@ following code:
 <pre>
   new Runnable() 
   public E run() 
-    final T! t = e;
-    final P1! t1 = e1;
+    final T@ t = e;
+    final P1@ t1 = e1;
     ...
-    final Pn! tn = en;
+    final Pn@ tn = en;
 
 <div class="p"><!----></div>
     return future(t)t.m(t1,...tn).force();

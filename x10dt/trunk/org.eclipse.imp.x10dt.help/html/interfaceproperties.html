@@ -33,7 +33,7 @@ NormalInterfaceDeclaration ::=
         PropertyListopt ExtendsInterfacesopt InterfaceBody
 PropertyList     ::= ( Properties WhereClauseopt )
 Properties       ::= Property
-                     -  Properties , Property
+                     |  Properties , Property
 Property         ::= Type identifier    
 PropertyListopt  ::= null  -  PropertyList
 </pre>
@@ -46,7 +46,7 @@ defined at the interface.
 <div class="p"><!----></div>
 
 <blockquote>    Static Semantics Rule: The compiler declares an error if this constraint
-   is not consistent (&#167;&nbsp;<a href="#DepType:Consistency">6</a>).  
+   is not consistent (&#167;&nbsp;4.6</a>).  
 </blockquote>
 
 <div class="p"><!----></div>

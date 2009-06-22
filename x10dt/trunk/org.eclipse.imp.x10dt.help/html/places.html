@@ -50,13 +50,13 @@ distributions.
 The set of all places in a running instance of an  X10 program may
 be obtained through the <tt>const</tt> field <tt>place.places</tt>.  (This
 set may be used to define distributions, for instance,
-&#167;&nbsp;.) 
+&#167;&nbsp;11.2.) 
 
 <div class="p"><!----></div>
 The set of all places is totally ordered.  The first place may be
 obtained by reading <tt>place.FIRST_PLACE</tt>. The initial activity for
 an  X10 computation starts in this place
-(&#167;&nbsp;). For any place, the operation<tt>next()</tt>
+(&#167;&nbsp;7.4). For any place, the operation<tt>next()</tt>
 returns the next place in the total order (wrapping around at the
 end). Further details on the methods and fields available on this
 class may be obtained by consulting the API documentation.
@@ -84,15 +84,15 @@ Place expressions are used in the following contexts:
 
 <ul>
 <li> As a target for an <tt>async</tt> activity or a future
-(&#167;&nbsp;).
+(&#167;&nbsp;7.2).
 <div class="p"><!----></div>
 </li>
 
-<li> In a class cast expression  (&#167;&nbsp;).
+<li> In a class cast expression  (&#167;&nbsp;12.4.1).
 <div class="p"><!----></div>
 </li>
 
-<li> In an <tt>instanceof</tt> expression (&#167;&nbsp;).
+<li> In an <tt>instanceof</tt> expression (&#167;&nbsp;12.4.2).
 <div class="p"><!----></div>
 </li>
 
@@ -130,7 +130,7 @@ public class F {
    public void m( F a ) {
      place OldHere = here;
      async ( a ) {
-      System.out.println(&#214;ldHere == here:" 
+      System.out.println("OldHere == here:" 
                          + (OldHere == here));
      }
    }
