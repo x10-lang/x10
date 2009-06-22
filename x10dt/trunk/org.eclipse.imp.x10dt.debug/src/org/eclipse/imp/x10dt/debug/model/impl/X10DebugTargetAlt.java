@@ -652,7 +652,6 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		Value result=null;
 		result = invokeX10RTMethod(fX10RT, meth, args);
 		if (result!=null) {
-		synchronized(result) {
 		if (result instanceof ArrayReference) {
 			if (((ArrayReference)result).length() >0) {
 			List<Value> a = ((ArrayReference)result).getValues();
@@ -665,7 +664,6 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 				}
 			}
 			}
-		}
 		}
 		}
 		//X10Activity actvty = new X10Activity(this, name,parent,place);
@@ -704,7 +702,7 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		return name;
 	}
 	
-	public void initializeX10RTObject() {
+	synchronized public void initializeX10RTObject() {
 		if (fX10RT!=null) return;
 		ReferenceType typeForRT=null;
 		while (typeForRT==null) {
@@ -786,10 +784,12 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		int flags = ClassType.INVOKE_SINGLE_THREADED;
 		//List args=Collections.EMPTY_LIST;
 		try {
-			if (fThreadForInvokingRTMethods.isSuspended())
-				System.out.println("Shivali: InvokeMethods is suspended");
-			System.out.println("Shivali : Invoking Method with Thread status "+ fThreadForInvokingRTMethods.status());
-		    result=obj.invokeMethod(fThreadForInvokingRTMethods, meth, args, flags);
+			synchronized(fThreadForInvokingRTMethods) {
+				if (fThreadForInvokingRTMethods.isSuspended())
+					System.out.println("Shivali: InvokeMethods is suspended");
+				System.out.println("Shivali : Invoking Method with Thread status "+ fThreadForInvokingRTMethods.status());
+				result=obj.invokeMethod(fThreadForInvokingRTMethods, meth, args, flags);
+			}
 		    System.out.println("Invocation complete");
 		}
 			catch (InvalidTypeException e) {
