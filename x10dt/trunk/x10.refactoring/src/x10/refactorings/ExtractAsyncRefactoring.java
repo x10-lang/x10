@@ -184,6 +184,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		public String toString() {
 			return fVarDecl.toString();
 		}
+		
+		public boolean equals(Object o){
+			if (o instanceof GammaInstance)
+				return this.fVarDecl.equals(((GammaInstance) o).getVarDecl());
+			if (o instanceof VarWithFirstUse)
+				return this.fVarDecl.equals(o);
+			return super.equals(o);
+		}
 	}
 	
 	private static class ThrowableStatus extends Exception {
@@ -598,14 +606,20 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				if ((varTarget == null) || (vTarget == null) || (varTarget.getVarInstance().equals(vTarget.getVarInstance())) || (varTarget.getFirstUse().equals(vTarget.getFirstUse())))
 					return v;
 			}
-			else if (!arrayMode && v.getVarInstance() == extractArrayName(var).varInstance()) {
-				if ((var instanceof Field)&&(v.getFirstUse() instanceof Field)){
-					VarWithFirstUse varTarget = getVarWithFirstUse(vars, (Variable)((Field)var).target());
-					VarWithFirstUse vTarget = getVarWithFirstUse(vars, (Variable)((Field)v.getFirstUse()).target());
-					if ((varTarget == null) || (varTarget.getFirstUse().equals(vTarget.getFirstUse()) || varTarget.getVarInstance().equals(vTarget.getVarInstance())))
+			else{
+				VarInstance vi = v.getVarInstance();
+				if (!arrayMode && (vi == null)?(extractArrayName(var).varInstance() == null):(vi.equals(extractArrayName(var).varInstance()))) {
+					if ((var instanceof Field)&&(v.getFirstUse() instanceof Field)){
+						VarWithFirstUse varTarget = getVarWithFirstUse(vars, (Variable)((Field)var).target());
+						VarWithFirstUse vTarget = getVarWithFirstUse(vars, (Variable)((Field)v.getFirstUse()).target());
+						VarInstance varTargetI = (varTarget == null)?null:varTarget.getVarInstance();
+						boolean test1 = varTarget.getFirstUse().equals(vTarget.getFirstUse());
+						boolean test2 = ((varTargetI == null)?(vTarget.getVarInstance() == null):(varTargetI.equals(vTarget.getVarInstance())));
+						if ((varTarget == null) || (test1 || test2))
+							return v;
+					} else
 						return v;
-				} else
-					return v;
+				}
 			}
 		}
 		return null;
