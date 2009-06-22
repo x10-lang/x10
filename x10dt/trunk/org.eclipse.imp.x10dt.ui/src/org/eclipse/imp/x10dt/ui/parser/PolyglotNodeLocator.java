@@ -81,6 +81,7 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 
     public Object findNode(Object ast, int startOffset, int endOffset) {
 //	System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
+	if (ast == null) return null;
 	fOffset= startOffset;
 	fEndOffset= endOffset;
 	((Node) ast).visit(fVisitor);	// assigns to fNode[0], if a suitable node is found
