@@ -192,6 +192,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				return this.fVarDecl.equals(o);
 			return super.equals(o);
 		}
+
+		@Override
+		public int hashCode() {
+			return fVarDecl.hashCode();
+		}
+		
+		
 	}
 	
 	private static class ThrowableStatus extends Exception {
@@ -234,7 +241,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * Maps lvalues onto a boolean that identifies whether the lvalue is a
 	 * loop-carried dependency
 	 */
-	private Map<Expr, Boolean> fRho;
+	private Map<VarWithFirstUse, Boolean> fRho;
 
 	/**
 	 * The set of statements bearing loop-carried dependencies.
@@ -327,7 +334,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 		
 		public boolean equals(Object o) {
-			return o!=null && (o instanceof VarWithFirstUse) && (((VarWithFirstUse) o).getVarInstance() == null)?(fVarInstance == null && ((VarWithFirstUse)o).getFirstUse().equals(fFirstUseExpr)):((VarWithFirstUse) o).getVarInstance().equals(fVarInstance);
+			boolean test1 = o!=null;
+			if (o instanceof VarWithFirstUse) {
+				VarWithFirstUse ov = (VarWithFirstUse) o;
+				return test1 && (ov.getVarInstance() == null)?(fVarInstance == null && ov.getFirstUse().equals(fFirstUseExpr)):ov.getVarInstance().equals(fVarInstance);
+			}
+			return false;
 		}
 		
 		public String debug() {
@@ -657,16 +669,20 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		    }
 		};
 		Map<VarWithFirstUse, Collection<InstanceKey>> psi = new HashMap<VarWithFirstUse, Collection<InstanceKey>>();
-		fRho = new HashMap<Expr, Boolean>();
+		fRho = new HashMap<VarWithFirstUse, Boolean>();
 		
 		psi.putAll(aliasInfo); // TODO: Make deep copy of aliasInfo
 		for(VarWithFirstUse v : aliasInfo.keySet()){
 			psi.get(v).add(new GammaInstance(v));
+			fRho.put(v, false);
 		}
 		
 		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
 		loop.visit(acv);
 		List<Assign> assigns = acv.getResult();
+		// Use of this map will NOT be robust! Alias issues are being elided
+		// (possibly leading to our doom)
+		Map<String, Assign> firstUpdateMap = acv.getFirstUpdateMap();
 		
 		// initialize the phi map
 		for (Assign a : assigns) {
@@ -692,8 +708,16 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				}
 			//    determine if lhs gamma variable flows in from statement and that this is the
 			//        first time lhs is used in the loop --> updated rho if this is true
+			//        TODO: for now, ignoring aliasing issues
 				
 				Variable lhs = (Variable)a.left();
+				VarWithFirstUse lhsVWFU = getVarWithFirstUse(aliasInfo.keySet(), lhs);
+				boolean cond1 = tmpPhi.get(a).contains(new GammaInstance(lhsVWFU));
+				Assign updateStmt = firstUpdateMap.get(lhs.toString());
+				if (cond1 &&
+					 (updateStmt == a))
+					 fRho.put(lhsVWFU, true);
+				
 				psi.get(getVarWithFirstUse(aliasInfo.keySet(),lhs)).addAll(tmpPhi.get(a));
 			}
 		}
