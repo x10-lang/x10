@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.builder.DependencyInfo;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 
 import polyglot.types.Type;
 
@@ -33,6 +34,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     public PolyglotDependencyInfo(IProject project) {
         super(project);
     }
+    private static boolean printOnce=true;
 
     // BRT -- HACK don't try to chop off wsPath if it's not there, e.g. an x10 source like Ref.x10  
     // BRT todo: if inside jar/zip then .. don't need??  see ComputeDependenciesVisitor
@@ -45,7 +47,11 @@ public class PolyglotDependencyInfo extends DependencyInfo {
         if(filePath.startsWith(wsPath)){
         	result = filePath.substring(fWorkspacePath.length());
         }else{
-        	System.out.println("PolyglotDependencyInfo.typeToPath finds file: "+filePath+" does not start with wsPath="+wsPath+" so not removing it.");
+        	if (printOnce) {
+				String msg = "PolyglotDependencyInfo.typeToPath finds file: " + filePath + " does not start with wsPath=" + wsPath + " so not removing it. Suppress msg for subsequent files.";
+				X10Plugin.getInstance().writeInfoMsg(msg);
+				printOnce=false;
+			}
         	result=filePath;
         }
         return result;
