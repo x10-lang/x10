@@ -8,7 +8,6 @@ import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.jface.text.IRegion;
 
 import polyglot.util.Position;
-import x10.parser.X10Parser.JPGPosition;
 
 /**
  * General Utilities 
@@ -18,12 +17,12 @@ import x10.parser.X10Parser.JPGPosition;
 public class X10Util {
 
 	/**
-	 * Get left (first) token within a JPGPosition, given the parse controller
+	 * Get left (first) token within a Position, given the parse controller
 	 * @param pos
 	 * @param parseController
 	 * @return
 	 */
-	public static IToken getLeftToken(JPGPosition pos,	IParseController parseController) {
+	public static IToken getLeftToken(Position pos,	IParseController parseController) {
 		return getToken(pos.offset(),parseController);
 	}
 	/**
@@ -37,12 +36,12 @@ public class X10Util {
 	}
 	
 	/**
-	 * Get right (last) token within a JPGPosition, given the parse controller
+	 * Get right (last) token within a Position, given the parse controller
 	 * @param pos
 	 * @param parseController
 	 * @return
 	 */
-	public static IToken getRightToken(JPGPosition pos,	IParseController parseController) {
+	public static IToken getRightToken(Position pos,	IParseController parseController) {
 		int endOffset=pos.endOffset();
 		return getToken(endOffset,parseController);
 	}
