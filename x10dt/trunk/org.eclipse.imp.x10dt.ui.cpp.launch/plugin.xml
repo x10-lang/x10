@@ -95,7 +95,7 @@
             id="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationType"
             modes="run,debug"
             name="%launch.config.cpp.name"
-            sourceLocatorId="org.eclipse.ptp.debug.core.sourceLocator"
+            sourceLocatorId="org.eclipse.imp.x10dt.ui.cpp.launch.SourceLocator"
             sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
       </launchConfigurationType>
    </extension>
@@ -124,6 +124,14 @@
             icon="icons/obj/parallel_run.gif"
             id="org.eclipse.imp.x10dt.ui.cpp.launch.X10LaunchConfigurationTypeImage">
       </launchConfigurationTypeImage>
+   </extension>
+   <extension
+         point="org.eclipse.debug.core.sourceLocators">
+      <sourceLocator
+            class="org.eclipse.imp.x10dt.ui.cpp.launch.launching.CppSourceLocator"
+            id="org.eclipse.imp.x10dt.ui.cpp.launch.SourceLocator"
+            name="X10 C++ back-end source locator">
+      </sourceLocator>
    </extension>
 
 </plugin>

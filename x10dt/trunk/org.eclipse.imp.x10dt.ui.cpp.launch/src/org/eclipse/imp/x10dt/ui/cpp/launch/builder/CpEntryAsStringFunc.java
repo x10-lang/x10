@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.collections.IFunctor;
 
 
-final class CpEntryAsStringFunc implements IFunctor<IPath, String> {
+public final class CpEntryAsStringFunc implements IFunctor<IPath, String> {
   
   // --- Interface methods implementation
 

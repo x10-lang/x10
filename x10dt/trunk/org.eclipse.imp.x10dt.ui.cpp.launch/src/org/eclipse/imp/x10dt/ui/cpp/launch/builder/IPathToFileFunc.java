@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.collections.IFunctor;
 
 
-final class IPathToFileFunc implements IFunctor<IPath, File> {
+public final class IPathToFileFunc implements IFunctor<IPath, File> {
 
   // --- Interface methods implementation
   

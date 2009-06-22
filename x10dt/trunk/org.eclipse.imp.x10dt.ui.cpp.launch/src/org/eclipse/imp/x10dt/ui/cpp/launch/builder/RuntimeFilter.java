@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.collections.IFilter;
 
 
-final class RuntimeFilter implements IFilter<IPath> {
+public final class RuntimeFilter implements IFilter<IPath> {
   
   // --- Interface methods implementation
 
