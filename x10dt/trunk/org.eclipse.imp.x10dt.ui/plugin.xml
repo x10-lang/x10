@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+   <extension
+         point="org.eclipse.uide.runtime.languageDescription">
+      <language
+            description="X10 Concurrent Programming Language"
+            extensions="x10"
+            language="X10"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.parser">
+      <parser
+            class="x10.uide.parser.ParseController"
+            id="x10.uide.parser"
+            language="X10"
+            name="X10 Parser"/>
+   </extension>
+   <extension
+         point="org.eclipse.uide.runtime.tokenColorer">
+      <tokenColorer
+            class="x10.uide.parser.MyTokenColorer"
+            language="X10"/>
+   </extension>
+
+</plugin>
