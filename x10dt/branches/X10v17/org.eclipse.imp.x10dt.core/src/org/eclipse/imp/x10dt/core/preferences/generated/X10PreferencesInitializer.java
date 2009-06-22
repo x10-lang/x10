@@ -39,6 +39,7 @@ public class X10PreferencesInitializer extends PreferencesInitializer {
         service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, DEFAULT_OPTION_ARRAY_OPTIMIZATIONS);
         service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, DEFAULT_OPTION_ASSERT);
         service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
+        service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "");//PORT1.7 IMP changes need this
 
         // RMF 1/9/2009 - This is bogus but at the moment, the only way to set the X10 (IMP) editor's
         // default font -- it sets the preference store of the entire IMP runtime.
