@@ -74,7 +74,8 @@ class ComputeDependenciesVisitor extends NodeVisitor {
             ClassDecl classDecl= (ClassDecl) n;
 
             fFromType= classDecl.type();
-            recordTypeDependency(classDecl.superClass().type());
+            if (classDecl.superClass() != null) // interfaces have no superclass
+        	recordTypeDependency(classDecl.superClass().type());
             for(Iterator intfs= classDecl.interfaces().iterator(); intfs.hasNext(); ) {
         	TypeNode typeNode= (TypeNode) intfs.next();
 
