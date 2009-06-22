@@ -106,5 +106,13 @@
             id="x10.uide.launching.x10LaunchShortcut.debug"
             name="Debug X10 Application"/>
    </extension>
+   <extension
+         point="org.eclipse.uide.runtime.annotationHover">
+      <annotationHover
+            class="x10.uide.AnnotationHover"
+            id="x10.uide.annotationHover"
+            language="X10"
+            name="X10 Annotation Hover"/>
+   </extension>
 
 </plugin>
