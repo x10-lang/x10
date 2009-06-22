@@ -18,4 +18,5 @@ CVSROOT				/bin/true
 org\.eclipse\.imp\.x10dt	/bin/true
 org\.eclipse\.imp\.analysis	/bin/true
 org\.eclipse\.imp\.java\.core	/bin/true
+x10\.refactoring		/bin/true
 DEFAULT				/bin/false
