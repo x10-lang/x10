@@ -133,6 +133,8 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
   private GlobalVariable findLineNumberMap(DebuggeeProcess p, String cppFile) {
     // TODO: find the appropriate part and extract the variable directly
     System.err.println("Looking for mapping info for '"+cppFile+"'");
+    if (cppFile.indexOf('/') == -1)
+    	cppFile = "/" + cppFile;
     String name = "LNMAP_" + cppFile.replace('/', '_').replace('.', '_');
     GlobalVariable[] globals = p.getDebugEngine().getGlobalVariables();
     for (GlobalVariable v : globals) {
@@ -208,71 +210,91 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     LineNumberMap.mergeMap(fCppToX10Map, c2xMap);
     HashMap<String, LineNumberMap> x2cMap = c2xFileMap.invert();
     LineNumberMap.mergeMap(fX10ToCppMap, x2cMap);
-    System.out.println("\tm="+c2xMap);
-    System.out.println("\tim="+x2cMap);
+//    System.out.println("\tm="+c2xMap);
+//    System.out.println("\tim="+x2cMap);
   }
 
   public String getX10File(Location cppLocation) {
-    try {
-      String cppFile = cppLocation.getViewFile().getName();
-      String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
-      if (cppFile.startsWith(baseDir+"/"))
-    	  cppFile = cppFile.substring(baseDir.length()+1);
-      if (cppFile.startsWith("gen/"))
-    	  cppFile = cppFile.substring("gen/".length());
-      int cppLineNumber = cppLocation.getLineNumber();
-      LineNumberMap cppLineToX10LineMap = fCppToX10Map.get(cppFile);
-      if (cppLineToX10LineMap == null) {
-        readLineNumberMap(fProcess, findLineNumberMap(fProcess, cppFile));
-        cppLineToX10LineMap = fCppToX10Map.get(cppFile);
-        if (cppLineToX10LineMap == null)
-          fCppToX10Map.put(cppFile, cppLineToX10LineMap = new LineNumberMap(cppFile));
-      }
-      assert (cppLineToX10LineMap != null);
-      String x10File = cppLineToX10LineMap.getSourceFile(cppLineNumber);
-      if (x10File != null && x10File.startsWith("file:/"))
-          x10File = x10File.substring("file:/".length());
-      return x10File;
-    } catch (CoreException e) {
-      return null;
-    }
+    String cppFile = getCppFile(cppLocation);
+    int cppLineNumber = getCppLine(cppLocation);
+    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(cppFile);
+    String x10File = cppLineToX10LineMap.getSourceFile(cppLineNumber);
+    if (x10File != null && x10File.startsWith("file:/"))
+      x10File = x10File.substring("file:/".length());
+    return x10File;
   }
 
   public int getX10Line(Location cppLocation) {
+    String cppFile = getCppFile(cppLocation);
+    int cppLineNumber = getCppLine(cppLocation);
+    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(cppFile);
+    int x10LineNumber = cppLineToX10LineMap.getSourceLine(cppLineNumber);
+    return x10LineNumber;
+  }
+
+  public String getX10Function(String cppFunction, Location cppLocation) {
+    String cppFile = getCppFile(cppLocation);
+    int cppLineNumber = getCppLine(cppLocation);
+    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(cppFile);
+    String x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
+    if (x10Function == null) { // now try alternate forms of primitives
+      cppFunction = cppFunction.replaceAll("\\b(int|short|double|float)\\b", "x10_$1");
+      x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
+      if (x10Function == null) { // now try adding spaces before closing type arg braces
+        cppFunction = cppFunction.replaceAll("(?<!\\s)>", " >");
+        x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
+      }
+    }
+    if (x10Function != null)
+    	x10Function = x10Function.replace("::", ".");
+    return x10Function;
+  }
+  
+  private LineNumberMap getCppToX10LineMap(String cppFile) {
+    LineNumberMap map = fCppToX10Map.get(cppFile);
+    if (map == null) {
+      readLineNumberMap(fProcess, findLineNumberMap(fProcess, cppFile));
+      map = fCppToX10Map.get(cppFile);
+      if (map == null)
+        fCppToX10Map.put(cppFile, map = new LineNumberMap(cppFile));
+    }
+    assert (map != null);
+    return map;
+  }
+  
+  private LineNumberMap getX10ToCppLineMap(String x10File) {
+    LineNumberMap map = fX10ToCppMap.get(x10File);
+    if (map == null) {
+      readLineNumberMap(fProcess, findX10LineNumberMap(fProcess, x10File));
+      map = fX10ToCppMap.get(x10File);
+      if (map == null)
+        fX10ToCppMap.put(x10File, map = new LineNumberMap(x10File));
+    }
+    assert (map != null);
+    return map;
+  }
+
+  private int getCppLine(Location cppLocation) {
+    int cppLineNumber = cppLocation.getLineNumber();
+    return cppLineNumber;
+  }
+
+  private String getCppFile(Location cppLocation) {
+    String cppFile = cppLocation.getViewFile().getName();
     try {
-      String cppFile = cppLocation.getViewFile().getName();
       String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
       if (cppFile.startsWith(baseDir+"/"))
         cppFile = cppFile.substring(baseDir.length()+1);
-      if (cppFile.startsWith("gen/"))
-    	  cppFile = cppFile.substring("gen/".length());
-      int cppLineNumber = cppLocation.getLineNumber();
-      LineNumberMap cppLineToX10LineMap = fCppToX10Map.get(cppFile);
-      if (cppLineToX10LineMap == null) {
-        readLineNumberMap(fProcess, findLineNumberMap(fProcess, cppFile));
-        cppLineToX10LineMap = fCppToX10Map.get(cppFile);
-        if (cppLineToX10LineMap == null)
-          fCppToX10Map.put(cppFile, cppLineToX10LineMap = new LineNumberMap(cppFile));
-      }
-      assert (cppLineToX10LineMap != null);
-      int x10LineNumber = cppLineToX10LineMap.getSourceLine(cppLineNumber);
-      return x10LineNumber;
-    } catch (CoreException e) {
-      return -1;
-    }
+    } catch (CoreException e) { }
+    if (cppFile.startsWith("gen/"))
+  	  cppFile = cppFile.substring("gen/".length());
+    return cppFile;
   }
 
   public Location getCppLocation(BitList tasks, String x10File, int x10LineNumber) {
     if (!x10File.startsWith("file:/"))
       x10File = "file:/"+x10File;
-    LineNumberMap x10LineToCppLineMap = fX10ToCppMap.get(x10File);
-    if (x10LineToCppLineMap == null) {
-      readLineNumberMap(fProcess, findX10LineNumberMap(fProcess, x10File));
-      x10LineToCppLineMap = fX10ToCppMap.get(x10File);
-      if (x10LineToCppLineMap == null)
-        fX10ToCppMap.put(x10File, x10LineToCppLineMap = new LineNumberMap(x10File));
-    }
-    assert (x10LineToCppLineMap != null);
+    LineNumberMap x10LineToCppLineMap = getX10ToCppLineMap(x10File);
     String cppFile = x10LineToCppLineMap.getSourceFile(x10LineNumber);
     int cppLineNumber = x10LineToCppLineMap.getSourceLine(x10LineNumber);
     if (cppFile == null || cppLineNumber == -1)
