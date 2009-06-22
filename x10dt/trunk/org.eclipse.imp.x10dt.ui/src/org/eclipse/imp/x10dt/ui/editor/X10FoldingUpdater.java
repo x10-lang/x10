@@ -89,6 +89,36 @@ public class X10FoldingUpdater implements IFoldingUpdater
     }
     
     //
+    // Use this version of makeAnnotation when you have a range of 
+    // tokens to fold.
+    //
+    private void makeAnnotation(IToken first_token, IToken last_token)
+    {
+        if (last_token.getEndLine() > first_token.getLine())
+        {
+            IToken next_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
+            IToken[] adjuncts = next_token.getPrecedingAdjuncts();
+            IToken gate_token = adjuncts.length == 0 ? next_token : adjuncts[0];
+            makeAnnotation(first_token.getStartOffset(),
+                           gate_token.getLine() > last_token.getEndLine()
+                                                ? lexStream.getLineOffset(gate_token.getLine() - 1)
+                                                : last_token.getEndOffset());
+        }
+    }    
+    
+    //
+    // Use this version of makeAnnotation(..) when you have the start
+    // and end offset of the region to fold.
+    //
+    private void makeAnnotation(int start_offset, int end_offset)
+    {
+        int length = end_offset - start_offset + 1;
+        ProjectionAnnotation annotation = new ProjectionAnnotation();
+        newAnnotations.put(annotation, new Position(start_offset, length));
+        annotations.add(annotation);
+    }
+
+    //
     // Make annotations for the ast.
     //
     private void makeAnnotations(IParseController parseController)
@@ -151,7 +181,8 @@ public class X10FoldingUpdater implements IFoldingUpdater
 
             i += comments.length;
         }
-    
+
+        return;
     }
 
     //
@@ -163,36 +194,6 @@ public class X10FoldingUpdater implements IFoldingUpdater
         makeAnnotation(((JPGPosition) n.position()).getLeftIToken(),
                        ((JPGPosition) n.position()).getRightIToken());
     }    
-
-    //
-    // Use this version of makeAnnotation when you have a range of 
-    // tokens to fold.
-    //
-    private void makeAnnotation(IToken first_token, IToken last_token)
-    {
-        if (last_token.getEndLine() > first_token.getLine())
-        {
-            IToken next_token = prsStream.getIToken(prsStream.getNext(last_token.getTokenIndex()));
-            IToken[] adjuncts = next_token.getPrecedingAdjuncts();
-            IToken gate_token = adjuncts.length == 0 ? next_token : adjuncts[0];
-            makeAnnotation(first_token.getStartOffset(),
-                           gate_token.getLine() > last_token.getEndLine()
-                                                ? lexStream.getLineOffset(gate_token.getLine() - 1)
-                                                : last_token.getEndOffset());
-        }
-    }    
-    
-    //
-    // Use this version of makeAnnotation(..) when you have the start
-    // and end offset of the region to fold.
-    //
-    private void makeAnnotation(int start_offset, int end_offset)
-    {
-        int length = end_offset - start_offset + 1;
-        ProjectionAnnotation annotation = new ProjectionAnnotation();
-        newAnnotations.put(annotation, new Position(start_offset, length));
-        annotations.add(annotation);
-    }
 
     /**
      * Update the folding structure for a source text, where the text and its
@@ -363,7 +364,6 @@ public class X10FoldingUpdater implements IFoldingUpdater
                     makeAnnotation(first_token, last_token);
                 }
             }
-
             return super.enter(n);
         }
     } // class FoldingVisitor
