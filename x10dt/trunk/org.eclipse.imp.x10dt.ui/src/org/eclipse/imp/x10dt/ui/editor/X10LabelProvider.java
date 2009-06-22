@@ -4,20 +4,22 @@
 package x10.uide.editor;
 
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.editor.ProblemsLabelDecorator;
+import org.eclipse.uide.utils.MarkerUtils;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.ProcedureDecl;
 import x10.uide.X10UIPlugin;
@@ -97,34 +99,15 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 	return DEFAULT_AST_IMAGE;
     }
 
-    // TODO This is really generic, and belongs in the SAFARI runtime...
-    private Image getErrorTicksFromMarkers(IResource res) {
-	if (res == null || !res.isAccessible()) {
-	    return COMPILATION_UNIT_NORMAL_IMAGE;
-	}
-	boolean hasWarnings= false; // if resource has errors, will return error image immediately
-	IMarker[] markers= null;
+    public static Image getErrorTicksFromMarkers(IResource res) {
+	int severity= MarkerUtils.getMaxProblemMarkerSeverity(res, IResource.DEPTH_ONE);
 
-	try {
-	    markers= res.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ONE);
-	} catch (CoreException e) {
-	    X10UIPlugin.log(e);
-	    return COMPILATION_UNIT_NORMAL_IMAGE;
+	switch (severity) {
+	case IMarker.SEVERITY_ERROR: return COMPILATION_UNIT_ERROR_IMAGE;
+	case IMarker.SEVERITY_WARNING: return COMPILATION_UNIT_WARNING_IMAGE;
+	case IMarker.SEVERITY_INFO: return COMPILATION_UNIT_NORMAL_IMAGE; // COMPILATION_UNIT_INFO_IMAGE;
+	default: return COMPILATION_UNIT_NORMAL_IMAGE;
 	}
-
-	if (markers != null) {
-	    for(int i= 0; i < markers.length; i++) {
-		IMarker m= markers[i];
-		int priority= m.getAttribute(IMarker.SEVERITY, -1);
-
-		if (priority == IMarker.SEVERITY_WARNING) {
-		    hasWarnings= true;
-		} else if (priority == IMarker.SEVERITY_ERROR) {
-		    return COMPILATION_UNIT_ERROR_IMAGE;
-		}
-	    }
-	}
-	return hasWarnings ? COMPILATION_UNIT_WARNING_IMAGE : COMPILATION_UNIT_NORMAL_IMAGE;
     }
 
     public String getText(Object element) {
@@ -138,7 +121,18 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
 	    return fd.name();
 	} else if (node instanceof ProcedureDecl) {
 	    ProcedureDecl pd= (ProcedureDecl) node;
-	    return pd.name() + "()";
+	    List/*<Formal>*/ formals= pd.formals();
+	    StringBuffer buff= new StringBuffer();
+	    buff.append(pd.name());
+	    buff.append("(");
+	    for(Iterator iter= formals.iterator(); iter.hasNext(); ) {
+		Formal formal= (Formal) iter.next();
+		buff.append(formal.type().toString());
+		if (iter.hasNext())
+		    buff.append(", ");
+	    }
+	    buff.append(")");
+	    return buff.toString();
 	}
 	return "???";
     }
