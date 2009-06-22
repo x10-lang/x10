@@ -16,11 +16,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface.text,
  org.eclipse.jdt.ui,
  org.eclipse.ui.cheatsheets,
- com.ibm.watson.smapifier,
  x10.runtime,
  polyglot,
  lpg.runtime,
- org.eclipse.imp.runtime
+ org.eclipse.imp.runtime,
+ org.eclipse.imp.smapifier
 Eclipse-LazyStart: true
 Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,

@@ -40,7 +40,7 @@
 				<pathelement path="../x10.runtime/bin"/>
 				<pathelement path="../x10.compiler/bin"/>
 				<pathelement path="../org.eclipse.imp.runtime/bin"/>
-				<pathelement path="../com.ibm.watson.smapifier/bin"/>
+				<pathelement path="../org.eclipse.imp.smapifier/bin"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>

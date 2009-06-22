@@ -10,7 +10,7 @@ import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 
-import com.ibm.watson.smapifier.builder.SmapiProjectNature;
+import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 
 public class X10ProjectNature extends ProjectNatureBase {
     public static final String k_natureID= X10Plugin.kPluginID + ".x10nature";
