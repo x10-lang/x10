@@ -17,8 +17,6 @@ public class X10PreferencesInitializer extends PreferencesInitializer {
 	public void initializeDefaultPreferences() {
 		IPreferencesService service = X10Plugin.getPreferencesService();
 
-		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferencesConstants.P_TABSIZE, 4);
-		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferencesConstants.P_NUMPLACES, 4);
 	}
 
 	/*
