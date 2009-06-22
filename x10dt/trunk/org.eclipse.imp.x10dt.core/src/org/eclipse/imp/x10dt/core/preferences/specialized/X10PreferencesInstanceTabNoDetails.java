@@ -304,7 +304,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 	
 	public void performDefaults() {
 		super.performDefaults();
-		// change properties to cause propagate defaults
+		// change properties to cause propagate defaults -- why doesn't this get done in performDefaults?  It seems it does load but no store?
 		IPreferenceStore prefStore = RuntimePlugin
 		.getInstance().getPreferenceStore();
 		prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, new Integer(TabSize.getIntValue()));
@@ -312,13 +312,12 @@ public class X10PreferencesInstanceTabNoDetails extends
 		// font has no default
 //		PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
 		
-		// options are only affect next compilation so don't have to be propagated
-//		prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, new Integer(NumPlaces.getIntValue()));
-//		prefStore.setValue(X10PreferenceConstants.P_BAD_PLACE_CHECK, badPlaceRuntimeCheckCompilerOption.getBooleanValue());
-//		prefStore.setValue(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, loopOptimizationsCompilerOption.getBooleanValue());
-//		prefStore.setValue(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, arrayOptimizationsCompilerOption.getBooleanValue());
-//		prefStore.setValue(X10PreferenceConstants.P_ASSERT, assertCompilerOption.getBooleanValue());
-//		prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, additionalCompilerOptions.getStringValue());
+		prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, new Integer(NumPlaces.getIntValue()));
+		prefStore.setValue(X10PreferenceConstants.P_BAD_PLACE_CHECK, badPlaceRuntimeCheckCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, loopOptimizationsCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, arrayOptimizationsCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_ASSERT, assertCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, additionalCompilerOptions.getStringValue());
 	}
 }
 
