@@ -44,7 +44,7 @@
       <page
             class="com.ibm.watson.safari.x10.preferences.X10PreferencePage"
             id="com.ibm.watson.safari.x10.preferences.X10PreferencePage"
-            name="X10 Preferences"/>
+            name="X10"/>
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
