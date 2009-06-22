@@ -12,7 +12,7 @@ import org.osgi.framework.BundleContext;
 public class X10Plugin extends AbstractUIPlugin {
     public static final String kPluginID= "com.ibm.watson.safari.x10";
 
-    private static boolean sWriteInfoMsgs= false;
+    private static boolean sWriteInfoMsgs= true;
     private static ILog sLog= null;
 
     /**
