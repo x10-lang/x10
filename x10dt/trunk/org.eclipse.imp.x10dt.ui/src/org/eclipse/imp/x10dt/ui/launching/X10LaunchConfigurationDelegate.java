@@ -86,16 +86,12 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	// Classpath
 	String[] classpath= getClasspath(configuration);
 
-	// Create VM config
-	VMRunnerConfiguration runConfig= new VMRunnerConfiguration(x10RuntimeType, classpath);
-	String[] explicitArgsArray= execArgs.getProgramArgumentsArray();
-	String[] realArgsArray= new String[explicitArgsArray.length + 1];
-
-	realArgsArray[0]= mainTypeName;
-	System.arraycopy(explicitArgsArray, 0, realArgsArray, 1, explicitArgsArray.length);
-
+	// Place the user-specified X10 runtime location in front of whatever we
+	// obtain from the project's classpath.
 	String x10RuntimeLoc= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
 
+	// TODO Allow an empty X10 runtime location field.
+	// In that case, fall back to the runtime specified in the project classpath.
 	if (x10RuntimeLoc.length() == 0) {
 	    Display.getDefault().asyncExec(new Runnable() {
 		public void run() {
@@ -106,13 +102,26 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	    return;
 	}
 
+	String[] classPathWithExplicitRuntime= new String[classpath.length+1];
+
+	classPathWithExplicitRuntime[0]= x10RuntimeLoc;
+	System.arraycopy(classpath, 0, classPathWithExplicitRuntime, 1, classpath.length);
+
+	// Create VM config
+	VMRunnerConfiguration runConfig= new VMRunnerConfiguration(x10RuntimeType, classPathWithExplicitRuntime);
+	String[] explicitArgsArray= execArgs.getProgramArgumentsArray();
+	String[] realArgsArray= new String[explicitArgsArray.length + 1];
+
+	realArgsArray[0]= mainTypeName;
+	System.arraycopy(explicitArgsArray, 0, realArgsArray, 1, explicitArgsArray.length);
+
 	//	String runtimeLoc= x10RuntimeLoc + File.separator + "x10.runtime";
 	String commonLoc= x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator + "x10.common";
 
 	String[] x10ExtraVMArgs= {
 		"-Djava.library.path=" + commonLoc + "\\lib",
-		"-ea",
-		"-classpath=" + x10RuntimeLoc + "\\classes"
+		"-ea"
+//		"-classpath=" + x10RuntimeLoc + "\\classes"
 	};
 
 	String[] explicitVMArgsArray= execArgs.getVMArgumentsArray();
