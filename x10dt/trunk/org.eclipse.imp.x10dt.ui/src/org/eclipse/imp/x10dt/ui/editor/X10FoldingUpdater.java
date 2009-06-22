@@ -16,6 +16,7 @@ import lpg.runtime.IToken;
 
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IFoldingUpdater;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
@@ -141,7 +142,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
         //
         // Cache the prsStream and the lexStream.
         //
-        prsStream = parseController.getParser().getParseStream();
+        prsStream = ((SimpleLPGParseController) parseController).getParser().getParseStream();
         lexStream = prsStream.getLexStream();
 
         //

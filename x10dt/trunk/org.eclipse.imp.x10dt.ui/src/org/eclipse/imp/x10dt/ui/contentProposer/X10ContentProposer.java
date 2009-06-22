@@ -203,7 +203,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
         // the index of the token preceding the offset when the offset is not
         // the offset of a valid token.
         //
-        IPrsStream prs_stream = controller.getParser().getParseStream(); 
+        IPrsStream prs_stream = ((SimpleLPGParseController) controller).getParser().getParseStream(); 
         int index = prs_stream.getTokenIndexAtCharacter(offset),
             token_index = (index < 0 ? -(index - 1) : index);
         IToken token = prs_stream.getIToken(token_index),
@@ -242,7 +242,7 @@ list.add(new SourceProposal("Candidate end offset: " + candidate.getEndOffset(),
 list.add(new SourceProposal("Token: " + token, "", offset));
 list.add(new SourceProposal("Candidate: " + candidate, "", offset));
 */
-        PolyglotNodeLocator locator = new PolyglotNodeLocator(controller.getProject(), controller.getLexer().getLexStream());
+        PolyglotNodeLocator locator = new PolyglotNodeLocator(controller.getProject(), ((SimpleLPGParseController) controller).getLexer().getLexStream());
         Node node = (Node) locator.findNode(controller.getCurrentAst(), candidate.getStartOffset(), candidate.getEndOffset()); // offset);
         //
         // We execute this code when we encounter a qualified name x.foo,
