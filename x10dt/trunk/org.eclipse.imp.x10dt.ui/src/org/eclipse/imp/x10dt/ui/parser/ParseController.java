@@ -1,11 +1,14 @@
 package x10.uide.parser;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import lpg.lpgjavaruntime.IToken;
+import lpg.lpgjavaruntime.Monitor;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.uide.parser.Ast;
 import org.eclipse.uide.parser.AstLocator;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import org.eclipse.uide.parser.ILexer;
@@ -15,15 +18,10 @@ import org.eclipse.uide.parser.ParseError;
 
 import polyglot.ast.Node;
 
-import x10.parser.X10Parser;
-import x10.parser.X10Lexer;
-
-import lpg.lpgjavaruntime.IToken;
-import lpg.lpgjavaruntime.LexStream;
-import lpg.lpgjavaruntime.Monitor;
-
 public class ParseController implements IParseController
 {
+    private IProject project;
+    private String filePath;
     private ParserDelegate parser;
     private LexerDelegate lexer;
     private Node currentAst;
@@ -31,6 +29,11 @@ public class ParseController implements IParseController
     private char keywords[][];
     private boolean isKeyword[];
 
+    public void initialize(String filePath, IProject project) {
+        this.project= project;
+        this.filePath= filePath;
+        createLexerAndParser(project.getLocation().append(filePath).toString());
+    }
     public IParser getParser() { return parser; }
     public ILexer getLexer() { return lexer; }
     public Object getCurrentAst() { return currentAst; }
@@ -51,8 +54,15 @@ public class ParseController implements IParseController
     
     public ParseController()
     {
-        lexer = new LexerDelegate(); // Create the lexer
-        parser = new ParserDelegate(lexer.getLexStream());	// Create the parser
+    }
+
+    private void createLexerAndParser(String filePath) {
+        try {
+            lexer = new LexerDelegate(filePath); // Create the lexer
+            parser = new ParserDelegate(lexer.getLexStream(), project);  // Create the parser
+        } catch (IOException e) {
+            throw new Error(e);
+        }
     }
 
     class MyMonitor implements Monitor
@@ -70,17 +80,15 @@ public class ParseController implements IParseController
         }
     }
     
+    /**
+     * setFilePath() should be called before calling this method.
+     */
     public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor)
     {
     	MyMonitor my_monitor = new MyMonitor(monitor);
     	char[] contentsArray = contents.toCharArray();
-    	
-        //
-    	// No need to reconstruct the parser. Just reset the lexer.
-    	//
-        // lexer = new SmalltalkLexer(contentsArray, "ECLIPSE FILE"); // Create the lexer
-        // parser = new SmalltalkParser((LexStream) lexer);	// Create the parser
-        lexer.initialize(contentsArray, "ECLIPSE FILE");
+
+        lexer.initialize(contentsArray, filePath);
         parser.getParseStream().resetTokenStream();
         lexer.lexer(my_monitor, parser.getParseStream()); // Lex the stream to produce the token stream
         if (my_monitor.isCancelled())
@@ -88,21 +96,25 @@ public class ParseController implements IParseController
 
         currentAst = (Node) parser.parser(my_monitor, 0);
 
-        if (keywords == null) {
-	        String tokenKindNames[] = parser.getParseStream().orderedTerminalSymbols();
-	        this.isKeyword = new boolean[tokenKindNames.length];
-	        this.keywords = new char[tokenKindNames.length][];
-
-	        int [] keywordKinds = lexer.getKeywordKinds();
-	        for (int i = 1; i < keywordKinds.length; i++)
-	        {
-	            int index = parser.getParseStream().mapKind(keywordKinds[i]);
-
-	            isKeyword[index] = true;
-	            keywords[index] = parser.getParseStream().orderedTerminalSymbols()[index].toCharArray();
-	        }
-        }
+        cacheKeywordsOnce(); // better place/time to do this?
 
         return currentAst;
+    }
+
+    private void cacheKeywordsOnce() {
+        if (keywords == null) {
+            String tokenKindNames[] = parser.getParseStream().orderedTerminalSymbols();
+            this.isKeyword = new boolean[tokenKindNames.length];
+            this.keywords = new char[tokenKindNames.length][];
+
+            int [] keywordKinds = lexer.getKeywordKinds();
+            for (int i = 1; i < keywordKinds.length; i++)
+            {
+                int index = parser.getParseStream().mapKind(keywordKinds[i]);
+
+                isKeyword[index] = true;
+                keywords[index] = parser.getParseStream().orderedTerminalSymbols()[index].toCharArray();
+            }
+        }
     }
 }
