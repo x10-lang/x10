@@ -37,6 +37,7 @@ import polyglot.ext.jl.ast.New_c;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
+import polyglot.ext.x10.ast.Atomic_c;
 import polyglot.ext.x10.ast.Finish_c;
 import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.Future_c;
@@ -566,6 +567,17 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 TreeItem tree_item = new TreeItem((TreeItem) tree_item_of.get(parent), SWT.NONE);
                 tree_item_of.put(finish, tree_item);
                 tree_item.setData(pos(((JPGPosition) finish.position()).getLeftIToken()));
+                tree_item.setImage(_DESC_MISC_PRIVATE);
+                tree_item.setText(text);
+            }
+            else if (n instanceof Atomic_c)
+            {
+                Atomic_c atomic = (Atomic_c) n;
+                
+                String text = "atomic";
+                TreeItem tree_item = new TreeItem((TreeItem) tree_item_of.get(parent), SWT.NONE);
+                tree_item_of.put(atomic, tree_item);
+                tree_item.setData(pos(((JPGPosition) atomic.position()).getLeftIToken()));
                 tree_item.setImage(_DESC_MISC_PRIVATE);
                 tree_item.setText(text);
             }
