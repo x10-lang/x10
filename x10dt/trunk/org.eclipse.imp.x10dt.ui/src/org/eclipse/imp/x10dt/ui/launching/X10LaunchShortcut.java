@@ -136,16 +136,16 @@ public class X10LaunchShortcut implements ILaunchShortcut {
     /**
      * Locate a configuration to relaunch for the given type. If one cannot be found, create one.
      * 
-     * @return a re-useable config or <code>null</code> if none
+     * @return a reusable config or <code>null</code> if none
      */
     protected ILaunchConfiguration findLaunchConfiguration(IType type, String mode) {
 	ILaunchConfigurationType configType= getX10LaunchConfigType();
-	List candidateConfigs= Collections.EMPTY_LIST;
+	List<ILaunchConfiguration> candidateConfigs= Collections.EMPTY_LIST;
 	try {
 	    ILaunchConfiguration[] configs= DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
 
 	    // TODO The following code that looks for a suitable configuration is Java-specific; rewrite it?
-	    candidateConfigs= new ArrayList(configs.length);
+	    candidateConfigs= new ArrayList<ILaunchConfiguration>(configs.length);
 	    for(int i= 0; i < configs.length; i++) {
 		ILaunchConfiguration config= configs[i];
 		if (config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(type.getFullyQualifiedName())) { //$NON-NLS-1$
@@ -169,8 +169,8 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    return (ILaunchConfiguration) candidateConfigs.get(0);
 	} else {
 	    // Prompt the user to choose a config. A null result means the user
-	    // cancelled the dialog, in which case this method returns null,
-	    // since cancelling the dialog should also cancel launching anything.
+	    // canceled the dialog, in which case this method returns null,
+	    // since canceling the dialog should also cancel launching anything.
 	    ILaunchConfiguration config= chooseConfiguration(candidateConfigs, mode);
 	    if (config != null) {
 		return config;
