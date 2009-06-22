@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Development Toolkit
 Bundle-SymbolicName: org.eclipse.safari.x10dt
-Bundle-Version: 1.0.27
+Bundle-Version: 1.0.28
 Bundle-Activator: org.eclipse.safari.x10dt.Activator
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
