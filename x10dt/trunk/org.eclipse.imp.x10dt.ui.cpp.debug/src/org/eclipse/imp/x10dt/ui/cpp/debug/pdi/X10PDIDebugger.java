@@ -14,6 +14,7 @@ import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.inClosure;
 import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.SAVED_THIS;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.VARIABLE_NOT_FOUND;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -932,6 +933,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
       }
     }
     String result = rootNode.getValueString();
+    if (result.equals(VARIABLE_NOT_FOUND))
+        return new ProxyDebugAIF("?0?", "00", expr);
     if (isReferenceType(exprType) && isRemoteRef(result)) {
       int len = REMOTE_REF_VALUE.length();
       byte[] bytes = REMOTE_REF_VALUE.getBytes();

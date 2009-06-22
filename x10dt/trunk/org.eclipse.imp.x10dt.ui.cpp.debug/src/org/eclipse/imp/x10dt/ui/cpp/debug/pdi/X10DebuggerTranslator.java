@@ -599,16 +599,30 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
     return map;
   }
 
+  public static final String VARIABLE_NOT_FOUND = "Variable was not found.";
   private void readClosureInfo(final DebuggeeProcess p, Location location, final String closure) {
     System.err.println("Reading closure mapping info for " + closure);
     String val = null;
     try {
+      GlobalVariable var = null;
+      String name = closure+"::"+ClosureVariableMap.VARIABLE_NAME;
+      GlobalVariable[] globals = p.getDebugEngine().getGlobalVariables();
+      for (GlobalVariable v : globals) {
+        if (v.getName().equals(name)) {
+          System.err.println("\tFound mapping info for closure '" + closure + "'");
+          var = v;
+          break;
+        }
+      }
+      if (var == null)
+        return;
       DebuggeeThread t = p.getStoppingThread();
       // The code below doesn't create the right kind of monitor.
       // ExpressionBase b = t.evaluateExpression(t.getLocation(t.getViewInformation()), v.getExpression(), 1, 1000000);
       ExpressionBase b = p.monitorExpression(location.getEStdView(), t.getId(),
-                                             closure+"::"+ClosureVariableMap.VARIABLE_NAME, IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram,
+                                             var.getExpression(), IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram,
                                              null, null, null, null);
+      // FIXME: using name as the expression should also work (!)
       // TODO
       // Address addr = p.convertToAddress(v.getExpression(), t.getLocation(t.getViewInformation()), t);
       if (b != null) {
@@ -623,7 +637,7 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
     System.out.println("\tValue = '" + val + "'");
     if (val == null)
       return;
-    if (val.equals("Variable was not found."))
+    if (val.equals(VARIABLE_NOT_FOUND))
       val = "\"" + EMPTY_CLOSURE_MAP.exportMap() + "\"";
     if (val.endsWith("..."))
       val = val.substring(0, val.lastIndexOf(',') + 1) + "}\""; // FIXME: damage control
