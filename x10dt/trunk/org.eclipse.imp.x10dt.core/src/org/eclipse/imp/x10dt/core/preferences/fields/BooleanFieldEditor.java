@@ -610,6 +610,12 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         }
     }
 
+    @Override
+    protected void doSetToolTip() {
+        if (toolTipText != null) {
+            getChangeControl().setToolTipText(toolTipText);
+        }
+    }
     
     /* (non-Javadoc)
      * Method declared on FieldEditor.

@@ -863,6 +863,12 @@ public class StringFieldEditor extends FieldEditor
         textField.setLayoutData(gd);
     }
     
+    @Override
+    protected void doSetToolTip() {
+        if (toolTipText != null) {
+            getTextControl().setToolTipText(toolTipText);
+        }
+    }
     
     /**
      * Returns the number of controls in this editor.
