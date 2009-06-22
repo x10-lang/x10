@@ -172,4 +172,12 @@
              language="X10"
              class="x10.uide.editor.X10ReferenceResolver"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="x10.uide.perspective.X10PerspectiveFactory"
+            icon="icons/x10perspective.gif"
+            id="x10.uide.perspective"
+            name="X10"/>
+   </extension>
 </plugin>
