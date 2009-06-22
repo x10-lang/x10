@@ -9,9 +9,9 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.FileSource;
 import polyglot.util.StdErrorQueue;
 import x10.parser.X10Parser;
-import com.ibm.lpg.LexStream;
-import com.ibm.lpg.Monitor;
-import com.ibm.lpg.PrsStream;
+import lpg.lpgjavaruntime.LexStream;
+import lpg.lpgjavaruntime.Monitor;
+import lpg.lpgjavaruntime.PrsStream;
 
 public class ParserDelegate implements IParser {
     X10Parser myParser;

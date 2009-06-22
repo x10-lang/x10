@@ -18,9 +18,9 @@ import polyglot.ast.Node;
 import x10.parser.X10Parser;
 import x10.parser.X10Lexer;
 
-import com.ibm.lpg.IToken;
-import com.ibm.lpg.LexStream;
-import com.ibm.lpg.Monitor;
+import lpg.lpgjavaruntime.IToken;
+import lpg.lpgjavaruntime.LexStream;
+import lpg.lpgjavaruntime.Monitor;
 
 public class ParseController implements IParseController
 {

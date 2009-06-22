@@ -3,9 +3,9 @@ package x10.uide.parser;
 import org.eclipse.uide.parser.ILexer;
 import x10.parser.X10Lexer;
 
-import com.ibm.lpg.LexStream;
-import com.ibm.lpg.Monitor;
-import com.ibm.lpg.PrsStream;
+import lpg.lpgjavaruntime.LexStream;
+import lpg.lpgjavaruntime.Monitor;
+import lpg.lpgjavaruntime.PrsStream;
 
 public class LexerDelegate implements ILexer
 {
