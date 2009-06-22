@@ -6,7 +6,7 @@
          name="X10 Compiler"
          point="org.eclipse.core.resources.builders">
       <builder>
-         <run class="com.ibm.watson.safari.x10.X10Builder"/>
+         <run class="com.ibm.watson.safari.x10.builder.X10Builder"/>
       </builder>
    </extension>
    <extension
@@ -14,9 +14,9 @@
          name="X10 Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
-         <run class="com.ibm.watson.safari.x10.X10ProjectNature"/>
+         <run class="com.ibm.watson.safari.x10.builder.X10ProjectNature"/>
       </runtime>
-      <builder id="com.ibm.watson.safari.x10.X10Builder"/>
+      <builder id="com.ibm.watson.safari.x10.builder.X10Builder"/>
       <requires-nature id="org.eclipse.jdt.core.javanature"/>
    </extension>
    <extension
