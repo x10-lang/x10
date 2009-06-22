@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Label;
 
 
 
-public abstract class FieldEditor extends org.eclipse.jface.preference.FieldEditor
+public abstract class FieldEditor extends org.eclipse.imp.preferences.fields.FieldEditor
 {
 	/**
 	 *  The preferences page on which the tab that contains this

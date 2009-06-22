@@ -32,14 +32,13 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferenceCache;
 import org.eclipse.imp.preferences.PreferenceConstants;
-import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
-import org.eclipse.imp.preferences.fields.FieldEditor;
-import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
-import org.eclipse.imp.preferences.fields.StringFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.PreferencesTab;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
+import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
-import org.eclipse.imp.preferences.fields.FontFieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -77,7 +76,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 	{
 		List fields = new ArrayList();
 
-		IntegerFieldEditor TabSize = fPrefUtils.makeNewIntegerField(
+		IntegerFieldEditor TabSize = fPrefUtils_x10.makeNewIntegerField(
 			page, tab, fPrefService,
 			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size",
 			parent,
@@ -89,7 +88,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 
 		fields.add(TabSize);
 
-		IntegerFieldEditor NumPlaces = fPrefUtils.makeNewIntegerField(
+		IntegerFieldEditor NumPlaces = fPrefUtils_x10.makeNewIntegerField(
 				page, tab, fPrefService,
 				"instance", "NumPlaces", "Number of Places",
 				parent,
@@ -101,7 +100,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 
 		fields.add(NumPlaces);
 			
-		FontFieldEditor fontField= fPrefUtils.makeNewFontField(
+		FontFieldEditor fontField= fPrefUtils_x10.makeNewFontField(
 				page, tab, fPrefService,
 				"instance", "x10Font", "Source font:",
 				null,
@@ -185,7 +184,7 @@ public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final 
 		
 		 
 		// Put buttons on the bottom
-        fButtons = fPrefUtils.createDefaultAndApplyButtons(composite, this);
+        fButtons = fPrefUtils_x10.createDefaultAndApplyButtons(composite, this);
         Button defaultsButton = (Button) fButtons[0];
         Button applyButton = (Button) fButtons[1];
 		

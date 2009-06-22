@@ -119,4 +119,50 @@
             id="org.eclipse.imp.x10dt.core.preferences.specialized">
       </page>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="X10Preferences"
+            category="X10 pref menu"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences"
+            id="org.eclipse.imp.x10dt.core.preferences.generated">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="X10Preferences"
+            category="X10 pref menu"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences"
+            id="org.eclipse.imp.x10dt.core.preferences.generated">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="X10Preferences"
+            category="X10 pref menu"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences"
+            id="org.eclipse.imp.x10dt.core.preferences.generated">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="X10Preferences"
+            category="X10 pref menu"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences"
+            id="org.eclipse.imp.x10dt.core.preferences.generated">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            name="X10Preferences"
+            category="X10 pref menu"
+            class="org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences"
+            id="org.eclipse.imp.x10dt.core.preferences.generated">
+      </page>
+   </extension>
+
 </plugin>
