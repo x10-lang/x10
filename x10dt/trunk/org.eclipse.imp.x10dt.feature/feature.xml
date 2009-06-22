@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.imp.x10dt"
       label="%featureName"
-      version="1.7.3"
+      version="1.7.3.1"
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
@@ -28,21 +28,21 @@
          id="x10.compiler.p3"
          download-size="910"
          install-size="910"
-         version="1.7.0.1"
+         version="1.7.3.0"
          unpack="false"/>
 
    <plugin
          id="x10.runtime.17"
          download-size="319"
          install-size="319"
-         version="1.7.0.2"
+         version="1.7.3.0"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.imp.x10dt.core"
          download-size="68"
          install-size="68"
-         version="1.7.2"
+         version="1.7.3"
          unpack="false"/>
 
    <plugin
@@ -77,14 +77,14 @@
          id="x10.constraints"
          download-size="0"
          install-size="0"
-         version="1.7.0.1"
+         version="1.7.3.0"
          unpack="false"/>
 
    <plugin
          id="x10.common.17"
          download-size="0"
          install-size="0"
-         version="1.7.0.1"
+         version="1.7.3.0"
          unpack="false"/>
 
    <plugin
