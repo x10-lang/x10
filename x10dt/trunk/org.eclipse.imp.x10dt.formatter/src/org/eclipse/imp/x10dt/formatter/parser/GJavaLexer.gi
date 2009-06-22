@@ -4,7 +4,7 @@
 %Options la=2,list
 %Options fp=JavaLexer
 %options single_productions
-%options package=javaparser
+%options package=org.eclipse.imp.x10dt.formatter.parser
 %options template=LexerTemplate.gi
 %options filter=GJavaKWLexer.gi
 
@@ -849,6 +849,12 @@ assert(new_file != null);
                     makeToken($_LESS_EQUAL);
           $EndAction
         ./
+        
+    Token ::= '>' '='
+        /.$BeginAction
+                    makeToken($_GREATER_EQUAL);
+          $EndAction
+        ./
 
     Token ::= '!' '='
         /.$BeginAction
@@ -1078,7 +1084,6 @@ assert(new_file != null);
             | '*'
             | SpecialNotStar
             | HT
-            | FF
             | CtlCharNotWS
 
     NotDQ -> Letter

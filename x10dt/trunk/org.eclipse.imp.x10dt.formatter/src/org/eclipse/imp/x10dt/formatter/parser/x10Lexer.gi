@@ -4,7 +4,7 @@
 %Options la=2,list
 %Options fp=X10Lexer
 %options single_productions
-%options package=x10.parser
+%options package=org.eclipse.imp.x10dt.formatter.parser
 %options template=LexerTemplate.gi
 %options filter=x10KWLexer.gi
 
@@ -18,7 +18,7 @@
 %End
 
 %Import
-    GjavaLexer.gi
+    GJavaLexer.gi
 %End
 
 %Globals 
@@ -35,7 +35,7 @@
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --
-    $kw_lexer_class /.$X10KWLexer./
+    $kw_lexer_class /.$x10KWLexer./
 %End
 
 %Export

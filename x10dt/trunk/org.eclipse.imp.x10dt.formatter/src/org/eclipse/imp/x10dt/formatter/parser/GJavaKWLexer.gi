@@ -2,7 +2,7 @@
 -- The Java KeyWord Lexer
 --
 %Options fp=JavaKWLexer
-%options package=javaparser
+%options package=org.eclipse.imp.x10dt.formatter.parser
 %options template=KeyWordTemplate.gi
 
 %Globals

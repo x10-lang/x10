@@ -1,5 +1,5 @@
 %options fp=JavaParser
-%options package=javaparser
+%options package=org.eclipse.imp.x10dt.formatter.parser
 %options template=btParserTemplate.gi
 %options import_terminals=GJavaLexer.gi
 
@@ -79,6 +79,7 @@
     LEFT_SHIFT ::= << 
     LEFT_SHIFT_EQUAL ::= <<= 
     LESS_EQUAL ::= <=
+    GREATER_EQUAL ::= >=
     EQUAL ::= =  
     EQUAL_EQUAL ::= ==  
     GREATER ::= >

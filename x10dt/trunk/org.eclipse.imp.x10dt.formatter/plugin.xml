@@ -8,15 +8,21 @@
             language="X10">
       </formatter>
    </extension>
+    <extension
+         point="org.eclipse.imp.runtime.parser">
+      <formatter
+            class="org.eclipse.imp.x10dt.formatter.parser.ParseController"
+            language="X10">
+      </formatter>
+   </extension>
    <extension
          point="org.eclipse.imp.formatting.formattingSpecification">
       <formattingSpecification
-            file="src/org/eclipse/imp/x10dt/formatter/X10.fsp">
+            astAdapter="org.eclipse.imp.x10dt.formatter.parser.ASTAdapter"
+            file="src/org/eclipse/imp/x10dt/formatter/X10.fsp"
+            language="X10"
+            parseController="org.eclipse.imp.x10dt.formatter.parser.ParseController">
       </formattingSpecification>
    </extension>
-    <extension
-         point="org.eclipse.imp.formatting.astAdapter">
-          <astAdapter class="org.eclipse.imp.formatter.parser.ASTAdapter" language="X10">
-         </astAdapter>
-   </extension>
 </plugin>
+
