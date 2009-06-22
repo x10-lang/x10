@@ -1,4 +1,4 @@
-package org.eclipse.safari.x10dt;
+package org.eclipse.imp.x10dt;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;
