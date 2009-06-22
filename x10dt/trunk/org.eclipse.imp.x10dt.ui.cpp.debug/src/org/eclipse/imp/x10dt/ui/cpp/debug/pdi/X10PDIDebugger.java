@@ -1411,12 +1411,14 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     }
     String cppFile = location.getViewFile().getBaseFileName();
 	int cppLine = location.getLineNumber();
+	String cppFunction = location.getFunctionsAtThisLocation()[0].getName();
 	String file = fTranslator.getX10File(location);
-	String function = location.getViewFile().getFunctions()[0].getName();
 	int lineNumber = fTranslator.getX10Line(location);
-	if (file == null || lineNumber == -1) {
+	String function = fTranslator.getX10Function(cppFunction, location);
+	if (file == null || lineNumber == -1 || function == null) {
 		file = cppFile;
 		lineNumber = cppLine;
+		function = cppFunction;
 	}
 	return ProxyDebugEventFactory.toFrame(String.valueOf(level), file, 
                                           function, 
