@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Language Support
 Bundle-SymbolicName: com.ibm.watson.safari.x10; singleton:=true
-Bundle-Version: 1.0.44
+Bundle-Version: 1.0.45
 Bundle-Activator: com.ibm.watson.safari.x10.X10Plugin
 Bundle-Vendor: rfuhrer@watson.ibm.com
 Bundle-Localization: plugin
