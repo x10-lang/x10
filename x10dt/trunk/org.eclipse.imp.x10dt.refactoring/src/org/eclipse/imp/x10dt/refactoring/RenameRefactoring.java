@@ -83,8 +83,6 @@ public class RenameRefactoring extends X10RefactoringBase {
 
     public RenameRefactoring(ITextEditor editor) {
         super(editor);
-
-        findNodes();
     }
 
     public String getName() {
@@ -353,7 +351,7 @@ public class RenameRefactoring extends X10RefactoringBase {
     private void findExternalDecl(Def decl) {
         final Position position= decl.position();
 
-        System.out.println("declaration is located in " + position.file() + ": " + position);
+//      System.out.println("declaration is located in " + position.file() + ": " + position);
 
         IEditorInput input= fEditor.getEditorInput();
 
@@ -462,7 +460,7 @@ public class RenameRefactoring extends X10RefactoringBase {
     };
 
     private void findAllReferences() {
-        System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
+//      System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
         final Set<SourceRangeGroup> allMatches= new HashSet<SourceRangeGroup>();
         try {
             ReferenceVisitor refVisitor= new ReferenceVisitor(fDef, allMatches);
@@ -474,13 +472,13 @@ public class RenameRefactoring extends X10RefactoringBase {
         } catch (ModelException e) {
             e.printStackTrace();
         }
-        for(SourceRangeGroup group : allMatches) {
-            System.out.println("Matches in " + group.fFile.getName() + ": ");
-            for(SourceRange range : group.fRanges) {
-                System.out.print(range);
-            }
-            System.out.println();
-        }
+//      for(SourceRangeGroup group : allMatches) {
+//          System.out.println("Matches in " + group.fFile.getName() + ": ");
+//          for(SourceRange range : group.fRanges) {
+//              System.out.print(range);
+//          }
+//          System.out.println();
+//      }
     }
 
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
