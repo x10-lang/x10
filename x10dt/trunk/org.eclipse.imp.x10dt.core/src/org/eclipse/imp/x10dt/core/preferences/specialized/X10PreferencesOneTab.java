@@ -6,37 +6,25 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Matthew Kaplan (mmk@us.ibm.com) - initial implementation
-*******************************************************************************/
-
-/*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *    Matthew Kaplan (mmk@us.ibm.com) - specialization to show only one tab (to simplify options for novices/typical users)
 *******************************************************************************/
 
 package org.eclipse.imp.x10dt.core.preferences.specialized;
 
-import java.util.Iterator;
-
 import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.InstancePreferencesTab;
+import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences;
-import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInitializer;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.widgets.TabFolder;
 
-public class X10PreferencesOneTab extends X10Preferences implements IPropertyChangeListener{
+public class X10PreferencesOneTab extends TabbedPreferencesPage implements IPropertyChangeListener{
 	
     /** 
      * The first invalid field editor, or <code>null</code>
@@ -46,6 +34,7 @@ public class X10PreferencesOneTab extends X10Preferences implements IPropertyCha
 	
 	public X10PreferencesOneTab () {
 		super();
+        prefService = RuntimePlugin.getInstance().getPreferencesService();
 		setPreferenceStore(RuntimePlugin.getInstance().getPreferenceStore());
 
 	}
@@ -54,13 +43,18 @@ public class X10PreferencesOneTab extends X10Preferences implements IPropertyCha
 			TabbedPreferencesPage page, TabFolder tabFolder) {
 		PreferencesTab[] tabs = new PreferencesTab[1];
 
-		X10PreferencesInstanceTab instanceTab = new X10PreferencesInstanceTabNoDetails(prefService);
+		InstancePreferencesTab instanceTab = new X10PreferencesInstanceTabNoDetails(prefService);
 		instanceTab.createTabContents(page, tabFolder);
 		tabs[0] = instanceTab;
 
 		return tabs;
 	}
-	   /**
+
+    public PreferencesInitializer getPreferenceInitializer() {
+        return new X10PreferencesInitializer();
+    }
+
+	/**
      * The field editor preference page implementation of this <code>IPreferencePage</code>
      * (and <code>IPropertyChangeListener</code>) method intercepts <code>IS_VALID</code> 
      * events but passes other events on to its superclass.

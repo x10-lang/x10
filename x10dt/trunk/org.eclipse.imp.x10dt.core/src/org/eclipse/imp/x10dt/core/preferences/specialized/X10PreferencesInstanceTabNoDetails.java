@@ -14,6 +14,7 @@ package org.eclipse.imp.x10dt.core.preferences.specialized;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.InstancePreferencesTab;
 import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.preferences.PreferencesTab;
@@ -27,7 +28,6 @@ import org.eclipse.imp.preferences.fields.StringFieldEditor;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator;
-import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -41,21 +41,23 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTab {
+public class X10PreferencesInstanceTabNoDetails extends InstancePreferencesTab {
+    protected PreferencesUtilities fPrefUtils;
+
+    IntegerFieldEditor TabSize;
+    FontFieldEditor  fontField;
+    BooleanFieldEditor badPlaceRuntimeCheckCompilerOption;
+    BooleanFieldEditor loopOptimizationsCompilerOption;
+    BooleanFieldEditor arrayOptimizationsCompilerOption;
+    BooleanFieldEditor assertCompilerOption;
+    StringFieldEditor additionalCompilerOptions;
+    IntegerFieldEditor NumPlaces;
 
 	public X10PreferencesInstanceTabNoDetails(IPreferencesService prefService) {
 		super(prefService, true);
+        fPrefUtils = new PreferencesUtilities(prefService);
 	}
 	
-	IntegerFieldEditor TabSize;
-	FontFieldEditor  fontField;
-	BooleanFieldEditor badPlaceRuntimeCheckCompilerOption;
-	BooleanFieldEditor loopOptimizationsCompilerOption;
-	BooleanFieldEditor arrayOptimizationsCompilerOption;
-	BooleanFieldEditor assertCompilerOption;
-	StringFieldEditor additionalCompilerOptions;
-	IntegerFieldEditor NumPlaces;
-
 	/**
 	 * Creates specific preference fields with settings appropriate to
 	 * the instance preferences level.
@@ -73,7 +75,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 //		fPrefService.setIntPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, 4);
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, "4");
-		TabSize = fPrefUtils_x10.makeNewIntegerField(
+		TabSize = fPrefUtils.makeNewIntegerField(
 			page, this, fPrefService,
 			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size", null,
 			parent,
@@ -84,7 +86,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		fields.add(TabSize);
 
 
-		fontField= fPrefUtils_x10.makeNewFontField(
+		fontField= fPrefUtils.makeNewFontField(
 				page, this, fPrefService,
 				"instance", PreferenceConstants.P_SOURCE_FONT, "Source font:",
 				null,
@@ -98,27 +100,27 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 		// -BAD_PLACE_RUNTIME_CHECK=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
-		badPlaceRuntimeCheckCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", null, parent, true, true, false, false, true, true, false);
+		badPlaceRuntimeCheckCompilerOption = fPrefUtils.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", null, parent, true, true, false, false, true, true, false);
 		fields.add(badPlaceRuntimeCheckCompilerOption);
 
 		// -LOOP_OPTIMIZATIONS=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
-		loopOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", null, parent, true, true, false, false, true, true, false);
+		loopOptimizationsCompilerOption = fPrefUtils.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", null, parent, true, true, false, false, true, true, false);
 		fields.add(loopOptimizationsCompilerOption);
 
 		// -ARRAY_OPTIMIZATIONS=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
-		arrayOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", null, parent, true, true, false, false, true, true, false);
+		arrayOptimizationsCompilerOption = fPrefUtils.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", null, parent, true, true, false, false, true, true, false);
 		fields.add(arrayOptimizationsCompilerOption);
 
 		// -assert
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
-		assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", null, parent, true, true, false, false, true, true, false);
+		assertCompilerOption = fPrefUtils.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", null, parent, true, true, false, false, true, true, false);
 		fields.add(assertCompilerOption);
 		
 		// additional compiler options (string field)
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "");
-		additionalCompilerOptions = fPrefUtils_x10.makeNewStringField(
+		additionalCompilerOptions = fPrefUtils.makeNewStringField(
 				page, this, fPrefService,
 				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:", null,
 				parent,
@@ -133,7 +135,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 //		fPrefService.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, 4);
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
-		NumPlaces = fPrefUtils_x10.makeNewIntegerField(
+		NumPlaces = fPrefUtils.makeNewIntegerField(
 				page, this, fPrefService,
 				"instance", X10PreferenceConstants.P_NUM_PLACES, "Number of Places", null,
 				parent,
@@ -235,7 +237,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 		 
 		// Put buttons on the bottom
-        fButtons = fPrefUtils_x10.createDefaultAndApplyButtons(composite, this);
+        fButtons = fPrefUtils.createDefaultAndApplyButtons(composite, this);
 		
 		return composite;
 	}
