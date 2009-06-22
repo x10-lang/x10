@@ -98,14 +98,140 @@ public class Outliner extends DefaultOutliner implements IOutliner
         });
     }
 
+    
+    
+    /*
+     * To hold in a generic way any data that the method "significantChange(..)"
+     * may require from one invocation to the next.
+     * SMS 11 Jul 2006
+     * 
+     */
+    private Object[] previous = null;
+    
+    /**
+     * Report whether there has been a significant change in the AST
+     * associated with the parse controller given in the current
+     * invocation compared to the AST associated with the parse
+     * controller given on the previous invocation (if any).
+     * 
+     * A significant change is considered to be one in which the AST
+     * is not logically the same from one invocation to the next,
+     * as indicated by a change in the parse controller (implying an
+     * entirely new tree), in the number of tokens in the tree, or in
+     * the text making up any individual token.
+     * 
+     * @author sutton		Stan Sutton 11 Jul 2006 (added from elsewhere)
+     * 
+     * @param controller	A parse controller that is to be compared to
+     * 						the previously given parse controller, especially
+     * 						for changes in their respective ASTs
+     * @return				True if the AST for the current controller is
+     * 						effectively the same as the AST for the previous
+     * 						controller or if both are null; false otherwise
+     */
+    public boolean significantChange(IParseController controller)
+    {
+    	boolean previousWasNull = previous == null;
+    	boolean result = false;
+    	
+    	// Check for previous values being null (as in uninitialized)
+    	if (previousWasNull) {
+    		// create and initialize previous
+    		previous = new Object[3];
+    		for (int i = 0; i < previous.length; i++) {
+    			previous[i] = null;
+    		}
+    		
+    		// check for current and previous controllers both null	
+    		if (controller == null) {
+    			return false;
+    		}
+    	}
+    	
+    	// If here then had some previous values (although these
+    	// could individually be null); is current controller null?
+    	if (controller == null) {
+    		for (int i = 0; i < previous.length; i++) {
+    			if (previous[i] == null) continue;	// not changed
+    			result = true;						// changed
+    			previous[i] = null;					// null now
+    		}
+    		return result;
+    	}
+    	
+    	// If here then had some previous values and have some current
+    	// values; these need to be compared
+    	// (for simplicity assume that current values are not null)
+    	
+    	// Get current values for comparison to previous
+    	ArrayList tokens = controller.getParser().getParseStream().getTokens();
+    	char[] chars = controller.getLexer().getLexStream().getInputChars();
+    	
+    	// Get previous values for comparison to current
+    	IParseController previousController = (IParseController) previous[0];
+    	ArrayList previousTokens = (ArrayList) previous[1];
+    	char[] previousChars = (char[]) previous[2];
+    	
+    	// Update previous values to current values in any case (now that
+    	// we've saved previous in local fields)
+		previous[0] = controller;	
+		previous[1] = tokens;
+		previous[2] = chars;
+    	
+    	// Compare current and previous values; return true if different
+		
+		// Are the whole trees different?  (Assume so if controllers differ)
+    	if (previousController != controller) return true;
+    	
+    	// Are the sizes of the trees different? 
+    	if (previousTokens.size() != tokens.size()) {
+    		return true;
+    	}
+    	
+    	// Are any of the individual tokens different?
+    	for (int i = 0; i < previousTokens.size()-1; i++) {
+    		IToken previousToken = (IToken)previousTokens.get(i);
+    		IToken token = (IToken)tokens.get(i);
+    		if (previousToken.getKind() != token.getKind()) {
+    			//System.out.println("Previous and current tokens differ at token # = " + i);
+    			return true;
+    		}
+    		int previousStart = previousToken.getStartOffset();
+    		int previousEnd = previousToken.getEndOffset();
+    		int start = token.getStartOffset();
+    		int end = token.getEndOffset();
+    		if ((previousEnd - previousStart) != (end - start)) {
+				System.out.println("Previous and current tokens have different extents at token # = " + i);
+				return true;
+    		}
+    		for (int j = 0; j < (previousEnd - previousStart + 1); j++) {
+    			if (previousChars[previousStart+j] != chars[start+j]) {
+    				System.out.println("Previous and current tokens have different characters at token # = " + i +
+    						", character # = " + j);
+    				return true;
+    			}
+    		}
+    	}
+    	
+    	// No significant differences found
+    	return false;
+    }
+ 
+    
+    
     public void createOutlinePresentation(IParseController controller, int offset)
     {
+    	boolean redrawSetFalse = false;		// SMS 10 Jul 2006
+    	
         this.controller = controller;
         try
         {
             if (controller != null && tree != null)
             {
+            	if (!significantChange(controller)) return;		// SMS 11 Jul 2006
+            	
     		    tree.setRedraw(false);
+    		    redrawSetFalse = true;		// SMS 10 Jul 2006
     		    SourceFile ast = (SourceFile) controller.getCurrentAst();
                 if (ast != null)
                 {
@@ -129,6 +255,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
         finally
         {
     	    if (tree != null)
+    	    	if (redrawSetFalse)			// SMS Jul 2006
     	        tree.setRedraw(true);
     	}
     }
