@@ -23,8 +23,124 @@ Chapter 1 </a><br />Classes</h1>
 </a>
 
 <div class="p"><!----></div>
- X10 classes are essentially the same as  Java classes [6,&#167;
-8]. Classes are structured in a single-inheritance code
+The <em>class declaration</em> has
+a list of type ,
+value properties, 
+a constraint (the <em>class invariant</em>, a single superclass,
+one or more interfaces, and a class body containing the
+the definition of
+fields, methods, and member types.
+Each such declaration introduces a class
+type ().
+
+<div class="p"><!----></div>
+NormalClassDeclaration &nbsp;
+      ClassModifiers "class" Identifier  <br />
+   </td><td width="150">
+</td><td width="150">
+ TypeParameterList PropertyList Guard <br />
+   </td><td width="150">
+</td><td width="150">
+ Super Interfaces ClassBody <br />
+<br />
+TypeParameterList     &nbsp;"[" TypeParameters "]" <br />
+TypeParameters        &nbsp;TypeParameter ( "," Typearameter ) <br />
+TypeParameter         &nbsp;Variance Annotation Identifier     <br />
+Variance &nbsp;"+" <br />
+         </td><td width="150">
+</td><td width="150">
+ "-" <br />
+<br />
+PropertyList     &nbsp;"(" Properties ")" <br />
+Properties       &nbsp;Property ( "," Property ) <br />
+Property         &nbsp;Annotation "val" Identifier ":" Type <br />
+<br />
+Super &nbsp;&#235;xtends" ClassType <br />
+Interfaces &nbsp;&#239;mplements" InterfaceType ( "," InterfaceType) <br />
+<br />
+ClassBody &nbsp;ClassMember <br />
+ClassMember &nbsp;ClassDeclaration <br />
+            \ -  InterfaceDeclaration <br />
+            \ -  FieldDeclaration <br />
+            \ -  MethodDeclaration <br />
+            \ -  ConstructorDeclaration <br />
+
+
+<div class="p"><!----></div>
+A type parameter declaration is given by an optional variance
+tag and an identifier.
+A type parameter must be
+bound to a concrete type when an instance of the class is created.
+
+<div class="p"><!----></div>
+A value property has a name and a type.   Value properties
+are accessible in the same way as "public" "final"
+fields.
+
+<div class="p"><!----></div>
+It is a compile-time error for a class
+defining a value property "x: T" to have an ancestor class that defines
+a value property with the name "x".  
+
+
+
+<div class="p"><!----></div>
+Each class "C" defining a property "x: T" implicitly has a field
+
+<div class="p"><!----></div>
+<pre>
+public val x : T;
+</pre> 
+
+<div class="p"><!----></div>
+ and a getter method
+
+<div class="p"><!----></div>
+<pre>
+public final def x(): T  return x; 
+</pre>
+
+<div class="p"><!----></div>
+ Each interface &#207;" defining a property "x: T"
+implicitly has a getter method
+
+<div class="p"><!----></div>
+<pre>
+public def x(): T;
+</pre>
+
+<div class="p"><!----></div>
+It is a compile-time error for a class or
+interface defining a property "x :T" to have an existing method with
+the signature "x(): T".
+
+
+<div class="p"><!----></div>
+Properties are used to build dependent types from classes, as
+described in .
+
+<div class="p"><!----></div>
+<a name="ClassGuard">
+</a>The  in a class or interface declaration specifies an
+explicit condition on the properties of the type, and is discussed further
+in .
+
+<div class="p"><!----></div>
+     Every constructor for a class defining
+   properties "x<sub>1</sub>: T<sub>1</sub>, <font face="symbol">¼</font
+>, x<sub>n</sub>: T<sub>n</sub>" must ensure that each of the fields
+   corresponding to the properties is definitely initialized
+   (cf. requirement on initialization of final fields in Java) before the
+   constructor returns.
+
+
+<div class="p"><!----></div>
+Type 
+are used to define generic classes and
+interfaces, as described in .
+
+<div class="p"><!----></div>
+Classes are structured in a single-inheritance code
 hierarchy, may implement multiple interfaces, may have static and
 instance fields, may have static and instance methods, may have
 constructors, may have static and instance initializers, may have
@@ -44,6 +160,8 @@ modification framework may be used.
 
 <div class="p"><!----></div>
 Because of its different concurrency model,  X10 does not support
-<tt>transient</tt> and <tt>volatile</tt> field modifiers.
+"transient" and "volatile" field modifiers.
+
+<div class="p"><!----></div>
 </body>
 </html>
