@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import polyglot.ext.x10.Configuration;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
-import x10.runtime.util.OptionsError;
+//import x10.runtime.util.OptionsError;
 
 public class CompilerOptionsStringFieldEditor extends StringFieldEditor {
 
@@ -39,11 +39,11 @@ public class CompilerOptionsStringFieldEditor extends StringFieldEditor {
 			// Inform the prefs UI component about the validation failure
 			setErrorMessage(e.getMessage());
 			return false;
-		} catch (OptionsError e) {
-			String msg = e.getMessage();
-			// Inform the prefs UI component about the validation failure
-			setErrorMessage(e.getMessage());
-			return false;
+//		} catch (OptionsError e) {
+//			String msg = e.getMessage();
+//			// Inform the prefs UI component about the validation failure
+//			setErrorMessage(e.getMessage());
+//			return false;
 		}
 		return super.doCheckState();
 	}
@@ -54,7 +54,8 @@ public class CompilerOptionsStringFieldEditor extends StringFieldEditor {
      * 
      * @throws UsageError if the usage is incorrect.
      */
-    private void parseCommandLine(String args[], Set source) throws UsageError, OptionsError {
+//    private void parseCommandLine(String args[], Set source) throws UsageError, OptionsError {
+	private void parseCommandLine(String args[], Set source) throws UsageError {	
         if(args.length < 1) {
             throw new UsageError("No command line arguments given");
         }
