@@ -685,6 +685,24 @@ public class X10Builder extends IncrementalProjectBuilder {
         try {
             Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
             String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
+            if (new File(x10RuntimeLoc).isDirectory()) {
+                // The JDT will allow you to create a folder/library classpath entry, but
+                // it really doesn't support it (at least not until 3.4), so don't create
+                // such an entry.
+                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                    public void run() {
+                        postMsgDialog("Can't find the X10 runtime jar file",
+                                "The Eclipse Platform seems to believe that the X10 Runtime lives in a folder, " +
+                                "but the X10DT needs it to be in a jar file. " +
+                                "This is probably due to running an X10DT version that lives in your workspace. " +
+                                "[If you're doing this, you'd almost certainly know it.]\n\n" +
+                                "Please create the appropriate entry manually by going to the Project Properties dialog, " +
+                                "clicking on 'Add External JARs' in the 'Java Build Path' page, and " +
+                                "specifying a suitable X10 Runtime jar file.");
+                    }
+                });
+                return null;
+            }
             IPath x10RuntimePath= new Path(x10RuntimeLoc);
 
             return x10RuntimePath;
@@ -741,10 +759,13 @@ public class X10Builder extends IncrementalProjectBuilder {
             int runtimeIdx= findX10RuntimeClasspathEntry(entries);
             IPath languageRuntimePath= getLanguageRuntimePath();
             IClasspathEntry newEntry;
+            if (languageRuntimePath == null) {
+                return;
+            }
             if (languageRuntimePath.isAbsolute()) {
-        	newEntry= JavaCore.newLibraryEntry(languageRuntimePath, null, null);
+                newEntry= JavaCore.newLibraryEntry(languageRuntimePath, null, null);
             } else {
-        	newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
+                newEntry= JavaCore.newVariableEntry(languageRuntimePath, null, null);
             }
             IClasspathEntry[] newEntries;
 
@@ -779,7 +800,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
                 if (!entryFile.exists()) {
                     postQuestionDialog(ClasspathError + fProject.getName(),
-                            "X10 runtime entry in classpath does not exist: " + entryPath.toOSString() + "; update project classpath with default runtime?",
+                            "The X10 runtime entry in the project's classpath does not exist: " + entryPath.toOSString() + "; shall I update the project's classpath with the runtime installed as part of the X10DT?",
                             new UpdateProjectClasspathHelper(),
                             new MaybeSuppressFutureClasspathWarnings());
                     return; // found a runtime entry but it is/was broken
@@ -790,7 +811,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 // Jar files whose names don't embed a version number won't be checked.
                 if (entryFile.getPath().endsWith(".jar") && entryFile.getAbsolutePath().indexOf(currentVersion) < 0) {
                     postQuestionDialog(ClasspathError + fProject.getName(),
-                            "X10 runtime entry in classpath is an old version: " + entryPath.toOSString() + "; update project classpath with latest runtime?",
+                            "The X10 runtime entry " + entryPath.toOSString() + " in the classpath of project '" + fProject.getName() + "' is an old runtime version; shall I update the project's classpath with the runtime installed as part of the X10DT?",
                             new UpdateProjectClasspathHelper(),
                             new MaybeSuppressFutureClasspathWarnings());
                 }
@@ -800,7 +821,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             e.printStackTrace();
         }
         postQuestionDialog(ClasspathError + fProject.getName(),
-                "No X10 runtime entry in classpath of project '" + fProject.getName() + "'; update project classpath with default runtime?",
+                "No X10 runtime entry exists in the classpath of project '" + fProject.getName() + "'; shall I update the project's classpath with the runtime installed as part of the X10DT?",
                 new UpdateProjectClasspathHelper(),
                 new MaybeSuppressFutureClasspathWarnings());
     }
@@ -886,8 +907,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 	Collection<IFile> changeDependents= new ArrayList<IFile>();
 	IWorkspaceRoot wsRoot= fProject.getWorkspace().getRoot();
 
-	System.out.println("Changed files:");
-	dumpSourceList(fSourcesToCompile);
+//	System.out.println("Changed files:");
+//	dumpSourceList(fSourcesToCompile);
 	for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
 	    IFile srcFile= iter.next();
 	    Set<String> fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
@@ -902,8 +923,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    }
 	}
 	fSourcesToCompile.addAll(changeDependents);
-	System.out.println("Changed files + dependents:");
-	dumpSourceList(fSourcesToCompile);
+//	System.out.println("Changed files + dependents:");
+//	dumpSourceList(fSourcesToCompile);
     }
 
     private void collectSourcesToCompile() throws CoreException {
