@@ -193,6 +193,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     protected void clearMarkersOn(Collection<IFile> sources) {
         try {
+            // Remove the project-level "compiler crash" marker, if any
             fProject.deleteMarkers(PROBLEMMARKER_ID, true, 0);
         } catch (CoreException e1) {
         }
@@ -340,7 +341,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG " };
+    private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG ", "// FIXME "  };
 
     private class CollectBookmarksGoal extends AbstractGoal {
         public CollectBookmarksGoal(Job job) throws CyclicDependencyException {
