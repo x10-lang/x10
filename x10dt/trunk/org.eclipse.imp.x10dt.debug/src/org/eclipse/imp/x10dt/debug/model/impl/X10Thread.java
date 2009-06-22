@@ -5,28 +5,19 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.debug.core.DebugException;
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.IBreakpoint;
-import org.eclipse.debug.core.model.IDebugTarget;
-import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
-import org.eclipse.imp.x10dt.debug.Activator;
-import org.eclipse.jdt.debug.core.JDIDebugModel;
+import org.eclipse.imp.x10dt.debug.model.IX10Activity;
+import org.eclipse.imp.x10dt.debug.model.IX10Clock;
+import org.eclipse.imp.x10dt.debug.model.IX10Place;
+import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
-import org.eclipse.jdt.internal.debug.core.model.JDIThreadGroup;
-
-import org.eclipse.imp.x10dt.debug.model.IX10Activity;
-import org.eclipse.imp.x10dt.debug.model.IX10Place;
-import org.eclipse.imp.x10dt.debug.model.IX10Clock;
-import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
-import org.eclipse.imp.x10dt.debug.model.IX10Activity.X10ActivityState;
 
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectCollectedException;
-import com.sun.jdi.ThreadGroupReference;
-import com.sun.jdi.ThreadReference;
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 
 public class X10Thread extends JDIThread implements IThread, IX10Activity {
@@ -61,7 +52,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 
 	}
 	public String getModelIdentifier() {
-		return Activator.getUniqueIdentifier()+".model";
+		return getDebugTarget().getModelIdentifier();
 	}
 	
 	public ObjectReference getFreshActivityObject(ThreadReference t) {
@@ -156,7 +147,7 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 		return X10ActivityState.Running;
 	}
 
- public IX10StackFrame[] getStackFrames() {
+public IX10StackFrame[] getStackFrames() {
          // TODO create stack frames in sample model
          return new IX10StackFrame[0];
  }
