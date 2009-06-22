@@ -320,15 +320,17 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 			 // java indenter doesn't quite get correct indent if no non-white between comment-start-line and current position: it indents only until the initial "/" but should do one more position
 			 int commentStartLine = firstLineOfBlockComment(d, c.offset);
 			 if (commentStartLine >= 0 && commentStartLine < d.getNumberOfLines()) {
-				 int nextLineStart = d.getLineOffset(commentStartLine+1);
 				 boolean foundNonWhite=false;
-				 for (int pos = nextLineStart; pos<c.offset; pos++) {
-					 char ch = d.getChar(pos);
-					 if (ch!=' ' && ch!='\t' && ch!='\n') {
-						 foundNonWhite=true;
-						 break;
+				 try {
+					 int nextLineStart = d.getLineOffset(commentStartLine+1);
+					 for (int pos = nextLineStart; pos<c.offset; pos++) {
+						 char ch = d.getChar(pos);
+						 if (ch!=' ' && ch!='\t' && ch!='\n') {
+							 foundNonWhite=true;
+							 break;
+						 }
 					 }
-				 }
+				 } catch (BadLocationException e) {} // If comment started on last line of file, want to put a space as well.
 				 if (!foundNonWhite) buf.append(" ");
 			 }
 			
@@ -1043,15 +1045,24 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 
     private void smartIndentAfterTab(IDocument document, DocumentCommand command) {
     // if user typed tab after start of line, push offset back to start of line (we assume we're in white space at start)
+    int originalCaretOffset = command.offset;
     try {
     	int line = document.getLineOfOffset(command.offset);
         command.offset = document.getLineOffset(line);
     } catch (BadLocationException e) {}
+    int originalStartOfLine = command.offset;
 	// First delete whitespace since previous newline, and then call smartIndentAfterNewline()
     // Since smartIndentAfterNewline inserts "* " inside block comments, need to include leading "* ?", if present, this in "whitespace" for block comments
 	deleteLeadingWhiteSpace(document, command);
 	command.text= "";
 	smartIndentAfterNewLine(document, command);
+
+	// adjust caret so that it shifts with the text, unless it was in the indent region: then put it in the text region.  Is this the desired behavior?
+	int originalIndentWidth = command.length;  // width of white space (+ possibly comment header) we're replacing
+	int indentWidthDiff = command.text.length() - command.length;
+	if (originalCaretOffset >= originalStartOfLine+originalIndentWidth) { // if the caret at outset was after the margin
+		command.caretOffset = originalCaretOffset/* + indentWidthDiff*/;
+	}
     }
 
     private void deleteLeadingWhiteSpace(IDocument doc, DocumentCommand cmd) {
