@@ -153,7 +153,15 @@ There are several methods available to launch an X10 application:<br/>
   launch configuration. In the "Main" page, select the project containing the X10
   application you wish to run, and the main class.<br/>
 
-  Note: you can have launch configurations for several X10 applications within a single project.<br/>
+  Note: you can have launch configurations for several X10 applications within a single
+  project, as well as multiple launch configurations for the same application.<br/>
+
+Arguments to be passed to your X10 application can be specified in the "Arguments" page
+in the "Program Arguments" pane. You can also set options to be passed to the X10 Runtime
+itself via the "X10 Runtime" page, in the "Runtime arguments" pane. This is useful to,
+for example, enable the collection of abstract execution statistics by setting the runtime
+option "ABSTRACT_EXECUTION_STATS" to "true" (place "ABSTRACT_EXECUTION_STATS=true" in the
+"Runtime arguments" pane).
 </description>
 </item>
 
@@ -166,19 +174,24 @@ breakpoints, explore the stack, and so on), the procedure is essentially the sam
 described above, substituting "Debug" for "Run", or "Debug As" for "Run As", and so on.
 
 As of this release, X10 debugging support provides the same set of views that you would
-get for Java programs, which display information about the generated Java program. We
-have provided support for setting breakpoints in the X10 source, and for mapping line
-numbers from the X10 source code to the generated Java source code. As a result, when
-an exception is thrown by X10 code or a breakpoint in X10 code is reached, the debugger
-should present the correct X10 source line. [Of course, if an exception is thrown from
-within a Java method that does not correspond to an X10 method, the debugger will display
-the Java source for the method throwing the exception.]
+get for Java programs, which display information about the generated Java program.
+
+To set a breakpoint in the X10 source code, type "Ctrl-Shift-B" at the desired line in
+the source editor. We have provided support for mapping line numbers from the X10 source
+code to the generated Java source code. As a result, when an exception is thrown by X10
+code or a breakpoint in X10 code is reached, the debugger should present the correct X10
+source line. [Of course, if an exception is thrown from within a Java method that does
+not correspond to an X10 method, the debugger will display the Java source for the method
+throwing the exception.]
 
 At the same time, you may see a somewhat different picture of your application than you
 might expect. In particular, details of the X10 implementation will be visible: the
 Java thread pool rather than the X10 activities, extra method calls corresponding to
-X10 array accesses, and so on. In the future, we hope to provide a more X10-specific
-debugging perspective.
+X10 array accesses, and so on. Moreover, performing a "Step Into" operation on an X10
+application can land you inside the X10 runtime (much like stepping into a string
+concatenation operation in Java can land you inside the StringBuffer class).
+
+In the future, we hope to provide a more X10-savvy debugging perspective.
 </description>
 </item>
 
