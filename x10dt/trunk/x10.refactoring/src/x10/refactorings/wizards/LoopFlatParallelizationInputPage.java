@@ -2,11 +2,17 @@ package x10.refactorings.wizards;
 
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Widget;
 
-import x10.refactorings.ExtractAsyncRefactoring;
+import x10.refactorings.LoopFlatParallelizationRefactoring;
 
 public class LoopFlatParallelizationInputPage extends UserInputWizardPage implements Listener {
     private Text fText;
@@ -26,17 +32,15 @@ public class LoopFlatParallelizationInputPage extends UserInputWizardPage implem
         layout.numColumns = 4;
         result.setLayout(layout);
 
-//        Label testlabel = new Label(result, SWT.HORIZONTAL);
-//        GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-//        gd.horizontalSpan = 1;
-//        testlabel.setLayoutData(gd);
-//        testlabel.setText("Place:");
-//
-//        fText = new Text(result, SWT.BORDER | SWT.SINGLE);
-//        gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-//        gd.horizontalSpan = 1000;
-//        fText.setLayoutData(gd);
-//        fText.addListener(SWT.KeyUp, this);
+        final Button verboseCB= new Button(result, SWT.CHECK);
+        verboseCB.setText("Verbose");
+        verboseCB.addSelectionListener(new SelectionListener() {
+            public void widgetDefaultSelected(SelectionEvent e) { }
+            public void widgetSelected(SelectionEvent e) {
+                boolean state= verboseCB.getSelection();
+                LoopFlatParallelizationInputPage.this.getLoopFlatParallelizationRefactoring().setVerbose(state);
+            }
+        });
 
         setControl(result);
     }
@@ -49,10 +53,10 @@ public class LoopFlatParallelizationInputPage extends UserInputWizardPage implem
             if (fTextResult == null)
                 fTextResult = "";
         }
-        getExtractAsyncRefactoring().setPlace(fTextResult);
+//      getLoopFlatParallelizationRefactoring().setPlace(fTextResult);
     }
 
-    private ExtractAsyncRefactoring getExtractAsyncRefactoring() {
-        return (ExtractAsyncRefactoring) getRefactoring();
+    private LoopFlatParallelizationRefactoring getLoopFlatParallelizationRefactoring() {
+        return (LoopFlatParallelizationRefactoring) getRefactoring();
     }
 }
