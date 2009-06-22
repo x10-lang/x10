@@ -1,4 +1,4 @@
-package safari.X10.refactoring;
+package safari.X10.refactoring.actions;
 
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.internal.corext.callhierarchy.MethodCall;
@@ -28,6 +28,9 @@ import polyglot.types.Declaration;
 import polyglot.types.LocalInstance;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
+import safari.X10.refactoring.RefactoringMessages;
+import safari.X10.refactoring.RenameRefactoring;
+import safari.X10.refactoring.RenameWizard;
 
 public class RenameRefactoringAction extends TextEditorAction {
     private final Node fNode;
@@ -92,11 +95,15 @@ public class RenameRefactoringAction extends TextEditorAction {
             decl= ((Call) fNode).methodInstance();
 //      } else if (fNode instanceof TypeNode) {
         } else {
-            MessageDialog.openError(shell, "Cannot rename", "Renaming of entities other than local variables and fields not yet implemented.");
+            MessageDialog.openError(shell, "Cannot rename", "Renaming of entities other than local variables, fields and methods not yet implemented.");
             return;
         }
 
-        findDeclaration(fRoot, decl);
+        findDeclaration(decl);
+
+        if (fDeclaringNode == null)
+            findExternalDecl(decl);
+
         if (fDeclaringNode == null) {
             MessageDialog.openError(shell, "Cannot rename", "Renaming entities across source files not yet supported.");
             return;
@@ -109,11 +116,17 @@ public class RenameRefactoringAction extends TextEditorAction {
     }
 
     /**
-     * @param root
+     * @param decl
+     */
+    private void findExternalDecl(Declaration decl) {
+        System.out.println(decl.position());
+    }
+
+    /**
      * @param decl
      * @return
      */
-    private void findDeclaration(Node root, final Declaration decl) {
+    private void findDeclaration(final Declaration decl) {
         NodeVisitor visitor= new NodeVisitor() {
             /* (non-Javadoc)
              * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
@@ -144,6 +157,6 @@ public class RenameRefactoringAction extends TextEditorAction {
                 return this;
             }
         };
-        root.visit(visitor);
+        fRoot.visit(visitor);
     }
 }

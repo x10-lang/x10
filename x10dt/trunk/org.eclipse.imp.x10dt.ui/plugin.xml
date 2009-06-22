@@ -183,7 +183,7 @@
    <extension
          point="org.eclipse.uide.runtime.refactoringContributions">
       <refactoringContributor
-            class="safari.X10.refactoring.RefactoringContributor"
+            class="safari.X10.refactoring.actions.RefactoringContributor"
             language="X10">
       </refactoringContributor>
    </extension>
