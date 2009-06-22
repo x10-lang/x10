@@ -28,7 +28,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.x10dt.core.X10Plugin;
-import org.eclipse.imp.x10dt.core.builder.PolyglotFrontEnd;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -98,7 +97,6 @@ public class CompilerDelegate {
     private String pathListToPathString(List<IPath> pathList) {
         StringBuffer buff= new StringBuffer();
         IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
-        IPath wsPath= wsRoot.getLocation();
 
         for(Iterator<IPath> iter= pathList.iterator(); iter.hasNext(); ) {
             IPath path= iter.next();
@@ -131,7 +129,7 @@ public class CompilerDelegate {
 			List<IPath> projectSrcLoc = getProjectSrcPath();
 			String projectSrcPath = pathListToPathString(projectSrcLoc);
 			opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-sourcepath",
-					projectSrcPath }, new HashSet());
+					projectSrcPath }, new HashSet<String>());
 		} catch (UsageError e) {
 			if (!e.getMessage().equals("must specify at least one source file"))
 				System.err.println(e.getMessage());
