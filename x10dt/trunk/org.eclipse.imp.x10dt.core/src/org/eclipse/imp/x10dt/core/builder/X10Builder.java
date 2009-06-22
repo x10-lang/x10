@@ -1,6 +1,5 @@
 package com.ibm.watson.safari.x10.builder;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.uide.runtime.SAFARIPluginBase;
@@ -44,7 +42,6 @@ import polyglot.frontend.Job;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
-import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
@@ -52,7 +49,6 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
 import com.ibm.watson.safari.x10.X10Plugin;
-import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
 public class X10Builder extends IncrementalProjectBuilder {
     /**
@@ -86,6 +82,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     private static SAFARIPluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
 
+    private Collection/*<IFolder>*/ fSrcFolders;
+
     public X10Builder() {}
 
     /**
@@ -106,12 +104,24 @@ public class X10Builder extends IncrementalProjectBuilder {
     protected boolean isSourceFile(IFile file) {
 	String exten= file.getFileExtension();
 
-	return file.exists() && exten != null && exten.compareTo("x10") == 0;
+	if (!(file.exists() && exten != null && exten.compareTo("x10") == 0))
+	    return false;
+
+	IFolder parent= (IFolder) file.getParent();
+	boolean isInSrc= false;
+
+	for(Iterator iter= fSrcFolders.iterator(); iter.hasNext(); ) {
+	    IFolder srcFolder= (IFolder) iter.next();
+
+	    if (srcFolder.getProjectRelativePath().isPrefixOf(parent.getProjectRelativePath()))
+		isInSrc= true;
+	}
+	return isInSrc;
     }
 
     private boolean isBinaryFolder(IResource resource) {
-	// BUG This should check whether the given resource is the
-	// "output location" of a source classpath entry.
+	// BUG This should check whether the given resource is in an "output folder"
+	// of a source classpath entry, analogous to above check in isSourceFile().
 	return resource.getFullPath().lastSegment().equals("bin");
     }
 
@@ -219,12 +229,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    String msg= error.getMessage();
 	    if (msg.startsWith("No translation for ")) {
 		final String type= msg.substring(19).substring(0, msg.lastIndexOf(' ')-19);
-		Display.getDefault().asyncExec(new Runnable() {
-		    public void run() {
-			Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
-			MessageDialog.openError(shell, "X10 Compiler Configuration error", "Unable to locate compiler template for " + type + "; check X10 Preferences.");
-		    }
-		});
+
+		postMsgDialog("X10 Compiler Configuration error", "Unable to locate compiler template for " + type + "; check X10 Preferences.");
 	    }
 	} catch (Exception e) {
 	    X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + e.getMessage());
@@ -393,14 +399,14 @@ public class X10Builder extends IncrementalProjectBuilder {
 		    buff.append(";");
 		buff.append(entry.getPath().toOSString());
 	    }
-	    if (X10Preferences.autoAddRuntime) {
-		String commonPath= X10Plugin.x10CommonPath;
-		String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separator) + 1) + "x10.runtime" + File.separator + "classes";
-
-		if (classPath.length > 0)
-		    buff.append(';');
-		buff.append(runtimePath);
-	    }
+//	    if (X10Preferences.autoAddRuntime) {
+//		String commonPath= X10Plugin.x10CommonPath;
+//		String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separator) + 1) + "x10.runtime" + File.separator + "classes";
+//
+//		if (classPath.length > 0)
+//		    buff.append(';');
+//		buff.append(runtimePath);
+//	    }
 	} catch (JavaModelException e) {
 	    X10Plugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
 	}
@@ -438,30 +444,26 @@ public class X10Builder extends IncrementalProjectBuilder {
 	// Refresh prefs every time so that changes take effect on the next build.
 	sPlugin.refreshPrefs();
 
-	// TODO need better way of detecting whether configuration has been read yet.
-        if (X10Plugin.x10CommonPath.equals("???")) {
-            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                public void run() {
-                    MessageDialog.openInformation(new Shell(), "X10 Error", "X10 common directory location not yet set.");
-                }
-            });
+        if (X10Plugin.x10CompilerPath.equals("???")) {
+            postMsgDialog("X10 Error", "X10 common directory location not yet set.");
             return null;
         }
-//	if (Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY.startsWith("/home/praun"))
-            try {
-                Configuration.readConfiguration();
-            } catch (Error e) {
-                if (e.getCause() instanceof FileNotFoundException) {
-                    FileNotFoundException fnf= (FileNotFoundException) e.getCause();
-                    if (fnf.getMessage().startsWith("???\\standard.cfg")) {
-                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                            public void run() {
-                                MessageDialog.openInformation(null, "X10 Error", "X10 configuration file location not yet set.");
-                            }
-                        });
-                    }
-                }
+	// Read configuration at every compiler invocation, in case it changes (e.g. via
+        // the X10 Preferences page). Theoretically, if the user really does change the
+        // compiler configuration, we should trigger a full rebuild, but we don't yet.
+        try {
+            // The X10 configuration file's location is given by the value of the System
+            // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
+            // and by a preference store listener in X10PreferencePage.
+            Configuration.readConfiguration();
+        } catch (Error e) {
+            if (e.getCause() instanceof FileNotFoundException) {
+        	FileNotFoundException fnf= (FileNotFoundException) e.getCause();
+        	if (fnf.getMessage().startsWith("???\\standard.cfg")) {
+        	    postMsgDialog("X10 Error", "X10 configuration file location not yet set.");
+        	}
             }
+        }
 
 	if (kind == CLEAN_BUILD || kind == FULL_BUILD)
 	    fDependencyInfo.clearAllDependencies();
@@ -474,6 +476,22 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	fMonitor.done();
 	return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
+    }
+
+    /**
+     * Posts a dialog displaying the given message as soon as "conveniently possible".
+     * This is not a synchronous call, since this method will get called from a
+     * different thread than the UI thread, which is the only thread that can
+     * post the dialog box.
+     */
+    private void postMsgDialog(final String title, final String msg) {
+	PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+	    public void run() {
+		Shell shell= X10Plugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+
+		MessageDialog.openInformation(shell, title, msg);
+	    }
+	});
     }
 
     private Collection doCompile() throws CoreException {
@@ -541,6 +559,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     private void collectSourcesToCompile() throws CoreException {
+	collectSourceFolders();
+
 	IResourceDelta delta= getDelta(fProject);
 
 	if (delta != null) {
@@ -553,5 +573,26 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
 	}
 	collectChangeDependents();
+    }
+
+    /**
+     * Collects the set of source folders in this project, to be used in filtering out
+     * files in non-src folders that the builder should not attempt to compile.
+     * @see isSourceFile()
+     */
+    private void collectSourceFolders() throws JavaModelException {
+	fSrcFolders= new HashSet();
+	IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(true);
+
+	for(int i= 0; i < cpEntries.length; i++) {
+	    IClasspathEntry cpEntry= cpEntries[i];
+	    if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+		if (!cpEntry.getPath().segment(0).equals(fX10Project.getElementName())) {
+		    X10Plugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + cpEntry.getPath());
+		    continue;
+		}
+		fSrcFolders.add(fX10Project.getProject().getFolder(cpEntry.getPath().removeFirstSegments(1)));
+	    }
+	}
     }
 }

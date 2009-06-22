@@ -26,7 +26,7 @@ public class X10Plugin extends SAFARIPluginBase {
      */
     protected static X10Plugin sPlugin;
 
-    public static String x10CommonPath;
+    public static String x10CompilerPath;
 
     public static X10Plugin getInstance() {
         return sPlugin;
@@ -49,15 +49,14 @@ public class X10Plugin extends SAFARIPluginBase {
 	// Initialize the X10Preferences fields with the preference store data.
 	IPreferenceStore prefStore= getPreferenceStore();
 
-	Bundle x10CommonBundle= Platform.getBundle("x10.common");
-	URL x10CommonURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("")));
+	Bundle x10CompilerBundle= Platform.getBundle("x10.compiler");
+	URL x10CompilerURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("")));
 
-	x10CommonPath= x10CommonURL.getPath();
+	x10CompilerPath= x10CompilerURL.getPath();
 
 	X10Preferences.builderEmitMessages= prefStore.getBoolean(PreferenceConstants.P_EMIT_MESSAGES);
-	X10Preferences.autoAddRuntime= prefStore.getBoolean(PreferenceConstants.P_AUTO_ADD_RUNTIME);
-//	x10CommonPath= prefStore.getString(PreferenceConstants.P_X10COMMON_PATH);
-	X10Preferences.x10Config= prefStore.getString(PreferenceConstants.P_X10CONFIG);
+//	X10Preferences.autoAddRuntime= prefStore.getBoolean(PreferenceConstants.P_AUTO_ADD_RUNTIME);
+	X10Preferences.x10ConfigName= prefStore.getString(PreferenceConstants.P_X10CONFIG_NAME);
 	X10Preferences.x10ConfigFile= prefStore.getString(PreferenceConstants.P_X10CONFIG_FILE);
 	fEmitInfoMessages= X10Preferences.builderEmitMessages;
     }
@@ -86,7 +85,8 @@ public class X10Plugin extends SAFARIPluginBase {
         // Set the "x10.configuration" System property from the corresponding preference
         // value, since polyglot.ext.x10.Configuration relies on its being set, and a
         // static initializer there throws an exception if it can't find the config file.
-        final String configFile= (X10Preferences.x10ConfigFile!= null ? X10Preferences.x10ConfigFile : x10CommonPath + File.separator + "etc" + File.separator + "standard.cfg");
-	System.setProperty("x10.configuration", configFile);
+        final String configFile= (X10Preferences.x10ConfigFile!= null ? X10Preferences.x10ConfigFile : x10CompilerPath + File.separator + "etc" + File.separator + "standard.cfg");
+
+        System.setProperty("x10.configuration", configFile);
     }
 }

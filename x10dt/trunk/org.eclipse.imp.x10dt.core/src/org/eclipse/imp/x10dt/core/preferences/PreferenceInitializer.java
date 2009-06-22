@@ -28,24 +28,16 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 	store.setDefault(PreferenceConstants.P_AUTO_ADD_RUNTIME, false);
 
 	try {
-	    Bundle x10CommonBundle= Platform.getBundle("x10.common");
-            URL x10CommonURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("")));
-            URL configDirURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("etc/")));
-//          Bundle x10CompilerBundle= Platform.getBundle("x10.compiler");
-//          URL x10CompilerDataURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("data")));
-            URL stdCfgURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("etc/standard.cfg")));
-//	    String x10CommonPath= x10CommonURL.getPath();
+	    Bundle x10CompilerBundle= Platform.getBundle("x10.compiler");
+//          URL x10CompilerURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("")));
+//          URL configDirURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("etc/")));
+            URL stdCfgURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("etc/standard.cfg")));
             String stdCfgPath= stdCfgURL.getPath();
-//          String x10CompilerDataPath= x10CompilerDataURL.getPath();
 
             if (Platform.getOS().equals("win32")) {
-//              x10CommonPath= x10CommonPath.substring(1);
                 stdCfgPath= stdCfgPath.substring(1);
-//              x10CompilerDataPath= x10CompilerDataPath.substring(1);
             }
-//          store.setDefault(PreferenceConstants.P_X10COMMON_PATH, x10CommonPath);
             store.setDefault(PreferenceConstants.P_X10CONFIG_FILE, stdCfgPath);
-//          store.setDefault(PreferenceConstants.P_COMPILER_DATA_DIR, x10CompilerDataPath);
 	} catch (IOException e) {
 	    X10Plugin.getInstance().logException("Error initializing preferences", e);
 	}

@@ -21,7 +21,7 @@ public class PreferenceConstants {
      * if this preference is "standard", then the file "x10.common/etc/standard.cfg"
      * must exist.
      */
-    public static final String P_X10CONFIG= "config";
+    public static final String P_X10CONFIG_NAME= "config";
 
     /**
      * true if the builder and various other entities should emit diagnostic

@@ -174,7 +174,7 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_HEIGHT, AppletParametersTab.DEFAULT_APPLET_HEIGHT);
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_NAME, EMPTY_STRING);
 
-	    String commonPath= X10Plugin.x10CommonPath;
+	    String commonPath= X10Plugin.x10CompilerPath;
 	    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";
 
 	    wc.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);

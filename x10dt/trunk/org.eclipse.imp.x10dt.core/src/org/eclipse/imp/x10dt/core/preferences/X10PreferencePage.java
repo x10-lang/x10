@@ -49,8 +49,6 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
      * save and restore itself.
      */
     public void createFieldEditors() {
-//	addField(new DirectoryFieldEditor(PreferenceConstants.P_X10COMMON_PATH, "&Common directory:", getFieldEditorParent()));
-//	addField(new FileFieldEditor(PreferenceConstants.P_X10CONFIG_FILE, "Confi&guration file:", getFieldEditorParent()));
 //	addField(new BooleanFieldEditor(PreferenceConstants.P_AUTO_ADD_RUNTIME, "Add X10 runtime library in x10.runtime to build path", getFieldEditorParent()));
 
 	String[] configs= findConfigs();
@@ -62,9 +60,7 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
 	    configFieldItems[i][0]= configs[i];
 	    configFieldItems[i][1]= configs[i];
 	}
-	addField(new ComboFieldEditor(PreferenceConstants.P_X10CONFIG, "Compiler Confi&guration:", configFieldItems, getFieldEditorParent()));
-
-//      addField(new DirectoryFieldEditor(PreferenceConstants.P_COMPILER_DATA_DIR, "Compiler &template directory:", getFieldEditorParent()));
+	addField(new ComboFieldEditor(PreferenceConstants.P_X10CONFIG_NAME, "Compiler Confi&guration:", configFieldItems, getFieldEditorParent()));
 
         // RMF 6/7/2006 - The following run-time settings are currently inactive, and probably
 	// don't even belong on this preferences page.
@@ -80,22 +76,13 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
 	    public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(PreferenceConstants.P_EMIT_MESSAGES))
 		    X10Preferences.builderEmitMessages= ((Boolean) event.getNewValue()).booleanValue();
-//		else if (event.getProperty().equals(PreferenceConstants.P_X10COMMON_PATH))
-//		    X10Preferences.x10CommonPath= (String) event.getNewValue();
-//		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG_FILE))
-//		    X10Preferences.x10ConfigFile= (String) event.getNewValue();
-		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG)) {
-		    X10Preferences.x10Config= (String) event.getNewValue();
-		    X10Preferences.x10ConfigFile= X10Plugin.x10CommonPath + "etc/" + X10Preferences.x10Config + ".cfg";
+		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG_NAME)) {
+		    X10Preferences.x10ConfigName= (String) event.getNewValue();
+		    X10Preferences.x10ConfigFile= X10Plugin.x10CompilerPath + "etc/" + X10Preferences.x10ConfigName + ".cfg";
 		    System.setProperty("x10.configuration", X10Preferences.x10ConfigFile);
 		}
 //		else if (event.getProperty().equals(PreferenceConstants.P_AUTO_ADD_RUNTIME))
 //		    X10Preferences.autoAddRuntime= ((Boolean) event.getNewValue()).booleanValue();
-
-//                else if (event.getProperty().equals(PreferenceConstants.P_COMPILER_DATA_DIR)) {
-//                    X10Preferences.x10CompilerDataDir= (String) event.getNewValue();
-//                    rewritePrefsFile();
-//                }
                 else if (event.getProperty().equals(PreferenceConstants.P_SAMPLING_FREQ)) {
                     X10Preferences.samplingFreq= ((Integer) event.getNewValue()).intValue();
                     rewritePrefsFile();
@@ -129,8 +116,9 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
 
     private String[] findConfigs() {
 	try {
-	    Bundle x10CommonBundle= Platform.getBundle("x10.common");
-	    URL configDirURL= Platform.asLocalURL(Platform.find(x10CommonBundle, new Path("etc/")));
+	    // Perhaps this should just use X10Plugin.x10CompilerPath?
+	    Bundle x10CompilerBundle= Platform.getBundle("x10.compiler");
+	    URL configDirURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("etc/")));
 	    String configDirPath= configDirURL.getPath();
 	    File configDir= new File(configDirPath);
 
