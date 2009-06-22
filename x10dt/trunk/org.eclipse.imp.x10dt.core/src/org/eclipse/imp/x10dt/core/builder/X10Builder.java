@@ -234,12 +234,18 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    private static class CheckPackageDeclVisitor extends NodeVisitor {
+    private class CheckPackageDeclVisitor extends NodeVisitor {
         private final Job fJob;
         private boolean fSeenPkg= false;
 
         public CheckPackageDeclVisitor(Job job) {
             fJob= job;
+        }
+
+        private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
+            if (!actualPkg.equals(declaredPkg)) {
+                fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pos));
+            }
         }
 
         @Override
@@ -248,20 +254,43 @@ public class X10Builder extends IncrementalProjectBuilder {
                 PackageNode pkg= (PackageNode) n;
                 Source src= fJob.source();
                 String declaredPkg= pkg.package_().fullName();
-                String actualPkg= src.path().substring(0, src.path().length() - src.name().length() - 1).replace('/', '.');
-                if (!actualPkg.endsWith(declaredPkg)) {
-                    fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pkg.position()));
-                }
+                String actualPkg= determineActualPackage(src);
+
+                checkPackage(declaredPkg, actualPkg, pkg.position());
                 fSeenPkg= true;
             }
             return super.enter(n);
         }
+
+        private String determineActualPackage(Source src) {
+            String srcPath= src.path();
+            String projPath= X10Builder.this.fProject.getLocation().toPortableString();
+            String pkgPath;
+
+            if (srcPath.startsWith(projPath)) {
+                pkgPath= srcPath.substring(projPath.length()+1);
+            } else {
+                pkgPath= srcPath;
+            }
+            if (pkgPath.startsWith("src/")) {
+                pkgPath= pkgPath.substring(4);
+            }
+            return pkgPath.substring(0, pkgPath.length() - src.name().length() - 1).replace(File.separatorChar, '.');
+        }
+
         @Override
         public Node override(Node n) {
             if (fSeenPkg) {
                 return n;
             }
             return null;
+        }
+        @Override
+        public void finish() {
+            if (!fSeenPkg) { // No package decl -> implicitly in the default package
+                Source src= fJob.source();
+                checkPackage("", determineActualPackage(src), new Position(src.path(), src.name(), 1, 1));
+            }
         }
     };
 
