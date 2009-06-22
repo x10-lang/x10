@@ -127,6 +127,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
 	Dialog.applyDialogFont(composite);
 	PlatformUI.getWorkbench().getHelpSystem().setHelp(composite, IJavaHelpContextIds.NEW_CLASS_WIZARD_PAGE);
+	setFocus(); // For some reason, the type name doesn't get focus by the time the dialog is fully up... force it
     }
 
     /*
