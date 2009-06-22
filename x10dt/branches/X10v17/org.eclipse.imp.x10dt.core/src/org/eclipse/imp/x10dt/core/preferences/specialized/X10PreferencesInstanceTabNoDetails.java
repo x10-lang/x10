@@ -12,54 +12,39 @@
 package org.eclipse.imp.x10dt.core.preferences.specialized;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
-import org.eclipse.imp.preferences.PreferenceCache;
 import org.eclipse.imp.preferences.PreferenceConstants;
+import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.preferences.PreferencesUtilities;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
+import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.preferences.fields.FieldEditor;
+import org.eclipse.imp.preferences.fields.FontFieldEditor;
+import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.StringFieldEditor;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
-import org.eclipse.imp.x10dt.core.preferences.PreferencesTab;
-import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
-import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsStringFieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.StringFieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IFileEditorMapping;
-import org.eclipse.ui.PlatformUI;
 
-import polyglot.main.UsageError;
-
-public class X10PreferencesInstanceTabNoDetails extends
-		X10PreferencesInstanceTab {
+public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTab {
 
 	public X10PreferencesInstanceTabNoDetails(IPreferencesService prefService) {
-		super(prefService);
+		super(prefService, true);
 	}
 	
 	IntegerFieldEditor TabSize;
@@ -68,8 +53,9 @@ public class X10PreferencesInstanceTabNoDetails extends
 	BooleanFieldEditor loopOptimizationsCompilerOption;
 	BooleanFieldEditor arrayOptimizationsCompilerOption;
 	BooleanFieldEditor assertCompilerOption;
-	CompilerOptionsStringFieldEditor additionalCompilerOptions;
+	StringFieldEditor additionalCompilerOptions;
 	IntegerFieldEditor NumPlaces;
+
 	/**
 	 * Creates specific preference fields with settings appropriate to
 	 * the instance preferences level.
@@ -79,34 +65,32 @@ public class X10PreferencesInstanceTabNoDetails extends
 	 * @return    An array that contains the created preference fields
 	 *
 	 */
-	protected FieldEditor[] createFields(
-		TabbedPreferencesPage page, PreferencesTab tab, String tabLevel,
-		Composite parent)
+	protected FieldEditor[] createFields(TabbedPreferencesPage page, Composite parent)
 	{
-		List fields = new ArrayList();
+		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
 		// EDITOR OPTIONS
 		
 //		fPrefService.setIntPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, 4);
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, "4");
 		TabSize = fPrefUtils_x10.makeNewIntegerField(
-			page, tab, fPrefService,
-			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size",
+			page, this, fPrefService,
+			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size", null,
 			parent,
 			true, true,
 			true, String.valueOf(8),
 			false, "4",
-			true, null);
+			true);
 		fields.add(TabSize);
 
 
 		fontField= fPrefUtils_x10.makeNewFontField(
-				page, tab, fPrefService,
+				page, this, fPrefService,
 				"instance", PreferenceConstants.P_SOURCE_FONT, "Source font:",
 				null,
 				parent,
 				true, false,
-				null, true, null);
+				true);
 		fields.add(fontField);
 		
 
@@ -114,34 +98,35 @@ public class X10PreferencesInstanceTabNoDetails extends
 		
 		// -BAD_PLACE_RUNTIME_CHECK=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
-		badPlaceRuntimeCheckCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", parent, true, true, false, false, true, true, false, null);
+		badPlaceRuntimeCheckCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", null, parent, true, true, false, false, true, true, false);
 		fields.add(badPlaceRuntimeCheckCompilerOption);
 
 		// -LOOP_OPTIMIZATIONS=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
-		loopOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", parent, true, true, false, false, true, true, false, null);
+		loopOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", null, parent, true, true, false, false, true, true, false);
 		fields.add(loopOptimizationsCompilerOption);
 
 		// -ARRAY_OPTIMIZATIONS=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
-		arrayOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", parent, true, true, false, false, true, true, false, null);
+		arrayOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", null, parent, true, true, false, false, true, true, false);
 		fields.add(arrayOptimizationsCompilerOption);
 
 		// -assert
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
-		assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", parent, true, true, false, false, true, true, false, null);
+		assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", null, parent, true, true, false, false, true, true, false);
 		fields.add(assertCompilerOption);
 		
 		// additional compiler options (string field)
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "");
-		additionalCompilerOptions = fPrefUtils_x10.makeNewCompilerOptionsStringField(
-				page, tab, fPrefService,
-				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:",
+		additionalCompilerOptions = fPrefUtils_x10.makeNewStringField(
+				page, this, fPrefService,
+				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:", null,
 				parent,
 				true, true,
 				false, null,
 				true, null,
-				true, null);
+				true);
+		additionalCompilerOptions.setValidator(new CompilerOptionsValidator());
 		fields.add(additionalCompilerOptions);
 
 		// RUNTIME OPTIONS
@@ -149,13 +134,13 @@ public class X10PreferencesInstanceTabNoDetails extends
 //		fPrefService.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, 4);
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
 		NumPlaces = fPrefUtils_x10.makeNewIntegerField(
-				page, tab, fPrefService,
-				"instance", X10PreferenceConstants.P_NUM_PLACES, "Number of Places",
+				page, this, fPrefService,
+				"instance", X10PreferenceConstants.P_NUM_PLACES, "Number of Places", null,
 				parent,
 				true, true,
 				true, String.valueOf(8),
 				false, "4",
-				true, null);
+				true);
 		fields.add(NumPlaces);
 		
 		
@@ -194,7 +179,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 		return fieldsArray;
 	}
 
-    public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final TabFolder tabFolder) {
+    public Composite createTabContents(TabbedPreferencesPage page, final TabFolder tabFolder) {
 		
         fPrefPage = page;
 
@@ -221,7 +206,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 		/*
 		 * Add the elements relating to preferences fields and their associated "details" links.
 		 */	
-		fFields = createFields(page, this, IPreferencesService.INSTANCE_LEVEL, composite);
+		fFields = createFields(page, composite);
 
 		
 		PreferencesUtilities.fillGridPlace(composite, 2);
@@ -251,31 +236,10 @@ public class X10PreferencesInstanceTabNoDetails extends
 		 
 		// Put buttons on the bottom
         fButtons = fPrefUtils_x10.createDefaultAndApplyButtons(composite, this);
-        Button defaultsButton = (Button) fButtons[0];
-        Button applyButton = (Button) fButtons[1];
 		
 		return composite;
 	}
-	/** 
-	 * The field editor preference page implementation of this 
-	 * <code>PreferencePage</code> method saves all field editors by
-	 * calling <code>FieldEditor.store</code>. Note that this method
-	 * does not save the preference store itself; it just stores the
-	 * values back into the preference store.
-	 *
-	 * @see FieldEditor#store()
-	 */
-	public boolean performOk() {
-	    if (fFields != null) {
-	    	for (int i=0; i<fFields.length; i++) {
-	            FieldEditor pe = (FieldEditor) fFields[i];
-	            pe.store();
-	            pe.doSetPresentsDefaultValue(false);
-	        }
-	    }
-	    return true;
-	}
-	
+
 	/**
 	 * Recomputes the tab's error state by calling <code>isValid</code> for
 	 * every field editor.
@@ -304,8 +268,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 	public void performDefaults() {
 		super.performDefaults();
 		// change properties to cause propagate defaults -- why doesn't this get done in performDefaults?  It seems it does load but no store?
-		IPreferenceStore prefStore = RuntimePlugin
-		.getInstance().getPreferenceStore();
+		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
 		prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, new Integer(TabSize.getIntValue()));
 		
 		// font has no default
@@ -319,4 +282,3 @@ public class X10PreferencesInstanceTabNoDetails extends
 		prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, additionalCompilerOptions.getStringValue());
 	}
 }
-

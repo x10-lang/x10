@@ -448,17 +448,17 @@ public class X10Builder extends IncrementalProjectBuilder {
                 // The advantage of using the Reader constructor is that it
                 // will always work, though not as efficiently.
                 //
-                // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
+    	    	final X10Lexer x10_lexer = new X10Lexer(reader, source.name());
                 //
-                final X10Lexer x10_lexer= (source instanceof SourceLoader.ZipSource) ? new X10Lexer() : new X10Lexer(source.path());//PORT1.7 zip file requires different Lexer
-                if (source instanceof SourceLoader.ZipSource) {
-                	//PORT 1.7 special case for loading from jar file
-                	SourceLoader.ZipSource zipSource = (SourceLoader.ZipSource) source;
-                	String name= zipSource.name();
-                	String contents= BuilderUtils.getFileContents(zipSource.open());
-
-                	x10_lexer.initialize(contents.toCharArray(), name);
-                }
+//                final X10Lexer x10_lexer= (source instanceof SourceLoader.ZipSource) ? new X10Lexer() : new X10Lexer(source.path());//PORT1.7 zip file requires different Lexer
+//                if (source instanceof SourceLoader.ZipSource) {
+//                	//PORT 1.7 special case for loading from jar file
+//                	SourceLoader.ZipSource zipSource = (SourceLoader.ZipSource) source;
+//                	String name= zipSource.name();
+//                	String contents= BuilderUtils.getFileContents(zipSource.open());
+//
+//                	x10_lexer.initialize(contents.toCharArray(), name);
+//                }
                 x10_lexer.setMessageHandler(new IMessageHandler() {
                     public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
                        //PORT1.7 -- need to get info (e.g. is this zipfile?) 
@@ -494,7 +494,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
         buildOptions();
 
-        Compiler compiler= new PolyglotFrontEnd(fExtInfo, new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
+        Compiler compiler= new Compiler(fExtInfo, new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
             protected void displayError(ErrorInfo error) {
                 errors.add(error);
             }
@@ -565,7 +565,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
-            IPreferencesService prefService = X10Plugin.getPreferencesService();
+            IPreferencesService prefService = X10Plugin.getInstance().getPreferencesService();
             IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
             optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10PreferenceConstants.P_BAD_PLACE_CHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)));

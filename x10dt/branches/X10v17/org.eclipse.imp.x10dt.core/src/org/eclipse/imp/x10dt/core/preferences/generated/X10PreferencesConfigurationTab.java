@@ -10,18 +10,13 @@ import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
 
-//		 TODO:  Import additional classes for specific field types from
-//		 org.eclipse.uide.preferences.fields
-
 /**
  * The configuration level preferences tab.
  */
-
-
 public class X10PreferencesConfigurationTab extends ConfigurationPreferencesTab {
 
 	public X10PreferencesConfigurationTab(IPreferencesService prefService) {
-		super(prefService);
+		super(prefService, true);
 	}
 
 	/**
@@ -33,34 +28,32 @@ public class X10PreferencesConfigurationTab extends ConfigurationPreferencesTab 
 	 * @return    An array that contains the created preference fields
 	 *
 	 */
-	protected FieldEditor[] createFields(
-		TabbedPreferencesPage page, PreferencesTab tab, String tabLevel,
-		Composite parent)
+	protected FieldEditor[] createFields(TabbedPreferencesPage page, Composite parent)
 	{
-		List fields = new ArrayList();
+		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
 		IntegerFieldEditor TabSize = fPrefUtils.makeNewIntegerField(
-			page, tab, fPrefService,
-			"configuration", "TabSize", "TabSize",
+			page, this, fPrefService,
+			"configuration", "TabSize", "TabSize", "",
 			parent,
 			true, true,
 			true, String.valueOf(8),
 			false, "0",
 			false);
-			Link TabSizeDetailsLink = fPrefUtils.createDetailsLink(parent, TabSize, TabSize.getTextControl().getParent(), "Details ...");
+		Link TabSizeDetailsLink = fPrefUtils.createDetailsLink(parent, TabSize, TabSize.getTextControl().getParent(), "Details ...");
 
 		fields.add(TabSize);
 
 
 		IntegerFieldEditor NumPlaces = fPrefUtils.makeNewIntegerField(
-			page, tab, fPrefService,
-			"configuration", "NumPlaces", "NumPlaces",
+			page, this, fPrefService,
+			"configuration", "NumPlaces", "NumPlaces", "",
 			parent,
 			true, true,
 			true, String.valueOf(8),
 			false, "0",
 			false);
-			Link NumPlacesDetailsLink = fPrefUtils.createDetailsLink(parent, NumPlaces, NumPlaces.getTextControl().getParent(), "Details ...");
+		Link NumPlacesDetailsLink = fPrefUtils.createDetailsLink(parent, NumPlaces, NumPlaces.getTextControl().getParent(), "Details ...");
 
 		fields.add(NumPlaces);
 

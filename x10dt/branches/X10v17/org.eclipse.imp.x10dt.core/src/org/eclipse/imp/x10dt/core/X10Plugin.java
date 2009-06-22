@@ -17,10 +17,10 @@
  */
 package org.eclipse.imp.x10dt.core;
 
-import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -30,7 +30,6 @@ import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.preferences.PreferenceConstants;
-import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -79,6 +78,11 @@ public class X10Plugin extends PluginBase {
     	sPlugin= this;
     }
 
+    @Override
+    public String getLanguageID() {
+        return kLanguageName;
+    }
+
     public String getID() {
     	return kPluginID;
     }
@@ -87,17 +91,17 @@ public class X10Plugin extends PluginBase {
      * This method is called upon plug-in activation
      */
     public void start(BundleContext context) throws Exception {
-	super.start(context);
+        super.start(context);
 
-	// Initialize the X10Preferences fields with the preference store data.
-	// SMS 30 Oct 2006:  Not if preferences service is used
-	//IPreferenceStore prefStore= getPreferenceStore();
+        // Initialize the X10Preferences fields with the preference store data.
+        // SMS 30 Oct 2006:  Not if preferences service is used
+        //IPreferenceStore prefStore= getPreferenceStore();
 
-	Bundle x10CompilerBundle= Platform.getBundle(X10_COMPILER_BUNDLE_ID);
-	URL x10CompilerURL= Platform.asLocalURL(Platform.find(x10CompilerBundle, new Path("")));
+        Bundle x10CompilerBundle= Platform.getBundle(X10_COMPILER_BUNDLE_ID);
+        URL x10CompilerURL= FileLocator.toFileURL(FileLocator.find(x10CompilerBundle, new Path(""), null));
 
-	// SMS 30 Oct 2006:  Note:  x10CompilerPath is *not* set as a preference
-	x10CompilerPath= x10CompilerURL.getPath();
+        // SMS 30 Oct 2006:  Note:  x10CompilerPath is *not* set as a preference
+        x10CompilerPath= x10CompilerURL.getPath();
 
 	// SMS 27 Oct 2006:  defs to remove
 //	X10Preferences.builderEmitMessages= prefStore.getBoolean(PreferenceConstants.P_EMIT_MESSAGES);
@@ -117,11 +121,11 @@ public class X10Plugin extends PluginBase {
      * This method is called when the plug-in is stopped
      */
     public void stop(BundleContext context) throws Exception {
-	super.stop(context);
-	// For some reason, X10Builder.build() gets called with an AUTO build
-	// after stop() gets called, and it tries to use the plugin instance
-	// to get at the log... resulting in an NPE. So don't null it out.
-//	sPlugin= null;
+        super.stop(context);
+        // For some reason, X10Builder.build() gets called with an AUTO build
+        // after stop() gets called, and it tries to use the plugin instance
+        // to get at the log... resulting in an NPE. So don't null it out.
+        //	sPlugin= null;
     }
 
     /**
@@ -131,8 +135,9 @@ public class X10Plugin extends PluginBase {
      * @return the image descriptor
      */
     public static ImageDescriptor getImageDescriptor(String path) {
-	return AbstractUIPlugin.imageDescriptorFromPlugin(kPluginID, path);
-    }	
+        return AbstractUIPlugin.imageDescriptorFromPlugin(kPluginID, path);
+    }
+
 //  mmk 5/20/2008: replaced prefs code with generated prefs code (below)
 //    // SMS 30 Oct 2006
 //    // X10 actually has more preferences than the ones that are refreshed
@@ -161,63 +166,4 @@ public class X10Plugin extends PluginBase {
 //        System.setProperty("x10.configuration", configFile);
 //    }
 //    
-//    
-//    // SMS 27 Oct 2006
-//    protected static PreferencesService preferencesService = 
-//    	getPreferencesService();
-//    
-//    public static PreferencesService getPreferencesService() {
-//    	if (preferencesService == null) {
-//    		preferencesService = new PreferencesService();
-//        	preferencesService.setLanguageName("x10");
-//           	(new PreferenceInitializer()).initializeDefaultPreferences();
-//    	}
-//    	return preferencesService;
-//    }
-	protected static PreferencesService preferencesService = null;
-
-	public static PreferencesService getPreferencesService() {
-		if (preferencesService == null) {
-			preferencesService = new PreferencesService(ResourcesPlugin
-					.getWorkspace().getRoot().getProject());
-			preferencesService.setLanguageName(kLanguageName);
-			// To trigger the invocation of the preferences initializer:
-			try {
-				new DefaultScope().getNode(kPluginID);
-				setDefaultPreferences();
-			} catch (Exception e) {
-				// If this ever happens, it will probably be because the preferences
-				// and their initializer haven't been defined yet.  In that situation
-				// there's not really anything to do--you can't initialize preferences
-				// that don't exist.  So swallow the exception and continue ...
-			}
-		}
-		return preferencesService;
-	}
-	
-	// Default option values
-	private final static String DEFAULT_FONT_NAME = "org.eclipse.jface.textfont";
-	private final static String DEFAULT_TAB_WIDTH = "4";
-	private final static boolean DEFAULT_OPTION_BAD_PLACE_CHECK = true;
-	private final static boolean DEFAULT_OPTION_LOOP_OPTIMIZATIONS = true;
-	private final static boolean DEFAULT_OPTION_ARRAY_OPTIMIZATIONS = true;
-	private final static boolean DEFAULT_OPTION_ASSERT = true;
-	
-	private static void setDefaultPreferences() {
-		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, DEFAULT_TAB_WIDTH);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, DEFAULT_OPTION_BAD_PLACE_CHECK);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, DEFAULT_OPTION_LOOP_OPTIMIZATIONS);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, DEFAULT_OPTION_ARRAY_OPTIMIZATIONS);
-		preferencesService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, DEFAULT_OPTION_ASSERT);
-		preferencesService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
-		
-		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
-		PreferenceConverter.setDefault(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) JFaceResources.getFontRegistry().getFontData(DEFAULT_FONT_NAME));
-//		prefStore.setToDefault(PreferenceConstants.P_SOURCE_FONT);
-		
-		// Need the following to get initial tab width to work properly on eclipse startup with and w/o new workspace
-		Integer tabWidth = preferencesService.getIntPreference(org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH);
-		prefStore.setValue(org.eclipse.imp.preferences.PreferenceConstants.P_TAB_WIDTH, tabWidth);
-		PreferenceCache.tabWidth = tabWidth.intValue();
-	}
 }

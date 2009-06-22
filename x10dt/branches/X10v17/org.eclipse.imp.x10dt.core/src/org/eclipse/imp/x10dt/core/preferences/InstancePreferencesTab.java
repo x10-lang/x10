@@ -12,30 +12,32 @@
 
 package org.eclipse.imp.x10dt.core.preferences;
 
-
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferencesInitializer;
+import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.preferences.PreferencesUtilities;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
-public class InstancePreferencesTab extends PreferencesTab {
-	
-	public InstancePreferencesTab(IPreferencesService prefService) {
+public abstract class InstancePreferencesTab extends PreferencesTab {
+	protected PreferencesUtilities fPrefUtils_x10;
+
+    public InstancePreferencesTab(IPreferencesService prefService, boolean noDetails) {
+	    super(IPreferencesService.INSTANCE_LEVEL, noDetails);
 		this.fPrefService = prefService;
 		fPrefUtils_x10 = new PreferencesUtilities(prefService);
 	}
 	
 	
-	public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final TabFolder tabFolder) {
-		
+    @Override
+	public Composite createTabContents(TabbedPreferencesPage page, final TabFolder tabFolder) {
 		fPrefPage = page;
 
         final Composite composite= new Composite(tabFolder, SWT.NONE);
@@ -61,7 +63,7 @@ public class InstancePreferencesTab extends PreferencesTab {
 		/*
 		 * Add the elements relating to preferences fields and their associated "details" links.
 		 */	
-		fFields = createFields(page, this, IPreferencesService.INSTANCE_LEVEL, composite);
+		fFields = createFields(page, composite);
 
 		
 		PreferencesUtilities.fillGridPlace(composite, 2);
@@ -90,26 +92,12 @@ public class InstancePreferencesTab extends PreferencesTab {
 		PreferencesUtilities.fillGridPlace(bottom, 1);
 		
 		 
-		// Put bottons on the bottom
+		// Put buttons on the bottom
         fButtons = fPrefUtils_x10.createDefaultAndApplyButtons(composite, this);
-        Button defaultsButton = (Button) fButtons[0];
-        Button applyButton = (Button) fButtons[1];
 		
 		return composite;
 	}
 
-	
-
-	
-//		public void performApply()
-//		{
-//			for (int i = 0; i < fields.length; i++) {
-//				fields[i].store();
-//				fields[i].clearModifyMarkOnLabel();
-//			}
-//		}	
-	
-		
 	
 	public void performDefaults() {
 		// Clear all preferences for this page at this level;
@@ -121,15 +109,4 @@ public class InstancePreferencesTab extends PreferencesTab {
 			fFields[i].loadWithInheritance();
 		}
 	}
-
-	
-//	public boolean performOk() {
-//		// Example:  Store each field
-//		for (int i = 0; i < fields.length; i++) {
-//			fields[i].store();
-//		}
-//		return true;
-//	}
-
-
 }
