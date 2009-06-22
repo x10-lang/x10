@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.preferences.DefaultScope;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
-import org.eclipse.imp.x10dt.core.preferences.PreferenceInitializer;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.Bundle;
