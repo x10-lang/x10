@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description url="http://eclipse-imp.sourceforge.net/updates/">
-      This Eclipse update site hosts the distribution for the IMP IDE, analysis and refactoring framework.
-   </description>
-   <feature url="features/org.eclipse.imp.x10dt_0.1.74.jar" id="org.eclipse.imp.x10dt" version="0.1.74">
-      <category name="Language Meta-Tools"/>
-   </feature>
-   <category-def name="Language Meta-Tools" label="Language Development Tools"/>
+  <description url="http://eclipse-imp.sourceforge.net/updates/">
+    This Eclipse update site hosts the distribution for the IMP IDE, analysis and refactoring framework.
+  </description>
+
+  <category-def name="Language Meta-Tools" label="Language Development Tools"/>
+
+  <feature url="features/org.eclipse.imp.x10dt_0.1.74.jar" id="org.eclipse.imp.x10dt" version="0.1.74">
+    <category name="Language Meta-Tools"/>
+  </feature>
+
+  <feature url="features/org.eclipse.imp.x10dt_0.1.76.jar" id="org.eclipse.imp.x10dt" version="0.1.76">
+    <category name="Language Meta-Tools"/>
+  </feature>
+
 </site>
