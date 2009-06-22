@@ -28,7 +28,7 @@ public class RefactoringContributor implements IRefactoringContributor {
 	public IAction[] getEditorRefactoringActions(UniversalEditor editor) {
 		return new IAction[] {
 				// disable until it works correctly
-				//new RenameRefactoringAction(editor),
+				new RenameRefactoringAction(editor),
 		};
 	}
 }
