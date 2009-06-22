@@ -390,8 +390,12 @@ public class X10Builder extends IncrementalProjectBuilder {
     			@Override
     			public List<Goal> goals(Job job) {
     				List<Goal> goals= super.goals(job);
-    				goals.get(goals.size()-1).addPrereq(new CollectBookmarksGoal(job));
-    				return goals;
+    				Goal endGoal = goals.get(goals.size()-1);
+    				if(!(endGoal.name().equals("End"))) {
+    					throw new IllegalStateException("Not an End Goal?");
+    				}
+					endGoal.addPrereq(new CollectBookmarksGoal(job));
+					return goals;
     			}
     		};
     	}
