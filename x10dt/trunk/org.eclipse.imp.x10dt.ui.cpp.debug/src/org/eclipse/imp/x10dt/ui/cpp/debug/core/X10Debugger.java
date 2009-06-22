@@ -70,7 +70,7 @@ public final class X10Debugger implements IPDebugger {
   }
 
   public void cleanup(final ILaunchConfiguration config, final AttributeManager attrMgr, final IPLaunch launch) {
-    // Nothing to do at that point.
+    System.out.println("Call cleanup");
   }
 
   public void getLaunchAttributes(final ILaunchConfiguration config, final AttributeManager attrMgr) throws CoreException {

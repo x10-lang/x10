@@ -17,20 +17,20 @@ import org.eclipse.ptp.ui.model.IElementHandler;
 public class X10ToggleBreakpointsHandler implements IToggleBreakpointsHandler {
 
   // --- Interface methods implementation
-  
+
   public void clearLineBreakpoint(final IFile file, final int lineNumber) {
     try {
       for (final IBreakpoint breakpoint : PDebugModel.getPBreakpoints()) {
         if (breakpoint instanceof IPLineBreakpoint) {
           final IPLineBreakpoint pLineBreakPoint = (IPLineBreakpoint) breakpoint;
           if (pLineBreakPoint.getMarker().getResource().equals(file) && pLineBreakPoint.getLineNumber() == lineNumber) {
-        	pLineBreakPoint.delete();
-        	System.out.println("Deleted breakpoint at "+file.getLocation()+":"+lineNumber);
+            pLineBreakPoint.delete();
+            System.out.println("Deleted breakpoint at " + file.getLocation() + ":" + lineNumber);
           }
         }
       }
     } catch (CoreException e) {
-    	RuntimePlugin.getInstance().logException(e.getMessage(), e);
+      RuntimePlugin.getInstance().logException(e.getMessage(), e);
     }
   }
 
@@ -47,16 +47,15 @@ public class X10ToggleBreakpointsHandler implements IToggleBreakpointsHandler {
   }
 
   // --- Private code
-  
+
   private void createLineBreakpoint(final IFile file, final int lineNumber, final boolean enable) {
     try {
-      PDebugModel.createLineBreakpoint(file.getLocation().toOSString(), file, lineNumber, enable,
-                                       0 /* ignoreCount */, "" /* condition */, true /* register */,
-                                       IElementHandler.SET_ROOT_ID /* set_id */, null /* job */);
-  	  System.out.println("Added breakpoint at "+file.getLocation()+":"+lineNumber);
-	} catch (CoreException e) {
-		RuntimePlugin.getInstance().logException(e.getMessage(), e);
-	}
+      PDebugModel.createLineBreakpoint(file.getLocation().toOSString(), file, lineNumber, enable, 0 /* ignoreCount */,
+                                       "" /* condition */, true /* register */, IElementHandler.SET_ROOT_ID /* set_id */, //$NON-NLS-1$
+                                       null /* job */);
+    } catch (CoreException e) {
+      RuntimePlugin.getInstance().logException(e.getMessage(), e);
+    }
   }
-    
+
 }
