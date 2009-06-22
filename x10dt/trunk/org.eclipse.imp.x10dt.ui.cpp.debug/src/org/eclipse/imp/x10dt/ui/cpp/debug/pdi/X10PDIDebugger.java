@@ -36,7 +36,6 @@ import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
 import org.eclipse.imp.x10dt.ui.cpp.debug.core.X10DebuggerTranslator;
-import org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.util.BitList;
@@ -68,6 +67,7 @@ import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugSetThreadSelectEvent
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStackInfoDepthEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStackframeEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStepEvent;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugSuspendEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugTypeEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugVarsEvent;
 import org.eclipse.ptp.proxy.debug.client.ProxyDebugAIF;
@@ -168,15 +168,14 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void stopDebugger() throws PDIException {
+    this.fState = ESessionState.DISCONNECTED;
     try {
-      this.fState = ESessionState.DISCONNECTED;
-      
       if (this.fPDTTarget != null) {
         this.fPDTTarget.terminate();
-        this.fPDTTarget = null;
       }
+      this.fPDTTarget = null;
     } catch (DebugException except) {
-      throw new PDIException(null, NLS.bind(DebugMessages.PDID_PDTDisconnectError, except.getMessage()));
+      throw new PDIException(null, "Terminate operation failed: " + except.getMessage());
     }
   }
   
@@ -237,16 +236,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     
     initBreakPointIdIfRequired(breakpoint);
     final DebuggeeProcess process = getDebuggeeProcess(tasks);
-//    final Location location = this.fTranslator.getCppLocation(tasks, breakpoint.getLocator().getFile(), 
-//                                                              breakpoint.getLocator().getLineNumber());
-    final ViewFile viewFile = PDTUtils.searchViewFile(this.fPDTTarget, tasks, process, "PETest.c");
-    if (viewFile == null) {
-      throw new PDIException(tasks, NLS.bind("Could not find PDT View file for breakpoint {0}", breakpoint.getLocator()));
-    }
-    final Location location = new Location(viewFile, breakpoint.getLocator().getLineNumber());
-    if (location == null) {
-      throw new PDIException(tasks, NLS.bind("Could not find PDT location for breakpoint {0}", breakpoint.getLocator()));
-    }
+    final Location location = this.fTranslator.getCppLocation(tasks, breakpoint.getLocator().getFile(), 
+                                                              breakpoint.getLocator().getLineNumber());
     try {
       this.fPDTTarget.createLineBreakpoint(true /* enabled */, location, null /* conditionalExpression */, 
                                            null /* brkAction */,  0 /* threadNumber */, 1 /* everyValue */, 1 /* fromValue */, 
@@ -264,35 +255,25 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   // --- IPDIExecuteManagement's interface methods implementation
 
   public void restart(final BitList tasks) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
-    throw new IllegalStateException();
+    raiseDialogBoxNotImplemented("Restart not yet implemented");
   }
 
   public void resume(final BitList tasks, final boolean passSignal) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
     try {
       this.fPDTTarget.resume();
     } catch (DebugException except) {
       throw new PDIException(tasks, except.getMessage());
+    } finally {
+      this.fProxyNotifier.notify(new ProxyDebugOKEvent(-1, ProxyDebugClient.encodeBitSet(tasks)));
     }
   }
 
   public void resume(final BitList tasks, final IPDILocation location) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
-    try {
-      this.fPDTTarget.resume();
-    } catch (DebugException except) {
-      throw new PDIException(tasks, NLS.bind("Resume action error: ", except.getMessage()));
-    }
+    raiseDialogBoxNotImplemented("Resume to location not implemented");
   }
 
   public void resume(final BitList tasks, final IPDISignal signal) throws PDIException {
-    this.fProcessListener.setCurTasks(tasks);
-    try {
-      this.fPDTTarget.resume();
-    } catch (DebugException except) {
-      throw new PDIException(tasks, except.getMessage());
-    }
+    raiseDialogBoxNotImplemented("Resume to signal not implemented");
   }
 
   public void start(final BitList tasks) throws PDIException {
@@ -321,11 +302,10 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
           thread.removeEventListener(stoppedEventListener);
         }
       }
-      final int depth = getDepth(process, thread, tasks);
       final IStackFrame stackFrame = thread.getTopStackFrame();
       
       this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                         toProxyStackFrame(stackFrame, 0), thread.getId(), depth, 
+                                                         toProxyStackFrame(stackFrame, 0), thread.getId(), getDepth(thread), 
                                                          getVariablesAsArrayString(stackFrame)));
     } catch (DebugException except) {
       throw new PDIException(tasks, "Unable to step into: " + except.getMessage());
@@ -357,11 +337,10 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
           thread.removeEventListener(stoppedEventListener);
         }        
       }
-      final int depth = getDepth(process, thread, tasks);
       final IStackFrame stackFrame = thread.getTopStackFrame();
       
       this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                         toProxyStackFrame(stackFrame, 0), thread.getId(), depth, 
+                                                         toProxyStackFrame(stackFrame, 0), thread.getId(), getDepth(thread), 
                                                          getVariablesAsArrayString(stackFrame)));
     } catch (DebugException except) {
       throw new PDIException(tasks, "Unable to step over: " + except.getMessage());
@@ -377,10 +356,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
       final DebuggeeProcess process = getDebuggeeProcess(tasks);
       final DebuggeeThread thread = process.getStoppingThread();
       final ThreadStoppedEventListener stoppedEventListener = new ThreadStoppedEventListener(thread);
-      if (count <= 0) {
-        throw new PDIException(tasks, "Step Return with count <= 0 is not supported.");
-      }
-      for (int i = 0; i < count; i++) {
+      // By default for one step return (count == 0) !!
+      for (int i = 0; i < count + 1; i++) {
         thread.addEventListener(stoppedEventListener);
         thread.stepReturn();
         final Thread runnableThread = new Thread(new WaitingForStateRunnable(stoppedEventListener));
@@ -391,13 +368,12 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
           throw new PDIException(tasks, "Step Return interrupted");
         } finally {
           thread.removeEventListener(stoppedEventListener);
-        }        
+        }
       }
-      final int depth = getDepth(process, thread, tasks);
       final IStackFrame stackFrame = thread.getTopStackFrame();
       
       this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                         toProxyStackFrame(stackFrame, 0), thread.getId(), depth, 
+                                                         toProxyStackFrame(stackFrame, 0), thread.getId(), getDepth(thread), 
                                                          getVariablesAsArrayString(stackFrame)));
     } catch (DebugException except) {
       throw new PDIException(tasks, "Unable to step return: " + except.getMessage());
@@ -429,11 +405,10 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
         } finally {
           thread.removeEventListener(stoppedEventListener);
         }
-        final int depth = getDepth(process, thread, tasks);
         final IStackFrame stackFrame = thread.getTopStackFrame();
       
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
-                                                           toProxyStackFrame(stackFrame, 0), thread.getId(), depth, 
+                                                           toProxyStackFrame(stackFrame, 0), thread.getId(), getDepth(thread), 
                                                            getVariablesAsArrayString(stackFrame)));
       }
     } catch (DebugException except) {
@@ -446,19 +421,40 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   public void suspend(final BitList tasks) throws PDIException {
     if (this.fPDTTarget != null) {
       try {
-        this.fPDTTarget.suspend();
+        final DebuggeeProcess process = getDebuggeeProcess(tasks);
+        process.halt();
+
+        DebuggeeThread firstAvailableThread = null;
+        for (final DebuggeeThread thread : process.getThreads()) {
+          if (thread != null) {
+            firstAvailableThread = thread;
+            break;
+          }
+        }
+        assert firstAvailableThread != null;
+        final IStackFrame stackFrame = firstAvailableThread.getTopStackFrame();
+        this.fProxyNotifier.notify(new ProxyDebugSuspendEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
+                                                              toProxyStackFrame(stackFrame, 0),
+                                                              firstAvailableThread.getId(), 
+                                                              firstAvailableThread.getStackFrames().length,
+                                                              getVariablesAsArrayString(stackFrame)));
       } catch (DebugException except) {
         throw new PDIException(tasks, NLS.bind("Suspend action error: ", except.getMessage()));
+      } catch (EngineRequestException except) {
+        throw new PDIException(tasks, NLS.bind("Suspend request refused by PDT: ", except.getMessage()));
       }
     }
   }
 
   public void terminate(final BitList tasks) throws PDIException {
-    try {
-      this.fPDTTarget.terminate();
-      this.fProxyNotifier.notify(new ProxyDebugOKEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks)));
-    } catch (DebugException except) {
-      throw new PDIException(tasks, "Terminate action error: " + except.getMessage());
+    if (! this.fPDTTarget.isTerminated()) {
+      try {
+        this.fPDTTarget.terminate();
+        
+        this.fProxyNotifier.notify(new ProxyDebugOKEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks)));
+      } catch (DebugException except) {
+        throw new PDIException(tasks, "Terminate action error: " + except.getMessage());
+      }
     }
   }
   
@@ -607,7 +603,18 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void setCurrentStackFrame(final BitList tasks, final int level) throws PDIException {
-    raiseDialogBoxNotImplemented("Set Current Stack Frame Level not yet implemented");
+    try {
+      final DebuggeeThread thread = getDebuggeeProcess(tasks).getStoppingThread();
+      final IStackFrame[] stackFrames = thread.getStackFrames();
+      if (level < stackFrames.length) {
+        this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks),
+                                                           getVariablesAsArrayString(stackFrames[level])));
+      } else {
+        DebugCore.log(IStatus.ERROR, "Stack frame level selected is out of bounds");
+      }
+    } catch (DebugException except) {
+      throw new PDIException(tasks, "Unable to access stack frames in PDT: " + except.getMessage());
+    }
   }
   
   // --- IPDIThreadManagement's interface methods implementation
@@ -758,14 +765,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     return process;
   }
   
-  private int getDepth(final DebuggeeProcess process, final DebuggeeThread thread, final BitList tasks) throws PDIException {
-    final DebuggeeThread[] threads = process.getThreads();
-    for (int i = 0; i < threads.length; ++i) {
-      if ((threads[i] != null) && threads[i].equals(thread)) {
-        return i;
-      }
-    }
-    throw new PDIException(tasks, "Unable to get thread depth");
+  private int getDepth(final DebuggeeThread thread) throws DebugException {
+    return thread.getStackFrames().length;
   }
 
   private EPDTVarExprType getExprType(final ExprNodeBase nodeBase) {
