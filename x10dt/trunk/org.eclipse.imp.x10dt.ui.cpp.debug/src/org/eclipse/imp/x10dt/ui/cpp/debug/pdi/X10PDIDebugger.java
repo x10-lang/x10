@@ -31,8 +31,10 @@ import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.IDebugEventSetListener;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.model.IBreakpoint;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugCore;
 import org.eclipse.imp.x10dt.ui.cpp.debug.DebugMessages;
 import org.eclipse.imp.x10dt.ui.cpp.debug.core.IDebuggerTranslator;
@@ -100,9 +102,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
       this.fServerSocket = new ServerSocket(this.fPort);
       this.fState = ESessionState.CONNECTED;
 
-      this.fAcceptingThread = new Thread(new ListenerRunnable(), "Listening thread to Remote Debugger"); //$NON-NLS-1$
-      this.fAcceptingThread.setDaemon(true);
-      this.fAcceptingThread.start();
+      new Thread(new ListenerRunnable(), "Listening thread to Remote Debugger").start(); //$NON-NLS-1$
     } catch (IOException except) {
       throw new PDIException(null, NLS.bind(DebugMessages.PDID_ServerSocketInitError, except.getMessage()));
     }
@@ -127,19 +127,12 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
 
   public void stopDebugger() throws PDIException {
     try {
-      if (this.fAcceptingThread.isAlive()) {
-        this.fAcceptingThread.interrupt();
-      }
-      this.fServerSocket.close();
-      this.fServerSocket = null;
       this.fState = ESessionState.DISCONNECTED;
       
       if (this.fPDTTarget != null) {
         this.fPDTTarget.disconnect();
         this.fPDTTarget = null;
       }
-    } catch (IOException except) {
-      throw new PDIException(null, NLS.bind(DebugMessages.PDID_SocketClosingError, except.getMessage()));
     } catch (DebugException except) {
       throw new PDIException(null, NLS.bind(DebugMessages.PDID_PDTDisconnectError, except.getMessage()));
     } finally {
@@ -368,14 +361,17 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
   
   public void handleDebugEvents(final DebugEvent[] events) {
     for (final DebugEvent debugEvent : events) {
+      System.out.println(debugEvent);
       switch (debugEvent.getKind()) {
         case DebugEvent.RESUME:
           break;
         case DebugEvent.SUSPEND:
+          if (debugEvent.getDetail() == DebugEvent.BREAKPOINT) {
+          }
           break;
         case DebugEvent.CREATE:
           if (debugEvent.getSource() instanceof IProcess) {
-            
+
           }
           break;
         case DebugEvent.TERMINATE:
@@ -417,7 +413,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     loadInfo.setProject(getProjectResource(configuration.getAttribute(ATTR_PROJECT_NAME, EMPTY_STRING)));
    
 //    if (configuration.getAttribute(ATTR_STOP_IN_MAIN, false)) {
-      loadInfo.setStartupBehaviour(PICLLoadInfo.RUN_TO_MAIN);
+      loadInfo.setStartupBehaviour(PICLLoadInfo.RUN_TO_BREAKPOINT);
 //    } else {
 //      loadInfo.setStartupBehaviour(PICLLoadInfo.RUN_TO_BREAKPOINT);
 //    }
@@ -480,11 +476,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
         if (monitor.isCanceled()) {
           return false;
         }
-        if (this.fState != ESessionState.CONNECTED) {
-          return false;
-        }
       }
-      return true;
+      return this.fState == ESessionState.RUNNING;
     } finally {
       this.fWaitLock.unlock();
       monitor.done();
@@ -497,6 +490,13 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
       while (this.fLaunch == null) {
         this.fLaunchCondition.await();
       }
+    } catch (InterruptedException except) {
+      DebugCore.log(IStatus.WARNING, "Launch Thread Condition Interrupted.");
+      return;
+    } finally {
+      this.fWaitLock.unlock();
+    }
+    try {
       final int version = new DataInputStream(socket.getInputStream()).readInt();
       final String[] input = CoreDaemon.readOldStyleStrings(socket.getInputStream(), version);
       
@@ -508,20 +508,21 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
 
       this.fPDTTarget = new PICLDebugTarget(this.fLaunch, loadInfo, connectionInfo);
       this.fPDTTarget.engineIsWaiting(connectionInfo, true /* socketReuse */);
-      
-      this.fState = ESessionState.RUNNING;
-      if (this.fWaiting) {
-        this.fRunningCondition.signal();
-        this.fWaiting = false;
+  
+      this.fWaitLock.lock();
+      try {
+        this.fState = ESessionState.RUNNING;
+        if (this.fWaiting) {
+          this.fRunningCondition.signal();
+          this.fWaiting = false;
+        }
+      } finally {
+        this.fWaitLock.unlock();
       }
-    } catch (InterruptedException except) {
-      DebugCore.log(IStatus.WARNING, "Launch Thread Condition Interrupted.");
     } catch (IOException except) {
       DebugCore.log(IStatus.ERROR, "Unable to access socket input stream", except);
     } catch (CoreException except) {
       DebugCore.log(except.getStatus());
-    } finally {
-      this.fWaitLock.unlock();
     }
   }
   
@@ -532,38 +533,15 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
     // --- Interface methods implementation
     
     public void run() {
-      while (X10PDIDebugger.this.fState == ESessionState.CONNECTED) {
-        try {
-          if (! X10PDIDebugger.this.fServerSocket.isClosed()) {
-            final Socket socket = X10PDIDebugger.this.fServerSocket.accept();
-            if (socket != null) {
-              new Thread(new ProcessRunnable(socket)).start();
-            }
-          }
-        } catch (IOException except) {
-          DebugCore.log(IStatus.ERROR, DebugMessages.PDID_SocketListeningError, except);
+      try {
+        final Socket socket = X10PDIDebugger.this.fServerSocket.accept();
+        if (socket != null) {
+          process(socket);
         }
+      } catch (IOException except) {
+        DebugCore.log(IStatus.ERROR, DebugMessages.PDID_SocketListeningError, except);
       }
-      
     }
-    
-  }
-  
-  private class ProcessRunnable implements Runnable {
-    
-    ProcessRunnable(final Socket socket) {
-      this.fSocket = socket;
-    }
-    
-    // --- Interface methods implementation
-
-    public void run() {
-      process(this.fSocket);
-    }
-    
-    // --- Fields
-    
-    private final Socket fSocket;
     
   }
   
@@ -582,8 +560,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEventSetListene
   private boolean fWaiting;
   
   private PICLDebugTarget fPDTTarget;
-  
-  private Thread fAcceptingThread;
   
   private final int fPort;
   
