@@ -117,6 +117,13 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 				    System.out.println("X10ModelPresentation: a!=null");	
 				    String name = ((X10Thread)element).getName();
 				    System.out.println("X10ModelPresentation: name ="+name);
+				    if (name.contains("terminated")) {
+				    	String place=t.name();
+						place=place.replace("pool", "PLACE");
+						place=place.substring(0, 16);
+					    return place + "(Idle)";
+				    }
+				    name=name.replace("true","(running)");
 				    return name;
 				}
 				/*
