@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.IStackFrame;
+import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.internal.ui.model.elements.DebugTargetContentProvider;
 import org.eclipse.debug.internal.ui.model.elements.ThreadContentProvider;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IChildrenCountUpdate;
@@ -14,8 +15,10 @@ import org.eclipse.debug.internal.ui.viewers.model.provisional.IHasChildrenUpdat
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IPresentationContext;
 import org.eclipse.debug.internal.ui.viewers.model.provisional.IViewerUpdate;
 import org.eclipse.debug.ui.IDebugUIConstants;
+import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10StackFrame;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
+import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
 
 public class AsyncStackFrameFilteringContentProvider 
 	extends ThreadContentProvider implements IElementContentProvider {
@@ -25,12 +28,49 @@ public class AsyncStackFrameFilteringContentProvider
 		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
 			List<IStackFrame> userFrames = new ArrayList();
 			for (Object f: stackFrames) {
+				
+				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
+					String reftype=((JDIStackFrame)f).getReferenceType().getName();
+		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent")) {
+		    			
+		    			continue;
+		    		}
+		    	}
 				userFrames.add((IStackFrame)f);
-				if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
-					return userFrames.toArray(new IStackFrame[0]);
-				}
+				//if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
+					//return userFrames.toArray(new IStackFrame[0]);
+				//}
 			}	
+			return userFrames.toArray(new IStackFrame[0]);
 		}
+        return EMPTY;
+	}
+	
+	protected Object[] getChildren(Object parent, int index, int length, IPresentationContext context, IViewerUpdate monitor) throws CoreException {
+		Object[] stackFrames = super.getChildren(parent, index, length, context, monitor);
+			//getElements(((IThread)parent).getStackFrames(), index, length);
+		if (stackFrames != null){
+		System.out.println("AsyncStackFrameFiltering : after getChildren "+stackFrames.length);
+		String id = context.getId();
+		if (id.equals(IDebugUIConstants.ID_DEBUG_VIEW)) {
+			List<IStackFrame> userFrames = new ArrayList();
+			for (Object f: stackFrames) {
+				
+				if (((X10DebugTargetAlt)((X10StackFrame)f).getDebugTarget()).isStepFiltersEnabled()) {
+					String reftype=((JDIStackFrame)f).getReferenceType().getName();
+		    		if (reftype.contains("x10.runtime")|| reftype.contains("x10.lang") || reftype.contains("x10.array") || reftype.contains("java.util.concurrent")) {
+		    			
+		    			continue;
+		    		}
+		    	}
+				System.out.println("AsyncStackFrameFiltering :adding");
+				userFrames.add((IStackFrame)f);
+				//if ((f instanceof X10StackFrame && ((X10StackFrame)f).getName().equals("runX10Task"))) {
+					//return userFrames.toArray(new IStackFrame[0]);
+				//}
+			}	
+			return userFrames.toArray(new IStackFrame[0]);
+		}}
         return EMPTY;
 	}
 	
