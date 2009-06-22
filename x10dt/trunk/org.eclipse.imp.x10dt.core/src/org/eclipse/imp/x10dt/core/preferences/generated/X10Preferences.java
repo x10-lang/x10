@@ -20,7 +20,7 @@ public class X10Preferences extends TabbedPreferencesPage {
 		super();
 		// Get the language-specific preferences service
 		// SMS 28 Mar 2007:  parameterized full name of plugin class
-		prefService = X10Plugin.getPreferencesService();
+		prefService = X10Plugin.getInstance().getPreferencesService();
 	}
 
 	protected PreferencesTab[] createTabs(IPreferencesService prefService,
