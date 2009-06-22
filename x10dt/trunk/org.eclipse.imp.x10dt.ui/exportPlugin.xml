@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="x10.uide" default="build.update.jar" basedir=".">
 	<import file="../org.eclipse.safari.x10dt.feature/buildCommon.xml"/>
-	<import file="../com.ibm.watson.safari.update/buildPluginCommon.xml"/>
+	<import file="../org.eclipse.safari.update/buildPluginCommon.xml"/>
 
 	<target name="init" depends="properties">
 		<property name="plugin.name" value="x10.uide"/>
