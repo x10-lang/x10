@@ -27,24 +27,24 @@
 450 ArrayCreationExpression ::= 
        new ArrayBaseType Unsafeopt [] 
          ArrayInitializer
-451   -  new ArrayBaseType Unsafeopt 
+451  |  new ArrayBaseType Unsafeopt 
        [ Expression ]
-452   -  new ArrayBaseType Unsafeopt 
+452  |  new ArrayBaseType Unsafeopt 
        [ Expression ] Expression
-453   -  new ArrayBaseType Unsafeopt 
+453  |  new ArrayBaseType Unsafeopt 
        [ Expression ] 
        (FormalParameter) MethodBody
-454   -  new ArrayBaseType value Unsafeopt 
+454  |  new ArrayBaseType value Unsafeopt 
        [ Expression ]
-455   -  new ArrayBaseType value Unsafeopt 
+455  |  new ArrayBaseType value Unsafeopt 
        [ Expression ] Expression
-456   -  new ArrayBaseType value Unsafeopt 
+456  |  new ArrayBaseType value Unsafeopt 
        [ Expression ] 
        ( FormalParameter ) MethodBody
 457 ArrayBaseType ::= PrimitiveType
-458   -  ClassOrInterfaceType
+458  |  ClassOrInterfaceType
 530 Unsafeopt ::=
-531   -  unsafe
+531  |  unsafe
 </pre>
 
 <div class="p"><!----></div>
