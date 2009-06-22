@@ -29,6 +29,7 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.refactoring.RefactoringStarter;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
+import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.imp.x10dt.ui.refactoring.RefactoringMessages;
 import org.eclipse.imp.x10dt.ui.refactoring.RenameRefactoring;
 import org.eclipse.imp.x10dt.ui.refactoring.RenameWizard;
@@ -46,6 +47,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
@@ -64,7 +66,7 @@ public class RenameRefactoringAction extends TextEditorAction {
     private Node fDeclaringParent;
 
     public RenameRefactoringAction(UniversalEditor editor) {
-	super(RefactoringMessages.ResBundle, "Rename.", editor);
+        super(RefactoringMessages.ResBundle, "Rename.", editor);
 
         IEditorInput input= editor.getEditorInput();
 
@@ -100,21 +102,30 @@ public class RenameRefactoringAction extends TextEditorAction {
         }
 
         Declaration decl;
+        Node node= fNode;
 
-        if (fNode instanceof Local) {
-            decl= ((Local) fNode).localInstance();
-        } else if (fNode instanceof Field) {
-            decl= ((Field) fNode).fieldInstance();
-        } else if (fNode instanceof Formal) {
-            decl= ((Formal) fNode).localInstance();
-        } else if (fNode instanceof FieldDecl) {
-            decl= ((FieldDecl) fNode).fieldInstance();
-        } else if (fNode instanceof LocalDecl) {
-            decl= ((LocalDecl) fNode).localInstance();
-        } else if (fNode instanceof MethodDecl) {
-            decl= ((MethodDecl) fNode).methodInstance();
-        } else if (fNode instanceof Call) {
-            decl= ((Call) fNode).methodInstance();
+        if (node instanceof Id) {
+            UniversalEditor editor= (UniversalEditor) getTextEditor();
+            IParseController parseController= editor.getParseController();
+            PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
+            Node parent= (Node) locator.getParentNodeOf(node, fRoot);
+
+            node= parent;
+        }
+        if (node instanceof Local) {
+            decl= ((Local) node).localInstance();
+        } else if (node instanceof Field) {
+            decl= ((Field) node).fieldInstance();
+        } else if (node instanceof Formal) {
+            decl= ((Formal) node).localInstance();
+        } else if (node instanceof FieldDecl) {
+            decl= ((FieldDecl) node).fieldInstance();
+        } else if (node instanceof LocalDecl) {
+            decl= ((LocalDecl) node).localInstance();
+        } else if (node instanceof MethodDecl) {
+            decl= ((MethodDecl) node).methodInstance();
+        } else if (node instanceof Call) {
+            decl= ((Call) node).methodInstance();
 //      } else if (fNode instanceof TypeNode) {
         } else {
             MessageDialog.openError(shell, "Cannot rename", "Renaming of entities other than local variables, fields and methods not yet implemented.");
@@ -148,38 +159,38 @@ public class RenameRefactoringAction extends TextEditorAction {
         System.out.println("declaration is located in " + position.file() + ": " + position);
 
         ITextEditor textEditor= getTextEditor();
-	IEditorInput input= textEditor.getEditorInput();
+        IEditorInput input= textEditor.getEditorInput();
 
-	if (isBinary(decl)) {
-	    MessageDialog.openError(textEditor.getSite().getShell(), "Cannot rename", "The given entity is defined in a binary file and cannot be changed.");
-	    return;
-	}
+        if (isBinary(decl)) {
+            MessageDialog.openError(textEditor.getSite().getShell(), "Cannot rename", "The given entity is defined in a binary file and cannot be changed.");
+            return;
+        }
 
-	if (input instanceof IFileEditorInput) {
+        if (input instanceof IFileEditorInput) {
             IFileEditorInput fileInput= (IFileEditorInput) input;
             IProject project= fileInput.getFile().getProject();
-	    IParseController parseCtrlr= new ParseController();
-	    // TODO Handle cross-project references
-	    IPath declFilePath= new Path(position.file()).removeFirstSegments(project.getLocation().segmentCount());
-	    try {
-		ISourceProject srcProject= ModelFactory.open(project);
+            IParseController parseCtrlr= new ParseController();
+            // TODO Handle cross-project references
+            IPath declFilePath= new Path(position.file()).removeFirstSegments(project.getLocation().segmentCount());
+            try {
+                ISourceProject srcProject= ModelFactory.open(project);
 
-		parseCtrlr.initialize(declFilePath, srcProject, null);
-		IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
-		Node declRoot= (Node) parseCtrlr.parse(document.get(), false, null);
+                parseCtrlr.initialize(declFilePath, srcProject, null);
+                IDocument document= textEditor.getDocumentProvider().getDocument(fileInput);
+                Node declRoot= (Node) parseCtrlr.parse(document.get(), false, null);
 
-		System.out.println("Root of AST containing declaration: " + declRoot);
-		findDeclaration(declRoot, decl);
-		System.out.println(fDeclaringNode);
-	    } catch (ModelException e) {
-		ErrorHandler.reportError(e.getMessage(), e);
-	    }
+                System.out.println("Root of AST containing declaration: " + declRoot);
+                findDeclaration(declRoot, decl);
+                System.out.println(fDeclaringNode);
+            } catch (ModelException e) {
+                ErrorHandler.reportError(e.getMessage(), e);
+            }
         }
     }
 
     private boolean isBinary(Declaration decl) {
-	final String file= decl.position().file();
-	return file.endsWith(".class") || file.endsWith(".jar");
+        final String file= decl.position().file();
+        return file.endsWith(".class") || file.endsWith(".jar");
     }
 
     /**
