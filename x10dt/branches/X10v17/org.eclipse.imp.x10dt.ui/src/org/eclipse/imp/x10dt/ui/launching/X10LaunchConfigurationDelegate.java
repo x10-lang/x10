@@ -19,6 +19,8 @@ package org.eclipse.imp.x10dt.ui.launching;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -28,6 +30,7 @@ import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
@@ -41,41 +44,49 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
-    private final static String x10RuntimeType= "x10.lang.Runtime";
+	/**
+	 * This is the class name that the runtime actually launches.
+	 * <br>in 1.5 this was always "x10.lang.Runtime' 
+	 * <br>in 1.7 this is "Hello$Main"   where "Hello" is main user class
+	 */
+    private /*final static*/ String x10RuntimeType= "x10.lang.Runtime"; // PORT1.7 no longer true for 1.7?
 
     @Override
-    public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
-        IVMInstall vm= super.getVMInstall(configuration);
+	public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
+		IVMInstall vm = super.getVMInstall(configuration);
 
-        if (vm instanceof IVMInstall2) {
-	    IVMInstall2 vm2= (IVMInstall2) vm;
-            if (!vm2.getJavaVersion().startsWith("1.5") && !vm2.getJavaVersion().startsWith("1.6")) {
-    	    Display.getDefault().asyncExec(new Runnable() {
-		public void run() {
-		    Shell shell= X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
-		    String projectName= "";
-		    try {
-			projectName= configuration.getAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", "");
-		    } catch (CoreException e) {
-		    }
-		    MessageDialog.openError(shell, "Launch Error", "Project '" + projectName + "' must use a Java 5.0 runtime.");
+		if (vm instanceof IVMInstall2) {
+			IVMInstall2 vm2 = (IVMInstall2) vm;
+			if (!vm2.getJavaVersion().startsWith("1.5") && !vm2.getJavaVersion().startsWith("1.6")) {
+				Display.getDefault().asyncExec(new Runnable() {
+					public void run() {
+						Shell shell = X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+						String projectName = "";
+						try {
+							projectName = configuration.getAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", "");
+						} catch (CoreException e) {
+						}
+						MessageDialog.openError(shell, "Launch Error", "Project '" + projectName + "' must use a Java 5.0 runtime.");
+					}
+				});
+				return null;
+			}
 		}
-	    });
-        	return null;
-            }
-        }
-        return vm;
-    }
+		return vm;
+	}
 
     /**
-     * Returns the X10 runtime arguments specified by the given launch configuration,
-     * as a string. The returned string is empty if no program arguments are specified.
-     * 
-     * @param configuration launch configuration
-     * @return the runtime arguments specified by the given launch
-     *         configuration, possibly an empty string
-     * @exception CoreException if unable to retrieve the attribute
-     */
+	 * Returns the X10 runtime arguments specified by the given launch
+	 * configuration, as a string. The returned string is empty if no program
+	 * arguments are specified.
+	 * 
+	 * @param configuration
+	 *            launch configuration
+	 * @return the runtime arguments specified by the given launch
+	 *         configuration, possibly an empty string
+	 * @exception CoreException
+	 *                if unable to retrieve the attribute
+	 */
     public String getRuntimeArguments(ILaunchConfiguration configuration) throws CoreException {
 	String arguments= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
 	IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
@@ -131,8 +142,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	// obtain from the project's classpath.
 	String x10RuntimeLoc= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
 
-	// TODO Allow an empty X10 runtime location field.
-	// In that case, fall back to the runtime specified in the project classpath.
+	// BRT  assure we have a runtime 
+	// validators for launch config page shd ensure that this field is not empty.  can't dismiss dialog if it's empty
 	if (x10RuntimeLoc.length() == 0) {
 	    Display.getDefault().asyncExec(new Runnable() {
 		public void run() {
@@ -142,14 +153,52 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	    });
 	    return;
 	}
+	
+	//======== start new classpath calculation
+	List<String> classpathList= new ArrayList<String>();
+	for (int i = 0; i < classpath.length; i++) {
+		classpathList.add( classpath[i]);	
+	}
+	
+	//PORT1.7 fix common loc
+	String locPrefix=x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator ;
+	String commonLoc= locPrefix+ X10Plugin.X10_COMMON_BUNDLE_ID;
 
-	String[] classPathWithExplicitRuntime= new String[classpath.length+1];
+	//String constraintsLoc=locPrefix + X10Plugin.X10_CONSTRAINTS_BUNDLE_ID;//PORT1.7 use this too?
+	String locnDir=getDir(x10RuntimeLoc);
+	//PORT1.7  -- x10common.jar and x10constraints.jar assumed to be found  in same dir as runtime jar; names hardcoded here too for now (temporary)
+	String jar1=locnDir+"x10common.jar";
+	String jar2=locnDir+"x10constraints.jar";
+	classpathList.add(jar1);
+	classpathList.add(jar2);
+	// PORT1.7 -- we might also want a third jar, the pre-built X10 classes; for now I am using hand-build runtime jar that combines runtime+prebuilt
+	
+	
+	// test that each exists (be paranoid)
+	for (int i = 0; i < classpathList.size(); i++) {
+		String path = classpathList.get(i);
+		File file=new File(path);
+		if(file.exists()) {
+			//System.out.println(path+" exists");
+		}
+		else {
+			System.out.println("***OOPS: Expected x10 runtime path part of  "+path+" DOES NOT exist");
+		}
+		
+	}
+	String[] classPathExpanded=classpathList.toArray(new String[] {});
+	//======== end new classpath calculation
 
-	classPathWithExplicitRuntime[0]= x10RuntimeLoc;
-	System.arraycopy(classpath, 0, classPathWithExplicitRuntime, 1, classpath.length);
-
+	// The main class to launch is userclass$Main = accept the launch config value of "Main class" with or without trailing "$Main"
+	// that is, append it only if necessary
+	// We accept it with trailing "$Main" because this is what the "Search..." action on launch config returns.  ("Hello$Main")
+	x10RuntimeType=mainTypeName;
+	final String main="$Main";
+	if(!mainTypeName.endsWith(main)) {
+		x10RuntimeType= x10RuntimeType+main; 
+	}
 	// Create VM config
-	VMRunnerConfiguration runConfig= new VMRunnerConfiguration(x10RuntimeType, classPathWithExplicitRuntime);
+	VMRunnerConfiguration runConfig= new VMRunnerConfiguration(x10RuntimeType, classPathExpanded);
 	String[] explicitRuntimeArgsArray= execArgs.getRuntimeArgumentsArray();
 	String[] explicitProgArgsArray= execArgs.getProgramArgumentsArray();
 	String[] realArgsArray= new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length + 1];
@@ -158,12 +207,15 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	realArgsArray[explicitRuntimeArgsArray.length]= mainTypeName;
 	System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length+1, explicitProgArgsArray.length);
 
-	String commonLoc= x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator + "x10.common";
 
+	
+	// DLLs were for testcases??? in 1.5  needed some native code.   but not any more.
 	String[] x10ExtraVMArgs= {
-		"-Djava.library.path=" + commonLoc + "\\lib",
-		"-ea"
+		//"-Djava.library.path=" + commonLoc + "\\lib",
+		"-ea"  // BRT ea= enable assertions, do this only if set in prefs
 	};
+	// 1.7: would have to get to c++ backend code
+	// eventually want some UI in launch config for this
 
 	String[] explicitVMArgsArray= execArgs.getVMArgumentsArray();
 	String[] realVMArgsArray= new String[explicitVMArgsArray.length + x10ExtraVMArgs.length];
@@ -205,5 +257,17 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	}
 
 	monitor.done();
+    }
+
+
+	private String getDir(String pathLocation) {
+    	String result="";
+    	if(pathLocation.endsWith(File.separator)) {
+    		pathLocation=pathLocation.substring(0,pathLocation.length()-1);
+    	}
+    	int loc=pathLocation.lastIndexOf(File.separator);
+    	result=pathLocation.substring(0,loc+1);
+    	
+    	return result;
     }
 }
