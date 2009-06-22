@@ -32,7 +32,11 @@ public interface IDebuggerTranslator {
   public String getX10File(final DebuggeeProcess process, final Location cppLocation);
   
   public String getX10Function(final DebuggeeProcess process, final String cppFunction, final Location cppLocation);
-
+  
   public int getX10Line(final DebuggeeProcess process, final Location cppLocation);
   
+  public String getClosureVariableType(DebuggeeProcess process, Location location, String function, String name);
+  
+  public String[] getClosureVars(DebuggeeProcess process, Location location, String function);
+
 }
