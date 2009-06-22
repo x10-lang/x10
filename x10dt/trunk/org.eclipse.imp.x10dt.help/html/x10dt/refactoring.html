@@ -20,6 +20,21 @@
  <h1>X10 Refactoring</h1>
 
 <h2>What is Refactoring?</h2>
+<p>Refactoring is a behavior-preserving source-to-source transformation.
+As classically defined, refactoring is intended primarily to improve source code maintainability.
+<p>The X10 refactorings for concurrency are 
+behavior-preserving transformations that can be used to safely improve parallel performance.
+<p>
+Examples of refactoring for concurrency include:
+<ul>
+<li>Introduce additional concurrency
+<li>Reorganize existing concurrency
+<br>E.g., substitute one form of concurrency for another: use clocks for phased computations in lieu of individual activities
+<li>Alter data distributions to improve locality
+<li>Introduce word-level parallelism (for bit operations)
+</ul>
+<p> Current X10 refactoring menu:
+<br><img src="images/refactoringMenu.png">
 
 <h2>An X10 Refactoring example</h2>
 <p>
