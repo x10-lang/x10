@@ -5,18 +5,25 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarFile;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.osgi.framework.Bundle;
@@ -80,12 +87,43 @@ public class ExtractAsyncStaticTools {
 	    return x10RuntimePath.append(ExtractAsyncStaticTools.eclipseHomePath);
 	}
 
+	/**
+	 * @return the set of all *.x10 source files located in all folders
+	 * on the source path of the given (Java-natured) project
+	 */
+	public static Collection<String> allSources(IProject project) {
+	    IJavaProject javaProject= JavaCore.create(project);
+	    IWorkspaceRoot wsRoot= project.getWorkspace().getRoot();
+	    final Collection<String> result= new HashSet<String>();
+	    try {
+		IClasspathEntry[] entries= javaProject.getResolvedClasspath(true);
+		for (int i = 0; i < entries.length; i++) {
+		    IClasspathEntry entry = entries[i];
+		    if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+			IPath entryPath= entry.getPath();
+			IResource entryRsrc= wsRoot.findMember(entryPath);
+			entryRsrc.accept(new IResourceVisitor() {
+			    public boolean visit(IResource resource) throws CoreException {
+				if (resource instanceof IFile) {
+				    IFile file= (IFile) resource;
+				    if ("x10".equals(file.getFileExtension())) {
+					result.add(file.getLocation().toPortableString());
+				    }
+				}
+				return true;
+			    }
+			});
+		    }
+		}
+	    } catch (CoreException e) {
+		e.printStackTrace();
+	    }
+	    return result;
+	}
+
 	public static Collection<String> singleTestSrc(IFile grammarFile) {
 		IWorkspace myWorkspace = ResourcesPlugin.getWorkspace();
 		return Collections.singletonList(grammarFile.getLocation().toString());
-//		return Collections.singletonList(myWorkspace.getRoot().getLocation()
-//				.toString()
-//				+ grammarFile.getFullPath().toString());
 	}
 
 	/*
