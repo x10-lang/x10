@@ -1075,7 +1075,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection<IProject> doCompile() throws CoreException {
         if (!fSourcesToCompile.isEmpty()) {
-    	    clearDependencyInfoForChangedFiles();
+            // RMF 8/5/2008 - Don't clear the dependency info right away - if Polyglot fails to
+            // get to some source file on the list, it'll end up with no dependency info. Better
+            // to just leave the dependency info untouched. So, instead: clear a file's dependency
+            // info just before recomputing it (i.e. in the ComputeDependenciesVisitor).
+//    	    clearDependencyInfoForChangedFiles();
     	    invokeX10C(fSourcesToCompile);
     	    // Now do a refresh to make sure the Java compiler sees the Java
     	    // source files that Polyglot just created.
@@ -1126,13 +1130,13 @@ public class X10Builder extends IncrementalProjectBuilder {
         return dependentProjects;
     }
 
-    private void clearDependencyInfoForChangedFiles() {
-        for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
-            IFile srcFile= iter.next();
-
-            fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
-        }
-    }
+//    private void clearDependencyInfoForChangedFiles() {
+//        for(Iterator<IFile> iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
+//            IFile srcFile= iter.next();
+//
+//            fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
+//        }
+//    }
 
     private void dumpSourceList(Collection<IFile> sourcesToCompile) {
         for(Iterator<IFile> iter= sourcesToCompile.iterator(); iter.hasNext(); ) {
