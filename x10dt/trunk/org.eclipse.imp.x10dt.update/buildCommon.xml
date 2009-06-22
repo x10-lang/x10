@@ -33,7 +33,7 @@
 
     <property name="bootclasspath" refid="path_bootclasspath"/>
 
-    <condition property="eclipse.home" value="/Developer/eclipse-3.3.2">
+    <condition property="eclipse.home" value="${eclipse_path}">
         <and>
             <not>
                 <isset property="eclipse.home"/>
@@ -42,7 +42,7 @@
         </and>
     </condition>
 
-    <condition property="eclipse.home" value="/usr/lib/eclipse-3.2">
+    <condition property="eclipse.home" value="${eclipse_path}">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
@@ -51,7 +51,7 @@
 	</and>
     </condition>
 
-    <condition property="eclipse.home" value="f:/eclipse-3.2.2">
+    <condition property="eclipse.home" value="${eclipse_path}">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
