@@ -256,37 +256,13 @@
       </menuContribution>
    </extension>
    <extension
-         id="org.eclipse.imp.x10dt.gobble"
-         name="Gobble"
          point="org.eclipse.ui.commands">
-      <category
-            description="Entertain the very young"
-            id="org.eclipse.imp.x10dt.ui.animalSounds"
-            name="Moozencluks">
-      </category>
-      <command
-            category="Moozencluks"
-            categoryId="org.eclipse.imp.x10dt.ui.animalSounds"
-            defaultHandler="org.eclipse.imp.x10dt.ui.commands.Gobble"
-            description="Make a turkey sound"
-            id="org.eclipse.imp.x10dt.ui.Gobble"
-            name="Gobble">
-      </command>
       <command
             defaultHandler="org.eclipse.imp.x10dt.ui.commands.handlers.FormatCmdHandler"
             description="Format X10 source"
             id="org.eclipse.imp.x10dt.ui.formatCmd"
             name="Format">
       </command>
-   </extension>
-   <extension
-         name="Barnyard Sounds"
-         point="org.eclipse.ui.views">
-      <view
-            class="org.eclipse.imp.x10dt.ui.views.SoundView"
-            id="org.eclipse.imp.x10dt.ui.view.sounds"
-            name="Soundview">
-      </view>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.contextHelper">
