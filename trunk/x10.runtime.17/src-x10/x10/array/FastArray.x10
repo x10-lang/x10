@@ -13,8 +13,7 @@ package x10.array;
  * @author bdlucas
  */
 
-// Olivier: uncomment @Native annotations below to inline array accesses and updates
-// import x10.compiler.Native;
+import x10.compiler.Native;
 
 public final value class FastArray[T] extends BaseArray[T] {
 
@@ -44,20 +43,20 @@ public final value class FastArray[T] extends BaseArray[T] {
     val offset2: int;
     val offset3: int;
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#1)]")
     final public safe def apply(i0: int): T {
         var offset:int = i0;
         return raw(-offset0 + offset);
     }
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#1) * (#0)->FMGL(delta1) + (#2)]")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#1) * (#0)->FMGL(delta1) + (#2)]")
     final public safe def apply(i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
         return raw(-offset1 + offset);
     }
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)]")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)]")
     final public safe def apply(i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
@@ -65,7 +64,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         return raw(-offset2 + offset);
     }
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)) * (#0)->FMGL(delta3) + (#4)]")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#1) * (#0)->FMGL(delta1) + (#2)) * (#0)->FMGL(delta2) + (#3)) * (#0)->FMGL(delta3) + (#4)]")
     final public safe def apply(i0: int, i1: int, i2: int, i3: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
@@ -78,14 +77,14 @@ public final value class FastArray[T] extends BaseArray[T] {
     //
     //
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#2)] = (#1)")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset0) + (#2)] = (#1)")
     final public safe def set(v: T, i0: int): T {
         var offset:int = i0;
         raw(offset - offset0) = v;
         return v;
     }
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#2) * (#0)->FMGL(delta1) + (#3)] = (#1)")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset1) + (#2) * (#0)->FMGL(delta1) + (#3)] = (#1)")
     final public safe def set(v: T, i0: int, i1: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
@@ -93,7 +92,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         return v;
     }
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)] = (#1)")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset2) + ((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)] = (#1)")
     final public safe def set(v: T, i0: int, i1: int, i2: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
@@ -102,7 +101,7 @@ public final value class FastArray[T] extends BaseArray[T] {
         return v;
     }
 
-//	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)) * (#0)->FMGL(delta3) + (#5)] = (#1)")
+	@Native("c++", "(*(#0)->FMGL(raw))[-(#0)->FMGL(offset3) + (((#2) * (#0)->FMGL(delta1) + (#3)) * (#0)->FMGL(delta2) + (#4)) * (#0)->FMGL(delta3) + (#5)] = (#1)")
     final public safe def set(v: T, i0: int, i1: int, i2: int, i3: int): T {
         var offset:int = i0;
         offset = offset*delta1 + i1;
