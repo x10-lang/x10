@@ -13,4 +13,8 @@ public class X10ProjectWizardFirstPage extends NewProjectWizardFirstPage {
 	setDescription("Creates a new X10 project");
 	fInitialName= ""; //$NON-NLS-1$
     }
+
+    public String getJRECompliance() {
+        return "1.5"; // RMF 7/25/2006 - Always use 1.5 compliance; the X10 runtime requires it
+    }
 }
