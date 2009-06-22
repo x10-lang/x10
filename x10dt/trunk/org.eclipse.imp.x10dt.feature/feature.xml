@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.safari.x10dt"
       label="X10 Development Toolkit"
-      version="1.0.38"
+      version="1.0.39"
       provider-name="rfuhrer@watson.ibm.com">
 
    <description url="http://delhi.watson.ibm.com/">
@@ -25,42 +25,42 @@ except any specific purpose.
    </url>
 
    <requires>
-      <import feature="org.eclipse.safari.runtime" version="1.0.38" match="perfect"/>
+      <import feature="org.eclipse.safari.runtime" version="1.0.39" match="perfect"/>
    </requires>
 
    <plugin
          id="com.ibm.watson.safari.x10"
          download-size="0"
          install-size="0"
-         version="1.0.38"
+         version="1.0.39"
          unpack="false"/>
 
    <plugin
          id="x10.compiler"
          download-size="0"
          install-size="0"
-         version="1.0.38"
+         version="1.0.39"
          unpack="false"/>
 
    <plugin
          id="x10.runtime"
          download-size="0"
          install-size="0"
-         version="1.0.38"
+         version="1.0.39"
          unpack="false"/>
 
    <plugin
          id="x10.uide"
          download-size="0"
          install-size="0"
-         version="1.0.38"
+         version="1.0.39"
          unpack="false"/>
 
    <plugin
          id="org.eclipse.safari.x10dt"
          download-size="0"
          install-size="0"
-         version="1.0.38"
+         version="1.0.39"
          unpack="false"/>
 
 </feature>
