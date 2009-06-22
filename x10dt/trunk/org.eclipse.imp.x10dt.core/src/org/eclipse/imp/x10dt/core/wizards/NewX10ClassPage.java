@@ -315,7 +315,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 		if (createMain) {
 			if (createComments) {
 				buff.append("    /**   \n");
-				buff.append("     *  main method "  +"\n");
+				buff.append("     *  Main method "  +"\n");
 				buff.append("     */  \n");
 			}
 			buff.append("    public static def main(args:Rail[String]): Void {\n");
@@ -325,10 +325,11 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 		if (createConstructors) {
 			if (createComments) {
 				buff.append("    /**   \n");
-				buff.append("     *  Default constructor stub \n");
+				buff.append("     *  Default constructor \n");
 				buff.append("     */  \n");
 			}
-			buff.append("    def this() {\n");
+			buff.append("    public def this() {\n");
+			buff.append("         // stub\n");
 			buff.append("    }\n");
 		}
 		buff.append("}");
