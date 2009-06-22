@@ -58,6 +58,8 @@ public class NewX10ClassWizard extends NewElementWizard implements INewWizard {
 	if (res) {
 	    IResource resource= fPage.getModifiedResource();
 	    if (resource != null) {
+		if (getWorkbench() == null)
+		    init(PlatformUI.getWorkbench(), null);
 		selectAndReveal(resource);
 		openResource((IFile) resource);
 	    }
