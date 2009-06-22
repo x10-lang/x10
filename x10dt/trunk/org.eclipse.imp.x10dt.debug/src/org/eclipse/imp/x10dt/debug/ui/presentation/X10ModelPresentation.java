@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.core.model.IVariable;
 import org.eclipse.debug.core.model.IValue;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.IValueDetailListener;
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
-import org.eclipse.imp.x10dt.debug.model.impl.jdi.X10DelegatingStackFrame;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsJDIThread;
 import org.eclipse.jdt.debug.core.IJavaReferenceType;
 import org.eclipse.jdt.debug.core.IJavaStackFrame;
@@ -32,6 +32,9 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.jdt.debug.core.IJavaThread;
 import org.eclipse.jdt.debug.core.IJavaDebugTarget;
+
+import org.eclipse.jdt.debug.core.IJavaVariable;
+import org.eclipse.jdt.internal.debug.ui.JDIModelPresentation;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Method;
@@ -64,9 +67,9 @@ public class X10ModelPresentation extends JDIModelPresentation{
 
 
 
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
+//import org.eclipse.jdt.core.IJavaElement;
+//import org.eclipse.jdt.core.IJavaProject;
+//import org.eclipse.jdt.core.JavaCore;
 
 import com.sun.jdi.Method;
 import com.sun.jdi.ThreadReference;
@@ -145,6 +148,9 @@ public class X10ModelPresentation implements IDebugModelPresentation, IEvaluatio
 //	    } else if (element instanceof X10Watchpoint) {
 //	        return getWatchpointText((X10Watchpoint)element);
 	    }
+	    else if (element instanceof IVariable) {
+			return ((IVariable)element).getName();
+	    }	
 		return null;
 		} catch (Exception e) {
 			return "EXCEPTION: "+e.toString();
