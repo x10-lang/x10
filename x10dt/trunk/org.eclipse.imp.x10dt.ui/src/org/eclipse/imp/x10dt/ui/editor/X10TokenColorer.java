@@ -30,7 +30,7 @@ import org.eclipse.swt.widgets.Display;
 
 import x10.parser.X10Parsersym;
 
-public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, ITokenColorer {
+public class X10TokenColorer extends TokenColorerBase implements X10Parsersym, ITokenColorer {
 
 	TextAttribute commentAttribute, characterAttribute, numberAttribute, identifierAttribute;
 	
@@ -61,7 +61,7 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
 	    }
 	}
 
-	public MyTokenColorer() {
+	public X10TokenColorer() {
 		super();
 		Display display = Display.getDefault();
 		commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.ITALIC); 		
@@ -72,9 +72,12 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
 
 	public void setLanguage(String language) { }
 
-	@Override
-	public IRegion calculateDamageExtent(IRegion seed) {
-    	//System.out.println("MyTokenColorer.calculateDamageExtent() region seed is "+seed.getOffset()+" "+seed.getLength()+"\n"+seed.toString());
-        return seed;
-    }
+
+	/**
+	 * Some day this should probably expand the damage region if the damage was
+	 * to the opening or closing fence of a comment.
+	 */
+	public IRegion calculateDamageExtent(IRegion seed, IParseController ctlr) {
+		return seed;
+	}
 }
