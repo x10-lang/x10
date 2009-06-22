@@ -66,6 +66,8 @@ public class CompilerDelegate {
     public X10Lexer getLexer() { return fExtInfo.getLexer(); }
     public X10Parser getParser() { return fExtInfo.getParser(); }
     public Job getJob(Source source) { return fExtInfo.getJob(source); }
+    public polyglot.frontend.Compiler getCompiler() { return fCompiler; }
+    public ExtensionInfo getExtInfo() { return fExtInfo; }
 
     public boolean compile(Collection<Source> sources) {
     	return fCompiler.compile(sources);
