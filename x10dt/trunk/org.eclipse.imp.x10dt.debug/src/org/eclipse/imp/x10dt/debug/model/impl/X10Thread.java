@@ -11,7 +11,9 @@ import org.eclipse.imp.x10dt.debug.model.IX10Activity;
 import org.eclipse.imp.x10dt.debug.model.IX10Clock;
 import org.eclipse.imp.x10dt.debug.model.IX10Place;
 import org.eclipse.imp.x10dt.debug.model.IX10StackFrame;
+import org.eclipse.imp.x10dt.debug.model.impl.jdi.X10DelegatingStackFrame;
 import org.eclipse.jdt.internal.debug.core.model.JDIDebugTarget;
+import org.eclipse.jdt.internal.debug.core.model.JDIStackFrame;
 import org.eclipse.jdt.internal.debug.core.model.JDIThread;
 
 import com.sun.jdi.Method;
@@ -147,9 +149,28 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 		return X10ActivityState.Running;
 	}
 
+ // mmk re-added java stack frames for testing purposes.  Feel free to remove once the new impl in place.
 public IX10StackFrame[] getStackFrames() {
-         // TODO create stack frames in sample model
-         return new IX10StackFrame[0];
+//         // TODO create stack frames in sample model
+//         return new IX10StackFrame[0];
+	if (isSuspendedQuiet()) {
+		return new IX10StackFrame[0];
+	}
+	List list;
+	try {
+		list = computeStackFrames();
+	} catch (DebugException e) {
+		list = null;
+	}
+	IX10StackFrame x10StackFrames[] = new IX10StackFrame[list==null? 0 : list.size()];
+	if (list!=null) {
+		int i=0;
+		for (Object jsfo: list) {
+			x10StackFrames[i++] = new X10DelegatingStackFrame(getDebugTarget(), (JDIStackFrame)jsfo);
+
+		}
+	}
+	return x10StackFrames;
  }
 
 }

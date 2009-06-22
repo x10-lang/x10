@@ -60,4 +60,11 @@
 	           contextId="org.eclipse.imp.x10dt.debug"
 	           debugModelId="org.eclipse.imp.x10dt.debug"/>
 	  </extension>
+	  <extension point="org.eclipse.core.runtime.adapters">
+ 		<factory 
+   			class="org.eclipse.imp.x10dt.debug.X10AdapterFactory" 
+   			adaptableType="org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt">
+			<adapter type="org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider"/>
+		</factory>
+     </extension>
 </plugin>

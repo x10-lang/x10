@@ -13,5 +13,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.debug.ui,
  org.eclipse.imp.x10dt.ui,
  org.eclipse.imp.x10dt.core,
- org.eclipse.imp.runtime
+ org.eclipse.imp.runtime,
+ org.eclipse.jdt.core
 Eclipse-LazyStart: true

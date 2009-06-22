@@ -71,16 +71,23 @@ public class SampleX10ActivityAsJDIThread extends X10Thread implements IX10Activ
 	 * 
 	 * @see IThread#getStackFrames()
 	 */
-	public synchronized IX10StackFrame[] getStackFrames() throws DebugException {
+	public synchronized IX10StackFrame[] getStackFrames() {
 		if (isSuspendedQuiet()) {
 			return new IX10StackFrame[0];
 		}
-		List list = computeStackFrames();
-		IX10StackFrame x10StackFrames[] = new IX10StackFrame[list.size()];
-		int i=0;
-		for (Object jsfo: list) {
-			x10StackFrames[i++] = new X10DelegatingStackFrame(getDebugTarget(), (JDIStackFrame)jsfo);
-			
+		List list;
+		try {
+			list = computeStackFrames();
+		} catch (DebugException e) {
+			list = null;
+		}
+		IX10StackFrame x10StackFrames[] = new IX10StackFrame[list==null? 0 : list.size()];
+		if (list!=null) {
+			int i=0;
+			for (Object jsfo: list) {
+				x10StackFrames[i++] = new X10DelegatingStackFrame(getDebugTarget(), (JDIStackFrame)jsfo);
+
+			}
 		}
 		return x10StackFrames;
 	}

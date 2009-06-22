@@ -131,5 +131,9 @@ public class X10DelegatingStackFrame extends X10DebugElement implements IX10Stac
 	public void terminate() throws DebugException {
 		_jdiStackFrame.terminate();
 	}
+	
+	public JDIStackFrame getDelegationTarget() {
+		return _jdiStackFrame;
+	}
 
 }

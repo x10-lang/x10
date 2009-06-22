@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Collections;
 
+import org.eclipse.core.internal.runtime.AdapterManager;
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
@@ -23,6 +24,7 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IMemoryBlock;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IThread;
+import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementContentProvider;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.x10dt.debug.Activator;
 import org.eclipse.imp.x10dt.debug.model.IX10Activity;
@@ -756,26 +758,9 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		return null;
 	}
 	
-	//commented out Matt's changes as this is a presentation issue and 
-	//getThreads() should return the entire list of vm threads as contained in fThreads.
-	//Filtering threads here may have a larger impact which we may not be able to predict.
 	public IThread[] getThreads() {
 		synchronized (fThreads) {
 			return (IThread[])fThreads.toArray(new IThread[0]);
-			/*
-			List<IThread> activeThreads = new ArrayList();
-			//try {
-				for (IThread t: (List<IThread>)fThreads) {
-					if (!(t instanceof SampleX10ActivityAsJDIThread) || ((SampleX10ActivityAsJDIThread)t).getStackFrames().length>0) {
-						activeThreads.add(t);
-					}
-				}
-				return activeThreads.toArray(new IThread[0]);
-			//} catch (DebugException e) {
-				//return (IThread[])fThreads.toArray(new IThread[0]);
-			//}
-			 * 
-			 */
 		}
 	}
 	
@@ -951,8 +936,5 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			((X10Thread)threads.next()).resumedByVM();
 		}
 	}
-	
-
-
 
 }
