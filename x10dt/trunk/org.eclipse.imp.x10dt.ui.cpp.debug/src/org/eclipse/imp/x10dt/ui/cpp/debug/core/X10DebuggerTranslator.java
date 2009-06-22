@@ -200,7 +200,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     if (val == null)
       return;
     if (val.endsWith("..."))
-      val = val.substring(0, val.lastIndexOf(',')+1) + "}"; // FIXME: damage control
+      val = val.substring(0, val.lastIndexOf(',')+1) + "}\""; // FIXME: damage control
     assert (val.startsWith("\"") && val.endsWith("\""));
     LineNumberMap c2xFileMap = LineNumberMap.importMap(val.substring(1, val.length()-1));
     HashMap<String, LineNumberMap> c2xMap = new HashMap<String, LineNumberMap>();
@@ -218,6 +218,8 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
       if (cppFile.startsWith(baseDir+"/"))
     	  cppFile = cppFile.substring(baseDir.length()+1);
+      if (cppFile.startsWith("gen/"))
+    	  cppFile = cppFile.substring("gen/".length());
       int cppLineNumber = cppLocation.getLineNumber();
       LineNumberMap cppLineToX10LineMap = fCppToX10Map.get(cppFile);
       if (cppLineToX10LineMap == null) {
@@ -242,6 +244,8 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
       if (cppFile.startsWith(baseDir+"/"))
         cppFile = cppFile.substring(baseDir.length()+1);
+      if (cppFile.startsWith("gen/"))
+    	  cppFile = cppFile.substring("gen/".length());
       int cppLineNumber = cppLocation.getLineNumber();
       LineNumberMap cppLineToX10LineMap = fCppToX10Map.get(cppFile);
       if (cppLineToX10LineMap == null) {
@@ -291,10 +295,10 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     return null;
   }
 
-  private String getX10TypeFromCppType(String type, String[] typeArgs1) { // TODO: remove typeArgs1
+  private String getX10TypeFromCppType(String type) {
     if (type.endsWith(" "))
       type = type.trim();
-    if (type.startsWith("x10aux__ref<")) {
+    if (type.startsWith("x10aux__ref<") || type.startsWith("x10aux::ref")) {
       assert (type.endsWith(">"));
       type = type.substring("x10aux__ref<".length(), type.length()-1);
       if (type.endsWith(" "))
@@ -313,7 +317,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
         sb.append("]");
         args = sb.toString();
       }
-      return cppType.replaceAll("__", ".")+args;
+      return cppType.replace("__", ".").replace("::", ".")+args;
     } else if (type.equals("int")) {
       return "x10.lang.Int";
     } else if (type.equals("float")) {
@@ -333,7 +337,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     while (st.hasMoreTokens()) {
       String t = st.nextToken();
       if (t.equals(",") && d == 0) {
-        res.add(getX10TypeFromCppType(sb.toString(), null));
+        res.add(getX10TypeFromCppType(sb.toString()));
         sb = new StringBuilder();
       } else {
         if (!t.equals(" "))
@@ -346,7 +350,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       }
     }
     assert (d == 0);
-    res.add(getX10TypeFromCppType(sb.toString(), null));
+    res.add(getX10TypeFromCppType(sb.toString()));
     return res.toArray(new String[res.size()]);
   }
 
@@ -355,7 +359,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
    * TBFI = to be filled in.
    * The descriptor for a Rail is { X(type), elemType, length(TBFI) }.
    * The descriptor for a String is { X(type), content(TBFI), length(TBFI) }.
-   * The descriptor for any other class is { X(type), [fname, ftype]... }.
+   * The descriptor for any other class is { X(type), num_interfaces, [fname, ftype]... }.
    */
   public String[] getStructDescriptor(String type) {
     if (type.endsWith("*"))
@@ -364,21 +368,17 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       type = type.trim();
     if (type.endsWith("&"))
       type = type.substring(0, type.length()-1);
-    if (type.startsWith("class ref<")) {
-      assert (type.endsWith(">"));
-      type = type.substring("class ref<".length(), type.length()-1);
-    } else if (type.startsWith("x10aux__ref<")) {
-      assert (type.endsWith(">"));
-      type = type.substring("x10aux__ref<".length(), type.length()-1);
-    } else
-      return null;
+    type = stripPrefixes(type, new String[] { "class ref<", "x10aux__ref<", "class x10aux::ref<" });
+    if (type == null)
+    	return null;
     if (type.endsWith(" "))
       type = type.trim();
     // So now we have the contents of the ref
-    String x10Type = getX10TypeFromCppType("x10aux__ref<"+type+" >", null);
+    String x10Type = getX10TypeFromCppType("x10aux__ref<"+type+" >");
     // Arrays are special
     if (type.startsWith("Rail<") || type.startsWith("ValRail<") ||
-        type.startsWith("x10__lang__Rail<") || type.startsWith("x10__lang__ValRail<"))
+        type.startsWith("x10__lang__Rail<") || type.startsWith("x10__lang__ValRail<") ||
+        type.startsWith("x10::lang::Rail<") || type.startsWith("x10::lang::ValRail<"))
     {
       int paramStart = type.indexOf("<");
       assert (type.endsWith(">"));
@@ -387,7 +387,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
       return new String[] { x10Type, cppElementType, null };
     }
     // So are strings
-    if (type.equals("String") || type.equals("x10__lang__String"))
+    if (type.equals("String") || type.equals("x10__lang__String") || type.equals("x10::lang::String"))
     {
       return new String[] { x10Type, null, null };
     }
@@ -396,14 +396,30 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     if (t == null)
       return null;
     List<FieldInstance> fields = t.fields();
-    String[] desc = new String[1 + 2*fields.size()];
+    String[] desc = new String[2 + 2*fields.size()];
     desc[0] = x10Type;
-    int i = 1;
+    desc[1] = Integer.toString(t.interfaces().size());
+    int i = 2;
     for (FieldInstance f : fields) {
       desc[i++] = f.name().toString();
       desc[i++] = Emitter.translateType(f.type(), true);
     }
     return desc;
+  }
+
+  private String stripPrefixes(String type, String[] prefixes) {
+    for (int i = 0; i < prefixes.length; i++) {
+      if (type.startsWith(prefixes[i]))
+        return stripPrefix(type, prefixes[i]);
+	}
+    return null;
+  }
+
+  private String stripPrefix(String type, String prefix) {
+    assert (prefix.endsWith("<"));
+    assert (type.startsWith(prefix));
+    assert (type.endsWith(">"));
+    return type.substring(prefix.length(), type.length()-1);
   }
 
   // --- Internal services
