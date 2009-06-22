@@ -27,6 +27,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -34,6 +36,7 @@ import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -75,6 +78,12 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
      */
     public String getRuntimeArguments(ILaunchConfiguration configuration) throws CoreException {
 	String arguments= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeArgumentsID, ""); //$NON-NLS-1$
+	IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
+	if (prefStore.contains(X10PreferenceConstants.P_NUM_PLACES)) {
+		String numPlacesArg = " -NUMBER_OF_LOCAL_PLACES="+prefStore.getInt(X10PreferenceConstants.P_NUM_PLACES);
+		arguments += numPlacesArg;
+	}
+		
 
 	return VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(arguments);
     }
