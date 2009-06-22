@@ -6,9 +6,11 @@ import java.util.List;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.templates.DocumentTemplateContext;
 import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
@@ -171,12 +173,13 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym
     private final Template fRegion2DTemplate= new Template("2-D region", "X10 2-dimensional region creation", CONTEXT_ID, "[${lower1}:${upper1},${lower2}:${upper2}]", false);
     private final Template fRegion3DTemplate= new Template("3-D region", "X10 3-dimensional region creation", CONTEXT_ID, "[${lower1}:${upper1},${lower2}:${upper2},${lower3}:${upper3}]", false);
 //  private final Template fDistribTemplate= new Template("distribution", "X10 distribution creation", CONTEXT_ID, "async (${place}) { }", false);
-    private final Template fArrayNewTemplate= new Template("array new", "X10 array instantiation", CONTEXT_ID, "new ${type}[] (point ${p}) {\n return ${expr};\n}\n", false);
+    private final Template fArrayNewTemplate= new Template("array new", "X10 array instantiation", CONTEXT_ID, "new ${type}[] (point ${p}) { return ${expr}; }", false);
     private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async (${place}) {\n \n}\n", false);
     private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (point ${p}: ${region}) {\n \n}\n", false);
+    private final Template fAtomicTemplate= new Template("atomic", "atomic statement", CONTEXT_ID, "atomic { ${stmt} }", false);
     private final Template fForRegionTemplate= new Template("for region", "for iterating over a region", CONTEXT_ID, "for (point ${p}: ${region}) {\n \n}\n", false);
     private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (point ${p}: ${region}) {\n\n}\n", false);
-    private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { }.force()", false);
+    private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "future (${place}) { ${expr} }.force()", false);
 
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer)
     {
@@ -309,20 +312,21 @@ list.add(new SourceProposal("Candidate: " + candidate, "", offset));
             }
             else
             {
-//                IDocument docu= viewer.getDocument();
-//                Region r= new Region(offset, prefix.length());
-//                TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
-//
-//                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fRegion2DTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fRegion3DTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fArrayNewTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fAsyncTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fForRegionTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fForEachTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fAtEachTemplate, tc, r, prefix);
-//                addTemplateProposalIfMatch(list, fFutureTemplate, tc, r, prefix);
+                IDocument docu= viewer.getDocument();
+                Region r= new Region(offset, prefix.length());
+                TemplateContext tc= new DocumentTemplateContext(fContextType, docu, offset, prefix.length());
+
+                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fRegion1DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fRegion2DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fRegion3DTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fArrayNewTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fAsyncTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fAtEachTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fAtomicTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fForRegionTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fForEachTemplate, tc, r, prefix);
+                addTemplateProposalIfMatch(list, fFutureTemplate, tc, r, prefix);
             }
 //          else list.add(new SourceProposal("Other: " + node.getClass().toString(), " source proposal ", 0));
 //
