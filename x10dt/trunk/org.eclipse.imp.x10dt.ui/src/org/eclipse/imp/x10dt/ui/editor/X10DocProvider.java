@@ -136,8 +136,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	}
 
 	/**
-	 * From X10ContextHelper originally, moved here. Provides javadoc-like info
-	 * and more
+	 * Provides javadoc-like info (if available) and more for a variety of entities
 	 */
 	public String getHelpForEntity(Object target, IParseController parseController) {
 		Node root = (Node) parseController.getCurrentAst();
@@ -199,7 +198,12 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			//FIXME if(isJavaType...) like above ....
 			
 			return getX10DocFor(decl);
-		} else if (target instanceof MethodDecl) {
+		} else if (target instanceof ClassDecl) {
+			ClassDecl cd = (ClassDecl)target;
+			String doc = getX10DocFor(cd);
+			return doc;
+		}
+		else if (target instanceof MethodDecl) {
 			MethodDecl md = (MethodDecl) target;
 
 			return getX10DocFor(md.methodInstance());
@@ -502,6 +506,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			idx = skipBackwardWhite(fileSrc, idx);
 			if (lookingPastEndOf(fileSrc, idx, "*/")) {
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
+				doc=getCommentText(doc);
 				if (traceOn)
 					System.out.println("X10ContextHelper.getX10DocFor(classDecl): "+ doc);
 				return doc;
