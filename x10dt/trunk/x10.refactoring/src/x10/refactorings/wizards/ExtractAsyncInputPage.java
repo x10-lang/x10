@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.*;
 import x10.refactorings.ExtractAsyncRefactoring;
 
 public class ExtractAsyncInputPage extends UserInputWizardPage implements Listener {
-
     private Text fText;
 
     public ExtractAsyncInputPage(String name) {
@@ -20,24 +19,22 @@ public class ExtractAsyncInputPage extends UserInputWizardPage implements Listen
      * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
      */
     public void createControl(Composite parent) {
-
         initializeDialogUnits(parent);
         Composite result = new Composite(parent, SWT.NONE);
-        // Composite result = (Composite)getControl();
         GridLayout layout = new GridLayout();
+
         layout.numColumns = 4;
         result.setLayout(layout);
-        // System.out.println("Parent size is "+parent.getSize());
-        // System.out.println("Result size is "+result.getSize());
+
         Label testlabel = new Label(result, SWT.HORIZONTAL);
         GridData gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+
         gd.horizontalSpan = 1;
         testlabel.setLayoutData(gd);
         testlabel.setText("Place:");
-        // Group placeborder = new Group(result, SWT.NONE);
-        // placeborder.setText("Place");
+
         fText = new Text(result, SWT.BORDER | SWT.SINGLE);
-        // test.setSize(result.getSize().x - testlabel.getSize().x,test.getSize().y);
+
         gd = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
         gd.horizontalSpan = 1000;
         fText.setLayoutData(gd);
@@ -57,7 +54,6 @@ public class ExtractAsyncInputPage extends UserInputWizardPage implements Listen
                 fTextResult = "";
         }
         getExtractAsyncRefactoring().setPlace(fTextResult);
-        // System.out.println("Key pressed --> "+fTextResult);
     }
 
     private ExtractAsyncRefactoring getExtractAsyncRefactoring() {
