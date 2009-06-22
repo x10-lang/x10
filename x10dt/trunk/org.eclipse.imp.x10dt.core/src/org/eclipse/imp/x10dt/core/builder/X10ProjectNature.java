@@ -28,11 +28,11 @@ public class X10ProjectNature extends ProjectNatureBase {
     public static final String k_natureID= X10Plugin.kPluginID + ".x10nature";
 
     public String getNatureID() {
-	return k_natureID;
+        return k_natureID;
     }
 
     public String getBuilderID() {
-	return X10Builder.BUILDER_ID;
+        return X10Builder.BUILDER_ID;
     }
 
     public void addToProject(IProject project) {
@@ -43,10 +43,10 @@ public class X10ProjectNature extends ProjectNatureBase {
     protected void refreshPrefs() {}
 
     protected String getDownstreamBuilderID() {
-	return "org.eclipse.jdt.core.javabuilder";
+        return "org.eclipse.jdt.core.javabuilder";
     }
 
     public IPluginLog getLog() {
-	return X10Plugin.getInstance();
+        return X10Plugin.getInstance();
     }
 }
