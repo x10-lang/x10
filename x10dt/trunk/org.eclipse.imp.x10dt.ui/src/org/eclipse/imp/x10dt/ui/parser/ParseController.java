@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.model.ISourceProject;
@@ -74,12 +75,17 @@ public class ParseController extends SimpleLPGParseController {
         FileSource fileSource= null;
         try {
             fMonitor.setMonitor(monitor);
+            
             String path= fFilePath.toOSString();
             File file= new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : path);
+
             fileSource= new StringSource(contents, file, path);
+            
             List<FileSource> streams= new ArrayList<FileSource>();
+            IProject proj= (fProject != null) ? fProject.getRawProject() : null;
+            
             streams.add(fileSource); // PC: just to test...
-            fCompiler= new CompilerDelegate(fMonitor, handler, fProject.getRawProject()); // Create the compiler
+            fCompiler= new CompilerDelegate(fMonitor, handler, proj); // Create the compiler
             fCompiler.getFrontEnd().compile(streams);
         } catch (IOException e) {
             throw new Error(e);
