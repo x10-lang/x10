@@ -29,7 +29,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 	    monitor= new NullProgressMonitor();
 	}
 
-	monitor.beginTask(MessageFormat.format("{0}...", new String[] { configuration.getName() }), 3); //$NON-NLS-1$
+	monitor.beginTask(MessageFormat.format("{0}...", new Object[] { configuration.getName() }), 3); //$NON-NLS-1$
 	// check for cancellation
 	if (monitor.isCanceled()) {
 	    return;
