@@ -18,6 +18,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import x10.uide.X10UIPlugin;
@@ -25,7 +26,8 @@ import com.ibm.watson.safari.x10.X10Plugin;
 
 public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab {
     protected Text fX10RuntimeText;
-    protected Button fX10RuntimeButton;
+    protected Button fX10RuntimeFolderButton;
+    protected Button fX10RuntimeJarButton;
 
     private WidgetListener fListener= new WidgetListener();
 
@@ -57,7 +59,7 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	GridData gd= new GridData(GridData.FILL_HORIZONTAL);
 	group.setLayoutData(gd);
 	GridLayout layout= new GridLayout();
-	layout.numColumns= 2;
+	layout.numColumns= 3;
 	group.setLayout(layout);
 	group.setFont(font);
 
@@ -67,8 +69,11 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	fX10RuntimeText.setFont(font);
 	fX10RuntimeText.addModifyListener(fListener);
 
-	fX10RuntimeButton= createPushButton(group, "Browse...", null);
-	fX10RuntimeButton.addSelectionListener(fListener);
+	fX10RuntimeFolderButton= createPushButton(group, "Browse for Folder...", null);
+	fX10RuntimeFolderButton.addSelectionListener(fListener);
+
+	fX10RuntimeJarButton= createPushButton(group, "Browse for Jar...", null);
+	fX10RuntimeJarButton.addSelectionListener(fListener);
     }
 
     /**
@@ -82,8 +87,10 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	public void widgetSelected(SelectionEvent e) {
 	    Object source= e.getSource();
 
-	    if (source == fX10RuntimeButton) {
-		handleRuntimeButtonSelected();
+	    if (source == fX10RuntimeFolderButton) {
+		handleRuntimeButtonSelected(true);
+	    } else if (source == fX10RuntimeJarButton) {
+		handleRuntimeButtonSelected(false);
 	    } else {
 		updateLaunchConfigurationDialog();
 	    }
@@ -94,11 +101,12 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     /**
-         * Show a dialog that lets the user select a project. This in turn provides context for the main type, allowing the user to key a main type name, or
-         * constraining the search for main types to the specified project.
-         */
-    protected void handleRuntimeButtonSelected() {
-	String x10Runtime= chooseX10Runtime();
+     * Show a dialog that lets the user select a project. This in turn provides context for the main type, allowing the user to key a main type name, or
+     * constraining the search for main types to the specified project.
+     * @param isFolder true if the user wants to specify a class folder
+     */
+    protected void handleRuntimeButtonSelected(boolean isFolder) {
+	String x10Runtime= isFolder ? chooseX10RuntimeFolder() : chooseX10RuntimeJar();
 
 	if (x10Runtime == null) {
 	    return;
@@ -107,14 +115,38 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
 	fX10RuntimeText.setText(x10Runtime);
     }
 
-    private String chooseX10Runtime() {
+    private String chooseX10RuntimeFolder() {
 	DirectoryDialog dialog= new DirectoryDialog(getShell());
+	String currentRuntime= fX10RuntimeText.getText();
+
 	dialog.setMessage("Select an X10 runtime for the launch configuration:");
-	String currentWorkingDir= fX10RuntimeText.getText();
-	if (!currentWorkingDir.trim().equals("")) { //$NON-NLS-1$
-	    File path= new File(currentWorkingDir);
+
+	if (!currentRuntime.trim().equals("")) { //$NON-NLS-1$
+	    File path= new File(currentRuntime);
+
 	    if (path.exists()) {
-		dialog.setFilterPath(currentWorkingDir);
+		if (!path.isDirectory())
+		    path= path.getParentFile();
+		dialog.setFilterPath(path.getAbsolutePath());
+	    }
+	}
+
+	String selectedDirectory= dialog.open();
+
+	return selectedDirectory;
+    }
+
+    private String chooseX10RuntimeJar() {
+	FileDialog dialog= new FileDialog(getShell());
+	String currentRuntime= fX10RuntimeText.getText();
+
+//	dialog.setMessage("Select an X10 runtime for the launch configuration:");
+
+	if (!currentRuntime.trim().equals("")) { //$NON-NLS-1$
+	    File path= new File(currentRuntime);
+
+	    if (path.exists()) {
+		dialog.setFilterPath(currentRuntime);
 	    }
 	}
 
