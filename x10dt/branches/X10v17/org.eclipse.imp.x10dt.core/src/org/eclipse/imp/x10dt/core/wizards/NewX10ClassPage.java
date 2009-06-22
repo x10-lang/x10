@@ -306,11 +306,12 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	}
 	buff.append(" {\n");
         if (createMain) {
-            buff.append("    public static void main(String[] args) {\n");
+            buff.append("    public static def main(var args: Rail[String]): void = {\n");
             buff.append("    }\n");
         }
         if (createConstructors) {
-            buff.append("    public " + typeName + "() {\n");
+            buff.append("    public def myMethod(): boolean = {\n");
+            buff.append("       return true;\n");
             buff.append("    }\n");
         }
         buff.append("}");
