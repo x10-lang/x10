@@ -20,10 +20,9 @@
  */
 package org.eclipse.imp.x10dt.ui.parser;
 
+import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
-import lpg.runtime.LexStream;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ISourceProject;
@@ -53,7 +52,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 
     private final ISourceProject fSrcProject;
 
-    private final LexStream fLS;
+    private final ILexStream fLS;
 
     private boolean DEBUG= false;
 
@@ -196,7 +195,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         }
     };
 
-    public PolyglotNodeLocator(ISourceProject srcProject, LexStream ls) {
+    public PolyglotNodeLocator(ISourceProject srcProject, ILexStream ls) {
         fLS= ls;
         fSrcProject= srcProject;
     }
