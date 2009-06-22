@@ -31,6 +31,10 @@ public class ParserDelegate implements IParser {
 		}
     }
 
+    public int numTokenKinds() {
+  	return myParser.numTokenKinds();
+    }
+    
     public int getEOFTokenKind() {
 	return myParser.getEOFTokenKind();
     }
