@@ -4,7 +4,6 @@ package org.eclipse.imp.x10dt.formatter.parser;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.language.ILanguageService;
-import org.eclipse.imp.language.ILanguageSyntaxProperties;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.ILexer;
 import org.eclipse.imp.parser.IMessageHandler;
@@ -13,6 +12,7 @@ import org.eclipse.imp.parser.IParser;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.parser.SimpleLPGParseController;
+import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.imp.x10dt.formatter.parser.ast.ASTNode;
 
 public class ParseController extends SimpleLPGParseController implements
