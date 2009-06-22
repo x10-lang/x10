@@ -26,6 +26,7 @@
                                 <tokenfilter>
                                         <filetokenizer/>
                                         <replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
+                                        <replaceregex pattern="org.eclipse.imp.analysis.p3,?" replace="org.eclipse.imp.analysis,"/>
                                 </tokenfilter>
                         </filterchain>
 		</loadfile>
