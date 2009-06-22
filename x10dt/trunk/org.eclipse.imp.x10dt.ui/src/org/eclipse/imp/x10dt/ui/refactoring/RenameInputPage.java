@@ -1,14 +1,14 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ * Copyright (c) 2008 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 
-*******************************************************************************/
+ *******************************************************************************/
 
 /*
  * (C) Copyright IBM Corporation 2007
@@ -35,19 +35,19 @@ public class RenameInputPage extends UserInputWizardPage {
     private final RenameRefactoring fRefactoring;
 
     public RenameInputPage(String name, RenameRefactoring refactoring) {
-	super(name);
-	fRefactoring= refactoring;
+        super(name);
+        fRefactoring= refactoring;
     }
 
     /**
      * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
      */
     public void createControl(Composite parent) {
-	Composite result= new Composite(parent, SWT.NONE);
-	setControl(result);
-	GridLayout layout= new GridLayout();
-	layout.numColumns= 2;
-	result.setLayout(layout);
+        Composite result= new Composite(parent, SWT.NONE);
+        setControl(result);
+        GridLayout layout= new GridLayout();
+        layout.numColumns= 2;
+        result.setLayout(layout);
 
         final Label nameLabel= new Label(result, SWT.NONE);
         nameLabel.setText("New name:");
@@ -61,17 +61,17 @@ public class RenameInputPage extends UserInputWizardPage {
                 fRefactoring.setNewName(((Text) e.widget).getText());
             }
         });
-//      final Button deleteButton= new Button(result, SWT.CHECK);
-//
-//	deleteButton.setText("Delete declarations after inlining");
-//	deleteButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-//
-//	deleteButton.addSelectionListener(new SelectionListener() {
-//	    public void widgetSelected(SelectionEvent e) {
-//		// Set a parameter on the refactoring, e.g. getRenameRefactoring().setDoDelete(deleteButton.getSelection());
-//	    }
-//	    public void widgetDefaultSelected(SelectionEvent e) { }
-//	});
+        // final Button deleteButton= new Button(result, SWT.CHECK);
+        //
+        // deleteButton.setText("Delete declarations after inlining");
+        // deleteButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        //
+        // deleteButton.addSelectionListener(new SelectionListener() {
+        // public void widgetSelected(SelectionEvent e) {
+        // // Set a parameter on the refactoring, e.g. getRenameRefactoring().setDoDelete(deleteButton.getSelection());
+        // }
+        // public void widgetDefaultSelected(SelectionEvent e) { }
+        // });
     }
 
     public String getNewName() {
@@ -79,6 +79,6 @@ public class RenameInputPage extends UserInputWizardPage {
     }
 
     private RenameRefactoring getRenameRefactoring() {
-	return (RenameRefactoring) getRefactoring();
+        return (RenameRefactoring) getRefactoring();
     }
 }
