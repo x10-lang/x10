@@ -32,3 +32,4 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.imp.x10dt.core
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: org.eclipse.imp.x10dt.ui.X10UIPlugin
+Export-Package: org.eclipse.imp.x10dt.ui.parser
