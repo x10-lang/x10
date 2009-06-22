@@ -22,14 +22,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.ILexer;
+import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParser;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.builder.StreamSource;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 
 import polyglot.ast.Node;
@@ -37,6 +41,7 @@ import polyglot.frontend.FileSource;
 
 public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
+    private PMMonitor fMonitor;
 
     public ParseController() {
 	super(X10Plugin.kLanguageName);
@@ -58,29 +63,35 @@ public class ParseController extends SimpleLPGParseController {
         return new X10SyntaxProperties();
     }
 
+    @Override
+    public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
+        super.initialize(filePath, project, handler);
+        fMonitor= new PMMonitor(null);
+        fCompiler= new CompilerDelegate(fMonitor, handler, fProject.getRawProject()); // Create the compiler
+    }
+
     public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor) {
-	FileSource fileSource= null;
-	try {
-	    PMMonitor my_monitor= new PMMonitor(monitor);
-	    fCompiler= new CompilerDelegate(my_monitor, getHandler(), fProject.getRawProject()); // Create the compiler
-	    fileSource= new StringSource(contents, new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString()
-		    : fFilePath.toOSString()), fFilePath.toOSString());
-	    List/*<SourceStream>*/streams= new ArrayList();
-	    streams.add(fileSource); //PC: just to test...
-	    fCompiler.getFrontEnd().compile(streams);
-	} catch (IOException e) {
-	    throw new Error(e);
-	} finally {
-	    // RMF 8/2/2006 - retrieve the AST if there is one; some later phase of compilation
-	    // may fail, even though the AST is well-formed enough to provide an outline.
-	    if (fileSource != null)
-		fCurrentAst= (Node) fCompiler.getJob(fileSource).ast();
-	    // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
-	    // Must do this after attempting parsing (even though that might fail), since it depends
-	    // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
-	    // ExtensionInfo.parser(). Ugghh.
-	    cacheKeywordsOnce();
-	}
-	return fCurrentAst;
+        FileSource fileSource= null;
+        try {
+            fMonitor.setMonitor(monitor);
+            fileSource= new StringSource(contents, new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : fFilePath
+                    .toOSString()), fFilePath.toOSString());
+            List<FileSource> streams= new ArrayList<FileSource>();
+            streams.add(fileSource); // PC: just to test...
+            fCompiler.getFrontEnd().compile(streams);
+        } catch (IOException e) {
+            throw new Error(e);
+        } finally {
+            // RMF 8/2/2006 - retrieve the AST if there is one; some later phase of compilation
+            // may fail, even though the AST is well-formed enough to provide an outline.
+            if (fileSource != null)
+                fCurrentAst= (Node) fCompiler.getJob(fileSource).ast();
+            // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
+            // Must do this after attempting parsing (even though that might fail), since it depends
+            // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
+            // ExtensionInfo.parser(). Ugghh.
+            cacheKeywordsOnce();
+        }
+        return fCurrentAst;
     }
 }
