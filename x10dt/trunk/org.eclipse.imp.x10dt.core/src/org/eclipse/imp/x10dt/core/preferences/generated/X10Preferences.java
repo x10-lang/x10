@@ -29,22 +29,21 @@ public class X10Preferences extends TabbedPreferencesPage {
 
 		X10PreferencesProjectTab projectTab = new X10PreferencesProjectTab(
 				prefService);
-		projectTab.createProjectPreferencesTab(page, tabFolder);
+		projectTab.createTabContents(page, tabFolder);
 		tabs[0] = projectTab;
 
-		X10PreferencesInstanceTab instanceTab = new X10PreferencesInstanceTab(
-				prefService);
-		instanceTab.createInstancePreferencesTab(page, tabFolder);
+		X10PreferencesInstanceTab instanceTab = new X10PreferencesInstanceTab(prefService, false);
+		instanceTab.createTabContents(page, tabFolder);
 		tabs[1] = instanceTab;
 
 		X10PreferencesConfigurationTab configurationTab = new X10PreferencesConfigurationTab(
 				prefService);
-		configurationTab.createConfigurationPreferencesTab(page, tabFolder);
+		configurationTab.createTabContents(page, tabFolder);
 		tabs[2] = configurationTab;
 
 		X10PreferencesDefaultTab defaultTab = new X10PreferencesDefaultTab(
 				prefService);
-		defaultTab.createDefaultPreferencesTab(page, tabFolder);
+		defaultTab.createTabContents(page, tabFolder);
 		tabs[3] = defaultTab;
 
 		return tabs;

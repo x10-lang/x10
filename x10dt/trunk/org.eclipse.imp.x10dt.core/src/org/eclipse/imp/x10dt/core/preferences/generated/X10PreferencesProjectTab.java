@@ -2,7 +2,6 @@ package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
@@ -10,18 +9,13 @@ import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
 
-//		 TODO:  Import additional classes for specific field types from
-//		 org.eclipse.uide.preferences.fields
-
 /**
  * The project level preferences tab.
  */
-
-
 public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 
 	public X10PreferencesProjectTab(IPreferencesService prefService) {
-		super(prefService);
+		super(prefService, true);
 	}
 
 	/**
@@ -33,15 +27,13 @@ public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 	 * @return    An array that contains the created preference fields
 	 *
 	 */
-	protected FieldEditor[] createFields(
-		TabbedPreferencesPage page, PreferencesTab tab, String tabLevel,
-		Composite parent)
+	protected FieldEditor[] createFields(TabbedPreferencesPage page, Composite parent)
 	{
-		List fields = new ArrayList();
+		List<FieldEditor> fields = new ArrayList<FieldEditor>();
 
 		IntegerFieldEditor TabSize = fPrefUtils.makeNewIntegerField(
-			page, tab, fPrefService,
-			"project", "TabSize", "TabSize",
+			page, this, fPrefService,
+			"project", "TabSize", "TabSize", "",
 			parent,
 			false, false,
 			true, String.valueOf(8),
@@ -53,8 +45,8 @@ public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 
 
 		IntegerFieldEditor NumPlaces = fPrefUtils.makeNewIntegerField(
-			page, tab, fPrefService,
-			"project", "NumPlaces", "NumPlaces",
+			page, this, fPrefService,
+			"project", "NumPlaces", "NumPlaces", "",
 			parent,
 			false, false,
 			true, String.valueOf(8),
