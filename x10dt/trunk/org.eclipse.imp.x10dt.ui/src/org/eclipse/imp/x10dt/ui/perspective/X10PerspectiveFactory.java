@@ -56,8 +56,8 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
 	layout.addShowViewShortcut(IPageLayout.ID_PROBLEM_VIEW);
 	layout.addShowViewShortcut(IPageLayout.ID_RES_NAV);
 
-	// new actions - Java project creation wizard
-	layout.addNewWizardShortcut("org.eclipse.imp.x10dt.core.newProject"); //$NON-NLS-1$
+	// new actions
+	layout.addNewWizardShortcut("org.eclipse.imp.x10dt.core.wizards.NewX10Project"); //$NON-NLS-1$
 	layout.addNewWizardShortcut("org.eclipse.imp.x10dt.core.wizards.NewX10PackageWizard"); //$NON-NLS-1$
 	layout.addNewWizardShortcut("org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard"); //$NON-NLS-1$
         layout.addNewWizardShortcut("org.eclipse.imp.x10dt.core.wizards.NewX10InterfaceWizard"); //$NON-NLS-1$
