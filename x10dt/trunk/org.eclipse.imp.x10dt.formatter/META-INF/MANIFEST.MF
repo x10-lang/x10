@@ -15,3 +15,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.imp.x10dt.core,
  org.eclipse.imp.formatting
 Eclipse-LazyStart: true
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
