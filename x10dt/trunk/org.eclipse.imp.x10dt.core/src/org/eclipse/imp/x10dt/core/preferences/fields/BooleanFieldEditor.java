@@ -399,7 +399,7 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         			setPreviousBooleanValue(!currentValue);
             	button.setSelection(newValue);
                 fieldModified = true;
-                setModifiedMarkOnLabel();
+//                setModifiedMarkOnLabel();
                 valueChanged();
         } else if (button.isDisposed()){
         	throw new IllegalStateException("BooleanFieldEditor.setBooleanValue:  button is disposed");
@@ -437,7 +437,7 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         // Set modify mark in any case because field may
         // have changed, e.g., going from inherited to not
         // or vice versa, without the value changing
-        //setModifyMarkOnLabel();
+        setModifiedMarkOnLabel();
         return changed;
     }
     
