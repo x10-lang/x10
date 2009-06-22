@@ -12,6 +12,8 @@ import polyglot.ext.x10.Configuration;
 import polyglot.main.Main;
 import polyglot.main.UsageError;
 //import x10.runtime.util.OptionsError;
+import x10.runtime.util.ConfigurationError;
+import x10.runtime.util.OptionError;
 
 public class CompilerOptionsStringFieldEditor extends StringFieldEditor {
 
@@ -24,67 +26,31 @@ public class CompilerOptionsStringFieldEditor extends StringFieldEditor {
 	
 	@Override
 	protected boolean doCheckState() {
-		try {
-			String argString = "";
-			argString += getStringValue();
-			argString += " ."; // need to specify at
-								// least one file
-			Set sources = new HashSet();
-			sources.add(".");
+		String argString = "";
+		argString += getStringValue();
+		argString += " ."; // need to specify at
+		// least one file
+		Set sources = new HashSet();
+		sources.add(".");
 
-			String[] args = argString.split(" ");
-			polyglot.ext.x10.X10CompilerOptions options = new polyglot.ext.x10.X10CompilerOptions(null); // Doesn't actually need an ExtensionInfo unless you ask about the version current directory
-			options.parseCommandLine(args, sources);
-			//			parseCommandLine(args, sources);
-		} catch (UsageError e) {
+		String[] args = argString.split("\\s+");
+		polyglot.ext.x10.X10CompilerOptions options = new polyglot.ext.x10.X10CompilerOptions(null); // Doesn't actually need an ExtensionInfo unless you ask about the version current directory
+		try {
+			for (int i=0; i<args.length; i++) {
+				try {
+					options.checkCommand(args, i, sources);
+				} catch (Main.TerminationException e) {
+					// Don't stop processing after -version
+				}
+			}
+		} catch (OptionError e) {
 			String msg = e.getMessage();
 			// Inform the prefs UI component about the validation failure
 			setErrorMessage(e.getMessage());
 			return false;
-//		} catch (OptionsError e) {
-//			String msg = e.getMessage();
-//			// Inform the prefs UI component about the validation failure
-//			setErrorMessage(e.getMessage());
-//			return false;
-		}
+		} catch (UsageError e) {
+		} catch (ConfigurationError e) {
+		} 
 		return super.doCheckState();
 	}
-	
-//    /**
-//     * Copied from polyglot.main to permit handling of new exception: OptionsError, introduced for x10dt error handling
-//     * Parse the command line
-//     * 
-//     * @throws UsageError if the usage is incorrect.
-//     */
-////    private void parseCommandLine(String args[], Set source) throws UsageError, OptionsError {
-//	private void parseCommandLine(String args[], Set source) throws UsageError {	
-//        if(args.length < 1) {
-//            throw new UsageError("No command line arguments given");
-//        }
-//		polyglot.ext.x10.X10CompilerOptions options = new polyglot.ext.x10.X10CompilerOptions(null); // Doesn't actually need an ExtensionInfo unless you ask about the version current directory
-//    
-//        for(int i = 0; i < args.length; ) {
-//            try {
-////                int ni = options.parseCommandForOptionsChecking(args, i, source);                
-//                if (ni == i) {
-//                    throw new UsageError("illegal option -- " + args[i]);
-//                }
-//                
-//                i = ni;
-//
-//            }
-//            catch (ArrayIndexOutOfBoundsException e) {
-//                throw new UsageError("missing argument");
-//            }
-//            catch (Main.TerminationException e) {
-//            	i++;
-//            }
-//        }
-//                    
-//        if (source.size() < 1) {
-//          throw new UsageError("must specify at least one source file");
-//        }
-//    }
-//    
-//
 }
