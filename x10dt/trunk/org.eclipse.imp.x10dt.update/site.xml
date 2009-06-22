@@ -9,10 +9,10 @@
    <feature url="features/lpg.runtime_2.0.17.jar" id="lpg.runtime" version="2.0.17">
       <category name="other"/>
    </feature>
-   <feature url="features/polyglot_3.0.2.jar" id="polyglot3" version="3.0.2">
+   <feature url="features/polyglot3_3.0.2.jar" id="polyglot3" version="3.0.2">
       <category name="other"/>
    </feature>
-   <feature url="features/org.eclipse.imp.runtime_0.1.99.1.jar" id="org.eclipse.imp.runtime" version="0.1.99.1">
+   <feature url="features/org.eclipse.imp.runtime_0.1.99.jar" id="org.eclipse.imp.runtime" version="0.1.99">
       <category name="other"/>
    </feature>
    <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
