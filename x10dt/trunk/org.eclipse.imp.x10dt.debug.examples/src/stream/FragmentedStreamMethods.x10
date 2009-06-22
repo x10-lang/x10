@@ -4,7 +4,7 @@ package stream;
 @seealso Stream
 @author vj
 * 
-* This version has some methodx calls for a more interesting stack trace  BRT 11/25/08
+* This version has some method calls for a more interesting stack trace  BRT 11/25/08
 */ 
 public class FragmentedStreamMethods { 
 	const int MEG=1024*1024;
