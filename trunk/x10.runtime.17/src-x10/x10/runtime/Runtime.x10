@@ -72,7 +72,7 @@ public value Runtime {
 		try {
 			if (master.loc() == 0) {
 				pool.execute(new Activity(body, rootFinish, "root", true));
-				pool.worker().loop(rootFinish, true);
+				while (pool.worker().loop(rootFinish, true));
 				if (!NativeRuntime.local(Place.MAX_PLACES - 1)) {
 					val c = ()=>Runtime.quit();
 					for (var i:Int=1; i<Place.MAX_PLACES; i++) {
@@ -81,7 +81,7 @@ public value Runtime {
 				}
 				rootFinish.waitForFinish(false);
 			} else {
-				pool.worker().loop(rootFinish, true);
+				while (pool.worker().loop(rootFinish, true));
 				rootFinish.waitForFinish(false);
 			}
 //		} catch (t:Throwable) {
