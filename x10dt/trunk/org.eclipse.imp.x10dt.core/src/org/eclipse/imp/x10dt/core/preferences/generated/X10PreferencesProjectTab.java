@@ -1,15 +1,3 @@
-/*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
-*******************************************************************************/
-
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import java.util.List;
@@ -63,6 +51,19 @@ public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 
 		fields.add(TabSize);
 
+
+		IntegerFieldEditor NumPlaces = fPrefUtils.makeNewIntegerField(
+			page, tab, fPrefService,
+			"project", "NumPlaces", "NumPlaces",
+			parent,
+			false, false,
+			true, String.valueOf(8),
+			false, "0",
+			true);
+			Link NumPlacesDetailsLink = fPrefUtils.createDetailsLink(parent, NumPlaces, NumPlaces.getTextControl().getParent(), "Details ...");
+
+		fields.add(NumPlaces);
+
 		FieldEditor[] fieldsArray = new FieldEditor[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {
 			fieldsArray[i] = (FieldEditor) fields.get(i);
@@ -94,10 +95,12 @@ public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 
 		// Declare local references to the fields
 		IntegerFieldEditor TabSize = (IntegerFieldEditor) fFields[0];
+		IntegerFieldEditor NumPlaces = (IntegerFieldEditor) fFields[1];
 
 		// Declare a 'holder' for each preference field; not strictly necessary
 		// but helpful in various manipulations of fields and controls to follow
 		Composite TabSizeHolder = null;
+		Composite NumPlacesHolder = null;
 		// If we have a new project preferences node, then do various things
 		// to set up the project's preferences
 		if (newNode != null && newNode instanceof IEclipsePreferences) {
@@ -126,11 +129,18 @@ public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 				TabSize.getTextControl().setEnabled(true);
 				TabSize.setEnabled(true, TabSize.getParent());
 
+				NumPlacesHolder = NumPlaces.getTextControl().getParent();
+				fPrefUtils.setField(NumPlaces, NumPlacesHolder);
+				NumPlaces.getTextControl().setEditable(true);
+				NumPlaces.getTextControl().setEnabled(true);
+				NumPlaces.setEnabled(true, NumPlaces.getParent());
+
 				clearModifiedMarksOnLabels();
 			}
 
 			// Add property change listeners
 			if (TabSizeHolder != null) addProjectPreferenceChangeListeners(TabSize, "TabSize", TabSizeHolder);
+			if (NumPlacesHolder != null) addProjectPreferenceChangeListeners(NumPlaces, "NumPlaces", NumPlacesHolder);
 
 			haveCurrentListeners = true;
 		}
@@ -149,6 +159,10 @@ public class X10PreferencesProjectTab extends ProjectPreferencesTab {
 				TabSize.getTextControl().setEditable(false);
 				TabSize.getTextControl().setEnabled(false);
 				TabSize.setEnabled(false, TabSize.getParent());
+
+				NumPlaces.getTextControl().setEditable(false);
+				NumPlaces.getTextControl().setEnabled(false);
+				NumPlaces.setEnabled(false, NumPlaces.getParent());
 
 			}
 

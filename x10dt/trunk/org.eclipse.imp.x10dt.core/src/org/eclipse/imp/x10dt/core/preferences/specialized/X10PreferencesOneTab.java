@@ -7,14 +7,16 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Matthew Kaplan (mmk@us.ibm.com) - specialization to show only one tab (to simplify options for novices/typical users)
 *******************************************************************************/
 
-package org.eclipse.imp.x10dt.core.preferences.generated;
+package org.eclipse.imp.x10dt.core.preferences.specialized;
 
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10Preferences;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
 import org.eclipse.swt.widgets.TabFolder;
 
 public class X10PreferencesOneTab extends X10Preferences {
