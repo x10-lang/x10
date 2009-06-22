@@ -34,11 +34,20 @@ public class PolyglotDependencyInfo extends DependencyInfo {
         super(project);
     }
 
+    // BRT -- HACK don't try to chop off wsPath if it's not there, e.g. an x10 source like Ref.x10  
     protected String typeToPath(Type type) {
         final String filePath= type.position().file().replace(File.separatorChar, '/');
-
+        String result=null;
 //        assert(filePath.startsWith(wsPath));
-        return filePath.substring(fWorkspacePath.length());
+        String wsPath= fWorkspacePath;
+        if(filePath.startsWith(wsPath)){
+        	result = filePath.substring(fWorkspacePath.length());
+        }else{
+        	System.out.println("PolyglotDependencyInfo.typeToPath finds file: "+filePath+" does not start with wsPath="+wsPath+" so not removing it.");
+        	result=filePath;
+        }
+        return result;
+        //return filePath.substring(fWorkspacePath.length());
     }
 
     public void addDependency(Type fromType, Type uponType) {
