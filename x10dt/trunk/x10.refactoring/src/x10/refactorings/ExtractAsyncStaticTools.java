@@ -80,7 +80,7 @@ public class ExtractAsyncStaticTools {
 	    return x10RuntimePath.append(ExtractAsyncStaticTools.eclipseHomePath);
 	}
 
-	public static Collection singleTestSrc(IFile grammarFile) {
+	public static Collection<String> singleTestSrc(IFile grammarFile) {
 		IWorkspace myWorkspace = ResourcesPlugin.getWorkspace();
 		return Collections.singletonList(myWorkspace.getRoot().getLocation()
 				.toString()
