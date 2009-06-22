@@ -230,6 +230,9 @@ public class IntegerFieldEditor extends StringFieldEditor {
     		// doesn't trigger reloading with inheritance.  So we should just load the
     		// field again to make sure any inheritance occurs if needed
     		loadWithInheritance();
+        	int oldValue = preferencesService.getIntPreference(preferencesLevel, getPreferenceName());
+        	int newValue = preferencesService.getIntPreference("default", getPreferenceName());
+            getPreferenceStore().firePropertyChangeEvent(getPreferenceName(), oldValue, newValue);
     		return;
     	}
 
