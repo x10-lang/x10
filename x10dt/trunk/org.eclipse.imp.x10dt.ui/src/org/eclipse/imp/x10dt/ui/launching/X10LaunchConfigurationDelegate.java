@@ -97,7 +97,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
     }
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
+		boolean debug= true;//mode.equals(ILaunchManager.DEBUG_MODE);
 
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
@@ -112,6 +112,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		monitor.subTask("Verifying launch attributes");
 
 		String mainTypeName = verifyMainTypeName(configuration);
+		if(debug)System.out.println("mainTypeName: "+mainTypeName);
 		IVMRunner runner = getVMRunner(configuration, mode);
 
 		File workingDir = verifyWorkingDirectory(configuration);
@@ -208,11 +209,11 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		VMRunnerConfiguration runConfig = new VMRunnerConfiguration(x10RuntimeType, classPathExpanded);
 		String[] explicitRuntimeArgsArray = execArgs.getRuntimeArgumentsArray();
 		String[] explicitProgArgsArray = execArgs.getProgramArgumentsArray();
-		String[] realArgsArray = new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length + 1];
+		String[] realArgsArray = new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length /* PORT1.7  + 1*/];
 
 		System.arraycopy(explicitRuntimeArgsArray, 0, realArgsArray, 0, explicitRuntimeArgsArray.length);
-		realArgsArray[explicitRuntimeArgsArray.length] = mainTypeName;
-		System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length + 1, explicitProgArgsArray.length);
+		//realArgsArray[explicitRuntimeArgsArray.length] = mainTypeName;// PORT1.7  1.5 required main as first arg to launch
+		System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length /* PORT1.7  + 1*/, explicitProgArgsArray.length);
 
 		// DLLs were for testcases??? in 1.5 needed some native code. but not
 		// any more.
@@ -254,6 +255,11 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		setDefaultSourceLocator(launch, configuration);
 		monitor.worked(1);
 
+		if(debug) {
+			System.out.println("runConfig classToLaunch: "+runConfig.getClassToLaunch());
+			System.out.println("runConfig program args: "+printArray(runConfig.getProgramArguments()));
+			System.out.println("runConfig VM args: "+printArray(runConfig.getVMArguments()));
+		}
 		// Launch the configuration - 1 unit of work
 		runner.run(runConfig, launch, monitor);
 
@@ -264,6 +270,16 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 		monitor.done();
 	}
+    private String printArray(String[] arg) {
+    	StringBuffer buf = new StringBuffer();
+    	buf.append("[");
+    	for (String a : arg) {
+			buf.append(a);
+			buf.append(", ");
+		}
+    	buf.append("]");
+    	return buf.toString();
+    }
 
 
 	private String getDir(String pathLocation) {
