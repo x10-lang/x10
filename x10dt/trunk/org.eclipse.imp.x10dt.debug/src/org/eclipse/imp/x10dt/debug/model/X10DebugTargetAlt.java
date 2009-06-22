@@ -2,6 +2,7 @@ package org.eclipse.imp.x10dt.debug.model;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IMarkerDelta;
 import org.eclipse.core.runtime.IAdaptable;
@@ -19,6 +20,7 @@ import org.eclipse.debug.core.model.IThread;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.imp.x10dt.debug.Activator;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Application;
+import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsJDIThread;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ActivityAsThreadProxy;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10Application;
 import org.eclipse.imp.x10dt.debug.model.impl.stub.SampleX10ModelFactory;
@@ -59,12 +61,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 			IProcess process, boolean resume) {
 		super(launch, jvm, name, supportTerminate, supportDisconnect, process, resume);
 	}
-	
-//	public X10DebugTarget(ILaunch launch, VirtualMachine jvm, String name, boolean supportTerminate, boolean supportDisconnect, IProcess process, boolean resume) {
-//		super(launch, jvm, name, supportTerminate,supportDisconnect, process, resume);
-//		fJDebugTarget = launch.getDebugTarget();
-//    }
-	
+		
 	/**
 	 * Initialize event requests and state from the underlying VM.
 	 * This method is synchronized to ensure that we do not start
@@ -92,6 +89,7 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 		        }
 			}
 		});
+//		super.initialize();
 		_application = SampleX10ModelFactory.getApplication();
 	}
 
@@ -161,15 +159,33 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 	
 	
 	// for stubbed testing
-	public IThread[] getThreads() {
+	public synchronized IThread[] getThreads() {
 		HashSet<IThread> threads = new HashSet<IThread>();
 		IX10Activity[] activities = _application.getActivities();
+		IThread[] jdiThreads = super.getThreads();
 		for (IX10Activity a: activities) {
 			threads.add(new SampleX10ActivityAsThreadProxy(a, this));
+//			threads.add(new SampleX10ActivityAsJDIThread(a, this, ((JDIThread)jdiThreads[0]).getUnderlyingThread()));
 		}
-		return threads.toArray(new IThread[threads.size()]);
+		return threads.toArray(new IThread[0]);
 	}
 	
+//	Set<IThread> _threads;
+//	public synchronized IThread[] getThreads() {
+//		// initialize activities for stubbed testing
+//		if (_threads==null) {
+//			IX10Activity[] activities = _application.getActivities();
+////			_threads = new HashSet<IThread>();
+//			Set threads = new HashSet<IThread>();
+//			IThread[] jdiThreads = super.getThreads();
+//			for (IX10Activity a: activities) {
+//				threads.add(new SampleX10ActivityAsThreadProxy(a, this));
+////				_threads.add(new SampleX10ActivityAsJDIThread(a, this, ((JDIThread)jdiThreads[0]).getUnderlyingThread()));
+//			}
+//		}
+//		return _threads.toArray(new IThread[0]);
+//	}
+
 //	public ILaunch getLaunch() {
 //		return fLaunch;
 //	}
