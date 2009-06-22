@@ -2,9 +2,9 @@ package com.ibm.watson.safari.x10.preferences;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.DirectoryFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
@@ -18,7 +18,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
 import com.ibm.watson.safari.x10.X10Plugin;
 
 /**
@@ -85,7 +84,7 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
                 try {
                     File prefsFile= new File(prefsPath);
                     prefsFile.createNewFile();
-                    PrintWriter w= new PrintWriter(prefsFile);
+                    PrintWriter w= new PrintWriter(new FileWriter(prefsFile));
 
                     w.println("# This file was created by the X10 preferences page in Eclipse.");
                     w.println("COMPILER_FRAGMENT_DATA_DIRECTORY=" + X10Preferences.x10CompilerDataDir);
