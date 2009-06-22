@@ -38,6 +38,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 import lpg.runtime.IMessageHandler;
+import lpg.runtime.IToken;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -89,13 +90,16 @@ import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.dom.DomParser;
 import polyglot.ext.x10.types.X10TypeSystem;
+import polyglot.frontend.AbstractPass;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
+import polyglot.frontend.Pass;
 import polyglot.frontend.Source;
+import polyglot.frontend.goals.AbstractGoal;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
@@ -106,6 +110,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
+
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
@@ -197,9 +202,9 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    protected void addMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
+    protected void addMarkerTo(IFile sourceFile, String type, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
         try {
-            IMarker marker= sourceFile.createMarker(PROBLEMMARKER_ID);
+            IMarker marker= sourceFile.createMarker(type);
 
             marker.setAttribute(IMarker.MESSAGE, msg);
             marker.setAttribute(IMarker.SEVERITY, severity);
@@ -216,9 +221,18 @@ public class X10Builder extends IncrementalProjectBuilder {
         } catch (CoreException e) {
             X10Plugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
         }
+        
     }
 
-    protected void addMarkerTo(IProject project, String msg, int severity, int priority) {
+    protected void addProblemMarkerTo(IFile sourceFile, String msg, int severity, String loc, int priority, int lineNum, int startOffset, int endOffset) {
+        addMarkerTo(sourceFile, PROBLEMMARKER_ID, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+    }
+
+    protected void addTaskTo(IFile sourceFile, String msg, int severity, int priority, int lineNum, int startOffset, int endOffset) {
+        addMarkerTo(sourceFile, IMarker.TASK, msg, severity, "", priority, lineNum, startOffset, endOffset);
+    }
+
+    protected void addProblemMarkerTo(IProject project, String msg, int severity, int priority) {
         try {
             IMarker marker= project.createMarker(PROBLEMMARKER_ID);
 
@@ -322,10 +336,54 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
+    private final static String[] sTaskPrefixes= new String[] { "// TODO ", "// BUG " };
+
+    private class CollectBookmarksGoal extends AbstractGoal {
+        public CollectBookmarksGoal(Job job) throws CyclicDependencyException {
+            super(job);
+            addPrerequisiteGoal(job.extensionInfo().scheduler().internGoal(new CheckPackageDeclGoal(job)), job.extensionInfo().scheduler());
+        }
+        @Override
+        public Pass createPass(ExtensionInfo extInfo) {
+            return new AbstractPass(CollectBookmarksGoal.this) {
+                @Override
+                public boolean run() {
+                    Job job= goal().job();
+                    Node ast= job.ast();
+                    String path= job.source().path();
+                    X10Parser.JPGPosition pos= (X10Parser.JPGPosition) ast.position();
+                    List<IToken> adjuncts= pos.getLeftIToken().getPrsStream().getAdjuncts();
+                    IFile file= fProject.getFile(path.substring(fProject.getLocation().toOSString().length()));
+
+                    try {
+                        file.deleteMarkers(IMarker.TASK, true, 1);
+                    } catch (CoreException e) {
+                        X10Plugin.getInstance().logException("Error while creating task", e);
+                    }
+
+                    for(IToken adjunct: adjuncts) {
+                        String adjunctStr= adjunct.toString();
+                        for(int i=0; i < sTaskPrefixes.length; i++) {
+                            if (adjunctStr.startsWith(sTaskPrefixes[i])) {
+                                String msg= adjunctStr.substring(3);
+                                int lineNum= adjunct.getLine();
+                                int startOffset= adjunct.getStartOffset();
+                                int endOffset= adjunct.getEndOffset();
+
+                                addTaskTo(file, msg, IMarker.SEVERITY_INFO, IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
+                            }
+                        }
+                    }
+                    return true;
+                }
+            };
+        }
+    }
+
     private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
         public Goal getCompileGoal(Job job) {
             try {
-                return scheduler().internGoal(new CheckPackageDeclGoal(job));
+                return scheduler().internGoal(new CollectBookmarksGoal(job) /* CheckPackageDeclGoal(job)*/);
             } catch (CyclicDependencyException e) {
                 job.compiler().errorQueue().enqueue(
                         new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
@@ -412,7 +470,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                 IFile errorFile= wsRoot.getFileForLocation(new Path(filePath));
 
                 if (errorFile != null)
-                    addMarkerTo(errorFile, "Probable missing package declaration", IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, 0, 0, 0);
+                    addProblemMarkerTo(errorFile, "Probable missing package declaration", IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, 0, 0, 0);
             }
         } catch (final Error error) {
             String msg= error.getMessage();
@@ -424,7 +482,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         } catch (Exception e) {
             String msg= e.getMessage();
             X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + (msg != null ? msg : e.getClass().getName()));
-            addMarkerTo(fProject, "An internal X10 compiler error occurred; see the Error Log for more details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+            addProblemMarkerTo(fProject, "An internal X10 compiler error occurred; see the Error Log for more details.", IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 //            postMsgDialog("Internal Compiler Error", "An internal X10 compiler error occurred; see the Error Log for more details.");
         }
 //      fDependencyInfo.dump();
@@ -558,7 +616,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (errorPos == Position.COMPILER_GENERATED)
                 X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
             else
-                addMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
+                addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
                         .offset(), errorPos.endOffset());
         }
     }
