@@ -170,11 +170,10 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public Image getErrorTicksFromMarkers(IResource res) {
         if (res instanceof IFile) {
             IFile file= (IFile) res;
-            String[] extens= fX10Language.getFilenameExtensions();
             boolean found= false;
 
-            for(int i= 0; i < extens.length; i++) {
-                if (extens[i].equals(file.getFileExtension())) {
+            for (String ext : fX10Language.getFilenameExtensions()) {
+                if (ext.equals(file.getFileExtension())) {
                     found= true;
                 }
             }
