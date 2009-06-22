@@ -456,8 +456,8 @@ public class X10Builder extends IncrementalProjectBuilder {
             // The X10 configuration file's location is given by the value of the System
             // property "x10.configuration", which is initialized by X10Plugin.refreshPrefs()
             // and by a preference store listener in X10PreferencePage.
-            Configuration.readConfiguration();
-        } catch (Error e) {
+            Configuration.readConfiguration(Configuration.class, System.getProperty("x10.configuration"));
+        } catch (x10.runtime.util.ConfigurationError e) {
             if (e.getCause() instanceof FileNotFoundException) {
         	FileNotFoundException fnf= (FileNotFoundException) e.getCause();
         	if (fnf.getMessage().startsWith("???\\standard.cfg")) {
@@ -467,7 +467,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 		IOException io= (IOException) e.getCause();
         	if (io.getMessage().endsWith("non-existent"))
         	    postMsgDialog("X10 Error", "X10 compiler configuration invalid; please re-set in the X10 Preferences page.");
-            }
+            } else
+        	postMsgDialog("X10 Error", e.getMessage());
         }
 
 	if (kind == CLEAN_BUILD || kind == FULL_BUILD)
