@@ -9,7 +9,7 @@ import org.eclipse.ui.IActionDelegate;
 import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
-import com.ibm.watson.safari.x10.X10ProjectNature;
+import com.ibm.watson.safari.x10.builder.X10ProjectNature;
 
 public class ProjectBuilderEnable implements IObjectActionDelegate {
     private IProject fProject;

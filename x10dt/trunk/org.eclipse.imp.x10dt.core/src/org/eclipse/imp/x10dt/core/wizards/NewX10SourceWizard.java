@@ -16,7 +16,7 @@ import org.eclipse.ui.*;
 import org.eclipse.ui.ide.IDE;
 
 import com.ibm.watson.safari.x10.X10Plugin;
-import com.ibm.watson.safari.x10.X10ProjectNature;
+import com.ibm.watson.safari.x10.builder.X10ProjectNature;
 
 /**
  * This is the "New X10 Source File" wizard. Its role is to create a new file resource in the provided container. If the container resource (a folder or a

@@ -1,5 +1,6 @@
-package com.ibm.watson.safari.x10;
+package com.ibm.watson.safari.x10.builder;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +27,9 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.uide.runtime.UIDEPluginBase;
+import com.ibm.watson.safari.x10.X10Plugin;
+import com.ibm.watson.safari.x10.preferences.X10Preferences;
+import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Options;
@@ -253,6 +257,13 @@ public class X10Builder extends IncrementalProjectBuilder {
 		if (i > 0) buff.append(";");
 		buff.append(entry.getPath().toOSString());
 	    }
+	    if (X10Preferences.autoAddRuntime) {
+		String commonPath= X10Preferences.x10CommonPath;
+		String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separator)+1) + "x10.runtime" + File.separator + "classes";
+
+		if (classPath.length > 0) buff.append(';');
+		buff.append(runtimePath);
+	    }
 	} catch (JavaModelException e) {
 	    X10Plugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
 	}
@@ -282,6 +293,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	// Refresh prefs every time so that changes take effect on the next build.
 	sPlugin.refreshPrefs();
+	if (Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY.startsWith("/home/praun"))
+	    Configuration.readConfiguration();
 
 	fSourcesToCompile.clear();
 	fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
@@ -298,7 +311,15 @@ public class X10Builder extends IncrementalProjectBuilder {
 	if (!fSourcesToCompile.isEmpty()) {
 	    invokeX10C(fSourcesToCompile);
 	    // Now do a refresh to make sure the Java compiler sees the Java source files that Polyglot just created.
-	    fProject.getWorkspace().getRoot().getFolder(getProjectSrcPath()).refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
+	    IPath projectSrcPath= getProjectSrcPath();
+	    if (projectSrcPath.segmentCount() == 1)
+		// Work around Eclipse 3.1.0 bug 101733: gives spurious exception
+		// if folder refers to project itself (happens when a Java project
+		// is configured not to use separate src/bin folders).
+		//    https://bugs.eclipse.org/bugs/show_bug.cgi?id=101733
+		fProject.refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
+	    else
+		fProject.getWorkspace().getRoot().getFolder(projectSrcPath).refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
 	}
 	// TODO Compute set of dependent projects
 	return Collections.EMPTY_LIST;

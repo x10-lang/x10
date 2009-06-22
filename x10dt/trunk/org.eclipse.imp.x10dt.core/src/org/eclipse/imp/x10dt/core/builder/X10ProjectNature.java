@@ -1,4 +1,4 @@
-package com.ibm.watson.safari.x10;
+package com.ibm.watson.safari.x10.builder;
 
 import java.util.HashMap;
 
@@ -9,6 +9,7 @@ import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.uide.core.ProjectNatureBase;
 import org.eclipse.uide.runtime.IPluginLog;
+import com.ibm.watson.safari.x10.X10Plugin;
 
 public class X10ProjectNature extends ProjectNatureBase {
     public static final String k_natureID= X10Plugin.kPluginID + ".x10nature";

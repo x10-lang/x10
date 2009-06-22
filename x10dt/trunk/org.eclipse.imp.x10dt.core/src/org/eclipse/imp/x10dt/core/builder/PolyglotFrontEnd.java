@@ -1,7 +1,7 @@
 /*
  * Created on Oct 6, 2005
  */
-package com.ibm.watson.safari.x10;
+package com.ibm.watson.safari.x10.builder;
 
 import java.util.ArrayList;
 import java.util.Collection;

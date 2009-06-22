@@ -7,7 +7,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-import com.ibm.watson.safari.x10.X10ProjectNature;
+import com.ibm.watson.safari.x10.builder.X10ProjectNature;
 
 /**
  * A simple action to enable the X10 builder for the currently-selected project.
