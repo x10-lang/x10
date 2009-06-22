@@ -1,4 +1,4 @@
-package x10.uide.views;
+package x10.uide.editor;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
