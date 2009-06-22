@@ -32,7 +32,7 @@ public class X10LaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
 
     public void createTabs(ILaunchConfigurationDialog dialog, String mode) {
 	ILaunchConfigurationTab[] tabs= new ILaunchConfigurationTab[] {
-		new JavaMainTab(),
+		new X10MainTab(),
 		new JavaArgumentsTab(),
 		new X10RETab(),
 		new JavaJRETab(),
