@@ -7,6 +7,14 @@ import lpg.runtime.*;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.uide.model.ISourceProject;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import x10.parser.X10Parser.JPGPosition;		// SMS 14 Jun 2006
 
@@ -24,15 +32,17 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     private int fOffset;
 
     private int fEndOffset;
-    
+
+    private final ISourceProject fSrcProject;
+
     private final LexStream fLS;
 
-    private boolean DEBUG= false;
+    private boolean DEBUG= true;
 
     private NodeVisitor fVisitor= new NodeVisitor() {
 	public NodeVisitor enter(Node n) {
 	    if (DEBUG)
-		System.out.println("Entering node type = " + n.getClass().getName());
+		System.out.println("Entering node type = " + n.getClass().getName() + ", first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
 	    Position pos= n.position();
 
@@ -61,6 +71,10 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	public Node override(Node n) {
 	    // Prune traversal to avoid examining nodes outside the given text range.
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
+
+	    if (true) return null; // RMF 7/3/2007 - Disabled short-circuiting b/c it seemed to
+	    // break node location (probably the result of "rogue offsets" on various node types).
+
 	    Position pos= n.position();
 
 	    if (pos == null || pos.line() < 0) {
@@ -92,7 +106,7 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 
 	    if (pos == null || pos.line() < 0) {
 		if (DEBUG)
-		    System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node,Node):  node positions < 0 for node type = " + n.getClass().getName());
+		    System.out.println("PolyglotNodeLocator.ParentNodeVisitor.enter(Node,Node):  node positions < 0 for node type = " + n.getClass().getName());
 	    	return this;
 	    }
 
@@ -135,8 +149,9 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	}
     };
 
-    public PolyglotNodeLocator(LexStream ls) {
+    public PolyglotNodeLocator(ISourceProject srcProject, LexStream ls) {
 	fLS= ls;
+	fSrcProject= srcProject;
     }
 
     public Object findNode(Object ast, int offset) {
@@ -144,9 +159,20 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     }
 
     public Object findNode(Object ast, int startOffset, int endOffset) {
-	if (DEBUG)
+	if (DEBUG) {
 	    System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
+	}
 	if (ast == null) return null;
+	if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
+	    return null;
+	if (DEBUG) {
+	    IPrsStream ps= fLS.getPrsStream();
+	    if (endOffset == startOffset)
+		System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
+	    else {
+		System.out.println("Token span: '" + ps.getTokenAtCharacter(startOffset) + "' to '" + ps.getTokenAtCharacter(endOffset) + "'");
+	    }
+	}
 	fOffset= startOffset;
 	fEndOffset= endOffset;
 	((Node) ast).visit(fVisitor);	// assigns to fNode[0], if a suitable node is found
@@ -166,7 +192,7 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 
     public Object findParentNode(Object ast, int startOffset, int endOffset) {
 	if (DEBUG)
-	    System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
+	    System.out.println("Looking for parent of node spanning offsets " + startOffset + " => " + endOffset);
 	if (ast == null) return null;
 	fOffset= startOffset;
 	fEndOffset= endOffset;
@@ -216,13 +242,48 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     }
 
     public IPath getPath(Object node) {
-	if (node instanceof Declaration)
-	    return new Path(((Declaration) node).position().file());
-	else if (node instanceof Node)
+	if (node instanceof Declaration) {
+	    final String path= ((Declaration) node).position().file();
+	    if (path.endsWith(".class")) {
+		// TODO Fix totally bogus hardwired rt.jar path inserted for testing.
+		// Probably need the IProject or ISourceProject to scan the classpath and
+		// figure out where this class file is.
+		try {
+		    IClassFile classFile= resolveClassFile(path);
+		    if (classFile.exists())
+			// Eclipse doesn't seem to properly handle "jar:" URLs.
+//			return new Path("jar:" + classFile.getPath().toPortableString() + "!" + path);
+			return classFile.getPath(); // but this just describes the archive container, not the member within it...
+		} catch (JavaModelException jme) {
+		    System.err.println(jme.getMessage());
+		}
+	    }
+	    return new Path(path);
+	} else if (node instanceof Node)
 	    return new Path(((Node)node).position().path());
 	else if (node instanceof Position)
 	    return new Path(((Position) node).file());
 	else
 	    return null;
+    }
+
+    private IClassFile resolveClassFile(final String path) throws JavaModelException {
+	IJavaProject javaProject= JavaCore.create(fSrcProject.getRawProject());
+	IClasspathEntry[] cpEntries= javaProject.getResolvedClasspath(true);
+
+	for(int i= 0; i < cpEntries.length; i++) {
+	    IClasspathEntry entry= cpEntries[i];
+
+	    if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+		IPath entryPath= entry.getPath();
+		IPackageFragmentRoot pkgRoot= javaProject.findPackageFragmentRoot(entryPath);
+		final int pkgEnd= path.lastIndexOf('/');
+		String pkgName= path.substring(0, pkgEnd).replace('/', '.');
+		IPackageFragment pkgFrag= pkgRoot.getPackageFragment(pkgName);
+
+		return pkgFrag.getClassFile(path.substring(pkgEnd + 1));
+	    }
+	}
+	return null;
     }
 }
