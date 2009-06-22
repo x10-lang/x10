@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="org.eclipse.safari.x10dt" default="build.update.jar" basedir=".">
-	<import file="../org.eclipse.safari.x10dt.feature/buildCommon.xml"/>
-	<import file="../org.eclipse.safari.update/buildPluginCommon.xml"/>
+<project name="org.eclipse.imp.x10dt" default="build.update.jar" basedir=".">
+	<import file="../org.eclipse.imp.x10dt.feature/buildCommon.xml"/>
+	<import file="../org.eclipse.imp.update/buildPluginCommon.xml"/>
 
 	<target name="init" depends="properties">
-		<property name="plugin.name" value="org.eclipse.safari.x10dt"/>
+		<property name="plugin.name" value="org.eclipse.imp.x10dt"/>
 		<property name="plugin.version" value="${plugins.version.32}"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>

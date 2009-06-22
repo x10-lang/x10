@@ -18,14 +18,14 @@
     <echo message="eclipse.home = ${eclipse.home}"/>
 
     <!-- Following assumes we're invoking the build from within some plugin project's top-level directory -->
-    <xmlproperty file="../org.eclipse.safari.x10dt.feature/feature.xml" prefix="x10dt"/>
+    <xmlproperty file="../org.eclipse.imp.x10dt.feature/feature.xml" prefix="x10dt"/>
 
     <echo message="Building for X10DT feature version ${x10dt.feature(version)}"/>
 
     <property name="x10dt.version" value="${x10dt.feature(version)}"/>
     <property name="plugin.version.prefix31" value="1.0"/>
     <property name="plugin.version.prefix32" value="3.2"/>
-    <property name="plugin.version.suffix" value="57"/>
+    <property name="plugin.version.suffix" value="58"/>
     <property name="plugins.version.31" value="${plugin.version.prefix31}.${plugin.version.suffix}"/>
     <property name="plugins.version.32" value="${plugin.version.prefix32}.${plugin.version.suffix}"/>
 
