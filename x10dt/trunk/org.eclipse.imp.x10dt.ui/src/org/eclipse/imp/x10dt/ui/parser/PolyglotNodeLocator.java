@@ -167,13 +167,42 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 	}
     };
 
+    private Node fTargetNode; // Used only by getParentNode().
+
+    /**
+     * Like fParentVisitor, but looks for the parent of a given node, rather than the parent
+     * of the node with a given offset/length.
+     */
+    private NodeVisitor fParentNodeVisitor= new NodeVisitor() {
+        public NodeVisitor enter(Node parent, Node n) {
+            if (DEBUG)
+            System.out.println("Entering node type = " + n.getClass().getName());
+
+            if (n == fTargetNode) {
+                if (DEBUG)
+                    System.out.println(" --> " + n + " (" + n.getClass().getName() + ") node selected.");
+                fNode[0]= parent;
+            }
+            return this;
+        }
+        
+        // Note:  Returning null is interpreted as a signal to *not* override the given node
+        public Node override(Node n) {
+            // Prune traversal to avoid examining nodes once we've found the parent.
+            if (fNode[0] != null) {
+                return n;
+            }
+            return null;
+        }
+    };
+
     public PolyglotNodeLocator(ISourceProject srcProject, LexStream ls) {
-	fLS= ls;
-	fSrcProject= srcProject;
+        fLS= ls;
+        fSrcProject= srcProject;
     }
 
     public Object findNode(Object ast, int offset) {
-	return findNode(ast, offset, offset);
+        return findNode(ast, offset, offset);
     }
 
     public Object findNode(Object ast, int startOffset, int endOffset) {
@@ -223,6 +252,12 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 		System.out.println("Selected node (type): " + fNode[0] + " (" + fNode[0].getClass().getName() + ")");
 	}
 	return fNode[0];
+    }
+
+    public Object getParentNodeOf(Object node, Object root) {
+        fTargetNode= (Node) node;
+        ((Node) root).visit(fParentNodeVisitor);
+        return fNode[0];
     }
 
     public int getStartOffset(Object entity) {
