@@ -12,7 +12,7 @@
 		<echo message="Running LPG to generate parser and lexer"/>
 		<exec executable="${lpg.executable}" dir="src/org/eclipse/imp/x10dt/formatter/parser"
 		      failonerror="true" output="Pattern-X10.log">
-			<arg line="-include-directory=${lpg.templates};${lpg.metatooling.templates}"/>
+			<arg line="-include-directory=${lpg.templates};${lpg.include}"/>
 			<arg line="Pattern-X10.g"/>
 		</exec>
 		<!-- compile the source code -->
