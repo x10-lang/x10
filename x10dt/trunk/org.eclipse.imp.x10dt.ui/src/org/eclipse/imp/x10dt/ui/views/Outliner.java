@@ -19,7 +19,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
 import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.defaults.DefaultOutliner;
+import org.eclipse.uide.defaults.OutlinerBase;
 import org.eclipse.uide.editor.IOutliner;
 import org.eclipse.uide.parser.IParseController;
 
@@ -51,7 +51,7 @@ import x10.parser.X10Lexersym;
 import x10.parser.X10Parsersym;
 import x10.parser.X10Parser.JPGPosition;
 
-public class Outliner extends DefaultOutliner implements IOutliner
+public class Outliner extends OutlinerBase implements IOutliner
 {
     public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
 
@@ -96,208 +96,26 @@ public class Outliner extends DefaultOutliner implements IOutliner
 
     public static Image _DESC_OBJS_PACKDECL = JavaPluginImages.DESC_OBJS_PACKDECL.createImage();
 
-    private IParseController controller;
-
     private String filter(String name)
     {
         return name.replaceAll("\n", "").replaceAll("\\{amb\\}", "");
     }
     
-    public void setTree(Tree tree)
-    {
-        super.setTree(tree);
-        tree.addSelectionListener(new SelectionListener() {
-            public void widgetSelected(SelectionEvent e)
-            {
-                TreeItem ti = (TreeItem) e.item;
-                Object data = ti.getData();
-
-                if (data instanceof JPGPosition) {
-                    JPGPosition position = (JPGPosition) data;
-                    IToken left_token = position.getLeftIToken(),
-                           right_token = position.getRightIToken();
-
-                    IEditorPart activeEditor = PlatformUI.getWorkbench()
-                            .getActiveWorkbenchWindow().getActivePage()
-                            .getActiveEditor();
-                    AbstractTextEditor textEditor = (AbstractTextEditor) activeEditor;
-
-                    textEditor.selectAndReveal(left_token.getStartOffset(), right_token.getEndOffset() - left_token.getStartOffset() + 1);
-                    // textEditor.setFocus();
-                }
-            }
-
-            public void widgetDefaultSelected(SelectionEvent e)
-            {
-            }
-        });
-    }
-
-    
-    
-    /*
-     * To hold in a generic way any data that the method "significantChange(..)"
-     * may require from one invocation to the next.
-     * SMS 11 Jul 2006
-     * 
-     */
-    private Object[] previous = null;
-    
-    /**
-     * Report whether there has been a significant change in the AST
-     * associated with the parse controller given in the current
-     * invocation compared to the AST associated with the parse
-     * controller given on the previous invocation (if any).
-     * 
-     * A significant change is considered to be one in which the AST
-     * is not logically the same from one invocation to the next,
-     * as indicated by a change in the parse controller (implying an
-     * entirely new tree), in the number of tokens in the tree, or in
-     * the text making up any individual token.
-     * 
-     * @author sutton		Stan Sutton 11 Jul 2006 (added from elsewhere)
-     * 
-     * @param controller	A parse controller that is to be compared to
-     * 						the previously given parse controller, especially
-     * 						for changes in their respective ASTs
-     * @return				True if the AST for the current controller is
-     * 						effectively the same as the AST for the previous
-     * 						controller or if both are null; false otherwise
-     */
-    public boolean significantChange(IParseController controller)
-    {
-    	boolean previousWasNull = previous == null;
-    	boolean result = false;
-    	
-    	// Check for previous values being null (as in uninitialized)
-    	if (previousWasNull) {
-    		// create and initialize previous
-    		previous = new Object[3];
-    		for (int i = 0; i < previous.length; i++) {
-    			previous[i] = null;
-    		}
-    		
-    		// check for current and previous controllers both null	
-    		if (controller == null) {
-    			return false;
-    		}
-    	}
-    	
-    	// If here then had some previous values (although these
-    	// could individually be null); is current controller null?
-    	if (controller == null) {
-    		for (int i = 0; i < previous.length; i++) {
-    			if (previous[i] == null) continue;	// not changed
-    			result = true;						// changed
-    			previous[i] = null;					// null now
-    		}
-    		return result;
-    	}
-    	
-    	// If here then had some previous values and have some current
-    	// values; these need to be compared
-    	// (for simplicity assume that current values are not null)
-    	
-    	// Get current values for comparison to previous
-    	ArrayList tokens = controller.getParser().getParseStream().getTokens();
-    	char[] chars = controller.getLexer().getLexStream().getInputChars();
-    	
-    	// Get previous values for comparison to current
-    	IParseController previousController = (IParseController) previous[0];
-    	ArrayList previousTokens = (ArrayList) previous[1];
-    	char[] previousChars = (char[]) previous[2];
-    	
-    	// Update previous values to current values in any case (now that
-    	// we've saved previous in local fields)
-		previous[0] = controller;	
-		previous[1] = tokens;
-		previous[2] = chars;
-    	
-    	// Compare current and previous values; return true if different
-		
-		// Are the whole trees different?  (Assume so if controllers differ)
-    	if (previousController != controller) return true;
-    	
-    	// Are the sizes of the trees different? 
-    	if (previousTokens.size() != tokens.size()) {
-    		return true;
-    	}
-    	
-        //
-    	// Are any of the individual tokens different?
-        // NOTE that the loop has to terminate at size() - 2 to avoid
-        // processing the EOF token.
-        //
-    	for (int i = 0; i < previousTokens.size()-2; i++) {
-    		IToken previousToken = (IToken)previousTokens.get(i);
-    		IToken token = (IToken)tokens.get(i);
-                
-    		if (previousToken.getKind() != token.getKind()) {
-    			//System.out.println("Previous and current tokens differ at token # = " + i);
-    			return true;
-    		}
-    		int previousStart = previousToken.getStartOffset();
-    		int previousEnd = previousToken.getEndOffset();
-    		int start = token.getStartOffset();
-    		int end = token.getEndOffset();
-    		if ((previousEnd - previousStart) != (end - start)) {
-				System.out.println("Previous and current tokens have different extents at token # = " + i);
-				return true;
-    		}
-    		for (int j = 0; j < (previousEnd - previousStart /* + 1 */); j++) {
-    			if (previousChars[previousStart+j] != chars[start+j]) {
-    				System.out.println("Previous and current tokens have different characters at token # = " + i +
-    						", character # = " + j);
-    				return true;
-    			}
-    		}
-    	}
-    	
-    	// No significant differences found
-    	return false;
-    }
- 
-    
-    
-    public void createOutlinePresentation(IParseController controller, int offset)
-    {
-    	boolean redrawSetFalse = false;		// SMS 10 Jul 2006
-    	
-        this.controller = controller;
-        try
-        {
-            if (controller != null && tree != null)
-            {
-            	if (!significantChange(controller)) return;		// SMS 11 Jul 2006
-            	
-    		    tree.setRedraw(false);
-    		    redrawSetFalse = true;		// SMS 10 Jul 2006
-    		    SourceFile ast = (SourceFile) controller.getCurrentAst();
-                if (ast != null)
-                {
-                    tree.removeAll();
-                    if (ast.package_() != null)
-                    {
-                        TreeItem parent = new TreeItem(tree, SWT.NONE);
-                        parent.setData(ast.package_().position());
-                	    parent.setImage(_DESC_OBJS_PACKDECL);
-                        parent.setText(ast.package_().toString());
-                    }
-                    outlineTypes(ast.decls());
-                }
-    		}
-//    	    selectTreeItemAtTextOffset(offset);
-    	}
-        catch (Throwable e)
-        {
-    	    ErrorHandler.reportError("Could not generate outline", e);
-    	}
-        finally
-        {
-    	    if (tree != null)
-    	    	if (redrawSetFalse)			// SMS Jul 2006
-    	        tree.setRedraw(true);
-    	}
+    @Override
+    protected void sendVisitorToAST(Object node) {
+	SourceFile ast = (SourceFile) node;
+	if (ast != null)
+	{
+	    tree.removeAll();
+	    if (ast.package_() != null)
+	    {
+		TreeItem parent = new TreeItem(tree, SWT.NONE);
+		parent.setData(ast.package_().position());
+		parent.setImage(_DESC_OBJS_PACKDECL);
+		parent.setText(ast.package_().toString());
+	    }
+	    outlineTypes(ast.decls());
+	}
     }
 
     public JPGPosition pos(IToken token)
@@ -312,6 +130,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
 
     HashMap tree_item_of;
     HashMap fields_of;
+
     void outlineTypes(List decls)
     {
         OutlineVisitor v = new OutlineVisitor();
