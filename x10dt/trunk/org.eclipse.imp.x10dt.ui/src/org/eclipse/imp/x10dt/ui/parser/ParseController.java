@@ -59,7 +59,7 @@ public class ParseController implements IParseController
     public List getErrors() { return Collections.singletonList(new ParseError("parse error", null)); }
     
     public ParseController() {
-System.out.println("creating ParseController()");
+        System.out.println("creating ParseController()");
     }
 
     class MyMonitor implements Monitor
@@ -82,7 +82,7 @@ System.out.println("creating ParseController()");
      */
     public Object parse(String contents, boolean scanOnly, IProgressMonitor monitor)
     {
-        FileSource fileSource;
+        FileSource fileSource= null;
         try
         {
             MyMonitor my_monitor = new MyMonitor(monitor);
@@ -92,16 +92,22 @@ System.out.println("creating ParseController()");
                                              filePath);
             List/*<SourceStream>*/ streams= new ArrayList();
             streams.add(fileSource); //PC: just to test...
-            // TODO: call compiler... cache the Ast in the parser so that it can be retrieve.
             compiler.getFrontEnd().compile(streams);
         }
         catch (IOException e)
         {
             throw new Error(e);
+        } finally {
+            // RMF 8/2/2006 - retrieve the AST if there is one; some later phase of compilation
+            // may fail, even though the AST is well-formed enough to provide an outline.
+            if (fileSource != null)
+                currentAst = (Node) compiler.getJob(fileSource).ast();
+            // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
+            // Must do this after attempting parsing (even though that might fail), since it depends
+            // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
+            // ExtensionInfo.parser(). Ugghh.
+            cacheKeywordsOnce();
         }
-        currentAst = (Node) compiler.getJob(fileSource).ast();
-
-        cacheKeywordsOnce(); // better place/time to do this?
         return currentAst;
     }
 
