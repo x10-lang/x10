@@ -88,7 +88,7 @@ public class ParseController implements IParseController
             MyMonitor my_monitor = new MyMonitor(monitor);
             compiler = new CompilerDelegate(my_monitor, project);  // Create the compiler
             fileSource= new SafariFileSource(contents,
-                                             new File(project.getLocation().append(filePath).toString()),
+                                             new File(project != null ? project.getLocation().append(filePath).toString() : filePath),
                                              filePath);
             List/*<SourceStream>*/ streams= new ArrayList();
             streams.add(fileSource); //PC: just to test...
