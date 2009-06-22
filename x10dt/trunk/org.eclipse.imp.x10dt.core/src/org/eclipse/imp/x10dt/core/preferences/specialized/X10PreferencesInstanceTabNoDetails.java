@@ -6,8 +6,7 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    Matthew Kaplan (mmk@us.ibm.com) - initial implementation
 *******************************************************************************/
 
 /*******************************************************************************
@@ -25,17 +24,27 @@
 package org.eclipse.imp.x10dt.core.preferences.specialized;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
+import org.eclipse.imp.preferences.PreferenceCache;
+import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.preferences.PreferencesTab;
-import org.eclipse.imp.preferences.PreferencesUtilities;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.preferences.fields.FieldEditor;
 import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.StringFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
+import org.eclipse.imp.preferences.fields.FontFieldEditor;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -44,6 +53,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.ui.PlatformUI;
 
 public class X10PreferencesInstanceTabNoDetails extends
 		X10PreferencesInstanceTab {
@@ -69,14 +79,13 @@ public class X10PreferencesInstanceTabNoDetails extends
 
 		IntegerFieldEditor TabSize = fPrefUtils.makeNewIntegerField(
 			page, tab, fPrefService,
-			"instance", "TabSize", "Tab size",
+			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size",
 			parent,
 			true, true,
 			true, String.valueOf(8),
 			false, "0",
 			true);
 //			Link TabSizeDetailsLink = fPrefUtils.createDetailsLink(parent, TabSize, TabSize.getTextControl().getParent(), "Details ...");
-			Label l = new Label(parent, 0);
 
 		fields.add(TabSize);
 
@@ -92,13 +101,36 @@ public class X10PreferencesInstanceTabNoDetails extends
 
 		fields.add(NumPlaces);
 			
+		FontFieldEditor fontField= fPrefUtils.makeNewFontField(
+				page, tab, fPrefService,
+				"instance", "x10Font", "Source font:",
+				null,
+				parent,
+				true, false,
+				null, true);
+		fields.add(fontField);
+		
+		page.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
+		    public void propertyChange(PropertyChangeEvent event) {
+			    if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
+				    PreferenceCache.tabWidth= (Integer.parseInt((String)event.getNewValue()));
+			    } else if (event.getProperty().equals("x10Font")) {
+				    if (PreferenceCache.sourceFont != null) {
+				    	PreferenceCache.sourceFont.dispose();
+				    }
+				    PreferenceCache.sourceFont= new Font(PlatformUI.getWorkbench().getDisplay(), ((FontData[]) event.getNewValue())[0]);
+				}
+		    }
+		});
+
 		FieldEditor[] fieldsArray = new FieldEditor[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {
 			fieldsArray[i] = (FieldEditor) fields.get(i);
 		}
 		return fieldsArray;
 	}
-	public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final TabFolder tabFolder) {
+
+public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final TabFolder tabFolder) {
 		
 		fPrefPage = page;
 
@@ -111,7 +143,7 @@ public class X10PreferencesInstanceTabNoDetails extends
         composite.setLayoutData(gd);
 		
 		GridLayout gl = new GridLayout();
-		gl.numColumns = 2;
+		gl.numColumns = 1;
 		composite.setLayout(gl);
 		
 		fTabItem = new TabItem(tabFolder, SWT.NONE);
@@ -158,5 +190,49 @@ public class X10PreferencesInstanceTabNoDetails extends
         Button applyButton = (Button) fButtons[1];
 		
 		return composite;
+	}
+	/** 
+	 * The field editor preference page implementation of this 
+	 * <code>PreferencePage</code> method saves all field editors by
+	 * calling <code>FieldEditor.store</code>. Note that this method
+	 * does not save the preference store itself; it just stores the
+	 * values back into the preference store.
+	 *
+	 * @see FieldEditor#store()
+	 */
+	public boolean performOk() {
+	    if (fFields != null) {
+	    	for (int i=0; i<fFields.length; i++) {
+	            FieldEditor pe = (FieldEditor) fFields[i];
+	            pe.store();
+	            pe.doSetPresentsDefaultValue(false);
+	        }
+	    }
+	    return true;
+	}
+	
+	/**
+	 * Recomputes the tab's error state by calling <code>isValid</code> for
+	 * every field editor.
+	 */
+	FieldEditor doCheckState() {
+        boolean valid = true;
+        FieldEditor invalidFieldEditor = null;
+        // The state can only be set to true if all
+        // field editors contain a valid value. So we must check them all
+        if (fFields != null) {
+        	for (int i=0; i<fFields.length; i++) {
+                FieldEditor editor = (FieldEditor) fFields[i];
+                if (editor!=null) {
+                	valid = valid && editor.isValid();
+                	if (!valid) {
+                		invalidFieldEditor = editor;
+                		break;
+                	}
+                }
+        	}
+        }
+        setValid(valid);
+        return invalidFieldEditor;
 	}
 }
