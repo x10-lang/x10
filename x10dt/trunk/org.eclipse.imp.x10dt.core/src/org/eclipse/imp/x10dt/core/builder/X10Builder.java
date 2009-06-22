@@ -69,6 +69,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.osgi.framework.Bundle;
 
+import polyglot.ast.Node;
+import polyglot.ast.PackageNode;
 import polyglot.ext.x10.Configuration;
 import polyglot.ext.x10.ast.X10NodeFactory;
 import polyglot.ext.x10.dom.DomParser;
@@ -79,6 +81,9 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
+import polyglot.frontend.Scheduler;
+import polyglot.frontend.Source;
+import polyglot.frontend.goals.CodeGenerated;
 import polyglot.frontend.goals.Goal;
 import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
@@ -88,6 +93,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.NodeVisitor;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10.parser.X10Parser.JPGPosition;
@@ -206,77 +212,115 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @param sources
      */
     private void invokeX10C(Collection<IFile> sources) {
-	X10Plugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
-	clearMarkersOn(sources);
-	compileAllSources(sources);
-	X10Plugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
+        X10Plugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
+        clearMarkersOn(sources);
+        compileAllSources(sources);
+        X10Plugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
     // TODO This goal should probably prereq Disambiguated instead of CodeGenerated,
     // and should be made a prereq of TypeChecked, so that dependency information
     // gets collected even if code can't be generated for some reason.
     private class ComputeDependenciesGoal extends VisitorGoal {
-	public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
-	    super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
-	    addPrerequisiteGoal(job.extensionInfo().scheduler().CodeGenerated(job), job.extensionInfo().scheduler());
-	}
+        public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
+            super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
+            addPrerequisiteGoal(job.extensionInfo().scheduler().CodeGenerated(job), job.extensionInfo().scheduler());
+        }
+    }
+
+    private static class CheckPackageDeclVisitor extends NodeVisitor {
+        private final Job fJob;
+        private boolean fSeenPkg= false;
+
+        public CheckPackageDeclVisitor(Job job) {
+            fJob= job;
+        }
+
+        @Override
+        public NodeVisitor enter(Node n) {
+            if (n instanceof PackageNode) {
+                PackageNode pkg= (PackageNode) n;
+                Source src= fJob.source();
+                String declaredPkg= pkg.package_().fullName();
+                String actualPkg= src.path().substring(0, src.path().length() - src.name().length() - 1).replace('/', '.');
+                if (!actualPkg.endsWith(declaredPkg)) {
+                    fJob.extensionInfo().compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.SEMANTIC_ERROR, "Declared package doesn't match source file location.", pkg.position()));
+                }
+                fSeenPkg= true;
+            }
+            return super.enter(n);
+        }
+        @Override
+        public Node override(Node n) {
+            if (fSeenPkg) {
+                return n;
+            }
+            return null;
+        }
+    };
+
+    private class CheckPackageDeclGoal extends VisitorGoal {
+        public CheckPackageDeclGoal(Job job) throws CyclicDependencyException {
+            super(job, new CheckPackageDeclVisitor(job));
+            addPrerequisiteGoal(job.extensionInfo().scheduler().internGoal(new ComputeDependenciesGoal(job)), job.extensionInfo().scheduler());
+        }
     }
 
     private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
-	public Goal getCompileGoal(Job job) {
-	    try {
-		return scheduler().internGoal(new ComputeDependenciesGoal(job));
-	    } catch (CyclicDependencyException e) {
-		job.compiler().errorQueue().enqueue(
-			new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
-		return null;
-	    }
-	}
-	/**
-	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
-	 */
-	public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
-	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
-	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
-	    }
+        public Goal getCompileGoal(Job job) {
+            try {
+                return scheduler().internGoal(new CheckPackageDeclGoal(job));
+            } catch (CyclicDependencyException e) {
+                job.compiler().errorQueue().enqueue(
+                        new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
+                return null;
+            }
+        }
+    	/**
+    	 * Exactly like the base-class implementation, but sets the lexer up with an IMessageHandler.
+    	 */
+    	public Parser parser(Reader reader, FileSource source, final ErrorQueue eq) {
+    	    if (source.path().endsWith(XML_FILE_DOT_EXTENSION)) {
+    	        return new DomParser(reader, (X10TypeSystem) ts, (X10NodeFactory) nf, source, eq);
+    	    }
 
 	    try {
-	        //
-	        // X10Lexer may be invoked using one of two constructors.
-	        // One constructor takes as argument a string representing
-	        // a (fully-qualified) filename; the other constructor takes
-	        // as arguments a (file) Reader and a string representing the
-	        // name of the file in question. Invoking the first
-	        // constructor is more efficient because a buffered File is created
-	        // from that string and read with one (read) operation. However,
-	        // we depend on Polyglot to provide us with a fully qualified
-	        // name for the file. In Version 1.3.0, source.name() yielded a
-	        // fully-qualified name. In 1.3.2, source.path() yields a fully-
-	        // qualified name. If this assumption still holds then the 
-	        // first constructor will work.
-	        // The advantage of using the Reader constructor is that it
-	        // will always work, though not as efficiently.
-	        //
-	        // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
-	        //
-	        final X10Lexer x10_lexer = new X10Lexer(source.path());
-	        x10_lexer.setMessageHandler(new IMessageHandler() {
-	            public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
-	                Position p= new Position(null, filename,
-	                        msgLocation[IMessageHandler.START_LINE_INDEX], msgLocation[IMessageHandler.START_COLUMN_INDEX],
-	                        msgLocation[IMessageHandler.END_LINE_INDEX], msgLocation[IMessageHandler.END_COLUMN_INDEX],
-	                        msgLocation[IMessageHandler.OFFSET_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
-	                eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + x10_lexer.errorMsgText[errorCode], p);
-	            }
-	        });
-	        X10Parser x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
-	        x10_lexer.lexer(x10_parser);
-	        return x10_parser; // Parse the token stream to produce an AST
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-	    throw new IllegalStateException("Could not parse " + source.path());
-	}
+                //
+                // X10Lexer may be invoked using one of two constructors.
+                // One constructor takes as argument a string representing
+                // a (fully-qualified) filename; the other constructor takes
+                // as arguments a (file) Reader and a string representing the
+                // name of the file in question. Invoking the first
+                // constructor is more efficient because a buffered File is created
+                // from that string and read with one (read) operation. However,
+                // we depend on Polyglot to provide us with a fully qualified
+                // name for the file. In Version 1.3.0, source.name() yielded a
+                // fully-qualified name. In 1.3.2, source.path() yields a fully-
+                // qualified name. If this assumption still holds then the
+                // first constructor will work.
+                // The advantage of using the Reader constructor is that it
+                // will always work, though not as efficiently.
+                //
+                // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
+                //
+                final X10Lexer x10_lexer= new X10Lexer(source.path());
+                x10_lexer.setMessageHandler(new IMessageHandler() {
+                    public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
+                        Position p= new Position(null, filename, msgLocation[IMessageHandler.START_LINE_INDEX],
+                                msgLocation[IMessageHandler.START_COLUMN_INDEX], msgLocation[IMessageHandler.END_LINE_INDEX],
+                                msgLocation[IMessageHandler.END_COLUMN_INDEX], msgLocation[IMessageHandler.OFFSET_INDEX],
+                                msgLocation[IMessageHandler.OFFSET_INDEX] + msgLocation[IMessageHandler.LENGTH_INDEX]);
+                        eq.enqueue(ErrorInfo.SYNTAX_ERROR, errorInfo[0] + " " + x10_lexer.errorMsgText[errorCode], p);
+                    }
+                });
+                X10Parser x10_parser= new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+                x10_lexer.lexer(x10_parser);
+                return x10_parser; // Parse the token stream to produce an AST
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            throw new IllegalStateException("Could not parse " + source.path());
+        }
     }
 
     private void compileAllSources(Collection<IFile> sourceFiles) {
