@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -82,7 +83,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private static SAFARIPluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
 
-    private Collection/*<IFolder>*/ fSrcFolders;
+    private Collection/*<IPath>*/ fSrcFolderPaths; // project-relative paths
 
     public X10Builder() {}
 
@@ -107,13 +108,13 @@ public class X10Builder extends IncrementalProjectBuilder {
 	if (!(file.exists() && exten != null && exten.compareTo("x10") == 0))
 	    return false;
 
-	IFolder parent= (IFolder) file.getParent();
+	IContainer parent= (IContainer) file.getParent();
 	boolean isInSrc= false;
 
-	for(Iterator iter= fSrcFolders.iterator(); iter.hasNext(); ) {
-	    IFolder srcFolder= (IFolder) iter.next();
+	for(Iterator iter= fSrcFolderPaths.iterator(); iter.hasNext(); ) {
+	    IPath srcFolderPath= (IPath) iter.next();
 
-	    if (srcFolder.getProjectRelativePath().isPrefixOf(parent.getProjectRelativePath()))
+	    if (srcFolderPath.isPrefixOf(parent.getProjectRelativePath()))
 		isInSrc= true;
 	}
 	return isInSrc;
@@ -585,17 +586,18 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @see isSourceFile()
      */
     private void collectSourceFolders() throws JavaModelException {
-	fSrcFolders= new HashSet();
+	fSrcFolderPaths= new HashSet();
 	IClasspathEntry[] cpEntries= fX10Project.getResolvedClasspath(true);
 
 	for(int i= 0; i < cpEntries.length; i++) {
 	    IClasspathEntry cpEntry= cpEntries[i];
 	    if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-		if (!cpEntry.getPath().segment(0).equals(fX10Project.getElementName())) {
-		    X10Plugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + cpEntry.getPath());
+		final IPath entryPath= cpEntry.getPath();
+		if (!entryPath.segment(0).equals(fX10Project.getElementName())) {
+		    X10Plugin.getInstance().maybeWriteInfoMsg("Source classpath entry refers to another project: " + entryPath);
 		    continue;
 		}
-		fSrcFolders.add(fX10Project.getProject().getFolder(cpEntry.getPath().removeFirstSegments(1)));
+		fSrcFolderPaths.add(entryPath.removeFirstSegments(1));
 	    }
 	}
     }
