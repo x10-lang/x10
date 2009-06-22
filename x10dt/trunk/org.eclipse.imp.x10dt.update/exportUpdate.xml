@@ -79,7 +79,7 @@
 	    <target name="get.polyglot.artifacts">
 	        <!-- The name of the X10DT ws  project containing the Polyglot source snapshot is "polyglot3". -->
 	    	<property name="polyglotPluginId"        value="polyglot3"/>
-	    	<property name="polyglotFeatureId"        value="polyglot"/>
+	    	<property name="polyglotFeatureId"        value="polyglot3"/>
 	        <delete dir="../polyglot3/eclipseUpdates3/plugins" includes="*.jar"/>
 	        <delete dir="../polyglot3/eclipseUpdates3/features" includes="*.jar"/>
 
