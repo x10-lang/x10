@@ -54,7 +54,7 @@ We say that <tt>T=C(:c)</tt> is <em>parametrically consistent</em> (in brief:
 </li>
 </ul>
  where <tt>i(C)</tt> is the invariant associated with the type <tt>C</tt>
-(&#167;&nbsp;<a href="#DepType:TypeInvariant">5</a>).  Note by definition of <tt>S</tt> the formula on the
+(&#167;&nbsp;4.5</a>).  Note by definition of <tt>S</tt> the formula on the
 above has no free variables.
 
 <div class="p"><!----></div>
@@ -66,7 +66,7 @@ above has no free variables.
 </blockquote>
 
 <div class="p"><!----></div>
-A class that represents a line has two distinct points:
+<b>Example 6.1</b> A class that represents a line has two distinct points:
 <pre>
 class Array(int  rank, 
     region(:rank==this.rank) region) {...}  
@@ -76,7 +76,7 @@ class Array(int  rank,
 One can use deptypes to define other closed geometric figures as well.
 
 <div class="p"><!----></div>
-Here is an example:
+<b>Example 6.2</b> Here is an example:
 <pre>
  class Point(int x, int y) {...}
  class Line( Point start, 
@@ -96,7 +96,7 @@ forall Line this.
  since the set of all <tt>Points</tt> has more than one element.
 
 <div class="p"><!----></div>
-A triangle has three lines sharing three vertices.
+<b>Example 6.3</b> A triangle has three lines sharing three vertices.
 <pre>
 class Triangle 
  (Line a, 

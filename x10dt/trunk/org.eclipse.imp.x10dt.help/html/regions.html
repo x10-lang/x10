@@ -53,12 +53,12 @@ region R6 = [100, 100];
    // Represents the intersection of two regions
 region AandB = A &amp;&amp; B;       
   // represents the union of two regions
-region AOrB = A  -  -  B;        
+region AOrB = A || B;        
 </pre>
 
 <div class="p"><!----></div>
 A region may be constructed using a comma-separated list of regions
-(&#167;&nbsp;) within square brackets, as above and represents
+(&#167;&nbsp;12.2) within square brackets, as above and represents
 the Cartesian product of each of the arguments.  The bound of a
 dimension may be any final variable of a fixed-point numeric
 type.  X10 v1.01 does not support hierarchical regions.
@@ -95,7 +95,7 @@ All the points in a region are ordered canonically by the lexicographic total or
 </pre>
 
 <div class="p"><!----></div>
-Sequential iteration statements such as <tt>for</tt> (&#167;&nbsp;)
+Sequential iteration statements such as <tt>for</tt> (&#167;&nbsp;7.7)
 iterate over the points in a region in the canonical order.
 
 <div class="p"><!----></div>
@@ -103,8 +103,8 @@ A region is said to be <em>convex</em> if it is of
 the form <tt>[T1,..., Tk]</tt> for some set of enumerations <tt>Ti</tt>. Such a
 region satisfies the property that if two points p<sub>1</sub> and p<sub>3</sub> are
 in the region, then so is every point p<sub>2</sub> between them. (Note that
-<tt> -  - </tt> may produce non-convex regions from convex regions, e.g.
-<tt>[1,1]  -  -  [3,3]</tt> is a non-convex region.)
+<tt>||</tt> may produce non-convex regions from convex regions, e.g.
+<tt>[1,1] || [3,3]</tt> is a non-convex region.)
 
 <div class="p"><!----></div>
 For each region <tt>R</tt>, the <em>convex closure</em> of <tt>R</tt> is the
@@ -131,13 +131,13 @@ Let <tt>R1</tt> and <tt>R2</tt> be two regions.
 <tt>R1 &amp;&amp; R2</tt> is the intersection of <tt>R1</tt> and <tt>R2</tt>.
 
 <div class="p"><!----></div>
-<tt>R1  -  -  R2</tt> is the union of the <tt>R1</tt> and <tt>R2</tt>.
+<tt>R1 || R2</tt> is the union of the <tt>R1</tt> and <tt>R2</tt>.
 
 <div class="p"><!----></div>
 <tt>R1 - R2</tt> is the set difference of <tt>R1</tt> and <tt>R2</tt>.
 
 <div class="p"><!----></div>
-Two regions are equal () if they represent the same set of
+Two regions are equal (==) if they represent the same set of
 points.
 </body>
 </html>

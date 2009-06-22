@@ -24,8 +24,8 @@
 <div class="p"><!----></div>
 An object is an instance of a scalar class or an array type.  It is
 created by using a class instance creation expression
-(&#167;&nbsp;) or an array creation
-(&#167;&nbsp;) expression, such as an array
+(&#167;&nbsp;12.4) or an array creation
+(&#167;&nbsp;11.3) expression, such as an array
 initializer. An object that is an instance of a reference (value) type
 is called a <em>reference</em> (<em>value</em>) <em>object</em>.
 
@@ -36,7 +36,7 @@ x10.lang.place</tt>.  Thus all objects in  X10
 are located (have a place). However,  X10 permits value objects to
 be freely copied from place to place because they contain no mutable
 state.  It is permissible for a read of the <tt>location</tt> field of
-such a value to always return <tt>here</tt> (&#167;&nbsp;);
+such a value to always return <tt>here</tt> (&#167;&nbsp;6.0.2);
 therefore no space needs to be allocated in the object representation
 for such a field.
 
@@ -54,19 +54,19 @@ collected.
 a lock) associated with them. Thus the methods on <tt>
 java.lang.Object</tt> for waiting/synchronizing/notification etc are not
 available in  X10. Instead the programmer should use atomic blocks
-(&#167;&nbsp;) for mutual exclusion and clocks
-(&#167;&nbsp;) for sequencing multiple parallel operations.
+(&#167;&nbsp;7.6) for mutual exclusion and clocks
+(&#167;&nbsp;8) for sequencing multiple parallel operations.
 
 <div class="p"><!----></div>
 A reference object may have many references, stored in fields of
 objects or components of arrays. A change to an object made through
 one reference is visible through another reference.  X10 mandates
 that all accesses to mutable objects shared between multiple
-activities must occur in an atomic section (&#167;).
+activities must occur in an atomic section (&#167;7.6).
 
 <div class="p"><!----></div>
  Note that the creation of a remote async activity
-(&#167;&nbsp;) <tt>A</tt> at <tt>P</tt> may cause the automatic creation of
+(&#167;&nbsp;7.2) <tt>A</tt> at <tt>P</tt> may cause the automatic creation of
 references to remote objects at <tt>P</tt>. (A reference to a remote
 object is called a <em>remote object reference</em>, to a local object a
 <em>local object reference</em>.)  For instance <tt>A</tt> may be created
@@ -93,7 +93,7 @@ performed on the bound object, as indicated below. The operations on
 objects and object references include:
 
 <ul>
-<li> Field access (&#167;&nbsp;). An activity holding a
+<li> Field access (&#167;&nbsp;12.4). An activity holding a
 reference to a reference object may perform this operation only if the
 object is local.  An activity holding a reference to a value object
 may perform this operation regardless of the location of the object
@@ -105,7 +105,7 @@ rule for final fields discussed above.
 <div class="p"><!----></div>
 </li>
 
-<li> Method invocation (&#167;&nbsp;).  An activity
+<li> Method invocation (&#167;&nbsp;12.4).  An activity
 holding a reference to a reference object may perform this operation
 only if the object is local.  An activity holding a reference to a
 value object may perform this operation regardless of the location of
@@ -119,7 +119,7 @@ succeed is incurred at most once for each value object per place.
 <div class="p"><!----></div>
 </li>
 
-<li> Casting (&#167;&nbsp;).  An activity can perform this
+<li> Casting (&#167;&nbsp;12.4.1).  An activity can perform this
 operation on local or remote objects, and should not incur
 communication costs (to bring over type information) more than once
 per place.
@@ -129,7 +129,7 @@ per place.
 <div class="p"><!----></div>
 </li>
 
-<li> <tt>instanceof</tt> operator (&#167;&nbsp;).  An activity
+<li> <tt>instanceof</tt> operator (&#167;&nbsp;12.4.2).  An activity
 can perform this operation on local or remote objects, and should not
 incur communication costs (to bring over type information) more than
 once per place.
@@ -137,7 +137,7 @@ once per place.
 </li>
 
 <li> The stable equality operator  and <tt>!=</tt>
-(&#167;&nbsp;). An activity can perform these operations on
+(&#167;&nbsp;12.4.3). An activity can perform these operations on
 local or remote objects, and should not incur communication costs
 (to bring over relevant information) more than once per place.
 

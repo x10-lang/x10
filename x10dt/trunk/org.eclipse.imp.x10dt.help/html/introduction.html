@@ -43,7 +43,7 @@ proven too difficult for programmers to work with.
 One response to this problem has been to move to a <em>fragmented
 memory model</em>. Multiple processors are made to interact via a
 relatively language-neutral message-passing format such as MPI
-[]. This model has enjoyed some success: several
+[10]. This model has enjoyed some success: several
 high-performance applications have been written in this
 style. Unfortunately, this model leads to a <em>loss of programmer
 productivity</em>: the mesage-passing format is integrated into the host
@@ -58,7 +58,7 @@ different nodes; all processors must generally execute the same code
 <div class="p"><!----></div>
 One response to this problem has been the advent of the <em>
 partitioned global address space</em> (GAS) model underlying languages
-such as UPC, Titanium and Co-Array Fortran [,]. These
+such as UPC, Titanium and Co-Array Fortran [2,1]. These
 languages permit the programmer to think of a single computation
 running across multiple processors, sharing a common address
 space. All data resides at some processors, which is said to have <em>
@@ -80,12 +80,12 @@ programming ideas primarily to take advantage of their proven
 flexibility and ease-of-use for a wide spectrum of programming
 problems.  X10 takes advantage of several years of research (e.g.
 in the context of the Java<sup>TM</sup> Grande forum,
-[,]) on how to adapt such languages to the context of
+[8,1]) on how to adapt such languages to the context of
 high-performance numerical computing. Thus  X10 provides support
 for user-defined <em>value types</em> (such as <tt>int</tt>, <tt>float</tt>,
 <tt>complex</tt> etc), supports a very
 flexible form of multi-dimensional arrays (based on ideas in ZPL
-[]) and supports IEEE-standard floating point arithmetic.
+[3]) and supports IEEE-standard floating point arithmetic.
 Some limited operator overloading is provided for a few "built in"
 classes in the <tt>x10.lang</tt> package.  Future versions of the
 language will support user-definable operator overloading.
@@ -146,9 +146,9 @@ support user-definable operators and permit the specification of
 generic classes and methods.
 
 <div class="p"><!----></div>
-Two papers have been published on  X10. []
+Two papers have been published on  X10. [9]
 presents a formal semantics for the concurrency and distributed
-aspects of  X10. [] presents some case studies, and
+aspects of  X10. [4] presents some case studies, and
 discusses some  X10 programming idioms.
 
 <br /><br /><hr /><small>File translated from

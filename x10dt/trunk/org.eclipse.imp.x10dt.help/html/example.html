@@ -29,7 +29,7 @@ This example illustrates 2-d Jacobi iteration.
    const region R = [0:N+1, 0:N+1];
    const region RInner= [1:N, 1:N];
    const distribution D = distribution.factory.block(R);
-   const distribution DInner = D  -  RInner;
+   const distribution DInner = D | RInner;
    const distribution DBoundary = D - RInner;
    const int EXPECTED_ITERS=97;
    const double EXPECTED_ERR=0.0018673382039402497;
@@ -48,14 +48,14 @@ This example illustrates 2-d Jacobi iteration.
            new double[DInner] (point [i,j]) 
              {return (read(i+1,j)+read(i-1,j)
                       +read(i,j+1)+read(i,j-1))/4.0;};       
-        if((err=((B  -  DInner) - Temp).abs().sum()) 
+        if((err=((B | DInner) - Temp).abs().sum()) 
             &lt; epsilon)
            break; 
         B.update(Temp);
         iters++; 
       }
-      System.out.println(&#203;rror="+err);
-      System.out.println(&#207;terations="+iters);
+      System.out.println("Error="+err);
+      System.out.println("Iterations="+iters);
       return Math.abs(err-EXPECTED_ERR)&lt;epsilon2 
           &amp;&amp; iters==EXPECTED_ITERS;
    }
