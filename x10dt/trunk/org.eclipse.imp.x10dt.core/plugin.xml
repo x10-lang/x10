@@ -2,6 +2,8 @@
 <?eclipse version="3.0"?>
 <plugin>
 
+<!--
+   The following extension's contributorClass extends an inaccessible IMP-internal class.
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -14,6 +16,7 @@
             symbolicFontName="x10Font">
       </editor>
    </extension>
+  -->
    <extension
          id="X10Builder"
          name="X10 Compiler"
