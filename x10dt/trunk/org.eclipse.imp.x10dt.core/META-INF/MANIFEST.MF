@@ -14,13 +14,13 @@ Require-Bundle: org.eclipse.core.runtime,
  x10.compiler,
  org.eclipse.jdt.core,
  org.eclipse.uide.runtime,
- lpg,
  org.eclipse.jface.text,
  org.eclipse.jdt.ui,
  org.eclipse.ui.cheatsheets,
  com.ibm.watson.smapifier,
  x10.runtime,
- polyglot
+ polyglot,
+ lpg.javaruntime
 Eclipse-AutoStart: true
 Export-Package: com.ibm.watson.safari.x10,
  com.ibm.watson.safari.x10.actions,
