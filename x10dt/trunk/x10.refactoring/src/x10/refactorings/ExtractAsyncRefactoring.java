@@ -29,6 +29,7 @@ import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.ltk.core.refactoring.Change;
+import org.eclipse.ltk.core.refactoring.NullChange;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
@@ -135,11 +136,10 @@ import com.ibm.wala.util.debug.Assertions;
 import com.ibm.wala.util.debug.Trace;
 import com.ibm.wala.util.intset.OrdinalSet;
 
-
 public class ExtractAsyncRefactoring extends Refactoring {
 
 	// Refactoring fields
-	
+
 	private final IFile fSourceFile;
 
 	private final Node fNode;
@@ -157,14 +157,17 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private CallGraph fCallGraph;
 
 	private MethodReference fMethodRef;
-	
+
 	private IR fMethodIR;
 
 	// Debug flag
-	
+
 	private static final boolean debugOutput = false;
 
-	
+	// Change
+
+	private Change finalChange;
+
 	/**
 	 * A dummy Expr class for representing gamma(var), to be used in sets of
 	 * Expr's and gamma's, e.g. fPhi.
@@ -174,8 +177,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		private final VarWithFirstUse fVarDecl;
 
 		public GammaInstance(VarWithFirstUse vd) {
-//			super(vd.position(), vd.name());
-			fVarDecl= vd;
+			// super(vd.position(), vd.name());
+			fVarDecl = vd;
 		}
 
 		public VarWithFirstUse getVarDecl() {
@@ -186,12 +189,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			// TODO Auto-generated method stub
 			return null;
 		}
-		
+
 		public String toString() {
 			return fVarDecl.toString();
 		}
-		
-		public boolean equals(Object o){
+
+		public boolean equals(Object o) {
 			if (o instanceof GammaInstance)
 				return this.fVarDecl.equals(((GammaInstance) o).getVarDecl());
 			if (o instanceof VarWithFirstUse)
@@ -203,10 +206,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		public int hashCode() {
 			return fVarDecl.hashCode();
 		}
-		
-		
+
 	}
-	
+
 	private static class ThrowableStatus extends Exception {
 		public RefactoringStatus status;
 
@@ -265,8 +267,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	/**
 	 * Set up the extract async refactoring
 	 * 
-	 * @param editor - Must be a UniversalEditor or cast to
-	 * 		IASTFindReplaceTarget is unsafe.
+	 * @param editor -
+	 *            Must be a UniversalEditor or cast to IASTFindReplaceTarget is
+	 *            unsafe.
 	 */
 	public ExtractAsyncRefactoring(TextEditor editor) {
 		super();
@@ -279,7 +282,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			IFileEditorInput fileInput = (IFileEditorInput) input;
 
 			fSourceFile = fileInput.getFile();
-			fNode = findNode();//editor);
+			fNode = findNode();// editor);
 			// System.out.println(fNode.getClass());
 		} else {
 			fSourceFile = null;
@@ -288,24 +291,29 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		place = "here";
 	}
 
-	public Node_c findNode(){//UniversalEditor editor) {
+	public Node_c findNode() {// UniversalEditor editor) {
 		Point sel = ed.getSelection();
 
 		// System.out.println(.singleTestSrc(fGrammarFile));
 		IParseController parseController = ed.getParseController();
 		Node_c root = (Node_c) parseController.getCurrentAst();
-//		SourceFile_c root = (SourceFile_c) parseController.getCurrentAst();
+		// SourceFile_c root = (SourceFile_c) parseController.getCurrentAst();
 		ISourcePositionLocator locator = parseController.getNodeLocator();
 
-//		Node_c retNode = (Node_c) locator.findNode(root, sel.x);
-		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x+sel.y - 1);
-		Expr_c innerExprNode = (retNode instanceof Expr_c)?(Expr_c)retNode:null;
+		// Node_c retNode = (Node_c) locator.findNode(root, sel.x);
+		Node_c retNode = (Node_c) locator.findNode(root, sel.x, sel.x + sel.y
+				- 1);
+		Expr_c innerExprNode = (retNode instanceof Expr_c) ? (Expr_c) retNode
+				: null;
 		System.out.println(retNode);
 		Node_c tmp;
 		Node_c last = null;
 		for (int pos_index = sel.x; pos_index >= 0; pos_index--) {
-			tmp = (Node_c) locator.findNode(root, pos_index, sel.x+sel.y);
-			if (!tmp.equals(last)) {System.out.println(tmp + " "+ tmp.getClass()); last = tmp;}
+			tmp = (Node_c) locator.findNode(root, pos_index, sel.x + sel.y);
+			if (!tmp.equals(last)) {
+				System.out.println(tmp + " " + tmp.getClass());
+				last = tmp;
+			}
 			if (innerExprNode == null && tmp instanceof Expr_c)
 				innerExprNode = (Expr_c) tmp;
 			if (tmp instanceof ProcedureDecl) {
@@ -342,29 +350,35 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		public PointerKey getPtrKeyOfFirstUse() {
 			return fPtrKeyOfFirstUse;
 		}
-		
+
 		public boolean equals(Object o) {
-			boolean test1 = o!=null;
+			boolean test1 = o != null;
 			if (o instanceof VarWithFirstUse) {
 				VarWithFirstUse ov = (VarWithFirstUse) o;
-				boolean test2 = ov.getFirstUse().toString().equals(fFirstUseExpr.toString());
-				return test1 && test2 && ((ov.getVarInstance() == null)?(fVarInstance == null && ov.getFirstUse().equals(fFirstUseExpr)):ov.getVarInstance().equals(fVarInstance));
+				boolean test2 = ov.getFirstUse().toString().equals(
+						fFirstUseExpr.toString());
+				return test1
+						&& test2
+						&& ((ov.getVarInstance() == null) ? (fVarInstance == null && ov
+								.getFirstUse().equals(fFirstUseExpr))
+								: ov.getVarInstance().equals(fVarInstance));
 			}
 			return false;
 		}
-		
+
 		public int hashCode() {
 			if (fVarInstance == null)
 				return fFirstUseExpr.hashCode();
 			return fVarInstance.hashCode();
 		}
-		
+
 		public String debug() {
-			return "{{"+fVarInstance+","+fFirstUseExpr+","+fPtrKeyOfFirstUse+"}}";
+			return "{{" + fVarInstance + "," + fFirstUseExpr + ","
+					+ fPtrKeyOfFirstUse + "}}";
 		}
-		
+
 		public String toString() {
-			return debugOutput?debug():fFirstUseExpr.toString();
+			return debugOutput ? debug() : fFirstUseExpr.toString();
 		}
 	}
 
@@ -373,7 +387,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * will be modified to do the appropriate pre-condition checking for the
 	 * extract async/future refactoring.
 	 */
-	private RefactoringStatus analyzeSource(Collection<String> sources, List<String> x10Libs, List<String> javaLibs, IJavaProject javaProject) throws CancelException {
+	private RefactoringStatus analyzeSource(Collection<String> sources,
+			List<String> x10Libs, List<String> javaLibs,
+			IJavaProject javaProject) throws CancelException {
 
 		try {
 			NodePathComputer pathSaver = new NodePathComputer(fNodeMethod,
@@ -384,37 +400,39 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			if (path.size() == 0)
 				return RefactoringStatus
-				.createFatalErrorStatus("Couldn't find path to selected node from containing method???");
+						.createFatalErrorStatus("Couldn't find path to selected node from containing method???");
 
 			System.out.println("Path from method to pivot expr:");
 			for (Node node : path) {
 				System.out.println(node);
 			}
-			fLoop = (CompoundStmt) PolyglotUtils
-						.findInnermostNodeOfTypes(path, new Class[] { Loop.class,
-								X10Loop.class });
+			fLoop = (CompoundStmt) PolyglotUtils.findInnermostNodeOfTypes(path,
+					new Class[] { Loop.class, X10Loop.class });
 			if (fLoop == null)
 				return RefactoringStatus
-				.createFatalErrorStatus("Couldn't find loop enclosing the selected node???");
+						.createFatalErrorStatus("Couldn't find loop enclosing the selected node???");
 
 			if (inAtomic(fLoop, fNodeMethod))
 				return RefactoringStatus
-				.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
+						.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
 			if (inAtomic(fPivot, fNodeMethod))
 				return RefactoringStatus
-				.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
+						.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
 			if (badClockUse(fLoop))
 				return RefactoringStatus
-				.createFatalErrorStatus("Bad clock use in target loop");
+						.createFatalErrorStatus("Bad clock use in target loop");
 
 			doCreateIR(sources, x10Libs, javaProject);
 
-//			JavaCAst2IRTranslator irTranslator = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension())
-//			.getJavaCAst2IRTranslator();
-//			CAstEntity rootEntity = irTranslator.sourceFileEntity();
-//			String filepath = IFilePathtoCAstPath(fSourceFile.getFullPath().toString());
+			// JavaCAst2IRTranslator irTranslator = ((X10IRTranslatorExtension)
+			// fEngine.getTranslatorExtension())
+			// .getJavaCAst2IRTranslator();
+			// CAstEntity rootEntity = irTranslator.sourceFileEntity();
+			// String filepath =
+			// IFilePathtoCAstPath(fSourceFile.getFullPath().toString());
 			String filepath = fSourceFile.getRawLocation().toOSString();
-			CAstEntity rootEntity = ((X10IRTranslatorExtension)fEngine.getTranslatorExtension()).getCAstEntity(filepath);
+			CAstEntity rootEntity = ((X10IRTranslatorExtension) fEngine
+					.getTranslatorExtension()).getCAstEntity(filepath);
 
 			// TODO Compute the var2PtrKey for the method, not the whole file
 			fVar2PtrKeyMap = buildVarToPtrKeyMap(rootEntity);
@@ -429,15 +447,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			Map<VarWithFirstUse, Collection<InstanceKey>> pointerInfo = findPointsToSets(loopRefedLVals);
 			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo = computeAliasInfo(pointerInfo);
 
-//			calculateInfoFlow(loop, aliasInfo); // saves phi and rho in fields
-			calculateInfoFlow(fLoop, pointerInfo, loopRefedLVals); // saves phi and rho in fields
+			// calculateInfoFlow(loop, aliasInfo); // saves phi and rho in
+			// fields
+			calculateInfoFlow(fLoop, pointerInfo, loopRefedLVals); // saves phi
+																	// and rho
+																	// in fields
 			calculateLoopCarriedStatements(fLoop, inductionVars); // saves
 			// delta in
 			// a field
 
 			if (!preconditionsHold(fLoop, fPivot, fNodeMethod))
 				return RefactoringStatus
-				.createFatalErrorStatus("Preconditions don't hold");
+						.createFatalErrorStatus("Preconditions don't hold");
 		} catch (ClassHierarchyException e) {
 			e.printStackTrace();
 			return RefactoringStatus.createFatalErrorStatus(e.getMessage());
@@ -470,39 +491,43 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		@Override
 		public NodeVisitor enter(Node n) {
-			if (n instanceof Variable && ((Variable)n).type().isReference()) {
-			if (n instanceof Field) {
-				Field f = (Field) n;
-				if (f.target() instanceof Variable) {
-					if (!containsLVal(f.fieldInstance(), extractArrayName((Variable)f.target())))
+			if (n instanceof Variable && ((Variable) n).type().isReference()) {
+				if (n instanceof Field) {
+					Field f = (Field) n;
+					if (f.target() instanceof Variable) {
+						if (!containsLVal(f.fieldInstance(),
+								extractArrayName((Variable) f.target())))
 							fLValues.add(f);
-				} else
-					if (!containsLVal(f.fieldInstance(), null))
+					} else if (!containsLVal(f.fieldInstance(), null))
 						fLValues.add(f);
-			} else if (n instanceof Local) {
-				Local l = (Local) n;
+				} else if (n instanceof Local) {
+					Local l = (Local) n;
 
-				if (!containsLVal(l.localInstance(), null))
-					fLValues.add(l);
-			} else if (n instanceof ArrayAccess) {
-				ArrayAccess aa = (ArrayAccess) n;
-				
-				if (aa.array() instanceof Variable)
-					if (!containsLVal(null,extractArrayName((Variable)aa.array())))
-						fLValues.add(aa);
-				// do nothing - we treat all array accesses as the same (given
-				// that
-				// we check that all loop array accesses of an array are indexed
-				// using the induction variable (otherwise there are
-				// loop-carried
-				// dependencies).
-			} else if (n instanceof X10ArrayAccess1) {
-				X10ArrayAccess1 aa = (X10ArrayAccess1) n;
-				
-				if (aa.array() instanceof Variable)
-					if (!containsLVal(null,extractArrayName((Variable)aa.array())))
-						fLValues.add(aa);
-			}
+					if (!containsLVal(l.localInstance(), null))
+						fLValues.add(l);
+				} else if (n instanceof ArrayAccess) {
+					ArrayAccess aa = (ArrayAccess) n;
+
+					if (aa.array() instanceof Variable)
+						if (!containsLVal(null, extractArrayName((Variable) aa
+								.array())))
+							fLValues.add(aa);
+					// do nothing - we treat all array accesses as the same
+					// (given
+					// that
+					// we check that all loop array accesses of an array are
+					// indexed
+					// using the induction variable (otherwise there are
+					// loop-carried
+					// dependencies).
+				} else if (n instanceof X10ArrayAccess1) {
+					X10ArrayAccess1 aa = (X10ArrayAccess1) n;
+
+					if (aa.array() instanceof Variable)
+						if (!containsLVal(null, extractArrayName((Variable) aa
+								.array())))
+							fLValues.add(aa);
+				}
 			}
 			return this;
 		}
@@ -513,10 +538,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 					FieldInstance fi = ((Field) var).fieldInstance();
 
 					if (fi.equals(vi)) {
-						if ((par == null) || !((((Field)var).target() instanceof NamedVariable)||(((Field)var).target() instanceof ArrayAccess)||(((Field)var).target() instanceof X10ArrayAccess1)))
+						if ((par == null)
+								|| !((((Field) var).target() instanceof NamedVariable)
+										|| (((Field) var).target() instanceof ArrayAccess) || (((Field) var)
+										.target() instanceof X10ArrayAccess1)))
 							return true;
 						else {
-							NamedVariable rcv = extractArrayName((Variable)((Field)var).target());
+							NamedVariable rcv = extractArrayName((Variable) ((Field) var)
+									.target());
 							VarInstance parIns = par.varInstance();
 							VarInstance rcvIns = rcv.varInstance();
 							if (par.equals(rcv) || parIns.equals(rcvIns))
@@ -529,7 +558,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 					if (li.equals(vi))
 						return true;
 				} else if ((var instanceof ArrayAccess) && vi == null) {
-					NamedVariable arrayName = extractArrayName((Variable)((ArrayAccess)var).array());
+					NamedVariable arrayName = extractArrayName((Variable) ((ArrayAccess) var)
+							.array());
 					VarInstance vi2 = arrayName.varInstance();
 					if (arrayName.equals(par) || vi2.equals(par.varInstance()))
 						return true;
@@ -570,7 +600,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * findPointsToSets creates a mapping between the WALA points-to analysis
 	 * information and our internal representation of Polyglot variables.
 	 * 
-	 * @param vars A set of Polyglot variables marked with their first-use information
+	 * @param vars
+	 *            A set of Polyglot variables marked with their first-use
+	 *            information
 	 * @return A mapping from variables to their WALA points-to sets.
 	 */
 	private Map<VarWithFirstUse, Collection<InstanceKey>> findPointsToSets(
@@ -582,8 +614,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		for (VarWithFirstUse var : vars) {
 			if (var.getFirstUse() instanceof Local) {
 				PointerKey key = var.getPtrKeyOfFirstUse();
-				if (key != null){
-					OrdinalSet<InstanceKey> ptSet = analysis.getPointsToSet(key);
+				if (key != null) {
+					OrdinalSet<InstanceKey> ptSet = analysis
+							.getPointsToSet(key);
 					result.put(var, OrdinalSet.toCollection(ptSet));
 				} else {
 					Collection<InstanceKey> emptyCol = Collections.emptySet();
@@ -592,21 +625,22 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			} else
 				fieldWorklist.add(var);
 		}
-		
-		while(!fieldWorklist.isEmpty()) {
+
+		while (!fieldWorklist.isEmpty()) {
 			VarWithFirstUse field = fieldWorklist.remove(0);
 			Variable fieldTarget;
 			if (field.getFirstUse() instanceof Field) {
-			Field fieldVar = (Field) field.getFirstUse();
-			fieldTarget = (Variable) fieldVar.target();
-			} else if (field.getFirstUse() instanceof ArrayAccess){
+				Field fieldVar = (Field) field.getFirstUse();
+				fieldTarget = (Variable) fieldVar.target();
+			} else if (field.getFirstUse() instanceof ArrayAccess) {
 				ArrayAccess arrayVar = (ArrayAccess) field.getFirstUse();
 				fieldTarget = (Variable) arrayVar.array();
-			} else if (field.getFirstUse() instanceof X10ArrayAccess){
+			} else if (field.getFirstUse() instanceof X10ArrayAccess) {
 				X10ArrayAccess arrayVar = (X10ArrayAccess) field.getFirstUse();
 				fieldTarget = (Variable) arrayVar.array();
 			} else {
-				X10ArrayAccess1 arrayVar = (X10ArrayAccess1) field.getFirstUse();
+				X10ArrayAccess1 arrayVar = (X10ArrayAccess1) field
+						.getFirstUse();
 				fieldTarget = (Variable) arrayVar.array();
 			}
 			// TODO distinguish between an array variable and its elements?
@@ -619,11 +653,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				for (InstanceKey ikey : targetPtSet) {
 					PointerKey fieldKey;
 					if (field.getPtrKeyOfFirstUse() instanceof InstanceFieldKey)
-						fieldKey =new InstanceFieldKey(ikey,((InstanceFieldKey)field.getPtrKeyOfFirstUse()).getField());
+						fieldKey = new InstanceFieldKey(
+								ikey,
+								((InstanceFieldKey) field.getPtrKeyOfFirstUse())
+										.getField());
 					else
-						fieldKey = new ArrayContentsKey(ikey); // I think this should be ArrayContentsKey
-//						fieldKey = new ArrayInstanceKey(ikey); // I think this should be ArrayContentsKey
-					OrdinalSet<InstanceKey> instancePtSet = analysis.getPointsToSet(fieldKey);
+						fieldKey = new ArrayContentsKey(ikey); // I think this
+																// should be
+																// ArrayContentsKey
+						// fieldKey = new ArrayInstanceKey(ikey); // I think
+						// this should be ArrayContentsKey
+					OrdinalSet<InstanceKey> instancePtSet = analysis
+							.getPointsToSet(fieldKey);
 					fieldPtSet.addAll(OrdinalSet.toCollection(instancePtSet));
 				}
 				result.put(field, fieldPtSet);
@@ -633,32 +674,53 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	/**
-	 * getVarWithFirstUse takes as arguments a set of variables that are marked with their first-
-	 * use locations within a block of code and a variable reference. It returns the variable
-	 * with first-use location that matches the variable instance of the variable reference.
-	 *  
-	 * @param vars A set of variables that are marked with first-use locations
-	 * @param var A variable reference
+	 * getVarWithFirstUse takes as arguments a set of variables that are marked
+	 * with their first- use locations within a block of code and a variable
+	 * reference. It returns the variable with first-use location that matches
+	 * the variable instance of the variable reference.
+	 * 
+	 * @param vars
+	 *            A set of variables that are marked with first-use locations
+	 * @param var
+	 *            A variable reference
 	 * @return A variable marked with first-use location
 	 */
-	private VarWithFirstUse getVarWithFirstUse(Set<VarWithFirstUse> vars, Variable var){
-		boolean arrayMode = ((var instanceof ArrayAccess)||(var instanceof X10ArrayAccess)||(var instanceof X10ArrayAccess1))?true:false;
-		for (VarWithFirstUse v : vars){
+	private VarWithFirstUse getVarWithFirstUse(Set<VarWithFirstUse> vars,
+			Variable var) {
+		boolean arrayMode = ((var instanceof ArrayAccess)
+				|| (var instanceof X10ArrayAccess) || (var instanceof X10ArrayAccess1)) ? true
+				: false;
+		for (VarWithFirstUse v : vars) {
 			if (arrayMode && v.getVarInstance() == null) {
-				VarWithFirstUse varTarget = getVarWithFirstUse(vars, extractArrayName(var));
-				VarWithFirstUse vTarget = getVarWithFirstUse(vars, extractArrayName((Variable)v.getFirstUse()));
-				if ((varTarget == null) || (vTarget == null) || (varTarget.getVarInstance().equals(vTarget.getVarInstance())) || (varTarget.getFirstUse().equals(vTarget.getFirstUse())))
+				VarWithFirstUse varTarget = getVarWithFirstUse(vars,
+						extractArrayName(var));
+				VarWithFirstUse vTarget = getVarWithFirstUse(vars,
+						extractArrayName((Variable) v.getFirstUse()));
+				if ((varTarget == null)
+						|| (vTarget == null)
+						|| (varTarget.getVarInstance().equals(vTarget
+								.getVarInstance()))
+						|| (varTarget.getFirstUse().equals(vTarget
+								.getFirstUse())))
 					return v;
-			}
-			else{
+			} else {
 				VarInstance vi = v.getVarInstance();
-				if (!arrayMode && (vi == null)?(extractArrayName(var).varInstance() == null):(vi.equals(extractArrayName(var).varInstance()))) {
-					if ((var instanceof Field)&&(v.getFirstUse() instanceof Field)){
-						VarWithFirstUse varTarget = getVarWithFirstUse(vars, (Variable)((Field)var).target());
-						VarWithFirstUse vTarget = getVarWithFirstUse(vars, (Variable)((Field)v.getFirstUse()).target());
-						VarInstance varTargetI = (varTarget == null)?null:varTarget.getVarInstance();
-						boolean test1 = varTarget.getFirstUse().equals(vTarget.getFirstUse());
-						boolean test2 = ((varTargetI == null)?(vTarget.getVarInstance() == null):(varTargetI.equals(vTarget.getVarInstance())));
+				if (!arrayMode && (vi == null) ? (extractArrayName(var)
+						.varInstance() == null) : (vi.equals(extractArrayName(
+						var).varInstance()))) {
+					if ((var instanceof Field)
+							&& (v.getFirstUse() instanceof Field)) {
+						VarWithFirstUse varTarget = getVarWithFirstUse(vars,
+								(Variable) ((Field) var).target());
+						VarWithFirstUse vTarget = getVarWithFirstUse(vars,
+								(Variable) ((Field) v.getFirstUse()).target());
+						VarInstance varTargetI = (varTarget == null) ? null
+								: varTarget.getVarInstance();
+						boolean test1 = varTarget.getFirstUse().equals(
+								vTarget.getFirstUse());
+						boolean test2 = ((varTargetI == null) ? (vTarget
+								.getVarInstance() == null) : (varTargetI
+								.equals(vTarget.getVarInstance())));
 						if ((varTarget == null) || (test1 || test2))
 							return v;
 					} else
@@ -668,106 +730,116 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * computeAliasInfo creates an alias-information set for our internal
 	 * representation of Polyglot variables based on the WALA points-to sets.
-	 * NOTE: The method findPointsToSets will create the mapping from
-	 * Polyglot variables to WALA points-to sets.
+	 * NOTE: The method findPointsToSets will create the mapping from Polyglot
+	 * variables to WALA points-to sets.
 	 * 
 	 * @param pointsToInfo
-	 * @return A mapping from Polyglot variables to their alias sets 
+	 * @return A mapping from Polyglot variables to their alias sets
 	 */
 	private Map<VarWithFirstUse, Set<VarWithFirstUse>> computeAliasInfo(
 			Map<VarWithFirstUse, Collection<InstanceKey>> pointsToInfo) {
 		Map<VarWithFirstUse, Set<VarWithFirstUse>> resultMap = new HashMap<VarWithFirstUse, Set<VarWithFirstUse>>();
-		for (Map.Entry<VarWithFirstUse, Collection<InstanceKey>> e : pointsToInfo.entrySet()){
+		for (Map.Entry<VarWithFirstUse, Collection<InstanceKey>> e : pointsToInfo
+				.entrySet()) {
 			Set<VarWithFirstUse> eAlias = new HashSet<VarWithFirstUse>();
-			for (Map.Entry<VarWithFirstUse, Collection<InstanceKey>> e2: pointsToInfo.entrySet())
+			for (Map.Entry<VarWithFirstUse, Collection<InstanceKey>> e2 : pointsToInfo
+					.entrySet())
 				if (!(Collections.disjoint(e.getValue(), e2.getValue())))
 					eAlias.add(e2.getKey());
-			resultMap.put(e.getKey(),eAlias);
+			resultMap.put(e.getKey(), eAlias);
 		}
 		return resultMap;
 	}
 
 	/**
-	 * Analyzes the given loop and sets fPhi and fRho accordingly, based on algorithm
-	 * from spec.
+	 * Analyzes the given loop and sets fPhi and fRho accordingly, based on
+	 * algorithm from spec.
 	 * 
 	 * @param loop
-	 * @param loopRefedVars TODO
+	 * @param loopRefedVars
+	 *            TODO
 	 */
 	private void calculateInfoFlow(Stmt loop,
-//			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
-			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo, Set<VarWithFirstUse> loopRefedVars) {
-		
+			// Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
+			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo,
+			Set<VarWithFirstUse> loopRefedVars) {
+
 		HashMap<Assign, Set<InstanceKey>> tmpPhi = new HashMap<Assign, Set<InstanceKey>>() {
 			public int size() {
 				int size = 0;
 				for (Set<InstanceKey> ck : this.values())
 					size += ck.size();
-		        return size+super.size();
-		    }
+				return size + super.size();
+			}
 		};
 		Map<VarWithFirstUse, Collection<InstanceKey>> psi = new HashMap<VarWithFirstUse, Collection<InstanceKey>>();
 		fRho = new HashMap<VarWithFirstUse, Boolean>();
-		
+
 		psi.putAll(aliasInfo); // TODO: Make deep copy of aliasInfo
-		for(VarWithFirstUse v : aliasInfo.keySet()){
+		for (VarWithFirstUse v : aliasInfo.keySet()) {
 			psi.get(v).add(new GammaInstance(v));
 			fRho.put(v, false);
 		}
-		
+
 		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
 		loop.visit(acv);
 		List<Eval> assigns = acv.getResult();
 		// Use of this map will NOT be robust! Alias issues are being elided
 		// (possibly leading to our doom)
 		Map<String, Assign> firstUpdateMap = acv.getFirstUpdateMap();
-		
+
 		// initialize the phi map
 		for (Eval e : assigns) {
-			tmpPhi.put((Assign)e.expr(), new HashSet<InstanceKey>());
+			tmpPhi.put((Assign) e.expr(), new HashSet<InstanceKey>());
 		}
-		
-		int phiSize=-1;
+
+		int phiSize = -1;
 		boolean phiSent = true;
-		while(phiSent) {//phiSize < tmpPhi.size()) {
-			//phiSize = tmpPhi.size();
+		while (phiSent) {// phiSize < tmpPhi.size()) {
+			// phiSize = tmpPhi.size();
 			phiSent = false;
-			
+
 			// for every assignment statement in the loop
 			for (Eval e : assigns) {
-				Assign a = (Assign)e.expr();
-			//    extract the variables from the statement with an LValueFinder
+				Assign a = (Assign) e.expr();
+				// extract the variables from the statement with an LValueFinder
 				LValueFinder statVarFinder = new LValueFinder();
 				a.right().visit(statVarFinder);
 
-			//    add the psi results from these LValueFinders to the phi map for the statement
-				for (Variable v : statVarFinder.getLValues()){
-					VarWithFirstUse translateV = getVarWithFirstUse(aliasInfo.keySet(), v);
+				// add the psi results from these LValueFinders to the phi map
+				// for the statement
+				for (Variable v : statVarFinder.getLValues()) {
+					VarWithFirstUse translateV = getVarWithFirstUse(aliasInfo
+							.keySet(), v);
 					phiSent |= tmpPhi.get(a).addAll(psi.get(translateV));
 				}
-			//    determine if lhs gamma variable flows in from statement and that this is the
-			//        first time lhs is used in the loop --> updated rho if this is true
-			//        TODO: for now, ignoring aliasing issues
-				
-				Variable lhs = (Variable)a.left();
-				VarWithFirstUse lhsVWFU = getVarWithFirstUse(aliasInfo.keySet(), lhs);
-				boolean cond1 = tmpPhi.get(a).contains(new GammaInstance(lhsVWFU));
+				// determine if lhs gamma variable flows in from statement and
+				// that this is the
+				// first time lhs is used in the loop --> updated rho if this is
+				// true
+				// TODO: for now, ignoring aliasing issues
+
+				Variable lhs = (Variable) a.left();
+				VarWithFirstUse lhsVWFU = getVarWithFirstUse(
+						aliasInfo.keySet(), lhs);
+				boolean cond1 = tmpPhi.get(a).contains(
+						new GammaInstance(lhsVWFU));
 				Assign updateStmt = firstUpdateMap.get(lhs.toString());
-				if (cond1 &&
-					 (updateStmt == a))
-					 fRho.put(lhsVWFU, true);
-				
-				psi.get(getVarWithFirstUse(aliasInfo.keySet(),lhs)).addAll(tmpPhi.get(a));
+				if (cond1 && (updateStmt == a))
+					fRho.put(lhsVWFU, true);
+
+				psi.get(getVarWithFirstUse(aliasInfo.keySet(), lhs)).addAll(
+						tmpPhi.get(a));
 			}
 		}
-		
+
 		// remove all InstanceKeys from fPhi except for GammaInstance
 		fPhi = new HashMap<Assign, Set<InstanceKey>>();
-		for(Map.Entry<Assign, Set<InstanceKey>> e : tmpPhi.entrySet()){
+		for (Map.Entry<Assign, Set<InstanceKey>> e : tmpPhi.entrySet()) {
 			HashSet<InstanceKey> filteredSet = new HashSet<InstanceKey>();
 			for (InstanceKey k : e.getValue())
 				if (k instanceof GammaInstance)
@@ -786,55 +858,58 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private void calculateLoopCarriedStatements(Stmt loop,
 			Set<VarDecl> inductionVars) {
 		fDelta = new ArrayList<Stmt>();
-		
+
 		/* Collect the statements from the loop (now, we deal with assigns) */
 		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
 		loop.visit(acv);
 		Collection<Eval> stmts = acv.getResult();
-		
-		/* For each of the statements in the set, see if they match the
-		 * criteria of a loop carried statement.
+
+		/*
+		 * For each of the statements in the set, see if they match the criteria
+		 * of a loop carried statement.
 		 */
-		toploop:
-		for(Eval s : stmts){
-			
-			/* Stmt has loop-carried dependence if one of its variables has a
+		toploop: for (Eval s : stmts) {
+
+			/*
+			 * Stmt has loop-carried dependence if one of its variables has a
 			 * loop-carried dependence;
 			 */
 			LValueFinder statVarFinder = new LValueFinder();
 			s.visit(statVarFinder);
-			for(Variable v : statVarFinder.getLValues()){
-				VarWithFirstUse v_vwfu = getVarWithFirstUse(fRho.keySet(),v);
+			for (Variable v : statVarFinder.getLValues()) {
+				VarWithFirstUse v_vwfu = getVarWithFirstUse(fRho.keySet(), v);
 				if (fRho.get(v_vwfu)) {
 					fDelta.add(s);
 					continue toploop;
 				}
 			}
-			
-			/* Stmt has loop-carried dependence if an arbitrary access to an array
-			 * happens.
+
+			/*
+			 * Stmt has loop-carried dependence if an arbitrary access to an
+			 * array happens.
 			 */
 			ArrayAccessIndexCollector aaic = new ArrayAccessIndexCollector();
 			s.visit(aaic);
-			arrayaccessloop:
-			for(Expr e : aaic.getResult()){
-				if (e instanceof NamedVariable){
-					for(VarDecl index_var : inductionVars )
-						if (((NamedVariable)e).name().equals(index_var.name()))
+			arrayaccessloop: for (Expr e : aaic.getResult()) {
+				if (e instanceof NamedVariable) {
+					for (VarDecl index_var : inductionVars)
+						if (((NamedVariable) e).name().equals(index_var.name()))
 							continue arrayaccessloop;
 				}
 				fDelta.add(s);
 				continue toploop;
 			}
-			
-			/* Stmt has loop-carried dependence if an update occurs to an induction
-			 * variable.
+
+			/*
+			 * Stmt has loop-carried dependence if an update occurs to an
+			 * induction variable.
 			 */
-			if (s.expr() instanceof Assign){
-				Assign s_assign = (Assign)s.expr();
-				if(s_assign.right() instanceof NamedVariable) {
-					NamedVariable s_assign_rhs = (NamedVariable) s_assign.right();
-					for(VarDecl index_var : inductionVars )
+			if (s.expr() instanceof Assign) {
+				Assign s_assign = (Assign) s.expr();
+				if (s_assign.right() instanceof NamedVariable) {
+					NamedVariable s_assign_rhs = (NamedVariable) s_assign
+							.right();
+					for (VarDecl index_var : inductionVars)
 						if (s_assign_rhs.name().equals(index_var.name())) {
 							fDelta.add(s);
 							continue toploop;
@@ -846,77 +921,82 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	/**
-	 * Returns the subset of statements from the first block that
-	 * utilize the variable i and affect the values of statements
-	 * in the second block of statements.
+	 * Returns the subset of statements from the first block that utilize the
+	 * variable i and affect the values of statements in the second block of
+	 * statements.
 	 * 
 	 * @param block1
 	 * @param i
 	 * @param block2
 	 * @return
 	 */
-	
+
 	private Set<Stmt> slice(Variable i, Stmt block2) {
-		
+
 		// Initialize variable set
 		Set<VarWithFirstUse> relevantVars = findLoopRefedLVals(block2);
-		relevantVars.add(getVarWithFirstUse(fRho.keySet(),i));
-		
+		relevantVars.add(getVarWithFirstUse(fRho.keySet(), i));
+
 		// Initialize slice set
 		Set<Stmt> sliceSet = new HashSet<Stmt>(relevantVars.size());
-		for(Stmt s : fDelta){
+		for (Stmt s : fDelta) {
 			// unwrap Eval statement
-			if (s instanceof Eval){
-				Eval s_eval = (Eval)s;
-				if (s_eval.expr() instanceof Assign){
-				Assign a = (Assign)s_eval.expr();
-				if (a.left() instanceof Variable){
-					VarWithFirstUse leftVar = getVarWithFirstUse(fRho.keySet(), (Variable)a.left());
-					if (relevantVars.contains(leftVar))
-						sliceSet.add(s);
+			if (s instanceof Eval) {
+				Eval s_eval = (Eval) s;
+				if (s_eval.expr() instanceof Assign) {
+					Assign a = (Assign) s_eval.expr();
+					if (a.left() instanceof Variable) {
+						VarWithFirstUse leftVar = getVarWithFirstUse(fRho
+								.keySet(), (Variable) a.left());
+						if (relevantVars.contains(leftVar))
+							sliceSet.add(s);
+					}
 				}
 			}
-			}
 		}
-		
+
 		// Now, compute rest of slice set based on info-flow sets
 		int startSize = -1;
-		while (sliceSet.size() > startSize){
+		while (sliceSet.size() > startSize) {
 			startSize = sliceSet.size();
-			base: 
-				for (Stmt s : fDelta){
-					// unwrap Eval statement
-					if (s instanceof Eval){
-						Eval s_eval = (Eval)s;
-						if (s_eval.expr() instanceof Assign){
- 
-						Set<InstanceKey> sInfoFlow = fPhi.get((Assign)s_eval.expr());
-						for (Stmt s2 : sliceSet){
+			base: for (Stmt s : fDelta) {
+				// unwrap Eval statement
+				if (s instanceof Eval) {
+					Eval s_eval = (Eval) s;
+					if (s_eval.expr() instanceof Assign) {
+
+						Set<InstanceKey> sInfoFlow = fPhi.get((Assign) s_eval
+								.expr());
+						for (Stmt s2 : sliceSet) {
 							// unwrap Eval statement
 							if (s2 instanceof Eval) {
-								Eval s2_eval = (Eval)s2;
+								Eval s2_eval = (Eval) s2;
 								if (s2_eval.expr() instanceof Assign) {
-									for (InstanceKey k : fPhi.get((Assign)s2_eval.expr()))
-									if (sInfoFlow.contains(k)) {
-										// When a statement with loop-carried dependency
-										// directly affects a statement that is already in our
-										// slice set, then add it to the slice set.
-										sliceSet.add(s);
-										continue base;
-									}
+									for (InstanceKey k : fPhi
+											.get((Assign) s2_eval.expr()))
+										if (sInfoFlow.contains(k)) {
+											// When a statement with
+											// loop-carried dependency
+											// directly affects a statement that
+											// is already in our
+											// slice set, then add it to the
+											// slice set.
+											sliceSet.add(s);
+											continue base;
+										}
 								}
-							}		
-						}
+							}
 						}
 					}
 				}
+			}
 		}
-		
+
 		// TODO: Order the slice set by code location
-		
+
 		return sliceSet;
 	}
-	
+
 	private boolean inAtomic(Node node, Node methodParent) {
 		NodePathComputer pathSaver = new NodePathComputer(methodParent, node);
 		List<Node> path = pathSaver.getPath();
@@ -998,7 +1078,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private boolean hasEffectsOn(Node node, Set<Expr> lvals) {
 		EffectsVisitor ev = new EffectsVisitor(lvals);
 		node.visit(ev);
-		return false;//(ev.getEffects().size() > 0);
+		return false;// (ev.getEffects().size() > 0);
 	}
 
 	private boolean preconditionsHold(Stmt loop, Expr pivot,
@@ -1009,7 +1089,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	private Map<Variable, PointerKey> buildVarToPtrKeyMap(CAstEntity rootEntity)
-	throws ThrowableStatus {
+			throws ThrowableStatus {
 		Map<Variable, PointerKey> resultMap = new HashMap<Variable, PointerKey>();
 
 		ExtractVarsVisitor ev = new ExtractVarsVisitor();
@@ -1032,7 +1112,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		Map<CAstNode, NodeType> castNodeType = new HashMap<CAstNode, NodeType>();
 
 		// Iterate over the CAstNodes and match source positions
-		buildCast2PolyglotVariableMap(ev, evMap, cast2VarMap, procEntities, castNodeVarMap, castNodeType);
+		buildCast2PolyglotVariableMap(ev, evMap, cast2VarMap, procEntities,
+				castNodeVarMap, castNodeType);
 
 		// Not used in practice, but useful for debugging
 		Set<AstMethod> astMeths = new HashSet<AstMethod>();
@@ -1040,108 +1121,165 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// A multi-map from positions to ssa instructions and cgnodes
 		RefactoringMap<RefactoringPosition, InstructionContainer> sourceToInstructionMap = new RefactoringMap<RefactoringPosition, InstructionContainer>();
 
-		// Build up the AstMethod set (for debugging purposes) and source-to-SSAInstruction map
+		// Build up the AstMethod set (for debugging purposes) and
+		// source-to-SSAInstruction map
 		buildSourceToInstructionMap(fMethodRef, astMeths,
 				sourceToInstructionMap);
 
 		// Build CAstNode to PointerKey map.
-		Map<CAstNode, PointerKey> cast2KeyMap = buildCAst2PointerKeyMap(cast2VarMap, castNodeVarMap, castNodeType, sourceToInstructionMap);
+		Map<CAstNode, PointerKey> cast2KeyMap = buildCAst2PointerKeyMap(
+				cast2VarMap, castNodeVarMap, castNodeType,
+				sourceToInstructionMap);
 
 		// Now map CAstNode variable references to the corresponding
 		// PointerKey's.
-		for (CAstNode c : cast2VarMap.keySet()){
+		for (CAstNode c : cast2VarMap.keySet()) {
 			resultMap.put(cast2VarMap.get(c), cast2KeyMap.get(c));
 		}
-		
-		// Resulting map now allows you to determine what pointer keys are necessary
+
+		// Resulting map now allows you to determine what pointer keys are
+		// necessary
 		// for analysis of methods/loops
 		return resultMap;
 	}
 
 	/**
-	 * Builds the map from CAstNodes to Polyglot Variables. Also builds
-	 * the maps from source positions to CAstNodes (castNodeVarMap) and from
-	 * CAstNodes to VarUseType values (castNodeType).
+	 * Builds the map from CAstNodes to Polyglot Variables. Also builds the maps
+	 * from source positions to CAstNodes (castNodeVarMap) and from CAstNodes to
+	 * VarUseType values (castNodeType).
 	 * 
-	 * @param ev ExtractVarsVisitor - used for constructing castNodeType
-	 * @param evMap Map from source position to Polyglot Variables
-	 * @param cast2VarMap Maps CAstNodes to Polyglot Variables (Constructed by this method)
-	 * @param procEntities The CAstEntities for the source file containing the refactoring pivot expression
-	 * @param castNodeVarMap Maps source positions to CAstNodes (Constructed by this method)
-	 * @param castNodeType Maps CAstNodes to VarUseType values (Constructed by this method)
+	 * @param ev
+	 *            ExtractVarsVisitor - used for constructing castNodeType
+	 * @param evMap
+	 *            Map from source position to Polyglot Variables
+	 * @param cast2VarMap
+	 *            Maps CAstNodes to Polyglot Variables (Constructed by this
+	 *            method)
+	 * @param procEntities
+	 *            The CAstEntities for the source file containing the
+	 *            refactoring pivot expression
+	 * @param castNodeVarMap
+	 *            Maps source positions to CAstNodes (Constructed by this
+	 *            method)
+	 * @param castNodeType
+	 *            Maps CAstNodes to VarUseType values (Constructed by this
+	 *            method)
 	 */
-	private void buildCast2PolyglotVariableMap(ExtractVarsVisitor ev, Map<RefactoringPosition, Variable> evMap, HashMap<CAstNode, Variable> cast2VarMap, Collection<CAstEntity> procEntities, RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap, Map<CAstNode, NodeType> castNodeType) {
+	private void buildCast2PolyglotVariableMap(ExtractVarsVisitor ev,
+			Map<RefactoringPosition, Variable> evMap,
+			HashMap<CAstNode, Variable> cast2VarMap,
+			Collection<CAstEntity> procEntities,
+			RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap,
+			Map<CAstNode, NodeType> castNodeType) {
 		for (CAstEntity procEntity : procEntities) {
 			for (Iterator i = procEntity.getSourceMap().getMappedNodes(); i
-			.hasNext();) {
+					.hasNext();) {
 				CAstNode c = (CAstNode) i.next();
 				CAstSourcePositionMap.Position p = procEntity.getSourceMap()
-				.getPosition(c);
-				
-				// If Position values are negative, then this is a generated node
-				if (p.getFirstLine() > 0 && p.getLastLine() > 0 && p.getFirstCol() > 0 && p.getLastCol() > 0){
+						.getPosition(c);
+
+				// If Position values are negative, then this is a generated
+				// node
+				if (p.getFirstLine() > 0 && p.getLastLine() > 0
+						&& p.getFirstCol() > 0 && p.getLastCol() > 0) {
 					RefactoringPosition rp = new RefactoringPosition(p);
 					Variable testVar = evMap.get(rp);
 					if (testVar != null && !cast2VarMap.containsValue(testVar)) {
 						int type = ev.getVarType(testVar);
 						if ((type & VarUseType.DECL) != 0) {
-							if ((c.getKind() == CAstNode.DECL_STMT) && (testVar instanceof NamedVariable) && (c.getChild(0).getValue().toString().equals(((NamedVariable)testVar).name()))) {
-								// add mapping from current CAstNode to associated Polyglot Variable
+							if ((c.getKind() == CAstNode.DECL_STMT)
+									&& (testVar instanceof NamedVariable)
+									&& (c.getChild(0).getValue().toString()
+											.equals(((NamedVariable) testVar)
+													.name()))) {
+								// add mapping from current CAstNode to
+								// associated Polyglot Variable
 								cast2VarMap.put(c, testVar);
 
-								// For variable declarations, CAstNode should be mapped to by an
-								// initialization expression position (if it exists)
+								// For variable declarations, CAstNode should be
+								// mapped to by an
+								// initialization expression position (if it
+								// exists)
 
-								for (int j = 1; j < c.getChildCount(); j++){
-									CAstSourcePositionMap.Position cp = procEntity.getSourceMap().getPosition(c.getChild(j));
+								for (int j = 1; j < c.getChildCount(); j++) {
+									CAstSourcePositionMap.Position cp = procEntity
+											.getSourceMap().getPosition(
+													c.getChild(j));
 									if (cp != null) {
-										RefactoringPosition rcp = new RefactoringPosition(cp);
+										RefactoringPosition rcp = new RefactoringPosition(
+												cp);
 										castNodeVarMap.putVoid(rcp, c);
 									}
 								}
 
-								// Add mapping from CAstNode source position to CAstNode
+								// Add mapping from CAstNode source position to
+								// CAstNode
 								castNodeVarMap.putVoid(rp, c);
 
 								// Add mapping from CAstNode to VarUseType value
-								castNodeType.put(c, new NodeType(type,
-										((type & VarUseType.PARAM)!=0)?ev.vutype.getParamNumber(testVar):-1,
-												((type & VarUseType.DREF)!=0)?ev.vutype.getDrefNumber(testVar):-1));
+								castNodeType
+										.put(
+												c,
+												new NodeType(
+														type,
+														((type & VarUseType.PARAM) != 0) ? ev.vutype
+																.getParamNumber(testVar)
+																: -1,
+														((type & VarUseType.DREF) != 0) ? ev.vutype
+																.getDrefNumber(testVar)
+																: -1));
 							}
 						} else {
-							// add mapping from current CAstNode to associated Polyglot Variable
+							// add mapping from current CAstNode to associated
+							// Polyglot Variable
 							cast2VarMap.put(c, testVar);
-							// Add mapping from CAstNode source position to CAstNode
+							// Add mapping from CAstNode source position to
+							// CAstNode
 							castNodeVarMap.putVoid(rp, c);
 
 							// Add mapping from CAstNode to VarUseType value
-							castNodeType.put(c, new NodeType(type,
-									((type & VarUseType.PARAM)!=0)?ev.vutype.getParamNumber(testVar):-1,
-											((type & VarUseType.DREF)!=0)?ev.vutype.getDrefNumber(testVar):-1));
+							castNodeType
+									.put(
+											c,
+											new NodeType(
+													type,
+													((type & VarUseType.PARAM) != 0) ? ev.vutype
+															.getParamNumber(testVar)
+															: -1,
+													((type & VarUseType.DREF) != 0) ? ev.vutype
+															.getDrefNumber(testVar)
+															: -1));
 						}
 
-//						// add mapping from current CAstNode to associated Polyglot Variable
-//						cast2VarMap.put(c, testVar);
-//						
-//						// For variable declarations, CAstNode should be mapped to by an
-//						// initialization expression position (if it exists)
-//						if (c.getKind() == CAstNode.DECL_STMT)
-//						for (int j = 1; j < c.getChildCount(); j++){
-//							CAstSourcePositionMap.Position cp = procEntity.getSourceMap().getPosition(c.getChild(j));
-//							if (cp != null) {
-//								RefactoringPosition rcp = new RefactoringPosition(cp);
-//								castNodeVarMap.putVoid(rcp, c);
-//							}
-//						}
-//						
-//						// Add mapping from CAstNode source position to CAstNode
-//						castNodeVarMap.putVoid(rp, c);
-//						
-//						// Add mapping from CAstNode to VarUseType value
-//						int type = ev.getVarType(testVar);
-//						castNodeType.put(c, new NodeType(type,
-//								((type & VarUseType.PARAM)!=0)?ev.vutype.getParamNumber(testVar):-1,
-//								((type & VarUseType.DREF)!=0)?ev.vutype.getDrefNumber(testVar):-1));
+						// // add mapping from current CAstNode to associated
+						// Polyglot Variable
+						// cast2VarMap.put(c, testVar);
+						//						
+						// // For variable declarations, CAstNode should be
+						// mapped to by an
+						// // initialization expression position (if it exists)
+						// if (c.getKind() == CAstNode.DECL_STMT)
+						// for (int j = 1; j < c.getChildCount(); j++){
+						// CAstSourcePositionMap.Position cp =
+						// procEntity.getSourceMap().getPosition(c.getChild(j));
+						// if (cp != null) {
+						// RefactoringPosition rcp = new
+						// RefactoringPosition(cp);
+						// castNodeVarMap.putVoid(rcp, c);
+						// }
+						// }
+						//						
+						// // Add mapping from CAstNode source position to
+						// CAstNode
+						// castNodeVarMap.putVoid(rp, c);
+						//						
+						// // Add mapping from CAstNode to VarUseType value
+						// int type = ev.getVarType(testVar);
+						// castNodeType.put(c, new NodeType(type,
+						// ((type &
+						// VarUseType.PARAM)!=0)?ev.vutype.getParamNumber(testVar):-1,
+						// ((type &
+						// VarUseType.DREF)!=0)?ev.vutype.getDrefNumber(testVar):-1));
 					}
 				}
 			}
@@ -1150,17 +1288,23 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 	private class NodeType {
 		public int type = -1;
+
 		public int param = -1;
+
 		public int dref = -1;
-		
-		public NodeType(int type, int param, int dref){
+
+		public NodeType(int type, int param, int dref) {
 			this.type = type;
 			this.param = param;
 			this.dref = dref;
 		}
 	}
-	
-	private Map<CAstNode, PointerKey> buildCAst2PointerKeyMap(HashMap<CAstNode, Variable> cast2VarMap, RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap, Map<CAstNode, NodeType> castNodeType, RefactoringMap<RefactoringPosition, InstructionContainer> sourceToInstructionMap) {
+
+	private Map<CAstNode, PointerKey> buildCAst2PointerKeyMap(
+			HashMap<CAstNode, Variable> cast2VarMap,
+			RefactoringMap<RefactoringPosition, CAstNode> castNodeVarMap,
+			Map<CAstNode, NodeType> castNodeType,
+			RefactoringMap<RefactoringPosition, InstructionContainer> sourceToInstructionMap) {
 		Map<CAstNode, PointerKey> cast2KeyMap = new HashMap<CAstNode, PointerKey>();
 
 		// Will involve correlating CAstNode with relative position within
@@ -1174,77 +1318,106 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			RefactoringPosition.setContainsMode();
 			Collection<CAstNode> cNodes = castNodeVarMap.getAll(e.getKey());
 			RefactoringPosition.unsetContainsMode();
-			for (CAstNode cNode : cNodes){
+			for (CAstNode cNode : cNodes) {
 				NodeType cNodeType = castNodeType.get(cNode);
 				if (cNodeType != null) {
 					Integer cType = cNodeType.type;
 					if (cType != null && !cast2KeyMap.containsKey(cNode)) {
-						if ((cType & VarUseType.ARRAY) != 0){
-							createDummyArrayInstanceKey(cast2VarMap, cast2KeyMap, cNode, srcNode);
-						}
-						else if((cType & VarUseType.LVAL) != 0) {
+						if ((cType & VarUseType.ARRAY) != 0) {
+							createDummyArrayInstanceKey(cast2VarMap,
+									cast2KeyMap, cNode, srcNode);
+						} else if ((cType & VarUseType.LVAL) != 0) {
 							if ((cType & VarUseType.PUTFIELD) != 0)
-								createDummyInstanceFieldKey(cast2VarMap, cast2KeyMap, cNode);
+								createDummyInstanceFieldKey(cast2VarMap,
+										cast2KeyMap, cNode);
 							else if (!(inst instanceof AsyncInvokeInstruction)) {
 								if ((cType & VarUseType.LOOP_VAR) != 0) {
 									if (inst instanceof SSARegionIterNextInstruction)
-										cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getDef()));
+										cast2KeyMap.put(cNode,
+												new LocalPointerKey(srcNode,
+														inst.getDef()));
 								} else
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, 
-											(inst.getDef() == -1)?inst.getUse(0):inst.getDef()));
+									cast2KeyMap
+											.put(
+													cNode,
+													new LocalPointerKey(
+															srcNode,
+															(inst.getDef() == -1) ? inst
+																	.getUse(0)
+																	: inst
+																			.getDef()));
 							}
-						}
-						else if ((cType & (VarUseType.RVAL | VarUseType.LEFT)) != 0) {
+						} else if ((cType & (VarUseType.RVAL | VarUseType.LEFT)) != 0) {
 							if ((cType & VarUseType.GETFIELD) != 0)
-								createDummyInstanceFieldKey(cast2VarMap, cast2KeyMap, cNode);
+								createDummyInstanceFieldKey(cast2VarMap,
+										cast2KeyMap, cNode);
 							else {
-								if ((inst instanceof SSAArrayStoreInstruction) || (inst instanceof X10ArrayStoreByPointInstruction)){
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(2)));
-								}
-								else if (inst instanceof X10ArrayStoreByIndexInstruction) {
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(inst.getNumberOfUses()-1)));
-								}
-								else if ((inst instanceof SSAArrayReferenceInstruction) || (inst instanceof SSAFieldAccessInstruction)
+								if ((inst instanceof SSAArrayStoreInstruction)
+										|| (inst instanceof X10ArrayStoreByPointInstruction)) {
+									cast2KeyMap.put(cNode, new LocalPointerKey(
+											srcNode, inst.getUse(2)));
+								} else if (inst instanceof X10ArrayStoreByIndexInstruction) {
+									cast2KeyMap.put(cNode, new LocalPointerKey(
+											srcNode, inst.getUse(inst
+													.getNumberOfUses() - 1)));
+								} else if ((inst instanceof SSAArrayReferenceInstruction)
+										|| (inst instanceof SSAFieldAccessInstruction)
 										|| (inst instanceof X10ArrayReferenceInstruction))
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, 
-											(inst.getDef() == -1)?inst.getUse(1):inst.getUse(0)));
+									cast2KeyMap
+											.put(
+													cNode,
+													new LocalPointerKey(
+															srcNode,
+															(inst.getDef() == -1) ? inst
+																	.getUse(1)
+																	: inst
+																			.getUse(0)));
 							}
-						}
-						else if ((cType & VarUseType.RIGHT) != 0)
-							cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst
-									.getUse(1)));
+						} else if ((cType & VarUseType.RIGHT) != 0)
+							cast2KeyMap.put(cNode, new LocalPointerKey(srcNode,
+									inst.getUse(1)));
 						else if ((cType & VarUseType.PARAM) != 0) {
-							if ((inst instanceof SSAAbstractInvokeInstruction) && !(inst instanceof AsyncInvokeInstruction)){
+							if ((inst instanceof SSAAbstractInvokeInstruction)
+									&& !(inst instanceof AsyncInvokeInstruction)) {
 								int paramOffset;
 								if (inst instanceof SSAAbstractInvokeInstruction) {
 									SSAAbstractInvokeInstruction invokeInst = (SSAAbstractInvokeInstruction) inst;
-									paramOffset = (invokeInst.isStatic())?-1:0;
+									paramOffset = (invokeInst.isStatic()) ? -1
+											: 0;
 								} else
 									paramOffset = -1;
 
 								int param = castNodeType.get(cNode).param;
-								cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(((param==4)?3:param)+paramOffset)));
+								cast2KeyMap.put(cNode, new LocalPointerKey(
+										srcNode, inst.getUse(((param == 4) ? 3
+												: param)
+												+ paramOffset)));
 							} else if (inst instanceof SSAGetInstruction) {
-								if ((cType & VarUseType.GETFIELD) != 0){
-									createDummyInstanceFieldKey(cast2VarMap, cast2KeyMap, cNode);
+								if ((cType & VarUseType.GETFIELD) != 0) {
+									createDummyInstanceFieldKey(cast2VarMap,
+											cast2KeyMap, cNode);
 								} else
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(0)));
+									cast2KeyMap.put(cNode, new LocalPointerKey(
+											srcNode, inst.getUse(0)));
 							}
-						}
-						else if ((cType & VarUseType.INVOKE_TARGET)!=0){
-							if ((inst instanceof SSAAbstractInvokeInstruction) && !(inst instanceof AsyncInvokeInstruction)){
+						} else if ((cType & VarUseType.INVOKE_TARGET) != 0) {
+							if ((inst instanceof SSAAbstractInvokeInstruction)
+									&& !(inst instanceof AsyncInvokeInstruction)) {
 								if ((cType & VarUseType.DREF) == 0)
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(0)));
+									cast2KeyMap.put(cNode, new LocalPointerKey(
+											srcNode, inst.getUse(0)));
 							} else if (inst instanceof SSAGetInstruction) {
-								if ((cType & VarUseType.GETFIELD) != 0){
-									createDummyInstanceFieldKey(cast2VarMap, cast2KeyMap, cNode);
+								if ((cType & VarUseType.GETFIELD) != 0) {
+									createDummyInstanceFieldKey(cast2VarMap,
+											cast2KeyMap, cNode);
 								} else
-									cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(0)));
+									cast2KeyMap.put(cNode, new LocalPointerKey(
+											srcNode, inst.getUse(0)));
 							}
-						}
-						else if ((cType & VarUseType.POINT)!=0){
+						} else if ((cType & VarUseType.POINT) != 0) {
 							if (inst instanceof X10ArrayReferenceInstruction)
-								cast2KeyMap.put(cNode, new LocalPointerKey(srcNode, inst.getUse(1)));
+								cast2KeyMap.put(cNode, new LocalPointerKey(
+										srcNode, inst.getUse(1)));
 						}
 					}
 				}
@@ -1253,73 +1426,93 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		return cast2KeyMap;
 	}
 
-	private void createDummyInstanceFieldKey(HashMap<CAstNode, Variable> cast2VarMap, Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode) {
+	private void createDummyInstanceFieldKey(
+			HashMap<CAstNode, Variable> cast2VarMap,
+			Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode) {
 		TypeName typeName;
 		if (cast2VarMap.get(cNode.getChild(0)) != null)
-			typeName = TypeName.findOrCreate("L"+cast2VarMap.get(cNode.getChild(0)).type().toClass().declaration().toString().replace('.', '/'));
+			typeName = TypeName.findOrCreate("L"
+					+ cast2VarMap.get(cNode.getChild(0)).type().toClass()
+							.declaration().toString().replace('.', '/'));
 		else
-			typeName = ((FieldReference)cNode.getChild(1).getValue()).getDeclaringClass().getName();
-		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension()).getSourceLoader().lookupClass(typeName);
-		IField cNodeField = cNodeClass.getField(((FieldReference) cNode.getChild(1).getValue()).getName());
-		cast2KeyMap.put(cNode, new InstanceFieldKey(new ConcreteTypeKey(cNodeClass), cNodeField));
+			typeName = ((FieldReference) cNode.getChild(1).getValue())
+					.getDeclaringClass().getName();
+		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine
+				.getTranslatorExtension()).getSourceLoader().lookupClass(
+				typeName);
+		IField cNodeField = cNodeClass.getField(((FieldReference) cNode
+				.getChild(1).getValue()).getName());
+		cast2KeyMap.put(cNode, new InstanceFieldKey(new ConcreteTypeKey(
+				cNodeClass), cNodeField));
 	}
 
-	private void createDummyArrayInstanceKey(HashMap<CAstNode, Variable> cast2VarMap, Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode, CGNode srcNode) {
+	private void createDummyArrayInstanceKey(
+			HashMap<CAstNode, Variable> cast2VarMap,
+			Map<CAstNode, PointerKey> cast2KeyMap, CAstNode cNode,
+			CGNode srcNode) {
 		CAstNode tempC = cNode.getChild(0);
 		Variable tempV = cast2VarMap.get(cNode);
-//		TypeName typeName = TypeName.findOrCreate("[L"+cast2VarMap.get(cNode.getChild(0)).type().toString().replace('.', '/'));
-		TypeName typeName = TypeName.findOrCreate("[L"+cast2VarMap.get(cNode).type().toClass().declaration().toString().replace('.', '/'));
-		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension()).getSourceLoader().lookupClass(typeName);
-// Shane's change
-		cast2KeyMap.put(cNode, new ArrayContentsKey(new NormalAllocationInNode(srcNode,null,cNodeClass)));
-//		cast2KeyMap.put(cNode, new ArrayContentsKey(new NormalAllocationSiteKey(srcNode,null,cNodeClass)));
-//		cast2KeyMap.put(cNode, new ArrayInstanceKey(new NormalAllocationSiteKey(srcNode,null,cNodeClass)));
+		// TypeName typeName =
+		// TypeName.findOrCreate("[L"+cast2VarMap.get(cNode.getChild(0)).type().toString().replace('.',
+		// '/'));
+		TypeName typeName = TypeName.findOrCreate("[L"
+				+ cast2VarMap.get(cNode).type().toClass().declaration()
+						.toString().replace('.', '/'));
+		IClass cNodeClass = ((X10IRTranslatorExtension) fEngine
+				.getTranslatorExtension()).getSourceLoader().lookupClass(
+				typeName);
+		// Shane's change
+		cast2KeyMap.put(cNode, new ArrayContentsKey(new NormalAllocationInNode(
+				srcNode, null, cNodeClass)));
+		// cast2KeyMap.put(cNode, new ArrayContentsKey(new
+		// NormalAllocationSiteKey(srcNode,null,cNodeClass)));
+		// cast2KeyMap.put(cNode, new ArrayInstanceKey(new
+		// NormalAllocationSiteKey(srcNode,null,cNodeClass)));
 	}
 
 	private void buildSourceToInstructionMap(MethodReference methRef,
 			Set<AstMethod> astMeths,
 			// TODO Multiple InstructionContainers might need to be stored for
 			// a given Position: allow them to be chained?
-//			Map<CAstSourcePositionMap.Position, InstructionContainer> map)
+			// Map<CAstSourcePositionMap.Position, InstructionContainer> map)
 			RefactoringMap<RefactoringPosition, InstructionContainer> map)
-	throws ThrowableStatus {
+			throws ThrowableStatus {
 		Set<CGNode> srcNodes = fCallGraph.getNodes(methRef);
 		if (srcNodes.size() == 0)
 			throw ThrowableStatus
-			.createFatalErrorStatus("Unreachable/non-existent method: "
-					+ methRef);
+					.createFatalErrorStatus("Unreachable/non-existent method: "
+							+ methRef);
 		if (srcNodes.size() > 1)
 			throw ThrowableStatus
-			.createFatalErrorStatus("Context-sensitive call graph?");
+					.createFatalErrorStatus("Context-sensitive call graph?");
 		CGNode srcNode = srcNodes.iterator().next();
 		IR amIR = srcNode.getIR();
 
-//		IMethod iMethod = fLoader.lookupClass(
-//		methRef.getDeclaringClass().getName()).getMethod(
-//		methRef.getSelector());
+		// IMethod iMethod = fLoader.lookupClass(
+		// methRef.getDeclaringClass().getName()).getMethod(
+		// methRef.getSelector());
 		IMethod iMethod = srcNode.getMethod();
 		if (!(iMethod instanceof AstMethod))
 			throw ThrowableStatus
-			.createFatalErrorStatus("Nonexistent parse tree for method???");
+					.createFatalErrorStatus("Nonexistent parse tree for method???");
 		AstMethod astMethod = (AstMethod) iMethod;
 		astMeths.add(astMethod);
 		int index = 0;
-//		IR amIR = fEngine.Options.getSSACache().findOrCreateIR(astMethod,
-//		Everywhere.EVERYWHERE, SSAOptions.defaultOptions());
+		// IR amIR = fEngine.Options.getSSACache().findOrCreateIR(astMethod,
+		// Everywhere.EVERYWHERE, SSAOptions.defaultOptions());
 
 		for (SSAInstruction sa : amIR.getInstructions()) {
 			index++;
 			if (sa == null || nonproductiveSSAInstruction(sa))
 				continue;
 
-
 			// System.out.println(astMethod.getName()+" SSAInstruction "+sa+" @
 			// "+astMethod.getSourcePosition(index));
-			CAstSourcePositionMap.Position ipos = astMethod.getSourcePosition(index-1);
-			if (ipos != null){// && !map.containsKey(ipos)) {
+			CAstSourcePositionMap.Position ipos = astMethod
+					.getSourcePosition(index - 1);
+			if (ipos != null) {// && !map.containsKey(ipos)) {
 				RefactoringPosition ripos = new RefactoringPosition(ipos);
-				map.putVoid(ripos,
-						new InstructionContainer(sa, srcNode));
+				map.putVoid(ripos, new InstructionContainer(sa, srcNode));
 			}
 
 			if (sa instanceof SSAAbstractInvokeInstruction) {
@@ -1335,22 +1528,27 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	private boolean nonproductiveSSAInstruction(SSAInstruction ssai) {
-	  return (ssai instanceof SSAGotoInstruction) || (ssai instanceof SSASwitchInstruction)
-	  || (ssai instanceof SSAFinishInstruction) || (ssai instanceof SSAConditionalBranchInstruction)
-	  || (ssai instanceof SSAAtomicInstruction) || (ssai instanceof SSAAbstractThrowInstruction);
+		return (ssai instanceof SSAGotoInstruction)
+				|| (ssai instanceof SSASwitchInstruction)
+				|| (ssai instanceof SSAFinishInstruction)
+				|| (ssai instanceof SSAConditionalBranchInstruction)
+				|| (ssai instanceof SSAAtomicInstruction)
+				|| (ssai instanceof SSAAbstractThrowInstruction);
 	}
-	
-	private void doCreateIR(Collection sources, List libs, IJavaProject javaProject) throws IOException,
-	ClassHierarchyException, ThrowableStatus, CancelException {
-//		EclipseProjectSourceAnalysisEngine engine = new X10EclipseSourceAnalysisEngine(javaProject);
-//		JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine();
 
-//		populateScope(fEngine, sources, libs);
+	private void doCreateIR(Collection sources, List libs,
+			IJavaProject javaProject) throws IOException,
+			ClassHierarchyException, ThrowableStatus, CancelException {
+		// EclipseProjectSourceAnalysisEngine engine = new
+		// X10EclipseSourceAnalysisEngine(javaProject);
+		// JavaSourceAnalysisEngine engine = new X10SourceAnalysisEngine();
+
+		// populateScope(fEngine, sources, libs);
 
 		ProcedureCollectorVisitor procedureCollection = new ProcedureCollectorVisitor();
 
 		((Node) ed.getParseController().getCurrentAst())
-		.visit(procedureCollection);
+				.visit(procedureCollection);
 
 		final ProcedureInstance[] procs = procedureCollection.getProcs();
 		AbstractAnalysisEngine.EntrypointBuilder entrypointBuilder = new AbstractAnalysisEngine.EntrypointBuilder() {
@@ -1360,7 +1558,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			}
 		};
 		fEngine.setEntrypointBuilder(entrypointBuilder);
-		PropagationCallGraphBuilder builder = (PropagationCallGraphBuilder)fEngine.defaultCallGraphBuilder();
+		PropagationCallGraphBuilder builder = (PropagationCallGraphBuilder) fEngine
+				.defaultCallGraphBuilder();
 		fCallGraph = builder.makeCallGraph(builder.getOptions());
 
 		// If we've gotten this far, IR has been produced.
@@ -1368,24 +1567,25 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		dumpIR(fCallGraph);
 
 		com.ibm.wala.cast.ipa.callgraph.Util.dumpCG(builder, fCallGraph);
-		
+
 		List<ProcedureInstance> pc = procedureCollection.procs;
 
 		checkCallGraphShape();
 	}
 
-	private void populateScope(Collection<String> sources, List<String> x10Libs, List<String> javaLibs)
-	throws IOException {
-	    // javaLibs should already be taken care of by the EclipseProjectPath
-	    // built from the project's classpath.
+	private void populateScope(Collection<String> sources,
+			List<String> x10Libs, List<String> javaLibs) throws IOException {
+		// javaLibs should already be taken care of by the EclipseProjectPath
+		// built from the project's classpath.
 		boolean foundLib = false;
-		for (Iterator iter = x10Libs.iterator(); iter.hasNext(); ) {
+		for (Iterator iter = x10Libs.iterator(); iter.hasNext();) {
 			String lib = (String) iter.next();
 
 			File libFile = new File(lib);
 			if (libFile.exists()) {
 				foundLib = true;
-				fEngine.addX10SystemModule(new JarFileModule(new JarFile(libFile)));
+				fEngine.addX10SystemModule(new JarFileModule(new JarFile(
+						libFile)));
 			}
 		}
 		Assertions._assert(foundLib);
@@ -1395,11 +1595,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			String srcFileName = srcFilePath.substring(srcFilePath
 					.lastIndexOf(File.separator) + 1);
 
-			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
+			fEngine.addX10SourceModule(new SourceFileModule(new File(
+					srcFilePath), srcFileName));
 		}
-		String exclusionsFile= "C:/eclipse/download/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
-//		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
-//		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		String exclusionsFile = "C:/eclipse/download/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		// String exclusionsFile=
+		// "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		// String exclusionsFile=
+		// "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		fEngine.setExclusionsFile(exclusionsFile);
 	}
 
@@ -1420,14 +1623,13 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		 */}
 
 	/**
-	 * Prints out all IR information for the selected
-	 * method and stores the MethodReference for later analysis
-	 *  
+	 * Prints out all IR information for the selected method and stores the
+	 * MethodReference for later analysis
+	 * 
 	 * @throws IOException
 	 * @throws ThrowableStatus
 	 */
-	private void checkCallGraphShape()
-	throws IOException, ThrowableStatus {
+	private void checkCallGraphShape() throws IOException, ThrowableStatus {
 
 		// Our main concern is the method in which the selected text is located.
 		// Below code prints out information specific to that method.
@@ -1436,7 +1638,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		ProcedureInstance srcMethod = fNodeMethod.procedureInstance();
 
-		fMethodRef = fEngine.getTranslatorExtension().getIdentityMapper().getMethodRef(srcMethod);
+		fMethodRef = fEngine.getTranslatorExtension().getIdentityMapper()
+				.getMethodRef(srcMethod);
 		Set<CGNode> srcNodes = fCallGraph.getNodes(fMethodRef);
 
 		// Print out debug information about the current method
@@ -1444,11 +1647,11 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			methodRefDebugOutput();
 		if (srcNodes.size() == 0)
 			throw ThrowableStatus
-			.createFatalErrorStatus("Unreachable/non-existent method: "
-					+ srcMethod);
+					.createFatalErrorStatus("Unreachable/non-existent method: "
+							+ srcMethod);
 		if (srcNodes.size() > 1)
 			throw ThrowableStatus
-			.createFatalErrorStatus("Context-sensitive call graph?");
+					.createFatalErrorStatus("Context-sensitive call graph?");
 		CGNode srcNode = srcNodes.iterator().next();
 
 		fMethodIR = srcNode.getIR();
@@ -1461,7 +1664,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		System.out.println(((com.ibm.wala.cast.loader.AstMethod) srcNode
 				.getMethod()).getSourcePosition(0));
 		for (Iterator irIter = methIR.iterateAllInstructions(); irIter
-		.hasNext();) {
+				.hasNext();) {
 			SSAInstruction sa = (SSAInstruction) irIter.next();
 			for (int i = 0; i < sa.getNumberOfUses(); i++)
 				pointerKeys.add(new LocalPointerKey(srcNode, sa.getUse(i)));
@@ -1471,18 +1674,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	public RefactoringStatus checkInitialConditions(IProgressMonitor pm)
-	throws CoreException, OperationCanceledException {
+			throws CoreException, OperationCanceledException {
 		// Check for preconditions here
 
 		if (fNodeMethod == null)
 			return RefactoringStatus
-			.createFatalErrorStatus("Unable to find method containing selected code");
+					.createFatalErrorStatus("Unable to find method containing selected code");
 
 		String javaHomePath = ExtractAsyncStaticTools.javaHomePath;
 
 		// Only valid if it's equivalent to a statement: async, atomic, assign,
 		// method call, etc.
-		List<String> javaRTJars= new LinkedList<String>();
+		List<String> javaRTJars = new LinkedList<String>();
 		javaRTJars.add(javaHomePath + File.separator + "lib" + File.separator
 				+ "rt.jar");
 		javaRTJars.add(javaHomePath + File.separator + "lib" + File.separator
@@ -1491,19 +1694,21 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				+ "vm.jar");
 
 		IJavaProject javaProject = JavaCore.create(fSourceFile.getProject());
-		try{
+		try {
 			fEngine = new X10EclipseSourceAnalysisEngine(javaProject);
 		} catch (IOException ioe) {
 			return RefactoringStatus
-			.createFatalErrorStatus("Unexpected exception generated when creating analysis engine.");
+					.createFatalErrorStatus("Unexpected exception generated when creating analysis engine.");
 		}
 		List<String> x10RTJars = new ArrayList<String>();
-//		x10RTJars.addAll(rtJar);
-		x10RTJars.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
+		// x10RTJars.addAll(rtJar);
+		x10RTJars.add(ExtractAsyncStaticTools.getLanguageRuntimePath(
+				javaProject).toString());
 
 		if (!(fNode instanceof Expr))
 			return RefactoringStatus
-			.createFatalErrorStatus("Extract Async is only valid for expressions, not "+fNode.getClass());
+					.createFatalErrorStatus("Extract Async is only valid for expressions, not "
+							+ fNode.getClass());
 
 		fPivot = (Expr) fNode;
 
@@ -1513,20 +1718,24 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		if (typeFinder.getResult() != null)
 			return RefactoringStatus
-			.createFatalErrorStatus("Extract Async does not currently handle types nested inside method to be transformed.");
+					.createFatalErrorStatus("Extract Async does not currently handle types nested inside method to be transformed.");
 
-		
 		try {
-		  return analyzeSource(ExtractAsyncStaticTools.allSources(fSourceFile.getProject()), // singleTestSrc(fSourceFile),
-			  x10RTJars, javaRTJars, javaProject);
+			return analyzeSource(ExtractAsyncStaticTools.allSources(fSourceFile
+					.getProject()), // singleTestSrc(fSourceFile),
+					x10RTJars, javaRTJars, javaProject);
 		} catch (CancelException e) {
-			return RefactoringStatus.createFatalErrorStatus("Call-graph construction canceled by WALA");
+			return RefactoringStatus
+					.createFatalErrorStatus("Call-graph construction canceled by WALA");
 		}
 	}
 
 	public RefactoringStatus checkFinalConditions(IProgressMonitor pm)
-	throws CoreException, OperationCanceledException {
+			throws CoreException, OperationCanceledException {
 		// Atomic
+		if (finalChange instanceof NullChange)
+			return RefactoringStatus.createFatalErrorStatus(finalChange
+					.getName());
 		return new RefactoringStatus();
 	}
 
@@ -1559,24 +1768,36 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		
 		Variable indexVariable = null;
 		Block stmtBody = null;
+		String loopType;
 		if ((fLoop instanceof For) && (((For)fLoop).inits().get(0) instanceof LocalDecl)) {
 			LocalDecl indexDecl = (LocalDecl) ((For)fLoop).inits().get(0);
 			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
 			stmtBody = (Block)((For)fLoop).body();
+			loopType = "for";
 		} else if (fLoop instanceof X10Loop) {
 			Formal indexDecl = ((X10Loop)fLoop).formal();
 			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
 			stmtBody = (Block)((X10Loop)fLoop).body();
+			loopType = "x10for";
 		}
 		List<Stmt> firstLoop = PolyglotUtils.splitBlockBeforeNode(stmtBody, fPivot);
 		List<Stmt> secondLoop = PolyglotUtils.splitBlockAfterNode(stmtBody, fPivot);
 		
-		// TODO: properly transform fPivot or loop to handle asynchronous/future addition
+		// TODO: properly transform fPivot or loop to handle asynchronous/future
+		// addition
 		
+		String futureArray = "fut_expr";
+		String arrayName = x10.refactorings.PolyglotUtils.extractArray(fPivot);
+		if (arrayName == null)
+			return finalChange = new NullChange("Extract Async could not find array. Refactoring aborted!");
+		String futureArrayType = "future<"+fPivot.type()+">";
+		String futureArrayInit = futureArrayType+"[.] "+futureArray+"= new " + futureArrayType+"["+arrayName+".distribution.region->here];";
+//		Stmt futureSpawn = new 
+
 		Set<Stmt> firstLoopSlice = slice(indexVariable, new Block_c(fLoop.position(), firstLoop));
 		Set<Stmt> secondLoopslice = slice(indexVariable, new Block_c(fLoop.position(), secondLoop));
 		
-		return tfc;
+		return finalChange = tfc;
 	}
 
 	private final class TestEntryPoints implements Iterable<Entrypoint> {
@@ -1604,13 +1825,19 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 				public Entrypoint next() {
 					ProcedureInstance proc = procs[index++];
-					IRTranslatorExtension irx = fEngine.getTranslatorExtension();
-					// N.B.: Don't use getMethodRef() here; in the process of canonicalizing
-					// the MethodReferences it has to compare ProcedureInstances from two
-					// different instances of Polyglot (one from the editor's ParseController,
-					// and one from the WALA analysis engine), resulting in a "we are TypeSystem_c,
+					IRTranslatorExtension irx = fEngine
+							.getTranslatorExtension();
+					// N.B.: Don't use getMethodRef() here; in the process of
+					// canonicalizing
+					// the MethodReferences it has to compare ProcedureInstances
+					// from two
+					// different instances of Polyglot (one from the editor's
+					// ParseController,
+					// and one from the WALA analysis engine), resulting in a
+					// "we are TypeSystem_c,
 					// but type Foo is from TypeSystem_c" exception.
-					return new DefaultEntrypoint(irx.getIdentityMapper().referenceForMethod(proc), cha);
+					return new DefaultEntrypoint(irx.getIdentityMapper()
+							.referenceForMethod(proc), cha);
 				}
 			};
 		}
@@ -1639,7 +1866,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		public ProcedureInstance[] getProcs() {
 			ProcedureInstance[] processedProcs = new ProcedureInstance[procs
-			                                                           .toArray().length];
+					.toArray().length];
 			int j = 0;
 			for (Iterator i = procs.iterator(); i.hasNext();) {
 				processedProcs[j++] = (ProcedureInstance) i.next();
@@ -1649,7 +1876,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		public ProcedureDecl[] getProcDecls() {
 			ProcedureDecl[] processedProcs = new ProcedureDecl[procDecls
-			                                                   .toArray().length];
+					.toArray().length];
 			int j = 0;
 			for (Iterator i = procDecls.iterator(); i.hasNext();) {
 				processedProcs[j++] = (ProcedureDecl) i.next();
@@ -1661,8 +1888,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			ArrayList<MethodReference> procRefs = new ArrayList<MethodReference>(
 					10);
 			for (Iterator<ProcedureInstance> i = procs.iterator(); i.hasNext();) {
-				procRefs.add(fEngine.getTranslatorExtension().getIdentityMapper()
-						.getMethodRef(i.next()));
+				procRefs.add(fEngine.getTranslatorExtension()
+						.getIdentityMapper().getMethodRef(i.next()));
 			}
 			return procRefs;
 		}
@@ -1670,8 +1897,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		public List<Selector> getProcSelectors(ClassLoaderReference cLoader) {
 			ArrayList<Selector> procSels = new ArrayList<Selector>(10);
 			for (Iterator<ProcedureInstance> i = procs.iterator(); i.hasNext();) {
-				procSels.add(fEngine.getTranslatorExtension().getIdentityMapper()
-						.getMethodRef(i.next()).getSelector());
+				procSels.add(fEngine.getTranslatorExtension()
+						.getIdentityMapper().getMethodRef(i.next())
+						.getSelector());
 			}
 			return procSels;
 		}
@@ -1681,7 +1909,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		public final SSAInstruction instruction;
 
 		public final CGNode callGraphNode;
-		
+
 		public InstructionContainer(SSAInstruction instruction,
 				CGNode callGraphNode) {
 			this.instruction = instruction;
