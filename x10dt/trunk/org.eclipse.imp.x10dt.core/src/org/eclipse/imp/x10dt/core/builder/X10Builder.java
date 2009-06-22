@@ -192,6 +192,10 @@ public class X10Builder extends IncrementalProjectBuilder {
     }
 
     protected void clearMarkersOn(Collection<IFile> sources) {
+        try {
+            fProject.deleteMarkers(PROBLEMMARKER_ID, true, 0);
+        } catch (CoreException e1) {
+        }
         for(Iterator<IFile> iter= sources.iterator(); iter.hasNext(); ) {
             IFile file= iter.next();
 
@@ -509,7 +513,8 @@ public class X10Builder extends IncrementalProjectBuilder {
                 buildClassPathSpec(),
                 "-d", outputDir,
                 "-sourcepath", 
-                projectSrcPath
+                projectSrcPath,
+                "-commandlineonly"
             };
             for (String s: stdOptsArray) {
                 optsList.add(s);
@@ -1256,6 +1261,45 @@ public class X10Builder extends IncrementalProjectBuilder {
             X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
         }
         collectChangeDependents();
+        collectFilesWithErrors();
+    }
+
+    private class X10ErrorVisitor implements IResourceVisitor {
+        private boolean fCompileAll= false;
+        public boolean visit(IResource res) throws CoreException {
+            return processResource(res);
+        }
+        protected boolean processResource(IResource resource) throws CoreException {
+            if (resource instanceof IFile) {
+                IFile file= (IFile) resource;
+                if (isSourceFile(file) && (fCompileAll || file.findMaxProblemSeverity(PROBLEMMARKER_ID, true, IResource.DEPTH_INFINITE) == IMarker.SEVERITY_ERROR)) {
+                    if (!fSourcesToCompile.contains(file)) {
+                        fSourcesToCompile.add(file);
+                    }
+                }
+            } else if (isBinaryFolder(resource)) {
+                return false;
+            }
+            return true;
+        }
+        public void setCompileAll(boolean yesNo) {
+            fCompileAll= yesNo;
+        }
+    }
+
+    private X10ErrorVisitor fErrorVisitor= new X10ErrorVisitor();
+
+    private void collectFilesWithErrors() {
+        try {
+            // The only project-level error we issue is for a compiler crash, for which we get no
+            // info as to what file caused the problem. So we play it safe and recompile
+            // everything in that case.
+            fErrorVisitor.setCompileAll(fProject.findMaxProblemSeverity(PROBLEMMARKER_ID, false, 0) == IMarker.SEVERITY_ERROR);
+
+            fProject.accept(fErrorVisitor);
+        } catch (CoreException e) {
+            X10Plugin.getInstance().logException("Error while looking for source files with errors", e);
+        }
     }
 
     /**
