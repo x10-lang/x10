@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="com.ibm.watson.safari.x10" default="build.jars" basedir=".">
+<project name="com.ibm.watson.safari.x10" default="build.update.jar" basedir=".">
 	<import file="../com.ibm.watson.safari.feature/buildCommon.xml"/>
 
 	<target name="init" depends="properties">
