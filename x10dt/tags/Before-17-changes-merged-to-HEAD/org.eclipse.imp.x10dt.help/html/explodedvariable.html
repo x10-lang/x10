@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Exploded Variable Declarations</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Exploded variable declarations</h2><a name="exploded-syntax">
+</a>
+
+<div class="p"><!----></div>
+ X10 permits a richer form of specification for variable
+declarators in method arguments, local variables and loop variables
+(the "exploded" or <em>destructuring</em> syntax).
+<pre>
+81    VariableDeclaratorId ::= 
+           identifier [ IdentifierList ]
+82       |  [ IdentifierList ]
+</pre>
+
+<div class="p"><!----></div>
+In  X10 v1.01 the <tt>VariableDeclaratorId</tt> must be declared at
+type <tt>x10.lang.point</tt>. Intuitively, this syntax allows a
+point to be "destructured" into its corresponding <tt>int</tt> 
+indices in a pattern-matching style.
+The kth identifier in the <tt>
+IdentifierList</tt> is treated as a <tt>final</tt> variable of type <tt>int</tt>
+that is initialized with the value of the kth index of the point. 
+The second form of the syntax (Rule 82) permits the specification of only
+the index variables.
+
+<div class="p"><!----></div>
+Future versions of the language may allow destructuring syntax for all
+value classes.
+
+<div class="p"><!----></div>
+
+<b>Example.&nbsp;&nbsp;</b>
+The following example succeeds when executed.
+<pre>
+public class Array1Exploded {
+  public int select(point p[i,j], point [k,l]) {
+      return i+k;
+  }
+  public boolean run() {
+    distribution d =  [1:10, 1:10] -&#62; here;
+    int[.] ia = new int[d];
+    for(point p[i,j]: [1:10,1:10]) {
+        if(ia[p]!=0) return false;
+        ia[p] = i+j;
+    }
+    for(point p[i,j]: d) {
+      point q1 = [i,j];
+      if (i != q1[0]) return false;
+      if ( j != q1[1]) return false;
+      if(ia[i,j]!= i+j) return false;
+      if(ia[i,j]!=ia[p]) return false;
+      if(ia[q1]!=ia[p]) return false;
+   }
+    if (! (4 == select([1,2],[3,4]))) return false;
+     return true;
+   }
+
+<div class="p"><!----></div>
+  public static void main(String args[]) {
+     boolean b= (new Array1Exploded()).run();
+     System.out.println("++++++ "
+                        + (b? "Test succeeded."
+                           :"Test failed."));
+     System.exit(b?0:1);
+ }
+}
+</pre>
+</body>
+</html>
