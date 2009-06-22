@@ -67,8 +67,13 @@ import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.util.Position;
 
+/**
+ * Provide information for context help (F1 "dynamic help")<br>
+ * Usually defers to X10DocProvider, but has some specific info especially for X10 keywords here.
+ *
+ */
 public class X10ContextHelper implements IHelpService {
-	private static final boolean traceOn=true;
+	private static final boolean traceOn=false;
     private final static Map<String,String> sKeywordHelp= new HashMap<String, String>();
 
     {
@@ -116,9 +121,6 @@ public class X10ContextHelper implements IHelpService {
 		String doc = dp.getDocumentation(target, parseController);
 		return doc;
 	}
- 
-
-  
 
     public String getHelp(IRegion target, IParseController parseController) {
         ParseController pc= (ParseController) parseController;
