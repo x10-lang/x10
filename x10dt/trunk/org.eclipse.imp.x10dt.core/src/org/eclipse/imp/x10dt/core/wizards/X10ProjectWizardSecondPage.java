@@ -31,23 +31,16 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
-import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 import org.osgi.framework.Bundle;
 
 public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
@@ -59,34 +52,12 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
         return new X10ProjectNature();
     }
 
-    protected IPath getLanguageRuntimePath() {
+    protected IClasspathEntry createLanguageRuntimeEntry() {
         Bundle x10RuntimeBundle= Platform.getBundle("x10.runtime");
         String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
         IPath x10RuntimePath= new Path("ECLIPSE_HOME/plugins/x10.runtime_" + bundleVersion + ".jar");
 
-        return x10RuntimePath;
-    }
-
-    protected void openResource(final IFile resource) {
-        Display.getDefault().asyncExec(new Runnable() {
-            public void run() {
-                final IWorkbenchPage activePage= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-                if (activePage != null) {
-                    final Display display= getShell().getDisplay();
-                    if (display != null) {
-                        display.asyncExec(new Runnable() {
-                            public void run() {
-                                try {
-                                    IDE.openEditor(activePage, resource, true);
-                                } catch (PartInitException e) {
-                                    X10Plugin.getInstance().getLog().log(new Status(IStatus.ERROR, X10Plugin.kPluginID, "Error opening editor on newly-created X10 source file", e));
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        });
+        return JavaCore.newVariableEntry(x10RuntimePath, null, null);
     }
 
     @Override

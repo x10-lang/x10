@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -62,7 +63,7 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 public class X10ProjectWizard extends Wizard implements INewWizard {
     private X10ProjectWizardFirstPage fFirstPage;
 
-    private X10ProjectWizardSecondPage fSecondPage;
+    private NewProjectWizardSecondPage fSecondPage;
 
     public X10ProjectWizard() {
 	super();
