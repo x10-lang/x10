@@ -23,15 +23,19 @@ import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.imp.x10dt.ui.parser.ParseController;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.formatter.IndentManipulation;
+import org.eclipse.jdt.internal.corext.javadoc.JavaDocCommentReader;
 import org.eclipse.jdt.ui.JavadocContentAccess;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.IWorkbenchPart;
@@ -213,6 +217,7 @@ public class X10ContextHelper implements IHelpService {
             idx= skipBackwardWhite(fileSrc, idx);
             if (lookingPastEndOf(fileSrc, idx, "*/")) {
                 String doc= collectBackwardTo(fileSrc, idx, "/**");
+                doc=getCommentText(doc);
                 return doc;
             }
         } catch (IOException e) {
@@ -220,7 +225,65 @@ public class X10ContextHelper implements IHelpService {
         return null;
     }
 
-    private String collectBackwardTo(String fileSrc, int idx, String string) {
+	/**
+	 * 
+	 * Reads text from javadoc (x10doc) comment, ignoring leading/trailing slash-star-star and star-slash and * leading lines.
+	 * <br>Assumes leading/trailing comment chars should also be removed
+	 * @param text the text of the comment
+	 * @returns  text without  the javadoc comment characters
+	 * 
+	 */
+    private String getCommentText(String text) {
+    	return getCommentText(text, true);
+    }
+	/**
+	 * 
+	 * Reads text from javadoc (x10doc) comment, ignoring leading/trailing slash-star-star and star-slash and * leading lines.
+	 * <br>adapted from JavadocCommentReader.read()
+	 * @param text the text of the comment
+	 * @param stripLeadingTrailingParts whether or not to strip the leading/trailing comment chars
+	 * @returns  text with the intervening (if any) leading star characters
+	 * 
+	 */
+	private String getCommentText(String text, boolean stripLeadingTrailingParts) {
+		StringBuilder result = new StringBuilder();
+		String showResult="|";
+		
+		// If it starts with the 3 chars /**  and ends with the two chars */, then start by ditching these
+        if(stripLeadingTrailingParts) {
+        	text=text.substring(3, text.length()-2);
+        }
+		int fCurrPos=0;
+		int fEndPos=text.length()-1;
+	     
+		boolean fWasNewLine=false;
+		while (fCurrPos < fEndPos) {//was if
+			char ch;
+			if (fWasNewLine) {
+				do {
+					ch = text.charAt(fCurrPos++);
+				} while (fCurrPos < fEndPos && Character.isWhitespace(ch));
+				if (ch == '*') {
+					if (fCurrPos < fEndPos) {
+						do {
+							ch = text.charAt(fCurrPos++);
+						} while (ch == '*');
+					}
+				}
+			} else {
+				ch = text.charAt(fCurrPos++);  
+			}
+			if( ch=='@') {
+				//TBD handle
+			}
+			//determine if prev char was line delimiter; if so will affect how we start next line
+			fWasNewLine = ch == '\n' || ch == '\r';
+			result.append(ch);
+			showResult="|"+result.toString()+"|";
+		}
+		return result.toString();
+	}
+	private String collectBackwardTo(String fileSrc, int idx, String string) {
         return fileSrc.substring(fileSrc.lastIndexOf(string, idx), idx);
     }
 
