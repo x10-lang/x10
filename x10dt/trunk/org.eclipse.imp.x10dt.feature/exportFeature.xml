@@ -20,11 +20,27 @@
 			<fileset dir="plugins" includes="*.jar"/>
 		</delete>
 		<mkdir dir="plugins"/>
-		<copy todir="plugins" file="../x10.runtime/x10.runtime_${plugins.version.31}.jar"/>
+		<antcall target="copy.child">
+			<param name="plugin.id" value="x10.runtime"/>
+		</antcall>
+		<antcall target="copy.child">
+			<param name="plugin.id" value="x10.compiler"/>
+		</antcall>
+		<antcall target="copy.child">
+			<param name="plugin.id" value="org.eclipse.imp.x10dt.core"/>
+		</antcall>
+		<antcall target="copy.child">
+			<param name="plugin.id" value="org.eclipse.imp.x10dt.ui"/>
+		</antcall>
+		<antcall target="copy.child">
+			<param name="plugin.id" value="org.eclipse.imp.x10dt"/>
+		</antcall>
+<!--	<copy todir="plugins" file="../x10.runtime/x10.runtime_${plugins.version.31}.jar"/>
 		<copy todir="plugins" file="../x10.compiler/x10.compiler_${plugins.version.31}.jar"/>
 		<copy todir="plugins" file="../org.eclipse.imp.x10dt.core/org.eclipse.imp.x10dt.core_${plugins.version.31}.jar"/>
 		<copy todir="plugins" file="../org.eclipse.imp.x10dt.ui/org.eclipse.imp.x10dt.ui_${plugins.version.31}.jar"/>
 		<copy todir="plugins" file="../org.eclipse.imp.x10dt/org.eclipse.imp.x10dt_${x10dt.version}.jar"/>
+  -->
 	</target>
 
 	<!-- ========================================================================================= -->
