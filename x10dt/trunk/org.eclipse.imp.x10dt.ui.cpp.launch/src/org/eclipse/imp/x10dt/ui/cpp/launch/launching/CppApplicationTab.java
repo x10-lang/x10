@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.launch.launching;
 
-import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
@@ -27,18 +26,15 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
-import org.eclipse.imp.model.ICompilationUnit;
-import org.eclipse.imp.model.ISourceEntity;
-import org.eclipse.imp.model.ModelFactory;
-import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes;
 import org.eclipse.ptp.launch.internal.ui.LaunchImages;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
@@ -78,7 +74,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     createProjectEditor(composite);
     createVerticalSpacer(composite, 2);
-    createMainTypeEditor(composite);
+    createApplicationProgramEditor(composite);
     createVerticalSpacer(composite, 2);
     createProgramArgs(composite);
     
@@ -86,35 +82,34 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   }
 
   public String getName() {
-    return Messages.CAT_TabName;
+    return LaunchMessages.CAT_TabName;
   }
 
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
     final String projectName = this.fProjectText.getText().trim();    
     configuration.setAttribute(ATTR_PROJECT_NAME, projectName);
     
-    final String mainClassName = this.fMainClassText.getText().trim();
-    if (mainClassName.length() > 0) {
-      configuration.setAttribute(ATTR_MAIN_TYPE_NAME, mainClassName);
-      if (projectName.length() > 0) {
-        final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
-        if (project.exists()) {
-          configuration.setAttribute(ATTR_EXECUTABLE_PATH, mainClassName);
-          configuration.setAttribute(ATTR_WORK_DIRECTORY, mainClassName.substring(0, mainClassName.lastIndexOf('/')));
-        }
+    final String appProgName = this.fAppProgText.getText().trim();
+    if ((appProgName.length() > 0) && (projectName.length() > 0)) {
+      final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+      if (project.exists()) {
+        configuration.setAttribute(ATTR_EXECUTABLE_PATH, appProgName);
+        configuration.setAttribute(ATTR_WORK_DIRECTORY, appProgName.substring(0, appProgName.lastIndexOf('/')));
       }
     }
     
     final String content = this.fPgrmArgsText.getText().trim();    
     configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
+    
+    configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, this.fShouldLink.getSelection());
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
-    configuration.setAttribute(ATTR_MAIN_TYPE_NAME, (String) null);
     configuration.setAttribute(ATTR_EXECUTABLE_PATH, (String) null);
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
+    configuration.setAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
   }
   
   // --- Overridden methods
@@ -128,10 +123,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     try {
       this.fProjectText.setText(configuration.getAttribute(ATTR_PROJECT_NAME, EMPTY_STRING));
-      this.fMainClassText.setText(configuration.getAttribute(ATTR_MAIN_TYPE_NAME, EMPTY_STRING));
+      this.fAppProgText.setText(configuration.getAttribute(ATTR_EXECUTABLE_PATH, EMPTY_STRING));
       this.fPgrmArgsText.setText(configuration.getAttribute(ATTR_ARGUMENTS, EMPTY_STRING));
+      this.fShouldLink.setSelection(configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true));
     } catch (CoreException except) {
-      setErrorMessage(Messages.CAT_ReadConfigError);
+      setErrorMessage(LaunchMessages.CAT_ReadConfigError);
       LaunchCore.log(except.getStatus());
     }
   }
@@ -142,7 +138,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     
     final String projectName = this.fProjectText.getText().trim();
     if (projectName.length() == 0) {
-      setErrorMessage(Messages.CAT_RequiredPrjName);
+      setErrorMessage(LaunchMessages.CAT_RequiredPrjName);
       return false;
     } else {
       final IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -150,24 +146,24 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       if (status.isOK()) {
         final IProject project = workspace.getRoot().getProject(projectName);
         if (! project.exists()) {
-          setErrorMessage(NLS.bind(Messages.CAT_NoExistingProject, projectName));
+          setErrorMessage(NLS.bind(LaunchMessages.CAT_NoExistingProject, projectName));
           return false;
         }
         if (! project.isOpen()) {
-          setErrorMessage(NLS.bind(Messages.CAT_ClosedProject, projectName));
+          setErrorMessage(NLS.bind(LaunchMessages.CAT_ClosedProject, projectName));
           return false;
         }
         // Project exists and is not closed. Checks now if we have a main class.
-        final String className = this.fMainClassText.getText().trim();
+        final String className = this.fAppProgText.getText().trim();
         if (className == null) {
-          setErrorMessage(Messages.CAT_RequiredMainClassName);
+          setErrorMessage(LaunchMessages.CAT_RequiredMainClassName);
           return false;
         } else if (! hasMain(project, className)) {
-          setErrorMessage(Messages.CAT_NoMainMethod);
+          setErrorMessage(LaunchMessages.CAT_NoMainMethod);
           return false;
         }
       } else {
-        setErrorMessage(NLS.bind(Messages.CAT_IllegalPrjName, projectName));
+        setErrorMessage(NLS.bind(LaunchMessages.CAT_IllegalPrjName, projectName));
         return false;
       }
     }
@@ -176,20 +172,24 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   // --- Private code
   
-  private void createMainTypeEditor(final Composite parent) {
+  private void createApplicationProgramEditor(final Composite parent) {
     final Group group = new Group(parent, SWT.NONE);
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(2, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    group.setText(Messages.CAT_MainClassGroupName);
+    group.setText(LaunchMessages.CAT_AppProgGroupName);
     
-    this.fMainClassText = new Text(group, SWT.SINGLE | SWT.BORDER);
-    this.fMainClassText.setFont(group.getFont());
-    this.fMainClassText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    this.fMainClassText.addModifyListener(new TextModificationListener());
+    this.fAppProgText = new Text(group, SWT.SINGLE | SWT.BORDER);
+    this.fAppProgText.setFont(group.getFont());
+    this.fAppProgText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+    this.fAppProgText.addModifyListener(new TextModificationListener());
     
-    this.fSearchMainClassBt = createPushButton(group, Messages.CAT_SearchButton, null /* image */);
-    this.fSearchMainClassBt.addSelectionListener(new SearchMainClassBtSelectionListener());
+    this.fSearchAppProgBt = createPushButton(group, LaunchMessages.CAT_SearchButton, null /* image */);
+    this.fSearchAppProgBt.addSelectionListener(new SearchMainClassBtSelectionListener());
+    
+    this.fShouldLink = createCheckButton(group, LaunchMessages.CAT_LinkApp);
+    this.fShouldLink.setData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fShouldLink.setSelection(true);
   }
   
   private void createProgramArgs(final Composite parent) {
@@ -197,7 +197,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(1, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-    group.setText(Messages.AT_ProgArgsGroupName);
+    group.setText(LaunchMessages.AT_ProgArgsGroupName);
     
     this.fPgrmArgsText = new Text(group, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
     this.fPgrmArgsText.addTraverseListener(new TraverseListener() {
@@ -231,7 +231,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
     });
 
-    final Button pgrmArgVarBt = createPushButton(group, Messages.AT_VariablesBtName, null /* image */);
+    final Button pgrmArgVarBt = createPushButton(group, LaunchMessages.AT_VariablesBtName, null /* image */);
     pgrmArgVarBt.setLayoutData(new GridData(SWT.END, SWT.NONE, false, false));
     pgrmArgVarBt.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected(final SelectionEvent event) {
@@ -250,84 +250,24 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(2, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    group.setText(Messages.CAT_ProjectGroupName);
+    group.setText(LaunchMessages.CAT_ProjectGroupName);
     
     this.fProjectText = new Text(group, SWT.SINGLE | SWT.BORDER);
     this.fProjectText.setFont(group.getFont());
     this.fProjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     this.fProjectText.addModifyListener(new TextModificationListener());
     
-    this.fProjectBt = createPushButton(group, Messages.CAT_BrowseButton, null /* image */);
+    this.fProjectBt = createPushButton(group, LaunchMessages.CAT_BrowseButton, null /* image */);
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
   
-  private boolean hasMain(final IProject project, final String mainClassName) {
-    final IResource resource = project.findMember(mainClassName);
-    if (resource != null) {
-      try {
-        final ISourceEntity sourceEntity = ModelFactory.open(resource);
-        if (sourceEntity instanceof ICompilationUnit) {
-//      FIXME: It doesn't work so far. To fix.
-//          final ICompilationUnit cpUnit = (ICompilationUnit) sourceEntity;
-//          final Node astRoot = (Node) cpUnit.getAST(new SilentMessageHandler(), new NullProgressMonitor());
-//          final MainMethodNodeVisitor visitor = new MainMethodNodeVisitor();
-//          astRoot.visit(visitor);
-//          return visitor.hasMainMethod();
-        }
-      } catch (ModelException except) {
-        // Let's give up... and consider the optimistic result.
-      }
-    }
+  private boolean hasMain(final IProject project, final String appProgName) {
     // Be optimistic by default.
+    // TODO: This method should use X10DT in order to check if the file given has really an X10 main method in it.
     return true;
   }
   
   // --- Private classes
-  
-//  private static final class SilentMessageHandler implements IMessageHandler {
-//
-//    public void clearMessages() {
-//    }
-//
-//    public void endMessageGroup() {
-//    }
-//
-//    public void handleSimpleMessage(final String msg, final int startOffset, final int endOffset, final int startCol, 
-//                                    final int endCol, final int startLine, final int endLine) {
-//    }
-//
-//    public void startMessageGroup(final String groupName) {
-//    }
-//    
-//  }
-//  
-//  private static final class MainMethodNodeVisitor extends NodeVisitor {
-//    
-//    // --- Overridden methods
-//    
-//    public NodeVisitor enter(final Node node) {
-//      if ((! this.fHasMain) && (node instanceof MethodDecl)) {
-//        final MethodDecl methodDecl = (MethodDecl) node;
-//        final X10TypeSystem ts = (X10TypeSystem) methodDecl.returnType().type().typeSystem();
-//        this.fHasMain = methodDecl.name().toString().equals("main") && methodDecl.flags().flags().isPublic() && //$NON-NLS-1$
-//                        methodDecl.flags().flags().isStatic() && methodDecl.returnType().type().isVoid() &&
-//                        (methodDecl.formals().size() == 1) && 
-//                        (methodDecl.formals().get(0)).type().type().typeEquals(ts.Rail(ts.String()));
-//      }
-//      return this;
-//    }
-//    
-//    // --- Internal Services
-//    
-//    boolean hasMainMethod() {
-//      return this.fHasMain;
-//    }
-//    
-//    // --- Fields
-//    
-//    private boolean fHasMain;
-//    
-//  }
   
   private final class ProjectBtSelectionListener implements SelectionListener {
     
@@ -339,8 +279,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     public void widgetSelected(final SelectionEvent event) {
       final ILabelProvider labelProvider = new JavaElementLabelProvider(JavaElementLabelProvider.SHOW_DEFAULT);
       final ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
-      dialog.setTitle(Messages.CAT_PrjSelectionDialogTitle);
-      dialog.setMessage(Messages.CAT_PrjSelectionDialogMsg);
+      dialog.setTitle(LaunchMessages.CAT_PrjSelectionDialogTitle);
+      dialog.setMessage(LaunchMessages.CAT_PrjSelectionDialogMsg);
       try {
         dialog.setElements(getProjectList());
       } catch (CoreException except) {
@@ -393,6 +333,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
       
       final IResourceManagerControl rm = (IResourceManagerControl) getResourceManager(getLaunchConfiguration());
+      if ((rm == null) || (rm.getState() != ResourceManagerAttributes.State.STARTED)) {
+        setErrorMessage(LaunchMessages.CAT_NoRunningResManager);
+        return;
+      }
       final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
       final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
       final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
@@ -403,10 +347,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           if (fileMgr != null) {
             fileMgr.setConnection(rmConn);
             fileMgr.showConnections(false);
-            final IPath path = fileMgr.browseFile(getShell(), Messages.CAT_SelectMainDialogDescription, initialPath);
+            final IPath path = fileMgr.browseFile(getShell(), LaunchMessages.CAT_SelectMainDialogDescription, initialPath);
             if (path != null) {
               final String file = path.toString();
-              CppApplicationTab.this.fMainClassText.setText(file.substring(0, file.length() - 3));
+              CppApplicationTab.this.fAppProgText.setText(file.substring(0, file.length() - 3));
             }
           }
         }
@@ -429,12 +373,14 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   private Text fProjectText;
   
-  private Text fMainClassText;
+  private Text fAppProgText;
   
   private Text fPgrmArgsText;
   
   private Button fProjectBt;
   
-  private Button fSearchMainClassBt;
+  private Button fSearchAppProgBt;
+  
+  private Button fShouldLink;
 
 }
