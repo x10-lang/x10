@@ -243,8 +243,8 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				return null;
 			}
 			if (result instanceof ObjectReference) {
+				fActivity = (ObjectReference)result;
 				if (fFileNameAndLineNo==null) {
-					fActivity = (ObjectReference)result;
 					List<Method> myNameMethods = (List<Method>)((ObjectReference)fActivity).referenceType().methodsByName("myName");
 					Method myNameMethod = myNameMethods.get(0);
 					Value fnlv = ((X10DebugTargetAlt)getDebugTarget()).invokeX10RTMethod(fActivity, myNameMethod, args);
