@@ -1,6 +1,6 @@
 package org.eclipse.imp.x10dt.core.preferences.generated;
 
-import org.eclipse.swt.widgets.TabFolder;import org.eclipse.imp.preferences.IPreferencesService;import org.eclipse.imp.preferences.PreferencesInitializer;import org.eclipse.imp.preferences.PreferencesTab;import org.eclipse.imp.preferences.TabbedPreferencesPage;import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.swt.widgets.TabFolder;import org.eclipse.imp.preferences.IPreferencesService;import org.eclipse.imp.preferences.PreferencesInitializer;import org.eclipse.imp.preferences.PreferencesTab;import org.eclipse.imp.preferences.TabbedPreferencesPage;import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 /**
  * A preference page class.
@@ -10,7 +10,7 @@ import org.eclipse.swt.widgets.TabFolder;import org.eclipse.imp.preferences.IPre
 public class X10PreferencePage extends TabbedPreferencesPage {
 	public X10PreferencePage() {
 		super();
-		prefService = X10Plugin.getInstance().getPreferencesService();
+		prefService = X10DTCorePlugin.getInstance().getPreferencesService();
 	}
 
 	protected PreferencesTab[] createTabs(IPreferencesService prefService,

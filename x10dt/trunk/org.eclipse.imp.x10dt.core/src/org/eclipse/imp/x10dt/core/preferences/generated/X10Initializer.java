@@ -2,7 +2,7 @@ package org.eclipse.imp.x10dt.core.preferences.generated;
 
 import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 
 /**
  * Initializations of default values for preferences.
@@ -13,7 +13,7 @@ public class X10Initializer extends PreferencesInitializer {
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
 	public void initializeDefaultPreferences() {
-		IPreferencesService service = X10Plugin.getInstance().getPreferencesService();
+		IPreferencesService service = X10DTCorePlugin.getInstance().getPreferencesService();
 
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_TABSIZE, 4);
 		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_SOURCEFONT, "courier");
@@ -30,7 +30,7 @@ public class X10Initializer extends PreferencesInitializer {
 	 * Clear (remove) any preferences set on the given level.
 	 */
 	public void clearPreferencesOnLevel(String level) {
-		IPreferencesService service = X10Plugin.getInstance().getPreferencesService();
+		IPreferencesService service = X10DTCorePlugin.getInstance().getPreferencesService();
 		service.clearPreferencesAtLevel(level);
 
 	}
