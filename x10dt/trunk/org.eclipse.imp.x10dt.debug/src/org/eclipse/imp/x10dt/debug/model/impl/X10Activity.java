@@ -20,14 +20,24 @@ public class X10Activity extends X10DebugElement implements IX10Activity{
 	private HashSet<IX10Activity> fChildren;
 	private X10ActivityState _state;
 	private String fName;
+
+	private static int seq=0;
+    public int uid;
+	
 	
 	public X10Activity(X10DebugTargetAlt target) {
 	       	super(target);
+			synchronized(this) {
+				uid = seq++;
+			}
 	}
 	
 	public X10Activity(X10DebugTargetAlt target, String name) {
        	super(target);
        	fName=name;
+		synchronized(this) {
+			uid = seq++;
+		}
 }
 	
 	/*
@@ -70,7 +80,6 @@ public class X10Activity extends X10DebugElement implements IX10Activity{
 	}
 	
 	public IX10StackFrame[] getStackFrames() {
-		// TODO create stack frames in sample model
 		return new IX10StackFrame[0];
 	}
 	public String toString() {
