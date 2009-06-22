@@ -272,7 +272,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             } else {
                 pkgPath= srcPath;
             }
-            if (pkgPath.startsWith("src/")) {
+            if (pkgPath.startsWith("src" + File.separator)) {
                 pkgPath= pkgPath.substring(4);
             }
             if (pkgPath.length() == src.name().length()) {
