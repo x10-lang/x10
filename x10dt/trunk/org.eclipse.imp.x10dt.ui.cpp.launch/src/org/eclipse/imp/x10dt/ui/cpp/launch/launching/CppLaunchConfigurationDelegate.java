@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.launch.launching;
 
-import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
@@ -36,7 +35,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.utils.ConsoleUtil;
 import org.eclipse.imp.x10dt.ui.cpp.launch.Constants;
 import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchCore;
-import org.eclipse.imp.x10dt.ui.cpp.launch.Messages;
+import org.eclipse.imp.x10dt.ui.cpp.launch.LaunchMessages;
 import org.eclipse.imp.x10dt.ui.cpp.launch.utils.IResourceUtils;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
@@ -79,7 +78,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   protected AttributeManager getAttributeManager(ILaunchConfiguration configuration, String mode) throws CoreException {
     final IResourceManager resourceManager = getResourceManager(configuration);
     if (resourceManager == null) {
-      abort(Messages.CLCD_NoResManagerError, null, 0);
+      abort(LaunchMessages.CLCD_NoResManagerError, null, 0);
     }
 
     final AttributeManager attrMgr = new AttributeManager();
@@ -132,11 +131,11 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       if (rmConnection != null) {
         // Performs linking first.
         monitor.beginTask(null, 10);
-        monitor.subTask(Messages.CLCD_ExecCreationTaskName);
+        monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
         createExecutable(rmConnection, configuration, verifyProject(configuration), new SubProgressMonitor(monitor, 3));
 
         // Then, performs the launch.
-        monitor.subTask(Messages.CLCD_LaunchCreationTaskName);
+        monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
         super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 7));
       }
     } finally {
@@ -154,26 +153,33 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         final IRemoteExecutionTools rmExecTools = rmExecManager.getExecutionTools();
                 
         final String workspaceDir = configuration.getAttribute(ATTR_WORK_DIRECTORY, (String) null);
-        final String mainClassName = configuration.getAttribute(ATTR_MAIN_TYPE_NAME, (String) null);
+        final String appProgName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+        final boolean shouldLinkApp = configuration.getAttribute(Constants.ATTR_SHOULD_LINK_APP, true);
         
-        createMainFile(rmExecManager.getRemoteCopyTools(), mainClassName, workspaceDir);
+        try {
+          if (rmExecManager.getRemoteFileTools().hasFile(appProgName) && ! shouldLinkApp) {
+            return;
+          }
+        } catch (RemoteOperationException except) {
+          // We failed on checking if we should link... but let's try to perform the link step.
+        }
+        
+        createMainFile(rmExecManager.getRemoteCopyTools(), appProgName, workspaceDir);
         
         final IPreferenceStore store = LaunchCore.getInstance().getPreferenceStore();
         final String x10DistLoc = store.getString(Constants.P_CPP_BUILDER_X10_DIST_LOC);
         final String pgasLoc = store.getString(Constants.P_CPP_BUILDER_PGAS_LOC);
-        final String compileCmdStart = store.getString(Constants.P_CPP_BUILDER_LINK_CMD);
-        final String execFileName = configuration.getAttribute(ATTR_EXECUTABLE_PATH, (String) null);
+        final String linkCmdStart = store.getString(Constants.P_CPP_BUILDER_LINK_CMD);
 
         final IRemoteScript script = rmExecTools.createScript();
         script.addEnvironment("X10_DIST_LOC=" + x10DistLoc); //$NON-NLS-1$
         script.addEnvironment("PGAS_LOC=" + pgasLoc); //$NON-NLS-1$
           
         final StringBuilder commandBuilder = new StringBuilder();
-        commandBuilder.append(compileCmdStart).append(" -L").append(workspaceDir).append(" -I").append(workspaceDir) //$NON-NLS-1$ //$NON-NLS-2$
+        commandBuilder.append(linkCmdStart).append(" -L").append(workspaceDir).append(" -I").append(workspaceDir) //$NON-NLS-1$ //$NON-NLS-2$
                       .append(SPACE).append(workspaceDir).append('/').append(MAIN_FILE_NAME)
-                      .append(" -o ").append(execFileName).append(SPACE).append("-l").append(project.getName()) //$NON-NLS-1$ //$NON-NLS-2$
-                      .append(" -lx10lib17 -lx10rt17 -lupcrts_sockets -ldl -lm -lpthread"); //$NON-NLS-1$
-            
+                      .append(" -o ").append(appProgName).append(SPACE).append("-l").append(project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+
         script.setScript(commandBuilder.toString());
             
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -186,30 +192,30 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         
         final int returnCode = rmExec.getReturnCode();
         if (returnCode != 0) {
-          IResourceUtils.addMarkerTo(project, NLS.bind(Messages.CLCD_LinkCmdError, commandBuilder.toString()), 
+          IResourceUtils.addMarkerTo(project, NLS.bind(LaunchMessages.CLCD_LinkCmdError, commandBuilder.toString()), 
                                      IMarker.SEVERITY_ERROR, project.getFullPath().toString(), IMarker.PRIORITY_HIGH);
-          final MessageConsole messageConsole = ConsoleUtil.findConsole(Messages.CPPB_ConsoleName);
+          final MessageConsole messageConsole = ConsoleUtil.findConsole(LaunchMessages.CPPB_ConsoleName);
           final MessageConsoleStream mcStream = messageConsole.newMessageStream();
-          mcStream.println(NLS.bind(Messages.CLCD_CmdUsedMsg, commandBuilder.toString()));
+          mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, commandBuilder.toString()));
           mcStream.println(errorStream.toString());
         }
         rmExec.close();
       } catch (RemoteConnectionException except) {
-        except.printStackTrace();
+        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkConnError, except));
       } catch (RemoteExecutionException except) {
-        
+        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkExecError, except));
       } catch (CancelException except) {
-        
+        throw new CoreException(new Status(IStatus.CANCEL, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LinkCancellation));
       }
     }
   }
   
-  private void createMainFile(final IRemoteCopyTools rmCopyTools, final String mainClassName, 
+  private void createMainFile(final IRemoteCopyTools rmCopyTools, final String appProgName, 
                               final String workspaceDir) throws CoreException, RemoteConnectionException, CancelException {
     final URL url = ExtensionInfo.class.getClassLoader().getResource(MAIN_TEMPLATE_FILE);
     try {
       if (url == null) {
-        throw new FileNotFoundException(NLS.bind(Messages.CLCD_NoMainCPFileError, MAIN_TEMPLATE_FILE));
+        throw new FileNotFoundException(NLS.bind(LaunchMessages.CLCD_NoMainCPFileError, MAIN_TEMPLATE_FILE));
       } else {
         try {
           // Firstly, reads the content of the file and instantiates it with the main class name,
@@ -219,12 +225,12 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
           final BufferedWriter writer = new BufferedWriter(new FileWriter(tmpMainFile));          
           try {
             final StringBuilder sb = new StringBuilder();
-            sb.append("#include \"").append(mainClassName).append(".h\"\n"); //$NON-NLS-1$ //$NON-NLS-2$
+            sb.append("#include \"").append(appProgName).append(".h\"\n"); //$NON-NLS-1$ //$NON-NLS-2$
             writer.write(sb.toString());
             
             String line = null;
             while ((line = reader.readLine()) != null) {
-              writer.write(line.replace(PATTERN, mainClassName.substring(mainClassName.lastIndexOf('/') + 1)) + '\n');
+              writer.write(line.replace(PATTERN, appProgName.substring(appProgName.lastIndexOf('/') + 1)) + '\n');
             }
           } finally {
             reader.close();
@@ -239,9 +245,11 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         } 
       }
     } catch (IOException except) {
-      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, Messages.CLCD_NoMainFileAccessIOError, except));
+      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessIOError, 
+                                         except));
     } catch (RemoteOperationException except) {
-      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, Messages.CLCD_NoMainFileAccessOpError, except));
+      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoMainFileAccessOpError, 
+                                         except));
     }
   }
   
