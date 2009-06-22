@@ -6,6 +6,7 @@
       <language
             description="X10 Concurrent Programming Language"
             extensions="x10"
+            natureID="org.eclipse.imp.x10dt.core.x10nature"
             language="X10"/>
    </extension>
    <extension
