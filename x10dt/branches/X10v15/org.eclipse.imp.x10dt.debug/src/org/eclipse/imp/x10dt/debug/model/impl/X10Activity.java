@@ -23,6 +23,7 @@ public class X10Activity extends X10DebugElement implements IX10Activity{
 	
 	
 	public X10Activity(X10DebugTargetAlt target) {
+		
 	       	super(target);
 			synchronized(this) {
 				uid = seq++;
