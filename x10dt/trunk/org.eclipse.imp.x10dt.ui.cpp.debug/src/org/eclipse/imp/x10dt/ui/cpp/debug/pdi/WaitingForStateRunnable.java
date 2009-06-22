@@ -17,7 +17,12 @@ final class WaitingForStateRunnable implements Runnable {
   // --- Interface methods implementation
 
   public void run() {
-    while (! this.fStateGuardian.hasReached()) ;
+    while (! this.fStateGuardian.hasReached())
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        break;
+      }
   }
   
   // --- Fields
