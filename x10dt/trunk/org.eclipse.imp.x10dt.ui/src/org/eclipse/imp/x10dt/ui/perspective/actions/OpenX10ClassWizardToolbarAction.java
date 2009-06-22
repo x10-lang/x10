@@ -5,17 +5,17 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.perspective.action;
+package org.eclipse.imp.x10dt.ui.perspective.actions;
 
-import org.eclipse.imp.x10dt.core.wizards.X10ProjectWizard;
+import org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-public final class OpenX10ProjectJavaBCWizardToolbarAction extends AbstractWizardToolbarAction 
-                                                           implements IWorkbenchWindowActionDelegate {
+public final class OpenX10ClassWizardToolbarAction extends AbstractWizardToolbarAction 
+                                                   implements IWorkbenchWindowActionDelegate {
 
 	// --- IWorkbenchWindowActionDelegate's Interface methods implementation
 
@@ -27,7 +27,9 @@ public final class OpenX10ProjectJavaBCWizardToolbarAction extends AbstractWizar
 	}
 
 	public void run(final IAction action) {
-		super.run();
+		if (isNotEmptyWorskpace()) {
+			super.run();
+		}
 	}
 
 	public void selectionChanged(final IAction action, final ISelection selection) {
@@ -37,7 +39,7 @@ public final class OpenX10ProjectJavaBCWizardToolbarAction extends AbstractWizar
 	// --- Abstract methods implementation
 
 	protected INewWizard createNewWizard() {
-		return new X10ProjectWizard();
+		return new NewX10ClassWizard();
 	}
 
 }

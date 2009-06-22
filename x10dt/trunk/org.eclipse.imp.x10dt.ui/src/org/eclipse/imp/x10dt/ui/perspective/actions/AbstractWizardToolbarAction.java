@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package org.eclipse.imp.x10dt.ui.perspective.action;
+package org.eclipse.imp.x10dt.ui.perspective.actions;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
