@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.Collection;
 import java.util.Iterator;
 
+import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
 
 import polyglot.frontend.FileSource;
@@ -23,13 +24,19 @@ import x10.parser.X10Parser;
 
 public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
 {
+    X10Lexer x10_lexer;
+    X10Parser x10_parser;
     Monitor monitor;
-
-    ExtensionInfo(Monitor monitor) {
-    	super();
+    IMessageHandler handler;
+    
+    ExtensionInfo(Monitor monitor, IMessageHandler handler) {
         this.monitor = monitor;
+        this.handler = handler;
     }
     
+    public X10Lexer getLexer() { return x10_lexer; }
+    public X10Parser getParser() { return x10_parser; }
+
     public Job getJob(Source source) {
         Collection jobs = scheduler.jobs();
         for (Iterator i = jobs.iterator(); i.hasNext(); )
@@ -73,10 +80,11 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             //
             if (reader instanceof CharBufferReader)
             {
-                getLexer().initialize(((CharBufferReader) reader).getBuffer(), source.path());
-                getParser().initialize(ts, nf, source, eq); // Create the parser
-                getLexer().lexer(getParser());
-                return getParser(); // Parse the token stream to produce an AST
+                x10_lexer = new X10Lexer(((CharBufferReader) reader).getBuffer(), source.path());
+                x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+                x10_lexer.lexer(x10_parser);
+                x10_parser.setMessageHandler(handler);
+                return x10_parser; // Parse the token stream to produce an AST
             }
             //
             // TODO: FIX ME! FIX ME!! FIX ME!!!
