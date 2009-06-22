@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Introduction</title>
+</head>
+
+<body>
+<h1>Introduction</h1>
+<h3>Background</h3>
+Bigger computational problems need bigger computers capable of
+performing a larger number of operations per second. The era of
+increasing performance by simply increasing clocking frequency now
+seems to be behind us. It is becoming increasingly difficult
+to mange chip power and heat.  Instead, computer
+designers are starting to look at <em>scale out</em> systems in which the
+system's computational capacity is increased by adding additional
+nodes of comparable power to existing nodes, and connecting nodes with
+a high-speed communication network.
+
+<div class="p"><!----></div>
+A central problem with scale out systems is a definition of the <em>
+memory model</em>, that is, a model of the interaction between shared
+memory and  simultaneous (read, write) operations on that
+memory by multiple processors. The traditional "one operation at a
+time, to completion" model that underlies Lamport's notion of <em>
+sequential consistency</em> (SC) proves too expensive to implement in
+hardware, at scale. Various models of <em>relaxed consistency</em> have
+proven too difficult for programmers to work with.  
+
+<div class="p"><!----></div>
+One response to this problem has been to move to a <em>fragmented
+memory model</em>. Multiple processors are made to interact via a
+relatively language-neutral message-passing format such as MPI
+[10]. This model has enjoyed some success: several
+high-performance applications have been written in this
+style. Unfortunately, this model leads to a <em>loss of programmer
+productivity</em>: the mesage-passing format is integrated into the host
+language by means of an application-programming interface (API), the
+programmer must explicitly represent and manage the interaction
+between multiple processes and choreograph their data exchange; large
+data-structures (such as distributed arrays, graphs, hash-tables) that
+are conceptually unitary must be thought of as fragmented across
+different nodes; all processors must generally execute the same code
+(in an SPMD fashion) etc.
+
+<div class="p"><!----></div>
+One response to this problem has been the advent of the <em>
+partitioned global address space</em> (GAS) model underlying languages
+such as UPC, Titanium and Co-Array Fortran [2,1]. These
+languages permit the programmer to think of a single computation
+running across multiple processors, sharing a common address
+space. All data resides at some processors, which is said to have <em>
+affinity</em> to the data.  Each processor may operate directly on the
+data it contains but must use some indirect mechanism to access or
+update data at other processors. Some kind of global <em>barriers</em>
+are used to ensure that processors remain roughly in lock-step.
+
+<div class="p"><!----></div>
+ X10 is a modern object-oriented programming language
+in the GAS family. The fundamental goal of  X10 is to enable
+scalable, high-performance, high-productivity transformational
+programming for high-end computers - for traditional numerical
+computation workloads (such as weather simulation, molecular dynamics,
+particle transport problems etc) as well as commercial server
+workloads.
+ X10 is based on state-of-the-art object-oriented
+programming ideas primarily to take advantage of their proven
+flexibility and ease-of-use for a wide spectrum of programming
+problems.  X10 takes advantage of several years of research (e.g.
+in the context of the Java<sup>TM</sup> Grande forum,
+[8,1]) on how to adapt such languages to the context of
+high-performance numerical computing. Thus  X10 provides support
+for user-defined <em>value types</em> (such as <tt>int</tt>, <tt>float</tt>,
+<tt>complex</tt> etc), supports a very
+flexible form of multi-dimensional arrays (based on ideas in ZPL
+[3]) and supports IEEE-standard floating point arithmetic.
+Some limited operator overloading is provided for a few "built in"
+classes in the <tt>x10.lang</tt> package.  Future versions of the
+language will support user-definable operator overloading.
+
+<div class="p"><!----></div>
+ X10 introduces a flexible treatment of concurrency, distribution
+and locality, within an integrated type system.  X10 extends the
+GAS model to the <em>globally asynchronous, locally synchronous</em>
+(GALS) model originally developed in hardware and embedded software
+research.   X10 introduces <em>places</em> as an abstraction for a
+computational context with a locally synchronous view of shared
+memory. An  X10 computation runs over a large collection of places.
+Each place hosts some data and runs one or more <em>
+activities</em>. Activities are extremely lightweight threads of
+execution. An activity may synchronously (and <em>atomically</em>) use
+one or more memory locations in the place in which it resides,
+leveraging current symmetric multiprocessor (SMP) technology.  
+To access or update memory at other places, it must 
+spawn activities asynchronously (either explicitly or implicitly).
+ X10 provides weaker ordering guarantees for
+inter-place data access, enabling applications to scale.  <em>
+Immutable</em> data needs no consistency management and may be freely
+copied by the implementation between places.  One or more <em>clocks</em>
+may be used to order activities running in multiple
+places. (Multi-dimensional) Arrays may be distributed across multiple
+places. Arrays support parallel collective operations. A novel
+exception flow model ensures that exceptions thrown by asynchronous
+activities can be caught at a suitable parent activity.  The type
+system tracks which memory accesses are local. The programmer may
+introduce placecasts which verify the access is local at runtime.
+Linking with native code is supported.
+
+<div class="p"><!----></div>
+ X10 v1.01 adds to Version&nbsp;0.4 the following features. A
+dependent type system is introduced: types may be formed by placing
+constraints on the values of <em>properties</em> (<tt>final</tt> instance
+fields) of the type. In particular, reference types must be qualified
+with a constraint specifying the place at which instances of the type
+are located. Various behavior annotations are introduced e.g. <tt>
+local</tt>, <tt>seq</tt>) - these specify behavioral properties of code (all
+accesses to mutable data are to local data, no asynchronous activities
+are spawned) and are verified by the compiler. Method inheritance is
+required to respect these annotations.
+
+<div class="p"><!----></div>
+We anticipate a revision of the language in the next several
+months. The revision will fully define generics for  X10, and
+introduce general closures. We believe both these features will make
+code more concise and readable.
+
+<div class="p"><!----></div>
+ X10 is an experimental language.  Several representative
+concurrent idioms have already found pleasant expression in  X10. We
+intend to develop several full-scale applications to get better
+experience with the language, and revisit the design in the light of
+this experience. Future versions of the language are expected to
+support user-definable operators and permit the specification of
+generic classes and methods.
+
+<div class="p"><!----></div>
+Two papers have been published on  X10. [9]
+presents a formal semantics for the concurrency and distributed
+aspects of  X10. [4] presents some case studies, and
+discusses some  X10 programming idioms.
+
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.80.<br />On 07 Jun 2008, 13:49.</small>
+</body>
+</html>
