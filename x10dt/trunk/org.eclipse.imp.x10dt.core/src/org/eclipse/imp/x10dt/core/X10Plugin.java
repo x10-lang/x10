@@ -6,7 +6,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.preferences.SafariPreferencesService;
-import org.eclipse.imp.runtime.SAFARIPluginBase;
+import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.PreferenceInitializer;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -17,7 +17,7 @@ import org.osgi.framework.BundleContext;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class X10Plugin extends SAFARIPluginBase {
+public class X10Plugin extends PluginBase {
     public static final String kPluginID= "org.eclipse.imp.x10dt.core";
 
     /**

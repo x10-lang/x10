@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.runtime.SAFARIPluginBase;
+import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -91,7 +91,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private final X10DeltaVisitor fDeltaVisitor= new X10DeltaVisitor();
     private Collection/* <IFile> */fSourcesToCompile= new ArrayList();
     private ExtensionInfo fExtInfo;
-    private static SAFARIPluginBase sPlugin= null;
+    private static PluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
 
     private Collection/*<IPath>*/ fSrcFolderPaths; // project-relative paths
