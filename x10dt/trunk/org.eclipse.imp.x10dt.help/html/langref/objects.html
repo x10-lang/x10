@@ -17,69 +17,61 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;Objects</h2><a name="XtenObjects">
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Objects</h1><a name="XtenObjects">
 </a>
 
 <div class="p"><!----></div>
 An object is an instance of a scalar class or an array type.  It is
-created by using a class instance creation expression
-(&#167;&nbsp;12.4) or an array creation
-(&#167;&nbsp;11.3) expression, such as an array
+created by using a allocation expression
+() or an array creation
+() expression, such as an array
 initializer. An object that is an instance of a reference (value) type
 is called a <em>reference</em> (<em>value</em>) <em>object</em>.
 
 <div class="p"><!----></div>
-All value and reference classes subclass from <tt>x10.lang.Object</tt>.
-This class has one <tt>const</tt> field <tt>location</tt> of type <tt>
-x10.lang.place</tt>.  Thus all objects in  X10
-are located (have a place). However,  X10 permits value objects to
-be freely copied from place to place because they contain no mutable
-state.  It is permissible for a read of the <tt>location</tt> field of
-such a value to always return <tt>here</tt> (&#167;&nbsp;6.0.2);
-therefore no space needs to be allocated in the object representation
-for such a field.
-
-<div class="p"><!----></div>
-In  X10 v1.01 a reference object stays resident at the place at
+All reference classes subclass from "x10.lang.Ref".
+This class has one property "location" of type
+"x10.lang.Place".  Thus all reference objects in  X10
+are located (have a place). 
+In  X10 v1.7 a reference object stays resident at the place at
 which it was created for its entire lifetime.
 
 <div class="p"><!----></div>
- X10 has no operation to dispose of a reference.  Instead the
+ X10 has no operation to dispose of a reference.  Instead, the
 collection of all objects across all places is globally garbage
 collected.
 
 <div class="p"><!----></div>
- X10 objects do not have any synchronization information (e.g.
-a lock) associated with them. Thus the methods on <tt>
-java.lang.Object</tt> for waiting/synchronizing/notification etc are not
-available in  X10. Instead the programmer should use atomic blocks
-(&#167;&nbsp;7.6) for mutual exclusion and clocks
-(&#167;&nbsp;8) for sequencing multiple parallel operations.
+Unlike  java,
+ X10 objects do not have any synchronization information (e.g.,
+a lock) associated with them. 
+Instead, programmers should use atomic blocks
+() for mutual exclusion and clocks
+() for sequencing multiple parallel operations.
 
 <div class="p"><!----></div>
 A reference object may have many references, stored in fields of
 objects or components of arrays. A change to an object made through
-one reference is visible through another reference.  X10 mandates
-that all accesses to mutable objects shared between multiple
-activities must occur in an atomic section (&#167;7.6).
+one reference is visible through another reference. 
+
 
 <div class="p"><!----></div>
- Note that the creation of a remote async activity
-(&#167;&nbsp;7.2) <tt>A</tt> at <tt>P</tt> may cause the automatic creation of
-references to remote objects at <tt>P</tt>. (A reference to a remote
+Note that the creation of a remote async activity
+() &#196;" at "P" may cause the automatic creation of
+references to remote objects at "P". (A reference to a remote
 object is called a <em>remote object reference</em>, to a local object a
-<em>local object reference</em>.)  For instance <tt>A</tt> may be created
-with a reference to an object at <tt>P</tt> held in a variable referenced
-by the statement in <tt>A</tt>.  Similarly the return of a value by a
-<tt>future</tt> may cause the automatic creation of a remote object
+<em>local object reference</em>.)  For instance &#196;" may be created
+with a reference to an object at "P" held in a variable referenced
+by the statement in &#196;".  Similarly the return of a value by a
+"future" may cause the automatic creation of a remote object
 reference, incurring some communication cost.  An  X10
 implementation should try to ensure that the creation of a second or
 subsequent reference to the same remote object at a given place does
 not incur any (additional) communication cost.
 
 <div class="p"><!----></div>
- A reference to an object may carry with it the values of final fields
+A reference to an object may carry with it the values of final fields
 of the object. The implementation should try to ensure that the cost
 of communicating the values of final fields of an object from the
 place where it is hosted to any other place is not incurred more than
@@ -93,7 +85,7 @@ performed on the bound object, as indicated below. The operations on
 objects and object references include:
 
 <ul>
-<li> Field access (&#167;&nbsp;12.4). An activity holding a
+<li> Field access (). An activity holding a
 reference to a reference object may perform this operation only if the
 object is local.  An activity holding a reference to a value object
 may perform this operation regardless of the location of the object
@@ -105,7 +97,7 @@ rule for final fields discussed above.
 <div class="p"><!----></div>
 </li>
 
-<li> Method invocation (&#167;&nbsp;12.4).  An activity
+<li> Method invocation ().  An activity
 holding a reference to a reference object may perform this operation
 only if the object is local.  An activity holding a reference to a
 value object may perform this operation regardless of the location of
@@ -119,7 +111,7 @@ succeed is incurred at most once for each value object per place.
 <div class="p"><!----></div>
 </li>
 
-<li> Casting (&#167;&nbsp;12.4.1).  An activity can perform this
+<li> Casting ().  An activity can perform this
 operation on local or remote objects, and should not incur
 communication costs (to bring over type information) more than once
 per place.
@@ -129,15 +121,15 @@ per place.
 <div class="p"><!----></div>
 </li>
 
-<li> <tt>instanceof</tt> operator (&#167;&nbsp;12.4.2).  An activity
+<li> &#239;nstanceof" operator ().  An activity
 can perform this operation on local or remote objects, and should not
 incur communication costs (to bring over type information) more than
 once per place.
 <div class="p"><!----></div>
 </li>
 
-<li> The stable equality operator  and <tt>!=</tt>
-(&#167;&nbsp;12.4.3). An activity can perform these operations on
+<li> The stable equality operator "==" and "!="
+(). An activity can perform these operations on
 local or remote objects, and should not incur communication costs
 (to bring over relevant information) more than once per place.
 
@@ -146,5 +138,7 @@ local or remote objects, and should not incur communication costs
 <div class="p"><!----></div>
 </li>
 </ul>
+
+<div class="p"><!----></div>
 </body>
 </html>
