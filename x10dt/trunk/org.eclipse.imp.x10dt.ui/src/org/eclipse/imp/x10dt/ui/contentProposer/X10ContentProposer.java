@@ -235,7 +235,7 @@ list.add(new SourceProposal("Candidate end offset: " + candidate.getEndOffset(),
 list.add(new SourceProposal("Token: " + token, "", offset));
 list.add(new SourceProposal("Candidate: " + candidate, "", offset));
 */
-        PolyglotNodeLocator locator = new PolyglotNodeLocator(controller.getLexer().getLexStream());
+        PolyglotNodeLocator locator = new PolyglotNodeLocator(controller.getProject(), controller.getLexer().getLexStream());
         Node node = (Node) locator.findNode(controller.getCurrentAst(), candidate.getStartOffset(), candidate.getEndOffset()); // offset);
         //
         // We execute this code when we encounter a qualified name x.foo,
