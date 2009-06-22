@@ -38,7 +38,7 @@ public class ParseController extends SimpleLPGParseController {
 	try {
 	    PMMonitor my_monitor= new PMMonitor(monitor);
 	    fCompiler= new CompilerDelegate(my_monitor, fProject.getRawProject()); // Create the compiler
-	    fileSource= new SafariFileSource(contents, new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString()
+	    fileSource= new StringSource(contents, new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString()
 		    : fFilePath.toOSString()), fFilePath.toOSString());
 	    List/*<SourceStream>*/streams= new ArrayList();
 	    streams.add(fileSource); //PC: just to test...

@@ -3,11 +3,11 @@ package org.eclipse.imp.x10dt.ui.parser;
 import java.io.IOException;
 import java.io.Reader;
 
-public class SafariReader extends Reader
+public class CharBufferReader extends Reader
 {
     char [] buffer;
     
-    SafariReader(char [] buffer)
+    CharBufferReader(char [] buffer)
     {
         this.buffer = buffer;
     }

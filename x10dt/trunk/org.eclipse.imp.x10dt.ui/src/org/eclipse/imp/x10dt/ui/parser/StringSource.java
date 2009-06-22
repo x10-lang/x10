@@ -4,21 +4,21 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 
-public class SafariFileSource extends polyglot.frontend.FileSource
+public class StringSource extends polyglot.frontend.FileSource
 {
     private String contents;
     private String filePath;
-    private SafariReader reader;
+    private CharBufferReader reader;
 
-    public SafariFileSource(String contents, File file, String filePath) throws IOException {
+    public StringSource(String contents, File file, String filePath) throws IOException {
         super(file);
         this.contents = contents;
         this.filePath = filePath;
     }
 
     public boolean equals(Object o) {
-        if (o instanceof SafariFileSource) {
-            SafariFileSource s = (SafariFileSource) o;
+        if (o instanceof StringSource) {
+            StringSource s = (StringSource) o;
             return filePath.equals(s.filePath);
         }
 
@@ -32,7 +32,7 @@ public class SafariFileSource extends polyglot.frontend.FileSource
     /** Open the source file. */
     public Reader open() throws IOException {
         if (reader == null) {
-            reader = new SafariReader(contents.toCharArray());
+            reader = new CharBufferReader(contents.toCharArray());
         }
 
         return reader;

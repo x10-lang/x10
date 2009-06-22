@@ -70,9 +70,9 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             //
             // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
             //
-            if (reader instanceof SafariReader)
+            if (reader instanceof CharBufferReader)
             {
-                x10_lexer = new X10Lexer(((SafariReader) reader).getBuffer(), source.path());
+                x10_lexer = new X10Lexer(((CharBufferReader) reader).getBuffer(), source.path());
                 x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
                 x10_lexer.lexer(x10_parser);
                 return x10_parser; // Parse the token stream to produce an AST
