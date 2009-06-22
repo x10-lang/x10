@@ -21,6 +21,7 @@ import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.services.IAutoEditStrategy;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.IScanner;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.corext.dom.NodeFinder;
 import org.eclipse.jdt.internal.corext.util.CodeFormatterUtil;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -61,6 +63,8 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
+
+import java.util.Hashtable;
 
 public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy implements IAutoEditStrategy {
     /** The line comment introducer. Value is "{@value}" */
@@ -101,6 +105,10 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     public X10AutoIndentStrategy(String partitioning, IJavaProject project) {
 	fPartitioning= partitioning;
 	fProject= project;
+	
+	//mmk 6/4/2008
+	Hashtable javaOptions = JavaCore.getOptions();
+	javaOptions.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, 17);
     }
 
     private int getBracketCount(IDocument d, int startOffset, int endOffset, boolean ignoreCloseBrackets) throws BadLocationException {
