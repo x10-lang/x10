@@ -7,14 +7,15 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.SAVED_THIS;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.VARIABLE_NOT_FOUND;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.inClosure;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.X10Utils.FMGL;
-import static org.eclipse.imp.x10dt.ui.cpp.debug.utils.PDTUtils.findMatch;
-import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.inClosure;
-import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.SAVED_THIS;
-import static org.eclipse.imp.x10dt.ui.cpp.debug.pdi.X10DebuggerTranslator.VARIABLE_NOT_FOUND;
+import static org.eclipse.ptp.core.elements.attributes.JobAttributes.State;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -50,18 +51,20 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.attributes.AttributeManager;
+import org.eclipse.ptp.core.attributes.EnumeratedAttribute;
 import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.attributes.StringAttributeDefinition;
+import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPProcess;
+import org.eclipse.ptp.core.elements.attributes.ElementAttributeManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.core.elements.attributes.ProcessAttributes;
 import org.eclipse.ptp.core.elements.events.IProcessChangeEvent;
 import org.eclipse.ptp.core.elements.listeners.IProcessListener;
 import org.eclipse.ptp.core.util.BitList;
-import org.eclipse.ptp.debug.core.IPSession;
 import org.eclipse.ptp.debug.core.PTPDebugCorePlugin;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
-import org.eclipse.ptp.debug.core.model.IPDebugTarget;
 import org.eclipse.ptp.debug.core.pdi.IPDIDebugger;
 import org.eclipse.ptp.debug.core.pdi.IPDIFileLocation;
 import org.eclipse.ptp.debug.core.pdi.IPDIFunctionLocation;
@@ -81,7 +84,6 @@ import org.eclipse.ptp.debug.core.pdi.model.IPDISignal;
 import org.eclipse.ptp.debug.core.pdi.model.IPDIWatchpoint;
 import org.eclipse.ptp.debug.core.pdi.model.aif.IAIF;
 import org.eclipse.ptp.debug.sdm.core.proxy.ProxyDebugClient;
-import org.eclipse.ptp.debug.ui.PTPDebugUIPlugin;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugArgsEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugDataEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugErrorEvent;
@@ -93,11 +95,15 @@ import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugSetThreadSelectEvent
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStackInfoDepthEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStackframeEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStepEvent;
-import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugSuspendEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugTypeEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugVarsEvent;
 import org.eclipse.ptp.proxy.debug.client.ProxyDebugAIF;
 import org.eclipse.ptp.proxy.debug.client.ProxyDebugStackFrame;
+import org.eclipse.ptp.rmsystem.AbstractRuntimeResourceManager;
+import org.eclipse.ptp.rtsystem.AbstractRuntimeSystem;
+import org.eclipse.ptp.rtsystem.events.IRuntimeChangeEvent;
+import org.eclipse.ptp.rtsystem.events.IRuntimeJobChangeEvent;
+import org.eclipse.ptp.utils.core.RangeSet;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
@@ -146,10 +152,11 @@ import com.ibm.debug.pdt.launch.PICLLoadInfo;
 @SuppressWarnings("all")
 public final class X10PDIDebugger implements IPDIDebugger {
   
-  public X10PDIDebugger(final int port, final int nbTasks, IDebuggerTranslator translator) {
+  public X10PDIDebugger(final int port, final int nbTasks, final IDebuggerTranslator translator, final IResourceManagerControl rmControl) {
     this.fPort = port;
     this.fNbTasks = nbTasks;
     this.fTranslator = translator;
+    this.fRmControl = rmControl;
   }
   
   // --- IPDIDebugger's interface methods implementation
@@ -159,7 +166,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
   }
 
   public void disconnect(final Observer observer) throws PDIException {
-    stopDebugger();
+    this.fProxyNotifier.deleteObserver(observer);
   }
 
   public int getErrorAction(final int errorCode) {
@@ -224,16 +231,25 @@ public final class X10PDIDebugger implements IPDIDebugger {
 
   public void stopDebugger() throws PDIException {
     this.fState = ESessionState.DISCONNECTED;
-    try {
-      if (! this.fTaskToTarget.isEmpty()) {
-        for (final IPDTTarget pdtTarget : this.fTaskToTarget.values()) {
-          pdtTarget.getTarget().terminate();
-        }
-      }
+    
+    if (! this.fTaskToTarget.isEmpty()) {
       this.fTaskToTarget.clear();
-    } catch (DebugException except) {
-      notifyErrorEvent(null, IPDIErrorInfo.DBG_FATAL, "Error during PDT Terminate operation: " + except.getMessage());
-    }
+    }  
+
+    final AbstractRuntimeResourceManager resManager = (AbstractRuntimeResourceManager) this.fRmControl;
+    final AbstractRuntimeSystem runtimeSystem = (AbstractRuntimeSystem) resManager.getRuntimeSystem();
+      
+    final EnumeratedAttribute<State> state = JobAttributes.getStateAttributeDefinition().create(State.TERMINATED);
+    final AttributeManager attrManager = new AttributeManager();
+    attrManager.addAttribute(state);
+    final ElementAttributeManager attrs = new ElementAttributeManager();
+    attrs.setAttributeManager(new RangeSet(this.fLaunch.getPJob().getID()), attrManager);
+      
+    runtimeSystem.fireRuntimeJobChangeEvent(new IRuntimeJobChangeEvent() {
+      public ElementAttributeManager getElementAttributeManager() {
+        return attrs;
+      }
+    });
   }
   
   // --- IPDIBreakpointManagement's interface methods implementation
@@ -517,23 +533,23 @@ public final class X10PDIDebugger implements IPDIDebugger {
       try {
         for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
           pair.snd().halt();
-//          DebuggeeThread firstAvailableThread = null;
-//          for (final DebuggeeThread thread : pair.snd().getThreads()) {
-//            if (thread != null) {
-//              firstAvailableThread = thread;
-//              break;
-//            }
+//        DebuggeeThread firstAvailableThread = null;
+//        for (final DebuggeeThread thread : pair.snd().getThreads()) {
+//          if (thread != null) {
+//            firstAvailableThread = thread;
+//            break;
 //          }
-//          assert firstAvailableThread != null;
-//          final IStackFrame stackFrame = firstAvailableThread.getTopStackFrame();
-//          this.fProxyNotifier.notify(new ProxyDebugSuspendEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-//                                                                toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
-//                                                                firstAvailableThread.getId(),
-//                                                                firstAvailableThread.getStackFrames().length,
-//                                                                getVariablesAsStringArray(stackFrame)));
-        }
-//      } catch (DebugException except) {
-//        notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Suspend operation: " + except.getMessage());
+//        }
+//        assert firstAvailableThread != null;
+//        final IStackFrame stackFrame = firstAvailableThread.getTopStackFrame();
+//        this.fProxyNotifier.notify(new ProxyDebugSuspendEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
+//                                                              toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
+//                                                              firstAvailableThread.getId(),
+//                                                              firstAvailableThread.getStackFrames().length,
+//                                                              getVariablesAsStringArray(stackFrame)));
+      }
+//    } catch (DebugException except) {
+//      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Suspend operation: " + except.getMessage());
       } catch (EngineRequestException except) {
         notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Halt operation refused by PDT: " + except.getMessage());
       }
@@ -544,11 +560,9 @@ public final class X10PDIDebugger implements IPDIDebugger {
     if (! this.fTaskToTarget.isEmpty()) {
       try {
         for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
+          notifyOkEvent(pair.fst());
           pair.snd().terminate();
         }
-        if (!fLaunch.getPJob().isTerminated())
-          fLaunch.getPJob().getAttribute(JobAttributes.getStateAttributeDefinition()).setValue(JobAttributes.State.TERMINATED);
-        notifyOkEvent(tasks);
       } catch (DebugException except) {
         notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during PDT terminate operation: " + except.getMessage());
       }
@@ -1757,8 +1771,6 @@ public final class X10PDIDebugger implements IPDIDebugger {
                                           (String) null /* address */);
   }
 
-  private static final int MAX_LINE_LOOKBEHIND = 10;
-
   /**
    * Walk up to the preceding line within the same function that has the mapping.
    * @return the file, or null if no mapping within the function
@@ -1877,6 +1889,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
   
   private final int fNbTasks;
   
+  private final IResourceManagerControl fRmControl;
+  
   private final Map<BitList, IPDTTarget> fTaskToTarget = new HashMap<BitList, IPDTTarget>();
   
   private final IDebuggerTranslator fTranslator;
@@ -1896,5 +1910,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
   private static final int PTR_SIZE = LONG_SIZE;
   
   private static final String EMPTY_STRING = ""; //$NON-NLS-1$
+  
+  private static final int MAX_LINE_LOOKBEHIND = 10;
     
 }
