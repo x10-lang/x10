@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>The X10 Rooted Exception Model</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;The  X10 rooted exception model</h2>
+<a name="ExceptionModel">
+</a>
+
+<div class="p"><!----></div>
+The rooted nature of  X10 computations permits the definition of a
+<em>rooted</em> exception model. In multi-threaded programming languages
+there is a natural parent-child relationship between a thread and a
+thread that it spawns. Typically the parent thread continues execution
+in parallel with the child thread. Therefore the parent thread cannot
+serve to catch any exceptions thrown by the child thread. 
+
+<div class="p"><!----></div>
+The presence of a root activity permits  X10 to adopt a different
+model.  In any state of the computation, say that an activity A is
+<em>a root of</em> an activity B if A is an ancestor of B and A
+is suspended at a statement (such as the <tt>finish</tt> statement
+&#167;&nbsp;7.3) awaiting the termination of B (and possibly other
+activities). For every  X10 computation, the <tt>root-of</tt> relation
+is guaranteed to be a tree. The root of the tree is the root activity
+of the entire computation. If A is the nearest root of B, the path
+from A to B is called the <em>activation path</em> for the
+activity.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+
+<div class="p"><!----></div>
+We may now state the exception model for  X10.  An uncaught exception
+propagates up the activation path to its nearest root activity, where
+it may be handled locally or propagated up the <tt>root-of</tt> tree when
+the activity terminates (based on the semantics of the statement being
+executed by the activity).<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  Thus, unlike concurrent languages such as  Java no
+exception is "thrown on the floor".
+</body>
+</html>
