@@ -5,7 +5,7 @@
 
 	<target name="init" depends="properties">
 		<property name="plugin.name" value="com.ibm.watson.safari.x10"/>
-		<property name="plugin.version" value="${x10dt.version}"/>
+		<property name="plugin.version" value="${plugins.version.31}"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.name}src.zip"/>
@@ -35,12 +35,12 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}"		>
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="../lpg.runtime.java/lpg.runtime_2.0.3.jar"/>
-				<pathelement path="../polyglot/lib/polyglot-epl.jar"/>
-				<pathelement path="../x10.runtime/x10.runtime_${x10dt.version}.jar"/>
-				<pathelement path="../x10.compiler/x10.compiler_${x10dt.version}.jar"/>
-				<pathelement path="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${x10dt.version}.jar"/>
-				<pathelement path="../com.ibm.watson.smapifier/com.ibm.watson.smapifier_${x10dt.version}.jar"/>
+				<pathelement path="../lpg.runtime.java/bin"/>
+				<pathelement path="../polyglot/classes"/>
+				<pathelement path="../x10.runtime/bin"/>
+				<pathelement path="../x10.compiler/bin"/>
+				<pathelement path="../org.eclipse.uide.runtime/bin"/>
+				<pathelement path="../com.ibm.watson.smapifier/bin"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
