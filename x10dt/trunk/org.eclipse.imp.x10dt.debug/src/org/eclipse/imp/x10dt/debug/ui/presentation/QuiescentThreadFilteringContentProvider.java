@@ -97,39 +97,5 @@ public class QuiescentThreadFilteringContentProvider extends
 	protected void updateHasChildren(IHasChildrenUpdate update) {
 		super.updateHasChildren(update);
 	}
-	public void update(final IChildrenUpdate[] updates) {
-		Job job = new Job("children update") { //$NON-NLS-1$
-			protected IStatus run(IProgressMonitor monitor) {
-				for (int i = 0; i < updates.length; i++) {
-					IChildrenUpdate update = updates[i];
-					if (!update.isCanceled()) {
-						retrieveChildren(update);
-					}
-					update.done();					
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.setSystem(true);
-		job.setRule(getRule(updates));
-		job.schedule();
-	}
-	public void update(final IChildrenCountUpdate[] updates) {
-		Job job = new Job("child count update") { //$NON-NLS-1$
-			protected IStatus run(IProgressMonitor monitor) {
-				for (int i = 0; i < updates.length; i++) {
-					IChildrenCountUpdate update = updates[i];
-					if (!update.isCanceled()) {
-						retrieveChildCount(update);
-					}
-					update.done();
-				}
-				return Status.OK_STATUS;
-			}
-		};
-		job.setSystem(true);
-		job.setRule(getRule(updates));
-		job.schedule();
-	}
 
 }
