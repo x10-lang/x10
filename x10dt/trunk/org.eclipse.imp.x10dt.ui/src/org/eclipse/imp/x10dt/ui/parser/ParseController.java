@@ -29,6 +29,8 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
@@ -37,7 +39,7 @@ public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
 
     public ParseController() {
-//      System.out.println("creating ParseController()");
+	super(X10Plugin.kLanguageName);
     }
 
     public IParser getParser() {
