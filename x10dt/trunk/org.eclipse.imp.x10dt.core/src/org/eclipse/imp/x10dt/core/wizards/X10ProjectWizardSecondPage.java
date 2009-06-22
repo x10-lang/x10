@@ -22,6 +22,7 @@ package org.eclipse.imp.x10dt.core.wizards;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -36,6 +37,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.wizards.NewProjectWizardSecondPage;
 import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.imp.x10dt.core.builder.X10ProjectNature;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -56,20 +58,50 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
 
     /**
      * Get the installed language runtime path
+     * <br> BRT: I have other things to put in the classpath too, like constraints/common.  Where to put them?
+     * use (new) createLanguageRuntimeEntries() instead, to add multiple values
+     */
+//    @Override
+//    protected IClasspathEntry createLanguageRuntimeEntry() { 
+//        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 was x10.runtime hardcoded
+//        //PORT1.7 use common algorithm now in X10RuntimeUtils instead of looking in ECLIPSE_HOME/plugins/x10.runtime. ... etc
+//        IPath x10RuntimePath= X10RuntimeUtils.guessRuntimeLocation(x10RuntimeBundle);
+//        if(x10RuntimePath==null){ 
+//        	return null;
+//        }
+//        IClasspathEntry langRuntimeCPE = JavaCore.newLibraryEntry(x10RuntimePath, null, null);
+//        //PORT1.7 return IClasspathEntry not IPath like previous impl (adapt to change in IMP)
+//        return langRuntimeCPE;
+//    }    
+
+    /**
+     * Get the entries for the runtime classpath.
+     * This is used by the builder (X10Builder)
+     * <br>
+     * If this is overridden instead of createLanguageRuntimeEntry(), the list of classpaths here are used instead of the single value from the other.
      */
     @Override
-    protected IClasspathEntry createLanguageRuntimeEntry() { 
-        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 was x10.runtime hardcoded
-        //PORT1.7 use common algorithm now in X10RuntimeUtils instead of looking in ECLIPSE_HOME/plugins/x10.runtime. ... etc
-        IPath x10RuntimePath= X10RuntimeUtils.guessRuntimeLocation(x10RuntimeBundle);
-        if(x10RuntimePath==null){ 
-        	return null;
-        }
-        IClasspathEntry langRuntimeCPE = JavaCore.newLibraryEntry(x10RuntimePath, null, null);
-        //PORT1.7 return IClasspathEntry not IPath like previous impl (adapt to change in IMP)
-        return langRuntimeCPE;
+	protected List<IClasspathEntry> createLanguageRuntimeEntries() {
+		List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+		entries.add(bundleToCpath(X10Plugin.X10_RUNTIME_BUNDLE_ID));
+		entries.add(bundleToCpath(X10Plugin.X10_CONSTRAINTS_BUNDLE_ID));
+		entries.add(bundleToCpath(X10Plugin.X10_COMMON_BUNDLE_ID));
+		return entries;
+	}
+    /**
+     * Take a bundleID and return the IClasspathEntry for it
+     */
+    private IClasspathEntry bundleToCpath(String bundleID) {
+    	 Bundle bundle= Platform.getBundle(bundleID);
+         //IPath path= X10RuntimeUtils.guessRuntimeLocation(bundle);
+         //String jarloc = X10Util.getJarLocationForBundle(bundleID);
+         IPath jarlocPath=X10RuntimeUtils.guessJarLocation(bundle);
+         
+         //IPath p2=new Path(jarloc);
+         IClasspathEntry cpe = JavaCore.newLibraryEntry(jarlocPath, null, null);
+         return cpe;
     }
-
+     
     @Override
     public void performFinish(IProgressMonitor monitor) throws CoreException, InterruptedException {
         final X10ProjectWizardFirstPage firstPage= (X10ProjectWizardFirstPage) this.getPreviousPage();
