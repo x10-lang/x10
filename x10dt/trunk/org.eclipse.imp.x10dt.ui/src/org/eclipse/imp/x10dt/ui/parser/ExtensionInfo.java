@@ -44,6 +44,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
     ExtensionInfo(Monitor monitor, IMessageHandler handler) {
         this.monitor = monitor;
         this.handler = handler;
+        x10_lexer = new X10Lexer();
     }
     
     public X10Lexer getLexer() { return x10_lexer; }
@@ -60,16 +61,6 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
         return null;
     }
     
-    //
-    // Replace the Flex/Cup parser with a JikesPG parser
-    //
-    //    public Parser parser(Reader reader, FileSource source, ErrorQueue eq) { 
-    //        Lexer lexer = new Lexer_c(reader, source.name(), eq);
-    //        Grm grm = new Grm(lexer, ts, nf, eq);
-    //        return new CupParser(grm, source, eq);
-    //    }
-    //
-    
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
         // try {
             //
@@ -82,7 +73,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             // from that string and read with one (read) operation. However,
             // we depend on Polyglot to provide us with a fully qualified
             // name for the file. In Version 1.3.0, source.name() yielded a
-            // fully-qualied name. In 1.3.2, source.path() yields a fully-
+            // fully-qualified name. In 1.3.2, source.path() yields a fully-
             // qualified name. If this assumption still holds then the 
             // first constructor will work.
             // The advantage of using the Reader constructor is that it
@@ -92,7 +83,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             //
             if (reader instanceof CharBufferReader)
             {
-                x10_lexer = new X10Lexer(((CharBufferReader) reader).getBuffer(), source.path());
+                x10_lexer.initialize(((CharBufferReader) reader).getBuffer(), source.path());
                 x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
                 x10_lexer.lexer(x10_parser);
                 x10_parser.setMessageHandler(handler);
@@ -103,8 +94,8 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             //
             // Note that this temporary code will not work properly if the
             // input in question is in an editor buffer that has been altered.
-            // When using Safari, it is important that all request for new
-            // source be procesed by Safari. However, we cannot do so now without
+            // When using IMP, it is important that all request for new
+            // source be processed by IMP. However, we cannot do so now without
             // changing the base Polyglot code.
             //
             else return super.parser(reader, source, eq);
