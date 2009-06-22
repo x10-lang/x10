@@ -17,6 +17,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.core;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,18 +42,22 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.ptp.core.util.BitList;
 import org.eclipse.ptp.debug.core.pdi.PDIException;
 
+import polyglot.ast.ClassDecl;
+import polyglot.ast.LocalClassDecl;
+import polyglot.ast.Node;
+import polyglot.ast.SourceFile;
 import polyglot.ext.x10.types.X10ParsedClassType;
 import polyglot.ext.x10cpp.debug.LineNumberMap;
 import polyglot.ext.x10cpp.types.X10CPPTypeSystem_c;
 import polyglot.ext.x10cpp.visit.Emitter;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.main.Options;
-import polyglot.main.Report;
 import polyglot.types.FieldInstance;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -60,6 +65,7 @@ import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
+import polyglot.visit.NodeVisitor;
 
 import com.ibm.debug.internal.epdc.IEPDCConstants;
 import com.ibm.debug.internal.pdt.PICLDebugTarget;
@@ -74,8 +80,7 @@ import com.ibm.debug.internal.pdt.model.ViewFile;
 
 public final class X10DebuggerTranslator implements IDebuggerTranslator {
 
-  public void init(DebuggeeProcess p, IProject project) {
-    this.fProcess = p;
+  public void init(IProject project) {
 //    System.err.println("Reading mapping information");
 //    GlobalVariable[] globals = p.getDebugEngine().getGlobalVariables();
 //    for (GlobalVariable v : globals) {
@@ -151,7 +156,8 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     }
   }
 
-  private GlobalVariable findLineNumberMap(DebuggeeProcess p, String cppFile) {
+  private GlobalVariable[] findLineNumberMaps(DebuggeeProcess p, String cppFile) {
+    GlobalVariable[] res = new GlobalVariable[1];
     // TODO: find the appropriate part and extract the variable directly
     System.err.println("Looking for mapping info for '"+cppFile+"'");
     if (cppFile.indexOf('/') == -1)
@@ -161,17 +167,78 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     for (GlobalVariable v : globals) {
       if (v.getName().equals(name)) {
         System.err.println("\tFound mapping info for '"+cppFile+"'");
-        return v;
+        res[0] = v;
+        break;
       }
+    }
+    return res;
+  }
+
+  private String getClassName(String x10File, int x10Line) {
+    if (x10File.startsWith("file:/"))
+      x10File = x10File.substring("file:/".length());
+    String[] classes = fX10ClassMap.get(x10File);
+    if (classes == null) {
+      FileSource source = null;
+      try {
+        source = fCompiler.sourceExtension().sourceLoader().fileSource(x10File, true);
+      } catch (IOException e) { }
+      Scheduler scheduler = fCompiler.sourceExtension().scheduler();
+      ArrayList<Job> jobs = new ArrayList<Job>();
+      Job job = scheduler.addJob(source);
+      jobs.add(job);
+      Globals.initialize(fCompiler);
+      scheduler.setCommandLineJobs(jobs);
+      scheduler.addDependenciesForJob(job, true);
+      scheduler.runToCompletion(scheduler.TypeChecked(job));
+      Node ast = job.ast();
+      assert (ast instanceof SourceFile);
+      final ArrayList<String> classnames = new ArrayList<String>();
+      // FIXME: deal with local classes
+      ast.visit(new NodeVisitor() {
+        private ArrayList<String> path = new ArrayList<String>();
+        public NodeVisitor enter(Node n) {
+          if (n instanceof ClassDecl)
+            path.add(((ClassDecl)n).name().toString());
+          else if (n instanceof LocalClassDecl)
+            path.add(((LocalClassDecl)n).position().toString());
+          return this;
+        }
+        public Node leave(Node old, Node n, NodeVisitor v) {
+          if (n instanceof ClassDecl || n instanceof LocalClassDecl) {
+            int start = n.position().line();
+            int end = n.position().endLine();
+            String p = path.toString();
+            p = p.substring(1, p.length()-1).replace(", ", "__");
+            classnames.add(p+":"+start+":"+end);
+            path.remove(path.size()-1);
+          }
+          return n;
+        }
+      });
+      classes = classnames.toArray(new String[classnames.size()]);
+      fX10ClassMap.put(x10File, classes);
+    }
+    for (int i = 0; i < classes.length; i++) {
+      String cInfo = classes[i];
+      int l = cInfo.indexOf(':');
+      int m = cInfo.lastIndexOf(':');
+      assert (l != -1 && m != -1);
+      int s = Integer.parseInt(cInfo.substring(l+1, m));
+      int e = Integer.parseInt(cInfo.substring(m+1));
+      if (s <= x10Line && e >= x10Line)
+        return cInfo.substring(0, l);
     }
     return null;
   }
 
-  private GlobalVariable findX10LineNumberMap(DebuggeeProcess p, String x10File) {
+  private GlobalVariable[] findX10LineNumberMaps(DebuggeeProcess p, String x10File, String className) {
+    GlobalVariable[] res = new GlobalVariable[3];
+    int i = 0;
     // TODO: find the appropriate part and extract the variable directly
     System.err.println("Looking for mapping info for '"+x10File+"'");
     x10File = x10File.replace('\\', '/'); // normalize directory separators
-    String nameNoExt = x10File.substring(0, x10File.indexOf(".x10"));
+    String nameNoExt = x10File.substring(0, x10File.lastIndexOf('/')+1)+className;
     GlobalVariable[] globals = p.getDebugEngine().getGlobalVariables();
     for (GlobalVariable v : globals) {
       String name = v.getName();
@@ -189,74 +256,77 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
 	  if (!fName.equals(baseName))
 	    continue;
       System.err.println("\tFound mapping info for '"+x10File+"'");
-	  return v;
+      res[i++] = v;
     }
-    return null;
+    return res;
   }
 
-  private void readLineNumberMap(DebuggeeProcess p, GlobalVariable v) {
-    if (v == null)
-      return;
+  private void readLineNumberMaps(DebuggeeProcess p, GlobalVariable[] vars) {
+    assert (vars != null);
+    for (GlobalVariable v : vars) {
+      if (v == null)
+        continue;
 
-    System.out.println("\tGOT MAP: "+v.getName()+" "+v.getExpression());
-    System.err.println("Reading mapping info from "+v.getName());
-    String val = null;
-    try {
-      DebuggeeThread t = p.getStoppingThread();
-      // The code below doesn't create the right kind of monitor.
-      //ExpressionBase b = t.evaluateExpression(t.getLocation(t.getViewInformation()), v.getExpression(), 1, 1000000);
-      ExpressionBase b = p.monitorExpression(t.getLocation(t.getViewInformation()).getEStdView(), t.getId(), v.getExpression(), IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram, null, null, null, null);
-      // TODO
-      //Address addr = p.convertToAddress(v.getExpression(), t.getLocation(t.getViewInformation()), t);
-      if (b != null) {
-        ExprNodeBase n = b.getRootNode();
-        if (n != null)
-          val = n.getValueString();
-        b.remove();
+      System.out.println("\tGOT MAP: "+v.getName()+" "+v.getExpression());
+      System.err.println("Reading mapping info from "+v.getName());
+      String val = null;
+      try {
+        DebuggeeThread t = p.getStoppingThread();
+        // The code below doesn't create the right kind of monitor.
+        //ExpressionBase b = t.evaluateExpression(t.getLocation(t.getViewInformation()), v.getExpression(), 1, 1000000);
+        ExpressionBase b = p.monitorExpression(t.getLocation(t.getViewInformation()).getEStdView(), t.getId(), v.getExpression(), IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram, null, null, null, null);
+        // TODO
+        //Address addr = p.convertToAddress(v.getExpression(), t.getLocation(t.getViewInformation()), t);
+        if (b != null) {
+          ExprNodeBase n = b.getRootNode();
+          if (n != null)
+            val = n.getValueString();
+          b.remove();
+        }
+      } catch (EngineRequestException e) {
+        RuntimePlugin.getInstance().logException(e.getMessage(), e);
+      //} catch (MemoryException e) {
+      //  RuntimePlugin.getInstance().logException(e.getMessage(), e);
       }
-    } catch (EngineRequestException e) {
-      RuntimePlugin.getInstance().logException(e.getMessage(), e);
-    //} catch (MemoryException e) {
-    //  RuntimePlugin.getInstance().logException(e.getMessage(), e);
+      System.out.println("\tValue = '"+val+"'");
+      if (val == null)
+        continue;
+      if (val.endsWith("..."))
+        val = val.substring(0, val.lastIndexOf(',')+1) + "}\""; // FIXME: damage control
+      assert (val.startsWith("\"") && val.endsWith("\""));
+      LineNumberMap c2xFileMap = LineNumberMap.importMap(val.substring(1, val.length()-1));
+      HashMap<String, LineNumberMap> c2xMap = new HashMap<String, LineNumberMap>();
+      c2xMap.put(c2xFileMap.file(), c2xFileMap);
+      LineNumberMap.mergeMap(fCppToX10Map, c2xMap);
+      HashMap<String, LineNumberMap> x2cMap = c2xFileMap.invert();
+      LineNumberMap.mergeMap(fX10ToCppMap, x2cMap);
+//      System.out.println("\tm="+c2xMap);
+//      System.out.println("\tim="+x2cMap);
     }
-    System.out.println("\tValue = '"+val+"'");
-    if (val == null)
-      return;
-    if (val.endsWith("..."))
-      val = val.substring(0, val.lastIndexOf(',')+1) + "}\""; // FIXME: damage control
-    assert (val.startsWith("\"") && val.endsWith("\""));
-    LineNumberMap c2xFileMap = LineNumberMap.importMap(val.substring(1, val.length()-1));
-    HashMap<String, LineNumberMap> c2xMap = new HashMap<String, LineNumberMap>();
-    c2xMap.put(c2xFileMap.file(), c2xFileMap);
-    LineNumberMap.mergeMap(fCppToX10Map, c2xMap);
-    HashMap<String, LineNumberMap> x2cMap = c2xFileMap.invert();
-    LineNumberMap.mergeMap(fX10ToCppMap, x2cMap);
-//    System.out.println("\tm="+c2xMap);
-//    System.out.println("\tim="+x2cMap);
   }
 
-  public String getX10File(Location cppLocation) {
-    String cppFile = getCppFile(cppLocation);
-    int cppLineNumber = getCppLine(cppLocation);
-    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(cppFile);
+  public String getX10File(DebuggeeProcess process, Location cppLocation) {
+    String cppFile = getCppFile(process, cppLocation);
+    int cppLineNumber = getCppLine(process, cppLocation);
+    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(process, cppFile);
     String x10File = cppLineToX10LineMap.getSourceFile(cppLineNumber);
     if (x10File != null && x10File.startsWith("file:/"))
       x10File = x10File.substring("file:/".length());
     return x10File;
   }
 
-  public int getX10Line(Location cppLocation) {
-    String cppFile = getCppFile(cppLocation);
-    int cppLineNumber = getCppLine(cppLocation);
-    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(cppFile);
+  public int getX10Line(DebuggeeProcess process, Location cppLocation) {
+    String cppFile = getCppFile(process, cppLocation);
+    int cppLineNumber = getCppLine(process, cppLocation);
+    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(process, cppFile);
     int x10LineNumber = cppLineToX10LineMap.getSourceLine(cppLineNumber);
     return x10LineNumber;
   }
 
-  public String getX10Function(String cppFunction, Location cppLocation) {
-    String cppFile = getCppFile(cppLocation);
-    int cppLineNumber = getCppLine(cppLocation);
-    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(cppFile);
+  public String getX10Function(DebuggeeProcess process, String cppFunction, Location cppLocation) {
+    String cppFile = getCppFile(process, cppLocation);
+    int cppLineNumber = getCppLine(process, cppLocation);
+    LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(process, cppFile);
     String x10Function = cppLineToX10LineMap.getMappedMethod(cppFunction);
     if (x10Function == null) { // now try alternate forms of primitives
       cppFunction = cppFunction.replaceAll("\\b(int|short|double|float)\\b", "x10_$1");
@@ -271,10 +341,10 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     return x10Function;
   }
   
-  private LineNumberMap getCppToX10LineMap(String cppFile) {
+  private LineNumberMap getCppToX10LineMap(DebuggeeProcess process, String cppFile) {
     LineNumberMap map = fCppToX10Map.get(cppFile);
     if (map == null) {
-      readLineNumberMap(fProcess, findLineNumberMap(fProcess, cppFile));
+      readLineNumberMaps(process, findLineNumberMaps(process, cppFile));
       map = fCppToX10Map.get(cppFile);
       if (map == null)
         fCppToX10Map.put(cppFile, map = new LineNumberMap(cppFile));
@@ -283,27 +353,29 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     return map;
   }
   
-  private LineNumberMap getX10ToCppLineMap(String x10File) {
-    LineNumberMap map = fX10ToCppMap.get(x10File);
+  private LineNumberMap getX10ToCppLineMap(DebuggeeProcess process, String x10File, int x10Line) {
+    String className = getClassName(x10File, x10Line);
+    LineNumberMap map = fX10ToCppMap.get(x10File+"|"+className);
     if (map == null) {
-      readLineNumberMap(fProcess, findX10LineNumberMap(fProcess, x10File));
+      readLineNumberMaps(process, findX10LineNumberMaps(process, x10File, className));
       map = fX10ToCppMap.get(x10File);
       if (map == null)
         fX10ToCppMap.put(x10File, map = new LineNumberMap(x10File));
+      fX10ToCppMap.put(x10File+"|"+className, map);
     }
     assert (map != null);
     return map;
   }
 
-  private int getCppLine(Location cppLocation) {
+  private int getCppLine(DebuggeeProcess process, Location cppLocation) {
     int cppLineNumber = cppLocation.getLineNumber();
     return cppLineNumber;
   }
 
-  private String getCppFile(Location cppLocation) {
+  private String getCppFile(DebuggeeProcess process, Location cppLocation) {
     String cppFile = cppLocation.getViewFile().getName();
     try {
-      String baseDir = fTarget.getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
+      String baseDir = process.getDebugTarget().getLaunch().getLaunchConfiguration().getAttribute(ATTR_WORK_DIRECTORY, (String) null);
       if (cppFile.startsWith(baseDir+"/"))
         cppFile = cppFile.substring(baseDir.length()+1);
     } catch (CoreException e) { }
@@ -312,17 +384,17 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     return cppFile;
   }
 
-  public Location getCppLocation(BitList tasks, String x10File, int x10LineNumber) {
+  public Location getCppLocation(DebuggeeProcess process, BitList tasks, String x10File, int x10LineNumber) {
     if (!x10File.startsWith("file:/"))
       x10File = "file:/"+x10File;
-    LineNumberMap x10LineToCppLineMap = getX10ToCppLineMap(x10File);
+    LineNumberMap x10LineToCppLineMap = getX10ToCppLineMap(process, x10File, x10LineNumber);
     String cppFile = x10LineToCppLineMap.getSourceFile(x10LineNumber);
     int cppLineNumber = x10LineToCppLineMap.getSourceLine(x10LineNumber);
     if (cppFile == null || cppLineNumber == -1)
       return null;
     try {
-      final ViewFile viewFile = PDTUtils.searchViewFile(this.fTarget, tasks, (DebuggeeProcess) this.fTarget.getProcess(), 
-                                                        cppFile);
+      final ViewFile viewFile = PDTUtils.searchViewFile((PICLDebugTarget) process.getDebugTarget(),
+                                                        tasks, process, cppFile);
       return new Location(viewFile, cppLineNumber);
     } catch (PDIException e) {
       return null;
@@ -405,8 +477,8 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
    * The descriptor for any other class is { X(type), num_interfaces, [fname, ftype]... }.
    */
   public String[] getStructDescriptor(String type) {
-    if (type.endsWith("*"))
-      return null;
+    if (type.startsWith("class ") && type.endsWith("*"))
+      type = "x10aux::ref<"+type.substring("class ".length(), type.length()-1)+">";
     if (type.endsWith(" "))
       type = type.trim();
     if (type.endsWith("&"))
@@ -465,19 +537,12 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     return type.substring(prefix.length(), type.length()-1);
   }
 
-  // --- Internal services
-  
-  public void setPDTTarget(final PICLDebugTarget target) {
-    this.fTarget = target;
-  }
-  
   // --- Fields
 
-  private PICLDebugTarget fTarget;
   private X10CPPTypeSystem_c fTypeSystem;
-  private DebuggeeProcess fProcess;
   private final HashMap<String, String> fCppTypeToX10TypeMap = new HashMap<String, String>();
   private final HashMap<String, LineNumberMap> fX10ToCppMap = LineNumberMap.initMap();
   private final HashMap<String, LineNumberMap> fCppToX10Map = LineNumberMap.initMap();
+  private final HashMap<String, String[]> fX10ClassMap = new HashMap<String, String[]>();
   private Compiler fCompiler;
 }
