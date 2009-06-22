@@ -181,8 +181,8 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 	    System.out.println("Looking for node spanning offsets " + startOffset + " => " + endOffset);
 	}
 	if (ast == null) return null;
-	if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
-	    return null;
+//	if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
+//	    return null;
 	if (DEBUG) {
 	    IPrsStream ps= fLS.getPrsStream();
 	    if (endOffset == startOffset)
