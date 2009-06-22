@@ -1,6 +1,5 @@
 package x10.refactorings;
 
-import static x10.refactorings.ExtractAsyncStaticTools.IFilePathtoCAstPath;
 import static x10.refactorings.ExtractAsyncStaticTools.dumpIR;
 import static x10.refactorings.ExtractAsyncStaticTools.extractArrayName;
 import static x10.refactorings.ExtractAsyncStaticTools.extractAsyncEntities;
@@ -42,13 +41,19 @@ import org.eclipse.ui.editors.text.TextEditor;
 
 import polyglot.ast.ArrayAccess;
 import polyglot.ast.Assign;
+import polyglot.ast.Block;
+import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Field;
+import polyglot.ast.For;
+import polyglot.ast.Formal;
 import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
+import polyglot.ast.Local_c;
 import polyglot.ast.Loop;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
@@ -250,6 +255,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 	private X10EclipseSourceAnalysisEngine fEngine;
 
+	private CompoundStmt fLoop;
+
 	public String getName() {
 		return "Extract Async";
 	}
@@ -375,21 +382,20 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			for (Node node : path) {
 				System.out.println(node);
 			}
-			CompoundStmt loop = (CompoundStmt) PolyglotUtils
-			.findInnermostNodeOfTypes(path, new Class[] { Loop.class,
-					X10Loop.class });
-
-			if (loop == null)
+			fLoop = (CompoundStmt) PolyglotUtils
+						.findInnermostNodeOfTypes(path, new Class[] { Loop.class,
+								X10Loop.class });
+			if (fLoop == null)
 				return RefactoringStatus
 				.createFatalErrorStatus("Couldn't find loop enclosing the selected node???");
 
-			if (inAtomic(loop, fNodeMethod))
+			if (inAtomic(fLoop, fNodeMethod))
 				return RefactoringStatus
 				.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
 			if (inAtomic(fPivot, fNodeMethod))
 				return RefactoringStatus
 				.createFatalErrorStatus("Cannot create asynchronous activity inside atomic block");
-			if (badClockUse(loop))
+			if (badClockUse(fLoop))
 				return RefactoringStatus
 				.createFatalErrorStatus("Bad clock use in target loop");
 
@@ -405,23 +411,23 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			// TODO Compute the var2PtrKey for the method, not the whole file
 			fVar2PtrKeyMap = buildVarToPtrKeyMap(rootEntity);
 
-			Set<VarDecl> inductionVars = findInductionVars(loop);
+			Set<VarDecl> inductionVars = findInductionVars(fLoop);
 
 			// The information flow and set of statements having loop-carried
 			// depe ndencies are used in several places, so compute them once up
 			// front, save them in fields, and refer to them later.
 
-			Set<VarWithFirstUse> loopRefedLVals = findLoopRefedLVals(loop);
+			Set<VarWithFirstUse> loopRefedLVals = findLoopRefedLVals(fLoop);
 			Map<VarWithFirstUse, Collection<InstanceKey>> pointerInfo = findPointsToSets(loopRefedLVals);
 			Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo = computeAliasInfo(pointerInfo);
 
 //			calculateInfoFlow(loop, aliasInfo); // saves phi and rho in fields
-			calculateInfoFlow(loop, pointerInfo, loopRefedLVals); // saves phi and rho in fields
-			calculateLoopCarriedStatements(loop, inductionVars); // saves
+			calculateInfoFlow(fLoop, pointerInfo, loopRefedLVals); // saves phi and rho in fields
+			calculateLoopCarriedStatements(fLoop, inductionVars); // saves
 			// delta in
 			// a field
 
-			if (!preconditionsHold(loop, fPivot, fNodeMethod))
+			if (!preconditionsHold(fLoop, fPivot, fNodeMethod))
 				return RefactoringStatus
 				.createFatalErrorStatus("Preconditions don't hold");
 		} catch (ClassHierarchyException e) {
@@ -784,8 +790,52 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * @return
 	 */
 	
-	private Stmt slice(Stmt block1, VarDecl i, Stmt block2) {
-		return block1;
+	private List<Stmt> slice(Variable i, Stmt block2) {
+		
+		// Initialize variable set
+		Set<VarWithFirstUse> relevantVars = findLoopRefedLVals(block2);
+		relevantVars.add(getVarWithFirstUse(fRho.keySet(),i));
+		
+		// Initialize slice set
+		List<Stmt> sliceSet = new ArrayList<Stmt>();
+		for(Stmt s : fDelta){
+			if (s instanceof Assign){
+				Assign a = (Assign)s;
+				if (a.left() instanceof Variable){
+					VarWithFirstUse leftVar = getVarWithFirstUse(fRho.keySet(), (Variable)a.left());
+					if (relevantVars.contains(leftVar))
+						sliceSet.add(s);
+				}
+			}
+		}
+		
+		// Now, compute rest of slice set based on info-flow sets
+		int startSize = -1;
+		while (sliceSet.size() > startSize){
+			startSize = sliceSet.size();
+			base: 
+				for (Stmt s : fDelta){
+					if (s instanceof Assign){
+						Set<InstanceKey> sInfoFlow = fPhi.get((Assign)s);
+						for (Stmt s2 : sliceSet){
+							if (s2 instanceof Assign) {
+								for (InstanceKey k : fPhi.get((Assign)s2))
+									if (sInfoFlow.contains(k)) {
+										// When a statement with loop-carried dependency
+										// directly affects a statement that is already in our
+										// slice set, then add it to the slice set.
+										sliceSet.add(s);
+										continue base;
+									}
+							}		
+						}
+					}
+				}
+		}
+		
+		// TODO: Order the slice set by code location
+		
+		return sliceSet;
 	}
 	
 	private boolean inAtomic(Node node, Node methodParent) {
@@ -869,7 +919,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private boolean hasEffectsOn(Node node, Set<Expr> lvals) {
 		EffectsVisitor ev = new EffectsVisitor(lvals);
 		node.visit(ev);
-		return (ev.getEffects().size() > 0);
+		return false;//(ev.getEffects().size() > 0);
 	}
 
 	private boolean preconditionsHold(Stmt loop, Expr pivot,
@@ -1425,6 +1475,27 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		tfc.addEdit(new ReplaceEdit(startOffset, endOffset - startOffset + 1,
 				"async (" + place + ") {" + fPivot + "}"));
 
+		// Construct the two loops based on location and slicing
+		
+		Variable indexVariable = null;
+		Block stmtBody = null;
+		if ((fLoop instanceof For) && (((For)fLoop).inits().get(0) instanceof LocalDecl)) {
+			LocalDecl indexDecl = (LocalDecl) ((For)fLoop).inits().get(0);
+			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
+			stmtBody = (Block)((For)fLoop).body();
+		} else if (fLoop instanceof X10Loop) {
+			Formal indexDecl = ((X10Loop)fLoop).formal();
+			indexVariable = (new Local_c(indexDecl.position(),indexDecl.id())).localInstance(indexDecl.localInstance());
+			stmtBody = (Block)((X10Loop)fLoop).body();
+		}
+		List<Stmt> firstLoop = PolyglotUtils.splitBlockBeforeNode(stmtBody, fPivot);
+		List<Stmt> secondLoop = PolyglotUtils.splitBlockAfterNode(stmtBody, fPivot);
+		
+		// TODO: properly transform fPivot or loop to handle asynchronous/future addition
+		
+		List<Stmt> firstLoopSlice = slice(indexVariable, new Block_c(fLoop.position(), firstLoop));
+		List<Stmt> secondLoopslice = slice(indexVariable, new Block_c(fLoop.position(), secondLoop));
+		
 		return tfc;
 	}
 
