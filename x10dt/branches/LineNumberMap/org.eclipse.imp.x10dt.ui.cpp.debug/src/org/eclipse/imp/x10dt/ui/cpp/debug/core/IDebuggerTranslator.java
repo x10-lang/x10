@@ -7,11 +7,26 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug.core;
 
+
+import org.eclipse.ptp.core.util.BitList;
+
+import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
+import com.ibm.debug.internal.pdt.model.Location;
+
 /**
  * Responsible for translating X10 data to their C++ counterparts according to the context, and vice-versa.
  * 
  * @author egeay
+ * @author igor
  */
 public interface IDebuggerTranslator {
+
+	void init(DebuggeeProcess p);
+
+	Location getCppLocation(BitList tasks, String file, int lineNumber);
+
+	int getX10Line(Location cppLocation);
+
+	String getX10File(Location cppLocation);
 
 }

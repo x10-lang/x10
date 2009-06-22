@@ -95,7 +95,8 @@ public final class X10Debugger implements IPDebugger {
                          final IProgressMonitor monitor) throws CoreException {
     this.fPort = getPort(config);
     if (this.fPDIDebugger == null) {
-      this.fPDIDebugger = new X10PDIDebugger(new X10DebuggerTranslator(), this.fPort);
+      this.fPDIDebugger = new X10PDIDebugger(this.fPort);
+      this.fPDIDebugger.setDebuggerTranslator(new X10DebuggerTranslator(this.fPDIDebugger));
     }
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
@@ -181,7 +182,7 @@ public final class X10Debugger implements IPDebugger {
   
   private static final String PORT_RANGE_SEP = "-"; //$NON-NLS-1$
 
-  // USE_XLC=1 bin/x10c++ -commandlineonly -v -report postcompile=5 -o out/FSSimpleDist -d out samples/FSSimpleDist.x10
+  // USE_XLC=1 XLC_EXTRA_FLAGS=-bexpfull bin/x10c++ -commandlineonly -v -report postcompile=5 -o out/FSSimpleDist -d out samples/FSSimpleDist.x10
   
   //  poe /gsa/tlbgsa/projects/d/debugger/dev/aix/latest/bin/irmtdbgc -qhost=9.2.34.130:8001 ./FSSimpleDist -m 0 -procs 2 -hostfile .hostlist.x10run.345 -msg_api lapi -labelio yes
 

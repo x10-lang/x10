@@ -51,7 +51,9 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
 
   public void breakpointAdded(final BreakpointAddedEvent event) {
     final Integer breakPointId = (Integer) event.getBreakpoint().getRequestProperty();
-    this.fProxyNotifier.notify(new ProxyDebugBreakpointSetEvent(-1 /* transID */, this.fBits, breakPointId, 
+    String bits = this.fBits;
+    if (bits == null) bits = "0:";
+	this.fProxyNotifier.notify(new ProxyDebugBreakpointSetEvent(-1 /* transID */, bits, breakPointId, 
                                                                 null /* breakpoint */));
   }
 
@@ -118,7 +120,9 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
         final DebuggeeThread thread = processStopInfo.getStoppingThread(this.fDebuggeeProcess);
         if (breakpoints.length == 1) {
           final Integer breakPointId = (Integer) breakpoints[0].getRequestProperty();
-          this.fProxyNotifier.notify(new ProxyDebugBreakpointHitEvent(-1 /* transId */, this.fBits, breakPointId,
+          String bits = this.fBits;
+          if (bits == null) bits = "0:";
+          this.fProxyNotifier.notify(new ProxyDebugBreakpointHitEvent(-1 /* transId */, bits, breakPointId,
                                                                       thread.getId(), 0 /* depth */,
                                                                       getVariablesAsString(thread)));
         }
