@@ -33,10 +33,10 @@ MethodHeader ::=
 MethodDeclarator ::= 
   ThisClauseopt identifier 
   ( FormalParameterListopt WhereClauseopt )
-  -  MethodDeclarator [ ]
+  |  MethodDeclarator [ ]
 
 <div class="p"><!----></div>
-ResultType ::= Type  -  void
+ResultType ::= Type  |  void
 </pre>
 
 <div class="p"><!----></div>
@@ -81,7 +81,7 @@ the scope of the declarations in the parameter list.)
 </blockquote>
 
 <div class="p"><!----></div>
-Consider the program:
+<b>Example 10.1</b> Consider the program:
   <pre>
 public class List(int(:n &#62;=0) n) {
   protected this(:n &#62; 0) Object  value;
@@ -145,7 +145,7 @@ considerations motivated by dependent types.
 <div class="p"><!----></div>
 The definition of a method declaration <tt>m1</tt> "having the same signature
 as" a method declaration <tt>m2</tt> involves identity of types. Two  X10 types
-are defined to be identical iff they are equivalent (&#167;&nbsp;<a href="#DepType:Equivalence">7</a>).
+are defined to be identical iff they are equivalent (&#167;&nbsp;4.7</a>).
 Two methods are said to have <em>the same signature</em> if (a)
 they have the same number of formal parameters, (b) for each parameter
 their types are equivalent, and (c) the constraints associated with
@@ -191,7 +191,7 @@ defined on <tt>C</tt> are available at the type <tt>C(:c)</tt> whose guard <tt>d
 by <tt>c</tt>.
 
 <div class="p"><!----></div>
-  Consider the definitions:
+  <b>Example 10.2</b> Consider the definitions:
   <pre>
 class Point(int i, int j) {...}
 class Line(Point s, Point(:self != i) e) {
