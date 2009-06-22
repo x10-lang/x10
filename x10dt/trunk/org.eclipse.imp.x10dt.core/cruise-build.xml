@@ -1,4 +1,4 @@
-<project name="com.ibm.watson.safari.x10" default="all">
+<project name="org.eclipse.imp.x10dt.core" default="all">
     <target name="all" depends="compile, test, publish"/>
 
     <target name="compile">
