@@ -45,19 +45,23 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="${javacSource}" target="${javacTarget}">
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement path="${eclipse.build.path}"/>
 				<pathelement location="../lpg/lib/lpg.jar"/>
 				<pathelement location="../org.eclipse.uide.runtime/bin"/>
 				<pathelement location="../polyglot2/bin"/>
 				<pathelement location="../x10.runtime/classes"/>
 				<pathelement location="../x10.compiler/classes"/>
 				<pathelement location="../com.ibm.watson.safari.x10/bin"/>
+				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
 		</javac>
 		<!-- Copy necessary resources -->
 		<copy todir="${temp.folder}/${plugin.name}.jar.bin" failonerror="true" overwrite="false">
 			<fileset dir="src/" excludes="**/*.java,**/package.htm*"/>
+		</copy>
+		<mkdir dir="${temp.folder}/${plugin.jar.name}.bin/icons"/>
+		<copy todir="${temp.folder}/${plugin.jar.name}.bin/icons" failonerror="true" overwrite="false">
+			<fileset dir="icons/"/>
 		</copy>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<mkdir dir="${build.result.folder}"/>
