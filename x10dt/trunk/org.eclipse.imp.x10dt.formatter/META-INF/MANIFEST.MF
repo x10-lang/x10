@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: X10 Code Formatter Plug-in
+Bundle-SymbolicName: org.eclipse.imp.x10dt.formatter
+Bundle-Version: 1.0.0
+Bundle-Activator: org.eclipse.imp.x10dt.formatter.Activator
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ lpg.runtime
+Eclipse-LazyStart: true
