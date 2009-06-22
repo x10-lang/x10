@@ -34,7 +34,7 @@
     --
     -- Definition of macros used in the parser template
     --
-    $ast_class /.polyglot.ast.Node./
+    $ast_class /.Object./
     $additional_interfaces /. , IParser, ParseErrorCodes ./
 %End
 
