@@ -26,7 +26,19 @@ import polyglot.types.VarDef;
 import polyglot.visit.DataFlow;
 import polyglot.visit.FlowGraph;
 
+/**
+ * Computes the set of reaching definitions for each node in the AST passed in.
+ * The AST node passed in is presumably some form of code body.
+ */
 public class ReachingDefsVisitor extends DataFlow {
+    /**
+     * An "item" for the data-flow engine that records a set of variables
+     * (represented as VarDefs) and, for each one, a set of code entities
+     * (e.g. assignments) that define values for that variable.
+     * The intent is that one of these maps will be associated with each
+     * AST node in a method, to represent the value definitions that flow
+     * into that node.
+     */
     public static class ValueMap extends Item {
         private final Map<VarDef,Set<Term>> fMap= new HashMap<VarDef, Set<Term>>();
 
@@ -92,17 +104,32 @@ public class ReachingDefsVisitor extends DataFlow {
         }
     }
 
+    /**
+     * The top-most node handed to this visitor (presumably a method decl).
+     */
     private final Node fTopNode;
 
-    private final PrintStream fDiagStream= X10RefactoringPlugin.getInstance().getConsoleStream();
-
+    /**
+     * The ValueMap for the top-most node handed to this visitor (presumably a method decl)
+     */
     private ValueMap fTopValueMap;
+
+    private boolean fVerbose;
+
+    private final PrintStream fDiagStream= X10RefactoringPlugin.getInstance().getConsoleStream();
 
     public ReachingDefsVisitor(Node topNode, Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf, true, true);
         fTopNode= topNode;
     }
 
+    public void setVerbose(boolean verbose) {
+        fVerbose = verbose;
+    }
+
+    /**
+     * @return the ValueMap for the top-most node passed in to this visitor
+     */
     public ValueMap getReachingDefs() {
         return fTopValueMap;
     }
@@ -156,7 +183,9 @@ public class ReachingDefsVisitor extends DataFlow {
         if (n == fTopNode && !entry) {
             fTopValueMap= (ValueMap) inItem;
         }
-        fDiagStream.println("Term " + n + " => " + inItem);
+        if (fVerbose) {
+            fDiagStream.println("Term " + n + " => " + inItem);
+        }
     }
 
     @Override
