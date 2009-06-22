@@ -5,7 +5,7 @@ import java.io.File;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.eclipse.uide.runtime.UIDEPluginBase;
+import org.eclipse.uide.runtime.SAFARIPluginBase;
 import org.osgi.framework.BundleContext;
 
 import com.ibm.watson.safari.x10.preferences.PreferenceConstants;
@@ -14,7 +14,7 @@ import com.ibm.watson.safari.x10.preferences.X10Preferences;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class X10Plugin extends UIDEPluginBase {
+public class X10Plugin extends SAFARIPluginBase {
     public static final String kPluginID= "com.ibm.watson.safari.x10";
 
     /**

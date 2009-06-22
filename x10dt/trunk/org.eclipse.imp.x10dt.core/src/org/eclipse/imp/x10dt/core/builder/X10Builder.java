@@ -35,7 +35,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.uide.runtime.UIDEPluginBase;
+import org.eclipse.uide.runtime.SAFARIPluginBase;
 
 import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
@@ -84,7 +84,7 @@ public class X10Builder extends IncrementalProjectBuilder {
     private final X10DeltaVisitor fDeltaVisitor= new X10DeltaVisitor();
     private Collection/* <IFile> */fSourcesToCompile= new ArrayList();
     private ExtensionInfo fExtInfo;
-    private static UIDEPluginBase sPlugin= null;
+    private static SAFARIPluginBase sPlugin= null;
     protected PolyglotDependencyInfo fDependencyInfo;
 
     public X10Builder() {}
