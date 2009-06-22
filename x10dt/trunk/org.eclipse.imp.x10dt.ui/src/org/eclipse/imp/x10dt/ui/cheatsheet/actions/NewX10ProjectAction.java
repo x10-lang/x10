@@ -1,3 +1,8 @@
+/*
+ * (C) Copyright IBM Corporation 2007
+ * 
+ * This file is part of the Eclipse IMP.
+ */
 package org.eclipse.imp.x10dt.ui.cheatsheet.actions;
 
 import org.eclipse.imp.x10dt.core.wizards.X10ProjectWizard;
