@@ -37,6 +37,7 @@ public class RenameInputPage extends UserInputWizardPage {
 
         fNameText= new Text(result, SWT.NONE);
         fNameText.setText(fRefactoring.getCurName());
+        fNameText.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
         fNameText.addModifyListener(new ModifyListener() {
             public void modifyText(ModifyEvent e) {
