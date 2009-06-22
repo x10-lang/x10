@@ -150,6 +150,15 @@
       </hyperlinkDetector>
    </extension>
    <extension
+         point="org.eclipse.uide.runtime.contentProposer">
+      <proposer
+            name="X10 contentProposer"
+            class="x10.safari.contentProposer.X10ContentProposer"
+            id="x10.safari.contentProposer"
+            language="X10">
+      </proposer>
+   </extension>
+   <extension
          point="org.eclipse.uide.runtime.outlineContentProvider">
          <outlineContentProvider
          		class="x10.uide.editor.X10ContentProvider"
