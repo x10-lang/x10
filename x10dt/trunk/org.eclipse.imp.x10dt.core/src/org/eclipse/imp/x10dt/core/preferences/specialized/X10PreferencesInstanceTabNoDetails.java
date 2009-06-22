@@ -12,8 +12,10 @@
 package org.eclipse.imp.x10dt.core.preferences.specialized;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.imp.preferences.IPreferencesService;
@@ -26,6 +28,7 @@ import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesTab;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
 import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsStringFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.StringFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
@@ -49,6 +52,8 @@ import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IFileEditorMapping;
 import org.eclipse.ui.PlatformUI;
+
+import polyglot.main.UsageError;
 
 public class X10PreferencesInstanceTabNoDetails extends
 		X10PreferencesInstanceTab {
@@ -122,7 +127,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 		
 		// additional compiler options (string field)
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "");
-		StringFieldEditor additionalCompilerOptions = fPrefUtils_x10.makeNewStringField(
+		CompilerOptionsStringFieldEditor additionalCompilerOptions = fPrefUtils_x10.makeNewCompilerOptionsStringField(
 				page, tab, fPrefService,
 				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:",
 				parent,
@@ -146,29 +151,34 @@ public class X10PreferencesInstanceTabNoDetails extends
 				true, null);
 		fields.add(NumPlaces);
 		
-		page.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-		    public void propertyChange(PropertyChangeEvent event) {
-		    	IPreferenceStore prefStore= RuntimePlugin.getInstance().getPreferenceStore();
-		    	// Hack: Forward property change to global IMP preference store
-			    if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
-			    	prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, (Integer)event.getNewValue());
-			    } else if (event.getProperty().equals("x10Font")) {
-			    	PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
-				} else if (event.getProperty().equals(X10PreferenceConstants.P_NUM_PLACES)) {
-					prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, (Integer)event.getNewValue());
-				} else if (event.getProperty().equals(X10PreferenceConstants.P_BAD_PLACE_CHECK)) {
-					prefStore.setValue(X10PreferenceConstants.P_BAD_PLACE_CHECK, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)) {
-					prefStore.setValue(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)) {
-					prefStore.setValue(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(X10PreferenceConstants.P_ASSERT)) {
-					prefStore.setValue(X10PreferenceConstants.P_ASSERT, (Boolean)event.getNewValue());
-				} else if (event.getProperty().equals(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
-					prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, (String)event.getNewValue());
+		
+		page.getPreferenceStore().addPropertyChangeListener(
+			new IPropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent event) {
+					IPreferenceStore prefStore = RuntimePlugin
+							.getInstance().getPreferenceStore();
+					// Hack: Forward property change to global IMP
+					// preference store
+					if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
+						prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, (Integer) event.getNewValue());
+					} else if (event.getProperty().equals("x10Font")) {
+						PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_NUM_PLACES)) {
+						prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, (Integer) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_BAD_PLACE_CHECK)) {
+						prefStore.setValue(X10PreferenceConstants.P_BAD_PLACE_CHECK, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)) {
+						prefStore.setValue(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)) {
+						prefStore.setValue(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_ASSERT)) {
+						prefStore.setValue(X10PreferenceConstants.P_ASSERT, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
+						prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, (String) event.getNewValue());
+					}
 				}
-		    }
-		});
+			});
+
 
 		FieldEditor[] fieldsArray = new FieldEditor[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {

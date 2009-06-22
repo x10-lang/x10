@@ -441,15 +441,45 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         return changed;
     }
     
+//   public static final org.eclipse.swt.graphics.FontData changedFontData = new org.eclipse.swt.graphics.FontData("Monaco", 11, 2);
+    private static final FontData[] arialFonts = Workbench.getInstance().getDisplay().getFontList("Arial", true);
+    private static FontData[] labelFonts;
+    
+    /**
+     * Initialize fonts for use in checkbox labels
+     * @return true if appropriate fonts available on system; false if not.
+     * @author mmk
+     */
+    private boolean getLabelFonts() {
+    	if (labelFonts==null) {
+    		labelFonts = new FontData[2];
+	
+	    	for (FontData fd: arialFonts) {
+	    		if (fd.getHeight() <=10) {
+	    			switch (fd.getStyle()) {
+	    			case SWT.NORMAL: 
+	    				labelFonts[0] = fd;
+	    				break;
+	    			case SWT.ITALIC:
+	    				labelFonts[1] = fd;
+	    				break;
+	    			}
+	    		}
+	    	}
+    	}
+    	if (labelFonts[0]==null || labelFonts[1] == null) { // only vary font if reasonable fonts exist for both modified/unmodified
+    		return false;
+    	}
+    	return true;
+    	
+    }
+
     /*
      * For boolean fields we override the following two methods because
      * the means of accessing the text to be modified is different.
      * @see org.eclipse.imp.preferences.fields.FieldEditor#setModifyMarkOnLabel()
      * @see org.eclipse.imp.preferences.fields.FieldEditor#clearModifyMarkOnLabel()
      */
-    
-//   public static final org.eclipse.swt.graphics.FontData changedFontData = new org.eclipse.swt.graphics.FontData("Monaco", 11, 2);
-    public static final FontData[] arialFonts = Workbench.getInstance().getDisplay().getFontList("Arial", true);
     
     public void setModifiedMarkOnLabel() {
     	// SMS 27 Nov 2006
@@ -464,29 +494,24 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
 //		        checkBox.setText(labelText);
 //	        }
         	// mmk replace changed mark by color to eliminate text-box overflow bug
-	        checkBox.setForeground(PreferencesUtilities.colorRed);
-	        for (FontData fd: arialFonts) {
-	        	if ((fd.getStyle() ) == SWT.ITALIC) {
-	    	        checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), fd));
-	        	}
-	        }
+			checkBox.setForeground(PreferencesUtilities.colorRed); // this doesn't work on MacOSX: use font if possible
+	    	if (getLabelFonts()==false) return;
+	    	checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), labelFonts[1]));
     	}
     }
 
     
     public void clearModifiedMarkOnLabel() {
+    	if (getLabelFonts()==false) return;
     	if (checkBox != null) {
 //	        String labelText = checkBox.getText();
 //	        if (labelText.startsWith(Markings.MODIFIED_MARK))
 //	        		labelText = labelText.substring(1);
 //	        checkBox.setText(labelText);
         	// mmk replace changed mark by color to eliminate text-box overflow bug
-	        checkBox.setForeground(PreferencesUtilities.colorBlack);
-	        for (FontData fd: arialFonts) {
-	        	if ((fd.getStyle() ) ==SWT.NORMAL) {
-	    	        checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), fd));
-	        	}
-	        }
+	        checkBox.setForeground(PreferencesUtilities.colorBlack); // this doesn't work on MacOSX: use font if possible
+	    	if (getLabelFonts()==false) return;
+	    	checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), labelFonts[0]));
 
     	}
     }
