@@ -40,6 +40,7 @@ import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
+import polyglot.frontend.Source;
 
 public class ParseController extends SimpleLPGParseController {
     private CompilerDelegate fCompiler;
@@ -48,7 +49,7 @@ public class ParseController extends SimpleLPGParseController {
     private ILexer fLexer;
 
     public ParseController() {
-	super(X10Plugin.kLanguageName);
+    	super(X10Plugin.kLanguageName);
     }
 
     public IParser getParser() {
@@ -66,7 +67,7 @@ public class ParseController extends SimpleLPGParseController {
 	}
 
     public ISourcePositionLocator getNodeLocator() {
-	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
+    	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
     }
 
     public ILanguageSyntaxProperties getSyntaxProperties() {
@@ -89,13 +90,13 @@ public class ParseController extends SimpleLPGParseController {
 
             fileSource= new FileSource(new StringResource(contents, file, path));
             
-            List<FileSource> streams= new ArrayList<FileSource>();
+            List<Source> streams= new ArrayList<Source>();
             // Bug 526: NPE when opening a file outside the workspace due to null fProject.
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
             
             streams.add(fileSource); // PC: just to test...
             fCompiler= new CompilerDelegate(fMonitor, handler, proj); // Create the compiler
-            fCompiler.getFrontEnd().compile(streams);
+            fCompiler.compile(streams);
         } catch (IOException e) {
             throw new Error(e);
         } finally {
