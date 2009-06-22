@@ -70,6 +70,7 @@ import polyglot.types.Type;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
+import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 
 import com.ibm.debug.internal.epdc.IEPDCConstants;
@@ -80,7 +81,9 @@ import com.ibm.debug.internal.pdt.model.EngineRequestException;
 import com.ibm.debug.internal.pdt.model.ExprNodeBase;
 import com.ibm.debug.internal.pdt.model.ExpressionBase;
 import com.ibm.debug.internal.pdt.model.GlobalVariable;
+import com.ibm.debug.internal.pdt.model.LocalFilter;
 import com.ibm.debug.internal.pdt.model.Location;
+import com.ibm.debug.internal.pdt.model.StackFrame;
 import com.ibm.debug.internal.pdt.model.ViewFile;
 
 @SuppressWarnings("restriction")
@@ -143,11 +146,16 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
       if (!f.flags().isStatic())
         fields.add(f);
     }
+    int outer = t.isInnerClass() ? 2 : 0;
     // TODO: allow showing static fields as well
-    String[] desc = new String[2 + 2 * fields.size()];
+    String[] desc = new String[2 + outer + 2 * fields.size()];
     desc[0] = x10Type;
     desc[1] = Integer.toString(t.interfaces().size());
     int i = 2;
+    if (t.isInnerClass()) {
+      desc[i++] = InnerClassRemover.OUTER_FIELD_NAME.toString();
+      desc[i++] = Emitter.translateType(t.outer(), true);
+    }
     for (FieldInstance f : fields) {
       desc[i++] = f.name().toString();
       desc[i++] = Emitter.translateType(f.type(), true);
@@ -187,14 +195,15 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
     final String cppFile = getCppFile(process, cppLocation);
     final int cppLineNumber = getCppLine(process, cppLocation);
     final LineNumberMap cppLineToX10LineMap = getCppToX10LineMap(process, cppFile);
-    return cppLineToX10LineMap.getSourceLine(cppLineNumber);
+    int line = cppLineToX10LineMap.getSourceLine(cppLineNumber);
+	return line;
   }
 
   // --- Internal services
 
   void init(final DebuggeeProcess process, final IProject project) {
-    fCompiler = Globals.Compiler();
-    if (fCompiler == null) {
+    this.fCompiler = Globals.Compiler();
+    if (this.fCompiler == null) {
       ExtensionInfo extInfo = new polyglot.ext.x10cpp.ExtensionInfo() {
         public Scheduler createScheduler() {
           return new X10CPPScheduler(this) {
@@ -237,9 +246,9 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
           System.out.println(message);
         }
       });
-      Globals.initialize(fCompiler);
+      Globals.initialize(this.fCompiler);
     }
-    this.fTypeSystem = (X10CPPTypeSystem_c) fCompiler.sourceExtension().typeSystem();
+    this.fTypeSystem = (X10CPPTypeSystem_c) this.fCompiler.sourceExtension().typeSystem();
   }
 
   // --- Private code
@@ -347,18 +356,18 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
   private String getClassName(String x10File, int x10Line) {
     if (x10File.startsWith("file:/"))
       x10File = x10File.substring("file:/".length());
-    String[] classes = fX10ClassMap.get(x10File);
+    String[] classes = this.fX10ClassMap.get(x10File);
     if (classes == null) {
       FileSource source = null;
       try {
-        source = fCompiler.sourceExtension().sourceLoader().fileSource(x10File, true);
+        source = this.fCompiler.sourceExtension().sourceLoader().fileSource(x10File, true);
       } catch (IOException e) {
       }
-      Scheduler scheduler = fCompiler.sourceExtension().scheduler();
+      Scheduler scheduler = this.fCompiler.sourceExtension().scheduler();
       ArrayList<Job> jobs = new ArrayList<Job>();
       Job job = scheduler.addJob(source);
       jobs.add(job);
-      Globals.initialize(fCompiler);
+      Globals.initialize(this.fCompiler);
       scheduler.setCommandLineJobs(jobs);
       scheduler.addDependenciesForJob(job, true);
       scheduler.runToCompletion(scheduler.TypeChecked(job));
@@ -371,9 +380,9 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
 
         public NodeVisitor enter(Node n) {
           if (n instanceof ClassDecl)
-            path.add(((ClassDecl) n).name().toString());
+            this.path.add(((ClassDecl) n).name().toString());
           else if (n instanceof LocalClassDecl)
-            path.add(((LocalClassDecl) n).position().toString());
+            this.path.add(((LocalClassDecl) n).position().toString());
           return this;
         }
 
@@ -381,16 +390,16 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
           if (n instanceof ClassDecl || n instanceof LocalClassDecl) {
             int start = n.position().line();
             int end = n.position().endLine();
-            String p = path.toString();
+            String p = this.path.toString();
             p = p.substring(1, p.length() - 1).replace(", ", "__");
             classnames.add(p + ":" + start + ":" + end);
-            path.remove(path.size() - 1);
+            this.path.remove(this.path.size() - 1);
           }
           return n;
         }
       });
       classes = classnames.toArray(new String[classnames.size()]);
-      fX10ClassMap.put(x10File, classes);
+      this.fX10ClassMap.put(x10File, classes);
     }
     for (int i = 0; i < classes.length; i++) {
       String cInfo = classes[i];
@@ -424,12 +433,12 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
   }
 
   private LineNumberMap getCppToX10LineMap(final DebuggeeProcess process, final String cppFile) {
-    LineNumberMap map = fCppToX10Map.get(cppFile);
+    LineNumberMap map = this.fCppToX10Map.get(cppFile);
     if (map == null) {
       readLineNumberMaps(process, findLineNumberMaps(process, cppFile));
-      map = fCppToX10Map.get(cppFile);
+      map = this.fCppToX10Map.get(cppFile);
       if (map == null)
-        fCppToX10Map.put(cppFile, map = new LineNumberMap(cppFile));
+        this.fCppToX10Map.put(cppFile, map = new LineNumberMap(cppFile));
     }
     assert (map != null);
     return map;
@@ -437,13 +446,13 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
 
   private LineNumberMap getX10ToCppLineMap(final DebuggeeProcess process, final String x10File, final int x10Line) {
     String className = getClassName(x10File, x10Line);
-    LineNumberMap map = fX10ToCppMap.get(x10File + "|" + className);
+    LineNumberMap map = this.fX10ToCppMap.get(x10File + "|" + className);
     if (map == null) {
       readLineNumberMaps(process, findX10LineNumberMaps(process, x10File, className));
-      map = fX10ToCppMap.get(x10File);
+      map = this.fX10ToCppMap.get(x10File);
       if (map == null)
-        fX10ToCppMap.put(x10File, map = new LineNumberMap(x10File));
-      fX10ToCppMap.put(x10File + "|" + className, map);
+        this.fX10ToCppMap.put(x10File, map = new LineNumberMap(x10File));
+      this.fX10ToCppMap.put(x10File + "|" + className, map);
     }
     assert (map != null);
     return map;
@@ -485,7 +494,7 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
   }
 
   private Type loadType(String x10Type) {
-    Globals.initialize(fCompiler);
+    Globals.initialize(this.fCompiler);
     try {
       String[] args = null;
       if (x10Type.contains("[")) {
@@ -505,7 +514,7 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
         }
         // TODO: parse out all other braces from x10Type
       }
-      Type loadedType = fTypeSystem.typeForName(QName.make(x10Type));
+      Type loadedType = this.fTypeSystem.typeForName(QName.make(x10Type));
       if (args != null) {
         ArrayList<Type> params = new ArrayList<Type>();
         for (int i = 0; i < args.length; i++) {
@@ -556,9 +565,9 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
       LineNumberMap c2xFileMap = LineNumberMap.importMap(val.substring(1, val.length() - 1));
       HashMap<String, LineNumberMap> c2xMap = new HashMap<String, LineNumberMap>();
       c2xMap.put(c2xFileMap.file(), c2xFileMap);
-      LineNumberMap.mergeMap(fCppToX10Map, c2xMap);
+      LineNumberMap.mergeMap(this.fCppToX10Map, c2xMap);
       HashMap<String, LineNumberMap> x2cMap = c2xFileMap.invert();
-      LineNumberMap.mergeMap(fX10ToCppMap, x2cMap);
+      LineNumberMap.mergeMap(this.fX10ToCppMap, x2cMap);
     }
   }
   
@@ -567,10 +576,10 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
   }
   
   public static final String SAVED_THIS = "saved_this";
-  public String[] getClosureVars(DebuggeeProcess process, Location location, String function) {
+  public String[] getClosureVars(DebuggeeProcess process, StackFrame frame, Location location, String function) {
     assert (function.matches(".*__closure__\\d+::apply\\(\\)"));
     String closure = function.substring(0, function.indexOf("::apply()"));
-    final ClosureVariableMap map = getClosureInfoMap(process, location, closure);
+    final ClosureVariableMap map = getClosureInfoMap(process, frame, location, closure);
     String[] variables = map.getVariables();
     for (int i = 0; i < variables.length; i++) {
 	  if (variables[i].equals(SAVED_THIS))
@@ -579,58 +588,83 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
 	return variables;
   }
   
-  public String getClosureVariableType(DebuggeeProcess process, Location location, String function, String name) {
+  public String getClosureVariableType(DebuggeeProcess process, StackFrame frame, Location location, String function, String name) {
     assert (function.matches("__closure__\\d\\+::apply()$"));
     String closure = function.substring(0, function.indexOf("::apply()"));
-    final ClosureVariableMap map = getClosureInfoMap(process, location, closure);
+    final ClosureVariableMap map = getClosureInfoMap(process, frame, location, closure);
     return map.get(name);
   }
 	  
   private static final ClosureVariableMap EMPTY_CLOSURE_MAP = new ClosureVariableMap();
-  private ClosureVariableMap getClosureInfoMap(final DebuggeeProcess process, Location location, final String closure) {
-    ClosureVariableMap map = fClosureInfoMap.get(closure);
+  private ClosureVariableMap getClosureInfoMap(final DebuggeeProcess process, final StackFrame frame, final Location location, final String closure) {
+    ClosureVariableMap map = this.fClosureInfoMap.get(closure);
     if (map == null) {
-      readClosureInfo(process, location, closure);
-      map = fClosureInfoMap.get(closure);
+      readClosureInfo(process, frame, location, closure);
+      map = this.fClosureInfoMap.get(closure);
       if (map == null)
-        fClosureInfoMap.put(closure, map = EMPTY_CLOSURE_MAP);
+        this.fClosureInfoMap.put(closure, map = EMPTY_CLOSURE_MAP);
     }
     assert (map != null);
     return map;
   }
 
   public static final String VARIABLE_NOT_FOUND = "Variable was not found.";
-  private void readClosureInfo(final DebuggeeProcess p, Location location, final String closure) {
+  private void readClosureInfo(final DebuggeeProcess p, final StackFrame frame, final Location location, final String closure) {
     System.err.println("Reading closure mapping info for " + closure);
     String val = null;
     try {
-      GlobalVariable var = null;
+      String SHOW_STATICS = "Show static variables from the file scope";
       String name = closure+"::"+ClosureVariableMap.VARIABLE_NAME;
-      GlobalVariable[] globals = p.getDebugEngine().getGlobalVariables();
-      for (GlobalVariable v : globals) {
-        if (v.getName().equals(name)) {
-          System.err.println("\tFound mapping info for closure '" + closure + "'");
-          var = v;
+      LocalFilter[] localFilters = p.getDebugEngine().getLocalFilters();
+      boolean[] savedFilterState = new boolean[localFilters.length]; 
+      for (int i = 0; i < localFilters.length; i++) {
+        savedFilterState[i] = localFilters[i].isEnabled();
+        if (localFilters[i].getFilterLabel().equals(SHOW_STATICS))
+          localFilters[i].enable();
+        else
+          localFilters[i].disable();
+      }
+      p.getStoppingThread().stopMonitoringLocalVariables();
+      ExprNodeBase[] locals = p.getStoppingThread().getLocals(frame);
+      for (int i = 0; i < locals.length; i++) {
+        if (locals[i].getExpression().getExpressionString().equals(name)) {
+          val = locals[i].getValueString();
           break;
         }
       }
-      if (var == null)
-        return;
-      DebuggeeThread t = p.getStoppingThread();
-      // The code below doesn't create the right kind of monitor.
-      // ExpressionBase b = t.evaluateExpression(t.getLocation(t.getViewInformation()), v.getExpression(), 1, 1000000);
-      ExpressionBase b = p.monitorExpression(location.getEStdView(), t.getId(),
-                                             var.getExpression(), IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram,
-                                             null, null, null, null);
-      // FIXME: using name as the expression should also work (!)
+      for (int i = 0; i < localFilters.length; i++) {
+        if (savedFilterState[i])
+          localFilters[i].enable();
+        else
+          localFilters[i].disable();
+      }
+      p.getStoppingThread().getLocals(frame); // resume monitoring
+//      GlobalVariable var = null;
+//      GlobalVariable[] globals = p.getDebugEngine().getGlobalVariables();
+//      for (GlobalVariable v : globals) {
+//        if (v.getName().equals(name)) {
+//          System.err.println("\tFound mapping info for closure '" + closure + "'");
+//          var = v;
+//          break;
+//        }
+//      }
+//      if (var == null)
+//        return;
+//      DebuggeeThread t = p.getStoppingThread();
+//      // The code below doesn't create the right kind of monitor.
+//      // ExpressionBase b = t.evaluateExpression(t.getLocation(t.getViewInformation()), v.getExpression(), 1, 1000000);
+//      ExpressionBase b = p.monitorExpression(location.getEStdView(), t.getId(),
+//                                             var.getExpression(), IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram,
+//                                             null, null, null, null);
+//      // FIXME: using name as the expression should also work (!)
       // TODO
       // Address addr = p.convertToAddress(v.getExpression(), t.getLocation(t.getViewInformation()), t);
-      if (b != null) {
-        ExprNodeBase n = b.getRootNode();
-        if (n != null)
-          val = n.getValueString();
-        b.remove();
-      }
+//      if (b != null) {
+//        ExprNodeBase n = b.getRootNode();
+//        if (n != null)
+//          val = n.getValueString();
+//        b.remove();
+//      }
     } catch (EngineRequestException except) {
       DebugCore.log(IStatus.ERROR, "Monitor expression failed by engine", except);
     }
@@ -643,7 +677,7 @@ final class X10DebuggerTranslator implements IDebuggerTranslator {
       val = val.substring(0, val.lastIndexOf(',') + 1) + "}\""; // FIXME: damage control
     assert (val.startsWith("\"") && val.endsWith("\""));
     ClosureVariableMap map = ClosureVariableMap.importMap(val.substring(1, val.length() - 1));
-    fClosureInfoMap.put(closure, map);
+    this.fClosureInfoMap.put(closure, map);
   }
 
   private String stripPrefixes(String type, String[] prefixes) {

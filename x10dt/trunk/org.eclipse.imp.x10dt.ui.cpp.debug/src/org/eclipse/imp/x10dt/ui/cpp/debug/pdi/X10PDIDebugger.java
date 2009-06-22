@@ -53,6 +53,7 @@ import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.attributes.StringAttributeDefinition;
 import org.eclipse.ptp.core.elements.IPProcess;
+import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.core.elements.attributes.ProcessAttributes;
 import org.eclipse.ptp.core.elements.events.IProcessChangeEvent;
 import org.eclipse.ptp.core.elements.listeners.IProcessListener;
@@ -545,6 +546,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
         for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
           pair.snd().terminate();
         }
+        if (!fLaunch.getPJob().isTerminated())
+          fLaunch.getPJob().getAttribute(JobAttributes.getStateAttributeDefinition()).setValue(JobAttributes.State.TERMINATED);
         notifyOkEvent(tasks);
       } catch (DebugException except) {
         notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during PDT terminate operation: " + except.getMessage());
@@ -914,10 +917,14 @@ public final class X10PDIDebugger implements IPDIDebugger {
       if (ptr.startsWith("(") && ptr.endsWith(")")) {
         ptr = ptr.substring(1, ptr.length()-1);
       }
+      if (!ptr.equals("this")) {
+        ptr = ptr + "#_val";
+      }
       base = ptr + "->" + FMGL(fld); // FIXME: HACK!
     }
+    base = base.replace('#', '.');
     if (inClosure(process, getFunction(location)) && base.startsWith("this")) {
-      base = "this->"+SAVED_THIS+base.substring("this".length());
+      base = "this->"+SAVED_THIS+"._val"+base.substring("this".length());
     }
     ExprNodeBase rootNode = evaluateExpression(base, process, thread, location);
     if (rootNode == null && inClosure(process, getFunction(location))) {
@@ -1005,15 +1012,15 @@ public final class X10PDIDebugger implements IPDIDebugger {
         for (int i = 0; i < num; i++) {
           switch (elementType) {
           case BOOL:
-            sb.append(PDTUtils.toHexString(rail.getIntAt(offset + i) == 0 ? 0 : -1, 8));
+            sb.append(getValue(elementType, Boolean.toString(rail.getIntAt(offset + i) != 0)));
             break;
           case INT:
           case FLOAT:
-            sb.append(PDTUtils.toHexString(rail.getIntAt(offset + i), 8));
+            sb.append(getValue(elementType, Integer.toString(rail.getIntAt(offset + i))));
             break; // FIXME: byte and short
           case LONG:
           case DOUBLE:
-            sb.append(PDTUtils.toHexString(rail.getLongAt(offset + i), 16));
+            sb.append(getValue(elementType, Long.toString(rail.getLongAt(offset + i))));
             break;
           case STRING: {
             X10String str = rail.getStringAt(offset + i);
@@ -1139,15 +1146,15 @@ public final class X10PDIDebugger implements IPDIDebugger {
           EPDTVarExprType et = getExprType(t);
           switch (et) {
           case BOOL:
-            sb.append(PDTUtils.toHexString(object.getIntField(n) == 0 ? 0 : -1, 8));
+            sb.append(getValue(et, Boolean.toString(object.getIntField(n) != 0)));
             break;
           case INT:
           case FLOAT:
-            sb.append(PDTUtils.toHexString(object.getIntField(n), 8));
+            sb.append(getValue(et, Integer.toString(object.getIntField(n))));
             break;
           case LONG:
           case DOUBLE:
-            sb.append(PDTUtils.toHexString(object.getLongField(n), 16));
+            sb.append(getValue(et, Long.toString(object.getLongField(n))));
             break;
           case STRING: {
             X10String str = object.getStringField(n);
@@ -1513,12 +1520,18 @@ public final class X10PDIDebugger implements IPDIDebugger {
   
   private String getValue(final EPDTVarExprType type, final String evaluatedExpression) {
     switch (type) {
-      case CHAR:
+      case CHAR: // FIXME
         return PDTUtils.toHexString(Integer.parseInt(evaluatedExpression), 4);
       case INT:
+      case FLOAT:
         return PDTUtils.toHexString(Integer.parseInt(evaluatedExpression), 8);
+      case LONG:
+      case DOUBLE:
+        return PDTUtils.toHexString(Integer.parseInt(evaluatedExpression), 16);
       case ADDRESS:
         return evaluatedExpression;
+      case BOOL:
+        return Boolean.parseBoolean(evaluatedExpression) ? "01000000" : "00000000";
       default:
         return evaluatedExpression;
     }
@@ -1538,7 +1551,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
       if (var.getName().equals("no local variables are available for the selected stackframe"))
         continue;
       if (var.getName().equals("this") && inClosure(process, function)) {
-        final String[] vars = translator.getClosureVars(process, location, function);
+        final String[] vars = translator.getClosureVars(process, frame, location, function);
         // FIXME: filter out the duplicates if any vars in the frame shadow the captured variables
         for (int i = 0; i < vars.length; i++) {
 		  strVars.add(vars[i]);
