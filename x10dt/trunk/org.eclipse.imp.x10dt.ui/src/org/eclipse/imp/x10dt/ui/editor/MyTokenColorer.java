@@ -2,9 +2,9 @@ package org.eclipse.imp.x10dt.ui.editor;
 
 import lpg.runtime.IToken;
 
-import org.eclipse.imp.defaults.TokenColorerBase;
-import org.eclipse.imp.editor.ITokenColorer;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.ITokenColorer;
+import org.eclipse.imp.services.base.TokenColorerBase;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;

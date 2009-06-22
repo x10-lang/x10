@@ -6,9 +6,9 @@ import java.util.List;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
-import org.eclipse.imp.editor.IContentProposer;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;

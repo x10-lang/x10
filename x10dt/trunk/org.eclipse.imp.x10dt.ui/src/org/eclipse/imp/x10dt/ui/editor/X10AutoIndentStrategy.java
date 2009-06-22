@@ -1,6 +1,6 @@
 package org.eclipse.imp.x10dt.ui.editor;
 
-import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ToolFactory;

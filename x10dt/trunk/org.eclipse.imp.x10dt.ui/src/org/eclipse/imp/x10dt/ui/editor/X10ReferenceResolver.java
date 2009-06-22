@@ -1,8 +1,8 @@
 package org.eclipse.imp.x10dt.ui.editor;
 
-import org.eclipse.imp.core.ILanguageService;
-import org.eclipse.imp.editor.IReferenceResolver;
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.IReferenceResolver;
 import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 
 import polyglot.ast.Ambiguous;

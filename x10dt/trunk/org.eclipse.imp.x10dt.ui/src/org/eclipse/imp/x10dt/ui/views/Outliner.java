@@ -8,8 +8,8 @@ import java.util.Set;
 
 import lpg.runtime.IToken;
 
-import org.eclipse.imp.defaults.OutlinerBase;
-import org.eclipse.imp.editor.IOutliner;
+import org.eclipse.imp.services.IOutliner;
+import org.eclipse.imp.services.base.OutlinerBase;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;

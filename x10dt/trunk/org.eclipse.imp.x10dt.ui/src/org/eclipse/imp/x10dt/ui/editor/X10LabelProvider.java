@@ -11,7 +11,7 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.imp.x10dt.ui.views.Outliner;

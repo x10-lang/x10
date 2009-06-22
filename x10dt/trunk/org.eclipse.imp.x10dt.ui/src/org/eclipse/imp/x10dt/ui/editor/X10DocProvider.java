@@ -5,9 +5,9 @@ package org.eclipse.imp.x10dt.ui.editor;
 
 import lpg.runtime.IToken;
 
-import org.eclipse.imp.core.IDocumentationProvider;
-import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.services.IDocumentationProvider;
 import org.eclipse.imp.utils.HTMLPrinter;
 
 import polyglot.ast.Id;
