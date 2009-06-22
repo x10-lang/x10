@@ -28,7 +28,8 @@
 <a href="#faq21">view javadoc with dynamic help</a><br>
 <a href="#faq22">changing x10 editor font and size</a><br>
 <a href="#faq23">debug breakpoints</a><br>
-<a href="#faq24">x10dt requires eclipse 3.3.2</a><br>
+<a href="#faq24">x10dt requires Eclipse 3.3.2 and Java 1.5.0_x</a><br>
+<a href="#faq25">toggle marked occurrences</a><br>
 
 
 <!-- ********************************************* -->
@@ -330,8 +331,8 @@ finish async (P) atomic { a[i]++;} // CORRECT.
 
 <h2><a name="faq21">view javadoc with dynamic help<a></h2>
 <p>
-Open Help with the F1/Ctl-F1 key(s) which includes editor help and
-dynamic help views.  Select a keyword or method to see the definition
+Use the Help (F1) key or the Help->Dynamic Help menu item to open the 
+help view.  Select a keyword or method to see the definition
 or javadoc in the Help view.
 </p> 
 
@@ -354,12 +355,18 @@ You can't get rid of it and you're hosed.
 <b>Moral</b>: for now toggle breakpoints only in the margin of the code and you will be safe.
 </p> 
 
-<h2><a name="faq24"><a>X10DT requires Java 1.5.0_x</h2>
+<h2><a name="faq24"><a>X10DT requires Eclipse 3.3.2 and Java 1.5.0_x</h2>
 <p>
-The X10DT requires Java 1.5.0_x to work correctly. 
+The X10DT requires Eclipse 3.3.2 and Java 1.5.0_x to work correctly. 
 If you run Eclipse and X10DT with JDK 1.4, you will get errors containing
-the message "Unsupported major.minor version 49.0". This seems to be a well known
-for using the wrong JDK.
+the message "Unsupported major.minor version 49.0". This seems to be a well known message
+when using the wrong JDK.
+</p>
+
+<h2><a name="faq25">toggle marked occurrences<a></h2>
+<p>
+There is an icon in the toolbar that looks like a tip of a highlighter which toggles
+marking occurrences of the given entity.
 </p> 
  
 
