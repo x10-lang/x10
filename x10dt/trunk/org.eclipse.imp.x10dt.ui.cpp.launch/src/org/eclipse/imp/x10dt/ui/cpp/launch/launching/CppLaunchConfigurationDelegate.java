@@ -82,7 +82,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
 
   // --- Overridden methods
   
-  protected AttributeManager getAttributeManager(ILaunchConfiguration configuration, String mode) throws CoreException {
+  protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, 
+                                                 final String mode) throws CoreException {
     final IResourceManagerControl resourceManager = (IResourceManagerControl) getResourceManager(configuration);
     if (resourceManager == null) {
       throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoResManagerError));
@@ -127,47 +128,23 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
 
     // PTP launched this job
     attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
-
-    if (mode.equals(ILaunchManager.DEBUG_MODE)) {
-      
-      attrMgr.addAttribute(X10DebugAttributes.getDebuggerHostAddressAttributeDefinition().create(getDebugHostAddress(resourceManager)));
+    
+    if (mode.equals(ILaunchManager.DEBUG_MODE)) { 
+      final String hostAddress = getDebugHostAddress(resourceManager);
+      attrMgr.addAttribute(X10DebugAttributes.getDebuggerHostAddressAttributeDefinition().create(hostAddress));
     }
-
+    
     return attrMgr;
   }
-
-  private String getDebugHostAddress(final IResourceManagerControl rm) {
-    final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
-    if (rmc.testOption(IRemoteProxyOptions.PORT_FORWARDING)) {
-      final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
-      final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
-	      if (remServices != null && remUIServices != null) {
-        final IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
-        return rmConn.getAddress();
-      }
-    } else {
-      String localAddress = rmc.getLocalAddress();
-      if (localAddress != null)
-        return localAddress;
-      try {
-        final InetAddress ip = InetAddress.getLocalHost();
-        return ip.getHostAddress();
-      } catch (UnknownHostException except) {
-        // Simply forgets
-      }
-    }
-    return null;
-  }
-
-  protected void doCompleteJobLaunch(ILaunchConfiguration configuration,
-                                     String mode, IPLaunch launch, AttributeManager mgr,
-                                     IPDebugger debugger, IPJob job)
-  {
-    if (mode.equals(ILaunchManager.DEBUG_MODE))
+  
+  protected void doCompleteJobLaunch(final ILaunchConfiguration configuration, final String mode, final IPLaunch launch, 
+                                     final AttributeManager mgr, final IPDebugger debugger, final IPJob job) {
+    if (mode.equals(ILaunchManager.DEBUG_MODE)) {
       job.setDebug();
+    }
     super.doCompleteJobLaunch(configuration, mode, launch, mgr, debugger, job);
   }
-
+  
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch, 
                      final IProgressMonitor monitor) throws CoreException {
     final IRemoteConnection rmConnection = getRemoteConnection(configuration);
@@ -188,6 +165,30 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   }
   
   // --- Private code
+  
+  private String getDebugHostAddress(final IResourceManagerControl rm) {
+    final AbstractRemoteResourceManagerConfiguration rmc = (AbstractRemoteResourceManagerConfiguration) rm.getConfiguration();
+    if (rmc.testOption(IRemoteProxyOptions.PORT_FORWARDING)) {
+      final IRemoteServices remServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmc.getRemoteServicesId());
+      final IRemoteUIServices remUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(remServices);
+        if (remServices != null && remUIServices != null) {
+        final IRemoteConnection rmConn = remServices.getConnectionManager().getConnection(rmc.getConnectionName());
+        return rmConn.getAddress();
+      }
+    } else {
+      final String localAddress = rmc.getLocalAddress();
+      if (localAddress != null) {
+        return localAddress;
+      }
+      try {
+        final InetAddress ip = InetAddress.getLocalHost();
+        return ip.getHostAddress();
+      } catch (UnknownHostException except) {
+        // Simply forgets
+      }
+    }
+    return null;
+  }
   
   private void createExecutable(final IRemoteConnection rmConnection, final ILaunchConfiguration configuration,
                                 final IProject project, final IProgressMonitor monitor) throws CoreException {
@@ -321,5 +322,5 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   private static final String MAIN_FILE_NAME = "xxx_main_xxx.cc"; //$NON-NLS-1$
   
   private static final String MAIN_TEMPLATE_FILE = "data/MainMP.xcd"; //$NON-NLS-1$
-
+  
 }
