@@ -38,10 +38,8 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.jface.text.IRegion;
 
-import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
-import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 
 public class ParseController extends SimpleLPGParseController {
@@ -53,20 +51,15 @@ public class ParseController extends SimpleLPGParseController {
     }
 
     public IParser getParser() {
-    	if (fParser == null && fCompiler.getParser() != null) {
-    	    fParser= new ParserDelegate(fCompiler.getParser());
-    	}
     	return fParser;
     }
 
     public ILexer getLexer() {
-        if (fLexer == null) {
-            fLexer = new LexerDelegate(fCompiler.getLexer());
-        }
         return fLexer;
     }
 
     public CompilerDelegate getCompiler() {
+        initializeGlobalsIfNeeded();
         return fCompiler;
     }
 
@@ -97,34 +90,31 @@ public class ParseController extends SimpleLPGParseController {
             File file= new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : path);
 
             fileSource= new FileSource(new StringResource(contents, file, path));
-            
+
             List<Source> streams= new ArrayList<Source>();
             // Bug 526: NPE when opening a file outside the workspace due to null fProject.
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
-            
-            streams.add(fileSource); // PC: just to test...
+
+            streams.add(fileSource);
             fCompiler= new CompilerDelegate(fMonitor, handler, proj); // Create the compiler
             // RMF 5/11/2009 - Make sure to create new parser/lexer delegates, so that no one
             // gets stale information (e.g. prev token stream) if they go through the delegates.
-            fParser= new ParserDelegate(fCompiler.getParser());
-            fLexer= new LexerDelegate(fCompiler.getLexer());
             fCompiler.compile(streams);
+            fParser= new ParserDelegate(fCompiler.getParserFor(fileSource));
+            fLexer= new LexerDelegate(fCompiler.getLexerFor(fileSource));
         } catch (IOException e) {
             throw new Error(e);
         } finally {
             // RMF 8/2/2006 - retrieve the AST if there is one; some later phase of compilation
             // may fail, even though the AST is well-formed enough to provide an outline.
             if (fileSource != null) {
-                Job job= fCompiler.getJob(fileSource);
-                if (job != null) {
-                    fCurrentAst= (Node) job.ast();
-                }
+                fCurrentAst= fCompiler.getASTFor(fileSource);
             }
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
             // Must do this after attempting parsing (even though that might fail), since it depends
             // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
             // ExtensionInfo.parser(). Ugghh.
-            if (getParser() != null) {//PORT1.7
+            if (fParser != null) { //PORT1.7
             	cacheKeywordsOnce();
             }
         }
