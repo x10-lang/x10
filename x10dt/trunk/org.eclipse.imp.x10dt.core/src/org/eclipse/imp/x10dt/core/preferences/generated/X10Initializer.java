@@ -16,6 +16,7 @@ public class X10Initializer extends PreferencesInitializer {
 		IPreferencesService service = X10DTCorePlugin.getInstance().getPreferencesService();
 
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_TABSIZE, 4);
+		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEFAULT_RUNTIME, "");
 		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_SOURCEFONT, "courier");
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_BADPLACERUNTIMECHECK, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_LOOPOPTIMIZATIONS, true);

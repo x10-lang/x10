@@ -18,8 +18,10 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
 import org.eclipse.imp.x10dt.core.X10Util;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -38,18 +40,34 @@ import org.osgi.framework.Constants;
  */
 public class X10RuntimeUtils {
 
-	public static final String X10_TYPES_TYPE_CLASS = "x10/types/Type.class";
-	/**
-	 * Find the jar file for the currently installed runtime plugin
-	 * @return
-	 */
-	public static String findX10RuntimeJar() {
-		return null;
-	}
-	public static String findX10ClassPathEntry(IJavaProject proj) {
-		return null;
-	}
-	private X10RuntimeUtils() {}  // no need to instantiate
+    private static final class BundleJarFileFilter implements FilenameFilter {
+        private final Bundle fBundle;
+
+        private BundleJarFileFilter(Bundle bundle) {
+            fBundle = bundle;
+        }
+
+        public boolean accept(File dir, String name) {
+            return name.contains(fBundle.getSymbolicName()) && name.endsWith(".jar"); //PORT1.7 use constant
+        }
+    }
+
+    public static final String X10_TYPES_TYPE_CLASS = "x10/types/Type.class";
+
+    /**
+     * Find the jar file for the currently installed runtime plugin
+     * @return
+     */
+    public static String findX10RuntimeJar() {
+        return null;
+    }
+
+    public static String findX10ClassPathEntry(IJavaProject proj) {
+        return null;
+    }
+
+    private X10RuntimeUtils() {}  // no need to instantiate
+
 	/**
 	 * Find a valid X10 runtime in a list of class path entries
 	 * <br>PORT1.7 moved here from X10Builder
@@ -205,8 +223,23 @@ public class X10RuntimeUtils {
 	     * @return
 	     */
 	    public static IPath guessJarLocation(final Bundle bundle) {
+	        PreferencesService prefsService = X10DTCorePlugin.getInstance().getPreferencesService();
+	        String runtimeJarDirName = prefsService.getStringPreference(X10Constants.P_DEFAULT_RUNTIME);
 
-	       final String bundleVersion= (String) bundle.getHeaders().get(Constants.BUNDLE_VERSION);
+	        if (prefsService.isDefined(X10Constants.P_DEFAULT_RUNTIME) && runtimeJarDirName.length() > 0) {
+	            File runtimeJarDir = new File(runtimeJarDirName);
+
+	            if (runtimeJarDir.exists() && runtimeJarDir.isDirectory()) {
+	                File[] runtimeJars = runtimeJarDir.listFiles(new BundleJarFileFilter(bundle));
+
+	                if (runtimeJars.length > 0) {
+	                    IPath newestPath = getNewest(runtimeJars);
+
+	                    return newestPath;
+	                }
+	            }
+	        }
+	        final String bundleVersion= (String) bundle.getHeaders().get(Constants.BUNDLE_VERSION);
 	        Location installLoc= Platform.getInstallLocation();
 	        URL installURL= installLoc.getURL();
   
@@ -214,16 +247,12 @@ public class X10RuntimeUtils {
 	        // in which case this won't work
             
 	        if (installURL.getProtocol().equals("file")) {
-	        	String installPath= installURL.getPath();
+	            String installPath= installURL.getPath();
 	            String pluginPath= installPath.concat("/plugins");
 	            File pluginDir= new File(pluginPath);
 
 	            if (pluginDir.exists() && pluginDir.isDirectory()) {
-	                File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
-	                    public boolean accept(File dir, String name) {
-	                        return name.contains(bundle.getSymbolicName()) && name.endsWith(".jar"); //PORT1.7 use constant
-	                    }
-	                });
+	                File[] runtimeJars= pluginDir.listFiles(new BundleJarFileFilter(bundle));
 	                if (runtimeJars.length == 0) {
 	                    return null;
 	                }
@@ -236,23 +265,40 @@ public class X10RuntimeUtils {
 	                        return new Path(jarPath);
 	                    }
 	                }
-	                // Oh well, try the highest version.
-	                TreeSet<String> sortedJars= new TreeSet<String>(new Comparator<String>() {
-	                    public int compare(String o1, String o2) {
-	                        return -o1.compareTo(o2); // Make the sort order decreasing, so that sortedJars.first() gives the greatest element
-	                    }
-	                });
-	                for(int i= 0; i < runtimeJars.length; i++) {
-	                    File jarFile= runtimeJars[i];
-	                    String jarPath= jarFile.getAbsolutePath();
-
-	                    sortedJars.add(jarPath);
-	                }
-	                return new Path(sortedJars.first());
+	                // Oh well, try the latest version.
+	                return getLatestVersion(runtimeJars);
 	            }
 	        }
 	        return null; // we're out of heuristics... (handle the case where install location is remote, for example)
 	    }
+
+            private static IPath getNewest(File[] files) {
+                TreeSet<File> sortedFiles= new TreeSet<File>(new Comparator<File>() {
+                    public int compare(File f1, File f2) {
+                        return (int) (f2.lastModified() - f1.lastModified()); // Use decreasing timestamp order, so sortedFiles.first() gives the newest element
+                    }
+                });
+                for(int i= 0; i < files.length; i++) {
+                    sortedFiles.add(files[i]);
+                }
+                return new Path(sortedFiles.first().getAbsolutePath());
+            }
+
+            private static IPath getLatestVersion(File[] files) {
+                TreeSet<String> sortedFiles= new TreeSet<String>(new Comparator<String>() {
+                    public int compare(String o1, String o2) {
+                        return -o1.compareTo(o2); // Make the sort order decreasing, so that sortedFiles.first() gives the greatest element
+                    }
+                });
+                for(int i= 0; i < files.length; i++) {
+                    File file= files[i];
+                    String filePath= file.getAbsolutePath();
+
+                    sortedFiles.add(filePath);
+                }
+                return new Path(sortedFiles.first());
+	    }
+
 	    /**
 	     * Finds and returns the index of all classpath entries in the argument that
 	     * look like an X10 Runtime entry, including those that may be invalid, so

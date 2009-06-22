@@ -22,6 +22,7 @@ package org.eclipse.imp.x10dt.core.wizards;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -81,13 +82,20 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
      * If this is overridden instead of createLanguageRuntimeEntry(), the list of classpaths here are used instead of the single value from the other.
      */
     @Override
-	protected List<IClasspathEntry> createLanguageRuntimeEntries() {
-		List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-		entries.add(bundleToCpath(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID));
-		entries.add(bundleToCpath(X10DTCorePlugin.X10_CONSTRAINTS_BUNDLE_ID));
-		entries.add(bundleToCpath(X10DTCorePlugin.X10_COMMON_BUNDLE_ID));
-		return entries;
-	}
+    protected List<IClasspathEntry> createLanguageRuntimeEntries() {
+        List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+        addIfNonNull(bundleToCpath(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID), entries);
+        addIfNonNull(bundleToCpath(X10DTCorePlugin.X10_CONSTRAINTS_BUNDLE_ID), entries);
+        addIfNonNull(bundleToCpath(X10DTCorePlugin.X10_COMMON_BUNDLE_ID), entries);
+        return entries;
+    }
+
+    private void addIfNonNull(IClasspathEntry entry, Collection<IClasspathEntry> entries) {
+        if (entry != null) {
+            entries.add(entry);
+        }
+    }
+
     /**
      * Take a bundleID and return the IClasspathEntry for it
      */
@@ -98,6 +106,9 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
          IPath jarlocPath=X10RuntimeUtils.guessJarLocation(bundle);
          
          //IPath p2=new Path(jarloc);
+         if (jarlocPath == null) {
+             return null;
+         }
          IClasspathEntry cpe = JavaCore.newLibraryEntry(jarlocPath, null, null);
          return cpe;
     }
