@@ -1,15 +1,16 @@
-package x10.uide.parser;
+package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import lpg.runtime.Monitor;
+
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.uide.parser.IASTNodeLocator;
-import org.eclipse.uide.parser.ILexer;
-import org.eclipse.uide.parser.IParser;
-import org.eclipse.uide.parser.SimpleLPGParseController;
+import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.ILexer;
+import org.eclipse.imp.parser.IParser;
+import org.eclipse.imp.parser.SimpleLPGParseController;
+
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 

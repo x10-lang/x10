@@ -1,15 +1,15 @@
 /*
  * Created on Jul 20, 2006
  */
-package x10.uide.editor;
+package org.eclipse.imp.x10dt.ui.editor;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.editor.OutlineInformationControl;
-import org.eclipse.uide.editor.OutlineInformationControl.OutlineContentProviderBase;
+import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.editor.OutlineInformationControl;
+import org.eclipse.imp.editor.OutlineInformationControl.OutlineContentProviderBase;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;

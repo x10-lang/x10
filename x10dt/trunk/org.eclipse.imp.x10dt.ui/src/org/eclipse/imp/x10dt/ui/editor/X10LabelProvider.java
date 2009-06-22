@@ -1,29 +1,31 @@
 /*
  * Created on Jul 20, 2006
  */
-package x10.uide.editor;
+package org.eclipse.imp.x10dt.ui.editor;
 
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.utils.MarkerUtils;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
+import org.eclipse.imp.x10dt.ui.views.Outliner;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.utils.MarkerUtils;
+
 import polyglot.ast.ClassDecl;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
 import polyglot.ast.Node;
 import polyglot.ast.ProcedureDecl;
-import x10.uide.X10UIPlugin;
-import x10.uide.views.Outliner;
 
 public class X10LabelProvider implements ILabelProvider, ILanguageService {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();

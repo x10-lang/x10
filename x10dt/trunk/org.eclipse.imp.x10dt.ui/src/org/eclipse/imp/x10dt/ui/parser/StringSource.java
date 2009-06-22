@@ -1,4 +1,4 @@
-package x10.uide.parser;
+package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.File;
 import java.io.IOException;

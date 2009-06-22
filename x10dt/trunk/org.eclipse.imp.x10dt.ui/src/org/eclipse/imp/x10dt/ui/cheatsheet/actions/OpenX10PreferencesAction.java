@@ -1,4 +1,4 @@
-package x10.uide.cheatsheet.actions;
+package org.eclipse.imp.x10dt.ui.cheatsheet.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.preference.PreferenceDialog;

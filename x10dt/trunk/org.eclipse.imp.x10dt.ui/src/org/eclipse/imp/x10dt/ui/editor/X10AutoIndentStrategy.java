@@ -1,5 +1,7 @@
-package x10.uide.editor;
+package org.eclipse.imp.x10dt.ui.editor;
 
+import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -42,8 +44,6 @@ import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.texteditor.ITextEditorExtension3;
-import org.eclipse.uide.core.ILanguageService;
-import x10.uide.X10UIPlugin;
 
 public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy implements ILanguageService {
     /** The line comment introducer. Value is "{@value}" */

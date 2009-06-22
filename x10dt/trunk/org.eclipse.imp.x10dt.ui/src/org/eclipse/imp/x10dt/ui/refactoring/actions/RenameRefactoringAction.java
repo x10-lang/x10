@@ -1,11 +1,20 @@
-package safari.X10.refactoring.actions;
+package org.eclipse.imp.x10dt.ui.refactoring.actions;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.internal.corext.callhierarchy.MethodCall;
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.parser.IASTNodeLocator;
+import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.refactoring.RefactoringStarter;
+import org.eclipse.imp.x10dt.ui.parser.ParseController;
+import org.eclipse.imp.x10dt.ui.refactoring.RefactoringMessages;
+import org.eclipse.imp.x10dt.ui.refactoring.RenameRefactoring;
+import org.eclipse.imp.x10dt.ui.refactoring.RenameWizard;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
@@ -14,14 +23,6 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.TextEditorAction;
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.editor.UniversalEditor;
-import org.eclipse.uide.model.ISourceProject;
-import org.eclipse.uide.model.ModelFactory;
-import org.eclipse.uide.model.ModelFactory.ModelException;
-import org.eclipse.uide.parser.IASTNodeLocator;
-import org.eclipse.uide.parser.IParseController;
-import org.eclipse.uide.refactoring.RefactoringStarter;
 
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
@@ -32,17 +33,9 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
-import polyglot.ast.Term;
-import polyglot.ast.TypeNode;
 import polyglot.types.Declaration;
-import polyglot.types.LocalInstance;
-import polyglot.types.Type;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
-import safari.X10.refactoring.RefactoringMessages;
-import safari.X10.refactoring.RenameRefactoring;
-import safari.X10.refactoring.RenameWizard;
-import x10.uide.parser.ParseController;
 
 public class RenameRefactoringAction extends TextEditorAction {
     private final Node fNode;

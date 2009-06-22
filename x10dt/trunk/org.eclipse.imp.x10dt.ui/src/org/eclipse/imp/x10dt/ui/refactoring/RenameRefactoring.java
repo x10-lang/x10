@@ -1,4 +1,4 @@
-package safari.X10.refactoring;
+package org.eclipse.imp.x10dt.ui.refactoring;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,36 +8,29 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jface.text.IDocument;
+import org.eclipse.imp.analysis.search.PolyglotSourceFinder;
+import org.eclipse.imp.core.LanguageRegistry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.refactoring.IFileVisitor;
+import org.eclipse.imp.refactoring.SourceRange;
+import org.eclipse.imp.refactoring.SourceRangeGroup;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.TextFileChange;
-import org.eclipse.safari.analysis.search.PolyglotSourceFinder;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
-import org.eclipse.uide.core.LanguageRegistry;
-import org.eclipse.uide.refactoring.IFileVisitor;
-import org.eclipse.uide.refactoring.SourceRange;
-import org.eclipse.uide.refactoring.SourceRangeGroup;
 
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.model.ISourceProject;
-import org.eclipse.uide.model.ModelFactory;
-import org.eclipse.uide.model.ModelFactory.ModelException;
-import org.eclipse.uide.parser.IParseController;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
@@ -55,7 +48,6 @@ import polyglot.ast.Stmt;
 import polyglot.types.Declaration;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
-import x10.uide.parser.ParseController;
 
 public class RenameRefactoring extends Refactoring {
     private final IFile fSourceFile;

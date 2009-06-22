@@ -1,4 +1,4 @@
-package x10.safari.contentProposer;
+package org.eclipse.imp.x10dt.ui.contentProposer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,10 @@ import java.util.List;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
+import org.eclipse.imp.editor.IContentProposer;
+import org.eclipse.imp.editor.SourceProposal;
+import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
@@ -15,9 +19,6 @@ import org.eclipse.jface.text.templates.Template;
 import org.eclipse.jface.text.templates.TemplateContext;
 import org.eclipse.jface.text.templates.TemplateContextType;
 import org.eclipse.jface.text.templates.TemplateProposal;
-import org.eclipse.uide.editor.IContentProposer;
-import org.eclipse.uide.editor.SourceProposal;
-import org.eclipse.uide.parser.IParseController;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
@@ -34,7 +35,6 @@ import polyglot.types.Qualifier;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import x10.parser.X10Parsersym;
-import x10.uide.parser.PolyglotNodeLocator;
 
 public class X10ContentProposer implements IContentProposer, X10Parsersym
 {

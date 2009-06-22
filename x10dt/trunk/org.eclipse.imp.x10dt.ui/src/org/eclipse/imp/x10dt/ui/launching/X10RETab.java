@@ -1,14 +1,15 @@
-package x10.uide.launching;
+package org.eclipse.imp.x10dt.ui.launching;
 
 import java.io.File;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
-import org.eclipse.jdt.internal.debug.ui.launcher.LauncherMessages;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
+import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -25,8 +26,6 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import x10.uide.X10UIPlugin;
-import com.ibm.watson.safari.x10.X10Plugin;
 
 public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab {
     protected Text fX10RuntimeText;

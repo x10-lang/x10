@@ -1,4 +1,4 @@
-package x10.uide.views;
+package org.eclipse.imp.x10dt.ui.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,34 +8,26 @@ import java.util.Set;
 
 import lpg.runtime.IToken;
 
+import org.eclipse.imp.defaults.OutlinerBase;
+import org.eclipse.imp.editor.IOutliner;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.texteditor.AbstractTextEditor;
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.defaults.OutlinerBase;
-import org.eclipse.uide.editor.IOutliner;
-import org.eclipse.uide.parser.IParseController;
 
 import polyglot.ast.Block;
+import polyglot.ast.Call_c;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.Formal;
-import polyglot.ast.Node;
-import polyglot.ast.SourceFile;
-import polyglot.ast.Call_c;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ConstructorDecl_c;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.For_c;
+import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl_c;
 import polyglot.ast.New_c;
+import polyglot.ast.Node;
+import polyglot.ast.SourceFile;
 import polyglot.ext.x10.ast.ArrayConstructor_c;
 import polyglot.ext.x10.ast.Async_c;
 import polyglot.ext.x10.ast.AtEach_c;
@@ -47,8 +39,6 @@ import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.X10Loop_c;
 import polyglot.types.Flags;
 import polyglot.visit.NodeVisitor;
-import x10.parser.X10Lexersym;
-import x10.parser.X10Parsersym;
 import x10.parser.X10Parser.JPGPosition;
 
 public class Outliner extends OutlinerBase implements IOutliner

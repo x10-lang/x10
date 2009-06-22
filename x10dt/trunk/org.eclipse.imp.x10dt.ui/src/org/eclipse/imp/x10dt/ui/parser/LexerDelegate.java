@@ -1,4 +1,4 @@
-package x10.uide.parser;
+package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.IOException;
 
@@ -6,7 +6,8 @@ import lpg.runtime.IPrsStream;
 import lpg.runtime.LexStream;
 import lpg.runtime.Monitor;
 
-import org.eclipse.uide.parser.ILexer;
+import org.eclipse.imp.parser.ILexer;
+
 import x10.parser.X10Lexer;
 
 public class LexerDelegate implements ILexer

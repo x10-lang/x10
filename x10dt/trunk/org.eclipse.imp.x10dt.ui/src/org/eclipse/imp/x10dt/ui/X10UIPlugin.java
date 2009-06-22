@@ -1,14 +1,14 @@
-package x10.uide;
+package org.eclipse.imp.x10dt.ui;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import com.ibm.watson.safari.x10.X10Plugin;
 
 public class X10UIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "x10.uide";

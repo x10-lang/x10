@@ -1,4 +1,4 @@
-package x10.uide.perspective;
+package org.eclipse.imp.x10dt.ui.perspective;
 
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.ui.JavaUI;

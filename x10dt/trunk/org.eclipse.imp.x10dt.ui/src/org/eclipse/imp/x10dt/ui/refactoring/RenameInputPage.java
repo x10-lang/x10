@@ -1,4 +1,4 @@
-package safari.X10.refactoring;
+package org.eclipse.imp.x10dt.ui.refactoring;
 
 import org.eclipse.ltk.ui.refactoring.UserInputWizardPage;
 import org.eclipse.swt.SWT;

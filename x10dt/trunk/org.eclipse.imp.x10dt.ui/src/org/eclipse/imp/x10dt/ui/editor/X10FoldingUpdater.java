@@ -1,4 +1,4 @@
-package x10.uide.editor;
+package org.eclipse.imp.x10dt.ui.editor;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,15 +9,28 @@ import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
+import org.eclipse.imp.core.ErrorHandler;
+import org.eclipse.imp.editor.IFoldingUpdater;
+import org.eclipse.imp.parser.IParseController;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
-import org.eclipse.uide.core.ErrorHandler;
-import org.eclipse.uide.editor.IFoldingUpdater;
-import org.eclipse.uide.parser.IParseController;
 
-import polyglot.ast.*;
+import polyglot.ast.Block;
+import polyglot.ast.Catch;
+import polyglot.ast.ClassDecl;
+import polyglot.ast.ConstructorDecl;
+import polyglot.ast.If;
+import polyglot.ast.Initializer;
+import polyglot.ast.Loop;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.Node;
+import polyglot.ast.SourceFile;
+import polyglot.ast.Stmt;
+import polyglot.ast.Switch;
+import polyglot.ast.SwitchBlock;
+import polyglot.ast.Try;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.AtEach;
 import polyglot.ext.x10.ast.Atomic;

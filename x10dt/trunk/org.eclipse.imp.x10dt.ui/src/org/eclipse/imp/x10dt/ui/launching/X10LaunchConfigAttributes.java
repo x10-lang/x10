@@ -1,4 +1,4 @@
-package x10.uide.launching;
+package org.eclipse.imp.x10dt.ui.launching;
 
 public interface X10LaunchConfigAttributes {
 

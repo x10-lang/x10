@@ -1,8 +1,8 @@
-package safari.X10.refactoring.actions;
+package org.eclipse.imp.x10dt.ui.refactoring.actions;
 
+import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.editor.UniversalEditor.IRefactoringContributor;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.uide.editor.UniversalEditor;
-import org.eclipse.uide.editor.UniversalEditor.IRefactoringContributor;
 
 
 public class RefactoringContributor implements IRefactoringContributor {

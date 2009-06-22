@@ -1,9 +1,10 @@
-package x10.uide.launching;
+package org.eclipse.imp.x10dt.ui.launching;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -14,6 +15,8 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -30,8 +33,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
-import x10.uide.X10UIPlugin;
-import com.ibm.watson.safari.x10.X10Plugin;
 
 public class X10LaunchShortcut implements ILaunchShortcut {
     public static final String X10LaunchConfigTypeID= "x10.uide.launching.X10LaunchConfigurationType";

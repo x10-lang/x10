@@ -1,15 +1,15 @@
-package x10.uide.editor;
+package org.eclipse.imp.x10dt.ui.editor;
 
+import lpg.runtime.IToken;
+
+import org.eclipse.imp.defaults.TokenColorerBase;
+import org.eclipse.imp.editor.ITokenColorer;
+import org.eclipse.imp.parser.IParseController;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.uide.defaults.TokenColorerBase;
-import org.eclipse.uide.editor.ITokenColorer;
-import org.eclipse.uide.parser.IParseController;
- 
-import x10.parser.X10Parsersym;
 
-import lpg.runtime.IToken;
+import x10.parser.X10Parsersym;
 
 public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, ITokenColorer {
 

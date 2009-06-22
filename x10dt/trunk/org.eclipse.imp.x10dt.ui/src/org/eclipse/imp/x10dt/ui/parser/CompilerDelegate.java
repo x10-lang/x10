@@ -1,4 +1,4 @@
-package x10.uide.parser;
+package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,8 +10,10 @@ import lpg.runtime.Monitor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.builder.PolyglotFrontEnd;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -25,14 +27,8 @@ import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
-import polyglot.util.StdErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
-import x10.uide.X10UIPlugin;
-
-import com.ibm.watson.safari.x10.X10Plugin;
-import com.ibm.watson.safari.x10.builder.PolyglotFrontEnd;
-import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
 public class CompilerDelegate {
     private ExtensionInfo extInfo;
@@ -48,7 +44,7 @@ public class CompilerDelegate {
     CompilerDelegate(Monitor monitor, IProject project) {
 	this.x10Project= (project != null) ? JavaCore.create(project) : null;
 
-        extInfo= new x10.uide.parser.ExtensionInfo(monitor); // new ExtensionInfo(monitor);
+        extInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor); // new ExtensionInfo(monitor);
         buildOptions(extInfo);
         ErrorQueue eq= new SilentErrorQueue(100000, "stderr");
         fe = new PolyglotFrontEnd(extInfo, eq);

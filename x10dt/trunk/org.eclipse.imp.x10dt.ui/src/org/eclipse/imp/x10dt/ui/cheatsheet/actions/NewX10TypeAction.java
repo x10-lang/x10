@@ -1,12 +1,12 @@
-package x10.uide.cheatsheet.actions;
+package org.eclipse.imp.x10dt.ui.cheatsheet.actions;
 
+import org.eclipse.imp.x10dt.core.wizards.NewX10ClassWizard;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.cheatsheets.ICheatSheetAction;
 import org.eclipse.ui.cheatsheets.ICheatSheetManager;
-import com.ibm.watson.safari.x10.wizards.NewX10ClassWizard;
 
 public class NewX10TypeAction extends Action implements ICheatSheetAction {
     public NewX10TypeAction() {

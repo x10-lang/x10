@@ -1,12 +1,15 @@
 /*
  * Created on Feb 9, 2006
  */
-package x10.uide.parser;
+package org.eclipse.imp.x10dt.ui.parser;
 
-import lpg.runtime.*;
+import lpg.runtime.IPrsStream;
+import lpg.runtime.LexStream;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.parser.IASTNodeLocator;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -14,9 +17,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.uide.model.ISourceProject;
-import org.eclipse.uide.parser.IASTNodeLocator;
-import x10.parser.X10Parser.JPGPosition;		// SMS 14 Jun 2006
 
 import polyglot.ast.Node;
 import polyglot.types.Declaration;

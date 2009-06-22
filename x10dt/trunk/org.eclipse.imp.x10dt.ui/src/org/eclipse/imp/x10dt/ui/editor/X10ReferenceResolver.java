@@ -1,10 +1,10 @@
-package x10.uide.editor;
+package org.eclipse.imp.x10dt.ui.editor;
 
-import java.util.List;
-import org.eclipse.uide.core.ILanguageService;
-import org.eclipse.uide.editor.IReferenceResolver;
-import org.eclipse.uide.editor.ReferenceResolver;
-import org.eclipse.uide.parser.IParseController;
+import org.eclipse.imp.core.ILanguageService;
+import org.eclipse.imp.editor.IReferenceResolver;
+import org.eclipse.imp.parser.IParseController;
+import org.eclipse.imp.x10dt.ui.parser.PolyglotNodeLocator;
+
 import polyglot.ast.Ambiguous;
 import polyglot.ast.Call;
 import polyglot.ast.Field;
@@ -13,16 +13,11 @@ import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
-import polyglot.ast.Receiver;
-import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
-import polyglot.types.Declaration;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodInstance;
-import polyglot.types.ReferenceType;
 import polyglot.visit.NodeVisitor;
-import x10.uide.parser.PolyglotNodeLocator;
 
 public class X10ReferenceResolver implements IReferenceResolver, ILanguageService {
     /**

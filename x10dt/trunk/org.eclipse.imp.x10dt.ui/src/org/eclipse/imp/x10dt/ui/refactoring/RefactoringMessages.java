@@ -1,4 +1,4 @@
-package safari.X10.refactoring;
+package org.eclipse.imp.x10dt.ui.refactoring;
 
 import java.util.ResourceBundle;
 

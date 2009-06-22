@@ -1,4 +1,4 @@
-package x10.uide.launching;
+package org.eclipse.imp.x10dt.ui.launching;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -10,10 +10,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
-import org.eclipse.jdt.launching.ExecutionArguments;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
@@ -21,7 +19,6 @@ import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import x10.uide.X10UIPlugin;
 
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
     private final static String x10RuntimeType= "x10.lang.Runtime";
