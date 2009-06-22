@@ -95,7 +95,8 @@ public final class X10Debugger implements IPDebugger {
   public void initialize(final ILaunchConfiguration config, final AttributeManager attrMgr, 
                          final IProgressMonitor monitor) throws CoreException {
     this.fPort = getPort(config);
-    this.fPDIDebugger = new X10PDIDebugger(this.fPort, 2); //TODO We're going to be forced to move the listening part :-/
+    int numProcs = Integer.parseInt(config.getAttribute("MP_PROCS", "1"));
+    this.fPDIDebugger = new X10PDIDebugger(this.fPort, numProcs); //TODO We're going to be forced to move the listening part :-/
     try {
       this.fPDIDebugger.initialize(config, new ArrayList<String>(), monitor);
     } catch (PDIException except) {

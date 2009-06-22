@@ -79,6 +79,7 @@ import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugErrorEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugEventFactory;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugInfoThreadsEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugOKEvent;
+import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugPartialAIFEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugSetThreadSelectEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStackInfoDepthEvent;
 import org.eclipse.ptp.internal.proxy.debug.event.ProxyDebugStackframeEvent;
@@ -155,10 +156,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
     return errorCode;
   }
 
-  public void initialize(final ILaunchConfiguration configuration, final List<String> args, 
+  public void initialize(final ILaunchConfiguration configuration, final List<String> args,
                          final IProgressMonitor monitor) throws PDIException {
     try {
-      this.fServerSocket = new ServerSocket(8001);
+      this.fServerSocket = new ServerSocket(this.fPort);
       this.fState = ESessionState.CONNECTED;
       try {
         final String projName = configuration.getAttribute(IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String) null);
@@ -284,20 +285,20 @@ public final class X10PDIDebugger implements IPDIDebugger {
       for (final Pair<BitList,IPDTTarget> pair : getAllPDTTargets(tasks)) {
         final IDebuggerTranslator translator = this.fTaskToTranslator.get(pair.fst());
         if (translator == null) {
-          notifyErrorEvent(tasks, IPDIErrorInfo.DBG_WARNING, 
+          notifyErrorEvent(tasks, IPDIErrorInfo.DBG_WARNING,
                            NLS.bind("Could not find translator for task {0}", pair.fst()));
           break;
         }
         final Location location = translator.getCppLocation(pair.snd().getProcess(), breakpoint.getLocator().getFile(),
                                                             breakpoint.getLocator().getLineNumber());
         if (location == null) {
-          notifyErrorEvent(tasks, IPDIErrorInfo.DBG_WARNING, 
+          notifyErrorEvent(tasks, IPDIErrorInfo.DBG_WARNING,
                            NLS.bind("Could not find PDT location for breakpoint {0}", breakpoint.getLocator()));
           break;
         }
-        pair.snd().getTarget().createLineBreakpoint(true /* enabled */, location, null /* conditionalExpression */, 
-                                                    null /* brkAction */,  0 /* threadNumber */, 1 /* everyValue */, 
-                                                    1 /* fromValue */, 0 /* toValue */, breakpoint, 
+        pair.snd().getTarget().createLineBreakpoint(true /* enabled */, location, null /* conditionalExpression */,
+                                                    null /* brkAction */,  0 /* threadNumber */, 1 /* everyValue */,
+                                                    1 /* fromValue */, 0 /* toValue */, breakpoint,
                                                     null /* stmtNumber */, null /* engineData */);
       }
     } catch (EngineRequestException except) {
@@ -363,8 +364,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
         // TODO: consolidate same stack frames into one event
         final IStackFrame stackFrame = thread.getTopStackFrame();
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0), 
-                                                           thread.getId(), getDepth(thread), 
+                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
+                                                           thread.getId(), getDepth(thread),
                                                            getVariablesAsStringArray(stackFrame)));
       }
     } catch (DebugException except) {
@@ -402,8 +403,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
         }
         final IStackFrame stackFrame = thread.getTopStackFrame();
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0), 
-                                                           thread.getId(), getDepth(thread), 
+                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
+                                                           thread.getId(), getDepth(thread),
                                                            getVariablesAsStringArray(stackFrame)));
       }
     } catch (DebugException except) {
@@ -440,8 +441,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
         // TODO: consolidate same stack frames into one event
         final IStackFrame stackFrame = thread.getTopStackFrame();
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0), 
-                                                           thread.getId(), getDepth(thread), 
+                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
+                                                           thread.getId(), getDepth(thread),
                                                            getVariablesAsStringArray(stackFrame)));
       }
     } catch (DebugException except) {
@@ -481,8 +482,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
         // TODO: consolidate same stack frames into one event
         final IStackFrame stackFrame = thread.getTopStackFrame();
         this.fProxyNotifier.notify(new ProxyDebugStepEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0), 
-                                                           thread.getId(), getDepth(thread), 
+                                                           toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
+                                                           thread.getId(), getDepth(thread),
                                                            getVariablesAsStringArray(stackFrame)));
       }
     } catch (DebugException except) {
@@ -497,23 +498,23 @@ public final class X10PDIDebugger implements IPDIDebugger {
       try {
         for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
           pair.snd().halt();
-          DebuggeeThread firstAvailableThread = null;
-          for (final DebuggeeThread thread : pair.snd().getThreads()) {
-            if (thread != null) {
-              firstAvailableThread = thread;
-              break;
-            }
-          }
-          assert firstAvailableThread != null;
-          final IStackFrame stackFrame = firstAvailableThread.getTopStackFrame();
-          this.fProxyNotifier.notify(new ProxyDebugSuspendEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
-                                                                toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
-                                                                firstAvailableThread.getId(),
-                                                                firstAvailableThread.getStackFrames().length,
-                                                                getVariablesAsStringArray(stackFrame)));
+//          DebuggeeThread firstAvailableThread = null;
+//          for (final DebuggeeThread thread : pair.snd().getThreads()) {
+//            if (thread != null) {
+//              firstAvailableThread = thread;
+//              break;
+//            }
+//          }
+//          assert firstAvailableThread != null;
+//          final IStackFrame stackFrame = firstAvailableThread.getTopStackFrame();
+//          this.fProxyNotifier.notify(new ProxyDebugSuspendEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
+//                                                                toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0),
+//                                                                firstAvailableThread.getId(),
+//                                                                firstAvailableThread.getStackFrames().length,
+//                                                                getVariablesAsStringArray(stackFrame)));
         }
-      } catch (DebugException except) {
-        notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Suspend operation: " + except.getMessage());
+//      } catch (DebugException except) {
+//        notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Suspend operation: " + except.getMessage());
       } catch (EngineRequestException except) {
         notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Halt operation refused by PDT: " + except.getMessage());
       }
@@ -560,7 +561,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
             args.add(variables[j].getName());
           }
         }
-        this.fProxyNotifier.notify(new ProxyDebugArgsEvent(1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()), 
+        // TODO: consolidate the events
+        this.fProxyNotifier.notify(new ProxyDebugArgsEvent(1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            args.toArray(new String[args.size()])));
       }
     } catch (DebugException except) {
@@ -576,7 +578,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
       for (final GlobalVariable globalVariable : globalVars) {
         strGlobalVars[++i] = globalVariable.getName();
       }
-      this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()), 
+      // TODO: consolidate the events
+      this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                          strGlobalVars));
     }
   }
@@ -601,32 +604,34 @@ public final class X10PDIDebugger implements IPDIDebugger {
         final StackFrame stackFrame = getCurrentStackFrame(thread);
         final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
         final ProxyDebugAIF aif = createDebugProxyAIF(pair.snd(), thread, location, expr, pair.fst(), false);
+        // TODO: consolidate the events
         this.fProxyNotifier.notify(new ProxyDebugDataEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()), aif));
       }
     } catch (EngineRequestException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during expression evaluation with PDT: " + except.getMessage());
     } catch (MemoryException except) {
-      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, 
+      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL,
                        NLS.bind("Unable to evaluate ''{0}'' via memory request: " + except.getMessage(), expr));
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Value Evaluation: " + except.getMessage());
     }
   }
 
-  public void retrievePartialAIF(final BitList tasks, final String expr, final String key, final boolean listChildren, 
+  public void retrievePartialAIF(final BitList tasks, final String expr, final String key, final boolean listChildren,
                                  final boolean isExpression) throws PDIException {
     try {
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final DebuggeeThread thread = pair.snd().getStoppingThread();
         final StackFrame stackFrame = getCurrentStackFrame(thread);
         final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
-        final ProxyDebugAIF aif = createDebugProxyAIF(pair.snd(), thread, location, expr, pair.fst(), false);
-        this.fProxyNotifier.notify(new ProxyDebugDataEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()), aif));
+        final ProxyDebugAIF aif = createDebugProxyAIF(pair.snd(), thread, location, expr, pair.fst(), listChildren);
+        // TODO: consolidate the events
+        this.fProxyNotifier.notify(new ProxyDebugPartialAIFEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()), aif, expr));
       }
     } catch (EngineRequestException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during expression evaluation with PDT: " + except.getMessage());
     } catch (MemoryException except) {
-      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, 
+      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL,
                        NLS.bind("Unable to evaluate ''{0}'' via memory request: " + except.getMessage(), expr));
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Value Evaluation: " + except.getMessage());
@@ -640,13 +645,14 @@ public final class X10PDIDebugger implements IPDIDebugger {
         final StackFrame stackFrame = getCurrentStackFrame(thread);
         final Location location = stackFrame.getCurrentLocation(thread.getViewInformation());
         final ProxyDebugAIF aif = createDebugProxyAIF(pair.snd(), thread, location, variable, pair.fst(), false);
+        // TODO: consolidate the events
         this.fProxyNotifier.notify(new ProxyDebugTypeEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                            aif.getFDS()));
       }
     } catch (EngineRequestException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Expression Evaluation with PDT: " + except.getMessage());
     } catch (MemoryException except) {
-      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, 
+      notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL,
                        NLS.bind("Unable to evaluate ''{0}'' via memory request: ", except.getMessage()));
     } catch (DebugException except) {
       notifyErrorEvent(tasks, IPDIErrorInfo.DBG_FATAL, "Error during Variable Type Evaluation: " + except.getMessage());
@@ -674,6 +680,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         for (int i = low; i < depth; ++i) {
           proxyStackFrames[i] = toProxyStackFrame(pair.fst(), pair.snd(), stackFrames[i], i);
         }
+        // TODO: consolidate same stack frame sets into one event
         this.fProxyNotifier.notify(new ProxyDebugStackframeEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                                  proxyStackFrames));
       }
@@ -690,6 +697,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
         if (level < stackFrames.length) {
           StackFrame frame = (StackFrame) stackFrames[level];
           thread.getLocals(frame);
+          // TODO: consolidate the events
           this.fProxyNotifier.notify(new ProxyDebugVarsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                              getVariablesAsStringArray(frame)));
         } else {
@@ -712,16 +720,19 @@ public final class X10PDIDebugger implements IPDIDebugger {
           threadIds.add(String.valueOf(thread.getId()));
         }
       }
+      // TODO: consolidate the events
       this.fProxyNotifier.notify(new ProxyDebugInfoThreadsEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(pair.fst()),
                                                                 threadIds.toArray(new String[threadIds.size()])));
     }
   }
 
   public void retrieveStackInfoDepth(final BitList tasks) throws PDIException {
+    // send one event per unique depth value...
     try {
       for (final Pair<BitList, DebuggeeProcess> pair : getAllProcesses(tasks)) {
         final int depth = pair.snd().getStoppingThread().getStackFrames().length;
-        this.fProxyNotifier.notify(new ProxyDebugStackInfoDepthEvent(-1 /* transId */, 
+        // TODO: consolidate the events
+        this.fProxyNotifier.notify(new ProxyDebugStackInfoDepthEvent(-1 /* transId */,
                                                                      ProxyDebugClient.encodeBitSet(pair.fst()), depth));
       }
     } catch (DebugException except) {
@@ -739,8 +750,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
                                                                    new ProxyDebugStackFrame[0]));
         } else {
           final ProxyDebugStackFrame proxyStackFrame = toProxyStackFrame(pair.fst(), pair.snd(), stackFrame, 0);
-          
-          this.fProxyNotifier.notify(new ProxyDebugSetThreadSelectEvent(-1 /* transId */, 
+          // TODO: consolidate the events
+          this.fProxyNotifier.notify(new ProxyDebugSetThreadSelectEvent(-1 /* transId */,
                                                                         ProxyDebugClient.encodeBitSet(pair.fst()),
                                                                         tid, proxyStackFrame));
         }
@@ -752,14 +763,18 @@ public final class X10PDIDebugger implements IPDIDebugger {
   
   // --- IPDIMemoryBlockManagement's interface methods implementation
 
-  public void createDataReadMemory(final BitList tasks, final long offset, final String address, final int wordFormat, 
-                                   final int wordSize, final int rows, final int cols, 
-                                   final Character asChar) throws PDIException {
+  public void createDataReadMemory(final BitList tasks, final long offset, final String address, final int wordFormat,
+                                   final int wordSize, final int rows, final int cols,
+                                   final Character asChar) throws PDIException
+  {
+    // TODO: report error instead
     notifyOkEvent(tasks);
   }
 
-  public void createDataWriteMemory(final BitList tasks, final long offset, final String address, final int wordFormat, 
-                                    final int wordSize, final String value) throws PDIException {
+  public void createDataWriteMemory(final BitList tasks, final long offset, final String address, final int wordFormat,
+                                    final int wordSize, final String value) throws PDIException
+  {
+    // TODO: report error instead
     notifyOkEvent(tasks);
   }
   
@@ -790,9 +805,9 @@ public final class X10PDIDebugger implements IPDIDebugger {
   
   // --- Private code
   
-  private ProxyDebugAIF createDebugProxyAIF(final DebuggeeProcess process, final DebuggeeThread thread, 
+  private ProxyDebugAIF createDebugProxyAIF(final DebuggeeProcess process, final DebuggeeThread thread,
                                             final Location location, final String expr, final BitList task,
-                                            boolean listChildren) throws EngineRequestException, DebugException, 
+                                            boolean listChildren) throws EngineRequestException, DebugException,
                                                                          MemoryException, PDIException {
     String base = expr;
     if (listChildren) // Expanding an existing expression
@@ -924,8 +939,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
       assert (!listChildren);
       // GlobalVariable[] globals = process.getDebugEngine().getGlobalVariables();
       // for (GlobalVariable v : globals) {
-      // if (v.getName().equals("x10aux::nullString"))
-      // evaluateExpression(v.getExpression().replace("\nx10aux", "\n&x10aux"), process, thread, location);
+      //   if (v.getName().equals("x10aux::nullString"))
+      //     evaluateExpression(v.getExpression().replace("\nx10aux", "\n&x10aux"), process, thread, location);
       // }
       X10String string = new X10String(process, thread, location, result);
       int length = (int) string.getLength();
@@ -1062,17 +1077,10 @@ public final class X10PDIDebugger implements IPDIDebugger {
     return loadInfo;
   }
   
-  private void dumpBytes(final MemoryByte[] cbytes) {
-    for (final MemoryByte memByte : cbytes) {
-      System.out.print(PDTUtils.toHexString(memByte.getValue() & 0xFF, 2) + " ");
-    }
-    System.out.println();
-  }
-  
-  private void dumpMemory(final DebuggeeProcess process, final long ptr, final int length) {
+  public static void dumpMemory(final DebuggeeProcess process, final long ptr, final int length) {
     try {
       final DebuggeeThread thread = process.getStoppingThread();
-      final Address contentAddress = process.convertToAddress("0x" + PDTUtils.toHexString(ptr, 16), 
+      final Address contentAddress = process.convertToAddress("0x" + PDTUtils.toHexString(ptr, 16),
                                                               thread.getLocation(thread.getViewInformation()), thread);
       final Memory memory = process.getMemory(contentAddress.getAddress(), length);
       final MemoryByte[] cbytes = memory.getMemory();
@@ -1080,49 +1088,24 @@ public final class X10PDIDebugger implements IPDIDebugger {
     } catch (MemoryException e) { }
   }
   
-  private byte[] extractBytes(final MemoryByte[] mbytes) {
-    final byte[] bytes = new byte[mbytes.length];
-    for (int i = 0; i < mbytes.length; i++) {
-      bytes[i] = mbytes[i].getValue();
-    }
-    return bytes;
-  }
-
-  private int extractInt(final MemoryByte[] mbytes, final int offset) { // FIXME: endianness
-    return ((mbytes[offset + 0].getValue() & 0xFF) << 24) | ((mbytes[offset + 1].getValue() & 0xFF) << 16) | 
-            ((mbytes[offset + 2].getValue() & 0xFF) << 8) | ((mbytes[offset + 3].getValue() & 0xFF) << 0);
-  }
-
-  private long extractLong(final MemoryByte[] mbytes, final int offset) { // FIXME: endianness
-    return ((mbytes[offset + 0].getValue() & 0xFFl) << 56) | ((mbytes[offset + 1].getValue() & 0xFFl) << 48) | 
-            ((mbytes[offset + 2].getValue() & 0xFFl) << 40) | ((mbytes[offset + 3].getValue() & 0xFFl) << 32) | 
-            ((mbytes[offset + 4].getValue() & 0xFFl) << 24) | ((mbytes[offset + 5].getValue() & 0xFFl) << 16) | 
-            ((mbytes[offset + 6].getValue() & 0xFFl) << 8) | ((mbytes[offset + 7].getValue() & 0xFFl) << 0);
-  }
-
-  private long extractPointer(final MemoryByte[] mbytes, final int offset) {
-    if (PTR_SIZE == LONG_SIZE) {
-      return extractLong(mbytes, offset);
-    } else {
-      return extractInt(mbytes, offset);
-    }
-  }
-
   private ExprNodeBase evaluateExpression(final String expr, DebuggeeProcess process, final DebuggeeThread thread,
                                           final Location location) throws EngineRequestException {
     // ExpressionBase expression = thread.evaluateExpression(location, expr, 0 /* expansionLevel */, 0);
     ExpressionBase expression = process.monitorExpression(location.getEStdView(), thread.getId(), expr,
                                                           IEPDCConstants.MonEnable, IEPDCConstants.MonTypeProgram, null, null,
                                                           null, null);
+    if (expression == null)
+    	System.out.println("\tGot null from evaluating '"+expr+"'");
     return expression.getRootNode();
   }
   
   /**
-   * Expanding a derived expression - extract base expression. This could be one of the following: <li>*(base+off)@num <li>
-   * base[idx] <li>base.fld
-   * 
-   * @param expr
-   *          the derived expression
+   * Expanding a derived expression - extract base expression.
+   * This could be one of the following:
+   * <li> *(base+off)@num
+   * <li> base[idx]
+   * <li> base.fld
+   * @param expr the derived expression
    * @return the base expression to evaluate
    */
   private String extractBaseExpr(final String expr) {
@@ -1157,9 +1140,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
   }
   
   /**
-   * Finds a matching bracket/brace/parenthesis, starting at a given position. If the character at that position is an opening
-   * bracket, looks forward, otherwise looks backward.
-   * 
+   * Finds a matching bracket/brace/parenthesis, starting at a given position.
+   * If the character at that position is an opening bracket, looks forward, otherwise looks backward.
    * @param str the string
    * @param pos starting position
    * @return the position of a matching bracket, or -1 if none (or if bracket not recognized).
@@ -1170,40 +1152,15 @@ public final class X10PDIDebugger implements IPDIDebugger {
     char orig = c;
     char match;
     switch (orig) {
-    case '[':
-      match = ']';
-      forward = true;
-      break;
-    case '(':
-      match = ')';
-      forward = true;
-      break;
-    case '{':
-      match = '}';
-      forward = true;
-      break;
-    case '<':
-      match = '>';
-      forward = true;
-      break;
-    case ']':
-      match = '[';
-      forward = false;
-      break;
-    case ')':
-      match = '(';
-      forward = false;
-      break;
-    case '}':
-      match = '{';
-      forward = false;
-      break;
-    case '>':
-      match = '<';
-      forward = false;
-      break;
-    default:
-      return -1;
+    case '[': match = ']'; forward = true; break;
+    case '(': match = ')'; forward = true; break;
+    case '{': match = '}'; forward = true; break;
+    case '<': match = '>'; forward = true; break;
+    case ']': match = '['; forward = false; break;
+    case ')': match = '('; forward = false; break;
+    case '}': match = '{'; forward = false; break;
+    case '>': match = '<'; forward = false; break;
+    default: return -1;
     }
     int count = 1;
     int incr = forward ? 1 : -1;
@@ -1224,7 +1181,6 @@ public final class X10PDIDebugger implements IPDIDebugger {
     final IPDIEvent resumeEvent = this.fPDISession.getEventFactory().newResumedEvent(this.fPDISession, tasks, type);
     this.fPDISession.getEventManager().fireEvent(resumeEvent);
   }
-
   
   private Iterable<Pair<BitList,DebuggeeProcess>> getAllProcesses(final BitList tasks) throws PDIException {
     final Collection<Pair<BitList,DebuggeeProcess>> allProcesses = new ArrayList<Pair<BitList,DebuggeeProcess>>();
@@ -1367,13 +1323,13 @@ public final class X10PDIDebugger implements IPDIDebugger {
       return EPDTVarExprType.FLOAT;
     } else if ("x10_double".equals(type)) {
       return EPDTVarExprType.DOUBLE;
-    } else if (type.endsWith("*")) {
-      return EPDTVarExprType.ADDRESS;
     } else if (type.startsWith("class ref<x10__lang__Rail<")) {
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("x10aux__ref<x10__lang__Rail<")) {
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("class x10aux::ref<x10::lang::Rail<")) {
+      return EPDTVarExprType.ARRAY;
+    } else if (type.startsWith("x10aux::ref<x10::lang::Rail<")) {
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("class ref<x10__lang__ValRail<")) {
       return EPDTVarExprType.ARRAY;
@@ -1381,22 +1337,34 @@ public final class X10PDIDebugger implements IPDIDebugger {
       return EPDTVarExprType.ARRAY;
     } else if (type.startsWith("class x10aux::ref<x10::lang::ValRail<")) {
       return EPDTVarExprType.ARRAY;
+    } else if (type.startsWith("x10aux::ref<x10::lang::ValRail<")) {
+      return EPDTVarExprType.ARRAY;
     } else if (type.equals("class ref<x10__lang__String>")) {
       return EPDTVarExprType.STRING;
     } else if (type.equals("x10aux__ref<x10__lang__String>")) {
       return EPDTVarExprType.STRING;
     } else if (type.equals("class x10aux::ref<x10::lang::String>")) {
       return EPDTVarExprType.STRING;
+    } else if (type.equals("x10aux::ref<x10::lang::String>")) {
+      return EPDTVarExprType.STRING;
     } else if (type.startsWith("class ref<")) {
       return EPDTVarExprType.STRUCT;
     } else if (type.startsWith("x10aux__ref<")) {
       return EPDTVarExprType.STRUCT;
+    } else if (type.startsWith("class x10aux::ref<")) {
+      return EPDTVarExprType.STRUCT;
+    } else if (type.startsWith("x10aux::ref<")) {
+      return EPDTVarExprType.STRUCT;
+    } else if (type.startsWith("class ") && type.endsWith("*")) {
+      return EPDTVarExprType.STRUCT;
+    } else if (type.endsWith("*")) {
+      return EPDTVarExprType.ADDRESS;
     } else {
       return EPDTVarExprType.UNKNOWN;
     }
   }
   
-  private Location getPDTLocation(final DebuggeeProcess process, final DebuggeeThread thread, final BitList tasks, 
+  private Location getPDTLocation(final DebuggeeProcess process, final DebuggeeThread thread, final BitList tasks,
                                   final IPDILocation pdiLocation) throws PDIException {
     if (pdiLocation instanceof IPDILineLocation) {
       final ViewFile curViewFile = thread.getLocation(thread.getViewInformation()).getViewFile();
@@ -1527,7 +1495,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
   }
   
   private void notifyErrorEvent(final BitList tasks, final int errorCode, final String message) {
-    this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks), errorCode, 
+    this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, ProxyDebugClient.encodeBitSet(tasks), errorCode,
                                                         message));
   }
   
@@ -1608,7 +1576,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
     });
   }
   
-  private ProxyDebugStackFrame toProxyStackFrame(final BitList task, final DebuggeeProcess process, 
+  private ProxyDebugStackFrame toProxyStackFrame(final BitList task, final DebuggeeProcess process,
                                                  final IStackFrame stackFrame, final int level) throws PDIException {
     final StackFrame frame = (StackFrame) stackFrame;
     final Location location = frame.getLocation(frame.getViewInformation());
@@ -1617,7 +1585,8 @@ public final class X10PDIDebugger implements IPDIDebugger {
     }
     String cppFile = location.getViewFile().getBaseFileName();
     int cppLine = location.getLineNumber();
-    String cppFunction = location.getFunctionsAtThisLocation()[0].getName();
+    Function[] functions = location.getFunctionsAtThisLocation();
+    String cppFunction = functions.length == 0 ? "UNKNOWN" : functions[0].getName();
     final IDebuggerTranslator translator = this.fTaskToTranslator.get(task);
     if (translator == null) {
       throw new PDIException(task, "Unable to get translator for task " + task);
@@ -1630,7 +1599,7 @@ public final class X10PDIDebugger implements IPDIDebugger {
       lineNumber = cppLine;
       function = cppFunction;
     }
-    return ProxyDebugEventFactory.toFrame(String.valueOf(level), file, function, String.valueOf(lineNumber), 
+    return ProxyDebugEventFactory.toFrame(String.valueOf(level), file, function, String.valueOf(lineNumber),
                                           (String) null /* address */);
   }
   
