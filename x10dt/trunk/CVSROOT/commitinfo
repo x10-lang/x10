@@ -13,8 +13,8 @@
 #
 # If the name "ALL" appears as a regular expression it is always used
 # in addition to the first matching regex or "DEFAULT".
-CVSROOT				/usr/bin/true
-org\.eclipse\.imp\.x10dt	/usr/bin/true
-org\.eclipse\.imp\.analysis	/usr/bin/true
-org\.eclipse\.imp\.java\.core	/usr/bin/true
-DEFAULT				/usr/bin/true
+CVSROOT				/bin/true
+org\.eclipse\.imp\.x10dt	/bin/true
+org\.eclipse\.imp\.analysis	/bin/true
+org\.eclipse\.imp\.java\.core	/bin/true
+DEFAULT				/bin/true
