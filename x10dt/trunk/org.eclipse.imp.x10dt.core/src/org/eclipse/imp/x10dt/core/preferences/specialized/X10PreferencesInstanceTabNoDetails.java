@@ -33,12 +33,15 @@ import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferenceCache;
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesTab;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
 import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -111,14 +114,15 @@ public class X10PreferencesInstanceTabNoDetails extends
 		
 		page.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 		    public void propertyChange(PropertyChangeEvent event) {
-			    if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
-				    PreferenceCache.tabWidth= (Integer.parseInt((String)event.getNewValue()));
-			    } else if (event.getProperty().equals("x10Font")) {
-				    if (PreferenceCache.sourceFont != null) {
-				    	PreferenceCache.sourceFont.dispose();
-				    }
-				    PreferenceCache.sourceFont= new Font(PlatformUI.getWorkbench().getDisplay(), ((FontData[]) event.getNewValue())[0]);
-				}
+			IPreferenceStore prefStore= RuntimePlugin.getInstance().getPreferenceStore();
+			// Hack: Forward the property change to the global IMP preference store, until
+			// it supports language-specific settings for editor characteristics like font,
+			// tab size, etc.
+			if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
+			    prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, Integer.parseInt((String) event.getNewValue()));
+			} else if (event.getProperty().equals("x10Font")) {
+			    PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
+			}
 		    }
 		});
 
@@ -129,9 +133,9 @@ public class X10PreferencesInstanceTabNoDetails extends
 		return fieldsArray;
 	}
 
-public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final TabFolder tabFolder) {
+    public Composite createInstancePreferencesTab(TabbedPreferencesPage page, final TabFolder tabFolder) {
 		
-		fPrefPage = page;
+        fPrefPage = page;
 
         final Composite composite= new Composite(tabFolder, SWT.NONE);
         composite.setFont(tabFolder.getFont());
