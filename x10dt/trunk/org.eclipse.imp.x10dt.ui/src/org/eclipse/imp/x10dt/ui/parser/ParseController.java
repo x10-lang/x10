@@ -9,6 +9,7 @@ import lpg.lpgjavaruntime.Monitor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.uide.editor.IMessageHandler;
 import org.eclipse.uide.parser.AstLocator;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import org.eclipse.uide.parser.ILexer;
@@ -29,7 +30,7 @@ public class ParseController implements IParseController
     private char keywords[][];
     private boolean isKeyword[];
 
-    public void initialize(String filePath, IProject project) {
+    public void initialize(String filePath, IProject project, IMessageHandler handler) {
         this.project= project;
         this.filePath= filePath;
         createLexerAndParser(project.getLocation().append(filePath).toString());
