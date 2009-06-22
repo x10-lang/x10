@@ -34,6 +34,7 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
 
 	TextAttribute commentAttribute, characterAttribute, numberAttribute, identifierAttribute;
 	
+	@Override
 	public TextAttribute getColoring(IParseController controller, Object o) {
             IToken token= (IToken) o;
 	    switch (token.getKind()) {
@@ -71,7 +72,9 @@ public class MyTokenColorer extends TokenColorerBase implements X10Parsersym, IT
 
 	public void setLanguage(String language) { }
 
-    public IRegion calculateDamageExtent(IRegion seed) {
+	@Override
+	public IRegion calculateDamageExtent(IRegion seed) {
+    	//System.out.println("MyTokenColorer.calculateDamageExtent() region seed is "+seed.getOffset()+" "+seed.getLength()+"\n"+seed.toString());
         return seed;
     }
 }
