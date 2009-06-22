@@ -25,6 +25,7 @@ public class X10ToggleBreakpointsHandler implements IToggleBreakpointsHandler {
           final IPLineBreakpoint pLineBreakPoint = (IPLineBreakpoint) breakpoint;
           if (pLineBreakPoint.getMarker().getResource().equals(file) && pLineBreakPoint.getLineNumber() == lineNumber) {
         	pLineBreakPoint.delete();
+        	System.out.println("Deleted breakpoint at "+file.getLocation()+":"+lineNumber);
           }
         }
       }
@@ -52,6 +53,7 @@ public class X10ToggleBreakpointsHandler implements IToggleBreakpointsHandler {
       PDebugModel.createLineBreakpoint(file.getLocation().toOSString(), file, lineNumber, enable,
                                        0 /* ignoreCount */, "" /* condition */, true /* register */,
                                        IElementHandler.SET_ROOT_ID /* set_id */, null /* job */);
+  	  System.out.println("Added breakpoint at "+file.getLocation()+":"+lineNumber);
 	} catch (CoreException e) {
 		RuntimePlugin.getInstance().logException(e.getMessage(), e);
 	}
