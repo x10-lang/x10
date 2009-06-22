@@ -23,6 +23,11 @@
     <echo message="Building for X10DT feature version ${x10dt.feature(version)}"/>
 
     <property name="x10dt.version" value="${x10dt.feature(version)}"/>
+    <property name="plugin.version.prefix31" value="1.0"/>
+    <property name="plugin.version.prefix32" value="3.2"/>
+    <property name="plugin.version.suffix" value="57"/>
+    <property name="plugins.version.31" value="${plugin.version.prefix31}.${plugin.version.suffix}"/>
+    <property name="plugins.version.32" value="${plugin.version.prefix32}.${plugin.version.suffix}"/>
 
     <path id="path_bootclasspath">
         <fileset dir="${java.home}/lib">
@@ -35,7 +40,7 @@
 
     <property name="bootclasspath" refid="path_bootclasspath"/>
 
-    <condition property="eclipse.home" value="/usr/lib/eclipse-3.1">
+    <condition property="eclipse.home" value="/usr/lib/eclipse-3.2">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
@@ -44,7 +49,7 @@
 	</and>
     </condition>
 
-    <condition property="eclipse.home" value="f:/eclipse-3.1.2">
+    <condition property="eclipse.home" value="f:/eclipse-3.2.2">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
