@@ -62,9 +62,11 @@ public final class X10Debugger implements IPDebugger {
       this.fPDIRequestFactory = new SDMRequestFactory();
     }
 
+    final IPDISession pdiSession = createSession(timeout, launch, corefile);
+    this.fPDIDebugger.setPDISession(pdiSession);
     this.fPDIDebugger.setLaunch(launch);
     
-    return createSession(timeout, launch, corefile);
+    return pdiSession;
   }
 
   public void cleanup(final ILaunchConfiguration config, final AttributeManager attrMgr, final IPLaunch launch) {
