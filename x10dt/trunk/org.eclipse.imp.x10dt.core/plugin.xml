@@ -57,8 +57,21 @@
    </extension>
    <extension
          point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.ibm.watson.safari.x10.preferences.PreferenceInitializerOriginal"/>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.ibm.watson.safari.x10.preferences.X10TabbedPreferencesPage"
+            id="com.ibm.watson.safari.x10.preferences.X10TabbedPreferencesPage"
+            name="X10 Page in Revision"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
       <initializer class="com.ibm.watson.safari.x10.preferences.PreferenceInitializer"/>
    </extension>
+   
 <!--<extension
          point="org.eclipse.ui.actionSets">
       <actionSet

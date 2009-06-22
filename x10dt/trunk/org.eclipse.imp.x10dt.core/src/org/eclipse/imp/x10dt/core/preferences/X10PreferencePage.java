@@ -20,7 +20,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.uide.preferences.ComboFieldEditor;
+import org.eclipse.uide.preferences.fields.ComboFieldEditor;
 import org.osgi.framework.Bundle;
 import com.ibm.watson.safari.x10.X10Plugin;
 
@@ -90,7 +90,7 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
                     X10Preferences.statsDisable= (String) event.getNewValue();
                     rewritePrefsFile();
                 }
-	    }
+	    }	
 	    private void rewritePrefsFile() {
                 String prefsPath= X10Preferences.x10ConfigFile;
                 try {
