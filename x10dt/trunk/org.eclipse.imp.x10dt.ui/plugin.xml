@@ -146,7 +146,7 @@
       </category>
       <cheatsheet
          name="Using the X10DT"
-         category="org.eclipse.imp.x10"
+         category="org.eclipse.imp.x10dt"
          id="org.eclipse.imp.x10dt.ui.cheatSheets.using"
          contentFile="cheatsheets/UsingX10DT.xml">
          <description>
