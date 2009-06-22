@@ -9,8 +9,9 @@ public class X10DTRefactoringContributor implements IRefactoringContributor {
 
     public IAction[] getEditorRefactoringActions(UniversalEditor editor) {
         return new IAction[] {
-        new ExtractAsyncRefactoringAction(editor),
-        new ExtractAsyncInFinishRefactoringAction(editor),
-        new LoopFlatParallelizationRefactoringAction(editor) };
+                new MarkContextAction(editor),
+                new ExtractAsyncRefactoringAction(editor),
+                new ExtractAsyncInFinishRefactoringAction(editor),
+                new LoopFlatParallelizationRefactoringAction(editor) };
     }
 }
