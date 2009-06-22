@@ -23,9 +23,12 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ui.internal.Workbench;
 import org.osgi.service.prefs.BackingStoreException;
 
 
@@ -231,21 +234,26 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
     			break;
     		}
     	}
-    	
+
+    	String previousLevelFromWhichLoaded = levelFromWhichLoaded; //mmk fix inappropriate change modifier set
+   	
     	// Ok, now have all necessary information to set everyting that needs to be set
     	levelFromWhichLoaded = levelLoaded;
     	setInherited(fieldLevelIndex != levelAtWhichFound);
        	setPresentsDefaultValue(IPreferencesService.DEFAULT_LEVEL.equals(levelFromWhichLoaded));
        	setPreviousBooleanValue(getBooleanValue());
-    	setBooleanValue(value);
-    	
+       	boolean valueChanged = previousValue==null || ((Boolean)previousValue).booleanValue()!=value;
+       	boolean levelChanged = previousLevelFromWhichLoaded==null && levelFromWhichLoaded!=null || previousLevelFromWhichLoaded!=null && levelFromWhichLoaded==null || !previousLevelFromWhichLoaded.equals(levelFromWhichLoaded);
+       	if (levelChanged || valueChanged) {
+       		setBooleanValue(value);		// sets fieldModified and previousValue
+       	}
+   	
     	if (!isInherited())
     		getChangeControl().setBackground(PreferencesUtilities.colorWhite);
     	else
     		getChangeControl().setBackground(PreferencesUtilities.colorBluish);	
     	setPresentsDefaultValue(levelAtWhichFound == IPreferencesService.DEFAULT_INDEX);
-    	fieldModified = true;
-
+   
         return levelLoaded;
     }
 
@@ -400,8 +408,6 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
         }
     }
 
-
-   
     
     /**
      * Should be called whenever there is an update to the field,
@@ -442,6 +448,8 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
      * @see org.eclipse.imp.preferences.fields.FieldEditor#clearModifyMarkOnLabel()
      */
     
+//   public static final org.eclipse.swt.graphics.FontData changedFontData = new org.eclipse.swt.graphics.FontData("Monaco", 11, 2);
+    public static final FontData[] arialFonts = Workbench.getInstance().getDisplay().getFontList("Arial", true);
     
     public void setModifiedMarkOnLabel() {
     	// SMS 27 Nov 2006
@@ -450,10 +458,17 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
     	// the marking
     	// if (isInherited) return;
     	if (checkBox != null) {
-	        String labelText = checkBox.getText();
-	        if (!labelText.startsWith(Markings.MODIFIED_MARK)) {
-		        labelText = Markings.MODIFIED_MARK + labelText;
-		        checkBox.setText(labelText);
+//	        String labelText = checkBox.getText();
+//	        if (!labelText.startsWith(Markings.MODIFIED_MARK)) {
+//		        labelText = Markings.MODIFIED_MARK + labelText;
+//		        checkBox.setText(labelText);
+//	        }
+        	// mmk replace changed mark by color to eliminate text-box overflow bug
+	        checkBox.setForeground(PreferencesUtilities.colorRed);
+	        for (FontData fd: arialFonts) {
+	        	if ((fd.getStyle() ) == SWT.ITALIC) {
+	    	        checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), fd));
+	        	}
 	        }
     	}
     }
@@ -461,10 +476,18 @@ public class BooleanFieldEditor extends FieldEditor //BooleanFieldEditor
     
     public void clearModifiedMarkOnLabel() {
     	if (checkBox != null) {
-	        String labelText = checkBox.getText();
-	        if (labelText.startsWith(Markings.MODIFIED_MARK))
-	        		labelText = labelText.substring(1);
-	        checkBox.setText(labelText);
+//	        String labelText = checkBox.getText();
+//	        if (labelText.startsWith(Markings.MODIFIED_MARK))
+//	        		labelText = labelText.substring(1);
+//	        checkBox.setText(labelText);
+        	// mmk replace changed mark by color to eliminate text-box overflow bug
+	        checkBox.setForeground(PreferencesUtilities.colorBlack);
+	        for (FontData fd: arialFonts) {
+	        	if ((fd.getStyle() ) ==SWT.NORMAL) {
+	    	        checkBox.setFont(new Font(Workbench.getInstance().getDisplay(), fd));
+	        	}
+	        }
+
     	}
     }
  

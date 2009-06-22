@@ -117,7 +117,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 
 		// -assert
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
-		BooleanFieldEditor assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit assert Keyword", parent, true, true, false, false, true, true, false, null);
+		BooleanFieldEditor assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", parent, true, true, false, false, true, true, false, null);
 		fields.add(assertCompilerOption);
 		
 		// additional compiler options (string field)
@@ -128,7 +128,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 				parent,
 				true, true,
 				false, null,
-				false, null,
+				true, null,
 				true, null);
 		fields.add(additionalCompilerOptions);
 
@@ -217,6 +217,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 		// Put notes on bottom
 		
 		final Composite bottom = new Composite(composite, SWT.BOTTOM | SWT.WRAP);
+		final String X10_MODIFIED_NOTE = "Modified fields are labeled in red.";
         GridLayout layout = new GridLayout();
         bottom.setLayout(layout);
         bottom.setLayoutData(new GridData(SWT.BOTTOM));
@@ -225,7 +226,7 @@ public class X10PreferencesInstanceTabNoDetails extends
         GridData data = new GridData();
         data.verticalAlignment = SWT.WRAP;
         bar.setLayoutData(data);
-        bar.setText(Markings.MODIFIED_NOTE + "\n\n" +
+        bar.setText(X10_MODIFIED_NOTE + "\n\n" +
         			Markings.TAB_ERROR_NOTE);
         
 		PreferencesUtilities.fillGridPlace(bottom, 1);

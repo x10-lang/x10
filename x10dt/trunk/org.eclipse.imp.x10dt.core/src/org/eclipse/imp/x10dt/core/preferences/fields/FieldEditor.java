@@ -15,6 +15,7 @@ package org.eclipse.imp.x10dt.core.preferences.fields;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
@@ -888,11 +889,13 @@ public abstract class FieldEditor extends org.eclipse.imp.preferences.fields.Fie
 //    	if (isInherited) return;
         Label label = getLabelControl(parent);
         if (label != null) {
-	        String labelText = label.getText();
-	        if (!labelText.startsWith(Markings.MODIFIED_MARK)) {
-		        labelText = Markings.MODIFIED_MARK + labelText;
-		        label.setText(labelText);
-	        }
+//	        String labelText = label.getText();
+//	        if (!labelText.startsWith(Markings.MODIFIED_MARK)) {
+//		        labelText = Markings.MODIFIED_MARK + labelText;
+//		        label.setText(labelText);
+//	        }
+        	// mmk replace changed mark by color to eliminate text-box overflow bug
+	        label.setForeground(PreferencesUtilities.colorRed);
         }
     }
     
@@ -900,10 +903,11 @@ public abstract class FieldEditor extends org.eclipse.imp.preferences.fields.Fie
     public void clearModifiedMarkOnLabel() {
         Label label = getLabelControl(parent);
         if (label != null) {
-	        String labelText = label.getText();
-	        if (labelText.startsWith(Markings.MODIFIED_MARK))
-	        		labelText = labelText.substring(Markings.MODIFIED_MARK.length());
-	        label.setText(labelText);
+//	        String labelText = label.getText();
+//	        if (labelText.startsWith(Markings.MODIFIED_MARK))
+//	        		labelText = labelText.substring(Markings.MODIFIED_MARK.length());
+//	        label.setText(labelText);
+        	label.setForeground(PreferencesUtilities.colorBlack);
         }
     }
  

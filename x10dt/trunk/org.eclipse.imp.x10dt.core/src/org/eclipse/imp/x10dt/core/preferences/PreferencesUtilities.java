@@ -52,6 +52,8 @@ public class PreferencesUtilities extends org.eclipse.imp.preferences.Preference
 	public static final Color colorBluish = new Color(null, 175, 207, 239);
 	public static final Color colorGreenish = new Color(null, 0, 127, 239);
 	public static final Color colorLightGray = new Color(null, 224, 223, 226);
+	public static final Color colorRed = new Color(null, 200, 0, 0);
+	public static final Color colorBlack = new Color(null, 0, 0, 0);
 	
 	public static final String comboDefaultValue = "none selected";
 	public static final String comboDefaultName = "None selected";

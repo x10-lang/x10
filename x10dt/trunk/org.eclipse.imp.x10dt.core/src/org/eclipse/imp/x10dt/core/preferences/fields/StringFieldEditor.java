@@ -341,13 +341,6 @@ public class StringFieldEditor extends FieldEditor
            	setPresentsDefaultValue(IPreferencesService.DEFAULT_LEVEL.equals(levelFromWhichLoaded));
             setStringValue(value);
         }
-        // SMS 28 Nov 2006 added here
-       	// Set the background color of the field according to where found
-        Text text = getTextControl(parent);
-        if (isInherited())
-        	text.setBackground(PreferencesUtilities.colorBluish);
-        else
-        	text.setBackground(PreferencesUtilities.colorWhite);
     }
 
  
@@ -444,10 +437,16 @@ public class StringFieldEditor extends FieldEditor
        		break;	
     	}
     	
+    	String previousLevelFromWhichLoaded = levelFromWhichLoaded; //mmk fix inappropriate change modifier set
+    	
     	levelFromWhichLoaded = levelLoaded;
     	setInherited(fieldLevelIndex != levelAtWhichFound);
        	setPresentsDefaultValue(IPreferencesService.DEFAULT_LEVEL.equals(levelFromWhichLoaded));
-        setStringValue(value);		// sets fieldModified and previousValue
+       	boolean valueChanged = previousValue==null && value!=null || previousValue!=null && value==null || !previousValue.equals(value);
+       	boolean levelChanged = previousLevelFromWhichLoaded==null && levelFromWhichLoaded!=null || previousLevelFromWhichLoaded!=null && levelFromWhichLoaded==null || !previousLevelFromWhichLoaded.equals(levelFromWhichLoaded);
+       	if (levelChanged || valueChanged) {
+       		setStringValue(value);		// sets fieldModified and previousValue
+       	}
        	
        	// Set the background color of the field according to where found
         Text text = getTextControl(parent);
@@ -654,6 +653,15 @@ public class StringFieldEditor extends FieldEditor
             fieldModified = true;
             setPreviousStringValue(newValue);
 	        setModifiedMarkOnLabel();
+        	// mmk moved here from doLoadWithInheritence to coordinate background color change with changed-value indicator
+            // SMS 28 Nov 2006 added here
+           	// Set the background color of the field according to where found
+            Text text = getTextControl(parent);
+            if (isInherited())
+            	text.setBackground(PreferencesUtilities.colorBluish);
+            else
+            	text.setBackground(PreferencesUtilities.colorWhite);
+
         }
         
         return valueChanged;
