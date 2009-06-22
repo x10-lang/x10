@@ -21,6 +21,7 @@ import org.osgi.framework.Bundle;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
+import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.ErrorQueue;
 import polyglot.util.SilentErrorQueue;
@@ -51,6 +52,7 @@ public class CompilerDelegate {
         buildOptions(extInfo);
         ErrorQueue eq= new SilentErrorQueue(100000, "stderr");
         fe = new PolyglotFrontEnd(extInfo, eq);
+        Report.setQueue(eq);
     }
 
     /**
