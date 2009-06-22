@@ -29,6 +29,7 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
+import org.eclipse.imp.x10dt.debug.model.X10DebugTarget;
 import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.imp.x10dt.ui.launching.X10ExecutionArguments;
 import org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigAttributes;
@@ -200,9 +201,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 	// Launch the configuration - 1 unit of work
 	runner.run(runConfig, launch, monitor);
-	//Shivali
-	//X10DebugModel.newX10DebugTarget(launch);
-    //Shivali
+	launch.addDebugTarget(new X10DebugTarget(launch));
 	
 	// check for cancellation
 	if (monitor.isCanceled()) {
