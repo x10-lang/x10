@@ -107,6 +107,8 @@ public class X10Util {
 	}
 	/**
 	 * get the jar file location (fully qualified path) for the given bundle ID
+	 * <br>
+	 * See also X10RuntimeUtils
 	 * @param bundleID
 	 * @return
 	 */
