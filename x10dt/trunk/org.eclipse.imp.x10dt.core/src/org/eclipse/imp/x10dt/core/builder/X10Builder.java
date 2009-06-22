@@ -349,10 +349,16 @@ public class X10Builder extends IncrementalProjectBuilder {
 		MessageConsole console = plugin.getConsole();
 		MessageConsoleStream consoleOut = console.newMessageStream();
 		consoleOut.println(plugin.getTimeAndDate());
-		consoleOut.println("Build options for compiling "+fSourcesToCompile+": ");  
+		consoleOut.print("Build options for compiling "+fSourcesToCompile+": ");  
+		final String dash="-";
 		for (String s : optsList) {
-			consoleOut.println("   "+s);
+			// try to put "-option" on same line with the option arg
+			if(s.startsWith(dash))
+				consoleOut.print("\n   "+s);
+			else
+				consoleOut.print("   "+s);
 		}
+		consoleOut.println("");
 		try {
 			consoleOut.flush();
 			consoleOut.close();
