@@ -21,7 +21,7 @@
    <extension
          point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="org.eclipse.imp.x10dt.ui.editor.MyTokenColorer"
+            class="org.eclipse.imp.x10dt.ui.editor.X10TokenColorer"
             language="X10">
       </tokenColorer>
    </extension>
