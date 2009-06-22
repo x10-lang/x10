@@ -1,9 +1,19 @@
 --
--- The Java KeyWord Lexer
+-- The X10 KeyWord Lexer
 --
-%Options fp=JavaKWLexer
-%options package=org.eclipse.imp.x10dt.formatter.parser
-%options template=KeyWordTemplate.gi
+%Options list
+%Options fp=X10KWLexer
+%options package=x10.parser
+%options template=KeywordTemplateF.gi
+
+%Notice
+/.
+//
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006
+//
+./
+%End
 
 %Globals
     /.import java.util.*;./
@@ -49,47 +59,73 @@
     ./
 %End
 
+%Terminals
+    a    b    c    d    e    f    g    h    i    j    k    l    m
+    n    o    p    q    r    s    t    u    v    w    x    y    z
+%End
+    
+%Start
+    KeyWord
+%End
+
 %Export
     abstract
+    as
+    at
     assert
-    boolean
+    async
+    ateach
+    atomic
+    await
     break
-    byte
     case
     catch
-    char
     class
+    clocked
     const
     continue
+    def
     default
     do
-    double
-    enum
     else
     extends
+    extern
     false
     final
     finally
-    float
+    finish
     for
+    foreach
+    future
+    in
     goto
+    has
+    here
     if
     implements
     import
+    incomplete
     instanceof
-    int
     interface
-    long
+    local
     native
     new
+    next
+    nonblocking
+    now
     null
+    or
+    operator
     package
     private
-    protected
     property
+    protected
     public
     return
-    short
+    safe
+    self
+    sequential
+    shared
     static
     strictfp
     super
@@ -101,41 +137,186 @@
     transient
     true
     try
-    void
+    type
+    unsafe
+    val
+    value
+    var
     volatile
+    when
     while
-%End
-
-%Terminals
-    a    b    c    d    e    f    g    h    i    j    k    l    m
-    n    o    p    q    r    s    t    u    v    w    x    y    z
-%End
-
-%Start
-    KeyWord
-%End
-
-%Notice
-/.
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 IBM Corporation.
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// which accompanies this distribution, and is available at
-// http://www.eclipse.org/legal/epl-v10.html
-//
-//Contributors:
-//    Philippe Charles (pcharles@us.ibm.com) - initial API and implementation
-
-////////////////////////////////////////////////////////////////////////////////
-./
 %End
 
 %Rules
 
-    -- The Goal for the parser is a single Keyword
+    KeyWord ::= a s y n c
+        /.$BeginAction
+                    $setResult($_async);
+          $EndAction
+        ./
+        
+              | t y p e
+        /.$BeginAction
+                $setResult($_type);
+          $EndAction
+        ./
+        
+              | a t
+        /.$BeginAction
+                $setResult($_at);
+          $EndAction
+        ./
 
-    KeyWord ::= a b s t r a c t
+              | p r o p e r t y
+        /.$BeginAction
+                $setResult($_property);
+          $EndAction
+        ./
+
+              | d e f
+        /.$BeginAction
+                $setResult($_def);
+          $EndAction
+        ./
+
+              | v a l
+        /.$BeginAction
+                $setResult($_val);
+          $EndAction
+        ./
+
+              | v a r
+        /.$BeginAction
+                $setResult($_var);
+          $EndAction
+        ./
+              | a s
+        /.$BeginAction
+                $setResult($_as);
+          $EndAction
+        ./
+              | h a s
+        /.$BeginAction
+                $setResult($_has);
+          $EndAction
+        ./
+              | i n
+        /.$BeginAction
+                $setResult($_in);
+          $EndAction
+        ./
+              | i n c o m p l e t e
+        /.$BeginAction
+                $setResult($_incomplete);
+          $EndAction
+        ./
+              | s h a r e d
+        /.$BeginAction
+                $setResult($_shared);
+          $EndAction
+        ./
+              | a t e a c h
+        /.$BeginAction
+                    $setResult($_ateach);
+          $EndAction
+        ./
+              | a t o m i c
+        /.$BeginAction
+                    $setResult($_atomic);
+          $EndAction
+        ./
+              | a w a i t
+        /.$BeginAction
+                    $setResult($_await);
+          $EndAction
+        ./
+        | c l o c k e d
+        /.$BeginAction
+                    $setResult($_clocked);
+          $EndAction
+        ./
+              | e x t e r n
+        /.$BeginAction
+                    $setResult($_extern);
+          $EndAction
+        ./
+              | f i n i s h
+        /.$BeginAction
+                    $setResult($_finish);
+          $EndAction
+        ./
+              | f o r e a c h
+        /.$BeginAction
+                    $setResult($_foreach);
+          $EndAction
+        ./
+              | f u t u r e
+        /.$BeginAction
+                    $setResult($_future);
+          $EndAction
+        ./
+              | h e r e
+        /.$BeginAction
+                    $setResult($_here);
+          $EndAction
+        ./
+              | l o c a l
+        /.$BeginAction
+                    $setResult($_local);
+          $EndAction
+        ./
+              | n e x t
+        /.$BeginAction
+                    $setResult($_next);
+          $EndAction
+        ./
+              | n o n b l o c k i n g
+        /.$BeginAction
+                    $setResult($_nonblocking);
+          $EndAction
+        ./
+              | n o w
+        /.$BeginAction
+                    $setResult($_now);
+          $EndAction
+        ./
+              | o r
+        /.$BeginAction
+                    $setResult($_or);
+          $EndAction
+        ./
+               | s a f e 
+        /.$BeginAction
+                    $setResult($_safe);
+          $EndAction
+        ./
+              | s e l f
+        /.$BeginAction
+                    $setResult($_self);
+          $EndAction
+        ./
+              | s e q u e n t i a l
+        /.$BeginAction
+                    $setResult($_sequential);
+          $EndAction
+        ./
+              | u n s a f e
+        /.$BeginAction
+                    $setResult($_unsafe);
+          $EndAction
+        ./
+              | v a l u e
+        /.$BeginAction
+                    $setResult($_value);
+          $EndAction
+        ./
+              | w h e n
+        /.$BeginAction
+                    $setResult($_when);
+          $EndAction
+        ./
+
+              | a b s t r a c t
         /.$BeginAction
                 $setResult($_abstract);
           $EndAction
@@ -147,20 +328,9 @@
           $EndAction
         ./
 
-              | b o o l e a n
-        /.$BeginAction
-                $setResult($_boolean);
-          $EndAction
-        ./
-
               | b r e a k
         /.$BeginAction
                 $setResult($_break);
-          $EndAction
-        ./
-              | b y t e
-        /.$BeginAction
-                $setResult($_byte);
           $EndAction
         ./
 
@@ -173,12 +343,6 @@
               | c a t c h
         /.$BeginAction
                 $setResult($_catch);
-          $EndAction
-        ./
-
-              | c h a r
-        /.$BeginAction
-                $setResult($_char);
           $EndAction
         ./
 
@@ -212,21 +376,9 @@
           $EndAction
         ./
 
-              | d o u b l e
-        /.$BeginAction
-                $setResult($_double);
-          $EndAction
-        ./
-
               | e l s e
         /.$BeginAction
                 $setResult($_else);
-          $EndAction
-        ./
-
-              | e n u m
-        /.$BeginAction
-                $setResult($_enum);
           $EndAction
         ./
 
@@ -251,12 +403,6 @@
               | f i n a l l y
         /.$BeginAction
                 $setResult($_finally);
-          $EndAction
-        ./
-
-              | f l o a t
-        /.$BeginAction
-                $setResult($_float);
           $EndAction
         ./
 
@@ -296,21 +442,9 @@
           $EndAction
         ./
 
-              | i n t
-        /.$BeginAction
-                $setResult($_int);
-          $EndAction
-        ./
-
               | i n t e r f a c e
         /.$BeginAction
                 $setResult($_interface);
-          $EndAction
-        ./
-
-              | l o n g
-        /.$BeginAction
-                $setResult($_long);
           $EndAction
         ./
 
@@ -332,6 +466,12 @@
           $EndAction
         ./
 
+              | o p e r a t o r
+        /.$BeginAction
+                $setResult($_operator);
+          $EndAction
+        ./
+
               | p a c k a g e
         /.$BeginAction
                 $setResult($_package);
@@ -349,11 +489,6 @@
                 $setResult($_protected);
           $EndAction
         ./
-                   | p r o p e r t y
-        /.$BeginAction
-                $setResult($_property);
-          $EndAction
-        ./
 
               | p u b l i c
         /.$BeginAction
@@ -364,12 +499,6 @@
               | r e t u r n
         /.$BeginAction
                 $setResult($_return);
-          $EndAction
-        ./
-
-              | s h o r t
-        /.$BeginAction
-                $setResult($_short);
           $EndAction
         ./
 
@@ -436,12 +565,6 @@
               | t r y
         /.$BeginAction
                 $setResult($_try);
-          $EndAction
-        ./
-
-              | v o i d
-        /.$BeginAction
-                $setResult($_void);
           $EndAction
         ./
 

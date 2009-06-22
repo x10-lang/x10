@@ -35,12 +35,12 @@ public class ParseController extends SimpleLPGParseController implements
 		char[] contentsArray = contents.toCharArray();
 
 		if (fLexer == null) {
-			fLexer = new PatternX10Lexer();
+			fLexer = new X10Lexer();
 		}
 		fLexer.reset(contentsArray, fFilePath.toOSString());
 		
 		if (fParser == null) {
-			fParser = new PatternX10Parser(fLexer.getILexStream());
+			fParser = new X10Parser(fLexer.getILexStream());
 		}
 		
 		fParser.reset(fLexer.getILexStream());

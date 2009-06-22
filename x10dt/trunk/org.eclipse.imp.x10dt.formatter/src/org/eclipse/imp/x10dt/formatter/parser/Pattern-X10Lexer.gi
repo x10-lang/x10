@@ -1,9 +1,9 @@
-%options fp=PatternX10Lexer
-%options package=org.eclipse.imp.x10dt.formatter.parser
 %options la=2
+%options fp=X10Lexer
 %options single_productions
+%options package=org.eclipse.imp.x10dt.formatter.parser
 %options template=LexerTemplateF.gi
-%options filter=x10KWLexer.gi
+%options filter=X10KWLexer.gi
 %options prefix=TK_
 
 %Notice
@@ -17,7 +17,6 @@
     // this is a test
      import org.eclipse.imp.parser.*;
     ./
-   
 %End 
 
 %Import
@@ -27,7 +26,7 @@
 
 
 %Define
-    $kw_lexer_class /.$x10KWLexer./
+    $kw_lexer_class /.$X10KWLexer./
     $additional_interfaces /. , ILexer ./
 %End
 
@@ -61,8 +60,8 @@ METAVARIABLE_BlockStatement
 METAVARIABLE_BlockStatements
 METAVARIABLE_ClassName
 METAVARIABLE_TypeName
-METAVARIABLE_ActualTypeArgument
-METAVARIABLE_ActualTypeArgumentList
+METAVARIABLE_TypeArgument --BRT
+METAVARIABLE_TypeArgumentList  --BRT
 METAVARIABLE_Primary
 METAVARIABLE_AmbiguousName
 METAVARIABLE_WhenStatement
@@ -264,13 +263,13 @@ METAVARIABLE_StatementExpression
      Token ::= '<' 'T' 'y' 'p' 'e' 'A' 'r' 'g' 'u' 'm' 'e' 'n' 't'   DecimalOpt '>'
      /.
       $BeginJava
-         makeToken($_METAVARIABLE_ActualTypeArgument);
+         makeToken($_METAVARIABLE_TypeArgument); // BRT
       $EndJava
      ./
      Token ::= '<' 'T' 'y' 'p' 'e' 'A' 'r' 'g' 'u' 'm' 'e' 'n' 't' 'L' 'i' 's' 't'  DecimalOpt '>'
      /.
       $BeginJava
-         makeToken($_METAVARIABLE_ActualTypeArgumentList);
+         makeToken($_METAVARIABLE_TypeArgumentList);  //BRT
       $EndJava
      ./
      Token ::= '<' 'P' 'r' 'i' 'm' 'a' 'r' 'y'  DecimalOpt '>'

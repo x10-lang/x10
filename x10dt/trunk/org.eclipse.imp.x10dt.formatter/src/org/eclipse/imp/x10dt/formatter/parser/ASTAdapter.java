@@ -20,7 +20,7 @@ import org.eclipse.imp.x10dt.formatter.parser.ast.AbstractASTNodeList;
 import org.eclipse.imp.xform.pattern.parser.ASTAdapterBase;
 
 public class ASTAdapter extends ASTAdapterBase implements ILanguageService,
-		PatternX10Parsersym {
+		X10Parsersym {
 
 	public boolean isList(Object astNode) {
 		return astNode instanceof AbstractASTNodeList;
@@ -93,8 +93,8 @@ public class ASTAdapter extends ASTAdapterBase implements ILanguageService,
 			case TK_METAVARIABLE_BlockStatements:
 			case TK_METAVARIABLE_ClassName:
 			case TK_METAVARIABLE_TypeName:
-			case TK_METAVARIABLE_ActualTypeArgument:
-			case TK_METAVARIABLE_ActualTypeArgumentList:
+			case TK_METAVARIABLE_TypeArgument:
+			case TK_METAVARIABLE_TypeArgumentList:
 			case TK_METAVARIABLE_Primary:
 			case TK_METAVARIABLE_AmbiguousName:
 			case TK_METAVARIABLE_WhenStatement:

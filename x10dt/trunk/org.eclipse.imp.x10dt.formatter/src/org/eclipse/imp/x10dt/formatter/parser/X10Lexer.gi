@@ -1,32 +1,107 @@
 --
--- The Java Lexer
+-- The X10 Lexer
 --
 %Options la=2,list
-%Options fp=JavaLexer
+%Options fp=X10Lexer
 %options single_productions
-%options package=org.eclipse.imp.x10dt.formatter.parser
-%options template=LexerTemplate.gi
-%options filter=GJavaKWLexer.gi
+%options package=x10.parser
+%options template=LexerTemplateF.gi
+%options filter=X10KWLexer.gi
+
+%Notice
+/.
+//
+// Licensed Material 
+// (C) Copyright IBM Corp, 2006-2008
+//
+./
+%End
+
+%Globals
+    /.import java.util.*;./
+%End
 
 %Include
     LexerBasicMapF.gi
 %End
 
-
-
-%Globals
-    /.import java.util.*;./
-%End
-    
 %Define
     --
     -- Definition of macro used in the included file LexerBasicMapB.g
     --
-    $kw_lexer_class /.$GJavaKWLexer./
+    $kw_lexer_class /.$X10KWLexer./
+%End
 
+%Headers
+    --
+    -- Additional methods for the action class not provided in the template
+    --
+    /.
+        public void makeX10Token(int startLoc, int endLoc, int kind)
+        {
+            if (kind == X10Parsersym.TK_IDENTIFIER)
+            {
+                int index = lexStream.getIPrsStream().getSize() - 1;
+                IToken token = lexStream.getIPrsStream().getIToken(index);
+                if (token.getKind() == X10Parsersym.TK_DoubleLiteral && lexStream.getInputChars()[token.getEndOffset()] == '.')
+                {
+                    token.setEndOffset(token.getEndOffset() - 1);
+                    lexStream.getIPrsStream().makeToken(token.getEndOffset(), token.getEndOffset(), X10Parsersym.TK_DOT);
+                }
+            }
+            lexStream.makeToken(startLoc, endLoc, kind);
+        }
+        
+        final void checkForX10KeyWord()
+        {
+            int startOffset = getLeftSpan(),
+                endOffset = getRightSpan(),
+                kwKind = kwLexer.lexer(startOffset, endOffset);
+            makeX10Token(startOffset, endOffset, kwKind);
+            if (printTokens) printValue(startOffset, endOffset);
+        }
+
+        public $action_type(java.io.Reader reader, String filename) throws java.io.IOException
+        {
+            this(reader, filename, ECLIPSE_TAB_VALUE);
+        }
+
+        public $action_type(java.io.Reader reader, String filename, int tab) throws java.io.IOException
+        {
+            ArrayList buffers = new ArrayList();
+            int size = 0;
+            while (true)
+            {
+                char block[]= new char[8192];
+                int n = reader.read(block, 0, block.length);
+                if (n < 0)
+                    break;
+                size += n;
+                buffers.add((Object) block);
+            }
+
+            char buffer[] = new char[size];
+            for (int i = 0; i < buffers.size(); i++)
+            {
+                char block[] = (char []) buffers.get(i);
+                int blocksize = (size / block.length > 0 ? block.length : size);
+                size -= blocksize;
+                System.arraycopy(block, 0, buffer, i * block.length, blocksize);
+            }
+            assert(size == 0);
+        
+            reset(buffer, filename, tab);
+            kwLexer = new $kw_lexer_class(lexStream.getInputChars(), $_IDENTIFIER);
+        }
+    ./
 %End
 
 %Export
+    RANGE
+    ARROW
+    DARROW
+    SUBTYPE
+    SUPERTYPE
 
     IDENTIFIER
 
@@ -144,30 +219,13 @@
 
 %End
 
-%Notice
-/.
-////////////////////////////////////////////////////////////////////////////////
-// Copyright (c) 2007 IBM Corporation.
-// All rights reserved. This program and the accompanying materials
-// are made available under the terms of the Eclipse Public License v1.0
-// which accompanies this distribution, and is available at
-// http://www.eclipse.org/legal/epl-v10.html
-//
-//Contributors:
-//    Philippe Charles (pcharles@us.ibm.com) - initial API and implementation
-
-////////////////////////////////////////////////////////////////////////////////
-./
-%End
-
 %Rules
 
     Token ::= Identifier
         /.$BeginAction
-                    checkForKeyWord();
+                    checkForX10KeyWord();
           $EndAction
-         ./
-        
+        ./
     Token ::= '"' SLBody '"'
         /.$BeginAction
                     makeToken($_StringLiteral);
@@ -398,6 +456,16 @@
                     makeToken($_LEFT_SHIFT);
           $EndAction
         ./
+    Token ::= '>' '>'
+        /.$BeginAction
+                    makeToken($_RIGHT_SHIFT);
+          $EndAction
+        ./
+    Token ::= '>' '>' '>'
+        /.$BeginAction
+                    makeToken($_UNSIGNED_RIGHT_SHIFT);
+          $EndAction
+        ./
 
     Token ::= '+' '='
         /.$BeginAction
@@ -452,6 +520,16 @@
                     makeToken($_LEFT_SHIFT_EQUAL);
           $EndAction
         ./
+    Token ::= '>' '>' '='
+        /.$BeginAction
+                    makeToken($_RIGHT_SHIFT_EQUAL);
+          $EndAction
+        ./
+    Token ::= '>' '>' '>' '='
+        /.$BeginAction
+                    makeToken($_UNSIGNED_RIGHT_SHIFT_EQUAL);
+          $EndAction
+        ./
 
     Token ::= '|' '|'
         /.$BeginAction
@@ -491,7 +569,9 @@
 
     MultiLineComment ::= '/' '*' Inside Stars '/'
         /.$BeginAction
-                    makeComment($_MlComment);
+                    if (lexStream.getKind(getRhsFirstTokenIndex(3)) == X10Lexersym.Char_Star && lexStream.getKind(lexStream.getNext(getRhsFirstTokenIndex(3))) != X10Lexersym.Char_Star)
+                         makeComment($_DocComment);
+                    else makeComment($_MlComment);
           $EndAction
         ./
 
@@ -613,6 +693,7 @@
             | '*'
             | SpecialNotStar
             | HT
+            | FF
             | CtlCharNotWS
 
     NotDQ -> Letter
@@ -643,4 +724,47 @@
                     | '\' '"'
                     | '\' "'"
                     | '\' '\'
+
+     --- X10 Tokens
+
+     Token ::= IntLiteralAndRange
+ 
+     Token ::= '.' '.'
+          /.$BeginAction
+                      makeToken($_RANGE);
+            $EndAction
+          ./
+ 
+
+    Token ::= '-' '>'
+        /.$BeginAction
+                    makeToken($_ARROW);
+          $EndAction
+        ./
+
+    Token ::= '=' '>'
+        /.$BeginAction
+                    makeToken($_DARROW);
+          $EndAction
+        ./
+
+    Token ::= '<' ':'
+        /.$BeginAction
+                    makeToken($_SUBTYPE);
+          $EndAction
+        ./
+        
+    Token ::= ':' '>'
+        /.$BeginAction
+                    makeToken($_SUPERTYPE);
+          $EndAction
+        ./
+
+    IntLiteralAndRange ::= Integer '.' '.'
+         /.$BeginAction
+                     makeToken(getToken(1), getToken(1), $_IntegerLiteral);
+                     makeToken(getToken(2), getToken(3), $_RANGE);
+           $EndAction
+         ./
 %End
+
