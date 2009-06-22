@@ -264,7 +264,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
         private String determineActualPackage(Source src) {
             String srcPath= src.path();
-            String projPath= X10Builder.this.fProject.getLocation().toPortableString();
+            String projPath= X10Builder.this.fProject.getLocation().toOSString();
             String pkgPath;
 
             if (srcPath.startsWith(projPath)) {
