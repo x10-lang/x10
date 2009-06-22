@@ -82,11 +82,11 @@ public class ParseController implements IParseController
         // parser = new SmalltalkParser((LexStream) lexer);	// Create the parser
         lexer.initialize(contentsArray, "ECLIPSE FILE");
         parser.getParseStream().resetTokenStream();
-        lexer.lexer(parser.getParseStream(), my_monitor); // Lex the stream to produce the token stream
+        lexer.lexer(my_monitor, parser.getParseStream()); // Lex the stream to produce the token stream
         if (my_monitor.isCancelled())
         	return currentAst; // TODO currentAst might (probably will) be inconsistent wrt the lex stream now
 
-        currentAst = (Node) parser.parser(0, my_monitor);
+        currentAst = (Node) parser.parser(my_monitor, 0);
 
         if (keywords == null) {
 	        String tokenKindNames[] = parser.getParseStream().orderedTerminalSymbols();

@@ -21,7 +21,7 @@ public class ParserDelegate implements IParser
 
 	public PrsStream getParseStream() { return myParser.getParseStream(); }
     public int getEOFTokenKind() { return myParser.getEOFTokenKind(); }
-    public Object parser(int error_repair_count, Monitor monitor) {
+    public Object parser(Monitor monitor, int error_repair_count) {
         return myParser.parser(monitor);
     }
 
