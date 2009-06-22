@@ -84,6 +84,12 @@ import x10.parser.X10Parser.JPGPosition;
 public class X10DocProvider implements IDocumentationProvider, ILanguageService {
 	private static final boolean traceOn = false;
 
+	/**
+	 * Get text documentation for an entity in the x10 source code
+	 * @param target the object for which we want text info
+	 * @param parseController
+	 * @returns a text string of javadoc-style info, or other, if available
+	 */
 	public String getDocumentation(Object target, IParseController parseController) {
 		if (traceOn)System.out.println("\nX10DocProvider.getDocumentation(), target is :"+ target.toString());
 		String doc = getHelpForEntity(target, parseController);
