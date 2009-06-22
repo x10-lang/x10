@@ -93,56 +93,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	public String getDocumentation(Object target, IParseController parseController) {
 		if (traceOn)System.out.println("\nX10DocProvider.getDocumentation(), target is :"+ target.toString());
 		String doc = getHelpForEntity(target, parseController);
-		// if (doc == null || doc.length() == 0) {
-		// // 2. try to find help info the way Hover help did (original code
-		// // from this class, previously)
-		// doc = getDocumentationOld(target, parseController);
-		// }
 		if (traceOn) System.out.println("   " + doc);
 		return doc;
-	}
-
-	public String getDocumentationOld(Object target, IParseController parseController) {
-
-		Language lang = parseController.getLanguage();
-		StringBuffer buff = new StringBuffer();
-		Position pos = null;
-
-		String temp = target.toString();
-		HTMLPrinter.addSmallHeader(buff, temp);
-
-		if (target instanceof Node) {
-			Node targetNode = (Node) target;
-			pos = targetNode.position();
-		} else if (target instanceof Declaration) {
-			Declaration decl = (Declaration) target;
-			pos = decl.position();
-		} else if (target instanceof Id) {
-			Id id = (Id) target;
-			pos = id.position();
-		}
-
-		if (pos instanceof JPGPosition) {
-			IToken leftToken = ((JPGPosition) pos).getLeftIToken();
-			// this is empty, it seems there are no comments in the list of
-			// tokens. we want the comments.
-			IToken[] adjuncts = leftToken.getPrecedingAdjuncts();
-
-			for (int i = 0; i < adjuncts.length; i++) {
-				String s = adjuncts[i].toString();
-				if (s.startsWith("/*")) {
-					int openingFenceEnd = s.startsWith("/**") ? 3 : 2;
-					int endingFenceStart = s.length()
-							- (s.startsWith("//") ? 0 : (s.endsWith("**/") ? 3
-									: 2));
-
-					HTMLPrinter.addParagraph(buff, s.substring(openingFenceEnd,
-							endingFenceStart));
-				}
-			}
-		}
-		// How to get JavaDoc corresponding to classes residing in jar files?
-		return buff.toString();
 	}
 
 	/**
@@ -227,59 +179,44 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			// local var, parm, (java or x10) or field
 			// won't fall thru to Declaration
 			VarInstance var = (VarInstance) target;
-			
-			
+			// do we need something here? Or is it being taken care of elsewhere?		
 		}
-		/* else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
-			// this fails due to polyglot problem
+		else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
 			//we get different info from different interfaces, so make them both for use here:
 			MemberInstance mi = (MemberInstance) target;
-			String miStr=mi.toString();
 			ProcedureInstance pi = (ProcedureInstance)target;
-			String piStr=pi.toString();
 			
-			if (isJavaMember(mi)) {  // CommentTest() is not. was it before??? BOB
+			if (isJavaMember(mi)) {   
 				ReferenceType rt = mi.container();
 
 				if (rt instanceof ClassType) {
 					ClassType ct = (ClassType) rt;
-					String fullname=ct.fullName(); // argh! "Object" !
+					String fullname=ct.fullName(); // was "Object" when encoutered polyglot error
 					IType it = findJavaType(fullname, parseController);
 					String[] paramTypes = convertParamTypes(pi);
 					String mname = null;
 					if (pi instanceof ConstructorInstance) {
-						mname = ct.name();  // argh! it's "Object"
+						mname = ct.name();  // was "Object" when polyglot error
 					} else {
-						mname = ((MethodInstance) pi).name(); // "foo";
+						mname = ((MethodInstance) pi).name();  
 					}
-
 					IMethod method = it.getMethod(mname, paramTypes);
 					String doc = getJavaDocFor(method);
-					if(doc.length()==0) {
-						int stopHere=0;
-					}
 					return doc;
-
-				} else {
-					MethodInstance mti = (MethodInstance)target;
-					return getX10DocFor(mti);
 				}
+			} else {
+				Declaration mti = (Declaration) target;
+				return getX10DocFor(mti);
 			}
 			
-		}*/
-		else if (target instanceof Declaration) { // types only (not fields or methods)
-			Declaration decl = (Declaration) target;
-			
-			String qualifiedName = decl.toString(); // ?? fixme
-			// need this to find e.g. "System"
-			// how to get a qualifiedName out of a Declaration?
-			String ownerName = ""; // ??
-			if (isJavaType(qualifiedName)) {// really should be a javatype.  FIXME later.
+		} 
+		else if (target instanceof ClassType) {  
+			ClassType decl = (ClassType) target;
+			String qualifiedName =decl.fullName();
+
+			if (isJavaType(qualifiedName)) { 
 				IType javaType = findJavaType(qualifiedName, parseController);
-				// String[] paramTypes = convertParamTypes(mi);
-				// IMethod method = javaType.getMethod(mi.name(), paramTypes);
-				// IType type = javaType.getType(qualifiedName);
-				String doc = getJavaDocFor(javaType);// exception
+				String doc = getJavaDocFor(javaType); 
 				return doc;
 			} else {
 				return getX10DocFor(decl);
