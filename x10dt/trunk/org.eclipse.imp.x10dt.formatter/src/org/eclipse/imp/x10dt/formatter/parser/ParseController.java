@@ -1,15 +1,17 @@
 package org.eclipse.imp.x10dt.formatter.parser;
 
-import lpg.runtime.IMessageHandler;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.language.ILanguageService;
+import org.eclipse.imp.language.ILanguageSyntaxProperties;
 import org.eclipse.imp.model.ISourceProject;
-import org.eclipse.imp.parser.IASTNodeLocator;
 import org.eclipse.imp.parser.ILexer;
+import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.IParser;
+import org.eclipse.imp.parser.ISourcePositionLocator;
+import org.eclipse.imp.parser.MessageHandlerAdapter;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.x10dt.formatter.parser.ast.ASTNode;
 
@@ -40,11 +42,6 @@ public class ParseController extends SimpleLPGParseController implements
 		return lexer;
 	}
 	
-
-	public IASTNodeLocator getNodeLocator() {
-		return null;
-	} // return new AstLocato(); }
-
 	public ParseController() {
 	}
 
@@ -67,7 +64,7 @@ public class ParseController extends SimpleLPGParseController implements
 		}
 		
 		parser.reset(lexer.getLexStream());
-		parser.getParseStream().setMessageHandler(handler);
+		parser.getParseStream().setMessageHandler(new MessageHandlerAdapter(handler));
 
 		lexer.lexer(my_monitor, parser.getParseStream()); // Lex the stream to
 															// produce the token
@@ -82,6 +79,16 @@ public class ParseController extends SimpleLPGParseController implements
 
 		Object result = fCurrentAst;
 		return result;
+	}
+
+	public ISourcePositionLocator getNodeLocator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public ILanguageSyntaxProperties getSyntaxProperties() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
