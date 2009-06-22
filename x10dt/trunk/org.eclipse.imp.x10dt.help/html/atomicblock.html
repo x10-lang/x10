@@ -73,7 +73,7 @@ a method is taken to stand for a method whose body is wrapped within an
 
 <div class="p"><!----></div>
 Atomic blocks are closely related to non-blocking synchronization
-constructs [], and can be used to implement 
+constructs [7], and can be used to implement 
 non-blocking concurrent algorithms.
 
 <div class="p"><!----></div>
@@ -87,7 +87,7 @@ operations on clocks, <tt>finish</tt>).
 
 <div class="p"><!----></div>
 All locations accessed in an atomic block must reside <tt>here</tt>
-(&#167;&nbsp;). A <tt>
+(&#167;&nbsp;6.0.2). A <tt>
 BadPlaceException</tt> is thrown if (and
 when) this condition is violated.
 
@@ -144,7 +144,7 @@ Conditional atomic blocks are of the form:
 475 StatementNoShortIf ::= WhenStatementNoShortIf
 483 WhenStatement ::= 
           when ( Expression ) Statement
-484      -  WhenStatement 
+484      |  WhenStatement 
           or ( Expression ) Statement
 </pre>
 
