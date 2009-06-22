@@ -35,7 +35,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 public class X10LaunchShortcut implements ILaunchShortcut {
-    public static final String X10LaunchConfigTypeID= "x10.uide.launching.X10LaunchConfigurationType";
+    public static final String X10LaunchConfigTypeID= "org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType";
 
     private static final String EMPTY_STRING = ""; //$NON-NLS-1$
 
