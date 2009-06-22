@@ -5,14 +5,9 @@ package com.ibm.watson.safari.x10.preferences;
  */
 public class PreferenceConstants {
     /**
-     * The path to the x10.common directory
-     */
-//    public static final String P_X10COMMON_PATH= "commonPath";
-
-    /**
      * The path to the X10 configuration file (e.g. standard.cfg)
      */
-    public static final String P_X10CONFIG_FILE= "configFile";
+    public static final String P_X10CONFIG_FILE= "compilerConfigurationFile";
 
     /**
      * The name of an X10 configuration (e.g. "standard" or "multivm").<br>
@@ -21,7 +16,7 @@ public class PreferenceConstants {
      * if this preference is "standard", then the file "x10.common/etc/standard.cfg"
      * must exist.
      */
-    public static final String P_X10CONFIG_NAME= "config";
+    public static final String P_X10CONFIG_NAME= "compilerConfiguration";
 
     /**
      * true if the builder and various other entities should emit diagnostic
@@ -36,13 +31,6 @@ public class PreferenceConstants {
      * adding explicit entries to the classpath
      */
     public static final String P_AUTO_ADD_RUNTIME= "autoAddRuntimme";
-
-    /**
-     * The path to the compiler template directory (used by X10PrettyPrinterVisitor).
-     * A mirror of the COMPILER_FRAGMENT_DATA_DIRECTORY setting in the X10
-     * configuration file (e.g. standard.cfg).
-     */
-//    public static final String P_COMPILER_DATA_DIR= "compilerDataDir";
 
     /**
      * The runtime sampling frequency.
