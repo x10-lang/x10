@@ -1,6 +1,7 @@
 package com.ibm.watson.safari.x10.actions;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -39,6 +40,8 @@ public class ProjectBuilderEnable implements IObjectActionDelegate {
 
 	    if (first instanceof IProject) {
 		fProject= (IProject) first;
+	    } else if (first instanceof IJavaProject) {
+		fProject= ((IJavaProject) first).getProject();
 	    }
 	}
     }
