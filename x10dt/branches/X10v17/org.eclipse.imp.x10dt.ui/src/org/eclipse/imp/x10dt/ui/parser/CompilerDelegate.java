@@ -6,19 +6,14 @@
 * http://www.eclipse.org/legal/epl-v10.html
 *
 * Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
+*    @author Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+*    @author pcharles@us.ibm.com
 *******************************************************************************/
-
-/*
- * (C) Copyright IBM Corporation 2007
- * 
- * This file is part of the Eclipse IMP.
- */
 package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -53,25 +48,28 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 
 public class CompilerDelegate {
-    private ExtensionInfo extInfo;
-    private PolyglotFrontEnd fe;
+    private ExtensionInfo fExtInfo;
+    private polyglot.frontend.Compiler fCompiler;
 
-    private final IJavaProject x10Project;
-
-    public X10Lexer getLexer() { return extInfo.getLexer(); }
-    public X10Parser getParser() { return extInfo.getParser(); }
-    public Job getJob(Source source) { return extInfo.getJob(source); }
-    public PolyglotFrontEnd getFrontEnd() { return fe; }
+    private final IJavaProject fX10Project;
 
     CompilerDelegate(Monitor monitor, IMessageHandler handler, IProject project) {
-	this.x10Project= (project != null) ? JavaCore.create(project) : null;
+        this.fX10Project= (project != null) ? JavaCore.create(project) : null;
 
-        extInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler)); // new ExtensionInfo(monitor);
-        buildOptions(extInfo);
+        fExtInfo= new org.eclipse.imp.x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapter(handler));
+        buildOptions(fExtInfo);
         ErrorQueue eq= new SilentErrorQueue(100, "stderr");
-        fe = new PolyglotFrontEnd(extInfo, eq);
-    	Globals.initialize(fe); //PORT1.7 must initialize before jobs/goals are added to queue (change for Polyglot v3)
+        fCompiler = new polyglot.frontend.Compiler(fExtInfo, eq);
+    	Globals.initialize(fCompiler); //PORT1.7 must initialize before jobs/goals are added to queue (change for Polyglot v3)
         Report.setQueue(eq);
+    }
+
+    public X10Lexer getLexer() { return fExtInfo.getLexer(); }
+    public X10Parser getParser() { return fExtInfo.getParser(); }
+    public Job getJob(Source source) { return fExtInfo.getJob(source); }
+
+    public boolean compile(Collection<Source> sources) {
+    	return fCompiler.compile(sources);
     }
 
     /**
@@ -81,10 +79,10 @@ public class CompilerDelegate {
     private List<IPath> getProjectSrcPath() throws JavaModelException {
         List<IPath> srcPath= new ArrayList<IPath>();
 
-        if (this.x10Project == null)
+        if (this.fX10Project == null)
             return srcPath;
 
-        IClasspathEntry[] classPath= x10Project.getResolvedClasspath(true);
+        IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
 
         for(int i= 0; i < classPath.length; i++) {
             IClasspathEntry e= classPath[i];
@@ -93,7 +91,7 @@ public class CompilerDelegate {
                 srcPath.add(e.getPath());
         }
         if (srcPath.size() == 0)
-            srcPath.add(x10Project.getProject().getLocation());
+            srcPath.add(fX10Project.getProject().getLocation());
         return srcPath;
     }
 
@@ -111,8 +109,8 @@ public class CompilerDelegate {
                 // live inside the workspace, so use its actual location as the prefix
                 // for the rest of the specified path.
                 buff.append(projectRef.getLocation().append(path.removeFirstSegments(1)).toOSString());
-            } else if (x10Project.getProject().exists(path)) {
-                buff.append(x10Project.getProject().getLocation().append(path).toOSString());
+            } else if (fX10Project.getProject().exists(path)) {
+                buff.append(fX10Project.getProject().getLocation().append(path).toOSString());
             } else {
                 buff.append(path.toOSString());
             }
@@ -155,7 +153,7 @@ public class CompilerDelegate {
         boolean runtimeValid= false;
 
         try {
-            IClasspathEntry[] classPath= (x10Project != null) ? x10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
+            IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
 
             for(int i= 0; i < classPath.length; i++) {
                 IClasspathEntry entry= classPath[i];
