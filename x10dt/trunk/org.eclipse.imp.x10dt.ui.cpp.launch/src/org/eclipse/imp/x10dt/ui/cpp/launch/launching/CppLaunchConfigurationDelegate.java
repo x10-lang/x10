@@ -78,7 +78,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   protected AttributeManager getAttributeManager(ILaunchConfiguration configuration, String mode) throws CoreException {
     final IResourceManager resourceManager = getResourceManager(configuration);
     if (resourceManager == null) {
-      abort(LaunchMessages.CLCD_NoResManagerError, null, 0);
+      throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoResManagerError));
     }
 
     final AttributeManager attrMgr = new AttributeManager();
@@ -133,7 +133,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         monitor.beginTask(null, 10);
         monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
         createExecutable(rmConnection, configuration, verifyProject(configuration), new SubProgressMonitor(monitor, 3));
-
+        
         // Then, performs the launch.
         monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
         super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 7));
