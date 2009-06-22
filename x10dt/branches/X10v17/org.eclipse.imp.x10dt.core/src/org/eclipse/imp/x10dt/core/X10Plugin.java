@@ -47,8 +47,8 @@ public class X10Plugin extends PluginBase {
     public static final String X10_RUNTIME_BUNDLE_ID="x10.runtime.17";      //PORT1.7 provide constant here for runtime
     /** Plugin id of version of X10 compiler used for this X10DT */
     public static final String X10_COMPILER_BUNDLE_ID ="x10.compiler.p3";   //PORT1.7 provide constant here for compiler
- // public static final String X10_COMMON_BUNDLE_ID = "x10.common.17";      //PORT1.7 provide constant here for common
-
+    public static final String X10_COMMON_BUNDLE_ID="x10.common.17";  //PORT1.7 added
+    public static final String X10_CONSTRAINTS_BUNDLE_ID="x10.constraints"; //PORT1.7 added
     /**
      * The unique instance of this plugin class
      */
@@ -164,4 +164,9 @@ public class X10Plugin extends PluginBase {
 //        System.setProperty("x10.configuration", configFile);
 //    }
 //    
+    @Override
+    public void refreshPrefs() {
+    	System.out.println("refreshPrefs");
+    	this.getPreferencesService().getBooleanPreference("msgs?");
+    }
 }
