@@ -6,7 +6,7 @@
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
-   <description url="http://x10.sourceforge.net/">
+   <description url="http://x10-lang.org">
       %description
    </description>
 
@@ -19,7 +19,7 @@
    </url>
 
    <requires>
-      <import feature="polyglot" version="2.3.0" match="greaterOrEqual"/>
+      <import feature="polyglot" version="2.9.0" match="greaterOrEqual"/>
       <import feature="lpg.runtime" version="2.0.12" match="greaterOrEqual"/>
       <import feature="org.eclipse.imp.runtime" version="0.1.87" match="greaterOrEqual"/>
    </requires>
