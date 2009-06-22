@@ -1,5 +1,6 @@
 package x10.refactorings;
 
+import java.io.PrintStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,6 +94,8 @@ public class ReachingDefsVisitor extends DataFlow {
 
     private final Node fTopNode;
 
+    private final PrintStream fDiagStream= X10RefactoringPlugin.getInstance().getConsoleStream();
+
     private ValueMap fTopValueMap;
 
     public ReachingDefsVisitor(Node topNode, Job job, TypeSystem ts, NodeFactory nf) {
@@ -153,7 +156,7 @@ public class ReachingDefsVisitor extends DataFlow {
         if (n == fTopNode && !entry) {
             fTopValueMap= (ValueMap) inItem;
         }
-        System.out.println("Term " + n + " => " + inItem);
+        fDiagStream.println("Term " + n + " => " + inItem);
     }
 
     @Override
