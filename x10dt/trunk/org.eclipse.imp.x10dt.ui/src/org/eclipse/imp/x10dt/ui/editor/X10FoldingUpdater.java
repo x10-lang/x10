@@ -28,9 +28,6 @@ import polyglot.ext.x10.ast.When;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parser.JPGPosition;
 
-/*
- * 
- */
 public class X10FoldingUpdater implements IFoldingUpdater
 {
     private Annotation[] fOldAnnotations;
@@ -277,7 +274,7 @@ public class X10FoldingUpdater implements IFoldingUpdater
         }
         catch (Exception e)
         {
-            ErrorHandler.reportError("JsdifFoldingUpdater.updateFoldingStructure:  EXCEPTION", e);
+            ErrorHandler.reportError("X10FoldingUpdater.updateFoldingStructure:  EXCEPTION", e);
         }
     }
 
