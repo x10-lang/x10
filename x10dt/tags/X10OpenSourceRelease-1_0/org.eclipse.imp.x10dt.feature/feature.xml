@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.safari.x10dt"
+      label="X10 Development Toolkit"
+      version="1.0.41"
+      provider-name="rfuhrer@watson.ibm.com">
+
+   <description url="http://x10web.watson.ibm.com/">
+      This feature provides IDE support for the X10 programming language.
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      You are free to not copy anything contained in this archive.
+Except in the sense that none of us are completely free, as freedom
+implies responsibility, and therefore, a lack of freedom.
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      You may use this software, but not use it, for any purpose whatsoever,
+except any specific purpose.
+   </license>
+
+   <url>
+      <update label="SAFARI Update Site" url="http://orquesta.watson.ibm.com/eclipse/updates/SAFARI/"/>
+   </url>
+
+   <requires>
+      <import feature="org.eclipse.safari.runtime" version="1.0.40" match="perfect"/>
+   </requires>
+
+   <plugin
+         id="com.ibm.watson.safari.x10"
+         download-size="0"
+         install-size="0"
+         version="1.0.41"
+         unpack="false"/>
+
+   <plugin
+         id="x10.compiler"
+         download-size="0"
+         install-size="0"
+         version="1.0.41"
+         unpack="false"/>
+
+   <plugin
+         id="x10.runtime"
+         download-size="0"
+         install-size="0"
+         version="1.0.41"
+         unpack="false"/>
+
+   <plugin
+         id="x10.uide"
+         download-size="0"
+         install-size="0"
+         version="1.0.41"
+         unpack="false"/>
+
+   <plugin
+         id="org.eclipse.safari.x10dt"
+         download-size="0"
+         install-size="0"
+         version="1.0.41"
+         unpack="false"/>
+
+</feature>
