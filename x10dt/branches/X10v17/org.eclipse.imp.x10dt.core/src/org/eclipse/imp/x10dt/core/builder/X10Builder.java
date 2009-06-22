@@ -573,7 +573,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (prefService.getBooleanPreference(X10PreferenceConstants.P_ASSERT)) {
                 optsList.add(0, "-assert");
             }
-            try {
+
             if (prefService.isDefined(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
                 String optionString = prefService.getStringPreference(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS);
                 String[] options = optionString.split("\\s");
@@ -584,9 +584,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                     }
                 }
             }
-            }catch(Exception e) {
-            	X10Plugin.getInstance().writeErrorMsg("Error with Preference Service, ignoring");
-            }
+
             String[] optsArray = optsList.toArray(new String[optsList.size()]);
             opts.parseCommandLine(optsArray, new HashSet());
         } catch (UsageError e) {
