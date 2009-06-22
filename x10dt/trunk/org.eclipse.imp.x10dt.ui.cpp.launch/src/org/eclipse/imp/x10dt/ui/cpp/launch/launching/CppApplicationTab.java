@@ -359,7 +359,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       final IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
       final Collection<IProject> projects = new ArrayList<IProject>(allProjects.length);
       for (final IProject project : allProjects) {
-        if (project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+        if (project.isOpen() && project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
           projects.add(project);
         }
       }
