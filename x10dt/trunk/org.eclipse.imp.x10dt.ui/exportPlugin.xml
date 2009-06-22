@@ -5,7 +5,7 @@
 
 	<target name="init" depends="properties">
 		<property name="plugin.name" value="x10.uide"/>
-		<property name="plugin.version" value="${x10dt.version}"/>
+		<property name="plugin.version" value="${plugins.version.31}"/>
 		<property name="plugin.jar.name" value="${plugin.name}_${plugin.version}.jar"/>
 		<property name="plugin.zip.name" value="${plugin.name}_${plugin.version}.zip"/>
 		<property name="plugin.src.zip" value="${plugin.name}src.zip"/>
@@ -34,13 +34,13 @@
 		<javac destdir="${temp.folder}/${plugin.jar.name}.bin" failonerror="${javacFailOnError}" verbose="${javacVerbose}" debug="${javacDebugInfo}" includeAntRuntime="no" bootclasspath="${bootclasspath}" source="1.5" target="1.5">
 			<compilerarg line="${compilerArg}"/>
 			<classpath>
-				<pathelement location="../lpg.runtime.java/lpg.runtime_2.0.3.jar"/>
-				<pathelement location="../org.eclipse.uide.runtime/org.eclipse.uide.runtime_${x10dt.version}.jar"/>
-				<pathelement location="../polyglot/lib/polyglot-epl.jar"/>
-				<pathelement location="../org.eclipse.safari.analysis/org.eclipse.safari.analysis_${x10dt.version}.jar"/>
-				<pathelement location="../x10.runtime/x10.runtime_${x10dt.version}.jar"/>
-				<pathelement location="../x10.compiler/x10.compiler_${x10dt.version}.jar"/>
-				<pathelement location="../com.ibm.watson.safari.x10/com.ibm.watson.safari.x10_${x10dt.version}.jar"/>
+				<pathelement location="../lpg.runtime.java/bin"/>
+				<pathelement location="../org.eclipse.uide.runtime/bin"/>
+				<pathelement location="../polyglot/classes"/>
+				<pathelement location="../org.eclipse.safari.analysis/bin"/>
+				<pathelement location="../x10.runtime/bin"/>
+				<pathelement location="../x10.compiler/bin"/>
+				<pathelement location="../com.ibm.watson.safari.x10/bin"/>
 				<pathelement path="${eclipse.build.path}"/>
 			</classpath>
 			<src path="src/"/>
