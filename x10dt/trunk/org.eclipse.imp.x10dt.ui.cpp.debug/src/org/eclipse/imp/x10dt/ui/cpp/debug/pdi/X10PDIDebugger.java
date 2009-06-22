@@ -235,9 +235,11 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     this.fProcessListener.setCurTasks(tasks);
     
     initBreakPointIdIfRequired(breakpoint);
-    final DebuggeeProcess process = getDebuggeeProcess(tasks);
-    final Location location = this.fTranslator.getCppLocation(tasks, breakpoint.getLocator().getFile(), 
+    final Location location = this.fTranslator.getCppLocation(tasks, breakpoint.getLocator().getFile(),
                                                               breakpoint.getLocator().getLineNumber());
+    if (location == null) {
+      throw new PDIException(tasks, NLS.bind("Could not find PDT location for breakpoint {0}", breakpoint.getLocator()));
+    }
     try {
       this.fPDTTarget.createLineBreakpoint(true /* enabled */, location, null /* conditionalExpression */, 
                                            null /* brkAction */,  0 /* threadNumber */, 1 /* everyValue */, 1 /* fromValue */, 
@@ -259,6 +261,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
   }
 
   public void resume(final BitList tasks, final boolean passSignal) throws PDIException {
+    this.fProcessListener.setCurTasks(tasks);
     try {
       this.fPDTTarget.resume();
     } catch (DebugException except) {
@@ -969,9 +972,18 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     if (location == null) {
       throw new PDIException(null, "Unable to access location info for stack frame");
     }
-    return ProxyDebugEventFactory.toFrame(String.valueOf(level), location.getViewFile().getBaseFileName(), 
-                                          location.getViewFile().getFunctions()[0].getName(), 
-                                          String.valueOf(location.getLineNumber()), (String) null /* address */);
+    String cppFile = location.getViewFile().getBaseFileName();
+	int cppLine = location.getLineNumber();
+	String file = fTranslator.getX10File(location);
+	String function = location.getViewFile().getFunctions()[0].getName();
+	int lineNumber = fTranslator.getX10Line(location);
+	if (file == null || lineNumber == -1) {
+		file = cppFile;
+		lineNumber = cppLine;
+	}
+	return ProxyDebugEventFactory.toFrame(String.valueOf(level), file, 
+                                          function, 
+                                          String.valueOf(lineNumber), (String) null /* address */);
   }
   
   // --- Private classes
