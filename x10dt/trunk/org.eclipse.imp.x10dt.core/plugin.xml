@@ -35,7 +35,7 @@
             category="com.ibm.watson.safari.x10"
             class="com.ibm.watson.safari.x10.wizards.NewX10ClassWizard"
             hasPages="true"
-            icon="icons/sample.gif"
+            icon="icons/newclass.gif"
             id="com.ibm.watson.safari.x10.wizards.NewX10ClassWizard"
             name="X10 Class"/>
       <wizard
@@ -43,6 +43,7 @@
             category="com.ibm.watson.safari.x10"
             class="com.ibm.watson.safari.x10.wizards.X10ProjectWizard"
             hasPages="true"
+            icon="icons/newproject.gif"
             id="com.ibm.watson.safari.x10.newProject"
             name="X10 Project"
             project="true"/>
