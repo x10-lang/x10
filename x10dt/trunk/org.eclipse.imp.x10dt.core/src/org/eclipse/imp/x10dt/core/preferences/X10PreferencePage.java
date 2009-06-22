@@ -21,7 +21,7 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
     public X10PreferencePage() {
 	super(GRID);
 	setPreferenceStore(X10Plugin.getInstance().getPreferenceStore());
-	setDescription("X10 Preferences");
+	setDescription("Preferences for the X10 compiler and runtime");
     }
 
     /**
@@ -30,17 +30,23 @@ public class X10PreferencePage extends FieldEditorPreferencePage implements IWor
      * save and restore itself.
      */
     public void createFieldEditors() {
-//	addField(new DirectoryFieldEditor(PreferenceConstants.P_PATH, "&Directory preference:", getFieldEditorParent()));
+	addField(new DirectoryFieldEditor(PreferenceConstants.P_X10COMMON_PATH, "&X10 Common directory:", getFieldEditorParent()));
+	addField(new FileFieldEditor(PreferenceConstants.P_X10CONFIG_FILE, "&X10 configuration file:", getFieldEditorParent()));
 	addField(new BooleanFieldEditor(PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 		getFieldEditorParent()));
 
 //	addField(new RadioGroupFieldEditor(PreferenceConstants.P_CHOICE, "An example of a multiple-choice preference", 1,
 //		new String[][] { { "&Choice 1", "choice1" }, { "C&hoice 2", "choice2" } }, getFieldEditorParent()));
 //	addField(new StringFieldEditor(PreferenceConstants.P_STRING, "A &text preference:", getFieldEditorParent()));
+
 	getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
 	    public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().equals(PreferenceConstants.P_EMIT_MESSAGES))
 		    X10Preferences.builderEmitMessages= ((Boolean) event.getNewValue()).booleanValue();
+		else if (event.getProperty().equals(PreferenceConstants.P_X10COMMON_PATH))
+		    X10Preferences.x10CommonPath= (String) event.getNewValue();
+		else if (event.getProperty().equals(PreferenceConstants.P_X10CONFIG_FILE))
+		    X10Preferences.x10ConfigFile= (String) event.getNewValue();
 	    }
 	});
     }
