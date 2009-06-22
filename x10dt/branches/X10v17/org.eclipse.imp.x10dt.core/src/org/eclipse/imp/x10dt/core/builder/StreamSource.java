@@ -43,7 +43,8 @@ public class StreamSource extends FileSource {
 			}
 
 			public String name() {
-				return fullPath;
+				int idx= fullPath.lastIndexOf(File.separatorChar);
+				return (idx > 0) ? fullPath.substring(idx+1) : fullPath;
 			} }, true);
     }
 }
