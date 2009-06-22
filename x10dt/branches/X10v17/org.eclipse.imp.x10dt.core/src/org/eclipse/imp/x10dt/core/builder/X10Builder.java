@@ -547,7 +547,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 //      Options.global= opts; // PORT1.7 RMF 9/23/2008 - Global Options object no longer exists
         try {
             List<IPath> projectSrcLoc= getProjectSrcPath();
-            String projectSrcPath= pathListToPathString(projectSrcLoc);
+            String projectSrcPath= pathListToPathString(projectSrcLoc);// note this is user's src dir, plus runtime jar.
             String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
             //BRT note: probably won't work if > 1 src folder
             // TODO RMF 11/9/2006 - Remove the "-noserial" option; it's really for the demo
@@ -573,15 +573,19 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (prefService.getBooleanPreference(X10PreferenceConstants.P_ASSERT)) {
                 optsList.add(0, "-assert");
             }
+            try {
             if (prefService.isDefined(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
                 String optionString = prefService.getStringPreference(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS);
                 String[] options = optionString.split("\\s");
                 int extraOptionsPos=0;
-                for (String s: options) {
+                for (String s: options) { 
                     if (s!=null) {
                         optsList.add(extraOptionsPos++, s);
                     }
                 }
+            }
+            }catch(Exception e) {
+            	X10Plugin.getInstance().writeErrorMsg("Error with Preference Service, ignoring");
             }
             String[] optsArray = optsList.toArray(new String[optsList.size()]);
             opts.parseCommandLine(optsArray, new HashSet());
