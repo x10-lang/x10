@@ -46,6 +46,7 @@ import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.CompoundStmt;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
 import polyglot.ast.Field;
@@ -713,14 +714,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		
 		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
 		loop.visit(acv);
-		List<Assign> assigns = acv.getResult();
+		List<Eval> assigns = acv.getResult();
 		// Use of this map will NOT be robust! Alias issues are being elided
 		// (possibly leading to our doom)
 		Map<String, Assign> firstUpdateMap = acv.getFirstUpdateMap();
 		
 		// initialize the phi map
-		for (Assign a : assigns) {
-			tmpPhi.put(a, new HashSet<InstanceKey>());
+		for (Eval e : assigns) {
+			tmpPhi.put((Assign)e.expr(), new HashSet<InstanceKey>());
 		}
 		
 		int phiSize=-1;
@@ -730,7 +731,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			phiSent = false;
 			
 			// for every assignment statement in the loop
-			for (Assign a : assigns) {
+			for (Eval e : assigns) {
+				Assign a = (Assign)e.expr();
 			//    extract the variables from the statement with an LValueFinder
 				LValueFinder statVarFinder = new LValueFinder();
 				a.right().visit(statVarFinder);
@@ -781,14 +783,57 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		/* Collect the statements from the loop (now, we deal with assigns) */
 		AssignmentCollectorVisitor acv = new AssignmentCollectorVisitor();
 		loop.visit(acv);
-		Collection<? extends Assign> stmts = acv.getResult();
+		Collection<Eval> stmts = acv.getResult();
 		
 		/* For each of the statements in the set, see if they match the
 		 * criteria of a loop carried statement.
 		 */
-		for(Assign s: stmts){
-			if (false)
+		toploop:
+		for(Eval s : stmts){
+			
+			/* Stmt has loop-carried dependence if one of its variables has a
+			 * loop-carried dependence;
+			 */
+			LValueFinder statVarFinder = new LValueFinder();
+			s.visit(statVarFinder);
+			for(Variable v : statVarFinder.getLValues()){
+				VarWithFirstUse v_vwfu = getVarWithFirstUse(fRho.keySet(),v);
+				if (fRho.get(v_vwfu)) {
+					fDelta.add(s);
+					continue toploop;
+				}
+			}
+			
+			/* Stmt has loop-carried dependence if an arbitrary access to an array
+			 * happens.
+			 */
+			ArrayAccessIndexCollector aaic = new ArrayAccessIndexCollector();
+			s.visit(aaic);
+			arrayaccessloop:
+			for(Expr e : aaic.getResult()){
+				if (e instanceof NamedVariable){
+					for(VarDecl index_var : inductionVars )
+						if (((NamedVariable)e).name().equals(index_var.name()))
+							continue arrayaccessloop;
+				}
 				fDelta.add(s);
+				continue toploop;
+			}
+			
+			/* Stmt has loop-carried dependence if an update occurs to an induction
+			 * variable.
+			 */
+			if (s.expr() instanceof Assign){
+				Assign s_assign = (Assign)s.expr();
+				if(s_assign.right() instanceof NamedVariable) {
+					NamedVariable s_assign_rhs = (NamedVariable) s_assign.right();
+					for(VarDecl index_var : inductionVars )
+						if (s_assign_rhs.name().equals(index_var.name())) {
+							fDelta.add(s);
+							continue toploop;
+						}
+				}
+			}
 		}
 		return;
 	}
@@ -1332,7 +1377,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
 		}
-		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		String exclusionsFile= "C:/eclipse/download/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+//		String exclusionsFile= "/space/users/smarkstr/eclipse-bak/refactoring-workspace/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 //		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
 		fEngine.setExclusionsFile(exclusionsFile);
 	}
