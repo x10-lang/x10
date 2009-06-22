@@ -1,7 +1,7 @@
 /*
  * Created on Feb 9, 2006
  */
-package x10.uide.editor;
+package x10.uide.parser;
 
 import lpg.lpgjavaruntime.LexStream;
 
