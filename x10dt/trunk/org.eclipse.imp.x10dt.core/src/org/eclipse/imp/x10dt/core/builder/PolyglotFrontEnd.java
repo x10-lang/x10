@@ -13,6 +13,7 @@ import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
+import polyglot.main.Report;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorLimitError;
 import polyglot.util.ErrorQueue;
@@ -25,9 +26,11 @@ import polyglot.util.StdErrorQueue;
  * Identical to Compiler in all other respects.
  * @author rfuhrer
  */
+// TODO Remove this class; Compiler.compile(), takes a collection of Source's, as of 2.0a3
 public final class PolyglotFrontEnd extends Compiler {
     public PolyglotFrontEnd(ExtensionInfo info, ErrorQueue eq) {
 	super(info, eq);
+        Report.setQueue(eq);
     }
     public PolyglotFrontEnd(ExtensionInfo info) {
 	this(info, new StdErrorQueue(System.err, 1000 * 1000, info.compilerName()));
