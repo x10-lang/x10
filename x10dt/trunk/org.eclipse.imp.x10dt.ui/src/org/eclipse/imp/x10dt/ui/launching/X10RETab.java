@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
+import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
 import x10.uide.X10UIPlugin;
 
@@ -125,7 +126,10 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
+	String commonPath= X10Preferences.x10CommonPath;
+	String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";
+
+	configuration.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
     }
 
     public void initializeFrom(ILaunchConfiguration configuration) {
