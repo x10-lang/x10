@@ -78,7 +78,7 @@ registered with using the <tt>clocked</tt> clause.
 
 <div class="p"><!----></div>
 An activity may transmit only those clocks that is registered with and
-has not quiesced on (&#167;&nbsp;). 
+has not quiesced on (&#167;&nbsp;8.1.3). 
 A <tt>ClockUseException</tt> is thrown if (and when) 
 this condition is violated.
 
@@ -118,7 +118,7 @@ invocation:
 
 <div class="p"><!----></div>
 An activity may invoke this method only on a clock it is registered
-with, and has not yet dropped (&#167;&nbsp;). A <tt>
+with, and has not yet dropped (&#167;&nbsp;8.1.5). A <tt>
 ClockUseException</tt> is thrown if (and
 when) this condition is violated.  Nothing happens if the activity has
 already invoked a <tt>resume</tt> on this clock in the current phase.

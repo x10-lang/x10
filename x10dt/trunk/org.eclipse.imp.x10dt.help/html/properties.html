@@ -37,9 +37,9 @@ NormalInterfaceDeclaration ::=
 <div class="p"><!----></div>
 PropertyList     ::= ( Properties WhereClauseopt )
 Properties       ::= Property
-                  -  Properties , Property
+                  |  Properties , Property
 Property         ::= Type identifier    
-PropertyListopt  ::= $Empty  -  PropertyList
+PropertyListopt  ::= $Empty  |  PropertyList
 </pre>
 
 <div class="p"><!----></div>
@@ -87,12 +87,12 @@ public final P p()  return p;
 
 <div class="p"><!----></div>
 Properties are used to build dependent types from classes, as
-described below (&#167;&nbsp;).
+described below (&#167;&nbsp;4.2).
 
 <div class="p"><!----></div>
 The <tt>WhereClause</tt> in a <tt>PropertyList</tt> specifies an explicit
 condition on the properties of the type, and is discussed further
-below (&#167;&nbsp;, ).
+below (&#167;&nbsp;4.3, 4.11).
 
 <div class="p"><!----></div>
 

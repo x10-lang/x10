@@ -33,10 +33,10 @@ values lie.
 <div class="p"><!----></div>
  X10 supports two kinds of objects, <em>reference objects</em> and
 <em>value objects</em>.  Reference objects are instances of <em>
-reference classes</em> (&#167;&nbsp;). They may contain
+reference classes</em> (&#167;&nbsp;10.1. They may contain
 mutable fields and must stay resident in the place in which they were
 created. Value objects are instances of <em>value classes</em>
-(&#167;&nbsp;). They are immutable and may be freely copied
+(&#167;&nbsp;10.2). They are immutable and may be freely copied
 from place to place. Either reference or value objects may be 
 <em>scalar</em> (instances of a non-array class) or <em>aggregate</em> (instances
 of arrays).
@@ -46,14 +46,14 @@ An  X10 type is either a <em>reference type</em> or a <em>value
 type</em>.  Each type consists of a <em>data type</em>, which is a set of
 values, and a <em>place type</em> which specifies the place at which the
 value resides.  Types are constructed through the application of <em>
-type constructors</em> (&#167;&nbsp;).
+type constructors</em> (&#167;&nbsp;3.1).
 
 <div class="p"><!----></div>
 Types are used in variable declarations, casts, object creation, array
 creation, class literals and <tt>instanceof</tt> expressions.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 
 <div class="p"><!----></div>
-A variable is a storage location (&#167;&nbsp;). All
+A variable is a storage location (&#167;&nbsp;3.5). All
 variables are initialized with a value and cannot be observed without
 a value. 
 

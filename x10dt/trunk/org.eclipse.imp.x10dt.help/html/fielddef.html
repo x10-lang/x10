@@ -43,7 +43,7 @@ FieldDeclaration  ::=
    FieldModifiersopt ThisClauseopt 
    Type VariableDeclarators ;
 ThisClause       ::= this DepParameters
-ThisClauseopt    ::= null  -  ThisClause
+ThisClauseopt    ::= null  |  ThisClause
 </pre>
 
 <div class="p"><!----></div>
@@ -61,7 +61,7 @@ type is not a subtype of <tt>C(:c)</tt>.
 </blockquote>
 
 <div class="p"><!----></div>
-We may now rewrite the List example:
+<b>Example 9.1</b> We may now rewrite the List example:
 <pre>
 public class List(int(:n &#62;=0) n) {
   protected this(:n&#62;0) Object  value;
