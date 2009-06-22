@@ -195,7 +195,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    else if (errorPos instanceof JPGPosition)
 		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
 			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(),
-			((JPGPosition) errorPos).getStartOffset(), ((JPGPosition) errorPos).getEndOffset());
+			((JPGPosition) errorPos).getLeftIToken().getStartOffset(), ((JPGPosition) errorPos).getRightIToken().getEndOffset());
 	    else
 		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
 			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), -1, -1);
