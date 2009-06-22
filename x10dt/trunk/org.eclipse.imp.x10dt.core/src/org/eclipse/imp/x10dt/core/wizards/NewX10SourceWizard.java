@@ -75,7 +75,6 @@ public class NewX10SourceWizard extends Wizard implements INewWizard {
      * and open the editor on the newly created file.
      */
     private void doFinish(String containerName, String fileName, IProgressMonitor monitor) throws CoreException {
-	// create a sample file
 	monitor.beginTask("Creating " + fileName, 2);
 	IWorkspaceRoot root= ResourcesPlugin.getWorkspace().getRoot();
 	IResource resource= root.findMember(new Path(containerName));
@@ -94,7 +93,7 @@ public class NewX10SourceWizard extends Wizard implements INewWizard {
 	    stream.close();
 	} catch (IOException e) {
 	}
-	X10ProjectNature.addToProject(container.getProject());
+	new X10ProjectNature().addToProject(container.getProject()); // Doesn't hurt to instantiate a nature, right?
 	monitor.worked(1);
 	monitor.setTaskName("Opening file for editing...");
 	getShell().getDisplay().asyncExec(new Runnable() {

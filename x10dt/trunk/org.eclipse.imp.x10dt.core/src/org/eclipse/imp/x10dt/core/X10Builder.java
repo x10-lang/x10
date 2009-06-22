@@ -41,32 +41,27 @@ import com.ibm.domo.ast.java.translator.polyglot.PolyglotFrontEnd;
 import com.ibm.domo.ast.java.translator.polyglot.StreamSource;
 
 public class X10Builder extends IncrementalProjectBuilder {
+    /**
+     * Builder ID for the X10 compiler. Must match the ID of the builder extension
+     * defined in plugin.xml.
+     */
     public static final String BUILDER_ID= X10Plugin.kPluginID + ".X10Builder";
 
+    /**
+     * Problem marker ID for X10 compiler errors/warnings/infos. Must match the
+     * ID of the marker extension defined in plugin.xml.
+     */
     public static final String PROBLEMMARKER_ID= X10Plugin.kPluginID + ".problemMarker";
 
     private final class X10DeltaVisitor implements IResourceDeltaVisitor {
 	public boolean visit(IResourceDelta delta) throws CoreException {
-	    // System.out.println("Visiting delta " + delta.toString() + " of kind " + k_kindNames[delta.getKind()] + ".");
-	    if (isX10SourceFile(delta.getResource()))
-		fSourcesToCompile.add(delta.getResource());
-	    else if (delta.getResource().getFullPath().lastSegment().equals("bin"))
-		return false;
-	    return true;
+	    return processResource(delta.getResource());
 	}
     }
 
     private class X10ResourceVisitor implements IResourceVisitor {
-	public X10ResourceVisitor() { }
-
 	public boolean visit(IResource res) throws CoreException {
-	    if (isX10SourceFile(res)) {
-		IFile file= (IFile) res;
-
-		fSourcesToCompile.add(file);
-		return false; // skip sub-resources
-	    } else
-		return true; // need to descend into sub-resources
+	    return processResource(res);
 	}
     }
 
@@ -88,10 +83,25 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     public X10Builder() { }
 
-    private boolean isX10SourceFile(IResource res) {
-	String exten= res.getFileExtension();
+    protected boolean processResource(IResource resource) {
+	if (resource instanceof IFile) {
+	    IFile file= (IFile) resource;
 
-	return res.exists() && res instanceof IFile && exten != null && exten.compareTo("x10") == 0;
+	    if (isSourceFile(file))
+		fSourcesToCompile.add(file);
+	} else if (isBinaryFolder(resource))
+	    return false;
+	return true;
+    }
+
+    protected boolean isSourceFile(IFile file) {
+	String exten= file.getFileExtension();
+
+	return file.exists() && exten != null && exten.compareTo("x10") == 0;
+    }
+
+    private boolean isBinaryFolder(IResource resource) {
+	return resource.getFullPath().lastSegment().equals("bin");
     }
 
     protected void clearMarkersOn(Collection/*<IFile>*/ sources) {
@@ -119,7 +129,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		marker.setAttribute(IMarker.CHAR_END, endOffset+1);
 	    }
 	} catch (CoreException e) {
-	    X10Plugin.writeErrorMsg("Couldn't add marker to file " + sourceFile, BUILDER_ID);
+	    X10Plugin.getInstance().writeErrorMsg("Couldn't add marker to file " + sourceFile);
 	}
     }
 
@@ -128,10 +138,10 @@ public class X10Builder extends IncrementalProjectBuilder {
      * @param file
      */
     private void invokeX10C(Collection/*<IFile>*/ sources) {
-	X10Plugin.maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...", BUILDER_ID);
+	X10Plugin.getInstance().maybeWriteInfoMsg("Running X10C on source file set '" + fileSetToString(sources) + "'...");
 	clearMarkersOn(sources);
 	compileAllSources(sources);
-	X10Plugin.maybeWriteInfoMsg("X10C completed on source file set.", BUILDER_ID);
+	X10Plugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
     private void compileAllSources(Collection/*<IFile>*/ sourceFiles) {
@@ -152,7 +162,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	try {
 	    compiler.compile(streams);
 	} catch (Exception e) {
-	    X10Plugin.writeErrorMsg("Internal X10 compiler error: " + e.getMessage(), BUILDER_ID);
+	    X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + e.getMessage());
 	}
 	createMarkers(errors);
     }
@@ -181,7 +191,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    IFile errorFile= wsRoot.getFileForLocation(new Path(errorPos.file()));
 
 	    if (errorPos == Position.COMPILER_GENERATED)
-		X10Plugin.writeErrorMsg(errorInfo.getMessage(), BUILDER_ID);
+		X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
 	    else if (errorPos instanceof JPGPosition)
 		addMarkerTo(errorFile, errorInfo.getMessage(), errorInfo.getErrorKind(),
 			errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(),
@@ -203,9 +213,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 		streams.add(srcStream);
 	    } catch (IOException e) {
-		X10Plugin.writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage(), BUILDER_ID);
+		X10Plugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
 	    } catch (CoreException e) {
-		X10Plugin.writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage(), BUILDER_ID);
+		X10Plugin.getInstance().writeErrorMsg("Unable to open source file '" + sourceFile.getLocation() + ": " + e.getMessage());
 	    }
 	}
 	return streams;
@@ -224,7 +234,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 		buff.append(entry.getPath().toOSString());
 	    }
 	} catch (JavaModelException e) {
-	    X10Plugin.writeErrorMsg("Error resolving class path: " + e.getMessage(), BUILDER_ID);
+	    X10Plugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
 	}
 
 	return buff.toString();
@@ -242,12 +252,6 @@ public class X10Builder extends IncrementalProjectBuilder {
 	return buff.toString();
     }
 
-    protected void scanForX10Sources(IProject proj) throws CoreException {
-	X10Plugin.maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + proj.getName() + "'... <==", BUILDER_ID);
-	proj.accept(fResourceVisitor);
-	X10Plugin.maybeWriteInfoMsg("X10 source file scan completed for project '" + proj.getName() + "'...", BUILDER_ID);
-    }
-
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 	fProject= getProject();
 	fX10Project= JavaCore.create(fProject);
@@ -260,12 +264,11 @@ public class X10Builder extends IncrementalProjectBuilder {
 	X10Plugin.refreshPrefs();
 
 	fSourcesToCompile.clear();
+	fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
 	collectSourcesToCompile();
 
 	Collection/*<IProject>*/ dependents= doCompile();
 
-	fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
-	scanForX10Sources(fProject);
 	fMonitor.done();
 
 	return (IProject[]) dependents.toArray(new IProject[dependents.size()]);
@@ -283,13 +286,13 @@ public class X10Builder extends IncrementalProjectBuilder {
 	IResourceDelta delta= getDelta(fProject);
 
 	if (delta != null) {
-	    X10Plugin.maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==", BUILDER_ID);
+	    X10Plugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
 	    delta.accept(fDeltaVisitor);
-	    X10Plugin.maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...", BUILDER_ID);
+	    X10Plugin.getInstance().maybeWriteInfoMsg("X10 delta scan completed for project '" + fProject.getName() + "'...");
 	} else {
-	    X10Plugin.maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==", BUILDER_ID);
+	    X10Plugin.getInstance().maybeWriteInfoMsg("==> Scanning for X10 source files in project '" + fProject.getName() + "'... <==");
 	    fProject.accept(fResourceVisitor);
-	    X10Plugin.maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...", BUILDER_ID);
+	    X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
 	}
     }
 }

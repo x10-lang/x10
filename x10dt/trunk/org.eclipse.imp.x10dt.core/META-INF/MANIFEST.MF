@@ -15,7 +15,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.ibm.watson.safari,
  x10.compiler,
  org.eclipse.jdt.core,
- com.ibm.domo.ast.java
+ com.ibm.domo.ast.java,
+ org.eclipse.uide.runtime
 Eclipse-AutoStart: true
 Export-Package: com.ibm.watson.safari.x10,
  com.ibm.watson.safari.x10.wizards
