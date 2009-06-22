@@ -18,14 +18,14 @@ import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.preferences.PreferencesTab;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
+import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.preferences.fields.FieldEditor;
+import org.eclipse.imp.preferences.fields.FontFieldEditor;
+import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
-import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsStringFieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
-import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.generated.X10PreferencesInstanceTab;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
@@ -75,12 +75,12 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, "4");
 		TabSize = fPrefUtils_x10.makeNewIntegerField(
 			page, this, fPrefService,
-			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size",
+			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size", null,
 			parent,
 			true, true,
 			true, String.valueOf(8),
 			false, "4",
-			true, null);
+			true);
 		fields.add(TabSize);
 
 
@@ -90,7 +90,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 				null,
 				parent,
 				true, false,
-				null, true, null);
+				true);
 		fields.add(fontField);
 		
 
@@ -98,22 +98,22 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 		// -BAD_PLACE_RUNTIME_CHECK=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
-		badPlaceRuntimeCheckCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", parent, true, true, false, false, true, true, false, null);
+		badPlaceRuntimeCheckCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", null, parent, true, true, false, false, true, true, false);
 		fields.add(badPlaceRuntimeCheckCompilerOption);
 
 		// -LOOP_OPTIMIZATIONS=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
-		loopOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", parent, true, true, false, false, true, true, false, null);
+		loopOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", null, parent, true, true, false, false, true, true, false);
 		fields.add(loopOptimizationsCompilerOption);
 
 		// -ARRAY_OPTIMIZATIONS=boolean
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
-		arrayOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", parent, true, true, false, false, true, true, false, null);
+		arrayOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", null, parent, true, true, false, false, true, true, false);
 		fields.add(arrayOptimizationsCompilerOption);
 
 		// -assert
 		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
-		assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", parent, true, true, false, false, true, true, false, null);
+		assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, this, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", null, parent, true, true, false, false, true, true, false);
 		fields.add(assertCompilerOption);
 		
 		// additional compiler options (string field)
@@ -134,12 +134,12 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
 		NumPlaces = fPrefUtils_x10.makeNewIntegerField(
 				page, this, fPrefService,
-				"instance", X10PreferenceConstants.P_NUM_PLACES, "Number of Places",
+				"instance", X10PreferenceConstants.P_NUM_PLACES, "Number of Places", null,
 				parent,
 				true, true,
 				true, String.valueOf(8),
 				false, "4",
-				true, null);
+				true);
 		fields.add(NumPlaces);
 		
 		
@@ -240,26 +240,7 @@ public class X10PreferencesInstanceTabNoDetails extends X10PreferencesInstanceTa
 		
 		return composite;
 	}
-	/** 
-	 * The field editor preference page implementation of this 
-	 * <code>PreferencePage</code> method saves all field editors by
-	 * calling <code>FieldEditor.store</code>. Note that this method
-	 * does not save the preference store itself; it just stores the
-	 * values back into the preference store.
-	 *
-	 * @see FieldEditor#store()
-	 */
-	public boolean performOk() {
-	    if (fFields != null) {
-	    	for (int i=0; i<fFields.length; i++) {
-	            FieldEditor pe = (FieldEditor) fFields[i];
-	            pe.store();
-	            pe.doSetPresentsDefaultValue(false);
-	        }
-	    }
-	    return true;
-	}
-	
+
 	/**
 	 * Recomputes the tab's error state by calling <code>isValid</code> for
 	 * every field editor.
