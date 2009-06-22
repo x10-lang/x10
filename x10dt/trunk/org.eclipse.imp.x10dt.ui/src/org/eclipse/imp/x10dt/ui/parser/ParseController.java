@@ -13,6 +13,7 @@ import lpg.runtime.Monitor;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.uide.model.ISourceProject;
 import org.eclipse.uide.parser.AstLocator;
 import org.eclipse.uide.parser.IASTNodeLocator;
 import org.eclipse.uide.parser.ILexer;
@@ -24,7 +25,7 @@ import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 
 public class ParseController implements IParseController {
-    private IProject fProject;
+    private ISourceProject fProject;
     private IPath fFilePath;
     private CompilerDelegate fCompiler;
     private Node fCurrentAst;
@@ -32,11 +33,11 @@ public class ParseController implements IParseController {
     private char fKeywords[][];
     private boolean fIsKeyword[];
 
-    public void initialize(IPath filePath, IProject project, IMessageHandler handler) {
+    public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
         this.fProject= project;
         this.fFilePath= filePath;
     }
-    public IProject getProject() {
+    public ISourceProject getProject() {
 	return fProject;
     }
     public IPath getPath() {
@@ -92,9 +93,9 @@ public class ParseController implements IParseController {
         try
         {
             MyMonitor my_monitor = new MyMonitor(monitor);
-            fCompiler = new CompilerDelegate(my_monitor, fProject);  // Create the compiler
+            fCompiler = new CompilerDelegate(my_monitor, fProject.getRawProject());  // Create the compiler
             fileSource= new SafariFileSource(contents,
-                                             new File(fProject != null ? fProject.getLocation().append(fFilePath).toString() : fFilePath.toOSString()),
+                                             new File(fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toString() : fFilePath.toOSString()),
                                              fFilePath.toOSString());
             List/*<SourceStream>*/ streams= new ArrayList();
             streams.add(fileSource); //PC: just to test...
