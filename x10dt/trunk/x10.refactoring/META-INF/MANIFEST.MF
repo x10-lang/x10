@@ -35,3 +35,4 @@ Require-Bundle: org.eclipse.compare,
  x10.effects;bundle-version="1.0.0",
  x10.constraints;bundle-version="1.7.3"
 Bundle-ClassPath: bin/
+Export-Package: x10.refactorings
