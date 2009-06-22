@@ -30,15 +30,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Options;
-import polyglot.main.Report;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
-
-import com.ibm.domo.ast.java.translator.polyglot.PolyglotFrontEnd;
-import com.ibm.domo.ast.java.translator.polyglot.StreamSource;
 
 public class X10Builder extends IncrementalProjectBuilder {
     /**
