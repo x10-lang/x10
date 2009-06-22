@@ -520,7 +520,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
-            IPreferencesService prefService = X10Plugin.getPreferencesService();
+            IPreferencesService prefService = X10Plugin.getInstance().getPreferencesService();
             IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
             optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10PreferenceConstants.P_BAD_PLACE_CHECK)));
             optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)));
