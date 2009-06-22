@@ -10,6 +10,7 @@ package org.eclipse.imp.x10dt.ui.cpp.debug.pdi;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_EXECUTABLE_PATH;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static org.eclipse.imp.x10dt.ui.cpp.debug.core.X10DebuggerTranslator.FMGL;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -879,10 +880,6 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     }
   }
 
-  public static String FMGL(String name) {
-    return "x10__"+name;
-  }
-
   /**
    * An in-memory representation of the X10 String object.
    * Layout:
@@ -1215,7 +1212,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
         // - *(base+off)@num
         // - base[idx]
         int offset = 0;
-        int num = 1;
+        int num = 0;
         int atIdx = expr.lastIndexOf('@');
         if (expr.startsWith("*") && atIdx != -1) {
           num = Integer.parseInt(expr.substring(atIdx+1));
@@ -1232,6 +1229,9 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
             offset = Integer.parseInt(idx);
             num = 1;
           }
+        } else {
+          num = length;
+          offset = 0;
         }
 //        assert (offset == 0);
 //        assert (num == length);
@@ -1241,8 +1241,9 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
         StringBuilder sb = new StringBuilder(); // TODO
         for (int i = 0; i < num; i++) {
           switch (elementType) {
+          case BOOL: sb.append(toHexString(rail.getIntAt(offset+i)==0?0:-1, 8)); break;
           case INT:
-          case FLOAT: sb.append(toHexString(rail.getIntAt(offset+i), 8)); break;
+          case FLOAT: sb.append(toHexString(rail.getIntAt(offset+i), 8)); break; // FIXME: byte and short
           case LONG:
           case DOUBLE: sb.append(toHexString(rail.getLongAt(offset+i), 16)); break;
           case STRING: {
@@ -1252,10 +1253,23 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
                          sb.append(toHexString(len, 4)+toHexString(bytes));
                          break;
                        }
+          case ARRAY:
+          case STRUCT: {
+                         long val = rail.getPointerAt(offset+i);
+                         if (val == 0)
+                           sb.append("00");
+                         else
+                           sb.append("01").append(toHexString(val, 16));
+                         break;
+                       }
+          case CHAR: sb.append(toHexString(rail.getIntAt(offset+i)>>16, 2)); break;
           default: sb.append(toHexString(rail.getPointerAt(offset+i), 16)); break;
           }
         }
-        result = sb.toString();
+        if (num == 0)
+          result = "v0";
+        else
+          result = sb.toString();
         desc[2] = Integer.toString(offset)+".."+Integer.toString(offset+num-1); // we want an inclusive upper bound
       } else {
         if (result.startsWith("0x"))
@@ -1300,6 +1314,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     if (exprType == EPDTVarExprType.STRUCT) {
       if (listChildren) {
         // Compute the value
+        // TODO: retrieve actual type
         // TODO: factor out into an X10Class
         final int numInterfaces = Integer.parseInt(desc[1]);
         X10Object object = new X10Object(process, thread, location, result) {
@@ -1335,6 +1350,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
           String t = desc[j];
           EPDTVarExprType et = getExprType(t);
           switch (et) {
+          case BOOL: sb.append(toHexString(object.getIntField(n)==0?0:-1, 8)); break;
           case INT:
           case FLOAT: sb.append(toHexString(object.getIntField(n), 8)); break;
           case LONG:
@@ -1355,6 +1371,7 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
                            sb.append("01").append(toHexString(val, 16));
                          break;
                        }
+          case CHAR: sb.append(toHexString(object.getIntField(n)>>16, 2)); break;
           default: sb.append(toHexString(object.getPointerField(n), 16)); break;
           }
         }
@@ -1996,7 +2013,8 @@ public final class X10PDIDebugger implements IPDIDebugger, IDebugEngineEventList
     }
     String cppFile = location.getViewFile().getBaseFileName();
 	int cppLine = location.getLineNumber();
-	String cppFunction = location.getFunctionsAtThisLocation()[0].getName();
+	Function[] functions = location.getFunctionsAtThisLocation();
+	String cppFunction = functions.length == 0 ? "UNKNOWN" : functions[0].getName();
 	String file = fTranslator.getX10File(process, location);
 	int lineNumber = fTranslator.getX10Line(process, location);
 	String function = fTranslator.getX10Function(process, cppFunction, location);

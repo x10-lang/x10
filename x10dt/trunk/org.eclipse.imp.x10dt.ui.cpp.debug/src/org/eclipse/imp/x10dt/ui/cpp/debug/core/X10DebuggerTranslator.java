@@ -516,7 +516,7 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     desc[1] = Integer.toString(t.interfaces().size());
     int i = 2;
     for (FieldInstance f : fields) {
-      desc[i++] = f.name().toString();
+      desc[i++] = FMGL(f.name().toString());
       desc[i++] = Emitter.translateType(f.type(), true);
     }
     return desc;
@@ -535,6 +535,12 @@ public final class X10DebuggerTranslator implements IDebuggerTranslator {
     assert (type.startsWith(prefix));
     assert (type.endsWith(">"));
     return type.substring(prefix.length(), type.length()-1);
+  }
+
+  // --- Public services
+
+  public static String FMGL(String name) { 
+    return "x10__"+name;
   }
 
   // --- Fields
