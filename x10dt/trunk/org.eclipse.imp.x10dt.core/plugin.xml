@@ -33,11 +33,19 @@
             name="X10"/>
       <wizard
             category="com.ibm.watson.safari.x10"
-            class="com.ibm.watson.safari.x10.wizards.NewX10SourceWizard"
+            class="com.ibm.watson.safari.x10.wizards.NewX10ClassWizard"
             hasPages="true"
             icon="icons/sample.gif"
-            id="com.ibm.watson.safari.x10.wizards.NewX10SourceWizard"
-            name="X10 Source file"/>
+            id="com.ibm.watson.safari.x10.wizards.NewX10ClassWizard"
+            name="X10 Class"/>
+      <wizard
+            canFinishEarly="true"
+            category="com.ibm.watson.safari.x10"
+            class="com.ibm.watson.safari.x10.wizards.X10ProjectWizard"
+            hasPages="true"
+            id="com.ibm.watson.safari.x10.newProject"
+            name="X10 Project"
+            project="true"/>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
