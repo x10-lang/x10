@@ -307,8 +307,11 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	}
 	buff.append(" {\n");
         if (createMain) {
-            buff.append("    public static def main(Rail[String]){\n");
-            buff.append("         Console.OUT.println(\"Hello X10 world\");\n");
+            buff.append("    public static def main(args:Rail[String]){\n");
+            buff.append("         if(args.length>0){\n");
+            buff.append("           Console.OUT.println(\"The first arg is: \"+args(0));\n");
+            buff.append("         }\n");
+            buff.append("         Console.OUT.println(\"Hello X10 world \");\n");
             buff.append("         val h = new Hello();  // final, immutable value \n");
             buff.append("         var result : Boolean = h.myMethod(); // mutable variable \n");
             buff.append("         Console.OUT.println(\"The answer is: \"+result);\n");
