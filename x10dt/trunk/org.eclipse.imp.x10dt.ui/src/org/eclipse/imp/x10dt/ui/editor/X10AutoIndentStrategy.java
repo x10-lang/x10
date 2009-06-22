@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.internal.corext.Assert;
 import org.eclipse.jdt.internal.corext.dom.NodeFinder;
 import org.eclipse.jdt.internal.corext.util.CodeFormatterUtil;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -72,6 +71,13 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 
     public X10AutoIndentStrategy() {
 	this("", null);
+    }
+
+    private static void doAssert(boolean cond) {
+//      org.eclipse.jdt.internal.corext.Assert(cond);
+        if (cond) {
+            // bark like a dog
+        }
     }
 
     /**
@@ -371,9 +377,9 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
          * @return <code>true</code> if the specified character range contains a <code>new</code> keyword, <code>false</code> otherwise.
          */
     private static boolean isNewMatch(IDocument document, int offset, int length, String partitioning) {
-	Assert.isTrue(length >= 0);
-	Assert.isTrue(offset >= 0);
-	Assert.isTrue(offset + length < document.getLength() + 1);
+	doAssert(length >= 0);
+	doAssert(offset >= 0);
+	doAssert(offset + length < document.getLength() + 1);
 	try {
 	    String text= document.get(offset, length);
 	    int pos= text.indexOf("new"); //$NON-NLS-1$
@@ -418,8 +424,8 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
          * @return <code>true</code> if <code>position</code> is in the default partition of <code>document</code>, <code>false</code> otherwise
          */
     private static boolean isDefaultPartition(IDocument document, int position, String partitioning) {
-	Assert.isTrue(position >= 0);
-	Assert.isTrue(position <= document.getLength());
+	doAssert(position >= 0);
+	doAssert(position <= document.getLength());
 	try {
 	    ITypedRegion region= TextUtilities.getPartition(document, partitioning, position, false);
 	    return region.getType().equals(IDocument.DEFAULT_CONTENT_TYPE);
@@ -791,7 +797,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    }
 	} catch (BadLocationException e) {
 	    // cannot happen
-	    Assert.isTrue(false);
+	    doAssert(false);
 	}
 	int pPos= 0; // paste text position (increasing from 0)
 	int dPos= Math.max(0, command.offset - 1); // document position (decreasing from paste offset)
@@ -863,7 +869,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 	    closeToken= Symbols.TokenRBRACE;
 	    break;
 	default:
-	    Assert.isTrue(false);
+	    doAssert(false);
 	    return -1; // dummy
 	}
 	int depth= 1;
