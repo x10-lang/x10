@@ -13,6 +13,7 @@ import polyglot.types.Declaration;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
+// TODO This should really derive from the Java ASTNodeLocator impl in org.eclipse.safari.java.core...
 public class PolyglotNodeLocator implements IASTNodeLocator {
     private final Node[] fNode= new Node[1];
 
@@ -162,8 +163,17 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 //    	}
     }
 
-    public int getLength(Object  node) {
+    public int getLength(Object node) {
     	Node n = (Node) node;
     	return getEndOffset(n) - getStartOffset(n);
+    }
+
+    public String getPath(Object node) {
+	if (node instanceof Declaration)
+	    return ((Declaration) node).position().file();
+	else if (node instanceof Node)
+	    return ((Node)node).position().path();
+	else
+	    return "";
     }
 }
