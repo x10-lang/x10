@@ -8,7 +8,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -19,14 +18,14 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
+import org.eclipse.uide.runtime.UIDEPluginBase;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.Options;
@@ -75,7 +74,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private ExtensionInfo fExtInfo;
 
-    private static Plugin sPlugin= null;
+    private static UIDEPluginBase sPlugin= null;
 
     public X10Builder() { }
 
@@ -168,11 +167,36 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	Options.global= opts;
 	try {
-	    opts.parseCommandLine(new String[] { "-cp", buildClassPathSpec() }, new HashSet());
+	    IPath projectSrcLoc= getProjectSrcPath();
+	    String projectSrcPath= fProject.getWorkspace().getRoot().getLocation().append(projectSrcLoc).toOSString();
+
+	    opts.parseCommandLine(new String[] {
+		    "-cp", buildClassPathSpec(),
+		    "-d", projectSrcPath
+	    }, new HashSet());
 	} catch (UsageError e) {
-	    System.err.println(e.getMessage());
-	    // Assertions.UNREACHABLE("Error parsing classpath spec???");
+	    if (!e.getMessage().equals("must specify at least one source file"))
+		System.err.println(e.getMessage());
+	} catch (JavaModelException e) {
+	    X10Plugin.getInstance().writeErrorMsg("Unable to determine project source folder location for " + fProject.getName());
 	}
+    }
+
+    /**
+     * @return the project-relative path of the first CPE_SOURCE-type classpath entry.
+     * @throws JavaModelException
+     */
+    private IPath getProjectSrcPath() throws JavaModelException {
+	IJavaProject javaProject= JavaCore.create(fProject);
+	IClasspathEntry[] classPath= javaProject.getResolvedClasspath(true);
+
+	for(int i= 0; i < classPath.length; i++) {
+	    IClasspathEntry e= classPath[i];
+
+	    if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE)
+		return e.getPath();
+	}
+	return fProject.getLocation();
     }
 
     private void createMarkers(final Collection/*<ErrorInfo>*/ errors) {
@@ -257,7 +281,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    sPlugin= X10Plugin.getInstance();
 
 	// Refresh prefs every time so that changes take effect on the next build.
-	X10Plugin.refreshPrefs();
+	sPlugin.refreshPrefs();
 
 	fSourcesToCompile.clear();
 	fMonitor.beginTask("Scanning and compiling X10 source files...", 0);
@@ -273,6 +297,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     private Collection doCompile() throws CoreException {
 	if (!fSourcesToCompile.isEmpty()) {
 	    invokeX10C(fSourcesToCompile);
+	    // Now do a refresh to make sure the Java compiler sees the Java source files that Polyglot just created.
+	    fProject.getWorkspace().getRoot().getFolder(getProjectSrcPath()).refreshLocal(IResource.DEPTH_INFINITE, fMonitor);
 	}
 	// TODO Compute set of dependent projects
 	return Collections.EMPTY_LIST;
