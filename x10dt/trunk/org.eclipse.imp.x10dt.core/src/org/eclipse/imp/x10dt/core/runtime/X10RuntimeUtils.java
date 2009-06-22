@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10Util;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
@@ -97,10 +98,10 @@ public class X10RuntimeUtils {
 	  * PORT1.7 moved here from X10Builder
 	  * @return
 	  */
-	    public static String getCurrentRuntimeVersion() {
+	    public static String getCurrentRuntimeVersion() {    	
+	    	//String jarLoc=X10Util.getJarLocationForBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
 	        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
 	        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-
 	        return bundleVersion;
 	    }  
 	    /**
@@ -157,7 +158,8 @@ public class X10RuntimeUtils {
 	        // Note: not every env. puts installed stuff in ECLIPSE_HOME e.g. Linux puts in .eclipse - 
 	        // in which case this won't work
             
-	        if (installURL.getProtocol().equals("file")) {String installPath= installURL.getPath();
+	        if (installURL.getProtocol().equals("file")) {
+	        	String installPath= installURL.getPath();
 	            String pluginPath= installPath.concat("/plugins");
 	            File pluginDir= new File(pluginPath);
 
@@ -176,6 +178,61 @@ public class X10RuntimeUtils {
 	                    File jarFile= runtimeJars[i];
 	                    String jarPath= jarFile.getAbsolutePath();
 	                    if (jarPath.contains(x10BundleVersion)) {
+	                        return new Path(jarPath);
+	                    }
+	                }
+	                // Oh well, try the highest version.
+	                TreeSet<String> sortedJars= new TreeSet<String>(new Comparator<String>() {
+	                    public int compare(String o1, String o2) {
+	                        return -o1.compareTo(o2); // Make the sort order decreasing, so that sortedJars.first() gives the greatest element
+	                    }
+	                });
+	                for(int i= 0; i < runtimeJars.length; i++) {
+	                    File jarFile= runtimeJars[i];
+	                    String jarPath= jarFile.getAbsolutePath();
+
+	                    sortedJars.add(jarPath);
+	                }
+	                return new Path(sortedJars.first());
+	            }
+	        }
+	        return null; // we're out of heuristics... (handle the case where install location is remote, for example)
+	    }
+	    /**
+	     * Adapted from guessRuntimeLocation, should probably combine instead of copying code here.
+	     * This finds the jar location of an arbitrary bundle (not just the x10 runtme jar, since we now have constraints and common as 'runtime' jars as well)
+	     * @param bundle
+	     * @return
+	     */
+	    public static IPath guessJarLocation(final Bundle bundle) {
+
+	       final String bundleVersion= (String) bundle.getHeaders().get(Constants.BUNDLE_VERSION);
+	        Location installLoc= Platform.getInstallLocation();
+	        URL installURL= installLoc.getURL();
+  
+	        // Note: not every env. puts installed stuff in ECLIPSE_HOME e.g. Linux puts in .eclipse - 
+	        // in which case this won't work
+            
+	        if (installURL.getProtocol().equals("file")) {
+	        	String installPath= installURL.getPath();
+	            String pluginPath= installPath.concat("/plugins");
+	            File pluginDir= new File(pluginPath);
+
+	            if (pluginDir.exists() && pluginDir.isDirectory()) {
+	                File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
+	                    public boolean accept(File dir, String name) {
+	                        return name.contains(bundle.getSymbolicName()) && name.endsWith(".jar"); //PORT1.7 use constant
+	                    }
+	                });
+	                if (runtimeJars.length == 0) {
+	                    return null;
+	                }
+	                // First, prefer the version that's installed and enabled in the platform,
+	                // if we can find it.
+	                for(int i= 0; i < runtimeJars.length; i++) {
+	                    File jarFile= runtimeJars[i];
+	                    String jarPath= jarFile.getAbsolutePath();
+	                    if (jarPath.contains(bundleVersion)) {
 	                        return new Path(jarPath);
 	                    }
 	                }
