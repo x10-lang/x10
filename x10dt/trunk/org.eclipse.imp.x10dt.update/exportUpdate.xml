@@ -7,7 +7,7 @@
 	<property name="update.temp.folder" value="${basedir}/update.temp.folder"/>
 	<property name="update.destination" value="${basedir}"/>
 	<property name="update.server"      value="orquesta.watson.ibm.com"/>
-	<property name="update.server.dir"  value="/usr/src/safari"/>
+	<property name="update.server.dir"  value="/usr/src/imp"/>
 	<property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.zip"/>
 
 	<target name="deploy.zip" description="Copies the update archive to the update server.">
