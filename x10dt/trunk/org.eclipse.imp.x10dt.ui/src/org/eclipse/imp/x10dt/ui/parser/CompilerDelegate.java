@@ -134,8 +134,8 @@ public class CompilerDelegate {
 	} catch (JavaModelException e) {
             X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
 	}
-	X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
-	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
+//	X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
+//	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
     }
 
     private String buildClassPathSpec() {
