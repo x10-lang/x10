@@ -1,6 +1,7 @@
 package com.ibm.watson.safari.x10.builder;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -30,7 +32,11 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.uide.runtime.UIDEPluginBase;
+
 import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
@@ -45,6 +51,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
+
 import com.ibm.watson.safari.x10.X10Plugin;
 import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
@@ -411,8 +418,29 @@ public class X10Builder extends IncrementalProjectBuilder {
 	sPlugin.refreshPrefs();
 
 	// TODO need better way of detecting whether configuration has been read yet.
+        if (X10Preferences.x10CommonPath.equals("???")) {
+            PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                    MessageDialog.openInformation(new Shell(), "X10 Error", "X10 common directory location not yet set.");
+                }
+            });
+            return null;
+        }
 	if (Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY.startsWith("/home/praun"))
-	    Configuration.readConfiguration();
+            try {
+                Configuration.readConfiguration();
+            } catch (Error e) {
+                if (e.getCause() instanceof FileNotFoundException) {
+                    FileNotFoundException fnf= (FileNotFoundException) e.getCause();
+                    if (fnf.getMessage().startsWith("???\\standard.cfg")) {
+                        PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                            public void run() {
+                                MessageDialog.openInformation(null, "X10 Error", "X10 configuration file location not yet set.");
+                            }
+                        });
+                    }
+                }
+            }
 
 	if (kind == CLEAN_BUILD || kind == FULL_BUILD)
 	    fDependencyInfo.clearAllDependencies();
