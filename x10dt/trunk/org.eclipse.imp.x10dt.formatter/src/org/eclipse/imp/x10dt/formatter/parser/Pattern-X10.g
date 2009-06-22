@@ -52,6 +52,8 @@
             | ArgumentList
             | BlockStatements
             | ActualTypeArgumentList
+            | FormalParameterList
+            | FormalParameters
             | ClockList
             | CompilationUnit
  
@@ -87,6 +89,13 @@ ActualTypeArgumentList ::= METAVARIABLE_ActualTypeArgumentList
 ActualTypeArgument ::= METAVARIABLE_TypeArgument
 AmbiguousName ::= METAVARIABLE_AmbiguousName
 WhenStatement ::= METAVARIABLE_WhenStatement
+FormalParameterList ::= METAVARIABLE_FormalParameterList
+LastFormalParameter ::= METAVARIABLE_LastFormalParameter
+FormalParameters ::= METAVARIABLE_FormalParameters
+FormalParameter ::= METAVARIABLE_FormalParameter
+StatementExpression ::= METAVARIABLE_StatementExpression
+
+
              
 %End
 

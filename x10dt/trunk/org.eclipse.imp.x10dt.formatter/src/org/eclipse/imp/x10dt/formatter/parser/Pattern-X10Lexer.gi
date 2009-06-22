@@ -66,6 +66,11 @@ METAVARIABLE_ActualTypeArgumentList
 METAVARIABLE_Primary
 METAVARIABLE_AmbiguousName
 METAVARIABLE_WhenStatement
+METAVARIABLE_FormalParameterList
+METAVARIABLE_LastFormalParameter
+METAVARIABLE_FormalParameters
+METAVARIABLE_FormalParameter
+METAVARIABLE_StatementExpression
 
 %End
 
@@ -269,6 +274,37 @@ METAVARIABLE_WhenStatement
       $BeginJava
          makeToken($_METAVARIABLE_WhenStatement);
       $EndJava
+     ./
+         Token ::= '<' 'F' 'o' 'r' 'm' 'a' 'l' 'P' 'a' 'r' 'a' 'm' 'e' 't' 'e' 'r' 'L' 'i' 's' 't' DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_FormalParameterList);
+      $EndJava
+     ./
+           Token ::= '<' 'L' 'a' 's' 't' 'F' 'o' 'r' 'm' 'a' 'l' 'P' 'a' 'r' 'a' 'm' 'e' 't' 'e' 'r' DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_LastFormalParameter);
+      $EndJava
+     ./
+            Token ::= '<' 'F' 'o' 'r' 'm' 'a' 'l' 'P' 'a' 'r' 'a' 'm' 'e' 't' 'e' 'r' DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_FormalParameter);
+      $EndJava
+     ./
+              Token ::= '<' 'F' 'o' 'r' 'm' 'a' 'l' 'P' 'a' 'r' 'a' 'm' 'e' 't' 'e' 'r' 's' DecimalOpt '>'
+     /.
+      $BeginJava
+         makeToken($_METAVARIABLE_FormalParameters);
+      $EndJava
+     ./
+     
+     Token ::= '<' 'S' '' 't' 'a' 't' 'e' 'm' 'e' 'n' 't' 'E' 'x' 'p' 'r' 'e' 's' 's' 'i' 'o' 'n' DecimalOpt '>'
+     /.
+       $BeginJava
+         makeToken($_METAVARIABLE_StatementExpression);
+       $EndJava
      ./
 %End
 

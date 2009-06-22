@@ -337,7 +337,7 @@
     VariableModifier ::= final
                                | Annotation
             
-    LastFormalParameter ::= VariableModifiersopt Type ...opt$opt VariableDeclaratorId
+    LastFormalParameter ::= VariableModifiersopt Type EllipsisOpt VariableDeclaratorId
         
     --
     -- See above

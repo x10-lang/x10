@@ -86,6 +86,12 @@ public class ASTAdapter extends ASTAdapterBase implements ILanguageService,
 			case TK_METAVARIABLE_Primary:
 			case TK_METAVARIABLE_AmbiguousName:
 			case TK_METAVARIABLE_WhenStatement:
+			case TK_METAVARIABLE_FormalParameterList:
+			case TK_METAVARIABLE_LastFormalParameter:
+			case TK_METAVARIABLE_FormalParameter:
+			case TK_METAVARIABLE_FormalParameters:
+			case TK_METAVARIABLE_StatementExpression:
+			
 
 				return true;
 			default:
