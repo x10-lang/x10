@@ -45,10 +45,13 @@ import org.eclipse.jdt.ui.JavadocContentAccess;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ClassMember;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Id;
+import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.New;
@@ -58,16 +61,21 @@ import polyglot.ast.TypeNode;
 import polyglot.ext.x10.ast.X10ClassDecl_c;
 import polyglot.ext.x10.types.X10ParsedClassType_c;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Declaration;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalInstance;
+import polyglot.types.MemberInstance;
 import polyglot.types.MethodInstance;
+import polyglot.types.ProcedureInstance;
 import polyglot.types.ReferenceType;
 import polyglot.types.Type;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
 
 /**
- * Originally provided info for Hover Help; now also is called by context help
+ * Provide  info for Hover Help and context help
  * (Dynamic Help / F1) as well.
  * 
  * This aims to provide some sort of information for a variety of objects. Need
@@ -77,18 +85,14 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	private static final boolean traceOn = false;
 
 	public String getDocumentation(Object target, IParseController parseController) {
-		// 1. try to find help info the way context help did
+		if (traceOn)System.out.println("\nX10DocProvider.getDocumentation(), target is :"+ target.toString());
 		String doc = getHelpForEntity(target, parseController);
 		// if (doc == null || doc.length() == 0) {
 		// // 2. try to find help info the way Hover help did (original code
 		// // from this class, previously)
 		// doc = getDocumentationOld(target, parseController);
 		// }
-		if (traceOn) {
-			System.out.println("\nX10DocProvider.getDocumentation(), target is :"
-							+ target.toString());
-			System.out.println("   " + doc);
-		}
+		if (traceOn) System.out.println("   " + doc);
 		return doc;
 	}
 
@@ -138,6 +142,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	/**
 	 * Provides javadoc-like info (if available) and more for a variety of entities
 	 */
+	@SuppressWarnings("restriction")
 	public String getHelpForEntity(Object target, IParseController parseController) {
 		Node root = (Node) parseController.getCurrentAst();
 
@@ -148,9 +153,29 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			target = parent;
 		}
 
-		if (target instanceof Field) {
+		if (target instanceof Field) { // field reference
+			
 			Field field = (Field) target;
 			FieldInstance fi = field.fieldInstance();
+			target = fi;
+		}
+		else if (target instanceof FieldDecl) {
+			FieldDecl fieldDecl = (FieldDecl) target;
+			FieldInstance fi = fieldDecl.fieldInstance();
+			target = fi;
+		}
+		if (target instanceof Local) { // field reference	
+			Local local = (Local) target;
+			LocalInstance li = local.localInstance();
+			target = li;
+		}
+		else if (target instanceof LocalDecl) {
+			LocalDecl localDecl = (LocalDecl) target;
+			LocalInstance li = localDecl.localInstance();
+			target = li;		
+		}
+		if (target instanceof FieldInstance) {
+			FieldInstance fi = (FieldInstance) target;
 			ReferenceType ownerType = fi.container();
 
 			if (ownerType.isClass()) {
@@ -191,13 +216,69 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 					return getX10DocFor(mi);
 				}
 			}
-			return "Method " + mi.signature() + " of type "
-					+ mi.container().toString();
-		} else if (target instanceof Declaration) {
-			Declaration decl = (Declaration) target;
-			//FIXME if(isJavaType...) like above ....
+			return "Method " + mi.signature() + " of type " + mi.container().toString();
+		} else if (target instanceof VarInstance) {
+			// local var, parm, (java or x10) or field
+			// won't fall thru to Declaration
+			VarInstance var = (VarInstance) target;
 			
-			return getX10DocFor(decl);
+			
+		}
+		/* else if (target instanceof MethodInstance || target instanceof ConstructorInstance) {
+			// this fails due to polyglot problem
+			//we get different info from different interfaces, so make them both for use here:
+			MemberInstance mi = (MemberInstance) target;
+			String miStr=mi.toString();
+			ProcedureInstance pi = (ProcedureInstance)target;
+			String piStr=pi.toString();
+			
+			if (isJavaMember(mi)) {  // CommentTest() is not. was it before??? BOB
+				ReferenceType rt = mi.container();
+
+				if (rt instanceof ClassType) {
+					ClassType ct = (ClassType) rt;
+					String fullname=ct.fullName(); // argh! "Object" !
+					IType it = findJavaType(fullname, parseController);
+					String[] paramTypes = convertParamTypes(pi);
+					String mname = null;
+					if (pi instanceof ConstructorInstance) {
+						mname = ct.name();  // argh! it's "Object"
+					} else {
+						mname = ((MethodInstance) pi).name(); // "foo";
+					}
+
+					IMethod method = it.getMethod(mname, paramTypes);
+					String doc = getJavaDocFor(method);
+					if(doc.length()==0) {
+						int stopHere=0;
+					}
+					return doc;
+
+				} else {
+					MethodInstance mti = (MethodInstance)target;
+					return getX10DocFor(mti);
+				}
+			}
+			
+		}*/
+		else if (target instanceof Declaration) { // types only (not fields or methods)
+			Declaration decl = (Declaration) target;
+			
+			String qualifiedName = decl.toString(); // ?? fixme
+			// need this to find e.g. "System"
+			// how to get a qualifiedName out of a Declaration?
+			String ownerName = ""; // ??
+			if (isJavaType(qualifiedName)) {// really should be a javatype.  FIXME later.
+				IType javaType = findJavaType(qualifiedName, parseController);
+				// String[] paramTypes = convertParamTypes(mi);
+				// IMethod method = javaType.getMethod(mi.name(), paramTypes);
+				// IType type = javaType.getType(qualifiedName);
+				String doc = getJavaDocFor(javaType);// exception
+				return doc;
+			} else {
+				return getX10DocFor(decl);
+			}
+			
 		} else if (target instanceof ClassDecl) {
 			ClassDecl cd = (ClassDecl)target;
 			String doc = getX10DocFor(cd);
@@ -226,34 +307,17 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				New n = (New) parent;
 				return getX10DocFor(n.constructorInstance());
 			} else {
-				Type type = typeNode.type();
+				Type type = typeNode.type();			
 				String qualifiedName = typeNode.qualifier().toString();
 				qualifiedName = stripArraySuffixes(qualifiedName);
-
-				if (isJavaType(qualifiedName)) {
-					IType javaType = findJavaType(qualifiedName, parseController);
-					return (javaType != null) ? getJavaDocFor(javaType) : "";
-				} else {
-					return type.isClass() ? getX10DocFor((ClassType) type) : "";
-				}
-
+				return getJavaOrX10DocFor(qualifiedName, type, parseController);//BRT consolidate
 			}
 		}
 		else if (target instanceof ClassType) {
 			ClassType type = (ClassType)target;
-			
-			// copied from above  FIXME
 			String qualifiedName = type.fullName();
-			qualifiedName = stripArraySuffixes(qualifiedName);
-
-			if (isJavaType(qualifiedName)) {
-				IType javaType = findJavaType(qualifiedName,
-						parseController);
-
-				return (javaType != null) ? getJavaDocFor(javaType) : "";
-			} else {
-				return type.isClass() ? getX10DocFor((ClassType) type) : "";
-			}
+			qualifiedName = stripArraySuffixes(qualifiedName);			
+			return getJavaOrX10DocFor(qualifiedName, type, parseController);//BRT
 			
 		}
 		// JavadocContentAccess seems to provide no way to get at that package
@@ -277,6 +341,27 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		
 		// return "This is a " + target.getClass().getCanonicalName();
 		return "";
+	}
+
+	/**
+	 * For a fully qualified name, return either the javadoc or x10Doc for
+	 * the entity, if available.
+	 * 
+	 * @param qualifiedName
+	 * @param type the ClassType of the entity
+	 * @param parseController
+	 * @return the appropriate comment for the entity, or the empty string if none is found
+	 */
+	private String getJavaOrX10DocFor(String qualifiedName, Type type,
+			IParseController parseController) {
+		String doc=null;
+		if (isJavaType(qualifiedName)) {
+			IType javaType = findJavaType(qualifiedName, parseController);
+			doc= (javaType != null) ? getJavaDocFor(javaType) : "";
+		} else {
+			doc= type.isClass() ? getX10DocFor((ClassType) type) : "";
+		}
+		return doc;
 	}
 
 	/**
@@ -482,7 +567,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
 	private boolean lookingPastEndOf(String fileSrc, int endIdx, String string) {
 		int idx = endIdx - string.length();
-		return fileSrc.indexOf(string, idx) == idx;
+		int fnd=fileSrc.indexOf(string, idx);
+		return fnd == idx;
 	}
 
 	private int skipBackwardWhite(String fileSrc, int idx) {
@@ -530,6 +616,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			idx = skipBackwardWhite(fileSrc, idx);
 			if (lookingPastEndOf(fileSrc, idx, "*/")) {
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
+				doc = getCommentText(doc);
 				if (traceOn)
 					System.out.println("X10ContextHelper.getX10DocFor(Node): "
 							+ doc);
@@ -551,12 +638,24 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	private boolean isJavaType(String qualifiedName) {
 		return qualifiedName.startsWith("java.");
 	}
+	@SuppressWarnings("restriction")
+	private boolean isJavaMember(MemberInstance mem) {
+		ReferenceType rt = mem.container();
+		if(rt instanceof ClassType) {
+			ClassType ct = (ClassType) rt;
+			String fullname = ct.fullName();
+			return isJavaType(fullname);
+			
+		}
+		return false;
+		
+	}
 
-	private String[] convertParamTypes(MethodInstance mi) {
-		String[] paramTypes = new String[mi.formalTypes().size()];
+	private String[] convertParamTypes(ProcedureInstance pi) {
+		String[] paramTypes = new String[pi.formalTypes().size()];
 
 		int i = 0;
-		for (Iterator iterator = mi.formalTypes().iterator(); iterator
+		for (Iterator iterator = pi.formalTypes().iterator(); iterator
 				.hasNext();) {
 			Type formalType = (Type) iterator.next();
 			String typeName = formalType.toString();
@@ -587,6 +686,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			// JDT hover does correctly display this, however
 			return doc;
 		} catch (JavaModelException e) {
+			String msg=e.getMessage();
 			return "";
 		}
 	}
@@ -624,4 +724,5 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		return "";
 	}
+
 }
