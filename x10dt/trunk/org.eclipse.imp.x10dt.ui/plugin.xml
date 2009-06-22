@@ -2,29 +2,29 @@
 <?eclipse version="3.0"?>
 <plugin>
    <extension
-         point="org.eclipse.uide.runtime.languageDescription">
+         point="org.eclipse.imp.runtime.languageDescription">
       <language
             description="X10 Concurrent Programming Language"
             extensions="x10"
             language="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.parser">
+         point="org.eclipse.imp.runtime.parser">
       <parser
-            class="x10.uide.parser.ParseController"
+            class="org.eclipse.imp.x10dt.ui.parser.ParseController"
             language="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.tokenColorer">
+         point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="x10.uide.editor.MyTokenColorer"
+            class="org.eclipse.imp.x10dt.ui.editor.MyTokenColorer"
             language="X10"/>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="x10.uide.launching.X10LaunchConfigurationDelegate"
-            id="x10.uide.launching.X10LaunchConfigurationType"
+            delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
             modes="run,debug"
             name="X10 Application"
             public="true"
@@ -34,23 +34,23 @@
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
-            configTypeID="x10.uide.launching.X10LaunchConfigurationType"
+            configTypeID="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
             icon="icons/x10_application.gif"
-            id="x10.uide.launching.X10LaunchConfigurationTypeImage"/>
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTypeImage"/>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
       <launchConfigurationTabGroup
-            class="x10.uide.launching.X10LaunchConfigurationTabGroup"
-            id="x10.uide.launching.X10LaunchConfigurationTabGroup"
-            type="x10.uide.launching.X10LaunchConfigurationType"/>
+            class="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTabGroup"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationTabGroup"
+            type="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"/>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
-            class="x10.uide.launching.X10LaunchShortcut"
+            class="org.eclipse.imp.x10dt.ui.launching.X10LaunchShortcut"
             icon="icons/x10_application.gif"
-            id="x10.uide.launching.x10LaunchShortcut"
+            id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut"
             label="X10 Application"
             modes="run,debug">
          <perspective id="org.eclipse.jdt.ui.JavaPerspective"/>
@@ -65,20 +65,20 @@
       </shortcut>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.autoEditStrategy">
+         point="org.eclipse.imp.runtime.autoEditStrategy">
       <autoEditStrategy
-            class="x10.uide.editor.X10AutoIndentStrategy"
+            class="org.eclipse.imp.x10dt.ui.editor.X10AutoIndentStrategy"
             language="X10"/>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="x10.uide.launching.x10LaunchShortcut.debug"
+            commandId="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.debug"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+D X"/>
       <key
-            commandId="x10.uide.launching.x10LaunchShortcut.run"
+            commandId="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.run"
             contextId="org.eclipse.ui.globalScope"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M3+M2+X X"/>
@@ -88,58 +88,58 @@
       <command
             categoryId="org.eclipse.debug.ui.category.run"
             description="Run the selected main type as an X10 application"
-            id="x10.uide.launching.x10LaunchShortcut.run"
+            id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.run"
             name="Run X10 Application"/>
       <command
             categoryId="org.eclipse.debug.ui.category.run"
             description="Run the selected main type as an X10 application"
-            id="x10.uide.launching.x10LaunchShortcut.debug"
+            id="org.eclipse.imp.x10dt.ui.launching.x10LaunchShortcut.debug"
             name="Debug X10 Application"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.outliner">
+         point="org.eclipse.imp.runtime.outliner">
       <outliner
-            class="x10.uide.views.Outliner"
+            class="org.eclipse.imp.x10dt.ui.views.Outliner"
             language="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.foldingUpdater">
+         point="org.eclipse.imp.runtime.foldingUpdater">
       <foldingUpdater
-            class="x10.uide.editor.X10FoldingUpdater"
+            class="org.eclipse.imp.x10dt.ui.editor.X10FoldingUpdater"
             language="X10">
       </foldingUpdater>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.contentProposer">
+         point="org.eclipse.imp.runtime.contentProposer">
       <proposer
-            class="x10.safari.contentProposer.X10ContentProposer"
+            class="org.eclipse.imp.x10dt.ui.contentProposer.X10ContentProposer"
             language="X10">
       </proposer>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.outlineContentProvider">
+         point="org.eclipse.imp.runtime.outlineContentProvider">
          <outlineContentProvider
-         		class="x10.uide.editor.X10ContentProvider"
+         		class="org.eclipse.imp.x10dt.ui.editor.X10ContentProvider"
          		language="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.labelProvider">
+         point="org.eclipse.imp.runtime.labelProvider">
          <labelProvider
-               class="x10.uide.editor.X10LabelProvider"
+               class="org.eclipse.imp.x10dt.ui.editor.X10LabelProvider"
                language="X10"/>
    </extension>
    <extension
-         id="com.ibm.safari.x10.cheatSheets"
+         id="org.eclipse.imp.x10dt.ui.cheatSheets"
          name="X10 Cheat Sheets"
          point="org.eclipse.ui.cheatsheets.cheatSheetContent">
       <category
          name="X10"
-         id="com.ibm.safari.x10">
+         id="org.eclipse.imp.x10dt">
       </category>
       <cheatsheet
          name="Using the X10DT"
-         category="com.ibm.safari.x10"
-         id="com.ibm.watson.safari.x10.cheatSheets.using"
+         category="org.eclipse.imp.x10"
+         id="org.eclipse.imp.x10dt.ui.cheatSheets.using"
          contentFile="cheatsheets/UsingX10DT.xml">
          <description>
            A brief introduction to using the X10 Development Toolkit.
@@ -147,30 +147,30 @@
       </cheatsheet>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.referenceResolvers">
+         point="org.eclipse.imp.runtime.referenceResolvers">
          <referenceResolver
              language="X10"
-             class="x10.uide.editor.X10ReferenceResolver"/>
+             class="org.eclipse.imp.x10dt.ui.editor.X10ReferenceResolver"/>
    </extension>
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="x10.uide.perspective.X10PerspectiveFactory"
+            class="org.eclipse.imp.x10dt.ui.perspective.X10PerspectiveFactory"
             icon="icons/x10perspective.gif"
-            id="x10.uide.perspective"
+            id="org.eclipse.imp.x10dt.ui.perspective"
             name="X10"/>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.refactoringContributions">
+         point="org.eclipse.imp.runtime.refactoringContributions">
       <refactoringContributor
-            class="safari.X10.refactoring.actions.RefactoringContributor"
+            class="org.eclipse.imp.x10dt.ui.refactoring.actions.RefactoringContributor"
             language="X10">
       </refactoringContributor>
    </extension>
    <extension
-         point="org.eclipse.uide.runtime.documentationProvider">
+         point="org.eclipse.imp.runtime.documentationProvider">
          <docProvider
-             class="x10.uide.editor.X10DocProvider"
+             class="org.eclipse.imp.x10dt.ui.editor.X10DocProvider"
              language="X10">
          </docProvider>
    </extension>
