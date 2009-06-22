@@ -18,7 +18,7 @@ import org.osgi.framework.BundleContext;
  * The main plugin class to be used in the desktop.
  */
 public class X10Plugin extends SAFARIPluginBase {
-    public static final String kPluginID= "com.ibm.watson.safari.x10";
+    public static final String kPluginID= "org.eclipse.imp.x10dt.core";
 
     /**
      * The unique instance of this plugin class
