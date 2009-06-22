@@ -44,7 +44,7 @@ import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPQueue;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
-import org.eclipse.ptp.launch.internal.ParallelLaunchConfigurationDelegate;
+import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
@@ -70,7 +70,6 @@ import polyglot.ext.x10cpp.ExtensionInfo;
  * 
  * @author egeay
  */
-@SuppressWarnings("restriction")
 public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationDelegate {
 
   // --- Overridden methods
