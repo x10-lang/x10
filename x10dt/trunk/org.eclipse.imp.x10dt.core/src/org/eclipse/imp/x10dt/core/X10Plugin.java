@@ -24,7 +24,7 @@ import org.osgi.framework.BundleContext;
 /**
  * The main plugin class to be used in the desktop.
  */
-public class X10PluginB extends PluginBase {
+public class X10Plugin extends PluginBase {
     public static final String kPluginID= "org.eclipse.imp.x10dt.core";
     public static final String kLanguageName = "X10";
 
@@ -50,7 +50,7 @@ public class X10PluginB extends PluginBase {
 		return sPlugin;
     }
 
-    public X10PluginB() {
+    public X10Plugin() {
     	super();
     	sPlugin= this;
     }
