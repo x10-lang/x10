@@ -58,7 +58,13 @@
          <contextualLaunch>
             <enablement>
                <with variable="selection">
-                  <count value="1"/>
+                   <count value="1"/>
+                   <iterate>
+                       <or>
+                           <instanceof value="org.eclipse.core.resources.IFile"/>
+                           <test property="org.eclipse.debug.ui.matchesPattern" value="*.x10"/>
+                       </or>
+                   </iterate>
                </with>
             </enablement>
          </contextualLaunch>
