@@ -28,6 +28,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ltk.ui.refactoring,
  org.eclipse.ui.editors,
  polyglot,
- lpg.runtime
+ lpg.runtime,
+ org.eclipse.safari.analysis
 Bundle-Vendor: pcharles@us.ibm.com
 Bundle-Activator: x10.uide.X10UIPlugin
