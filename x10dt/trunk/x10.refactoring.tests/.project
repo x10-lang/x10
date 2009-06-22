@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>x10.refactorings.tests</name>
+	<name>x10.refactoring.tests</name>
 	<comment></comment>
 	<projects>
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>com.ibm.watson.safari.x10.X10Builder</name>
+			<name>org.eclipse.imp.x10dt.core.X10Builder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
@@ -16,7 +16,7 @@
 			</arguments>
 		</buildCommand>
 		<buildCommand>
-			<name>com.ibm.watson.smapifier.SmapieBuilder</name>
+			<name>org.eclipse.imp.smapifier.SmapieBuilder</name>
 			<arguments>
 				<dictionary>
 					<key>exten</key>
@@ -27,7 +27,7 @@
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>com.ibm.watson.safari.x10.x10nature</nature>
-		<nature>com.ibm.watson.smapifier.smapinature</nature>
+		<nature>org.eclipse.imp.x10dt.core.x10nature</nature>
+		<nature>org.eclipse.imp.smapifier.smapinature</nature>
 	</natures>
 </projectDescription>

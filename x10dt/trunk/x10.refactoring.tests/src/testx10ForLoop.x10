@@ -1,6 +1,6 @@
-public class testx10Array {
+public class testx10ForLoop {
 
-public testx10Array() { }
+public testx10ForLoop() { }
 
 void main(){
 int testparam = 0;
@@ -9,9 +9,9 @@ z[0] = new IntBox(new java.lang.Integer(testparam));
 z[1] = new IntBox(new java.lang.Integer(1));
 java.lang.Integer zval = z[0].value;
 final IntBox y = /*z;//*/ new IntBox(zval);
-async (here) {z[1].value = new java.lang.Integer(1); };
-//async (here) {z.value = y.getValue(y); };
-while(true)
-z[0].value=y.value;//IntBox.getValue(y);
+async (here) {z[0].value = y.getValue2(y.value, z[1]); };
+for(IntBox zsub : z) {
+zsub.value=y.value;//IntBox.getValue(y);
+}
 }
 }
