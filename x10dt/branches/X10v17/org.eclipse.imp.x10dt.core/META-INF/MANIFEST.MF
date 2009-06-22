@@ -31,4 +31,5 @@ Export-Package: org.eclipse.imp.x10dt.core,
  org.eclipse.imp.x10dt.core.actions,
  org.eclipse.imp.x10dt.core.builder,
  org.eclipse.imp.x10dt.core.preferences,
+ org.eclipse.imp.x10dt.core.runtime,
  org.eclipse.imp.x10dt.core.wizards
