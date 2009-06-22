@@ -10,7 +10,9 @@
 	<property name="update.server.dir"  value="/usr/src/imp"/>
 	<property name="zip.file"           value="${update.destination}/${update.name}_${update.version}.zip"/>
 
-	<target name="deploy.zip" description="Copies the update archive to the update server.">
+    <property name="feature.list"       value="org.eclipse.imp.x10dt"/>
+
+    <target name="publish.zip" description="Copies the update archive to the update server.">
 		<echo message="Copying update zip file to update server ${update.server}"/>
 		<scp file="${zip.file}" keyfile="${user.home}/.ssh/id_dsa" passphrase="" todir="${user.name}@${update.server}:${update.server.dir}"></scp>
 	</target>
@@ -19,11 +21,13 @@
 		<delete dir="${update.temp.folder}"/>
 		<mkdir dir="${update.temp.folder}"/>
 		<antcall target="export.features"/>
-		<antcall target="copy.feature">
-			<param name="feature.name"    value="org.eclipse.imp.x10dt"/>
-			<param name="feature.version" value="${update.version}"/>
-			<param name="feature.dir"     value="../org.eclipse.imp.x10dt.feature"/>
-		</antcall>
+        <for param="feature" values="${feature.list}">
+            <antcall target="copy.feature">
+                <param name="feature.name"    value="${feature}"/>
+                <param name="feature.version" value="${update.version}"/>
+                <param name="feature.dir"     value="../${feature}.feature"/>
+            </antcall>
+        </for>
 		<zip destfile="${zip.file}" basedir="${update.temp.folder}" filesonly="false" whenempty="skip" update="false"/>
 		<delete dir="${update.temp.folder}"/>
 	</target>
@@ -53,7 +57,9 @@
 
 	<target name="export.features">
 		<echo message="Building feature jars..."/>
-		<ant antfile="../org.eclipse.imp.x10dt.feature/exportFeature.xml" target="build.feature.jar" dir="../org.eclipse.imp.x10dt.feature"/>
+        <for param="feature" values="${feature.list}">
+            <ant antfile="../${feature}.feature/exportFeature.xml" target="build.feature.jar" dir="../${feature}.feature"/>
+        </for>
 		<echo message="Done building feature jars."/>
 	</target>
 </project>
