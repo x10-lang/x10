@@ -11,6 +11,7 @@ import org.osgi.framework.Bundle;
 
 public class EclipseProjectUtils {
     public static String eclipseHomePath = System.getProperty("user.dir");
+    public static String javaHomePath = System.getProperty("java.home");
 
     private EclipseProjectUtils() { }
 
