@@ -578,7 +578,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         if (fSuppressClasspathWarnings)
             return;
         try {
-            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(false);
+            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true);
             int runtimeIdx= findX10RuntimeClasspathEntry(entries);
 
             if (runtimeIdx >= 0) {
