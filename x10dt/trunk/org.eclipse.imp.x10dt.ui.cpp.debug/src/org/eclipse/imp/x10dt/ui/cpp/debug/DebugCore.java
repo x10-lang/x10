@@ -7,39 +7,18 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug;
 
-import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.BundleContext;
+import org.eclipse.imp.x10dt.ui.cpp.launch.AbstractUIBasePlugin;
 
 /**
  * Controls the plug-in life cycle for this project.
  * 
  * @author egeay
  */
-public class Activator extends AbstractUIPlugin {
-
-  // --- Overridden methods
-
-  public void start(final BundleContext context) throws Exception {
-    super.start(context);
-    plugin = this;
-  }
-
-  public void stop(final BundleContext context) throws Exception {
-    plugin = null;
-    super.stop(context);
-  }
-
+public class DebugCore extends AbstractUIBasePlugin {
+  
   /**
-   * Returns the plugin instance.
-   * 
-   * @return A non-null value if the plugin has started, otherwise <b>null</b>.
+   * Unique id for this plugin.
    */
-  public static Activator getDefault() {
-    return plugin;
-  }
-
-  // --- Fields
-
-  private static Activator plugin;
-
+  public static final String PLUGIN_ID = "org.eclipse.imp.x10dt.ui.cpp.debug"; //$NON-NLS-1$
+  
 }
