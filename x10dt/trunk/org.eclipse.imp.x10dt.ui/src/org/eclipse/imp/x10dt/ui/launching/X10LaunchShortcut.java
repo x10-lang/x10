@@ -1,5 +1,6 @@
 package x10.uide.launching;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +30,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
+import com.ibm.watson.safari.x10.preferences.X10Preferences;
 import x10.uide.X10UIPlugin;
 
 public class X10LaunchShortcut implements ILaunchShortcut {
@@ -171,6 +173,12 @@ public class X10LaunchShortcut implements ILaunchShortcut {
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_WIDTH, AppletParametersTab.DEFAULT_APPLET_WIDTH);
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_HEIGHT, AppletParametersTab.DEFAULT_APPLET_HEIGHT);
 	    wc.setAttribute(IJavaLaunchConfigurationConstants.ATTR_APPLET_NAME, EMPTY_STRING);
+
+	    String commonPath= X10Preferences.x10CommonPath;
+	    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + "x10.runtime" + File.separator + "classes";
+
+	    wc.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
+
 	    config= wc.doSave();
 	} catch (CoreException ce) {
 	    X10UIPlugin.log(ce);
