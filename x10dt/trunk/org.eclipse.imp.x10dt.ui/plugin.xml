@@ -222,7 +222,7 @@
       <menuContribution
             locationURI="menu:org.eclipse.imp.x10dt.ui.view.source">
          <command
-               commandId="org.eclipse.imp.x10dt.ui.formatCmd"
+               commandId="org.eclipse.imp.runtime.formatSource"
                id="Format"
                label="Source-code editing"
                tooltip="Format selected text">
@@ -231,7 +231,7 @@
       <menuContribution
             locationURI="toolbar:org.eclipse.imp.x10dt.ui.view.source">
          <command
-               commandId="org.eclipse.imp.x10dt.ui.formatCmd"
+               commandId="org.eclipse.imp.runtime.formatSource"
                icon="icons/runtime_obj.gif"
                label="Format"
                style="push"
