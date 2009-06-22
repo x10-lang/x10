@@ -188,8 +188,11 @@ public class X10FoldingUpdater implements IFoldingUpdater
     //
     private void makeAnnotation(Node n)
     {
-        makeAnnotation(((JPGPosition) n.position()).getLeftIToken(),
-                       ((JPGPosition) n.position()).getRightIToken());
+	if (n.position() instanceof JPGPosition)
+	    makeAnnotation(((JPGPosition) n.position()).getLeftIToken(),
+		           ((JPGPosition) n.position()).getRightIToken());
+	else
+	    makeAnnotation(n.position().offset(), n.position().endOffset());
     }    
 
     /**
