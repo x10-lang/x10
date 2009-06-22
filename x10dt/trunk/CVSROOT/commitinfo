@@ -13,6 +13,7 @@
 #
 # If the name "ALL" appears as a regular expression it is always used
 # in addition to the first matching regex or "DEFAULT".
+# RMF - Gratuitous comment to trigger a real check-in.
 CVSROOT				/bin/true
 org\.eclipse\.imp\.x10dt	/bin/true
 org\.eclipse\.imp\.analysis	/bin/true
