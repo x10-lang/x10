@@ -55,6 +55,7 @@ public class ParseController extends SimpleLPGParseController implements
 	}
 	
 	public ParseController() {
+	    super("X10");
 	}
 
 	/**
