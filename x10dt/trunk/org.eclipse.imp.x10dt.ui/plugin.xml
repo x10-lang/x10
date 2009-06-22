@@ -361,7 +361,7 @@
             id="org.eclipse.imp.x10dt.ui.X10ElementCreation"
             label="%perspective.actionsets">
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.action.OpenX10InterfaceWizardToolbarAction"
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10InterfaceWizardToolbarAction"
                icon="icons/newint_wiz.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10InterfaceToolbarAction"
                label="%new.interface.label"
@@ -370,7 +370,7 @@
                tooltip="%new.interface.tooltip">
          </action>
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.action.OpenX10ClassWizardToolbarAction"
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ClassWizardToolbarAction"
                icon="icons/newclass_wiz.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10ClassToolbarAction"
                label="%new.class.label"
@@ -379,7 +379,7 @@
                tooltip="%new.class.tooltip">
          </action>
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.action.OpenX10PackageWizardToolbarAction"
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10PackageWizardToolbarAction"
                icon="icons/newpack_wiz.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10PackageToolbarAction"
                label="%new.package.label"
@@ -388,7 +388,7 @@
                tooltip="%new.package.tooltip">
          </action>
          <action
-               class="org.eclipse.imp.x10dt.ui.perspective.action.OpenX10ProjectJavaBCWizardToolbarAction"
+               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
                icon="icons/newx10prj_java.gif"
                id="org.eclipse.imp.x10dt.ui.NewX10ProjectJavaToolbarAction"
                label="%new.project.java.label"
