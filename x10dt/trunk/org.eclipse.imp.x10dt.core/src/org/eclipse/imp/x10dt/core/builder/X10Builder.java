@@ -60,13 +60,16 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
+import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
+import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.preferences.BuildPathsPropertyPage;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.widgets.Shell;
@@ -386,7 +389,39 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    String outputDir= fProject.getWorkspace().getRoot().getLocation().append((IPath) projectSrcLoc.get(0)).toOSString(); // HACK: just take 1st directory as output
 
 	    // TODO RMF 11/9/2006 - Remove the "-noserial" option; it's really for the demo
-	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
+//	    opts.parseCommandLine(new String[] { "-assert", "-noserial", "-cp", buildClassPathSpec(), "-d", outputDir, "-sourcepath", projectSrcPath }, new HashSet());
+	    List<String> optsList = new ArrayList();
+	    String[] stdOptsArray = new String[] {
+//	    		"-assert", // default preference (see below under P_ASSERT)
+	    		"-noserial",
+	    		"-cp",
+	    		buildClassPathSpec(),
+	    		"-d", outputDir,
+	    		"-sourcepath", 
+	    		projectSrcPath
+	    };
+		for (String s: stdOptsArray) {
+			optsList.add(s);
+		}
+		IPreferenceStore prefStore = RuntimePlugin.getInstance().getPreferenceStore();
+		optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefStore.contains(X10PreferenceConstants.P_BAD_PLACE_CHECK) && prefStore.getBoolean(X10PreferenceConstants.P_BAD_PLACE_CHECK)));
+		optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefStore.contains(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS) && prefStore.getBoolean(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)));
+		optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefStore.contains(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS) && prefStore.getBoolean(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)));
+	    if (prefStore.contains(X10PreferenceConstants.P_ASSERT) && prefStore.getBoolean(X10PreferenceConstants.P_ASSERT)) {
+			optsList.add(0, "-assert");
+		}
+	    if (prefStore.contains(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
+	    	String optionString = prefStore.getString(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS);
+	    	String[] options = optionString.split("\\s");
+	    	int extraOptionsPos=0;
+	    	for (String s: options) {
+	    		if (s!=null) {
+	    			optsList.add(extraOptionsPos++, s);
+	    		}
+	    	}
+	    }
+	    String[] optsArray = optsList.toArray(new String[optsList.size()]);
+	    opts.parseCommandLine(optsArray, new HashSet());
 	} catch (UsageError e) {
 	    if (!e.getMessage().equals("must specify at least one source file"))
 		System.err.println(e.getMessage());

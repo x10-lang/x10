@@ -50,7 +50,7 @@ public class X10PreferencesInstanceTab extends InstancePreferencesTab {
 			true, true,
 			true, String.valueOf(8),
 			false, "0",
-			true);
+			true, null);
 //			Link TabSizeDetailsLink = fPrefUtils_x10.createDetailsLink(parent, TabSize, TabSize.getTextControl().getParent(), "Details ...");
 
 		fields.add(TabSize);
@@ -63,7 +63,7 @@ public class X10PreferencesInstanceTab extends InstancePreferencesTab {
 			true, true,
 			true, String.valueOf(8),
 			false, "0",
-			true);
+			true, null);
 //			Link NumPlacesDetailsLink = fPrefUtils_x10.createDetailsLink(parent, NumPlaces, NumPlaces.getTextControl().getParent(), "Details ...");
 
 		fields.add(NumPlaces);

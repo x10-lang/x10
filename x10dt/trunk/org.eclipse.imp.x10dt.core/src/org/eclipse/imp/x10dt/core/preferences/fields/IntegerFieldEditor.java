@@ -159,7 +159,30 @@ public class IntegerFieldEditor extends StringFieldEditor {
     	if (preferencesLevel.equals(IPreferencesService.PROJECT_LEVEL)) return "Project";
     	return "";
     }
-    
+ 
+    /**
+     * Load the default value associated with this field.  That is, load
+     * the value set at the default level for this field, regardless of
+     * the actual level of this field.
+     */
+    protected void doLoadDefault() {
+        if (getTextControl(parent) != null) {
+            int value = preferencesService.getIntPreference(IPreferencesService.DEFAULT_LEVEL,	getPreferenceName());
+            levelFromWhichLoaded = IPreferencesService.DEFAULT_LEVEL;
+            setInherited(false);	// We're putting the default value here directly, not inheriting it
+            setPresentsDefaultValue(true);	// Need this really?
+            setStringValue(""+value);	// calls valueChanged();
+            
+            // SMS 28 Nov 2006 added here
+            // Value is default but is not inherited
+            Text text = getTextControl(parent);
+           	text.setBackground(PreferencesUtilities.colorWhite);
+        }
+    }
+
+    /* (non-Javadoc)
+     * Method declared on FieldEditor.
+     */
     protected void doLoad()
     {
         if (getTextControl(parent) != null) {
@@ -178,7 +201,7 @@ public class IntegerFieldEditor extends StringFieldEditor {
     			setInherited(!levelFromWhichLoaded.equals(preferencesLevel));
         	}
         	
-        	if (value==null || value.equals("")) value = "0";
+//        	if (value==null || value.equals("")) value = "0";
            	setPresentsDefaultValue(IPreferencesService.DEFAULT_LEVEL.equals(levelFromWhichLoaded));
             setStringValue(value);
         }

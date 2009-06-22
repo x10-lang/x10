@@ -24,7 +24,7 @@ import org.eclipse.imp.preferences.Markings;
 import org.eclipse.imp.preferences.PreferencesInitializer;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.preferences.PreferencesService;
-import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
 import org.eclipse.imp.preferences.fields.ComboFieldEditor;
 import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
 import org.eclipse.imp.ui.dialogs.ListSelectionDialog;

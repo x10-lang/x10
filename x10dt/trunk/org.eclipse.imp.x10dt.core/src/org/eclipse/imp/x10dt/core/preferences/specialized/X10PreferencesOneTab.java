@@ -98,6 +98,21 @@ public class X10PreferencesOneTab extends X10Preferences implements IPropertyCha
         }
         setValid(true);
      }
+    
+    public boolean performCancel()
+    {
+    	// SMS 4 Dec 2006
+    	// Previously just used to return true; now trying to
+    	// allow for a negative return
+        PreferencesTab tabs[] = getTabs();
+    	boolean result = true;
+		for (int i = 0; i < tabs.length; i++) {
+			if (tabs[i]==null) continue;
+			result = result && tabs[i].performCancel();
+		}
+
+        return result;
+    }
 
 
 }
