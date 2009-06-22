@@ -134,26 +134,27 @@ label the menu items slightly differently.)
 <p>
 If your project was selected, this dialog is shown with your 
 existing launch configuration shown, assuming you executed the example above to run your program at least once.
-If you haven't, then select "X10 Application" in the list on the left, and select the "New" button to create one.
-(If you select "X10 Application" you'll see a list of what the buttons are on the right.)
+The "Main" tab is selected when this dialog is shown.
+See the "Hello" launch configuration listed under "X10 Application" below on the left pane.
+<p>
+If you need to make a new launch configuration, then select "X10 Application" in the list on the left, and select the "New" button to create one.
 On the main tab, if your Project isn't already selected ("Hello" in our case), use the Browse button
-to select it, or enter it in the text field.  Do the same for the Main class.  If you use the Search button,
-you will be presented with several items - choose the "Main - Hello" class.
+to select the project, or enter it in the text field.  To select the Main class, use the Search button.
+If you use the Search button,
+you may be presented with several items - choose the "Main - Hello" class.
 
 
-
-
-The "Main" tab is shown first.  
 <br><img border="1" src="images/runConfigMain.png">
 <p>Select the "Arguments" tab to specify arguments to your program (if any).
 
 
 <br><img border="1" src="images/runConfigArgs.png">
+<p>
 Program arguments will be passed to the Main method, and VM arguments are used in the launching virtual machine.
-For example, to launch with assertions turned on, add "-ea" to the VM arguments. 
+If you specify at least one program argument here, the Hello World sample code will print it in the console when
+you run.
+VM arguments let you control other things:  for example, to launch with assertions turned on, add "-ea" to the VM arguments. 
 <br>
-FIXME show example of using args since 'hello world' has changed and can make use of args now
-
 <p>To start your X10 application, Select the "Run" button in the lower right corner of the launch
 configuration dialog.
 
