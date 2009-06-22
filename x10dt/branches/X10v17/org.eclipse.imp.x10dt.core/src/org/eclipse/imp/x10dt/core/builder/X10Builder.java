@@ -64,11 +64,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.builder.BuilderUtils;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
+import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -100,6 +102,7 @@ import polyglot.frontend.Source;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Goal;
 import polyglot.frontend.SourceGoal_c;
+import polyglot.frontend.SourceLoader;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
@@ -416,7 +419,15 @@ public class X10Builder extends IncrementalProjectBuilder {
                 //
                 // X10Lexer x10_lexer = new X10Lexer(reader, source.name());
                 //
-                final X10Lexer x10_lexer= new X10Lexer(source.path());
+                final X10Lexer x10_lexer= (source instanceof SourceLoader.ZipSource) ? new X10Lexer() : new X10Lexer(source.path());//PORT1.7 zip file requires different Lexer
+                if (source instanceof SourceLoader.ZipSource) {
+                	//PORT 1.7 special case for loading from jar file
+                	SourceLoader.ZipSource zipSource = (SourceLoader.ZipSource) source;
+                	String name= zipSource.name();
+                	String contents= BuilderUtils.getFileContents(zipSource.open());
+
+                	x10_lexer.initialize(contents.toCharArray(), name);
+                }
                 x10_lexer.setMessageHandler(new IMessageHandler() {
                     public void handleMessage(int errorCode, int[] msgLocation, int[] errorLocation, String filename, String[] errorInfo) {
                        //PORT1.7 -- need to get info (e.g. is this zipfile?) 
@@ -640,13 +651,20 @@ public class X10Builder extends IncrementalProjectBuilder {
             if (errorFile == null)
                 errorFile= findFileInSrcPath(errorPos.file(), wsRoot);
 
-            int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
+            // if file is still null (e.g. file isn't within eclipse project), then attach it to this project, so we don't lose it
+            if (errorFile == null) {      	
+            	String msg = "Error on runtime library file " + errorPos.nameAndLineString()+" - "+errorInfo.getMessage();
+            	System.out.println(msg+"\n   "+errorPos);
+            	addProblemMarkerTo(fProject, msg, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+            } else {
+            	int severity= (errorInfo.getErrorKind() == ErrorInfo.WARNING ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR);
 
-            if (errorPos == Position.COMPILER_GENERATED)
-                X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
-            else
-                addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
+            	if (errorPos == Position.COMPILER_GENERATED)
+            		X10Plugin.getInstance().writeErrorMsg(errorInfo.getMessage());
+            	else
+            		addProblemMarkerTo(errorFile, errorInfo.getMessage(), severity, errorPos.nameAndLineString(), IMarker.PRIORITY_NORMAL, errorPos.line(), errorPos
                         .offset(), errorPos.endOffset());
+            }
         }
     }
 
@@ -910,162 +928,21 @@ public class X10Builder extends IncrementalProjectBuilder {
         }
     }
 
-    protected IPath getLanguageRuntimePath() {
-        try {
-            // Can't figure out a way to get the location of the x10.runtime jar directly.
-            // First, try the easy way: ask the platform. This often doesn't work
-            Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID); // PORT1.7 use constant
-            String x10RuntimeLoc= FileLocator.toFileURL(x10RuntimeBundle.getResource("")).getFile();
 
-            // The JDT will allow you to create a folder/library classpath entry, but
-            // it really doesn't support it (at least not until 3.4), so don't create
-            // such an entry.
-            if (new File(x10RuntimeLoc).isDirectory()) {
-                // The platform didn't give us an answer we can use; now we do it the hard way...
-                IPath path= guessRuntimeLocation(x10RuntimeBundle);
 
-                if (path == null) {
-                    PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                        public void run() {
-                            postMsgDialog("Can't find the X10 runtime jar file",
-                                    "The Eclipse Platform seems to believe that the X10 Runtime lives in a folder, " +
-                                    "but the X10DT needs it to be in a jar file. " +
-                                    "This is probably due to running an X10DT version that lives in your workspace. " +
-                                    "[If you're doing this, you'd almost certainly know it.]\n\n" +
-                                    "Please create the appropriate entry manually by going to the Project Properties dialog, " +
-                                    "clicking on 'Add External JARs' in the 'Java Build Path' page, and " +
-                                    "specifying a suitable X10 Runtime jar file.");
-                        }
-                    });
-                }
-                return path;
-            }
-            IPath x10RuntimePath= new Path(x10RuntimeLoc);
 
-            return x10RuntimePath;
-        } catch (IOException e) {
-            X10Plugin.getInstance().logException("Unable to resolve X10 runtime location", e);
-            return null;
-        }
-    }
 
-    private IPath guessRuntimeLocation(Bundle x10RuntimeBundle) {
-        // Try to find either the X10 runtime of the same version as the one that's
-        // presently installed and enabled, or, failing that, the most recent.
-        String x10BundleVersion= (String) x10RuntimeBundle.getHeaders().get(Constants.BUNDLE_VERSION);
-        Location installLoc= Platform.getInstallLocation();
-        URL installURL= installLoc.getURL();
+                                                                                                                                                                                                  
 
-        if (installURL.getProtocol().equals("file")) {
-            String installPath= installURL.getPath();
-            String pluginPath= installPath.concat("/plugins");
-            File pluginDir= new File(pluginPath);
+   
 
-            if (pluginDir.exists() && pluginDir.isDirectory()) {
-                File[] runtimeJars= pluginDir.listFiles(new FilenameFilter() {
-                    public boolean accept(File dir, String name) {
-                        return name.contains(X10Plugin.X10_RUNTIME_BUNDLE_ID) && name.endsWith(".jar"); //PORT1.7 use constant
-                    }
-                });
-                if (runtimeJars.length == 0) {
-                    return null;
-                }
-                // First, prefer the version that's installed and enabled in the platform,
-                // if we can find it.
-                for(int i= 0; i < runtimeJars.length; i++) {
-                    File jarFile= runtimeJars[i];
-                    String jarPath= jarFile.getAbsolutePath();
-                    if (jarPath.contains(x10BundleVersion)) {
-                        return new Path(jarPath);
-                    }
-                }
-                // Oh well, try the highest version.
-                TreeSet<String> sortedJars= new TreeSet<String>(new Comparator<String>() {
-                    public int compare(String o1, String o2) {
-                        return -o1.compareTo(o2); // Make the sort order decreasing, so that iterator().next() gives the greatest element
-                    }
-                });
-                for(int i= 0; i < runtimeJars.length; i++) {
-                    File jarFile= runtimeJars[i];
-                    String jarPath= jarFile.getAbsolutePath();
 
-                    sortedJars.add(jarPath);
-                }
-                return new Path(sortedJars.iterator().next());
-            }
-        }
-        return null; // we're out of heuristics...
-    }
-
-    protected String getCurrentRuntimeVersion() {
-        Bundle x10RuntimeBundle= Platform.getBundle(X10Plugin.X10_RUNTIME_BUNDLE_ID);
-        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-
-        return bundleVersion;
-    }
-
-    private int findValidX10RuntimeClasspathEntry(IClasspathEntry[] entries) throws JavaModelException {
-        for(int i= 0; i < entries.length; i++) {
-            IClasspathEntry entry= entries[i];
-
-            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-                IPath entryPath= entry.getPath();
-                File entryFile= entryPath.toFile();
-
-                if (entryFile.isDirectory()) {
-                    File x10ObjFile= new File(entryFile.getPath() + File.separator + "x10" + File.separator + "lang" + File.separator + "Object.class");
-
-                    if (x10ObjFile.exists()) {
-                        return i;
-                    }
-                } else {
-                    try {
-                        JarFile x10Jar= new JarFile(entryFile);
-                        ZipEntry x10ObjEntry= x10Jar.getEntry("x10/types/Type.class"); // PORT1.7 x10/lang/Object -> x10/types/Type
-                        
-                        if (x10ObjEntry != null) {
-                            return i;
-                        }
-                    } catch (IOException e) {
-                        ; // I guess this wasn't a jar file, so we don't know what to do with it...
-                    }
-                }
-//                if (entryPath.lastSegment().indexOf("x10.runtime") >= 0) {
-//                    return i;
-//                }
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Finds and returns the index of all classpath entries in the argument that
-     * look like an X10 Runtime entry, including those that may be invalid, so
-     * that they can be removed.
-     */
-    private List<Integer> findAllX10RuntimeClasspathEntries(IClasspathEntry[] entries) throws JavaModelException {
-        List<Integer> runtimeIndexes= new ArrayList<Integer>();
-        for(int i= 0; i < entries.length; i++) {
-            IClasspathEntry entry= entries[i];
-
-            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-                IPath entryPath= entry.getPath();
-                /** The following uses bundle ID for x10.runtime.*   -- if this were checked out into the
-                 * workspace under a different project name, this would fail.  May have to do something about this later.
-				*/
-                if (entryPath.lastSegment().indexOf(X10Plugin.X10_RUNTIME_BUNDLE_ID) >= 0) {//PORT1.7 use constant
-                    runtimeIndexes.add(i);
-                }
-            }
-        }
-        return runtimeIndexes;
-    }
 
     private void updateProjectClasspath() {
         try {
             IClasspathEntry[] entries= fX10Project.getRawClasspath();
-            List<Integer> runtimeIndexes= findAllX10RuntimeClasspathEntries(entries);
-            IPath languageRuntimePath= getLanguageRuntimePath();
+            List<Integer> runtimeIndexes= X10RuntimeUtils.findAllX10RuntimeClasspathEntries(entries);//PORT1.7 moved to X10runtimeUtils
+            IPath languageRuntimePath= X10RuntimeUtils.getLanguageRuntimePath();//PORT1.7 moved to X10runtimeUtils
             IClasspathEntry newEntry;
             if (languageRuntimePath == null) {
                 return;
@@ -1101,12 +978,12 @@ public class X10Builder extends IncrementalProjectBuilder {
      * Checks the project's classpath to make sure that an X10 runtime is available,
      * and warns the user if not.
      */
-    private void checkClasspathForRuntime() {
+    private void checkClasspathForRuntime() {// BRT put in utils too later
         if (fSuppressClasspathWarnings)
             return;
         try {
-            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true);
-            int runtimeIdx= findValidX10RuntimeClasspathEntry(entries);
+            IClasspathEntry[] entries= fX10Project.getResolvedClasspath(true); // PORT1.7 --  use getRawClasspath() here? Note for Bob?
+            int runtimeIdx= X10RuntimeUtils.findValidX10RuntimeClasspathEntry(entries);//PORT1.7 moved to RuntimeUtils
 
             if (runtimeIdx >= 0) {
                 IPath entryPath= entries[runtimeIdx].getPath();
@@ -1119,7 +996,7 @@ public class X10Builder extends IncrementalProjectBuilder {
                             new MaybeSuppressFutureClasspathWarnings());
                     return; // found a runtime entry but it is/was broken
                 }
-                String currentVersion= getCurrentRuntimeVersion();
+                String currentVersion= X10RuntimeUtils.getCurrentRuntimeVersion();
 
                 // TODO Only insist that a jar file whose name embeds the version has the right version.
                 // Jar files whose names don't embed a version number won't be checked.
