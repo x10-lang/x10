@@ -24,6 +24,7 @@
          name="X10 Problem Marker"
          point="org.eclipse.core.resources.markers">
       <super type="org.eclipse.core.resources.problemmarker"/>
+      <super type="org.eclipse.core.resources.textmarker"/>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -37,6 +38,17 @@
             icon="icons/sample.gif"
             id="com.ibm.watson.safari.x10.wizards.NewX10SourceWizard"
             name="X10 Source file"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.ibm.watson.safari.x10.preferences.X10PreferencePage"
+            id="com.ibm.watson.safari.x10.preferences.X10PreferencePage"
+            name="X10 Preferences"/>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer class="com.ibm.watson.safari.x10.preferences.PreferenceInitializer"/>
    </extension>
 
 </plugin>
