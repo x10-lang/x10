@@ -37,7 +37,7 @@ public class X10ProjectWizardFirstPage extends NewProjectWizardFirstPage {
     public X10ProjectWizardFirstPage() {
         super("X10 Project");
         setPageComplete(false);
-        setTitle("New X10 Project");
+        setTitle("New X10 Project (Java back-end)");
         setDescription("Creates a new X10 project");
         fInitialName= ""; //$NON-NLS-1$
     }
