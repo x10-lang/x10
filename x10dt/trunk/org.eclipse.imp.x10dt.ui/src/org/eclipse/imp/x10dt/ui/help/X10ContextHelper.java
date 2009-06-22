@@ -40,6 +40,7 @@ import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
 import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.NamedVariable;
@@ -130,6 +131,11 @@ public class X10ContextHelper implements IHelpService {
                 MethodDecl md= (MethodDecl) parent;
 
                 return getX10DocFor(md.methodInstance());
+            } else if (parent instanceof FieldDecl) {
+                FieldDecl fd= (FieldDecl) parent;
+                FieldInstance fi= fd.fieldInstance();
+
+                return getX10DocFor(fi);
             }
             return id.id();
         } else if (target instanceof TypeNode) {
@@ -245,6 +251,8 @@ public class X10ContextHelper implements IHelpService {
         try {
             Reader reader= JavadocContentAccess.getHTMLContentReader(member, true, true);
 
+            if (reader == null)
+                return "";
             return readReader(reader);
         } catch (JavaModelException e) {
             return "";
