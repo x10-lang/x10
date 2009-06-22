@@ -50,5 +50,46 @@
          point="org.eclipse.core.runtime.preferences">
       <initializer class="com.ibm.watson.safari.x10.preferences.PreferenceInitializer"/>
    </extension>
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="com.ibm.watson.safari.x10.actionSet"
+            label="X10 Actions"
+            visible="true">
+         <menu
+               id="x10Menu"
+               label="X10">
+            <separator name="x10Group"/>
+         </menu>
+         <action
+               class="com.ibm.watson.safari.x10.actions.BuilderEnable"
+               icon="icons/sample.gif"
+               id="com.ibm.watson.safari.x10.actions.BuilderEnable"
+               label="&amp;Enable Builder"
+               menubarPath="sampleMenu/sampleGroup"
+               toolbarPath="sampleGroup"
+               tooltip="Hello, Eclipse world"/>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            id="com.ibm.watson.safari.x10.contextMenu"
+            nameFilter="*"
+            objectClass="org.eclipse.core.resources.IProject">
+         <menu
+               id="com.ibm.watson.safari.x10.menu1"
+               label="X10"
+               path="additions">
+            <separator name="group1"/>
+         </menu>
+         <action
+               class="com.ibm.watson.safari.x10.actions.ProjectBuilderEnable"
+               enablesFor="1"
+               id="com.ibm.watson.safari.x10.newAction"
+               label="Enable Builder"
+               menubarPath="com.ibm.watson.safari.x10.menu1/group1"/>
+      </objectContribution>
+   </extension>
 
 </plugin>
