@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -27,17 +28,21 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.uide.runtime.UIDEPluginBase;
-import com.ibm.watson.safari.x10.X10Plugin;
-import com.ibm.watson.safari.x10.preferences.X10Preferences;
 import polyglot.ext.x10.Configuration;
 import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.Job;
+import polyglot.frontend.goals.Goal;
+import polyglot.frontend.goals.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
 import x10.parser.X10Parser.JPGPosition;
+import com.ibm.watson.safari.x10.X10Plugin;
+import com.ibm.watson.safari.x10.preferences.X10Preferences;
 
 public class X10Builder extends IncrementalProjectBuilder {
     /**
@@ -79,6 +84,8 @@ public class X10Builder extends IncrementalProjectBuilder {
     private ExtensionInfo fExtInfo;
 
     private static UIDEPluginBase sPlugin= null;
+
+    protected PolyglotDependencyInfo fDependencyInfo;
 
     public X10Builder() { }
 
@@ -143,8 +150,26 @@ public class X10Builder extends IncrementalProjectBuilder {
 	X10Plugin.getInstance().maybeWriteInfoMsg("X10C completed on source file set.");
     }
 
+    private class ComputeDependenciesGoal extends VisitorGoal {
+	public ComputeDependenciesGoal(Job job) throws CyclicDependencyException {
+	    super(job, new ComputeDependenciesVisitor(job, job.extensionInfo().typeSystem(), fDependencyInfo));
+	    addPrerequisiteGoal(job.extensionInfo().scheduler().CodeGenerated(job), job.extensionInfo().scheduler());
+	}
+    }
+
+    private final class BuilderExtensionInfo extends polyglot.ext.x10.ExtensionInfo {
+	public Goal getCompileGoal(Job job) {
+	    try {
+	        return scheduler().internGoal(new ComputeDependenciesGoal(job));
+	    } catch (CyclicDependencyException e) {
+	        job.compiler().errorQueue().enqueue(new ErrorInfo(ErrorInfo.INTERNAL_ERROR, "Cyclic dependency exception: " + e.getMessage(), Position.COMPILER_GENERATED));
+	        return null;
+	    }
+	}
+    }
+
     private void compileAllSources(Collection/*<IFile>*/ sourceFiles) {
-	fExtInfo= new polyglot.ext.x10.ExtensionInfo();
+	fExtInfo= new BuilderExtensionInfo();
 
 	List/*<SourceStream>*/ streams= collectStreamSources(sourceFiles);
 	final Collection/*<ErrorInfo>*/ errors= new ArrayList();
@@ -163,6 +188,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 	} catch (Exception e) {
 	    X10Plugin.getInstance().writeErrorMsg("Internal X10 compiler error: " + e.getMessage());
 	}
+	fDependencyInfo.dump();
 	createMarkers(errors);
     }
 
@@ -176,7 +202,8 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	    opts.parseCommandLine(new String[] {
 		    "-cp", buildClassPathSpec(),
-		    "-d", projectSrcPath
+		    "-d", projectSrcPath,
+		    "-sourcepath", projectSrcPath
 	    }, new HashSet());
 	} catch (UsageError e) {
 	    if (!e.getMessage().equals("must specify at least one source file"))
@@ -184,6 +211,9 @@ public class X10Builder extends IncrementalProjectBuilder {
 	} catch (JavaModelException e) {
 	    X10Plugin.getInstance().writeErrorMsg("Unable to determine project source folder location for " + fProject.getName());
 	}
+	System.out.println("Source path = " + opts.source_path);
+	System.out.println("Class path = " + opts.classpath);
+	System.out.println("Output directory = " + opts.output_directory);
     }
 
     /**
@@ -287,6 +317,10 @@ public class X10Builder extends IncrementalProjectBuilder {
     protected IProject[] build(int kind, Map args, IProgressMonitor monitor) throws CoreException {
 	fProject= getProject();
 	fX10Project= JavaCore.create(fProject);
+
+	if (fDependencyInfo == null)
+	    fDependencyInfo= new PolyglotDependencyInfo(fProject);
+
 	fMonitor= monitor;
 
 	if (sPlugin == null)
@@ -294,6 +328,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
 	// Refresh prefs every time so that changes take effect on the next build.
 	sPlugin.refreshPrefs();
+	// TODO need better way of detecting whether configuration has been read yet.
 	if (Configuration.COMPILER_FRAGMENT_DATA_DIRECTORY.startsWith("/home/praun"))
 	    Configuration.readConfiguration();
 
@@ -310,6 +345,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection doCompile() throws CoreException {
 	if (!fSourcesToCompile.isEmpty()) {
+	    clearDependencyInfoForChangedFiles();
 	    invokeX10C(fSourcesToCompile);
 	    // Now do a refresh to make sure the Java compiler sees the Java source files that Polyglot just created.
 	    IPath projectSrcPath= getProjectSrcPath();
@@ -326,6 +362,45 @@ public class X10Builder extends IncrementalProjectBuilder {
 	return Collections.EMPTY_LIST;
     }
 
+    private void clearDependencyInfoForChangedFiles() {
+	for(Iterator iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
+	    IFile srcFile= (IFile) iter.next();
+
+	    fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
+	}
+    }
+
+    private void dumpSourceList(Collection/*<IFile>*/ sourcesToCompile) {
+	for(Iterator iter= sourcesToCompile.iterator(); iter.hasNext(); ) {
+	    IFile srcFile= (IFile) iter.next();
+
+	    System.out.println("  " + srcFile.getFullPath());
+	}
+    }
+
+    private void collectChangeDependents() {
+	Collection changeDependents= new ArrayList();
+
+	System.out.println("Changed files:");
+	dumpSourceList(fSourcesToCompile);
+	for(Iterator iter= fSourcesToCompile.iterator(); iter.hasNext(); ) {
+	    IFile srcFile= (IFile) iter.next();
+	    Set/*<String path>*/ fileDependents= fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
+
+	    if (fileDependents != null) {
+		for(Iterator iterator= fileDependents.iterator(); iterator.hasNext(); ) {
+		    String depPath= (String) iterator.next();
+		    IFile depFile= fProject.getFile(depPath);
+
+		    changeDependents.add(depFile);
+		}
+	    }
+	}
+	fSourcesToCompile.addAll(changeDependents);
+	System.out.println("Changed files + dependents:");
+	dumpSourceList(fSourcesToCompile);
+    }
+
     private void collectSourcesToCompile() throws CoreException {
 	IResourceDelta delta= getDelta(fProject);
 
@@ -338,5 +413,6 @@ public class X10Builder extends IncrementalProjectBuilder {
 	    fProject.accept(fResourceVisitor);
 	    X10Plugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
 	}
+	collectChangeDependents();
     }
 }
