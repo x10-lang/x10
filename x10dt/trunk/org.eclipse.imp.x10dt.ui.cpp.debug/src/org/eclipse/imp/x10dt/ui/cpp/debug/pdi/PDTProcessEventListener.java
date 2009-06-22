@@ -29,11 +29,16 @@ import com.ibm.debug.internal.pdt.model.BreakpointChangedEvent;
 import com.ibm.debug.internal.pdt.model.BreakpointDeletedEvent;
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
 import com.ibm.debug.internal.pdt.model.DebuggeeThread;
+import com.ibm.debug.internal.pdt.model.EngineRequestException;
+import com.ibm.debug.internal.pdt.model.EventBreakpoint;
 import com.ibm.debug.internal.pdt.model.ExpressionAddedEvent;
 import com.ibm.debug.internal.pdt.model.IBreakpointEventListener;
 import com.ibm.debug.internal.pdt.model.IProcessEventListener;
 import com.ibm.debug.internal.pdt.model.IThreadEventListener;
+import com.ibm.debug.internal.pdt.model.LocationBreakpoint;
+import com.ibm.debug.internal.pdt.model.Module;
 import com.ibm.debug.internal.pdt.model.ModuleAddedEvent;
+import com.ibm.debug.internal.pdt.model.Part;
 import com.ibm.debug.internal.pdt.model.ProcessDetachedEvent;
 import com.ibm.debug.internal.pdt.model.ProcessEndedEvent;
 import com.ibm.debug.internal.pdt.model.ProcessPgmError;
@@ -44,6 +49,8 @@ import com.ibm.debug.internal.pdt.model.ThreadAddedEvent;
 import com.ibm.debug.internal.pdt.model.ThreadChangedEvent;
 import com.ibm.debug.internal.pdt.model.ThreadEndedEvent;
 import com.ibm.debug.internal.pdt.model.ThreadStoppedEvent;
+import com.ibm.debug.internal.pdt.model.View;
+import com.ibm.debug.internal.pdt.model.ViewFile;
 import com.ibm.debug.pdt.breakpoints.PICLBaseBreakpoint;
 
 @SuppressWarnings("restriction")
@@ -57,7 +64,20 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
   // --- IProcessEventListener's interface methods implementation
 
   public void breakpointAdded(final BreakpointAddedEvent event) {
+    if (this.fBits == null) {
+    	System.err.println("Ignoring invalid breakpoint");
+    	return;
+    }
     final Integer breakPointId = (Integer) event.getBreakpoint().getRequestProperty();
+    if (breakPointId == null) {
+      System.err.println("Removing invalid breakpoint");
+      try {
+        event.getBreakpoint().remove();
+      } catch (EngineRequestException e) {
+        System.err.println("Could not remove invalid breakpoint");
+      }
+      return;
+    }
     this.fProxyNotifier.notify(new ProxyDebugBreakpointSetEvent(-1 /* transID */, this.fBits, breakPointId, 
                                                                 null /* breakpoint */));
   }
@@ -75,7 +95,7 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
   public void processEnded(final ProcessEndedEvent event) {
     System.out.println("Process ended");
     try {
-      removeAllBreakpoints();
+      removeAllBreakpoints(event.getProcess());
       this.fProxyNotifier.notify(new ProxyDebugExitEvent(-1 /* transId */, this.fBits, event.getProcess().getExitValue()));
     } catch (DebugException except) {
       this.fProxyNotifier.notify(new ProxyDebugErrorEvent(-1 /* transId */, this.fBits, 1 /* errorCode */, 
@@ -118,6 +138,13 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
     event.getThread().removeEventListener(this);
   }
 
+  private Breakpoint findFirstValidBreakpoint(final Breakpoint[] breakpoints) {
+    for (int i = 0; i < breakpoints.length; i++)
+      if (breakpoints[i].getRequestProperty() != null)
+        return breakpoints[i];
+    return null;
+  }
+
   public void threadStopped(final ThreadStoppedEvent event) {
     System.out.println("Thread stopped");
     try {
@@ -125,12 +152,24 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
       if (processStopInfo.isStoppedByBreakpoint()) {
         final Breakpoint[] breakpoints = processStopInfo.getBreakpointsHit(this.fDebuggeeProcess);
         final DebuggeeThread thread = processStopInfo.getStoppingThread(this.fDebuggeeProcess);
-        if (breakpoints.length == 1) {
-          final Integer breakPointId = (Integer) breakpoints[0].getRequestProperty();
-          this.fProxyNotifier.notify(new ProxyDebugBreakpointHitEvent(-1 /* transId */, this.fBits, breakPointId,
-                                                                      thread.getId(), 0 /* depth */,
-                                                                      getVariablesAsString(thread)));
+        final Breakpoint breakpoint = findFirstValidBreakpoint(breakpoints);
+        if (breakpoint == null) {
+          System.err.println("Removing invalid breakpoints");
+          for (int i = 0; i < breakpoints.length; i++) {
+            try {
+              breakpoints[i].remove();
+            } catch (EngineRequestException e) {
+              System.err.println("Could not remove invalid breakpoint");
+            }
+          }
+          // Hit an invalid breakpoint - have to resume
+          thread.resume();
+          return;
         }
+        final Integer breakPointId = (Integer) breakpoint.getRequestProperty();
+        this.fProxyNotifier.notify(new ProxyDebugBreakpointHitEvent(-1 /* transId */, this.fBits, breakPointId,
+                                                                    thread.getId(), 0 /* depth */,
+                                                                    getVariablesAsString(thread)));
       } else if (processStopInfo.isStoppedByExec()) {
         System.out.println("Stopped by exec");
       } else if (processStopInfo.isStoppedByException()) {
@@ -175,17 +214,30 @@ final class PDTProcessEventListener implements IProcessEventListener, IThreadEve
     return strVars;
   }
   
-  private void removeAllBreakpoints() {
-    final IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
-    try {
-      for (final IBreakpoint breakpoint : breakpointManager.getBreakpoints()) {
-        if (breakpoint instanceof PICLBaseBreakpoint) {
-          breakpointManager.removeBreakpoint(breakpoint, true /* delete */);
+  private void removeAllBreakpoints(DebuggeeProcess process) {
+    Breakpoint[] breakpoints = process.getBreakpoints();
+    for (int m = 0; m < breakpoints.length; m++) {
+      Breakpoint breakpoint = breakpoints[m];
+      try {
+        breakpoint.remove();
+      } catch (EngineRequestException e) {
+        if (breakpoint instanceof LocationBreakpoint)
+          System.err.println("Unable to remove breakpoint "+((LocationBreakpoint) breakpoint).getFunction()+" at "+((LocationBreakpoint) breakpoint).getFileName()+":"+breakpoint.getRequestProperty());
+        else if (breakpoint instanceof EventBreakpoint) {
+          System.err.println("Unable to remove breakpoint "+((EventBreakpoint)breakpoint).getRequestProperty());
         }
       }
-    } catch (CoreException except) {
-      DebugCore.log(except.getStatus());
     }
+//    final IBreakpointManager breakpointManager = DebugPlugin.getDefault().getBreakpointManager();
+//    try {
+//      for (final IBreakpoint breakpoint : breakpointManager.getBreakpoints()) {
+//        if (breakpoint instanceof PICLBaseBreakpoint) {
+//          breakpointManager.removeBreakpoint(breakpoint, true /* delete */);
+//        }
+//      }
+//    } catch (CoreException except) {
+//      DebugCore.log(except.getStatus());
+//    }
   }
   
   // --- Fields
