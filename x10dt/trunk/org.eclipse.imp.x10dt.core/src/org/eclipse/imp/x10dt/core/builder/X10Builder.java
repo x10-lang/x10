@@ -59,8 +59,9 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.imp.x10dt.core.X10Plugin;
-import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
+import org.eclipse.imp.x10dt.core.preferences.generated.X10Constants;
 import org.eclipse.imp.x10dt.core.runtime.X10RuntimeUtils;
+
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -547,19 +548,17 @@ public class X10Builder extends IncrementalProjectBuilder {
             for (String s: stdOptsArray) {
                 optsList.add(s);
             }
-            // get the same PreferencesService (from RuntimePlugin) that the pref. page uses.  
-            // getting it from X10Plugin returns a different one.
-            IPreferencesService prefService = RuntimePlugin.getInstance().getPreferencesService();
+            IPreferencesService prefService = X10Plugin.getInstance().getPreferencesService();
             
-            optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10PreferenceConstants.P_BAD_PLACE_CHECK)));
-            optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)));
-            optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)));
-            if (prefService.getBooleanPreference(X10PreferenceConstants.P_ASSERT)) {
+            optsList.add(0, "-BAD_PLACE_RUNTIME_CHECK="+(prefService.getBooleanPreference(X10Constants.P_BADPLACERUNTIMECHECK)));
+            optsList.add(0, "-LOOP_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS)));
+            optsList.add(0, "-ARRAY_OPTIMIZATIONS="+(prefService.getBooleanPreference(X10Constants.P_ARRAYOPTIMIZATIONS)));
+            if (prefService.getBooleanPreference(X10Constants.P_PERMITASSERT)) {
                 optsList.add(0, "-assert");
             }
 
-            if (prefService.isDefined(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
-                String optionString = prefService.getStringPreference(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS);
+            if (prefService.isDefined(X10Constants.P_ADDITIONALCOMPILEROPTIONS)) {
+                String optionString = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
                 String[] options = optionString.split("\\s");
                 int extraOptionsPos=0;
                 for (String s: options) {
@@ -570,6 +569,15 @@ public class X10Builder extends IncrementalProjectBuilder {
             }
 
             String[] optsArray = optsList.toArray(new String[optsList.size()]);
+
+            boolean echo = prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE);
+            if(echo){
+            	// FIXME echo this to the USER'S console, not this one
+            	System.out.print("Build options: "); // print one per line
+				for (String s : optsList) {
+					System.out.println("   "+s);
+				}
+			}
             opts.parseCommandLine(optsArray, new HashSet());
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file"))
