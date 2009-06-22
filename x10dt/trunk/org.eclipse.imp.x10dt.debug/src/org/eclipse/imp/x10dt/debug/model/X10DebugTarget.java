@@ -19,23 +19,26 @@ import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.VirtualMachine;
 
-public class X10DebugTarget extends JDIDebugTarget {
+public class X10DebugTarget {
 
 	private IJavaDebugTarget fJDebugTarget;
 	private ClassObjectReference fX10RT;
-
+/*
 	public X10DebugTarget(ILaunch launch, VirtualMachine jvm, String name,
 			boolean supportTerminate, boolean supportDisconnect,
 			IProcess process, boolean resume) {
 		super(launch, jvm, name, supportTerminate, supportDisconnect, process, resume);
 		initialize();        
 	}
-
-	protected void initialize() {
-		setJDIDebugTarget();
-		setX10RTObject();
+*/
+	public X10DebugTarget(){
+	    	setJDIDebugTarget();
 	}
-
+	
+	public X10DebugTarget(ILaunch launch){
+    	fJDebugTarget = launch.getDebugTarget();
+    }
+	
 	
 	//******SHIVALI: I don't fully understand this.
 	//******According to tutorial, DebugContext is available from debug views via DebugContextProvider.  Not available directly from here.
@@ -59,7 +62,7 @@ public class X10DebugTarget extends JDIDebugTarget {
 
 	private void setX10RTObject() {
 		VirtualMachine vm = ((JDIDebugTarget) fJDebugTarget).getVM();
-		List classes = vm.classesByName(gDefaultRuntime_ch);
+		List classes = vm.classesByName("DefaultRuntime_c");
 		IJavaType type = newIJavaType; //a single instance of runtime so list of 
 		//classes contains only one element
 		type = JDIType.createType(this, (Type)classes.get(i));
@@ -69,8 +72,10 @@ public class X10DebugTarget extends JDIDebugTarget {
 
 
 	public int getNumberOfPlaces() {
-		ReferenceTypeImpl type = (ReferenceTypeImpl) fX10RT.referenceType();
-		Field place = type.fieldByName(gplaces_h);
+		ReferenceType type = (ReferenceType) fX10RT.referenceType();
+		Field place = type.fieldByName("places_");
 		Value v = fX10RT.getValue(place);
+		if (v instanceof ArrayReference)
+	          return getArrayReference().length();
 	} 
 }
