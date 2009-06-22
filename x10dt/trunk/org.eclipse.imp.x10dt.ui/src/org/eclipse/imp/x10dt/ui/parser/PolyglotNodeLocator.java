@@ -188,6 +188,8 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    pos= ((Declaration) node).position();
 	else if (node instanceof Node)
 	    pos= ((Node)node).position();
+	else if (node instanceof Position)
+	    pos= (Position) node;
 	else
 	    return -1;
 
@@ -201,6 +203,8 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    pos= ((Declaration) node).position();
 	else if (node instanceof Node)
 	    pos= ((Node)node).position();
+	else if (node instanceof Position)
+	    pos= (Position) node;
 	else
 	    return -1;
 
@@ -208,8 +212,7 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
     }
 
     public int getLength(Object node) {
-    	Node n = (Node) node;
-    	return getEndOffset(n) - getStartOffset(n);
+    	return getEndOffset(node) - getStartOffset(node);
     }
 
     public IPath getPath(Object node) {
@@ -217,6 +220,8 @@ public class PolyglotNodeLocator implements IASTNodeLocator {
 	    return new Path(((Declaration) node).position().file());
 	else if (node instanceof Node)
 	    return new Path(((Node)node).position().path());
+	else if (node instanceof Position)
+	    return new Path(((Position) node).file());
 	else
 	    return null;
     }
