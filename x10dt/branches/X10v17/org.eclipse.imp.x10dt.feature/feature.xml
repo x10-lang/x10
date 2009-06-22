@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<feature id="org.eclipse.imp.x10dt" image="eclipse_update_120.jpg" label="%featureName" provider-name="%providerName" version="0.1.93">
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.imp.x10dt"
+      label="%featureName"
+      version="0.2.1"
+      provider-name="%providerName"
+      image="eclipse_update_120.jpg">
 
    <description url="http://x10.sourceforge.net/">
       %description
@@ -14,25 +19,79 @@
    </url>
 
    <requires>
-      <import feature="polyglot" match="greaterOrEqual" version="2.3.0"/>
-      <import feature="lpg.runtime" match="greaterOrEqual" version="2.0.12"/>
-      <import feature="org.eclipse.imp.runtime" match="greaterOrEqual" version="0.1.87"/>
+      <import feature="polyglot" version="2.3.0" match="greaterOrEqual"/>
+      <import feature="lpg.runtime" version="2.0.12" match="greaterOrEqual"/>
+      <import feature="org.eclipse.imp.runtime" version="0.1.87" match="greaterOrEqual"/>
    </requires>
 
-   <plugin download-size="910" id="x10.compiler.p3" install-size="910" unpack="false" version="0.1.81"/>
+   <plugin 
+         id="x10.compiler.p3"
+         download-size="910"
+         install-size="910"
+         version="0.1.81"
+         unpack="false"/>
 
-   <plugin download-size="319" id="x10.runtime.17" install-size="319" unpack="false" version="0.1.80"/> 
+   <plugin
+         id="x10.runtime.17"
+         download-size="319"
+         install-size="319"
+         version="0.1.80"
+         unpack="false"/>
 
-   <plugin download-size="68" id="org.eclipse.imp.x10dt.core" install-size="68" unpack="false" version="0.1.92"/>
+   <plugin
+         id="org.eclipse.imp.x10dt.core"
+         download-size="68"
+         install-size="68"
+         version="0.1.92"
+         unpack="false"/>
 
-   <plugin download-size="115" id="org.eclipse.imp.x10dt.ui" install-size="115" unpack="false" version="0.1.89"/>
+   <plugin
+         id="org.eclipse.imp.x10dt.ui"
+         download-size="115"
+         install-size="115"
+         version="0.1.89"
+         unpack="false"/>
 
-   <plugin download-size="2" id="org.eclipse.imp.x10dt" install-size="2" unpack="false" version="0.1.75"/>
+   <plugin
+         id="org.eclipse.imp.x10dt"
+         download-size="2"
+         install-size="2"
+         version="0.1.75"
+         unpack="false"/>
 
-   <plugin download-size="0" id="org.eclipse.imp.x10dt.formatter" install-size="0" unpack="false" version="0.1.6"/>
+   <plugin
+         id="org.eclipse.imp.x10dt.formatter"
+         download-size="0"
+         install-size="0"
+         version="0.1.6"
+         unpack="false"/>
 
-   <plugin download-size="0" id="org.eclipse.imp.analysis" install-size="0" unpack="false" version="0.1.81"/>
+   <plugin
+         id="org.eclipse.imp.analysis"
+         download-size="0"
+         install-size="0"
+         version="0.1.81"
+         unpack="false"/>
 
-   <plugin download-size="0" id="org.eclipse.imp.x10dt.help" install-size="0" unpack="false" version="0.1.8"/>
+   <plugin
+         id="org.eclipse.imp.x10dt.help"
+         download-size="0"
+         install-size="0"
+         version="0.1.8"
+         unpack="false"/>
+
+   <plugin
+         id="x10.constraints"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.common.17"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>
