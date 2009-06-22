@@ -75,7 +75,7 @@ public class ParseController extends SimpleLPGParseController implements
 			return fCurrentAst; // TODO fCurrentAst might (probably will) be
 								// inconsistent wrt the lex stream now
 
-		fCurrentAst = (ASTNode) fParser.parser(my_monitor, 0);
+		fCurrentAst = fParser.parser(my_monitor, 0);
 
 		cacheKeywordsOnce();
 
