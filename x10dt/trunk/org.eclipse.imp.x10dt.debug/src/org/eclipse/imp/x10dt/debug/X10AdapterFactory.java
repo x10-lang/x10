@@ -6,15 +6,18 @@ import org.eclipse.debug.internal.ui.viewers.model.provisional.IElementLabelProv
 import org.eclipse.imp.x10dt.debug.model.impl.X10DebugTargetAlt;
 import org.eclipse.imp.x10dt.debug.model.impl.X10StackFrame;
 import org.eclipse.imp.x10dt.debug.model.impl.X10Thread;
+import org.eclipse.imp.x10dt.debug.ui.presentation.ActivityFieldFilteringContentProvider;
 import org.eclipse.imp.x10dt.debug.ui.presentation.AsyncLabelProvider;
 import org.eclipse.imp.x10dt.debug.ui.presentation.AsyncStackFrameFilteringContentProvider;
 import org.eclipse.imp.x10dt.debug.ui.presentation.QuiescentThreadFilteringContentProvider;
+import org.eclipse.jdt.internal.debug.core.model.JDIVariable;
 
 public class X10AdapterFactory implements IAdapterFactory {
 
 	private static IElementContentProvider fgTargetAdapter = new QuiescentThreadFilteringContentProvider();
 	private static IElementContentProvider fgThreadAdapter = new AsyncStackFrameFilteringContentProvider();
 	private static IElementLabelProvider fgStackFrameLabelAdapter = new AsyncLabelProvider();
+	private static IElementContentProvider fgObjectAdapter = new ActivityFieldFilteringContentProvider();
 
 	public Object getAdapter(Object adaptableObject, Class adapterType) {
 		if (IElementContentProvider.class.equals(adapterType)) {
@@ -23,6 +26,9 @@ public class X10AdapterFactory implements IAdapterFactory {
 			}
 			if (adaptableObject instanceof X10Thread) {
 				return fgThreadAdapter;
+			}
+			if (adaptableObject instanceof JDIVariable) {
+				return fgObjectAdapter ;
 			}
 		}
 		if (IElementLabelProvider.class.equals(adapterType)) {
