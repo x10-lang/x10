@@ -35,7 +35,7 @@ page X10 {
             range 1 ..50;
             defvalue 4; }
         string AdditionalCompilerOptions {
-            defvalue ""; 
+            defvalue "-commandlineonly"; 
             validator "org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsValidator"; }
     }
 }
