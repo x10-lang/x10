@@ -16,7 +16,8 @@ public interface IX10Activity {
 	public enum X10ActivityState {
 		Running,
 		Blocked, // waiting for a clock or other resource
-		Suspended; // not sure about this one: suspended by debugger, e.g. breakpoint
+		Suspended, // not sure about this one: suspended by debugger, e.g. breakpoint
+		Idle; //No activity scheduled or activity got terminated
 	}
 	String getName() throws DebugException;
 	IX10Activity[] getFinishChildren();
