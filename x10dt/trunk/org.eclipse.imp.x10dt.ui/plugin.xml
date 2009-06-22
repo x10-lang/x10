@@ -170,4 +170,22 @@
                class="x10.uide.editor.X10LabelProvider"
                language="X10"/>
    </extension>
+   <extension
+         id="com.ibm.safari.x10.cheatSheets"
+         name="X10 Cheat Sheets"
+         point="org.eclipse.ui.cheatsheets.cheatSheetContent">
+      <category
+         name="X10"
+         id="com.ibm.safari.x10">
+      </category>
+      <cheatsheet
+         name="Using the X10DT"
+         category="com.ibm.safari.x10"
+         id="com.ibm.watson.safari.x10.cheatSheets.using"
+         contentFile="cheatsheets/UsingX10DT.xml">
+         <description>
+           A brief introduction to using the X10 Development Toolkit.
+         </description>
+      </cheatsheet>
+   </extension>
 </plugin>
