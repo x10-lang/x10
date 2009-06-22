@@ -2,16 +2,20 @@ package x10.uide;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import com.ibm.watson.safari.x10.X10Plugin;
 
 public class X10UIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "x10.uide";
 
     private static X10UIPlugin sInstance;
+
+    private static ILog sLog;
 
     public X10UIPlugin() {
 	super();
@@ -20,6 +24,27 @@ public class X10UIPlugin extends AbstractUIPlugin {
 
     public static X10UIPlugin getInstance() {
 	return sInstance;
+    }
+
+    public void maybeWriteInfoMsg(String msg) {
+//        if (!fEmitInfoMessages)
+//            return;
+
+        Status status= new Status(Status.INFO, PLUGIN_ID, 0, msg, null);
+    
+        if (sLog == null)
+            sLog= getLog();
+    
+        sLog.log(status);
+    }
+
+    public void writeErrorMsg(String msg) {
+        Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, null);
+    
+        if (sLog == null)
+            sLog= getLog();
+    
+        sLog.log(status);
     }
 
     private void initImageRegistry() {

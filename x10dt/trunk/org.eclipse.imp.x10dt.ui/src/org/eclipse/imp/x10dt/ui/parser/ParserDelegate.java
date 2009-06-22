@@ -23,8 +23,7 @@ import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.StdErrorQueue;
 import x10.parser.X10Parser;
-
-import com.ibm.watson.safari.x10.X10Plugin;
+import x10.uide.X10UIPlugin;
 
 public class ParserDelegate implements IParser {
     X10Parser myParser;
@@ -76,10 +75,10 @@ public class ParserDelegate implements IParser {
 	    if (!e.getMessage().equals("must specify at least one source file"))
 		System.err.println(e.getMessage());
 	} catch (JavaModelException e) {
-            X10Plugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
+            X10UIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
 	}
-	X10Plugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
-	X10Plugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
+	X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
+	X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
     }
 
     private String buildClassPathSpec() throws JavaModelException {
