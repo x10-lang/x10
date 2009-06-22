@@ -75,7 +75,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
 	    if (li != null)
 		return li.declaration();
 	}
-	return node; // If it's not something we know how to resolve, just return the node itself
+	return null; // If it's not something we know how to resolve, just return the node itself
     }
     private Object findParent(Id id, IParseController parseController) {
 	PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getNodeLocator();
