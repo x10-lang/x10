@@ -70,7 +70,6 @@ import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.refactorings.ExtractVarsVisitor.VarUseType;
 
-import com.ibm.wala.cast.java.client.JavaSourceAnalysisEngine;
 import com.ibm.wala.cast.java.translator.polyglot.IRTranslatorExtension;
 import com.ibm.wala.cast.loader.AstMethod;
 import com.ibm.wala.cast.tree.CAstEntity;
@@ -92,7 +91,7 @@ import com.ibm.wala.classLoader.IField;
 import com.ibm.wala.classLoader.IMethod;
 import com.ibm.wala.classLoader.JarFileModule;
 import com.ibm.wala.classLoader.SourceFileModule;
-import com.ibm.wala.client.impl.AbstractAnalysisEngine;
+import com.ibm.wala.client.AbstractAnalysisEngine;
 import com.ibm.wala.eclipse.util.CancelException;
 import com.ibm.wala.ipa.callgraph.AnalysisScope;
 import com.ibm.wala.ipa.callgraph.CGNode;
@@ -326,12 +325,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * will be modified to do the appropriate pre-condition checking for the
 	 * extract async/future refactoring.
 	 */
-	private RefactoringStatus analyzeSource(Collection sources, List libs, IJavaProject javaProject) throws CancelException {
+	private RefactoringStatus analyzeSource(Collection<String> sources, List<String> x10Libs, List<String> javaLibs, IJavaProject javaProject) throws CancelException {
 
 		try {
 			NodePathComputer pathSaver = new NodePathComputer(fNodeMethod,
 					fPivot);
 			List<Node> path = pathSaver.getPath();
+
+			populateScope(sources, x10Libs, javaLibs);
 
 			if (path.size() == 0)
 				return RefactoringStatus
@@ -359,7 +360,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				return RefactoringStatus
 				.createFatalErrorStatus("Bad clock use in target loop");
 
-			doCreateIR(sources, libs, javaProject);
+			doCreateIR(sources, x10Libs, javaProject);
 
 //			JavaCAst2IRTranslator irTranslator = ((X10IRTranslatorExtension) fEngine.getTranslatorExtension())
 //			.getJavaCAst2IRTranslator();
@@ -1088,19 +1089,18 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		checkCallGraphShape();
 	}
 
-	private static void populateScope(
-//			EclipseProjectSourceAnalysisEngine engine,
-			JavaSourceAnalysisEngine engine,
-			Collection/* <String> */sources, List/* <String> */libs)
+	private void populateScope(Collection<String> sources, List<String> x10Libs, List<String> javaLibs)
 	throws IOException {
+	    // javaLibs should already be taken care of by the EclipseProjectPath
+	    // built from the project's classpath.
 		boolean foundLib = false;
-		for (Iterator iter = libs.iterator(); iter.hasNext();) {
+		for (Iterator iter = x10Libs.iterator(); iter.hasNext(); ) {
 			String lib = (String) iter.next();
 
 			File libFile = new File(lib);
 			if (libFile.exists()) {
 				foundLib = true;
-				engine.addSystemModule(new JarFileModule(new JarFile(libFile)));
+				fEngine.addX10SystemModule(new JarFileModule(new JarFile(libFile)));
 			}
 		}
 		Assertions._assert(foundLib);
@@ -1110,9 +1110,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			String srcFileName = srcFilePath.substring(srcFilePath
 					.lastIndexOf(File.separator) + 1);
 
-			engine.addSourceModule(new SourceFileModule(new File(srcFilePath),
-					srcFileName));
+			fEngine.addX10SourceModule(new SourceFileModule(new File(srcFilePath), srcFileName));
 		}
+		String exclusionsFile= "E:/RMF/eclipse/workspaces/x10-analysis/com.ibm.wala.core.tests/dat/Java60RegressionExclusions.txt";
+		fEngine.setExclusionsFile(exclusionsFile);
 	}
 
 	private void methodRefDebugOutput() throws IOException {
@@ -1194,16 +1195,14 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		// Only valid if it's equivalent to a statement: async, atomic, assign,
 		// method call, etc.
-		List<String> rtJar = new LinkedList<String>();
-		rtJar.add(javaHomePath + File.separator + "lib" + File.separator
+		List<String> javaRTJars= new LinkedList<String>();
+		javaRTJars.add(javaHomePath + File.separator + "lib" + File.separator
 				+ "rt.jar");
-		rtJar.add(javaHomePath + File.separator + "lib" + File.separator
+		javaRTJars.add(javaHomePath + File.separator + "lib" + File.separator
 				+ "core.jar");
-		rtJar.add(javaHomePath + File.separator + "lib" + File.separator
+		javaRTJars.add(javaHomePath + File.separator + "lib" + File.separator
 				+ "vm.jar");
 
-		List<String> x10RTJar = new ArrayList<String>();
-		x10RTJar.addAll(rtJar);
 		IJavaProject javaProject = JavaCore.create(fSourceFile.getProject());
 		try{
 			fEngine = new X10EclipseSourceAnalysisEngine(javaProject);
@@ -1211,8 +1210,9 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			return RefactoringStatus
 			.createFatalErrorStatus("Unexpected exception generated when creating analysis engine.");
 		}
-		x10RTJar.add(ExtractAsyncStaticTools
-				.getLanguageRuntimePath(javaProject).toString());
+		List<String> x10RTJars = new ArrayList<String>();
+//		x10RTJars.addAll(rtJar);
+		x10RTJars.add(ExtractAsyncStaticTools.getLanguageRuntimePath(javaProject).toString());
 
 		if (!(fNode instanceof Expr))
 			return RefactoringStatus
@@ -1230,8 +1230,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		
 		try {
-		  return this.analyzeSource(ExtractAsyncStaticTools
-				.singleTestSrc(fSourceFile), x10RTJar, javaProject);
+		  return analyzeSource(ExtractAsyncStaticTools.singleTestSrc(fSourceFile),
+			  x10RTJars, javaRTJars, javaProject);
 		} catch (CancelException e) {
 			return RefactoringStatus.createFatalErrorStatus("Call-graph construction canceled by WALA");
 		}
