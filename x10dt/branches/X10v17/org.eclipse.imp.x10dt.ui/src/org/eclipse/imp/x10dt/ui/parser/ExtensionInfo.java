@@ -18,9 +18,12 @@
 package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.Iterator;
+
+import org.eclipse.imp.utils.StreamUtils;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
@@ -45,6 +48,7 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
         this.monitor = monitor;
         this.handler = handler;
         x10_lexer = new X10Lexer();
+        x10_parser = new X10Parser(x10_lexer); // PORT1.7 Create this early
     }
     
     public X10Lexer getLexer() { return x10_lexer; }
@@ -84,10 +88,19 @@ public class ExtensionInfo extends polyglot.ext.x10.ExtensionInfo
             if (reader instanceof CharBufferReader)
             {
                 x10_lexer.initialize(((CharBufferReader) reader).getBuffer(), source.path());
-                x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
+                x10_parser.initialize(typeSystem(), nodeFactory(), source, eq); // PORT1.7 Now created early, but initialized here once the source is known
+//                x10_parser = new X10Parser(x10_lexer, ts, nf, source, eq); // Create the parser
                 x10_lexer.lexer(x10_parser);
                 x10_parser.setMessageHandler(handler);
                 return x10_parser; // Parse the token stream to produce an AST
+            }
+            if (reader instanceof Reader) {
+            	char[] buffer= StreamUtils.readReaderContents(reader).toCharArray();
+            	x10_lexer.initialize(buffer, source.path());
+            	x10_parser.initialize(typeSystem(), nodeFactory(), source, eq);
+            	x10_lexer.lexer(x10_parser);
+            	x10_parser.setMessageHandler(handler);
+            	return x10_parser;
             }
             //
             // TODO: FIX ME! FIX ME!! FIX ME!!!
