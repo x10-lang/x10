@@ -19,7 +19,7 @@
    </url>
 
    <requires>
-      <import feature="polyglot" version="3.0.0" match="greaterOrEqual"/>
+      <import feature="polyglot3" version="3.0.0" match="greaterOrEqual"/>
       <import feature="lpg.runtime" version="2.0.16" match="greaterOrEqual"/>
       <import feature="org.eclipse.imp.runtime" version="0.1.90" match="greaterOrEqual"/>
    </requires>
