@@ -87,6 +87,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 		fields.add(TabSize);
 
 
+//		PreferenceConverter.setValue(page.getPreferenceStore(), PreferenceConstants.P_SOURCE_FONT, new org.eclipse.swt.graphics.FontData("Lucida Sans Typewriter", 11, 0));
 		FontFieldEditor fontField= fPrefUtils_x10.makeNewFontField(
 				page, tab, fPrefService,
 				"instance", X10PreferenceConstants.P_X10_FONT, "Source font:",
