@@ -4,18 +4,43 @@
 package x10.uide.editor;
 
 import java.util.List;
-
 import lpg.lpgjavaruntime.LexStream;
-
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.uide.editor.IHoverHelper;
+import org.eclipse.uide.editor.IReferenceResolver;
+import org.eclipse.uide.parser.IASTNodeLocator;
 import org.eclipse.uide.parser.IParseController;
+import polyglot.ast.Node;
 
 public class HoverHelper implements IHoverHelper {
     public String getHoverHelpAt(IParseController parseController, ISourceViewer srcViewer, int offset) {
-	LexStream lexStream= parseController.getLexer().getLexStream();
-	List/*<Annotation>*/ annotations= AnnotationHover.getJavaAnnotationsForLine(srcViewer, lexStream.getLineNumberOfCharAt(offset));
+	try {
+	    List/*<Annotation>*/ annotations= AnnotationHover.getJavaAnnotationsForLine(srcViewer, srcViewer.getDocument().getLineOfOffset(offset));
 
-	return AnnotationHover.formatAnnotationList(annotations);
+	    if (annotations.size() > 0)
+		return AnnotationHover.formatAnnotationList(annotations);
+	} catch (BadLocationException e) {
+	    return "???";
+	}
+
+    	IReferenceResolver linkMapper = new X10ReferenceResolver();
+    	
+    	// Get stuff for getting link source node
+        Object root= parseController.getCurrentAst();
+        IASTNodeLocator nodeLocator = parseController.getNodeLocator();
+
+        if (root == null) return null;
+
+        Object selNode = nodeLocator.findNode(root, offset);
+
+        if (selNode == null) return null;
+        System.out.println("Selected node: " + selNode);
+
+       	final Object target = linkMapper.getLinkTarget(selNode, parseController);
+
+       	if (target == null) return null;
+
+       	return target.toString();
     }
 }
