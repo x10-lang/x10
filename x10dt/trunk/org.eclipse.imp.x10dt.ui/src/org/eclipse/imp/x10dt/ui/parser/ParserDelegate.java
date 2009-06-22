@@ -14,8 +14,6 @@ package org.eclipse.imp.x10dt.ui.parser;
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.Monitor;
-import lpg.runtime.PrsStream;
-
 import org.eclipse.imp.parser.IParser;
 
 import x10.parser.X10Parser;
