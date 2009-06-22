@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.eclipse.imp.x10dt.ui.cpp.debug;
 
+import org.eclipse.core.resources.IProject;
+
 import com.ibm.debug.internal.pdt.model.DebuggeeProcess;
 import com.ibm.debug.internal.pdt.model.Location;
 import com.ibm.debug.internal.pdt.model.StackFrame;
@@ -39,5 +41,7 @@ public interface IDebuggerTranslator {
   public String getClosureVariableType(DebuggeeProcess process, StackFrame frame, Location location, String function, String name);
   
   public String[] getClosureVars(DebuggeeProcess process, StackFrame frame, Location location, String function);
+
+  public void init(IProject fProject);
 
 }
