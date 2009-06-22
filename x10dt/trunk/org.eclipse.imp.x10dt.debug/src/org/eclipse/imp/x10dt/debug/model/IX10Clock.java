@@ -9,5 +9,5 @@ package org.eclipse.imp.x10dt.debug.model;
 public interface IX10Clock {
 	String getName();
 	IX10Activity[] getActivities();
-	IX10Activity[] getWaitingActivities();
+	//IX10Activity[] getWaitingActivities();
 }
