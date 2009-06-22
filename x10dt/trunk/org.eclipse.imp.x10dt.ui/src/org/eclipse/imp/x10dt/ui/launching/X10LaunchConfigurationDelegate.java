@@ -9,15 +9,20 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.internal.ui.DebugUIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.ExecutionArguments;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import x10.uide.X10UIPlugin;
 
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
     private final static String x10RuntimeType= "x10.lang.Runtime";
 
-    public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+    public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
 	// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
 	if (monitor == null) {
@@ -65,7 +70,17 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 	String x10RuntimeLoc= configuration.getAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, "");
 
-//	String runtimeLoc= x10RuntimeLoc + File.separator + "x10.runtime";
+	if (x10RuntimeLoc.length() == 0) {
+	    Display.getDefault().asyncExec(new Runnable() {
+		public void run() {
+		    Shell shell= X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+		    MessageDialog.openError(shell, "Please specify the X10 Runtime location", "The location of the X10 Runtime is unset in the launch configuration '" + configuration.getName() + "'.");
+		}
+	    });
+	    return;
+	}
+
+	//	String runtimeLoc= x10RuntimeLoc + File.separator + "x10.runtime";
 	String commonLoc= x10RuntimeLoc.substring(0, x10RuntimeLoc.lastIndexOf(File.separator)) + File.separator + "x10.common";
 
 	String[] x10ExtraVMArgs= {
