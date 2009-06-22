@@ -271,6 +271,37 @@ public class RenameRefactoring extends Refactoring {
             Formal f= (Formal) fDeclNode;
             Formal newFormal= f.name(fNewName);
             newText= newFormal.toString();
+        } else if (fDeclNode instanceof MethodDecl) {
+            MethodDecl m= (MethodDecl) fDeclNode;
+            // RMF 1/30/2007 - If we knew the position of the name itself, we'd rewrite
+            // only that, but we don't (pending enhancement to polyglot AST's).
+            if (false)
+        	;
+//        	pos= m.name().position();
+            else {
+        	// The following is *BAD* - we have no way of knowing what extra info
+        	// might be needed on a method signature, so we should *REALLY* stick
+        	// to rewriting the method name.
+        	// Just write out the whole signature. Oddly, modifiers aren't included
+        	// in the method's textual extent as given by fDeclNode.position().
+        	StringBuffer buff= new StringBuffer();
+        	buff.append(m.returnType().name())
+        	    .append(' ')
+        	    .append(fNewName)
+        	    .append('(');
+        	List<Formal> formals= m.formals();
+        	for(Iterator<Formal> iter= formals.iterator(); iter.hasNext(); ) {
+        	    Formal formal= iter.next();
+        	    buff.append(formal.flags())
+        	        .append(formal.type().name())
+        	        .append(' ')
+        	        .append(formal.name());
+        	    if (iter.hasNext())
+        		buff.append(", ");
+        	}
+        	buff.append(')');
+        	newText= buff.toString();
+            }
         } else
             newText= fNewName;
 
