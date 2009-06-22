@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Debug Plug-in
+Bundle-SymbolicName: org.eclipse.imp.x10dt.debug; singleton:=true
+Bundle-Version: 0.1.1
+Bundle-Activator: org.eclipse.imp.x10dt.debug.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jdt.debug,
+ org.eclipse.debug.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.core.variables,
+ org.eclipse.debug.ui,
+ org.eclipse.imp.x10dt.ui,
+ org.eclipse.imp.x10dt.core,
+ org.eclipse.imp.runtime,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.debug.ui
+Eclipse-LazyStart: true
