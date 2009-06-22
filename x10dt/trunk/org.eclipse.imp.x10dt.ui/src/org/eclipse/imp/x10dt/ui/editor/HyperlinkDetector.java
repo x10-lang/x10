@@ -25,6 +25,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.uide.parser.ParseController;
+import x10.uide.parser.PolyglotNodeLocator;
 
 public class HyperlinkDetector implements ISourceHyperlinkDetector, ILanguageService {
     ParseController fParseController;
