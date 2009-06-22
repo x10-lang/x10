@@ -44,7 +44,7 @@
 	</and>
     </condition>
 
-    <condition property="eclipse.home" value="c:/eclipse-SDK-3.2.2">
+    <condition property="eclipse.home" value="f:/eclipse-3.2.2">
         <and>
             <not>
 	        <isset property="eclipse.home"/>
