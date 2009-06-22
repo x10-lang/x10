@@ -45,6 +45,7 @@ import polyglot.ext.x10.ast.ForEach_c;
 import polyglot.ext.x10.ast.Future_c;
 import polyglot.ext.x10.ast.Next_c;
 import polyglot.ext.x10.ast.X10Loop_c;
+import polyglot.types.Flags;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Lexersym;
 import x10.parser.X10Parsersym;
@@ -53,24 +54,46 @@ import x10.parser.X10Parser.JPGPosition;
 public class Outliner extends DefaultOutliner implements IOutliner
 {
     public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
+
     public static Image _DESC_FIELD_DEFAULT = JavaPluginImages.DESC_FIELD_DEFAULT.createImage();
     public static Image _DESC_FIELD_PRIVATE = JavaPluginImages.DESC_FIELD_PRIVATE.createImage();
     public static Image _DESC_FIELD_PROTECTED = JavaPluginImages.DESC_FIELD_PROTECTED.createImage();
     public static Image _DESC_FIELD_PUBLIC = JavaPluginImages.DESC_FIELD_PUBLIC.createImage();
+
+    public static Image[] FIELD_DESCS= {
+	_DESC_FIELD_DEFAULT, _DESC_FIELD_PRIVATE, _DESC_FIELD_PROTECTED, _DESC_FIELD_PUBLIC
+    };
+
     public static Image _DESC_MISC_DEFAULT = JavaPluginImages.DESC_MISC_DEFAULT.createImage();
     public static Image _DESC_MISC_PRIVATE = JavaPluginImages.DESC_MISC_PRIVATE.createImage();
     public static Image _DESC_MISC_PROTECTED = JavaPluginImages.DESC_MISC_PROTECTED.createImage();
     public static Image _DESC_MISC_PUBLIC = JavaPluginImages.DESC_MISC_PUBLIC.createImage();
+
+    public static Image[] MISC_DESCS= {
+	_DESC_MISC_DEFAULT, _DESC_MISC_PRIVATE, _DESC_MISC_PROTECTED, _DESC_MISC_PUBLIC
+    };
+
     public static Image _DESC_OBJS_CFILECLASS = JavaPluginImages.DESC_OBJS_CFILECLASS.createImage();
     public static Image _DESC_OBJS_CFILEINT = JavaPluginImages.DESC_OBJS_CFILEINT.createImage();
+
     public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
     public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
     public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
     public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
+
+    public static Image[] INNER_CLASS_DESCS= {
+	_DESC_OBJS_INNER_CLASS_DEFAULT, _DESC_OBJS_INNER_CLASS_PRIVATE, _DESC_OBJS_INNER_CLASS_PROTECTED, _DESC_OBJS_INNER_CLASS_PUBLIC
+    };
+
     public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
     public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
     public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
     public static Image _DESC_OBJS_INNER_INTERFACE_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage();
+
+    public static Image[] INNER_INTF_DESCS= {
+	_DESC_OBJS_INNER_INTERFACE_DEFAULT, _DESC_OBJS_INNER_INTERFACE_PRIVATE, _DESC_OBJS_INNER_INTERFACE_PROTECTED, _DESC_OBJS_INNER_INTERFACE_PUBLIC
+    };
+
     public static Image _DESC_OBJS_PACKDECL = JavaPluginImages.DESC_OBJS_PACKDECL.createImage();
 
     private IParseController controller;
@@ -317,19 +340,23 @@ public class Outliner extends DefaultOutliner implements IOutliner
             }
         }
     }
- 
+
+    private void setImageFromAccessQualifiers(Flags flags, Image[] images, TreeItem tree_item) {
+        if (flags.isPrivate())
+            tree_item.setImage(images[0]);
+        else if (flags.isProtected())
+            tree_item.setImage(images[1]);
+        else if (flags.isPublic())
+             tree_item.setImage(images[2]);
+        else tree_item.setImage(images[3]);
+    }
+
     void outlineField(TreeItem parent_item, FieldDecl_c field)
     {
         TreeItem tree_item = new TreeItem(parent_item, SWT.NONE);
         tree_item_of.put(field, tree_item);
         tree_item.setData(field.position());
-        if (field.flags().isPrivate())
-            tree_item.setImage(_DESC_FIELD_PRIVATE);
-        else if (field.flags().isProtected())
-            tree_item.setImage(_DESC_FIELD_PROTECTED);
-        else if (field.flags().isPublic())
-             tree_item.setImage(_DESC_FIELD_PUBLIC);
-        else tree_item.setImage(_DESC_FIELD_DEFAULT);
+        setImageFromAccessQualifiers(field.flags(), FIELD_DESCS, tree_item);
         String text = field.name() + " : " + filter(field.type().toString());
         tree_item.setText(text);
     }
@@ -356,23 +383,11 @@ public class Outliner extends DefaultOutliner implements IOutliner
                     tree_item = new TreeItem((TreeItem) tree_item_of.get(parent), SWT.NONE);
                     if (type.flags().isInterface())
                     {
-                        if (type.flags().isPrivate())
-                             tree_item.setImage(_DESC_OBJS_INNER_INTERFACE_PRIVATE);
-                        else if (type.flags().isProtected())
-                             tree_item.setImage(_DESC_OBJS_INNER_INTERFACE_PROTECTED);
-                        else if (type.flags().isPublic())
-                             tree_item.setImage(_DESC_OBJS_INNER_INTERFACE_PUBLIC);
-                        else tree_item.setImage(_DESC_OBJS_INNER_INTERFACE_DEFAULT);
+                	setImageFromAccessQualifiers(type.flags(), INNER_INTF_DESCS, tree_item);
                     }
                     else
                     {
-                        if (type.flags().isPrivate())
-                             tree_item.setImage(_DESC_OBJS_INNER_CLASS_PRIVATE);
-                        else if (type.flags().isProtected())
-                             tree_item.setImage(_DESC_OBJS_INNER_CLASS_PROTECTED);
-                        else if (type.flags().isPublic())
-                             tree_item.setImage(_DESC_OBJS_INNER_CLASS_PUBLIC);
-                        else tree_item.setImage(_DESC_OBJS_INNER_CLASS_DEFAULT);
+                	setImageFromAccessQualifiers(type.flags(), INNER_CLASS_DESCS, tree_item);
                     }
                 }
 
@@ -395,6 +410,9 @@ public class Outliner extends DefaultOutliner implements IOutliner
             {
                 ConstructorDecl_c cons = (ConstructorDecl_c) n;
                 
+                if (!(cons.position() instanceof JPGPosition))
+                    return this; // presumably a synthetic ctor; don't put this in the outline
+
                 String text = cons.name() + "(";
                 List formals = cons.formals();
                 for (Iterator i = formals.iterator(); i.hasNext();)
@@ -414,13 +432,7 @@ public class Outliner extends DefaultOutliner implements IOutliner
                 else
                     right_token = ((JPGPosition) cons.position()).getRightIToken();
                 tree_item.setData(pos(left_token, right_token));
-                if (cons.flags().isPrivate())
-                     tree_item.setImage(_DESC_MISC_PRIVATE);
-                else if (cons.flags().isProtected())
-                     tree_item.setImage(_DESC_MISC_PROTECTED);
-                else if (cons.flags().isPublic())
-                     tree_item.setImage(_DESC_MISC_PUBLIC);
-                else tree_item.setImage(_DESC_MISC_DEFAULT);
+                setImageFromAccessQualifiers(cons.flags(), MISC_DESCS, tree_item);
                 tree_item.setText(text);
             }
             else if (n instanceof ArrayConstructor_c)
@@ -483,14 +495,8 @@ public class Outliner extends DefaultOutliner implements IOutliner
                          ? ((JPGPosition) method.position()).getRightIToken().getTokenIndex()
                          : ((JPGPosition) method.body().position()).getLeftIToken().getTokenIndex() - 1);
                 tree_item.setData(pos(left_token, left_token.getPrsStream().getIToken(right_token_index)));
-                if (method.flags().isPrivate())
-                     tree_item.setImage(_DESC_MISC_PRIVATE);
-                else if (method.flags().isProtected())
-                     tree_item.setImage(_DESC_MISC_PROTECTED);
-                else if (method.flags().isPublic())
-                     tree_item.setImage(_DESC_MISC_PUBLIC);
-                else tree_item.setImage(_DESC_MISC_DEFAULT);
-                     tree_item.setText(text);
+                setImageFromAccessQualifiers(method.flags(), MISC_DESCS, tree_item);
+                tree_item.setText(text);
             }
             else if (n instanceof FieldDecl_c)
             {
