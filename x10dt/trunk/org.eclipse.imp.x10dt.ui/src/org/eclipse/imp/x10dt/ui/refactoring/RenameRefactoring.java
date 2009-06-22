@@ -2,13 +2,18 @@ package safari.X10.refactoring;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Set;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
 import org.eclipse.ltk.core.refactoring.RefactoringStatus;
@@ -18,8 +23,10 @@ import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEditGroup;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.texteditor.ITextEditor;
-
+import org.eclipse.uide.parser.IParseController;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.ClassBody;
@@ -37,6 +44,7 @@ import polyglot.ast.Stmt;
 import polyglot.types.Declaration;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
+import x10.uide.parser.ParseController;
 
 public class RenameRefactoring extends Refactoring {
     private final IFile fSourceFile;
@@ -94,6 +102,11 @@ public class RenameRefactoring extends Refactoring {
 	return new RefactoringStatus();
     }
 
+    /**
+     * Checks for name collision between the proposed name and any existing local variables
+     * visible in the same scope, and if so, returns a fatal RefactoringStatus. Otherwise,
+     * returns an ok status.
+     */
     private RefactoringStatus checkForLocal() {
         NodePathComputer pathComp= new NodePathComputer(fRoot, fDeclNode);
         List<Node> path= pathComp.getPath();
@@ -138,6 +151,11 @@ public class RenameRefactoring extends Refactoring {
         return false;
     }
 
+    /**
+     * Checks for name collision between the proposed name and any existing fields defined
+     * in the same type, and if so, returns a fatal RefactoringStatus. Otherwise,
+     * returns an ok status.
+     */
     private RefactoringStatus checkForField() {
         ClassBody body= null;
 
@@ -158,6 +176,11 @@ public class RenameRefactoring extends Refactoring {
         return new RefactoringStatus();
     }
 
+    /**
+     * Checks for name collision between the proposed name and any existing methods of the
+     * same signature defined in the same type, and if so, returns a fatal RefactoringStatus.
+     * Otherwise, returns an ok status.
+     */
     private RefactoringStatus checkForMethod() {
         ClassBody body= null;
 
@@ -179,6 +202,11 @@ public class RenameRefactoring extends Refactoring {
         return new RefactoringStatus();
     }
 
+    /**
+     * Checks for name collision between the proposed name and any existing formal parameters
+     * defined by the same method, and if so, returns a fatal RefactoringStatus.
+     * Otherwise, returns an ok status.
+     */
     private RefactoringStatus checkForFormal() {
         ProcedureDecl method= (ProcedureDecl) fDeclParent;
         List<Formal> formals= method.formals();
@@ -190,6 +218,7 @@ public class RenameRefactoring extends Refactoring {
     }
 
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
+//        findAllReferences();
         if (fDeclNode instanceof LocalDecl)
             return checkForLocal();
         else if (fDeclNode instanceof FieldDecl)
@@ -199,6 +228,152 @@ public class RenameRefactoring extends Refactoring {
         else if (fDeclNode instanceof Formal)
             return checkForFormal();
 	return new RefactoringStatus();
+    }
+
+    private static abstract class FileVisitor extends NodeVisitor {
+	public abstract void enterFile(IFile file);
+    }
+
+    private static final class SourceFileVisitor implements IResourceVisitor {
+	private final TextFileDocumentProvider fProvider;
+
+	private final IProject fProject;
+
+	private final FileVisitor fVisitor;
+
+	private SourceFileVisitor(TextFileDocumentProvider provider, IProject project, FileVisitor visitor) {
+	    super();
+	    fProvider= provider;
+	    fProject= project;
+	    fVisitor= visitor;
+	}
+
+	public boolean visit(IResource resource) throws CoreException {
+	    if (resource instanceof IFile) {
+		IFile file= (IFile) resource;
+		if (file.getFileExtension().equals("x10")) {
+		    doVisit(file);
+		}
+		return false;
+	    }
+	    return true;
+	}
+
+	private void doVisit(IFile file) {
+	    System.out.println("Visiting file " + file.getName() + ".");
+	    IParseController parseCtrlr= new ParseController();
+	    String declFilePath= file.getLocation().toOSString().substring(fProject.getLocation().toOSString().length()+1);
+	    IFileEditorInput fileInput= new FileEditorInput(file);
+
+	    parseCtrlr.initialize(declFilePath, fProject, null);
+	    try {
+		fProvider.connect(fileInput);
+	    } catch (CoreException e) {
+		e.printStackTrace();
+		return;
+	    }
+
+	    IDocument document= fProvider.getDocument(fileInput);
+	    Node srcFileRoot= (Node) parseCtrlr.parse(document.get(), false, null);
+
+	    fVisitor.enterFile(file);
+	    srcFileRoot.visit(fVisitor);
+	}
+    }
+
+    static class SourceRange {
+	private int fOffset;
+	private int fLength;
+	public SourceRange(int off, int len) {
+	    fOffset= off;
+	    fLength= len;
+	}
+	public int getLength() {
+	    return fLength;
+	}
+	public int getOffset() {
+	    return fOffset;
+	}
+	public String toString() {
+	    return "[" + fOffset + ":" + fLength + "]";
+	}
+    }
+
+    static class SourceMatchGroup {
+	public IFile fFile;
+	public List<SourceRange> fRanges= new ArrayList<SourceRange>();
+	public SourceMatchGroup(IFile file) {
+	    fFile= file;
+	}
+	public void addReference(SourceRange range) {
+	    fRanges.add(range);
+	}
+	public List<SourceRange> getRanges() {
+	    return fRanges;
+	}
+    }
+
+    private static class ReferenceVisitor extends FileVisitor {
+	private final Declaration fDecl;
+
+	private final Set<SourceMatchGroup> fMatchGroups;
+
+	private SourceMatchGroup fMatchGroup;
+
+	public ReferenceVisitor(Declaration decl, Set<SourceMatchGroup> matchGroups) {
+	    fDecl= decl;
+	    fMatchGroups= matchGroups;
+	}
+
+	@Override
+	public void enterFile(IFile file) {
+	    fMatchGroup= new SourceMatchGroup(file);
+	    fMatchGroups.add(fMatchGroup);
+	}
+
+	/* (non-Javadoc)
+	 * @see polyglot.visit.NodeVisitor#enter(polyglot.ast.Node)
+	 */
+	@Override
+	public NodeVisitor enter(Node n) {
+	    if (n instanceof Local) {
+		Local l= (Local) n;
+		if (l.localInstance().equals(fDecl)) {
+		    Position pos= n.position();
+		    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
+		}
+	    } else  if (n instanceof Field) {
+		Field f= (Field) n;
+		if (f.fieldInstance().equals(fDecl)) {
+		    Position pos= n.position();
+		    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
+		}
+	    } else  if (n instanceof Call) {
+		Call c= (Call) n;
+		if (c.methodInstance().equals(fDecl)) {
+		    Position pos= n.position();
+		    fMatchGroup.addReference(new SourceRange(pos.offset(), pos.endOffset() - pos.offset() + 1));
+		}
+	    }
+	    return this;
+	}
+    };
+
+    private void findAllReferences() {
+	System.out.println("Examining project " + fSourceFile.getProject().getName() + " for matches.");
+	final Set<SourceMatchGroup> allMatches= new HashSet<SourceMatchGroup>();
+	try {
+	    fSourceFile.getProject().accept(new SourceFileVisitor(new TextFileDocumentProvider(), fSourceFile.getProject(), new ReferenceVisitor(fDecl, allMatches)));
+	} catch (CoreException e) {
+	    e.printStackTrace();
+	}
+	for(SourceMatchGroup group : allMatches) {
+	    System.out.println("Matches in " + group.fFile.getName() + ": ");
+	    for(SourceRange range : group.fRanges) {
+		System.out.print(range);
+	    }
+	    System.out.println();
+	}
     }
 
     public Change createChange(IProgressMonitor pm) throws CoreException, OperationCanceledException {
