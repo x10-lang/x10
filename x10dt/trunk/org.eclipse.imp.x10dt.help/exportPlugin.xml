@@ -26,6 +26,7 @@
 		<copy todir="${temp.folder}/${plugin.jar.name}.bin/html" failonerror="true" overwrite="false">
 			<fileset dir="html/"/>
 		</copy>
+        <copy file="contexts.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<copy file="toc.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<echo message="done copying resources"/>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
