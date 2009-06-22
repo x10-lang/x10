@@ -27,7 +27,6 @@
 			<fileset dir="html/"/>
 		</copy>
 		<copy file="toc.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
-		<copy file="testToc.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<echo message="done copying resources"/>
 		<copy file="plugin.xml" todir="${temp.folder}/${plugin.jar.name}.bin" failonerror="true"/>
 		<mkdir dir="${build.result.folder}"/>
