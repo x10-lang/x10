@@ -28,6 +28,7 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
 
 import polyglot.ast.Block;
+import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -36,8 +37,11 @@ import polyglot.ast.Stmt;
 import polyglot.ext.x10.ast.Async;
 import polyglot.ext.x10.ast.Finish;
 import polyglot.ext.x10.ast.ForLoop;
+import polyglot.ext.x10.ast.X10Formal;
 import polyglot.ext.x10.ast.X10MethodDecl;
 import polyglot.types.TypeSystem;
+import polyglot.types.VarDef;
+import x10.constraint.XLocal;
 import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
 import x10.refactorings.EffectsVisitor.XVarDefWrapper;
@@ -200,6 +204,8 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             TypeSystem ts= extInfo.typeSystem();
             NodeFactory nf = extInfo.nodeFactory();
             Stmt loopBody = fLoop.body();
+            X10Formal loopVar = (X10Formal) fLoop.formal();
+            List<Formal> explodedVars= loopVar.vars();
 
             ReachingDefsVisitor rdVisitor = new ReachingDefsVisitor(fMethod, null, ts, nf);
             fMethod.visit(rdVisitor);
@@ -212,8 +218,20 @@ public class LoopFlatParallelizationRefactoring extends Refactoring {
             if (bodyEff == null) {
                 return RefactoringStatus.createFatalErrorStatus("Unable to compute the effects of the loop body.");
             }
+            fConsoleStream.println("***");
             fConsoleStream.println("Loop body effect = " + bodyEff);
-            if (!bodyEff.commutesWithForall(XTerms.makeLocal(new XVarDefWrapper(fLoop.formal().localDef())))) {
+            fConsoleStream.println("Loop induction variable = " + loopVar.name());
+            if (explodedVars.size() > 0) fConsoleStream.println("  exploded vars: " + explodedVars);
+
+            // HACK If the loop formal has "exploded var syntax" (e.g. "for(p(i): Point in r) { ... }"),
+            // then we should do a commutesWithForall() over the set of all the induction variables,
+            // but Effect doesn't provide enough API for that yet.
+            // So the following assumes that if there are exploded vars, there is actually only 1 (as
+            // in the above example), and that's the one over which we want to quantify.
+            VarDef loopLocalDef= (explodedVars.size() > 0) ? explodedVars.get(0).localDef() : loopVar.localDef();
+            XLocal loopLocal= XTerms.makeLocal(new XVarDefWrapper(loopLocalDef));
+
+            if (!bodyEff.commutesWithForall(loopLocal)) {
                 return RefactoringStatus.createErrorStatus("The loop body contains effects that don't commute.");
             }
             return RefactoringStatus.create(new Status(IStatus.OK, X10RefactoringPlugin.kPluginID, ""));
